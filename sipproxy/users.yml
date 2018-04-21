@@ -1,0 +1,8 @@
+- apiVersion: v1draft1
+  kind: User
+  metadata:
+    name: Admin
+  spec:
+    credentials:
+      username: 'admin'
+      secret: 'changeit'

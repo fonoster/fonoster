@@ -1,0 +1,32 @@
+version: '3.2'
+services:
+  sipproxy:
+    image: fonoster/sipio:latest
+    environment:
+      SIPIO_EXTERN_ADDR: ${HOST_ADDR}
+      SIPIO_DS_PROVIDER: files_data_provider
+    ports:
+      - 5060:5060
+    volumes:
+      - type: bind
+        source: ./sipproxy
+        target: /opt/sipio/config
+  mediaserver:
+    depends_on: [sipproxy]
+    environment:
+      ASTERISK_BINDADDR: 0.0.0.0:6060
+      ASTERISK_EXTERN_ADDR: ${HOST_ADDR}
+      ASTERISK_SIPPROXY_HOST: ${HOST_ADDR}
+      ASTERISK_SIPPROXY_USERNAME: ast
+      ASTERISK_SIPPROXY_SECRET: changeit
+      ASTERISK_FASTAGI_HOST: mediacontroller
+      ASTERISK_MANAGER_SECRET: changeit
+    build:
+      context: mediaserver/
+    image: fonoster/asterisk
+    ports:
+      - 6060:6060
+  mediacontroller:
+    image: fonoster/astive
+    ports:
+      - 4573:4573
