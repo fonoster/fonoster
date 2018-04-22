@@ -7,7 +7,7 @@ metadata:
 spec:
   ports:
   - name: sip
-    port: 5060
+    port: 6060
   - name: ami
     port: 5038
   selector:
@@ -48,5 +48,5 @@ spec:
         ports:
         - containerPort: 5038
           name: ami
-        - containerPort: 5060
+        - containerPort: 6060
           name: sip
