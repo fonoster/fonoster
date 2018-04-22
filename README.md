@@ -37,4 +37,4 @@ Use the information located on `bootstrap.yml` to configure your sip-phones.
 
 # Limitations
 
-We are currently unable to place calls using UDP likely do to a NAT issue.
+We are currently unable to place calls using UDP likely due to a NAT issue.
