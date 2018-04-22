@@ -44,7 +44,7 @@ spec:
         - name: ASTERISK_SIPPROXY_SECRET
           value: changeit
         - name: ASTERISK_FASTAGI_URL
-          value: agi://mediacontroller:4573?script=
+          value: agi://mediacontroller/examples/HelloWorld
         ports:
         - containerPort: 5038
           name: ami

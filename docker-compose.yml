@@ -28,7 +28,7 @@ services:
       ASTERISK_SIPPROXY_HOST: ${HOST_ADDR}
       ASTERISK_SIPPROXY_USERNAME: ast
       ASTERISK_SIPPROXY_SECRET: changeit
-      ASTERISK_FASTAGI_URL: agi://mediacontroller:4573?script=
+      ASTERISK_FASTAGI_URL: agi://mediacontroller/examples/HelloWorld
       ASTERISK_MANAGER_SECRET: changeit
     image: fonoster/fast
     ports:
@@ -37,9 +37,13 @@ services:
     image: fonoster/astive
     ports:
       - 4573:4573
+    volumes:
+      - ./apps:/opt/astive/apps:ro
+      - ./astived.properties:/opt/astive/conf/astived.properties:ro
   redis:
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
     hostname: redis
     ports:
       - '6379:6379'
+ 

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediacontroller
+  labels:
+    app: dodopbx
+spec:
+  ports:
+  - name: fastagi
+    port: 4573
+  selector:
+    app: dodopbx
+    tier: media
+  clusterIP: None
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mediacontroller
+  labels:
+    app: dodopbx
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dodopbx
+        tier: media
+    spec:
+      containers:
+      - name: mediacontroller
+        image: fonoster/astive
+        imagePullPolicy: Always
+        env:
+        ports:
+        - containerPort: 4573
+          name: fastagi
+        volumeMounts:
+        - name: apps
+          mountPath: /opt/astive/apps
+        - name: astived-config
+          mountPath: /opt/astive/conf/astived.properties
+          subPath: astived.properties
+      volumes:
+      - name: apps
+        hostPath:
+          path: /tmp
+          type: Directory
+      - name: astived-config
+        configMap:
+          name: astived-config

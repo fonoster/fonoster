@@ -36,7 +36,7 @@ spec:
         image: fonoster/sipio
         imagePullPolicy: Always
         command: ["/bin/sh"]
-        args: ["-c", "cp /entrypoint/entrypoint.sh . && sh ./entrypoint.sh"]
+        args: ["-c", "sh /opt/sipio/entrypoint.sh"]
         env:
         - name: SIPIO_DS_PROVIDER
           value: redis_data_provider
@@ -51,9 +51,11 @@ spec:
            name: https
         volumeMounts:
           - name: entrypoint
-            mountPath: /entrypoint
+            mountPath: /opt/sipio/entrypoint.sh
+            subPath: entrypoint.sh
           - name: bootstrap
-            mountPath: /bootstrap
+            mountPath: /opt/sipio/bootstrap.yml
+            subPath: bootstrap.sh
       volumes:
       - name: entrypoint
         configMap:
