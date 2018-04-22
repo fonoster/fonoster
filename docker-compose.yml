@@ -24,7 +24,6 @@ services:
         target: /opt/sipio/bootstrap.yml
   mediaserver:
     environment:
-      ASTERISK_BINDADDR: 0.0.0.0:6060
       ASTERISK_EXTERN_ADDR: ${HOST_ADDR}
       ASTERISK_SIPPROXY_HOST: ${HOST_ADDR}
       ASTERISK_SIPPROXY_USERNAME: ast
