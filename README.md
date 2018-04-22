@@ -1,8 +1,7 @@
 # DodoPBX
 
-DodoPBX is a cloud PBX built for the cloud base on Asterisk and Sip I/O. It's not
-production ready and it doesn't do much yet. For questions or feature request
-go to the [issues](https://github.com/psanders/dodopbx/issues) section.
+DodoPBX is a cloud PBX built for the cloud base on Asterisk, [AstiveToolkit](http://astivetoolkit.org), 
+and [Sip I/O](https://github.com/fonoster/sipio). It's not production ready and it doesn't do much yet. For questions or feature request go to the [issues](https://github.com/psanders/dodopbx/issues) section.
 
 # Run with Compose
 
@@ -37,4 +36,4 @@ Use the information located on `bootstrap.yml` to configure your sip-phones.
 
 # Limitations
 
-We are currently unable to place calls using UDP likely due to a NAT issue.
+We are currently unable to place calls using UDP likely do to a NAT issue.
