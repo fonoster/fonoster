@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediaserver
+  labels:
+    app: dodopbx
+spec:
+  ports:
+  - name: sip
+    port: 5060
+  - name: ami
+    port: 5038
+  selector:
+    app: dodopbx
+    tier: media
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mediaserver
+  labels:
+    app: dodopbx
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dodopbx
+        tier: media
+    spec:
+      containers:
+      - name: mediaserver
+        image: fonoster/fast
+        imagePullPolicy: Always
+        env:
+        - name: ASTERISK_EXTERN_ADDR
+          value: 192.168.1.2
+        - name: ASTERISK_SIPPROXY_HOST
+          value: 192.168.1.2
+        - name: ASTERISK_SIPPROXY_USERNAME
+          value: ast
+        - name: ASTERISK_SIPPROXY_SECRET
+          value: changeit
+        - name: ASTERISK_FASTAGI_URL
+          value: agi://mediacontroller:4573?script=
+        ports:
+        - containerPort: 5038
+          name: ami
+        - containerPort: 5060
+          name: sip

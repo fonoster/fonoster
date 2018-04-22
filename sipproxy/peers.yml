@@ -1,9 +1,0 @@
-- apiVersion: v1draft1
-  kind: Peer
-  metadata:
-    name: Asterisk PBX
-  spec:
-    device: 'sip.local'
-    credentials:
-      username: ast
-      secret: 'changeit'

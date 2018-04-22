@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: dodopbx
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: dodopbx
+    tier: database
+  clusterIP: None
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: dodopbx
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dodopbx
+        tier: database
+    spec:
+      containers:
+      - name: redis
+        image: redis:4.0.5-alpine
+        imagePullPolicy: Always
+        ports:
+         - containerPort: 6379
+           name: redis

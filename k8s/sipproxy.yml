@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sipproxy
+  labels:
+    app: dodopbx
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local # This will cause the load balancer to send the client ip
+  ports:
+  - name: sip
+    port: 5060
+  - name: https
+    port: 4567
+  selector:
+    app: dodopbx
+    tier: signaling
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sipproxy
+  labels:
+    app: dodopbx
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dodopbx
+        tier: signaling
+    spec:
+      containers:
+      - name: sipproxy
+        image: fonoster/sipio
+        imagePullPolicy: Always
+        command: ["/bin/sh"]
+        args: ["-c", "cp /entrypoint/entrypoint.sh . && sh ./entrypoint.sh"]
+        env:
+        - name: SIPIO_DS_PROVIDER
+          value: redis_data_provider
+        - name: SIPIO_DS_PARAMETERS
+          value: 'host=redis,port=6379'
+        - name: SIPIO_EXTERN_ADDR
+          value: '192.168.1.2'
+        ports:
+         - containerPort: 5060
+           name: sip
+         - containerPort: 4567
+           name: https
+        volumeMounts:
+          - name: entrypoint
+            mountPath: /entrypoint
+          - name: bootstrap
+            mountPath: /bootstrap
+      volumes:
+      - name: entrypoint
+        configMap:
+          name: entrypoint
+      - name: bootstrap
+        configMap:
+          name: bootstrap

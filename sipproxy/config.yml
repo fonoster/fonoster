@@ -1,9 +1,0 @@
-apiVersion: v1draft1
-spec:
-  transport:
-    - protocol: udp
-      port: 5060
-    - protocol: tcp
-      port: 5060
-  logging:
-    traceLevel: 9
