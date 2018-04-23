@@ -19,9 +19,7 @@ services:
       - 4567:4567
       - 5060:5060
     volumes:
-      - type: bind
-        source: ./bootstrap.yml
-        target: /opt/sipio/bootstrap.yml
+      - ./etc/bootstrap.yml:/opt/sipio/bootstrap.yml:ro
   mediaserver:
     environment:
       ASTERISK_EXTERN_ADDR: ${HOST_ADDR}
@@ -39,11 +37,10 @@ services:
       - 4573:4573
     volumes:
       - ./apps:/opt/astive/apps:ro
-      - ./astived.properties:/opt/astive/conf/astived.properties:ro
+      - ./etc/astived.properties:/opt/astive/conf/astived.properties:ro
   redis:
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
     hostname: redis
     ports:
       - '6379:6379'
- 
