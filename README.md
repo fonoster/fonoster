@@ -1,4 +1,4 @@
-# DodoPBX
+# DodoPBX :bird: 
 
 DodoPBX is a cloud PBX built for the cloud base on Asterisk, [AstiveToolkit](http://astivetoolkit.org), 
 and [Sip I/O](https://github.com/fonoster/sipio). It's not production ready and it doesn't do much yet. For questions or feature request go to the [issues](https://github.com/psanders/dodopbx/issues) section.
