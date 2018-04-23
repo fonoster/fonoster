@@ -4,14 +4,14 @@ DodoPBX is a cloud PBX built for the cloud base on Asterisk and Sip I/O. It's no
 production ready and it doesn't do much yet. For questions or feature request
 go to the [issues](https://github.com/psanders/dodopbx/issues) section.
 
-# Run with Compose
+## Run with Compose
 
 ```bash
 export EXTERN_ADDR={YOUR HOST ADDRESS}
 docker-compose up
 ```
 
-# Run in Kubernetes
+## Run in Kubernetes
 
 Running in Kubernetes takes some extra steps. You must set the enviroment
 variables ASTERISK_EXTERN_ADDR and ASTERISK_SIPPROXY_HOST on `k8s/mediaserver.yml`.
@@ -31,10 +31,10 @@ kubectl create -f k8s/sipproxy.yml
 kubectl create -f k8s/mediacontroller.yml
 ```
 
-# Configuring the Endpoints
+## Configuring the Endpoints
 
 Use the information located on `bootstrap.yml` to configure your sip-phones.
 
-# Limitations
+## Limitations
 
 We are currently unable to place calls using UDP likely do to a NAT issue.
