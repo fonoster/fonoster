@@ -55,7 +55,7 @@ spec:
             subPath: entrypoint.sh
           - name: bootstrap
             mountPath: /opt/sipio/bootstrap.yml
-            subPath: bootstrap.sh
+            subPath: bootstrap.yml
       volumes:
       - name: entrypoint
         configMap:
