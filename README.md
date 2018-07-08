@@ -1,6 +1,6 @@
 # Iris
 
-Iris is a cloud PBX built for the cloud base on [Arke](https://fonoster.github.io/arke), [Hermes](https://github.com/fonoster/hermes). It's not production ready and it doesn't do much yet. For questions or feature request go to the [issues](https://github.com/fonoster/iris/issues) section.
+Iris is a cloud PBX built for the cloud base on [Arke](https://fonoster.github.io/arke) and [Hermes](https://github.com/fonoster/hermes). It's not production ready and it doesn't do much yet. For questions or feature request go to the [issues](https://github.com/fonoster/iris/issues) section.
 
 ## Run with Compose
 
