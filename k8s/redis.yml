@@ -3,12 +3,12 @@ kind: Service
 metadata:
   name: redis
   labels:
-    app: dodopbx
+    app: yaps
 spec:
   ports:
     - port: 6379
   selector:
-    app: dodopbx
+    app: yaps
     tier: database
   clusterIP: None
 ---
@@ -17,14 +17,14 @@ kind: Deployment
 metadata:
   name: redis
   labels:
-    app: dodopbx
+    app: yaps
 spec:
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: dodopbx
+        app: yaps
         tier: database
     spec:
       containers:

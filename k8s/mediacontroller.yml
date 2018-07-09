@@ -3,13 +3,13 @@ kind: Service
 metadata:
   name: mediacontroller
   labels:
-    app: dodopbx
+    app: yaps
 spec:
   ports:
   - name: fastagi
     port: 4573
   selector:
-    app: dodopbx
+    app: yaps
     tier: media
   clusterIP: None
 ---
@@ -18,14 +18,14 @@ kind: Deployment
 metadata:
   name: mediacontroller
   labels:
-    app: dodopbx
+    app: yaps
 spec:
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: dodopbx
+        app: yaps
         tier: media
     spec:
       containers:

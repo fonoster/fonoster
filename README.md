@@ -1,6 +1,6 @@
 # YAPS - Yet Another Phone System
 
-Iris is a cloud PBX built for the cloud base on [Routr](https://routr.io) and [Astive](https://github.com/fonoster/astive). It's not production ready and it doesn't do much yet. For questions or feature request go to the [issues](https://github.com/fonoster/yaps/issues) section.
+YAPS is a cloud PBX built for the cloud base on [Routr](https://routr.io) and [Astive](https://github.com/fonoster/astive). It's not production ready and it doesn't do much yet. For questions or feature request go to the [issues](https://github.com/fonoster/yaps/issues) section.
 
 ## Run with Compose
 

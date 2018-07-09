@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: mediaserver
   labels:
-    app: dodopbx
+    app: yaps
 spec:
   ports:
   - name: sip
@@ -11,7 +11,7 @@ spec:
   - name: ami
     port: 5038
   selector:
-    app: dodopbx
+    app: yaps
     tier: media
   type: LoadBalancer
 ---
@@ -20,30 +20,30 @@ kind: Deployment
 metadata:
   name: mediaserver
   labels:
-    app: dodopbx
+    app: yaps
 spec:
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: dodopbx
+        app: yaps
         tier: media
     spec:
       containers:
       - name: mediaserver
-        image: fonoster/fast
+        image: fonoster/castk
         imagePullPolicy: Always
         env:
-        - name: ASTERISK_EXTERN_ADDR
+        - name: CASTK_EXTERN_ADDR
           value: 192.168.1.2
-        - name: ASTERISK_SIPPROXY_HOST
+        - name: CASTK_SIPPROXY_HOST
           value: 192.168.1.2
-        - name: ASTERISK_SIPPROXY_USERNAME
+        - name: CASTK_SIPPROXY_USERNAME
           value: ast
-        - name: ASTERISK_SIPPROXY_SECRET
+        - name: CASTK_SIPPROXY_SECRET
           value: changeit
-        - name: ASTERISK_FASTAGI_URL
+        - name: CASTK_FASTAGI_URL
           value: agi://mediacontroller/examples/HelloWorld
         ports:
         - containerPort: 5038

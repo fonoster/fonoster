@@ -33,16 +33,16 @@ spec:
     spec:
       containers:
       - name: sipproxy
-        image: fonoster/sipio
+        image: fonoster/routr
         imagePullPolicy: Always
         command: ["/bin/sh"]
-        args: ["-c", "sh /opt/sipio/entrypoint.sh"]
+        args: ["-c", "sh /opt/routr/entrypoint.sh"]
         env:
-        - name: SIPIO_DS_PROVIDER
+        - name: ROUTR_DS_PROVIDER
           value: redis_data_provider
-        - name: SIPIO_DS_PARAMETERS
+        - name: ROUTR_DS_PARAMETERS
           value: 'host=redis,port=6379'
-        - name: SIPIO_EXTERN_ADDR
+        - name: ROUTR_EXTERN_ADDR
           value: '192.168.1.2'
         ports:
          - containerPort: 5060
@@ -51,10 +51,10 @@ spec:
            name: https
         volumeMounts:
           - name: entrypoint
-            mountPath: /opt/sipio/entrypoint.sh
+            mountPath: /opt/routr/entrypoint.sh
             subPath: entrypoint.sh
           - name: bootstrap
-            mountPath: /opt/sipio/bootstrap.yml
+            mountPath: /opt/routr/bootstrap.yml
             subPath: bootstrap.yml
       volumes:
       - name: entrypoint

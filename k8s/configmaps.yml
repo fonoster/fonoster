@@ -18,10 +18,10 @@ metadata:
 data:
   entrypoint.sh: |-
     while ! nc -z redis 6379; do sleep 0.1; done # Wait for Redis
-    cd /opt/sipio
+    cd /opt/routr
     ./run.sh &
     while ! nc -z localhost 4567; do sleep 0.1; done # Wait for Sip I/O
-    ./sipioctl create -f bootstrap.yml
+    ./rctl create -f bootstrap.yml
     while sleep 3600; do :; done
 ---
 apiVersion: v1
