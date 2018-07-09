@@ -1,6 +1,6 @@
 # YAPS - Yet Another Phone System
 
-YAPS is a cloud PBX built for the cloud base on [Routr](https://routr.io) and [Astive](https://github.com/fonoster/astive). It's not production ready and it doesn't do much yet. For questions or feature request go to the [issues](https://github.com/fonoster/yaps/issues) section.
+YAPS is a PBX built for the cloud base on [Routr](https://routr.io) and [Astive](https://github.com/fonoster/astive) and Asterisk. It's not production ready and it doesn't do much yet. For questions or feature request go to the [issues](https://github.com/fonoster/yaps/issues) section.
 
 ## Run with Compose
 
@@ -12,7 +12,7 @@ docker-compose up
 ## Run in Kubernetes
 
 Running in Kubernetes takes some extra steps. You must set the enviroment
-variables HERMES_EXTERN_ADDR and ASTIVE_SIPPROXY_HOST on `k8s/mediaserver.yml`.
+variables CASTK_EXTERN_ADDR and ASTIVE_SIPPROXY_HOST on `k8s/mediaserver.yml`.
 You also need to set ROUTR_EXTERN_ADDR in `k8s/sipproxy.yml`.
 
 > This variables must be set to the public address(if running locally use your host address)
