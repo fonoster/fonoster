@@ -12,7 +12,7 @@ docker-compose up
 ## Run in Kubernetes
 
 Running in Kubernetes takes some extra steps. You must set the enviroment
-variables CASTK_EXTERN_ADDR and ASTIVE_SIPPROXY_HOST on `k8s/mediaserver.yml`.
+variables CASTK_EXTERN_ADDR and CASTK_SIPPROXY_HOST on `k8s/mediaserver.yml`.
 You also need to set ROUTR_EXTERN_ADDR in `k8s/sipproxy.yml`.
 
 > This variables must be set to the public address(if running locally use your host address)
