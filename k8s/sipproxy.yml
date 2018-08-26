@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: sipproxy
   labels:
-    app: dodopbx
+    app: yaps
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local # This will cause the load balancer to send the client ip
@@ -13,7 +13,7 @@ spec:
   - name: https
     port: 4567
   selector:
-    app: dodopbx
+    app: yaps
     tier: signaling
 ---
 apiVersion: extensions/v1beta1
@@ -21,14 +21,14 @@ kind: Deployment
 metadata:
   name: sipproxy
   labels:
-    app: dodopbx
+    app: yaps
 spec:
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: dodopbx
+        app: yaps
         tier: signaling
     spec:
       containers:
