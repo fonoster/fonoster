@@ -43,8 +43,8 @@ spec:
           value: ast
         - name: CASTK_SIPPROXY_SECRET
           value: changeit
-        - name: CASTK_FASTAGI_URL
-          value: agi://mediacontroller/examples/HelloWorld
+        - name: CASTK_ARI_APP
+          value: hello-world
         ports:
         - containerPort: 5038
           name: ami
