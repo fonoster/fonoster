@@ -1,0 +1,14 @@
+{
+  "name": "hello-world",
+  "version": "1.0.0",
+  "description": "ARI APP Hello World",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pedro Sanders",
+  "license": "MIT",
+  "dependencies": {
+    "ari-client": "^1.2.1"
+  }
+}

@@ -5,11 +5,11 @@ services:
     image: fonoster/routr:latest
     entrypoint: |
       sh -c '
-          while ! nc -z redis 6379; do sleep 0.1; done # Wait for Redis
-          ./run.sh &
-          while ! nc -z localhost 4567; do sleep 0.1; done # Wait for Routr
-          ./rctl create -f bootstrap.yml
-          while sleep 3600; do :; done
+        while ! nc -z redis 6379; do sleep 0.1; done # Wait for Redis
+        ./run.sh &
+        while ! nc -z localhost 4567; do sleep 0.1; done # Wait for Routr
+        ./rctl create -f bootstrap.yml
+        while sleep 3600; do :; done
       '
     environment:
       ROUTR_EXTERN_ADDR: ${HOST_ADDR}
@@ -26,18 +26,21 @@ services:
       CASTK_SIPPROXY_HOST: ${HOST_ADDR}
       CASTK_SIPPROXY_USERNAME: ast
       CASTK_SIPPROXY_SECRET: changeit
-      CASTK_FASTAGI_URL: agi://mediacontroller/examples/HelloWorld
-      CASTK_MANAGER_SECRET: changeit
+      CASTK_ARI_APP: hello-world
     image: fonoster/castk
     ports:
       - 6060:6060
+      - 8088:8088
   mediacontroller:
-    image: fonoster/astive
-    ports:
-      - 4573:4573
+    image: node
+    entrypoint: |
+      sh -c '
+        sleep 5
+        cd /opt/apps/hello-world/ && node --experimental-modules main.mjs
+        while sleep 3600; do :; done
+      '
     volumes:
-      - ./apps:/opt/astive/apps:ro
-      - ./etc/astived.properties:/opt/astive/conf/astived.properties:ro
+      - ./apps:/opt/apps:ro
   redis:
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
