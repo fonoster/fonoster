@@ -22,7 +22,7 @@ YAPS' main features are:
 - Transport: TCP, UDP, TLS, WebSocket
 - Database: Redis
 - Available for Docker and Kubernetes environments
-- ARI applications
+- ARI application server
 - Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
 
 ## Quick Start
