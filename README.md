@@ -25,8 +25,6 @@ YAPS' main features are:
 - ARI applications
 - Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
 
-To learn more, read the [documentation](https://routr.io/docs/introduction/overview/). :books:
-
 ## Quick Start
 
 You must have docker and docker-compose to run this platform
