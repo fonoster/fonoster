@@ -1,0 +1,14 @@
+{
+  "name": "yaps-sandbox",
+  "version": "1.0.0",
+  "description": "Run yaps functions securely",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pedro Sanders",
+  "license": "MIT",
+  "dependencies": {
+    "vm2": "^3.6.4"
+  }
+}
