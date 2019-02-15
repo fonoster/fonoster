@@ -21,7 +21,7 @@ YAPS' main features are:
 - Per node Multi-Tenancy/Multi-Domain with Domain level Access Control List
 - Transport: TCP, UDP, TLS, WebSocket
 - Database: Redis
-- Available for Docker and Kubernetes environments
+- Available on Docker and Kubernetes environments
 - ARI application server
 - Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
 
