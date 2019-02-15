@@ -1,8 +1,6 @@
 
 # YAPS - Yet Another Phone System
 
-:warning: This project is not yet production ready
-
 <p align="left">
   <a href="#features">Features</a> •
   <a href="#quick-start">Quick Start</a> •
@@ -13,7 +11,7 @@
 
 YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; while currently focused on Voice over Internet Protocol(VoIP) and PSTN, its power lies in its ability to be easily extended with ARI applications and rich RESTful APIs.  YAPS flexible routing engine based in [Routr](https://github.com/fonoster/routr), helps maximize communications efficiency and minimizing infrastructure costs for business.
 
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Yet%20Another%20Phone%20System&url=https://github.com/fonoster/yaps&via=fonoster&hashtags=voip,sip,webrtc,telephony)
+:warning: Not yet production ready
 
 ## Features
 
@@ -23,6 +21,7 @@ YAPS' main features are:
 - Per node Multi-Tenancy/Multi-Domain with Domain level Access Control List
 - Transport: TCP, UDP, TLS, WebSocket
 - Database: Redis
+- Available for Docker and Kubernetes environments
 - ARI applications
 - Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
 
