@@ -1,6 +1,8 @@
 
 # YAPS - Yet Another Phone System
 
+[![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 <p align="left">
   <a href="#features">Features</a> •
   <a href="#quick-start">Quick Start</a> •
