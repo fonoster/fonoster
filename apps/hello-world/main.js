@@ -1,4 +1,4 @@
-const functions = require('yaps-functions')
+const functions = require('./yaps-functions')
 
 functions.config(func)
 

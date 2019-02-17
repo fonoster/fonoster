@@ -10,7 +10,7 @@ class Functions {
         this.channel = channel
         callback(this)
       })
-      ari.start('hello-world')
+      ari.start('yaps-functions')
     })
   }
 

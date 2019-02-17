@@ -36,7 +36,7 @@ services:
     entrypoint: |
       sh -c '
         sleep 5
-        cd /opt/apps/hello-world/ && node --experimental-modules main.mjs
+        cd /opt/apps/hello-world/ && node main.js
         while sleep 3600; do :; done
       '
     volumes:
