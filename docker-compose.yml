@@ -26,7 +26,7 @@ services:
       CASTK_SIPPROXY_HOST: ${HOST_ADDR}
       CASTK_SIPPROXY_USERNAME: ast
       CASTK_SIPPROXY_SECRET: changeit
-      CASTK_ARI_APP: hello-world
+      CASTK_AGI_URL: agi://mediacontroller
     image: fonoster/castk
     ports:
       - 6060:6060
@@ -41,9 +41,11 @@ services:
       '
     volumes:
       - ./apps:/opt/apps:ro
+    ports:
+      - 4573:4573
   redis:
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]
     hostname: redis
     ports:
-      - '6379:6379'
+      - 6379:6379
