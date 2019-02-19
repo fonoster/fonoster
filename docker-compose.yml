@@ -21,6 +21,13 @@ services:
     volumes:
       - ./etc/bootstrap.yml:/opt/routr/bootstrap.yml:ro
   mediaserver:
+    depends_on: [sipproxy]    
+    entrypoint: |
+      sh -c '
+        while ! nc -z sipproxy 4567; do sleep 0.1; done # Wait for Routr
+        ./run.sh &
+        while sleep 3600; do :; done
+      '
     environment:
       CASTK_EXTERN_ADDR: ${HOST_ADDR}
       CASTK_SIPPROXY_HOST: ${HOST_ADDR}

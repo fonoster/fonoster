@@ -8,6 +8,6 @@
   "author": "Pedro Sanders",
   "license": "MIT",
   "dependencies": {
-    "ding-dong": "^0.1.6"
+    "ding-dong": "^0.1.1"
   }
 }
