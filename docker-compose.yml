@@ -21,7 +21,7 @@ services:
     volumes:
       - ./etc/bootstrap.yml:/opt/routr/bootstrap.yml:ro
   mediaserver:
-    depends_on: [sipproxy]    
+    depends_on: [sipproxy]
     entrypoint: |
       sh -c '
         while ! nc -z sipproxy 4567; do sleep 0.1; done # Wait for Routr
@@ -39,15 +39,16 @@ services:
       - 6060:6060
       - 8088:8088
   mediacontroller:
-    image: node
+    image: node:8.15.0-alpine
     entrypoint: |
       sh -c '
         sleep 5
-        cd /opt/apps/hello-world/ && node main.js
+        apk add python make g++
+        cd /opt/apps/hello-world/ && npm i && node server.js
         while sleep 3600; do :; done
       '
     volumes:
-      - ./apps:/opt/apps:ro
+      - ./apps:/opt/apps:rw
     ports:
       - 4573:4573
   redis:

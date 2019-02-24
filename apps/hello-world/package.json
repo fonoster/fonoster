@@ -8,6 +8,6 @@
   "author": "Pedro Sanders",
   "license": "MIT",
   "dependencies": {
-    "ding-dong": "^0.1.1"
+    "agi-node": "^0.0.9"
   }
 }
