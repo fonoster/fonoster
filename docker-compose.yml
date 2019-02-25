@@ -44,11 +44,11 @@ services:
       sh -c '
         sleep 5
         apk add python make g++
-        cd /opt/apps/hello-world/ && npm i && node server.js
+        cd /opt/functions/dispatcher/ && npm i && node dispatcher.js
         while sleep 3600; do :; done
       '
     volumes:
-      - ./apps:/opt/apps:rw
+      - ./functions:/opt/functions:rw
     ports:
       - 4573:4573
   redis:

@@ -1,13 +1,10 @@
 {
   "name": "hello-world",
   "version": "1.0.0",
-  "description": "AGI APP Hello World",
+  "description": "Function set",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Pedro Sanders",
   "license": "MIT",
-  "dependencies": {
-    "agi-node": "^0.0.9"
-  }
 }
