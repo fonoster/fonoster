@@ -1,7 +1,7 @@
 
 # YAPS - Yet Another Phone System
 
-<img src="https://raw.githubusercontent.com/fonoster/yaps/master/arq.png" alt="Routr Logo" width="100%" style="border: 1px solid">
+<img src="https://raw.githubusercontent.com/fonoster/yaps/master/arq.png" alt="YAPS ARQ" height="400" style="border: 1px solid">
 
 [![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
