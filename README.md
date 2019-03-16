@@ -1,5 +1,5 @@
 
-# YAPS - Yet Another Phone System
+# YAPS
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/fonoster/yaps/master/arq.png" alt="YAPS ARQ" height="400">
