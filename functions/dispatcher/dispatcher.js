@@ -2,7 +2,7 @@ const AGIServer = require('agi-node').AGIServer
 const { NodeVM } = require('vm2')
 const fs = require('fs')
 const vm = new NodeVM(require('./vm.json'))
-// const registry = 
+// const registry
 
 function dispatcher(channel) {
   // TODO: build a routing module for ingressFunctions

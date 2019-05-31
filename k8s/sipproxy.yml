@@ -43,7 +43,7 @@ spec:
         - name: ROUTR_DS_PARAMETERS
           value: 'host=redis,port=6379'
         - name: ROUTR_EXTERN_ADDR
-          value: '192.168.1.2'
+          value: '192.168.1.127'
         ports:
          - containerPort: 5060
            name: sip
