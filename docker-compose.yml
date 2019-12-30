@@ -32,11 +32,13 @@ services:
   mediacontroller:
     env_file: .env
     image: yaps/mediacontroller
+    environment:
+      MC_AGI_PORT: ${MC_AGI_PORT}
     build:
       context: mediacontroller
     entrypoint: sh -c './run.sh'
     volumes:
-      - ./functions:/opt/functions:ro
+      - ./functions:/functions:ro
     expose:
       - ${MC_AGI_PORT}
   datasource: # Add configuration to be able to change the port
