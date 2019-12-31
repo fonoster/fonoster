@@ -34,6 +34,7 @@ services:
     image: yaps/mediacontroller
     environment:
       MC_AGI_PORT: ${MC_AGI_PORT}
+      MC_APP_ENTRYPOINT: '/hello-world/index.js'
     build:
       context: mediacontroller
     entrypoint: sh -c './run.sh'
