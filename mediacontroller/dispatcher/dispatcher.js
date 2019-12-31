@@ -5,9 +5,9 @@ const vm = new NodeVM(require('./vm.json'))
 
 function dispatcher(channel) {
     try {
-        const ep = process.env.MC_APP_ENTRYPOINT
+        const appPath = `/functions${process.env.MC_APP_ENTRYPOINT}`
         const contents =
-            fs.readFileSync(`${__dirname}/../functions${entryPoint}`, 'utf8')
+            fs.readFileSync(appPath, 'utf8')
         vm.run(contents)(channel)
     } catch(e) {
         console.err(e)
