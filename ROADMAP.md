@@ -20,7 +20,7 @@ Component Specs:
 
 - The handler functions are mounted in the MC filesystem
 - The MC must have access to the `admin` API(like logging, storage, billing, etc.)
-- The dispatcher sends a simplified to the handler
+- The dispatcher sends a simplified version of the AGI request to the handler
 - Flow control is done with a simplified set of verbs(Play, Say, Stash, Record...)
 - The MC must handle requests from multiple MS(stateless)
 - The MC sends logging, billing, and other events to the Message Bus
