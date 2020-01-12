@@ -24,7 +24,7 @@ Component Specs:
 - Flow control is done with a simplified set of verbs(Play, Say, Stash, Record...)
 - The MC must handle requests from multiple MS(stateless)
 - The MC sends logging, billing, and other events to the Message Bus
-- Must have the ability to discover the File Server and mount the required folder
+- Must push all media file to a centralized location(FS)
 - Must be able to run unsecured code(sandboxed)
 
 Note: The MC component will not provide with a deploy/undeploy logic
@@ -32,7 +32,7 @@ Note: The MC component will not provide with a deploy/undeploy logic
 TODO:
 
 - [ ] Draft `admin` functions(yaps.admin, yaps.logging, yaps.auth, yaps.storage...)
-- [ ] FileServer discovery logic.
+- [ ] Create a monitor agent to push all new media files to the FS
 - [ ] Create simplified Voice APIS base on verbs
 
 ## Media Server(MS)
@@ -52,7 +52,7 @@ TODO:
 
 - [ ] Attempt to play sound from a remote location via http
 - [ ] Create an ARI agent to communicate with the Message Bus
-- [ ] FileServer discovery logic
+- [ ] Create a monitor agent to push all new media files to the FS
 
 ## Message Bus
 

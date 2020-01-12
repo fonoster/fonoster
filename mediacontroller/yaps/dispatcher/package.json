@@ -1,5 +1,5 @@
 {
-  "name": "yaps-dispatcher",
+  "name": "@yaps/dispatcher",
   "version": "1.0.0",
   "description": "The dispatcher routes AGI request to the appropiate handler",
   "scripts": {

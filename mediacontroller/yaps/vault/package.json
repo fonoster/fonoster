@@ -1,0 +1,11 @@
+{
+  "name": "@yaps/vault",
+  "version": "1.0.0",
+  "description": "Secret storage",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pedro Sanders",
+  "license": "MIT"
+}
+ 

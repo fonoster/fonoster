@@ -1,0 +1,15 @@
+{
+  "name": "@yaps/yaps",
+  "version": "1.0.0",
+  "description": "Core artifacts",
+  "scripts": {
+    "test": "mocha core/*_test.js"
+  },
+  "author": "Pedro Sanders",
+  "license": "MIT",
+  "dependencies": {
+    "assert": "^2.0.0",
+    "mocha": "^7.0.0",
+    "objectid": "^3.2.1"
+  }
+}

@@ -37,12 +37,12 @@ services:
       MC_APP_ENTRYPOINT: '/hello-world/index.js'
     build:
       context: mediacontroller
-    entrypoint: sh -c './run.sh'
+    entrypoint: sh -c 'sh ./run.sh'
     volumes:
       - ./functions:/functions:ro
     expose:
       - ${MC_AGI_PORT}
-  datasource: # Add configuration to be able to change the port
+  datasource:
     env_file: .env
     image: redis:4.0.5-alpine
     command: ["redis-server", "--appendonly", "yes"]

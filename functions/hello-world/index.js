@@ -1,10 +1,8 @@
-// Here is were the magic happens
-function entrypoint(channel) {
-    console.log('Script got call %s -> %s', channel.request.callerid,
-        channel.request.extension)
-    channel.answer()
-    channel.streamFile('beep')
-    channel.hangup()
+/**
+ * @author Pedro Sanders
+ * @since v1
+ */
+exports = chan => {
+    chan.play('beep')
+    //chan.play('Hello World')
 }
-
-module.exports = entrypoint
