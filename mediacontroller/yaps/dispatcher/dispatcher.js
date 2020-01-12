@@ -6,7 +6,7 @@ const AGIServer = require('agi-node').AGIServer
 const { NodeVM } = require('vm2')
 const fs = require('fs')
 const vm = new NodeVM(require('./vm.json'))
-const ChannelWrapper = require('../core/voice_api')
+const YWC = require('../core/ywc')
 const EventsAPI = require('../core/events_api')
 const MockTTS = require('../tts/mock_tts') // TODO replace with a functional TTS engine
 
@@ -17,10 +17,11 @@ function dispatcher(channel) {
     try {
         const appPath = `/functions${process.env.MC_APP_ENTRYPOINT}`
         const contents = fs.readFileSync(appPath, 'utf8')
-        const chann = new ChannelWrapper(channel, {
+        const chann = new YWC(channel, {
             eventsAPI,
             tts: defaultTTSEngine
         })
+        // TODO: Pass parameter with simplify request
         vm.run(contents)(chann)
     } catch(e) {
         console.err(e)

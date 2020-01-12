@@ -4,8 +4,7 @@
  */
 const objectid = require('objectid')
 
-// TODO: Find a more appropiate name; Perhaps ChannelWrapper
-class VoiceAPI {
+class YapsWrapperChannel {
 
     constructor(channel, conf) {
         this.channel = channel
@@ -248,4 +247,4 @@ class VoiceAPI {
     }
 }  
 
-module.exports = VoiceAPI 
+module.exports = YapsWrapperChannel 
