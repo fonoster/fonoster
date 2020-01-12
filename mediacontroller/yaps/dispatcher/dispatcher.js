@@ -8,7 +8,9 @@ const fs = require('fs')
 const vm = new NodeVM(require('./vm.json'))
 const YWC = require('../core/ywc')
 const EventsAPI = require('../core/events_api')
-const MockTTS = require('../tts/mock_tts') // TODO replace with a functional TTS engine
+
+// TODO replace with a functional TTS engine
+const MockTTS = require('../tts/mock_tts') 
 
 const eventsAPI = new EventsAPI()
 const defaultTTSEngine = new MockTTS({})
