@@ -2,7 +2,8 @@
  * @author Pedro Sanders
  * @since v1
  */
-exports = chan => {
+module.exports = chan => {
     chan.play('beep')
-    //chan.play('Hello World')
+    chan.wait(1)
+    chan.say('beep')
 }
