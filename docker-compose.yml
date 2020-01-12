@@ -37,10 +37,9 @@ services:
       MC_APP_ENTRYPOINT: '/hello-world/index.js'
     build:
       context: mediacontroller
-    entrypoint: sh -c 'sh ./run2.sh'
+    entrypoint: sh -c './run.sh'
     volumes:
       - ./functions:/functions:ro
-      - ./mediacontroller/run.sh:/run2.sh:ro
     expose:
       - ${MC_AGI_PORT}
   datasource:
