@@ -37,6 +37,12 @@ class ChannelMock {
         return d
     }
 
+    streamFile(file, escapeDigits) {
+        const d = this.data[this.dataPointer]
+        this.dataPointer = this.dataPointer + 1
+        return d
+    }
+
     setData(data) {
         this.data = data
     }

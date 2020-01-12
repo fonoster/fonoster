@@ -35,18 +35,10 @@ describe('Voice API tests', () => {
         assert.equal('1', result)
 
         try {
-            voice.play('beep', {timeout: 'a'})
-            console.log('DBG001')
+            voice.play('beep', {finishOnKey: '%'})
             done('Error: Failed exception')
         } catch(e) {
-        }
-
-        try {
-            voice.play('beep', {timeout: 'a', maxDigits: -1})
-            console.log('DBG002')
-            done('Error: Failed exception')
-        } catch(e) {
-        }        
+        }      
 
         done()
     })

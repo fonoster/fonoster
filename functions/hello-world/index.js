@@ -4,6 +4,6 @@
  */
 module.exports = chan => {
     chan.play('beep')
-    chan.wait(1)
+    chan.wait(3)
     chan.say('beep')
 }

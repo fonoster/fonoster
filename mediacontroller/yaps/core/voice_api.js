@@ -56,40 +56,35 @@ class VoiceAPI {
      * Param file - Is a file that has been previously uploaded or is available by default.
      * Param options - Optional parameters to alter the command's normal behavior.
      * 
-     * Example options
-     * {
-     *      timeout: 2,     // maximum timeout in seconds
-     *      maxDigits: 4    // maximum allowed digits
+     * Example options {
+     *     finishOnKey: #,     // Default
      * }
      * 
-     * Returns - Sent DTMF or undefined if no key was pressed before timeout
+     * Returns - Sent DTMF or undefined if no key was pressed before audio ends
      */
     play(file, options)  {
         if (!file) throw 'you must indicate a file.'
+        let finishOnKey = '#'
 
-        if (options && options.timeout 
-            && (isNaN(options.timeout) || options.timeout < 0))
-            throw `${options.timeout} is not an acceptable timeout value. For no timeout use zero or omit value. Timeout must be equal or greater than zero`
-        
-        if (options && options.maxDigits 
-            && (options.maxDigits <= 0 || isNaN(options.maxDigits)))
-            throw `${options.maxDigits} is not an acceptable maxDigits value. The maxDigits value must be greater than zero. Omit value for no limit on the number of digits`
-
-        const timeout = options && options.timeout ? options.timeout * 1000 : void(0)
-        const maxDigits = options && options.maxDigits ? options.maxDigits : void(0)
-
-        return this.channel.getData(file, timeout, maxDigits) 
+        if (options) {
+            if (options.finishOnKey && (options.finishOnKey.length !== 1 
+                || ('1234567890#*').indexOf(options.finishOnKey) < 0 )) 
+                throw 'finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*'
+            
+            if (options.finishOnKey) finishOnKey = options.finishOnKey
+        }
+            
+        return this.channel.streamFile(file, finishOnKey)
     }   
  
     /**
      * Param text - Will be convert into a file and put in a cache for future use.
      * This method behavior is similar than play.
      * Example options {
-     *      voice: 'default',
-     *      timeout: 1
+     *     finishOnKey: #,     // Default
      * }
      * 
-     * Returns - Sent DTMF or undefined if no key was pressed before timeout
+     * Returns - Sent DTMF or undefined if no key was pressed before audio ends
      */
     say(text, options) {
         if (!text) throw 'You must provide a text.'
@@ -121,10 +116,10 @@ class VoiceAPI {
      * to create this powerful verb.
      *
      * Example options {
-     *      timeout: 4,         // Time in between key pressed. Defaults to 4 seconds.
+     *     timeout: 4,         // Time in between key pressed. Defaults to 4 seconds.
      *                          // A time of zero will wait for ever for the finishOnKey.
-     *      finishOnKey: #,     // Default
-     *      maxDigits: 4        // Wait for the user to press digit.
+     *     finishOnKey: #,     // Default
+     *     maxDigits: 4        // Wait for the user to press digit.
      * }
      *
      * Note: Either maxDigits or timeout must be greater than zero.
@@ -200,11 +195,11 @@ class VoiceAPI {
     /**
      * Record creates a file with the sound send by receiving device
      * Example options {
-     *      timeout: 4,         // Default
-     *      finishOnKey: #,     // Characters used to finish the recording
-     *      beep: true,
-     *      offset: 0,
-     *      maxDuration: 3600   // Maximum duration in seconds
+     *     timeout: 4,         // Default
+     *     finishOnKey: #,     // Characters used to finish the recording
+     *     beep: true,
+     *     offset: 0,
+     *     maxDuration: 3600   // Maximum duration in seconds
      * }
      *
      * Returns - Metadata with information about the recordings
