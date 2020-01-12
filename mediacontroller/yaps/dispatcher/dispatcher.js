@@ -9,7 +9,7 @@ const vm = new NodeVM(require('./vm.json'))
 const YWC = require('../core/ywc')
 const EventsAPI = require('../core/events_api')
 
-// TODO replace with a functional TTS engine
+// TODO: replace with a functional TTS engine
 const MockTTS = require('../tts/mock_tts') 
 
 const eventsAPI = new EventsAPI()
