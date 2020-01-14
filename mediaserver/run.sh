@@ -36,6 +36,7 @@ sed -i.bak "s|MS_LOCALNET_PLACEHOLDER|${MS_LOCALNET}|g" /etc/asterisk/pjsip_wiza
 sed -i.bak "s|MS_SIPPROXY_HOST_PLACEHOLDER|${MS_SIPPROXY_HOST}|g" /etc/asterisk/pjsip_wizard.conf
 sed -i.bak "s|MS_SIPPROXY_USERNAME_PLACEHOLDER|${MS_SIPPROXY_USERNAME}|g" /etc/asterisk/pjsip_wizard.conf
 sed -i.bak "s|MS_SIPPROXY_SECRET_PLACEHOLDER|${MS_SIPPROXY_SECRET}|g" /etc/asterisk/pjsip_wizard.conf
+sed -i.bak "s|MS_DTMF_MODE_PLACEHOLDER|${MS_DTMF_MODE}|g" /etc/asterisk/pjsip_wizard.conf
 
 rm /etc/asterisk/*.bak
 
