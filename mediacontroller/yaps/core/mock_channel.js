@@ -40,7 +40,7 @@ class ChannelMock {
     streamFile(file, escapeDigits) {
         const d = this.data[this.dataPointer]
         this.dataPointer = this.dataPointer + 1
-        return d
+        return {code: 200, attributes: {result: d}}
     }
 
     setData(data) {
@@ -53,7 +53,14 @@ class ChannelMock {
 
     recordFile(file, format, finishOnKey,
         maxDuration, offset, beep) {
-        return {file, format, finishOnKey, maxDuration, offset, beep}
+        return {
+            code: 200, 
+            attributes: {
+                result: {
+                    file, format, finishOnKey, maxDuration, offset, beep
+                }
+            }
+        }
     }
 } 
 

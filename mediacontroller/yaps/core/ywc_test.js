@@ -75,10 +75,18 @@ describe('YWC tests', () => {
         } catch(e) {
         }
 
-        channel.setData(['1', '2', '3', '4', '#'])
+        // Stops reading at maxDigits
+        channel.setData(['1', '2', '3', '4'])
         let result = ywc.gather('', {maxDigits: 4})
         assert.equal('1234', result)
 
+        // Stops reading at finishOnKey
+        channel.setData(['1', '2', '3', '4', '*'])
+        channel.resetDataPointer()
+        result = ywc.gather('', {maxDigits: 6, finishOnKey: '*'})
+        assert.equal('1234', result)
+
+        // Stops reading at null because a timeout event
         channel.setData(['1', '2', '3', null])
         channel.resetDataPointer()
         result = ywc.gather('', {timeout: 5, maxDigits: 4})

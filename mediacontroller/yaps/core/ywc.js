@@ -38,10 +38,14 @@ class YapsWrapperChannel {
 
     answer() {
         return this.channel.answer()
+        //if (result.code !== 200) throw result.rawReply
+        //return 0
     }
     
     hangup() {
         return this.channel.hangup()
+        //if (result.code !== 200) throw result.rawReply
+        //return 1
     }
 
     setAutoHangup(timeout) {
@@ -73,7 +77,11 @@ class YapsWrapperChannel {
             if (options.finishOnKey) finishOnKey = options.finishOnKey
         }
             
-        return this.channel.streamFile(file, finishOnKey)
+        const result = this.channel.streamFile(file, finishOnKey)
+
+        if (result.code === 200) return result.attributes.result
+
+        throw result.rawReply
     }   
  
     /**
@@ -126,13 +134,15 @@ class YapsWrapperChannel {
      * Returns - Sent digits or undefined if no key was pressed before timeout
      */
     gather(initDigits, options) {
-        // a timeout of 0 means no timeout
+        // A timeout of 0 means no timeout
         // Less than one second will have no effect
         let timeout = 4 * 1000
         let finishOnKey = '#'
-        // Not limit
         let maxDigits = 0
         let digits = ''
+        let c
+
+        if (initDigits) digits = initDigits
 
         // Perform validations
         if (options) {
@@ -158,12 +168,6 @@ class YapsWrapperChannel {
             if (options.finishOnKey) finishOnKey = options.finishOnKey
             if (options.maxDigits) maxDigits = options.maxDigits
         }
- 
-        if (initDigits && ('1234567890#*').indexOf(initDigits) > -1) {
-            digits = initDigits
-        }
-
-        let c
 
         for (;;) {
             // Break it if
@@ -175,13 +179,12 @@ class YapsWrapperChannel {
             if (c === finishOnKey
                 || digits.length >= maxDigits
                 || (c === null && timeout > 0)) {
-                break
+                return digits
             }
 
-            // Ideally we should play an audio that has near zero seconds
             c = this.channel.getData('silence/1', timeout, 1)
 
-            if (('1234567890#*').indexOf(c) > -1) {
+            if (c && (finishOnKey).indexOf(c) === -1) {
                 digits = digits.concat(c)
                 continue
             }
@@ -226,8 +229,14 @@ class YapsWrapperChannel {
         const filename = objectid()
         const file = `${process.MS_RECORDINGS_TEMP_FOLDER}/${filename}`
 
-        result.keyPressed = this.channel.recordFile(file, format, finishOnKey,
+        console.log(`file ${file}`)
+
+        const res = this.channel.recordFile(file, format, finishOnKey,
             maxDuration, offset, beep)
+
+        if (res.code !== 200) throw res.rawReply
+
+        result.keyPressed = res.attributes.result
         result.recordingUri = `${process.RECORDINGS_BASE_URI}/${filename}.${format}`
         result.filename = filename
         result.format = format
