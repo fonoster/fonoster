@@ -1,0 +1,12 @@
+FROM node:8.15.0-alpine
+LABEL Pedro Sanders <fonosterteam@fonoster.com>
+
+ARG GRAALVM_BIN=graalvm-ce-java8-linux-amd64-19.3.1.tar.gz
+ENV GRAALVM_HOME=/opt/graalvm-ce-java8-19.3.1
+ENV JAVA_HOME=${GRAALVM_HOME}
+
+COPY yaps /yaps
+ADD https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-19.3.1/graalvm-ce-java8-linux-amd64-19.3.1.tar.gz /opt
+RUN cd /opt && tar xvf ${GRAALVM_BIN} \
+    && rm ${GRAALVM_BIN}
+

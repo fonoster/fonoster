@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "description": "Core artifacts",
   "scripts": {
-    "test": "mocha core/*_test.js"
+    "test": "cross-env ./etc/tests/tester core/*_test.js tts/*_test.js data_apis/*_test.js",
+    "pretest": "cross-env ./gradlew build copyRuntimeLibs"
   },
   "author": "Pedro Sanders",
   "license": "MIT",
   "dependencies": {
     "assert": "^2.0.0",
+    "cross-env": "^6.0.3",
+    "flat": "^5.0.0",
     "mocha": "^7.0.0",
+    "nyc": "^15.0.0",
     "objectid": "^3.2.1"
   }
 }

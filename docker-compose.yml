@@ -40,6 +40,7 @@ services:
     entrypoint: sh -c './run.sh'
     volumes:
       - ./functions:/functions:ro
+      - ./mediacontroller/yaps/core:/yaps/core:ro
     expose:
       - ${MC_AGI_PORT}
   datasource:
@@ -49,6 +50,8 @@ services:
     hostname: redis
     expose:
       - ${DS_PORT}
+    ports:
+      - ${DS_PORT}:${DS_PORT}
   provisioner:
     env_file: .env
     build:
@@ -63,3 +66,43 @@ services:
       '
     volumes:
       - ./etc/bootstrap.yml:/etc/bootstrap.yml:ro
+  fsmaster:
+    image: chrislusf/seaweedfs # use a remote image
+    expose:
+    - 9333
+    - 19333
+    command: "master -ip=fsmaster"
+  fsvolume:
+    image: chrislusf/seaweedfs # use a remote image
+    expose:
+    - 8080
+    - 18080
+    command: 'volume -max=15 -mserver="fsmaster:9333" -port=8080'
+    depends_on:
+    - fsmaster
+  fsfiler:
+    image: chrislusf/seaweedfs # use a remote image
+    expose:
+      - 8888
+      - 18888
+    ports:
+    - 8888:8888
+    - 18888:18888
+    command: 'filer -master="fsmaster:9333"'
+    tty: true
+    stdin_open: true
+    depends_on:
+    - fsmaster
+    - fsvolume
+  tests:
+    depends_on: ['datasource']
+    env_file: .env
+    image: yaps/tests   
+    environment:
+      GRAALVM_HOME: /graalvm-ce-19.2.0
+    build:
+      context: mediacontroller
+      dockerfile: Dockerfile-tests
+    entrypoint: sh -c 'cd /yaps && npm test'
+    volumes:
+      - ./mediacontroller/yaps:/yaps/core:rw
