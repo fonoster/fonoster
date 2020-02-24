@@ -9,7 +9,7 @@ const AbstractTTs = require('./abstract_tts')
 
 describe('Abstract TTS tests', () => {
 
-    it.only('Test generate filename', done => {
+    it('Test generate filename', done => {
         const tts = new AbstractTTs('abstract')
         const t = tts.computeFilename('Hello World', {
             voice: 'Anna',

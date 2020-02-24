@@ -1,10 +1,9 @@
-# Roadmap
+# Yet Another Phone System (YAPS) Roadmap
+
 The following is only a selection of some of the major features we plan to
 implement in the near future. To get a more complete overview of planned features
 and current work, see the issue trackers for the various repositories, for example,
 the [YAPS ecosystem](https://github.com/fonoster/yaps).
-
-Here is the roadmap by component:
 
 ## Media Controller(MC)
 

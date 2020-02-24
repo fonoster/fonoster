@@ -4,12 +4,12 @@
  *
  * Unit Test for the "Yaps Wrapper Channel"
  */
-const assert = require('assert')
 const MockChannel = require('./mock_channel')
 const MockTTS = require('../tts/mock_tts')
 const YWC = require('./ywc')
 const EventsAPI = require('./events_api')
 const eventsAPI = new EventsAPI()
+const assert = require('assert')
 
 describe('YWC tests', () => {
 
@@ -26,7 +26,7 @@ describe('YWC tests', () => {
         assert.equal(1, ywc.hangup())
         done()
     })
-    
+
     it('Test verb play', done => {
         const channel = new MockChannel()
         const ywc = new YWC(channel, {eventsAPI})
@@ -38,7 +38,7 @@ describe('YWC tests', () => {
             ywc.play('beep', {finishOnKey: '%'})
             done('Error: Failed exception')
         } catch(e) {
-        }      
+        }
 
         done()
     })
@@ -57,7 +57,7 @@ describe('YWC tests', () => {
         ywc.config({tts: new MockTTS({})})
         ywc.say('Hello World')
         done()
-    })    
+    })
 
     it('Test verb gather', done => {
         const channel = new MockChannel()
@@ -93,7 +93,7 @@ describe('YWC tests', () => {
         assert.equal('123', result)
 
         done()
-    })     
+    })
 
     it('Test verb wait', done => {
         const channel = new MockChannel()
@@ -104,26 +104,26 @@ describe('YWC tests', () => {
             done('Error: Failed exception')
         } catch(e) {
         }
-        
+
         done()
-    })  
+    })
 
     it('Test verb record', done => {
         const channel = new MockChannel()
 
         const ywc = new YWC(channel, {eventsAPI})
-        
+
         try {
             ywc.record({beep: 'a'})
             done('Error: Failed exception')
         } catch(e) {
         }
-        
+
         ywc.record()
 
         done()
-    }) 
-    
+    })
+
     it('Test verb stash', done => {
         const channel = new MockChannel()
         const ywc = new YWC(channel, {eventsAPI})
@@ -132,6 +132,6 @@ describe('YWC tests', () => {
         ywc.stash('key1', 'val3')
         assert.equal(2, ywc.getCallDetailRecord().vars.size)
         done()
-    })    
+    })
 
 })

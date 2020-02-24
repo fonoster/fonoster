@@ -3,14 +3,14 @@
  * @since v1
  */
 const AGIServer = require('agi-node').AGIServer
+const YWC = require('../core/ywc')
+const EventsAPI = require('../core/events_api')
 const { NodeVM } = require('vm2')
 const fs = require('fs')
 const vm = new NodeVM(require('./vm.json'))
-const YWC = require('../core/ywc')
-const EventsAPI = require('../core/events_api')
 
 // TODO: replace with a functional TTS engine
-const MockTTS = require('../tts/mock_tts') 
+const MockTTS = require('../tts/mock_tts')
 
 const eventsAPI = new EventsAPI()
 const defaultTTSEngine = new MockTTS({})

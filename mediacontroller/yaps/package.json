@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Core artifacts",
   "scripts": {
-    "test": "cross-env ./etc/tests/tester core/*_test.js tts/*_test.js data_apis/*_test.js",
-    "pretest": "cross-env ./gradlew build copyRuntimeLibs"
+    "test": "./node_modules/nyc/bin/nyc.js --reporter=lcov ./node_modules/mocha/bin/mocha -t 360000 core/*_test.js tts/*_test.js"
   },
   "author": "Pedro Sanders",
   "license": "MIT",
