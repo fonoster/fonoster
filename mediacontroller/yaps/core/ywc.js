@@ -99,7 +99,7 @@ class YapsWrapperChannel {
         if (!this.conf.tts) {
             throw 'not tts engine found'
         }
-        const filename = this.conf.tts.generate(text)
+        const filename = this.conf.tts.synthesize(text)
         return this.play(filename, options)
     }
 

@@ -66,43 +66,29 @@ services:
       '
     volumes:
       - ./etc/bootstrap.yml:/etc/bootstrap.yml:ro
-  fsmaster:
-    image: chrislusf/seaweedfs # use a remote image
-    expose:
-    - 9333
-    - 19333
-    command: "master -ip=fsmaster"
-  fsvolume:
-    image: chrislusf/seaweedfs # use a remote image
-    expose:
-    - 8080
-    - 18080
-    command: 'volume -max=15 -mserver="fsmaster:9333" -port=8080'
-    depends_on:
-    - fsmaster
-  fsfiler:
-    image: chrislusf/seaweedfs # use a remote image
-    expose:
-      - 8888
-      - 18888
-    ports:
-    - 8888:8888
-    - 18888:18888
-    command: 'filer -master="fsmaster:9333"'
-    tty: true
-    stdin_open: true
-    depends_on:
-    - fsmaster
-    - fsvolume
-  tests:
-    depends_on: ['datasource']
-    env_file: .env
-    image: yaps/tests   
-    environment:
-      GRAALVM_HOME: /graalvm-ce-19.2.0
-    build:
-      context: mediacontroller
-      dockerfile: Dockerfile-tests
-    entrypoint: sh -c 'cd /yaps && npm test'
+  fs:
+    image: minio/minio:RELEASE.2020-02-27T00-23-05Z
     volumes:
-      - ./mediacontroller/yaps:/yaps/core:rw
+      - data1-1:/data1
+      - data1-2:/data2
+      - data1-3:/data3
+      - data1-4:/data4
+    ports:
+      - "9001:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: server http://fs/data1 http://fs/data2 http://fs/data3 http://fs/data4
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+## By default this config uses default local driver,
+## For custom volumes replace with volume driver configuration.
+volumes:
+  data1-1:
+  data1-2:
+  data1-3:
+  data1-4:

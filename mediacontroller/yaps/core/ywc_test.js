@@ -10,6 +10,13 @@ const YWC = require('./ywc')
 const EventsAPI = require('./events_api')
 const eventsAPI = new EventsAPI()
 const assert = require('assert')
+const fsConfig = {
+    endPoint: '127.0.0.1',
+    port: 9001,
+    useSSL: false,
+    accessKey: 'minio',
+    secretKey: 'minio123'
+}
 
 describe('YWC tests', () => {
 
@@ -54,7 +61,7 @@ describe('YWC tests', () => {
         } catch(e) {
         }
 
-        ywc.config({tts: new MockTTS({})})
+        ywc.config({tts: new MockTTS(fsConfig)})
         ywc.say('Hello World')
         done()
     })
@@ -114,7 +121,7 @@ describe('YWC tests', () => {
         const ywc = new YWC(channel, {eventsAPI})
 
         try {
-            ywc.record({beep: 'a'})
+            ywc.record({ beep: 'a' })
             done('Error: Failed exception')
         } catch(e) {
         }

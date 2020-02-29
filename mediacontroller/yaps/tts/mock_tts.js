@@ -6,12 +6,14 @@ const AbstractTTS = require('./abstract_tts')
 
 class MockTTS extends AbstractTTS {
 
-    constructor(options) {
-        super('mock-tts', options)
+    constructor(config) {
+        super('mock-tts', config)
     }
 
-    generate(text) {
-        return text
+    synthesize(text, options) {
+        // You must implement your own callback for each new TTSEngine
+        return super.generateSpeach(text, options,
+          (text, options) => __dirname + '/test.wav')
     }
 }
 

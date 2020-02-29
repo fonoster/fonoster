@@ -8,14 +8,8 @@
   "author": "Pedro Sanders",
   "license": "MIT",
   "dependencies": {
-    "assert": "^2.0.0",
-    "cross-env": "^6.0.3",
-    "deasync": "^0.1.19",
-    "flat": "^5.0.0",
-    "minio": "^7.0.14",
-    "mocha": "^7.0.0",
-    "nyc": "^15.0.0",
-    "objectid": "^3.2.1",
-    "sox-audio": "^0.3.0"
+    "@grpc/proto-loader": "^0.5.3",
+    "grpc": "^1.24.2",
+    "minio": "^7.0.14"
   }
 }
