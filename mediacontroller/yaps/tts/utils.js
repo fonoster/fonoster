@@ -19,6 +19,7 @@ const computeFilename = (text, options = {}) => {
 // Keeping this simple for now
 // Expects the input file to be a .wav
 const transcodeSync = file => {
+    console.log('file: ', file)
     const fileOut = file + '_transcoded'
     sox.on('error',
       (err, stdout, stderr) => console.log(`Cannot process audio: ${err.message}`) )
