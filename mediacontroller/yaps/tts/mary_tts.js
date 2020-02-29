@@ -12,7 +12,7 @@ const {
 
 class MaryTTS extends AbstractTTS {
 
-    // Config not yet implemnted
+    // Config not yet implemented
     constructor(config) {
         super('mary-tts')
         const options = `INPUT_TYPE=TEXT&AUDIO=WAVE_FILE&OUTPUT_TYPE=AUDIO&LOCALE=EN_US`
@@ -26,7 +26,7 @@ class MaryTTS extends AbstractTTS {
         }
     }
 
-    // Options not yet implemnted
+    // Options not yet implemented
     synthesizeSync(text, options) {
         const tmpDirFromEnv = process.env.MC_TTS_TEMP_FOLDER
         const tmpDir = tmpDirFromEnv ? tmpDirFromEnv : __dirname
