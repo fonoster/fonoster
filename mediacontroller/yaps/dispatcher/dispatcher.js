@@ -9,11 +9,10 @@ const { NodeVM } = require('vm2')
 const fs = require('fs')
 const vm = new NodeVM(require('./vm.json'))
 
-// TODO: replace with a functional TTS engine
-const MockTTS = require('../tts/mock_tts')
+const MaryTTS = require('../tts/mary_tts')
 
 const eventsAPI = new EventsAPI()
-const defaultTTSEngine = new MockTTS({})
+const defaultTTSEngine = new MaryTTS()
 
 function dispatcher(channel) {
     try {

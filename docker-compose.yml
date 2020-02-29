@@ -84,6 +84,11 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+  tts:
+    env_file: .env
+    image: synesthesiam/marytts:5.2
+    ports:
+      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
 
 ## By default this config uses default local driver,
 ## For custom volumes replace with volume driver configuration.

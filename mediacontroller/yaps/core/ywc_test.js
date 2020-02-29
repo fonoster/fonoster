@@ -5,12 +5,13 @@
  * Unit Test for the "Yaps Wrapper Channel"
  */
 const MockChannel = require('./mock_channel')
-const MockTTS = require('../tts/mock_tts')
+const MaryTTS = require('../tts/mary_tts')
+const Storage = require('./storage')
 const YWC = require('./ywc')
 const EventsAPI = require('./events_api')
 const eventsAPI = new EventsAPI()
 const assert = require('assert')
-const fsConfig = {
+const storageConfig = {
     endPoint: '127.0.0.1',
     port: 9001,
     useSSL: false,
@@ -61,8 +62,12 @@ describe('YWC tests', () => {
         } catch(e) {
         }
 
-        ywc.config({tts: new MockTTS(fsConfig)})
-        ywc.say('Hello World')
+        ywc.config({
+            tts: new MaryTTS(),
+            storage: new Storage(storageConfig)
+        })
+
+        ywc.say('Hello Raysa')
         done()
     })
 

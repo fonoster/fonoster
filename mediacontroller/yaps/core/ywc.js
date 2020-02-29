@@ -3,6 +3,10 @@
  * @since v1
  */
 const objectid = require('objectid')
+const {
+  computeFilename,
+  transcodeSync
+} = require('../tts/utils')
 
 class YapsWrapperChannel {
 
@@ -41,7 +45,7 @@ class YapsWrapperChannel {
         //if (result.code !== 200) throw result.rawReply
         //return 0
     }
-    
+
     hangup() {
         return this.channel.hangup()
         //if (result.code !== 200) throw result.rawReply
@@ -50,19 +54,19 @@ class YapsWrapperChannel {
 
     setAutoHangup(timeout) {
         throw 'not yet implemented'
-        if (timeout && isNaN(timeout)) throw 'timeout is not a number'        
+        if (timeout && isNaN(timeout)) throw 'timeout is not a number'
         return this.channel.setAutoHangup(timeout)
-    }   
+    }
 
     /**
      *
      * Param file - Is a file that has been previously uploaded or is available by default.
      * Param options - Optional parameters to alter the command's normal behavior.
-     * 
+     *
      * Example options {
      *     finishOnKey: #,     // Default
      * }
-     * 
+     *
      * Returns - Sent DTMF or undefined if no key was pressed before audio ends
      */
     play(file, options)  {
@@ -70,27 +74,27 @@ class YapsWrapperChannel {
         let finishOnKey = '#'
 
         if (options) {
-            if (options.finishOnKey && (options.finishOnKey.length !== 1 
-                || ('1234567890#*').indexOf(options.finishOnKey) < 0 )) 
+            if (options.finishOnKey && (options.finishOnKey.length !== 1
+                || ('1234567890#*').indexOf(options.finishOnKey) < 0 ))
                 throw 'finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*'
-            
+
             if (options.finishOnKey) finishOnKey = options.finishOnKey
         }
-            
+
         const result = this.channel.streamFile(file, finishOnKey)
 
         if (result.code === 200) return result.attributes.result
 
         throw result.rawReply
-    }   
- 
+    }
+
     /**
      * Param text - Will be convert into a file and put in a cache for future use.
      * This method behavior is similar than play.
      * Example options {
      *     finishOnKey: #,     // Default
      * }
-     * 
+     *
      * Returns - Sent DTMF or undefined if no key was pressed before audio ends
      */
     say(text, options) {
@@ -99,8 +103,18 @@ class YapsWrapperChannel {
         if (!this.conf.tts) {
             throw 'not tts engine found'
         }
-        const filename = this.conf.tts.synthesize(text)
-        return this.play(filename, options)
+
+        const filename = computeFilename(text, options)
+        let url = this.conf.storage.getFileURLSync(filename)
+
+        if (url === undefined) {
+            const pathToFile = this.conf.tts.synthesizeSync(text, options)
+            const pathToTranscodedFile = transcodeSync(pathToFile)
+            this.conf.storage.uploadFileSync(filename, pathToTranscodedFile)
+            url = this.conf.storage.getFileURLSync(filename)
+        }
+
+        return this.play(url, options)
     }
 
     /**
@@ -108,10 +122,10 @@ class YapsWrapperChannel {
      */
     wait(time) {
         let t = 1
-    
+
         if (time && time <= 0) throw 'time must an number equal or greater than zero.'
         if (time) t = time
-    
+
         while(t > 0) {
             this.play('silence/1')
             t--
@@ -130,7 +144,7 @@ class YapsWrapperChannel {
      * }
      *
      * Note: Either maxDigits or timeout must be greater than zero.
-     * 
+     *
      * Returns - Sent digits or undefined if no key was pressed before timeout
      */
     gather(initDigits, options) {
@@ -146,7 +160,7 @@ class YapsWrapperChannel {
 
         // Perform validations
         if (options) {
-            if (options.finishOnKey && options.finishOnKey.length !== 1) 
+            if (options.finishOnKey && options.finishOnKey.length !== 1)
                 throw 'finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*'
             // Less than one second will have no effect on the timeout
             if (options.timeout && (isNaN(options.timeout) || options.timeout < 0))
@@ -174,7 +188,7 @@ class YapsWrapperChannel {
             // 1. User enters finishOnKey(ie.: #)
             // 2. The length of digits is equal or greater than maxDigits
             // 3. Character c is null given that timeout !== 0
-            // Note: Timeout !== 0 means no timeout. 
+            // Note: Timeout !== 0 means no timeout.
             // Char 'c' will be null if timeout event is fired
             if (c === finishOnKey
                 || digits.length >= maxDigits
@@ -205,7 +219,7 @@ class YapsWrapperChannel {
      * }
      *
      * Returns - Metadata with information about the recordings
-     * 
+     *
      * TODO: Add constrains for the file's format
      */
     record(options) {
@@ -254,6 +268,6 @@ class YapsWrapperChannel {
     getCallDetailRecord() {
         return this.callDetailRecord
     }
-}  
+}
 
-module.exports = YapsWrapperChannel 
+module.exports = YapsWrapperChannel
