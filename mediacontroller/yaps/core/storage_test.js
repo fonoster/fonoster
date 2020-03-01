@@ -8,7 +8,7 @@ const assert = require('assert')
 const Storage = require('./storage')
 const storageConfig = {
     endPoint: '127.0.0.1',
-    port: 9001,
+    port: 9000,
     useSSL: false,
     accessKey: 'minio',
     secretKey: 'minio123'
