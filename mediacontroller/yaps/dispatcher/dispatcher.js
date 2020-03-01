@@ -3,14 +3,14 @@
  * @since v1
  */
 const AGIServer = require('agi-node').AGIServer
+const Storage = require('../core/storage')
 const YWC = require('../core/ywc')
 const EventsAPI = require('../core/events_api')
+const MaryTTS = require('../tts/mary_tts')
+
 const { NodeVM } = require('vm2')
 const fs = require('fs')
 const vm = new NodeVM(require('./vm.json'))
-
-const MaryTTS = require('../tts/mary_tts')
-
 const eventsAPI = new EventsAPI()
 const defaultTTSEngine = new MaryTTS()
 
@@ -20,7 +20,8 @@ function dispatcher(channel) {
         const contents = fs.readFileSync(appPath, 'utf8')
         const chann = new YWC(channel, {
             eventsAPI,
-            tts: defaultTTSEngine
+            tts: defaultTTSEngine,
+            storage: new Storage()
         })
         // TODO: Pass parameter with simplify request
         vm.run(contents)(chann)

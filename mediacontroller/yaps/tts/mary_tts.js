@@ -5,7 +5,7 @@
 const AbstractTTS = require('./abstract_tts')
 const http = require('http')
 const fs = require('fs')
-const deasync = require('deasync')
+const sleep = require('syncho').sleep
 const {
     computeFilename
 } = require('./utils')
@@ -33,12 +33,13 @@ class MaryTTS extends AbstractTTS {
         const pathToFile = tmpDir + '/' + computeFilename(text, options)
         let complete
         const file = fs.createWriteStream(pathToFile)
-        const request = http.get(`${this.serviceUrl}&INPUT_TEXT=${encodeURI(text)}`, response => {
+
+        http.get(`${this.serviceUrl}&INPUT_TEXT=${encodeURI(text)}`, response => {
             response.pipe(file)
             complete = true
-        });
+        })
 
-        while(complete === undefined) require('deasync').sleep(100)
+        while(complete === undefined) sleep(100)
 
         return pathToFile
     }
