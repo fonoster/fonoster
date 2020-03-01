@@ -3,7 +3,7 @@
  * @since v1
  */
 const Minio = require('minio')
-const deasync = require('deasync')
+const sleep = require('syncho').sleep
 
 class Storage {
 
@@ -23,13 +23,12 @@ class Storage {
 
     // Get this out of here...
     uploadFileSync(filename, filePath, metadata = {}) {
-        const fPutObjectSync = deasync()
         let result
 
         this.fsConn.fPutObject('default', filename, filePath, metadata,
           (err, etag) => result = err ? err : etag )
 
-        while(result === undefined) require('deasync').sleep(100)
+        while(result === undefined) sleep(100)
 
         return result
     }
@@ -41,18 +40,20 @@ class Storage {
             exist = e ? false : true
         })
 
-        while(exist === undefined) require('deasync').sleep(100)
+        while(exist === undefined) sleep(100)
 
         if (!exist) return void(0)
 
         // It exist, so lets get the URL
-        let url
+        /*let url
         this.fsConn.presignedGetObject('default', filename, 1000, function(e, presignedUrl) {
             if (e) throw e
             url = presignedUrl
-        })
+        })*/
 
-        while(url === undefined) require('deasync').sleep(100)
+        //while(url === undefined) sleep(100)
+
+        const url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${process.env.FS_DEFAULT_BUCKET}/${filename}`
 
         return url
     }
