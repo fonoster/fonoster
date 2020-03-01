@@ -100,18 +100,18 @@ class YapsWrapperChannel {
     say(text, options) {
         if (!text) throw 'You must provide a text.'
         // This returns the route to the generated audio
-        if (!this.conf.tts) {
-            throw 'not tts engine found'
-        }
+        if (!this.conf.tts) throw 'not tts engine found'
+        if (!this.conf.storage) throw 'not storage object found'
 
+        const metadata = { 'Content-Type': 'audio/x-wav' }
         const filename = computeFilename(text, options)
         let url = this.conf.storage.getFileURLSync(filename)
 
         if (url === undefined) {
             const pathToFile = this.conf.tts.synthesizeSync(text, options)
             const pathToTranscodedFile = transcodeSync(pathToFile)
-            this.conf.storage.uploadFileSync(filename, pathToTranscodedFile)
-            url = this.conf.storage.getFileURLSync(filename)
+            this.conf.storage.uploadFileSync(filename + '.wav', pathToTranscodedFile, metadata)
+            url = this.conf.storage.getFileURLSync(filename + '.wav')
         }
 
         return this.play(url, options)
