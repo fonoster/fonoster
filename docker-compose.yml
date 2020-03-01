@@ -73,8 +73,8 @@ services:
       - data1-2:/data2
       - data1-3:/data3
       - data1-4:/data4
-    ports:
-      - "9001:9000"
+    expose:
+      - ${FS_PORT}
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
@@ -87,8 +87,8 @@ services:
   tts:
     env_file: .env
     image: synesthesiam/marytts:5.2
-    ports:
-      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
+    expose:
+      - ${TTS_ENGINE_PORT}
 
 ## By default this config uses default local driver,
 ## For custom volumes replace with volume driver configuration.
