@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
-cd /yaps/dispatcher && node dispatcher.js
+cd /yaps && node dispatcher/dispatcher.js
 while sleep 3600; do :; done
