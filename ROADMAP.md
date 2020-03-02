@@ -31,8 +31,8 @@ Note: The MC component will not provide with a deploy/undeploy logic
 TODO:
 
 - [ ] Draft `admin` functions(yaps.admin, yaps.logging, yaps.auth, yaps.storage...)
-- [ ] Create a monitor agent to push all new media files to the FS
-- [ ] Create simplified Voice APIS base on verbs
+- [x] Implement API to push files to the FS
+- [x] Create simplified Voice APIS base on verbs
 
 ## Media Server(MS)
 
@@ -49,7 +49,7 @@ Component Specs:
 
 TODO:
 
-- [ ] Attempt to play sound from a remote location via http
+- [x] Attempt to play sound from a remote location via http (It works!)
 - [ ] Create an ARI agent to communicate with the Message Bus
 - [ ] Create a monitor agent to push all new media files to the FS
 
