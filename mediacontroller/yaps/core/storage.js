@@ -25,8 +25,8 @@ class Storage {
     uploadFileSync(filename, filePath, metadata = {}) {
         let result
 
-        this.fsConn.fPutObject('default', filename, filePath, metadata,
-          (err, etag) => result = err ? err : etag )
+        this.fsConn.fPutObject(process.env.FS_DEFAULT_BUCKET, filename,
+            filePath, metadata, (err, etag) => result = err ? err : etag )
 
         while(result === undefined) sleep(100)
 
@@ -36,8 +36,9 @@ class Storage {
     // Get this out of here...
     getFileURLSync(filename) {
         let exist
-        this.fsConn.statObject('default', filename, (e, dataStream) => {
-            exist = e ? false : true
+        this.fsConn.statObject(process.env.FS_DEFAULT_BUCKET,
+            filename, (e, dataStream) => {
+              exist = e ? false : true
         })
 
         while(exist === undefined) sleep(100)
@@ -51,7 +52,7 @@ class Storage {
             url = presignedUrl
         })*/
 
-        //while(url === undefined) sleep(100)
+        //while(url === undefined) sleep(1200)
 
         const url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${process.env.FS_DEFAULT_BUCKET}/${filename}`
 

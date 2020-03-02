@@ -75,6 +75,9 @@ services:
       - data1-4:/data4
     expose:
       - ${FS_PORT}
+    # WARNING: Hide this in production
+    ports:
+      - ${FS_PORT}:${FS_PORT}
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
@@ -89,6 +92,9 @@ services:
     image: synesthesiam/marytts:5.2
     expose:
       - ${TTS_ENGINE_PORT}
+    # WARNING: Hide this in production
+    ports:
+      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
 
 ## By default this config uses default local driver,
 ## For custom volumes replace with volume driver configuration.

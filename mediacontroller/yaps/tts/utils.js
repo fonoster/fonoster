@@ -5,6 +5,7 @@
 const flat = require('flat')
 const crypto = require('crypto')
 const sox = require('sox-audio')()
+const sleep = require('syncho').sleep
 
 const computeFilename = (text, options = {}) => {
     let c = text
@@ -19,15 +20,19 @@ const computeFilename = (text, options = {}) => {
 // Keeping this simple for now
 // Expects the input file to be a .wav
 const transcodeSync = file => {
-    console.log('file: ', file)
     const fileOut = file + '_transcoded'
     sox.on('error',
-      (err, stdout, stderr) => console.log(`Cannot process audio: ${err.message}`) )
+      (err, stdout, stderr) => console.error(`Cannot process audio: ${err.message}`) )
     sox.input(file)
     sox.output(fileOut)
        .outputSampleRate(8000)
        .outputFileType('wav')
     sox.run()
+
+    let end
+    sox.on('end', () => end = true);
+    while(!end) sleep(100)
+
     return fileOut
 }
 

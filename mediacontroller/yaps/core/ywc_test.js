@@ -8,8 +8,7 @@ const MockChannel = require('./mock_channel')
 const MaryTTS = require('../tts/mary_tts')
 const Storage = require('./storage')
 const YWC = require('./ywc')
-const EventsAPI = require('./events_api')
-const eventsAPI = new EventsAPI()
+
 const assert = require('assert')
 const storageConfig = {
     endPoint: '127.0.0.1',
@@ -21,23 +20,32 @@ const storageConfig = {
 
 describe('YWC tests', () => {
 
+    before (() => {
+        process.env.MC_TTS_TEMP_FOLDER = __dirname
+        process.env.FS_HOST = '127.0.0.1'
+        process.env.FS_PORT = 9000
+        process.env.FS_USERNAME = 'minio'
+        process.env.FS_SECRET = 'minio123'
+        process.env.FS_DEFAULT_BUCKET = 'default'
+    })
+
     it('Test verb answer', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, {eventsAPI})
+        const ywc = new YWC(channel, { tts:{}, storage: {}})
         assert.equal(0, ywc.answer())
         done()
     })
 
     it('Test verb hangup', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, {eventsAPI})
+        const ywc = new YWC(channel, { tts:{}, storage: {}})
         assert.equal(1, ywc.hangup())
         done()
     })
 
     it('Test verb play', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, {eventsAPI})
+        const ywc = new YWC(channel, { tts:{}, storage: {}})
         channel.setData(['1'])
         const result = ywc.play('beep')
         assert.equal('1', result)
@@ -51,9 +59,9 @@ describe('YWC tests', () => {
         done()
     })
 
-    it('Test verb say', done => {
+    it.only('Test verb say', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, {eventsAPI})
+        const ywc = new YWC(channel, { tts:{}, storage: {}})
         channel.setData(['1'])
 
         try {
@@ -73,7 +81,7 @@ describe('YWC tests', () => {
 
     it('Test verb gather', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, {eventsAPI})
+        const ywc = new YWC(channel, { tts:{}, storage: {}})
 
         try {
             ywc.gather('', {finishOnKey: 'aa', maxDigits: 'p'})
@@ -109,7 +117,7 @@ describe('YWC tests', () => {
 
     it('Test verb wait', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, {eventsAPI})
+        const ywc = new YWC(channel, { tts:{}, storage: {}})
 
         try {
             ywc.wait(-1)
@@ -123,7 +131,7 @@ describe('YWC tests', () => {
     it('Test verb record', done => {
         const channel = new MockChannel()
 
-        const ywc = new YWC(channel, {eventsAPI})
+        const ywc = new YWC(channel, { tts:{}, storage: {}})
 
         try {
             ywc.record({ beep: 'a' })
@@ -138,7 +146,7 @@ describe('YWC tests', () => {
 
     it('Test verb stash', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, {eventsAPI})
+        const ywc = new YWC(channel, { tts:{}, storage: {}})
         ywc.stash('key1', 'val1')
         ywc.stash('key2', 'val2')
         ywc.stash('key1', 'val3')

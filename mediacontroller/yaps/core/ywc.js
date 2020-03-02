@@ -1,4 +1,4 @@
-/**
+this.config/**
  * @author Pedro Sanders
  * @since v1
  */
@@ -10,10 +10,9 @@ const {
 
 class YapsWrapperChannel {
 
-    constructor(channel, conf) {
+    constructor(channel, config) {
         this.channel = channel
-        this.config(conf)
-        this.eventsAPI = conf.eventsAPI
+        this.conf = config
         this.callDetailRecord = {
             ref: objectid(),
             date: new Date(),
@@ -34,6 +33,9 @@ class YapsWrapperChannel {
             //cost,
             //billable
         }
+
+        if (!this.conf.tts) throw 'not tts engine found'
+        if (!this.conf.storage) throw 'not storage object found'
     }
 
     config(conf) {
@@ -100,8 +102,6 @@ class YapsWrapperChannel {
     say(text, options) {
         if (!text) throw 'You must provide a text.'
         // This returns the route to the generated audio
-        if (!this.conf.tts) throw 'not tts engine found'
-        if (!this.conf.storage) throw 'not storage object found'
 
         const metadata = { 'Content-Type': 'audio/x-wav' }
         const filename = computeFilename(text, options)
@@ -242,9 +242,6 @@ class YapsWrapperChannel {
 
         const filename = objectid()
         const file = `${process.MS_RECORDINGS_TEMP_FOLDER}/${filename}`
-
-        console.log(`file ${file}`)
-
         const res = this.channel.recordFile(file, format, finishOnKey,
             maxDuration, offset, beep)
 
@@ -255,8 +252,6 @@ class YapsWrapperChannel {
         result.filename = filename
         result.format = format
         result.callRef = this.callDetailRecord.ref
-
-        this.eventsAPI.recordingCompleted(result)
 
         return result
     }

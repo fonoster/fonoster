@@ -39,7 +39,7 @@ class MaryTTS extends AbstractTTS {
             complete = true
         })
 
-        while(complete === undefined) sleep(100)
+        while(complete === undefined) sleep(1200)
 
         return pathToFile
     }
