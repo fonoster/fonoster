@@ -9,7 +9,8 @@ const assert = require('assert')
 const AbstractTTS = require('./abstract_tts')
 const {
     computeFilename,
-    transcodeSync
+    transcodeSync,
+    optionsToQueryString
 } = require('./utils')
 
 describe('TTS Utils', () => {
@@ -28,6 +29,16 @@ describe('TTS Utils', () => {
         done()
     })
 
+    // Needs an running instace of minio
+    it.only('Test options to query', done => {
+        const options = {
+            voice: 'peter',
+            language: 'spanish'
+        }
+        const q = optionsToQueryString(options)
+        assert.equal('voice=peter&language=spanish', q)
+        done()
+    })
 
     // Needs an running instace of minio
     it('Test convert audio', done => {

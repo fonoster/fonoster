@@ -17,6 +17,11 @@ const computeFilename = (text, options = {}) => {
         .update(`${text},${c}`).digest('hex')
 }
 
+// Expects a json object one level deep
+const optionsToQueryString = (object = {}) => Object.keys(object)
+      .map(key => `${key}=${object[key].toString()}`)
+      .join('&');
+
 // Keeping this simple for now
 // Expects the input file to be a .wav
 const transcodeSync = file => {
@@ -38,3 +43,4 @@ const transcodeSync = file => {
 
 module.exports.computeFilename = computeFilename
 module.exports.transcodeSync = transcodeSync
+module.exports.optionsToQueryString = optionsToQueryString

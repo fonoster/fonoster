@@ -10,13 +10,6 @@ const Storage = require('./storage')
 const YWC = require('./ywc')
 
 const assert = require('assert')
-const storageConfig = {
-    endPoint: '127.0.0.1',
-    port: 9001,
-    useSSL: false,
-    accessKey: 'minio',
-    secretKey: 'minio123'
-}
 
 describe('YWC tests', () => {
 
@@ -72,7 +65,7 @@ describe('YWC tests', () => {
 
         ywc.config({
             tts: new MaryTTS(),
-            storage: new Storage(storageConfig)
+            storage: new Storage()
         })
 
         ywc.say('Hello Raysa')

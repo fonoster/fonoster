@@ -14,8 +14,10 @@ function dispatcher(channel) {
     try {
         const appPath = `/functions${process.env.MC_APP_ENTRYPOINT}`
         const contents = fs.readFileSync(appPath, 'utf8')
+        const host = process.env.FS_HOST
+        const port = process.env.FS_PORT
         const chann = new YWC(channel, {
-            tts: new MaryTTS(),
+            tts: new MaryTTS({host, port}),
             storage: new Storage()
         })
         // TODO: Pass parameter with simplify request
