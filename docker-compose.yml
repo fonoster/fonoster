@@ -1,5 +1,58 @@
 version: '3.7'
 services:
+  datasource:
+    env_file: .env
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    expose:
+      - ${DS_PORT}
+    # WARNING: Hide this in production
+    ports:
+      - ${DS_PORT}:${DS_PORT}
+  provisioner:
+    env_file: .env
+    build:
+      context: .rctl
+    entrypoint: |
+      sh -c '
+        while ! nc -z $SIPPROXY_HOST ${SIPPROXY_API_PORT}; do sleep 0.1; done
+        rctl login https://${SIPPROXY_HOST}:${SIPPROXY_API_PORT}/api/v1beta1 \
+          -u ${SIPPROXY_API_USERNAME} -p ${SIPPROXY_API_SECRET}
+        rctl create -f /etc/bootstrap.yml
+        #while sleep 3600; do :; done
+      '
+    volumes:
+      - ./etc/bootstrap.yml:/etc/bootstrap.yml:ro
+  fs:
+    image: minio/minio:RELEASE.2020-02-27T00-23-05Z
+    volumes:
+      - data1-1:/data1
+      - data1-2:/data2
+      - data1-3:/data3
+      - data1-4:/data4
+    expose:
+      - ${FS_PORT}
+    # WARNING: Hide this in production
+    ports:
+      - ${FS_PORT}:${FS_PORT}
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: minio server /data1/minio/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+  tts:
+    env_file: .env
+    image: synesthesiam/marytts:5.2
+    expose:
+      - ${TTS_ENGINE_PORT}
+    # WARNING: Hide this in production
+    ports:
+      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
   sipproxy:
     env_file: .env
     image: fonoster/routr:1.0.0-rc4
@@ -34,67 +87,18 @@ services:
     image: yaps/mediacontroller
     environment:
       MC_AGI_PORT: ${MC_AGI_PORT}
-      MC_APP_ENTRYPOINT: '/hello-world/index.js'
+      MC_APP_ENTRYPOINT: ${MC_APP_ENTRYPOINT}/index.js
     build:
       context: mediacontroller
-    entrypoint: sh -c './run.sh'
-    volumes:
-      - ./functions:/functions:ro
-      - ./mediacontroller/yaps/core:/yaps/core:ro
-    expose:
-      - ${MC_AGI_PORT}
-  datasource:
-    env_file: .env
-    image: redis:4.0.5-alpine
-    command: ["redis-server", "--appendonly", "yes"]
-    hostname: redis
-    expose:
-      - ${DS_PORT}
-    ports:
-      - ${DS_PORT}:${DS_PORT}
-  provisioner:
-    env_file: .env
-    build:
-      context: .rctl
-    entrypoint: |
+    entrypoint:  |
       sh -c '
-        while ! nc -z $SIPPROXY_HOST ${SIPPROXY_API_PORT}; do sleep 0.1; done
-        rctl login https://${SIPPROXY_HOST}:${SIPPROXY_API_PORT}/api/v1beta1 \
-          -u ${SIPPROXY_API_USERNAME} -p ${SIPPROXY_API_SECRET}
-        rctl create -f /etc/bootstrap.yml
-        #while sleep 3600; do :; done
+          cd ${MC_APP_ENTRYPOINT} && npm i
+          cd / && ./run.sh
       '
     volumes:
-      - ./etc/bootstrap.yml:/etc/bootstrap.yml:ro
-  fs:
-    image: minio/minio:RELEASE.2020-02-27T00-23-05Z
-    volumes:
-      - data1-1:/data1
-      - data1-2:/data2
-      - data1-3:/data3
-      - data1-4:/data4
+      - ./functions:/functions:rw
     expose:
-      - ${FS_PORT}
-    # WARNING: Hide this in production
-    ports:
-      - ${FS_PORT}:${FS_PORT}
-    environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
-    command: server http://fs/data1 http://fs/data2 http://fs/data3 http://fs/data4
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-  tts:
-    env_file: .env
-    image: synesthesiam/marytts:5.2
-    expose:
-      - ${TTS_ENGINE_PORT}
-    # WARNING: Hide this in production
-    ports:
-      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
+      - ${MC_AGI_PORT}
 
 ## By default this config uses default local driver,
 ## For custom volumes replace with volume driver configuration.
