@@ -17,7 +17,7 @@ function dispatcher(channel) {
         const port = process.env.TTS_ENGINE_PORT
         const chann = new YWC(channel, {
             tts: new MaryTTS({host, port}),
-            // WARNING: This should be taken from the apps ./config
+            // WARNING: This should be taken from the app 'config.js'
             storage: new Storage('default-test')
         })
         // TODO: Pass parameter with simplify request

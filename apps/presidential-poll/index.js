@@ -51,7 +51,7 @@ module.exports = chan => {
           chan.say('For Trump Press one. For Hillary, press two and for Sanders 3'),
             config)
 
-        if (['1', '2', '3'].includes(key)) {
+        if (!['1', '2', '3'].includes(key)) {
             chan.say('I could not register your selection. Lets try again.')
             // You can use Play to stream a pre-recorded audio
             chan.play('beep')
