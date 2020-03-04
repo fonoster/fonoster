@@ -1,0 +1,4 @@
+{
+  locale: 'en_us'
+  defaultTTS: 'marytts'
+}
