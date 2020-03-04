@@ -19,7 +19,7 @@ describe('YWC tests', () => {
         process.env.FS_PORT = 9000
         process.env.FS_USERNAME = 'minio'
         process.env.FS_SECRET = 'minio123'
-        process.env.FS_DEFAULT_BUCKET = 'default'
+        process.env.FS_DEFAULT_STORAGE_BUCKET = 'default'
     })
 
     it('Test verb answer', done => {

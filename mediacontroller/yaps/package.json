@@ -1,5 +1,5 @@
 {
-  "name": "@yaps/yaps",
+  "name": "@yaps/core",
   "version": "1.0.0",
   "description": "Core artifacts",
   "scripts": {

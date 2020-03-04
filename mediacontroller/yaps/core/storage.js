@@ -7,36 +7,31 @@ const sleep = require('syncho').sleep
 
 class Storage {
 
-    // I have config here for testing
-    constructor(config) {
-        const configFromEnv = {
-            endPoint: process.env.FS_HOST,
-            port: parseInt(process.env.FS_PORT),
-            useSSL: false,
-            accessKey: process.env.FS_USERNAME,
-            secretKey: process.env.FS_SECRET
-        }
-
-        this.fsConn = config? new Minio.Client(config) :
-            new Minio.Client(configFromEnv)
+    constructor(storageBucket) {
+        this.storageBucket = storageBucket
+        this.fsConn = new Minio.Client({
+              endPoint: process.env.FS_HOST,
+              port: parseInt(process.env.FS_PORT),
+              useSSL: false,
+              accessKey: process.env.FS_USERNAME,
+              secretKey: process.env.FS_SECRET
+        })
     }
 
-    // Get this out of here...
     uploadFileSync(filename, filePath, metadata = {}) {
         let result
 
-        this.fsConn.fPutObject(process.env.FS_DEFAULT_BUCKET, filename,
+        this.fsConn.fPutObject(this.storageBucket, filename,
             filePath, metadata, (err, etag) => result = err ? err : etag )
 
         while(result === undefined) sleep(100)
 
-        return result
+        return this.getFileURLSync(filename)
     }
 
-    // Get this out of here...
     getFileURLSync(filename) {
         let exist
-        this.fsConn.statObject(process.env.FS_DEFAULT_BUCKET,
+        this.fsConn.statObject(this.storageBucket,
             filename, (e, dataStream) => {
               exist = e ? false : true
         })
@@ -54,7 +49,7 @@ class Storage {
 
         //while(url === undefined) sleep(1200)
 
-        const url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${process.env.FS_DEFAULT_BUCKET}/${filename}`
+        const url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.storageBucket}/${filename}`
 
         return url
     }

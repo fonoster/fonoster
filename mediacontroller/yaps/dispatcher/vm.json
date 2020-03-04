@@ -1,8 +1,6 @@
 {
     "console": "inherit",
-    "sandbox": {},
     "require": {
-        "root": "./",
-        "builtin": ["fs", "path"]
+        "external": true
     }
 }
