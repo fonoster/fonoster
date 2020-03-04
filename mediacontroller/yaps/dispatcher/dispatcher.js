@@ -12,16 +12,16 @@ const vm = new NodeVM(require('./vm.json'))
 
 function dispatcher(channel) {
     try {
-        const appPath = `/functions${process.env.MC_APP_ENTRYPOINT}`
-        const contents = fs.readFileSync(appPath, 'utf8')
-        const host = process.env.FS_HOST
-        const port = process.env.FS_PORT
+        const contents = fs.readFileSync(process.env.MC_APP_ENTRYPOINT, 'utf8')
+        const host = process.env.TTS_ENGINE_HOST
+        const port = process.env.TTS_ENGINE_PORT
         const chann = new YWC(channel, {
             tts: new MaryTTS({host, port}),
-            storage: new Storage()
+            // WARNING: This should be taken from the apps ./config
+            storage: new Storage('default-test')
         })
         // TODO: Pass parameter with simplify request
-        vm.run(contents)(chann)
+        vm.run(contents, process.env.MC_APP_ENTRYPOINT)(chann)
     } catch(e) {
         console.error(e)
     }
