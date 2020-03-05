@@ -7,7 +7,7 @@ const { storage, logger } = require('./config')
 module.exports = chan => {
 
     logger.log('Handler got call %s -> %s',
-        chan.channel.request.callerid, chan.channel.request.extension)
+        chan.callDetailRecord.ref, chan.callDetailRecord.to)
 
     const candidates = {
       '1': { name: 'Donald Trump' },
@@ -67,5 +67,5 @@ module.exports = chan => {
 
     chan.say('Thank you for participating. Review the results at www.georgia.gov. Goodbye!')
 
-    logger.log(`Ended call-id => ${chan.request.id}, time => ${Date.now()}`)
+    logger.log(`Call ${chan.callDetailRecord.ref} ${Date.now()} ended`)
 }
