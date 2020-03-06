@@ -153,7 +153,7 @@ services:
       '
     volumes:
       - ./apps:/apps:rw
-      - data1-1:/mnt/yaps:ro
+      #- data1-1:/mnt/yaps:ro
       #- ./mediacontroller/yaps/core:/yaps/core:ro
       #- ./mediacontroller/yaps/app.js:/yaps/app.js:ro
       - ./mediacontroller/yaps/dispatcher:/yaps/dispatcher:ro
@@ -192,7 +192,7 @@ services:
     ports:
       - ${LOGS_MONITOR_PORT}:${LOGS_MONITOR_PORT}
     environment:
-      ELASTICSEARCH_HOSTS: http://logsaggregator:LOGS_AGGREGRATOR_PORT
+      ELASTICSEARCH_HOSTS: http://logsaggregator:${LOGS_AGGREGRATOR_PORT}
 
 ## By default this config uses default local driver,
 ## For custom volumes replace with volume driver configuration.
