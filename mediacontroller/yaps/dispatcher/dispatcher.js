@@ -15,21 +15,12 @@ const logger = require('../utils/logger')
 function dispatcher(channel) {
     try {
         logger.log('debug', `core.Distpatcher.dispatcher [entering]`)
-
-        //const ingressApp = getIngressApp(channel.request.agi_extension)
-        //const appConfig = ingressApp.getConfig()
-        //const contents = fs.readFileSync(ingressApp.getPathToEntryPoint(),
-        //    'utf8')
-        const ingressApp = {
-            getPathToEntryPoint: () => '/apps/presidential-poll'
-        }
-
-        const appConfig = { storageBucket: 'default-test' }
-
-        //const contents = fs.readFileSync(ingressApp.getPathToEntryPoint() + '/index.js', 'utf8')
-        const contents = fs.readFileSync(ingressApp.getPathToEntryPoint() + '/index.js', 'utf8')
-
         logger.log('debug', `core.Distpatcher.dispatcher [extension: ${channel.request.agi_extension}]`)
+
+        const ingressApp = getIngressApp(channel.request.agi_extension)
+        const appConfig = ingressApp.getConfig()
+        const contents = fs.readFileSync(ingressApp.getPathToEntryPoint(), 'utf8')
+
         logger.log('debug', `core.Distpatcher.dispatcher [entrypoint: ${ingressApp.getPathToEntryPoint()}]`)
         logger.log('debug', `core.Distpatcher.dispatcher [contents: ${contents}]`)
 
@@ -40,7 +31,7 @@ function dispatcher(channel) {
             storage: new Storage(appConfig.storageBucket)
         })
 
-        vm.run(contents, ingressApp.getPathToEntryPoint() + '/index.js')(chann)
+        vm.run(contents, ingressApp.getPathToEntryPoint())(chann)
 
         logger.log('debug', `core.Distpatcher.dispatcher [cdr: ${JSON.stringify(chann.getCallDetailRecord())}]`)
         logger.log('debug', `core.Distpatcher.dispatcher [leaving]`)
