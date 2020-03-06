@@ -35,7 +35,6 @@ services:
         rctl login https://${SIPPROXY_HOST}:${SIPPROXY_API_PORT}/api/v1beta1 \
           -u ${SIPPROXY_API_USERNAME} -p ${SIPPROXY_API_SECRET}
         rctl create -f /etc/bootstrap.yml
-        #while sleep 3600; do :; done
       '
     volumes:
       - ./etc/bootstrap.yml:/etc/bootstrap.yml:ro
@@ -102,10 +101,10 @@ services:
     volumes:
       - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml:ro
     healthcheck:
-      test: ["CMD", "curl --fail http://localhost || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 1
     logging:
         driver: fluentd
         options:
@@ -147,7 +146,7 @@ services:
       MC_APP_ENTRYPOINT: ${MC_APP_ENTRYPOINT}/index.js
     build:
       context: mediacontroller
-    entrypoint:  |
+    entrypoint: |
       sh -c '
           # This wont be needed once we start deploying the apps
           cd ${MC_APP_ENTRYPOINT}
