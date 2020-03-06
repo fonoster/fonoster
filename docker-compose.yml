@@ -148,15 +148,18 @@ services:
     entrypoint:  |
       sh -c '
           # This wont be needed once we start deploying the apps
-          cd ${MC_APP_ENTRYPOINT} && npm i
+          cd ${MC_APP_ENTRYPOINT}
+          rm -rf node_modules
+          rm package-lock.json
+          npm install
           cd / && ./run.sh
       '
     volumes:
-      - ./apps:/apps:ro
+      - ./apps:/apps:rw
       #- data1-1:/mnt/yaps:ro
       #- ./mediacontroller/yaps/core:/yaps/core:ro
       #- ./mediacontroller/yaps/app.js:/yaps/app.js:ro
-      - ./mediacontroller/yaps/dispatcher:/yaps/dispatcher:ro
+      #- ./mediacontroller/yaps/dispatcher:/yaps/dispatcher:ro
       #- ./mediacontroller/yaps/utils/fsutils.js:/yaps/utils/fsutils.js:ro
       #- ./mediacontroller/yaps/utils/logger.js:/yaps/utils/logger.js:ro
       #- ./mediacontroller/yaps/tts:/yaps/tts:ro

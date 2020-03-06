@@ -7,6 +7,7 @@ const {
   computeFilename,
   transcodeSync
 } = require('../tts/utils')
+const logger = require('../utils/logger')
 
 class YapsWrapperChannel {
 
@@ -72,6 +73,7 @@ class YapsWrapperChannel {
      * Returns - Sent DTMF or undefined if no key was pressed before audio ends
      */
     play(file, options)  {
+        logger.debug(`core.YapsWrapperChannel.play [file: ${file}, options: ${JSON.stringify(options)}]`)
         if (!file) throw 'you must indicate a file.'
         let finishOnKey = '#'
 
@@ -84,6 +86,8 @@ class YapsWrapperChannel {
         }
 
         const result = this.channel.streamFile(file, finishOnKey)
+
+        logger.debug(`core.YapsWrapperChannel.play [result: ${JSON.stringify(result)}]`)
 
         if (result.code === 200) return result.attributes.result
 
@@ -100,16 +104,25 @@ class YapsWrapperChannel {
      * Returns - Sent DTMF or undefined if no key was pressed before audio ends
      */
     say(text, options) {
+        logger.debug(`core.YapsWrapperChannel.say [text: ${text}, options: ${JSON.stringify(options)}]`)
         if (!text) throw 'You must provide a text.'
         // This returns the route to the generated audio
 
         const metadata = { 'Content-Type': 'audio/x-wav' }
         const filename = computeFilename(text, options)
+
+        logger.debug(`core.YapsWrapperChannel.say [filename: ${filename}]`)
+
         let url = this.conf.storage.getFileURLSync(filename)
+
+        logger.debug(`core.YapsWrapperChannel.say [url: ${url}]`)
 
         if (url === undefined) {
             const pathToFile = this.conf.tts.synthesizeSync(text, options)
             const pathToTranscodedFile = transcodeSync(pathToFile)
+
+            logger.debug(`core.YapsWrapperChannel.say [pathToTranscodedFile: ${pathToTranscodedFile}]`)
+
             this.conf.storage.uploadFileSync(filename + '.wav', pathToTranscodedFile, metadata)
             url = this.conf.storage.getFileURLSync(filename + '.wav')
         }

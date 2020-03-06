@@ -4,10 +4,12 @@
  */
 const Minio = require('minio')
 const sleep = require('syncho').sleep
+const logger = require('../utils/logger')
 
 class Storage {
 
     constructor(storageBucket) {
+        logger.debug(`core.Storage [initializing storageBucket: ${storageBucket}]`)
         this.storageBucket = storageBucket
         this.fsConn = new Minio.Client({
               endPoint: process.env.FS_HOST,
@@ -19,24 +21,40 @@ class Storage {
     }
 
     uploadFileSync(filename, filePath, metadata = {}) {
+        logger.debug(`core.Storage.uploadFileSync [filename: ${filename}]`)
+        logger.debug(`core.Storage.uploadFileSync [filePath: ${filePath}]`)
+        logger.debug(`core.Storage.uploadFileSync [metadata: ${JSON.stringify(metadata)}]`)
         let result
 
         this.fsConn.fPutObject(this.storageBucket, filename,
-            filePath, metadata, (err, etag) => result = err ? err : etag )
+            filePath, metadata, (err, etag) => {
+                result = err ? err : etag
+                if (err) {
+                    logger.error(`core.Storage.uploadFileSync [error: ${err}]`)
+                }
+            })
 
         while(result === undefined) sleep(100)
+
+        logger.debug(`core.Storage.uploadFileSync [fPutObject.result: ${result}]`)
 
         return this.getFileURLSync(filename)
     }
 
     getFileURLSync(filename) {
+        logger.debug(`core.Storage.getFileURLSync [filename: ${filename}]`)
         let exist
         this.fsConn.statObject(this.storageBucket,
             filename, (e, dataStream) => {
               exist = e ? false : true
+              if (e) {
+                  logger.warning(`core.Storage.getFileURLSync [error: ${e}]`)
+              }
         })
 
         while(exist === undefined) sleep(100)
+
+        logger.debug(`core.Storage.getFileURLSync [statObject.exist: ${exist}]`)
 
         if (!exist) return void(0)
 
@@ -50,6 +68,8 @@ class Storage {
         //while(url === undefined) sleep(1200)
 
         const url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.storageBucket}/${filename}`
+
+        logger.debug(`core.Storage.getFileURLSync [url: ${url}]`)
 
         return url
     }

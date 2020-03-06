@@ -14,15 +14,15 @@ const logger = require('../utils/logger')
 
 function dispatcher(channel) {
     try {
-        logger.log('info', 'this log record is sent to fluent daemon')
-        logger.info('this log record is sent to fluent daemon')
-        logger.info('end of log message')
-        logger.end()
+        logger.debug(`core.Distpatcher.dispatcher [entering]`)
 
-        /*const ingressApp = getIngressApp(channel.request.agi_extension)
+        const ingressApp = getIngressApp(channel.request.agi_extension)
         const appConfig = ingressApp.getConfig()
         const contents = fs.readFileSync(ingressApp.getPathToEntryPoint(),
             'utf8')
+
+        logger.debug(`core.Distpatcher.dispatcher [extension: ${channel.request.agi_extension}]`)
+        logger.debug(`core.Distpatcher.dispatcher [entrypoint: ${ingressApp.getPathToEntryPoint()}]`)
 
         const host = process.env.TTS_ENGINE_HOST
         const port = process.env.TTS_ENGINE_PORT
@@ -32,9 +32,10 @@ function dispatcher(channel) {
         })
         vm.run(contents, ingressApp.getPathToEntryPoint())(chann)
 
-        console.log(`Call record: ${chann.getCallDetailRecord()}`)*/
+        logger.debug(`core.Distpatcher.dispatcher [cdr: ${chann.getCallDetailRecord()}]`)
+        logger.debug(`core.Distpatcher.dispatcher [leaving]`)
     } catch(e) {
-        console.error(e)
+        logger.error(e)
     }
 }
 

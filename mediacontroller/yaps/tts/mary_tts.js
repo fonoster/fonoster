@@ -10,11 +10,13 @@ const {
     computeFilename,
     optionsToQueryString
 } = require('./utils')
+const logger = require('../utils/logger')
 
 class MaryTTS extends AbstractTTS {
 
     constructor(config) {
         super('mary-tts')
+        logger.info(`tts.MaryTTS [initializing with config: ${JSON.stringify(config)}]`)
 
         if (!config.host) throw 'host field is required'
 
@@ -25,6 +27,8 @@ class MaryTTS extends AbstractTTS {
         const options = `INPUT_TYPE=TEXT&AUDIO=WAVE_FILE&OUTPUT_TYPE=AUDIO&LOCALE=${locale}`
 
         this.serviceUrl = `http://${host}:${port}/process?${options}`
+
+        logger.info(`tts.MaryTTS [serviceUrl: ${serviceUrl}]`)
     }
 
     /**
@@ -36,6 +40,7 @@ class MaryTTS extends AbstractTTS {
      * }
      */
     synthesizeSync(text, options) {
+        logger.debug(`tts.MaryTTS.synthesizeSync [text: ${text}, options: ${JSON.stringify(options)}]`)
         options = options || {}
 
         const tmpDirFromEnv = process.env.MC_TTS_TEMP_FOLDER
@@ -45,10 +50,14 @@ class MaryTTS extends AbstractTTS {
         const file = fs.createWriteStream(pathToFile)
         const query = optionsToQueryString(options)
 
+        logger.debug(`tts.MaryTTS.synthesizeSync [pathToFile: ${pathToFile}]`)
+        logger.debug(`tts.MaryTTS.synthesizeSync [query: ${query}]`)
+
         http.get(`${this.serviceUrl}&INPUT_TEXT=${encodeURI(text)}&${query}`,
             response => {
             response.pipe(file)
             complete = true
+            logger.debug(`tts.MaryTTS.synthesizeSync [finished]`)
         })
 
         while(complete === undefined) sleep(1200)
