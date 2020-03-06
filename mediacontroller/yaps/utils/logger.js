@@ -13,6 +13,7 @@ const fluent = new fluentTransport(
         config)
 
 const logger = winston.createLogger({
+    level: 'debug',
     levels: winston.config.npm.levels,
     format: winston.format.json(),
     transports: [fluent, new (winston.transports.Console)()]

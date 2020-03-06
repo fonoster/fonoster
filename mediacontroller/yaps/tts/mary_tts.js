@@ -16,6 +16,7 @@ class MaryTTS extends AbstractTTS {
 
     constructor(config) {
         super('mary-tts')
+
         logger.info(`tts.MaryTTS [initializing with config: ${JSON.stringify(config)}]`)
 
         if (!config.host) throw 'host field is required'
@@ -28,7 +29,7 @@ class MaryTTS extends AbstractTTS {
 
         this.serviceUrl = `http://${host}:${port}/process?${options}`
 
-        logger.info(`tts.MaryTTS [serviceUrl: ${serviceUrl}]`)
+        logger.info(`tts.MaryTTS [serviceUrl: ${this.serviceUrl}]`)
     }
 
     /**
@@ -40,8 +41,9 @@ class MaryTTS extends AbstractTTS {
      * }
      */
     synthesizeSync(text, options) {
-        logger.debug(`tts.MaryTTS.synthesizeSync [text: ${text}, options: ${JSON.stringify(options)}]`)
         options = options || {}
+
+        logger.log('debug', `tts.MaryTTS.synthesizeSync [text: ${text}, options: ${JSON.stringify(options)}]`)
 
         const tmpDirFromEnv = process.env.MC_TTS_TEMP_FOLDER
         const tmpDir = tmpDirFromEnv ? tmpDirFromEnv : __dirname
@@ -50,14 +52,14 @@ class MaryTTS extends AbstractTTS {
         const file = fs.createWriteStream(pathToFile)
         const query = optionsToQueryString(options)
 
-        logger.debug(`tts.MaryTTS.synthesizeSync [pathToFile: ${pathToFile}]`)
-        logger.debug(`tts.MaryTTS.synthesizeSync [query: ${query}]`)
+        logger.log('debug', `tts.MaryTTS.synthesizeSync [pathToFile: ${pathToFile}]`)
+        logger.log('debug', `tts.MaryTTS.synthesizeSync [query: ${query}]`)
 
         http.get(`${this.serviceUrl}&INPUT_TEXT=${encodeURI(text)}&${query}`,
             response => {
             response.pipe(file)
             complete = true
-            logger.debug(`tts.MaryTTS.synthesizeSync [finished]`)
+            logger.log('debug', `tts.MaryTTS.synthesizeSync [finished]`)
         })
 
         while(complete === undefined) sleep(1200)

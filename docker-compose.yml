@@ -11,6 +11,11 @@ services:
     # WARNING: Hide this in production
     ports:
       - ${DS_PORT}:${DS_PORT}
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     logging:
         driver: fluentd
         options:
@@ -34,14 +39,6 @@ services:
       '
     volumes:
       - ./etc/bootstrap.yml:/etc/bootstrap.yml:ro
-    logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.provisioner
 
   fs:
     image: ${FS_IMAGE}
@@ -104,6 +101,11 @@ services:
       - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
     volumes:
       - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml:ro
+    healthcheck:
+      test: ["CMD", "curl --fail http://localhost || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     logging:
         driver: fluentd
         options:
@@ -157,12 +159,12 @@ services:
     volumes:
       - ./apps:/apps:rw
       #- data1-1:/mnt/yaps:ro
-      #- ./mediacontroller/yaps/core:/yaps/core:ro
-      #- ./mediacontroller/yaps/app.js:/yaps/app.js:ro
-      #- ./mediacontroller/yaps/dispatcher:/yaps/dispatcher:ro
-      #- ./mediacontroller/yaps/utils/fsutils.js:/yaps/utils/fsutils.js:ro
-      #- ./mediacontroller/yaps/utils/logger.js:/yaps/utils/logger.js:ro
-      #- ./mediacontroller/yaps/tts:/yaps/tts:ro
+      - ./mediacontroller/yaps/core:/yaps/core:ro
+      - ./mediacontroller/yaps/app.js:/yaps/app.js:ro
+      - ./mediacontroller/yaps/dispatcher:/yaps/dispatcher:ro
+      - ./mediacontroller/yaps/utils/fsutils.js:/yaps/utils/fsutils.js:ro
+      - ./mediacontroller/yaps/utils/logger.js:/yaps/utils/logger.js:ro
+      - ./mediacontroller/yaps/tts:/yaps/tts:ro
     expose:
       - ${MC_AGI_PORT}
 

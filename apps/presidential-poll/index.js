@@ -2,11 +2,11 @@
  * @author Pedro Sanders
  * @since v1
  */
-const { storage, logger } = require('./config')
+const { storage } = require('./config')
 
 module.exports = chan => {
 
-    logger.log('Handler got call %s -> %s',
+    console.log('Handler got call %s -> %s',
         chan.callDetailRecord.ref, chan.callDetailRecord.to)
 
     const candidates = {
@@ -24,7 +24,7 @@ module.exports = chan => {
     const key = chan.gather(chan.say('If you would like to be remove from our list, press 7'),
       {timeout: 2, numDigits: 1})
 
-    logger.log(`Remove from list? ${key}`)
+    console.log(`Remove from list? ${key}`)
 
     if (key == 7) {
         // This address does not exist, it its only for ilustration
@@ -67,5 +67,5 @@ module.exports = chan => {
 
     chan.say('Thank you for participating. Review the results at www.georgia.gov. Goodbye!')
 
-    logger.log(`Call ${chan.callDetailRecord.ref} ${Date.now()} ended`)
+    console.log(`Call ${chan.callDetailRecord.ref} ${Date.now()} ended`)
 }
