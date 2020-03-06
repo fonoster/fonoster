@@ -152,7 +152,7 @@ services:
           cd / && ./run.sh
       '
     volumes:
-      - ./apps:/apps:rw
+      - ./apps:/apps:ro
       #- data1-1:/mnt/yaps:ro
       #- ./mediacontroller/yaps/core:/yaps/core:ro
       #- ./mediacontroller/yaps/app.js:/yaps/app.js:ro
