@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Core artifacts",
   "scripts": {
-    "test": "./node_modules/nyc/bin/nyc.js --reporter=lcov ./node_modules/mocha/bin/mocha -t 360000 core/*_test.js tts/*_test.js"
+    "test": "./node_modules/nyc/bin/nyc.js --reporter=lcov ./node_modules/mocha/bin/mocha -t 360000 client/*_test.js"
   },
   "author": "Pedro Sanders",
   "license": "MIT",

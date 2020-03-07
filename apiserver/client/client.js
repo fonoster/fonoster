@@ -9,14 +9,14 @@ const protoConfig = require('../common/proto_config')
 const credentials = grpc.credentials.createInsecure()
 
 // Packages Def
-const APP_PROTO_PATH = path.join(__dirname, '..', 'protos', 'app.proto')
-const appPckgDefinition = protoLoader.loadSync(APP_PROTO_PATH, protoConfig)
+const RESOURCES_PROTO_PATH = path.join(__dirname, '..', 'protos', 'resources.proto')
+const resourcesPckgDefinition = protoLoader.loadSync(RESOURCES_PROTO_PATH, protoConfig)
 
 // Proto
-const appProto = grpc.loadPackageDefinition(appPckgDefinition).yaps.app
+const resourcesProto = grpc.loadPackageDefinition(resourcesPckgDefinition).yaps.resources
 
 // Services
-const appService = new appProto.AppService('localhost:50052', credentials)
+const resourcesService = new resourcesProto.ResourcesService('localhost:50052', credentials)
 
 // TODO: This should be a singleton
-module.exports.appService = appService
+module.exports.resourcesService = resourcesService

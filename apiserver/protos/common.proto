@@ -1,0 +1,48 @@
+/**
+ * MIT License
+ * Copyright (c) 2020 Fonoster Inc
+ *
+ * This proto stores common messages for the yaps plattform.
+ */
+syntax = "proto3";
+
+package yaps;
+
+import "google/protobuf/any.proto";
+
+message Response {
+  enum Status {
+    OK = 0;
+    CREATED = 1;
+    BAD_REQUEST = 2;
+    UNAUTHORIZED = 3;
+    NOT_FOUND = 4;
+    NOT_SUPPORTED = 5;
+    UNPROCESSABLE_ENTITY = 6;
+    UNFULFILLED_DEPENDENCY_RESPONSE = 7;
+    FOUND_DEPENDENT_OBJECTS_RESPONSE = 8;
+    ENTITY_ALREADY_EXIST_RESPONSE = 9;
+    INTERNAL_SERVER_ERROR = 10;
+  }
+  required Status status = 1;
+  required string message = 2;
+  //google.protobuf.Any data = 3;
+}
+
+message App {
+  required int32 ref = 1;
+  required string name = 2;
+  string description = 3;
+  string entry_point = 4;
+}
+
+message Gateway {
+  required string ref = 1;
+  required string name = 2;
+  string description = 3;
+  string entry_point = 4;
+}
+
+message Ref {
+   required string value;
+}

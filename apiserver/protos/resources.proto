@@ -1,0 +1,37 @@
+/**
+ * MIT License
+ * Copyright (c) 2020 Fonoster Inc
+ *
+ * The ResourcesService proto contains the artificats to administer resources
+ * entities.
+ */
+syntax = "proto3";
+
+package yaps.resources;
+
+import "common.proto";
+
+service ResourcesService {
+  rpc ListResources (ResourceListRequest) returns (stream ResourceListResponse) {}; // Implement
+  rpc CreateResource (Resource) returns (Response) {};  // Implement 1
+  rpc UpdateResource (Resource) returns (Response) {};
+  rpc GetResource (ResourceListResponse) returns (Response) {};
+  rpc DeleteResource (ResourceListResponse) returns (Response) {};
+}
+
+message Resource {
+  oneof value {
+    App app = 1;
+    Gateway gateway = 2;
+  }
+}
+
+message ResourceListResponse {
+  oneof value {
+    App app = 1;
+    Gateway gateway = 2;
+  }
+}
+
+message ResourceListRequest {
+}

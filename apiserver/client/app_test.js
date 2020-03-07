@@ -4,14 +4,22 @@
  */
 const YAPS = require('../index')
 
-// Create App service instance
+// Create Resources service instance
 const app = new YAPS.App()
+const gateway = new YAPS.Gateway()
 
-app.createApp({ref: 1, name: 'hello-world', description: 'simple app example'}).
+const appResource = {ref: 1, name: 'hello-world', description: 'simple app example'}
+const gwResource = {ref: 2, name: 'hello-world', description: 'simple app example'}
+
+app.createApp(appResource).
 then(result => console.log('result: ', result))
-.catch(e => console.log(e))
+.catch(e => console.error(e))
 
 // List apps
 app.listApps()
-.then(result => console.log('Client: Stream Message Received = ', result))
+.then(result => console.log('received stream: ', result))
 .catch(e => console.log(e))
+
+gateway.createGateway(gwResource).
+then(result => console.log('result: ', result))
+.catch(e => console.error(e))
