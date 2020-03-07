@@ -2,13 +2,13 @@ syntax = "proto3";
 package yaps.storage;
 
 service Storage {
-    rpc SayHello (HelloRequest) returns (HelloResponse) {};
+    rpc UploadFile (UploadFileRequest) returns (UploadFileResponse) {};
 }
 
-message HelloRequest {
+message UploadFileRequest {
     string name = 1;
 }
 
-message HelloResponse {
+message UploadFileResponse {
     string result = 1;
 }
