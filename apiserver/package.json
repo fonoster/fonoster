@@ -1,5 +1,5 @@
 {
-  "name": "@yaps/yaps",
+  "name": "yaps-sdk",
   "version": "1.0.0",
   "description": "Core artifacts",
   "scripts": {
@@ -10,6 +10,7 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.5.3",
     "grpc": "^1.24.2",
+    "grpc-promise": "^1.4.0",
     "minio": "^7.0.14"
   }
 }
