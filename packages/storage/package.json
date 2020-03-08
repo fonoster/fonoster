@@ -1,6 +1,6 @@
 {
   "name": "@yaps/storage",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Storage API",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
