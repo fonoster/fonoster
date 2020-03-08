@@ -28,8 +28,11 @@
   },
   "dependencies": {
     "@grpc/proto-loader": "^0.5.3",
+    "deepmerge": "^4.2.2",
     "grpc": "^1.24.2",
     "grpc-promise": "^1.4.0",
-    "minio": "^7.0.14"
+    "jsonwebtoken": "^8.5.1",
+    "minio": "^7.0.14",
+    "njwt": "^1.0.0"
   }
 }

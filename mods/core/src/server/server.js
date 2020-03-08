@@ -6,7 +6,10 @@ const path = require('path')
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 const protoConfig = require('../common/proto_config')
-const credentials = grpc.ServerCredentials.createInsecure()
+const {
+    getServerCredentials,
+    auth
+} = require('../common/trust_util')
 
 const PROTO_PATH = path.join(__dirname, '..', 'protos', 'appmanager.proto')
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, protoConfig)
@@ -15,6 +18,13 @@ const appProto = grpc
     .loadPackageDefinition(packageDefinition).yaps.appmanager.v1alpha1
 
 function listApps(call, callback) {
+    try {
+       auth(call)
+    } catch(e) {
+       callback(new Error('Unauthorized'), null)
+       return
+    }
+
     const data = { apps: [
         { ref: 'hello-world', name: 'hello-world', description:
           'Simple voice application'},
@@ -26,12 +36,26 @@ function listApps(call, callback) {
 }
 
 function getApp(call, callback) {
+    try {
+        auth(call)
+    } catch(e) {
+       callback(new Error('Unauthorized'), null)
+       return
+    }
+
     const app = { ref: 'hello-world', name: 'hello-world',
         description: 'Simple voice application'}
     callback(null, app)
 }
 
 function createApp(call, callback) {
+    try {
+        auth(call)
+    } catch(e) {
+       callback(new Error('Unauthorized'), null)
+       return
+    }
+
     console.log(`creating app with ref: ${JSON.stringify(call.request)}`)
     // -- Operate here
     // ---
@@ -39,6 +63,12 @@ function createApp(call, callback) {
 }
 
 function updateApp(call, callback) {
+    try {
+        auth(call)
+    } catch(e) {
+       callback(new Error('Unauthorized'), null)
+       return
+    }
     console.log(`updating app with ref: ${JSON.stringify(call.request)}`)
     // -- Operate here
     // ---
@@ -46,6 +76,12 @@ function updateApp(call, callback) {
 }
 
 function deleteApp(call, callback) {
+    try {
+        auth(call)
+    } catch(e) {
+       callback(new Error('Unauthorized'), null)
+       return
+    }
     console.log(`deleting app with ref: ${JSON.stringify(call.request)}`)
     // -- Operate here
     // ---
@@ -56,5 +92,5 @@ const server = new grpc.Server()
 server.addService(appProto.AppManager.service,
   { listApps, getApp, createApp, updateApp, deleteApp })
 
-server.bind('0.0.0.0:50052', credentials)
+server.bind('0.0.0.0:50052', getServerCredentials())
 server.start()
