@@ -1,0 +1,29 @@
+{
+  "name": "@yaps/sdk",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "homepage": "https://github.com/fonoster/yaps#readme",
+  "license": "ISC",
+  "main": "lib/sdk.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/yaps.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/yaps/issues"
+  }
+}

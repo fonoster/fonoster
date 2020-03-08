@@ -1,0 +1,129 @@
+/**
+ * MIT License
+ * Copyright (c) 2020 Fonoster Inc
+ *
+ * The Storage proto contains the artificats for bucket and objects
+ * management.
+ */
+syntax = "proto3";
+
+package yaps.storage.v1alpha1;
+
+import "common.proto"
+
+service Storage {
+  // Lists systems buckets
+  rpc ListBuckets (ListBucketsRequest) returns (stream ListBucketsResponse) {};
+  // Retrieve bucket policy of 'my-bucketname'
+  rpc GetBucketPolicy (GetBucketPolicyRequest) returns (BucketPolicyResponse) {};
+  // Create a new empty bucket
+  rpc CreateBucket(CreateBucketRequest) returns (Bucket) {};
+  // Peforms a hard delete of a bucket
+  rpc DeleteBucket (DeleteBucketRequest) returns (Empty) {};
+  // Check if a bucket exists
+  rpc BucketExists (BucketExistRequest) returns (BucketExistsResponse) {};
+  // List objects inside a bucket
+  rpc ListObjects (ListObjectRequest) returns (ListObjectsResponse) {};
+  // Upload an object into a bucket
+  rpc UploadObject (UploadObjectRequest) returns (UploadObjectResponse) {}
+  // Download an object from a bucket
+  rpc DownloadObject (DownloadObjectRequest) returns (Object) {}
+  // Performs a hard delete of an object
+  rpc DeleteObject (DeleteObjectRequest) returns (Empty) {}
+}
+
+message ListBucketsRequest {
+  // The maximum number of items to return.
+  int32 page_size = 1;
+
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 2;
+}
+
+message ListBucketsResponse {
+  // There will be a maximum number of items returned based on the page_size field
+  // in the request.
+  repeated Bucket buckets = 1;
+
+  // Token to retrieve the next page of results, or empty if there are no
+  // more results in the list.
+  string next_page_token = 2;
+}
+
+message GetBucketPolicyRequest {
+  string name = 1;
+}
+
+message BucketPolicyResponse {
+  string policy = 1;
+}
+
+message CreateBucketRequest {
+  string name = 1;
+  string region = 2;
+}
+
+message DeleteBucketRequest {
+  string name = 1;
+}
+
+message BucketExistsRequest {
+  string name = 1;
+}
+
+message BucketExistsResponse {
+  bool exists = 1;
+}
+
+message ListObjectRequest {
+  // The maximum number of items to return.
+  int32 page_size = 1;
+
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 2;
+
+  string bucket_name = 4;
+  string prefix = 5;
+}
+
+message ListObjectsResponse {
+  // There will be a maximum number of items returned based on the page_size field
+  // in the request.
+  repeated Object objects = 1;
+
+  // Token to retrieve the next page of results, or empty if there are no
+  // more results in the list.
+  string next_page_token = 2;
+}
+
+message UploadObjectResponse {}
+
+message DownloadObjectRequest {
+  string name = 1;
+  string bucket_name = 2;
+}
+
+message DeleteObjectRequest {
+  string name = 1;
+  string bucket_name = 2;
+}
+
+message UploadObjectRequest {
+  string name = 1;
+  string bucket_name = 2;
+  string file_path = 3;
+}
+
+// A bucket
+message Bucket {
+  string name = 1;
+  string region = 2;
+  int32 create_time = 3;
+}
+
+// A object
+message Object {
+  string name = 1;
+  string size = 2;
+  map <string, string> metadata = 3;
+}

@@ -6,10 +6,11 @@
  */
 syntax = "proto3";
 
-package yaps;
+package yaps.common.v1alpha1;
 
 import "google/protobuf/any.proto";
 
+// Deprecated
 message Response {
   enum Status {
     OK = 0;
@@ -24,25 +25,17 @@ message Response {
     ENTITY_ALREADY_EXIST_RESPONSE = 9;
     INTERNAL_SERVER_ERROR = 10;
   }
-  required Status status = 1;
-  required string message = 2;
-  //google.protobuf.Any data = 3;
+  Status status = 1;
+  string message = 2;
+  google.protobuf.Any data = 3;
 }
 
-message App {
-  required int32 ref = 1;
-  required string name = 2;
-  string description = 3;
-  string entry_point = 4;
-}
+message Error {}
 
-message Gateway {
-  required string ref = 1;
-  required string name = 2;
-  string description = 3;
-  string entry_point = 4;
-}
+message Empty {}
 
-message Ref {
-   required string value;
+enum View {
+  BASIC = 0;
+  STANDARD = 1;
+  FULL = 2;
 }
