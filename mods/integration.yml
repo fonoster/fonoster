@@ -37,13 +37,11 @@ services:
           cat ~/yaps/credentials
           cd /workdir/appmanager
           npm i
-          npm rebuild
+          npm rebuild grpc
 
           while ! nc -z dut 50052; do sleep 0.1; done
 
           npm test
-
-          while ! nc -z dut 50054; do sleep 0.1; done
       '
     environment:
       CERTS_PATH: /etc/certs
