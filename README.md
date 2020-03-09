@@ -5,7 +5,13 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 
 [![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a>
 
-:warning: Not yet production ready
+<table>
+<tr>
+<td>
+:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/fonoster/yaps/blob/master/ROADMAP.md">roadmap</a> document for development status.
+</td>
+</tr>
+</table>
 
 ## Deployment
 
@@ -68,5 +74,5 @@ For contributing, please see the following links:
 ## Authors
  - [Pedro Sanders](https://github.com/psanders)
 
-## LICENSE
+## License
 Copyright (C) 2020 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/yaps/blob/master/LICENSE) for details).
