@@ -5,6 +5,8 @@
 <img src="https://raw.githubusercontent.com/fonoster/yaps/master/arq.png" alt="YAPS ARQ" height="400">
 </p>
 
+<hr/>
+
 * [About](#about)
 * [Community](#community)
 * [Deployment](#deployment)
@@ -16,8 +18,6 @@
 * [Bugs and Feedback](#bugs-and-feedback)
 * [Contributing](#contributing)
 * [License](#license)
-
-<hr/>
 
 # About
 
@@ -48,6 +48,8 @@ Use the information located on `bootstrap.yml` to configure your sip-phones.
 ## Docker Swarm
 
 <img src="https://github.com/fonoster/yaps/blob/master/docs/images/swarm.png" height="65">
+
+Comming soon...
 
 ## Kubernetes
 
