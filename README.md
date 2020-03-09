@@ -68,5 +68,5 @@ For contributing, please see the following links:
 ## Authors
  - [Pedro Sanders](https://github.com/psanders)
 
-## LICENSE
+## License
 Copyright (C) 2020 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/yaps/blob/master/LICENSE) for details).
