@@ -7,9 +7,9 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 
 :warning: Not yet production ready
 
-# Deployment
+## Deployment
 
-## Docker Compose
+### Docker Compose
 
 <img src="https://github.com/fonoster/yaps/blob/master/docs/images/compose.png" width="120">
 
@@ -25,19 +25,19 @@ docker-compose up
 
 Use the information located on `bootstrap.yml` to configure your sip-phones.
 
-## Docker Swarm
+### Docker Swarm
 
 <img src="https://github.com/fonoster/yaps/blob/master/docs/images/swarm.png" height="65">
 
 Comming soon...
 
-## Kubernetes
+### Kubernetes
 
 <img src="https://github.com/fonoster/yaps/blob/master/docs/images/k8s.png" height="50">
 
 Comming soon...
 
-# Features
+## Features
 
 YAPS' main features are:
 
