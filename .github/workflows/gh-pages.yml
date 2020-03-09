@@ -13,10 +13,10 @@ jobs:
       uses: actions/checkout@v1
     - name: Upload to Wiki
       uses: docker://decathlon/wiki-page-creator-action:2.0.1
-      MD_FOLDER: docs
       env:
         GH_PAT: ${{ secrets.GH_PAT }}
         ACTION_MAIL: fonosterteam@fonoster.com
         ACTION_NAME: psanders
         OWNER: fonoster
         REPO_NAME: yaps
+        MD_FOLDER: docs
