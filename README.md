@@ -5,6 +5,18 @@
 <img src="https://raw.githubusercontent.com/fonoster/yaps/master/arq.png" alt="YAPS ARQ" height="400">
 </p>
 
+* [About](#about)
+* [Community](#community)
+* [Deployment](#deployment)
+    * [Docker Compose](#instant-server-installation-with-snaps)
+    * [Docker Swarm](#digitalocean-droplet)
+    * [Kubernetes](#docker) 
+* [Features](#features)
+* [Documentation](https://routr.io/docs/introduction/overview)
+* [Bugs and Feedback](#bugs-and-feedback)
+* [Contributing](#contributing)
+* [License](#license)
+
 <p align="left">
   <a href="#features">Features</a> •
   <a href="#quick-start">Quick Start</a> •
@@ -13,14 +25,41 @@
   <a href="#license">License</a>
 </p>
 
-YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; while currently focused on Voice over Internet Protocol(VoIP) and PSTN, its power lies in its ability to be easily extended with ARI applications and rich RESTful APIs.  YAPS flexible routing engine based in [Routr](https://github.com/fonoster/routr), helps maximize communications efficiency and minimizing infrastructure costs for business.
+# About
 
+YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; while currently focused on Voice over Internet Protocol(VoIP) and PSTN, its power lies in its ability to be easily extended with ARI applications and rich RESTful APIs.  YAPS flexible routing engine based in [Routr](https://github.com/fonoster/routr), helps maximize communications efficiency and minimizing infrastructure costs for business.
 
 [![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 :warning: Not yet production ready
 
-## Features
+# Deployment
+
+## Docker Compose
+
+[![Docker logo](http://openwhisk.apache.org/images/deployments/logo-docker-compose-text.png)](https://hub.docker.com/r/fonoster/routr/)
+
+You must have docker and docker-compose to run this platform
+
+&#10122; Run using docker-compose
+
+```bash
+docker-compose up
+```
+
+&#10123; Configure your endpoints
+
+Use the information located on `bootstrap.yml` to configure your sip-phones.
+
+## Docker Swarm
+
+Comming soon...
+
+## Kubernetes
+
+Comming soon...
+
+# Features
 
 YAPS' main features are:
 
@@ -31,21 +70,6 @@ YAPS' main features are:
 - Available on Docker and Kubernetes environments
 - AGI/ARI application server
 - Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
-
-## Quick Start
-
-You must have docker and docker-compose to run this platform
-
-&#10122; Run using docker-compose
-
-```bash
-export HOST_ADDR={YOUR HOST ADDRESS}
-docker-compose up
-```
-
-&#10123; Configure your endpoints
-
-Use the information located on `bootstrap.yml` to configure your sip-phones.
 
 ## Bugs and Feedback
 
