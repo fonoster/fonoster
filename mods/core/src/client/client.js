@@ -16,5 +16,5 @@ const appManagerProto = grpc
   .loadPackageDefinition(pckgDefinition).yaps.appmanager.v1alpha1
 
 // TODO: This should be a singleton
-module.exports.AppManager = appManagerProto.AppManager
+module.exports.AppManagerService = appManagerProto.AppManager
 module.exports.grpc = grpc
