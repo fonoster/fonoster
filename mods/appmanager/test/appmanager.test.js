@@ -2,9 +2,9 @@
  * @author Pedro Sanders
  * @since v1
  */
-const assert = require('assert')
 const AppManager = require('../src/appmanager')
-const appmanager = new AppManager()
+const appmanager = new AppManager({endpoint: 'dut:50052'})
+const assert = require('assert')
 
 describe('App Manager Service', () => {
 

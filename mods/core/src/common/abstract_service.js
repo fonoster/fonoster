@@ -20,7 +20,14 @@ class AbstractService {
             defaultConfig.accessKeyId = credentials.split(':')[0]
             defaultConfig.accessKeySecret = credentials.split(':')[1]
         } catch (e) {
-            console.error(e)
+        }
+
+        if(process.env.ACCESS_KEY_ID) {
+            defaultConfig.accessKeyId = process.env.ACCESS_KEY_ID
+        }
+
+        if(process.env.ACCESS_KEY_SECRET) {
+            defaultConfig.accessKeySecret = process.env.ACCESS_KEY_SECRET
         }
 
         this.options = merge(defaultConfig, options || {})

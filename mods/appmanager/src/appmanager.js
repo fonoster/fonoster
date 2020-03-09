@@ -20,8 +20,13 @@ class AppManagerSrv extends AbstractService {
         metadata.add('access_key_id', super.getOptions().accessKeyId)
         metadata.add('access_key_secret', super.getOptions().accessKeySecret)
 
-        const client = new AppManager(super.getOptions().endpoint,
-          getClientCredentials())
+        let credentials = grpc.credentials.createInsecure()
+
+        //if(!process.env.ENABLE_INSECURE) {
+        //    credentials = getClientCredentials()
+        //}
+
+        const client = new AppManager(super.getOptions().endpoint, credentials)
 
         promisifyAll(client, {metadata})
 

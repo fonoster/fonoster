@@ -21,6 +21,7 @@ function listApps(call, callback) {
     try {
        auth(call)
     } catch(e) {
+       console.error(e)
        callback(new Error('Unauthorized'), null)
        return
     }
@@ -52,6 +53,7 @@ function createApp(call, callback) {
     try {
         auth(call)
     } catch(e) {
+       console.error(e)
        callback(new Error('Unauthorized'), null)
        return
     }
@@ -92,5 +94,13 @@ const server = new grpc.Server()
 server.addService(appProto.AppManager.service,
   { listApps, getApp, createApp, updateApp, deleteApp })
 
-server.bind('0.0.0.0:50052', getServerCredentials())
+let credentials = grpc.ServerCredentials.createInsecure()
+
+//if(!process.env.ENABLE_INSECURE) {
+//    credentials = getServerCredentials()
+//}
+
+server.bind('0.0.0.0:50052', credentials)
 server.start()
+
+console.log('YAPS API Server is online (API version = v1alpha1)')

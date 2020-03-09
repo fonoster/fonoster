@@ -3,11 +3,10 @@ const fs = require('fs')
 const path = require('path')
 
 // Getting SALT
-const pathToSalt = path.join(__dirname, '..', 'certs', 'jwt.salt')
+const pathToSalt = path.join(process.env.CERTS_PATH, 'jwt.salt')
 const result = fs.readFileSync(pathToSalt).toString().trim()
 
-// TODO: Read this from stdin or a file
-const claims = { iss: 'yaps', sub: 'quijote' }
+const claims = { iss: 'yaps', sub: process.env.ACCESS_KEY_ID }
 const token = jwt.create(claims, result)
 // token.setExpiration(new Date().getTime() + 3600*1000)
-console.log(token.compact())
+console.log(`${process.env.ACCESS_KEY_ID}:${token.compact()}`)

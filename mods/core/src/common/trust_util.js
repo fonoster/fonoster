@@ -1,12 +1,17 @@
+/**
+ * @author Pedro Sanders
+ * @since v1
+ */
 const grpc = require('grpc')
 const fs = require('fs')
+const path = require('path')
 const jwt = require('jsonwebtoken')
 
-const CA_CRT = "/Users/pedrosanders/Projects/yaps/certs/ca.crt"
-const SERVER_CRT = "/Users/pedrosanders/Projects/yaps/certs/server.crt"
-const SERVER_KEY = "/Users/pedrosanders/Projects/yaps/certs/server.key"
-const CLIENT_CRT = "/Users/pedrosanders/Projects/yaps/certs/client.crt"
-const CLIENT_KEY = "/Users/pedrosanders/Projects/yaps/certs/client.key"
+const CA_CRT = process.env.CERTS_PATH + '/ca.crt'
+const SERVER_CRT = process.env.CERTS_PATH + '/server.crt'
+const SERVER_KEY = process.env.CERTS_PATH + '/server.key'
+const CLIENT_CRT = process.env.CERTS_PATH + '/client.crt'
+const CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
 
 // TODO: Retrive path to certificates from env
 module.exports.getServerCredentials = () => grpc.ServerCredentials.createSsl(
@@ -28,19 +33,18 @@ module.exports.getClientCredentials = () => grpc.credentials.createSsl(
 
 module.exports.auth = function(call, callback) {
     let JWT_SALT
-
+    const pathToCerts = path.join(process.env.CERTS_PATH, 'jwt.salt')
     try {
         // TODO: Move elsewhere to avoid reading this file everytime
-        JWT_SALT = process.env.JWT_SALT || fs.readFileSync('~/jwt.salt').toString()
+        JWT_SALT = process.env.JWT_SALT || fs.readFileSync(pathToCerts).toString().trim()
+
     } catch(e) {
-        throw `Unable to find JWT_SALT environment variable or the ~/jwt.salt file`
+        throw `Unable to find JWT_SALT environment variable or the ${pathToCerts} file`
     }
 
-    // Server will crash if we call toString() on null (no auth header sent).
     if (call.metadata._internal_repr.access_key_id === null ||
         call.metadata._internal_repr.access_key_secret === null) {
         throw 'Unauthorized'
-        //callback(new Error('Unauthorized'), null)
         return
     }
 
@@ -50,12 +54,12 @@ module.exports.auth = function(call, callback) {
     if (typeof accessKeySecret !== 'undefined') {
         try {
             const decoded = jwt.verify(accessKeySecret, JWT_SALT)
+                console.log('decoded:', JSON.stringify(decoded))
             if(!decoded || accessKeyId !== decoded.sub) {
                 throw 'Unauthorized'
             }
         } catch(e) {
-            console.error(e)
-            throw 'Unauthorized'
+            throw e
         }
     } else {
         throw 'Unauthorized'

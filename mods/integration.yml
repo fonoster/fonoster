@@ -1,0 +1,52 @@
+version: '3.7'
+services:
+  dut:
+    image: node
+    entrypoint: |
+      sh -c '
+          mkdir -p /workdir
+          cp -a /code/core/* /workdir
+          cd workdir
+          npm i
+          node src/server/server.js
+      '
+    expose: [50052]
+    environment:
+      CERTS_PATH: /etc/certs
+    volumes:
+      - ./etc/certs:/etc/certs:ro
+      - ./core:/code/core:ro
+
+  tester:
+    image: node
+    entrypoint: |
+      sh -c '
+          # TODO: Create image to avoid installing this everytime :(
+          # This works, but holy sh...
+          apt-get update
+          apt-get install -y netcat
+          mkdir -p /workdir
+          mkdir -p ~/yaps
+          cp -a /code/* /workdir
+
+          # Generating the JWT token
+          cd workdir/etc
+          npm install njwt
+          node gen_jwt_token.js > ~/yaps/credentials
+          echo "new signature is:"
+          cat ~/yaps/credentials
+          cd /workdir/appmanager
+          npm i
+
+          while ! nc -z dut 50052; do sleep 0.1; done
+
+          npm test
+
+          while ! nc -z dut 50054; do sleep 0.1; done
+      '
+    environment:
+      CERTS_PATH: /etc/certs
+      ACCESS_KEY_ID: yaps
+    volumes:
+      - ./etc/certs:/etc/certs:ro
+      - ./.:/code:ro
