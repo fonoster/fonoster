@@ -1,5 +1,11 @@
 name: sdk integration
-on: push
+name: Publish to GH Pages
+on:
+  push:
+    paths:
+    - 'mods/**'
+    branches:
+    - master
 jobs:
   build:
     timeout-minutes: 3
