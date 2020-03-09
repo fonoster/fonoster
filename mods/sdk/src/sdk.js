@@ -3,8 +3,7 @@
  * @since v1
  */
 const {
-  App,
-  Gateway
+  App
 } = require('./client/resources')
 
 module.exports.App = App

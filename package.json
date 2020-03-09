@@ -2,6 +2,10 @@
   "name": "root",
   "private": true,
   "devDependencies": {
+    "jsdoc-to-markdown": "^5.0.3",
     "lerna": "^3.20.2"
+  },
+  "scripts": {
+    "docs": "jsdoc2md mods/appmanager/src/*.js > docs/api/appmanager.md && jsdoc2md mods/storage/src/*.js > docs/api/storage.md",
   }
 }

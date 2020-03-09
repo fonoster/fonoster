@@ -11,8 +11,19 @@ const {
     getClientCredentials
 } = require('@yaps/core').trust_util
 
+/**
+ * Test documentation 1
+ *
+ * @extends AbstractService
+ */
 class AppManagerSrv extends AbstractService {
 
+    /**
+     * Test documentation 2
+     *
+     * @constructor
+     * @param options
+     */
     constructor(options) {
         super(options)
 
@@ -30,12 +41,21 @@ class AppManagerSrv extends AbstractService {
 
         promisifyAll(client, {metadata})
 
+        /**
+         * Lists user applications
+         * @async
+         * @param {string} n - A string param
+         * @return {string} A good string
+         */
         this.listApps = () => client.listApps().sendMessage()
-        this.getApp = ref => client.getApp().sendMessage({ref})
+        //this.getApp = ref => client.getApp().sendMessage({ref})
         this.createApp = request => client.createApp().sendMessage(request)
         this.updateApp = request => client.updateApp().sendMessage(request)
         this.deleteApp = ref => client.deleteApp().sendMessage({ref})
     }
+
+    async 
+
 }
 
 module.exports = AppManagerSrv
