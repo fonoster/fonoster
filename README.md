@@ -14,8 +14,7 @@ YAPS deploys in various environments such as Docker Compose, Docker Swarm, and K
 <details><summary><b>Docker Compose</b></summary>
 <br />
 You must have docker and docker-compose on your system to run this platform
-
-<br />
+<br /><br />
 
 &#10122; Run using docker-compose
 
