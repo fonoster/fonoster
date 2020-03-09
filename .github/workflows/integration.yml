@@ -2,7 +2,7 @@ name: sdk integration
 on: push
 jobs:
   build:
-    timeout-minutes: 1
+    timeout-minutes: 3
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
