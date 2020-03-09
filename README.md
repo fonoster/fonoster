@@ -8,7 +8,7 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 <table>
 <tr>
 <td>
-:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the [roadmap](ROADMAP.md) document for development status.
+:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/fonoster/yaps/blob/master/ROADMAP.md">roadmap</a> document for development status.
 </td>
 </tr>
 </table>
