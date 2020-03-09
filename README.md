@@ -1,16 +1,12 @@
 
 # YAPS
 
-<p align="center">
-<img src="https://raw.githubusercontent.com/fonoster/yaps/master/arq.png" alt="YAPS ARQ" height="400">
-</p>
-
 * [About](#about)
 * [Community](#community)
 * [Deployment](#deployment)
     * [Docker Compose](#instant-server-installation-with-snaps)
     * [Docker Swarm](#digitalocean-droplet)
-    * [Kubernetes](#docker) 
+    * [Kubernetes](#docker)
 * [Features](#features)
 * [Documentation](https://routr.io/docs/introduction/overview)
 * [Bugs and Feedback](#bugs-and-feedback)
