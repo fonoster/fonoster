@@ -11,7 +11,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-    - name: Upload to Wiki
+    - name: Copy docs to Wiki
       uses: docker://decathlon/wiki-page-creator-action:2.0.1
       env:
         GH_PAT: ${{ secrets.GH_PAT }}
