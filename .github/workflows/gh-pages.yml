@@ -20,4 +20,3 @@ jobs:
         ACTION_NAME: psanders
         OWNER: fonoster
         REPO_NAME: yaps
-        MD_FOLDER: docs
