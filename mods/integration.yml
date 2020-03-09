@@ -37,6 +37,7 @@ services:
           cat ~/yaps/credentials
           cd /workdir/appmanager
           npm i
+          npm rebuild
 
           while ! nc -z dut 50052; do sleep 0.1; done
 
