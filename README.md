@@ -5,7 +5,13 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 
 [![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a>
 
-:warning: Not yet production ready
+<table>
+<tr>
+<td>
+:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the [roadmap](ROADMAP.md) document for development status.
+</td>
+</tr>
+</table>
 
 ## Deployment
 
