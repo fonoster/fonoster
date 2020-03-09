@@ -12,8 +12,8 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 YAPS deploys in various environments such as Docker Compose, Docker Swarm, and K8s. Click bellow for deployment details:
 
 <details><summary><b>Docker Compose</b></summary>
-
-You must have docker and docker-compose to run this platform
+<br />
+You must have docker and docker-compose on your system to run this platform
 
 &#10122; Run using docker-compose
 
@@ -27,13 +27,13 @@ Use the information located on `bootstrap.yml` to configure your sip-phones.
 </details>
 
 <details><summary><b>Docker Swarm</b></summary>
-
+<br />
 Comming soon...
 
 </details>
 
 <details><summary><b>K8s</b></summary>
-
+<br />
 Comming soon...
 
 </details>
