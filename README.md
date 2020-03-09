@@ -1,7 +1,7 @@
 
 # YAPS
 
-YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; while currently focused on Voice over Internet Protocol(VoIP) and PSTN, its power lies in its ability to be easily extended with ARI applications and rich RESTful APIs.  YAPS flexible routing engine based in [Routr](https://github.com/fonoster/routr), helps maximize communications efficiency and minimizing infrastructure costs for business.
+YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; while currently focused on Voice over Internet Protocol(VoIP) and PSTN, its power lies in its ability to be easily extended with ARI applications and rich RESTful APIs.
 
 [![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
