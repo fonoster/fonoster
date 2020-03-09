@@ -1,9 +1,9 @@
 
 # YAPS [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/yaps&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
-YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; while currently focused on Voice over Internet Protocol(VoIP) and PSTN, its power lies in its ability to be easily extended with ARI applications and rich RESTful APIs.
+YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; the current roadmap is focus on Programmable Voice and Voice over Internet Protocol(VoIP) and PSTN communication.
 
-[![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a>
 
 :warning: Not yet production ready
 
@@ -12,7 +12,6 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 YAPS deploys in various environments such as Docker Compose, Docker Swarm, and K8s. Click bellow for deployment details:
 
 <details><summary><b>Docker Compose</b></summary>
-<img src="https://github.com/fonoster/yaps/blob/master/docs/images/compose.png" width="120">
 
 You must have docker and docker-compose to run this platform
 
@@ -29,15 +28,11 @@ Use the information located on `bootstrap.yml` to configure your sip-phones.
 
 <details><summary><b>Docker Swarm</b></summary>
 
-<img src="https://github.com/fonoster/yaps/blob/master/docs/images/swarm.png" height="65">
-
 Comming soon...
 
 </details>
 
 <details><summary><b>K8s</b></summary>
-
-<img src="https://github.com/fonoster/yaps/blob/master/docs/images/k8s.png" height="50">
 
 Comming soon...
 
@@ -48,13 +43,13 @@ Comming soon...
 
 YAPS' main features are:
 
+- Programmable voice
+- Available on Docker and Kubernetes environments
 - Typical SIP Server functions; Proxy, Registrar, Location Service
+- Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
 - Per node Multi-Tenancy/Multi-Domain with Domain level Access Control List
 - Transport: TCP, UDP, TLS, WebSocket
 - Database: Redis
-- Available on Docker and Kubernetes environments
-- AGI/ARI application server
-- Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
 
 ## Bugs and Feedback
 
@@ -73,4 +68,4 @@ For contributing, please see the following links:
  - [Pedro Sanders](https://github.com/psanders)
 
 ## LICENSE
-Copyright (C) 2019 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/yaps/blob/master/LICENSE) for details).
+Copyright (C) 2020 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/yaps/blob/master/LICENSE) for details).
