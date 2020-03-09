@@ -17,13 +17,7 @@
 * [Contributing](#contributing)
 * [License](#license)
 
-<p align="left">
-  <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#bugs-and-feedback">Bugs and Feedback</a> •
-  <a href="#Contributing">Contributing</a> •
-  <a href="#license">License</a>
-</p>
+<hr/>
 
 # About
 
@@ -37,7 +31,7 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 
 ## Docker Compose
 
-[![Docker logo](http://openwhisk.apache.org/images/deployments/logo-docker-compose-text.png)](https://hub.docker.com/r/fonoster/routr/)
+<img src="https://github.com/fonoster/yaps/blob/master/docs/images/logo-docker-compose-text.png" width="120">
 
 You must have docker and docker-compose to run this platform
 
