@@ -2,6 +2,7 @@
  * @author Pedro Sanders
  * @since v1
  */
+const typedefs = require("'@yaps/core'").typedefs
 const { AbstractService } = require('@yaps/core')
 const { AppManagerService, grpc } = require('@yaps/core').client
 // const grpc = require('grpc') Using this causes issues
@@ -11,9 +12,13 @@ const {
     getClientCredentials
 } = require('@yaps/core').trust_util
 
+
+
 /**
  * Use YAPS AppManager, a capability of YAPS Systems Manager, to create,
  * manage, and quickly deploy application configurations.
+ *
+ * @memberof YAPS
  * @class
  * @extends AbstractService
  * @example
@@ -27,29 +32,6 @@ const {
  * }).catch(e => console.error(e))   // an error occurred
  */
 class AppManager extends AbstractService {
-
-    /**
-     * Service Options
-     *
-     * @typedef {Object} Options
-     * @property {string} endpoint - Endpoint for this service
-     * @property {string} accessKeyId - Access Key Id
-     * @property {string} accessKeySecret - Access Key Secret
-     */
-
-    /**
-     * App.Status
-     *
-     * @typedef {Object} App.Status
-     * @property {string} status - Status of the application
-     * @example
-     *
-     * Possible values:
-     *    "UNKNOWN"
-     *    "CREATING"
-     *    "RUNNING"
-     *    "STOPPED"
-     */
 
     /**
      * Application object
@@ -68,7 +50,7 @@ class AppManager extends AbstractService {
     /**
      * Constructs a service object.
      *
-     * @param {Options} options - Optional configurations for the service
+     * @param {typedefs.Options} options - Optional configurations for the service
      */
     constructor(options) {
         super(options)

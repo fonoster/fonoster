@@ -14,6 +14,7 @@ const {
 /**
  * Store recordings and more
  *
+ * @memberof YAPS
  * @extends AbstractService
  */
 class Storage extends AbstractService {
