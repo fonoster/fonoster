@@ -43,7 +43,7 @@ manage, and quickly deploy application configurations.
     * [.getApp(ref)](#AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.createApp(request)](#AppManager+createApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.updateApp(request)](#AppManager+updateApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-    * [.deleteApp(ref)](#AppManager+deleteApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+    * [.deleteApp(ref)](#AppManager+deleteApp)
 
 <a name="new_AppManager_new"></a>
 
@@ -57,12 +57,13 @@ Constructs a service object.
 
 **Example**  
 ```js
+const YAPS = require('@yaps/sdk')
 const appmanager = new YAPS.AppManager()
 
 appmanager.listApps()
 .then(result => {
    console.log(result)            // successful response
- }).catch(e => console.error(e))  // an error occurred
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="AppManager+listApps"></a>
 
@@ -70,14 +71,14 @@ appmanager.listApps()
 List all applications in your YAPS system.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: <code>Promise.&lt;Array.&lt;App&gt;&gt;</code> - - A collection of applications  
+**Returns**: <code>Promise.&lt;Array.&lt;App&gt;&gt;</code> - apps - A collection of applications  
 <a name="AppManager+getApp"></a>
 
 ### appManager.getApp(ref) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
 Retrives a single application by its reference.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - apps - The application  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - app - The application  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -109,14 +110,14 @@ Updates a previously created application.
 
 <a name="AppManager+deleteApp"></a>
 
-### appManager.deleteApp(ref) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+### appManager.deleteApp(ref)
 Delete an application.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
 
-| Param | Type |
-| --- | --- |
-| ref | <code>string</code> | 
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | The reference |
 
 <a name="Storage"></a>
 
@@ -203,3 +204,11 @@ App.Status
 | --- | --- | --- |
 | status | <code>string</code> | Status of the application |
 
+**Example**  
+```js
+Possible values:
+   "UNKNOWN"
+   "CREATING"
+   "RUNNING"
+   "STOPPED"
+```
