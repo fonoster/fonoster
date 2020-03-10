@@ -11,12 +11,8 @@ const defaultConfig = {
 }
 
 /**
- * Service Options
- *
- * @typedef {Object} Options
- * @property {string} endpoint - Endpoint for this service
- * @property {string} accessKeyId - Access Key Id
- * @property {string} accessKeySecret - Access Key Secret
+ * @class
+ * @abstract
  */
 class AbstractService {
 

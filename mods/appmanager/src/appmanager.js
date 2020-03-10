@@ -14,16 +14,17 @@ const {
 /**
  * Use YAPS AppManager, a capability of YAPS Systems Manager, to create,
  * manage, and quickly deploy application configurations.
- *
+ * @class
  * @extends AbstractService
  * @example
  *
+   const YAPS = require('@yaps/sdk')
  * const appmanager = new YAPS.AppManager()
  *
  * appmanager.listApps()
  * .then(result => {
  *    console.log(result)            // successful response
- *  }).catch(e => console.error(e))  // an error occurred
+ * }).catch(e => console.error(e))   // an error occurred
  */
 class AppManager extends AbstractService {
 
@@ -41,6 +42,13 @@ class AppManager extends AbstractService {
      *
      * @typedef {Object} App.Status
      * @property {string} status - Status of the application
+     * @example
+     *
+     * Possible values:
+     *    "UNKNOWN"
+     *    "CREATING"
+     *    "RUNNING"
+     *    "STOPPED"
      */
 
     /**
@@ -60,7 +68,6 @@ class AppManager extends AbstractService {
     /**
      * Constructs a service object.
      *
-     * @constructor
      * @param {Options} options - Optional configurations for the service
      */
     constructor(options) {
@@ -78,14 +85,14 @@ class AppManager extends AbstractService {
 
         const service = new AppManagerService(super.getOptions().endpoint, credentials)
 
-        promisifyAll(client, {metadata})
+        promisifyAll(service, {metadata})
 
         /**
          * List all applications in your YAPS system.
          *
          * @async
          * @function
-         * @return {Promise<App[]>} - A collection of applications
+         * @return {Promise<App[]>} apps - A collection of applications
          */
         this.listApps = () => service.listApps().sendMessage()
 
@@ -94,7 +101,7 @@ class AppManager extends AbstractService {
          *
          * @async
          * @param {string} ref - The reference
-         * @return {Promise<App>} apps - The application
+         * @return {Promise<App>} app - The application
          */
         this.getApp = ref => service.getApp().sendMessage({ref})
 
@@ -122,8 +129,8 @@ class AppManager extends AbstractService {
          * Delete an application.
          *
          * @async
-         * @param {string} ref
-         * @return {Promise<App>}
+         * @function
+         * @param {string} ref - The reference
          */
         this.deleteApp = ref => service.deleteApp().sendMessage({ref})
     }
