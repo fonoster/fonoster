@@ -11,8 +11,7 @@ const privateKey = fs.readFileSync(pathToSalt).toString().trim()
 
 const claims = {
   iss: 'yaps',
-  sub: accessKeyId,
-  exp: Math.floor(Date.now('2030-01-01') / 1000)
+  sub: accessKeyId
 }
 
 console.log(`${accessKeyId}:${jwt.sign(claims, privateKey)}`)
