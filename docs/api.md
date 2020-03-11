@@ -5,13 +5,6 @@
 <dd></dd>
 </dl>
 
-## Constants
-
-<dl>
-<dt><a href="#typedefs">typedefs</a></dt>
-<dd></dd>
-</dl>
-
 ## Typedefs
 
 <dl>
@@ -85,6 +78,13 @@ List all applications in your YAPS system.
 
 **Kind**: instance method of [<code>AppManager</code>](#module_YAPS.AppManager)  
 **Returns**: <code>Promise.&lt;Array.&lt;App&gt;&gt;</code> - apps - A collection of applications  
+**Example**  
+```js
+appmanager.listApps()
+.then(result => {
+   console.log(result)            // successful response
+}).catch(e => console.error(e))   // an error occurred
+```
 <a name="module_YAPS.AppManager+getApp"></a>
 
 #### appmanager.getApp(ref) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
@@ -97,6 +97,13 @@ Retrives a single application by its reference.
 | --- | --- | --- |
 | ref | <code>string</code> | The reference |
 
+**Example**  
+```js
+appmanager.getApp(ref)
+.then(result => {
+   console.log(result)            // returns the app object
+}).catch(e => console.error(e))   // an error occurred
+```
 <a name="module_YAPS.AppManager+createApp"></a>
 
 #### appmanager.createApp(request) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
@@ -107,8 +114,15 @@ Creates a new application.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>\*</code> | Request for object update |
+| request | <code>Object</code> | Request for object update |
 
+**Example**  
+```js
+appmanager.creteApp(request)
+.then(result => {
+   console.log(result)            // returns the app object
+}).catch(e => console.error(e))   // an error occurred
+```
 <a name="module_YAPS.AppManager+updateApp"></a>
 
 #### appmanager.updateApp(request) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
@@ -121,6 +135,13 @@ Updates a previously created application.
 | --- | --- | --- |
 | request | <code>\*</code> | Request for object update |
 
+**Example**  
+```js
+appmanager.updateApp(request)
+.then(result => {
+   console.log(result)            // returns the app object
+}).catch(e => console.error(e))   // an error occurred
+```
 <a name="module_YAPS.AppManager+deleteApp"></a>
 
 #### appmanager.deleteApp(ref) ⇒ <code>Promise.&lt;{void}&gt;</code>
@@ -133,6 +154,13 @@ Delete an application.
 | --- | --- | --- |
 | ref | <code>string</code> | The reference |
 
+**Example**  
+```js
+appmanager.deleteApp(ref)
+.then(result => {
+   console.log(result)            // returns an empty result
+}).catch(e => console.error(e))   // an error occurred
+```
 <a name="module_YAPS.Storage"></a>
 
 ### YAPS~Storage ⇐ <code>AbstractService</code>
@@ -178,12 +206,6 @@ Lists user applications
 | --- | --- | --- |
 | n | <code>string</code> | A string param |
 
-<a name="typedefs"></a>
-
-## typedefs
-**Kind**: global constant  
-**Since**: v1  
-**Author**: Pedro Sanders  
 <a name="App"></a>
 
 ## App : <code>Object</code>
@@ -213,7 +235,7 @@ App.Status
 
 | Name | Type | Description |
 | --- | --- | --- |
-| status | <code>string</code> | Status of the application |
+| status | <code>number</code> | Status of the application |
 
 **Example**  
 ```js
