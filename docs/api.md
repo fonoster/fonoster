@@ -7,13 +7,6 @@
 <dd></dd>
 </dl>
 
-## Members
-
-<dl>
-<dt><a href="#typedefs">typedefs</a></dt>
-<dd></dd>
-</dl>
-
 <a name="module_@yaps/appmanager"></a>
 
 ## @yaps/appmanager
@@ -255,9 +248,3 @@ Lists user applications
 | --- | --- | --- |
 | n | <code>string</code> | A string param |
 
-<a name="typedefs"></a>
-
-## typedefs
-**Kind**: global variable  
-**Since**: v1  
-**Author**: Pedro Sanders  

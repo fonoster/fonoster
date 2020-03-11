@@ -54,7 +54,6 @@ module.exports.auth = function(call, callback) {
     if (typeof accessKeySecret !== 'undefined') {
         try {
             const decoded = jwt.verify(accessKeySecret, JWT_SALT)
-                console.log('decoded:', JSON.stringify(decoded))
             if(!decoded || accessKeyId !== decoded.sub) {
                 throw 'Unauthorized'
             }
