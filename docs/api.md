@@ -23,30 +23,31 @@
 * [@yaps/appmanager](#module_@yaps/appmanager)
     * [~AppManager](#module_@yaps/appmanager.AppManager) ⇐ <code>AbstractService</code>
         * [new AppManager(options)](#new_module_@yaps/appmanager.AppManager_new)
-        * [.listApps()](#module_@yaps/appmanager.AppManager+listApps) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
+        * [.listApps(request)](#module_@yaps/appmanager.AppManager+listApps) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
         * [.getApp(ref)](#module_@yaps/appmanager.AppManager+getApp) ⇒ <code>Promise.&lt;App&gt;</code>
         * [.createApp(request)](#module_@yaps/appmanager.AppManager+createApp) ⇒ <code>Promise.&lt;App&gt;</code>
         * [.updateApp(request)](#module_@yaps/appmanager.AppManager+updateApp) ⇒ <code>Promise.&lt;App&gt;</code>
-        * [.deleteApp(ref)](#module_@yaps/appmanager.AppManager+deleteApp) ⇒ <code>Promise.&lt;{void}&gt;</code>
+        * [.deleteApp(ref)](#module_@yaps/appmanager.AppManager+deleteApp) ⇒ <code>Promise.&lt;void&gt;</code>
     * [~App](#module_@yaps/appmanager..App) : <code>Object</code>
     * [~Options](#module_@yaps/appmanager..Options) : <code>Object</code>
 
 <a name="module_@yaps/appmanager.AppManager"></a>
 
 ### @yaps/appmanager~AppManager ⇐ <code>AbstractService</code>
-Use YAPS AppManager, a capability of YAPS Systems Manager, to create,
-manage, and quickly deploy application configurations..
+Use YAPS AppMAnager, a capability of YAPS Systems Manager,
+to create, manage, and deploy an application. AppManager supports controlled
+The AppManager requires of a running YAPS plattform.
 
 **Kind**: inner class of [<code>@yaps/appmanager</code>](#module_@yaps/appmanager)  
 **Extends**: <code>AbstractService</code>  
 
 * [~AppManager](#module_@yaps/appmanager.AppManager) ⇐ <code>AbstractService</code>
     * [new AppManager(options)](#new_module_@yaps/appmanager.AppManager_new)
-    * [.listApps()](#module_@yaps/appmanager.AppManager+listApps) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
+    * [.listApps(request)](#module_@yaps/appmanager.AppManager+listApps) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
     * [.getApp(ref)](#module_@yaps/appmanager.AppManager+getApp) ⇒ <code>Promise.&lt;App&gt;</code>
     * [.createApp(request)](#module_@yaps/appmanager.AppManager+createApp) ⇒ <code>Promise.&lt;App&gt;</code>
     * [.updateApp(request)](#module_@yaps/appmanager.AppManager+updateApp) ⇒ <code>Promise.&lt;App&gt;</code>
-    * [.deleteApp(ref)](#module_@yaps/appmanager.AppManager+deleteApp) ⇒ <code>Promise.&lt;{void}&gt;</code>
+    * [.deleteApp(ref)](#module_@yaps/appmanager.AppManager+deleteApp) ⇒ <code>Promise.&lt;void&gt;</code>
 
 <a name="new_module_@yaps/appmanager.AppManager_new"></a>
 
@@ -56,10 +57,11 @@ Constructs a service object.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>Options</code> | Optional configurations for the service |
+| options | <code>Options</code> | Overwrite for the service defaults configuration |
 
 **Example**  
-```js
+```Basic example```
+
 const YAPS = require('@yaps/sdk')
 const appmanager = new YAPS.AppManager()
 
@@ -67,17 +69,23 @@ appmanager.listApps()
 .then(result => {
    console.log(result)            // successful response
 }).catch(e => console.error(e))   // an error occurred
-```
 <a name="module_@yaps/appmanager.AppManager+listApps"></a>
 
-#### appmanager.listApps() ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
+#### appmanager.listApps(request) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
 List all applications in your YAPS system.
 
 **Kind**: instance method of [<code>AppManager</code>](#module_@yaps/appmanager.AppManager)  
 **Returns**: <code>Promise.&lt;Array.&lt;App&gt;&gt;</code> - apps - A collection of applications  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>Object</code> | Optional request |
+
 **Example**  
 ```js
-appmanager.listApps()
+const request = { pageSize: 1, pageToken: 2, view: 'FULL'}
+
+appmanager.listApps(request)
 .then(result => {
    console.log(result)            // successful response
 }).catch(e => console.error(e))   // an error occurred
@@ -136,20 +144,20 @@ Updates a previously created application.
 ```js
 appmanager.updateApp(request)
 .then(result => {
-   console.log(result)            // returns the app object
+   console.log(result)            // returns the application object
 }).catch(e => console.error(e))   // an error occurred
 ```
 <a name="module_@yaps/appmanager.AppManager+deleteApp"></a>
 
-#### appmanager.deleteApp(ref) ⇒ <code>Promise.&lt;{void}&gt;</code>
+#### appmanager.deleteApp(ref) ⇒ <code>Promise.&lt;void&gt;</code>
 Delete an application.
 
 **Kind**: instance method of [<code>AppManager</code>](#module_@yaps/appmanager.AppManager)  
-**Returns**: <code>Promise.&lt;{void}&gt;</code> - - The application just updated  
+**Returns**: <code>Promise.&lt;void&gt;</code> - - The application just updated  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| ref | <code>string</code> | The reference |
+| ref | <code>string</code> | Unique reference to the application |
 
 **Example**  
 ```js
@@ -169,27 +177,27 @@ Application object
 | Name | Type | Description |
 | --- | --- | --- |
 | status | [<code>Status</code>](#App.Status) | Current status of the application |
-| ref | <code>string</code> | Application reference |
+| ref | <code>string</code> | Unique identifier for the application |
 | name | <code>string</code> | A name for the application |
 | description | <code>string</code> | A description for the application |
 | createTime | <code>number</code> | Time the application was created |
 | updateTime | <code>number</code> | Last time the application was updated |
-| entryPoint | <code>number</code> | main script for the application (ie: main.js or index.js) |
+| entryPoint | <code>number</code> | main script for the application (ie: main.js or index.js). this is use by the Media Controller to properly route a call. |
 | labels | <code>map</code> | Metadata for this application |
 
 <a name="module_@yaps/appmanager..Options"></a>
 
 ### @yaps/appmanager~Options : <code>Object</code>
-Service Options
+Use the Options object to overwrite the service default configuration.
 
 **Kind**: inner typedef of [<code>@yaps/appmanager</code>](#module_@yaps/appmanager)  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| endpoint | <code>string</code> | Endpoint for this service |
-| accessKeyId | <code>string</code> | Access Key Id |
-| accessKeySecret | <code>string</code> | Access Key Secret |
+| endpoint | <code>string</code> | The endpoint URI to send requests to. The endpoint should be a string like '{serviceHost}:{servicePort}'. |
+| accessKeyId | <code>string</code> | your YAPS access key ID. |
+| accessKeySecret | <code>string</code> | your YAPS secret access key. |
 
 <a name="module_@yaps/storage"></a>
 

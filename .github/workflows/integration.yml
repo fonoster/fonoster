@@ -1,5 +1,4 @@
-name: sdk integration
-name: Publish to GH Pages
+name: SDK Integration
 on:
   push:
     paths:
