@@ -6,5 +6,5 @@ const {
   App
 } = require('./client/resources')
 
-module.exports.App = App
-module.exports.Gateway = Gateway
+module.exports.AppManager = AppManager
+module.exports.Storage = Gateway

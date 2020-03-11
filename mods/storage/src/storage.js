@@ -1,5 +1,6 @@
 /**
  * @author Pedro Sanders
+ * @module @yaps/storage
  * @since v1
  */
 const { AbstractService } = require('@yaps/core')
@@ -12,10 +13,22 @@ const {
 } = require('@yaps/core').trust_util
 
 /**
- * Store recordings and more
+ * Add two values.
+ * @alias module:@yaps/storage.Storage
+ * @typicalname storage
+ * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager, to create,
+ * manage, and quickly deploy application configurations..
  *
- * @memberof YAPS
  * @extends AbstractService
+ * @example
+ *
+ * const YAPS = require('@yaps/sdk')
+ * const appmanager = new YAPS.AppManager()
+ *
+ * appmanager.listApps()
+ * .then(result => {
+ *    console.log(result)            // successful response
+ * }).catch(e => console.error(e))   // an error occurred
  */
 class Storage extends AbstractService {
 

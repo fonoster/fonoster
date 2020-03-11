@@ -2,6 +2,6 @@
 
 const appmanager = require('..');
 
-describe('@yaps/appmanager', () => {
+describe('@yaps/core', () => {
     it('needs tests');
 });
