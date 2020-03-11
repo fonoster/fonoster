@@ -3,17 +3,17 @@
  * @module @yaps/appmanager
  * @since v1
  */
-const { AbstractService } = require('@yaps/core')
-const { AppManagerService, grpc } = require('@yaps/core').client
 // const grpc = require('grpc') Using this causes issues
 // for now I'm just hacking this by exporting/import grpc
+const { AppManagerService, grpc } = require('@yaps/core').client
+const { AbstractService } = require('@yaps/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 const {
     getClientCredentials
 } = require('@yaps/core').trust_util
 
 /**
- * App.Status
+ * An app will be in one of the following status at any given time.
  *
  * @typedef {enum} App.Status
  * @property {number} status - Status of the application
@@ -33,14 +33,16 @@ const STATUS = {
 }
 
 /**
- * Add two values.
  * @alias module:@yaps/appmanager.AppManager
  * @typicalname appmanager
- * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager, to create,
- * manage, and quickly deploy application configurations..
+ * @classdesc Use YAPS AppMAnager, a capability of YAPS Systems Manager,
+ * to create, manage, and deploy an application. AppManager supports controlled
+ * The AppManager requires of a running YAPS plattform.
  *
  * @extends AbstractService
  * @example
+ *
+ * ```Basic example```
  *
  * const YAPS = require('@yaps/sdk')
  * const appmanager = new YAPS.AppManager()
@@ -57,27 +59,30 @@ class AppManager extends AbstractService {
      *
      * @typedef {Object} App
      * @property {App.Status} status - Current status of the application
-     * @property {string} ref - Application reference
+     * @property {string} ref - Unique identifier for the application
      * @property {string} name - A name for the application
      * @property {string} description - A description for the application
      * @property {number} createTime - Time the application was created
      * @property {number} updateTime - Last time the application was updated
-     * @property {number} entryPoint - main script for the application (ie: main.js or index.js)
+     * @property {number} entryPoint - main script for the application (ie: main.js or index.js).
+     * this is use by the Media Controller to properly route a call.
      * @property {map} labels - Metadata for this application
      */
 
     /**
-     * Service Options
+     * Use the Options object to overwrite the service default configuration.
+     *
      * @typedef {Object} Options
-     * @property {string} endpoint - Endpoint for this service
-     * @property {string} accessKeyId - Access Key Id
-     * @property {string} accessKeySecret - Access Key Secret
+     * @property {string} endpoint - The endpoint URI to send requests to.
+     * The endpoint should be a string like '{serviceHost}:{servicePort}'.
+     * @property {string} accessKeyId - your YAPS access key ID.
+     * @property {string} accessKeySecret - your YAPS secret access key.
      */
 
     /**
      * Constructs a service object.
      *
-     * @param {Options} options - Optional configurations for the service
+     * @param {Options} options - Overwrite for the service defaults configuration
      */
     constructor(options) {
         super(options)
@@ -101,15 +106,18 @@ class AppManager extends AbstractService {
          *
          * @async
          * @function
+         * @param {Object} request - Optional request
          * @return {Promise<App[]>} apps - A collection of applications
          * @example
          *
-         * appmanager.listApps()
+         * const request = { pageSize: 1, pageToken: 2, view: 'FULL'}
+         *
+         * appmanager.listApps(request)
          * .then(result => {
          *    console.log(result)            // successful response
          * }).catch(e => console.error(e))   // an error occurred
          */
-        this.listApps = () => service.listApps().sendMessage()
+        this.listApps = request => service.listApps().sendMessage(request)
 
         /**
          * Retrives a single application by its reference.
@@ -153,7 +161,7 @@ class AppManager extends AbstractService {
          *
          * appmanager.updateApp(request)
          * .then(result => {
-         *    console.log(result)            // returns the app object
+         *    console.log(result)            // returns the application object
          * }).catch(e => console.error(e))   // an error occurred
          */
         this.updateApp = request => service.updateApp().sendMessage(request)
@@ -163,8 +171,8 @@ class AppManager extends AbstractService {
          *
          * @async
          * @function
-         * @param {string} ref - The reference
-         * @return {Promise<{void}>} - The application just updated
+         * @param {string} ref - Unique reference to the application
+         * @return {Promise<void>} - The application just updated
          * @example
          *
          * appmanager.deleteApp(ref)
