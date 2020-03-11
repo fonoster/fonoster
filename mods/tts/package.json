@@ -1,7 +1,7 @@
 {
-  "name": "@yaps/jobs",
+  "name": "@yaps/tts",
   "version": "0.1.0",
-  "description": "Jobs API",
+  "description": "Controls YAPS TTS engines",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
   "license": "ISC",
