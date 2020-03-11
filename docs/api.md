@@ -1,3 +1,25 @@
+## Modules
+
+<dl>
+<dt><a href="#module_YAPS">YAPS</a></dt>
+<dd></dd>
+</dl>
+
+## Constants
+
+<dl>
+<dt><a href="#typedefs">typedefs</a></dt>
+<dd></dd>
+</dl>
+
+## Typedefs
+
+<dl>
+<dt><a href="#Options">Options</a> : <code>Object</code></dt>
+<dd><p>Service Options</p>
+</dd>
+</dl>
+
 <a name="module_YAPS"></a>
 
 ## YAPS
@@ -12,7 +34,9 @@
         * [.createApp(request)](#module_YAPS.AppManager+createApp) ⇒ <code>Promise.&lt;App&gt;</code>
         * [.updateApp(request)](#module_YAPS.AppManager+updateApp) ⇒ <code>Promise.&lt;App&gt;</code>
         * [.deleteApp(ref)](#module_YAPS.AppManager+deleteApp) ⇒ <code>Promise.&lt;{void}&gt;</code>
-    * [~App](#module_YAPS..App) : <code>Object</code>
+    * [~Storage](#module_YAPS.Storage) ⇐ <code>AbstractService</code>
+        * [new Storage(options)](#new_module_YAPS.Storage_new)
+        * [.listApps(n)](#module_YAPS.Storage+listApps) ⇒ <code>string</code>
 
 <a name="module_YAPS.AppManager"></a>
 
@@ -39,7 +63,7 @@ Constructs a service object.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| options | <code>typedefs.Options</code> | Optional configurations for the service |
+| options | [<code>Options</code>](#Options) | Optional configurations for the service |
 
 **Example**  
 ```js
@@ -58,8 +82,6 @@ List all applications in your YAPS system.
 
 **Kind**: instance method of [<code>AppManager</code>](#module_YAPS.AppManager)  
 **Returns**: <code>Promise.&lt;Array.&lt;App&gt;&gt;</code> - apps - A collection of applications  
-**Fulfil**: <code>App[]</code>  
-**Reject**: <code>Error</code>  
 <a name="module_YAPS.AppManager+getApp"></a>
 
 #### appmanager.getApp(ref) ⇒ <code>Promise.&lt;App&gt;</code>
@@ -108,22 +130,68 @@ Delete an application.
 | --- | --- | --- |
 | ref | <code>string</code> | The reference |
 
-<a name="module_YAPS..App"></a>
+<a name="module_YAPS.Storage"></a>
 
-### YAPS~App : <code>Object</code>
-Application object
+### YAPS~Storage ⇐ <code>AbstractService</code>
+Use YAPS AppManager, a capability of YAPS Systems Manager, to create,
+manage, and quickly deploy application configurations..
 
-**Kind**: inner typedef of [<code>YAPS</code>](#module_YAPS)  
+**Kind**: inner class of [<code>YAPS</code>](#module_YAPS)  
+**Extends**: <code>AbstractService</code>  
+
+* [~Storage](#module_YAPS.Storage) ⇐ <code>AbstractService</code>
+    * [new Storage(options)](#new_module_YAPS.Storage_new)
+    * [.listApps(n)](#module_YAPS.Storage+listApps) ⇒ <code>string</code>
+
+<a name="new_module_YAPS.Storage_new"></a>
+
+#### new Storage(options)
+Test documentation 2
+
+
+| Param |
+| --- |
+| options | 
+
+**Example**  
+```js
+const YAPS = require('@yaps/sdk')
+const appmanager = new YAPS.AppManager()
+
+appmanager.listApps()
+.then(result => {
+   console.log(result)            // successful response
+}).catch(e => console.error(e))   // an error occurred
+```
+<a name="module_YAPS.Storage+listApps"></a>
+
+#### storage.listApps(n) ⇒ <code>string</code>
+Lists user applications
+
+**Kind**: instance method of [<code>Storage</code>](#module_YAPS.Storage)  
+**Returns**: <code>string</code> - A good string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| n | <code>string</code> | A string param |
+
+<a name="typedefs"></a>
+
+## typedefs
+**Kind**: global constant  
+**Since**: v1  
+**Author**: Pedro Sanders  
+<a name="Options"></a>
+
+## Options : <code>Object</code>
+Service Options
+
+**Kind**: global typedef  
 **Properties**
 
 | Name | Type | Description |
 | --- | --- | --- |
-| status | <code>App.Status</code> | Current status of the application |
-| ref | <code>string</code> | Application reference |
-| name | <code>string</code> | A name for the application |
-| description | <code>string</code> | A description for the application |
-| create_time | <code>number</code> | Time the application was created |
-| update_time | <code>number</code> | Last time the application was updated |
-| entry_point | <code>number</code> | Last time the application was updated |
-| labels | <code>map</code> | Metadata for this application |
+| endpoint | <code>string</code> | Endpoint for this service |
+| accessKeyId | <code>string</code> | Access Key Id |
+| accessKeySecret | <code>string</code> | Access Key Secret |
 
