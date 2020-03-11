@@ -15,6 +15,9 @@
 ## Typedefs
 
 <dl>
+<dt><a href="#App">App</a> : <code>Object</code></dt>
+<dd><p>Application object</p>
+</dd>
 <dt><a href="#Options">Options</a> : <code>Object</code></dt>
 <dd><p>Service Options</p>
 </dd>
@@ -30,9 +33,9 @@
     * [~AppManager](#module_YAPS.AppManager) ⇐ <code>AbstractService</code>
         * [new AppManager(options)](#new_module_YAPS.AppManager_new)
         * [.listApps()](#module_YAPS.AppManager+listApps) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
-        * [.getApp(ref)](#module_YAPS.AppManager+getApp) ⇒ <code>Promise.&lt;App&gt;</code>
-        * [.createApp(request)](#module_YAPS.AppManager+createApp) ⇒ <code>Promise.&lt;App&gt;</code>
-        * [.updateApp(request)](#module_YAPS.AppManager+updateApp) ⇒ <code>Promise.&lt;App&gt;</code>
+        * [.getApp(ref)](#module_YAPS.AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+        * [.createApp(request)](#module_YAPS.AppManager+createApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+        * [.updateApp(request)](#module_YAPS.AppManager+updateApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
         * [.deleteApp(ref)](#module_YAPS.AppManager+deleteApp) ⇒ <code>Promise.&lt;{void}&gt;</code>
     * [~Storage](#module_YAPS.Storage) ⇐ <code>AbstractService</code>
         * [new Storage(options)](#new_module_YAPS.Storage_new)
@@ -50,9 +53,9 @@ manage, and quickly deploy application configurations..
 * [~AppManager](#module_YAPS.AppManager) ⇐ <code>AbstractService</code>
     * [new AppManager(options)](#new_module_YAPS.AppManager_new)
     * [.listApps()](#module_YAPS.AppManager+listApps) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
-    * [.getApp(ref)](#module_YAPS.AppManager+getApp) ⇒ <code>Promise.&lt;App&gt;</code>
-    * [.createApp(request)](#module_YAPS.AppManager+createApp) ⇒ <code>Promise.&lt;App&gt;</code>
-    * [.updateApp(request)](#module_YAPS.AppManager+updateApp) ⇒ <code>Promise.&lt;App&gt;</code>
+    * [.getApp(ref)](#module_YAPS.AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+    * [.createApp(request)](#module_YAPS.AppManager+createApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+    * [.updateApp(request)](#module_YAPS.AppManager+updateApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.deleteApp(ref)](#module_YAPS.AppManager+deleteApp) ⇒ <code>Promise.&lt;{void}&gt;</code>
 
 <a name="new_module_YAPS.AppManager_new"></a>
@@ -84,11 +87,11 @@ List all applications in your YAPS system.
 **Returns**: <code>Promise.&lt;Array.&lt;App&gt;&gt;</code> - apps - A collection of applications  
 <a name="module_YAPS.AppManager+getApp"></a>
 
-#### appmanager.getApp(ref) ⇒ <code>Promise.&lt;App&gt;</code>
+#### appmanager.getApp(ref) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
 Retrives a single application by its reference.
 
 **Kind**: instance method of [<code>AppManager</code>](#module_YAPS.AppManager)  
-**Returns**: <code>Promise.&lt;App&gt;</code> - app - The application  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - app - The application  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -96,11 +99,11 @@ Retrives a single application by its reference.
 
 <a name="module_YAPS.AppManager+createApp"></a>
 
-#### appmanager.createApp(request) ⇒ <code>Promise.&lt;App&gt;</code>
+#### appmanager.createApp(request) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
 Creates a new application.
 
 **Kind**: instance method of [<code>AppManager</code>](#module_YAPS.AppManager)  
-**Returns**: <code>Promise.&lt;App&gt;</code> - - The application just created  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - - The application just created  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -108,11 +111,11 @@ Creates a new application.
 
 <a name="module_YAPS.AppManager+updateApp"></a>
 
-#### appmanager.updateApp(request) ⇒ <code>Promise.&lt;App&gt;</code>
+#### appmanager.updateApp(request) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
 Updates a previously created application.
 
 **Kind**: instance method of [<code>AppManager</code>](#module_YAPS.AppManager)  
-**Returns**: <code>Promise.&lt;App&gt;</code> - - The application just updated  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - - The application just updated  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -181,6 +184,45 @@ Lists user applications
 **Kind**: global constant  
 **Since**: v1  
 **Author**: Pedro Sanders  
+<a name="App"></a>
+
+## App : <code>Object</code>
+Application object
+
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| status | [<code>Status</code>](#App.Status) | Current status of the application |
+| ref | <code>string</code> | Application reference |
+| name | <code>string</code> | A name for the application |
+| description | <code>string</code> | A description for the application |
+| create_time | <code>number</code> | Time the application was created |
+| update_time | <code>number</code> | Last time the application was updated |
+| entry_point | <code>number</code> | Last time the application was updated |
+| labels | <code>map</code> | Metadata for this application |
+
+<a name="App.Status"></a>
+
+### App.Status : <code>enum</code>
+App.Status
+
+**Kind**: static typedef of [<code>App</code>](#App)  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| status | <code>string</code> | Status of the application |
+
+**Example**  
+```js
+Possible values:
+   'UNKNOWN'
+   'CREATING'
+   'RUNNING'
+   'STOPPED'
+```
 <a name="Options"></a>
 
 ## Options : <code>Object</code>
