@@ -8,6 +8,17 @@ const {
 const redis = require('./redis')
 const objectid = require('objectid')
 const appmanager = require('../schemas/appmanager.schema')
+const Minio = require('minio')
+const path = require('path')
+const walk = require('walk')
+
+const minioClient = new Minio.Client({
+      endPoint: '127.0.0.1',
+      port: 9000,
+      useSSL: false,
+      accessKey: 'minio',
+      secretKey: 'minio123'
+})
 
 const listApps = (call, callback) => {
     try {
@@ -60,13 +71,31 @@ const createApp = (call, callback) => {
     })
 
     if(errors.length > 0) {
-        console.log('emiting error')
         callback(new Error('INVALID_ARGUMENT'), errors[0].message)
         return
     }
 
     console.log('Uploading file')
-    // HERE...
+
+    const uploadFolder = call.request.getFilePath()
+    const dirCount = path.dirname(uploadFolder).split(path.sep).length
+    const baseDir = path.dirname(uploadFolder)
+      .split(path.sep).slice(0, dirCount).join('/')
+
+    const walker = walk.walk(uploadFolder)
+    walker.on('file', (root, fileStats, next) => {
+        const filePath = root + '/' + fileStats.name
+        const dest = filePath.substring(baseDir.length + 1)
+
+        minioClient.fPutObject('default', dest , filePath, err => {
+
+            if (err) {
+              console.error(err)
+            }
+            next()
+        })
+    })
+
     const app = call.request.getApp()
     app.setRef(objectid())
     app.setStatus(0) // TODO: Get from enum value

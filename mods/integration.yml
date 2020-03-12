@@ -9,6 +9,20 @@ services:
       - ${DS_PORT}
     ports:
       - ${DS_PORT}:${DS_PORT}
+
+  fs:
+    image: ${FS_IMAGE}
+    volumes:
+      - data1-1:/data1
+    expose:
+      - ${FS_PORT}
+    ports:
+      - ${FS_PORT}:${FS_PORT}
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    command: minio server /data1/minio/
+
   dut:
     image: node
     entrypoint: |
@@ -58,3 +72,8 @@ services:
     volumes:
       - ./etc/certs:/etc/certs:ro
       - ./.:/code:ro
+
+## By default this config uses default local driver,
+## For custom volumes replace with volume driver configuration.
+volumes:
+  data1-1:

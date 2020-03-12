@@ -143,6 +143,3 @@ services:
 ## For custom volumes replace with volume driver configuration.
 volumes:
   data1-1:
-  data1-2:
-  data1-3:
-  data1-4:

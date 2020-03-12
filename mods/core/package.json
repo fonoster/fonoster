@@ -35,6 +35,7 @@
     "jsonwebtoken": "^8.5.1",
     "minio": "^7.0.14",
     "objectid": "^3.2.1",
-    "validate": "^5.1.0"
+    "validate": "^5.1.0",
+    "walk": "^2.3.14"
   }
 }
