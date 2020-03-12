@@ -3,7 +3,7 @@
  * @since v1
  */
 const AppManager = require('../src/appmanager')
-const appmanager = new AppManager({endpoint: 'localhost:50052'})
+const appmanager = new AppManager({endpoint: 'dut:50052'})
 const assert = require('assert')
 
 describe('App Manager Service', () => {
@@ -24,17 +24,18 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it.only('Create App', done => {
+    it('Create App', done => {
         const data = {
-          file_path: './hello_world.tar.gz',
+          filePath: './hello_world.tar.gz',
           app: {
               name: 'hello-world',
-              description: 'Simple Voice App'
+              description: '',
+              status: 'CREATING'
           }
         }
         appmanager.createApp(data)
         .then(app => {
-            assert.ok(app.getName() === 'hello-world')
+            assert.ok(app.name === 'hello-world')
             done()
         }).catch(e => done(e))
     })

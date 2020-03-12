@@ -27,7 +27,7 @@ service AppManager {
   // Updates an app resource
   rpc UpdateApp (UpdateAppRequest) returns (App) {};
   // Peforms a hard delete of the app resource
-  rpc DeleteApp (DeleteAppRequest) returns (Empty) {};
+  rpc DeleteApp (DeleteAppRequest) returns (yaps.common.v1alpha1.Empty) {};
 }
 
 message ListAppsRequest {
@@ -38,7 +38,7 @@ message ListAppsRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  View view = 3;
+  yaps.common.v1alpha1.View view = 3;
 }
 
 message ListAppsResponse {
@@ -56,7 +56,7 @@ message GetAppRequest {
   // "apps/hello-world"
   string ref = 1;
   // Requested level of detail
-  View view = 2;
+  yaps.common.v1alpha1.View view = 2;
 }
 
 message CreateAppRequest {
@@ -76,7 +76,6 @@ message DeleteAppRequest {
 // An app resource with metadata used by the media controller
 message App {
   enum Status {
-    option allow_alias = true;
     UNKNOWN = 0;
     // The application is in the process of being deployed
     CREATING = 1;

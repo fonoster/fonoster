@@ -3,7 +3,8 @@
   "private": true,
   "devDependencies": {
     "jsdoc-to-markdown": "^5.0.3",
-    "lerna": "^3.20.2"
+    "lerna": "^3.20.2",
+    "jsonwebtoken": "^8.5.1"
   },
   "scripts": {
     "docs": "jsdoc2md mods/**/src/*.js > docs/api.md"

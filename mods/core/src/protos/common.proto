@@ -8,7 +8,7 @@ syntax = "proto3";
 
 package yaps.common.v1alpha1;
 
-import "google/protobuf/any.proto";
+//import "google/protobuf/any.proto";
 
 // Deprecated
 message Response {
@@ -27,7 +27,7 @@ message Response {
   }
   Status status = 1;
   string message = 2;
-  google.protobuf.Any data = 3;
+  //google.protobuf.Any data = 3;
 }
 
 message Error {}

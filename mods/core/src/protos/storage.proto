@@ -9,7 +9,7 @@ syntax = "proto3";
 
 package yaps.storage.v1alpha1;
 
-import "common.proto"
+import "common.proto";
 
 service Storage {
   // Lists systems buckets

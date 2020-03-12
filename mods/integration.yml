@@ -1,5 +1,14 @@
 version: '3.7'
 services:
+  datasource:
+    env_file: .env
+    image: ${DS_IMAGE}
+    command: ["redis-server", "--appendonly", "yes", "--loadmodule", "/usr/lib/redis/modules/rejson.so"]
+    hostname: redis
+    expose:
+      - ${DS_PORT}
+    ports:
+      - ${DS_PORT}:${DS_PORT}
   dut:
     image: node
     entrypoint: |

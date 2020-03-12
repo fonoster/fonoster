@@ -4,6 +4,8 @@
  */
 
 /** @ignore */
-module.exports.client = require('./client/client')
-module.exports.trust_util = require('./common/trust_util')
 module.exports.AbstractService = require('./common/abstract_service')
+module.exports.AppManagerService = require("./server/protos/appmanager_grpc_pb")
+module.exports.AppManagerPB = require("./server/protos/appmanager_pb")
+module.exports.trust_util = require('./common/trust_util')
+module.exports.grpc = require('./server/server').grpc

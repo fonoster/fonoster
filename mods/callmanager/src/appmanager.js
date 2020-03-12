@@ -5,12 +5,8 @@
  */
 // const grpc = require('grpc') Using this causes issues
 // for now I'm just hacking this by exporting/import grpc
-const grpc = require('@yaps/core').grpc
-const {
-    AbstractService,
-    AppManagerService,
-    AppManagerPB
-} = require('@yaps/core')
+const { AppManagerService, grpc } = require('@yaps/core').client
+const { AbstractService } = require('@yaps/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 const {
     getClientCredentials
@@ -101,8 +97,7 @@ class AppManager extends AbstractService {
         //    credentials = getClientCredentials()
         //}
 
-        const service = new AppManagerService
-          .AppManagerClient(super.getOptions().endpoint, credentials)
+        const service = new AppManagerService(super.getOptions().endpoint, credentials)
 
         promisifyAll(service, {metadata})
 
@@ -148,28 +143,12 @@ class AppManager extends AbstractService {
          * @return {Promise<App>} - The application just created
          * @example
          *
-         * const request = {
-         *    filePath: '/file/to/zipped/project',
-         *    app: {
-         *        name: 'hello-world',
-         *        description: 'Simple Voice App'
-         *    }
-         * }
-         *
          * appmanager.creteApp(request)
          * .then(result => {
          *    console.log(result)            // returns the app object
          * }).catch(e => console.error(e))   // an error occurred
          */
-        this.createApp = request => {
-            const app = new AppManagerPB.App()
-            const r = new AppManagerPB.CreateAppRequest()
-            app.setName(request.app.name)
-            app.setDescription(request.app.description)
-            r.setApp(app)
-            r.setFilePath(request.filePath)
-            return service.createApp().sendMessage(r)
-        }
+        this.createApp = request => service.createApp().sendMessage(request)
 
         /**
          * Updates a previously created application.
