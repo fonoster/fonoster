@@ -3,8 +3,6 @@
  * @module @yaps/appmanager
  * @since v1
  */
-// const grpc = require('grpc') Using this causes issues
-// for now I'm just hacking this by exporting/import grpc
 const grpc = require('@yaps/core').grpc
 const {
     AbstractService,
@@ -163,12 +161,14 @@ class AppManager extends AbstractService {
          */
         this.createApp = request => {
             const app = new AppManagerPB.App()
-            const r = new AppManagerPB.CreateAppRequest()
             app.setName(request.app.name)
             app.setDescription(request.app.description)
-            r.setApp(app)
-            r.setFilePath(request.filePath)
-            return service.createApp().sendMessage(r)
+
+            const createAppRequest = new AppManagerPB.CreateAppRequest()
+            createAppRequest.setApp(app)
+            createAppRequest.setFilePath(request.filePath)
+
+            return service.createApp().sendMessage(createAppRequest)
         }
 
         /**

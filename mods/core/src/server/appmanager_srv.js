@@ -7,13 +7,14 @@ const {
 } = require('../common/trust_util')
 const redis = require('./redis')
 const objectid = require('objectid')
+const appmanager = require('../schemas/appmanager.schema')
 
 const listApps = (call, callback) => {
     try {
        auth(call)
     } catch(e) {
        console.error(e)
-       callback(new Error('Unauthorized'), null)
+       callback(new Error('UNAUTHENTICATED'), null)
        return
     }
 
@@ -31,7 +32,7 @@ const getApp = (call, callback) => {
     try {
         auth(call)
     } catch(e) {
-       callback(new Error('Unauthorized'), null)
+       callback(new Error('UNAUTHENTICATED'), null)
        return
     }
 
@@ -44,17 +45,31 @@ const createApp = (call, callback) => {
     try {
         auth(call)
     } catch(e) {
-       callback(new Error('Unauthorized'), null)
+       console.log(e)
+       callback(new Error('UNAUTHENTICATED'), null)
        return
+    }
+
+    // Validating the request
+    const errors = appmanager.createAppRequest.validate({
+        filePath: call.request.getFilePath(),
+        app: {
+            name: call.request.getApp().getName(),
+            description: call.request.getApp().getDescription(),
+        }
+    })
+
+    if(errors.length > 0) {
+        console.log('emiting error')
+        callback(new Error('INVALID_ARGUMENT'), errors[0].message)
+        return
     }
 
     console.log('Uploading file')
     // HERE...
     const app = call.request.getApp()
-    app.setRef(objectid()) 
+    app.setRef(objectid())
     app.setStatus(0) // TODO: Get from enum value
-
-    console.log(`creating app: ${JSON.stringify(app)}`)
 
     redis.call('JSON.set', app.getRef(), '.', `${JSON.stringify(app.toString())}`)
     .then(result => callback(null, app))
@@ -65,7 +80,7 @@ const updateApp = (call, callback) => {
     try {
         auth(call)
     } catch(e) {
-       callback(new Error('Unauthorized'), null)
+       callback(new Error('UNAUTHENTICATED'), null)
        return
     }
     console.log(`updating app with ref: ${JSON.stringify(call.request)}`)
@@ -78,7 +93,7 @@ const deleteApp = (call, callback) => {
     try {
         auth(call)
     } catch(e) {
-       callback(new Error('Unauthorized'), null)
+       callback(new Error('UNAUTHENTICATED'), null)
        return
     }
     console.log(`deleting app with ref: ${JSON.stringify(call.request)}`)

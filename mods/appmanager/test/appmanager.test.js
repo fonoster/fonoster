@@ -24,19 +24,24 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it.only('Create App', done => {
-        const data = {
-          file_path: './hello_world.tar.gz',
-          app: {
-              name: 'hello-world',
-              description: 'Simple Voice App'
-          }
+    it.only('Create App', async() => {
+        const request = {
+            filePath: './hello_world.tar.gz',
+            app: {
+                name: 'hello-world'
+            }
         }
-        appmanager.createApp(data)
-        .then(app => {
-            assert.ok(app.getName() === 'hello-world')
-            done()
-        }).catch(e => done(e))
+
+        try {
+            await appmanager.createApp(request)
+        } catch(e) {
+            // Ignore. It is supposed to happen
+        }
+
+        request.app.description = 'Simple Voice App'
+
+        const app = await appmanager.createApp(request)
+        assert.ok(app.getName() === 'hello-world')
     })
 
     it('Update App', done => {

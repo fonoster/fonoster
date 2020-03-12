@@ -34,6 +34,7 @@
     "ioredis": "^4.16.0",
     "jsonwebtoken": "^8.5.1",
     "minio": "^7.0.14",
-    "objectid": "^3.2.1"
+    "objectid": "^3.2.1",
+    "validate": "^5.1.0"
   }
 }
