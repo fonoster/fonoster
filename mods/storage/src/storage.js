@@ -7,6 +7,7 @@ const fs = require('fs')
 const path = require('path')
 const promisifyAll = require('grpc-promise').promisifyAll
 const grpc = require('@yaps/core').grpc
+const { storageValidator } = require('@yaps/core').validators
 const logger = require('@yaps/core').logger
 const {
     AbstractService,
@@ -37,11 +38,27 @@ class Storage extends AbstractService {
 
         //promisifyAll(service, {metadata})
 
-        /**
-         *
-         */
-        this.uploadObject = request => {
+        this.uploadObject = request => new Promise((resolve, reject) => {
             logger.log('verbose', `@yaps/storage uploadObject [request -> ${JSON.stringify(request)}]`)
+
+            // WARNING: I'm not happy with this. Seems inconsistent with the other
+            // errors...
+            const errors = storageValidator.uploadObjectRequest.validate({
+                name: request.filename,
+                bucket: request.bucket
+            })
+
+            if(errors.length > 0) {
+                logger.log('warn', `@yaps/storage uploadObject [invalid argument/s]`)
+                reject(new Error(errors[0].message))
+                return
+            }
+
+            if(fs.lstatSync(request.filename).isDirectory()) {
+                logger.log('warn', `@yaps/storage uploadObject [uploading directory is not supported]`)
+                reject(new Error('Uploading a directory is not supported'))
+                return
+            }
 
             const objectName = path.basename(request.filename)
             const readStream = fs.createReadStream(request.filename,
@@ -52,7 +69,13 @@ class Storage extends AbstractService {
             uor.setName(objectName)
             uor.setBucket(request.bucket)
 
-            const call = service.uploadObject(uor, (err, res) => {});
+            const call = service.uploadObject(uor, (err, res) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(res)
+                }
+            })
 
             logger.log('debug', `@yaps/storage uploadObject [objectName -> ${objectName}]`)
 
@@ -70,12 +93,9 @@ class Storage extends AbstractService {
             .on('error', err => {
                 logger.log('error', err)
                 call.end()
-                if (err.code === 'EISDIR') {
-                    console.log('TETAS!')
-                //    throw new Error('INVALID_ARGUMENT')
-                }
             })
-        }
+        }).catch(e => { throw e })
+
     }
 }
 

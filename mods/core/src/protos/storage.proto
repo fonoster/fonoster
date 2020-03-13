@@ -20,5 +20,6 @@ message UploadObjectRequest {
 }
 
 message UploadObjectResponse {
+    // File size in bytes
     int32 size = 1;
 }

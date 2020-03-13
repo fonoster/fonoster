@@ -2,78 +2,26 @@
  * @author Pedro Sanders
  * @since v1
  */
-const Minio = require('minio')
 const StoragePB = require('./protos/storage_pb')
+const grpc = require('grpc')
 const {
     auth
 } = require('../common/trust_util')
 const {
     extract,
-    removeDirSync
-} = require('../common/trust_util')
+    removeDirSync,
+    uploadToFS,
+    getFilesizeInBytes
+} = require('../common/utils')
 const objectid = require('objectid')
-const path = require('path')
 const fs = require('fs')
-const inly = require('inly')
-const walk = require('walk')
 const storageValidator = require('../schemas/storage.schema')
-const redis = require('./redis')
 const logger = require('../common/logger')
 
-const fsInstance = () => new Minio.Client({
-    endPoint: process.env.FS_HOST,
-    port: parseInt(process.env.FS_PORT),
-    useSSL: false,
-    accessKey: process.env.FS_USERNAME,
-    secretKey: process.env.FS_SECRET
-})
-
-const uploadToFS = (bucket, pathToObject, object) => new Promise((resolve, reject) => {
-    logger.log('verbose', `@yaps/core uploadToFS [bucket -> ${bucket}]`)
-    logger.log('verbose', `@yaps/core uploadToFS [path -> ${pathToObject}]`)
-    logger.log('verbose', `@yaps/core uploadToFS [object -> ${object}]`)
-
-    const splitPath = p => path.dirname(p).split(path.sep)
-    const dirCount = splitPath(pathToObject).length
-    const baseDir = splitPath(pathToObject).slice(0, dirCount).join('/')
-    const walker = walk.walk(pathToObject)
-
-    logger.log('debug', `@yaps/core uploadToFS [dirCount -> ${dirCount}]`)
-    logger.log('debug', `@yaps/core uploadToFS [baseDir -> ${baseDir}]`)
-
-    walker.on('file', (root, stats, next) => {
-        const filePath = root + '/' + stats.name
-        const destFilePath = root + '/' + (object || stats.name)
-        const dest = destFilePath.substring(baseDir.length + 1)
-
-        logger.log('debug', `@yaps/core uploadToFS [root -> ${root}]`)
-        logger.log('debug', `@yaps/core uploadToFS [filePath -> ${filePath}]`)
-        logger.log('debug', `@yaps/core uploadToFS [destFilePath -> ${destFilePath}]`)
-        logger.log('debug', `@yaps/core uploadToFS [dest -> ${dest}]`)
-
-        fsInstance().fPutObject(bucket, dest , filePath, err => {
-            if (err) {
-                reject(err)
-                logger.log('error', err)
-            }
-            next()
-        })
-    })
-
-    walker.on('errors', (root, nodeStatsArray, next) => {
-        reject(root)
-    })
-
-    walker.on('end', () => {
-        resolve()
-    })
-})
-
 const uploadObject = (call, callback) => {
-
     // I swear I don't like this :(
     const delayVerification = request => {
-        logger.log('verbose', `@yaps/core delay verification`)
+        logger.log('verbose', `@yaps/core uploadObject [delay verification]`)
 
         /*try {
             auth(call)
@@ -115,40 +63,59 @@ const uploadObject = (call, callback) => {
     })
 
     call.on('error', err => {
-        console.log('pinga')
         logger.log('error', err)
     })
 
-    call.on('end', async(chunk) => {
-        logger.log('verbose', `@yaps/core uploadObject [object -> ${object}]`)
-        logger.log('verbose', `@yaps/core uploadObject [bucket -> ${bucket}]`)
+    call.on('end', async(chunk)=> {
+        try {
+            logger.log('verbose', `@yaps/core uploadObject [object ready for upload]`)
+            logger.log('verbose', `@yaps/core uploadObject [object -> ${object}]`)
+            logger.log('verbose', `@yaps/core uploadObject [bucket -> ${bucket}]`)
 
-        // Back to what it is supposed to be
-        fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
+            // Back to what it is supposed to be
+            fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
 
-        // Unzip file if needed
-        if(object.endsWith('.zip') || object.endsWith('.tar')
-            || object.endsWith('.tar.gz')) {
+            const fileSize = getFilesizeInBytes(`/tmp/${object}`)
+            logger.log('debug', `@yaps/core uploadObject [file size -> ${fileSize}]`)
 
-            logger.log('verbose', `@yaps/core uploadObject [extracting -> /tmp/${object}}]`)
-            await extract(`/tmp/${object}`, `/tmp`)
+            // Unzip file if needed
+            if(object.endsWith('.zip') || object.endsWith('.tar')
+                || object.endsWith('.tar.gz')) {
 
-            const nameWithoutExt = object.split('.')[0]
-            // Upload to fs
-            await uploadToFS(bucket, `/tmp/${nameWithoutExt}`)
-            // Removing extracted dir
-            removeDirSync(`/tmp/${nameWithoutExt}`, { recursive: true })
-        } else {
-            // Upload to fs
-            await uploadToFS(bucket, `/tmp/${object}`, object)
+                logger.log('verbose', `@yaps/core uploadObject [extracting compress file -> /tmp/${object}} bytes]`)
+                await extract(`/tmp/${object}`, `/tmp`)
+
+                const nameWithoutExt = object.split('.')[0]
+                // Upload to fs
+                await uploadToFS(bucket, `/tmp/${nameWithoutExt}`)
+
+                // Removing extracted dir
+                removeDirSync(`/tmp/${nameWithoutExt}`, { recursive: true })
+
+                const response  = new StoragePB.UploadObjectResponse()
+                response.setSize(fileSize)
+                callback(null, response)
+            } else {
+                // Upload to fs
+                await uploadToFS(bucket, `/tmp/${object}`, object)
+                const response  = new StoragePB.UploadObjectResponse()
+                response.setSize(fileSize)
+                callback(null, response)
+            }
+
+            // Remove temporal file
+            logger.log('verbose', `@yaps/core uploadObject [removing tmpfile -> /tmp/${object}}]`)
+            fs.unlinkSync(`/tmp/${object}`)
+        } catch(err) {
+            if (err.code === 'NoSuchBucket') {
+                callback({
+                    message: `${err.message} -> bucket: ${bucket}`,
+                    status: grpc.status.FAILED_PRECONDITION
+                })
+            } else {
+                callback(new Error('UNKNOWN'), err)
+            }
         }
-
-        // Remove temporal file
-        logger.log('verbose', `@yaps/core uploadObject [removing tmpfile -> /tmp/${object}}]`)
-        fs.unlinkSync(`/tmp/${object}`)
-
-        const response  = new StoragePB.UploadObjectResponse()
-        callback(null, response)
     })
 }
 
