@@ -19,10 +19,20 @@ describe('Storage Service', () => {
     })
 
     it('Upload Object', done => {
-        storage.uploadObject(__dirname + '/../.npmignore')
+        try {
+            // Will fail for directories
+            storage.uploadObject({
+                filename: __dirname + '/../hello-monkeys.zip',
+                bucket: 'default'
+            })
+            done('Should not make it this far.')
+        } catch(e) {
+            // Ignore
+        }
+
         //.then(result => {
         //    console.log('NO SHIT!: ' + result)
-            done()
+        //    done()
         //}).catch(e => done(e))
     })
 })

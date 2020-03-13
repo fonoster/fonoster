@@ -61,7 +61,7 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.toObject = function(op
 proto.yaps.storage.v1alpha1.UploadObjectRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    bucketName: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    bucket: jspb.Message.getFieldWithDefault(msg, 2, ""),
     chunks: msg.getChunks_asB64()
   };
 
@@ -105,7 +105,7 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.deserializeBinaryFromReader = fu
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setBucketName(value);
+      msg.setBucket(value);
       break;
     case 3:
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
@@ -147,7 +147,7 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.serializeBinaryToWriter = functi
       f
     );
   }
-  f = message.getBucketName();
+  f = message.getBucket();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -180,16 +180,16 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setName = function(val
 
 
 /**
- * optional string bucket_name = 2;
+ * optional string bucket = 2;
  * @return {string}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getBucketName = function() {
+proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getBucket = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setBucketName = function(value) {
+proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setBucket = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 

@@ -2,13 +2,13 @@
  * @author Pedro Sanders
  * @since v1
  */
+const Minio = require('minio')
 const {
     auth
 } = require('../common/trust_util')
 const redis = require('./redis')
 const objectid = require('objectid')
 const appmanager = require('../schemas/appmanager.schema')
-const Minio = require('minio')
 const path = require('path')
 const walk = require('walk')
 

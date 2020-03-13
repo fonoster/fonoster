@@ -4,8 +4,10 @@
  * @since v1
  */
 const fs = require('fs')
+const path = require('path')
 const promisifyAll = require('grpc-promise').promisifyAll
 const grpc = require('@yaps/core').grpc
+const logger = require('@yaps/core').logger
 const {
     AbstractService,
     StorageService,
@@ -26,36 +28,55 @@ class Storage extends AbstractService {
 
         const credentials = grpc.credentials.createInsecure()
 
-        console.log(`Connecting with apiserver @ ${super.getOptions().endpoint}`)
+        logger.log('verbose', `@yaps/storage connecting with apiserver [endpoint -> ${super.getOptions().endpoint}]`)
+        logger.log('debug', `@yaps/storage [access_key_id -> ${super.getOptions().accessKeyId} ]`)
+        logger.log('debug', `@yaps/storage [access_key_secret -> ${super.getOptions().accessKeySecret.substring(0, 20)}... ]`)
 
         const service = new StorageService
-          .StorageClient(super.getOptions().endpoint, credentials)
+            .StorageClient(super.getOptions().endpoint, credentials)
 
         //promisifyAll(service, {metadata})
 
-        this.uploadObject = filename => {
+        /**
+         *
+         */
+        this.uploadObject = request => {
+            logger.log('verbose', `@yaps/storage uploadObject [request -> ${JSON.stringify(request)}]`)
 
-            const readStream = fs.createReadStream(filename,
-              { highWaterMark: 1 * 1024 })
+            const objectName = path.basename(request.filename)
+            const readStream = fs.createReadStream(request.filename,
+                { highWaterMark: 1 * 1024 })
 
-            const request = new StoragePB.UploadObjectRequest()
-            const call = service.uploadObject(request, (error, response) => {});
+            // Upload request
+            const uor = new StoragePB.UploadObjectRequest()
+            uor.setName(objectName)
+            uor.setBucket(request.bucket)
+
+            const call = service.uploadObject(uor, (err, res) => {});
+
+            logger.log('debug', `@yaps/storage uploadObject [objectName -> ${objectName}]`)
 
             readStream.on('data', chunk => {
-                console.log('CHUKIFYING: ', chunk)
-                const request = new StoragePB.UploadObjectRequest()
-                request.setChunks(Buffer.from(chunk))
-                call.write(request)
+                const uor = new StoragePB.UploadObjectRequest()
+                uor.setChunks(Buffer.from(chunk))
+                uor.setName(objectName)
+                uor.setBucket(request.bucket)
+                call.write(uor)
             })
-            .on('end', () => call.end())
-            .on('error', err => {
-                console.error('pinga: ', err)
+            .on('end', () => {
+                logger.log('debug', `@yaps/storage upload complete [filename -> ${request.filename}]`)
                 call.end()
             })
+            .on('error', err => {
+                logger.log('error', err)
+                call.end()
+                if (err.code === 'EISDIR') {
+                    console.log('TETAS!')
+                //    throw new Error('INVALID_ARGUMENT')
+                }
+            })
         }
-
     }
-
 }
 
 module.exports = Storage

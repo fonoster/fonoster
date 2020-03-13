@@ -15,7 +15,7 @@ service Storage {
 
 message UploadObjectRequest {
     string name = 1;
-    string bucket_name = 2;
+    string bucket = 2;
     bytes chunks = 3;
 }
 

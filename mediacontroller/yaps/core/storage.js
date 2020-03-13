@@ -12,11 +12,11 @@ class Storage {
         logger.log('debug', `core.Storage [initializing storageBucket: ${storageBucket}]`)
         this.storageBucket = storageBucket
         this.fsConn = new Minio.Client({
-              endPoint: process.env.FS_HOST,
-              port: parseInt(process.env.FS_PORT),
-              useSSL: false,
-              accessKey: process.env.FS_USERNAME,
-              secretKey: process.env.FS_SECRET
+            endPoint: process.env.FS_HOST,
+            port: parseInt(process.env.FS_PORT),
+            useSSL: false,
+            accessKey: process.env.FS_USERNAME,
+            secretKey: process.env.FS_SECRET
         })
     }
 
@@ -44,8 +44,7 @@ class Storage {
     getFileURLSync(filename) {
         logger.log('debug', `core.Storage.getFileURLSync [filename: ${filename}]`)
         let exist
-        this.fsConn.statObject(this.storageBucket,
-            filename, (e, dataStream) => {
+        this.fsConn.statObject(this.storageBucket, filename, (e, dataStream) => {
               exist = e ? false : true
               if (e) {
                   logger.log('warn', `core.Storage.getFileURLSync [error: ${e}]`)

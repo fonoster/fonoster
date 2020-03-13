@@ -30,14 +30,17 @@
   "dependencies": {
     "deepmerge": "^4.2.2",
     "dotenv": "^8.2.0",
+    "fluent-logger": "^3.4.1",
     "google-protobuf": "^3.11.4",
     "grpc": "^1.24.2",
     "grpc-promise": "^1.4.0",
+    "inly": "^4.0.5",
     "ioredis": "^4.16.0",
     "jsonwebtoken": "^8.5.1",
     "minio": "^7.0.14",
     "objectid": "^3.2.1",
     "validate": "^5.1.0",
-    "walk": "^2.3.14"
+    "walk": "^2.3.14",
+    "winston": "^3.2.1"
   }
 }
