@@ -99,6 +99,8 @@ class AppManager extends AbstractService {
         //    credentials = getClientCredentials()
         //}
 
+        console.log(`Connecting with API Server @ ${super.getOptions().endpoint}`)
+
         const service = new AppManagerService
           .AppManagerClient(super.getOptions().endpoint, credentials)
 

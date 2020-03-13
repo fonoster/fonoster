@@ -3,10 +3,20 @@
  * @since v1
  */
 const AppManager = require('../src/appmanager')
-const appmanager = new AppManager({endpoint: 'localhost:50052'})
 const assert = require('assert')
 
+if(process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV ) {
+    require('dotenv').config({ path: __dirname + '/../../.env.dev' })
+}
+
 describe('App Manager Service', () => {
+    let appmanager
+
+    before(() => {
+        appmanager = new AppManager({
+            endpoint: `${process.env.APISERVER_ENDPOINT}`
+        })
+    })
 
     it('List Apps', done => {
         appmanager.listApps()

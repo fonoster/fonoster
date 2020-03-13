@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@yaps/core": "file:../core",
+    "dotenv": "^8.2.0",
     "grpc-promise": "^1.4.0"
   },
   "devDependencies": {

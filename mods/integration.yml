@@ -69,6 +69,8 @@ services:
     environment:
       CERTS_PATH: /etc/certs
       ACCESS_KEY_ID: yaps
+      APISERVER_ENDPOINT: apiserver:50051
+      NODE_ENV: integration
     volumes:
       - ./etc/certs:/etc/certs:ro
       - ./.:/code:ro
