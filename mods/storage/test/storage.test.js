@@ -80,7 +80,7 @@ describe('Storage Service', () => {
             filename: __dirname + '/../etc/test.txt',
             bucket: 'default'
         }).then(result => {
-            // Asserted this way to prevent issue with size changes 
+            // Asserted this way to prevent issue with size changes
             // different filesystems
             assert.ok(result.getSize() > 0)
             done()

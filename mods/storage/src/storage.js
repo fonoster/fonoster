@@ -36,9 +36,7 @@ class Storage extends AbstractService {
         const service = new StorageService
             .StorageClient(super.getOptions().endpoint, credentials)
 
-        //promisifyAll(service, {metadata})
-
-        this.uploadObject = request => new Promise((resolve, reject) => {
+        this.uploadObject = request => new Promise(async (resolve, reject) => {
             logger.log('verbose', `@yaps/storage uploadObject [request -> ${JSON.stringify(request)}]`)
 
             // WARNING: I'm not happy with this. Seems inconsistent with the other
@@ -64,12 +62,7 @@ class Storage extends AbstractService {
             const readStream = fs.createReadStream(request.filename,
                 { highWaterMark: 1 * 1024 })
 
-            // Upload request
-            const uor = new StoragePB.UploadObjectRequest()
-            uor.setName(objectName)
-            uor.setBucket(request.bucket)
-
-            const call = service.uploadObject(uor, (err, res) => {
+            const call = service.uploadObject(metadata, (err, res) => {
                 if (err) {
                     reject(err)
                 } else {

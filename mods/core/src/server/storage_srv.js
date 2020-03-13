@@ -18,18 +18,18 @@ const fs = require('fs')
 const storageValidator = require('../schemas/storage.schema')
 const logger = require('../common/logger')
 
-const uploadObject = (call, callback) => {
+const uploadObject = (call, callback) => {  
+    try {
+        auth(call)
+    } catch(e) {
+        logger.log('error', e)
+        callback(new Error('UNAUTHENTICATED'), null)
+        return
+    }
+
     // I swear I don't like this :(
     const delayVerification = request => {
         logger.log('verbose', `@yaps/core uploadObject [delay verification]`)
-
-        /*try {
-            auth(call)
-        } catch(e) {
-            logger.log('error', e)
-            callback(new Error('UNAUTHENTICATED'), null)
-            return
-        }*/
 
         // Validating the request
         const errors = storageValidator.uploadObjectRequest.validate({

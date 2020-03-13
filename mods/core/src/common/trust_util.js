@@ -6,6 +6,7 @@ const grpc = require('grpc')
 const fs = require('fs')
 const path = require('path')
 const jwt = require('jsonwebtoken')
+const logger = require('./logger')
 
 const CA_CRT = process.env.CERTS_PATH + '/ca.crt'
 const SERVER_CRT = process.env.CERTS_PATH + '/server.crt'
@@ -32,18 +33,21 @@ module.exports.getClientCredentials = () => grpc.credentials.createSsl(
 )
 
 module.exports.auth = function(call, callback) {
-    let JWT_SALT
-    const pathToCerts = path.join(process.env.CERTS_PATH, 'jwt.salt')
-    try {
-        // TODO: Move elsewhere to avoid reading this file everytime
-        JWT_SALT = process.env.JWT_SALT || fs.readFileSync(pathToCerts).toString().trim()
 
+    let salt
+
+    try {
+        const pathToCerts = path.join(process.env.CERTS_PATH, 'jwt.salt')
+        // TODO: Move elsewhere to avoid reading this file everytime
+        salt = process.env.JWT_SALT || fs.readFileSync(pathToCerts).toString().trim()
     } catch(e) {
-        throw `Unable to find JWT_SALT environment variable or the ${pathToCerts} file`
+        logger.log('error', `Unable to find JWT_SALT environment variable or the certificates`)
+        throw `Unable to find JWT_SALT environment variable or the certificates`
     }
 
     if (call.metadata._internal_repr.access_key_id === null ||
         call.metadata._internal_repr.access_key_secret === null) {
+            console.log('pinga001')
         throw 'Unauthorized'
         return
     }
@@ -53,14 +57,16 @@ module.exports.auth = function(call, callback) {
 
     if (typeof accessKeySecret !== 'undefined') {
         try {
-            const decoded = jwt.verify(accessKeySecret, JWT_SALT)
+            const decoded = jwt.verify(accessKeySecret, salt)
             if(!decoded || accessKeyId !== decoded.sub) {
+                console.log('pinga')
                 throw 'Unauthorized'
             }
         } catch(e) {
             throw e
         }
     } else {
+        console.log('pinga002')
         throw 'Unauthorized'
     }
 }
