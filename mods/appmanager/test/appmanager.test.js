@@ -18,7 +18,7 @@ describe('App Manager Service', () => {
         })
     })
 
-    it('List Apps', done => {
+    it('List apps', done => {
         appmanager.listApps()
         .then(result => {
             assert.ok(result.apps.length > 1)
@@ -26,7 +26,7 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it('Get App', done => {
+    it('Get app', done => {
         appmanager.getApp('hello-world')
         .then(app => {
             assert.ok(app.name === 'hello-world')
@@ -34,7 +34,37 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it.only('Create App', async() => {
+    it.only('Create app bad dir path field', done => {
+        const request = {
+            dirPathxx: __dirname + '/../etc/hello-monkeys',
+            app: {
+                name: 'hello-monkeys',
+                description: 'Simple Voice App'
+            }
+        }
+
+        appmanager.createApp(request)
+        .then(r => done('should enter here'))
+        .catch(e => {
+            assert.ok(e.message.includes('Unable to open project'))
+            done()
+        })
+
+    })
+
+    it.only('Create app get info from package.json', done => {
+        const request = {
+            dirPath: __dirname + '/../etc/hello-monkeys',
+        }
+
+        appmanager.createApp(request)
+        .then(app => {
+            assert.equal(app.getName(), 'hello-monkeys')
+            done()
+        }).catch(e => done(e))
+    })
+
+    it.only('Create app perfect case...', async() => {
         const request = {
             dirPath: __dirname + '/../etc/hello-monkeys',
             app: {
@@ -47,7 +77,7 @@ describe('App Manager Service', () => {
         assert.ok(app.getName() === 'hello-monkeys')
     })
 
-    it('Update App', done => {
+    it('Update app', done => {
         const data = {
           app: {
               status: 'STOPPED'
@@ -60,7 +90,7 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it('Delete App', done => {
+    it('Delete app', done => {
         appmanager.deleteApp('hello-world')
         .then(result => {
             done()

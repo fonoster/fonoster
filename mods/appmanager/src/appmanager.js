@@ -9,6 +9,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const grpc = require('@yaps/core').grpc
 const logger = require('@yaps/core').logger
+const { appmanagerValidator } = require('@yaps/core').validators
 const {
     AbstractService,
     AppManagerService,
@@ -43,8 +44,8 @@ const STATUS = {
  * @alias module:@yaps/appmanager.AppManager
  * @typicalname appmanager
  * @classdesc Use YAPS AppMAnager, a capability of YAPS Systems Manager,
- * to create, manage, and deploy an application. AppManager supports controlled
- * The AppManager requires of a running YAPS plattform.
+ * to create, manage, and deploy an application. The AppManager requires of a r
+ * unning YAPS plattform.
  *
  * @extends AbstractService
  * @example
@@ -65,15 +66,16 @@ class AppManager extends AbstractService {
      * Application object
      *
      * @typedef {Object} App
-     * @property {App.Status} status - Current status of the application
-     * @property {string} ref - Unique identifier for the application
-     * @property {string} name - A name for the application
-     * @property {string} description - A description for the application
-     * @property {number} createTime - Time the application was created
-     * @property {number} updateTime - Last time the application was updated
-     * @property {number} entryPoint - main script for the application (ie: main.js or index.js).
-     * this is use by the Media Controller to properly route a call.
-     * @property {map} labels - Metadata for this application
+     * @property {App.Status} status - Current status of the application.
+     * @property {string} ref - Unique identifier for the application.
+     * @property {string} name - A name for the application.
+     * @property {string} description - A description for the application.
+     * @property {number} createTime - Time the application was created.
+     * @property {number} updateTime - Last time the application was updated.
+     * @property {number} entryPoint - main script for the application (ie: main.js or index.js.)
+     * this is use by the Media Controller to properly route a call. The path to
+     * the entry point is relative to the root of the project.
+     * @property {map} labels - Metadata for this application.
      */
 
     /**
@@ -84,12 +86,13 @@ class AppManager extends AbstractService {
      * The endpoint should be a string like '{serviceHost}:{servicePort}'.
      * @property {string} accessKeyId - your YAPS access key ID.
      * @property {string} accessKeySecret - your YAPS secret access key.
+     * @property {string} bucket - The bucket to upload apps and media files.
      */
 
     /**
      * Constructs a service object.
      *
-     * @param {Options} options - Overwrite for the service's defaults configuration
+     * @param {Options} options - Overwrite for the service's defaults configuration.
      */
     constructor(options) {
         super(options)
@@ -151,15 +154,16 @@ class AppManager extends AbstractService {
          *
          * @async
          * @function
-         * @param {Object} - Request for object update
-         * @return {Promise<App>} - The application just created
+         * @param {Object} - Request for object update.
+         * @return {Promise<App>} - The application just created.
          * @example
          *
          * const request = {
          *    dirPath: '/path/to/project',
          *    app: {
          *        name: 'hello-world',
-         *        description: 'Simple Voice App'
+         *        description: 'Simple Voice App',
+         *        entryPoint: 'index.js'
          *    }
          * }
          *
@@ -167,63 +171,94 @@ class AppManager extends AbstractService {
          * .then(result => {
          *    console.log(result)            // returns the app object
          * }).catch(e => console.error(e))   // an error occurred
+         *
+         * @todo if the file uploading fails the state of the application should
+         * change to UNKNOWN
          */
         this.createApp = async(request) => {
             logger.log('verbose', `@yaps/appmananger createApp [request -> ${JSON.stringify(request)}]`)
             logger.log('debug', '@yaps/appmananger createApp [validating app]')
-
-            const packagePath = request.dirPath + '/package.json'
-
-            if(!fs.lstatSync(request.dirPath).isDirectory()) {
-                throw new Error(`${request.dirPath} is not a directory`)
-            }
-
-            if(!fs.existsSync(packagePath)) {
-                throw new Error(`not package.json found in ${request.dirPath}`)
-            }
-
             logger.log('debug', '@yaps/appmananger createApp [getting package info]')
 
-            // Expects an existing valid package.json
-            const packageInfo = path => JSON.parse(fs.readFileSync(path))
-            const pInfo = packageInfo(packagePath)
+            try {
+                const packagePath = request.dirPath + '/package.json'
 
-            request.app = request.app || {}
-            request.app.name = request.app.name || pInfo.name
-            request.app.description = request.app.description || pInfo.description
-            request.app.entryPoint = request.app.entryPoint || pInfo.main
+                // Expects an existing valid package.json
+                const packageInfo = path => JSON.parse(fs.readFileSync(path))
+                let pInfo
 
-            logger.log('debug', '@yaps/appmananger createApp [registering app]')
-            logger.log('debug', `@yaps/appmananger createApp [package info -> ${JSON.stringify(pInfo)}]`)
+                try {
+                    pInfo = packageInfo(packagePath)
+                    logger.log('debug', `@yaps/appmananger createApp [package info -> ${JSON.stringify(pInfo)}]`)
+                } catch(err) {
+                    throw new Error(`Unable to open project directory '${request.dirPath}'`)
+                }
 
-            const app = new AppManagerPB.App()
-            app.setName(request.app.name)
-            app.setDescription(request.app.description)
+                request.app = request.app || {}
+                request.app.name = request.app.name || pInfo.name
+                request.app.description = request.app.description || pInfo.description
+                request.app.entryPoint = request.app.entryPoint || pInfo.main
 
-            const createAppRequest = new AppManagerPB.CreateAppRequest()
-            createAppRequest.setApp(app)
+                logger.log('debug', `@yaps/appmananger createApp [modified request -> ${JSON.stringify(request)} ]`)
 
-            const response = await service.createApp().sendMessage(createAppRequest)
+                // WARNING: I'm not happy with this. Seems inconsistent with the other
+                // errors...
+                const errors = appmanagerValidator.createAppRequest.validate({
+                    app: {
+                      name: request.app.name,
+                      description: request.app.description,
+                      entryPoint: request.app.entryPoint
+                    }
+                })
 
-            logger.log('debug', `@yaps/appmananger createApp [copyed '${request.dirPath}' into '/tmp/'}]`)
+                if(errors.length > 0) {
+                    logger.log('warn', `@yaps/appmananger createApp [invalid argument/s]`)
+                    throw new Error(errors[0].message)
+                }
 
-            const dirName = path.basename(request.dirPath)
-            await fs.copy(request.dirPath, `/tmp/yaps/${dirName}`)
+                if(!fs.existsSync(request.dirPath) ||
+                    !fs.lstatSync(request.dirPath).isDirectory()) {
+                    throw new Error(`${request.dirPath} does not exist or is not a directory`)
+                }
 
-            logger.log('debug', '@yaps/appmananger createApp [archiving project folder]')
+                if(!fs.existsSync(packagePath)) {
+                    throw new Error(`not package.json found in ${request.dirPath}`)
+                }
 
-            await tar.create({cwd: '/tmp/yaps', file: `/tmp/yaps/${dirName}.tgz`},
-                [dirName])
+                logger.log('debug', '@yaps/appmananger createApp [registering app]')
 
-            logger.log('debug', '@yaps/appmananger createApp [uploading files]')
+                const app = new AppManagerPB.App()
+                app.setName(request.app.name)
+                app.setDescription(request.app.description)
+                app.setEntryPoint(request.app.entryPoint)
 
-            // Will fail because of bad argument filenam
-            await storage.uploadObject({
-                filename: `/tmp/yaps/${dirName}.tgz`,
-                bucket: 'default'
-            })
+                const createAppRequest = new AppManagerPB.CreateAppRequest()
+                createAppRequest.setApp(app)
 
-            return response
+                const response = await service.createApp().sendMessage(createAppRequest)
+
+                logger.log('debug', `@yaps/appmananger createApp [copyed '${request.dirPath}' into '/tmp/'}]`)
+
+                const dirName = path.basename(request.dirPath)
+                await fs.copy(request.dirPath, `/tmp/${dirName}`)
+
+                logger.log('debug', '@yaps/appmananger createApp [archiving project folder]')
+
+                await tar.create({cwd: '/tmp', file: `/tmp/${dirName}.tgz`},
+                    [dirName])
+
+                logger.log('debug', `@yaps/appmananger createApp [uploading to bucket -> ${super.getOptions().bucket}]`)
+
+                // Will fail because of bad argument filenam
+                await storage.uploadObject({
+                    filename: `/tmp/${dirName}.tgz`,
+                    bucket: super.getOptions().bucket
+                })
+
+                return response
+            } catch(e) {
+                throw e
+            }
         }
 
         /**
@@ -231,8 +266,8 @@ class AppManager extends AbstractService {
          *
          * @async
          * @function
-         * @param {*} - Request for object update
-         * @return {Promise<App>} - The application just updated
+         * @param {*} - Request for object update.
+         * @return {Promise<App>} - The application just updated.
          * @example
          *
          * appmanager.updateApp(request)

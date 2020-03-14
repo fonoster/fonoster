@@ -24,7 +24,7 @@ describe('Storage Service', () => {
             filenam: __dirname + '/../etc/hello-monkeys.zip',
             bucket: 'default'
         }).then(result => {
-            done('Should not enter here')
+            done('should not enter here')
         }).catch(e => {
             assert.ok(e.message.includes('name is required'))
             // Expected to enter gere
@@ -38,7 +38,7 @@ describe('Storage Service', () => {
             filename: __dirname + '/../etc/hello-monkeys.zip',
             bucket: 'bucket001'
         }).then(result => {
-            done('Should not enter here')
+            done('should not enter here')
         }).catch(e => {
             assert.ok(e.message.includes('bucket does not exist'))
             // Expected to enter gere
@@ -52,7 +52,7 @@ describe('Storage Service', () => {
             filename: __dirname,
             bucket: 'default'
         }).then(result => {
-            done('Should not enter here')
+            done('should not enter here')
         }).catch(e => {
             assert.ok(e.message.includes('is not supported'))
             done()
