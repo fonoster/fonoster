@@ -18,8 +18,45 @@ const {
     getClientCredentials
 } = require('@yaps/core').trust_util
 
+/**
+ * @alias module:@yaps/storage.Storage
+ * @typicalname storage
+ * @classdesc Use YAPS Storage, a capability of YAPS Systems Storage,
+ * to create, manage, and deploy an buckets and to upload and download files
+ * to your buckets.
+ *
+ * @extends AbstractService
+ * @example
+ *
+ * ```Basic example```
+ *
+ * const YAPS = require('@yaps/sdk')
+ * const storage = new YAPS.Storage()
+ *
+ * const request = {
+ *    filename: 'path/to/your/file',
+ *    bucket: 'bucket-name'
+ * }
+ *
+ * storage.uploadObject(request)
+ * .then(result => {
+ *    console.log(result)            // successful response
+ * }).catch(e => console.error(e))   // an error occurred
+ */
 class Storage extends AbstractService {
 
+    /**
+     * Upload Object Response
+     *
+     * @typedef {Object} UploadObjectResponse
+     * @property {number} size - Uploaded file size in bytes.
+     */
+
+    /**
+     * Constructs a service object.
+     *
+     * @param {Options} options - Overwrite for the service's defaults configuration
+     */
     constructor(options) {
         super(options)
 
@@ -36,6 +73,28 @@ class Storage extends AbstractService {
         const service = new StorageService
             .StorageClient(super.getOptions().endpoint, credentials)
 
+        /**
+         * Creates a new application.
+         *
+         * @async
+         * @function
+         * @param {Object} - Object upload request
+         * @return {Promise<UploadObjectResponse>} - The application just created
+         * @example
+         *
+         * const YAPS = require('@yaps/sdk')
+         * const storage = new YAPS.Storage()
+         *
+         * const request = {
+         *    filename: 'path/to/your/file',
+         *    bucket: 'bucket-name'
+         * }
+         *
+         * storage.uploadObject(request)
+         * .then(result => {
+         *    console.log(result)            // successful response
+         * }).catch(e => console.error(e))   // an error occurred
+         */
         this.uploadObject = request => new Promise(async (resolve, reject) => {
             logger.log('verbose', `@yaps/storage uploadObject [request -> ${JSON.stringify(request)}]`)
 
@@ -88,7 +147,6 @@ class Storage extends AbstractService {
                 call.end()
             })
         }).catch(e => { throw e })
-
     }
 }
 

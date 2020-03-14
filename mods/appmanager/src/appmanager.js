@@ -84,7 +84,7 @@ class AppManager extends AbstractService {
     /**
      * Constructs a service object.
      *
-     * @param {Options} options - Overwrite for the service defaults configuration
+     * @param {Options} options - Overwrite for the service's defaults configuration
      */
     constructor(options) {
         super(options)
