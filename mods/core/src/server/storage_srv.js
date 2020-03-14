@@ -18,7 +18,7 @@ const fs = require('fs')
 const storageValidator = require('../schemas/storage.schema')
 const logger = require('../common/logger')
 
-const uploadObject = (call, callback) => {  
+const uploadObject = (call, callback) => {
     try {
         auth(call)
     } catch(e) {
@@ -79,10 +79,12 @@ const uploadObject = (call, callback) => {
             logger.log('debug', `@yaps/core uploadObject [file size -> ${fileSize}]`)
 
             // Unzip file if needed
-            if(object.endsWith('.zip') || object.endsWith('.tar')
+            if(object.endsWith('.zip')
+                || object.endsWith('.tar')
+                || object.endsWith('.tgz')
                 || object.endsWith('.tar.gz')) {
 
-                logger.log('verbose', `@yaps/core uploadObject [extracting compress file -> /tmp/${object}} bytes]`)
+                logger.log('verbose', `@yaps/core uploadObject [extracting files -> /tmp/${object}]`)
                 await extract(`/tmp/${object}`, `/tmp`)
 
                 const nameWithoutExt = object.split('.')[0]
@@ -113,6 +115,7 @@ const uploadObject = (call, callback) => {
                     status: grpc.status.FAILED_PRECONDITION
                 })
             } else {
+                console.log(err)
                 callback(new Error('UNKNOWN'), err)
             }
         }

@@ -5,10 +5,6 @@
 const Schema = require('validate')
 
 const createAppRequest = new Schema({
-    filePath: {
-        type: String,
-        required: true
-    },
     app: {
         name: {
           type: String,

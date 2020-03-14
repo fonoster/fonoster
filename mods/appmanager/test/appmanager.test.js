@@ -36,22 +36,15 @@ describe('App Manager Service', () => {
 
     it.only('Create App', async() => {
         const request = {
-            filePath: './hello_world.tar.gz',
+            dirPath: __dirname + '/../etc/hello-monkeys',
             app: {
-                name: 'hello-world'
+                name: 'hello-monkeys',
+                description: 'Simple Voice App'
             }
         }
 
-        try {
-            await appmanager.createApp(request)
-        } catch(e) {
-            // Ignore. It is supposed to happen
-        }
-
-        request.app.description = 'Simple Voice App'
-
         const app = await appmanager.createApp(request)
-        assert.ok(app.getName() === 'hello-world')
+        assert.ok(app.getName() === 'hello-monkeys')
     })
 
     it('Update App', done => {

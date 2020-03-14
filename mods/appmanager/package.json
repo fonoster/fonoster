@@ -28,8 +28,10 @@
   },
   "dependencies": {
     "@yaps/core": "file:../core",
+    "@yaps/storage": "file:../storage",
     "dotenv": "^8.2.0",
-    "grpc-promise": "^1.4.0"
+    "grpc-promise": "^1.4.0",
+    "tar": "^6.0.1"
   },
   "devDependencies": {
     "assert": "^2.0.0",

@@ -3,7 +3,12 @@
  * @module @yaps/appmanager
  * @since v1
  */
+const Storage = require('@yaps/storage')
+const tar = require('tar')
+const fs = require('fs-extra')
+const path = require('path')
 const grpc = require('@yaps/core').grpc
+const logger = require('@yaps/core').logger
 const {
     AbstractService,
     AppManagerService,
@@ -104,6 +109,8 @@ class AppManager extends AbstractService {
         const service = new AppManagerService
           .AppManagerClient(super.getOptions().endpoint, credentials)
 
+        const storage = new Storage(super.getOptions())
+
         promisifyAll(service, {metadata})
 
         /**
@@ -149,7 +156,7 @@ class AppManager extends AbstractService {
          * @example
          *
          * const request = {
-         *    filePath: '/file/to/zipped/project',
+         *    dirPath: '/path/to/project',
          *    app: {
          *        name: 'hello-world',
          *        description: 'Simple Voice App'
@@ -161,16 +168,62 @@ class AppManager extends AbstractService {
          *    console.log(result)            // returns the app object
          * }).catch(e => console.error(e))   // an error occurred
          */
-        this.createApp = request => {
+        this.createApp = async(request) => {
+            logger.log('verbose', `@yaps/appmananger createApp [request -> ${JSON.stringify(request)}]`)
+            logger.log('debug', '@yaps/appmananger createApp [validating app]')
+
+            const packagePath = request.dirPath + '/package.json'
+
+            if(!fs.lstatSync(request.dirPath).isDirectory()) {
+                throw new Error(`${request.dirPath} is not a directory`)
+            }
+
+            if(!fs.existsSync(packagePath)) {
+                throw new Error(`not package.json found in ${request.dirPath}`)
+            }
+
+            logger.log('debug', '@yaps/appmananger createApp [getting package info]')
+
+            // Expects an existing valid package.json
+            const packageInfo = path => JSON.parse(fs.readFileSync(path))
+            const pInfo = packageInfo(packagePath)
+
+            request.app = request.app || {}
+            request.app.name = request.app.name || pInfo.name
+            request.app.description = request.app.description || pInfo.description
+            request.app.entryPoint = request.app.entryPoint || pInfo.main
+
+            logger.log('debug', '@yaps/appmananger createApp [registering app]')
+            logger.log('debug', `@yaps/appmananger createApp [package info -> ${JSON.stringify(pInfo)}]`)
+
             const app = new AppManagerPB.App()
             app.setName(request.app.name)
             app.setDescription(request.app.description)
 
             const createAppRequest = new AppManagerPB.CreateAppRequest()
             createAppRequest.setApp(app)
-            createAppRequest.setFilePath(request.filePath)
 
-            return service.createApp().sendMessage(createAppRequest)
+            const response = await service.createApp().sendMessage(createAppRequest)
+
+            logger.log('debug', `@yaps/appmananger createApp [copyed '${request.dirPath}' into '/tmp/'}]`)
+
+            const dirName = path.basename(request.dirPath)
+            await fs.copy(request.dirPath, `/tmp/yaps/${dirName}`)
+
+            logger.log('debug', '@yaps/appmananger createApp [archiving project folder]')
+
+            await tar.create({cwd: '/tmp/yaps', file: `/tmp/yaps/${dirName}.tgz`},
+                [dirName])
+
+            logger.log('debug', '@yaps/appmananger createApp [uploading files]')
+
+            // Will fail because of bad argument filenam
+            await storage.uploadObject({
+                filename: `/tmp/yaps/${dirName}.tgz`,
+                bucket: 'default'
+            })
+
+            return response
         }
 
         /**

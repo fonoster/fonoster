@@ -60,12 +60,10 @@ message GetAppRequest {
 }
 
 message CreateAppRequest {
-  string file_path = 1;
   App app = 2;
 }
 
 message UpdateAppRequest {
-  string file_path = 1;
   App app = 2;
 }
 

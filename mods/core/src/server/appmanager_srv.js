@@ -2,23 +2,13 @@
  * @author Pedro Sanders
  * @since v1
  */
-const Minio = require('minio')
+const AppManagerPB = require('./protos/appmanager_pb')
 const {
     auth
 } = require('../common/trust_util')
 const redis = require('./redis')
 const objectid = require('objectid')
 const appmanager = require('../schemas/appmanager.schema')
-const path = require('path')
-const walk = require('walk')
-
-const minioClient = new Minio.Client({
-      endPoint: '127.0.0.1',
-      port: 9000,
-      useSSL: false,
-      accessKey: 'minio',
-      secretKey: 'minio123'
-})
 
 const listApps = (call, callback) => {
     try {
@@ -56,14 +46,12 @@ const createApp = (call, callback) => {
     try {
         auth(call)
     } catch(e) {
-       console.log(e)
        callback(new Error('UNAUTHENTICATED'), null)
        return
     }
 
     // Validating the request
     const errors = appmanager.createAppRequest.validate({
-        filePath: call.request.getFilePath(),
         app: {
             name: call.request.getApp().getName(),
             description: call.request.getApp().getDescription(),
@@ -75,30 +63,9 @@ const createApp = (call, callback) => {
         return
     }
 
-    console.log('Uploading file')
-
-    const uploadFolder = call.request.getFilePath()
-    const dirCount = path.dirname(uploadFolder).split(path.sep).length
-    const baseDir = path.dirname(uploadFolder)
-      .split(path.sep).slice(0, dirCount).join('/')
-
-    const walker = walk.walk(uploadFolder)
-    walker.on('file', (root, fileStats, next) => {
-        const filePath = root + '/' + fileStats.name
-        const dest = filePath.substring(baseDir.length + 1)
-
-        minioClient.fPutObject('default', dest , filePath, err => {
-
-            if (err) {
-              console.error(err)
-            }
-            next()
-        })
-    })
-
     const app = call.request.getApp()
     app.setRef(objectid())
-    app.setStatus(0) // TODO: Get from enum value
+    app.setStatus(AppManagerPB.App.Status.CREATING)
 
     redis.call('JSON.set', app.getRef(), '.', `${JSON.stringify(app.toString())}`)
     .then(result => callback(null, app))

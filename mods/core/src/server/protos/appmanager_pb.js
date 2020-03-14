@@ -628,7 +628,6 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.toObject = function(op
  */
 proto.yaps.appmanager.v1alpha1.CreateAppRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    filePath: jspb.Message.getFieldWithDefault(msg, 1, ""),
     app: (f = msg.getApp()) && proto.yaps.appmanager.v1alpha1.App.toObject(includeInstance, f)
   };
 
@@ -666,10 +665,6 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.deserializeBinaryFromReader = fu
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setFilePath(value);
-      break;
     case 2:
       var value = new proto.yaps.appmanager.v1alpha1.App;
       reader.readMessage(value,proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader);
@@ -704,13 +699,6 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.serializeBinary = func
  */
 proto.yaps.appmanager.v1alpha1.CreateAppRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getFilePath();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
   f = message.getApp();
   if (f != null) {
     writer.writeMessage(
@@ -719,21 +707,6 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.serializeBinaryToWriter = functi
       proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter
     );
   }
-};
-
-
-/**
- * optional string file_path = 1;
- * @return {string}
- */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.getFilePath = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/** @param {string} value */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.setFilePath = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -814,7 +787,6 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.toObject = function(op
  */
 proto.yaps.appmanager.v1alpha1.UpdateAppRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    filePath: jspb.Message.getFieldWithDefault(msg, 1, ""),
     app: (f = msg.getApp()) && proto.yaps.appmanager.v1alpha1.App.toObject(includeInstance, f)
   };
 
@@ -852,10 +824,6 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.deserializeBinaryFromReader = fu
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setFilePath(value);
-      break;
     case 2:
       var value = new proto.yaps.appmanager.v1alpha1.App;
       reader.readMessage(value,proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader);
@@ -890,13 +858,6 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.serializeBinary = func
  */
 proto.yaps.appmanager.v1alpha1.UpdateAppRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getFilePath();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
   f = message.getApp();
   if (f != null) {
     writer.writeMessage(
@@ -905,21 +866,6 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.serializeBinaryToWriter = functi
       proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter
     );
   }
-};
-
-
-/**
- * optional string file_path = 1;
- * @return {string}
- */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.getFilePath = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/** @param {string} value */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.setFilePath = function(value) {
-  jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
