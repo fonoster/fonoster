@@ -49,7 +49,7 @@ class Storage extends AbstractService {
      * Upload Object Response
      *
      * @typedef {Object} UploadObjectResponse
-     * @property {number} size - Uploaded file size in bytes.
+     * @property {number} size - Size of uploaded file in bytes.
      */
 
     /**
