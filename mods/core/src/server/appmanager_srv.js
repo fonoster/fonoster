@@ -55,6 +55,7 @@ const createApp = (call, callback) => {
         app: {
             name: call.request.getApp().getName(),
             description: call.request.getApp().getDescription(),
+            entryPoint: call.request.getApp().getEntryPoint()
         }
     })
 

@@ -15,5 +15,6 @@ module.exports.logger = require('./common/logger')
 
 // Validators
 module.exports.validators = {
-    storageValidator: require('./schemas/storage.schema')
+    storageValidator: require('./schemas/storage.schema'),
+    appmanagerValidator: require('./schemas/appmanager.schema')
 }
