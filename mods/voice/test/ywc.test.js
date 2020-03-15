@@ -6,7 +6,7 @@
  */
 const MockChannel = require('./mock_channel')
 const MaryTTS = require('@yaps/tts').MaryTTS
-//const Storage = require('./storage')
+const Storage = require('@yaps/storage')
 const YWC = require('../src/ywc')
 
 const assert = require('assert')
