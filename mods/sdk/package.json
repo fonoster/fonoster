@@ -20,10 +20,11 @@
     "type": "git",
     "url": "git+https://github.com/fonoster/yaps.git"
   },
-  "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
-  },
   "bugs": {
     "url": "https://github.com/fonoster/yaps/issues"
+  },
+  "dependencies": {
+    "@yaps/appmanager": "^0.1.0",
+    "@yaps/storage": "^0.1.0"
   }
 }

@@ -2,11 +2,28 @@
   "name": "root",
   "private": true,
   "devDependencies": {
+    "@yaps/accounting": "^0.1.0",
+    "@yaps/appmanager": "^0.1.0",
+    "@yaps/callmanager": "^0.1.0",
+    "@yaps/core": "^0.1.0",
+    "@yaps/jobs": "^0.1.0",
+    "@yaps/sdk": "^0.1.0",
+    "@yaps/storage": "^0.1.0",
+    "@yaps/tts": "^0.1.0",
+    "@yaps/voice": "^0.1.0",
+    "assert": "^2.0.0",
     "jsdoc-to-markdown": "^5.0.3",
+    "jsonwebtoken": "^8.5.1",
     "lerna": "^3.20.2",
-    "jsonwebtoken": "^8.5.1"
+    "mocha": "^7.1.0",
+    "nyc": "^15.0.0"
   },
   "scripts": {
-    "docs": "jsdoc2md mods/**/src/*.js > docs/api.md"
+    "docs": "jsdoc2md mods/**/src/*.js > docs/api.md",
+    "test": "./node_modules/nyc/bin/nyc.js --reporter=lcov ./node_modules/mocha/bin/mocha mods/**/test/*.test.js",
+    "gen-proto": "./mods/etc/gen_code_proto"
+  },
+  "dependencies": {
+    "node-gyp": "^6.1.0"
   }
 }

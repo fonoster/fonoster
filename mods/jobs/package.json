@@ -4,7 +4,7 @@
   "description": "Jobs API",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
-  "license": "ISC",
+  "license": "MIT",
   "main": "src/jobs.js",
   "directories": {
     "src": "src",
@@ -19,9 +19,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fonoster/yaps.git"
-  },
-  "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/fonoster/yaps/issues"
