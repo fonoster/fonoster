@@ -4,7 +4,8 @@
  */
 const AGIServer = require('agi-node').AGIServer
 const Storage = require('../core/storage')
-const MaryTTS = require('../tts/mary_tts')
+// const MaryTTS = require('../tts/mary_tts')
+const MaryTTS = require('@yaps/tts').MaryTTS
 const YWC = require('../core/ywc')
 const { getIngressApp } = require('./utils')
 const { NodeVM } = require('vm2')

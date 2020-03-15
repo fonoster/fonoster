@@ -2,16 +2,20 @@
  * @author Pedro Sanders
  * @since v1
  *
- * Unit Test for the "Abstract TTs Object"
+ * Unit Test for the "Abstract TTs Class"
  */
-
+const AbstractTTS = require('../src/abstract_tts')
+const MaryTTS = require('../src/mary_tts')
 const assert = require('assert')
-const AbstractTTS = require('./abstract_tts')
 const {
     computeFilename,
-    transcodeSync,
+    transcode,
     optionsToQueryString
-} = require('./utils')
+} = require('../src/utils')
+
+if(process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV ) {
+    require('dotenv').config({ path: __dirname + '/../../.env.dev' })
+}
 
 describe('TTS Utils', () => {
 
@@ -30,7 +34,7 @@ describe('TTS Utils', () => {
     })
 
     // Needs an running instace of minio
-    it.only('Test options to query', done => {
+    it('Test options to query', done => {
         const options = {
             voice: 'peter',
             language: 'spanish'
@@ -42,8 +46,16 @@ describe('TTS Utils', () => {
 
     // Needs an running instace of minio
     it('Test convert audio', done => {
-        transcodeSync(__dirname + '/../etc/test.wav')
-        done()
+        transcode(__dirname + '/../etc/test.wav')
+        .then(r => done())
+        .catch(e => done(e))
+    })
+
+    it('Test marytts plus transcode', done => {
+        const tts = new MaryTTS()
+        tts.synthesize('hey this is a test')
+        .then(r => done())
+        .catch(e => done(e))
     })
 
 })
