@@ -62,7 +62,8 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.toObject = function(includeInsta
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
     bucket: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    chunks: msg.getChunks_asB64()
+    chunks: msg.getChunks_asB64(),
+    metadataMap: (f = msg.getMetadataMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
   if (includeInstance) {
@@ -110,6 +111,12 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.deserializeBinaryFromReader = fu
     case 3:
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setChunks(value);
+      break;
+    case 4:
+      var value = msg.getMetadataMap();
+      reader.readMessage(value, function(message, reader) {
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "");
+         });
       break;
     default:
       reader.skipField();
@@ -160,6 +167,10 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.serializeBinaryToWriter = functi
       3,
       f
     );
+  }
+  f = message.getMetadataMap(true);
+  if (f && f.getLength() > 0) {
+    f.serializeBinary(4, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
   }
 };
 
@@ -230,6 +241,24 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getChunks_asU8 = funct
 /** @param {!(string|Uint8Array)} value */
 proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setChunks = function(value) {
   jspb.Message.setProto3BytesField(this, 3, value);
+};
+
+
+/**
+ * map<string, string> metadata = 4;
+ * @param {boolean=} opt_noLazyCreate Do not create the map if
+ * empty, instead returning `undefined`
+ * @return {!jspb.Map<string,string>}
+ */
+proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getMetadataMap = function(opt_noLazyCreate) {
+  return /** @type {!jspb.Map<string,string>} */ (
+      jspb.Message.getMapField(this, 4, opt_noLazyCreate,
+      null));
+};
+
+
+proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.clearMetadataMap = function() {
+  this.getMetadataMap().clear();
 };
 
 

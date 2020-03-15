@@ -17,6 +17,7 @@ message UploadObjectRequest {
     string name = 1;
     string bucket = 2;
     bytes chunks = 3;
+    map <string, string> metadata = 4;
 }
 
 message UploadObjectResponse {

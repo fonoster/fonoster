@@ -11,7 +11,8 @@ const {
     extract,
     removeDirSync,
     uploadToFS,
-    getFilesizeInBytes
+    getFilesizeInBytes,
+    mapToObj
 } = require('../common/utils')
 const objectid = require('objectid')
 const fs = require('fs')
@@ -48,7 +49,7 @@ const uploadObject = (call, callback) => {
     const writeStream = fs.createWriteStream(`/tmp/${tmpName}`)
     let object
     let bucket
-    let ext
+    let metadata
     let verified = false
 
     call.on('data', request => {
@@ -56,6 +57,7 @@ const uploadObject = (call, callback) => {
             delayVerification(request)
             object = request.getName()
             bucket = request.getBucket()
+            metadata = mapToObj(request.getMetadataMap())
             verified = true
         }
         const chunk = request.getChunks()
@@ -69,8 +71,9 @@ const uploadObject = (call, callback) => {
     call.on('end', async(chunk)=> {
         try {
             logger.log('verbose', `@yaps/core uploadObject [object ready for upload]`)
-            logger.log('verbose', `@yaps/core uploadObject [object -> ${object}]`)
-            logger.log('verbose', `@yaps/core uploadObject [bucket -> ${bucket}]`)
+            logger.log('debug', `@yaps/core uploadObject [object: ${object}]`)
+            logger.log('debug', `@yaps/core uploadObject [bucket: ${bucket}]`)
+            logger.log('debug', `@yaps/core uploadObject [metadata: ${JSON.stringify(metadata)}]`)
 
             // Back to what it is supposed to be
             fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
@@ -84,7 +87,7 @@ const uploadObject = (call, callback) => {
                 || object.endsWith('.tgz')
                 || object.endsWith('.tar.gz')) {
 
-                logger.log('verbose', `@yaps/core uploadObject [extracting files -> /tmp/${object}]`)
+                logger.log('verbose', `@yaps/core uploadObject [extracting files: /tmp/${object}]`)
                 await extract(`/tmp/${object}`, `/tmp`)
 
                 const nameWithoutExt = object.split('.')[0]
@@ -106,7 +109,7 @@ const uploadObject = (call, callback) => {
             }
 
             // Remove temporal file
-            logger.log('verbose', `@yaps/core uploadObject [removing tmpfile -> /tmp/${object}}]`)
+            logger.log('verbose', `@yaps/core uploadObject [removing tmpfile: /tmp/${object}}]`)
             fs.unlinkSync(`/tmp/${object}`)
         } catch(err) {
             if (err.code === 'NoSuchBucket') {

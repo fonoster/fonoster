@@ -19,4 +19,4 @@ module.exports.validators = {
     appmanagerValidator: require('./schemas/appmanager.schema')
 }
 
-module.exports.app = require('./common/app')
+//module.exports.app = require('./common/app')

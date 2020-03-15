@@ -17,30 +17,30 @@ const fsInstance = () => new Minio.Client({
     secretKey: process.env.FS_SECRET
 })
 
-const uploadToFS = (bucket, pathToObject, object) => new Promise((resolve, reject) => {
-    logger.log('verbose', `@yaps/core uploadToFS [bucket -> ${bucket}]`)
-    logger.log('verbose', `@yaps/core uploadToFS [path -> ${pathToObject}]`)
-    logger.log('verbose', `@yaps/core uploadToFS [object -> ${object}]`)
+const uploadToFS = (bucket, pathToObject, object, metadata = {}) => new Promise((resolve, reject) => {
+    logger.log('verbose', `@yaps/core uploadToFS [bucket: ${bucket}]`)
+    logger.log('verbose', `@yaps/core uploadToFS [path: ${pathToObject}]`)
+    logger.log('verbose', `@yaps/core uploadToFS [object: ${object}]`)
 
     const splitPath = p => path.dirname(p).split(path.sep)
     const dirCount = splitPath(pathToObject).length
     const baseDir = splitPath(pathToObject).slice(0, dirCount).join('/')
     const walker = walk.walk(pathToObject)
 
-    logger.log('debug', `@yaps/core uploadToFS [dirCount -> ${dirCount}]`)
-    logger.log('debug', `@yaps/core uploadToFS [baseDir -> ${baseDir}]`)
+    logger.log('debug', `@yaps/core uploadToFS [dirCount: ${dirCount}]`)
+    logger.log('debug', `@yaps/core uploadToFS [baseDir: ${baseDir}]`)
 
     walker.on('file', (root, stats, next) => {
         const filePath = root + '/' + stats.name
         const destFilePath = root + '/' + (object || stats.name)
         const dest = destFilePath.substring(baseDir.length + 1)
 
-        logger.log('debug', `@yaps/core uploadToFS [root -> ${root}]`)
-        logger.log('debug', `@yaps/core uploadToFS [filePath -> ${filePath}]`)
-        logger.log('debug', `@yaps/core uploadToFS [destFilePath -> ${destFilePath}]`)
-        logger.log('debug', `@yaps/core uploadToFS [dest -> ${dest}]`)
+        logger.log('debug', `@yaps/core uploadToFS [root: ${root}]`)
+        logger.log('debug', `@yaps/core uploadToFS [filePath: ${filePath}]`)
+        logger.log('debug', `@yaps/core uploadToFS [destFilePath:${destFilePath}]`)
+        logger.log('debug', `@yaps/core uploadToFS [dest: ${dest}]`)
 
-        fsInstance().fPutObject(bucket, dest , filePath, err => {
+        fsInstance().fPutObject(bucket, dest , filePath, metadata, err => {
             if (err) {
                 logger.log('error', err)
                 reject(err)
@@ -97,8 +97,18 @@ const extract = (source, target) => new Promise((resolve, reject) => {
 
 const getFilesizeInBytes = filename => fs.statSync(filename)['size']
 
+const mapToObj = map => {
+    if (!map || map.toArray().length === 0) return {}
+    return map.toArray().reduce(e => {
+      const r = {}
+      r[e[0]] = e[1]
+      return r
+    })
+}
+
 module.exports.extract = extract
 module.exports.removeDirSync = removeDirSync
 module.exports.fsInstance = fsInstance
 module.exports.uploadToFS = uploadToFS
 module.exports.getFilesizeInBytes = getFilesizeInBytes
+module.exports.mapToObj = mapToObj

@@ -12,7 +12,11 @@ const uploadObjectRequest = new Schema({
     bucket: {
         type: String,
         required: true
-    }
+    },
+    metadata: {
+        type: Object,
+        required: false
+    },
 })
 
 module.exports = {
