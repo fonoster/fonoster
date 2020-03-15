@@ -74,12 +74,12 @@ class Storage extends AbstractService {
             .StorageClient(super.getOptions().endpoint, credentials)
 
         /**
-         * Creates a new application.
+         * Uploads object to a YAPS bucket.
          *
          * @async
          * @function
-         * @param {Object} - Object upload request
-         * @return {Promise<UploadObjectResponse>} - The application just created
+         * @param {Object} - Object upload request.
+         * @return {Promise<UploadObjectResponse>} - The response.
          * @example
          *
          * const YAPS = require('@yaps/sdk')
@@ -87,7 +87,8 @@ class Storage extends AbstractService {
          *
          * const request = {
          *    filename: 'path/to/your/file',
-         *    bucket: 'bucket-name'
+         *    bucket: 'bucket-name',
+         *    metadata: { 'Content-Type': 'audio/x-wav' }
          * }
          *
          * storage.uploadObject(request)
@@ -100,9 +101,14 @@ class Storage extends AbstractService {
 
             // WARNING: I'm not happy with this. Seems inconsistent with the other
             // errors...
+            // WARNING: There seems to be a bug with the validate method.
+            // If I pass request.metadata it will overwrite the object
+            // and make == {}
+            const meta = request.metadata
             const errors = storageValidator.uploadObjectRequest.validate({
                 name: request.filename,
-                bucket: request.bucket
+                bucket: request.bucket,
+                // metadata: request.metadata
             })
 
             if(errors.length > 0) {
@@ -136,6 +142,11 @@ class Storage extends AbstractService {
                 uor.setChunks(Buffer.from(chunk))
                 uor.setName(objectName)
                 uor.setBucket(request.bucket)
+
+                if (request.metadata && Object.keys(request.metadata).length > 0) {
+                    const keys = Object.keys(request.metadata)
+                    keys.forEach(k => uor.getMetadataMap().set(k, request.metadata[k]))
+                }
                 call.write(uor)
             })
             .on('end', () => {
@@ -147,6 +158,44 @@ class Storage extends AbstractService {
                 call.end()
             })
         }).catch(e => { throw e })
+
+        /**
+         * Creates a new application.
+         *
+         * @private
+         * @function
+         * @param {Object} - Object upload request
+         * @return {Promise<UploadObjectResponse>} - The response
+         * @example
+         *
+         * const YAPS = require('@yaps/sdk')
+         * const storage = new YAPS.Storage()
+         *
+         * const request = {
+         *    filename: 'path/to/your/file',
+         *    bucket: 'bucket-name',
+         *    metadata: { 'Content-Type': 'audio/x-wav' }
+         * }
+         *
+         * storage.uploadObjectSync(request)
+         * .then(result => {
+         *    console.log(result)            // successful response
+         * }).catch(e => console.error(e))   // an error occurred
+         */
+        this.uploadObjectSync = request => {
+            const sleep = require('syncho').sleep
+            let result
+            let error
+            this.uploadObject(request)
+            .then(r => result = r)
+            .catch(e => error = e)
+
+            while(result === undefined && error === undefined) sleep(100)
+
+            if (error) throw error
+
+            return result
+        }
     }
 }
 

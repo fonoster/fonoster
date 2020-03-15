@@ -24,11 +24,9 @@ function dispatch(channel) {
         logger.log('debug', `@yaps/dispatcher.Distpatcher.dispatch [entrypoint: ${ingressApp.getPathToEntryPoint()}]`)
         logger.log('debug', `@yaps/dispatcher.Distpatcher.dispatch [contents: ${contents}]`)
 
-        const host = process.env.TTS_ENGINE_HOST
-        const port = process.env.TTS_ENGINE_PORT
         const chann = new YWC(channel, {
-            tts: new MaryTTS({host, port}),
-            storage: new Storage(appConfig.storageBucket)
+            tts: new MaryTTS(),
+            storage: new Storage({bucket: appConfig.bucket})
         })
 
         vm.run(contents, ingressApp.getPathToEntryPoint())(chann)

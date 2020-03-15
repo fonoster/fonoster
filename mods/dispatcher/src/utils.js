@@ -6,7 +6,7 @@
 module.exports.getIngressApp = function(extension) {
     this.getConfig = () => {
         return {
-            storageBucket: 'default-test',
+            bucket: 'default-test',
             appId: 'presidential-poll'
         }
     }

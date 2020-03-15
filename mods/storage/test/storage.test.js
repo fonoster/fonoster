@@ -3,6 +3,9 @@
  * @since v1
  */
 const Storage = require('../src/storage')
+const {
+    StoragePB
+} = require('@yaps/core')
 const assert = require('assert')
 
 if(process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV ) {
@@ -59,11 +62,14 @@ describe('Storage Service', () => {
         })
     })
 
-    it('Upload a single compress(zip) file', done => {
+    it.only('Upload a single compress(zip) file', done => {
         // Will pass
         storage.uploadObject({
             filename: __dirname + '/../etc/hello-monkeys.zip',
-            bucket: 'default'
+            bucket: 'default',
+            metadata: {
+                contentType: 'text/html'
+            }
         }).then(result => {
             // Asserted this way to prevent issue with size changes
             // different filesystems
