@@ -18,3 +18,5 @@ module.exports.validators = {
     storageValidator: require('./schemas/storage.schema'),
     appmanagerValidator: require('./schemas/appmanager.schema')
 }
+
+module.exports.app = require('./common/app')

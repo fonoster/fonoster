@@ -2,7 +2,6 @@
  * @author Pedro Sanders
  * @since v1
  */
-const { storage } = require('./config')
 
 module.exports = chan => {
 
@@ -22,7 +21,7 @@ module.exports = chan => {
     chan.say('Hello, this is a presidential poll from the Georgia Statistics Center.')
 
     const key = chan.gather(chan.say('If you would like to be remove from our list, press 7'),
-      {timeout: 2, numDigits: 1})
+        {timeout: 2, numDigits: 1})
 
     console.log(`Remove from list? ${key}`)
 

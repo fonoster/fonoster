@@ -1,13 +1,13 @@
-this.config/**
+/**
  * @author Pedro Sanders
  * @since v1
  */
 const objectid = require('objectid')
+const logger = require('@yaps/core').logger
 const {
   computeFilename,
-  transcodeSync
-} = require('../tts/utils')
-const logger = require('../utils/logger')
+  transcode
+} = require('@yaps/tts').utils
 
 class YapsWrapperChannel {
 

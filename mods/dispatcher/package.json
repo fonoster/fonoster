@@ -1,11 +1,11 @@
 {
-  "name": "@yaps/storage",
+  "name": "@yaps/dispatcher",
   "version": "0.1.0",
-  "description": "Storage API",
+  "description": "Application Router for YAPS",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
   "license": "ISC",
-  "main": "src/storage.js",
+  "main": "src/index.js",
   "directories": {
     "src": "src",
     "test": "test"
@@ -21,20 +21,21 @@
     "url": "git+https://github.com/fonoster/yaps.git"
   },
   "scripts": {
-    "test": "./node_modules/nyc/bin/nyc.js --reporter=lcov ./node_modules/mocha/bin/mocha test/*.test.js"
+    "test": "./node_modules/nyc/bin/nyc.js --reporter=lcov ./node_modules/mocha/bin/mocha test/ywc.test.js"
   },
   "bugs": {
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/core": "file:../core",
-    "grpc-promise": "^1.4.0"
+    "agi-node": "^0.0.9",
+    "@yaps/core": "file:../core"
+    "@yaps/storage": "file:../storage"
+    "@yaps/tts": "file:../tts"        
+    "vm2": "^3.6.10"
   },
   "devDependencies": {
-    "assert": "^2.0.0",
     "mocha": "^7.1.0",
     "nyc": "^15.0.0",
-    "dotenv": "^8.2.0",
-    "minio": "^7.0.14"
+    "assert": "^2.0.0"
   }
 }

@@ -5,22 +5,13 @@
  * Unit Test for the "Yaps Wrapper Channel"
  */
 const MockChannel = require('./mock_channel')
-const MaryTTS = require('../tts/mary_tts')
-const Storage = require('./storage')
-const YWC = require('./ywc')
+const MaryTTS = require('@yaps/tts').MaryTTS
+//const Storage = require('./storage')
+const YWC = require('../src/ywc')
 
 const assert = require('assert')
 
 describe('YWC tests', () => {
-
-    before (() => {
-        process.env.MC_TTS_TEMP_FOLDER = __dirname
-        process.env.FS_HOST = '127.0.0.1'
-        process.env.FS_PORT = 9000
-        process.env.FS_USERNAME = 'minio'
-        process.env.FS_SECRET = 'minio123'
-        process.env.FS_DEFAULT_STORAGE_BUCKET = 'default'
-    })
 
     it('Test verb answer', done => {
         const channel = new MockChannel()
@@ -52,7 +43,7 @@ describe('YWC tests', () => {
         done()
     })
 
-    it.only('Test verb say', done => {
+    it.skip('Test verb say', done => {
         const channel = new MockChannel()
         const ywc = new YWC(channel, { tts:{}, storage: {}})
         channel.setData(['1'])

@@ -17,7 +17,6 @@ const logger = winston.createLogger({
     level: 'debug',
     levels: winston.config.npm.levels,
     format: winston.format.json(),
-    //transports: [ new winston.transports.Console() ]
     transports: [fluent, new (winston.transports.Console)()]
 })
 

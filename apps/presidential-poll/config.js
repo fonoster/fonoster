@@ -15,4 +15,3 @@ const devConfig = {
 const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig
 
 yaps.initializeApp(config)
-module.exports.storage = yaps.storage()
