@@ -5,10 +5,9 @@
  */
 const fs = require('fs')
 const path = require('path')
-const promisifyAll = require('grpc-promise').promisifyAll
-const grpc = require('@yaps/core').grpc
+const { grpc } = require('@yaps/core')
+const { logger }= require('@yaps/core')
 const { storageValidator } = require('@yaps/core').validators
-const logger = require('@yaps/core').logger
 const {
     AbstractService,
     StorageService,
@@ -160,7 +159,48 @@ class Storage extends AbstractService {
         }).catch(e => { throw e })
 
         /**
-         * Creates a new application.
+         * Get the URL for a given object and bucket.
+         *
+         * @async
+         * @function
+         * @param {Object} - Request to retrive object.
+         * @return {Promise<UploadObjectResponse>} - The response.
+         * @example
+         *
+         * const YAPS = require('@yaps/sdk')
+         * const storage = new YAPS.Storage()
+         *
+         * const request = {
+         *    name: 'object-name',
+         *    bucket: 'bucket-name'
+         * }
+         *
+         * storage.getObjectURL(request)
+         * .then(result => {
+         *    console.log(result)            // successful response
+         * }).catch(e => console.error(e))   // an error occurred
+         */
+        this.getObjectURL = request => new Promise((resolve, reject) => {
+            logger.log('verbose', `@yaps/storage getObjectURL [name: ${request.name}]`)
+            logger.log('debug', `@yaps/storage getObjectURL [bucket: ${request.bucket}]`)
+
+            const gour = new StoragePB.GetObjectURLRequest()
+            gour.setName(request.name)
+            gour.setBucket(request.bucket)
+
+            service.getObjectURL(gour, metadata, (err, res) => {
+                if (err) {
+                    logger.log('error', err)
+                    reject(err)
+                } else {
+                    logger.log('debug', `@yaps/storage getObjectURL [url: ${res}]`)
+                    resolve(res.getUrl())
+                }
+            })
+        }).catch(e => { throw e })
+
+        /**
+         * Upload object synchronously.
          *
          * @private
          * @function
@@ -177,10 +217,7 @@ class Storage extends AbstractService {
          *    metadata: { 'Content-Type': 'audio/x-wav' }
          * }
          *
-         * storage.uploadObjectSync(request)
-         * .then(result => {
-         *    console.log(result)            // successful response
-         * }).catch(e => console.error(e))   // an error occurred
+         * const result = storage.uploadObjectSync(request)
          */
         this.uploadObjectSync = request => {
             const sleep = require('syncho').sleep
@@ -196,6 +233,42 @@ class Storage extends AbstractService {
 
             return result
         }
+
+        /**
+         * Get the URL for a given object and bucket synchronously
+         *
+         * @private
+         * @function
+         * @param {Object} - Object upload request
+         * @return {Promise<UploadObjectResponse>} - The response
+         * @example
+         *
+         * const YAPS = require('@yaps/sdk')
+         * const storage = new YAPS.Storage()
+         *
+         * const request = {
+         *    filename: 'path/to/your/file',
+         *    bucket: 'bucket-name',
+         *    metadata: { 'Content-Type': 'audio/x-wav' }
+         * }
+         *
+         * const result storage.getObjectURLSync(request)
+         */
+        this.getObjectURLSync = request => {
+            const sleep = require('syncho').sleep
+            let result
+            let error
+            this.getObjectURL(request)
+            .then(r => result = r.getUrl())
+            .catch(e => error = e)
+
+            while(result === undefined && error === undefined) sleep(100)
+
+            if (error) throw error
+
+            return result
+        }
+
     }
 }
 

@@ -4,6 +4,10 @@
  */
 const StoragePB = require('./protos/storage_pb')
 const grpc = require('grpc')
+const objectid = require('objectid')
+const fs = require('fs')
+const storageValidator = require('../schemas/storage.schema')
+const logger = require('../common/logger')
 const {
     auth
 } = require('../common/trust_util')
@@ -12,12 +16,9 @@ const {
     removeDirSync,
     uploadToFS,
     getFilesizeInBytes,
-    mapToObj
+    mapToObj,
+    fsInstance
 } = require('../common/utils')
-const objectid = require('objectid')
-const fs = require('fs')
-const storageValidator = require('../schemas/storage.schema')
-const logger = require('../common/logger')
 
 const uploadObject = (call, callback) => {
     try {
@@ -125,4 +126,46 @@ const uploadObject = (call, callback) => {
     })
 }
 
+const getObjectURL = (call, callback) => {
+    try {
+        auth(call)
+    } catch(e) {
+        logger.log('error', e)
+        callback(new Error('UNAUTHENTICATED'), null)
+        return
+    }
+
+    logger.log('debug', `@yaps/core getObjectURL [request: ${call.request.getName()}]`)
+
+    // Validating the request
+    const errors = storageValidator.getObjectURLRequest.validate({
+        name: call.request.getName(),
+        bucket: call.request.getBucket()
+    })
+
+    if(errors.length > 0) {
+        logger.log('warn', `@yaps/core getObjectURL [invalid argument]`)
+        callback(new Error('INVALID_ARGUMENT'), errors[0].message)
+        return
+    }
+
+    fsInstance().statObject(call.request.getBucket(), call.request.getName(),
+        (err, dataStream) => {
+        const name = call.request.getName()
+        const bucket = call.request.getBucket()
+        if (err) {
+            callback({
+                message: `${err.message}: filename '${name}' in bucket '${bucket}'`,
+                status: grpc.status.NOT_FOUND
+            })
+            return
+        }
+        const url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${bucket}/${name}`
+        const response  = new StoragePB.GetObjectURLResponse()
+        response.setUrl(url)
+        callback(null, response)
+    })
+}
+
 module.exports.uploadObject = uploadObject
+module.exports.getObjectURL = getObjectURL

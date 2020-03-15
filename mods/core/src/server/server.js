@@ -20,7 +20,8 @@ const {
     deleteApp
 } = require('./appmanager_srv.js')
 const {
-    uploadObject
+    uploadObject,
+    getObjectURL
 } = require('./storage_srv.js')
 
 if(process.env.NODE_ENV === 'dev') {
@@ -34,7 +35,7 @@ function main() {
         { listApps, getApp, createApp, updateApp, deleteApp })
 
     server.addService(StorageClient.StorageService,
-        { uploadObject })
+        { uploadObject, getObjectURL })
 
     let credentials = grpc.ServerCredentials.createInsecure()
 

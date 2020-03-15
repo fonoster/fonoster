@@ -19,6 +19,19 @@ const uploadObjectRequest = new Schema({
     },
 })
 
+const getObjectURLRequest = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    bucket: {
+        type: String,
+        required: true
+    }
+})
+
+
 module.exports = {
-    uploadObjectRequest
+    uploadObjectRequest,
+    getObjectURLRequest
 }

@@ -11,6 +11,7 @@ package yaps.storage.v1alpha1;
 
 service Storage {
     rpc UploadObject (stream UploadObjectRequest) returns (UploadObjectResponse) {};
+    rpc GetObjectURL (GetObjectURLRequest) returns (GetObjectURLResponse) {};
 }
 
 message UploadObjectRequest {
@@ -23,4 +24,13 @@ message UploadObjectRequest {
 message UploadObjectResponse {
     // File size in bytes
     int32 size = 1;
+}
+
+message GetObjectURLRequest {
+    string name = 1;
+    string bucket = 2;
+}
+
+message GetObjectURLResponse {
+    string url = 1;
 }

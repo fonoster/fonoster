@@ -62,7 +62,7 @@ describe('Storage Service', () => {
         })
     })
 
-    it.only('Upload a single compress(zip) file', done => {
+    it('Upload a single compress(zip) file', done => {
         // Will pass
         storage.uploadObject({
             filename: __dirname + '/../etc/hello-monkeys.zip',
@@ -93,6 +93,25 @@ describe('Storage Service', () => {
         }).catch(e => {
             done(e)
         })
+    })
+
+    it.only('Get object url not found', done => {
+        const storage = new Storage()
+        storage.getObjectURL({name: 'test.wav', bucket: 'default'})
+        .then(result => done('should enter here'))
+        .catch(e => {
+            assert.ok(e.message.includes('Not Found'))
+            done()
+        })
+    })
+
+    it.only('Get object url', done => {
+        const storage = new Storage()
+        storage.getObjectURL({name: 'test.txt', bucket: 'default'})
+        .then(result => {
+            assert.ok(result.includes('/default/test.txt'))
+            done()
+        }) .catch(e => done(e))
     })
 
 })
