@@ -38,9 +38,9 @@ class AbstractService {
 
         this.options = merge(defaultConfig, options || {})
 
-        logger.log('debug', `@yaps/core abstract server [defaultConfig -> ${JSON.stringify(defaultConfig)}]`)
-        logger.log('debug', `@yaps/core abstract server [options -> ${JSON.stringify(options)}]`)
-        logger.log('debug', `@yaps/core abstract server [merge options -> ${JSON.stringify(this.options)}]`)
+        logger.log('debug', `@yaps/core.AbstractService constructor [defaultConfig -> ${JSON.stringify(defaultConfig)}]`)
+        logger.log('debug', `@yaps/core.AbstractService constructor [options -> ${JSON.stringify(options)}]`)
+        logger.log('debug', `@yaps/core.AbstractService constructor [merge options -> ${JSON.stringify(this.options)}]`)
 
         if (!this.options.accessKeyId || !this.options.accessKeySecret) {
             throw new Error('Not valid credentials found')
