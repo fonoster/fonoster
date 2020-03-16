@@ -220,7 +220,7 @@ class Storage extends AbstractService {
          * const result = storage.uploadObjectSync(request)
          */
         this.uploadObjectSync = request => {
-            const sleep = require('sync').sleep
+            const sleep = require('syncho').sleep
             let result
             let error
 
@@ -256,7 +256,7 @@ class Storage extends AbstractService {
          * const result storage.getObjectURLSync(request)
          */
         this.getObjectURLSync = request => {
-            const sleep = require('sync').sleep
+            const sleep = require('syncho').sleep
             let result
             let error
             this.getObjectURL(request)

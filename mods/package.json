@@ -19,7 +19,6 @@
     "nyc": "^15.0.0"
   },
   "scripts": {
-    "clean": "",
     "docs": "jsdoc2md mods/**/src/*.js > docs/api.md",
     "test": "node_modules/nyc/bin/nyc.js --reporter=lcov node_modules/mocha/bin/mocha **/test/*.test.js",
     "gen-proto": "./etc/gen_code_proto",

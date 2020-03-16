@@ -40,7 +40,7 @@ const transcode = (fileIn, fileOut) => new Promise((resolve, reject) => {
 })
 
 const transcodeSync = (fileIn, fileOut) =>  {
-    const sleep = require('sync').sleep
+    const sleep = require('syncho').sleep
     let result
     let error
 
