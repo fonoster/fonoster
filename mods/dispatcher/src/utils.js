@@ -6,14 +6,15 @@
 module.exports.getIngressApp = function(extension) {
     this.getConfig = () => {
         return {
-            bucket: 'default-test',
-            appId: 'presidential-poll'
+            bucket: process.env.MC_APP_BUCKET,
+            appId: process.env.MC_APP_ID
         }
     }
 
     this.getPathToEntryPoint = () => {
-        const packageBase = `/Users/pedrosanders/Projects/yaps/apps/${this.getConfig().appId}`
+        const packageBase =  `${process.env.MC_APP_DIR}/${this.getConfig().appId}`
         const package = `${packageBase}/package.json`
+
         let entryPoint
         try {
             entryPoint = require(package).main
