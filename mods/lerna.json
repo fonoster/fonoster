@@ -1,6 +1,6 @@
 {
   "packages": [
-    "mods/*"
+    "*"
   ],
   "version": "0.1.0"
 }

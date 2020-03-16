@@ -25,7 +25,7 @@ const {
 } = require('./storage_srv.js')
 
 if(process.env.NODE_ENV === 'dev') {
-    const env = path.join(__dirname, '..', '..', '..', '.env.dev')
+    const env = path.join(__dirname, '..', '..', '..','.env')
     require('dotenv').config({ path: env })
 }
 

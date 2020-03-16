@@ -15,7 +15,7 @@ const dotenv = require('dotenv')
 const vm = new NodeVM(require('../etc/vm.json'))
 
 if(process.env.NODE_ENV === 'dev') {
-    const env = path.join(__dirname, '..', '..', '.env.dev')
+    const env = path.join(__dirname, '..', '..', '..','.env')
     require('dotenv').config({ path: env })
 }
 

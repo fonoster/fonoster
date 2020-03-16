@@ -20,9 +20,6 @@
     "type": "git",
     "url": "git+https://github.com/fonoster/yaps.git"
   },
-  "scripts": {
-    "start": "NODE_ENV=dev CERTS_PATH=../etc/certs node src/server/server.js"
-  },
   "bugs": {
     "url": "https://github.com/fonoster/yaps/issues"
   },

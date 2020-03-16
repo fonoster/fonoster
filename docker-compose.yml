@@ -172,7 +172,8 @@ services:
       MC_AGI_PORT: ${MC_AGI_PORT}
       MC_APP_ENTRYPOINT: ${MC_APP_ENTRYPOINT}/index.js
     build:
-      context: mediacontroller
+      context: mods
+      dockerfile: Dockerfile.mc
     entrypoint: |
       sh -c '
           # This wont be needed once we start deploying the apps

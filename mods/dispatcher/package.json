@@ -28,7 +28,6 @@
     "@yaps/storage": "^0.1.0",
     "@yaps/tts": "^0.1.0",
     "@yaps/voice": "^0.1.0",
-    "agi-node": "github:psanders/agi-node",
     "dotenv": "^8.2.0",
     "vm2": "^3.6.10"
   }
