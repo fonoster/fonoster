@@ -40,6 +40,7 @@ class YapsWrapperChannel {
         if (!this.conf.storage) throw 'not storage object found'
     }
 
+    // TODO: This needs accept individual configuration changes
     config(conf) {
         this.conf = conf
     }
