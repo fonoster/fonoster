@@ -6,7 +6,7 @@
 const fs = require('fs')
 const path = require('path')
 const { grpc } = require('@yaps/core')
-const { logger }= require('@yaps/core')
+const { logger } = require('@yaps/core')
 const { storageValidator } = require('@yaps/core').validators
 const {
     AbstractService,
@@ -220,7 +220,7 @@ class Storage extends AbstractService {
          * const result = storage.uploadObjectSync(request)
          */
         this.uploadObjectSync = request => {
-            const sleep = require('syncho').sleep
+            const sleep = require('sync').sleep
             let result
             let error
             this.uploadObject(request)
@@ -255,7 +255,7 @@ class Storage extends AbstractService {
          * const result storage.getObjectURLSync(request)
          */
         this.getObjectURLSync = request => {
-            const sleep = require('syncho').sleep
+            const sleep = require('sync').sleep
             let result
             let error
             this.getObjectURL(request)
@@ -272,4 +272,4 @@ class Storage extends AbstractService {
     }
 }
 
-module.exports = Storage
+module.exports.Storage = Storage

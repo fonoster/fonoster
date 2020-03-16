@@ -3,12 +3,12 @@
  * @module @yaps/appmanager
  * @since v1
  */
-const Storage = require('@yaps/storage')
 const tar = require('tar')
 const fs = require('fs-extra')
 const path = require('path')
 const grpc = require('@yaps/core').grpc
 const logger = require('@yaps/core').logger
+const { Storage } = require('@yaps/storage')
 const { appmanagerValidator } = require('@yaps/core').validators
 const {
     AbstractService,

@@ -1,7 +1,5 @@
 'use strict';
 
-const storage = require('..');
-
-describe('@yaps/storage', () => {
+describe('@yaps/accounting', () => {
     it('needs tests');
 });

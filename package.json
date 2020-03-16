@@ -10,7 +10,7 @@
     "@yaps/sdk": "^0.1.0",
     "@yaps/storage": "^0.1.0",
     "@yaps/tts": "^0.1.0",
-    "@yaps/voice": "^0.1.0",
+    "@yaps/voice": "^0.1.0", 
     "assert": "^2.0.0",
     "jsdoc-to-markdown": "^5.0.3",
     "jsonwebtoken": "^8.5.1",
@@ -21,7 +21,9 @@
   "scripts": {
     "docs": "jsdoc2md mods/**/src/*.js > docs/api.md",
     "test": "./node_modules/nyc/bin/nyc.js --reporter=lcov ./node_modules/mocha/bin/mocha mods/**/test/*.test.js",
-    "gen-proto": "./mods/etc/gen_code_proto"
+    "gen-proto": "./mods/etc/gen_code_proto",
+    "start-as": "NODE_ENV=dev CERTS_PATH=mods/etc/certs node mods/core/src/server/server.js",
+    "start-mc": "NODE_ENV=dev node mods/dispatcher/src/dispatcher.js"
   },
   "dependencies": {
     "node-gyp": "^6.1.0"

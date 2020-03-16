@@ -3,7 +3,7 @@
  * @since v1
  */
 const objectid = require('objectid')
-const logger = require('@yaps/core').logger
+const { logger } = require('@yaps/core')
 const {
   computeFilename,
   transcode

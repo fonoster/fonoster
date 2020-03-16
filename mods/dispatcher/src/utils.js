@@ -12,7 +12,7 @@ module.exports.getIngressApp = function(extension) {
     }
 
     this.getPathToEntryPoint = () => {
-        const packageBase = `/apps/${this.getConfig().appId}`
+        const packageBase = `/Users/pedrosanders/Projects/yaps/apps/${this.getConfig().appId}`
         const package = `${packageBase}/package.json`
         let entryPoint
         try {
