@@ -156,6 +156,8 @@ services:
       context: mediaserver
     expose:
       - ${MS_SIP_PORT}
+    ports:
+      - ${MS_SIP_PORT}:${MS_SIP_PORT}
     logging:
         driver: fluentd
         options:
