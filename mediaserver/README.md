@@ -8,7 +8,9 @@ Media Server base on Asterisk PBX
 
 ## Run Environment
 
-Run environment variables are used in the entry point script to render configuration templates. The values of this variables can be specified during docker run, or in kubernetes manifests in the env array.
+Run environment variables are used in the entry point script to render
+configuration templates. The values of this variables can be specified during
+docker run, or in kubernetes manifests in the env array.
 
 - MS_ARI_USERNAME
 - MS_ARI_SECRET
