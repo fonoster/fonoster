@@ -1,7 +1,7 @@
 /**
  * @author Pedro Sanders
  * @since v1
- * 
+ *
  * Used to simulate an Asterisk Channel
  */
 const CHANNEL_STATUS_AVAILABLE = 0 // Channel is down and available
@@ -18,17 +18,17 @@ class ChannelMock {
     }
 
     answer() {
-        this.status = CHANNEL_STATUS_UP 
+        this.status = CHANNEL_STATUS_UP
         return 0 // success
     }
 
     hangup() {
-        this.status = CHANNEL_STATUS_AVAILABLE 
+        this.status = CHANNEL_STATUS_AVAILABLE
         return 1 // success
     }
 
     setAutoHangup(timeout) {
-        throw 'not yet implemented'
+        throw new Error('not yet implemented')
     }
 
     getData(file, timeout, maxDigits) {
@@ -54,7 +54,7 @@ class ChannelMock {
     recordFile(file, format, finishOnKey,
         maxDuration, offset, beep) {
         return {
-            code: 200, 
+            code: 200,
             attributes: {
                 result: {
                     file, format, finishOnKey, maxDuration, offset, beep
@@ -62,7 +62,7 @@ class ChannelMock {
             }
         }
     }
-} 
+}
 
 module.exports = ChannelMock
 module.exports.CHANNEL_STATUS_AVAILABLE = CHANNEL_STATUS_AVAILABLE

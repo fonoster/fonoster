@@ -26,8 +26,8 @@ class MaryTTS extends AbstractTTS {
 
         const opts = merge(defaultConfig, options || {})
 
-        if (!opts.host) throw 'host field is required'
-        if (!opts.port) throw 'port field is required'
+        if (!opts.host) throw new Error('host field is required')
+        if (!opts.port) throw new Error('port field is required')
 
         const q = `INPUT_TYPE=TEXT&AUDIO=WAVE_FILE&OUTPUT_TYPE=AUDIO&LOCALE=${opts.locale}`
         this.serviceUrl = `http://${opts.host}:${opts.port}/process?${q}`

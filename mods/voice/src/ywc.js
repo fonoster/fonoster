@@ -36,8 +36,8 @@ class YapsWrapperChannel {
             //billable
         }
 
-        if (!this.conf.tts) throw 'not tts engine found'
-        if (!this.conf.storage) throw 'not storage object found'
+        if (!this.conf.tts) throw new Error('not tts engine found')
+        if (!this.conf.storage) throw new Error('not storage object found')
     }
 
     // TODO: This needs accept individual configuration changes
@@ -47,19 +47,19 @@ class YapsWrapperChannel {
 
     answer() {
         return this.channel.answer()
-        //if (result.code !== 200) throw result.rawReply
+        //if (result.code !== 200) throw new Error(result.rawReply)
         //return 0
     }
 
     hangup() {
         return this.channel.hangup()
-        //if (result.code !== 200) throw result.rawReply
+        //if (result.code !== 200) throw new Error(result.rawReply)
         //return 1
     }
 
     setAutoHangup(timeout) {
-        throw 'not yet implemented'
-        if (timeout && isNaN(timeout)) throw 'timeout is not a number'
+        new Error('not yet implemented')
+        if (timeout && isNaN(timeout)) throw new Error('timeout is not a number')
         return this.channel.setAutoHangup(timeout)
     }
 
@@ -76,13 +76,13 @@ class YapsWrapperChannel {
      */
     play(file, options)  {
         logger.log('debug', `@yaps/voice.YapsWrapperChannel.play [file: ${file}, options: ${JSON.stringify(options)}]`)
-        if (!file) throw 'you must indicate a file.'
+        if (!file) throw new Error('you must indicate a file.')
         let finishOnKey = '#'
 
         if (options) {
             if (options.finishOnKey && (options.finishOnKey.length !== 1
                 || ('1234567890#*').indexOf(options.finishOnKey) < 0 ))
-                throw 'finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*'
+                throw new Error('finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*')
 
             if (options.finishOnKey) finishOnKey = options.finishOnKey
         }
@@ -107,7 +107,7 @@ class YapsWrapperChannel {
      */
     say(text, options) {
         logger.log('verbose', `@yaps/voice.YapsWrapperChannel.say [text: ${text}, options: ${JSON.stringify(options)}]`)
-        if (!text) throw 'You must provide a text.'
+        if (!text) throw new Error('You must provide a text.')
 
         // The final format pushed to the bucket will always be .wav
         const metadata = { 'Content-Type': 'audio/x-wav' }
@@ -156,7 +156,7 @@ class YapsWrapperChannel {
     wait(time) {
         let t = 1
 
-        if (time && time <= 0) throw 'time must an number equal or greater than zero.'
+        if (time && time <= 0) throw new Error('time must an number equal or greater than zero.')
         if (time) t = time
 
         while(t > 0) {
@@ -194,14 +194,14 @@ class YapsWrapperChannel {
         // Perform validations
         if (options) {
             if (options.finishOnKey && options.finishOnKey.length !== 1)
-                throw 'finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*'
+                throw new Error('finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*')
             // Less than one second will have no effect on the timeout
             if (options.timeout && (isNaN(options.timeout) || options.timeout < 0))
-                throw `${options.timeout} is not an acceptable timeout value. For no timeout use zero. Timeout must be equal or greater than zero`
+                throw new Error(`${options.timeout} is not an acceptable timeout value. For no timeout use zero. Timeout must be equal or greater than zero`)
             if (options.maxDigits && (options.maxDigits <= 0 || isNaN(options.maxDigits)))
-                throw `${options.maxDigits} is not an acceptable maxDigits value. The maxDigits value must be greater than zero. Omit value for no limit on the number of digits`
+                throw new Error(`${options.maxDigits} is not an acceptable maxDigits value. The maxDigits value must be greater than zero. Omit value for no limit on the number of digits`)
             if (!options.maxDigits && !options.timeout) {
-                throw `you must provide either maxDigits or timeout`
+                throw new Error('you must provide either maxDigits or timeout)
             }
 
             // Overwrites timeout
@@ -264,8 +264,8 @@ class YapsWrapperChannel {
         let finishOnKey = '1234567890#*'
 
         if (options) {
-            if (options.maxDuration && options.maxDuration < 1) throw `${options.maxDuration} is not an acceptable maxDuration value. Must be a number greater than 1. Default is 3600 (1 hour)`
-            if (options.beep && typeof(options.beep) !== 'boolean') throw `${options.beep} is not an acceptable value. Must be a true or false`
+            if (options.maxDuration && options.maxDuration < 1) throw new Error(`${options.maxDuration} is not an acceptable maxDuration value. Must be a number greater than 1. Default is 3600 (1 hour)`)
+            if (options.beep && typeof(options.beep) !== 'boolean') throw new Error(`${options.beep} is not an acceptable value. Must be a true or false`)
 
             // Overwrite values
             if (options.maxDuration) maxDuration = options.maxDuration * 1000
@@ -278,7 +278,7 @@ class YapsWrapperChannel {
         const res = this.channel.recordFile(file, format, finishOnKey,
             maxDuration, offset, beep)
 
-        if (res.code !== 200) throw res.rawReply
+        if (res.code !== 200) throw new Error(res.rawReply)
 
         result.keyPressed = res.attributes.result
         result.recordingUri = `${process.RECORDINGS_BASE_URI}/${filename}.${format}`

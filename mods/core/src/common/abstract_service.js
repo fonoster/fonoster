@@ -43,7 +43,7 @@ class AbstractService {
         logger.log('debug', `@yaps/core abstract server [merge options -> ${JSON.stringify(this.options)}]`)
 
         if (!this.options.accessKeyId || !this.options.accessKeySecret) {
-            throw `Client didn't find valid credentials`
+            throw new Error('Not valid credentials found')
         }
     }
 

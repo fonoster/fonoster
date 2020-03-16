@@ -42,13 +42,13 @@ module.exports.auth = function(call, callback) {
         salt = process.env.JWT_SALT || fs.readFileSync(pathToCerts).toString().trim()
     } catch(e) {
         logger.log('error', `Unable to find JWT_SALT environment variable or the certificates`)
-        throw `Unable to find JWT_SALT environment variable or the certificates`
+        throw new Error('Unable to find JWT_SALT environment variable or the certificates')
     }
 
     if (call.metadata._internal_repr.access_key_id === null ||
         call.metadata._internal_repr.access_key_secret === null) {
             console.log('pinga001')
-        throw 'Unauthorized'
+        throw new Error('Unauthorized')
         return
     }
 
@@ -60,13 +60,13 @@ module.exports.auth = function(call, callback) {
             const decoded = jwt.verify(accessKeySecret, salt)
             if(!decoded || accessKeyId !== decoded.sub) {
                 console.log('pinga')
-                throw 'Unauthorized'
+                throw new Error('Unauthorized')
             }
         } catch(e) {
             throw e
         }
     } else {
         console.log('pinga002')
-        throw 'Unauthorized'
+        throw new Error('Unauthorized')
     }
 }
