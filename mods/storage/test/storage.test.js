@@ -2,7 +2,7 @@
  * @author Pedro Sanders
  * @since v1
  */
-const Storage = require('../src/storage')
+const { Storage } = require('../src/storage')
 const {
     StoragePB
 } = require('@yaps/core')

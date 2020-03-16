@@ -95,7 +95,7 @@ class Storage extends AbstractService {
          *    console.log(result)            // successful response
          * }).catch(e => console.error(e))   // an error occurred
          */
-        this.uploadObject = request => new Promise(async (resolve, reject) => {
+        this.uploadObject = request => new Promise((resolve, reject) => {
             logger.log('verbose', `@yaps/storage uploadObject [request -> ${JSON.stringify(request)}]`)
 
             // WARNING: I'm not happy with this. Seems inconsistent with the other
@@ -223,9 +223,10 @@ class Storage extends AbstractService {
             const sleep = require('sync').sleep
             let result
             let error
+
             this.uploadObject(request)
-            .then(r => result = r)
-            .catch(e => error = e)
+              .then(r => result = r)
+                .catch(e => error = e)
 
             while(result === undefined && error === undefined) sleep(100)
 
@@ -259,7 +260,7 @@ class Storage extends AbstractService {
             let result
             let error
             this.getObjectURL(request)
-            .then(r => result = r.getUrl())
+            .then(r => result = r)
             .catch(e => error = e)
 
             while(result === undefined && error === undefined) sleep(100)

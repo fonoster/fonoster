@@ -2,11 +2,12 @@
  * @author Pedro Sanders
  * @since v1
  */
+const path = require('path')
 const objectid = require('objectid')
 const { logger } = require('@yaps/core')
 const {
   computeFilename,
-  transcode
+  transcodeSync
 } = require('@yaps/tts').utils
 
 class YapsWrapperChannel {
@@ -106,34 +107,41 @@ class YapsWrapperChannel {
     say(text, options) {
         logger.log('verbose', `@yaps/voice.YapsWrapperChannel.say [text: ${text}, options: ${JSON.stringify(options)}]`)
         if (!text) throw 'You must provide a text.'
-        // This returns the route to the generated audio
 
+        // The final format pushed to the bucket will always be .wav
         const metadata = { 'Content-Type': 'audio/x-wav' }
-        const filename = computeFilename(text, options)
+        const filename = 't_' + computeFilename(text, options)
 
         logger.log('debug', `@yaps/vouice.YapsWrapperChannel.say [filename: ${filename}]`)
 
-        let url = this.conf.storage.getObjectURLSync({
-            name: filename,
-            bucket: 'default' // WARNING: Harcoded
-        })
+        let url
+
+        try {
+            url = this.conf.storage.getObjectURLSync({
+                name: filename,
+                bucket: 'default' // WARNING: Harcoded
+            })
+        } catch(e) {
+            logger.log('silly', `@yaps/vouice.YapsWrapperChannel.say [no url found for file ${filename}]`)
+        }
 
         logger.log('debug', `@yaps/vouice.YapsWrapperChannel.say [url: ${url}]`)
 
         if (url === undefined) {
             const pathToFile = this.conf.tts.synthesizeSync(text, options)
-            const pathToTranscodedFile = transcodeSync(pathToFile)
+            const pathToTranscodedFile =path.join(path.dirname(pathToFile), filename)
+            transcodeSync(pathToFile, pathToTranscodedFile)
 
             logger.log('debug', `@yaps/vouice.YapsWrapperChannel.say[pathToTranscodedFile: ${pathToTranscodedFile}]`)
 
             this.conf.storage.uploadObjectSync({
-                name: pathToTranscodedFile + '/' + filename + '.wav',
-                bucket: 'bucket',
+                filename: pathToTranscodedFile,
+                bucket: 'default',
                 metadata
             })
 
             url = this.conf.storage.getObjectURLSync({
-                name: filename + '.wav',
+                name: filename,
                 bucket: 'default' // WARNING: Harcoded
             })
         }

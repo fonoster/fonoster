@@ -5,6 +5,7 @@
 const AbstractTTS = require('./abstract_tts')
 const http = require('http')
 const fs = require('fs')
+const path = require('path')
 const merge = require('deepmerge')
 const logger = require('@yaps/core').logger
 const {
@@ -50,7 +51,7 @@ class MaryTTS extends AbstractTTS {
 
         const tmpDirFromEnv = process.env.MC_TTS_TEMP_FOLDER
         const tmpDir = tmpDirFromEnv ? tmpDirFromEnv : __dirname
-        const pathToFile = tmpDir + '/' + computeFilename(text, options)
+        const pathToFile = path.join(tmpDir, computeFilename(text, options))
         let complete
         const file = fs.createWriteStream(pathToFile)
         const query = optionsToQueryString(options)
