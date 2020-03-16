@@ -9,6 +9,6 @@
   "author": "Pedro Sanders",
   "license": "MIT",
   "dependencies": {
-    "@yaps/core": "file:/yaps"
+    "@yaps/core": "^0.1.0"
   }
 }
