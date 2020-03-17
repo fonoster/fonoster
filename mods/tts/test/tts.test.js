@@ -29,7 +29,7 @@ describe('TTS Utils', () => {
                 'speed'
             ]
         })
-        assert.equal('940c2687367636c07be34668c6d8299f', t)
+        assert.equal('940c2687367636c07be34668c6d8299f.wav', t)
         done()
     })
 
@@ -46,7 +46,10 @@ describe('TTS Utils', () => {
 
     // Needs an running instace of minio
     it('Test convert audio', done => {
-        transcode(__dirname + '/../etc/test.wav')
+        transcode(
+          __dirname + '/../etc/test.wav',
+          __dirname + '/../etc/test_transcoded.wav'
+        )
         .then(r => done())
         .catch(e => done(e))
     })

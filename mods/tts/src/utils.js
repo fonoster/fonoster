@@ -23,8 +23,6 @@ const optionsToQueryString = (object = {}) => Object.keys(object)
 // Keeping this simple for now
 // Expects the input file to be a .wav
 const transcode = (fileIn, fileOut) => new Promise((resolve, reject) => {
-    console.log('fileIn: ', fileIn)
-    console.log('fileOut: ', fileOut)
     // We need a new instance to avoid collitions
     const sox = require('sox-audio')()
     sox.on('error',
