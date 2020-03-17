@@ -81,10 +81,7 @@ const removeDirSync = path => {
   }
 }
 
-const extract = (source, target) => {
-    const cwd = path.dirname(target)
-    return tar.extract({file: source, cwd})
-}
+const extract = (source, target) => tar.extract({file: source, cwd: target})
 
 // Replaced tar with inly to support more formats
 /*const extract = (source, target) => new Promise((resolve, reject) => {
