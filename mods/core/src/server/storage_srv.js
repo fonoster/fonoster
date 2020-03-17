@@ -69,18 +69,20 @@ const uploadObject = (call, callback) => {
         logger.log('error', err)
     })
 
-    call.on('end', async(chunk)=> {
+    call.on('end', () => writeStream.end())
+
+    writeStream.on('finish', async(chunk) => {
         try {
             logger.log('verbose', `@yaps/core uploadObject [object ready for upload]`)
             logger.log('debug', `@yaps/core uploadObject [object: ${object}]`)
             logger.log('debug', `@yaps/core uploadObject [bucket: ${bucket}]`)
             logger.log('debug', `@yaps/core uploadObject [metadata: ${JSON.stringify(metadata)}]`)
 
+            const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`)
+            logger.log('debug', `@yaps/core uploadObject [file size -> ${fileSize}]`)
+
             // Back to what it is supposed to be
             fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
-
-            const fileSize = getFilesizeInBytes(`/tmp/${object}`)
-            logger.log('debug', `@yaps/core uploadObject [file size -> ${fileSize}]`)
 
             // Unzip file if needed
             if(object.endsWith('.zip')
@@ -118,8 +120,9 @@ const uploadObject = (call, callback) => {
                     message: `${err.message} -> bucket: ${bucket}`,
                     status: grpc.status.FAILED_PRECONDITION
                 })
+            } else if(err.code === 'TAR_BAD_ARCHIVE') {
+                callback(new Error('DATA_LOSS'), err)
             } else {
-                console.log(err)
                 callback(new Error('UNKNOWN'), err)
             }
         }
