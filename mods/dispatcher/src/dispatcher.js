@@ -22,9 +22,9 @@ if(process.env.NODE_ENV === 'dev') {
 function dispatch(channel) {
     try {
         logger.log('verbose', `@yaps/dispatcher dispatch [entering]`)
-        logger.log('debug', `@yaps/dispatcher dispatch [extension: ${channel.request.agi_extension}]`)
+        logger.log('debug', `@yaps/dispatcher dispatch [extension: ${channel.request.extension}]`)
 
-        const ingressApp = getIngressApp(channel.request.agi_extension)
+        const ingressApp = getIngressApp(channel.request.extension)
         const appConfig = ingressApp.getConfig()
         const contents = fs.readFileSync(ingressApp.getPathToEntryPoint(), 'utf8')
 
