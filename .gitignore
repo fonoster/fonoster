@@ -4,7 +4,7 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # Other
-test.wav_transcoded
+*_transcoded.wav
 .sln
 node_modules
 coverage
