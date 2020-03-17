@@ -19,14 +19,15 @@ const listApps = (call, callback) => {
        return
     }
 
-    const data = { apps: [
-        { ref: 'hello-world', name: 'hello-world', description:
-          'Simple voice application'},
-        { ref: 'presidential-poll', name: 'presidential-poll',
-          description: 'Advance example'}
-    ]}
+    const app = new AppManagerPB.App()
+    app.setRef('hello-world')
+    app.setName('Hello World')
+    app.setDescription('Simple app')
 
-    callback(null, data)
+    const response = new AppManagerPB.ListAppsResponse()
+    response.addApps(app)
+
+    callback(null, response)
 }
 
 const getApp = (call, callback) => {

@@ -132,7 +132,14 @@ class AppManager extends AbstractService {
          *    console.log(result)            // successful response
          * }).catch(e => console.error(e))   // an error occurred
          */
-        this.listApps = request => service.listApps().sendMessage(request)
+        this.listApps = request => {
+            logger.log('verbose', `@yaps/appmananger listApps [request -> ${JSON.stringify(request)}]`)
+            const r = new AppManagerPB.ListAppsRequest()
+            r.setPageSize(request.pagSize)
+            r.setPageToken(request.pageToken)
+            r.setView(request.view)
+            return service.listApps().sendMessage(r)
+        }
 
         /**
          * Retrives a single application by its reference.
