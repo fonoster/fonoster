@@ -37,6 +37,8 @@ function dispatch(channel) {
             storage: new Storage({bucket: appConfig.bucket})
         })
 
+        logger.log('verbose', `@yaps/dispatcher dispatch [running app]`)
+
         vm.run(contents, ingressApp.getPathToEntryPoint())(chann)
 
         logger.log('debug', `@yaps/dispatcher dispatch [cdr: ${JSON.stringify(chann.getCallDetailRecord())}]`)
