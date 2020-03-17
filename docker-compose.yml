@@ -131,14 +131,16 @@ services:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     volumes:
       - ./mods/etc/certs:/etc/certs:ro
-    logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.sipproxy
+      - ./mods/core/src/common/utils.js:/mods/core/src/common/utils.js
+      - ./mods/core/src/server/redis.js:/mods/core/src/server/redis.js
+    #logging:
+    #    driver: fluentd
+    #    options:
+    #        fluentd-address: localhost:24224
+    #        fluentd-async-connect: 'true'
+    #        fluentd-retry-wait: '1s'
+    #        fluentd-max-retries: '30'
+    #        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
 
   mediaserver:
     env_file: .env
@@ -176,12 +178,35 @@ services:
       MC_APP_BUCKET: default
       MC_APP_ID: hello-monkeys
       MC_APP_DIR: /fs/minio/apps
+      CERTS_PATH: /etc/certs
+      ACCESS_KEY_ID: yaps
     build:
       context: mods
       dockerfile: Dockerfile.mc
-    entrypoint: sh -c './run.sh'
+    entrypoint: |
+        sh -c '
+          # Holy crap fix this :(
+          # Generating the JWT token
+          mkdir -p /workdir
+          mkdir -p ~/yaps
+          cp /mods/etc/gen_jwt_token.js /workdir
+          cd /workdir
+          npm install jsonwebtoken
+          node gen_jwt_token.js > ~/yaps/credentials
+          echo "new signature is:"
+          cat ~/yaps/credentials
+          rm -rf /workdir
+
+          # Copying apps into minio fs
+          mkdir -p /fs/minio/apps
+          cp -a /apps/* /fs/minio/apps
+
+          cd /
+          ./run.sh
+        '
     volumes:
       - data1-1:/fs
+      - ./mods/etc/certs:/etc/certs:ro
       - ./apps:/apps
     expose:
       - ${MC_AGI_PORT}
