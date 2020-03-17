@@ -14,7 +14,7 @@ class YapsWrapperChannel {
 
     constructor(channel, config) {
         this.channel = channel
-        this.conf = config
+        this._config = config
         this.callDetailRecord = {
             ref: objectid(),
             date: new Date(),
@@ -36,13 +36,14 @@ class YapsWrapperChannel {
             //billable
         }
 
-        if (!this.conf.tts) throw new Error('not tts engine found')
-        if (!this.conf.storage) throw new Error('not storage object found')
+        if (!this._config.tts) throw new Error('not tts engine found')
+        if (!this._config.storage) throw new Error('not storage object found')
+        if (!this._config.bucket) throw new Error('not bucket found')        
     }
 
     // TODO: This needs accept individual configuration changes
-    config(conf) {
-        this.conf = conf
+    config(config) {
+        this._config = config
     }
 
     answer() {
@@ -118,9 +119,9 @@ class YapsWrapperChannel {
         let url
 
         try {
-            url = this.conf.storage.getObjectURLSync({
+            url = this._config.storage.getObjectURLSync({
                 name: filename,
-                bucket: 'default' // WARNING: Harcoded
+                bucket: this._config.bucket
             })
         } catch(e) {
             logger.log('silly', `@yaps/vouice.YapsWrapperChannel.say [no url found for file ${filename}]`)
@@ -129,21 +130,21 @@ class YapsWrapperChannel {
         logger.log('debug', `@yaps/vouice.YapsWrapperChannel.say [url: ${url}]`)
 
         if (url === undefined) {
-            const pathToFile = this.conf.tts.synthesizeSync(text, options)
+            const pathToFile = this._config.tts.synthesizeSync(text, options)
             const pathToTranscodedFile =path.join(path.dirname(pathToFile), filename)
             transcodeSync(pathToFile, pathToTranscodedFile)
 
             logger.log('debug', `@yaps/vouice.YapsWrapperChannel.say[pathToTranscodedFile: ${pathToTranscodedFile}]`)
 
-            this.conf.storage.uploadObjectSync({
+            this._config.storage.uploadObjectSync({
                 filename: pathToTranscodedFile,
-                bucket: 'default',
+                bucket: this._config.bucket,
                 metadata
             })
 
-            url = this.conf.storage.getObjectURLSync({
+            url = this._config.storage.getObjectURLSync({
                 name: filename,
-                bucket: 'default' // WARNING: Harcoded
+                bucket: this._config.bucket
             })
         }
 
