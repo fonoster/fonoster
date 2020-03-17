@@ -12,6 +12,7 @@ module.exports.StoragePB = require("./server/protos/storage_pb")
 module.exports.trust_util = require('./common/trust_util')
 module.exports.grpc = require('./common/grpc_hack')
 module.exports.logger = require('./common/logger')
+module.exports.updateBucketPolicy = require('./common/fsutils')
 
 // Validators
 module.exports.validators = {

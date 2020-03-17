@@ -8,11 +8,14 @@ const { MaryTTS } = require('@yaps/tts')
 const { YWC } = require('@yaps/voice')
 const { NodeVM } = require('vm2')
 const { getIngressApp } = require('./utils')
-const { logger } = require('@yaps/core')
 const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 const vm = new NodeVM(require('../etc/vm.json'))
+const {
+    logger,
+    updateBucketPolicy
+} = require('@yaps/core')
 
 if(process.env.NODE_ENV === 'dev') {
     const env = path.join(__dirname, '..', '..', '..','.env')
@@ -31,6 +34,9 @@ function dispatch(channel) {
         logger.log('debug', `@yaps/dispatcher dispatch [entrypoint: ${ingressApp.getPathToEntryPoint()}]`)
         logger.log('debug', `@yaps/dispatcher dispatch [appConfig: ${JSON.stringify(appConfig)}]`)
         logger.log('silly', `@yaps/dispatcher dispatch [contents: ${contents}]`)
+
+        // TODO: Move this as part of the deployment process
+        updateBucketPolicy(appConfig.bucket)
 
         const chann = new YWC(channel, {
             tts: new MaryTTS(),

@@ -93,7 +93,7 @@ class YapsWrapperChannel {
 
         if (result.code === 200) return result.attributes.result
 
-        throw result.rawReply
+        throw new Error(result.rawReply)
     }
 
     /**
@@ -113,7 +113,7 @@ class YapsWrapperChannel {
         const metadata = { 'Content-Type': 'audio/x-wav' }
         const filename = 't_' + computeFilename(text, options)
 
-        logger.log('debug', `@yaps/vouice.YapsWrapperChannel.say [filename: ${filename}]`)
+        logger.log('debug', `@yaps/voice.YapsWrapperChannel.say [filename: ${filename}]`)
 
         let url
 

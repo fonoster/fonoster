@@ -1,14 +1,11 @@
-const Minio = require('minio')
+/**
+ * @author Pedro Sanders
+ * @since v1
+ */
+const { fsInstance } = require('./utils')
+const logger = require('./logger')
 
-module.exports = storageBucket => {
-
-    const minioClient = new Minio.Client({
-        endPoint: process.env.FS_HOST,
-        port: parseInt(process.env.FS_PORT),
-        useSSL: false,
-        accessKey: process.env.FS_USERNAME,
-        secretKey: process.env.FS_SECRET
-    })
+module.exports = bucket => {
 
     // Bucket policy - GET requests on "storageBucket" bucket will not need authentication.
     const policy = `
@@ -27,7 +24,7 @@ module.exports = storageBucket => {
             ]
           },
           "Resource": [
-            "arn:aws:s3:::${storageBucket}"
+            "arn:aws:s3:::${bucket}"
           ],
           "Sid": ""
         },
@@ -42,7 +39,7 @@ module.exports = storageBucket => {
             ]
           },
           "Resource": [
-            "arn:aws:s3:::${storageBucket}/*"
+            "arn:aws:s3:::${bucket}/*"
           ],
           "Sid": ""
         }
@@ -50,16 +47,18 @@ module.exports = storageBucket => {
     }
     `
 
-    minioClient.bucketExists(storageBucket, (err, exists) => {
+    fsConn = fsInstance()
+
+    fsConn.bucketExists(bucket, (err, exists) => {
         if (err) throw err
 
         if (!exists) {
-            console.log(`Creating storage bucket: ${storageBucket}`)
-            minioClient.makeBucket(storageBucket, 'us-west-1', err => {
+            logger.log('verbose', `@yaps/core fsutils [Creating storage bucket: ${bucket}]`)
+            fsConn.makeBucket(bucket, 'us-west-1', err => {
                 if (err) throw err
-                minioClient.setBucketPolicy(storageBucket, policy, err => {
+                fsConn.setBucketPolicy(bucket, policy, err => {
                    if (err) throw err
-                   console.log('Setting bucket policy')
+                   logger.log('verbose', `@yaps/core fsutils [Bucket policy changed for bucket: ${bucket}]`)
                 })
             })
 
