@@ -13,7 +13,7 @@ class AbstractTTS {
     }
 
     synthesizeSync(text, options) {
-        const sleep = require('syncho').sleep
+        const sleep = require('sync').sleep
         let result
         let error
 
