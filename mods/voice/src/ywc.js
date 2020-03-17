@@ -201,7 +201,7 @@ class YapsWrapperChannel {
             if (options.maxDigits && (options.maxDigits <= 0 || isNaN(options.maxDigits)))
                 throw new Error(`${options.maxDigits} is not an acceptable maxDigits value. The maxDigits value must be greater than zero. Omit value for no limit on the number of digits`)
             if (!options.maxDigits && !options.timeout) {
-                throw new Error('you must provide either maxDigits or timeout)
+                throw new Error('you must provide either maxDigits or timeout')
             }
 
             // Overwrites timeout
