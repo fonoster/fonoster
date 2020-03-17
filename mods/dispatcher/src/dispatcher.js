@@ -40,7 +40,8 @@ function dispatch(channel) {
 
         const chann = new YWC(channel, {
             tts: new MaryTTS(),
-            storage: new Storage({bucket: appConfig.bucket})
+            storage: new Storage({bucket: appConfig.bucket}),
+            bucket: appConfig.bucket
         })
 
         logger.log('verbose', `@yaps/dispatcher dispatch [running app]`)
