@@ -6,8 +6,8 @@
 const tar = require('tar')
 const fs = require('fs-extra')
 const path = require('path')
-const grpc = require('@yaps/core').grpc
-const logger = require('@yaps/core').logger
+const { grpc } = require('@yaps/core')
+const { logger } = require('@yaps/core')
 const { Storage } = require('@yaps/storage')
 const { appmanagerValidator } = require('@yaps/core').validators
 const {
@@ -107,7 +107,7 @@ class AppManager extends AbstractService {
         //    credentials = getClientCredentials()
         //}
 
-        console.log(`Connecting with API Server @ ${super.getOptions().endpoint}`)
+        logger.log('info', `Connecting with API Server @ ${super.getOptions().endpoint}`)
 
         const service = new AppManagerService
           .AppManagerClient(super.getOptions().endpoint, credentials)
@@ -147,7 +147,11 @@ class AppManager extends AbstractService {
          *    console.log(result)            // returns the app object
          * }).catch(e => console.error(e))   // an error occurred
          */
-        this.getApp = ref => service.getApp().sendMessage({ref})
+        this.getApp = ref => {
+            const request = new AppManagerPB.GetAppRequest()
+            request.setRef(ref)
+            return service.getApp().sendMessage(request)
+        }
 
         /**
          * Creates a new application.
