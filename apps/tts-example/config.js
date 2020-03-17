@@ -1,19 +1,11 @@
-const yaps = require('@yaps/app')
+const YAPS = require('@yaps/sdk')
 
-const prodConfig = {
-    projectId: "tts-storage",
+const config = {
+    apptId: "tts-storage",
     apiKey: "AIzaSyAshRmJgF-p3IesZfmeLzhB-n705ePUAFA",
-    storageBucket: "default"
+    bucket: "default-test"
 }
 
-const devConfig = {
-    projectId: "tts-storage",
-    apiKey: "AIzaSyAshRmJgF-p3IesZfmeLzhB-n705ePUAFA",
-    storageBucket: "default-test"
-}
+YAPS.initializeApp(config)
 
-const config = process.env.NODE_ENV === 'production' ? prodConfig : devConfig
-
-yaps.initializeApp(config)
-module.exports.storage = yaps.storage()
-module.exports.logger = yaps.logging()
+module.exports.storage = new YAPS.Storage()
