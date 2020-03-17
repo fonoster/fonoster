@@ -2,32 +2,41 @@
  * @author Pedro Sanders
  * @since v1
  */
+const fs = require('fs')
 const { logger } = require('@yaps/core')
-// TODO: This should be taken from the database.
-module.exports.getIngressApp = function(extension) {
-    this.getConfig = () => {
-        return {
-            bucket: process.env.MC_APP_BUCKET,
-            appId: process.env.MC_APP_ID
-        }
-    }
+const AppManager = require('@yaps/appmanager')
 
-    this.getPathToEntryPoint = () => {
-        logger.info(`@yaps/dispatcher getPathToEntryPoint [appid: ${process.env.MC_APP_ID}]`)
-        logger.info(`@yaps/dispatcher getPathToEntryPoint [apps dir: ${process.env.MC_APP_DIR}]`)
+module.exports.getIngressInfo = extension => {
 
-        const packageBase =  `${process.env.MC_APP_DIR}/${this.getConfig().appId}`
-        const package = `${packageBase}/package.json`
+    try {
+        const appmanager = new AppManager()
+        //const appRef = appmanager.getExtLink(extension)
+        const appRef = 'hello-monkeys'
+
+        logger.info(`@yaps/dispatcher getIngressInfo [apps dir: ${process.env.MC_APPS_DIR}]`)
+        logger.info(`@yaps/dispatcher getIngressInfo [appRef: ${appRef}]`)
+
+        const packageBase =  `${process.env.MC_APPS_DIR}/${appRef}`
+        const pathToEntryPoint = `${packageBase}/package.json`
+        const pathToAppConfig =  `${packageBase}/yaps.json`
 
         let entryPoint
+        let bucket
+
         try {
-            entryPoint = require(package).main
-        } catch(e) {
-            logger.info('error', e)
-            throw new Error(`Unable to find ${package}`)
+            entryPoint = require(pathToEntryPoint).main
+        } catch(e) {}
+
+        try {
+            bucket = JSON.parse(fs.readFileSync(pathToAppConfig)).bucket
+        } catch(e) {}
+
+        return {
+            entryPoint: `${packageBase}/${entryPoint || 'index.js'}`,
+            bucket: bucket || process.env.FS_DEFAULT_STORAGE_BUCKET
         }
-        return `${packageBase}/${entryPoint || 'index.js'}`
+    } catch(err) {
+        throw err
     }
 
-    return this
 }

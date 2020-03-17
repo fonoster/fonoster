@@ -7,7 +7,7 @@ const { AGIServer } = require('agi-node')
 const { MaryTTS } = require('@yaps/tts')
 const { YWC } = require('@yaps/voice')
 const { NodeVM } = require('vm2')
-const { getIngressApp } = require('./utils')
+const { getIngressInfo } = require('./utils')
 const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
@@ -27,31 +27,29 @@ function dispatch(channel) {
         logger.log('verbose', `@yaps/dispatcher dispatch [entering]`)
         logger.log('debug', `@yaps/dispatcher dispatch [extension: ${channel.request.extension}]`)
 
-        const ingressApp = getIngressApp(channel.request.extension)
-        const appConfig = ingressApp.getConfig()
-        const contents = fs.readFileSync(ingressApp.getPathToEntryPoint(), 'utf8')
+        const ingressInfo = getIngressInfo(channel.request.extension)
+        logger.log('silly', `@yaps/dispatcher dispatch [appConfig: ${JSON.stringify(ingressInfo)}]`)
 
-        logger.log('debug', `@yaps/dispatcher dispatch [entrypoint: ${ingressApp.getPathToEntryPoint()}]`)
-        logger.log('debug', `@yaps/dispatcher dispatch [appConfig: ${JSON.stringify(appConfig)}]`)
+        const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
         logger.log('silly', `@yaps/dispatcher dispatch [contents: ${contents}]`)
 
         // TODO: Move this as part of the deployment process
-        updateBucketPolicy(appConfig.bucket)
+        updateBucketPolicy(ingressInfo.bucket)
 
         const chann = new YWC(channel, {
             tts: new MaryTTS(),
-            storage: new Storage({bucket: appConfig.bucket}),
-            bucket: appConfig.bucket
+            storage: new Storage({bucket: ingressInfo.bucket}),
+            bucket: ingressInfo.bucket
         })
 
         logger.log('verbose', `@yaps/dispatcher dispatch [running app]`)
 
-        vm.run(contents, ingressApp.getPathToEntryPoint())(chann)
+        vm.run(contents, ingressInfo.entryPoint)(chann)
 
         logger.log('debug', `@yaps/dispatcher dispatch [cdr: ${JSON.stringify(chann.getCallDetailRecord())}]`)
         logger.log('verbose', `@yaps/dispatcher dispatch [leaving]`)
-    } catch(e) {
-        logger.log('error', e.message)
+    } catch(err) {
+        logger.log('error', err.message)
     }
 }
 

@@ -26,6 +26,7 @@
   "dependencies": {
     "@yaps/core": "^0.1.0",
     "@yaps/storage": "^0.1.0",
+    "@yaps/appmanager": "^0.1.0",    
     "@yaps/tts": "^0.1.0",
     "@yaps/voice": "^0.1.0",
     "agi-node": "github:psanders/agi-node",
