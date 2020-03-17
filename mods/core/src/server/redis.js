@@ -5,4 +5,4 @@
 const Redis = require('ioredis')
 
 // This should be a singleton
-module.exports = new Redis('redis://127.0.0.1:6379')
+module.exports = new Redis(`redis://${process.env.DS_HOST}:${process.env.DS_PORT}`)
