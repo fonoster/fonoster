@@ -82,7 +82,7 @@ const removeDirSync = path => {
 }
 
 const extract = (source, target) => {
-    const cwd = path.basedir(target)
+    const cwd = path.dirname(target)
     return tar.extract({file: source, cwd})
 }
 
