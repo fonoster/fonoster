@@ -3,7 +3,8 @@
  * @since v1
  */
 const Minio = require('minio')
-const inly = require('inly')
+//const inly = require('inly')
+const tar = require('tar')
 const path = require('path')
 const fs = require('fs')
 const walk = require('walk')
@@ -80,10 +81,13 @@ const removeDirSync = path => {
   }
 }
 
-// const extract = (source, target, cwd = '/tmp') => tar.extract({file: source, cwd: cwd})
+const extract = (source, target) => {
+    const cwd = path.basedir(target)
+    return tar.extract({file: source, cwd})
+}
 
 // Replaced tar with inly to support more formats
-const extract = (source, target) => new Promise((resolve, reject) => {
+/*const extract = (source, target) => new Promise((resolve, reject) => {
     const extract = inly(source, target)
 
     extract.on('error', err => {
@@ -93,7 +97,7 @@ const extract = (source, target) => new Promise((resolve, reject) => {
     extract.on('end', () => {
         resolve()
     })
-})
+})*/
 
 const getFilesizeInBytes = filename => fs.statSync(filename)['size']
 
