@@ -9,7 +9,7 @@ const {
 const assert = require('assert')
 
 if(process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV ) {
-    require('dotenv').config({ path: __dirname + '/../../.env.dev' })
+    require('dotenv').config({ path: __dirname + '/../../.env' })
 }
 
 describe('Storage Service', () => {

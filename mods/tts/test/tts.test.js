@@ -14,7 +14,7 @@ const {
 } = require('../src/utils')
 
 if(process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV ) {
-    require('dotenv').config({ path: __dirname + '/../../.env.dev' })
+    require('dotenv').config({ path: __dirname + '/../../.env' })
 }
 
 describe('TTS Utils', () => {
