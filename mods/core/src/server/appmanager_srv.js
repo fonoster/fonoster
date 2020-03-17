@@ -37,8 +37,11 @@ const getApp = (call, callback) => {
        return
     }
 
-    const app = { ref: 'hello-world', name: 'hello-world',
-        description: 'Simple voice application'}
+    const app = new AppManagerPB.App()
+    app.setRef('hello-world')
+    app.setName('hello-world')
+    app.setDescription('A simple app')
+
     callback(null, app)
 }
 
