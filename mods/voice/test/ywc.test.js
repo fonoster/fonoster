@@ -15,21 +15,21 @@ describe('YWC tests', () => {
 
     it('Test verb answer', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, { tts:{}, storage: {}})
+        const ywc = new YWC(channel)
         assert.equal(0, ywc.answer())
         done()
     })
 
     it('Test verb hangup', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, { tts:{}, storage: {}})
+        const ywc = new YWC(channel)
         assert.equal(1, ywc.hangup())
         done()
     })
 
     it('Test verb play', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, { tts:{}, storage: {}})
+        const ywc = new YWC(channel)
         channel.setData(['1'])
         const result = ywc.play('beep')
         assert.equal('1', result)
@@ -45,7 +45,7 @@ describe('YWC tests', () => {
 
     it.skip('Test verb say', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, { tts:{}, storage: {}})
+        const ywc = new YWC(channel)
         channel.setData(['1'])
 
         try {
@@ -65,7 +65,7 @@ describe('YWC tests', () => {
 
     it('Test verb gather', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, { tts:{}, storage: {}})
+        const ywc = new YWC(channel)
 
         try {
             ywc.gather('', {finishOnKey: 'aa', maxDigits: 'p'})
@@ -101,7 +101,7 @@ describe('YWC tests', () => {
 
     it('Test verb wait', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, { tts:{}, storage: {}})
+        const ywc = new YWC(channel)
 
         try {
             ywc.wait(-1)
@@ -115,7 +115,7 @@ describe('YWC tests', () => {
     it('Test verb record', done => {
         const channel = new MockChannel()
 
-        const ywc = new YWC(channel, { tts:{}, storage: {}})
+        const ywc = new YWC(channel)
 
         try {
             ywc.record({ beep: 'a' })
@@ -130,7 +130,7 @@ describe('YWC tests', () => {
 
     it('Test verb stash', done => {
         const channel = new MockChannel()
-        const ywc = new YWC(channel, { tts:{}, storage: {}})
+        const ywc = new YWC(channel)
         ywc.stash('key1', 'val1')
         ywc.stash('key2', 'val2')
         ywc.stash('key1', 'val3')

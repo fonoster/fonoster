@@ -35,10 +35,6 @@ class YapsWrapperChannel {
             //cost,
             //billable
         }
-
-        if (!this._config.tts) throw new Error('not tts engine found')
-        if (!this._config.storage) throw new Error('not storage object found')
-        if (!this._config.bucket) throw new Error('not bucket found')        
     }
 
     // TODO: This needs accept individual configuration changes
@@ -109,6 +105,9 @@ class YapsWrapperChannel {
     say(text, options) {
         logger.log('verbose', `@yaps/voice.YapsWrapperChannel.say [text: ${text}, options: ${JSON.stringify(options)}]`)
         if (!text) throw new Error('You must provide a text.')
+        if (!this._config.tts) throw new Error('Not tts engine found')
+        if (!this._config.storage) throw new Error('Not storage object found')
+        if (!this._config.bucket) throw new Error('Not bucket found')
 
         // The final format pushed to the bucket will always be .wav
         const metadata = { 'Content-Type': 'audio/x-wav' }
