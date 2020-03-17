@@ -24,7 +24,7 @@ describe('Storage Service', () => {
     it('Upload object with bad argument', done => {
         // Will fail because of bad argument filenam
         storage.uploadObject({
-            filenam: __dirname + '/../etc/hello-monkeys.zip',
+            filenam: __dirname + '/../etc/hello-monkeys.tgz',
             bucket: 'default'
         }).then(result => {
             done('should not enter here')
@@ -38,13 +38,11 @@ describe('Storage Service', () => {
     it('Upload object with bad bucket', done => {
         // Will fail for directories
         storage.uploadObject({
-            filename: __dirname + '/../etc/hello-monkeys.zip',
+            filename: __dirname + '/../etc/hello-monkeys.tgz',
             bucket: 'bucket001'
-        }).then(result => {
-            done('should not enter here')
-        }).catch(e => {
-            assert.ok(e.message.includes('bucket does not exist'))
-            // Expected to enter gere
+        }).then(result => done('should not enter here'))
+        .catch(err => {
+            assert.ok(err.message.includes('bucket does not exist'))
             done()
         })
     })
@@ -62,10 +60,10 @@ describe('Storage Service', () => {
         })
     })
 
-    it('Upload a single compress(zip) file', done => {
+    it('Upload a single compress(tar) file', done => {
         // Will pass
         storage.uploadObject({
-            filename: __dirname + '/../etc/hello-monkeys.zip',
+            filename: __dirname + '/../etc/hello-monkeys.tgz',
             bucket: 'default',
             metadata: {
                 contentType: 'text/html'
@@ -91,11 +89,12 @@ describe('Storage Service', () => {
             assert.ok(result.getSize() > 0)
             done()
         }).catch(e => {
+
             done(e)
         })
     })
 
-    it.only('Get object url not found', done => {
+    it('Get object url not found', done => {
         const storage = new Storage()
         storage.getObjectURL({name: 'test.wav', bucket: 'default'})
         .then(result => done('should enter here'))
@@ -105,7 +104,7 @@ describe('Storage Service', () => {
         })
     })
 
-    it.only('Get object url', done => {
+    it('Get object url', done => {
         const storage = new Storage()
         storage.getObjectURL({name: 'test.txt', bucket: 'default'})
         .then(result => {
