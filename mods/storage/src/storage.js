@@ -77,7 +77,7 @@ class Storage extends AbstractService {
          *
          * @async
          * @function
-         * @param {Object} - Object upload request.
+         * @param {Object} request - Object upload request.
          * @return {Promise<UploadObjectResponse>} - The response.
          * @example
          *
@@ -163,7 +163,7 @@ class Storage extends AbstractService {
          *
          * @async
          * @function
-         * @param {Object} - Request to retrive object.
+         * @param {Object} request - Request to retrive object.
          * @return {Promise<UploadObjectResponse>} - The response.
          * @example
          *
@@ -204,8 +204,8 @@ class Storage extends AbstractService {
          *
          * @private
          * @function
-         * @param {Object} - Object upload request
-         * @return {Promise<UploadObjectResponse>} - The response
+         * @param {Object} request - Object upload request
+         * @return {UploadObjectResponse} - The response
          * @example
          *
          * const YAPS = require('@yaps/sdk')
@@ -240,8 +240,8 @@ class Storage extends AbstractService {
          *
          * @private
          * @function
-         * @param {Object} - Object upload request
-         * @return {Promise<UploadObjectResponse>} - The response
+         * @param {Object} request - Object upload request
+         * @return {UploadObjectResponse} - The response
          * @example
          *
          * const YAPS = require('@yaps/sdk')
@@ -253,7 +253,7 @@ class Storage extends AbstractService {
          *    metadata: { 'Content-Type': 'audio/x-wav' }
          * }
          *
-         * const result storage.getObjectURLSync(request)
+         * const result = storage.getObjectURLSync(request)
          */
         this.getObjectURLSync = request => {
             const sleep = require('sync').sleep
