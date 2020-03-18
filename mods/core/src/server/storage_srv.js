@@ -116,13 +116,16 @@ const uploadObject = (call, callback) => {
             fs.unlinkSync(`/tmp/${object}`)
         } catch(err) {
             if (err.code === 'NoSuchBucket') {
+                logger.log('error', `${err.message} -> bucket: ${bucket}`)
                 callback({
                     message: `${err.message} -> bucket: ${bucket}`,
                     status: grpc.status.FAILED_PRECONDITION
                 })
             } else if(err.code === 'TAR_BAD_ARCHIVE') {
+                logger.log('error', err.message)
                 callback(new Error('DATA_LOSS'), err)
             } else {
+                logger.log('error', err.message)
                 callback(new Error('UNKNOWN'), err)
             }
         }
