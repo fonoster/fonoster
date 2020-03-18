@@ -44,8 +44,8 @@ const STATUS = {
  * @alias module:@yaps/appmanager.AppManager
  * @typicalname appmanager
  * @classdesc Use YAPS AppMAnager, a capability of YAPS Systems Manager,
- * to create, manage, and deploy an application. The AppManager requires of a r
- * unning YAPS plattform.
+ * to create, manage, and deploy an application. The AppManager requires of a
+ * running YAPS plattform.
  *
  * @extends AbstractService
  * @example
@@ -67,8 +67,7 @@ class AppManager extends AbstractService {
      *
      * @typedef {Object} App
      * @property {App.Status} status - Current status of the application.
-     * @property {string} ref - Unique identifier for the application.
-     * @property {string} name - A name for the application.
+     * @property {string} name - A name, globally unique, for the application.
      * @property {string} description - A description for the application.
      * @property {number} createTime - Time the application was created.
      * @property {number} updateTime - Last time the application was updated.
@@ -162,7 +161,7 @@ class AppManager extends AbstractService {
          *
          * @async
          * @function
-         * @param {Object} - Request for object update.
+         * @param {Object} request - Request for object creation.
          * @return {Promise<App>} - The application just created.
          * @example
          *
@@ -270,7 +269,7 @@ class AppManager extends AbstractService {
          *
          * @async
          * @function
-         * @param {*} - Request for object update.
+         * @param {Object} request - Request for object update.
          * @return {Promise<App>} - The application just updated.
          * @example
          *
@@ -286,16 +285,16 @@ class AppManager extends AbstractService {
          *
          * @async
          * @function
-         * @param {string} ref - Unique reference to the application
+         * @param {string} name - Unique reference to the application
          * @return {Promise<void>} - The application just updated
          * @example
          *
-         * appmanager.deleteApp(ref)
+         * appmanager.deleteApp(name)
          * .then(result => {
          *    console.log(result)            // returns an empty result
          * }).catch(e => console.error(e))   // an error occurred
          */
-        this.deleteApp = ref => service.deleteApp().sendMessage({ref})
+        this.deleteApp = name => service.deleteApp().sendMessage({name})
     }
 
     static get STATES() {

@@ -130,7 +130,7 @@ services:
     ports:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     volumes:
-      - ./mods/etc/certs:/etc/certs:ro
+      - ./mods/etc/certs:/etc/certs:ro    
     #logging:
     #    driver: fluentd
     #    options:
