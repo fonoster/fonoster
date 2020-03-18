@@ -1,6 +1,7 @@
 {
   "name": "hello-monkeys",
   "version": "1.0.0",
+  "private": true,  
   "description": "Hello Monkeys Example",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

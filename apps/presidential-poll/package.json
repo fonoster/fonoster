@@ -1,6 +1,7 @@
 {
   "name": "presidential-poll",
   "version": "1.0.0",
+  "private": true,  
   "description": "Presidential Poll Example",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

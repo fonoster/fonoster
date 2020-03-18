@@ -1,6 +1,7 @@
 {
   "name": "tts-example",
   "version": "1.0.0",
+  "private": true,  
   "description": "Uses MaryTTS and the Storage API to create audio files",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
