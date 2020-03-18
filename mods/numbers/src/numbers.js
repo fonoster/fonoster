@@ -118,13 +118,16 @@ class Numbers extends AbstractService {
          }
 
          /**
-          * Creates a new application.
+          * Gets application linked to a Number.
           *
           * @async
           * @function
           * @param {Object} request - Request for app link to number
           * @return {Promise<App>} - The app link to this number
           * @example
+          *
+          * const YAPS = require('@yaps/sdk')
+          * const numbers = new YAPS.Numbers()
           *
           * const request = {
           *    e164Number: '+17853178070'
@@ -145,6 +148,39 @@ class Numbers extends AbstractService {
               req.setE164Number(request.e164Number)
 
               return service.getIngressApp().sendMessage(req)
+          }
+
+          /**
+           * Gets application linked to a Number synchronously.
+           *
+           * @private
+           * @function
+           * @param {Object} request - Object upload request
+           * @return {Promise<UploadObjectResponse>} - The response
+           * @example
+           *
+           * const YAPS = require('@yaps/sdk')
+           * const numbers = new YAPS.Numbers()
+           *
+           * const request = {
+           *    e164Number: '+17853178070'
+           * }
+           *
+           * const result = numbers.getIngressAppSync(request)
+           */
+          this.getIngressAppSync = request => {
+              const sleep = require('sync').sleep
+              let result
+              let error
+              this.getIngressApp(request)
+              .then(r => result = r)
+              .catch(e => error = e)
+
+              while(result === undefined && error === undefined) sleep(100)
+
+              if (error) throw error
+
+              return result
           }
     }
 

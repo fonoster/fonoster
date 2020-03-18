@@ -213,6 +213,7 @@ services:
       - ./.fluentd/conf:/fluentd/etc
     links:
       - logsaggregator
+    # TODO: Replace with expose if possible
     ports:
       - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}
       - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}/udp
@@ -225,6 +226,7 @@ services:
       - discovery.type=single-node
     expose:
       - ${LOGS_AGGREGRATOR_PORT}
+    # TODO: Remove if possible
     ports:
       - ${LOGS_AGGREGRATOR_PORT}:${LOGS_AGGREGRATOR_PORT}
 
@@ -234,6 +236,7 @@ services:
     restart: always
     links:
       - logsaggregator
+    # TODO: Remove if possible      
     ports:
       - ${LOGS_MONITOR_PORT}:${LOGS_MONITOR_PORT}
     environment:

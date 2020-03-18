@@ -26,6 +26,7 @@
   "dependencies": {
     "@yaps/core": "^0.1.0",
     "dotenv": "^8.2.0",
-    "grpc-promise": "^1.4.0"
+    "grpc-promise": "^1.4.0",
+    "sync": "^0.2.4"
   }
 }

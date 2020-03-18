@@ -14,7 +14,7 @@ module.exports.getIngressInfo = extension => {
         // We check for a handler, and return default if it does not exist
         let appName = 'default'
         try {
-            const app = numbers.getIngressApp({e164Number: extension})
+            const app = numbers.getIngressAppSync({e164Number: extension})
             appName = app.getName()
         } catch(e) {
             logger.log('error', `@yaps/dispatcher getIngressInfo [could not find handler for ext '${extension}']`)
