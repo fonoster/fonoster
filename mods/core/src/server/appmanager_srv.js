@@ -33,18 +33,19 @@ const getApp = (call, callback) => {
     try {
         auth(call)
     } catch(e) {
-       callback(new Error('UNAUTHENTICATED'), null)
-       return
+        callback(new Error('UNAUTHENTICATED'), null)
+        return
     }
 
-    const app = new AppManagerPB.App()
-    app.setName('hello-world')
-    app.setDescription('A simple app')
-
-    callback(null, app)
+    redis.call('get', call.request.getName())
+    .then(result => {
+        const app = new AppManagerPB.App(JSON.parse(result).array)
+        callback(null, app)
+    })
+    .catch(e => callback(new Error(e)))
 }
 
-const createApp = (call, callback) => {
+const createApp = async(call, callback) => {
     try {
         auth(call)
     } catch(e) {
@@ -56,8 +57,7 @@ const createApp = (call, callback) => {
     const errors = appmanager.createAppRequest.validate({
         app: {
             name: call.request.getApp().getName(),
-            description: call.request.getApp().getDescription(),
-            entryPoint: call.request.getApp().getEntryPoint()
+            description: call.request.getApp().getDescription()
         }
     })
 
@@ -68,10 +68,13 @@ const createApp = (call, callback) => {
 
     const app = call.request.getApp()
     app.setStatus(AppManagerPB.App.Status.CREATING)
+    app.setCreateTime(new Date())
+    app.setUpdateTime(new Date())
 
-    redis.call('JSON.set', app.getName(), '.', `${JSON.stringify(app.toString())}`)
-    .then(result => callback(null, app))
-    .catch(e => callback(new Error(e)))
+    await redis.call('sadd', 'apps', app.getName())
+    // This feels very hacky
+    await redis.call('set', app.getName(), `${JSON.stringify(app)}`)
+    callback(null, app)
 }
 
 const updateApp = (call, callback) => {
