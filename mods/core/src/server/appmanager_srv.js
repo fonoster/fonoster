@@ -20,7 +20,6 @@ const listApps = (call, callback) => {
     }
 
     const app = new AppManagerPB.App()
-    app.setRef('hello-world')
     app.setName('Hello World')
     app.setDescription('Simple app')
 
@@ -39,7 +38,6 @@ const getApp = (call, callback) => {
     }
 
     const app = new AppManagerPB.App()
-    app.setRef('hello-world')
     app.setName('hello-world')
     app.setDescription('A simple app')
 
@@ -69,10 +67,9 @@ const createApp = (call, callback) => {
     }
 
     const app = call.request.getApp()
-    app.setRef(objectid())
     app.setStatus(AppManagerPB.App.Status.CREATING)
 
-    redis.call('JSON.set', app.getRef(), '.', `${JSON.stringify(app.toString())}`)
+    redis.call('JSON.set', app.getName(), '.', `${JSON.stringify(app.toString())}`)
     .then(result => callback(null, app))
     .catch(e => callback(new Error(e)))
 }
@@ -84,7 +81,7 @@ const updateApp = (call, callback) => {
        callback(new Error('UNAUTHENTICATED'), null)
        return
     }
-    console.log(`updating app with ref: ${JSON.stringify(call.request)}`)
+    console.log(`updating app: ${JSON.stringify(call.request)}`)
     // -- Operate here
     // ---
     callback(null, call.request.app)
@@ -97,7 +94,7 @@ const deleteApp = (call, callback) => {
        callback(new Error('UNAUTHENTICATED'), null)
        return
     }
-    console.log(`deleting app with ref: ${JSON.stringify(call.request)}`)
+    console.log(`deleting app: ${JSON.stringify(call.request)}`)
     // -- Operate here
     // ---
     callback(null, call.request.app)
