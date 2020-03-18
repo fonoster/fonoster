@@ -5,9 +5,9 @@
     "@yaps/accounting": "^0.1.0",
     "@yaps/appmanager": "^0.1.0",
     "@yaps/callmanager": "^0.1.0",
-    "@yaps/numbers": "^0.1.0",    
     "@yaps/core": "^0.1.0",
     "@yaps/jobs": "^0.1.0",
+    "@yaps/numbers": "^0.1.0",
     "@yaps/sdk": "^0.1.0",
     "@yaps/storage": "^0.1.0",
     "@yaps/tts": "^0.1.0",
@@ -17,11 +17,11 @@
     "jsonwebtoken": "^8.5.1",
     "lerna": "^3.20.2",
     "mocha": "^7.1.0",
-    "nyc": "^15.0.0",
-    "node-gyp": "^6.1.0"
+    "node-gyp": "^6.1.0",
+    "nyc": "^15.0.0"
   },
   "scripts": {
-    "docs": "jsdoc2md mods/**/src/*.js > docs/api.md",
+    "docs": "jsdoc2md **/src/*.js > ../docs/api.md",
     "test": "NODE_ENV=dev nyc --reporter=lcov mocha **/test/*.test.js",
     "gen-proto": "./etc/gen_code_proto",
     "start-as": "NODE_ENV=dev CERTS_PATH=mods/etc/certs node core/src/server/server.js",
