@@ -248,14 +248,14 @@ class AppManager extends AbstractService {
 
                 const response = await service.createApp().sendMessage(createAppRequest)
 
-                logger.log('debug', `@yaps/appmananger createApp [copyed '${request.dirPath}' into '/tmp/'}]`)
-
-                const dirName = path.basename(request.dirPath)
+                // TODO: Validate that the name is lower case and has no spaces
+                const dirName = `${request.app.name}`
                 await fs.copy(request.dirPath, `/tmp/${dirName}`)
 
+                logger.log('debug', `@yaps/appmananger createApp [copyed '${request.dirPath}' into '/tmp/${dirName}'}]`)
                 logger.log('debug', '@yaps/appmananger createApp [archiving project folder]')
 
-                await tar.create({cwd: '/tmp', file: `/tmp/${dirName}.tgz`},
+                await tar.create({file: `/tmp/${dirName}.tgz`, cwd: '/tmp'},
                     [dirName])
 
                 logger.log('debug', `@yaps/appmananger createApp [uploading to bucket -> ${super.getOptions().bucket}]`)
