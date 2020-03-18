@@ -13,10 +13,6 @@ const createAppRequest = new Schema({
         description: {
           type: String,
           required: true
-        },
-        entryPoint: {
-          type: String,
-          required: true
         }
     }
 })

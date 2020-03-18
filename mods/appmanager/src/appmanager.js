@@ -72,9 +72,6 @@ class AppManager extends AbstractService {
      * @property {string} description - A description for the application.
      * @property {number} createTime - Time the application was created.
      * @property {number} updateTime - Last time the application was updated.
-     * @property {number} entryPoint - main script for the application (ie: main.js or index.js.)
-     * this is use by the Media Controller to properly route a call. The path to
-     * the entry point is relative to the root of the project.
      * @property {map} labels - Metadata for this application.
      */
 
@@ -145,18 +142,18 @@ class AppManager extends AbstractService {
          * Retrives a single application by its reference.
          *
          * @async
-         * @param {string} ref - The reference
+         * @param {string} name - The app identifier
          * @return {Promise<App>} app - The application
          * @example
          *
-         * appmanager.getApp(ref)
+         * appmanager.getApp(name)
          * .then(result => {
          *    console.log(result)            // returns the app object
          * }).catch(e => console.error(e))   // an error occurred
          */
-        this.getApp = ref => {
+        this.getApp = name => {
             const request = new AppManagerPB.GetAppRequest()
-            request.setRef(ref)
+            request.setName(name)
             return service.getApp().sendMessage(request)
         }
 
@@ -173,8 +170,7 @@ class AppManager extends AbstractService {
          *    dirPath: '/path/to/project',
          *    app: {
          *        name: 'hello-world',
-         *        description: 'Simple Voice App',
-         *        entryPoint: 'index.js'
+         *        description: 'Simple Voice App'
          *    }
          * }
          *
@@ -208,7 +204,6 @@ class AppManager extends AbstractService {
                 request.app = request.app || {}
                 request.app.name = request.app.name || pInfo.name
                 request.app.description = request.app.description || pInfo.description
-                request.app.entryPoint = request.app.entryPoint || pInfo.main
 
                 logger.log('debug', `@yaps/appmananger createApp [modified request -> ${JSON.stringify(request)} ]`)
 
@@ -217,8 +212,7 @@ class AppManager extends AbstractService {
                 const errors = appmanagerValidator.createAppRequest.validate({
                     app: {
                       name: request.app.name,
-                      description: request.app.description,
-                      entryPoint: request.app.entryPoint
+                      description: request.app.description
                     }
                 })
 
@@ -241,7 +235,6 @@ class AppManager extends AbstractService {
                 const app = new AppManagerPB.App()
                 app.setName(request.app.name)
                 app.setDescription(request.app.description)
-                app.setEntryPoint(request.app.entryPoint)
 
                 const createAppRequest = new AppManagerPB.CreateAppRequest()
                 createAppRequest.setApp(app)

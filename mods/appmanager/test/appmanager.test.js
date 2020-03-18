@@ -27,10 +27,10 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it.skip('Get app', done => {
+    it.only('Get app', done => {
         appmanager.getApp('hello-monkeys')
         .then(app => {
-            assert.ok(app.name === 'hello-monkeys')
+            assert.ok(app.getName() === 'hello-monkeys')
             done()
         }).catch(e => done(e))
     })

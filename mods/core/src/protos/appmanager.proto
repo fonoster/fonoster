@@ -14,12 +14,12 @@ import "common.proto";
 service AppManager {
   // Lists user applications
   rpc ListApps (ListAppsRequest) returns (ListAppsResponse) {};
-  // Gets app with the app-ref
+  // Gets app with the app-name
   rpc GetApp (GetAppRequest) returns (App) {};
   // Creates a new resource type app. Fails with ALREADY_EXISTS if
-  // app-ref is present in the system. The application creation, consist of:
+  // app-name is present in the system. The application creation, consist of:
   //
-  //    1. Validing a YAPS Appp
+  //    1. Validing a YAPS App
   //    2. Zipping (or taring) the application
   //    3. Uploading the the file to a yaps endpoint
   //    4. Registering and activatng the application
@@ -54,7 +54,7 @@ message ListAppsResponse {
 message GetAppRequest {
   // The field will contain the reference of the app requested, for example:
   // "apps/hello-world"
-  string ref = 1;
+  string name = 1;
   // Requested level of detail
   yaps.common.v1alpha1.View view = 2;
 }
@@ -68,7 +68,7 @@ message UpdateAppRequest {
 }
 
 message DeleteAppRequest {
-  string ref = 1;
+  string name = 1;
 }
 
 // An app resource with metadata used by the media controller
@@ -84,10 +84,9 @@ message App {
   }
   string name = 1;
   string description = 2;
+  // TODO: Find a better way to store this information
   string create_time = 3;
   string update_time = 4;
-  // Script use to enter the application (ex: index.js or main.js)
-  string entry_point = 5;
-  Status status = 6;
-  map <string, string> labels = 7;
+  Status status = 5;
+  map <string, string> labels = 6;
 }
