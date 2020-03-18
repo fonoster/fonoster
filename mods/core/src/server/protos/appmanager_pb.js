@@ -459,7 +459,7 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.toObject = function(opt_i
  */
 proto.yaps.appmanager.v1alpha1.GetAppRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
     view: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
@@ -499,7 +499,7 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.deserializeBinaryFromReader = funct
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setRef(value);
+      msg.setName(value);
       break;
     case 2:
       var value = /** @type {!proto.yaps.common.v1alpha1.View} */ (reader.readEnum());
@@ -534,7 +534,7 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.serializeBinary = functio
  */
 proto.yaps.appmanager.v1alpha1.GetAppRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getRef();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -552,16 +552,16 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.serializeBinaryToWriter = function(
 
 
 /**
- * optional string ref = 1;
+ * optional string name = 1;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.getRef = function() {
+proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.getName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.setRef = function(value) {
+proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.setName = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
@@ -946,7 +946,7 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.toObject = function(op
  */
 proto.yaps.appmanager.v1alpha1.DeleteAppRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
+    name: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -985,7 +985,7 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.deserializeBinaryFromReader = fu
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setRef(value);
+      msg.setName(value);
       break;
     default:
       reader.skipField();
@@ -1016,7 +1016,7 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.serializeBinary = func
  */
 proto.yaps.appmanager.v1alpha1.DeleteAppRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getRef();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -1027,16 +1027,16 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.serializeBinaryToWriter = functi
 
 
 /**
- * optional string ref = 1;
+ * optional string name = 1;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.getRef = function() {
+proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.getName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.setRef = function(value) {
+proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.setName = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
@@ -1088,13 +1088,11 @@ proto.yaps.appmanager.v1alpha1.App.prototype.toObject = function(opt_includeInst
  */
 proto.yaps.appmanager.v1alpha1.App.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    description: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    createTime: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    updateTime: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    entryPoint: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    status: jspb.Message.getFieldWithDefault(msg, 7, 0),
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    description: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    createTime: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    updateTime: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    status: jspb.Message.getFieldWithDefault(msg, 5, 0),
     labelsMap: (f = msg.getLabelsMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
@@ -1134,33 +1132,25 @@ proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader = function(msg, r
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setRef(value);
+      msg.setName(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setName(value);
+      msg.setDescription(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setDescription(value);
+      msg.setCreateTime(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setCreateTime(value);
-      break;
-    case 5:
-      var value = /** @type {string} */ (reader.readString());
       msg.setUpdateTime(value);
       break;
-    case 6:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setEntryPoint(value);
-      break;
-    case 7:
+    case 5:
       var value = /** @type {!proto.yaps.appmanager.v1alpha1.App.Status} */ (reader.readEnum());
       msg.setStatus(value);
       break;
-    case 8:
+    case 6:
       var value = msg.getLabelsMap();
       reader.readMessage(value, function(message, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "");
@@ -1195,58 +1185,44 @@ proto.yaps.appmanager.v1alpha1.App.prototype.serializeBinary = function() {
  */
 proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getRef();
+  f = message.getName();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getName();
+  f = message.getDescription();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getDescription();
+  f = message.getCreateTime();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getCreateTime();
+  f = message.getUpdateTime();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = message.getUpdateTime();
-  if (f.length > 0) {
-    writer.writeString(
-      5,
-      f
-    );
-  }
-  f = message.getEntryPoint();
-  if (f.length > 0) {
-    writer.writeString(
-      6,
-      f
-    );
-  }
   f = message.getStatus();
   if (f !== 0.0) {
     writer.writeEnum(
-      7,
+      5,
       f
     );
   }
   f = message.getLabelsMap(true);
   if (f && f.getLength() > 0) {
-    f.serializeBinary(8, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+    f.serializeBinary(6, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
   }
 };
 
@@ -1262,119 +1238,89 @@ proto.yaps.appmanager.v1alpha1.App.Status = {
 };
 
 /**
- * optional string ref = 1;
+ * optional string name = 1;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getRef = function() {
+proto.yaps.appmanager.v1alpha1.App.prototype.getName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setRef = function(value) {
+proto.yaps.appmanager.v1alpha1.App.prototype.setName = function(value) {
   jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional string name = 2;
+ * optional string description = 2;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getName = function() {
+proto.yaps.appmanager.v1alpha1.App.prototype.getDescription = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setName = function(value) {
+proto.yaps.appmanager.v1alpha1.App.prototype.setDescription = function(value) {
   jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional string description = 3;
+ * optional string create_time = 3;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getDescription = function() {
+proto.yaps.appmanager.v1alpha1.App.prototype.getCreateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setDescription = function(value) {
+proto.yaps.appmanager.v1alpha1.App.prototype.setCreateTime = function(value) {
   jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string create_time = 4;
+ * optional string update_time = 4;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getCreateTime = function() {
+proto.yaps.appmanager.v1alpha1.App.prototype.getUpdateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setCreateTime = function(value) {
+proto.yaps.appmanager.v1alpha1.App.prototype.setUpdateTime = function(value) {
   jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional string update_time = 5;
- * @return {string}
- */
-proto.yaps.appmanager.v1alpha1.App.prototype.getUpdateTime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
-};
-
-
-/** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setUpdateTime = function(value) {
-  jspb.Message.setProto3StringField(this, 5, value);
-};
-
-
-/**
- * optional string entry_point = 6;
- * @return {string}
- */
-proto.yaps.appmanager.v1alpha1.App.prototype.getEntryPoint = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
-};
-
-
-/** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setEntryPoint = function(value) {
-  jspb.Message.setProto3StringField(this, 6, value);
-};
-
-
-/**
- * optional Status status = 7;
+ * optional Status status = 5;
  * @return {!proto.yaps.appmanager.v1alpha1.App.Status}
  */
 proto.yaps.appmanager.v1alpha1.App.prototype.getStatus = function() {
-  return /** @type {!proto.yaps.appmanager.v1alpha1.App.Status} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+  return /** @type {!proto.yaps.appmanager.v1alpha1.App.Status} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
 /** @param {!proto.yaps.appmanager.v1alpha1.App.Status} value */
 proto.yaps.appmanager.v1alpha1.App.prototype.setStatus = function(value) {
-  jspb.Message.setProto3EnumField(this, 7, value);
+  jspb.Message.setProto3EnumField(this, 5, value);
 };
 
 
 /**
- * map<string, string> labels = 8;
+ * map<string, string> labels = 6;
  * @param {boolean=} opt_noLazyCreate Do not create the map if
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,string>}
  */
 proto.yaps.appmanager.v1alpha1.App.prototype.getLabelsMap = function(opt_noLazyCreate) {
   return /** @type {!jspb.Map<string,string>} */ (
-      jspb.Message.getMapField(this, 8, opt_noLazyCreate,
+      jspb.Message.getMapField(this, 6, opt_noLazyCreate,
       null));
 };
 

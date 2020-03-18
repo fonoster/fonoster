@@ -114,7 +114,7 @@ listApps: {
     responseSerialize: serialize_yaps_appmanager_v1alpha1_ListAppsResponse,
     responseDeserialize: deserialize_yaps_appmanager_v1alpha1_ListAppsResponse,
   },
-  // Gets app with the app-ref
+  // Gets app with the app-name
 getApp: {
     path: '/yaps.appmanager.v1alpha1.AppManager/GetApp',
     requestStream: false,
@@ -127,9 +127,9 @@ getApp: {
     responseDeserialize: deserialize_yaps_appmanager_v1alpha1_App,
   },
   // Creates a new resource type app. Fails with ALREADY_EXISTS if
-// app-ref is present in the system. The application creation, consist of:
+// app-name is present in the system. The application creation, consist of:
 //
-//    1. Validing a YAPS Appp
+//    1. Validing a YAPS App
 //    2. Zipping (or taring) the application
 //    3. Uploading the the file to a yaps endpoint
 //    4. Registering and activatng the application
