@@ -14,7 +14,8 @@ describe('App Manager Service', () => {
 
     before(() => {
         appmanager = new AppManager({
-            endpoint: `${process.env.APISERVER_ENDPOINT}`
+            endpoint: `${process.env.APISERVER_ENDPOINT}`,
+            bucket: 'apps'
         })
     })
 
@@ -27,9 +28,9 @@ describe('App Manager Service', () => {
     })
 
     it.skip('Get app', done => {
-        appmanager.getApp('hello-world')
+        appmanager.getApp('hello-monkeys')
         .then(app => {
-            assert.ok(app.name === 'hello-world')
+            assert.ok(app.name === 'hello-monkeys')
             done()
         }).catch(e => done(e))
     })
@@ -64,7 +65,7 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it.skip('Create app perfect case...', async() => {
+    it.only('Create app perfect case...', async() => {
         const request = {
             dirPath: __dirname + '/../etc/hello-monkeys',
             app: {
@@ -91,7 +92,7 @@ describe('App Manager Service', () => {
     })
 
     it.skip('Delete app', done => {
-        appmanager.deleteApp('hello-world')
+        appmanager.deleteApp('hello-monkeys')
         .then(result => {
             done()
         }).catch(e => done(e))
