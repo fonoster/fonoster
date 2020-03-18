@@ -82,13 +82,12 @@ message App {
     // Was stopped from by the client
     STOPPED = 3;
   }
-  string ref = 1;
-  string name = 2;
-  string description = 3;
-  string create_time = 4;
-  string update_time = 5;
+  string name = 1;
+  string description = 2;
+  string create_time = 3;
+  string update_time = 4;
   // Script use to enter the application (ex: index.js or main.js)
-  string entry_point = 6;
-  Status status = 7;
-  map <string, string> labels = 8;
+  string entry_point = 5;
+  Status status = 6;
+  map <string, string> labels = 7;
 }
