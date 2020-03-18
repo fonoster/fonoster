@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@yaps/appmanager": "^0.1.0",
-    "@yaps/storage": "^0.1.0"
+    "@yaps/storage": "^0.1.0",
+    "@yaps/numbers": "^0.1.0"    
   }
 }
