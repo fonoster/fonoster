@@ -130,7 +130,7 @@ services:
     ports:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     volumes:
-      - ./mods/etc/certs:/etc/certs:ro    
+      - ./mods/etc/certs:/etc/certs:ro
     #logging:
     #    driver: fluentd
     #    options:
@@ -175,7 +175,7 @@ services:
       MC_AGI_PORT: ${MC_AGI_PORT}
       MC_APP_BUCKET: default
       MC_APP_ID: hello-monkeys
-      MC_APP_DIR: /fs/minio/apps
+      MC_APPS_DIR: /fs/minio/apps
       CERTS_PATH: /etc/certs
       ACCESS_KEY_ID: yaps
     build:
