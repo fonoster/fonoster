@@ -3,10 +3,12 @@
  * @since v1
  */
 const NumbersPB = require('./protos/numbers_pb')
+const AppManagerPB = require('./protos/appmanager_pb')
 const {
     auth
 } = require('../common/trust_util')
 const redis = require('./redis')
+const logger = require('../common/logger')
 
 const createNumber = async(call, callback) => {
     try {
@@ -16,7 +18,7 @@ const createNumber = async(call, callback) => {
        return
     }
 
-    // TODO: Need to validate this numbers
+    // TODO: Need request validation
 
     const number = call.request.getNumber()
     number.setCreateTime(new Date())
@@ -29,4 +31,26 @@ const createNumber = async(call, callback) => {
     callback(null, number)
 }
 
+const getIngressApp = async(call, callback) => {
+    try {
+        auth(call)
+    } catch(e) {
+       callback(new Error('UNAUTHENTICATED'), null)
+       return
+    }
+
+    // TODO: Need request validation
+    const e164number = call.request.getE164Number()
+    const appName = await redis.call('get',`extlink:${call.request.getE164Number()}`)
+
+    logger.log('debug', `@yaps/core getIngressApp [appName: ${appName}]`)
+
+    // TODO: throw error if appName is null
+    const appFromDB = await redis.call('get', appName)
+
+    const app = new AppManagerPB.App(JSON.parse(appFromDB).array)
+    callback(null, app)
+}
+
 module.exports.createNumber = createNumber
+module.exports.getIngressApp = getIngressApp

@@ -21,6 +21,7 @@ const {
 } = require('./appmanager_srv.js')
 const {
     createNumber,
+    getIngressApp
 } = require('./numbers_srv.js')
 const {
     uploadObject,
@@ -41,7 +42,7 @@ function main() {
         { uploadObject, getObjectURL })
 
     server.addService(NumbersClient.NumbersService,
-        { createNumber })
+        { createNumber, getIngressApp })
 
     let credentials = grpc.ServerCredentials.createInsecure()
 
