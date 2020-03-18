@@ -102,8 +102,8 @@ class Numbers extends AbstractService {
          * }).catch(e => console.error(e))   // an error occurred
          */
          this.createNumber = request => {
-             logger.log('verbose', `@yaps/numbers createNumber [request -> ${JSON.stringify(request)}]`)
-             logger.log('debug', '@yaps/numbers createNumber [validating number]')
+             logger.log('verbose', `@yaps/numbers createNumber [request: ${JSON.stringify(request)}]`)
+             logger.log('debug', `@yaps/numbers createNumber [validating number:  ${request.e164Number}]`)
 
              // TODO: Validate number
 
@@ -116,6 +116,36 @@ class Numbers extends AbstractService {
 
              return service.createNumber().sendMessage(req)
          }
+
+         /**
+          * Creates a new application.
+          *
+          * @async
+          * @function
+          * @param {Object} request - Request for app link to number
+          * @return {Promise<App>} - The app link to this number
+          * @example
+          *
+          * const request = {
+          *    e164Number: '+17853178070'
+          * }
+          *
+          * numbers.getIngressApp(request)
+          * .then(result => {
+          *    console.log(result)            // returns the app object
+          * }).catch(e => console.error(e))   // an error occurred
+          */
+          this.getIngressApp = request => {
+              logger.log('verbose', `@yaps/numbers getIngressApp [request: ${JSON.stringify(request)}]`)
+              logger.log('debug', `@yaps/numbers getIngressApp [validating number:  ${request.e164Number}]`)
+
+              // TODO: Validate number
+
+              const req = new NumbersPB.GetIngressAppRequest()
+              req.setE164Number(request.e164Number)
+
+              return service.getIngressApp().sendMessage(req)
+          }
     }
 
 }

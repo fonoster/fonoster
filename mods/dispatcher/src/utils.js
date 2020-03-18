@@ -4,19 +4,26 @@
  */
 const fs = require('fs')
 const { logger } = require('@yaps/core')
-const AppManager = require('@yaps/appmanager')
+const Numbers = require('@yaps/numbers')
 
 module.exports.getIngressInfo = extension => {
 
     try {
-        const appmanager = new AppManager()
-        //const appRef = appmanager.getExtLink(extension)
-        const appId = 'hello-monkeys'
+        const numbers = new Numbers()
 
-        logger.info(`@yaps/dispatcher getIngressInfo [apps dir: ${process.env.MC_APPS_DIR}]`)
-        logger.info(`@yaps/dispatcher getIngressInfo [appId: ${appId}]`)
+        // We check for a handler, and return default if it does not exist
+        let appName = 'default'
+        try {
+            const app = numbers.getIngressApp({e164Number: extension})
+            appName = app.getName()
+        } catch(e) {
+            logger.log('error', `@yaps/dispatcher getIngressInfo [could not find handler for ext '${extension}']`)
+        }
 
-        const packageBase =  `${process.env.MC_APPS_DIR}/${appId}`
+        logger.log('debug', `@yaps/dispatcher getIngressInfo [apps dir: ${process.env.MC_APPS_DIR}]`)
+        logger.log('debug', `@yaps/dispatcher getIngressInfo [appName: ${appName}]`)
+
+        const packageBase =  `${process.env.MC_APPS_DIR}/${appName}`
         const pathToEntryPoint = `${packageBase}/package.json`
         const pathToAppConfig =  `${packageBase}/yaps.json`
 
