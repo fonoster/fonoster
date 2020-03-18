@@ -4,7 +4,7 @@
  */
 const AppManagerClient = require('./protos/appmanager_grpc_pb')
 const StorageClient = require('./protos/storage_grpc_pb')
-const StoragePB = require('./protos/storage_pb')
+const NumbersClient = require('./protos/numbers_grpc_pb')
 const fs = require('fs')
 const path = require('path')
 const logger = require('../common/logger')
@@ -19,6 +19,9 @@ const {
     updateApp,
     deleteApp
 } = require('./appmanager_srv.js')
+const {
+    createNumber,
+} = require('./numbers_srv.js')
 const {
     uploadObject,
     getObjectURL
@@ -36,6 +39,9 @@ function main() {
 
     server.addService(StorageClient.StorageService,
         { uploadObject, getObjectURL })
+
+    server.addService(NumbersClient.NumbersService,
+        { createNumber })
 
     let credentials = grpc.ServerCredentials.createInsecure()
 

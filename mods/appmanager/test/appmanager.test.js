@@ -27,7 +27,7 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it.only('Get app', done => {
+    it('Get app', done => {
         appmanager.getApp('hello-monkeys')
         .then(app => {
             assert.ok(app.getName() === 'hello-monkeys')
@@ -65,7 +65,7 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it.only('Create app perfect case...', async() => {
+    it('Create app perfect case...', async() => {
         const request = {
             dirPath: __dirname + '/../etc/hello-monkeys',
             app: {
