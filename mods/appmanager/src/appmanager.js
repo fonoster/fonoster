@@ -173,7 +173,7 @@ class AppManager extends AbstractService {
          *    }
          * }
          *
-         * appmanager.creteApp(request)
+         * appmanager.createApp(request)
          * .then(result => {
          *    console.log(result)            // returns the app object
          * }).catch(e => console.error(e))   // an error occurred
