@@ -192,17 +192,12 @@ services:
           cat ~/yaps/credentials
           rm -rf /workdir
 
-          # Copying apps into minio fs
-          mkdir -p /fs/minio/apps
-          cp -a /apps/* /fs/minio/apps
-
           cd /
           ./run.sh
         '
     volumes:
       - data1-1:/fs
       - ./mods/etc/certs:/etc/certs:ro
-      - ./apps:/apps
     expose:
       - ${MC_AGI_PORT}
 
@@ -236,7 +231,7 @@ services:
     restart: always
     links:
       - logsaggregator
-    # TODO: Remove if possible      
+    # TODO: Remove if possible
     ports:
       - ${LOGS_MONITOR_PORT}:${LOGS_MONITOR_PORT}
     environment:
