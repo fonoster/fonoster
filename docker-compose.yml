@@ -118,7 +118,7 @@ services:
 
   apiserver:
     env_file: .env
-    image: ${APISERVER_IMAGE}
+    image: ${APISERVER_IMAGE}:${COMPOSE_PROJECT_VERSION}
     restart: always
     build:
       context: mods
@@ -173,9 +173,6 @@ services:
     restart: always
     environment:
       MC_AGI_PORT: ${MC_AGI_PORT}
-      MC_APP_BUCKET: default
-      MC_APP_ID: hello-monkeys
-      MC_APPS_DIR: /fs/minio/apps
       CERTS_PATH: /etc/certs
       ACCESS_KEY_ID: yaps
     build:

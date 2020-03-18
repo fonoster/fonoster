@@ -49,7 +49,7 @@ class MaryTTS extends AbstractTTS {
 
         logger.log('debug', `@yaps/tts.MaryTTS.synthesize [text: ${text}, options: ${JSON.stringify(options)}]`)
 
-        const tmpDirFromEnv = process.env.MC_TTS_TEMP_FOLDER
+        const tmpDirFromEnv = process.env.MC_TTS_TEMP_DIR
         const tmpDir = tmpDirFromEnv ? tmpDirFromEnv : __dirname
         const pathToFile = path.join(tmpDir, computeFilename(text, options))
         let complete
