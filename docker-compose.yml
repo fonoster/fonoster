@@ -131,8 +131,6 @@ services:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     volumes:
       - ./mods/etc/certs:/etc/certs:ro
-      - ./mods/core/src/common/utils.js:/mods/core/src/common/utils.js
-      - ./mods/core/src/server/redis.js:/mods/core/src/server/redis.js
     #logging:
     #    driver: fluentd
     #    options:
