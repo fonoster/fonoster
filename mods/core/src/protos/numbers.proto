@@ -1,0 +1,32 @@
+/**
+ * MIT License
+ * Copyright (c) 2020 Fonoster Inc
+ *
+ * The Numbers proto contains the artificats for numbers administration
+ */
+syntax = "proto3";
+
+package yaps.numbers.v1alpha1;
+
+import "appmanager.proto";
+
+service Numbers {
+  rpc CreateNumber (CreateNumberRequest) returns (Number) {};
+  rpc GetIngressApp (GetIngressAppRequest) returns (yaps.appmanager.v1alpha1.App) {};
+}
+
+message CreateNumberRequest {
+    Number number = 1;
+}
+
+message GetIngressAppRequest {
+  string e164_number = 1;
+}
+
+message Number {
+  string e164_number = 1;
+  string ingress_app = 2;
+  // TODO: Find a better way to store this information
+  string create_time = 3;
+  string update_time = 4;
+}

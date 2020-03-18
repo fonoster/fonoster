@@ -1,0 +1,31 @@
+{
+  "name": "@yaps/numbers",
+  "version": "0.1.0",
+  "description": "Numbers",
+  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "homepage": "https://github.com/fonoster/yaps#readme",
+  "license": "MIT",
+  "main": "src/numbers.js",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/yaps.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/yaps/issues"
+  },
+  "dependencies": {
+    "@yaps/core": "^0.1.0",
+    "dotenv": "^8.2.0",
+    "grpc-promise": "^1.4.0"
+  }
+}
