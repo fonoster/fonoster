@@ -5,19 +5,19 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 
 <br />
 
-<p align="center">
-<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png" align="center"> </img>
-</p>
-
-<br />
 
 <table>
 <tr>
 <td>
-:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/orgs/fonoster/projects">projects</a> section for development status.
+<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png" align="center"> </img>
 </td>
 </tr>
 </table>
+
+<br />
+
+:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/orgs/fonoster/projects">projects</a> section for development status.
+
 
 ## Getting started
 
