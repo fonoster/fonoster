@@ -1,3 +1,8 @@
+/**
+ * Another stupid module
+ * @module storage
+ */
+
 const fs = require('fs')
 const path = require('path')
 const { grpc } = require('@yaps/core')
@@ -12,7 +17,24 @@ const {
     getClientCredentials
 } = require('@yaps/core').trust_util
 
-
+/**
+ * @typicalname storage
+ * @alias module:storage
+ * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager,
+ * to create, manage, and deploy an application. The AppManager requires of a
+ * running YAPS platform.
+ *
+ * @extends AbstractService
+ * @example
+ *
+ * const YAPS = require('@yaps/sdk')
+ * const appmanager = new YAPS.AppManager()
+ *
+ * appmanager.listApps()
+ * .then(result => {
+ *    console.log(result)            // successful response
+ * }).catch(e => console.error(e))   // an error occurred
+ */
 class Storage extends AbstractService {
 
     constructor(options) {
@@ -128,7 +150,7 @@ class Storage extends AbstractService {
 
             return result
         }
-  
+
         this.getObjectURLSync = request => {
             const sleep = require('sync').sleep
             let result

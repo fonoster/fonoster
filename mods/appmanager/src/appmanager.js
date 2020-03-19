@@ -1,3 +1,8 @@
+/**
+ * A module for adding two values.
+ * @module appmanager
+ */
+
 const tar = require('tar')
 const fs = require('fs-extra')
 const path = require('path')
@@ -5,16 +10,15 @@ const { grpc } = require('@yaps/core')
 const { logger } = require('@yaps/core')
 const { Storage } = require('@yaps/storage')
 const { appmanagerValidator } = require('@yaps/core').validators
+const promisifyAll = require('grpc-promise').promisifyAll
 const {
     AbstractService,
     AppManagerService,
     AppManagerPB
 } = require('@yaps/core')
-const promisifyAll = require('grpc-promise').promisifyAll
 const {
     getClientCredentials
 } = require('@yaps/core').trust_util
-
 
 const STATUS = {
   UNKMNOWN: 0,
@@ -24,8 +28,8 @@ const STATUS = {
 }
 
 /**
- * @typicalname appmanager
- * @classdesc Use YAPS AppMAnager, a capability of YAPS Systems Manager,
+ * @alias module:appmanager
+ * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager,
  * to create, manage, and deploy an application. The AppManager requires of a
  * running YAPS platform.
  *
@@ -54,22 +58,11 @@ class AppManager extends AbstractService {
      * @property {map} labels - Metadata for this application.
      */
 
-    /**
-     * Use the Options object to overwrite the service default configuration.
-     *
-     * @typedef {Object} Options
-     * @property {string} endpoint - The endpoint URI to send requests to.
-     * The endpoint should be a string like '{serviceHost}:{servicePort}'.
-     * @property {string} accessKeyId - your YAPS access key ID.
-     * @property {string} accessKeySecret - your YAPS secret access key.
-     * @property {string} bucket - The bucket to upload apps and media files.
-     */
-
-    /**
-     * Constructs a service object.
-     *
-     * @param {Options} options - Overwrite for the service's defaults configuration.
-     */
+     /**
+      * Constructs a new AppManager Object
+      *
+      * @see module:core:AbstractService
+      */
     constructor(options) {
         super(options)
 
@@ -78,10 +71,6 @@ class AppManager extends AbstractService {
         metadata.add('access_key_secret', super.getOptions().accessKeySecret)
 
         const credentials = grpc.credentials.createInsecure()
-
-        //if(!process.env.ENABLE_INSECURE) {
-        //    credentials = getClientCredentials()
-        //}
 
         logger.log('info', `Connecting with API Server @ ${super.getOptions().endpoint}`)
 
@@ -92,22 +81,6 @@ class AppManager extends AbstractService {
 
         promisifyAll(service, {metadata})
 
-        /**
-         * List all applications in your YAPS system.
-         *
-         * @async
-         * @function
-         * @param {Object} request - Optional request
-         * @return {Promise<App[]>} apps - A collection of applications
-         * @example
-         *
-         * const request = { pageSize: 1, pageToken: 2, view: 'FULL'}
-         *
-         * appmanager.listApps(request)
-         * .then(result => {
-         *    console.log(result)            // successful response
-         * }).catch(e => console.error(e))   // an error occurred
-         */
         this.listApps = request => {
             logger.log('verbose', `@yaps/appmananger listApps [request -> ${JSON.stringify(request)}]`)
             const r = new AppManagerPB.ListAppsRequest()
@@ -122,7 +95,8 @@ class AppManager extends AbstractService {
          *
          * @async
          * @param {string} name - The app identifier
-         * @return {Promise<App>} app - The application
+         * @return {Promise<App>} The application
+         * @throws Will throw an error if the argument is null.
          * @example
          *
          * appmanager.getApp(name)
@@ -244,36 +218,8 @@ class AppManager extends AbstractService {
             }
         }
 
-        /**
-         * Updates a previously created application.
-         *
-         * @async
-         * @function
-         * @param {Object} request - Request for object update.
-         * @return {Promise<App>} - The application just updated.
-         * @example
-         *
-         * appmanager.updateApp(request)
-         * .then(result => {
-         *    console.log(result)            // returns the application object
-         * }).catch(e => console.error(e))   // an error occurred
-         */
         this.updateApp = request => service.updateApp().sendMessage(request)
 
-        /**
-         * Delete an application.
-         *
-         * @async
-         * @function
-         * @param {string} name - Unique reference to the application
-         * @return {Promise<void>} - The application just updated
-         * @example
-         *
-         * appmanager.deleteApp(name)
-         * .then(result => {
-         *    console.log(result)            // returns an empty result
-         * }).catch(e => console.error(e))   // an error occurred
-         */
         this.deleteApp = name => service.deleteApp().sendMessage({name})
     }
 

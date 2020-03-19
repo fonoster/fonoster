@@ -7,7 +7,7 @@ running YAPS platform.
 
 **Kind**: Exported class  
 **Extends**: <code>AbstractService</code>  
-**See**: AbstractService  
+**See**: module:core:AbstractService  
 * [AppManager](#exp_module_appmanager--AppManager) ⇐ <code>AbstractService</code> ⏏
     * [new AppManager()](#new_module_appmanager--AppManager_new)
     * _instance_
