@@ -49,19 +49,22 @@ module.exports = bucket => {
 
     fsConn = fsInstance()
 
-    fsConn.bucketExists(bucket, (err, exists) => {
-        if (err) throw err
+    return new Promise((resolve, reject) =>
+        fsConn.bucketExists(bucket, (err, exists) => {
+              if (err) reject(err)
 
-        if (!exists) {
-            logger.log('verbose', `@yaps/core fsutils [Creating storage bucket: ${bucket}]`)
-            fsConn.makeBucket(bucket, 'us-west-1', err => {
-                if (err) throw err
-                fsConn.setBucketPolicy(bucket, policy, err => {
-                   if (err) throw err
-                   logger.log('verbose', `@yaps/core fsutils [Bucket policy changed for bucket: ${bucket}]`)
-                })
-            })
-
+              if (!exists) {
+                  logger.log('verbose', `@yaps/core fsutils [Creating storage bucket: ${bucket}]`)
+                  fsConn.makeBucket(bucket, 'us-west-1', err => {
+                      if (err) reject(err)
+                      fsConn.setBucketPolicy(bucket, policy, err => {
+                         if (err) reject(err)
+                         logger.log('verbose', `@yaps/core fsutils [Bucket policy changed for bucket: ${bucket}]`)
+                         resolve()
+                      })
+                  })
+              }
+              resolve()
         }
-    })
+    ))
 }

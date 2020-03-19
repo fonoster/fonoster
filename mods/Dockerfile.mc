@@ -6,6 +6,7 @@ COPY etc/run-mc.sh /run.sh
 RUN apk add --update sox python git make g++; \
   cd /mods ; \
   npm install lerna -g; \
+  rm *\package-lock.json ; \
   lerna clean -y ; \
   lerna bootstrap ; \
   apk del python git make g++ ; \

@@ -1,0 +1,34 @@
+{
+  "name": "@yaps/ctl",
+  "version": "0.1.0",
+  "description": "Command-Line for YAPS",
+  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "homepage": "https://github.com/fonoster/yaps#readme",
+  "license": "MIT",
+  "main": "src/ctl.js",
+  "bin": {
+    "yctl": "./src/ctl.js"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/yaps.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/yaps/issues"
+  },
+  "dependencies": {
+    "@yaps/appmanager": "^0.1.0",
+    "@yaps/core": "^0.1.0",
+    "dotenv": "^8.2.0"
+  }
+}
