@@ -6,7 +6,7 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 
 
 
-<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png" width="1420"/>
+<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png" width="1000"/>
 
 <table>
 <tr>
