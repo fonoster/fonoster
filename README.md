@@ -3,10 +3,11 @@
 
 YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; the current roadmap is focus on Programmable Voice and Voice over Internet Protocol(VoIP) and PSTN communication.
 
+<br />
 
+<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png"> </img>
 
-
-<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png"/>
+<br />
 
 <table>
 <tr>
@@ -84,7 +85,7 @@ password `1234`. Calling extension `1002` will connect your test account to your
 
 YAPS' main features are:
 
-- Programmable voice
+- Programmable Voice
 - Available on Docker and Kubernetes environments
 - Typical SIP Server functions; Proxy, Registrar, Location Service
 - Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
