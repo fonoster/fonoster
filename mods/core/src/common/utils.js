@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const Minio = require('minio')
 //const inly = require('inly')
 const tar = require('tar')

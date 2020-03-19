@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const Redis = require('ioredis')
 
 // This should be a singleton

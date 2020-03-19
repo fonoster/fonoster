@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const assert = require('assert')
 const StoragePB = require('../src/server/protos/storage_pb')
 const {

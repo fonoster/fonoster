@@ -1,9 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- *
- * Used to simulate an Asterisk Channel
- */
 const CHANNEL_STATUS_AVAILABLE = 0 // Channel is down and available
 const CHANNEL_STATUS_UP = 6        // Line is up
 

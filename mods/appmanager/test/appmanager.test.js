@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const AppManager = require('../src/appmanager')
 const assert = require('assert')
 

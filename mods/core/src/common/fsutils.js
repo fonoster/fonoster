@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const { fsInstance } = require('./utils')
 const logger = require('./logger')
 

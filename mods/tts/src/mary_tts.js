@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const AbstractTTS = require('./abstract_tts')
 const http = require('http')
 const fs = require('fs')
@@ -36,14 +32,6 @@ class MaryTTS extends AbstractTTS {
         logger.log('verbose', `@yaps/tts.MaryTTS.constructor [serviceUrl: ${this.serviceUrl}]`)
     }
 
-    /**
-     * Use options to change the voice and other basic parameters.
-     *
-     * options {
-     *    voice: peter
-     *    locale: language
-     * }
-     */
     synthesize(text, options) {
         options = options || {}
 

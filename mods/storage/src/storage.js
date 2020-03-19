@@ -1,8 +1,3 @@
-/**
- * @author Pedro Sanders
- * @module @yaps/storage
- * @since v1
- */
 const fs = require('fs')
 const path = require('path')
 const { grpc } = require('@yaps/core')
@@ -17,45 +12,9 @@ const {
     getClientCredentials
 } = require('@yaps/core').trust_util
 
-/**
- * @alias module:@yaps/storage.Storage
- * @typicalname storage
- * @classdesc Use YAPS Storage, a capability of YAPS Systems Storage,
- * to create, manage, and deploy an buckets and to upload and download files
- * to your buckets.
- *
- * @extends AbstractService
- * @example
- *
- * ```Basic example```
- *
- * const YAPS = require('@yaps/sdk')
- * const storage = new YAPS.Storage()
- *
- * const request = {
- *    filename: 'path/to/your/file',
- *    bucket: 'bucket-name'
- * }
- *
- * storage.uploadObject(request)
- * .then(result => {
- *    console.log(result)            // successful response
- * }).catch(e => console.error(e))   // an error occurred
- */
+
 class Storage extends AbstractService {
 
-    /**
-     * Upload Object Response
-     *
-     * @typedef {Object} UploadObjectResponse
-     * @property {number} size - Size of uploaded file in bytes.
-     */
-
-    /**
-     * Constructs a service object.
-     *
-     * @param {Options} options - Overwrite for the service's defaults configuration
-     */
     constructor(options) {
         super(options)
 
@@ -72,29 +31,6 @@ class Storage extends AbstractService {
         const service = new StorageService
             .StorageClient(super.getOptions().endpoint, credentials)
 
-        /**
-         * Uploads object to a YAPS bucket.
-         *
-         * @async
-         * @function
-         * @param {Object} request - Object upload request.
-         * @return {Promise<UploadObjectResponse>} - The response.
-         * @example
-         *
-         * const YAPS = require('@yaps/sdk')
-         * const storage = new YAPS.Storage()
-         *
-         * const request = {
-         *    filename: 'path/to/your/file',
-         *    bucket: 'bucket-name',
-         *    metadata: { 'Content-Type': 'audio/x-wav' }
-         * }
-         *
-         * storage.uploadObject(request)
-         * .then(result => {
-         *    console.log(result)            // successful response
-         * }).catch(e => console.error(e))   // an error occurred
-         */
         this.uploadObject = request => new Promise((resolve, reject) => {
             logger.log('verbose', `@yaps/storage uploadObject [request -> ${JSON.stringify(request)}]`)
 
@@ -158,28 +94,6 @@ class Storage extends AbstractService {
             })
         }).catch(e => { throw e })
 
-        /**
-         * Get the URL for a given object and bucket.
-         *
-         * @async
-         * @function
-         * @param {Object} request - Request to retrive object.
-         * @return {Promise<UploadObjectResponse>} - The response.
-         * @example
-         *
-         * const YAPS = require('@yaps/sdk')
-         * const storage = new YAPS.Storage()
-         *
-         * const request = {
-         *    name: 'object-name',
-         *    bucket: 'bucket-name'
-         * }
-         *
-         * storage.getObjectURL(request)
-         * .then(result => {
-         *    console.log(result)            // successful response
-         * }).catch(e => console.error(e))   // an error occurred
-         */
         this.getObjectURL = request => new Promise((resolve, reject) => {
             logger.log('verbose', `@yaps/storage getObjectURL [name: ${request.name}]`)
             logger.log('debug', `@yaps/storage getObjectURL [bucket: ${request.bucket}]`)
@@ -199,26 +113,6 @@ class Storage extends AbstractService {
             })
         }).catch(e => { throw e })
 
-        /**
-         * Upload object synchronously.
-         *
-         * @private
-         * @function
-         * @param {Object} request - Object upload request
-         * @return {UploadObjectResponse} - The response
-         * @example
-         *
-         * const YAPS = require('@yaps/sdk')
-         * const storage = new YAPS.Storage()
-         *
-         * const request = {
-         *    filename: 'path/to/your/file',
-         *    bucket: 'bucket-name',
-         *    metadata: { 'Content-Type': 'audio/x-wav' }
-         * }
-         *
-         * const result = storage.uploadObjectSync(request)
-         */
         this.uploadObjectSync = request => {
             const sleep = require('sync').sleep
             let result
@@ -234,27 +128,7 @@ class Storage extends AbstractService {
 
             return result
         }
-
-        /**
-         * Get the URL for a given object and bucket synchronously
-         *
-         * @private
-         * @function
-         * @param {Object} request - Object upload request
-         * @return {UploadObjectResponse} - The response
-         * @example
-         *
-         * const YAPS = require('@yaps/sdk')
-         * const storage = new YAPS.Storage()
-         *
-         * const request = {
-         *    filename: 'path/to/your/file',
-         *    bucket: 'bucket-name',
-         *    metadata: { 'Content-Type': 'audio/x-wav' }
-         * }
-         *
-         * const result = storage.getObjectURLSync(request)
-         */
+  
         this.getObjectURLSync = request => {
             const sleep = require('sync').sleep
             let result

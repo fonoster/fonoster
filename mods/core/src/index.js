@@ -1,9 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
-
-/** @ignore */
 // Services
 module.exports.AbstractService = require('./common/abstract_service')
 module.exports.AppManagerService = require("./server/protos/appmanager_grpc_pb")

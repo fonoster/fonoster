@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const flat = require('flat')
 const crypto = require('crypto')
 

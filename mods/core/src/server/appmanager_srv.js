@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const AppManagerPB = require('./protos/appmanager_pb')
 const {
     auth

@@ -1,9 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- *
- * Unit Test for the "Yaps Wrapper Channel"
- */
 const MockChannel = require('./mock_channel')
 const MaryTTS = require('@yaps/tts').MaryTTS
 const Storage = require('@yaps/storage')

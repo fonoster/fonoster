@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const AppManager = require('@yaps/appmanager')
 const { logger, updateBucketPolicy } = require('@yaps/core')
 

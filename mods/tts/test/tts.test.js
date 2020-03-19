@@ -1,9 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- *
- * Unit Test for the "Abstract TTs Class"
- */
 const AbstractTTS = require('../src/abstract_tts')
 const MaryTTS = require('../src/mary_tts')
 const assert = require('assert')

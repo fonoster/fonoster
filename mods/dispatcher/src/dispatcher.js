@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const { Storage }= require('@yaps/storage')
 const { AGIServer } = require('agi-node')
 const { MaryTTS } = require('@yaps/tts')

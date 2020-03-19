@@ -2,7 +2,7 @@
  * MIT License
  * Copyright (c) 2020 Fonoster Inc
  *
- * This proto stores common messages for the yaps plattform.
+ * This proto stores common messages for the yaps platform.
  */
 syntax = "proto3";
 

@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const Numbers = require('../src/numbers')
 const assert = require('assert')
 

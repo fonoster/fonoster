@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 class AbstractTTS {
 
     constructor(name) {

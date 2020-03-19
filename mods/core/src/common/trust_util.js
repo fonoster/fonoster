@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const grpc = require('grpc')
 const fs = require('fs')
 const path = require('path')

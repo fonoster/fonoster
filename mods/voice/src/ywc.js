@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const path = require('path')
 const objectid = require('objectid')
 const { logger } = require('@yaps/core')

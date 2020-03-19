@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const AppManagerClient = require('./protos/appmanager_grpc_pb')
 const StorageClient = require('./protos/storage_grpc_pb')
 const NumbersClient = require('./protos/numbers_grpc_pb')

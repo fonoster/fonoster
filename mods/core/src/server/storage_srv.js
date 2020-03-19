@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const StoragePB = require('./protos/storage_pb')
 const grpc = require('grpc')
 const objectid = require('objectid')

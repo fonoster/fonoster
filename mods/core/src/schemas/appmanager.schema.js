@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const Schema = require('validate')
 
 const createAppRequest = new Schema({

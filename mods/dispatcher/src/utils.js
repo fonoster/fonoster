@@ -1,7 +1,3 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const fs = require('fs')
 const { logger } = require('@yaps/core')
 const Numbers = require('@yaps/numbers')

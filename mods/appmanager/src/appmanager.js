@@ -1,8 +1,3 @@
-/**
- * @author Pedro Sanders
- * @module @yaps/appmanager
- * @since v1
- */
 const tar = require('tar')
 const fs = require('fs-extra')
 const path = require('path')
@@ -20,19 +15,7 @@ const {
     getClientCredentials
 } = require('@yaps/core').trust_util
 
-/**
- * An app will be in one of the following status at any given time.
- *
- * @typedef {enum} App.Status
- * @property {number} status - Status of the application
- * @example
- *
- * Possible values:
- *    'UNKNOWN'
- *    'CREATING'
- *    'RUNNING'
- *    'STOPPED'
- */
+
 const STATUS = {
   UNKMNOWN: 0,
   CREATING: 1,
@@ -41,16 +24,13 @@ const STATUS = {
 }
 
 /**
- * @alias module:@yaps/appmanager.AppManager
  * @typicalname appmanager
  * @classdesc Use YAPS AppMAnager, a capability of YAPS Systems Manager,
  * to create, manage, and deploy an application. The AppManager requires of a
- * running YAPS plattform.
+ * running YAPS platform.
  *
  * @extends AbstractService
  * @example
- *
- * ```Basic example```
  *
  * const YAPS = require('@yaps/sdk')
  * const appmanager = new YAPS.AppManager()
