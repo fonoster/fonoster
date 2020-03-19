@@ -4,20 +4,16 @@
 YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; the current roadmap is focus on Programmable Voice and Voice over Internet Protocol(VoIP) and PSTN communication.
 
 <br />
-
+<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png"></img>
+<br />
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0" bgcolor=green>
 <tr border="0">
 <td border="0">
-<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png" align="center"> </img>
+:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/orgs/fonoster/projects">projects</a> section for development status.
 </td>
 </tr>
 </table>
-
-<br />
-
-:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/orgs/fonoster/projects">projects</a> section for development status.
-
 
 ## Getting started
 
