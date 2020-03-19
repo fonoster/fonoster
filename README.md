@@ -85,7 +85,7 @@ password `1234`. Calling extension `1002` will connect your test account to your
 
 YAPS' main features are:
 
-- Programmable voice
+- Programmable Voice
 - Available on Docker and Kubernetes environments
 - Typical SIP Server functions; Proxy, Registrar, Location Service
 - Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
