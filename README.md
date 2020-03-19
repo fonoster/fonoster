@@ -67,6 +67,7 @@ lerna bootstrap
 ### Deploying your App
 
 ```
+cd yaps/mods/ctl
 node src/ctl.js 'path/to/app/
 ```
 
