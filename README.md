@@ -33,7 +33,7 @@ YAPS deploys in various environments such as Docker Compose, Docker Swarm, and K
 You must have docker and docker-compose on your system to run this platform
 <br /><br />
 
-&#10122; Run using docker-compose
+Run using docker-compose
 
 ```bash
 git clone https://github.com/fonoster/yaps
@@ -41,9 +41,6 @@ cd yaps
 docker-compose up
 ```
 
-&#10123; Configure your endpoints
-
-Use the information located on `bootstrap.yml` to configure your sip-phones.
 </details>
 
 <details><summary><b>Docker Swarm</b></summary>
