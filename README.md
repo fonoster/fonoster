@@ -3,10 +3,11 @@
 
 YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; the current roadmap is focus on Programmable Voice and Voice over Internet Protocol(VoIP) and PSTN communication.
 
+<br />
 
+<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png"> </img>
 
-
-<img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png"/>
+<br />
 
 <table>
 <tr>
