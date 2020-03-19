@@ -15,8 +15,8 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 
 ## Getting started
 
-YAPS a composite of several microservices. To getting started with YAPS you are going to need Docker and Docker Compose.
-Other options will soon be available for deployment, scubas as Docker Swarm and K8s. 
+YAPS a composite of several microservices. To get started with YAPS you are going to need Docker and Docker Compose.
+Other deployment options will soon be available. 
 
 ### Requirements
 
