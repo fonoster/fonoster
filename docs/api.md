@@ -4,7 +4,7 @@
 <dt><a href="#AppManager">AppManager</a> ⇐ <code>AbstractService</code></dt>
 <dd><p>Use YAPS AppMAnager, a capability of YAPS Systems Manager,
 to create, manage, and deploy an application. The AppManager requires of a
-running YAPS platform.</p>
+running YAPS platform..</p>
 </dd>
 </dl>
 
@@ -31,11 +31,8 @@ running YAPS platform.
 
 * [AppManager](#AppManager) ⇐ <code>AbstractService</code>
     * [new AppManager(options)](#new_AppManager_new)
-    * [.listApps(request)](#AppManager+listApps) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
     * [.getApp(name)](#AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.createApp(request)](#AppManager+createApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-    * [.updateApp(request)](#AppManager+updateApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-    * [.deleteApp(name)](#AppManager+deleteApp) ⇒ <code>Promise.&lt;void&gt;</code>
 
 <a name="new_AppManager_new"></a>
 
@@ -48,32 +45,11 @@ Constructs a service object.
 | options | [<code>Options</code>](#Options) | Overwrite for the service's defaults configuration. |
 
 **Example**  
-```Basic example```
-
+```js
 const YAPS = require('@yaps/sdk')
 const appmanager = new YAPS.AppManager()
 
 appmanager.listApps()
-.then(result => {
-   console.log(result)            // successful response
-}).catch(e => console.error(e))   // an error occurred
-<a name="AppManager+listApps"></a>
-
-### appmanager.listApps(request) ⇒ <code>Promise.&lt;Array.&lt;App&gt;&gt;</code>
-List all applications in your YAPS system.
-
-**Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: <code>Promise.&lt;Array.&lt;App&gt;&gt;</code> - apps - A collection of applications  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| request | <code>Object</code> | Optional request |
-
-**Example**  
-```js
-const request = { pageSize: 1, pageToken: 2, view: 'FULL'}
-
-appmanager.listApps(request)
 .then(result => {
    console.log(result)            // successful response
 }).catch(e => console.error(e))   // an error occurred
@@ -129,44 +105,6 @@ appmanager.createApp(request)
    console.log(result)            // returns the app object
 }).catch(e => console.error(e))   // an error occurred
 ```
-<a name="AppManager+updateApp"></a>
-
-### appmanager.updateApp(request) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-Updates a previously created application.
-
-**Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - - The application just updated.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| request | <code>Object</code> | Request for object update. |
-
-**Example**  
-```js
-appmanager.updateApp(request)
-.then(result => {
-   console.log(result)            // returns the application object
-}).catch(e => console.error(e))   // an error occurred
-```
-<a name="AppManager+deleteApp"></a>
-
-### appmanager.deleteApp(name) ⇒ <code>Promise.&lt;void&gt;</code>
-Delete an application.
-
-**Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: <code>Promise.&lt;void&gt;</code> - - The application just updated  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | Unique reference to the application |
-
-**Example**  
-```js
-appmanager.deleteApp(name)
-.then(result => {
-   console.log(result)            // returns an empty result
-}).catch(e => console.error(e))   // an error occurred
-```
 <a name="App"></a>
 
 ## App : <code>Object</code>
@@ -198,4 +136,3 @@ Use the Options object to overwrite the service default configuration.
 | accessKeyId | <code>string</code> | your YAPS access key ID. |
 | accessKeySecret | <code>string</code> | your YAPS secret access key. |
 | bucket | <code>string</code> | The bucket to upload apps and media files. |
-
