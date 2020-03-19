@@ -13,7 +13,18 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 </tr>
 </table>
 
-## Deployment
+## Getting started
+
+YAPS a composite of several microservices. To getting started with YAPS you are going to need Docker and Docker Compose.
+Other options will soon be available for deployment, scubas as Docker Swarm and K8s. 
+
+### Requirements
+
+- Docker Compose, Docker Swarm, or K8s
+- Node and NPM
+- Git (optional)
+
+### Running the System
 
 YAPS deploys in various environments such as Docker Compose, Docker Swarm, and K8s. Click bellow for deployment details:
 
@@ -25,6 +36,8 @@ You must have docker and docker-compose on your system to run this platform
 &#10122; Run using docker-compose
 
 ```bash
+git clone https://github.com/fonoster/yaps
+cd yaps
 docker-compose up
 ```
 
@@ -45,6 +58,26 @@ Comming soon...
 
 </details>
 
+### Installing the Command-Line Tool
+
+```
+git clone https://github.com/fonoster/yaps # If not done already
+cd yaps/mods
+npm i lerna -g 
+lerna bootstrap
+```
+
+### Deploying your App
+
+```
+node src/ctl.js 'path/to/app/
+```
+
+### Testing
+
+To interact with your application, point a softphone to your Asterisk sub-system. 
+Asterisk will be listening for SIP traffic on port `6060`. The test account is `1001` with
+password `1234`. Calling extension `1002` will connect your test account to your application.
 
 ## Features
 
