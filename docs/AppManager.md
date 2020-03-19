@@ -41,7 +41,11 @@ appmanager.listApps()
 Retrives a single application by its reference.
 
 **Kind**: instance method of [<code>AppManager</code>](#exp_module_appmanager--AppManager)  
-**Returns**: <code>Promise.&lt;App&gt;</code> - app - The application  
+**Returns**: <code>Promise.&lt;App&gt;</code> - - The application  
+**Throws**:
+
+- Will throw an error if the argument is null.
+
 
 | Param | Type | Description |
 | --- | --- | --- |
