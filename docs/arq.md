@@ -1,3 +1,0 @@
-# YAPS Architecture
-
-Comming soon

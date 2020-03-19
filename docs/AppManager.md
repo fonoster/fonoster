@@ -7,8 +7,9 @@ running YAPS platform.
 
 **Kind**: Exported class  
 **Extends**: <code>AbstractService</code>  
+**See**: AbstractService  
 * [AppManager](#exp_module_appmanager--AppManager) ⇐ <code>AbstractService</code> ⏏
-    * [new AppManager(options)](#new_module_appmanager--AppManager_new)
+    * [new AppManager()](#new_module_appmanager--AppManager_new)
     * _instance_
         * [.getApp(name)](#module_appmanager--AppManager+getApp) ⇒ <code>Promise.&lt;App&gt;</code>
         * [.createApp(request)](#module_appmanager--AppManager+createApp) ⇒ <code>Promise.&lt;App&gt;</code>
@@ -17,13 +18,8 @@ running YAPS platform.
 
 <a name="new_module_appmanager--AppManager_new"></a>
 
-### new AppManager(options)
-Constructs a service object.
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>Options</code> | Overwrite for the service's defaults configuration. |
+### new AppManager()
+Constructs a new AppManager Object
 
 **Example**  
 ```js
@@ -37,11 +33,11 @@ appmanager.listApps()
 ```
 <a name="module_appmanager--AppManager+getApp"></a>
 
-### appmanager.getApp(name) ⇒ <code>Promise.&lt;App&gt;</code>
+### appManager.getApp(name) ⇒ <code>Promise.&lt;App&gt;</code>
 Retrives a single application by its reference.
 
 **Kind**: instance method of [<code>AppManager</code>](#exp_module_appmanager--AppManager)  
-**Returns**: <code>Promise.&lt;App&gt;</code> - - The application  
+**Returns**: <code>Promise.&lt;App&gt;</code> - The application  
 **Throws**:
 
 - Will throw an error if the argument is null.
@@ -60,7 +56,7 @@ appmanager.getApp(name)
 ```
 <a name="module_appmanager--AppManager+createApp"></a>
 
-### appmanager.createApp(request) ⇒ <code>Promise.&lt;App&gt;</code>
+### appManager.createApp(request) ⇒ <code>Promise.&lt;App&gt;</code>
 Creates a new application.
 
 **Kind**: instance method of [<code>AppManager</code>](#exp_module_appmanager--AppManager)  
