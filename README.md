@@ -6,9 +6,9 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 <br />
 
 
-<table>
-<tr>
-<td style="padding: 0">
+<table border="0" width="100%" cellpadding="0" cellspacing="0" bgcolor=green>
+<tr border="0">
+<td border="0">
 <img src="https://raw.githubusercontent.com/fonoster/yaps/master/docs/assets/banner_yaps.png" align="center"> </img>
 </td>
 </tr>
