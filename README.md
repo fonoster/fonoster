@@ -71,7 +71,7 @@ lerna bootstrap
 
 ```
 cd yaps/mods/ctl
-node src/ctl.js 'path/to/app/
+node src/ctl.js 'path/to/app/'
 ```
 
 ### Testing
