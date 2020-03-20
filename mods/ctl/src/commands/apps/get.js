@@ -1,3 +1,4 @@
+require('../../config')
 const AppManager = require('@yaps/appmanager')
 const {CLIError} = require('@oclif/errors')
 const {Command, flags} = require('@oclif/command')
@@ -12,6 +13,7 @@ class GetCommand extends Command {
     const name =  args.name
 
     try{
+      cli.action.start(`Getting application ${name}`)
       const app = await appmanager.getApp(name)
 
       const appJson = {
@@ -21,6 +23,8 @@ class GetCommand extends Command {
         "Last Update": app.getUpdateTime()
       }
 
+      await cli.wait(1000)
+      cli.action.stop('')
       console.log(prettyjson.render(appJson, {noColor: true}))
     } catch(e) {
       throw new CLIError(e.message)

@@ -1,4 +1,5 @@
 const AppManagerPB = require('./protos/appmanager_pb')
+const CommonPB = require('./protos/common_pb')
 const {
     auth
 } = require('../common/trust_util')
@@ -6,7 +7,7 @@ const redis = require('./redis')
 const objectid = require('objectid')
 const appmanager = require('../schemas/appmanager.schema')
 
-const listApps = (call, callback) => {
+const listApps = async(call, callback) => {
     try {
        auth(call)
     } catch(e) {
@@ -25,7 +26,7 @@ const listApps = (call, callback) => {
     callback(null, response)
 }
 
-const getApp = (call, callback) => {
+const getApp = async(call, callback) => {
     try {
         auth(call)
     } catch(err) {
@@ -33,15 +34,15 @@ const getApp = (call, callback) => {
         return
     }
 
-    redis.call('get', call.request.getName())
-    .then(result => {
-        if (!result) {
-          throw new Error(`App ${call.request.getName()} does not exist`)
-        }
-        const app = new AppManagerPB.App(JSON.parse(result).array)
-        callback(null, app)
-    })
-    .catch(err => callback(new Error(err.message)))
+    const result = await redis.call('get', call.request.getName())
+
+    if (!result) {
+        callback(new Error(`App ${call.request.getName()} does not exist`))
+        return
+    }
+
+    const app = new AppManagerPB.App(JSON.parse(result).array)
+    callback(null, app)
 }
 
 const createApp = async(call, callback) => {
@@ -71,12 +72,12 @@ const createApp = async(call, callback) => {
     app.setUpdateTime(new Date())
 
     await redis.call('sadd', 'apps', app.getName())
-    // This feels very hacky
+    // This feels very hacky but it works for now
     await redis.call('set', app.getName(), `${JSON.stringify(app)}`)
     callback(null, app)
 }
 
-const updateApp = (call, callback) => {
+const updateApp = async(call, callback) => {
     try {
         auth(call)
     } catch(e) {
@@ -89,17 +90,27 @@ const updateApp = (call, callback) => {
     callback(null, call.request.app)
 }
 
-const deleteApp = (call, callback) => {
-    try {
-        auth(call)
-    } catch(e) {
-       callback(new Error('UNAUTHENTICATED'), null)
-       return
-    }
-    console.log(`deleting app: ${JSON.stringify(call.request)}`)
-    // -- Operate here
-    // ---
-    callback(null, call.request.app)
+const deleteApp = async(call, callback) => {
+  try {
+      auth(call)
+  } catch(err) {
+      callback(new Error('UNAUTHENTICATED'), null)
+      return
+  }
+
+  const result = await redis.call('get', call.request.getName())
+
+  if (!result) {
+      callback(new Error(`App ${call.request.getName()} does not exist`))
+      return
+  }
+
+  await redis.call('srem', 'apps', call.request.getName())
+  await redis.call('del', call.request.getName())
+
+  // TODO: We should also remove the extlink if it exist
+
+  callback(null, new CommonPB.Empty())
 }
 
 module.exports.listApps = listApps

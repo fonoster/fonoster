@@ -57,7 +57,7 @@ class AppManager extends AbstractService {
      */
 
      /**
-      * Constructs a new AppManager Object
+      * Constructs a new AppManager Object.
       *
       * @see module:core:AbstractService
       */
@@ -91,7 +91,8 @@ class AppManager extends AbstractService {
     }
 
     /**
-     * Deploys an application to YAPS
+     * Deploys an application to YAPS.
+     *
      * @param {string} path - path to the application
      * @return {Promise<App>} The application just created
      * @throws if path to application does not exist or is not a directory
@@ -213,6 +214,25 @@ class AppManager extends AbstractService {
         const request = new AppManagerPB.GetAppRequest()
         request.setName(name)
         return this.service.getApp().sendMessage(request)
+    }
+
+    /**
+     * Deletes an app already registered in YAPS.
+     *
+     * @param {string} name - The name of the application
+     * @return {Promise<App>} The application to be remove
+     * @throws if name is null or application does not exist
+     * @example
+     *
+     * appManager.deleteApp(name)
+     * .then(() => {
+     *   console.log(result)            // returns an empty object
+     * }).catch(e => console.error(e))  // an error occurred
+     */
+    async deleteApp(name) {
+        const request = new AppManagerPB.DeleteAppRequest()
+        request.setName(name)
+        return this.service.deleteApp().sendMessage(request)
     }
 
     static get STATES() {

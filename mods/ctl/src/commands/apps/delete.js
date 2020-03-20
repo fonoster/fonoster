@@ -1,24 +1,36 @@
-const {Command, flags} = require('@oclif/command')
-const { cli } = require('cli-ux')
+require('../../config')
+const AppManager = require('@yaps/appmanager')
+const {CLIError} = require('@oclif/errors')
+const {Command} = require('@oclif/command')
+const {cli} = require('cli-ux')
+const APPS_BUCKET = 'apps'
+const appmanager = new AppManager({bucket: APPS_BUCKET})
 
-class InitCommand extends Command {
+class DeleteCommand extends Command {
   async run() {
-    const name = await cli.prompt('What is your name?')
-    console.log('name: ' + name)
+    const {args} = this.parse(DeleteCommand)
+    const name =  args.name
+
+    try{
+      cli.action.start(`Deleting application ${name}`)
+      await appmanager.deleteApp(name)
+      await cli.wait(1000)
+      cli.action.stop('done')
+    } catch(e) {
+      throw new CLIError(e.message)
+    }
   }
 }
 
-InitCommand.description = `deletes an existing voice application
+DeleteCommand.description = `get information about an existing application
 ...
-Extra documentation goes here
+Obtain information about an application
 `
 
-InitCommand.flags = {
-  file: flags.string({char: 'f', description: 'path to project'}),
-}
-
-InitCommand.args = [
-  {name: 'file_path'}
+DeleteCommand.args = [
+  {name: 'name'}
 ]
 
-module.exports = InitCommand
+DeleteCommand.aliases = ['apps:del', 'apps:rm']
+
+module.exports = DeleteCommand

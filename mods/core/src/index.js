@@ -8,6 +8,7 @@ module.exports.NumbersService = require("./server/protos/numbers_grpc_pb")
 module.exports.AppManagerPB = require("./server/protos/appmanager_pb")
 module.exports.StoragePB = require("./server/protos/storage_pb")
 module.exports.NumbersPB = require("./server/protos/numbers_pb")
+module.exports.CommonPB = require("./server/protos/common_pb")
 
 // Misc
 module.exports.trust_util = require('./common/trust_util')

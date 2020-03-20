@@ -21,7 +21,7 @@ class DeployCommand extends Command {
       cli.action.start('Deploying application')
       const app = await appmanager.deployApp(process.cwd())
 
-      await cli.wait(2000)
+      await cli.wait(1000)
       cli.action.stop('')
 
       const appJson = {
