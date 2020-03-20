@@ -11,8 +11,8 @@ running YAPS platform.
 
 * [AppManager](#AppManager) ⇐ <code>AbstractService</code>
     * [new AppManager()](#new_AppManager_new)
-    * [.getApp(name)](#AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.deployApp(path)](#AppManager+deployApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+    * [.getApp(name)](#AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
 
 <a name="new_AppManager_new"></a>
 
@@ -29,40 +29,23 @@ appManager.deployApp('/path/to/app')
   console.log(result)            // successful response
 }).catch(e => console.error(e))   // an error occurred
 ```
-<a name="AppManager+getApp"></a>
-
-### appManager.getApp(name) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-Retrives a single application by its reference.
-
-**Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application  
-**Throws**:
-
-- Will throw an error if the argument is null.
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| name | <code>string</code> | The app identifier |
-
-**Example**  
-```js
-appManager.getApp(name)
-.then(result => {
-  console.log(result)            // returns the app object
-}).catch(e => console.error(e))   // an error occurred
-```
 <a name="AppManager+deployApp"></a>
 
 ### appManager.deployApp(path) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
 Deploys an application to YAPS
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application just created.  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application just created  
+**Throws**:
+
+- if path to application does not exist or is not a directory
+- the file package.json does not exist inside de application path
+- the file package.json is missing the name or description
+
 **Todo**
 
 - [ ] if the file uploading fails the state of the application should
-change to UNKNOWN
+change to UNKNOWN.
 
 
 | Param | Type | Description |
@@ -71,7 +54,32 @@ change to UNKNOWN
 
 **Example**  
 ```js
-appManager.deployApp('/path/to/project')
+const path = '/path/to/project'
+
+appManager.deployApp(path)
+.then(result => {
+  console.log(result)            // returns the app object
+}).catch(e => console.error(e))   // an error occurred
+```
+<a name="AppManager+getApp"></a>
+
+### appManager.getApp(name) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+Retrives an application by name.
+
+**Kind**: instance method of [<code>AppManager</code>](#AppManager)  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application  
+**Throws**:
+
+- if name is null or application does not exist
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | The name of the application |
+
+**Example**  
+```js
+appManager.getApp(name)
 .then(result => {
   console.log(result)            // returns the app object
 }).catch(e => console.error(e))   // an error occurred

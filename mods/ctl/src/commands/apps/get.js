@@ -1,24 +1,40 @@
+const AppManager = require('@yaps/appmanager')
+const {CLIError} = require('@oclif/errors')
 const {Command, flags} = require('@oclif/command')
 const { cli } = require('cli-ux')
+const prettyjson = require('prettyjson')
+const APPS_BUCKET = 'apps'
+const appmanager = new AppManager({bucket: APPS_BUCKET})
 
-class InitCommand extends Command {
+class GetCommand extends Command {
   async run() {
-    const name = await cli.prompt('What is your name?')
-    console.log('name: ' + name)
+    const {args} = this.parse(GetCommand)
+    const name =  args.name
+
+    try{
+      const app = await appmanager.getApp(name)
+
+      const appJson = {
+        Name: app.getName(),
+        Description: app.getDescription(),
+        Create: app.getCreateTime(),
+        "Last Update": app.getUpdateTime()
+      }
+
+      console.log(prettyjson.render(appJson, {noColor: true}))
+    } catch(e) {
+      throw new CLIError(e.message)
+    }
   }
 }
 
-InitCommand.description = `get detail about an existing application
+GetCommand.description = `get information about an existing application
 ...
-Extra documentation goes here
+Obtain information about an application
 `
 
-InitCommand.flags = {
-  file: flags.string({char: 'f', description: 'path to project'}),
-}
-
-InitCommand.args = [
-  {name: 'file_path'}
+GetCommand.args = [
+  {name: 'name'}
 ]
 
-module.exports = InitCommand
+module.exports = GetCommand

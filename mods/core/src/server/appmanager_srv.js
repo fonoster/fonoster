@@ -28,17 +28,20 @@ const listApps = (call, callback) => {
 const getApp = (call, callback) => {
     try {
         auth(call)
-    } catch(e) {
+    } catch(err) {
         callback(new Error('UNAUTHENTICATED'), null)
         return
     }
 
     redis.call('get', call.request.getName())
     .then(result => {
+        if (!result) {
+          throw new Error(`App ${call.request.getName()} does not exist`)
+        }
         const app = new AppManagerPB.App(JSON.parse(result).array)
         callback(null, app)
     })
-    .catch(e => callback(new Error(e)))
+    .catch(err => callback(new Error(err.message)))
 }
 
 const createApp = async(call, callback) => {

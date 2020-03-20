@@ -27,10 +27,10 @@ class DeployCommand extends Command {
       const appJson = {
         Name: app.getName(),
         Description: app.getDescription(),
-        // createTime: app.getCreateTime()
+        Create: app.getCreateTime()
       }
 
-      console.log('\n' + prettyjson.render(appJson, {noColor: true}) + '\n')
+      console.log(prettyjson.render(appJson, {noColor: true}))
     } catch(e) {
       throw new CLIError(e.message)
     }

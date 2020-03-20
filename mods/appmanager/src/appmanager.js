@@ -88,34 +88,15 @@ class AppManager extends AbstractService {
             r.setView(request.view)
             return service.listApps().sendMessage(r)
         }
-
-        /**
-         * Retrives a single application by its reference.
-         *
-         * @async
-         * @param {string} name - The app identifier
-         * @return {Promise<App>} The application
-         * @throws Will throw an error if the argument is null.
-         * @example
-         *
-         * appManager.getApp(name)
-         * .then(result => {
-         *   console.log(result)            // returns the app object
-         * }).catch(e => console.error(e))   // an error occurred
-         */
-        this.getApp = name => {
-            const request = new AppManagerPB.GetAppRequest()
-            request.setName(name)
-            return service.getApp().sendMessage(request)
-        }
-
-        this.deleteApp = name => service.deleteApp().sendMessage({name})
     }
 
     /**
      * Deploys an application to YAPS
      * @param {string} path - path to the application
-     * @return {Promise<App>} The application just created.
+     * @return {Promise<App>} The application just created
+     * @throws if path to application does not exist or is not a directory
+     * @throws the file package.json does not exist inside de application path
+     * @throws the file package.json is missing the name or description
      * @example
      *
      * const path = '/path/to/project'
@@ -126,7 +107,7 @@ class AppManager extends AbstractService {
      * }).catch(e => console.error(e))   // an error occurred
      *
      * @todo if the file uploading fails the state of the application should
-     * change to UNKNOWN
+     * change to UNKNOWN.
      */
     async deployApp(appPath) {
         logger.log('verbose', `@yaps/appmananger deployApp [path -> ${appPath}]`)
@@ -159,7 +140,6 @@ class AppManager extends AbstractService {
 
             // WARNING: I'm not happy with this. Seems inconsistent with the other
             // errors...
-            console.log('PINGITA: ', appManagerValidator)
             const errors = appManagerValidator.createAppRequest.validate({
                 app: {
                   name: request.app.name,
@@ -214,6 +194,25 @@ class AppManager extends AbstractService {
         } catch(e) {
             throw e
         }
+    }
+
+    /**
+     * Retrives an application by name.
+     *
+     * @param {string} name - The name of the application
+     * @return {Promise<App>} The application
+     * @throws if name is null or application does not exist
+     * @example
+     *
+     * appManager.getApp(name)
+     * .then(result => {
+     *   console.log(result)            // returns the app object
+     * }).catch(e => console.error(e))   // an error occurred
+     */
+    async getApp(name) {
+        const request = new AppManagerPB.GetAppRequest()
+        request.setName(name)
+        return this.service.getApp().sendMessage(request)
     }
 
     static get STATES() {
