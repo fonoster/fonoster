@@ -1,6 +1,5 @@
 /**
  * A module for adding two values.
- * @module appmanager
  */
 
 const tar = require('tar')
@@ -9,7 +8,7 @@ const path = require('path')
 const { grpc } = require('@yaps/core')
 const { logger } = require('@yaps/core')
 const { Storage } = require('@yaps/storage')
-const { appmanagerValidator } = require('@yaps/core').validators
+const { appManagerValidator } = require('@yaps/core').validators
 const promisifyAll = require('grpc-promise').promisifyAll
 const {
     AbstractService,
@@ -21,14 +20,13 @@ const {
 } = require('@yaps/core').trust_util
 
 const STATUS = {
-  UNKMNOWN: 0,
+  UNKNOWN: 0,
   CREATING: 1,
   RUNNING: 2,
   STOPPED: 3
 }
 
 /**
- * @alias module:appmanager
  * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager,
  * to create, manage, and deploy an application. The AppManager requires of a
  * running YAPS platform.
@@ -37,11 +35,11 @@ const STATUS = {
  * @example
  *
  * const YAPS = require('@yaps/sdk')
- * const appmanager = new YAPS.AppManager()
+ * const appManager = new YAPS.AppManager()
  *
- * appmanager.listApps()
+ * appManager.deployApp('/path/to/app')
  * .then(result => {
- *    console.log(result)            // successful response
+ *   console.log(result)            // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
 class AppManager extends AbstractService {
@@ -77,7 +75,8 @@ class AppManager extends AbstractService {
         const service = new AppManagerService
           .AppManagerClient(super.getOptions().endpoint, credentials)
 
-        const storage = new Storage(super.getOptions())
+        this.service = service
+        this.storage = new Storage(super.getOptions())
 
         promisifyAll(service, {metadata})
 
@@ -99,9 +98,9 @@ class AppManager extends AbstractService {
          * @throws Will throw an error if the argument is null.
          * @example
          *
-         * appmanager.getApp(name)
+         * appManager.getApp(name)
          * .then(result => {
-         *    console.log(result)            // returns the app object
+         *   console.log(result)            // returns the app object
          * }).catch(e => console.error(e))   // an error occurred
          */
         this.getApp = name => {
@@ -110,117 +109,111 @@ class AppManager extends AbstractService {
             return service.getApp().sendMessage(request)
         }
 
-        /**
-         * Creates a new application.
-         *
-         * @async
-         * @function
-         * @param {Object} request - Request for object creation.
-         * @return {Promise<App>} - The application just created.
-         * @example
-         *
-         * const request = {
-         *    dirPath: '/path/to/project',
-         *    app: {
-         *        name: 'hello-world',
-         *        description: 'Simple Voice App'
-         *    }
-         * }
-         *
-         * appmanager.createApp(request)
-         * .then(result => {
-         *    console.log(result)            // returns the app object
-         * }).catch(e => console.error(e))   // an error occurred
-         *
-         * @todo if the file uploading fails the state of the application should
-         * change to UNKNOWN
-         */
-        this.createApp = async(request) => {
-            logger.log('verbose', `@yaps/appmananger createApp [request -> ${JSON.stringify(request)}]`)
-            logger.log('debug', '@yaps/appmananger createApp [validating app]')
-            logger.log('debug', '@yaps/appmananger createApp [getting package info]')
+        this.deleteApp = name => service.deleteApp().sendMessage({name})
+    }
+
+    /**
+     * Deploys an application to YAPS
+     * @param {string} path - path to the application
+     * @return {Promise<App>} The application just created.
+     * @example
+     *
+     * const path = '/path/to/project'
+     *
+     * appManager.deployApp(path)
+     * .then(result => {
+     *   console.log(result)            // returns the app object
+     * }).catch(e => console.error(e))   // an error occurred
+     *
+     * @todo if the file uploading fails the state of the application should
+     * change to UNKNOWN
+     */
+    async deployApp(appPath) {
+        logger.log('verbose', `@yaps/appmananger deployApp [path -> ${appPath}]`)
+        logger.log('debug', '@yaps/appmananger deployApp [validating app]')
+        logger.log('debug', '@yaps/appmananger deployApp [getting package info]')
+
+        try {
+            const packagePath = path.join(appPath, 'package.json')
+
+            // Expects an existing valid package.json
+            const packageInfo = p => JSON.parse(fs.readFileSync(p))
+            let pInfo
 
             try {
-                const packagePath = request.dirPath + '/package.json'
-
-                // Expects an existing valid package.json
-                const packageInfo = path => JSON.parse(fs.readFileSync(path))
-                let pInfo
-
-                try {
-                    pInfo = packageInfo(packagePath)
-                    logger.log('debug', `@yaps/appmananger createApp [package info -> ${JSON.stringify(pInfo)}]`)
-                } catch(err) {
-                    throw new Error(`Unable to open project directory '${request.dirPath}'`)
-                }
-
-                request.app = request.app || {}
-                request.app.name = request.app.name || pInfo.name
-                request.app.description = request.app.description || pInfo.description
-
-                logger.log('debug', `@yaps/appmananger createApp [modified request -> ${JSON.stringify(request)} ]`)
-
-                // WARNING: I'm not happy with this. Seems inconsistent with the other
-                // errors...
-                const errors = appmanagerValidator.createAppRequest.validate({
-                    app: {
-                      name: request.app.name,
-                      description: request.app.description
-                    }
-                })
-
-                if(errors.length > 0) {
-                    logger.log('warn', `@yaps/appmananger createApp [invalid argument/s]`)
-                    throw new Error(errors[0].message)
-                }
-
-                if(!fs.existsSync(request.dirPath) ||
-                    !fs.lstatSync(request.dirPath).isDirectory()) {
-                    throw new Error(`${request.dirPath} does not exist or is not a directory`)
-                }
-
-                if(!fs.existsSync(packagePath)) {
-                    throw new Error(`not package.json found in ${request.dirPath}`)
-                }
-
-                logger.log('debug', '@yaps/appmananger createApp [registering app]')
-
-                const app = new AppManagerPB.App()
-                app.setName(request.app.name)
-                app.setDescription(request.app.description)
-
-                const createAppRequest = new AppManagerPB.CreateAppRequest()
-                createAppRequest.setApp(app)
-
-                const response = await service.createApp().sendMessage(createAppRequest)
-
-                // TODO: Validate that the name is lower case and has no spaces
-                const dirName = `${request.app.name}`
-                await fs.copy(request.dirPath, `/tmp/${dirName}`)
-
-                logger.log('debug', `@yaps/appmananger createApp [copyed '${request.dirPath}' into '/tmp/${dirName}'}]`)
-                logger.log('debug', '@yaps/appmananger createApp [archiving project folder]')
-
-                await tar.create({file: `/tmp/${dirName}.tgz`, cwd: '/tmp'},
-                    [dirName])
-
-                logger.log('debug', `@yaps/appmananger createApp [uploading to bucket -> ${super.getOptions().bucket}]`)
-
-                // Will fail because of bad argument filenam
-                await storage.uploadObject({
-                    filename: `/tmp/${dirName}.tgz`,
-                    bucket: super.getOptions().bucket
-                })
-
-                return response
-            } catch(e) {
-                throw e
+                pInfo = packageInfo(packagePath)
+                logger.log('debug', `@yaps/appmananger deployApp [package info -> ${JSON.stringify(pInfo)}]`)
+            } catch(err) {
+                throw new Error(`Unable to open project folder '${appPath}'`)
             }
+
+            const request = {
+                dirPath: appPath,
+                app: {
+                    name: pInfo.name,
+                    description: pInfo.description
+                }
+            }
+
+            logger.log('debug', `@yaps/appmananger deployApp [modified request -> ${JSON.stringify(request)} ]`)
+
+            // WARNING: I'm not happy with this. Seems inconsistent with the other
+            // errors...
+            console.log('PINGITA: ', appManagerValidator)
+            const errors = appManagerValidator.createAppRequest.validate({
+                app: {
+                  name: request.app.name,
+                  description: request.app.description
+                }
+            })
+
+            if(errors.length > 0) {
+                logger.log('warn', `@yaps/appmananger deployApp [invalid argument/s]`)
+                throw new Error(errors[0].message)
+            }
+
+            if(!fs.existsSync(request.dirPath) ||
+                !fs.lstatSync(request.dirPath).isDirectory()) {
+                throw new Error(`${request.dirPath} does not exist or is not a directory`)
+            }
+
+            if(!fs.existsSync(packagePath)) {
+                throw new Error(`not package.json found in ${request.dirPath}`)
+            }
+
+            logger.log('debug', '@yaps/appmananger deployApp [registering app]')
+
+            const app = new AppManagerPB.App()
+            app.setName(request.app.name)
+            app.setDescription(request.app.description)
+
+            const createAppRequest = new AppManagerPB.CreateAppRequest()
+            createAppRequest.setApp(app)
+
+            const response = await this.service.createApp().sendMessage(createAppRequest)
+
+            // TODO: Validate that the name is lower case and has no spaces
+            const dirName = `${request.app.name}`
+            await fs.copy(request.dirPath, `/tmp/${dirName}`)
+
+            logger.log('debug', `@yaps/appmananger deployApp [copyed '${request.dirPath}' into '/tmp/${dirName}'}]`)
+            logger.log('debug', '@yaps/appmananger deployApp [archiving project folder]')
+
+            await tar.create({file: `/tmp/${dirName}.tgz`, cwd: '/tmp'},
+                [dirName])
+
+            logger.log('debug', `@yaps/appmananger deployApp [uploading to bucket -> ${super.getOptions().bucket}]`)
+
+            // Will fail because of bad argument filenam
+            await this.storage.uploadObject({
+                filename: `/tmp/${dirName}.tgz`,
+                bucket: super.getOptions().bucket
+            })
+
+            return response
+        } catch(e) {
+            throw e
         }
-
-        this.updateApp = request => service.updateApp().sendMessage(request)
-
-        this.deleteApp = name => service.deleteApp().sendMessage({name})
     }
 
     static get STATES() {

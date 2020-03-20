@@ -1,34 +1,62 @@
 {
   "name": "@yaps/ctl",
-  "version": "0.1.0",
   "description": "Command-Line for YAPS",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
-  "license": "MIT",
-  "main": "src/ctl.js",
+  "version": "0.1.0",
+  "author": "Pedro Sanders @psanders",
   "bin": {
-    "yctl": "./src/ctl.js"
+    "yctl": "./bin/run"
   },
-  "directories": {
-    "src": "src",
-    "test": "test"
-  },
-  "files": [
-    "src"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
-  },
-  "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
-  },
+  "bugs": "https://github.com/fonoster/yaps/issues",
   "dependencies": {
+    "@oclif/command": "^1.5.19",
+    "@oclif/config": "^1.14.0",
+    "@oclif/plugin-help": "^2.2.3",
     "@yaps/appmanager": "^0.1.0",
     "@yaps/core": "^0.1.0",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "ora": "^4.0.3",
+    "prettyjson": "^1.2.1"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1.22.2",
+    "@oclif/test": "^1.2.5",
+    "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-oclif": "^3.1.0",
+    "globby": "^10.0.2",
+    "mocha": "^5.2.0",
+    "nyc": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json",
+    "/src"
+  ],
+  "homepage": "https://github.com/fonoster/yaps",
+  "license": "MIT",
+  "main": "src/index.js",
+  "oclif": {
+    "commands": "./src/commands",
+    "bin": "yctl",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topics": {
+      "apps": {
+        "description": "manage voice applications"
+      }
+    }
+  },
+  "repository": "fonoster/yaps",
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "eslint .",
+    "prepack": "oclif-dev manifest && oclif-dev readme",
+    "test": "nyc mocha --forbid-only \"test/**/*.test.js\"",
+    "version": "oclif-dev readme && git add README.md"
   }
 }

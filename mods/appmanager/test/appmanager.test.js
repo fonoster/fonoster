@@ -23,7 +23,7 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it('Get app', done => {
+    it.skip('Get app', done => {
         appmanager.getApp('hello-monkeys')
         .then(app => {
             assert.ok(app.getName() === 'hello-monkeys')
@@ -31,16 +31,10 @@ describe('App Manager Service', () => {
         }).catch(e => done(e))
     })
 
-    it.skip('Create app bad dir path field', done => {
-        const request = {
-            dirPathxx: __dirname + '/../etc/hello-monkeys',
-            app: {
-                name: 'hello-monkeys',
-                description: 'Simple Voice App'
-            }
-        }
+    it('Create app bad dir path field', done => {
+        const path = __dirname + '/../etc/hello-money'
 
-        appmanager.createApp(request)
+        appmanager.deployApp(path)
         .then(r => done('should enter here'))
         .catch(e => {
             assert.ok(e.message.includes('Unable to open project'))
@@ -49,40 +43,12 @@ describe('App Manager Service', () => {
 
     })
 
-    it.skip('Create app get info from package.json', done => {
-        const request = {
-            dirPath: __dirname + '/../etc/hello-monkeys',
-        }
+    it('Deploy app perfect case...', done => {
+        const path = __dirname + '/../etc/hello-monkeys'
 
-        appmanager.createApp(request)
+        appmanager.deployApp(path)
         .then(app => {
             assert.equal(app.getName(), 'hello-monkeys')
-            done()
-        }).catch(e => done(e))
-    })
-
-    it('Create app perfect case...', async() => {
-        const request = {
-            dirPath: __dirname + '/../etc/hello-monkeys',
-            app: {
-                name: 'hello-monkeys',
-                description: 'Simple Voice App'
-            }
-        }
-
-        const app = await appmanager.createApp(request)
-        assert.ok(app.getName() === 'hello-monkeys')
-    })
-
-    it.skip('Update app', done => {
-        const data = {
-          app: {
-              status: 'STOPPED'
-          }
-        }
-        appmanager.updateApp(data)
-        .then(app => {
-            assert.ok(app.status === 'STOPPED')
             done()
         }).catch(e => done(e))
     })

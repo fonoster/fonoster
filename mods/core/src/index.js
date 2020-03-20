@@ -18,5 +18,5 @@ module.exports.updateBucketPolicy = require('./common/fsutils')
 // Validators
 module.exports.validators = {
     storageValidator: require('./schemas/storage.schema'),
-    appmanagerValidator: require('./schemas/appmanager.schema')
+    appManagerValidator: require('./schemas/appmanager.schema')
 }

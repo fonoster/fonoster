@@ -4,12 +4,13 @@
   "devDependencies": {
     "@yaps/appmanager": "^0.1.0",
     "@yaps/core": "^0.1.0",
+    "@yaps/ctl": "^0.1.0",
+    "@yaps/dispatcher": "^0.1.0",    
     "@yaps/numbers": "^0.1.0",
     "@yaps/sdk": "^0.1.0",
     "@yaps/storage": "^0.1.0",
     "@yaps/tts": "^0.1.0",
     "@yaps/voice": "^0.1.0",
-    "@yaps/ctl": "^0.1.0",
     "assert": "^2.0.0",
     "jsdoc-to-markdown": "^5.0.3",
     "jsonwebtoken": "^8.5.1",
@@ -21,6 +22,7 @@
   "scripts": {
     "docs": "node ./docs",
     "test": "NODE_ENV=dev nyc --reporter=lcov mocha **/test/*.test.js",
+    "clean": "rm **/package-lock.json; lerna clean -y",
     "gen-proto": "./etc/gen_code_proto",
     "start-as": "NODE_ENV=dev CERTS_PATH=mods/etc/certs node core/src/server/server.js",
     "start-mc": "NODE_ENV=dev node dispatcher/src/dispatcher.js"

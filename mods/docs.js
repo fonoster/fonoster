@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 
 /* input and output paths */
-const inputFile = '**/src/*.js'
+const inputFile = '*/src/*.js'
 const outputDir = path.join(__dirname, '..', 'docs')
 
 /* get template data */
