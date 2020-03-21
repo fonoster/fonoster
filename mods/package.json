@@ -5,7 +5,7 @@
     "@yaps/appmanager": "^0.1.0",
     "@yaps/core": "^0.1.0",
     "@yaps/ctl": "^0.1.0",
-    "@yaps/dispatcher": "^0.1.0",    
+    "@yaps/dispatcher": "^0.1.0",
     "@yaps/numbers": "^0.1.0",
     "@yaps/sdk": "^0.1.0",
     "@yaps/storage": "^0.1.0",

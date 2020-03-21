@@ -14,4 +14,9 @@ const claims = {
   sub: accessKeyId
 }
 
-console.log(`${accessKeyId}:${jwt.sign(claims, privateKey)}`)
+const access = {
+    accessKeyId: accessKeyId,
+    accessKeySecret: jwt.sign(claims, privateKey)
+}
+
+console.log(JSON.stringify(access, null, "  "))

@@ -43,7 +43,6 @@ module.exports.auth = function(call, callback) {
 
     if (call.metadata._internal_repr.access_key_id === null ||
         call.metadata._internal_repr.access_key_secret === null) {
-            console.log('pinga001')
         throw new Error('Unauthorized')
         return
     }
@@ -55,14 +54,12 @@ module.exports.auth = function(call, callback) {
         try {
             const decoded = jwt.verify(accessKeySecret, salt)
             if(!decoded || accessKeyId !== decoded.sub) {
-                console.log('pinga')
                 throw new Error('Unauthorized')
             }
         } catch(e) {
             throw e
         }
     } else {
-        console.log('pinga002')
         throw new Error('Unauthorized')
     }
 }
