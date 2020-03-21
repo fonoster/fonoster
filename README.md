@@ -89,7 +89,7 @@ For more examples go the [examples folder](/examples) in this repository.
 <details><summary>Testing</summary>
 <br />
 To interact with your application, point your softphone to Asterisk sub-system.
-Asterisk will be listening for SIP traffic on port `6060\tcp`. The testing information
+Asterisk will be listening for SIP traffic on port <b>6060\tcp</b>. The testing information
 is as follows:
  
 <br />
