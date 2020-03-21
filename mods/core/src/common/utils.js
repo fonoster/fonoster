@@ -63,7 +63,7 @@ const removeDirSync = path => {
     if (files.length > 0) {
       files.forEach(function(filename) {
         if (fs.statSync(path + "/" + filename).isDirectory()) {
-          removeDir(path + "/" + filename)
+          removeDirSync(path + "/" + filename)
         } else {
           fs.unlinkSync(path + "/" + filename)
         }
