@@ -70,7 +70,6 @@ For more commands go to [ctl @ npmjs](https://www.npmjs.com/package/@yaps/ctl) f
 ```
 mkdir voice-app
 cd voice-app
-// Follow the prompt
 yaps apps:init 
 yaps apps:deploy
 ```
