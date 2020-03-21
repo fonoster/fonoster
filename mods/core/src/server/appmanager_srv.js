@@ -16,12 +16,28 @@ const listApps = async(call, callback) => {
        return
     }
 
-    const app = new AppManagerPB.App()
-    app.setName('Hello World')
-    app.setDescription('Simple app')
+    if (!call.request.getPageToken()) {
+        // Nothing to send
+        callback(null, new AppManagerPB.ListAppsResponse())
+        return
+    }
 
+    const pageToken = parseInt(call.request.getPageToken())
+    const pageSize = call.request.getPageSize() - 1
+    const upperRange = pageToken + pageSize
+
+    const apps = await redis.lrange('apps', pageToken, upperRange)
     const response = new AppManagerPB.ListAppsResponse()
-    response.addApps(app)
+
+    for (i = 0; i < apps.length;i ++) {
+        const jsonObj = await redis.get(apps[i])
+        const app = new AppManagerPB.App(JSON.parse(jsonObj).array)
+        response.addApps(app)
+    }
+
+    if(apps.length > 0) {
+        response.setNextPageToken('' + upperRange)
+    }
 
     callback(null, response)
 }
@@ -71,7 +87,8 @@ const createApp = async(call, callback) => {
     app.setCreateTime(new Date())
     app.setUpdateTime(new Date())
 
-    await redis.call('sadd', 'apps', app.getName())
+    await redis.lrem('apps', 0, app.getName())
+    await redis.lpush('apps', app.getName())
     // This feels very hacky but it works for now
     await redis.call('set', app.getName(), `${JSON.stringify(app)}`)
     callback(null, app)
@@ -105,7 +122,7 @@ const deleteApp = async(call, callback) => {
       return
   }
 
-  await redis.call('srem', 'apps', call.request.getName())
+  await redis.call('lrem', 'apps', '0', call.request.getName())
   await redis.call('del', call.request.getName())
 
   // TODO: We should also remove the extlink if it exist

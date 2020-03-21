@@ -80,14 +80,6 @@ class AppManager extends AbstractService {
 
         promisifyAll(service, {metadata})
 
-        this.listApps = request => {
-            logger.log('verbose', `@yaps/appmananger listApps [request -> ${JSON.stringify(request)}]`)
-            const r = new AppManagerPB.ListAppsRequest()
-            r.setPageSize(request.pagSize)
-            r.setPageToken(request.pageToken)
-            r.setView(request.view)
-            return service.listApps().sendMessage(r)
-        }
     }
 
     /**
@@ -233,6 +225,33 @@ class AppManager extends AbstractService {
         const request = new AppManagerPB.DeleteAppRequest()
         request.setName(name)
         return this.service.deleteApp().sendMessage(request)
+    }
+
+    /**
+     * List the apps registered in YAPS.
+     * @param {Object} request
+     * @param {number} request.pageSize - Number of element per page (defaults to 20)
+     * @param {number} request.pageToken - The next_page_token value returned from a previous List request, if any
+     * @return {Promise<[App]>} List of applications
+     * @example
+     *
+     * const request = {
+     *    pageSize: 20,
+     *    pageToken: 2
+     * }
+     *
+     * appManager.list(request)
+     * .then(() => {
+     *   console.log(result)            // returns an empty object
+     * }).catch(e => console.error(e))  // an error occurred
+     */
+    async listApps(request) {
+        logger.log('verbose', `@yaps/appmananger listApps [request -> ${JSON.stringify(request)}]`)
+        const r = new AppManagerPB.ListAppsRequest()
+        r.setPageSize(request.pageSize)
+        r.setPageToken(request.pageToken)
+        r.setView(request.view)
+        return this.service.listApps().sendMessage(r)
     }
 
     static get STATES() {

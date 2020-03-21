@@ -14,8 +14,12 @@
     "@yaps/appmanager": "^0.1.0",
     "@yaps/core": "^0.1.0",
     "dotenv": "^8.2.0",
+    "easy-table": "^1.1.1",
+    "inquirer": "^7.1.0",
+    "moment": "^2.24.0",
     "ora": "^4.0.3",
-    "prettyjson": "^1.2.1"
+    "prettyjson": "^1.2.1",
+    "truncate": "^2.1.0"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.22.2",
