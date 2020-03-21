@@ -13,11 +13,13 @@ running YAPS platform.
     * [new AppManager()](#new_AppManager_new)
     * [.deployApp(path)](#AppManager+deployApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.getApp(name)](#AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+    * [.deleteApp(name)](#AppManager+deleteApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+    * [.listApps(request)](#AppManager+listApps) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
 
 <a name="new_AppManager_new"></a>
 
 ### new AppManager()
-Constructs a new AppManager Object
+Constructs a new AppManager Object.
 
 **Example**  
 ```js
@@ -32,7 +34,7 @@ appManager.deployApp('/path/to/app')
 <a name="AppManager+deployApp"></a>
 
 ### appManager.deployApp(path) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-Deploys an application to YAPS
+Deploys an application to YAPS.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
 **Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application just created  
@@ -83,4 +85,53 @@ appManager.getApp(name)
 .then(result => {
   console.log(result)            // returns the app object
 }).catch(e => console.error(e))   // an error occurred
+```
+<a name="AppManager+deleteApp"></a>
+
+### appManager.deleteApp(name) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+Deletes an app already registered in YAPS.
+
+**Kind**: instance method of [<code>AppManager</code>](#AppManager)  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application to be remove  
+**Throws**:
+
+- if name is null or application does not exist
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | The name of the application |
+
+**Example**  
+```js
+appManager.deleteApp(name)
+.then(() => {
+  console.log(result)            // returns an empty object
+}).catch(e => console.error(e))  // an error occurred
+```
+<a name="AppManager+listApps"></a>
+
+### appManager.listApps(request) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+List the apps registered in YAPS.
+
+**Kind**: instance method of [<code>AppManager</code>](#AppManager)  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - List of applications  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>Object</code> |  |
+| request.pageSize | <code>number</code> | Number of element per page (defaults to 20) |
+| request.pageToken | <code>number</code> | The next_page_token value returned from a previous List request, if any |
+
+**Example**  
+```js
+const request = {
+   pageSize: 20,
+   pageToken: 2
+}
+
+appManager.list(request)
+.then(() => {
+  console.log(result)            // returns an empty object
+}).catch(e => console.error(e))  // an error occurred
 ```
