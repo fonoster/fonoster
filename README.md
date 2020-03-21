@@ -17,21 +17,16 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 
 ## Getting started
 
-YAPS a composite of several microservices. To get started with YAPS you are going to need Docker and Docker Compose.
-Other deployment options will soon be available.
-
-### Running the System
-
-YAPS deploys in various environments such as Docker Compose, Docker Swarm, and K8s. Click bellow for deployment details:
+To get started with YAPS Programmable Voice follow the next few steps.
 
 <details><summary>Preparation</summary>
 
 <br />
 The first step with YAPS Programmable Voice is to install all the requirements.
 Refer to websites of the various products bellow for detail on installation and configuration.
-<br />
+<br /><br />
 
-**Requirements**
+Requirements:
 
 - Docker Compose
 - Node and NPM
@@ -46,7 +41,7 @@ Refer to websites of the various products bellow for detail on installation and 
 Once all the requirements are install, the next step is to run the Infraestructure.
 For that, you must clone/download YAPS' git repository. This process will take
 take the first time you run the commands. This is a good time to go get some coffe! 
-<br />
+<br /><br />
 
 Run using docker-compose
 
@@ -64,7 +59,7 @@ docker-compose up
 <br />
 The next step is to install the Command-Line Tool for YAPS
 command and control. To install the CLI run the following command:
-<br />
+<br /><br />
 
 ```
 npm install @yaps/ctl -g
@@ -77,9 +72,8 @@ For details on this tool please go to [ctl @ npmjs](https://www.npmjs.com/packag
 
 <br />
 If everything is going to plan, it is time now to generate and deploy
-your first Voice Application. Use `yaps apps:init` and `yaps apps:deploy`
-to get it done.
-<br />
+your first Voice Application.
+<br /><br />
 
 ```
 mkdir voice-app
@@ -87,6 +81,9 @@ cd voice-app
 yaps apps:init
 yaps apps:deploy
 ```
+
+For more examples go the [examples folder](/examples) in the repository.
+
 </details>
 
 <details><summary>Testing</summary>
@@ -98,8 +95,10 @@ voice application.
 
 </details>
 
-<details><summary>What' Next?</summary>
+<details><summary>What's Next?</summary>
 
+Congratulations if you made it this far. The next step with YAPS is to get familiar with the [Command-Line Tool](https://www.npmjs.com/package/@yaps/ctl) and [SDK](https://github.com/fonoster/yaps/wiki/AppManager).
+  
 </details>
 
 ## Features
