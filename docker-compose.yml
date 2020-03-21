@@ -16,14 +16,15 @@ services:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     volumes:
       - ./mods/etc/certs:/etc/certs:ro
-    logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
+      - ./mods/core/src:/mods/core/src
+  #  logging:
+  #      driver: fluentd
+  #      options:
+  #          fluentd-address: localhost:24224
+  #          fluentd-async-connect: 'true'
+  #          fluentd-retry-wait: '1s'
+  #          fluentd-max-retries: '30'
+  #          tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
 
   mediaserver:
     env_file: .env
@@ -43,14 +44,14 @@ services:
       - ${MS_SIP_PORT}
     ports:
       - ${MS_SIP_PORT}:${MS_SIP_PORT}
-    logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
+  #  logging:
+  #      driver: fluentd
+  #      options:
+  #          fluentd-address: localhost:24224
+  #          fluentd-async-connect: 'true'
+  #          fluentd-retry-wait: '1s'
+  #          fluentd-max-retries: '30'
+  #          tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
 
   mediacontroller:
     env_file: .env
@@ -59,7 +60,7 @@ services:
     environment:
       MC_AGI_PORT: ${MC_AGI_PORT}
       CERTS_PATH: /etc/certs
-      ACCESS_KEY_ID: yaps
+      YAPS_ACCESS_KEY_ID: yaps
     build:
       context: mods
       dockerfile: Dockerfile.mc
@@ -68,13 +69,13 @@ services:
           # Holy crap fix this :(
           # Generating the JWT token
           mkdir -p /workdir
-          mkdir -p ~/yaps
+          mkdir -p ~/.yaps
           cp /mods/etc/gen_jwt_token.js /workdir
           cd /workdir
           npm install jsonwebtoken
-          node gen_jwt_token.js > ~/yaps/credentials
-          echo "new signature is:"
-          cat ~/yaps/credentials
+          node gen_jwt_token.js > ~/.yaps/access
+          echo "new access info:"
+          cat ~/.yaps/access
           rm -rf /workdir
 
           cd /
@@ -102,14 +103,14 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
+  #  logging:
+  #      driver: fluentd
+  #      options:
+  #          fluentd-address: localhost:24224
+  #          fluentd-async-connect: 'true'
+  #          fluentd-retry-wait: '1s'
+  #          fluentd-max-retries: '30'
+  #          tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
 
   fs:
     image: ${FS_IMAGE}
@@ -121,22 +122,22 @@ services:
     ports:
       - ${FS_PORT}:${FS_PORT}
     environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
+      MINIO_ACCESS_KEY: ${FS_USERNAME}
+      MINIO_SECRET_KEY: ${FS_SECRET}
     command: minio server /data1/minio/
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
-    logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.fs
+  #  logging:
+  #      driver: fluentd
+  #      options:
+  #          fluentd-address: localhost:24224
+  #          fluentd-async-connect: 'true'
+  #          fluentd-retry-wait: '1s'
+  #          fluentd-max-retries: '30'
+  #          tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.fs
 
   tts:
     env_file: .env
@@ -144,14 +145,14 @@ services:
     restart: always
     expose:
       - ${TTS_ENGINE_PORT}
-    logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.tts
+  #  logging:
+  #      driver: fluentd
+  #      options:
+  #          fluentd-address: localhost:24224
+  #          fluentd-async-connect: 'true'
+  #          fluentd-retry-wait: '1s'
+  #          fluentd-max-retries: '30'
+  #          tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.tts
 
   logsdriver:
     env_file: .env
