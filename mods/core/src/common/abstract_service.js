@@ -25,7 +25,12 @@ class AbstractService {
     }
 
     try {
-      const accessFile = path.join(require('os').homedir(), '.yaps', 'access')
+      let accessFile
+      if (process.env.YAPS_ACCESS_FILE) {
+        accessFile = process.env.YAPS_ACCESS_FILE
+      } else {
+        accessFile = path.join(require('os').homedir(), '.yaps', 'access')
+      }
       const access = JSON.parse(
         fs
           .readFileSync(accessFile)

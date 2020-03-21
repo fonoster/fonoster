@@ -1,0 +1,66 @@
+# NOTICE: This is here for testing convinience You should not use this
+# in production as it has many unneeded open ports and the display of
+# credentials.
+
+version: '3.7'
+services:
+
+  credentialsgen:
+    image: credentialsgen
+    build:
+      context: mods
+      dockerfile: Dockerfile.cred
+    environment:
+      CERTS_PATH: /etc/certs
+      YAPS_ACCESS_KEY_ID: yaps
+    entrypoint: |
+      sh -c '
+          node gen_jwt_token.js > /credentials/access
+          echo "Your new credentials are:"
+          cat /credentials/access
+      '
+    volumes:
+      - data1-1:/fs
+      - credentials:/credentials
+      - ./mods/etc/certs:/etc/certs:ro
+
+  apiserver:
+    logging:
+      driver: json-file
+    ports:
+      - ${APISERVER_PORT}:${APISERVER_PORT}
+    volumes:
+      - ./mods/etc/certs:/etc/certs:ro
+
+  mediaserver:
+    logging:
+      driver: json-file
+    ports:
+      - ${MS_SIP_PORT}:${MS_SIP_PORT}
+
+  mediacontroller:
+    depends_on: [credentialsgen]
+    logging:
+      driver: json-file
+
+  datasource:
+    logging:
+      driver: json-file
+    ports:
+      - ${DS_PORT}:${DS_PORT}
+
+  fs:
+    logging:
+      driver: json-file
+    ports:
+      - ${FS_PORT}:${FS_PORT}
+
+  tts:
+    logging:
+      driver: json-file
+    ports:
+      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
+
+volumes:
+  data1-1:
+  credentials:
