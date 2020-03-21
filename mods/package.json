@@ -31,7 +31,7 @@
     "format": "prettier-standard '**/*.js'"
   },
   "lint-staged": {
-    "**/*.js": ["prettier-standard", "git add" ]
+    "**/*.js": ["prettier-standard"]
   },
   "husky": {
     "hooks": {
