@@ -2,9 +2,9 @@ require('../../config')
 const AppManager = require('@yaps/appmanager')
 const {CLIError} = require('@oclif/errors')
 const {Command, flags} = require('@oclif/command')
-const { cli } = require('cli-ux')
+const {cli} = require('cli-ux')
 const prettyjson = require('prettyjson')
-const appmanager = new AppManager()
+
 
 class GetCommand extends Command {
   async run() {
@@ -12,6 +12,7 @@ class GetCommand extends Command {
     const name =  args.name
 
     try{
+      const appmanager = new AppManager()
       cli.action.start(`Getting application ${name}`)
       const app = await appmanager.getApp(name)
 

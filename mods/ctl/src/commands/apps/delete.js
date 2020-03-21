@@ -3,7 +3,6 @@ const AppManager = require('@yaps/appmanager')
 const {CLIError} = require('@oclif/errors')
 const {Command} = require('@oclif/command')
 const {cli} = require('cli-ux')
-const appmanager = new AppManager()
 
 class DeleteCommand extends Command {
   async run() {
@@ -11,6 +10,7 @@ class DeleteCommand extends Command {
     const name =  args.name
 
     try{
+      const appmanager = new AppManager()
       cli.action.start(`Deleting application ${name}`)
       await appmanager.deleteApp(name)
       await cli.wait(1000)

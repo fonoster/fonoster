@@ -79,7 +79,6 @@ class AppManager extends AbstractService {
         this.storage = new Storage(super.getOptions())
 
         promisifyAll(service, {metadata})
-
     }
 
     /**

@@ -6,11 +6,12 @@ const path = require('path')
 const {Command, flags} = require('@oclif/command')
 const {CLIError} = require('@oclif/errors')
 const {updateBucketPolicy} = require('@yaps/core')
-const appmanager = new AppManager()
+
 
 class DeployCommand extends Command {
   async run() {
     try {
+      const appmanager = new AppManager()
       const pckg = path.join(process.cwd(), 'package.json')
 
       cli.action.start('Deploying application')
@@ -32,7 +33,7 @@ class DeployCommand extends Command {
         Name: app.getName(),
         Description: app.getDescription(),
         Create: app.getCreateTime(),
-        "Default Bucket": bucket 
+        "Default Bucket": bucket
       }
 
       console.log(prettyjson.render(appJson, {noColor: true}))

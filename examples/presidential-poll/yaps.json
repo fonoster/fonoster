@@ -1,4 +1,4 @@
 {
-  bucket: 'presidential-poll',
-  locale: 'en_us'
+  "bucket": "presidential-poll",
+  "locale": "en_us"
 }

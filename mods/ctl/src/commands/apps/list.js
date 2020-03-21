@@ -6,12 +6,13 @@ const {CLIError} = require('@oclif/errors')
 const {Command, flags} = require('@oclif/command')
 const moment = require('moment')
 const inquirer = require('inquirer')
-const appmanager = new AppManager()
 
 class ListCommand extends Command {
   async run() {
+
     const {flags} = this.parse(ListCommand)
     try{
+      const appmanager = new AppManager()
       let firstBatch = true
       let pageToken = '0'
       const pageSize = flags.size
@@ -28,22 +29,6 @@ class ListCommand extends Command {
           ])
           if (!answer.q) break
         }
-
-        /*const table = new Table({
-          head: ['NAME', 'DESCRIPTION', 'CREATE', 'LAST UPDATE'],
-          colWidths: [18, 24, 16, 16],
-          style: {head: ['green']}
-        })
-
-        // Show the data
-        apps.forEach(app => {
-          table.push([
-            app.getName(),
-            app.getDescription(),
-            moment(app.getCreateTime()).fromNow(),
-            moment(app.getUpdateTime()).fromNow()
-          ])
-        })*/
 
         const t = new Table()
 

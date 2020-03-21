@@ -51,9 +51,9 @@
       "@oclif/plugin-help"
     ],
     "topics": {
-      "apps": {
-        "description": "manage voice applications"
-      }
+      "apps": { "description": "manage voice applications" },
+      "login": { "description": "authenticates current station" },
+      "logout": { "description": "revoke crendentials to current station" }
     }
   },
   "repository": "fonoster/yaps",
