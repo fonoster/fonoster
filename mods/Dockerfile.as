@@ -5,6 +5,7 @@ COPY . /mods
 COPY etc/run-as.sh /run.sh
 RUN apk add --update python git make g++; \
   cd /mods ; \
+  npm config set unsafe-perm true ; \
   npm install lerna -g ; \
   npm run clean; \
   lerna bootstrap ; \
