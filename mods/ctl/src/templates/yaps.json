@@ -1,4 +1,4 @@
 {
-  bucket: '{{bucket}}',
-  locale: '{{locale}}'
+  "bucket": "{{bucket}}",
+  "locale": "{{locale}}"
 }
