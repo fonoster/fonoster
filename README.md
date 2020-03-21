@@ -94,11 +94,12 @@ is as follows:
  
 <br />
 
-```
+<br />
 USENAME = 1001
+<br />
 PASSWORD = 1234
+<br />
 TEST EXTENSION = 1002
-```
 
 </details>
 
