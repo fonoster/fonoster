@@ -1,7 +1,7 @@
 {
   "name": "@yaps/ctl",
   "description": "Command-Line for YAPS",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Pedro Sanders @psanders",
   "bin": {
     "yaps": "./bin/run"

@@ -16,119 +16,119 @@ Command-Line for for YAPS
 <!-- usage -->
 ```sh-session
 $ npm install -g @yaps/ctl
-$ yctl COMMAND
+$ yaps COMMAND
 running command...
-$ yctl (-v|--version|version)
-@yaps/ctl/0.1.0 darwin-x64 node-v10.19.0
-$ yctl --help [COMMAND]
+$ yaps (-v|--version|version)
+@yaps/ctl/0.0.1 darwin-x64 node-v10.19.0
+$ yaps --help [COMMAND]
 USAGE
-  $ yctl COMMAND
+  $ yaps COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`yctl apps:delete [FILE_PATH]`](#yctl-appsdelete-file_path)
-* [`yctl apps:deploy`](#yctl-appsdeploy)
-* [`yctl apps:get [FILE_PATH]`](#yctl-appsget-file_path)
-* [`yctl apps:init [FILE_PATH]`](#yctl-appsinit-file_path)
-* [`yctl apps:list [FILE_PATH]`](#yctl-appslist-file_path)
-* [`yctl help [COMMAND]`](#yctl-help-command)
+* [`yaps apps:delete [NAME]`](#yaps-appsdelete-name)
+* [`yaps apps:deploy`](#yaps-appsdeploy)
+* [`yaps apps:get [NAME]`](#yaps-appsget-name)
+* [`yaps apps:init`](#yaps-appsinit)
+* [`yaps apps:list`](#yaps-appslist)
+* [`yaps help [COMMAND]`](#yaps-help-command)
+* [`yaps login`](#yaps-login)
+* [`yaps logout`](#yaps-logout)
 
-## `yctl apps:delete [FILE_PATH]`
+## `yaps apps:delete [NAME]`
 
-deletes an existing voice application
+get information about an existing application
 
 ```
 USAGE
-  $ yctl apps:delete [FILE_PATH]
-
-OPTIONS
-  -f, --file=file  path to project
+  $ yaps apps:delete [NAME]
 
 DESCRIPTION
   ...
-  Extra documentation goes here
+  Obtain information about an application
+
+ALIASES
+  $ yaps apps:del
+  $ yaps apps:rm
 ```
 
-_See code: [src/commands/apps/delete.js](https://github.com/fonoster/yaps/blob/v0.1.0/src/commands/apps/delete.js)_
+_See code: [src/commands/apps/delete.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/delete.js)_
 
-## `yctl apps:deploy`
+## `yaps apps:deploy`
 
 deploys application to a YAPS instance
 
 ```
 USAGE
-  $ yctl apps:deploy
+  $ yaps apps:deploy
 
 DESCRIPTION
   ...
-  Run this command from the app project to deploy to YAPS.
+  Run this command from the app root to deploy to YAPS.
 ```
 
-_See code: [src/commands/apps/deploy.js](https://github.com/fonoster/yaps/blob/v0.1.0/src/commands/apps/deploy.js)_
+_See code: [src/commands/apps/deploy.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/deploy.js)_
 
-## `yctl apps:get [FILE_PATH]`
+## `yaps apps:get [NAME]`
 
-get detail about an existing application
+get information about an existing application
 
 ```
 USAGE
-  $ yctl apps:get [FILE_PATH]
-
-OPTIONS
-  -f, --file=file  path to project
+  $ yaps apps:get [NAME]
 
 DESCRIPTION
   ...
-  Extra documentation goes here
+  Obtain information about an application
 ```
 
-_See code: [src/commands/apps/get.js](https://github.com/fonoster/yaps/blob/v0.1.0/src/commands/apps/get.js)_
+_See code: [src/commands/apps/get.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/get.js)_
 
-## `yctl apps:init [FILE_PATH]`
+## `yaps apps:init`
 
 creates a new empty application
 
 ```
 USAGE
-  $ yctl apps:init [FILE_PATH]
-
-OPTIONS
-  -f, --file=file  path to project
+  $ yaps apps:init
 
 DESCRIPTION
   ...
   Extra documentation goes here
 ```
 
-_See code: [src/commands/apps/init.js](https://github.com/fonoster/yaps/blob/v0.1.0/src/commands/apps/init.js)_
+_See code: [src/commands/apps/init.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/init.js)_
 
-## `yctl apps:list [FILE_PATH]`
+## `yaps apps:list`
 
-display all the registered applications
+list registered applications
 
 ```
 USAGE
-  $ yctl apps:list [FILE_PATH]
+  $ yaps apps:list
 
 OPTIONS
-  -f, --file=file  path to project
+  -s, --size=size  [default: 25] number of result per page
 
 DESCRIPTION
   ...
-  Extra documentation goes here
+  List the registered applications
+
+ALIASES
+  $ yaps apps:ls
 ```
 
-_See code: [src/commands/apps/list.js](https://github.com/fonoster/yaps/blob/v0.1.0/src/commands/apps/list.js)_
+_See code: [src/commands/apps/list.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/list.js)_
 
-## `yctl help [COMMAND]`
+## `yaps help [COMMAND]`
 
-display help for yctl
+display help for yaps
 
 ```
 USAGE
-  $ yctl help [COMMAND]
+  $ yaps help [COMMAND]
 
 ARGUMENTS
   COMMAND  command to show help for
@@ -138,4 +138,29 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3/src/commands/help.ts)_
+
+## `yaps login`
+
+authenticates current station
+
+```
+USAGE
+  $ yaps login
+
+OPTIONS
+  -f, --file=file  json file with access credentials
+```
+
+_See code: [src/commands/login.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/login.js)_
+
+## `yaps logout`
+
+revoke crendentials to current station
+
+```
+USAGE
+  $ yaps logout
+```
+
+_See code: [src/commands/logout.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/logout.js)_
 <!-- commandsstop -->
