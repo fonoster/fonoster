@@ -14,7 +14,7 @@ running YAPS platform.
     * [.deployApp(path)](#AppManager+deployApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.getApp(name)](#AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.deleteApp(name)](#AppManager+deleteApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-    * [.listApps(request)](#AppManager+listApps) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+    * [.listApps(request)](#AppManager+listApps) ⇒ <code>Promise.&lt;ListAppsResponse&gt;</code>
 
 <a name="new_AppManager_new"></a>
 
@@ -111,11 +111,11 @@ appManager.deleteApp(name)
 ```
 <a name="AppManager+listApps"></a>
 
-### appManager.listApps(request) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
+### appManager.listApps(request) ⇒ <code>Promise.&lt;ListAppsResponse&gt;</code>
 List the apps registered in YAPS.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - List of applications  
+**Returns**: <code>Promise.&lt;ListAppsResponse&gt;</code> - List of applications  
 
 | Param | Type | Description |
 | --- | --- | --- |
