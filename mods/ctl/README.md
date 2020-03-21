@@ -19,7 +19,7 @@ $ npm install -g @yaps/ctl
 $ yaps COMMAND
 running command...
 $ yaps (-v|--version|version)
-@yaps/ctl/0.0.1 darwin-x64 node-v10.19.0
+@yaps/ctl/0.0.2 darwin-x64 node-v10.19.0
 $ yaps --help [COMMAND]
 USAGE
   $ yaps COMMAND
@@ -54,7 +54,7 @@ ALIASES
   $ yaps apps:rm
 ```
 
-_See code: [src/commands/apps/delete.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/delete.js)_
+_See code: [src/commands/apps/delete.js](https://github.com/fonoster/yaps/blob/v0.0.2/src/commands/apps/delete.js)_
 
 ## `yaps apps:deploy`
 
@@ -69,7 +69,7 @@ DESCRIPTION
   Run this command from the app root to deploy to YAPS.
 ```
 
-_See code: [src/commands/apps/deploy.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/deploy.js)_
+_See code: [src/commands/apps/deploy.js](https://github.com/fonoster/yaps/blob/v0.0.2/src/commands/apps/deploy.js)_
 
 ## `yaps apps:get [NAME]`
 
@@ -84,7 +84,7 @@ DESCRIPTION
   Obtain information about an application
 ```
 
-_See code: [src/commands/apps/get.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/get.js)_
+_See code: [src/commands/apps/get.js](https://github.com/fonoster/yaps/blob/v0.0.2/src/commands/apps/get.js)_
 
 ## `yaps apps:init`
 
@@ -99,7 +99,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/apps/init.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/init.js)_
+_See code: [src/commands/apps/init.js](https://github.com/fonoster/yaps/blob/v0.0.2/src/commands/apps/init.js)_
 
 ## `yaps apps:list`
 
@@ -120,7 +120,7 @@ ALIASES
   $ yaps apps:ls
 ```
 
-_See code: [src/commands/apps/list.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/apps/list.js)_
+_See code: [src/commands/apps/list.js](https://github.com/fonoster/yaps/blob/v0.0.2/src/commands/apps/list.js)_
 
 ## `yaps help [COMMAND]`
 
@@ -151,7 +151,7 @@ OPTIONS
   -f, --file=file  json file with access credentials
 ```
 
-_See code: [src/commands/login.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/login.js)_
+_See code: [src/commands/login.js](https://github.com/fonoster/yaps/blob/v0.0.2/src/commands/login.js)_
 
 ## `yaps logout`
 
@@ -162,5 +162,5 @@ USAGE
   $ yaps logout
 ```
 
-_See code: [src/commands/logout.js](https://github.com/fonoster/yaps/blob/v0.0.1/src/commands/logout.js)_
+_See code: [src/commands/logout.js](https://github.com/fonoster/yaps/blob/v0.0.2/src/commands/logout.js)_
 <!-- commandsstop -->

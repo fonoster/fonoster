@@ -1,7 +1,7 @@
 {
   "name": "@yaps/ctl",
   "description": "Command-Line for YAPS",
-  "version": "0.1.0",
+  "version": "0.0.2",
   "author": "Pedro Sanders @psanders",
   "bin": {
     "yaps": "./bin/run"
@@ -11,16 +11,16 @@
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",
     "@oclif/plugin-help": "^2.2.3",
-    "@yaps/appmanager": "^0.1.0",
-    "@yaps/core": "^0.1.0",
+    "@yaps/appmanager": "^0.0.2",
+    "@yaps/core": "^0.0.2",
     "dotenv": "^8.2.0",
     "easy-table": "^1.1.1",
     "inquirer": "^7.1.0",
     "moment": "^2.24.0",
+    "node-plop": "^0.25.0",
     "ora": "^4.0.3",
     "prettyjson": "^1.2.1",
-    "truncate": "^2.1.0",
-    "node-plop": "^0.25.0"
+    "truncate": "^2.1.0"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.22.2",
@@ -51,9 +51,15 @@
       "@oclif/plugin-help"
     ],
     "topics": {
-      "apps": { "description": "manage voice applications" },
-      "login": { "description": "authenticates current station" },
-      "logout": { "description": "revoke crendentials to the current station" }
+      "apps": {
+        "description": "manage voice applications"
+      },
+      "login": {
+        "description": "authenticates current station"
+      },
+      "logout": {
+        "description": "revoke crendentials to the current station"
+      }
     }
   },
   "repository": "fonoster/yaps",

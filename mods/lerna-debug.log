@@ -1,0 +1,284 @@
+0 silly argv { _: [ 'version' ],
+0 silly argv   lernaVersion: '3.20.2',
+0 silly argv   '$0': '/usr/local/bin/lerna',
+0 silly argv   bump: '0.0.2' }
+1 notice cli v3.20.2
+2 verbose rootPath /Users/pedrosanders/Projects/yaps/mods
+3 info current version 0.0.2
+4 silly isAnythingCommitted
+5 verbose isAnythingCommitted 1
+6 silly currentBranch
+7 verbose currentBranch master
+8 silly remoteBranchExists
+9 silly isBehindUpstream
+10 silly isBehindUpstream master is behind origin/master by 0 commit(s) and ahead by 10
+11 silly hasTags
+12 verbose hasTags true
+13 silly git-describe.sync "v0.1.0-196-g30e4695" => {"lastTagName":"v0.1.0","lastVersion":"v0.1.0","refCount":"196","sha":"30e4695","isDirty":false}
+14 info Looking for changed packages since v0.1.0
+15 silly checking diff appmanager
+16 silly found diff in mods/appmanager/.npmignore
+16 silly found diff in mods/appmanager/etc/hello-monkeys/index.js
+16 silly found diff in mods/appmanager/etc/hello-monkeys/package.json
+16 silly found diff in mods/appmanager/package.json
+16 silly found diff in mods/appmanager/src/appmanager.js
+16 silly found diff in mods/appmanager/test/appmanager.test.js
+17 verbose filtered diff [ 'mods/appmanager/.npmignore',
+17 verbose filtered diff   'mods/appmanager/etc/hello-monkeys/index.js',
+17 verbose filtered diff   'mods/appmanager/etc/hello-monkeys/package.json',
+17 verbose filtered diff   'mods/appmanager/package.json',
+17 verbose filtered diff   'mods/appmanager/src/appmanager.js',
+17 verbose filtered diff   'mods/appmanager/test/appmanager.test.js' ]
+18 silly checking diff core
+19 silly found diff in mods/core/.npmignore
+19 silly found diff in mods/core/package.json
+19 silly found diff in mods/core/src/common/abstract_service.js
+19 silly found diff in mods/core/src/common/fsutils.js
+19 silly found diff in mods/core/src/common/grpc_hack.js
+19 silly found diff in mods/core/src/common/logger.js
+19 silly found diff in mods/core/src/common/trust_util.js
+19 silly found diff in mods/core/src/common/utils.js
+19 silly found diff in mods/core/src/index.js
+19 silly found diff in mods/core/src/protos/appmanager.proto
+19 silly found diff in mods/core/src/protos/common.proto
+19 silly found diff in mods/core/src/protos/numbers.proto
+19 silly found diff in mods/core/src/protos/storage.proto
+19 silly found diff in mods/core/src/protos/storage.proto.bkp
+19 silly found diff in mods/core/src/schemas/appmanager.schema.js
+19 silly found diff in mods/core/src/schemas/storage.schema.js
+19 silly found diff in mods/core/src/server/appmanager_srv.js
+19 silly found diff in mods/core/src/server/numbers_srv.js
+19 silly found diff in mods/core/src/server/protos/appmanager_grpc_pb.js
+19 silly found diff in mods/core/src/server/protos/appmanager_pb.js
+19 silly found diff in mods/core/src/server/protos/common_grpc_pb.js
+19 silly found diff in mods/core/src/server/protos/common_pb.js
+19 silly found diff in mods/core/src/server/protos/numbers_grpc_pb.js
+19 silly found diff in mods/core/src/server/protos/numbers_pb.js
+19 silly found diff in mods/core/src/server/protos/storage_grpc_pb.js
+19 silly found diff in mods/core/src/server/protos/storage_pb.js
+19 silly found diff in mods/core/src/server/redis.js
+19 silly found diff in mods/core/src/server/server.js
+19 silly found diff in mods/core/src/server/storage_srv.js
+19 silly found diff in mods/core/test/core.test.js
+20 verbose filtered diff [ 'mods/core/.npmignore',
+20 verbose filtered diff   'mods/core/package.json',
+20 verbose filtered diff   'mods/core/src/common/abstract_service.js',
+20 verbose filtered diff   'mods/core/src/common/fsutils.js',
+20 verbose filtered diff   'mods/core/src/common/grpc_hack.js',
+20 verbose filtered diff   'mods/core/src/common/logger.js',
+20 verbose filtered diff   'mods/core/src/common/trust_util.js',
+20 verbose filtered diff   'mods/core/src/common/utils.js',
+20 verbose filtered diff   'mods/core/src/index.js',
+20 verbose filtered diff   'mods/core/src/protos/appmanager.proto',
+20 verbose filtered diff   'mods/core/src/protos/common.proto',
+20 verbose filtered diff   'mods/core/src/protos/numbers.proto',
+20 verbose filtered diff   'mods/core/src/protos/storage.proto',
+20 verbose filtered diff   'mods/core/src/protos/storage.proto.bkp',
+20 verbose filtered diff   'mods/core/src/schemas/appmanager.schema.js',
+20 verbose filtered diff   'mods/core/src/schemas/storage.schema.js',
+20 verbose filtered diff   'mods/core/src/server/appmanager_srv.js',
+20 verbose filtered diff   'mods/core/src/server/numbers_srv.js',
+20 verbose filtered diff   'mods/core/src/server/protos/appmanager_grpc_pb.js',
+20 verbose filtered diff   'mods/core/src/server/protos/appmanager_pb.js',
+20 verbose filtered diff   'mods/core/src/server/protos/common_grpc_pb.js',
+20 verbose filtered diff   'mods/core/src/server/protos/common_pb.js',
+20 verbose filtered diff   'mods/core/src/server/protos/numbers_grpc_pb.js',
+20 verbose filtered diff   'mods/core/src/server/protos/numbers_pb.js',
+20 verbose filtered diff   'mods/core/src/server/protos/storage_grpc_pb.js',
+20 verbose filtered diff   'mods/core/src/server/protos/storage_pb.js',
+20 verbose filtered diff   'mods/core/src/server/redis.js',
+20 verbose filtered diff   'mods/core/src/server/server.js',
+20 verbose filtered diff   'mods/core/src/server/storage_srv.js',
+20 verbose filtered diff   'mods/core/test/core.test.js' ]
+21 silly checking diff ctl
+22 silly found diff in mods/ctl/.editorconfig
+22 silly found diff in mods/ctl/.eslintrc
+22 silly found diff in mods/ctl/.gitignore
+22 silly found diff in mods/ctl/.npmignore
+22 silly found diff in mods/ctl/README.md
+22 silly found diff in mods/ctl/bin/run
+22 silly found diff in mods/ctl/bin/run.cmd
+22 silly found diff in mods/ctl/package.json
+22 silly found diff in mods/ctl/src/commands/apps/delete.js
+22 silly found diff in mods/ctl/src/commands/apps/deploy.js
+22 silly found diff in mods/ctl/src/commands/apps/get.js
+22 silly found diff in mods/ctl/src/commands/apps/init.js
+22 silly found diff in mods/ctl/src/commands/apps/list.js
+22 silly found diff in mods/ctl/src/commands/login.js
+22 silly found diff in mods/ctl/src/commands/logout.js
+22 silly found diff in mods/ctl/src/config.js
+22 silly found diff in mods/ctl/src/index.js
+22 silly found diff in mods/ctl/src/plopfile.js
+22 silly found diff in mods/ctl/src/templates/index.js
+22 silly found diff in mods/ctl/src/templates/package.json
+22 silly found diff in mods/ctl/src/templates/yaps.json
+22 silly found diff in mods/ctl/test/commands/apps/apps.test.js
+22 silly found diff in mods/ctl/test/mocha.opts
+23 verbose filtered diff [ 'mods/ctl/.editorconfig',
+23 verbose filtered diff   'mods/ctl/.eslintrc',
+23 verbose filtered diff   'mods/ctl/.gitignore',
+23 verbose filtered diff   'mods/ctl/.npmignore',
+23 verbose filtered diff   'mods/ctl/README.md',
+23 verbose filtered diff   'mods/ctl/bin/run',
+23 verbose filtered diff   'mods/ctl/bin/run.cmd',
+23 verbose filtered diff   'mods/ctl/package.json',
+23 verbose filtered diff   'mods/ctl/src/commands/apps/delete.js',
+23 verbose filtered diff   'mods/ctl/src/commands/apps/deploy.js',
+23 verbose filtered diff   'mods/ctl/src/commands/apps/get.js',
+23 verbose filtered diff   'mods/ctl/src/commands/apps/init.js',
+23 verbose filtered diff   'mods/ctl/src/commands/apps/list.js',
+23 verbose filtered diff   'mods/ctl/src/commands/login.js',
+23 verbose filtered diff   'mods/ctl/src/commands/logout.js',
+23 verbose filtered diff   'mods/ctl/src/config.js',
+23 verbose filtered diff   'mods/ctl/src/index.js',
+23 verbose filtered diff   'mods/ctl/src/plopfile.js',
+23 verbose filtered diff   'mods/ctl/src/templates/index.js',
+23 verbose filtered diff   'mods/ctl/src/templates/package.json',
+23 verbose filtered diff   'mods/ctl/src/templates/yaps.json',
+23 verbose filtered diff   'mods/ctl/test/commands/apps/apps.test.js',
+23 verbose filtered diff   'mods/ctl/test/mocha.opts' ]
+24 silly checking diff dispatcher
+25 silly found diff in mods/dispatcher/.npmignore
+25 silly found diff in mods/dispatcher/etc/vm.json
+25 silly found diff in mods/dispatcher/package.json
+25 silly found diff in mods/dispatcher/src/dispatcher.js
+25 silly found diff in mods/dispatcher/src/utils.js
+25 silly found diff in mods/dispatcher/test/dispatcher.test.js
+26 verbose filtered diff [ 'mods/dispatcher/.npmignore',
+26 verbose filtered diff   'mods/dispatcher/etc/vm.json',
+26 verbose filtered diff   'mods/dispatcher/package.json',
+26 verbose filtered diff   'mods/dispatcher/src/dispatcher.js',
+26 verbose filtered diff   'mods/dispatcher/src/utils.js',
+26 verbose filtered diff   'mods/dispatcher/test/dispatcher.test.js' ]
+27 silly checking diff numbers
+28 silly found diff in mods/numbers/.npmignore
+28 silly found diff in mods/numbers/package.json
+28 silly found diff in mods/numbers/src/numbers.js
+28 silly found diff in mods/numbers/test/numbers.test.js
+29 verbose filtered diff [ 'mods/numbers/.npmignore',
+29 verbose filtered diff   'mods/numbers/package.json',
+29 verbose filtered diff   'mods/numbers/src/numbers.js',
+29 verbose filtered diff   'mods/numbers/test/numbers.test.js' ]
+30 silly checking diff sdk
+31 silly found diff in mods/sdk/.npmignore
+31 silly found diff in mods/sdk/package.json
+31 silly found diff in mods/sdk/src/sdk.js
+31 silly found diff in mods/sdk/test/sdk.test.js
+32 verbose filtered diff [ 'mods/sdk/.npmignore',
+32 verbose filtered diff   'mods/sdk/package.json',
+32 verbose filtered diff   'mods/sdk/src/sdk.js',
+32 verbose filtered diff   'mods/sdk/test/sdk.test.js' ]
+33 silly checking diff storage
+34 silly found diff in mods/storage/.npmignore
+34 silly found diff in mods/storage/etc/hello-monkeys.tgz
+34 silly found diff in mods/storage/etc/test.txt
+34 silly found diff in mods/storage/package.json
+34 silly found diff in mods/storage/src/storage.js
+34 silly found diff in mods/storage/test/storage.test.js
+35 verbose filtered diff [ 'mods/storage/.npmignore',
+35 verbose filtered diff   'mods/storage/etc/hello-monkeys.tgz',
+35 verbose filtered diff   'mods/storage/etc/test.txt',
+35 verbose filtered diff   'mods/storage/package.json',
+35 verbose filtered diff   'mods/storage/src/storage.js',
+35 verbose filtered diff   'mods/storage/test/storage.test.js' ]
+36 silly checking diff tts
+37 silly found diff in mods/tts/.npmignore
+37 silly found diff in mods/tts/etc/test.wav
+37 silly found diff in mods/tts/package.json
+37 silly found diff in mods/tts/src/abstract_tts.js
+37 silly found diff in mods/tts/src/index.js
+37 silly found diff in mods/tts/src/mary_tts.js
+37 silly found diff in mods/tts/src/utils.js
+37 silly found diff in mods/tts/test/tts.test.js
+38 verbose filtered diff [ 'mods/tts/.npmignore',
+38 verbose filtered diff   'mods/tts/etc/test.wav',
+38 verbose filtered diff   'mods/tts/package.json',
+38 verbose filtered diff   'mods/tts/src/abstract_tts.js',
+38 verbose filtered diff   'mods/tts/src/index.js',
+38 verbose filtered diff   'mods/tts/src/mary_tts.js',
+38 verbose filtered diff   'mods/tts/src/utils.js',
+38 verbose filtered diff   'mods/tts/test/tts.test.js' ]
+39 silly checking diff voice
+40 silly found diff in mods/voice/.npmignore
+40 silly found diff in mods/voice/package.json
+40 silly found diff in mods/voice/src/index.js
+40 silly found diff in mods/voice/src/ywc.js
+40 silly found diff in mods/voice/test/mock_channel.js
+40 silly found diff in mods/voice/test/ywc.test.js
+41 verbose filtered diff [ 'mods/voice/.npmignore',
+41 verbose filtered diff   'mods/voice/package.json',
+41 verbose filtered diff   'mods/voice/src/index.js',
+41 verbose filtered diff   'mods/voice/src/ywc.js',
+41 verbose filtered diff   'mods/voice/test/mock_channel.js',
+41 verbose filtered diff   'mods/voice/test/ywc.test.js' ]
+42 verbose updated @yaps/appmanager
+43 verbose updated @yaps/core
+44 verbose updated @yaps/ctl
+45 verbose updated @yaps/dispatcher
+46 verbose updated @yaps/numbers
+47 verbose updated @yaps/sdk
+48 verbose updated @yaps/storage
+49 verbose updated @yaps/tts
+50 verbose updated @yaps/voice
+51 verbose git-describe undefined => "v0.1.0-196-g30e4695"
+52 silly git-describe parsed => {"lastTagName":"v0.1.0","lastVersion":"v0.1.0","refCount":"196","sha":"30e4695","isDirty":false}
+53 info execute Skipping releases
+54 silly lifecycle No script for "preversion" in "root", continuing
+55 silly lifecycle No script for "preversion" in "@yaps/core", continuing
+56 silly lifecycle No script for "version" in "@yaps/core", continuing
+57 silly lifecycle No script for "preversion" in "@yaps/numbers", continuing
+58 silly lifecycle No script for "preversion" in "@yaps/storage", continuing
+59 silly lifecycle No script for "preversion" in "@yaps/tts", continuing
+60 silly lifecycle No script for "version" in "@yaps/storage", continuing
+61 silly lifecycle No script for "preversion" in "@yaps/appmanager", continuing
+62 silly lifecycle No script for "version" in "@yaps/numbers", continuing
+63 silly lifecycle No script for "version" in "@yaps/tts", continuing
+64 silly lifecycle No script for "preversion" in "@yaps/voice", continuing
+65 silly lifecycle No script for "version" in "@yaps/voice", continuing
+66 silly lifecycle No script for "version" in "@yaps/appmanager", continuing
+67 silly lifecycle No script for "preversion" in "@yaps/ctl", continuing
+68 silly lifecycle No script for "preversion" in "@yaps/dispatcher", continuing
+69 silly lifecycle No script for "preversion" in "@yaps/sdk", continuing
+70 silly lifecycle No script for "version" in "@yaps/dispatcher", continuing
+71 silly lifecycle No script for "version" in "@yaps/sdk", continuing
+72 silly lifecycle "version" starting in "@yaps/ctl"
+73 info lifecycle @yaps/ctl@0.0.2~version: @yaps/ctl@0.0.2
+74 verbose lifecycle @yaps/ctl@0.0.2~version: unsafe-perm in lifecycle true
+75 verbose lifecycle @yaps/ctl@0.0.2~version: PATH: /usr/local/lib/node_modules/lerna/node_modules/npm-lifecycle/node-gyp-bin:/Users/pedrosanders/Projects/yaps/mods/ctl/node_modules/.bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Applications/Wireshark.app/Contents/MacOS
+76 verbose lifecycle @yaps/ctl@0.0.2~version: CWD: /Users/pedrosanders/Projects/yaps/mods/ctl
+77 silly lifecycle @yaps/ctl@0.0.2~version: Args: [ '-c', 'oclif-dev readme && git add README.md' ]
+78 silly lifecycle @yaps/ctl@0.0.2~version: Returned: code: 0  signal: null
+79 silly lifecycle "version" finished in "@yaps/ctl"
+80 silly lifecycle No script for "version" in "root", continuing
+81 silly gitAdd [ '/Users/pedrosanders/Projects/yaps/mods/core/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/core/package-lock.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/storage/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/storage/package-lock.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/numbers/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/numbers/package-lock.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/tts/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/tts/package-lock.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/voice/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/voice/package-lock.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/appmanager/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/appmanager/package-lock.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/dispatcher/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/dispatcher/package-lock.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/sdk/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/ctl/package.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/ctl/package-lock.json',
+81 silly gitAdd   '/Users/pedrosanders/Projects/yaps/mods/lerna.json' ]
+82 error Error: Command failed: git add -- core/package.json core/package-lock.json storage/package.json storage/package-lock.json numbers/package.json numbers/package-lock.json tts/package.json tts/package-lock.json voice/package.json voice/package-lock.json appmanager/package.json appmanager/package-lock.json dispatcher/package.json dispatcher/package-lock.json sdk/package.json ctl/package.json ctl/package-lock.json lerna.json
+82 error The following paths are ignored by one of your .gitignore files:
+82 error mods/appmanager/package-lock.json
+82 error mods/core/package-lock.json
+82 error mods/ctl/package-lock.json
+82 error mods/dispatcher/package-lock.json
+82 error mods/numbers/package-lock.json
+82 error mods/storage/package-lock.json
+82 error mods/tts/package-lock.json
+82 error mods/voice/package-lock.json
+82 error Use -f if you really want to add them.
+82 error
+82 error     at makeError (/usr/local/lib/node_modules/lerna/node_modules/execa/index.js:174:9)
+82 error     at Promise.all.then.arr (/usr/local/lib/node_modules/lerna/node_modules/execa/index.js:278:16)
