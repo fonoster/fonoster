@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": "Pedro Sanders @psanders",
   "bin": {
-    "yctl": "./bin/run"
+    "yaps": "./bin/run"
   },
   "bugs": "https://github.com/fonoster/yaps/issues",
   "dependencies": {
@@ -19,7 +19,8 @@
     "moment": "^2.24.0",
     "ora": "^4.0.3",
     "prettyjson": "^1.2.1",
-    "truncate": "^2.1.0"
+    "truncate": "^2.1.0",
+    "node-plop": "^0.25.0"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.22.2",
@@ -45,7 +46,7 @@
   "main": "src/index.js",
   "oclif": {
     "commands": "./src/commands",
-    "bin": "yctl",
+    "bin": "yaps",
     "plugins": [
       "@oclif/plugin-help"
     ],
