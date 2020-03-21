@@ -1,5 +1,5 @@
 
-# YAPS [![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/yaps&via=fonoster&hashtags=voip,sip,webrtc,telephony) 
+# YAPS [![Join the chat at https://gitter.im/fonoster/yaps](https://badges.gitter.im/fonoster/yaps.svg)](https://gitter.im/fonoster/yaps?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/yaps&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
 YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name states it is mainly a telephony system; the current roadmap is focus on Programmable Voice and Voice over Internet Protocol(VoIP) and PSTN communication.
 
@@ -10,7 +10,7 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 <table border="0" width="100%" cellpadding="0" cellspacing="0" bgcolor=green>
 <tr border="0">
 <td border="0">
-:warning: This plattform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/orgs/fonoster/projects">projects</a> section for development status.
+:warning: This platform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/orgs/fonoster/projects">projects</a> section for development status.
 </td>
 </tr>
 </table>
@@ -18,13 +18,14 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 ## Getting started
 
 YAPS a composite of several microservices. To get started with YAPS you are going to need Docker and Docker Compose.
-Other deployment options will soon be available. 
+Other deployment options will soon be available.
 
 ### Requirements
 
 - Docker Compose, Docker Swarm, or K8s
 - Node and NPM
 - Git (optional)
+- A softphone
 
 ### Running the System
 
@@ -47,13 +48,13 @@ docker-compose up
 
 <details><summary><b>Docker Swarm</b></summary>
 <br />
-Comming soon...
+Coming soon...
 
 </details>
 
 <details><summary><b>K8s</b></summary>
 <br />
-Comming soon...
+Coming soon...
 
 </details>
 
@@ -63,22 +64,23 @@ Comming soon...
 npm install @yaps/ctl -g
 ```
 
-For more commands go to [ctl @ npmjs](https://www.npmjs.com/package/@yaps/ctl) for more commands.
-
-### Creating and Deploying an App
+### Creating and Deploying an Application
 
 ```
 mkdir voice-app
 cd voice-app
-yaps apps:init 
+yaps apps:init
 yaps apps:deploy
 ```
 
-### Testing
+For more commands go to [ctl @ npmjs](https://www.npmjs.com/package/@yaps/ctl) for more commands.
 
-To interact with your application, point a softphone to your Asterisk sub-system. 
-Asterisk will be listening for SIP traffic on port `6060`. The test account is `1001` with
-password `1234`. Calling extension `1002` will connect your test account to your application.
+### Testing the Application
+
+To interact with your application, point a softphone to your Asterisk sub-system.
+Asterisk will be listening for SIP traffic on port `6060\tcp`. The test account is `1001` with
+password `1234`. Calling extension `1002` will connect your test account to your
+voice application.
 
 ## Features
 
