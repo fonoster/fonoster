@@ -58,7 +58,7 @@ class YapsWrapperChannel {
    * Param options - Optional parameters to alter the command's normal behavior.
    *
    * Example options {
-   *     finishOnKey: #,     // Default
+   *   finishOnKey: #,     // Default
    * }
    *
    * Returns - Sent DTMF or undefined if no key was pressed before audio ends
