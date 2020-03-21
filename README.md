@@ -23,7 +23,7 @@ To get started with YAPS Programmable Voice follow the next few steps.
 
 <br />
 The first step with YAPS Programmable Voice is to install all the requirements.
-Refer to websites of the various products bellow for detail on installation and configuration.
+Refer to websites of the various products in the list bellow for detail on installation and configuration.
 <br /><br />
 
 Requirements:
@@ -31,16 +31,17 @@ Requirements:
 - Docker Compose
 - Node and NPM
 - Git (optional)
-- A softphone
+- A softphone (with support for tcp)
 
 </details>
 
 <details><summary>Running the Infrastructure</summary>
 
 <br />
-Once all the requirements are install, the next step is to run the Infraestructure.
-For that, you must clone/download YAPS' git repository. This process will take
-take the first time you run the commands. This is a good time to go get some coffe! 
+Once all the requirements are installed, the next step is to run the infraestructure.
+For that, you must clone or download YAPS git repository. The first time you run this commands
+it will take awhile.
+
 <br /><br />
 
 Run using docker-compose
@@ -57,8 +58,7 @@ docker-compose up
 <details><summary>Installing the Tools</summary>
  
 <br />
-The next step is to install the Command-Line Tool for YAPS
-command and control. To install the CLI run the following command:
+The next step is to install the Command-Line Tool. To install the tool run the following command:
 <br /><br />
 
 ```
@@ -68,30 +68,33 @@ npm install @yaps/ctl -g
 For details on this tool please go to [ctl @ npmjs](https://www.npmjs.com/package/@yaps/ctl).
 </details>
 
-<details><summary>Creating and Deploy a Application</summary>
+<details><summary>Creating and Deploy an Application</summary>
 
 <br />
-If everything is going to plan, it is time now to generate and deploy
+If everything is went to plan, it is now time to generate and deploy
 your first Voice Application.
 <br /><br />
 
-```
+```bash
 mkdir voice-app
 cd voice-app
 yaps apps:init
 yaps apps:deploy
 ```
 
-For more examples go the [examples folder](/examples) in the repository.
+For more examples go the [examples folder](/examples) in this repository.
 
 </details>
 
 <details><summary>Testing</summary>
 
-To interact with your application, point a softphone to your Asterisk sub-system.
-Asterisk will be listening for SIP traffic on port `6060\tcp`. The test account is `1001` with
-password `1234`. Calling extension `1002` will connect your test account to your
-voice application.
+To interact with your application, point your softphone to Asterisk sub-system.
+Asterisk will be listening for SIP traffic on port `6060\tcp`. The testing information
+is as follows:
+
+USENAME = 1001
+PASSWORD = 1234
+TEST EXTENSION = 1002
 
 </details>
 
