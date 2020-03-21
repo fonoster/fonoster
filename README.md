@@ -92,9 +92,11 @@ To interact with your application, point your softphone to Asterisk sub-system.
 Asterisk will be listening for SIP traffic on port `6060\tcp`. The testing information
 is as follows:
 
+```
 USENAME = 1001
 PASSWORD = 1234
 TEST EXTENSION = 1002
+```
 
 </details>
 
