@@ -1,6 +1,6 @@
 {
   "name": "@yaps/voice",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Programmable Voice Capabilities",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
@@ -24,9 +24,9 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/core": "^0.0.2",
-    "@yaps/storage": "^0.0.2",
-    "@yaps/tts": "^0.0.2",
+    "@yaps/core": "^0.0.3",
+    "@yaps/storage": "^0.0.3",
+    "@yaps/tts": "^0.0.3",
     "dotenv": "^8.2.0",
     "minio": "^7.0.14",
     "objectid": "^3.2.1"

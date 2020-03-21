@@ -1,7 +1,7 @@
 {
   "name": "@yaps/ctl",
   "description": "Command-Line for YAPS",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Pedro Sanders @psanders",
   "bin": {
     "yaps": "./bin/run"
@@ -11,8 +11,8 @@
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",
     "@oclif/plugin-help": "^2.2.3",
-    "@yaps/appmanager": "^0.0.2",
-    "@yaps/core": "^0.0.2",
+    "@yaps/appmanager": "^0.0.3",
+    "@yaps/core": "^0.0.3",
     "dotenv": "^8.2.0",
     "easy-table": "^1.1.1",
     "inquirer": "^7.1.0",
