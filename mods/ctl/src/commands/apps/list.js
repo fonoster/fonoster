@@ -76,4 +76,6 @@ ListCommand.flags = {
   size: flags.integer({char: 's', default: 25, description: 'number of result per page'})
 }
 
+ListCommand.aliases = ['apps:ls']
+
 module.exports = ListCommand
