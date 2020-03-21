@@ -87,7 +87,7 @@ For more examples go the [examples folder](/examples) in this repository.
 </details>
 
 <details><summary>Testing</summary>
-
+<br />
 To interact with your application, point your softphone to Asterisk sub-system.
 Asterisk will be listening for SIP traffic on port `6060\tcp`. The testing information
 is as follows:
@@ -99,7 +99,7 @@ TEST EXTENSION = 1002
 </details>
 
 <details><summary>What's Next?</summary>
-
+<br />
 Congratulations if you made it this far. The next step with YAPS is to get familiar with the [Command-Line Tool](https://www.npmjs.com/package/@yaps/ctl) and [SDK](https://github.com/fonoster/yaps/wiki/AppManager).
   
 </details>
