@@ -61,6 +61,27 @@ services:
     ports:
       - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
 
+  integrationtests:
+    depends_on: [apiserver]
+    env_file: .env
+    image: integrationtests
+    build:
+      context: mods
+      dockerfile: Dockerfile.mc
+    environment:
+      YAPS_ACCESS_FILE: /credentials/access
+      YAPS_ENDPOINT: ${APISERVER_ENDPOINT}
+      CERTS_PATH: /etc/certs
+    entrypoint: |
+      sh -c '
+          npm i nyc mocha -g
+          cd /mods
+          npm test
+      '
+    volumes:
+      - credentials:/credentials
+      - ./mods/etc/certs:/etc/certs:ro
+
 volumes:
   data1-1:
   credentials:

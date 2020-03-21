@@ -19,5 +19,4 @@ jobs:
           ./cc-test-reporter before-build
       - name: Integration tests
         run: |
-          cd mods
-          docker-compose -f integration.yml up --abort-on-container-exit --exit-code-from tester
+          docker-compose up --abort-on-container-exit --exit-code-from integrationtests fs tts datasource apiserver integrationtests
