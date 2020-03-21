@@ -1,4 +1,4 @@
-name: SDK Integration
+name: integration
 on:
   push:
     paths:
