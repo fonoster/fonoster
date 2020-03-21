@@ -1,7 +1,7 @@
 {
   "name": "@yaps/ctl",
   "description": "Command-Line for YAPS",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "author": "Pedro Sanders @psanders",
   "bin": {
     "yaps": "./bin/run"
@@ -53,7 +53,7 @@
     "topics": {
       "apps": { "description": "manage voice applications" },
       "login": { "description": "authenticates current station" },
-      "logout": { "description": "revoke crendentials to current station" }
+      "logout": { "description": "revoke crendentials to the current station" }
     }
   },
   "repository": "fonoster/yaps",
