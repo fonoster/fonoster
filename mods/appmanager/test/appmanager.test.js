@@ -15,7 +15,7 @@ describe('App Manager Service', () => {
         })
     })
 
-    it.only('Create app bad dir path field', done => {
+    it('Create app bad dir path field', done => {
         const path = __dirname + '/../etc/hello-money'
 
         appmanager.deployApp(path)
@@ -26,7 +26,7 @@ describe('App Manager Service', () => {
         })
     })
 
-    it.only('Deploy app perfect case...', done => {
+    it('Deploy app perfect case...', done => {
         const path = __dirname + '/../etc/hello-monkeys'
 
         appmanager.deployApp(path)
@@ -36,8 +36,8 @@ describe('App Manager Service', () => {
         }).catch(err => done(err))
     })
 
-    it.skip('List apps', done => {
-        appmanager.listApps({pagSize: 1, pageToken: '?', view: 0})
+    it('List apps', done => {
+        appmanager.listApps({pagSize: 10, pview: 0, pageToken: '0'})
         .then(result => {
             assert.ok(result.getAppsList().length > 0)
             done()
@@ -52,7 +52,7 @@ describe('App Manager Service', () => {
         }).catch(err => done(err))
     })
 
-    it.only('Get app no yet register', done => {
+    it('Get app no yet register', done => {
         appmanager.getApp('hello-money')
         .then(app => {
             done('should not enter here')
@@ -62,14 +62,14 @@ describe('App Manager Service', () => {
         })
     })
 
-    it.only('Delete app', done => {
+    it('Delete app', done => {
         appmanager.deleteApp('hello-monkeys')
         .then(() => {
             done()
         }).catch(err => done(err))
     })
 
-    it.only('Delete app not yet register', done => {
+    it('Delete app not yet register', done => {
         appmanager.deleteApp('hello-moneys')
         .then(() => {
             done('should not enter here')
