@@ -1,5 +1,6 @@
 const AppManager = require('../src/appmanager')
 const assert = require('assert')
+const { updateBucketPolicy } = require('@yaps/core')
 
 if (process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV) {
   require('dotenv').config({ path: __dirname + '/../../.env' })
@@ -8,7 +9,10 @@ if (process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV) {
 describe('App Manager Service', () => {
   let appmanager
 
-  before(() => {
+  before(async () => {
+    // This will create the bucket if it does not exist
+    await updateBucketPolicy('apps')
+
     appmanager = new AppManager({
       endpoint: `${process.env.APISERVER_ENDPOINT}`,
       bucket: 'apps'
