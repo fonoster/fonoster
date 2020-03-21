@@ -20,21 +20,33 @@ YAPS stands for **Y**et **A**nother **P**hone **S**ystem, and like the name stat
 YAPS a composite of several microservices. To get started with YAPS you are going to need Docker and Docker Compose.
 Other deployment options will soon be available.
 
-### Requirements
-
-- Docker Compose, Docker Swarm, or K8s
-- Node and NPM
-- Git (optional)
-- A softphone
-
 ### Running the System
 
 YAPS deploys in various environments such as Docker Compose, Docker Swarm, and K8s. Click bellow for deployment details:
 
-<details><summary><b>Docker Compose</b></summary>
+<details><summary>Preparation</summary>
+
 <br />
-You must have docker and docker-compose on your system to run this platform
-<br /><br />
+The first step with YAPS Programmable Voice is to install all the requirements.
+Refer to websites of the various products bellow for detail on installation and configuration.
+<br />
+
+**Requirements**
+
+- Docker Compose
+- Node and NPM
+- Git (optional)
+- A softphone
+
+</details>
+
+<details><summary>Running the Infrastructure</summary>
+
+<br />
+Once all the requirements are install, the next step is to run the Infraestructure.
+For that, you must clone/download YAPS' git repository. This process will take
+take the first time you run the commands. This is a good time to go get some coffe! 
+<br />
 
 Run using docker-compose
 
@@ -44,27 +56,30 @@ cd yaps
 docker-compose up
 ```
 
+> Work is on the way to enable YAPS for Docker Swarm and K8s.
 </details>
 
-<details><summary><b>Docker Swarm</b></summary>
+<details><summary>Installing the Tools</summary>
+ 
 <br />
-Coming soon...
-
-</details>
-
-<details><summary><b>K8s</b></summary>
+The next step is to install the Command-Line Tool for YAPS
+command and control. To install the CLI run the following command:
 <br />
-Coming soon...
-
-</details>
-
-### Installing the Command-Line Tool
 
 ```
 npm install @yaps/ctl -g
 ```
 
-### Creating and Deploying an Application
+For details on this tool please go to [ctl @ npmjs](https://www.npmjs.com/package/@yaps/ctl).
+</details>
+
+<details><summary>Creating and Deploy a Application</summary>
+
+<br />
+If everything is going to plan, it is time now to generate and deploy
+your first Voice Application. Use `yaps apps:init` and `yaps apps:deploy`
+to get it done.
+<br />
 
 ```
 mkdir voice-app
@@ -72,15 +87,20 @@ cd voice-app
 yaps apps:init
 yaps apps:deploy
 ```
+</details>
 
-For more commands go to [ctl @ npmjs](https://www.npmjs.com/package/@yaps/ctl) for more commands.
-
-### Testing the Application
+<details><summary>Testing</summary>
 
 To interact with your application, point a softphone to your Asterisk sub-system.
 Asterisk will be listening for SIP traffic on port `6060\tcp`. The test account is `1001` with
 password `1234`. Calling extension `1002` will connect your test account to your
 voice application.
+
+</details>
+
+<details><summary>What' Next?</summary>
+
+</details>
 
 ## Features
 
