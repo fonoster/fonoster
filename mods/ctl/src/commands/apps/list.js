@@ -6,8 +6,7 @@ const {CLIError} = require('@oclif/errors')
 const {Command, flags} = require('@oclif/command')
 const moment = require('moment')
 const inquirer = require('inquirer')
-const APPS_BUCKET = 'apps'
-const appmanager = new AppManager({bucket: APPS_BUCKET})
+const appmanager = new AppManager()
 
 class ListCommand extends Command {
   async run() {

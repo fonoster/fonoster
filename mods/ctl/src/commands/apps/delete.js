@@ -3,8 +3,7 @@ const AppManager = require('@yaps/appmanager')
 const {CLIError} = require('@oclif/errors')
 const {Command} = require('@oclif/command')
 const {cli} = require('cli-ux')
-const APPS_BUCKET = 'apps'
-const appmanager = new AppManager({bucket: APPS_BUCKET})
+const appmanager = new AppManager()
 
 class DeleteCommand extends Command {
   async run() {

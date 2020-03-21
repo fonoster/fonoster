@@ -36,16 +36,16 @@ class AbstractService {
         } catch (e) {
         }
 
-        if(process.env.APISERVER_ENDPOINT) {
-            defaultConfig.endpoint = process.env.APISERVER_ENDPOINT
+        if(process.env.YAPS_ENDPOINT) {
+            defaultConfig.endpoint = process.env.YAPS_ENDPOINT
         }
 
-        if(process.env.ACCESS_KEY_ID) {
-            defaultConfig.accessKeyId = process.env.ACCESS_KEY_ID
+        if(process.env.YAPS_ACCESS_KEY_ID) {
+            defaultConfig.accessKeyId = process.env.YAPS_ACCESS_KEY_ID
         }
 
-        if(process.env.ACCESS_KEY_SECRET) {
-            defaultConfig.accessKeySecret = process.env.ACCESS_KEY_SECRET
+        if(process.env.YAPS_ACCESS_KEY_SECRET) {
+            defaultConfig.accessKeySecret = process.env.YAPS_ACCESS_KEY_SECRET
         }
 
         this.options = merge(defaultConfig, options)

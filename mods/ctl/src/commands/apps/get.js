@@ -4,8 +4,7 @@ const {CLIError} = require('@oclif/errors')
 const {Command, flags} = require('@oclif/command')
 const { cli } = require('cli-ux')
 const prettyjson = require('prettyjson')
-const APPS_BUCKET = 'apps'
-const appmanager = new AppManager({bucket: APPS_BUCKET})
+const appmanager = new AppManager()
 
 class GetCommand extends Command {
   async run() {

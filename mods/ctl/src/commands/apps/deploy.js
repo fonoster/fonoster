@@ -6,20 +6,24 @@ const path = require('path')
 const {Command, flags} = require('@oclif/command')
 const {CLIError} = require('@oclif/errors')
 const {updateBucketPolicy} = require('@yaps/core')
-// TODO: Change to be an environment variable
-const APPS_BUCKET = 'apps'
-const appmanager = new AppManager({bucket: APPS_BUCKET})
+const appmanager = new AppManager()
 
 class DeployCommand extends Command {
   async run() {
     try {
-      cli.action.start('Preparing environment')
-
-      await updateBucketPolicy(APPS_BUCKET)
       const pckg = path.join(process.cwd(), 'package.json')
 
       cli.action.start('Deploying application')
       const app = await appmanager.deployApp(process.cwd())
+
+      let bucket = 'default'
+      try {
+        const yapsConfig = JSON.parse(path.join(process.cwd(), 'yaps.json'))
+        bucket = yapsConfig.bucket || 'default'
+      } catch(e) {}
+
+      cli.action.start('Updating bucket policy')
+      await updateBucketPolicy(bucket)
 
       await cli.wait(1000)
       cli.action.stop('')
@@ -27,7 +31,8 @@ class DeployCommand extends Command {
       const appJson = {
         Name: app.getName(),
         Description: app.getDescription(),
-        Create: app.getCreateTime()
+        Create: app.getCreateTime(),
+        "Default Bucket": bucket 
       }
 
       console.log(prettyjson.render(appJson, {noColor: true}))

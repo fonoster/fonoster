@@ -175,12 +175,10 @@ class AppManager extends AbstractService {
             await tar.create({file: `/tmp/${dirName}.tgz`, cwd: '/tmp'},
                 [dirName])
 
-            logger.log('debug', `@yaps/appmananger deployApp [uploading to bucket -> ${super.getOptions().bucket}]`)
-
             // Will fail because of bad argument filenam
             await this.storage.uploadObject({
                 filename: `/tmp/${dirName}.tgz`,
-                bucket: super.getOptions().bucket
+                bucket: 'apps'   // TODO: Maybe I should place this in the .env
             })
 
             return response
