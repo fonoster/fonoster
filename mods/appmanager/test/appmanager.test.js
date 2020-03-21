@@ -1,82 +1,94 @@
 const AppManager = require('../src/appmanager')
 const assert = require('assert')
 
-if(process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV ) {
-    require('dotenv').config({ path: __dirname + '/../../.env' })
+if (process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV) {
+  require('dotenv').config({ path: __dirname + '/../../.env' })
 }
 
 describe('App Manager Service', () => {
-    let appmanager
+  let appmanager
 
-    before(() => {
-        appmanager = new AppManager({
-            endpoint: `${process.env.APISERVER_ENDPOINT}`,
-            bucket: 'apps'
-        })
+  before(() => {
+    appmanager = new AppManager({
+      endpoint: `${process.env.APISERVER_ENDPOINT}`,
+      bucket: 'apps'
     })
+  })
 
-    it('Create app bad dir path field', done => {
-        const path = __dirname + '/../etc/hello-money'
+  it('Create app bad dir path field', done => {
+    const path = __dirname + '/../etc/hello-money'
 
-        appmanager.deployApp(path)
-        .then(r => done('should enter here'))
-        .catch(err => {
-            assert.ok(err.message.includes('Unable to open project'))
-            done()
-        })
-    })
+    appmanager
+      .deployApp(path)
+      .then(r => done('should enter here'))
+      .catch(err => {
+        assert.ok(err.message.includes('Unable to open project'))
+        done()
+      })
+  })
 
-    it('Deploy app perfect case...', done => {
-        const path = __dirname + '/../etc/hello-monkeys'
+  it('Deploy app perfect case...', done => {
+    const path = __dirname + '/../etc/hello-monkeys'
 
-        appmanager.deployApp(path)
-        .then(app => {
-            assert.equal(app.getName(), 'hello-monkeys')
-            done()
-        }).catch(err => done(err))
-    })
+    appmanager
+      .deployApp(path)
+      .then(app => {
+        assert.equal(app.getName(), 'hello-monkeys')
+        done()
+      })
+      .catch(err => done(err))
+  })
 
-    it('List apps', done => {
-        appmanager.listApps({pagSize: 10, pview: 0, pageToken: '0'})
-        .then(result => {
-            assert.ok(result.getAppsList().length > 0)
-            done()
-        }).catch(err => done(err))
-    })
+  it('List apps', done => {
+    appmanager
+      .listApps({ pagSize: 10, pview: 0, pageToken: '0' })
+      .then(result => {
+        assert.ok(result.getAppsList().length > 0)
+        done()
+      })
+      .catch(err => done(err))
+  })
 
-    it('Get app', done => {
-        appmanager.getApp('hello-monkeys')
-        .then(app => {
-            assert.ok(app.getName() === 'hello-monkeys')
-            done()
-        }).catch(err => done(err))
-    })
+  it('Get app', done => {
+    appmanager
+      .getApp('hello-monkeys')
+      .then(app => {
+        assert.ok(app.getName() === 'hello-monkeys')
+        done()
+      })
+      .catch(err => done(err))
+  })
 
-    it('Get app no yet register', done => {
-        appmanager.getApp('hello-money')
-        .then(app => {
-            done('should not enter here')
-        }).catch(err => {
-            assert.ok(err.message.includes('does not exist'))
-            done()
-        })
-    })
+  it('Get app no yet register', done => {
+    appmanager
+      .getApp('hello-money')
+      .then(app => {
+        done('should not enter here')
+      })
+      .catch(err => {
+        assert.ok(err.message.includes('does not exist'))
+        done()
+      })
+  })
 
-    it('Delete app', done => {
-        appmanager.deleteApp('hello-monkeys')
-        .then(() => {
-            done()
-        }).catch(err => done(err))
-    })
+  it('Delete app', done => {
+    appmanager
+      .deleteApp('hello-monkeys')
+      .then(() => {
+        done()
+      })
+      .catch(err => done(err))
+  })
 
-    it('Delete app not yet register', done => {
-        appmanager.deleteApp('hello-moneys')
-        .then(() => {
-            done('should not enter here')
-        }).catch(err => {
-            assert.ok(err.message.includes('does not exist'))
-            done()
-        })
-    })
-
+  it('Delete app not yet register', done => {
+    appmanager
+      .deleteApp('hello-moneys')
+      .then(() => {
+        done('should not enter here')
+      })
+      .catch(err => {
+        assert.ok(err.message.includes('does not exist'))
+        done()
+      })
+  })
 })

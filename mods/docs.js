@@ -19,8 +19,7 @@ const classNames = templateData.reduce((classNames, identifier) => {
 /* create a documentation file for each class */
 for (const className of classNames) {
   // Workaround an issue with the inputFile picking up wrong classes
-  if (['Scanner', 'Walker', 'Parser', 'Filter']
-    .includes(className)) continue
+  if (['Scanner', 'Walker', 'Parser', 'Filter'].includes(className)) continue
   const template = `{{#class name="${className}"}}{{>docs}}{{/class}}`
   console.log(`rendering ${className}, template: ${template}`)
   const output = jsdoc2md.renderSync({ data: templateData, template: template })

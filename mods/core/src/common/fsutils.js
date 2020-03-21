@@ -2,9 +2,8 @@ const { fsInstance } = require('./utils')
 const logger = require('./logger')
 
 module.exports = bucket => {
-
-    // Bucket policy - GET requests on "storageBucket" bucket will not need authentication.
-    const policy = `
+  // Bucket policy - GET requests on "storageBucket" bucket will not need authentication.
+  const policy = `
     {
       "Version": "2012-10-17",
       "Statement": [
@@ -43,24 +42,30 @@ module.exports = bucket => {
     }
     `
 
-    fsConn = fsInstance()
+  fsConn = fsInstance()
 
-    return new Promise((resolve, reject) =>
-        fsConn.bucketExists(bucket, (err, exists) => {
-              if (err) reject(err)
+  return new Promise((resolve, reject) =>
+    fsConn.bucketExists(bucket, (err, exists) => {
+      if (err) reject(err)
 
-              if (!exists) {
-                  logger.log('verbose', `@yaps/core fsutils [Creating storage bucket: ${bucket}]`)
-                  fsConn.makeBucket(bucket, 'us-west-1', err => {
-                      if (err) reject(err)
-                      fsConn.setBucketPolicy(bucket, policy, err => {
-                         if (err) reject(err)
-                         logger.log('verbose', `@yaps/core fsutils [Bucket policy changed for bucket: ${bucket}]`)
-                         resolve()
-                      })
-                  })
-              }
-              resolve()
-        }
-    ))
+      if (!exists) {
+        logger.log(
+          'verbose',
+          `@yaps/core fsutils [Creating storage bucket: ${bucket}]`
+        )
+        fsConn.makeBucket(bucket, 'us-west-1', err => {
+          if (err) reject(err)
+          fsConn.setBucketPolicy(bucket, policy, err => {
+            if (err) reject(err)
+            logger.log(
+              'verbose',
+              `@yaps/core fsutils [Bucket policy changed for bucket: ${bucket}]`
+            )
+            resolve()
+          })
+        })
+      }
+      resolve()
+    })
+  )
 }

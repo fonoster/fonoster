@@ -1,5 +1,5 @@
-'use strict';
+'use strict'
 
 describe('@yaps/dispatcher', () => {
-    it('needs tests');
-});
+  it('needs tests')
+})

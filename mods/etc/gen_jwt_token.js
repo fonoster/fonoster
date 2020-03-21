@@ -7,7 +7,10 @@ const accessKeyId = process.env.ACCESS_KEY_ID || 'yaps'
 
 // Getting SALT
 const pathToSalt = path.join(pathToCerts, 'jwt.salt')
-const privateKey = fs.readFileSync(pathToSalt).toString().trim()
+const privateKey = fs
+  .readFileSync(pathToSalt)
+  .toString()
+  .trim()
 
 const claims = {
   iss: 'yaps',
@@ -15,8 +18,8 @@ const claims = {
 }
 
 const access = {
-    accessKeyId: accessKeyId,
-    accessKeySecret: jwt.sign(claims, privateKey)
+  accessKeyId: accessKeyId,
+  accessKeySecret: jwt.sign(claims, privateKey)
 }
 
-console.log(JSON.stringify(access, null, "  "))
+console.log(JSON.stringify(access, null, '  '))

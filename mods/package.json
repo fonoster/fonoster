@@ -12,19 +12,30 @@
     "@yaps/tts": "^0.0.2",
     "@yaps/voice": "^0.0.2",
     "assert": "^2.0.0",
+    "eslint": "^5.16.0",
+    "husky": "^4.2.3",
     "jsdoc-to-markdown": "^5.0.3",
     "jsonwebtoken": "^8.5.1",
     "lerna": "^3.20.2",
+    "lint-staged": "^10.0.8",
     "mocha": "^7.1.0",
     "node-gyp": "^6.1.0",
-    "nyc": "^15.0.0"
+    "nyc": "^15.0.0",
+    "prettier-standard": "^9.1.1"
   },
   "scripts": {
     "docs": "node ./docs",
+    "posttest": "eslint .",
     "test": "NODE_ENV=dev nyc --reporter=lcov mocha **/test/*.test.js",
     "clean": "rm **/package-lock.json; lerna clean -y",
-    "gen-proto": "./etc/gen_code_proto",
-    "start-as": "NODE_ENV=dev CERTS_PATH=mods/etc/certs node core/src/server/server.js",
-    "start-mc": "NODE_ENV=dev node dispatcher/src/dispatcher.js"
+    "format": "prettier-standard '**/*.js'"
+  },
+  "lint-staged": {
+    "linters": {
+      "**/*.js": [
+        "prettier-standard",
+        "git add"
+      ]
+    }
   }
 }

@@ -1,17 +1,16 @@
 require('../config')
-const {Command} = require('@oclif/command')
+const { Command } = require('@oclif/command')
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
 
 class LogoutCommand extends Command {
-  async run() {
+  async run () {
     const pathToAccess = path.join(os.homedir(), '.yaps', 'access')
 
     try {
       fs.unlinkSync(pathToAccess)
-    } catch(e) {
-    }
+    } catch (e) {}
     console.log('Done.')
   }
 }

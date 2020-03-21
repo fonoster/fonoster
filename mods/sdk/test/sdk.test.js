@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-const sdk = require('..');
+const sdk = require('..')
 
 describe('@yaps/sdk', () => {
-    it('needs tests');
-});
+  it('needs tests')
+})

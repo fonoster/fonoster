@@ -11,7 +11,8 @@ const CLIENT_CRT = process.env.CERTS_PATH + '/client.crt'
 const CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
 
 // TODO: Retrive path to certificates from env
-module.exports.getServerCredentials = () => grpc.ServerCredentials.createSsl(
+module.exports.getServerCredentials = () =>
+  grpc.ServerCredentials.createSsl(
     fs.readFileSync(CA_CRT),
     [
       {
@@ -20,46 +21,58 @@ module.exports.getServerCredentials = () => grpc.ServerCredentials.createSsl(
       }
     ],
     true
-)
+  )
 
-module.exports.getClientCredentials = () => grpc.credentials.createSsl(
+module.exports.getClientCredentials = () =>
+  grpc.credentials.createSsl(
     fs.readFileSync(CA_CRT),
     fs.readFileSync(CLIENT_KEY),
     fs.readFileSync(CLIENT_CRT)
-)
+  )
 
-module.exports.auth = function(call, callback) {
+module.exports.auth = function (call, callback) {
+  let salt
 
-    let salt
+  try {
+    const pathToCerts = path.join(process.env.CERTS_PATH, 'jwt.salt')
+    // TODO: Move elsewhere to avoid reading this file everytime
+    salt =
+      process.env.JWT_SALT ||
+      fs
+        .readFileSync(pathToCerts)
+        .toString()
+        .trim()
+  } catch (e) {
+    logger.log(
+      'error',
+      `Unable to find JWT_SALT environment variable or the certificates`
+    )
+    throw new Error(
+      'Unable to find JWT_SALT environment variable or the certificates'
+    )
+  }
 
+  if (
+    call.metadata._internal_repr.access_key_id === null ||
+    call.metadata._internal_repr.access_key_secret === null
+  ) {
+    throw new Error('Unauthorized')
+    return
+  }
+
+  const accessKeyId = call.metadata._internal_repr.access_key_id.toString()
+  const accessKeySecret = call.metadata._internal_repr.access_key_secret.toString()
+
+  if (typeof accessKeySecret !== 'undefined') {
     try {
-        const pathToCerts = path.join(process.env.CERTS_PATH, 'jwt.salt')
-        // TODO: Move elsewhere to avoid reading this file everytime
-        salt = process.env.JWT_SALT || fs.readFileSync(pathToCerts).toString().trim()
-    } catch(e) {
-        logger.log('error', `Unable to find JWT_SALT environment variable or the certificates`)
-        throw new Error('Unable to find JWT_SALT environment variable or the certificates')
-    }
-
-    if (call.metadata._internal_repr.access_key_id === null ||
-        call.metadata._internal_repr.access_key_secret === null) {
+      const decoded = jwt.verify(accessKeySecret, salt)
+      if (!decoded || accessKeyId !== decoded.sub) {
         throw new Error('Unauthorized')
-        return
+      }
+    } catch (e) {
+      throw e
     }
-
-    const accessKeyId = call.metadata._internal_repr.access_key_id.toString()
-    const accessKeySecret = call.metadata._internal_repr.access_key_secret.toString()
-
-    if (typeof accessKeySecret !== 'undefined') {
-        try {
-            const decoded = jwt.verify(accessKeySecret, salt)
-            if(!decoded || accessKeyId !== decoded.sub) {
-                throw new Error('Unauthorized')
-            }
-        } catch(e) {
-            throw e
-        }
-    } else {
-        throw new Error('Unauthorized')
-    }
+  } else {
+    throw new Error('Unauthorized')
+  }
 }
