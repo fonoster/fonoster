@@ -60,17 +60,19 @@ Comming soon...
 ### Installing the Command-Line Tool
 
 ```
-git clone https://github.com/fonoster/yaps # If not done already
-cd yaps/mods
-npm i lerna -g 
-lerna bootstrap
+npm install @yaps/ctl -g
 ```
 
-### Deploying your App
+For more commands go to [ctl @ npmjs](https://www.npmjs.com/package/@yaps/ctl) for more commands.
+
+### Creating and Deploying an App
 
 ```
-cd yaps/mods/ctl
-node src/ctl.js 'path/to/app/'
+mkdir voice-app
+cd voice-app
+// Follow the prompt
+yaps apps:init 
+yaps apps:deploy
 ```
 
 ### Testing
