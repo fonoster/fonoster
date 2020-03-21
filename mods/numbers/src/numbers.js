@@ -60,8 +60,6 @@ class Numbers extends AbstractService {
         }]`
       )
 
-      // TODO: Validate number
-
       const req = new NumbersPB.GetIngressAppRequest()
       req.setE164Number(request.e164Number)
 
