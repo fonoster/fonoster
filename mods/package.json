@@ -25,8 +25,7 @@
   },
   "scripts": {
     "docs": "node ./docs",
-    "posttest": "eslint .",
-    "test": "NODE_ENV=dev nyc --reporter=lcov mocha **/test/*.test.js",
+    "test": "NODE_ENV=dev nyc mocha **/test/*.test.js",
     "clean": "rm **/package-lock.json; lerna clean -y",
     "format": "prettier-standard '**/*.js'"
   },

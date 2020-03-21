@@ -49,6 +49,11 @@ const getIngressApp = async (call, callback) => {
   // TODO: throw error if appName is null
   const appFromDB = await redis.call('get', appName)
 
+  if (!appFromDB) {
+    callback(new Error('NOT_FOUND'))
+    return
+  }
+
   const app = new AppManagerPB.App(JSON.parse(appFromDB).array)
   callback(null, app)
 }
