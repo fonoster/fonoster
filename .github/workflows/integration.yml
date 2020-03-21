@@ -7,7 +7,7 @@ on:
     - master
 jobs:
   build:
-    timeout-minutes: 3
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
