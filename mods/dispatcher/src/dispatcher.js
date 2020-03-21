@@ -32,9 +32,6 @@ function dispatch (channel) {
     const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
     logger.log('silly', `@yaps/dispatcher dispatch [contents: ${contents}]`)
 
-    // TODO: Move this as part of the deployment process
-    updateBucketPolicy(ingressInfo.bucket)
-
     const chann = new YWC(channel, {
       tts: new MaryTTS(),
       storage: new Storage({ bucket: ingressInfo.bucket }),

@@ -18,6 +18,9 @@ services:
           node gen_jwt_token.js > /credentials/access
           echo "Your new credentials are:"
           cat /credentials/access
+
+          # Hangout while the other container finish
+          while sleep 3600; do :; done
       '
     volumes:
       - data1-1:/fs
