@@ -31,20 +31,11 @@
     "format": "prettier-standard '**/*.js'"
   },
   "lint-staged": {
-    "linters": {
-      "**/*.js": [
-        "prettier-standard",
-        "git add"
-      ],
-      "**/*.jsx": [
-        "prettier-standard",
-        "git add"
-      ]
-    }
+    "**/*.js": ["prettier-standard", "git add" ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run format"
+      "pre-commit": "lint-staged"
     }
   }
 }
