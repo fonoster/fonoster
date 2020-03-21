@@ -254,7 +254,7 @@ class AppManager extends AbstractService {
    * @param {Object} request
    * @param {number} request.pageSize - Number of element per page (defaults to 20)
    * @param {number} request.pageToken - The next_page_token value returned from a previous List request, if any
-   * @return {Promise<[App]>} List of applications
+   * @return {Promise<App>} List of applications
    * @example
    *
    * const request = {

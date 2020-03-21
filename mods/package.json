@@ -34,7 +34,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged --allow-empty && node .docs"
+      "pre-commit": "lint-staged --allow-empty && node docs.js"
     }
   }
 }
