@@ -40,10 +40,8 @@ Requirements:
 <br />
 Once all the requirements are installed, the next step is to run the infraestructure.
 For that, you must clone or download YAPS git repository. The first time you run this commands
-it will take awhile.
-<br />
-
-Run using docker-compose
+it will take awhile. Run using docker-compose
+<br /><br />
 
 ```bash
 git clone https://github.com/fonoster/yaps
