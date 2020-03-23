@@ -59,28 +59,10 @@ class AppManager extends AbstractService {
    * @see module:core:AbstractService
    */
   constructor (options) {
-    super(options)
-
-    const metadata = new grpc.Metadata()
-    metadata.add('access_key_id', super.getOptions().accessKeyId)
-    metadata.add('access_key_secret', super.getOptions().accessKeySecret)
-
-    const credentials = grpc.credentials.createInsecure()
-
-    logger.log(
-      'info',
-      `Connecting with API Server @ ${super.getOptions().endpoint}`
-    )
-
-    const service = new AppManagerService.AppManagerClient(
-      super.getOptions().endpoint,
-      credentials
-    )
-
-    this.service = service
+    super(options, AppManagerService.AppManagerClient)
     this.storage = new Storage(super.getOptions())
-
-    promisifyAll(service, { metadata })
+    this.service = super.getService()
+    promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 
   /**

@@ -1,3 +1,4 @@
+const grpc = require('./grpc_hack')
 const merge = require('deepmerge')
 const fs = require('fs')
 const path = require('path')
@@ -19,7 +20,7 @@ class AbstractService {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  constructor (options = {}) {
+  constructor (options = {}, Service) {
     const defaultConfig = {
       bucket: process.env.FS_DEFAULT_STORAGE_BUCKET
     }
@@ -78,10 +79,29 @@ class AbstractService {
     if (!this.options.accessKeyId || !this.options.accessKeySecret) {
       throw new Error('Not valid credentials found')
     }
+
+    const metadata = new grpc.Metadata()
+    metadata.add('access_key_id', this.options.accessKeyId)
+    metadata.add('access_key_secret', this.options.accessKeySecret)
+    this.metadata = metadata
+
+    const credentials = grpc.credentials.createInsecure()
+
+    logger.log('info', `Connecting with API Server @ ${this.options.endpoint}`)
+
+    this.service = new Service(this.options.endpoint, credentials)
   }
 
   getOptions () {
     return this.options
+  }
+
+  getService () {
+    return this.service
+  }
+
+  getMeta () {
+    return this.metadata
   }
 }
 

@@ -1,6 +1,7 @@
-const AppManagerClient = require('./protos/appmanager_grpc_pb')
-const StorageClient = require('./protos/storage_grpc_pb')
-const NumbersClient = require('./protos/numbers_grpc_pb')
+const { AppManagerService } = require('./protos/appmanager_grpc_pb')
+const { StorageService } = require('./protos/storage_grpc_pb')
+const { NumbersService } = require('./protos/numbers_grpc_pb')
+const { DomainsService } = require('./protos/domains_grpc_pb')
 const fs = require('fs')
 const path = require('path')
 const logger = require('../common/logger')
@@ -15,6 +16,7 @@ const {
 } = require('./appmanager_srv.js')
 const { createNumber, getIngressApp } = require('./numbers_srv.js')
 const { uploadObject, getObjectURL } = require('./storage_srv.js')
+const { createDomain } = require('./domains_srv.js')
 
 if (process.env.NODE_ENV === 'dev') {
   const env = path.join(__dirname, '..', '..', '..', '.env')
@@ -23,7 +25,7 @@ if (process.env.NODE_ENV === 'dev') {
 
 function main () {
   const server = new grpc.Server()
-  server.addService(AppManagerClient.AppManagerService, {
+  server.addService(AppManagerService, {
     listApps,
     getApp,
     createApp,
@@ -31,14 +33,18 @@ function main () {
     deleteApp
   })
 
-  server.addService(StorageClient.StorageService, {
+  server.addService(StorageService, {
     uploadObject,
     getObjectURL
   })
 
-  server.addService(NumbersClient.NumbersService, {
+  server.addService(NumbersService, {
     createNumber,
     getIngressApp
+  })
+
+  server.addService(DomainsService, {
+    createDomain
   })
 
   let credentials = grpc.ServerCredentials.createInsecure()
