@@ -26,6 +26,36 @@ services:
             fluentd-max-retries: '30'
             tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
 
+  sipproxy:
+    env_file: .env
+    image: ${SIPPROXY_IMAGE}
+    restart: always
+    environment:
+      ROUTR_EXTERN_ADDR: ${HOST_ADDR}
+      ROUTR_DS_PROVIDER: redis_data_provider
+      ROUTR_DS_PARAMETERS: host=${DS_HOST},port=${DS_PORT}
+    expose:
+      - ${SIPPROXY_API_PORT}
+      - ${SIPPROXY_SIP_PORT}
+    ports:
+      - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
+      - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
+    volumes:
+      - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 1
+    logging:
+        driver: fluentd
+        options:
+            fluentd-address: localhost:24224
+            fluentd-async-connect: 'true'
+            fluentd-retry-wait: '1s'
+            fluentd-max-retries: '30'
+            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.sipproxy
+
   mediaserver:
     env_file: .env
     image: ${MS_IMAGE}:${COMPOSE_PROJECT_VERSION}
@@ -171,8 +201,8 @@ services:
     environment:
       ELASTICSEARCH_HOSTS: http://logsaggregator:${LOGS_AGGREGRATOR_PORT}
 
-## By default this config uses default local driver,
-## For custom volumes replace with volume driver configuration.
+# By default this config uses default local driver,
+# For custom volumes replace with volume driver configuration.
 volumes:
   data1-1:
   credentials:

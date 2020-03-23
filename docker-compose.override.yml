@@ -19,13 +19,27 @@ services:
           echo "Your new credentials are:"
           cat /credentials/access
 
-          # Hangout while the other container finish
+          # Hangout while the other containers finish
           while sleep 3600; do :; done
       '
     volumes:
       - data1-1:/fs
       - credentials:/credentials
       - ./mods/etc/certs:/etc/certs:ro
+
+  provisioner:
+    env_file: .env
+    build:
+      context: .rctl
+    entrypoint: |
+      sh -c '
+        while ! nc -z $SIPPROXY_HOST ${SIPPROXY_API_PORT}; do sleep 0.1; done
+        rctl login https://${SIPPROXY_HOST}:${SIPPROXY_API_PORT}/api/v1beta1 \
+          -u ${SIPPROXY_API_USERNAME} -p ${SIPPROXY_API_SECRET}
+        rctl create -f /etc/bootstrap.yml
+      '
+    volumes:
+      - ./etc/bootstrap.yml:/etc/bootstrap.yml:ro
 
   apiserver:
     logging:
