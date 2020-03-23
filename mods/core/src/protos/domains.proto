@@ -1,0 +1,28 @@
+/**
+ * MIT License
+ * Copyright (c) 2020 Fonoster Inc
+ *
+ * The Domains proto contains the artificats for domains administration
+ */
+syntax = "proto3";
+
+package yaps.domains.v1alpha1;
+
+service Domains {
+  // Creates a new Domain resource.
+  rpc CreateDomain (CreateDomainRequest) returns (Domain) {};
+}
+
+message CreateDomainRequest {
+  Domain domain = 1;
+}
+
+message Domain {
+  string domain_uri = 1;
+  string egress_rule = 2;
+  string egress_number_ref = 3;
+  repeated string access_deny = 4;
+  repeated string access_allow = 5;
+  string create_time = 8;
+  string update_time = 9;
+}
