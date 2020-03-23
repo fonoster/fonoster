@@ -24,6 +24,8 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
+    "axios": "^0.19.2",
+    "btoa": "^1.2.1",
     "deepmerge": "^4.2.2",
     "dotenv": "^8.2.0",
     "fluent-logger": "^3.4.1",
