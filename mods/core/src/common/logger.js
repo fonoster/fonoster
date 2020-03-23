@@ -23,7 +23,7 @@ const logger = winston.createLogger({
   transports: [fluent, new winston.transports.Console()]
 })
 
-if (process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV) {
+if (process.env.NODE_ENV === 'dev') {
   logger.remove(fluent)
 }
 

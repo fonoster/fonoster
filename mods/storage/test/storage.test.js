@@ -1,14 +1,11 @@
-/**
- * @author Pedro Sanders
- * @since v1
- */
 const { Storage } = require('../src/storage')
 const { StoragePB } = require('@yaps/core')
-const assert = require('assert')
 const { updateBucketPolicy } = require('@yaps/core')
+const assert = require('assert')
+const path = require('path')
 
-if (process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV) {
-  require('dotenv').config({ path: __dirname + '/../../.env' })
+if (process.env.NODE_ENV === 'dev') {
+  require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 }
 
 describe('Storage Service', () => {

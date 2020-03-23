@@ -1,8 +1,9 @@
 const Domains = require('../src/domains')
 const assert = require('assert')
+const path = require('path')
 
-if (process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV) {
-  require('dotenv').config({ path: __dirname + '/../../.env' })
+if (process.env.NODE_ENV === 'dev') {
+  require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 }
 
 describe('Domains Service', () => {

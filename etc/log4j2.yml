@@ -1,0 +1,12 @@
+Configuration:
+  Appenders:
+    Console:
+      PatternLayout:
+        pattern: '[%-5level] %msg%n'
+      name: Console
+      target: SYSTEM_OUT
+  Loggers:
+    Root:
+      AppenderRef:
+      - ref: Console
+      level: info

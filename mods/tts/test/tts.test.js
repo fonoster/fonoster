@@ -1,14 +1,15 @@
 const AbstractTTS = require('../src/abstract_tts')
 const MaryTTS = require('../src/mary_tts')
 const assert = require('assert')
+const path = require('path')
 const {
   computeFilename,
   transcode,
   optionsToQueryString
 } = require('../src/utils')
 
-if (process.env.NODE_ENV === 'dev' || !process.env.NODE_ENV) {
-  require('dotenv').config({ path: __dirname + '/../../.env' })
+if (process.env.NODE_ENV === 'dev') {
+  require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 }
 
 describe('TTS Utils', () => {
