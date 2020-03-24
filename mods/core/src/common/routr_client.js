@@ -1,33 +1,40 @@
 const axios = require('axios')
 const btoa = require('btoa')
+const logger = require('./logger')
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 /**
  * Oversimplified version of a Routr API Client
  */
-class Routr {
-  constructor (apiUrl) {
-    // TODO: Only for testing
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+class RoutrClient {
+  constructor (apiUrl, username, secret) {
+    logger.log('debug', `@yaps/core RoutrClient [creating instance]`)
+    logger.log('debug', `@yaps/core RoutrClient [apiUrl: ${apiUrl}]`)
     this.apiUrl = apiUrl
+    this.username = username
+    this.secret = secret
   }
 
-  withToken (token) {
-    this.token = token
-    return this
+  async connect () {
+    logger.log('debug', `@yaps/core RoutrClient [connecting]`)
+    this.token = await this.getToken(this.username, this.secret)
+    logger.log('debug', `@yaps/core RoutrClient [token: ${this.token}]`)
   }
 
-  forResource (resource) {
+  resourceType (resource) {
     this.resource = resource
     return this
   }
 
   async getToken (username, password) {
-    return await axios
+    const response = await axios
       .create({
         baseURL: `${this.apiUrl}/token`,
         headers: { Authorization: `Basic ${btoa(username + ':' + password)}` }
       })
       .get()
+    return response.data.data
   }
 
   async list (resource) {
@@ -70,4 +77,4 @@ class Routr {
   }
 }
 
-module.exports = Routr
+module.exports = RoutrClient
