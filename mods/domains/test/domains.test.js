@@ -14,4 +14,16 @@ describe('Domains Service', () => {
       endpoint: `${process.env.APISERVER_ENDPOINT}`
     })
   })
+
+  it.only('Create domains perfect case...', done => {
+    const domain = {
+      name: 'Local Domain',
+      domainUri: 'test.local'
+    }
+
+    domains
+      .createDomain(domain)
+      .then(r => done())
+      .catch(err => done(err))
+  })
 })

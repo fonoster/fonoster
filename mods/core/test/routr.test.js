@@ -1,6 +1,11 @@
-const Routr = require('../src/common/routr_client')
+const routr = require('../src/server/routr')
 const path = require('path')
 const assert = require('assert')
+const {
+  ResourceBuilder,
+  Kind,
+  Privacy
+} = require('../src/common/resource_builder')
 
 if (process.env.NODE_ENV === 'dev') {
   require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
@@ -8,23 +13,12 @@ if (process.env.NODE_ENV === 'dev') {
 
 describe('Routr Client Test', () => {
   let token
-  let routr
   let domainRef
   let domainFromDB
 
-  before(async () => {
-    const baseUrl = `https://${process.env.SIPPROXY_HOST}:${
-      process.env.SIPPROXY_API_PORT
-    }/api/v1beta1`
-    routr = new Routr(baseUrl)
-    const response = await routr.getToken(
-      process.env.SIPPROXY_API_USERNAME,
-      process.env.SIPPROXY_API_SECRET
-    )
-    token = response.data.data
-  })
+  before(async () => await routr.connect())
 
-  it.only('Create domain', done => {
+  it('Create domain', done => {
     const domain = {
       apiVersion: 'v1beta1',
       kind: 'Domain',
@@ -39,8 +33,7 @@ describe('Routr Client Test', () => {
     }
 
     routr
-      .withToken(token)
-      .forResource('domains')
+      .resourceType('domains')
       .create(domain)
       .then(ref => {
         domainRef = ref
@@ -49,10 +42,9 @@ describe('Routr Client Test', () => {
       .catch(err => done(err))
   })
 
-  it.only('Get domain', done => {
+  it('Get domain', done => {
     routr
-      .withToken(token)
-      .forResource('domains')
+      .resourceType('domains')
       .get(domainRef)
       .then(domain => {
         domainFromDB = domain
@@ -62,10 +54,9 @@ describe('Routr Client Test', () => {
       .catch(err => done(err))
   })
 
-  it.only('List domains', done => {
+  it('List domains', done => {
     routr
-      .withToken(token)
-      .forResource('domains')
+      .resourceType('domains')
       .list()
       .then(domains => {
         assert.ok(domains.length > 0)
@@ -74,11 +65,10 @@ describe('Routr Client Test', () => {
       .catch(err => done(err))
   })
 
-  it.only('Update domain', done => {
+  it('Update domain', done => {
     domainFromDB.metadata.name = 'Test Domain Changed'
     routr
-      .withToken(token)
-      .forResource('domains')
+      .resourceType('domains')
       .update(domainFromDB)
       .then(ref => {
         done()
@@ -86,14 +76,26 @@ describe('Routr Client Test', () => {
       .catch(err => done(err))
   })
 
-  it.only('Delete domains', done => {
+  it('Delete domain', done => {
     routr
-      .withToken(token)
-      .forResource('domains')
+      .resourceType('domains')
       .del(domainFromDB.metadata.ref)
       .then(() => {
         done()
       })
       .catch(err => done(err))
+  })
+
+  it('Test bad use of resource builder', done => {
+    try {
+      const agent = new ResourceBuilder(Kind.AGENT, 'Test Agent')
+        .withCredentials()
+        .withEgressPolicy('.*', 'GW001')
+        .build()
+      console.log(JSON.stringify(agent, null, ' '))
+      done('not good')
+    } catch (err) {
+      done()
+    }
   })
 })

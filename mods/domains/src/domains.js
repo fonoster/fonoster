@@ -15,6 +15,13 @@ class Domains extends AbstractService {
     )
 
     const domain = new DomainsPB.Domain()
+    domain.setName(request.name)
+    domain.setDomainUri(request.domainUri)
+    domain.setEgressRule(request.egressRule)
+    domain.setEgressNumberRef(request.egressNumberRef)
+    domain.setAccessDenyList(request.accessDeny)
+    domain.setAccessAllowList(request.accessAllow)
+
     const req = new DomainsPB.CreateDomainRequest()
     req.setDomain(domain)
 
