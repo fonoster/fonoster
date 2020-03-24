@@ -60,11 +60,22 @@ class RoutrClient {
   }
 
   async create (data) {
-    const response = await axios.post(
-      `${this.apiUrl}/${this.resource}?token=${this.token}`,
-      data
-    )
-    return response.data.data
+    try {
+      const response = await axios.post(
+        `${this.apiUrl}/${this.resource}?token=${this.token}`,
+        data
+      )
+      return response.data.data
+    } catch (err) {
+      console.log(err.response)
+      if (err.response.status === 409) {
+        throw new Error('INVALID_ARGUMENT', err.response.data.message)
+      } else if (err.response.status === 401) {
+        throw new Error('UNAUTHENTICATED', err.response.data.message)
+      } else {
+        throw new Error('UNKNOWN')
+      }
+    }
   }
 
   async update (data) {

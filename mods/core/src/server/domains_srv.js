@@ -6,7 +6,6 @@ const { ResourceBuilder, Kind } = require('../common/resource_builder')
 const { auth } = require('../common/trust_util')
 
 // TODO: This is way routr and redis instances must be a singleton
-routr.connect()
 
 const createDomain = async (call, callback) => {
   try {
@@ -15,6 +14,8 @@ const createDomain = async (call, callback) => {
     callback(new Error('UNAUTHENTICATED'), null)
     return
   }
+
+  await routr.connect()
 
   const domain = call.request.getDomain()
 
@@ -31,17 +32,17 @@ const createDomain = async (call, callback) => {
 
   logger.log('debug', `@yaps/domains createDomain [resource: ${resource}]`)
 
-  console.log('resource => ', JSON.stringify(resource, null, ' '))
+  const ref = await routr.resourceType('domains').create(resource)
 
   routr
     .resourceType('domains')
-    .create(resource)
-    .then(res => {
+    .get(ref)
+    .then(d => {
+      const domain = new DomainsPB.Domain()
+      domain.setRef(d.metadata.ref)
       callback(null, domain)
     })
-    .catch(err => {
-      callback(new Error(err), null)
-    })
+    .catch(err => callback(new Error(err.message), null))
 }
 
 module.exports.createDomain = createDomain

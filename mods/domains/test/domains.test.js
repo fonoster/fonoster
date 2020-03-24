@@ -26,4 +26,19 @@ describe('Domains Service', () => {
       .then(r => done())
       .catch(err => done(err))
   })
+
+  it('Create domains missing domainUri', done => {
+    const domain = {
+      name: 'Local Domain'
+    }
+
+    domains
+      .createDomain(domain)
+      .then(r => done('not good'))
+      .catch(err => {
+        console.log('oh yeah: ', err.message)
+        assert.ok(err.message.includes('is missing'))
+        done()
+      })
+  })
 })
