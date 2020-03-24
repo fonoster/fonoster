@@ -7,7 +7,7 @@
     "@yaps/ctl": "^0.0.2",
     "@yaps/dispatcher": "^0.0.2",
     "@yaps/numbers": "^0.0.2",
-    "@yaps/domains": "^0.0.3",    
+    "@yaps/domains": "^0.0.3",
     "@yaps/sdk": "^0.0.2",
     "@yaps/storage": "^0.0.2",
     "@yaps/tts": "^0.0.2",
@@ -26,7 +26,7 @@
   },
   "scripts": {
     "docs": "node ./docs",
-    "test": "NODE_ENV=dev nyc mocha **/test/*.test.js",
+    "test": "NODE_ENV=dev nyc -r=lcov mocha **/test/*.test.js",
     "clean": "rm **/package-lock.json; lerna clean -y",
     "format": "prettier-standard '**/*.js'"
   },
