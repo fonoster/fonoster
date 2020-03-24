@@ -40,8 +40,6 @@ services:
     ports:
       - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
       - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
-    volumes:
-      - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml:ro
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
       interval: 10s

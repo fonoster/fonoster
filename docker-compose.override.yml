@@ -49,6 +49,12 @@ services:
     volumes:
       - ./mods/etc/certs:/etc/certs:ro
 
+  sipproxy:
+    logging:
+      driver: json-file
+    #volumes:
+    #  - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml:ro
+
   mediaserver:
     logging:
       driver: json-file
