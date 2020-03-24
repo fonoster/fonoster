@@ -8,12 +8,7 @@ const { auth } = require('../common/trust_util')
 // TODO: This is way routr and redis instances must be a singleton
 
 const createDomain = async (call, callback) => {
-  try {
-    auth(call)
-  } catch (e) {
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
 
   await routr.connect()
 

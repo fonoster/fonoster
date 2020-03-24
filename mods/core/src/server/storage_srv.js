@@ -15,13 +15,7 @@ const {
 } = require('../common/utils')
 
 const uploadObject = (call, callback) => {
-  try {
-    auth(call)
-  } catch (e) {
-    logger.log('error', e)
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
 
   // I swear I don't like this :(
   const delayVerification = request => {

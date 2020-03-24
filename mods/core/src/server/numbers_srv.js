@@ -5,12 +5,7 @@ const redis = require('./redis')
 const logger = require('../common/logger')
 
 const createNumber = async (call, callback) => {
-  try {
-    auth(call)
-  } catch (e) {
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
 
   // TODO: Need request validation
 

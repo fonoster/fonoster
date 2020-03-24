@@ -6,12 +6,7 @@ const objectid = require('objectid')
 const appmanager = require('../schemas/appmanager.schema')
 
 const listApps = async (call, callback) => {
-  try {
-    auth(call)
-  } catch (e) {
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
 
   if (!call.request.getPageToken()) {
     // Nothing to send

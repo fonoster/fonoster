@@ -56,8 +56,7 @@ module.exports.auth = function (call, callback) {
     call.metadata._internal_repr.access_key_id === null ||
     call.metadata._internal_repr.access_key_secret === null
   ) {
-    throw new Error('Unauthorized')
-    return
+    return false
   }
 
   const accessKeyId = call.metadata._internal_repr.access_key_id.toString()
@@ -67,12 +66,12 @@ module.exports.auth = function (call, callback) {
     try {
       const decoded = jwt.verify(accessKeySecret, salt)
       if (!decoded || accessKeyId !== decoded.sub) {
-        throw new Error('Unauthorized')
+        return false
       }
     } catch (e) {
-      throw e
+      return false
     }
-  } else {
-    throw new Error('Unauthorized')
+    return true
   }
+  return false
 }
