@@ -229,7 +229,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.yaps.domains.v1alpha1.Domain.repeatedFields_ = [4, 5]
+proto.yaps.domains.v1alpha1.Domain.repeatedFields_ = [5, 6]
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -266,13 +266,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
   ) {
     var f,
       obj = {
-        domainUri: jspb.Message.getFieldWithDefault(msg, 1, ''),
-        egressRule: jspb.Message.getFieldWithDefault(msg, 2, ''),
-        egressNumberRef: jspb.Message.getFieldWithDefault(msg, 3, ''),
-        accessDenyList: jspb.Message.getRepeatedField(msg, 4),
-        accessAllowList: jspb.Message.getRepeatedField(msg, 5),
-        createTime: jspb.Message.getFieldWithDefault(msg, 8, ''),
-        updateTime: jspb.Message.getFieldWithDefault(msg, 9, '')
+        name: jspb.Message.getFieldWithDefault(msg, 1, ''),
+        domainUri: jspb.Message.getFieldWithDefault(msg, 2, ''),
+        egressRule: jspb.Message.getFieldWithDefault(msg, 3, ''),
+        egressNumberRef: jspb.Message.getFieldWithDefault(msg, 4, ''),
+        accessDenyList: jspb.Message.getRepeatedField(msg, 5),
+        accessAllowList: jspb.Message.getRepeatedField(msg, 6),
+        createTime: jspb.Message.getFieldWithDefault(msg, 7, ''),
+        updateTime: jspb.Message.getFieldWithDefault(msg, 8, '')
       }
 
     if (includeInstance) {
@@ -315,29 +316,33 @@ proto.yaps.domains.v1alpha1.Domain.deserializeBinaryFromReader = function (
     switch (field) {
       case 1:
         var value = /** @type {string} */ (reader.readString())
-        msg.setDomainUri(value)
+        msg.setName(value)
         break
       case 2:
         var value = /** @type {string} */ (reader.readString())
-        msg.setEgressRule(value)
+        msg.setDomainUri(value)
         break
       case 3:
         var value = /** @type {string} */ (reader.readString())
-        msg.setEgressNumberRef(value)
+        msg.setEgressRule(value)
         break
       case 4:
         var value = /** @type {string} */ (reader.readString())
-        msg.addAccessDeny(value)
+        msg.setEgressNumberRef(value)
         break
       case 5:
         var value = /** @type {string} */ (reader.readString())
+        msg.addAccessDeny(value)
+        break
+      case 6:
+        var value = /** @type {string} */ (reader.readString())
         msg.addAccessAllow(value)
         break
-      case 8:
+      case 7:
         var value = /** @type {string} */ (reader.readString())
         msg.setCreateTime(value)
         break
-      case 9:
+      case 8:
         var value = /** @type {string} */ (reader.readString())
         msg.setUpdateTime(value)
         break
@@ -371,90 +376,107 @@ proto.yaps.domains.v1alpha1.Domain.serializeBinaryToWriter = function (
   writer
 ) {
   var f = undefined
-  f = message.getDomainUri()
+  f = message.getName()
   if (f.length > 0) {
     writer.writeString(1, f)
   }
-  f = message.getEgressRule()
+  f = message.getDomainUri()
   if (f.length > 0) {
     writer.writeString(2, f)
   }
-  f = message.getEgressNumberRef()
+  f = message.getEgressRule()
   if (f.length > 0) {
     writer.writeString(3, f)
   }
-  f = message.getAccessDenyList()
+  f = message.getEgressNumberRef()
   if (f.length > 0) {
-    writer.writeRepeatedString(4, f)
+    writer.writeString(4, f)
   }
-  f = message.getAccessAllowList()
+  f = message.getAccessDenyList()
   if (f.length > 0) {
     writer.writeRepeatedString(5, f)
   }
+  f = message.getAccessAllowList()
+  if (f.length > 0) {
+    writer.writeRepeatedString(6, f)
+  }
   f = message.getCreateTime()
   if (f.length > 0) {
-    writer.writeString(8, f)
+    writer.writeString(7, f)
   }
   f = message.getUpdateTime()
   if (f.length > 0) {
-    writer.writeString(9, f)
+    writer.writeString(8, f)
   }
 }
 
 /**
- * optional string domain_uri = 1;
+ * optional string name = 1;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getDomainUri = function () {
+proto.yaps.domains.v1alpha1.Domain.prototype.getName = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setDomainUri = function (value) {
+proto.yaps.domains.v1alpha1.Domain.prototype.setName = function (value) {
   jspb.Message.setProto3StringField(this, 1, value)
 }
 
 /**
- * optional string egress_rule = 2;
+ * optional string domain_uri = 2;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getEgressRule = function () {
+proto.yaps.domains.v1alpha1.Domain.prototype.getDomainUri = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setEgressRule = function (value) {
+proto.yaps.domains.v1alpha1.Domain.prototype.setDomainUri = function (value) {
   jspb.Message.setProto3StringField(this, 2, value)
 }
 
 /**
- * optional string egress_number_ref = 3;
+ * optional string egress_rule = 3;
+ * @return {string}
+ */
+proto.yaps.domains.v1alpha1.Domain.prototype.getEgressRule = function () {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ''))
+}
+
+/** @param {string} value */
+proto.yaps.domains.v1alpha1.Domain.prototype.setEgressRule = function (value) {
+  jspb.Message.setProto3StringField(this, 3, value)
+}
+
+/**
+ * optional string egress_number_ref = 4;
  * @return {string}
  */
 proto.yaps.domains.v1alpha1.Domain.prototype.getEgressNumberRef = function () {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ''))
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ''))
 }
 
 /** @param {string} value */
 proto.yaps.domains.v1alpha1.Domain.prototype.setEgressNumberRef = function (
   value
 ) {
-  jspb.Message.setProto3StringField(this, 3, value)
+  jspb.Message.setProto3StringField(this, 4, value)
 }
 
 /**
- * repeated string access_deny = 4;
+ * repeated string access_deny = 5;
  * @return {!Array<string>}
  */
 proto.yaps.domains.v1alpha1.Domain.prototype.getAccessDenyList = function () {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4))
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5))
 }
 
 /** @param {!Array<string>} value */
 proto.yaps.domains.v1alpha1.Domain.prototype.setAccessDenyList = function (
   value
 ) {
-  jspb.Message.setField(this, 4, value || [])
+  jspb.Message.setField(this, 5, value || [])
 }
 
 /**
@@ -465,7 +487,7 @@ proto.yaps.domains.v1alpha1.Domain.prototype.addAccessDeny = function (
   value,
   opt_index
 ) {
-  jspb.Message.addToRepeatedField(this, 4, value, opt_index)
+  jspb.Message.addToRepeatedField(this, 5, value, opt_index)
 }
 
 proto.yaps.domains.v1alpha1.Domain.prototype.clearAccessDenyList = function () {
@@ -473,18 +495,18 @@ proto.yaps.domains.v1alpha1.Domain.prototype.clearAccessDenyList = function () {
 }
 
 /**
- * repeated string access_allow = 5;
+ * repeated string access_allow = 6;
  * @return {!Array<string>}
  */
 proto.yaps.domains.v1alpha1.Domain.prototype.getAccessAllowList = function () {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5))
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 6))
 }
 
 /** @param {!Array<string>} value */
 proto.yaps.domains.v1alpha1.Domain.prototype.setAccessAllowList = function (
   value
 ) {
-  jspb.Message.setField(this, 5, value || [])
+  jspb.Message.setField(this, 6, value || [])
 }
 
 /**
@@ -495,7 +517,7 @@ proto.yaps.domains.v1alpha1.Domain.prototype.addAccessAllow = function (
   value,
   opt_index
 ) {
-  jspb.Message.addToRepeatedField(this, 5, value, opt_index)
+  jspb.Message.addToRepeatedField(this, 6, value, opt_index)
 }
 
 proto.yaps.domains.v1alpha1.Domain.prototype.clearAccessAllowList = function () {
@@ -503,29 +525,29 @@ proto.yaps.domains.v1alpha1.Domain.prototype.clearAccessAllowList = function () 
 }
 
 /**
- * optional string create_time = 8;
+ * optional string create_time = 7;
  * @return {string}
  */
 proto.yaps.domains.v1alpha1.Domain.prototype.getCreateTime = function () {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ''))
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ''))
 }
 
 /** @param {string} value */
 proto.yaps.domains.v1alpha1.Domain.prototype.setCreateTime = function (value) {
-  jspb.Message.setProto3StringField(this, 8, value)
+  jspb.Message.setProto3StringField(this, 7, value)
 }
 
 /**
- * optional string update_time = 9;
+ * optional string update_time = 8;
  * @return {string}
  */
 proto.yaps.domains.v1alpha1.Domain.prototype.getUpdateTime = function () {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ''))
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ''))
 }
 
 /** @param {string} value */
 proto.yaps.domains.v1alpha1.Domain.prototype.setUpdateTime = function (value) {
-  jspb.Message.setProto3StringField(this, 9, value)
+  jspb.Message.setProto3StringField(this, 8, value)
 }
 
 goog.object.extend(exports, proto.yaps.domains.v1alpha1)
