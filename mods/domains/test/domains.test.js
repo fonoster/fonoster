@@ -24,7 +24,10 @@ describe('Domains Service', () => {
     domains
       .createDomain(domain)
       .then(r => done())
-      .catch(err => done(err))
+      .catch(err => {
+        console.log('cebo')
+        done(err)
+      })
   })
 
   it('Create domains missing domainUri', done => {

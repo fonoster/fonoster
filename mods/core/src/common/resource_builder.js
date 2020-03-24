@@ -13,9 +13,6 @@ const Privacy = {
   NONE: 'None'
 }
 
-const isEmpty = obj =>
-  Object.keys(obj).length === 0 && obj.constructor === Object
-
 class ResourceBuilder {
   constructor (kind, name, ref, apiVersion = 'v1beta1') {
     this.kind = kind

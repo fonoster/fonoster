@@ -1,16 +1,14 @@
-const DomainsPB = require('./protos/domains_pb')
 const routr = require('./routr')
 const grpc = require('grpc')
 const logger = require('../common/logger')
 const { ResourceBuilder, Kind } = require('../common/resource_builder')
+const { domainDecoder } = require('../common/resources_decoders')
 const { auth } = require('../common/trust_util')
 
 // TODO: This is way routr and redis instances must be a singleton
 
 const createDomain = async (call, callback) => {
   if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
-
-  await routr.connect()
 
   const domain = call.request.getDomain()
 
@@ -25,19 +23,19 @@ const createDomain = async (call, callback) => {
     .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
     .build()
 
-  logger.log('debug', `@yaps/domains createDomain [resource: ${resource}]`)
+  logger.log(
+    'debug',
+    `@yaps/domains createDomain [resource: ${JSON.stringify(resource)}]`
+  )
 
-  const ref = await routr.resourceType('domains').create(resource)
-
-  routr
-    .resourceType('domains')
-    .get(ref)
-    .then(d => {
-      const domain = new DomainsPB.Domain()
-      domain.setRef(d.metadata.ref)
-      callback(null, domain)
-    })
-    .catch(err => callback(new Error(err.message), null))
+  try {
+    await routr.connect()
+    const ref = await routr.resourceType('domains').create(resource)
+    const jsonObj = await routr.resourceType('domains').get(ref)
+    callback(null, domainDecoder(jsonObj))
+  } catch (err) {
+    return callback(new Error(err.message), null)
+  }
 }
 
 module.exports.createDomain = createDomain
