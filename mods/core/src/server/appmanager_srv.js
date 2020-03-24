@@ -9,7 +9,6 @@ const listApps = async (call, callback) => {
   try {
     auth(call)
   } catch (e) {
-    console.error(e)
     callback(new Error('UNAUTHENTICATED'), null)
     return
   }
