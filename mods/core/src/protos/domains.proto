@@ -18,12 +18,13 @@ message CreateDomainRequest {
 }
 
 message Domain {
-  string name = 1;
-  string domain_uri = 2;
-  string egress_rule = 3;
-  string egress_number_ref = 4;
-  repeated string access_deny = 5;
-  repeated string access_allow = 6;
-  string create_time = 7;
-  string update_time = 8;
+  string ref = 1;
+  string name = 2;
+  string domain_uri = 3;
+  string egress_rule = 4;
+  string egress_number_ref = 5;
+  repeated string access_deny = 6;
+  repeated string access_allow = 7;
+  string create_time = 8;
+  string update_time = 9;
 }
