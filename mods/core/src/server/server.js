@@ -22,7 +22,7 @@ const {
 } = require('./appmanager_srv.js')
 const { createNumber, getIngressApp } = require('./numbers_srv.js')
 const { uploadObject, getObjectURL } = require('./storage_srv.js')
-const { createDomain, deleteDomain } = require('./domains_srv.js')
+const { createDomain, getDomain, deleteDomain } = require('./domains_srv.js')
 
 function main () {
   const server = new grpc.Server()
@@ -46,6 +46,7 @@ function main () {
 
   server.addService(DomainsService, {
     createDomain,
+    getDomain,
     deleteDomain
   })
 

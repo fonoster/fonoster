@@ -60,6 +60,16 @@ describe('Domains Service', () => {
       })
   })
 
+  it.only('Get domain by reference', done => {
+    domains
+      .getDomain(domainRef)
+      .then(domain => {
+        assert.ok(domain.getRef() === domainRef)
+        done()
+      })
+      .catch(err => done(err))
+  })
+
   it.only('Delete domain', done => {
     domains
       .deleteDomain(domainRef)

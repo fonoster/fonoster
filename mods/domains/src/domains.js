@@ -83,6 +83,25 @@ class Domains extends AbstractService {
   }
 
   /**
+   * Retrives a Domain by its reference.
+   *
+   * @param {string} ref - Reference to Domain
+   * @return {Promise<Domain>} The application
+   * @throws if ref is null or Domain does not exist
+   * @example
+   *
+   * domains.getDomain(ref)
+   * .then(result => {
+   *   console.log(result)             // returns the Domain object
+   * }).catch(e => console.error(e))   // an error occurred
+   */
+  async getDomain (ref) {
+    const request = new DomainsPB.GetDomainRequest()
+    request.setRef(ref)
+    return this.service.getDomain().sendMessage(request)
+  }
+
+  /**
    * Deletes a Domain from SIP Proxy subsystem. Notice, that in order to delete
    * a Domain, you must first delete all its Agents.
    *

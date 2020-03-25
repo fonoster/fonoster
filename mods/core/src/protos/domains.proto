@@ -13,12 +13,18 @@ import "common.proto";
 service Domains {
   // Creates a new Domain resource.
   rpc CreateDomain (CreateDomainRequest) returns (Domain) {};
-    // Peforms a hard delete of the app resource
+  // Gets Domain using its reference
+  rpc GetDomain (GetDomainRequest) returns (Domain) {};
+  // GetDomainRequest a hard delete of the app resource
   rpc DeleteDomain (DeleteDomainRequest) returns (yaps.common.v1alpha1.Empty) {};
 }
 
 message CreateDomainRequest {
   Domain domain = 1;
+}
+
+message GetDomainRequest {
+  string ref = 1;
 }
 
 message DeleteDomainRequest {

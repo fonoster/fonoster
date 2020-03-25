@@ -2,12 +2,12 @@ const { Domain } = require('../server/protos/domains_pb')
 
 const domainDecoder = jsonObj => {
   const domain = new Domain()
-  const context = jsonObj.spec
+  const context = jsonObj.spec.context
   domain.setRef(jsonObj.metadata.ref)
   domain.setName(jsonObj.metadata.name)
   domain.setDomainUri(context.domainUri)
-  domain.setCreateTime(jsonObj.metadata.creationTime)
-  domain.setUpdateTime(jsonObj.metadata.updateTime)
+  domain.setCreateTime(jsonObj.metadata.createdOn)
+  domain.setUpdateTime(jsonObj.metadata.modifiedOn)
   if (context.egressPolicy) {
     domain.setEgressRule(context.egressPolicy.rule)
     domain.setEgressNumberRef(context.egressPolicy.numberRef)

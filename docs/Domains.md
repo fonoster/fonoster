@@ -12,6 +12,7 @@ running YAPS deployment.
 * [Domains](#Domains) ⇐ <code>AbstractService</code>
     * [new Domains()](#new_Domains_new)
     * [.createDomain(request)](#Domains+createDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [.getDomain(ref)](#Domains+getDomain) ⇒ <code>Promise.&lt;Domain&gt;</code>
     * [.deleteDomain(ref)](#Domains+deleteDomain)
 
 <a name="new_Domains_new"></a>
@@ -61,6 +62,29 @@ appManager.createDomain(request)
 .then(result => {
   console.log(result)            // returns an empty object
 }).catch(e => console.error(e))  // an error occurred
+```
+<a name="Domains+getDomain"></a>
+
+### domains.getDomain(ref) ⇒ <code>Promise.&lt;Domain&gt;</code>
+Retrives a Domain by its reference.
+
+**Kind**: instance method of [<code>Domains</code>](#Domains)  
+**Returns**: <code>Promise.&lt;Domain&gt;</code> - The application  
+**Throws**:
+
+- if ref is null or Domain does not exist
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | Reference to Domain |
+
+**Example**  
+```js
+domains.getDomain(ref)
+.then(result => {
+  console.log(result)             // returns the Domain object
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Domains+deleteDomain"></a>
 

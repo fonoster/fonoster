@@ -37,6 +37,22 @@ const createDomain = async (call, callback) => {
   }
 }
 
+const getDomain = async (call, callback) => {
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+
+  const domainRef = call.request.getRef()
+
+  logger.info('verbose', `@yaps/domains getDomain [ref ${domainRef}]`)
+
+  try {
+    await routr.connect()
+    const jsonObj = await routr.resourceType('domains').get(domainRef)
+    callback(null, domainDecoder(jsonObj))
+  } catch (err) {
+    return callback(new Error(err.message), null)
+  }
+}
+
 const deleteDomain = async (call, callback) => {
   if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
 
@@ -54,4 +70,5 @@ const deleteDomain = async (call, callback) => {
 }
 
 module.exports.createDomain = createDomain
+module.exports.getDomain = getDomain
 module.exports.deleteDomain = deleteDomain
