@@ -77,7 +77,7 @@ class RoutrClient {
     }
   }
 
-  async del (ref) {
+  async delete (ref) {
     ref = ref ? `/${ref}` : ''
     try {
       return await axios.delete(

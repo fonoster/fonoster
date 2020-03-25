@@ -1,5 +1,5 @@
-const AppManagerPB = require('./protos/appmanager_pb')
-const CommonPB = require('./protos/common_pb')
+const { ListAppsResponse, App } = require('./protos/appmanager_pb')
+const { Empty } = require('./protos/common_pb')
 const { auth } = require('../common/trust_util')
 const redis = require('./redis')
 const objectid = require('objectid')
@@ -10,7 +10,7 @@ const listApps = async (call, callback) => {
 
   if (!call.request.getPageToken()) {
     // Nothing to send
-    callback(null, new AppManagerPB.ListAppsResponse())
+    callback(null, new ListAppsResponse())
     return
   }
 
@@ -19,11 +19,11 @@ const listApps = async (call, callback) => {
   const upperRange = pageToken + pageSize
 
   const apps = await redis.lrange('apps', pageToken, upperRange)
-  const response = new AppManagerPB.ListAppsResponse()
+  const response = new ListAppsResponse()
 
   for (i = 0; i < apps.length; i++) {
     const jsonObj = await redis.get(apps[i])
-    const app = new AppManagerPB.App(JSON.parse(jsonObj).array)
+    const app = new App(JSON.parse(jsonObj).array)
     response.addApps(app)
   }
 
@@ -35,12 +35,7 @@ const listApps = async (call, callback) => {
 }
 
 const getApp = async (call, callback) => {
-  try {
-    auth(call)
-  } catch (err) {
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
 
   const result = await redis.call('get', call.request.getName())
 
@@ -49,17 +44,12 @@ const getApp = async (call, callback) => {
     return
   }
 
-  const app = new AppManagerPB.App(JSON.parse(result).array)
+  const app = new App(JSON.parse(result).array)
   callback(null, app)
 }
 
 const createApp = async (call, callback) => {
-  try {
-    auth(call)
-  } catch (e) {
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
 
   // Validating the request
   const errors = appmanager.createAppRequest.validate({
@@ -75,7 +65,7 @@ const createApp = async (call, callback) => {
   }
 
   const app = call.request.getApp()
-  app.setStatus(AppManagerPB.App.Status.CREATING)
+  app.setStatus(App.Status.CREATING)
   app.setCreateTime(new Date())
   app.setUpdateTime(new Date())
 
@@ -87,12 +77,7 @@ const createApp = async (call, callback) => {
 }
 
 const updateApp = async (call, callback) => {
-  try {
-    auth(call)
-  } catch (e) {
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
   console.log(`updating app: ${JSON.stringify(call.request)}`)
   // -- Operate here
   // ---
@@ -100,12 +85,7 @@ const updateApp = async (call, callback) => {
 }
 
 const deleteApp = async (call, callback) => {
-  try {
-    auth(call)
-  } catch (err) {
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
 
   const result = await redis.call('get', call.request.getName())
 
@@ -118,8 +98,7 @@ const deleteApp = async (call, callback) => {
   await redis.call('del', call.request.getName())
 
   // TODO: We should also remove the extlink if it exist
-
-  callback(null, new CommonPB.Empty())
+  callback(null, new Empty())
 }
 
 module.exports.listApps = listApps
