@@ -16,7 +16,7 @@ describe('Domains Service', () => {
     })
   })
 
-  it.only('Create domains perfect case...', done => {
+  it.only('Create domain perfect case...', done => {
     const domain = {
       name: 'Local Domain',
       domainUri: 'test.local'
@@ -65,6 +65,21 @@ describe('Domains Service', () => {
       .getDomain(domainRef)
       .then(domain => {
         assert.ok(domain.getRef() === domainRef)
+        done()
+      })
+      .catch(err => done(err))
+  })
+
+  it.only('Update domain perfect case...', done => {
+    const domain = {
+      ref: domainRef,
+      name: 'Local Domain2'
+    }
+
+    domains
+      .updateDomain(domain)
+      .then(domainFromDB => {
+        assert.ok(domain.name === domainFromDB.getName())
         done()
       })
       .catch(err => done(err))

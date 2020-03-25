@@ -13,7 +13,7 @@ const promisifyAll = require('grpc-promise').promisifyAll
  * const YAPS = require('@yaps/sdk')
  * const domains = new YAPS.Domains()
  *
- * domains.create({name: 'Local Domain', domainUri: 'sip.local'...})
+ * domains.createDomain({name: 'Local Domain', domainUri: 'sip.local'...})
  * .then(result => {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
@@ -56,7 +56,7 @@ class Domains extends AbstractService {
    *
    * appManager.createDomain(request)
    * .then(result => {
-   *   console.log(result)            // returns an empty object
+   *   console.log(result)            // returns the Domain object
    * }).catch(e => console.error(e))  // an error occurred
    */
   async createDomain (request) {
@@ -86,7 +86,7 @@ class Domains extends AbstractService {
    * Retrives a Domain by its reference.
    *
    * @param {string} ref - Reference to Domain
-   * @return {Promise<Domain>} The application
+   * @return {Promise<Object>} The domain
    * @throws if ref is null or Domain does not exist
    * @example
    *
@@ -99,6 +99,57 @@ class Domains extends AbstractService {
     const request = new DomainsPB.GetDomainRequest()
     request.setRef(ref)
     return this.service.getDomain().sendMessage(request)
+  }
+
+  /**
+   * Update a Domain at the SIP Proxy subsystem.
+   *
+   * @param {Object} request
+   * @param {string} ref - To update a Domain you must provide its reference
+   * @param {string} request.name - Friendly name for the SIP domain
+   * @param {string} request.egressNumberRef - A valid reference to a Number in YAPS
+   * @param {string} request.egressRule - Regular expression indicating when a
+   * call will be routed via request.egressNumberRef
+   * @param {string} request.accessDeny - Optional list of IPs or networks that
+   * cannot communicate with this Domain
+   * @param {string} request.accessAllow - Optiona list of IPs or networks
+   * allow if request.accessDeny is defined
+   * @return {Promise<Object>}
+   * @example
+   *
+   * const request = {
+   *    ref: '507f1f77bcf86cd799439011'
+   *    name: 'Office Domain ',
+   *    accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']
+   * }
+   *
+   * appManager.updateDomain(request)
+   * .then(result => {
+   *   console.log(result)            // returns an empty object
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  async updateDomain (request) {
+    logger.log(
+      'verbose',
+      `@yaps/domains updateDomain [request: ${JSON.stringify(request)}]`
+    )
+
+    const domain = await this.getDomain(request.ref)
+
+    if (request.name) domain.setName(request.name)
+    if (request.egressRule) domain.setEgressRule(request.egressRule)
+    if (request.egressNumberRef)
+      domain.setEgressNumberRef(request.egressNumberRef)
+    if (request.accessDeny) domain.setAccessDenyList(request.accessDeny)
+    if (request.accessAllow) domain.setAccessAllowList(request.accessAllow)
+
+    const req = new DomainsPB.UpdateDomainRequest()
+    req.setDomain(domain)
+
+    return super
+      .getService()
+      .updateDomain()
+      .sendMessage(req)
   }
 
   /**

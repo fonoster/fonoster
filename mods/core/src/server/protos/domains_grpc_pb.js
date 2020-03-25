@@ -78,6 +78,21 @@ function deserialize_yaps_domains_v1alpha1_GetDomainRequest (buffer_arg) {
   )
 }
 
+function serialize_yaps_domains_v1alpha1_UpdateDomainRequest (arg) {
+  if (!(arg instanceof domains_pb.UpdateDomainRequest)) {
+    throw new Error(
+      'Expected argument of type yaps.domains.v1alpha1.UpdateDomainRequest'
+    )
+  }
+  return Buffer.from(arg.serializeBinary())
+}
+
+function deserialize_yaps_domains_v1alpha1_UpdateDomainRequest (buffer_arg) {
+  return domains_pb.UpdateDomainRequest.deserializeBinary(
+    new Uint8Array(buffer_arg)
+  )
+}
+
 var DomainsService = (exports.DomainsService = {
   // Creates a new Domain resource.
   createDomain: {
@@ -103,7 +118,19 @@ var DomainsService = (exports.DomainsService = {
     responseSerialize: serialize_yaps_domains_v1alpha1_Domain,
     responseDeserialize: deserialize_yaps_domains_v1alpha1_Domain
   },
-  // GetDomainRequest a hard delete of the app resource
+  // Change or update fields in a resource
+  updateDomain: {
+    path: '/yaps.domains.v1alpha1.Domains/UpdateDomain',
+    requestStream: false,
+    responseStream: false,
+    requestType: domains_pb.UpdateDomainRequest,
+    responseType: domains_pb.Domain,
+    requestSerialize: serialize_yaps_domains_v1alpha1_UpdateDomainRequest,
+    requestDeserialize: deserialize_yaps_domains_v1alpha1_UpdateDomainRequest,
+    responseSerialize: serialize_yaps_domains_v1alpha1_Domain,
+    responseDeserialize: deserialize_yaps_domains_v1alpha1_Domain
+  },
+  // Hard delete of of a domain resource
   deleteDomain: {
     path: '/yaps.domains.v1alpha1.Domains/DeleteDomain',
     requestStream: false,

@@ -15,11 +15,17 @@ service Domains {
   rpc CreateDomain (CreateDomainRequest) returns (Domain) {};
   // Gets Domain using its reference
   rpc GetDomain (GetDomainRequest) returns (Domain) {};
-  // GetDomainRequest a hard delete of the app resource
+  // Change or update fields in a resource
+  rpc UpdateDomain (UpdateDomainRequest) returns (Domain) {};
+  // Hard delete of of a domain resource
   rpc DeleteDomain (DeleteDomainRequest) returns (yaps.common.v1alpha1.Empty) {};
 }
 
 message CreateDomainRequest {
+  Domain domain = 1;
+}
+
+message UpdateDomainRequest {
   Domain domain = 1;
 }
 
