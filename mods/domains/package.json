@@ -5,7 +5,7 @@
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
   "license": "MIT",
-  "main": "src/numbers.js",
+  "main": "src/domains.js",
   "directories": {
     "src": "src",
     "test": "test"

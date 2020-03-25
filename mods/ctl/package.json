@@ -13,6 +13,7 @@
     "@oclif/plugin-help": "^2.2.3",
     "@yaps/appmanager": "^0.0.3",
     "@yaps/core": "^0.0.3",
+    "@yaps/domains": "^0.0.3",
     "cli-ux": "^5.4.5",
     "dotenv": "^8.2.0",
     "easy-table": "^1.1.1",
@@ -54,6 +55,9 @@
     "topics": {
       "apps": {
         "description": "manage voice applications"
+      },
+      "domains": {
+        "description": "manage sip domains"
       },
       "login": {
         "description": "authenticates current station"
