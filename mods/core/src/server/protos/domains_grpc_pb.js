@@ -9,6 +9,18 @@
 'use strict'
 var grpc = require('grpc')
 var domains_pb = require('./domains_pb.js')
+var common_pb = require('./common_pb.js')
+
+function serialize_yaps_common_v1alpha1_Empty (arg) {
+  if (!(arg instanceof common_pb.Empty)) {
+    throw new Error('Expected argument of type yaps.common.v1alpha1.Empty')
+  }
+  return Buffer.from(arg.serializeBinary())
+}
+
+function deserialize_yaps_common_v1alpha1_Empty (buffer_arg) {
+  return common_pb.Empty.deserializeBinary(new Uint8Array(buffer_arg))
+}
 
 function serialize_yaps_domains_v1alpha1_CreateDomainRequest (arg) {
   if (!(arg instanceof domains_pb.CreateDomainRequest)) {
@@ -21,6 +33,21 @@ function serialize_yaps_domains_v1alpha1_CreateDomainRequest (arg) {
 
 function deserialize_yaps_domains_v1alpha1_CreateDomainRequest (buffer_arg) {
   return domains_pb.CreateDomainRequest.deserializeBinary(
+    new Uint8Array(buffer_arg)
+  )
+}
+
+function serialize_yaps_domains_v1alpha1_DeleteDomainRequest (arg) {
+  if (!(arg instanceof domains_pb.DeleteDomainRequest)) {
+    throw new Error(
+      'Expected argument of type yaps.domains.v1alpha1.DeleteDomainRequest'
+    )
+  }
+  return Buffer.from(arg.serializeBinary())
+}
+
+function deserialize_yaps_domains_v1alpha1_DeleteDomainRequest (buffer_arg) {
+  return domains_pb.DeleteDomainRequest.deserializeBinary(
     new Uint8Array(buffer_arg)
   )
 }
@@ -48,6 +75,18 @@ var DomainsService = (exports.DomainsService = {
     requestDeserialize: deserialize_yaps_domains_v1alpha1_CreateDomainRequest,
     responseSerialize: serialize_yaps_domains_v1alpha1_Domain,
     responseDeserialize: deserialize_yaps_domains_v1alpha1_Domain
+  },
+  // Peforms a hard delete of the app resource
+  deleteDomain: {
+    path: '/yaps.domains.v1alpha1.Domains/DeleteDomain',
+    requestStream: false,
+    responseStream: false,
+    requestType: domains_pb.DeleteDomainRequest,
+    responseType: common_pb.Empty,
+    requestSerialize: serialize_yaps_domains_v1alpha1_DeleteDomainRequest,
+    requestDeserialize: deserialize_yaps_domains_v1alpha1_DeleteDomainRequest,
+    responseSerialize: serialize_yaps_common_v1alpha1_Empty,
+    responseDeserialize: deserialize_yaps_common_v1alpha1_Empty
   }
 })
 
