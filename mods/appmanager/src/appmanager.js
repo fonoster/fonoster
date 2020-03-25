@@ -1,7 +1,3 @@
-/**
- * A module for adding two values.
- */
-
 const tar = require('tar')
 const fs = require('fs-extra')
 const path = require('path')
@@ -26,8 +22,8 @@ const STATUS = {
 
 /**
  * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager,
- * to create, manage, and deploy an application. The AppManager requires of a
- * running YAPS platform.
+ * to create, manage, and deploy an application. YAPS AppManager requires of a
+ * running YAPS deployment.
  *
  * @extends AbstractService
  * @example
@@ -235,7 +231,7 @@ class AppManager extends AbstractService {
    * List the apps registered in YAPS.
    * @param {Object} request
    * @param {number} request.pageSize - Number of element per page (defaults to 20)
-   * @param {number} request.pageToken - The next_page_token value returned from a previous List request, if any
+   * @param {string} request.pageToken - The next_page_token value returned from a previous List request, if any
    * @return {Promise<ListAppsResponse>} List of applications
    * @example
    *

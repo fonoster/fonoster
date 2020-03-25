@@ -13,6 +13,8 @@ const handleError = error => {
     throw new Error('ALREADY_EXISTS', error.response.data.message)
   } else if (error.response.status === 401) {
     throw new Error('UNAUTHENTICATED', error.response.data.message)
+  } else if (error.response.status === 422) {
+    throw new Error('FAILED_PRECONDITION', error.response.data.message)
   } else {
     throw new Error('UNKNOWN')
   }

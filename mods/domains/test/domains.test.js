@@ -24,13 +24,10 @@ describe('Domains Service', () => {
     domains
       .createDomain(domain)
       .then(r => done())
-      .catch(err => {
-        console.log('cebo')
-        done(err)
-      })
+      .catch(err => done(err))
   })
 
-  it('Create domains missing domainUri', done => {
+  it.only('Domains missing domainUri', done => {
     const domain = {
       name: 'Local Domain'
     }
@@ -39,8 +36,22 @@ describe('Domains Service', () => {
       .createDomain(domain)
       .then(r => done('not good'))
       .catch(err => {
-        console.log('oh yeah: ', err.message)
-        assert.ok(err.message.includes('is missing'))
+        assert.ok(err.message.includes('FAILED_PRECONDITION'))
+        done()
+      })
+  })
+
+  it.only('Domain already exists', done => {
+    const domain = {
+      name: 'Local Domain',
+      domainUri: 'test.local'
+    }
+
+    domains
+      .createDomain(domain)
+      .then(r => done('not good'))
+      .catch(err => {
+        assert.ok(err.message.includes('ALREADY_EXISTS'))
         done()
       })
   })

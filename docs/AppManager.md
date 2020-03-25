@@ -2,8 +2,8 @@
 
 ## AppManager ⇐ <code>AbstractService</code>
 Use YAPS AppManager, a capability of YAPS Systems Manager,
-to create, manage, and deploy an application. The AppManager requires of a
-running YAPS platform.
+to create, manage, and deploy an application. YAPS AppManager requires of a
+running YAPS deployment.
 
 **Kind**: global class  
 **Extends**: <code>AbstractService</code>  
@@ -121,7 +121,7 @@ List the apps registered in YAPS.
 | --- | --- | --- |
 | request | <code>Object</code> |  |
 | request.pageSize | <code>number</code> | Number of element per page (defaults to 20) |
-| request.pageToken | <code>number</code> | The next_page_token value returned from a previous List request, if any |
+| request.pageToken | <code>string</code> | The next_page_token value returned from a previous List request, if any |
 
 **Example**  
 ```js
