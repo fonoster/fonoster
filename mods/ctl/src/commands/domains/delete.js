@@ -1,5 +1,5 @@
 require('../../config')
-const AppManager = require('@yaps/appmanager')
+const Domains = require('@yaps/domains')
 const { CLIError } = require('@oclif/errors')
 const { Command } = require('@oclif/command')
 const { cli } = require('cli-ux')
@@ -7,12 +7,12 @@ const { cli } = require('cli-ux')
 class DeleteCommand extends Command {
   async run () {
     const { args } = this.parse(DeleteCommand)
-    const name = args.name
+    const ref = args.ref
 
     try {
-      const appmanager = new AppManager()
-      cli.action.start(`Deleting application ${name}`)
-      await appmanager.deleteApp(name)
+      const domains = new Domains()
+      cli.action.start(`Deleting domains ${ref}`)
+      await domains.deleteDomain(ref)
       await cli.wait(1000)
       cli.action.stop('done')
     } catch (e) {
@@ -21,11 +21,11 @@ class DeleteCommand extends Command {
   }
 }
 
-DeleteCommand.description = `removes application
+DeleteCommand.description = `remove domain from a YAPS deployment
 `
 
-DeleteCommand.args = [{ name: 'name' }]
+DeleteCommand.args = [{ name: 'ref' }]
 
-DeleteCommand.aliases = ['apps:del', 'apps:rm']
+DeleteCommand.aliases = ['domains:del', 'domains:rm']
 
 module.exports = DeleteCommand

@@ -15,6 +15,8 @@ const handleError = error => {
     throw new Error('UNAUTHENTICATED', error.response.data.message)
   } else if (error.response.status === 422) {
     throw new Error('FAILED_PRECONDITION', error.response.data.message)
+  } else if (error.response.status === 404) {
+    throw new Error('NOT_FOUND', error.response.data.message)
   } else {
     throw new Error('UNKNOWN')
   }

@@ -66,4 +66,14 @@ describe('Domains Service', () => {
       .then(() => done())
       .catch(err => done(err))
   })
+
+  it.only('Domain reference does not exist', done => {
+    domains
+      .deleteDomain('1234')
+      .then(() => done('not good'))
+      .catch(err => {
+        assert.ok(err.message.includes('NOT_FOUND'))
+        done()
+      })
+  })
 })
