@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === 'dev') {
 
 describe('Domains Service', () => {
   let domains
+  let domainRef
 
   before(() => {
     domains = new Domains({
@@ -23,7 +24,10 @@ describe('Domains Service', () => {
 
     domains
       .createDomain(domain)
-      .then(r => done())
+      .then(domain => {
+        domainRef = domain.getRef()
+        done()
+      })
       .catch(err => done(err))
   })
 
@@ -54,5 +58,12 @@ describe('Domains Service', () => {
         assert.ok(err.message.includes('ALREADY_EXISTS'))
         done()
       })
+  })
+
+  it.only('Delete domain', done => {
+    domains
+      .deleteDomain(domainRef)
+      .then(() => done())
+      .catch(err => done(err))
   })
 })

@@ -1,11 +1,10 @@
 const routr = require('./routr')
 const grpc = require('grpc')
 const logger = require('../common/logger')
+const { Empty } = require('./protos/common_pb')
 const { ResourceBuilder, Kind } = require('../common/resource_builder')
 const { domainDecoder } = require('../common/resources_decoders')
 const { auth } = require('../common/trust_util')
-
-// TODO: This is way routr and redis instances must be a singleton
 
 const createDomain = async (call, callback) => {
   if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
@@ -38,4 +37,21 @@ const createDomain = async (call, callback) => {
   }
 }
 
+const deleteDomain = async (call, callback) => {
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+
+  const domainRef = call.request.getRef()
+
+  logger.info('verbose', `@yaps/domains deleteDomain [ref ${domainRef}]`)
+
+  try {
+    await routr.connect()
+    await routr.resourceType('domains').delete(domainRef)
+    callback(null, new Empty())
+  } catch (err) {
+    return callback(new Error(err.message), null)
+  }
+}
+
 module.exports.createDomain = createDomain
+module.exports.deleteDomain = deleteDomain

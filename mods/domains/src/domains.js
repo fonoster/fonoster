@@ -55,7 +55,7 @@ class Domains extends AbstractService {
    * }
    *
    * appManager.createDomain(request)
-   * .then(() => {
+   * .then(result => {
    *   console.log(result)            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
@@ -79,6 +79,32 @@ class Domains extends AbstractService {
     return super
       .getService()
       .createDomain()
+      .sendMessage(req)
+  }
+
+  /**
+   * Deletes a Domain from SIP Proxy subsystem. Notice, that in order to delete
+   * a Domain, you must first delete all its Agents.
+   *
+   * @param {string} ref - Reference to the Domain
+   * @example
+   *
+   * const ref = '507f1f77bcf86cd799439011'
+   *
+   * domains.deleteDomain(ref)
+   * .then(() => {
+   *   console.log('done')            // returns an empty object
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  async deleteDomain (ref) {
+    logger.log('verbose', `@yaps/domains deleteDomain [ref: ${ref}]`)
+
+    const req = new DomainsPB.DeleteDomainRequest()
+    req.setRef(ref)
+
+    return super
+      .getService()
+      .deleteDomain()
       .sendMessage(req)
   }
 }
