@@ -12,6 +12,7 @@ running YAPS deployment.
 * [Domains](#Domains) ⇐ <code>AbstractService</code>
     * [new Domains()](#new_Domains_new)
     * [.createDomain(request)](#Domains+createDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [.deleteDomain(ref)](#Domains+deleteDomain)
 
 <a name="new_Domains_new"></a>
 
@@ -57,7 +58,28 @@ const request = {
 }
 
 appManager.createDomain(request)
-.then(() => {
+.then(result => {
   console.log(result)            // returns an empty object
+}).catch(e => console.error(e))  // an error occurred
+```
+<a name="Domains+deleteDomain"></a>
+
+### domains.deleteDomain(ref)
+Deletes a Domain from SIP Proxy subsystem. Notice, that in order to delete
+a Domain, you must first delete all its Agents.
+
+**Kind**: instance method of [<code>Domains</code>](#Domains)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | Reference to the Domain |
+
+**Example**  
+```js
+const ref = '507f1f77bcf86cd799439011'
+
+domains.deleteDomain(ref)
+.then(() => {
+  console.log('done')            // returns an empty object
 }).catch(e => console.error(e))  // an error occurred
 ```
