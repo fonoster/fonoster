@@ -13,7 +13,6 @@
     "@yaps/tts": "^0.0.2",
     "@yaps/voice": "^0.0.2",
     "assert": "^2.0.0",
-    "eslint": "^5.16.0",
     "husky": "^4.2.3",
     "jsdoc-to-markdown": "^5.0.3",
     "jsonwebtoken": "^8.5.1",
