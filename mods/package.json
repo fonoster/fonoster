@@ -1,6 +1,12 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "docs": "node ./docs",
+    "test": "NODE_ENV=dev nyc -r=lcov mocha **/test/*.test.js",
+    "clean": "rm **/package-lock.json; lerna clean -y",
+    "format": "prettier-standard '**/*.js'"
+  },  
   "devDependencies": {
     "@yaps/appmanager": "^0.0.2",
     "@yaps/core": "^0.0.2",
@@ -22,12 +28,6 @@
     "node-gyp": "^6.1.0",
     "nyc": "^15.0.0",
     "prettier-standard": "^9.1.1"
-  },
-  "scripts": {
-    "docs": "node ./docs",
-    "test": "NODE_ENV=dev nyc -r=lcov mocha **/test/*.test.js",
-    "clean": "rm **/package-lock.json; lerna clean -y",
-    "format": "prettier-standard '**/*.js'"
   },
   "lint-staged": {
     "**/*.js": [
