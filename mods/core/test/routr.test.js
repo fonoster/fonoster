@@ -11,6 +11,7 @@ if (process.env.NODE_ENV === 'dev') {
   require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 }
 
+// Deprecate
 describe('Routr Client Test', () => {
   let token
   let domainRef
@@ -57,9 +58,10 @@ describe('Routr Client Test', () => {
   it('List domains', done => {
     routr
       .resourceType('domains')
-      .list()
-      .then(domains => {
-        assert.ok(domains.length > 0)
+      .list({ pageSize: 10, pageToken: '1' })
+      .then(result => {
+        //console.log()
+        assert.ok(result.data.length > 0)
         done()
       })
       .catch(err => done(err))
@@ -79,7 +81,7 @@ describe('Routr Client Test', () => {
   it('Delete domain', done => {
     routr
       .resourceType('domains')
-      .del(domainFromDB.metadata.ref)
+      .delete(domainFromDB.metadata.ref)
       .then(() => {
         done()
       })

@@ -16,7 +16,7 @@ describe('Domains Service', () => {
     })
   })
 
-  it.only('Create domain perfect case...', done => {
+  it('Create domain perfect case...', done => {
     const domain = {
       name: 'Local Domain',
       domainUri: 'test.local'
@@ -31,7 +31,17 @@ describe('Domains Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Domains missing domainUri', done => {
+  it('List domains', done => {
+    domains
+      .listDomains({ pageSize: 10, pageToken: '1', view: 0 })
+      .then(result => {
+        assert.ok(result.getDomainsList().length > 0)
+        done()
+      })
+      .catch(err => done(err))
+  })
+
+  it('Domains missing domainUri', done => {
     const domain = {
       name: 'Local Domain'
     }
@@ -45,7 +55,7 @@ describe('Domains Service', () => {
       })
   })
 
-  it.only('Domain already exists', done => {
+  it('Domain already exists', done => {
     const domain = {
       name: 'Local Domain',
       domainUri: 'test.local'
@@ -60,7 +70,7 @@ describe('Domains Service', () => {
       })
   })
 
-  it.only('Get domain by reference', done => {
+  it('Get domain by reference', done => {
     domains
       .getDomain(domainRef)
       .then(domain => {
@@ -70,7 +80,7 @@ describe('Domains Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Update domain perfect case...', done => {
+  it('Update domain perfect case...', done => {
     const domain = {
       ref: domainRef,
       name: 'Local Domain2'
@@ -85,14 +95,14 @@ describe('Domains Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Delete domain', done => {
+  it('Delete domain', done => {
     domains
       .deleteDomain(domainRef)
       .then(() => done())
       .catch(err => done(err))
   })
 
-  it.only('Domain reference does not exist', done => {
+  it('Domain reference does not exist', done => {
     domains
       .deleteDomain('1234')
       .then(() => done('not good'))
