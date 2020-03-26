@@ -78,6 +78,36 @@ function deserialize_yaps_domains_v1alpha1_GetDomainRequest (buffer_arg) {
   )
 }
 
+function serialize_yaps_domains_v1alpha1_ListDomainsRequest (arg) {
+  if (!(arg instanceof domains_pb.ListDomainsRequest)) {
+    throw new Error(
+      'Expected argument of type yaps.domains.v1alpha1.ListDomainsRequest'
+    )
+  }
+  return Buffer.from(arg.serializeBinary())
+}
+
+function deserialize_yaps_domains_v1alpha1_ListDomainsRequest (buffer_arg) {
+  return domains_pb.ListDomainsRequest.deserializeBinary(
+    new Uint8Array(buffer_arg)
+  )
+}
+
+function serialize_yaps_domains_v1alpha1_ListDomainsResponse (arg) {
+  if (!(arg instanceof domains_pb.ListDomainsResponse)) {
+    throw new Error(
+      'Expected argument of type yaps.domains.v1alpha1.ListDomainsResponse'
+    )
+  }
+  return Buffer.from(arg.serializeBinary())
+}
+
+function deserialize_yaps_domains_v1alpha1_ListDomainsResponse (buffer_arg) {
+  return domains_pb.ListDomainsResponse.deserializeBinary(
+    new Uint8Array(buffer_arg)
+  )
+}
+
 function serialize_yaps_domains_v1alpha1_UpdateDomainRequest (arg) {
   if (!(arg instanceof domains_pb.UpdateDomainRequest)) {
     throw new Error(
@@ -94,6 +124,18 @@ function deserialize_yaps_domains_v1alpha1_UpdateDomainRequest (buffer_arg) {
 }
 
 var DomainsService = (exports.DomainsService = {
+  // Lists domains from the SIP Proxy subsystem
+  listDomains: {
+    path: '/yaps.domains.v1alpha1.Domains/ListDomains',
+    requestStream: false,
+    responseStream: false,
+    requestType: domains_pb.ListDomainsRequest,
+    responseType: domains_pb.ListDomainsResponse,
+    requestSerialize: serialize_yaps_domains_v1alpha1_ListDomainsRequest,
+    requestDeserialize: deserialize_yaps_domains_v1alpha1_ListDomainsRequest,
+    responseSerialize: serialize_yaps_domains_v1alpha1_ListDomainsResponse,
+    responseDeserialize: deserialize_yaps_domains_v1alpha1_ListDomainsResponse
+  },
   // Creates a new Domain resource.
   createDomain: {
     path: '/yaps.domains.v1alpha1.Domains/CreateDomain',
