@@ -6,6 +6,11 @@ const storageValidator = require('../schemas/storage.schema')
 const logger = require('../common/logger')
 const { auth } = require('../common/trust_util')
 const {
+  YAPSError,
+  YAPSAuthError,
+  YAPSInvalidError
+} = require('../common/yaps_errors')
+const {
   extract,
   removeDirSync,
   uploadToFS,
@@ -15,7 +20,7 @@ const {
 } = require('../common/utils')
 
 const uploadObject = (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   // I swear I don't like this :(
   const delayVerification = request => {
@@ -29,7 +34,7 @@ const uploadObject = (call, callback) => {
 
     if (errors.length > 0) {
       logger.log('warn', `@yaps/core uploadObject [invalid argument]`)
-      callback(new Error('INVALID_ARGUMENT'), errors[0].message)
+      callback(new YAPSInvalidError(errors[0].message))
       return
     }
   }
@@ -115,29 +120,25 @@ const uploadObject = (call, callback) => {
     } catch (err) {
       if (err.code === 'NoSuchBucket') {
         logger.log('error', `${err.message} -> bucket: ${bucket}`)
-        callback({
-          message: `${err.message} -> bucket: ${bucket}`,
-          status: grpc.status.FAILED_PRECONDITION
-        })
+        callback(
+          new YAPSError(
+            grpc.status.FAILED_PRECONDITION,
+            `${err.message} -> bucket: ${bucket}`
+          )
+        )
       } else if (err.code === 'TAR_BAD_ARCHIVE') {
         logger.log('error', err.message)
-        callback(new Error('DATA_LOSS'), err)
+        callback(new YAPSError(grpc.status.DATA_LOSS, err.message))
       } else {
         logger.log('error', err.message)
-        callback(new Error('UNKNOWN'), err)
+        callback(new YAPSError(grpc.status.UNKNOWN, err.message))
       }
     }
   })
 }
 
 const getObjectURL = (call, callback) => {
-  try {
-    auth(call)
-  } catch (e) {
-    logger.log('error', e)
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  const { YAPSAuthError } = require('../common/yaps_errors')
 
   logger.log(
     'debug',
@@ -152,7 +153,7 @@ const getObjectURL = (call, callback) => {
 
   if (errors.length > 0) {
     logger.log('warn', `@yaps/core getObjectURL [invalid argument]`)
-    callback(new Error('INVALID_ARGUMENT'), errors[0].message)
+    callback(new YAPSInvalidError(errors[0].message))
     return
   }
 
@@ -163,10 +164,12 @@ const getObjectURL = (call, callback) => {
       const name = call.request.getName()
       const bucket = call.request.getBucket()
       if (err) {
-        callback({
-          message: `${err.message}: filename '${name}' in bucket '${bucket}'`,
-          status: grpc.status.NOT_FOUND
-        })
+        callback(
+          new YAPSError(
+            grpc.status.NOT_FOUND,
+            `${err.message}: filename '${name}' in bucket '${bucket}'`
+          )
+        )
         return
       }
       const url = `http://${process.env.FS_HOST}:${

@@ -1,27 +1,13 @@
 const axios = require('axios')
 const btoa = require('btoa')
 const logger = require('./logger')
+const handleError = require('./routr_errors')
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 /**
  * Oversimplified version of a Routr API Client
  */
-
-const handleError = error => {
-  if (error.response.status === 409) {
-    throw new Error('ALREADY_EXISTS', error.response.data.message)
-  } else if (error.response.status === 401) {
-    throw new Error('UNAUTHENTICATED', error.response.data.message)
-  } else if (error.response.status === 422) {
-    throw new Error('FAILED_PRECONDITION', error.response.data.message)
-  } else if (error.response.status === 404) {
-    throw new Error('NOT_FOUND', error.response.data.message)
-  } else {
-    throw new Error('UNKNOWN')
-  }
-}
-
 class RoutrClient {
   constructor (apiUrl, username, secret) {
     logger.log('debug', `@yaps/core RoutrClient [creating instance]`)

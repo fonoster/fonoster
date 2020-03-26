@@ -4,9 +4,15 @@ const { auth } = require('../common/trust_util')
 const redis = require('./redis')
 const objectid = require('objectid')
 const appmanager = require('../schemas/appmanager.schema')
+const {
+  YAPSInvalidArgument,
+  YAPSAuthError,
+  YAPSError
+} = require('../common/yaps_errors')
+const Status = require('grpc').status
 
 const listApps = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   if (!call.request.getPageToken()) {
     // Nothing to send
@@ -35,12 +41,17 @@ const listApps = async (call, callback) => {
 }
 
 const getApp = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   const result = await redis.call('get', call.request.getName())
 
   if (!result) {
-    callback(new Error(`App ${call.request.getName()} does not exist`))
+    callback(
+      new YAPSError(
+        Status.NOT_FOUND,
+        `App ${call.request.getName()} does not exist`
+      )
+    )
     return
   }
 
@@ -49,7 +60,7 @@ const getApp = async (call, callback) => {
 }
 
 const createApp = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   // Validating the request
   const errors = appmanager.createAppRequest.validate({
@@ -60,7 +71,7 @@ const createApp = async (call, callback) => {
   })
 
   if (errors.length > 0) {
-    callback(new Error('INVALID_ARGUMENT'), errors[0].message)
+    callback(new YAPSInvalidArgument(errors[0].message))
     return
   }
 
@@ -77,7 +88,7 @@ const createApp = async (call, callback) => {
 }
 
 const updateApp = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
   console.log(`updating app: ${JSON.stringify(call.request)}`)
   // -- Operate here
   // ---
@@ -85,12 +96,17 @@ const updateApp = async (call, callback) => {
 }
 
 const deleteApp = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   const result = await redis.call('get', call.request.getName())
 
   if (!result) {
-    callback(new Error(`App ${call.request.getName()} does not exist`))
+    callback(
+      new YAPSError(
+        Status.NOT_FOUND,
+        `App ${call.request.getName()} does not exist`
+      )
+    )
     return
   }
 

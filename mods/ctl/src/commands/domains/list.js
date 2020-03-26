@@ -32,6 +32,7 @@ class ListCommand extends Command {
         const t = new Table()
 
         list.forEach(domain => {
+          t.cell('Ref', domain.getRef())
           t.cell('Name', domain.getName())
           t.cell('Domain URI', domain.getDomainUri())
           t.cell('Egress Rule', domain.getEgressRule())

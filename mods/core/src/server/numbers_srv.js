@@ -1,11 +1,12 @@
 const NumbersPB = require('./protos/numbers_pb')
 const AppManagerPB = require('./protos/appmanager_pb')
 const { auth } = require('../common/trust_util')
+const { YAPSAuthError } = require('../common/yaps_errors')
 const redis = require('./redis')
 const logger = require('../common/logger')
 
 const createNumber = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   // TODO: Need request validation
 
@@ -25,12 +26,7 @@ const createNumber = async (call, callback) => {
 }
 
 const getIngressApp = async (call, callback) => {
-  try {
-    auth(call)
-  } catch (e) {
-    callback(new Error('UNAUTHENTICATED'), null)
-    return
-  }
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   // TODO: Need request validation
   const e164number = call.request.getE164Number()

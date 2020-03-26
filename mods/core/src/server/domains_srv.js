@@ -6,9 +6,10 @@ const { ListDomainsResponse } = require('./protos/domains_pb')
 const { ResourceBuilder, Kind } = require('../common/resource_builder')
 const { domainDecoder } = require('../common/resources_decoders')
 const { auth } = require('../common/trust_util')
+const { YAPSAuthError } = require('../common/yaps_errors')
 
 const listDomains = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   if (!call.request.getPageToken()) {
     // Nothing to send
@@ -39,7 +40,7 @@ const listDomains = async (call, callback) => {
 }
 
 const createDomain = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   const domain = call.request.getDomain()
 
@@ -63,12 +64,12 @@ const createDomain = async (call, callback) => {
     const jsonObj = await routr.resourceType('domains').get(ref)
     callback(null, domainDecoder(jsonObj))
   } catch (err) {
-    return callback(new Error(err.message), null)
+    return callback(err)
   }
 }
 
 const getDomain = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   const domainRef = call.request.getRef()
 
@@ -79,12 +80,12 @@ const getDomain = async (call, callback) => {
     const jsonObj = await routr.resourceType('domains').get(domainRef)
     callback(null, domainDecoder(jsonObj))
   } catch (err) {
-    return callback(new Error(err.message), null)
+    return callback(err)
   }
 }
 
 const updateDomain = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   const domain = call.request.getDomain()
 
@@ -116,12 +117,12 @@ const updateDomain = async (call, callback) => {
     const jsonObj = await routr.resourceType('domains').get(ref)
     callback(null, domainDecoder(jsonObj))
   } catch (err) {
-    return callback(new Error(err.message), null)
+    return callback(err)
   }
 }
 
 const deleteDomain = async (call, callback) => {
-  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+  if (!auth(call)) return callback(new YAPSAuthError())
 
   const domainRef = call.request.getRef()
 
@@ -132,7 +133,7 @@ const deleteDomain = async (call, callback) => {
     await routr.resourceType('domains').delete(domainRef)
     callback(null, new Empty())
   } catch (err) {
-    return callback(new Error(err.message), null)
+    return callback(err)
   }
 }
 
