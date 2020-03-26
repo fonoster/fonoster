@@ -46,7 +46,7 @@ describe('App Manager Service', () => {
 
   it('List apps', done => {
     appmanager
-      .listApps({ pagSize: 10, pview: 0, pageToken: '0' })
+      .listApps({ pagSize: 10, view: 0, pageToken: '0' })
       .then(result => {
         assert.ok(result.getAppsList().length > 0)
         done()

@@ -56,12 +56,15 @@ class RoutrClient {
     }
   }
 
-  async list (resource) {
+  async list (params = {}) {
+    const queryParams = p => Object.keys(p).map(k => `${k}=${p[k]}`)
     try {
-      const response = await axios.get(
-        `${this.apiUrl}/${this.resource}?token=${this.token}`
-      )
-      return response.data.data
+      const url = `${this.apiUrl}/${this.resource}?token=${
+        this.token
+      }&filter=*&${queryParams(params).join('&')}`
+      console.log('list.url=' + url)
+      const response = await axios.get(url)
+      return response.data
     } catch (err) {
       handleError(err)
     }

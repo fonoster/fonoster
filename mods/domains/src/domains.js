@@ -153,6 +153,37 @@ class Domains extends AbstractService {
   }
 
   /**
+   * List the Domains registered in YAPS SIP Proxy subsystem.
+   *
+   * @param {Object} request
+   * @param {number} request.pageSize - Number of element per page (defaults to 20)
+   * @param {string} request.pageToken - The next_page_token value returned from a previous List request, if any
+   * @return {Promise<ListAppsResponse>} List of applications
+   * @example
+   *
+   * const request = {
+   *    pageSize: 20,
+   *    pageToken: 2
+   * }
+   *
+   * domains.listDomains(request)
+   * .then(() => {
+   *   console.log(result)            // returns an array of registerd Domains
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  async listDomains (request) {
+    logger.log(
+      'verbose',
+      `@yaps/domains listDomain [request -> ${JSON.stringify(request)}]`
+    )
+    const r = new DomainsPB.ListDomainsRequest()
+    r.setPageSize(request.pageSize)
+    r.setPageToken(request.pageToken)
+    r.setView(request.view)
+    return this.service.listDomains().sendMessage(r)
+  }
+
+  /**
    * Deletes a Domain from SIP Proxy subsystem. Notice, that in order to delete
    * a Domain, you must first delete all its Agents.
    *

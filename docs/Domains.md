@@ -14,6 +14,7 @@ running YAPS deployment.
     * [.createDomain(request)](#Domains+createDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getDomain(ref)](#Domains+getDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.updateDomain(request, ref)](#Domains+updateDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [.listDomains(request)](#Domains+listDomains) ⇒ <code>Promise.&lt;ListAppsResponse&gt;</code>
     * [.deleteDomain(ref)](#Domains+deleteDomain)
 
 <a name="new_Domains_new"></a>
@@ -115,6 +116,32 @@ const request = {
 appManager.updateDomain(request)
 .then(result => {
   console.log(result)            // returns an empty object
+}).catch(e => console.error(e))  // an error occurred
+```
+<a name="Domains+listDomains"></a>
+
+### domains.listDomains(request) ⇒ <code>Promise.&lt;ListAppsResponse&gt;</code>
+List the Domains registered in YAPS SIP Proxy subsystem.
+
+**Kind**: instance method of [<code>Domains</code>](#Domains)  
+**Returns**: <code>Promise.&lt;ListAppsResponse&gt;</code> - List of applications  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>Object</code> |  |
+| request.pageSize | <code>number</code> | Number of element per page (defaults to 20) |
+| request.pageToken | <code>string</code> | The next_page_token value returned from a previous List request, if any |
+
+**Example**  
+```js
+const request = {
+   pageSize: 20,
+   pageToken: 2
+}
+
+domains.listDomains(request)
+.then(() => {
+  console.log(result)            // returns an array of registerd Domains
 }).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Domains+deleteDomain"></a>

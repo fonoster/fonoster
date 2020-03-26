@@ -6,8 +6,8 @@
     "@yaps/core": "^0.0.2",
     "@yaps/ctl": "^0.0.2",
     "@yaps/dispatcher": "^0.0.2",
-    "@yaps/numbers": "^0.0.2",
     "@yaps/domains": "^0.0.3",
+    "@yaps/numbers": "^0.0.2",
     "@yaps/sdk": "^0.0.2",
     "@yaps/storage": "^0.0.2",
     "@yaps/tts": "^0.0.2",
@@ -31,7 +31,9 @@
     "format": "prettier-standard '**/*.js'"
   },
   "lint-staged": {
-    "**/*.js": ["prettier-standard"]
+    "**/*.js": [
+      "prettier-standard"
+    ]
   },
   "husky": {
     "hooks": {

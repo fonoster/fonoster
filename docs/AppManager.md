@@ -130,8 +130,8 @@ const request = {
    pageToken: 2
 }
 
-appManager.list(request)
+appManager.listApps(request)
 .then(() => {
-  console.log(result)            // returns an empty object
+  console.log(result)            // returns an array of apps
 }).catch(e => console.error(e))  // an error occurred
 ```

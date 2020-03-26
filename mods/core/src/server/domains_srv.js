@@ -2,9 +2,41 @@ const routr = require('./routr')
 const grpc = require('grpc')
 const logger = require('../common/logger')
 const { Empty } = require('./protos/common_pb')
+const { ListDomainsResponse } = require('./protos/domains_pb')
 const { ResourceBuilder, Kind } = require('../common/resource_builder')
 const { domainDecoder } = require('../common/resources_decoders')
 const { auth } = require('../common/trust_util')
+
+const listDomains = async (call, callback) => {
+  if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
+
+  if (!call.request.getPageToken()) {
+    // Nothing to send
+    callback(null, new ListDomainsResponse())
+    return
+  }
+
+  const page = parseInt(call.request.getPageToken())
+  const itemsPerPage = call.request.getPageSize()
+
+  await routr.connect()
+  const result = await routr
+    .resourceType('domains')
+    .list({ page, itemsPerPage })
+  const domains = result.data
+
+  const response = new ListDomainsResponse()
+
+  for (i = 0; i < domains.length; i++) {
+    const jsonObj = domains[i]
+    const domain = domainDecoder(jsonObj)
+    response.addDomains(domain)
+  }
+
+  if (domains.length > 0) response.setNextPageToken('' + (page + 1))
+
+  callback(null, response)
+}
 
 const createDomain = async (call, callback) => {
   if (!auth(call)) return callback(new Error('UNAUTHENTICATED'), null)
@@ -104,6 +136,7 @@ const deleteDomain = async (call, callback) => {
   }
 }
 
+module.exports.listDomains = listDomains
 module.exports.createDomain = createDomain
 module.exports.getDomain = getDomain
 module.exports.deleteDomain = deleteDomain

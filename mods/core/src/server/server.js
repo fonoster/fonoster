@@ -13,48 +13,14 @@ const fs = require('fs')
 const logger = require('../common/logger')
 const grpc = require('../common/grpc_hack')
 const { getServerCredentials } = require('../common/trust_util')
-const {
-  listApps,
-  getApp,
-  createApp,
-  updateApp,
-  deleteApp
-} = require('./appmanager_srv.js')
-const { createNumber, getIngressApp } = require('./numbers_srv.js')
-const { uploadObject, getObjectURL } = require('./storage_srv.js')
-const {
-  createDomain,
-  getDomain,
-  deleteDomain,
-  updateDomain
-} = require('./domains_srv.js')
 
 function main () {
   const server = new grpc.Server()
-  server.addService(AppManagerService, {
-    listApps,
-    getApp,
-    createApp,
-    updateApp,
-    deleteApp
-  })
 
-  server.addService(StorageService, {
-    uploadObject,
-    getObjectURL
-  })
-
-  server.addService(NumbersService, {
-    createNumber,
-    getIngressApp
-  })
-
-  server.addService(DomainsService, {
-    createDomain,
-    getDomain,
-    deleteDomain,
-    updateDomain
-  })
+  server.addService(AppManagerService, require('./appmanager_srv.js'))
+  server.addService(StorageService, require('./storage_srv.js'))
+  server.addService(NumbersService, require('./numbers_srv.js'))
+  server.addService(DomainsService, require('./domains_srv.js'))
 
   let credentials = grpc.ServerCredentials.createInsecure()
 
