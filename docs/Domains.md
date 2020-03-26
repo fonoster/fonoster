@@ -35,7 +35,7 @@ domains.createDomain({name: 'Local Domain', domainUri: 'sip.local'...})
 <a name="Domains+createDomain"></a>
 
 ### domains.createDomain(request) ⇒ <code>Promise.&lt;Object&gt;</code>
-Creates a new Domain at the SIP Proxy subsystem.
+Creates a new Domain on the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Domains</code>](#Domains)  
 
@@ -60,7 +60,7 @@ const request = {
    accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']
 }
 
-appManager.createDomain(request)
+domains.createDomain(request)
 .then(result => {
   console.log(result)            // returns the Domain object
 }).catch(e => console.error(e))  // an error occurred
@@ -113,7 +113,7 @@ const request = {
    accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']
 }
 
-appManager.updateDomain(request)
+domains.updateDomain(request)
 .then(result => {
   console.log(result)            // returns an empty object
 }).catch(e => console.error(e))  // an error occurred

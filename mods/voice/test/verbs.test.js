@@ -1,34 +1,34 @@
 const MockChannel = require('./mock_channel')
 const MaryTTS = require('@yaps/tts').MaryTTS
 const Storage = require('@yaps/storage')
-const YWC = require('../src/ywc')
+const Verbs = require('../src/verbs')
 
 const assert = require('assert')
 
-describe('YWC tests', () => {
+describe('Verbs tests', () => {
   it('Test verb answer', done => {
     const channel = new MockChannel()
-    const ywc = new YWC(channel)
-    assert.equal(0, ywc.answer())
+    const verbs = new Verbs(channel)
+    assert.equal(0, verbs.answer())
     done()
   })
 
   it('Test verb hangup', done => {
     const channel = new MockChannel()
-    const ywc = new YWC(channel)
-    assert.equal(1, ywc.hangup())
+    const verbs = new Verbs(channel)
+    assert.equal(1, verbs.hangup())
     done()
   })
 
   it('Test verb play', done => {
     const channel = new MockChannel()
-    const ywc = new YWC(channel)
+    const verbs = new Verbs(channel)
     channel.setData(['1'])
-    const result = ywc.play('beep')
+    const result = verbs.play('beep')
     assert.equal('1', result)
 
     try {
-      ywc.play('beep', { finishOnKey: '%' })
+      verbs.play('beep', { finishOnKey: '%' })
       done('Error: Failed exception')
     } catch (e) {}
 
@@ -37,52 +37,52 @@ describe('YWC tests', () => {
 
   it.skip('Test verb say', done => {
     const channel = new MockChannel()
-    const ywc = new YWC(channel)
+    const verbs = new Verbs(channel)
     channel.setData(['1'])
 
     try {
-      ywc.say('Hello World')
+      verbs.say('Hello World')
       done('Error: Failed exception')
     } catch (e) {}
 
-    ywc.config({
+    verbs.config({
       tts: new MaryTTS(),
       storage: new Storage()
     })
 
-    ywc.say('Hello Raysa')
+    verbs.say('Hello Raysa')
     done()
   })
 
   it('Test verb gather', done => {
     const channel = new MockChannel()
-    const ywc = new YWC(channel)
+    const verbs = new Verbs(channel)
 
     try {
-      ywc.gather('', { finishOnKey: 'aa', maxDigits: 'p' })
+      verbs.gather('', { finishOnKey: 'aa', maxDigits: 'p' })
       done('Error: Failed exception')
     } catch (e) {}
 
     try {
-      ywc.gather('', { timeout: 0 })
+      verbs.gather('', { timeout: 0 })
       done('Error: Failed exception')
     } catch (e) {}
 
     // Stops reading at maxDigits
     channel.setData(['1', '2', '3', '4'])
-    let result = ywc.gather('', { maxDigits: 4 })
+    let result = verbs.gather('', { maxDigits: 4 })
     assert.equal('1234', result)
 
     // Stops reading at finishOnKey
     channel.setData(['1', '2', '3', '4', '*'])
     channel.resetDataPointer()
-    result = ywc.gather('', { maxDigits: 6, finishOnKey: '*' })
+    result = verbs.gather('', { maxDigits: 6, finishOnKey: '*' })
     assert.equal('1234', result)
 
     // Stops reading at null because a timeout event
     channel.setData(['1', '2', '3', null])
     channel.resetDataPointer()
-    result = ywc.gather('', { timeout: 5, maxDigits: 4 })
+    result = verbs.gather('', { timeout: 5, maxDigits: 4 })
     assert.equal('123', result)
 
     done()
@@ -90,10 +90,10 @@ describe('YWC tests', () => {
 
   it('Test verb wait', done => {
     const channel = new MockChannel()
-    const ywc = new YWC(channel)
+    const verbs = new Verbs(channel)
 
     try {
-      ywc.wait(-1)
+      verbs.wait(-1)
       done('Error: Failed exception')
     } catch (e) {}
 
@@ -103,25 +103,25 @@ describe('YWC tests', () => {
   it('Test verb record', done => {
     const channel = new MockChannel()
 
-    const ywc = new YWC(channel)
+    const verbs = new Verbs(channel)
 
     try {
-      ywc.record({ beep: 'a' })
+      verbs.record({ beep: 'a' })
       done('Error: Failed exception')
     } catch (e) {}
 
-    ywc.record()
+    verbs.record()
 
     done()
   })
 
   it('Test verb stash', done => {
     const channel = new MockChannel()
-    const ywc = new YWC(channel)
-    ywc.stash('key1', 'val1')
-    ywc.stash('key2', 'val2')
-    ywc.stash('key1', 'val3')
-    assert.equal(2, ywc.getCallDetailRecord().vars.size)
+    const verbs = new Verbs(channel)
+    verbs.stash('key1', 'val1')
+    verbs.stash('key2', 'val2')
+    verbs.stash('key1', 'val3')
+    assert.equal(2, verbs.getCallDetailRecord().vars.size)
     done()
   })
 })

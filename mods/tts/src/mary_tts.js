@@ -6,7 +6,33 @@ const merge = require('deepmerge')
 const logger = require('@yaps/core').logger
 const { computeFilename, optionsToQueryString } = require('./utils')
 
+/**
+ * @classdesc The default TTS engine in a YAPS deployment.
+ *
+ * @extends AbstractTTS
+ * @example
+ *
+ * const MaryTTS = require('@yaps/tts/marytts')
+ * const Storage = require('@yaps/storage')
+ * const { transcodeSync } = require('@yaps/tts/utils')
+
+ *
+ * // This is all done automatically when using the Say verb.
+ * module.exports = chan => {
+ *    const storage = new Storage()
+ *    const tts = new MaryTTS()
+ *    const pathToFile = tts.synthesizeSync('Hello World')
+ *    const pathToTranscodedFile = transcodeSync(pathToFile)
+ *    const url = storage.uploadFileSync('hello-world.wav', pathToTranscodedFile)
+ *    chan.play(url)
+ * }
+ */
 class MaryTTS extends AbstractTTS {
+  /**
+   * Constructs a new MaryTTS object.
+   *
+   * @see module:tts:AbstractTTS
+   */
   constructor (options) {
     super('mary-tts')
 
@@ -38,6 +64,9 @@ class MaryTTS extends AbstractTTS {
     )
   }
 
+  /**
+   * @inherit
+   */
   synthesize (text, options) {
     options = options || {}
 

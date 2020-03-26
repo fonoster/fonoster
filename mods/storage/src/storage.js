@@ -1,8 +1,3 @@
-/**
- * Another stupid module
- * @module storage
- */
-
 const fs = require('fs')
 const path = require('path')
 const { grpc } = require('@yaps/core')
@@ -12,28 +7,51 @@ const { AbstractService, StorageService, StoragePB } = require('@yaps/core')
 const { getClientCredentials } = require('@yaps/core').trust_util
 
 /**
- * @typicalname storage
- * @alias module:storage
- * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager,
- * to create, manage, and deploy an application. The AppManager requires of a
- * running YAPS platform.
+ * @classdesc Use YAPS Storage, a capability of YAPS Object Storage subsystem,
+ * to upload, download, and delete objects.
  *
  * @extends AbstractService
  * @example
  *
  * const YAPS = require('@yaps/sdk')
- * const appmanager = new YAPS.AppManager()
+ * const storage = new YAPS.Storage()
  *
- * appmanager.listApps()
+ * storage.uploadObject()
  * .then(result => {
  *    console.log(result)            // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
 class Storage extends AbstractService {
+  /**
+   * Constructs a new Storage object.
+   *
+   * @see module:core:AbstractService
+   */
   constructor (options) {
     super(options, StorageService.StorageClient)
   }
 
+  /**
+   * Upload an object to YAPS Object Storage subsystem.
+   *
+   * @param {Object} request
+   * @param {string} request.filename - Path to the object to be uploaded
+   * @param {string} request.bucket - Directory at the Storage system to
+   * save your file.
+   * @throws if the path does not exist or if is a directory
+   * @throws if the bucket does not exist
+   * @example
+   *
+   * const request = {
+   *    e164Number: '+17853178071',
+   *    ingressApp: 'hello-monkeys'
+   * }
+   *
+   * storage.uploadObject(request)
+   * .then(() => {
+   *   console.log(result)            // returns and empty Object
+   * }).catch(e => console.error(e))  // an error occurred
+   */
   async uploadObject (request) {
     return new Promise((resolve, reject) => {
       logger.log(
@@ -117,6 +135,27 @@ class Storage extends AbstractService {
     })
   }
 
+  /**
+   * Get Object URL.
+   *
+   * @param {Object} request
+   * @param {string} request.name - The name of the object
+   * @param {string} request.bucket - Bucket where object is located
+   * save your file.
+   * @return {string} locally accessible URL to the object
+   * @throws if bucket or object does not exist
+   * @example
+   *
+   * const request = {
+   *    name: 'object-name',
+   *    bucket: 'bucket-name'
+   * }
+   *
+   * storage.getObjectURL(request)
+   * .then(result => {
+   *   console.log(result)            // returns a locally accesible URL
+   * }).catch(e => console.error(e))  // an error occurred
+   */
   async getObjectURL (request) {
     return new Promise((resolve, reject) => {
       logger.log(
@@ -146,6 +185,7 @@ class Storage extends AbstractService {
     })
   }
 
+  // Internal API
   async uploadObjectSync (request) {
     const sleep = require('sync').sleep
     let result
@@ -162,6 +202,7 @@ class Storage extends AbstractService {
     return result
   }
 
+  // Internal API
   async getObjectURLSync (request) {
     const sleep = require('sync').sleep
     let result

@@ -3,7 +3,13 @@ const objectid = require('objectid')
 const { logger } = require('@yaps/core')
 const { computeFilename, transcodeSync } = require('@yaps/tts').utils
 
-class YapsWrapperChannel {
+/**
+ * @classdescNode JS Implementation of the Verbs API.
+ */
+class Verbs {
+  /**
+   * Constructs a new Verbs object.
+   */
   constructor (channel, config) {
     this.channel = channel
     this._config = config
@@ -29,23 +35,40 @@ class YapsWrapperChannel {
     }
   }
 
-  // TODO: This needs accept individual configuration changes
+  /**
+   * Configure the Verbs object.
+   *
+   * @param {Object} config
+   * @param {string} config.bucket - Change default bucket
+   * @param {string} config.storage - A replacement for the storage. Use this
+   * Only to overwrite the parameters set in your `yaps.json.`
+   * @param {string} config.tts - A replacement for the default TTS engine
+   */
   config (config) {
     this._config = config
   }
 
+  /**
+   * Answer a call if not already answered.
+   */
   answer () {
     return this.channel.answer()
     //if (result.code !== 200) throw new Error(result.rawReply)
     //return 0
   }
 
+  /**
+   * Terminates a call if not already terminated.
+   */
   hangup () {
     return this.channel.hangup()
     //if (result.code !== 200) throw new Error(result.rawReply)
     //return 1
   }
 
+  /**
+   * Terminates at `timeout`
+   */
   setAutoHangup (timeout) {
     new Error('not yet implemented')
     if (timeout && isNaN(timeout)) throw new Error('timeout is not a number')
@@ -53,15 +76,22 @@ class YapsWrapperChannel {
   }
 
   /**
+   * Plays an audio in the calls channel.
    *
-   * Param file - Is a file that has been previously uploaded or is available by default.
-   * Param options - Optional parameters to alter the command's normal behavior.
+   * @param {string} file - Is a file that has been previously uploaded or is
+   * available by default in the applications bucket.
+   * @param {Object} options - Optional parameters to alter the command's normal
+   * behavior
+   * @param {string} options.finishOnKey - Key to terminate the playing
+   * @returns {string} Pressed key or undefined if no key was pressed before
+   * timeout
+   * @example
    *
-   * Example options {
-   *   finishOnKey: #,     // Default
+   * const options {
+   *   finishOnKey: '#'',
    * }
    *
-   * Returns - Sent DTMF or undefined if no key was pressed before audio ends
+   * const result = chan.play('tts-monkeys', options)
    */
   play (file, options) {
     logger.log(
@@ -99,13 +129,21 @@ class YapsWrapperChannel {
   }
 
   /**
-   * Param text - Will be convert into a file and put in a cache for future use.
-   * This method behavior is similar than play.
-   * Example options {
-   *     finishOnKey: #,     // Default
+   * Sythentizes a text and streams the resulting audio.
+   *
+   * @param {string} text - Will be convert into a file and put in a cache for
+   * future use.
+   * @param {Object} options - Optional parameters to alter the command's normal behavior.
+   * @param {string} options.finishOnKey - Key to terminate the playing
+   * @returns {string} Pressed key or undefined if no key was pressed before
+   * timeout
+   * @example
+   *
+   * const options {
+   *   finishOnKey: '#'',
    * }
    *
-   * Returns - Sent DTMF or undefined if no key was pressed before audio ends
+   * const result = chan.say('hello, this is an audio sample', options)
    */
   say (text, options) {
     logger.log(
@@ -170,7 +208,7 @@ class YapsWrapperChannel {
   }
 
   /**
-   * Param time - Time to wait in seconds. Defaults to 1s.
+   * Plays a silence for `time` seconds.
    */
   wait (time) {
     let t = 1
@@ -186,19 +224,25 @@ class YapsWrapperChannel {
   }
 
   /**
-   * The Gather verb is used in combination with Play, Say, Wait. The are pipeline together
-   * to create this powerful verb.
+   * The Gather verb is used in combination with Play, Say, Wait.
    *
-   * Example options {
-   *     timeout: 4,         // Time in between key pressed. Defaults to 4 seconds.
-   *                          // A time of zero will wait for ever for the finishOnKey.
-   *     finishOnKey: #,     // Default
-   *     maxDigits: 4        // Wait for the user to press digit.
+   * @param {string} text - Will be convert into a file and put in a cache for
+   * future use.
+   * @param {Object} options - Optional parameters to alter the command's normal
+   * behavior.
+   * @param {string} options.timeout - Time to finish if no key is pressed
+   * @param {string} options.finishOnKey - Key to terminate the playing
+   * @param {string} options.maxDigits - Max number of digits accepted
+   * @returns {string} Pressed digits or undefined if no keys were pressed before
+   * timeout
+   * @example
+   *
+   * const options {
+   *   finishOnKey: '#'',
+   *   maxDigits: 4
    * }
    *
-   * Note: Either maxDigits or timeout must be greater than zero.
-   *
-   * Returns - Sent digits or undefined if no key was pressed before timeout
+   * const result = chan.gather(chan.say('this is an audio sample'), options)
    */
   gather (initDigits, options) {
     // A timeout of 0 means no timeout
@@ -278,7 +322,24 @@ class YapsWrapperChannel {
 
   /**
    * Record creates a file with the sound send by receiving device
-   * Example options {
+   *
+   * @param {string} text - Will be convert into a file and put in a cache for
+   * future use.
+   * @param {Object} options - Optional parameters to alter the command's normal
+   * behavior.
+   * @param {string} options.timeout - Time to finish if no key is pressed
+   * @param {string} options.finishOnKey - Key to terminate the playing
+   * @param {string} options.beep - Wether to beep or not before beginig the
+   * recordings. Defaults to 'false'
+   * @param {string} options.offset - Causes the recording to first seek to the
+   * specified offset before recording begins
+   * @param {string} options.maxDuration - Maximum duration of the recording.
+   * Defaults to `1 hour.`
+   * @returns {string} Metadata with information about the recordings
+   * @todo Add constrains for the file's format
+   * @example
+   *
+   * const options = {
    *     timeout: 4,         // Default
    *     finishOnKey: #,     // Characters used to finish the recording
    *     beep: true,
@@ -286,9 +347,7 @@ class YapsWrapperChannel {
    *     maxDuration: 3600   // Maximum duration in seconds
    * }
    *
-   * Returns - Metadata with information about the recordings
-   *
-   * TODO: Add constrains for the file's format
+   * const result = chan.record(options)
    */
   record (options) {
     const result = {}
@@ -338,6 +397,13 @@ class YapsWrapperChannel {
     return result
   }
 
+  /**
+   * Saves a set of key,value in the Call Detail Record.
+   *
+   * @example
+   *
+   * chan.stash('choice', chan.say('enter your option'))
+   */
   stash (key, value) {
     this.callDetailRecord.vars.set(key, value)
   }
@@ -347,4 +413,4 @@ class YapsWrapperChannel {
   }
 }
 
-module.exports = YapsWrapperChannel
+module.exports = Verbs

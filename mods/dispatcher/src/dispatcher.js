@@ -1,7 +1,7 @@
 const { Storage } = require('@yaps/storage')
 const { AGIServer } = require('agi-node')
 const { MaryTTS } = require('@yaps/tts')
-const { YWC } = require('@yaps/voice')
+const { Verbs } = require('@yaps/voice')
 const { NodeVM } = require('vm2')
 const { getIngressInfo } = require('./utils')
 const fs = require('fs')
@@ -32,7 +32,7 @@ function dispatch (channel) {
     const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
     logger.log('silly', `@yaps/dispatcher dispatch [contents: ${contents}]`)
 
-    const chann = new YWC(channel, {
+    const chann = new Verbs(channel, {
       tts: new MaryTTS(),
       storage: new Storage({ bucket: ingressInfo.bucket }),
       bucket: ingressInfo.bucket

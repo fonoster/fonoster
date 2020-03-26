@@ -30,7 +30,7 @@ class Domains extends AbstractService {
   }
 
   /**
-   * Creates a new Domain at the SIP Proxy subsystem.
+   * Creates a new Domain on the SIP Proxy subsystem.
    *
    * @param {Object} request
    * @param {string} request.name - Friendly name for the SIP domain
@@ -54,7 +54,7 @@ class Domains extends AbstractService {
    *    accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']
    * }
    *
-   * appManager.createDomain(request)
+   * domains.createDomain(request)
    * .then(result => {
    *   console.log(result)            // returns the Domain object
    * }).catch(e => console.error(e))  // an error occurred
@@ -123,7 +123,7 @@ class Domains extends AbstractService {
    *    accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']
    * }
    *
-   * appManager.updateDomain(request)
+   * domains.updateDomain(request)
    * .then(result => {
    *   console.log(result)            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
