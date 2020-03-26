@@ -9,6 +9,11 @@ const { computeFilename, transcodeSync } = require('@yaps/tts').utils
 class Verbs {
   /**
    * Constructs a new Verbs object.
+   * @params {Channel} channel - Channel object pass from AGI-Node
+   * @params {Object} config - This parameter is required for proper operation
+   * of some verbs, such as `Say`.
+   * @params {Storage} config.storage - An instance of the Storage object
+   * @params {TTS} config.tts - An instance of a TTS engine implementation
    */
   constructor (channel, config) {
     this.channel = channel
@@ -38,7 +43,8 @@ class Verbs {
   /**
    * Configure the Verbs object.
    *
-   * @param {Object} config
+   * @param {Object} config - This parameter is required for proper operation of
+   * some verbs, such as `Say`.
    * @param {string} config.bucket - Change default bucket
    * @param {string} config.storage - A replacement for the storage. Use this
    * Only to overwrite the parameters set in your `yaps.json.`
@@ -209,6 +215,8 @@ class Verbs {
 
   /**
    * Plays a silence for `time` seconds.
+   *
+   * @params {number} time - A time seconds to wait for
    */
   wait (time) {
     let t = 1

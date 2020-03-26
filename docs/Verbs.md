@@ -2,7 +2,11 @@
 
 ## Verbs
 **Kind**: global class  
-**Classdescnode**: JS Implementation of the Verbs API.  
+**Params**: <code>Channel</code> channel - Channel object pass from AGI-Node  
+**Params**: <code>Object</code> config - This parameter is required for proper operation
+of some verbs, such as `Say`.  
+**Params**: [<code>Storage</code>](#Storage) config.storage - An instance of the Storage object  
+**Params**: <code>TTS</code> config.tts - An instance of a TTS engine implementation  
 
 * [Verbs](#Verbs)
     * [new Verbs()](#new_Verbs_new)
@@ -31,7 +35,7 @@ Configure the Verbs object.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| config | <code>Object</code> |  |
+| config | <code>Object</code> | This parameter is required for proper operation of some verbs, such as `Say`. |
 | config.bucket | <code>string</code> | Change default bucket |
 | config.storage | <code>string</code> | A replacement for the storage. Use this Only to overwrite the parameters set in your `yaps.json.` |
 | config.tts | <code>string</code> | A replacement for the default TTS engine |
@@ -106,6 +110,7 @@ const result = chan.say('hello, this is an audio sample', options)
 Plays a silence for `time` seconds.
 
 **Kind**: instance method of [<code>Verbs</code>](#Verbs)  
+**Params**: <code>number</code> time - A time seconds to wait for  
 <a name="Verbs+gather"></a>
 
 ### verbs.gather(text, options) ⇒ <code>string</code>
