@@ -16,7 +16,6 @@ services:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     volumes:
       - ./mods/etc/certs:/etc/certs:ro
-      - ./mods/core/src:/mods/core/src
     logging:
         driver: fluentd
         options:
