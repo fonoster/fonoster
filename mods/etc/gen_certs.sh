@@ -10,7 +10,7 @@
 # "Share" files: ca.crt (needed by the client), server.csr (needed by the CA)
 
 echo "Creating certs folder ..."
-mkdir certs && cd certs
+mkdir -p certs && cd certs
 
 echo "Generating certificates ..."
 
