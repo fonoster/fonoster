@@ -14,7 +14,7 @@ running YAPS deployment.
     * [.createDomain(request)](#Domains+createDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getDomain(ref)](#Domains+getDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.updateDomain(request, ref)](#Domains+updateDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
-    * [.listDomains(request)](#Domains+listDomains) ⇒ <code>Promise.&lt;ListAppsResponse&gt;</code>
+    * [.listDomains(request)](#Domains+listDomains) ⇒ <code>Promise.&lt;ListDomainsResponse&gt;</code>
     * [.deleteDomain(ref)](#Domains+deleteDomain)
 
 <a name="new_Domains_new"></a>
@@ -115,16 +115,16 @@ const request = {
 
 domains.updateDomain(request)
 .then(result => {
-  console.log(result)            // returns an empty object
+  console.log(result)            // returns the Domain from the DB
 }).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Domains+listDomains"></a>
 
-### domains.listDomains(request) ⇒ <code>Promise.&lt;ListAppsResponse&gt;</code>
+### domains.listDomains(request) ⇒ <code>Promise.&lt;ListDomainsResponse&gt;</code>
 List the Domains registered in YAPS SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Domains</code>](#Domains)  
-**Returns**: <code>Promise.&lt;ListAppsResponse&gt;</code> - List of applications  
+**Returns**: <code>Promise.&lt;ListDomainsResponse&gt;</code> - List of Domains  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -141,14 +141,14 @@ const request = {
 
 domains.listDomains(request)
 .then(() => {
-  console.log(result)            // returns an array of registerd Domains
+  console.log(result)            // returns a ListDomainsResponse object
 }).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Domains+deleteDomain"></a>
 
 ### domains.deleteDomain(ref)
 Deletes a Domain from SIP Proxy subsystem. Notice, that in order to delete
-a Domain, you must first delete all its Agents.
+a Domain, you must first delete all it's Agents.
 
 **Kind**: instance method of [<code>Domains</code>](#Domains)  
 

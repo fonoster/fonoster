@@ -1,8 +1,6 @@
 /**
- * @author Pedro Sanders
- * @since v1
+ * This example shows the using of most all YAPS verbs.
  */
-
 module.exports = chan => {
 
     console.log('Handler got call %s -> %s',

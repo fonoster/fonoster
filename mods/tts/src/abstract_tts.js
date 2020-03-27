@@ -18,8 +18,8 @@ class AbstractTTS {
    *
    * @param {string} text - Text to convert to a audio sound
    * @param {Object} options - A an object pass to the final implementation with
-   * settings for the TTS engine.
-   * @returns {string} - The path to the audio synthesized from the text
+   * settings for the TTS engine
+   * @returns {string} The path to the audio synthesized from the text
    */
   synthesizeSync (text, options) {
     const sleep = require('sync').sleep

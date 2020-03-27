@@ -66,8 +66,6 @@ class Numbers extends AbstractService {
       `@yaps/numbers createNumber [validating number:  ${request.e164Number}]`
     )
 
-    // TODO: Validate number
-
     const number = new NumbersPB.Number()
     number.setE164Number(request.e164Number)
     number.setIngressApp(request.ingressApp)

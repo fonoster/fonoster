@@ -2,7 +2,7 @@
 
 ## AppManager ⇐ <code>AbstractService</code>
 Use YAPS AppManager, a capability of YAPS Systems Manager,
-to create, manage, and deploy an application. YAPS AppManager requires of a
+to create, manage, and deploy an applications. YAPS AppManager requires of a
 running YAPS deployment.
 
 **Kind**: global class  
@@ -28,7 +28,7 @@ const appManager = new YAPS.AppManager()
 
 appManager.deployApp('/path/to/app')
 .then(result => {
-  console.log(result)            // successful response
+  console.log(result)             // successful response
 }).catch(e => console.error(e))   // an error occurred
 ```
 <a name="AppManager+deployApp"></a>
@@ -83,19 +83,19 @@ Retrives an application by name.
 ```js
 appManager.getApp(name)
 .then(result => {
-  console.log(result)            // returns the app object
+  console.log(result)             // returns the app object
 }).catch(e => console.error(e))   // an error occurred
 ```
 <a name="AppManager+deleteApp"></a>
 
 ### appManager.deleteApp(name) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-Deletes an app already registered in YAPS.
+Deletes an application already registered in YAPS.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
-**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application to be remove  
+**Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application to remove  
 **Throws**:
 
-- if name is null or application does not exist
+- if the application is not found
 
 
 | Param | Type | Description |
@@ -106,13 +106,13 @@ Deletes an app already registered in YAPS.
 ```js
 appManager.deleteApp(name)
 .then(() => {
-  console.log(result)            // returns an empty object
+  console.log('finished')        // returns an empty object
 }).catch(e => console.error(e))  // an error occurred
 ```
 <a name="AppManager+listApps"></a>
 
 ### appManager.listApps(request) ⇒ <code>Promise.&lt;ListAppsResponse&gt;</code>
-List the apps registered in YAPS.
+List the applications registered in YAPS.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
 **Returns**: <code>Promise.&lt;ListAppsResponse&gt;</code> - List of applications  
@@ -131,7 +131,7 @@ const request = {
 }
 
 appManager.listApps(request)
-.then(() => {
-  console.log(result)            // returns an array of apps
+.then(result => {
+  console.log(result)            // returns a ListAppsResponse
 }).catch(e => console.error(e))  // an error occurred
 ```

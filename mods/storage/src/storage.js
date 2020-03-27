@@ -34,7 +34,8 @@ class Storage extends AbstractService {
   /**
    * Upload an object to YAPS Object Storage subsystem.
    *
-   * @param {Object} request
+   * @param {Object} request - Object with information about the origin and
+   * destination of an object
    * @param {string} request.filename - Path to the object to be uploaded
    * @param {string} request.bucket - Directory at the Storage system to
    * save your file.
@@ -43,8 +44,8 @@ class Storage extends AbstractService {
    * @example
    *
    * const request = {
-   *    e164Number: '+17853178071',
-   *    ingressApp: 'hello-monkeys'
+   *    filename: '/path/to/file',
+   *    bucklet: 'hello-monkeys'
    * }
    *
    * storage.uploadObject(request)
@@ -138,11 +139,12 @@ class Storage extends AbstractService {
   /**
    * Get Object URL.
    *
-   * @param {Object} request
+   * @param {Object} request - Object with information about the location and
+   * and name of the requested object
    * @param {string} request.name - The name of the object
    * @param {string} request.bucket - Bucket where object is located
    * save your file.
-   * @return {string} locally accessible URL to the object
+   * @return {string} localy accessible URL to the object
    * @throws if bucket or object does not exist
    * @example
    *
@@ -153,7 +155,7 @@ class Storage extends AbstractService {
    *
    * storage.getObjectURL(request)
    * .then(result => {
-   *   console.log(result)            // returns a locally accesible URL
+   *   console.log(result)            // returns a localy accesible URL
    * }).catch(e => console.error(e))  // an error occurred
    */
   async getObjectURL (request) {

@@ -1,11 +1,8 @@
 {
   "name": "default",
   "version": "1.0.0",
-  "private": true,  
+  "private": true,
   "description": "Default handler",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Pedro Sanders",
   "license": "MIT"
 }

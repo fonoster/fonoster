@@ -42,15 +42,15 @@ Upload an object to YAPS Object Storage subsystem.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>Object</code> |  |
+| request | <code>Object</code> | Object with information about the origin and destination of an object |
 | request.filename | <code>string</code> | Path to the object to be uploaded |
 | request.bucket | <code>string</code> | Directory at the Storage system to save your file. |
 
 **Example**  
 ```js
 const request = {
-   e164Number: '+17853178071',
-   ingressApp: 'hello-monkeys'
+   filename: '/path/to/file',
+   bucklet: 'hello-monkeys'
 }
 
 storage.uploadObject(request)
@@ -64,7 +64,7 @@ storage.uploadObject(request)
 Get Object URL.
 
 **Kind**: instance method of [<code>Storage</code>](#Storage)  
-**Returns**: <code>string</code> - locally accessible URL to the object  
+**Returns**: <code>string</code> - localy accessible URL to the object  
 **Throws**:
 
 - if bucket or object does not exist
@@ -72,7 +72,7 @@ Get Object URL.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>Object</code> |  |
+| request | <code>Object</code> | Object with information about the location and and name of the requested object |
 | request.name | <code>string</code> | The name of the object |
 | request.bucket | <code>string</code> | Bucket where object is located save your file. |
 
@@ -85,6 +85,6 @@ const request = {
 
 storage.getObjectURL(request)
 .then(result => {
-  console.log(result)            // returns a locally accesible URL
+  console.log(result)            // returns a localy accesible URL
 }).catch(e => console.error(e))  // an error occurred
 ```

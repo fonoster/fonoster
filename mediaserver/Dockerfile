@@ -1,5 +1,5 @@
 FROM alpine:3.9
-MAINTAINER Pedro Sanders <fonosterteam@fonoster.com>
+LABEL maintainer="Pedro Sanders <fonosterteam@fonoster.com>"
 
 COPY config /etc/asterisk/
 COPY run.sh /

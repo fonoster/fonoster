@@ -24,12 +24,12 @@ Constructs a new AbstractTTS object.
 Converts a text to audio.
 
 **Kind**: instance method of [<code>AbstractTTS</code>](#AbstractTTS)  
-**Returns**: <code>string</code> - - The path to the audio synthesized from the text  
+**Returns**: <code>string</code> - The path to the audio synthesized from the text  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | text | <code>string</code> | Text to convert to a audio sound |
-| options | <code>Object</code> | A an object pass to the final implementation with settings for the TTS engine. |
+| options | <code>Object</code> | A an object pass to the final implementation with settings for the TTS engine |
 
 <a name="AbstractTTS+getEngineName"></a>
 

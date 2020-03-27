@@ -125,7 +125,7 @@ class Domains extends AbstractService {
    *
    * domains.updateDomain(request)
    * .then(result => {
-   *   console.log(result)            // returns an empty object
+   *   console.log(result)            // returns the Domain from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
   async updateDomain (request) {
@@ -156,9 +156,11 @@ class Domains extends AbstractService {
    * List the Domains registered in YAPS SIP Proxy subsystem.
    *
    * @param {Object} request
-   * @param {number} request.pageSize - Number of element per page (defaults to 20)
-   * @param {string} request.pageToken - The next_page_token value returned from a previous List request, if any
-   * @return {Promise<ListAppsResponse>} List of applications
+   * @param {number} request.pageSize - Number of element per page
+   * (defaults to 20)
+   * @param {string} request.pageToken - The next_page_token value returned from
+   * a previous List request, if any
+   * @return {Promise<ListDomainsResponse>} List of Domains
    * @example
    *
    * const request = {
@@ -168,7 +170,7 @@ class Domains extends AbstractService {
    *
    * domains.listDomains(request)
    * .then(() => {
-   *   console.log(result)            // returns an array of registerd Domains
+   *   console.log(result)            // returns a ListDomainsResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
   async listDomains (request) {
@@ -185,7 +187,7 @@ class Domains extends AbstractService {
 
   /**
    * Deletes a Domain from SIP Proxy subsystem. Notice, that in order to delete
-   * a Domain, you must first delete all its Agents.
+   * a Domain, you must first delete all it's Agents.
    *
    * @param {string} ref - Reference to the Domain
    * @example

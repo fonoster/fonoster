@@ -1,0 +1,32 @@
+# Asterisk Peer
+
+- apiVersion: v1beta1
+  kind: Peer
+  metadata:
+    name: Asterisk PBX
+  spec:
+    credentials:
+      username: ast
+      secret: '1234'
+
+# Local Domain
+
+- apiVersion: v1beta1
+  kind: Domain
+  metadata:
+    name: Local SIP Server
+  spec:
+    context:
+      domainUri: sip.local
+
+# Agents need Domains
+
+- apiVersion: v1beta1
+  kind: Agent
+  metadata:
+    name: John Doe
+  spec:
+    credentials:
+      username: '1001'
+      secret: '1234'
+    domains: [sip.local]

@@ -15,7 +15,6 @@ describe('Numbers Service', () => {
     })
   })
 
-  // TODO: See if we can call this before get ingress app
   it('Create number', done => {
     numbers
       .createNumber({
@@ -29,7 +28,6 @@ describe('Numbers Service', () => {
       .catch(e => done(e))
   })
 
-  // They need to be an existing app for this to work
   it.skip('Get ingress app', done => {
     numbers
       .getIngressApp({ e164Number: '+17853178070' })

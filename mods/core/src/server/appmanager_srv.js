@@ -23,7 +23,6 @@ const listApps = async (call, callback) => {
   const pageToken = parseInt(call.request.getPageToken())
   const pageSize = call.request.getPageSize() - 1
   const upperRange = pageToken + pageSize
-
   const apps = await redis.lrange('apps', pageToken, upperRange)
   const response = new ListAppsResponse()
 
@@ -33,9 +32,7 @@ const listApps = async (call, callback) => {
     response.addApps(app)
   }
 
-  if (apps.length > 0) {
-    response.setNextPageToken('' + upperRange)
-  }
+  if (apps.length > 0) response.setNextPageToken('' + upperRange)
 
   callback(null, response)
 }
@@ -62,7 +59,6 @@ const getApp = async (call, callback) => {
 const createApp = async (call, callback) => {
   if (!auth(call)) return callback(new YAPSAuthError())
 
-  // Validating the request
   const errors = appmanager.createAppRequest.validate({
     app: {
       name: call.request.getApp().getName(),
@@ -87,6 +83,7 @@ const createApp = async (call, callback) => {
   callback(null, app)
 }
 
+// Not yet implemented
 const updateApp = async (call, callback) => {
   if (!auth(call)) return callback(new YAPSAuthError())
   console.log(`updating app: ${JSON.stringify(call.request)}`)

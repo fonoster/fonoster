@@ -5,13 +5,13 @@ const { grpc } = require('@yaps/core')
 const { logger } = require('@yaps/core')
 const { Storage } = require('@yaps/storage')
 const { appManagerValidator } = require('@yaps/core').validators
-const promisifyAll = require('grpc-promise').promisifyAll
+const { getClientCredentials } = require('@yaps/core').trust_util
+const { promisifyAll } = require('grpc-promise')
 const {
   AbstractService,
   AppManagerService,
   AppManagerPB
 } = require('@yaps/core')
-const { getClientCredentials } = require('@yaps/core').trust_util
 
 const STATUS = {
   UNKNOWN: 0,
@@ -22,7 +22,7 @@ const STATUS = {
 
 /**
  * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager,
- * to create, manage, and deploy an application. YAPS AppManager requires of a
+ * to create, manage, and deploy an applications. YAPS AppManager requires of a
  * running YAPS deployment.
  *
  * @extends AbstractService
@@ -33,7 +33,7 @@ const STATUS = {
  *
  * appManager.deployApp('/path/to/app')
  * .then(result => {
- *   console.log(result)            // successful response
+ *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
 class AppManager extends AbstractService {
@@ -199,7 +199,7 @@ class AppManager extends AbstractService {
    *
    * appManager.getApp(name)
    * .then(result => {
-   *   console.log(result)            // returns the app object
+   *   console.log(result)             // returns the app object
    * }).catch(e => console.error(e))   // an error occurred
    */
   async getApp (name) {
@@ -209,16 +209,16 @@ class AppManager extends AbstractService {
   }
 
   /**
-   * Deletes an app already registered in YAPS.
+   * Deletes an application already registered in YAPS.
    *
    * @param {string} name - The name of the application
-   * @return {Promise<App>} The application to be remove
-   * @throws if name is null or application does not exist
+   * @return {Promise<App>} The application to remove
+   * @throws if the application is not found
    * @example
    *
    * appManager.deleteApp(name)
    * .then(() => {
-   *   console.log(result)            // returns an empty object
+   *   console.log('finished')        // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteApp (name) {
@@ -228,10 +228,13 @@ class AppManager extends AbstractService {
   }
 
   /**
-   * List the apps registered in YAPS.
+   * List the applications registered in YAPS.
+   *
    * @param {Object} request
-   * @param {number} request.pageSize - Number of element per page (defaults to 20)
-   * @param {string} request.pageToken - The next_page_token value returned from a previous List request, if any
+   * @param {number} request.pageSize - Number of element per page
+   * (defaults to 20)
+   * @param {string} request.pageToken - The next_page_token value returned from
+   * a previous List request, if any
    * @return {Promise<ListAppsResponse>} List of applications
    * @example
    *
@@ -241,8 +244,8 @@ class AppManager extends AbstractService {
    * }
    *
    * appManager.listApps(request)
-   * .then(() => {
-   *   console.log(result)            // returns an array of apps
+   * .then(result => {
+   *   console.log(result)            // returns a ListAppsResponse
    * }).catch(e => console.error(e))  // an error occurred
    */
   async listApps (request) {

@@ -1,5 +1,5 @@
 FROM node:9-alpine
-LABEL Pedro Sanders <fonosterteam@fonoster.com>
+LABEL maintainer="Pedro Sanders <fonosterteam@fonoster.com>"
 
 COPY . /mods
 COPY etc/run-as.sh /run.sh
