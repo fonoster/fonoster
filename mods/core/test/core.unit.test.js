@@ -1,6 +1,6 @@
-const assert = require('assert')
 const StoragePB = require('../src/server/protos/storage_pb')
 const { mapToObj } = require('../src/common/utils')
+const assert = require('assert')
 
 describe('Core', () => {
   it('Convert grpc map to json obj', done => {

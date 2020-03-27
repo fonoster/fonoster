@@ -1,8 +1,6 @@
 const MockChannel = require('./mock_channel')
-const MaryTTS = require('@yaps/tts').MaryTTS
-const Storage = require('@yaps/storage')
 const Verbs = require('../src/verbs')
-
+const { MaryTTS } = require('@yaps/tts')
 const assert = require('assert')
 
 describe('Verbs tests', () => {
@@ -29,28 +27,9 @@ describe('Verbs tests', () => {
 
     try {
       verbs.play('beep', { finishOnKey: '%' })
-      done('Error: Failed exception')
+      done('not good')
     } catch (e) {}
 
-    done()
-  })
-
-  it.skip('Test verb say', done => {
-    const channel = new MockChannel()
-    const verbs = new Verbs(channel)
-    channel.setData(['1'])
-
-    try {
-      verbs.say('Hello World')
-      done('Error: Failed exception')
-    } catch (e) {}
-
-    verbs.config({
-      tts: new MaryTTS(),
-      storage: new Storage()
-    })
-
-    verbs.say('Hello Raysa')
     done()
   })
 
@@ -60,12 +39,12 @@ describe('Verbs tests', () => {
 
     try {
       verbs.gather('', { finishOnKey: 'aa', maxDigits: 'p' })
-      done('Error: Failed exception')
+      done('not good')
     } catch (e) {}
 
     try {
       verbs.gather('', { timeout: 0 })
-      done('Error: Failed exception')
+      done('not good')
     } catch (e) {}
 
     // Stops reading at maxDigits
@@ -94,7 +73,7 @@ describe('Verbs tests', () => {
 
     try {
       verbs.wait(-1)
-      done('Error: Failed exception')
+      done('not good')
     } catch (e) {}
 
     done()
@@ -107,7 +86,7 @@ describe('Verbs tests', () => {
 
     try {
       verbs.record({ beep: 'a' })
-      done('Error: Failed exception')
+      done('not good')
     } catch (e) {}
 
     verbs.record()
