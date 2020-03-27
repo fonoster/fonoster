@@ -22,9 +22,7 @@ function main () {
   server.addService(NumbersService, require('./numbers_srv.js'))
   server.addService(DomainsService, require('./domains_srv.js'))
 
-  let credentials = grpc.ServerCredentials.createInsecure()
-
-  server.bind(process.env.APISERVER_ENDPOINT, credentials)
+  server.bind(process.env.APISERVER_ENDPOINT, getServerCredentials())
   server.start()
 
   logger.log(

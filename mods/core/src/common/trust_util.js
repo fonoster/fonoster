@@ -1,6 +1,12 @@
+const path = require('path')
+
+if (process.env.NODE_ENV === 'dev') {
+  const env = path.join(__dirname, '..', '..', '..', '.env')
+  require('dotenv').config({ path: env })
+}
+
 const grpc = require('grpc')
 const fs = require('fs')
-const path = require('path')
 const jwt = require('jsonwebtoken')
 const logger = require('./logger')
 
@@ -10,7 +16,6 @@ const SERVER_KEY = process.env.CERTS_PATH + '/server.key'
 const CLIENT_CRT = process.env.CERTS_PATH + '/client.crt'
 const CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
 
-// TODO: Retrive path to certificates from env
 module.exports.getServerCredentials = () =>
   grpc.ServerCredentials.createSsl(
     fs.readFileSync(CA_CRT),

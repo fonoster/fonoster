@@ -3,6 +3,7 @@ const merge = require('deepmerge')
 const fs = require('fs')
 const path = require('path')
 const logger = require('./logger')
+const { getClientCredentials } = require('../common/trust_util')
 
 class AbstractService {
   /**
@@ -85,11 +86,9 @@ class AbstractService {
     metadata.add('access_key_secret', this.options.accessKeySecret)
     this.metadata = metadata
 
-    const credentials = grpc.credentials.createInsecure()
-
     logger.log('info', `Connecting with API Server @ ${this.options.endpoint}`)
 
-    this.service = new Service(this.options.endpoint, credentials)
+    this.service = new Service(this.options.endpoint, getClientCredentials())
   }
 
   getOptions () {
