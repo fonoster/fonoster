@@ -19,7 +19,7 @@ service Domains {
   rpc GetDomain (GetDomainRequest) returns (Domain) {};
   // Change or update fields in a resource
   rpc UpdateDomain (UpdateDomainRequest) returns (Domain) {};
-  // Hard delete of of a domain resource
+  // Hard delete of a domain resource
   rpc DeleteDomain (DeleteDomainRequest) returns (yaps.common.v1alpha1.Empty) {};
 }
 
