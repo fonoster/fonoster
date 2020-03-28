@@ -1,21 +1,22 @@
-const { grpc } = require('@yaps/core')
 const { logger } = require('@yaps/core')
 const { AbstractService, NumbersService, NumbersPB } = require('@yaps/core')
 const promisifyAll = require('grpc-promise').promisifyAll
-const { getClientCredentials } = require('@yaps/core').trust_util
 
 /**
- * @classdesc Use YAPS Numbers, is a capability of YAPS SIP Proxy Subsystem,
- * to create, update, get and delete Numbers. YAPS Domains requires of a
+ * @classdesc Use YAPS Numbers, a capability of YAPS SIP Proxy Subsystem,
+ * to create, update, get and delete numbers. YAPS Numbers requires of a
  * running YAPS deployment.
+ *
+ * @extends AbstractService
  * @example
  *
  * const YAPS = require('@yaps/sdk')
  * const numbers = new YAPS.Numbers()
  *
  * const request = {
- *    e164Number: '+17853178071',
- *    ingressApp: 'hello-monkeys'
+ *   providerRef: '516f1577bcf86cd797439012',
+ *   e164Number: '+17853177343',
+ *   ingressApp: 'hello-monkeys'
  * }
  *
  * numbers.createNumber(request)
@@ -27,7 +28,7 @@ class Numbers extends AbstractService {
   /**
    * Constructs a new Numbers object.
    *
-   * @see module:domains:Domains
+   * @see module:core:AbstractService
    */
   constructor (options) {
     super(options, NumbersService.NumbersClient)
@@ -37,23 +38,27 @@ class Numbers extends AbstractService {
   /**
    * Creates a new Number on the SIP Proxy subsystem.
    *
-   * @param {Object} request
-   * @param {string} request.e164Number - A number in E164 format that you own
-   * @param {string} request.ingressApp - Name of a registered application
-   * incomming calls
+   * @param {Object} request -  Request for the provision of a new Number
+   * @param {string} request.providerRef - Idenfier to the Provider this Number belongs
+   * with
+   * @param {string} request.e164_number - A valid number @ Provider
+   * @param {string} request.aorLink - An AOR where ingress calls will be
+   * directed to
+   * @param {string} request.ingress_app - An Application where ingress calls
+   * will be directed to
+   * @note You can only provider an aorLink or an ingressApp but no both
    * @return {Promise<Object>}
-   * @throws if the application does not exist
-   * @throws The number is not a valid E164
    * @example
    *
    * const request = {
-   *    e164Number: '+17853178071',
-   *    ingressApp: 'hello-monkeys'
+   *   providerRef: '516f1577bcf86cd797439012',
+   *   e164Number: '+17853177343',
+   *   aorLink: 'sip:1001@sip.local'
    * }
    *
    * numbers.createNumber(request)
    * .then(result => {
-   *   console.log(result)            // returns the Number you created
+   *   console.log(result)            // returns the Number object
    * }).catch(e => console.error(e))  // an error occurred
    */
   async createNumber (request) {
@@ -61,14 +66,17 @@ class Numbers extends AbstractService {
       'verbose',
       `@yaps/numbers createNumber [request: ${JSON.stringify(request)}]`
     )
+
     logger.log(
       'debug',
-      `@yaps/numbers createNumber [validating number:  ${request.e164Number}]`
+      `@yaps/numbers createNumber [validating number: ${request.e164Number}]`
     )
 
     const number = new NumbersPB.Number()
+    number.setProviderRef(request.providerRef)
     number.setE164Number(request.e164Number)
     number.setIngressApp(request.ingressApp)
+    number.setAorLink(request.aorLink)
 
     const req = new NumbersPB.CreateNumberRequest()
     req.setNumber(number)
@@ -80,10 +88,142 @@ class Numbers extends AbstractService {
   }
 
   /**
-   * Get the Ingress App for a given Number.
+   * Retrives a Number by its reference.
+   *
+   * @param {string} ref - Reference to Number
+   * @return {Promise<Object>} The number
+   * @throws if ref is null or Number does not exist
+   * @example
+   *
+   * numbers.getNumber(ref)
+   * .then(result => {
+   *   console.log(result)             // returns the Number object
+   * }).catch(e => console.error(e))   // an error occurred
+   */
+  async getNumber (ref) {
+    const request = new NumbersPB.GetNumberRequest()
+    request.setRef(ref)
+    return this.service.getNumber().sendMessage(request)
+  }
+
+  /**
+   * Update a Number at the SIP Proxy subsystem.
+   *
+   * @param {Object} request - Request for the update of an existing Number
+   * @param {string} request.aorLink - An AOR where ingress calls will be
+   * directed to
+   * @param {string} request.ingress_app - An Application where ingress calls
+   * will be directed to
+   * @note You can only provider an aorLink or an ingressApp but no both
+   * @return {Promise<Object>}
+   * @example
+   *
+   * const request = {
+   *   ref: '516f1577bcf86cd797439012',
+   *   aorLink: 'sip:1001@sip.local'
+   * }
+   *
+   * numbers.updateNumber(request)
+   * .then(result => {
+   *   console.log(result)            // returns the Number from the DB
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  async updateNumber (request) {
+    logger.log(
+      'verbose',
+      `@yaps/numbers updateNumber [request: ${JSON.stringify(request)}]`
+    )
+
+    const numberFromDB = await this.getNumber(request.ref)
+
+    if (request.aorLink && request.ingressApp) {
+      throw `'ingressApp' and 'aorLink' are not compatible parameters`
+    } else if (!request.aorLink && !request.ingressApp) {
+      throw `You must provider either an 'ingressApp' or and 'aorLink'`
+      return
+    }
+
+    if (request.aorLink) {
+      numberFromDB.setAorLink(request.aorLink)
+      numberFromDB.setIngressApp(void(0))
+    } else {
+      numberFromDB.setAorLink(void(0))
+      numberFromDB.setIngressApp(request.ingressApp)
+    }
+
+    const req = new NumbersPB.UpdateNumberRequest()
+    req.setNumber(numberFromDB)
+
+    return super
+      .getService()
+      .updateNumber()
+      .sendMessage(req)
+  }
+
+  /**
+   * List the Numbers registered in YAPS SIP Proxy subsystem.
    *
    * @param {Object} request
-   * @param {string} request.e164Number - A number in E164 format that you own
+   * @param {number} request.pageSize - Number of element per page
+   * (defaults to 20)
+   * @param {string} request.pageToken - The next_page_token value returned from
+   * a previous List request, if any
+   * @return {Promise<ListNumbersResponse>} List of Numbers
+   * @example
+   *
+   * const request = {
+   *    pageSize: 20,
+   *    pageToken: 2
+   * }
+   *
+   * numbers.listNumbers(request)
+   * .then(() => {
+   *   console.log(result)            // returns a ListNumbersResponse object
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  async listNumbers (request) {
+    logger.log(
+      'verbose',
+      `@yaps/numbers listNumber [request -> ${JSON.stringify(request)}]`
+    )
+    const r = new NumbersPB.ListNumbersRequest()
+    r.setPageSize(request.pageSize)
+    r.setPageToken(request.pageToken)
+    r.setView(request.view)
+    return this.service.listNumbers().sendMessage(r)
+  }
+
+  /**
+   * Deletes a Number from SIP Proxy subsystem. Notice, that in order to delete
+   * a Number, you must first delete all it's Agents.
+   *
+   * @param {string} ref - Reference to the Number
+   * @example
+   *
+   * const ref = '507f1f77bcf86cd799439011'
+   *
+   * numbers.deleteNumber(ref)
+   * .then(() => {
+   *   console.log('done')            // returns an empty object
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  async deleteNumber (ref) {
+    logger.log('verbose', `@yaps/numbers deleteNumber [ref: ${ref}]`)
+
+    const req = new NumbersPB.DeleteNumberRequest()
+    req.setRef(ref)
+
+    return super
+      .getService()
+      .deleteNumber()
+      .sendMessage(req)
+  }
+
+  /**
+   * Get the Ingress App for a given e164 number.
+   *
+   * @param {Object} request
+   * @param {string} request.e164Number - A number in E164 format for
    * incomming calls
    * @return {Promise<Object>}
    * @throws if the Number is not register in YAPS

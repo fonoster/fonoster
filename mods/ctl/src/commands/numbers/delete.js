@@ -1,5 +1,5 @@
 require('../../config')
-const Domains = require('@yaps/domains')
+const Numbers = require('@yaps/numbers')
 const { CLIError } = require('@oclif/errors')
 const { Command } = require('@oclif/command')
 const { cli } = require('cli-ux')
@@ -10,9 +10,9 @@ class DeleteCommand extends Command {
     const ref = args.ref
 
     try {
-      const domains = new Domains()
-      cli.action.start(`Deleting domain ${ref}`)
-      await domains.deleteDomain(ref)
+      const numbers = new Numbers()
+      cli.action.start(`Deleting number ${ref}`)
+      await numbers.deleteNumber(ref)
       await cli.wait(1000)
       cli.action.stop('done')
     } catch (e) {
@@ -21,11 +21,11 @@ class DeleteCommand extends Command {
   }
 }
 
-DeleteCommand.description = `remove domain from a YAPS deployment
+DeleteCommand.description = `remove number from a YAPS deployment
 `
 
 DeleteCommand.args = [{ name: 'ref' }]
 
-DeleteCommand.aliases = ['domains:del', 'domains:rm']
+DeleteCommand.aliases = ['numbers:del', 'numbers:rm']
 
 module.exports = DeleteCommand

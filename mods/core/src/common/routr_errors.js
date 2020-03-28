@@ -2,11 +2,13 @@ const Status = require('grpc').status
 const { YAPSError } = require('./yaps_errors')
 
 module.exports = error => {
-  if (!error.response.data) throw new YAPSError(Status.UNKNOWN, error)
+  if (!error.response) throw new YAPSError(Status.UNKNOWN, error)
+
   const message = error.response.data.message
+
   switch (error.response.status) {
     case 409:
-      throw new YAPSError(Status.ALREADY_EXISTS, message)
+      throw new YAPSError(Status.FAILED_PRECONDITION, message)
     case 401:
       throw new YAPSError(Status.UNAUTHENTICATED, message)
     case 422:

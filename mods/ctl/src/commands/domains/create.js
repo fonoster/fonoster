@@ -8,8 +8,8 @@ const { cli } = require('cli-ux')
 
 class CreateCommand extends Command {
   async run () {
-    console.log('This utility will help you create a basic voice application')
-    console.log('to help you get start quickly. Press ^C at any time to quit.')
+    console.log('This utility will help you create a new Domain')
+    console.log('Press ^C at any time to quit.')
 
     const answers = await inquirer.prompt([
       {

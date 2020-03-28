@@ -14,6 +14,7 @@
     "@yaps/appmanager": "^0.0.3",
     "@yaps/core": "^0.0.3",
     "@yaps/domains": "^0.0.3",
+    "@yaps/numbers": "^0.0.3",    
     "cli-ux": "^5.4.5",
     "dotenv": "^8.2.0",
     "easy-table": "^1.1.1",
