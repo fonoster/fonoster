@@ -2,6 +2,7 @@ const Status = require('grpc').status
 const { YAPSError } = require('./yaps_errors')
 
 module.exports = error => {
+  if (!error.response.data) throw new YAPSError(Status.UNKNOWN, error)
   const message = error.response.data.message
   switch (error.response.status) {
     case 409:
