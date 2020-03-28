@@ -86,7 +86,7 @@ class AbstractService {
     metadata.add('access_key_secret', this.options.accessKeySecret)
     this.metadata = metadata
 
-    logger.log('info', `Connecting with API Server @ ${this.options.endpoint}`)
+    logger.log('info', `Connecting to API Server @ ${this.options.endpoint}`)
 
     this.service = new Service(this.options.endpoint, getClientCredentials())
   }
