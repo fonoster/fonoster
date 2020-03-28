@@ -16,7 +16,7 @@ describe('Numbers Service', () => {
     })
   })
 
-  it.only('Create number missing provider reference', done => {
+  it.skip('Create number missing provider reference', done => {
     numbers
       .createNumber({
         e164Number: '0000000000',
@@ -29,7 +29,7 @@ describe('Numbers Service', () => {
       })
   })
 
-  it.only('Create number missing provider reference', done => {
+  it.skip('Create number missing provider reference', done => {
     numbers
       .createNumber({
         providerRef: 'bad_reference',
@@ -43,7 +43,7 @@ describe('Numbers Service', () => {
       })
   })
 
-  it.only('Create number', done => {
+  it.skip('Create number', done => {
     numbers
       .createNumber({
         providerRef: '5e7fc0caa0484e0d669cb783',
@@ -61,7 +61,7 @@ describe('Numbers Service', () => {
       })
   })
 
-  it.only('Get ingress app', done => {
+  it.skip('Get ingress app', done => {
     numbers
       .getIngressApp({ e164Number: '0000000000' })
       .then(app => {
@@ -71,7 +71,7 @@ describe('Numbers Service', () => {
       .catch(e => done(e))
   })
 
-  it.only('Number already exist', done => {
+  it.skip('Number already exist', done => {
     numbers
       .createNumber({
         providerRef: '5e7f86e3a0484e0615c36f09',
@@ -85,7 +85,7 @@ describe('Numbers Service', () => {
       })
   })
 
-  it.only('List numbers', done => {
+  it.skip('List numbers', done => {
     numbers
       .listNumbers({ pageSize: 10, pageToken: '1', view: 0 })
       .then(result => {
@@ -95,7 +95,7 @@ describe('Numbers Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Get number by reference', done => {
+  it.skip('Get number by reference', done => {
     numbers
       .getNumber(numberRef)
       .then(number => {
@@ -105,7 +105,7 @@ describe('Numbers Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Update number perfect case...', done => {
+  it.skip('Update number perfect case...', done => {
     const number = {
       ref: numberRef,
       aorLink: 'sip:1001@sip.local'
@@ -120,14 +120,14 @@ describe('Numbers Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Delete number', done => {
+  it.skip('Delete number', done => {
     numbers
       .deleteNumber(numberRef)
       .then(() => done())
       .catch(err => done(err))
   })
 
-  it.only('Number reference does not exist', done => {
+  it.skip('Number reference does not exist', done => {
     numbers
       .deleteNumber('1234')
       .then(() => done('not good'))
