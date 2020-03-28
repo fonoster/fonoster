@@ -4,7 +4,7 @@ const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
  * @classdesc Use YAPS Domains, a capability of YAPS SIP Proxy Subsystem,
- * to create, update,  get and delete domains. YAPS Domains requires of a
+ * to create, update, get and delete domains. YAPS Domains requires of a
  * running YAPS deployment.
  *
  * @extends AbstractService
@@ -32,7 +32,7 @@ class Domains extends AbstractService {
   /**
    * Creates a new Domain on the SIP Proxy subsystem.
    *
-   * @param {Object} request
+   * @param {Object} request - Request for the provision of a new Domain
    * @param {string} request.name - Friendly name for the SIP domain
    * @param {string} request.domainUri - Domain URI. FQDN is recommended
    * @param {string} request.egressNumberRef - A valid reference to a Number in YAPS
@@ -104,8 +104,8 @@ class Domains extends AbstractService {
   /**
    * Update a Domain at the SIP Proxy subsystem.
    *
-   * @param {Object} request
-   * @param {string} ref - To update a Domain you must provide its reference
+   * @param {Object} request - Request for the update of an existing Domain
+   * @param {string} request.ref - To update a Domain you must provide its reference
    * @param {string} request.name - Friendly name for the SIP domain
    * @param {string} request.egressNumberRef - A valid reference to a Number in YAPS
    * @param {string} request.egressRule - Regular expression indicating when a
