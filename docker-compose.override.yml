@@ -44,12 +44,6 @@ services:
   apiserver:
     logging:
       driver: json-file
-    environment:
-      CERTS_PATH: /etc/certs
-    ports:
-      - ${APISERVER_PORT}:${APISERVER_PORT}
-    volumes:
-      - ./mods/etc/certs:/etc/certs:ro
 
   sipproxy:
     logging:
