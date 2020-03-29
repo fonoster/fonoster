@@ -56,7 +56,6 @@ describe('Numbers Service', () => {
         done()
       })
       .catch(e => {
-          console.log('PINGA: ' + e)
           done(e)
       })
   })
