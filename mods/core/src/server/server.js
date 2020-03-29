@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === 'dev') {
 
 const { AppManagerService } = require('./protos/appmanager_grpc_pb')
 const { StorageService } = require('./protos/storage_grpc_pb')
+const { ProvidersService } = require('./protos/providers_grpc_pb')
 const { NumbersService } = require('./protos/numbers_grpc_pb')
 const { DomainsService } = require('./protos/domains_grpc_pb')
 const fs = require('fs')
@@ -19,6 +20,7 @@ function main () {
 
   server.addService(AppManagerService, require('./appmanager_srv.js'))
   server.addService(StorageService, require('./storage_srv.js'))
+  server.addService(ProvidersService, require('./providers_srv.js'))
   server.addService(NumbersService, require('./numbers_srv.js'))
   server.addService(DomainsService, require('./domains_srv.js'))
 

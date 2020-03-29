@@ -1,11 +1,11 @@
 {
-  "name": "@yaps/sdk",
+  "name": "@yaps/providers",
   "version": "0.0.3",
-  "description": "> TODO: description",
+  "description": "Providers Service",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
   "license": "MIT",
-  "main": "src/sdk.js",
+  "main": "src/providers.js",
   "directories": {
     "src": "src",
     "test": "test"
@@ -24,10 +24,8 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/appmanager": "^0.0.3",
-    "@yaps/providers": "^0.0.3",    
-    "@yaps/numbers": "^0.0.3",
-    "@yaps/domains": "^0.0.3",
-    "@yaps/storage": "^0.0.3"
+    "@yaps/core": "^0.0.3",
+    "dotenv": "^8.2.0",
+    "grpc-promise": "^1.4.0"
   }
 }

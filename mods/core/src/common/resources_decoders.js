@@ -1,5 +1,6 @@
 const { Domain } = require('../server/protos/domains_pb')
 const { Number } = require('../server/protos/numbers_pb')
+const { Provider } = require('../server/protos/providers_pb')
 
 const domainDecoder = jsonObj => {
   const domain = new Domain()
@@ -22,6 +23,23 @@ const domainDecoder = jsonObj => {
   return domain
 }
 
+const providerDecoder = jsonObj => {
+  const provider = new Provider()
+  const spec = jsonObj.spec
+  provider.setRef(jsonObj.metadata.ref)
+  provider.setName(jsonObj.metadata.name)
+  provider.setHost(spec.host)
+  provider.setTransport(spec.transport)
+  provider.setExpires(spec.expires)  
+  if (spec.credentials) {
+    provider.setUsername(spec.credentials.username)
+    provider.setSecret(spec.credentials.secret)
+  }
+  provider.setCreateTime(jsonObj.metadata.createdOn)
+  provider.setUpdateTime(jsonObj.metadata.modifiedOn)
+  return provider
+}
+
 const numberDecoder = jsonObj => {
   const number = new Number()
   const location = jsonObj.spec.location
@@ -34,5 +52,6 @@ const numberDecoder = jsonObj => {
   return number
 }
 
+module.exports.providerDecoder = providerDecoder
 module.exports.domainDecoder = domainDecoder
 module.exports.numberDecoder = numberDecoder
