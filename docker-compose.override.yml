@@ -5,26 +5,6 @@
 version: '3.7'
 services:
 
-  credentialsgen:
-    image: credentialsgen
-    build:
-      context: mods
-      dockerfile: Dockerfile.cred
-    environment:
-      CERTS_PATH: /etc/certs
-      YAPS_ACCESS_KEY_ID: yaps
-    entrypoint: |
-      sh -c '
-          node src/index.js
-          cat ~/.yaps/access > /credentials/access
-          # Hangout while the other containers finish
-          while sleep 3600; do :; done
-      '
-    volumes:
-      - data1-1:/fs
-      - credentials:/credentials
-      - ./mods/etc/certs:/etc/certs:ro
-
   provisioner:
     env_file: .env
     build:
@@ -42,6 +22,8 @@ services:
   apiserver:
     logging:
       driver: json-file
+    volumes:
+      - credentials:/root/.yaps
 
   sipproxy:
     logging:
@@ -56,7 +38,6 @@ services:
       - ${MS_SIP_PORT}:${MS_SIP_PORT}
 
   mediacontroller:
-    depends_on: [credentialsgen]
     logging:
       driver: json-file
 
@@ -79,25 +60,22 @@ services:
       - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
 
   integrationtests:
-    depends_on: [apiserver]
     env_file: .env
     image: integrationtests
     build:
       context: mods
       dockerfile: Dockerfile.mc
     environment:
-      YAPS_ACCESS_FILE: /credentials/access
       YAPS_ENDPOINT: ${APISERVER_ENDPOINT}
-      CERTS_PATH: /etc/certs
     entrypoint: |
       sh -c '
+          while [ ! -f /root/.yaps/access ]; do sleep 2; done
           npm i nyc mocha -g
           cd /mods
           npm test
       '
     volumes:
-      - credentials:/credentials
-      - ./mods/etc/certs:/etc/certs:ro
+      - credentials:/root/.yaps
 
 volumes:
   data1-1:

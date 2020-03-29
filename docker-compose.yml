@@ -8,8 +8,8 @@ services:
     build:
       context: mods
       dockerfile: Dockerfile.as
-    environment:
-      CERTS_PATH: /etc/certs
+    # environment:
+      # CERTS_PATH: /etc/certs
     expose:
       - ${APISERVER_PORT}
     ports:
