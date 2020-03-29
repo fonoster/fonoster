@@ -13,7 +13,7 @@ class ListCommand extends Command {
     try {
       const providers = new Providers()
       let firstBatch = true
-      let pageToken = '1'
+      let pageToken = '0'
       const pageSize = flags.size
       while (true) {
         // Get a list
@@ -36,7 +36,7 @@ class ListCommand extends Command {
           t.cell('Name', provider.getName())
           t.cell('Username', provider.getUsername() + '(static)')
           t.cell('Host', provider.getHost())
-          t.cell('Transport', provider.getTransport())          
+          t.cell('Transport', provider.getTransport())
           t.cell('Expires', provider.getExpires())
           t.cell('Created', moment(provider.getCreateTime()).fromNow())
           t.cell('Updated', moment(provider.getCreateTime()).fromNow())

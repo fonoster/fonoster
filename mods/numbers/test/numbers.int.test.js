@@ -56,7 +56,7 @@ describe('Numbers Service', () => {
         done()
       })
       .catch(e => {
-          done(e)
+        done(e)
       })
   })
 
@@ -86,7 +86,7 @@ describe('Numbers Service', () => {
 
   it.skip('List numbers', done => {
     numbers
-      .listNumbers({ pageSize: 10, pageToken: '1', view: 0 })
+      .listNumbers({ pageSize: 10, pageToken: '0', view: 0 })
       .then(result => {
         assert.ok(result.getNumbersList().length > 0)
         done()
@@ -135,5 +135,4 @@ describe('Numbers Service', () => {
         done()
       })
   })
-
 })

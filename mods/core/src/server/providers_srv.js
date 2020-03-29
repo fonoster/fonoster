@@ -19,7 +19,7 @@ const listProviders = async (call, callback) => {
     return
   }
 
-  const page = parseInt(call.request.getPageToken())
+  const page = parseInt(call.request.getPageToken()) + 1
   const itemsPerPage = call.request.getPageSize()
 
   await routr.connect()
@@ -46,7 +46,10 @@ const createProvider = async (call, callback) => {
 
   const provider = call.request.getProvider()
 
-  logger.info('verbose', `@yaps/core createProvider [entity ${provider.getName()}]`)
+  logger.info(
+    'verbose',
+    `@yaps/core createProvider [entity ${provider.getName()}]`
+  )
 
   let resourceBuilder = new ResourceBuilder(Kind.GATEWAY, provider.getName())
     .withCredentials(provider.getUsername(), provider.getSecret())
@@ -93,21 +96,24 @@ const updateProvider = async (call, callback) => {
 
   const provider = call.request.getProvider()
 
-  logger.info('verbose', `@yaps/core updateProvider [entity ${provider.getName()}]`)
+  logger.info(
+    'verbose',
+    `@yaps/core updateProvider [entity ${provider.getName()}]`
+  )
 
   let resourceBuilder = new ResourceBuilder(
     Kind.GATEWAY,
     provider.getName(),
     provider.getRef()
   )
-  .withMetadata({
-    createdOn: provider.getCreateTime(),
-    modifiedOn: provider.getUpdateTime()
-  })
-  .withCredentials(provider.getUsername(), provider.getSecret())
-  .withHost(provider.getHost())
-  .withTransport(provider.getTransport())
-  .withExpires(provider.getExpires())
+    .withMetadata({
+      createdOn: provider.getCreateTime(),
+      modifiedOn: provider.getUpdateTime()
+    })
+    .withCredentials(provider.getUsername(), provider.getSecret())
+    .withHost(provider.getHost())
+    .withTransport(provider.getTransport())
+    .withExpires(provider.getExpires())
 
   const resource = resourceBuilder.build()
 

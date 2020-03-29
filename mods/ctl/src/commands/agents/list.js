@@ -13,7 +13,7 @@ class ListCommand extends Command {
     try {
       const agents = new Agents()
       let firstBatch = true
-      let pageToken = '1'
+      let pageToken = '0'
       const pageSize = flags.size
       while (true) {
         // Get a list

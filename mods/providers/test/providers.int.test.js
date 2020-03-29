@@ -48,7 +48,7 @@ describe('Providers Service', () => {
         done()
       })
       .catch(e => {
-          done(e)
+        done(e)
       })
   })
 
@@ -70,7 +70,7 @@ describe('Providers Service', () => {
 
   it('List providers', done => {
     providers
-      .listProviders({ pageSize: 10, pageToken: '1', view: 0 })
+      .listProviders({ pageSize: 10, pageToken: '0', view: 0 })
       .then(result => {
         assert.ok(result.getProvidersList().length > 0)
         done()
@@ -122,5 +122,4 @@ describe('Providers Service', () => {
         done()
       })
   })
-
 })

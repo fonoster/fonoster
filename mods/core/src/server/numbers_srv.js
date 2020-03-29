@@ -19,7 +19,7 @@ const listNumbers = async (call, callback) => {
     return
   }
 
-  const page = parseInt(call.request.getPageToken())
+  const page = parseInt(call.request.getPageToken()) + 1
   const itemsPerPage = call.request.getPageSize()
 
   await routr.connect()
@@ -46,35 +46,54 @@ const createNumber = async (call, callback) => {
 
   const number = call.request.getNumber()
 
-  logger.info('verbose', `@yaps/core createNumber [entity ${number.getE164Number()}]`)
+  logger.info(
+    'verbose',
+    `@yaps/core createNumber [entity ${number.getE164Number()}]`
+  )
 
   if (!number.getE164Number()) {
-    callback(new YAPSError(grpc.status.INVALID_ARGUMENT,
-      `e164Number field must be a valid e164 value.`))
+    callback(
+      new YAPSError(
+        grpc.status.INVALID_ARGUMENT,
+        `e164Number field must be a valid e164 value.`
+      )
+    )
     return
   }
 
   if (number.getAorLink() && number.getIngressApp()) {
-    callback(new YAPSError(grpc.status.INVALID_ARGUMENT,
-      `'ingressApp' and 'aorLink' are not compatible parameters`))
+    callback(
+      new YAPSError(
+        grpc.status.INVALID_ARGUMENT,
+        `'ingressApp' and 'aorLink' are not compatible parameters`
+      )
+    )
     return
   } else if (!number.getAorLink() && !number.getIngressApp()) {
-    callback(new YAPSError(grpc.status.INVALID_ARGUMENT,
-      `You must provider either an 'ingressApp' or and 'aorLink'`))
+    callback(
+      new YAPSError(
+        grpc.status.INVALID_ARGUMENT,
+        `You must provider either an 'ingressApp' or and 'aorLink'`
+      )
+    )
     return
   }
 
-  let resourceBuilder = new ResourceBuilder(Kind.NUMBER, number.getE164Number())
-    .withGatewayRef(number.getProviderRef())
+  let resourceBuilder = new ResourceBuilder(
+    Kind.NUMBER,
+    number.getE164Number()
+  ).withGatewayRef(number.getProviderRef())
 
   if (number.getAorLink()) {
-    resourceBuilder = resourceBuilder.
-      withLocation(`tel:${number.getE164Number()}`, number.getAorLink())
+    resourceBuilder = resourceBuilder.withLocation(
+      `tel:${number.getE164Number()}`,
+      number.getAorLink()
+    )
   } else {
     // TODO: Perhaps I should place this in a ENV
-    resourceBuilder = resourceBuilder.
-      withLocation(`tel:${number.getE164Number()}`, 'sip:ast@mediaserver')
-      .withMetadata({ ingressApp: number.getIngressApp()})
+    resourceBuilder = resourceBuilder
+      .withLocation(`tel:${number.getE164Number()}`, 'sip:ast@mediaserver')
+      .withMetadata({ ingressApp: number.getIngressApp() })
   }
 
   const resource = resourceBuilder.build()
@@ -91,12 +110,15 @@ const createNumber = async (call, callback) => {
       const app = await redis.get(number.getIngressApp())
 
       if (!app)
-        throw new YAPSError(grpc.status.FAILED_PRECONDITION, `App ${number.ingressApp} doesn't exist`)
+        throw new YAPSError(
+          grpc.status.FAILED_PRECONDITION,
+          `App ${number.ingressApp} doesn't exist`
+        )
 
       await redis.set(
-          `extlink:${number.getE164Number()}`,
-          number.getIngressApp()
-        )
+        `extlink:${number.getE164Number()}`,
+        number.getIngressApp()
+      )
     }
 
     const ref = await routr.resourceType('numbers').create(resource)
@@ -129,15 +151,26 @@ const updateNumber = async (call, callback) => {
 
   const number = call.request.getNumber()
 
-  logger.info('verbose', `@yaps/core updateNumber [entity ${number.getE164Number()}]`)
+  logger.info(
+    'verbose',
+    `@yaps/core updateNumber [entity ${number.getE164Number()}]`
+  )
 
   if (number.getAorLink() && number.getIngressApp()) {
-    callback(new YAPSError(grpc.status.INVALID_ARGUMENT,
-      `'ingressApp' and 'aorLink' are not compatible parameters`))
+    callback(
+      new YAPSError(
+        grpc.status.INVALID_ARGUMENT,
+        `'ingressApp' and 'aorLink' are not compatible parameters`
+      )
+    )
     return
   } else if (!number.getAorLink() && !number.getIngressApp()) {
-    callback(new YAPSError(grpc.status.INVALID_ARGUMENT,
-      `You must provider either an 'ingressApp' or and 'aorLink'`))
+    callback(
+      new YAPSError(
+        grpc.status.INVALID_ARGUMENT,
+        `You must provider either an 'ingressApp' or and 'aorLink'`
+      )
+    )
     return
   }
 
@@ -182,12 +215,15 @@ const updateNumber = async (call, callback) => {
       const app = await redis.get(number.getIngressApp())
 
       if (!app)
-        throw new YAPSError(grpc.status.FAILED_PRECONDITION, `App ${number.ingressApp} doesn't exist`)
+        throw new YAPSError(
+          grpc.status.FAILED_PRECONDITION,
+          `App ${number.ingressApp} doesn't exist`
+        )
 
       await redis.set(
-          `extlink:${number.getE164Number()}`,
-          number.getIngressApp()
-        )
+        `extlink:${number.getE164Number()}`,
+        number.getIngressApp()
+      )
     } else {
       await redis.del(`extlink:${number.getE164Number()}`)
     }

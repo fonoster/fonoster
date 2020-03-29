@@ -33,7 +33,7 @@ describe('Domains Service', () => {
 
   it('List domains', done => {
     domains
-      .listDomains({ pageSize: 10, pageToken: '1', view: 0 })
+      .listDomains({ pageSize: 10, pageToken: '0', view: 0 })
       .then(result => {
         assert.ok(result.getDomainsList().length > 0)
         done()

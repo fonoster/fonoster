@@ -18,13 +18,11 @@ const listAgents = async (call, callback) => {
     return
   }
 
-  const page = parseInt(call.request.getPageToken())
+  const page = parseInt(call.request.getPageToken()) + 1
   const itemsPerPage = call.request.getPageSize()
 
   await routr.connect()
-  const result = await routr
-    .resourceType('agents')
-    .list({ page, itemsPerPage })
+  const result = await routr.resourceType('agents').list({ page, itemsPerPage })
   const agents = result.data
 
   const response = new ListAgentsResponse()
@@ -50,7 +48,7 @@ const createAgent = async (call, callback) => {
   let resourceBuilder = new ResourceBuilder(Kind.AGENT, agent.getName())
     .withCredentials(agent.getUsername(), agent.getSecret())
     .withDomains(agent.getDomainsList())
-    //.withPrivacy(provider.getPrivacy()) // TODO
+  //.withPrivacy(provider.getPrivacy()) // TODO
 
   const resource = resourceBuilder.build()
 
@@ -104,7 +102,7 @@ const updateAgent = async (call, callback) => {
       createdOn: agent.getCreateTime(),
       modifiedOn: agent.getUpdateTime()
     })
-    //.withPrivacy(provider.getPrivacy()) // TODO
+  //.withPrivacy(provider.getPrivacy()) // TODO
 
   const resource = resourceBuilder.build()
 

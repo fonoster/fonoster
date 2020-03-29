@@ -17,7 +17,7 @@ const listDomains = async (call, callback) => {
     return
   }
 
-  const page = parseInt(call.request.getPageToken())
+  const page = parseInt(call.request.getPageToken()) + 1
   const itemsPerPage = call.request.getPageSize()
 
   await routr.connect()

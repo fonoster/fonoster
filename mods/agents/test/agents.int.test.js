@@ -46,7 +46,7 @@ describe('Agents Service', () => {
       })
   })
 
-  it.only('Create agent', done => {
+  it.skip('Create agent', done => {
     agents
       .createAgent({
         name: 'John Doe',
@@ -60,7 +60,7 @@ describe('Agents Service', () => {
         done()
       })
       .catch(e => {
-          done(e)
+        done(e)
       })
   })
 
@@ -80,9 +80,9 @@ describe('Agents Service', () => {
       })
   })
 
-  it.only('List agents', done => {
+  it.skip('List agents', done => {
     agents
-      .listAgents({ pageSize: 10, pageToken: '1', view: 0 })
+      .listAgents({ pageSize: 10, pageToken: '0', view: 0 })
       .then(result => {
         assert.ok(result.getAgentsList().length > 0)
         done()
@@ -90,7 +90,7 @@ describe('Agents Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Get agent by reference', done => {
+  it.skip('Get agent by reference', done => {
     agents
       .getAgent(agentRef)
       .then(agent => {
@@ -100,7 +100,7 @@ describe('Agents Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Update agent', done => {
+  it.skip('Update agent', done => {
     const agent = {
       ref: agentRef,
       name: 'John Doe',
@@ -116,14 +116,14 @@ describe('Agents Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Delete agent', done => {
+  it.skip('Delete agent', done => {
     agents
       .deleteAgent(agentRef)
       .then(() => done())
       .catch(err => done(err))
   })
 
-  it.only('Agent reference does not exist', done => {
+  it.skip('Agent reference does not exist', done => {
     agents
       .deleteAgent('1234')
       .then(() => done('not good'))
@@ -132,5 +132,4 @@ describe('Agents Service', () => {
         done()
       })
   })
-
 })
