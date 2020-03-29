@@ -138,8 +138,6 @@ const uploadObject = (call, callback) => {
 }
 
 const getObjectURL = (call, callback) => {
-  const { YAPSAuthError } = require('../common/yaps_errors')
-
   logger.log(
     'debug',
     `@yaps/core getObjectURL [request: ${call.request.getName()}]`

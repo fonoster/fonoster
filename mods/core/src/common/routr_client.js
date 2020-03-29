@@ -48,7 +48,6 @@ class RoutrClient {
       const url = `${this.apiUrl}/${this.resource}?token=${
         this.token
       }&filter=*&${queryParams(params).join('&')}`
-      console.log('list.url=' + url)
       const response = await axios.get(url)
       return response.data
     } catch (err) {

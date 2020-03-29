@@ -125,4 +125,16 @@ describe('Storage Service', () => {
       })
       .catch(e => done(e))
   })
+
+  it('Get object url sync', done => {
+    const Fiber = require('fibers')
+    Fiber(() => {
+      const url = storage.getObjectURLSync({
+        name: 'test.txt',
+        bucket: 'default'
+      })
+      assert.ok(url.includes('test.txt'))
+      done()
+    }).run()
+  })
 })
