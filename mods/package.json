@@ -8,8 +8,9 @@
     "format": "prettier-standard '**/*.js'"
   },
   "devDependencies": {
-    "@yaps/appmanager": "^0.0.2",
+    "@yaps/certs": "^0.0.3",
     "@yaps/core": "^0.0.3",
+    "@yaps/appmanager": "^0.0.3",
     "@yaps/ctl": "^0.0.3",
     "@yaps/dispatcher": "^0.0.3",
     "@yaps/domains": "^0.0.3",

@@ -1,5 +1,4 @@
 const Redis = require('ioredis')
-
-module.exports = new Redis(
-  `redis://${process.env.DS_HOST}:${process.env.DS_PORT}`
-)
+const host = process.env.DS_HOST || 'localhost'
+const port = process.env.DS_PORT || 6379
+module.exports = new Redis(`redis://${host}:${port}`)

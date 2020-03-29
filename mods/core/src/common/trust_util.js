@@ -1,4 +1,5 @@
 const path = require('path')
+const { getSalt } = require('@yaps/certs')
 
 if (process.env.NODE_ENV === 'dev') {
   const env = path.join(__dirname, '..', '..', '..', '.env')
@@ -19,15 +20,6 @@ const BOOL = ['on', 'true', 'yes', '1']
 const insecure = process.env.APISERVER_ENABLE_INSECURE
 
 module.exports.getServerCredentials = () => {
-
-  if (insecure && BOOL.includes(insecure.toLowerCase())) {
-    logger.log(
-      'warn',
-      `Insecure mode is ON. This is not recommended in production`
-    )
-    return grpc.ServerCredentials.createInsecure()
-  }
-
   try {
     return grpc.ServerCredentials.createSsl(
       fs.readFileSync(CA_CRT),
@@ -40,21 +32,15 @@ module.exports.getServerCredentials = () => {
       true
     )
   } catch (e) {
-    logger.log('error', 'Unable to load certificates')
-    process.exit(1)
+    logger.log(
+      'warn',
+      'Unable to load security certificates. Starting server in Insecure mode'
+    )
+    return grpc.ServerCredentials.createInsecure()
   }
 }
 
 module.exports.getClientCredentials = () => {
-
-  if (insecure && BOOL.includes(insecure.toLowerCase())) {
-    logger.log(
-      'warn',
-      `Insecure mode is ON. This is not recommended in production`
-    )
-    return grpc.credentials.createInsecure()
-  }
-
   try {
     return grpc.credentials.createSsl(
       fs.readFileSync(CA_CRT),
@@ -62,32 +48,16 @@ module.exports.getClientCredentials = () => {
       fs.readFileSync(CLIENT_CRT)
     )
   } catch (e) {
-    logger.log('error', 'Unable to load certificates')
-    process.exit(1)
+    logger.log(
+      'warn',
+      'Unable to load security certificates. Starting client in Insecure mode'
+    )
+    return grpc.credentials.createInsecure()
   }
 }
 
 module.exports.auth = function (call, callback) {
-  let salt
-
-  try {
-    const pathToCerts = path.join(process.env.CERTS_PATH, 'jwt.salt')
-    // TODO: Move elsewhere to avoid reading this file everytime
-    salt =
-      process.env.JWT_SALT ||
-      fs
-        .readFileSync(pathToCerts)
-        .toString()
-        .trim()
-  } catch (e) {
-    logger.log(
-      'error',
-      `Unable to find JWT_SALT environment variable or the certificates`
-    )
-    throw new Error(
-      'Unable to find JWT_SALT environment variable or the certificates'
-    )
-  }
+  const salt = getSalt()
 
   if (
     call.metadata._internal_repr.access_key_id === null ||
