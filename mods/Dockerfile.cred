@@ -1,7 +1,7 @@
 FROM node:9-alpine
 LABEL maintainer="Pedro Sanders <fonosterteam@fonoster.com>"
 
-WORKDIR /work
-COPY etc/gen_jwt_token.js /work/gen_jwt_token.js
-RUN npm install jsonwebtoken
-CMD ["node", "gen_jwt_token.js"]
+WORKDIR /certs
+COPY certs /certs
+RUN npm i
+CMD ["node", "src/index.js"]

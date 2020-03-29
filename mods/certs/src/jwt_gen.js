@@ -23,7 +23,11 @@ const createSaltFile = async () =>
   fs.writeFileSync(pathToSalt, await acme.forge.createPrivateKey())
 
 async function createAccessFile () {
-  if (!saltExist()) await createSaltFile()
+  console.log('Creating access file')
+  if (!saltExist()) {
+    console.log(`No salt found. Creating salt file`)
+    await createSaltFile()
+  }
 
   const salt = getSalt()
   const claims = { iss, sub: accessKeyId }
@@ -32,6 +36,7 @@ async function createAccessFile () {
     accessKeySecret: jwt.sign(claims, salt)
   }
   fs.writeFileSync(pathToAccess, JSON.stringify(access, null, ' '))
+  console.log('Access file created')
 }
 
 module.exports.saltExist = saltExist
