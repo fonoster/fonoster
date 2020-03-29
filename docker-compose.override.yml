@@ -28,8 +28,6 @@ services:
   sipproxy:
     logging:
       driver: json-file
-    #volumes:
-    #  - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml:ro
 
   mediaserver:
     logging:

@@ -1,4 +1,6 @@
-FROM node:13.12.0-alpine
+# A newer version will cause issues with the "sync" dependencies
+# Do not change without proper testing
+FROM node:9-alpine
 LABEL maintainer="Pedro Sanders <fonosterteam@fonoster.com>"
 
 COPY . /mods

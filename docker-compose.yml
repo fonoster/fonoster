@@ -8,14 +8,10 @@ services:
     build:
       context: mods
       dockerfile: Dockerfile.as
-    # environment:
-      # CERTS_PATH: /etc/certs
     expose:
       - ${APISERVER_PORT}
     ports:
       - ${APISERVER_PORT}:${APISERVER_PORT}
-    volumes:
-      - ./mods/etc/certs:/etc/certs:ro
     logging:
         driver: fluentd
         options:
@@ -83,17 +79,13 @@ services:
     image: ${MC_IMAGE}:${COMPOSE_PROJECT_VERSION}
     restart: always
     environment:
-      YAPS_ACCESS_FILE: /credentials/access
       YAPS_ENDPOINT: ${APISERVER_ENDPOINT}
       MC_AGI_PORT: ${MC_AGI_PORT}
-      CERTS_PATH: /etc/certs
     build:
       context: mods
       dockerfile: Dockerfile.mc
     volumes:
       - data1-1:/fs
-      - ./mods/etc/certs:/etc/certs:ro
-      - credentials:/credentials
     expose:
       - ${MC_AGI_PORT}
     logging:
