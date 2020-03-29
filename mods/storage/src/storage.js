@@ -188,7 +188,7 @@ class Storage extends AbstractService {
   }
 
   // Internal API
-  async uploadObjectSync (request) {
+  uploadObjectSync (request) {
     const sleep = require('sync').sleep
     let result
     let error
@@ -205,7 +205,7 @@ class Storage extends AbstractService {
   }
 
   // Internal API
-  async getObjectURLSync (request) {
+  getObjectURLSync (request) {
     const sleep = require('sync').sleep
     let result
     let error
