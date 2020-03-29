@@ -8,7 +8,6 @@ const config = {
   requireAckResponse: true // Add this option to wait response from Fluentd certainly
 }
 
-// WARNING: Harcode value :(
 const fluent = new fluentTransport(
   `${process.env.LOG_OPT_TAG_PREFIX}.${
     process.env.COMPOSE_PROJECT_NAME
