@@ -40,6 +40,8 @@ services:
   mediacontroller:
     logging:
       driver: json-file
+    volumes:
+      - credentials:/root/.yaps:ro
 
   datasource:
     logging:
@@ -75,7 +77,7 @@ services:
           npm test
       '
     volumes:
-      - credentials:/root/.yaps
+      - credentials:/root/.yaps:ro
 
 volumes:
   data1-1:
