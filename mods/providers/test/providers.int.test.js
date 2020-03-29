@@ -33,7 +33,7 @@ describe('Providers Service', () => {
       })
   })
 
-  it.only('Create provider', done => {
+  it('Create provider', done => {
     providers
       .createProvider({
         name: 'Provider #1',
@@ -52,7 +52,7 @@ describe('Providers Service', () => {
       })
   })
 
-  it.only('Provider already exist', done => {
+  it('Provider already exist', done => {
     providers
       .createProvider({
         name: 'Provider #1',
@@ -68,7 +68,7 @@ describe('Providers Service', () => {
       })
   })
 
-  it.only('List providers', done => {
+  it('List providers', done => {
     providers
       .listProviders({ pageSize: 10, pageToken: '1', view: 0 })
       .then(result => {
@@ -78,7 +78,7 @@ describe('Providers Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Get provider by reference', done => {
+  it('Get provider by reference', done => {
     providers
       .getProvider(providerRef)
       .then(provider => {
@@ -88,7 +88,7 @@ describe('Providers Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Update provider perfect case...', done => {
+  it('Update provider perfect case...', done => {
     const provider = {
       ref: providerRef,
       name: 'Provider #2',
@@ -106,14 +106,14 @@ describe('Providers Service', () => {
       .catch(err => done(err))
   })
 
-  it.only('Delete provider', done => {
+  it('Delete provider', done => {
     providers
       .deleteProvider(providerRef)
       .then(() => done())
       .catch(err => done(err))
   })
 
-  it.only('Provider reference does not exist', done => {
+  it('Provider reference does not exist', done => {
     providers
       .deleteProvider('1234')
       .then(() => done('not good'))
