@@ -2,7 +2,7 @@
 
 ## Domains ⇐ <code>AbstractService</code>
 Use YAPS Domains, a capability of YAPS SIP Proxy Subsystem,
-to create, update,  get and delete domains. YAPS Domains requires of a
+to create, update, get and delete domains. YAPS Domains requires of a
 running YAPS deployment.
 
 **Kind**: global class  
@@ -13,7 +13,7 @@ running YAPS deployment.
     * [new Domains()](#new_Domains_new)
     * [.createDomain(request)](#Domains+createDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getDomain(ref)](#Domains+getDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
-    * [.updateDomain(request, ref)](#Domains+updateDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [.updateDomain(request)](#Domains+updateDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.listDomains(request)](#Domains+listDomains) ⇒ <code>Promise.&lt;ListDomainsResponse&gt;</code>
     * [.deleteDomain(ref)](#Domains+deleteDomain)
 
@@ -41,7 +41,7 @@ Creates a new Domain on the SIP Proxy subsystem.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>Object</code> |  |
+| request | <code>Object</code> | Request for the provision of a new Domain |
 | request.name | <code>string</code> | Friendly name for the SIP domain |
 | request.domainUri | <code>string</code> | Domain URI. FQDN is recommended |
 | request.egressNumberRef | <code>string</code> | A valid reference to a Number in YAPS |
@@ -90,15 +90,15 @@ domains.getDomain(ref)
 ```
 <a name="Domains+updateDomain"></a>
 
-### domains.updateDomain(request, ref) ⇒ <code>Promise.&lt;Object&gt;</code>
+### domains.updateDomain(request) ⇒ <code>Promise.&lt;Object&gt;</code>
 Update a Domain at the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Domains</code>](#Domains)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>Object</code> |  |
-| ref | <code>string</code> | To update a Domain you must provide its reference |
+| request | <code>Object</code> | Request for the update of an existing Domain |
+| request.ref | <code>string</code> | To update a Domain you must provide its reference |
 | request.name | <code>string</code> | Friendly name for the SIP domain |
 | request.egressNumberRef | <code>string</code> | A valid reference to a Number in YAPS |
 | request.egressRule | <code>string</code> | Regular expression indicating when a call will be routed via request.egressNumberRef |
