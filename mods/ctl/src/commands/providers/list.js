@@ -34,7 +34,7 @@ class ListCommand extends Command {
         list.forEach(provider => {
           t.cell('Ref', provider.getRef())
           t.cell('Name', provider.getName())
-          t.cell('Username', provider.getUsername() + '(static)')
+          t.cell('Username', provider.getUsername() || '(static)')
           t.cell('Host', provider.getHost())
           t.cell('Transport', provider.getTransport())
           t.cell('Expires', provider.getExpires())

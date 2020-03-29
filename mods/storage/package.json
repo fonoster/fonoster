@@ -29,5 +29,8 @@
     "grpc-promise": "^1.4.0",
     "minio": "^7.0.14",
     "sync": "^0.2.4"
+  },
+  "devDependencies": {
+    "fibers": "^4.0.2"
   }
 }

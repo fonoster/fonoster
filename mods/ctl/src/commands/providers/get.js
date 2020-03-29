@@ -17,7 +17,7 @@ class GetCommand extends Command {
       const jsonObj = {
         Ref: provider.getRef(),
         Name: provider.getName(),
-        Username: provider.getUsername() + '(static)',
+        Username: provider.getUsername() || '(static)',
         Host: provider.getHost(),
         Transport: provider.getTransport(),
         Expires: provider.getExpires(),
