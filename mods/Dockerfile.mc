@@ -1,4 +1,4 @@
-FROM node:9-alpine
+FROM node:13-alpine
 LABEL maintainer="Pedro Sanders <fonosterteam@fonoster.com>"
 
 COPY . /mods
