@@ -23,6 +23,7 @@ class AbstractService {
    */
   constructor (options = {}, Service) {
     const defaultConfig = {
+      endpoint: 'localhost:50052',
       bucket: process.env.FS_DEFAULT_STORAGE_BUCKET
     }
 

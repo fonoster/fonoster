@@ -107,7 +107,6 @@ describe('Storage Service', () => {
   })
 
   it('Get object url not found', done => {
-    const storage = new Storage()
     storage
       .getObjectURL({ name: 'test.wav', bucket: 'default' })
       .then(result => done('should enter here'))
@@ -118,7 +117,6 @@ describe('Storage Service', () => {
   })
 
   it('Get object url', done => {
-    const storage = new Storage()
     storage
       .getObjectURL({ name: 'test.txt', bucket: 'default' })
       .then(result => {
