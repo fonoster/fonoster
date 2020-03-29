@@ -88,5 +88,6 @@ message App {
   string create_time = 3;
   string update_time = 4;
   Status status = 5;
-  map <string, string> labels = 6;
+  string bucket = 6;
+  map <string, string> labels = 7;
 }

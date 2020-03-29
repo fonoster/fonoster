@@ -88,7 +88,6 @@ class AppManager extends AbstractService {
 
     try {
       const packagePath = path.join(appPath, 'package.json')
-
       // Expects an existing valid package.json
       const packageInfo = p => JSON.parse(fs.readFileSync(p))
       let pInfo
@@ -102,14 +101,28 @@ class AppManager extends AbstractService {
           )}]`
         )
       } catch (err) {
-        throw new Error(`Unable to open project folder '${appPath}'`)
+        console.log(err)
+        throw new Error(
+          `Unable to obtain project info. Ensure package.json exists in '${appPath}', and that is well formatted`
+        )
       }
+
+      let bucket = 'default'
+
+      try {
+        const yapsConfigFile = await fs.readFileSync(
+          path.join(appPath, 'yaps.json')
+        )
+        const yapsConfig = JSON.parse(yapsConfigFile)
+        bucket = yapsConfig.bucket
+      } catch (e) {}
 
       const request = {
         dirPath: appPath,
         app: {
           name: pInfo.name,
-          description: pInfo.description
+          description: pInfo.description,
+          bucket: bucket
         }
       }
 
@@ -131,7 +144,9 @@ class AppManager extends AbstractService {
 
       if (errors.length > 0) {
         logger.log('warn', `@yaps/appmananger deployApp [invalid argument/s]`)
-        throw new Error(errors[0].message)
+        throw new Error(
+          'Please ensure package.json contains the name and description fields'
+        )
       }
 
       if (
@@ -152,6 +167,7 @@ class AppManager extends AbstractService {
       const app = new AppManagerPB.App()
       app.setName(request.app.name)
       app.setDescription(request.app.description)
+      app.setBucket(request.app.bucket)
 
       const createAppRequest = new AppManagerPB.CreateAppRequest()
       createAppRequest.setApp(app)

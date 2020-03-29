@@ -1,9 +1,11 @@
 const { ListAppsResponse, App } = require('./protos/appmanager_pb')
 const { Empty } = require('./protos/common_pb')
 const { auth } = require('../common/trust_util')
+const logger = require('../common/logger')
 const redis = require('./redis')
 const objectid = require('objectid')
 const appmanager = require('../schemas/appmanager.schema')
+const updateBucketPolicy = require('../common/fsutils')
 const {
   YAPSInvalidArgument,
   YAPSAuthError,
@@ -59,6 +61,8 @@ const getApp = async (call, callback) => {
 const createApp = async (call, callback) => {
   if (!auth(call)) return callback(new YAPSAuthError())
 
+  logger.log('debug', `@yaps/core createApp`)
+
   const errors = appmanager.createAppRequest.validate({
     app: {
       name: call.request.getApp().getName(),
@@ -79,7 +83,15 @@ const createApp = async (call, callback) => {
   await redis.lrem('apps', 0, app.getName())
   await redis.lpush('apps', app.getName())
   // This feels very hacky but it works for now
-  await redis.call('set', app.getName(), `${JSON.stringify(app)}`)
+  await redis.set(app.getName(), `${JSON.stringify(app)}`)
+
+  logger.log(
+    'debug',
+    `@yaps/core createApp [updating bucket policy for app: ${app.getName()}]`
+  )
+
+  await updateBucketPolicy(app.getBucket() || 'default')
+
   callback(null, app)
 }
 

@@ -6,29 +6,13 @@ const path = require('path')
 const fs = require('fs')
 const { Command, flags } = require('@oclif/command')
 const { CLIError } = require('@oclif/errors')
-const { updateBucketPolicy } = require('@yaps/core')
 
 class DeployCommand extends Command {
   async run () {
     try {
-      const appmanager = new AppManager()
-      const pckg = path.join(process.cwd(), 'package.json')
-
       cli.action.start('Deploying application')
+      const appmanager = new AppManager()
       const app = await appmanager.deployApp(process.cwd())
-
-      let bucket = 'default'
-      try {
-        const yapsConfigFile = await fs.readFileSync(
-          path.join(process.cwd(), 'yaps.json')
-        )
-        const yapsConfig = JSON.parse(yapsConfigFile)
-        bucket = yapsConfig.bucket
-      } catch (e) {}
-
-      cli.action.start('Updating bucket policy')
-      await updateBucketPolicy(bucket)
-
       await cli.wait(1000)
       cli.action.stop('')
 
@@ -36,7 +20,7 @@ class DeployCommand extends Command {
         Name: app.getName(),
         Description: app.getDescription(),
         Create: app.getCreateTime(),
-        'Default Bucket': bucket
+        'Default Bucket': app.getBucket()
       }
 
       console.log(prettyjson.render(appJson, { noColor: true }))
