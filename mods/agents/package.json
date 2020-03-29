@@ -1,0 +1,32 @@
+{
+  "name": "@yaps/agents",
+  "version": "0.0.3",
+  "description": "Agents Service",
+  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "homepage": "https://github.com/fonoster/yaps#readme",
+  "license": "MIT",
+  "main": "src/agents.js",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/yaps.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/yaps/issues"
+  },
+  "dependencies": {
+    "@yaps/core": "^0.0.3",
+    "dotenv": "^8.2.0",
+    "grpc-promise": "^1.4.0",
+    "sync": "^0.2.4"
+  }
+}

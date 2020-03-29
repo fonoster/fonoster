@@ -131,7 +131,7 @@ class ResourceBuilder {
 
   withDomains (domains) {
     if (this.kind != Kind.AGENT)
-      throw new Error(`Kind ${this.kind} does not holds 'spec.privacy' value`)
+      throw new Error(`Kind ${this.kind} does not holds 'spec.domains' value`)
     this.spec.domains = domains
     if (!this.spec.domains || this.spec.domains.length === 0)
       delete this.spec.domains

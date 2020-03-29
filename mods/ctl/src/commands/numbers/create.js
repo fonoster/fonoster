@@ -26,7 +26,7 @@ class CreateCommand extends Command {
         name: 'providerRef',
         message: 'service provider',
         type: 'list',
-        choices: ['5e7fc0caa0484e0d669cb783', 'gw50a1a4ca']
+        choices: ['5e7fc0caa0484e0d669cb783', 'gw50a1a4ca'] // TODO: Take from DB/API
       },
       {
         name: 'aorLink',

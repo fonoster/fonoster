@@ -3,7 +3,7 @@ const { AbstractService, NumbersService, NumbersPB } = require('@yaps/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
- * @classdesc Use YAPS Numbers, a capability of YAPS SIP Proxy Subsystem,
+ * @classdesc Use YAPS Numbers, a capability of YAPS SIP Proxy subsystem,
  * to create, update, get and delete numbers. YAPS Numbers requires of a
  * running YAPS deployment.
  *
@@ -194,8 +194,7 @@ class Numbers extends AbstractService {
   }
 
   /**
-   * Deletes a Number from SIP Proxy subsystem. Notice, that in order to delete
-   * a Number, you must first delete all it's Agents.
+   * Deletes a Number from SIP Proxy subsystem.
    *
    * @param {string} ref - Reference to the Number
    * @example

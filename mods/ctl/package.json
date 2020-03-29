@@ -15,6 +15,7 @@
     "@yaps/core": "^0.0.3",
     "@yaps/providers": "^0.0.3",
     "@yaps/domains": "^0.0.3",
+    "@yaps/agents": "^0.0.3",
     "@yaps/numbers": "^0.0.3",
     "cli-ux": "^5.4.5",
     "dotenv": "^8.2.0",
@@ -60,6 +61,9 @@
       },
       "domains": {
         "description": "manage sip domains"
+      },
+      "agents": {
+        "description": "manage sip agents"
       },
       "numbers": {
         "description": "manage sip numbers"
