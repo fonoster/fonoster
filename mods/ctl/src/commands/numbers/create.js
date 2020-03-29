@@ -17,12 +17,16 @@ class CreateCommand extends Command {
       // TODO: Consider using the autocomplete plugin
       const res = await new Apps().listApps({ pageSize: 25, pageToken: '0' })
       const apps = res.getAppsList().map(app => app.getName())
-
       const response = await new Providers().listProviders({
         pageSize: 25,
         pageToken: '0'
       })
-      const providers = response.getProvidersList().map(app => app.getRef())
+      const providers = response.getProvidersList().map(p => {
+        const obj = {}
+        obj.name = p.getName()
+        obj.value = p.getRef()
+        return obj
+      })
 
       if (providers.length === 0) {
         throw new Error('You must create a Provider before adding any Number')
@@ -49,6 +53,10 @@ class CreateCommand extends Command {
       ])
 
       if (!answers.aorLink) {
+        if (apps.length === 0) {
+          throw new Error('Did not find any applications')
+        }
+
         const prompt = await inquirer.prompt([
           {
             name: 'ingressApp',
