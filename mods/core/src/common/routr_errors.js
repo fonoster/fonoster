@@ -5,6 +5,8 @@ module.exports = error => {
   if (!error.response) throw new YAPSError(Status.UNKNOWN, error)
 
   const message = error.response.data.data
+    ? error.response.data.data
+    : error.response.data.message
 
   switch (error.response.status) {
     case 409:
