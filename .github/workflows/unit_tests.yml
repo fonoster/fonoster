@@ -1,4 +1,4 @@
-name: tests
+name: unit tests
 on:
   push:
     paths:
@@ -22,6 +22,6 @@ jobs:
           node-version: '10.x'
       - run: |
           npm install lerna nyc mocha -g
-          lerna bootstrap
           cd mods
+          lerna bootstrap
           npm test

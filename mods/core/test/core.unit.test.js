@@ -3,7 +3,7 @@ const { mapToObj } = require('../src/common/utils')
 const assert = require('assert')
 
 describe('Core', () => {
-  it('Convert grpc map to json obj', done => {
+  it('Convert grpc map to json obj', () => {
     const uor = new StoragePB.UploadObjectRequest()
     const t = mapToObj(uor.getMetadataMap())
     assert.equal(t.var, undefined)
@@ -13,7 +13,5 @@ describe('Core', () => {
 
     const c = mapToObj(uor.getMetadataMap())
     assert.equal(c.var, 'foo')
-
-    done()
   })
 })
