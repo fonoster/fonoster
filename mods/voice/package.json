@@ -1,6 +1,6 @@
 {
   "name": "@yaps/voice",
-  "version": "0.0.4",
+  "version": "0.0.5-alpha.0",
   "description": "Programmable Voice Capabilities",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
