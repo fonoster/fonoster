@@ -69,10 +69,10 @@ services:
       YAPS_ENDPOINT: ${APISERVER_ENDPOINT}
     entrypoint: |
       sh -c '
-          while [ ! -f /root/.yaps/access ]; do sleep 2; done
-          npm i nyc mocha -g
-          cd /mods
-          npm test
+        #while [ ! -f /root/.yaps/access ]; do sleep 2; done
+        npm i nyc mocha -g
+        cd /mods
+        npm test
       '
     volumes:
       - credentials:/root/.yaps:ro
