@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '10.x'
-        run: |
+      - run: |
           npm install lerna nyc mocha --global
           lerna bootstrap
           cd mods
