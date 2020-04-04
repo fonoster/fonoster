@@ -4,7 +4,7 @@
   "scripts": {
     "docs": "node ./docs",
     "test": "NODE_ENV=dev mocha **/test/*.unit.test.js",
-    "clean": "rm **/package-lock.json; lerna clean -y",
+    "clean": "rm package-lock.json; rm **/package-lock.json; lerna clean -y",
     "format": "prettier-standard '**/*.js'"
   },
   "dependencies": {
