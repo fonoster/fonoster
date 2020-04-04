@@ -1,0 +1,27 @@
+name: tests
+on:
+  push:
+    paths:
+    - 'mods/**'
+    branches:
+    - master
+jobs:
+  build:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Prepare environment
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '10.x'
+        run: |
+          npm install lerna nyc mocha --global
+          lerna bootstrap
+          cd mods
+          npm test
