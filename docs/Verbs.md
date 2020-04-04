@@ -35,7 +35,7 @@ Configure the Verbs object.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| config | <code>Object</code> | This parameter is required for proper operation of some verbs, such as `Say`. |
+| config | <code>Object</code> | This parameter is required for proper operation of some verbs, such as `Say` |
 | config.bucket | <code>string</code> | Change default bucket |
 | config.storage | <code>string</code> | A replacement for the storage. Use this Only to overwrite the parameters set in your `yaps.json.` |
 | config.tts | <code>string</code> | A replacement for the default TTS engine |

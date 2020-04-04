@@ -44,7 +44,7 @@ class Verbs {
    * Configure the Verbs object.
    *
    * @param {Object} config - This parameter is required for proper operation of
-   * some verbs, such as `Say`.
+   * some verbs, such as `Say`
    * @param {string} config.bucket - Change default bucket
    * @param {string} config.storage - A replacement for the storage. Use this
    * Only to overwrite the parameters set in your `yaps.json.`
