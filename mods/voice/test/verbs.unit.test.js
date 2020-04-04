@@ -49,7 +49,7 @@ describe('@yaps/voice/verbs', () => {
       let result = verbs.gather('', { maxDigits: 4 })
       expect(result).to.be.equal('1234')
 
-      // Stops reading at finishOnKey
+      // Stops reading at finishOnKey char
       channel.setData(['1', '2', '3', '4', '*'])
       channel.resetDataPointer()
       result = verbs.gather('', { maxDigits: 6, finishOnKey: '*' })
