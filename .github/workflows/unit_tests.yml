@@ -7,7 +7,6 @@ on:
     - master
 jobs:
   build:
-    timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,7 +22,5 @@ jobs:
       - run: |
           npm install lerna nyc mocha -g
           cd mods
-          rm -rf **/package-lock.json
-          npm i
           lerna bootstrap
           npm test
