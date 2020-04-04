@@ -1,6 +1,5 @@
 const StoragePB = require('../src/server/protos/storage_pb')
 const { mapToObj } = require('../src/common/utils')
-const assert = require('assert')
 const expect = require('chai').expect
 
 describe('Core', () => {
