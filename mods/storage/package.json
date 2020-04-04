@@ -31,7 +31,7 @@
     "sync": "^0.2.4"
   },
   "devDependencies": {
-    "fibers": "^4.0.2"
+    "fibers": "^4.0.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "sinon": "^9.0.1",
