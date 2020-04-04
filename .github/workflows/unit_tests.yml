@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '10.x'
       - run: |
-          npm install lerna nyc mocha -g
+          npm install chai lerna nyc mocha -g
           cd mods
           lerna bootstrap
           npm test
