@@ -93,7 +93,7 @@ describe('@yaps/core/service', () => {
     })
 
     it('should fail if the access file is malformed', done => {
-      const fs = sinon.stub(require('fs'), 'readFileSync').returns('{')
+      sinon.stub(require('fs'), 'readFileSync').returns('{')
       try {
         new YAPSService()
         done('not good')

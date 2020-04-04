@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '13.x'
-        run: |
+      - run: |
           cd mods
           npm config set unsafe-perm true
           npm install lerna nyc mocha -g
