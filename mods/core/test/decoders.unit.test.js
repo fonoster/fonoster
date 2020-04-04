@@ -2,7 +2,7 @@
  * @author Pedro Sanders
  * @since v1
  *
- * Unit Test for the routr decoders
+ * Unit Test for the routr's decoders
  */
 const chai = require('chai')
 const expect = chai.expect
