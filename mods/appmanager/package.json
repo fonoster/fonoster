@@ -1,6 +1,6 @@
 {
   "name": "@yaps/appmanager",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Core artifacts",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
@@ -24,8 +24,8 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/core": "^0.0.3",
-    "@yaps/storage": "^0.0.3",
+    "@yaps/core": "^0.0.4",
+    "@yaps/storage": "^0.0.4",
     "dotenv": "^8.2.0",
     "fs-extra": "^8.1.0",
     "grpc-promise": "^1.4.0",

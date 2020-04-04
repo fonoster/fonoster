@@ -1,6 +1,6 @@
 {
   "name": "@yaps/core",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Core artifacts",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
@@ -24,7 +24,7 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/certs": "^0.0.3",
+    "@yaps/certs": "^0.0.4",
     "axios": "^0.19.2",
     "btoa": "^1.2.1",
     "deepmerge": "^4.2.2",

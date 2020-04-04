@@ -1,6 +1,6 @@
 {
   "name": "@yaps/sdk",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "> TODO: description",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
@@ -24,10 +24,10 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/appmanager": "^0.0.3",
-    "@yaps/providers": "^0.0.3",    
-    "@yaps/numbers": "^0.0.3",
-    "@yaps/domains": "^0.0.3",
-    "@yaps/storage": "^0.0.3"
+    "@yaps/appmanager": "^0.0.4",
+    "@yaps/domains": "^0.0.4",
+    "@yaps/numbers": "^0.0.4",
+    "@yaps/providers": "^0.0.4",
+    "@yaps/storage": "^0.0.4"
   }
 }

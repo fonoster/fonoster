@@ -1,6 +1,6 @@
 {
   "name": "@yaps/tts",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "YAPS TTS",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
@@ -24,7 +24,7 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/core": "^0.0.3",
+    "@yaps/core": "^0.0.4",
     "deepmerge": "^4.2.2",
     "dotenv": "^8.2.0",
     "flat": "^5.0.0",
