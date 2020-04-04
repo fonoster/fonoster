@@ -8,10 +8,10 @@
     "format": "prettier-standard '**/*.js'"
   },
   "devDependencies": {
-    "@yaps/certs": "^0.0.5",
-    "@yaps/core": "^0.0.5",
     "@yaps/agents": "^0.0.5",
     "@yaps/appmanager": "^0.0.5",
+    "@yaps/certs": "^0.0.5",
+    "@yaps/core": "^0.0.5",
     "@yaps/ctl": "^0.0.5",
     "@yaps/dispatcher": "^0.0.5",
     "@yaps/domains": "^0.0.5",
