@@ -2,10 +2,10 @@ const routr = require('./routr')
 const redis = require('./redis')
 const grpc = require('grpc')
 const logger = require('../common/logger')
+const numberDecoder = require('../common/decoders/number_decoder')
 const { Empty } = require('./protos/common_pb')
 const { ListNumbersResponse } = require('./protos/numbers_pb')
-const { ResourceBuilder, Kind } = require('../common/resource_builder')
-const { numberDecoder } = require('../common/resources_decoders')
+const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 const { YAPSAuthError, YAPSError } = require('../common/yaps_errors')
 const AppManagerPB = require('./protos/appmanager_pb')
@@ -79,24 +79,24 @@ const createNumber = async (call, callback) => {
     return
   }
 
-  let resourceBuilder = new ResourceBuilder(
+  let encoder = new REncoder(
     Kind.NUMBER,
     number.getE164Number()
   ).withGatewayRef(number.getProviderRef())
 
   if (number.getAorLink()) {
-    resourceBuilder = resourceBuilder.withLocation(
+    encoder = encoder.withLocation(
       `tel:${number.getE164Number()}`,
       number.getAorLink()
     )
   } else {
     // TODO: Perhaps I should place this in a ENV
-    resourceBuilder = resourceBuilder
+    encoder = encoder
       .withLocation(`tel:${number.getE164Number()}`, 'sip:ast@mediaserver')
       .withMetadata({ ingressApp: number.getIngressApp() })
   }
 
-  const resource = resourceBuilder.build()
+  const resource = encoder.build()
 
   logger.log(
     'debug',
@@ -174,14 +174,14 @@ const updateNumber = async (call, callback) => {
     return
   }
 
-  let resourceBuilder = new ResourceBuilder(
+  let encoder = new REncoder(
     Kind.NUMBER,
     number.getE164Number(),
     number.getRef()
   )
 
   if (number.getAorLink()) {
-    resourceBuilder = resourceBuilder
+    encoder = encoder
       .withLocation(`tel:${number.getE164Number()}`, number.getAorLink())
       .withMetadata({
         gwRef: number.getProviderRef(),
@@ -190,7 +190,7 @@ const updateNumber = async (call, callback) => {
       })
   } else {
     // TODO: Perhaps I should place this in a ENV
-    resourceBuilder = resourceBuilder
+    encoder = encoders
       .withLocation(`tel:${number.getE164Number()}`, 'sip:ast@mediaserver')
       .withMetadata({
         ingressApp: number.getIngressApp(),
@@ -200,7 +200,7 @@ const updateNumber = async (call, callback) => {
       })
   }
 
-  const resource = resourceBuilder.build()
+  const resource = encoder.build()
 
   logger.log(
     'debug',

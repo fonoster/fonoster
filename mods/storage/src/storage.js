@@ -28,7 +28,7 @@ class Storage extends YAPSService {
    * @see module:core:YAPSService
    */
   constructor (options) {
-    super(options, StorageService.StorageClient)
+    super(StorageService.StorageClient, options).init()
   }
 
   /**

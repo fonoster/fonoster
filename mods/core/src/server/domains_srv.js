@@ -1,10 +1,10 @@
 const routr = require('./routr')
 const grpc = require('grpc')
 const logger = require('../common/logger')
+const domainDecoder = require('../common/decoders/domain_decoder')
 const { Empty } = require('./protos/common_pb')
 const { ListDomainsResponse } = require('./protos/domains_pb')
-const { ResourceBuilder, Kind } = require('../common/resource_builder')
-const { domainDecoder } = require('../common/resources_decoders')
+const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 const { YAPSAuthError } = require('../common/yaps_errors')
 
@@ -46,7 +46,7 @@ const createDomain = async (call, callback) => {
 
   logger.info('verbose', `@yaps/core createDomain [entity ${domain.getName()}]`)
 
-  const resource = new ResourceBuilder(Kind.DOMAIN, domain.getName())
+  const resource = new REncoder(Kind.DOMAIN, domain.getName())
     .withDomainUri(domain.getDomainUri())
     .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
     .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
@@ -91,7 +91,7 @@ const updateDomain = async (call, callback) => {
 
   logger.info('verbose', `@yaps/core updateDomain [entity ${domain.getName()}]`)
 
-  const resource = new ResourceBuilder(
+  const resource = new REncoder(
     Kind.DOMAIN,
     domain.getName(),
     domain.getRef()

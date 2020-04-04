@@ -2,10 +2,10 @@ const routr = require('./routr')
 const redis = require('./redis')
 const grpc = require('grpc')
 const logger = require('../common/logger')
+const agentDecoder = require('../common/decoders/agent_decoder')
 const { Empty } = require('./protos/common_pb')
 const { ListAgentsResponse } = require('./protos/agents_pb')
-const { ResourceBuilder, Kind } = require('../common/resource_builder')
-const { agentDecoder } = require('../common/resources_decoders')
+const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 const { YAPSAuthError, YAPSError } = require('../common/yaps_errors')
 
@@ -45,12 +45,12 @@ const createAgent = async (call, callback) => {
 
   logger.info('verbose', `@yaps/core createAgent [entity ${agent.getName()}]`)
 
-  let resourceBuilder = new ResourceBuilder(Kind.AGENT, agent.getName())
+  let encoder = new REncoder(Kind.AGENT, agent.getName())
     .withCredentials(agent.getUsername(), agent.getSecret())
     .withDomains(agent.getDomainsList())
   //.withPrivacy(provider.getPrivacy()) // TODO
 
-  const resource = resourceBuilder.build()
+  const resource = encoder.build()
 
   logger.log(
     'debug',
@@ -91,7 +91,7 @@ const updateAgent = async (call, callback) => {
 
   logger.info('verbose', `@yaps/core updateAgent [entity ${agent.getName()}]`)
 
-  let resourceBuilder = new ResourceBuilder(
+  let encoder = new REncoder(
     Kind.AGENT,
     agent.getName(),
     agent.getRef()
@@ -104,7 +104,7 @@ const updateAgent = async (call, callback) => {
     })
   //.withPrivacy(provider.getPrivacy()) // TODO
 
-  const resource = resourceBuilder.build()
+  const resource = encoder.build()
 
   logger.log(
     'debug',

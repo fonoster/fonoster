@@ -1,8 +1,0 @@
-0 silly argv { _: [ 'bootstrap' ],
-0 silly argv   lernaVersion: '3.20.2',
-0 silly argv   '$0': '/usr/local/bin/lerna' }
-1 notice cli v3.20.2
-2 verbose rootPath /Users/pedrosanders/Projects/yaps/mods
-3 error JSONError: Unexpected token , in JSON at position 748 while parsing near '...d": "^3.2.1"  },  ,  "devDependencies...' in voice/package.json
-3 error     at module.exports (/usr/local/lib/node_modules/lerna/node_modules/parse-json/index.js:26:19)
-3 error     at parse (/usr/local/lib/node_modules/lerna/node_modules/load-json-file/index.js:15:9)

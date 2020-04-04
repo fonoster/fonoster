@@ -25,7 +25,7 @@ class Domains extends YAPSService {
    * @see module:core:YAPSService
    */
   constructor (options) {
-    super(options, DomainsService.DomainsClient)
+    super(DomainsService.DomainsClient, options).init()
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 

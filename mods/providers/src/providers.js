@@ -32,7 +32,7 @@ class Providers extends YAPSService {
    * @see module:core:YAPSService
    */
   constructor (options) {
-    super(options, ProvidersService.ProvidersClient)
+    super(ProvidersService.ProvidersClient, options).init()
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 

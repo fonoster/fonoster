@@ -60,6 +60,11 @@ class Service {
     if (!this.options.accessKeyId || !this.options.accessKeySecret) {
       throw new Error('Not valid credentials found')
     }
+
+    const metadata = new grpc.Metadata()
+    metadata.add('access_key_id', this.options.accessKeyId)
+    metadata.add('access_key_secret', this.options.accessKeySecret)
+    this.metadata = metadata
   }
 
   init (endpoint, credentials) {

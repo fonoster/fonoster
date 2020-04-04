@@ -32,7 +32,7 @@ class Agents extends YAPSService {
    * @see module:core:YAPSService
    */
   constructor (options) {
-    super(options, AgentsService.AgentsClient)
+    super(AgentsService.AgentsClient, options).init()
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 

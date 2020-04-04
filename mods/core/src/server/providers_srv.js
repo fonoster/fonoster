@@ -2,10 +2,10 @@ const routr = require('./routr')
 const redis = require('./redis')
 const grpc = require('grpc')
 const logger = require('../common/logger')
+const providerDecoder = require('../common/decoders/provider_decoder')
 const { Empty } = require('./protos/common_pb')
 const { ListProvidersResponse } = require('./protos/providers_pb')
-const { ResourceBuilder, Kind } = require('../common/resource_builder')
-const { providerDecoder } = require('../common/resources_decoders')
+const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 const { YAPSAuthError, YAPSError } = require('../common/yaps_errors')
 const AppManagerPB = require('./protos/appmanager_pb')
@@ -51,13 +51,13 @@ const createProvider = async (call, callback) => {
     `@yaps/core createProvider [entity ${provider.getName()}]`
   )
 
-  let resourceBuilder = new ResourceBuilder(Kind.GATEWAY, provider.getName())
+  let encoder = new REncoder(Kind.GATEWAY, provider.getName())
     .withCredentials(provider.getUsername(), provider.getSecret())
     .withHost(provider.getHost())
     .withTransport(provider.getTransport())
     .withExpires(provider.getExpires())
 
-  const resource = resourceBuilder.build()
+  const resource = encoder.build()
 
   logger.log(
     'debug',
@@ -101,7 +101,7 @@ const updateProvider = async (call, callback) => {
     `@yaps/core updateProvider [entity ${provider.getName()}]`
   )
 
-  let resourceBuilder = new ResourceBuilder(
+  let encoder = new REncoder(
     Kind.GATEWAY,
     provider.getName(),
     provider.getRef()
@@ -115,7 +115,7 @@ const updateProvider = async (call, callback) => {
     .withTransport(provider.getTransport())
     .withExpires(provider.getExpires())
 
-  const resource = resourceBuilder.build()
+  const resource = encoder.build()
 
   logger.log(
     'debug',

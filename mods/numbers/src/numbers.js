@@ -31,7 +31,7 @@ class Numbers extends YAPSService {
    * @see module:core:YAPSService
    */
   constructor (options) {
-    super(options, NumbersService.NumbersClient)
+    super(NumbersService.NumbersClient, options).init()
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 
