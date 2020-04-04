@@ -1,4 +1,4 @@
-const assert = require('assert')
+const expect = require('chai').expect
 const path = require('path')
 const {
   computeFilename,
@@ -17,7 +17,7 @@ describe('@yaps/tts/utils', () => {
       language: 'spanish'
     }
     const q = optionsToQueryString(options)
-    assert.equal('voice=peter&language=spanish', q)
+    expect(q).to.be.equal('voice=peter&language=spanish')
   })
 
   it('will compute the filename base on given parameters', () => {
@@ -27,6 +27,6 @@ describe('@yaps/tts/utils', () => {
       language: 'en',
       cachingFields: ['voice', 'speed']
     })
-    assert.equal('940c2687367636c07be34668c6d8299f.wav', t)
+    expect(t).to.be.equal('940c2687367636c07be34668c6d8299f.wav')
   })
 })
