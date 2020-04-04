@@ -1,6 +1,6 @@
 {
   "name": "@yaps/dispatcher",
-  "version": "0.0.5-alpha.0",
+  "version": "0.0.5",
   "description": "Application Router for YAPS",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
@@ -24,12 +24,12 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/appmanager": "^0.0.4",
-    "@yaps/core": "^0.0.4",
-    "@yaps/numbers": "^0.0.4",
-    "@yaps/storage": "^0.0.4",
-    "@yaps/tts": "^0.0.4",
-    "@yaps/voice": "^0.0.5-alpha.0",
+    "@yaps/appmanager": "^0.0.5",
+    "@yaps/core": "^0.0.5",
+    "@yaps/numbers": "^0.0.5",
+    "@yaps/storage": "^0.0.5",
+    "@yaps/tts": "^0.0.5",
+    "@yaps/voice": "^0.0.5",
     "agi-node": "github:psanders/agi-node",
     "dotenv": "^8.2.0",
     "vm2": "^3.6.10"

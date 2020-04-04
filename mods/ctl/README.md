@@ -19,7 +19,7 @@ $ npm install -g @yaps/ctl
 $ yaps COMMAND
 running command...
 $ yaps (-v|--version|version)
-@yaps/ctl/0.0.4 darwin-x64 node-v10.19.0
+@yaps/ctl/0.0.5 darwin-x64 node-v10.19.0
 $ yaps --help [COMMAND]
 USAGE
   $ yaps COMMAND
@@ -70,7 +70,7 @@ DESCRIPTION
   Creates a new Agent in the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/agents/create.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/agents/create.js)_
+_See code: [src/commands/agents/create.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/create.js)_
 
 ## `yaps agents:delete [REF]`
 
@@ -85,7 +85,7 @@ ALIASES
   $ yaps agents:rm
 ```
 
-_See code: [src/commands/agents/delete.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/agents/delete.js)_
+_See code: [src/commands/agents/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/delete.js)_
 
 ## `yaps agents:get [REF]`
 
@@ -96,7 +96,7 @@ USAGE
   $ yaps agents:get [REF]
 ```
 
-_See code: [src/commands/agents/get.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/agents/get.js)_
+_See code: [src/commands/agents/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/get.js)_
 
 ## `yaps agents:list`
 
@@ -117,7 +117,7 @@ ALIASES
   $ yaps agents:ls
 ```
 
-_See code: [src/commands/agents/list.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/agents/list.js)_
+_See code: [src/commands/agents/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/list.js)_
 
 ## `yaps agents:update [REF]`
 
@@ -132,7 +132,7 @@ DESCRIPTION
   Updates a agent at the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/agents/update.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/agents/update.js)_
+_See code: [src/commands/agents/update.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/update.js)_
 
 ## `yaps apps:delete [NAME]`
 
@@ -147,7 +147,7 @@ ALIASES
   $ yaps apps:rm
 ```
 
-_See code: [src/commands/apps/delete.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/apps/delete.js)_
+_See code: [src/commands/apps/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/delete.js)_
 
 ## `yaps apps:deploy`
 
@@ -162,7 +162,7 @@ DESCRIPTION
   Run this command from the app root to deploy to YAPS.
 ```
 
-_See code: [src/commands/apps/deploy.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/apps/deploy.js)_
+_See code: [src/commands/apps/deploy.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/deploy.js)_
 
 ## `yaps apps:get [NAME]`
 
@@ -177,7 +177,7 @@ DESCRIPTION
   Obtain information about an application
 ```
 
-_See code: [src/commands/apps/get.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/apps/get.js)_
+_See code: [src/commands/apps/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/get.js)_
 
 ## `yaps apps:init`
 
@@ -192,7 +192,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/apps/init.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/apps/init.js)_
+_See code: [src/commands/apps/init.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/init.js)_
 
 ## `yaps apps:list`
 
@@ -213,7 +213,7 @@ ALIASES
   $ yaps apps:ls
 ```
 
-_See code: [src/commands/apps/list.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/apps/list.js)_
+_See code: [src/commands/apps/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/list.js)_
 
 ## `yaps domains:create`
 
@@ -228,7 +228,7 @@ DESCRIPTION
   Creates a new Domain in the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/domains/create.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/domains/create.js)_
+_See code: [src/commands/domains/create.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/create.js)_
 
 ## `yaps domains:delete [REF]`
 
@@ -243,7 +243,7 @@ ALIASES
   $ yaps domains:rm
 ```
 
-_See code: [src/commands/domains/delete.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/domains/delete.js)_
+_See code: [src/commands/domains/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/delete.js)_
 
 ## `yaps domains:get [REF]`
 
@@ -254,7 +254,7 @@ USAGE
   $ yaps domains:get [REF]
 ```
 
-_See code: [src/commands/domains/get.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/domains/get.js)_
+_See code: [src/commands/domains/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/get.js)_
 
 ## `yaps domains:list`
 
@@ -275,7 +275,7 @@ ALIASES
   $ yaps domains:ls
 ```
 
-_See code: [src/commands/domains/list.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/domains/list.js)_
+_See code: [src/commands/domains/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/list.js)_
 
 ## `yaps domains:update [REF]`
 
@@ -290,7 +290,7 @@ DESCRIPTION
   Updates a domain at the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/domains/update.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/domains/update.js)_
+_See code: [src/commands/domains/update.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/update.js)_
 
 ## `yaps help [COMMAND]`
 
@@ -321,7 +321,7 @@ OPTIONS
   -f, --file=file  json file with access credentials
 ```
 
-_See code: [src/commands/login.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/login.js)_
+_See code: [src/commands/login.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/login.js)_
 
 ## `yaps logout`
 
@@ -332,7 +332,7 @@ USAGE
   $ yaps logout
 ```
 
-_See code: [src/commands/logout.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/logout.js)_
+_See code: [src/commands/logout.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/logout.js)_
 
 ## `yaps numbers:create`
 
@@ -347,7 +347,7 @@ DESCRIPTION
   Creates a new Number in the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/numbers/create.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/numbers/create.js)_
+_See code: [src/commands/numbers/create.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/create.js)_
 
 ## `yaps numbers:delete [REF]`
 
@@ -362,7 +362,7 @@ ALIASES
   $ yaps numbers:rm
 ```
 
-_See code: [src/commands/numbers/delete.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/numbers/delete.js)_
+_See code: [src/commands/numbers/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/delete.js)_
 
 ## `yaps numbers:get [REF]`
 
@@ -373,7 +373,7 @@ USAGE
   $ yaps numbers:get [REF]
 ```
 
-_See code: [src/commands/numbers/get.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/numbers/get.js)_
+_See code: [src/commands/numbers/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/get.js)_
 
 ## `yaps numbers:list`
 
@@ -394,7 +394,7 @@ ALIASES
   $ yaps numbers:ls
 ```
 
-_See code: [src/commands/numbers/list.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/numbers/list.js)_
+_See code: [src/commands/numbers/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/list.js)_
 
 ## `yaps numbers:update [REF]`
 
@@ -409,7 +409,7 @@ DESCRIPTION
   Updates a number at the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/numbers/update.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/numbers/update.js)_
+_See code: [src/commands/numbers/update.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/update.js)_
 
 ## `yaps providers:create`
 
@@ -424,7 +424,7 @@ DESCRIPTION
   Creates a new Provider in the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/providers/create.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/providers/create.js)_
+_See code: [src/commands/providers/create.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/create.js)_
 
 ## `yaps providers:delete [REF]`
 
@@ -439,7 +439,7 @@ ALIASES
   $ yaps providers:rm
 ```
 
-_See code: [src/commands/providers/delete.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/providers/delete.js)_
+_See code: [src/commands/providers/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/delete.js)_
 
 ## `yaps providers:get [REF]`
 
@@ -450,7 +450,7 @@ USAGE
   $ yaps providers:get [REF]
 ```
 
-_See code: [src/commands/providers/get.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/providers/get.js)_
+_See code: [src/commands/providers/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/get.js)_
 
 ## `yaps providers:list`
 
@@ -471,7 +471,7 @@ ALIASES
   $ yaps providers:ls
 ```
 
-_See code: [src/commands/providers/list.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/providers/list.js)_
+_See code: [src/commands/providers/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/list.js)_
 
 ## `yaps providers:update [REF]`
 
@@ -486,5 +486,5 @@ DESCRIPTION
   Updates a provider at the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/providers/update.js](https://github.com/fonoster/yaps/blob/v0.0.4/src/commands/providers/update.js)_
+_See code: [src/commands/providers/update.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/update.js)_
 <!-- commandsstop -->

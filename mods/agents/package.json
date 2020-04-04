@@ -1,6 +1,6 @@
 {
   "name": "@yaps/agents",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Agents Service",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
@@ -24,7 +24,7 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/core": "^0.0.4",
+    "@yaps/core": "^0.0.5",
     "dotenv": "^8.2.0",
     "grpc-promise": "^1.4.0",
     "sync": "^0.2.4"
