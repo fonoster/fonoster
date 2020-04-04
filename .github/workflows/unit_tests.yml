@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: '10.x'
       - run: |
-          npm install lerna nyc mocha --global
+          npm install lerna nyc mocha -g
           lerna bootstrap
           cd mods
           npm test
