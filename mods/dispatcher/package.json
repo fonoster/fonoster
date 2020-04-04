@@ -33,5 +33,11 @@
     "agi-node": "github:psanders/agi-node",
     "dotenv": "^8.2.0",
     "vm2": "^3.6.10"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "sinon": "^9.0.1",
+    "sinon-chai": "^3.5.0"
   }
 }

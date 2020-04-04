@@ -30,5 +30,12 @@
     "fs-extra": "^8.1.0",
     "grpc-promise": "^1.4.0",
     "tar": "^6.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "rewire": "^5.0.0",
+    "sinon": "^9.0.1",
+    "sinon-chai": "^3.5.0"
   }
 }
