@@ -7,11 +7,7 @@ const { Storage } = require('@yaps/storage')
 const { appManagerValidator } = require('@yaps/core').validators
 const { getClientCredentials } = require('@yaps/core').trust_util
 const { promisifyAll } = require('grpc-promise')
-const {
-  AbstractService,
-  AppManagerService,
-  AppManagerPB
-} = require('@yaps/core')
+const { YAPSService, AppManagerService, AppManagerPB } = require('@yaps/core')
 
 const STATUS = {
   UNKNOWN: 0,
@@ -25,7 +21,7 @@ const STATUS = {
  * to create, manage, and deploy an applications. YAPS AppManager requires of a
  * running YAPS deployment.
  *
- * @extends AbstractService
+ * @extends YAPSService
  * @example
  *
  * const YAPS = require('@yaps/sdk')
@@ -36,7 +32,7 @@ const STATUS = {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class AppManager extends AbstractService {
+class AppManager extends YAPSService {
   /**
    * Application object
    *
@@ -52,7 +48,7 @@ class AppManager extends AbstractService {
   /**
    * Constructs a new AppManager Object.
    *
-   * @see module:core:AbstractService
+   * @see module:core:YAPSService
    */
   constructor (options) {
     super(options, AppManagerService.AppManagerClient)

@@ -116,7 +116,9 @@ class Verbs {
           '1234567890#*'.indexOf(options.finishOnKey) < 0)
       )
         throw new Error(
-          'finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*'
+          `Invalid finishOnKey parameter: found ${
+            options.finishOnKey
+          } but must be a single digit type of 0-9,#,*`
         )
 
       if (options.finishOnKey) finishOnKey = options.finishOnKey

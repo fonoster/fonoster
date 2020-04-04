@@ -1,5 +1,5 @@
 const { logger } = require('@yaps/core')
-const { AbstractService, NumbersService, NumbersPB } = require('@yaps/core')
+const { YAPSService, NumbersService, NumbersPB } = require('@yaps/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
@@ -7,7 +7,7 @@ const promisifyAll = require('grpc-promise').promisifyAll
  * to create, update, get and delete numbers. YAPS Numbers requires of a
  * running YAPS deployment.
  *
- * @extends AbstractService
+ * @extends YAPSService
  * @example
  *
  * const YAPS = require('@yaps/sdk')
@@ -24,11 +24,11 @@ const promisifyAll = require('grpc-promise').promisifyAll
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Numbers extends AbstractService {
+class Numbers extends YAPSService {
   /**
    * Constructs a new Numbers object.
    *
-   * @see module:core:AbstractService
+   * @see module:core:YAPSService
    */
   constructor (options) {
     super(options, NumbersService.NumbersClient)
@@ -145,9 +145,9 @@ class Numbers extends AbstractService {
 
     if (request.aorLink) {
       numberFromDB.setAorLink(request.aorLink)
-      numberFromDB.setIngressApp(void(0))
+      numberFromDB.setIngressApp(void 0)
     } else {
-      numberFromDB.setAorLink(void(0))
+      numberFromDB.setAorLink(void 0)
       numberFromDB.setIngressApp(request.ingressApp)
     }
 

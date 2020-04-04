@@ -1,15 +1,15 @@
 <a name="Numbers"></a>
 
-## Numbers ⇐ <code>AbstractService</code>
+## Numbers ⇐ <code>YAPSService</code>
 Use YAPS Numbers, a capability of YAPS SIP Proxy subsystem,
 to create, update, get and delete numbers. YAPS Numbers requires of a
 running YAPS deployment.
 
 **Kind**: global class  
-**Extends**: <code>AbstractService</code>  
-**See**: module:core:AbstractService  
+**Extends**: <code>YAPSService</code>  
+**See**: module:core:YAPSService  
 
-* [Numbers](#Numbers) ⇐ <code>AbstractService</code>
+* [Numbers](#Numbers) ⇐ <code>YAPSService</code>
     * [new Numbers()](#new_Numbers_new)
     * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;Object&gt;</code>

@@ -1,5 +1,5 @@
 const { logger } = require('@yaps/core')
-const { AbstractService, ProvidersService, ProvidersPB } = require('@yaps/core')
+const { YAPSService, ProvidersService, ProvidersPB } = require('@yaps/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
@@ -7,7 +7,7 @@ const promisifyAll = require('grpc-promise').promisifyAll
  * to create, update, get and delete providers. YAPS Providers requires of a
  * running YAPS deployment.
  *
- * @extends AbstractService
+ * @extends YAPSService
  * @example
  *
  * const YAPS = require('@yaps/sdk')
@@ -25,11 +25,11 @@ const promisifyAll = require('grpc-promise').promisifyAll
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Providers extends AbstractService {
+class Providers extends YAPSService {
   /**
    * Constructs a new Providers object.
    *
-   * @see module:core:AbstractService
+   * @see module:core:YAPSService
    */
   constructor (options) {
     super(options, ProvidersService.ProvidersClient)
@@ -222,7 +222,6 @@ class Providers extends AbstractService {
       .deleteProvider()
       .sendMessage(req)
   }
-
 }
 
 module.exports = Providers

@@ -1,15 +1,15 @@
 <a name="Domains"></a>
 
-## Domains ⇐ <code>AbstractService</code>
+## Domains ⇐ <code>YAPSService</code>
 Use YAPS Domains, a capability of YAPS SIP Proxy Subsystem,
 to create, update, get and delete domains. YAPS Domains requires of a
 running YAPS deployment.
 
 **Kind**: global class  
-**Extends**: <code>AbstractService</code>  
-**See**: module:core:AbstractService  
+**Extends**: <code>YAPSService</code>  
+**See**: module:core:YAPSService  
 
-* [Domains](#Domains) ⇐ <code>AbstractService</code>
+* [Domains](#Domains) ⇐ <code>YAPSService</code>
     * [new Domains()](#new_Domains_new)
     * [.createDomain(request)](#Domains+createDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getDomain(ref)](#Domains+getDomain) ⇒ <code>Promise.&lt;Object&gt;</code>

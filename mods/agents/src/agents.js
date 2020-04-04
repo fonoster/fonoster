@@ -1,5 +1,5 @@
 const { logger } = require('@yaps/core')
-const { AbstractService, AgentsService, AgentsPB } = require('@yaps/core')
+const { YAPSService, AgentsService, AgentsPB } = require('@yaps/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
@@ -7,7 +7,7 @@ const promisifyAll = require('grpc-promise').promisifyAll
  * to create, update, get and delete Agents. YAPS Agents requires of a
  * running YAPS deployment.
  *
- * @extends AbstractService
+ * @extends YAPSService
  * @example
  *
  * const YAPS = require('@yaps/sdk')
@@ -25,11 +25,11 @@ const promisifyAll = require('grpc-promise').promisifyAll
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Agents extends AbstractService {
+class Agents extends YAPSService {
   /**
    * Constructs a new Agents object.
    *
-   * @see module:core:AbstractService
+   * @see module:core:YAPSService
    */
   constructor (options) {
     super(options, AgentsService.AgentsClient)
@@ -205,7 +205,6 @@ class Agents extends AbstractService {
       .deleteAgent()
       .sendMessage(req)
   }
-
 }
 
 module.exports = Agents

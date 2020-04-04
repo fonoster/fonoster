@@ -3,14 +3,14 @@
   "private": true,
   "scripts": {
     "docs": "node ./docs",
-    "test": "NODE_ENV=dev nyc -r=lcov mocha **/test/*.test.js",
+    "test": "NODE_ENV=dev mocha **/test/*.unit.test.js",
     "clean": "rm **/package-lock.json; lerna clean -y",
     "format": "prettier-standard '**/*.js'"
   },
   "devDependencies": {
+    "@yaps/appmanager": "^0.0.3",
     "@yaps/certs": "^0.0.3",
     "@yaps/core": "^0.0.3",
-    "@yaps/appmanager": "^0.0.3",
     "@yaps/ctl": "^0.0.3",
     "@yaps/dispatcher": "^0.0.3",
     "@yaps/domains": "^0.0.3",
@@ -21,6 +21,8 @@
     "@yaps/tts": "^0.0.3",
     "@yaps/voice": "^0.0.3",
     "assert": "^2.0.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "husky": "^4.2.3",
     "jsdoc-to-markdown": "^5.0.3",
     "jsonwebtoken": "^8.5.1",
@@ -29,7 +31,10 @@
     "mocha": "^7.1.0",
     "node-gyp": "^6.1.0",
     "nyc": "^15.0.0",
-    "prettier-standard": "^9.1.1"
+    "prettier-standard": "^9.1.1",
+    "rewire": "^5.0.0",
+    "sinon": "^9.0.1",
+    "sinon-chai": "^3.5.0"
   },
   "lint-staged": {
     "**/*.js": [

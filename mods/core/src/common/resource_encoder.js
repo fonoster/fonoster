@@ -1,4 +1,5 @@
 const merge = require('deepmerge')
+const { YAPSError } = require('./yaps_errors')
 
 const Kind = {
   AGENT: 'Agent',
@@ -13,7 +14,7 @@ const Privacy = {
   NONE: 'None'
 }
 
-class ResourceBuilder {
+class REncoder {
   constructor (kind, name, ref, apiVersion = 'v1beta1') {
     this.kind = kind
     this.apiVersion = apiVersion
@@ -143,6 +144,6 @@ class ResourceBuilder {
   }
 }
 
-module.exports.ResourceBuilder = ResourceBuilder
+module.exports.REncoder = REncoder
 module.exports.Kind = Kind
 module.exports.Privacy = Privacy

@@ -1,15 +1,15 @@
 <a name="Providers"></a>
 
-## Providers ⇐ <code>AbstractService</code>
+## Providers ⇐ <code>YAPSService</code>
 Use YAPS Providers, a capability of YAPS SIP Proxy subsystem,
 to create, update, get and delete providers. YAPS Providers requires of a
 running YAPS deployment.
 
 **Kind**: global class  
-**Extends**: <code>AbstractService</code>  
-**See**: module:core:AbstractService  
+**Extends**: <code>YAPSService</code>  
+**See**: module:core:YAPSService  
 
-* [Providers](#Providers) ⇐ <code>AbstractService</code>
+* [Providers](#Providers) ⇐ <code>YAPSService</code>
     * [new Providers()](#new_Providers_new)
     * [.createProvider(request)](#Providers+createProvider) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getProvider(ref)](#Providers+getProvider) ⇒ <code>Promise.&lt;Object&gt;</code>

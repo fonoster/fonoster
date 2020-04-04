@@ -2,11 +2,11 @@
  * @author Pedro Sanders
  * @since v1
  *
- * Unit Test for the Service class
+ * Unit Test for the YAPSService class
  */
 const logger = require('../src/common/logger')
 logger.transports.forEach(t => (t.silent = true))
-const Service = require('../src/common/service')
+const YAPSService = require('../src/common/yaps_service')
 const chai = require('chai')
 const sinon = require('sinon')
 const sinonChai = require('sinon-chai')
@@ -15,7 +15,7 @@ const expect = chai.expect
 var sandbox = sinon.createSandbox()
 
 describe('@yaps/core/service', () => {
-  context('Service constructor', () => {
+  context('YAPSService constructor', () => {
     sinon.stub(require('path'), 'join').returns('/users/quijote/.yaps/access')
 
     it('should only have the default options', () => {
@@ -25,7 +25,7 @@ describe('@yaps/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      const service = new Service()
+      const service = new YAPSService()
       expect(service.getOptions())
         .to.have.property('endpoint')
         .to.be.equal('localhost:50052')
@@ -44,7 +44,7 @@ describe('@yaps/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      const service = new Service()
+      const service = new YAPSService()
       expect(service.getOptions())
         .to.have.property('endpoint')
         .to.be.equal('localhost:50051')
@@ -58,7 +58,7 @@ describe('@yaps/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      const service = new Service(void 0, { endpoint: 'apiserver:50051' })
+      const service = new YAPSService(void 0, { endpoint: 'apiserver:50051' })
       expect(service.getOptions())
         .to.have.property('endpoint')
         .to.be.equal('apiserver:50051')
@@ -73,7 +73,7 @@ describe('@yaps/core/service', () => {
         })
       )
       process.env.YAPS_ENDPOINT = 'apiserver:50053'
-      const service = new Service()
+      const service = new YAPSService()
       expect(service.getOptions())
         .to.have.property('endpoint')
         .to.be.equal('apiserver:50053')
@@ -83,7 +83,7 @@ describe('@yaps/core/service', () => {
     it('should merge throw and error inf no credentials are found', done => {
       const fs = sinon.stub(require('fs'), 'readFileSync').returns('{}')
       try {
-        new Service()
+        new YAPSService()
         done('not good')
       } catch (err) {
         expect(err.message).to.be.equal('Not valid credentials found')
@@ -95,7 +95,7 @@ describe('@yaps/core/service', () => {
     it('should fail if the access file is malformed', done => {
       const fs = sinon.stub(require('fs'), 'readFileSync').returns('{')
       try {
-        const service = new Service()
+        const service = new YAPSService()
         done('not good')
       } catch (err) {
         expect(err.message).to.be.equal(

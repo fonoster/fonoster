@@ -3,14 +3,14 @@ const path = require('path')
 const { grpc } = require('@yaps/core')
 const { logger } = require('@yaps/core')
 const { storageValidator } = require('@yaps/core').validators
-const { AbstractService, StorageService, StoragePB } = require('@yaps/core')
+const { YAPSService, StorageService, StoragePB } = require('@yaps/core')
 const { getClientCredentials } = require('@yaps/core').trust_util
 
 /**
  * @classdesc Use YAPS Storage, a capability of YAPS Object Storage subsystem,
  * to upload, download, and delete objects.
  *
- * @extends AbstractService
+ * @extends YAPSService
  * @example
  *
  * const YAPS = require('@yaps/sdk')
@@ -21,11 +21,11 @@ const { getClientCredentials } = require('@yaps/core').trust_util
  *    console.log(result)            // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Storage extends AbstractService {
+class Storage extends YAPSService {
   /**
    * Constructs a new Storage object.
    *
-   * @see module:core:AbstractService
+   * @see module:core:YAPSService
    */
   constructor (options) {
     super(options, StorageService.StorageClient)

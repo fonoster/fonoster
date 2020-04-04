@@ -1,5 +1,5 @@
 const { logger } = require('@yaps/core')
-const { AbstractService, DomainsService, DomainsPB } = require('@yaps/core')
+const { YAPSService, DomainsService, DomainsPB } = require('@yaps/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
@@ -7,7 +7,7 @@ const promisifyAll = require('grpc-promise').promisifyAll
  * to create, update, get and delete domains. YAPS Domains requires of a
  * running YAPS deployment.
  *
- * @extends AbstractService
+ * @extends YAPSService
  * @example
  *
  * const YAPS = require('@yaps/sdk')
@@ -18,11 +18,11 @@ const promisifyAll = require('grpc-promise').promisifyAll
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Domains extends AbstractService {
+class Domains extends YAPSService {
   /**
    * Constructs a new Domains object.
    *
-   * @see module:core:AbstractService
+   * @see module:core:YAPSService
    */
   constructor (options) {
     super(options, DomainsService.DomainsClient)

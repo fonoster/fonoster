@@ -1,14 +1,14 @@
 <a name="Storage"></a>
 
-## Storage ⇐ <code>AbstractService</code>
+## Storage ⇐ <code>YAPSService</code>
 Use YAPS Storage, a capability of YAPS Object Storage subsystem,
 to upload, download, and delete objects.
 
 **Kind**: global class  
-**Extends**: <code>AbstractService</code>  
-**See**: module:core:AbstractService  
+**Extends**: <code>YAPSService</code>  
+**See**: module:core:YAPSService  
 
-* [Storage](#Storage) ⇐ <code>AbstractService</code>
+* [Storage](#Storage) ⇐ <code>YAPSService</code>
     * [new Storage()](#new_Storage_new)
     * [.uploadObject(request)](#Storage+uploadObject)
     * [.getObjectURL(request)](#Storage+getObjectURL) ⇒ <code>string</code>

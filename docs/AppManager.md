@@ -1,15 +1,15 @@
 <a name="AppManager"></a>
 
-## AppManager ⇐ <code>AbstractService</code>
+## AppManager ⇐ <code>YAPSService</code>
 Use YAPS AppManager, a capability of YAPS Systems Manager,
 to create, manage, and deploy an applications. YAPS AppManager requires of a
 running YAPS deployment.
 
 **Kind**: global class  
-**Extends**: <code>AbstractService</code>  
-**See**: module:core:AbstractService  
+**Extends**: <code>YAPSService</code>  
+**See**: module:core:YAPSService  
 
-* [AppManager](#AppManager) ⇐ <code>AbstractService</code>
+* [AppManager](#AppManager) ⇐ <code>YAPSService</code>
     * [new AppManager()](#new_AppManager_new)
     * [.deployApp(path)](#AppManager+deployApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.getApp(name)](#AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)

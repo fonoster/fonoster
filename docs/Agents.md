@@ -1,15 +1,15 @@
 <a name="Agents"></a>
 
-## Agents ⇐ <code>AbstractService</code>
+## Agents ⇐ <code>YAPSService</code>
 Use YAPS Agents, a capability of YAPS SIP Proxy subsystem,
 to create, update, get and delete Agents. YAPS Agents requires of a
 running YAPS deployment.
 
 **Kind**: global class  
-**Extends**: <code>AbstractService</code>  
-**See**: module:core:AbstractService  
+**Extends**: <code>YAPSService</code>  
+**See**: module:core:YAPSService  
 
-* [Agents](#Agents) ⇐ <code>AbstractService</code>
+* [Agents](#Agents) ⇐ <code>YAPSService</code>
     * [new Agents()](#new_Agents_new)
     * [.createAgent(request)](#Agents+createAgent) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getAgent(ref)](#Agents+getAgent) ⇒ <code>Promise.&lt;Object&gt;</code>
