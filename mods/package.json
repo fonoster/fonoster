@@ -8,18 +8,6 @@
     "format": "prettier-standard '**/*.js'"
   },
   "devDependencies": {
-    "@yaps/appmanager": "^0.0.3",
-    "@yaps/certs": "^0.0.3",
-    "@yaps/core": "^0.0.3",
-    "@yaps/ctl": "^0.0.3",
-    "@yaps/dispatcher": "^0.0.3",
-    "@yaps/domains": "^0.0.3",
-    "@yaps/numbers": "^0.0.3",
-    "@yaps/providers": "^0.0.3",
-    "@yaps/sdk": "^0.0.3",
-    "@yaps/storage": "^0.0.3",
-    "@yaps/tts": "^0.0.3",
-    "@yaps/voice": "^0.0.3",
     "assert": "^2.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",

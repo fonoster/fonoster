@@ -1,17 +1,18 @@
 const StoragePB = require('../src/server/protos/storage_pb')
 const { mapToObj } = require('../src/common/utils')
 const assert = require('assert')
+const expect = require('chai').expect
 
 describe('Core', () => {
   it('Convert grpc map to json obj', () => {
     const uor = new StoragePB.UploadObjectRequest()
     const t = mapToObj(uor.getMetadataMap())
-    assert.equal(t.var, undefined)
+    expect(t).to.be.undefined
 
     uor.getMetadataMap().set('var', 'foo')
     uor.getMetadataMap().set('var2', 'foo2')
 
     const c = mapToObj(uor.getMetadataMap())
-    assert.equal(c.var, 'foo')
+    expect(c).to.be.equal('foo')
   })
 })

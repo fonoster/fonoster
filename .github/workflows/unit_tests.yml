@@ -25,5 +25,6 @@ jobs:
           npm config set unsafe-perm true
           npm install lerna nyc mocha -g
           npm run clean
+          npm i
           lerna bootstrap
           npm test
