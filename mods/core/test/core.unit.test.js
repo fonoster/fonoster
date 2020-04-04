@@ -7,12 +7,12 @@ describe('Core', () => {
   it('Convert grpc map to json obj', () => {
     const uor = new StoragePB.UploadObjectRequest()
     const t = mapToObj(uor.getMetadataMap())
-    expect(t).to.be.undefined
+    expect(t).to.be.deep.equal({})
 
     uor.getMetadataMap().set('var', 'foo')
     uor.getMetadataMap().set('var2', 'foo2')
 
     const c = mapToObj(uor.getMetadataMap())
-    expect(c).to.be.equal('foo')
+    expect(c.var).to.be.equal('foo')
   })
 })

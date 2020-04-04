@@ -7,6 +7,15 @@
     "clean": "rm **/package-lock.json; lerna clean -y",
     "format": "prettier-standard '**/*.js'"
   },
+  "dependencies": {
+    "deepmerge": "^4.2.2",
+    "fluent-logger": "^3.4.1",
+    "google-protobuf": "^3.11.4",
+    "grpc": "^1.24.2",
+    "minio": "^7.0.15",
+    "walk": "^2.3.14",
+    "winston": "^3.2.1"
+  },
   "devDependencies": {
     "assert": "^2.0.0",
     "chai": "^4.2.0",
