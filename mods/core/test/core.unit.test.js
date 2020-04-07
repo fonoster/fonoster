@@ -2,7 +2,7 @@ const StoragePB = require('../src/server/protos/storage_pb')
 const { mapToObj } = require('../src/common/utils')
 const expect = require('chai').expect
 
-describe('Core', () => {
+describe('@yaps/core', () => {
   it('Convert grpc map to json obj', () => {
     const uor = new StoragePB.UploadObjectRequest()
     const t = mapToObj(uor.getMetadataMap())
