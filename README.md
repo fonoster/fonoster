@@ -102,7 +102,7 @@ TEST EXTENSION = 1002
 
 <details><summary>What's Next?</summary>
 <br />
-Congratulations if you made it this far. The next step with YAPS is to get familiar with the [Command-Line Tool](https://www.npmjs.com/package/@yaps/ctl) and [SDK](https://github.com/fonoster/yaps/wiki/AppManager).
+Congratulations if you made it this far. The next step with YAPS is to get familiar with the <a href="https://www.npmjs.com/package/@yaps/ctl">Command-Line Tool</a> and the <a href="https://github.com/fonoster/yaps/wiki/AppManager">SDK</a>.
   
 </details>
 
