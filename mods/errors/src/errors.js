@@ -1,0 +1,5 @@
+module.exports = require('./error')
+module.exports.YAPSError = require('./error')
+module.exports.YAPSAuthError = require('./auth_error')
+module.exports.YAPSInvalidArgument = require('./invalid_argument')
+module.exports.YAPSFailedPrecondition = require('./failed_precondition')

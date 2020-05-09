@@ -1,3 +1,4 @@
+const { YAPSAuthError } = require('@yaps/errors')
 const routr = require('./routr')
 const redis = require('./redis')
 const grpc = require('grpc')
@@ -7,7 +8,6 @@ const { Empty } = require('./protos/common_pb')
 const { ListAgentsResponse } = require('./protos/agents_pb')
 const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
-const { YAPSAuthError, YAPSError } = require('../common/yaps_errors')
 
 const listAgents = async (call, callback) => {
   if (!auth(call)) return callback(new YAPSAuthError())

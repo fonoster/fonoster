@@ -1,3 +1,5 @@
+const { YAPSError, YAPSAuthError, YAPSInvalidArgument, YAPSFailedPrecondition } = require('@yaps/errors')
+const AppManagerPB = require('./protos/appmanager_pb')
 const routr = require('./routr')
 const redis = require('./redis')
 const grpc = require('grpc')
@@ -7,9 +9,7 @@ const { Empty } = require('./protos/common_pb')
 const { ListNumbersResponse } = require('./protos/numbers_pb')
 const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
-const { YAPSAuthError, YAPSError } = require('../common/yaps_errors')
-const AppManagerPB = require('./protos/appmanager_pb')
-
+ 
 const listNumbers = async (call, callback) => {
   if (!auth(call)) return callback(new YAPSAuthError())
 
@@ -53,8 +53,7 @@ const createNumber = async (call, callback) => {
 
   if (!number.getE164Number()) {
     callback(
-      new YAPSError(
-        grpc.status.INVALID_ARGUMENT,
+      new YAPSInvalidArgument(
         `e164Number field must be a valid e164 value.`
       )
     )
@@ -63,16 +62,14 @@ const createNumber = async (call, callback) => {
 
   if (number.getAorLink() && number.getIngressApp()) {
     callback(
-      new YAPSError(
-        grpc.status.INVALID_ARGUMENT,
+      new YAPSInvalidArgument(
         `'ingressApp' and 'aorLink' are not compatible parameters`
       )
     )
     return
   } else if (!number.getAorLink() && !number.getIngressApp()) {
     callback(
-      new YAPSError(
-        grpc.status.INVALID_ARGUMENT,
+      new YAPSInvalidArgument(
         `You must provider either an 'ingressApp' or and 'aorLink'`
       )
     )
@@ -110,8 +107,7 @@ const createNumber = async (call, callback) => {
       const app = await redis.get(number.getIngressApp())
 
       if (!app)
-        throw new YAPSError(
-          grpc.status.FAILED_PRECONDITION,
+        throw new YAPSFailedPrecondition(
           `App ${number.ingressApp} doesn't exist`
         )
 
@@ -158,16 +154,14 @@ const updateNumber = async (call, callback) => {
 
   if (number.getAorLink() && number.getIngressApp()) {
     callback(
-      new YAPSError(
-        grpc.status.INVALID_ARGUMENT,
+      new YAPSInvalidArgument(
         `'ingressApp' and 'aorLink' are not compatible parameters`
       )
     )
     return
   } else if (!number.getAorLink() && !number.getIngressApp()) {
     callback(
-      new YAPSError(
-        grpc.status.INVALID_ARGUMENT,
+      new YAPSInvalidArgument(
         `You must provider either an 'ingressApp' or and 'aorLink'`
       )
     )
@@ -215,8 +209,7 @@ const updateNumber = async (call, callback) => {
       const app = await redis.get(number.getIngressApp())
 
       if (!app)
-        throw new YAPSError(
-          grpc.status.FAILED_PRECONDITION,
+        throw new YAPSFailedPrecondition(
           `App ${number.ingressApp} doesn't exist`
         )
 

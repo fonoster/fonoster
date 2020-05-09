@@ -1,11 +1,11 @@
 {
-  "name": "@yaps/core",
+  "name": "@yaps/errors",
   "version": "0.0.5",
-  "description": "Core artifacts",
+  "description": "Handles YAPS errors",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
+  "main": "src/errors.js",
   "license": "MIT",
-  "main": "src/index.js",
   "directories": {
     "src": "src",
     "test": "test"
@@ -24,29 +24,11 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/errors": "^0.0.5",
-    "@yaps/certs": "^0.0.5",
-    "axios": "^0.19.2",
-    "btoa": "^1.2.1",
-    "deepmerge": "^4.2.2",
-    "dotenv": "^8.2.0",
-    "fluent-logger": "^3.4.1",
-    "google-protobuf": "^3.11.4",
-    "grpc": "^1.24.2",
-    "grpc-promise": "^1.4.0",
-    "ioredis": "^4.16.0",
-    "jsonwebtoken": "^8.5.1",
-    "minio": "^7.0.15",
-    "objectid": "^3.2.1",
-    "tar": "^6.0.1",
-    "validate": "^5.1.0",
-    "walk": "^2.3.14",
-    "winston": "^3.2.1"
+    "grpc": "^1.24.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "rewire": "^5.0.0",
     "sinon": "^9.0.1",
     "sinon-chai": "^3.5.0"
   }

@@ -20,6 +20,7 @@ const BOOL = ['on', 'true', 'yes', '1']
 const insecure = process.env.APISERVER_ENABLE_INSECURE
 
 module.exports.getServerCredentials = () => {
+  console.log('WTF001')
   try {
     return grpc.ServerCredentials.createSsl(
       fs.readFileSync(CA_CRT),
@@ -32,6 +33,7 @@ module.exports.getServerCredentials = () => {
       true
     )
   } catch (e) {
+    console.log('WTF002')
     logger.log(
       'warn',
       'Unable to load security certificates. Starting server in Insecure mode'

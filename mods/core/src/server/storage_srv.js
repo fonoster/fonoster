@@ -1,15 +1,12 @@
 const StoragePB = require('./protos/storage_pb')
+const { YAPSError, YAPSAuthError, YAPSFailedPrecondition, YAPSInvalidArgument} = require('@yaps/errors')
 const grpc = require('grpc')
 const objectid = require('objectid')
 const fs = require('fs')
 const storageValidator = require('../schemas/storage.schema')
 const logger = require('../common/logger')
 const { auth } = require('../common/trust_util')
-const {
-  YAPSError,
-  YAPSAuthError,
-  YAPSInvalidError
-} = require('../common/yaps_errors')
+
 const {
   extract,
   removeDirSync,
@@ -34,7 +31,7 @@ const uploadObject = (call, callback) => {
 
     if (errors.length > 0) {
       logger.log('warn', `@yaps/core uploadObject [invalid argument]`)
-      callback(new YAPSInvalidError(errors[0].message))
+      callback(new YAPSInvalidArgument(errors[0].message))
       return
     }
   }
@@ -121,8 +118,7 @@ const uploadObject = (call, callback) => {
       if (err.code === 'NoSuchBucket') {
         logger.log('error', `${err.message} -> bucket: ${bucket}`)
         callback(
-          new YAPSError(
-            grpc.status.FAILED_PRECONDITION,
+          new YAPSFailedPrecondition(
             `${err.message} -> bucket: ${bucket}`
           )
         )
@@ -151,7 +147,7 @@ const getObjectURL = (call, callback) => {
 
   if (errors.length > 0) {
     logger.log('warn', `@yaps/core getObjectURL [invalid argument]`)
-    callback(new YAPSInvalidError(errors[0].message))
+    callback(new YAPSInvalidArgument(errors[0].message))
     return
   }
 

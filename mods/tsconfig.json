@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "outDir": "./node_modules/@yaps",
+    "allowJs": true,
+    "target": "es6"
+  },
+  "include": ["./**/*"]
+}

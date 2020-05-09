@@ -1,3 +1,4 @@
+const { YAPSAuthError }= require('@yaps/errors')
 const routr = require('./routr')
 const grpc = require('grpc')
 const logger = require('../common/logger')
@@ -6,7 +7,6 @@ const { Empty } = require('./protos/common_pb')
 const { ListDomainsResponse } = require('./protos/domains_pb')
 const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
-const { YAPSAuthError } = require('../common/yaps_errors')
 
 const listDomains = async (call, callback) => {
   if (!auth(call)) return callback(new YAPSAuthError())

@@ -1,3 +1,7 @@
+const YAPSError = require('@yaps/errors')
+const { 
+  YAPSInvalidArgument, 
+  YAPSAuthError } = require('@yaps/errors')
 const { ListAppsResponse, App } = require('./protos/appmanager_pb')
 const { Empty } = require('./protos/common_pb')
 const { auth } = require('../common/trust_util')
@@ -6,11 +10,6 @@ const redis = require('./redis')
 const objectid = require('objectid')
 const appmanager = require('../schemas/appmanager.schema')
 const updateBucketPolicy = require('../common/fsutils')
-const {
-  YAPSInvalidArgument,
-  YAPSAuthError,
-  YAPSError
-} = require('../common/yaps_errors')
 const Status = require('grpc').status
 
 const listApps = async (call, callback) => {
@@ -71,7 +70,7 @@ const createApp = async (call, callback) => {
   })
 
   if (errors.length > 0) {
-    callback(new YAPSInvalidArgument(errors[0].message))
+    //callback(new YAPSInvalidArgument(errors[0].message))
     return
   }
 
