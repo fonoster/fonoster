@@ -28,6 +28,11 @@ services:
   sipproxy:
     logging:
       driver: json-file
+    volumes:
+      - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml
+    ports:
+      - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
+      - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
 
   mediaserver:
     logging:
@@ -44,6 +49,8 @@ services:
   datasource:
     logging:
       driver: json-file
+    volumes:
+      - datasource:/data
     ports:
       - ${DS_PORT}:${DS_PORT}
 
@@ -80,3 +87,4 @@ services:
 volumes:
   data1-1:
   credentials:
+  datasource:

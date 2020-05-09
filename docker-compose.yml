@@ -34,7 +34,6 @@ services:
       - ${SIPPROXY_SIP_PORT}
     ports:
       - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
-      - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
       interval: 10s
@@ -103,6 +102,8 @@ services:
     restart: always
     command: ["redis-server", "--appendonly", "yes", "--loadmodule", "/usr/lib/redis/modules/rejson.so"]
     hostname: redis
+    volumes:
+      - datasource:/data
     expose:
       - ${DS_PORT}
     healthcheck:
@@ -195,3 +196,4 @@ services:
 volumes:
   data1-1:
   credentials:
+  datasource:
