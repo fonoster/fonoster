@@ -1,7 +1,7 @@
-var Domain = require('../../server/protos/domains_pb').Domain
-module.exports = function (jsonObj) {
-  var domain = new Domain()
-  var context = jsonObj.spec.context
+const { Domain } = require('../../server/protos/domains_pb')
+module.exports = jsonObj => {
+  const domain = new Domain()
+  const context = jsonObj.spec.context
   domain.setRef(jsonObj.metadata.ref)
   domain.setName(jsonObj.metadata.name)
   domain.setDomainUri(context.domainUri)
@@ -11,7 +11,7 @@ module.exports = function (jsonObj) {
     domain.setEgressRule(context.egressPolicy.rule)
     domain.setEgressNumberRef(context.egressPolicy.numberRef)
   }
-  var acl = context.accessControlList
+  const acl = context.accessControlList
   if (acl && acl.allow) domain.setAccessAllowList(acl.allow)
   if (acl && acl.deny) domain.setAccessDenyList(acl.deny)
   return domain

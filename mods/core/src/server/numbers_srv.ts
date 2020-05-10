@@ -1,3 +1,5 @@
+export {}
+
 const { YAPSError, YAPSAuthError, YAPSInvalidArgument, YAPSFailedPrecondition } = require('@yaps/errors')
 const AppManagerPB = require('./protos/appmanager_pb')
 const routr = require('./routr')
@@ -30,8 +32,7 @@ const listNumbers = async (call, callback) => {
 
   const response = new ListNumbersResponse()
 
-  for (i = 0; i < numbers.length; i++) {
-    const jsonObj = numbers[i]
+  for (const jsonObj in numbers) {
     const number = numberDecoder(jsonObj)
     response.addNumbers(number)
   }
@@ -184,7 +185,7 @@ const updateNumber = async (call, callback) => {
       })
   } else {
     // TODO: Perhaps I should place this in a ENV
-    encoder = encoders
+    encoder = encoder
       .withLocation(`tel:${number.getE164Number()}`, 'sip:ast@mediaserver')
       .withMetadata({
         ingressApp: number.getIngressApp(),

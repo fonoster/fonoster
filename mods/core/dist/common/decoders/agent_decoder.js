@@ -1,7 +1,8 @@
-var Agent = require('../../server/protos/agents_pb').Agent
-module.exports = function (jsonObj) {
-  var agent = new Agent()
-  var spec = jsonObj.spec
+//import type { Agent as RAgent } from "@yaps/types"
+const { Agent } = require('../../server/protos/agents_pb')
+module.exports = jsonObj => {
+  const agent = new Agent()
+  const spec = jsonObj.spec
   agent.setRef(jsonObj.metadata.ref)
   agent.setName(jsonObj.metadata.name)
   agent.setUsername(spec.credentials.username)

@@ -1,3 +1,5 @@
+export {}
+
 const path = require('path')
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {

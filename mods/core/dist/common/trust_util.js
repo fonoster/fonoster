@@ -1,19 +1,19 @@
 if (process.env.NODE_ENV === 'dev') {
-  var path_1 = require('path')
-  var env = path_1.join(__dirname, '..', '..', '..', '.env')
+  const path = require('path')
+  const env = path.join(__dirname, '..', '..', '..', '.env')
   require('dotenv').config({ path: env })
 }
-var CA_CRT = process.env.CERTS_PATH + '/ca.crt'
-var SERVER_CRT = process.env.CERTS_PATH + '/server.crt'
-var SERVER_KEY = process.env.CERTS_PATH + '/server.key'
-var CLIENT_CRT = process.env.CERTS_PATH + '/client.crt'
-var CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
-var BOOL = ['on', 'true', 'yes', '1']
-var insecure = process.env.APISERVER_ENABLE_INSECURE
-module.exports.getServerCredentials = function () {
-  var logger = require('./logger')
-  var grpc = require('grpc')
-  var fs = require('fs')
+const CA_CRT = process.env.CERTS_PATH + '/ca.crt'
+const SERVER_CRT = process.env.CERTS_PATH + '/server.crt'
+const SERVER_KEY = process.env.CERTS_PATH + '/server.key'
+const CLIENT_CRT = process.env.CERTS_PATH + '/client.crt'
+const CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
+const BOOL = ['on', 'true', 'yes', '1']
+const insecure = process.env.APISERVER_ENABLE_INSECURE
+module.exports.getServerCredentials = () => {
+  const logger = require('./logger')
+  const grpc = require('grpc')
+  const fs = require('fs')
   try {
     return grpc.ServerCredentials.createSsl(
       fs.readFileSync(CA_CRT),
@@ -33,10 +33,10 @@ module.exports.getServerCredentials = function () {
     return grpc.ServerCredentials.createInsecure()
   }
 }
-module.exports.getClientCredentials = function () {
-  var logger = require('./logger')
-  var grpc = require('grpc')
-  var fs = require('fs')
+module.exports.getClientCredentials = () => {
+  const logger = require('./logger')
+  const grpc = require('grpc')
+  const fs = require('fs')
   try {
     return grpc.credentials.createSsl(
       fs.readFileSync(CA_CRT),
@@ -51,21 +51,21 @@ module.exports.getClientCredentials = function () {
     return grpc.credentials.createInsecure()
   }
 }
-module.exports.auth = function (call, callback) {
-  var jwt = require('jsonwebtoken')
-  var getSalt = require('@yaps/certs').getSalt
-  var salt = getSalt()
+module.exports.auth = function (call) {
+  const jwt = require('jsonwebtoken')
+  const { getSalt } = require('@yaps/certs')
+  const salt = getSalt()
   if (
     call.metadata._internal_repr.access_key_id === null ||
     call.metadata._internal_repr.access_key_secret === null
   ) {
     return false
   }
-  var accessKeyId = call.metadata._internal_repr.access_key_id.toString()
-  var accessKeySecret = call.metadata._internal_repr.access_key_secret.toString()
+  const accessKeyId = call.metadata._internal_repr.access_key_id.toString()
+  const accessKeySecret = call.metadata._internal_repr.access_key_secret.toString()
   if (typeof accessKeySecret !== 'undefined') {
     try {
-      var decoded = jwt.verify(accessKeySecret, salt)
+      const decoded = jwt.verify(accessKeySecret, salt)
       if (!decoded || accessKeyId !== decoded.sub) {
         return false
       }

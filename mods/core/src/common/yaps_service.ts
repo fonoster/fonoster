@@ -71,7 +71,7 @@ class Service {
     this.metadata = metadata
   }
 
-  init (endpoint, credentials) {
+  init () {
     this.service = new this.ServiceClient(
       this.options.endpoint,
       getClientCredentials()

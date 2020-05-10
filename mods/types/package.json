@@ -1,0 +1,36 @@
+{
+  "name": "@yaps/types",
+  "version": "0.0.5",
+  "description": "Handles YAPS types",
+  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "homepage": "https://github.com/fonoster/yaps#readme",
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build"
+  },
+  "license": "MIT",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/yaps.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/yaps/issues"
+  },
+  "dependencies": {
+    "@types/node": "^13.13.5"
+  }
+}

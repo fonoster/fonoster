@@ -10,7 +10,7 @@ const fsInstance = () => {
   })
 }
 
-const uploadToFS = (bucket, pathToObject, object, metadata = {}) =>
+const uploadToFS = (bucket: string, pathToObject: string, object: string, metadata = {}) =>
   new Promise((resolve, reject) => {
     const walk = require('walk')
     const path = require('path')
@@ -62,7 +62,7 @@ const uploadToFS = (bucket, pathToObject, object, metadata = {}) =>
     })
   })
 
-const removeDirSync = path => {
+const removeDirSync = (path: string) => {
   const fs = require('fs')
   const logger = require('../common/logger')
   if (fs.existsSync(path)) {
@@ -85,7 +85,7 @@ const removeDirSync = path => {
   }
 }
 
-const extract = (source, target) =>  {
+const extract = (source: string, target: string) =>  {
   const tar = require('tar')
   return tar.extract({ file: source, cwd: target })
 }
@@ -103,7 +103,7 @@ const extract = (source, target) =>  {
     })
 })*/
 
-const getFilesizeInBytes = filename => {
+const getFilesizeInBytes = (filename: string) => {
   const fs = require('fs')
   return fs.statSync(filename)['size']
 }

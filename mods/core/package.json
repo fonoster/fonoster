@@ -33,6 +33,7 @@
   "dependencies": {
     "@types/node": "^13.13.5",
     "@yaps/certs": "^0.0.5",
+    "@yaps/types": "^0.0.5",
     "@yaps/errors": "^0.0.5",
     "axios": "^0.19.2",
     "btoa": "^1.2.1",

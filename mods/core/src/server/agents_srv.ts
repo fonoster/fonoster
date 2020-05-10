@@ -1,15 +1,16 @@
+export {}
+
 const { YAPSAuthError } = require('@yaps/errors')
 const routr = require('./routr')
-const redis = require('./redis')
-const grpc = require('grpc')
 const logger = require('../common/logger')
 const agentDecoder = require('../common/decoders/agent_decoder')
-const { Empty } = require('./protos/common_pb')
 const { ListAgentsResponse } = require('./protos/agents_pb')
+const { Empty } = require('./protos/common_pb')
 const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 
 const listAgents = async (call, callback) => {
+
   if (!auth(call)) return callback(new YAPSAuthError())
 
   if (!call.request.getPageToken()) {
@@ -27,8 +28,7 @@ const listAgents = async (call, callback) => {
 
   const response = new ListAgentsResponse()
 
-  for (i = 0; i < agents.length; i++) {
-    const jsonObj = agents[i]
+  for (const jsonObj in agents) {
     const agent = agentDecoder(jsonObj)
     response.addAgents(agent)
   }

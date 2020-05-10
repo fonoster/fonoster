@@ -4,7 +4,7 @@
  *
  * Unit Test for the YAPSService class
  */
-const logger = require('../src/common/logger')
+const logger = require('../dist/common/logger')
 logger.transports.forEach(t => (t.silent = true))
 const YAPSService = require('../dist/common/yaps_service')
 const chai = require('chai')

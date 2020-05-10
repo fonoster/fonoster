@@ -1,8 +1,10 @@
-module.exports = async bucket => {
-  const { fsInstance } = require('./utils')
-  const policy = require('./bucket_policy')
-  const logger = require('./logger')
-  
+export {}
+
+const { fsInstance } = require('./utils')
+const policy = require('./bucket_policy')
+const logger = require('./logger')
+
+module.exports = async (bucket: string) => {
   try {
     const fsConn = fsInstance()
     const exists = await fsConn.bucketExists(bucket)

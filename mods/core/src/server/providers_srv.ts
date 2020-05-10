@@ -1,3 +1,5 @@
+export {}
+
 const { YAPSAuthError } = require('@yaps/errors')
 const AppManagerPB = require('./protos/appmanager_pb')
 const routr = require('./routr')
@@ -30,8 +32,7 @@ const listProviders = async (call, callback) => {
 
   const response = new ListProvidersResponse()
 
-  for (i = 0; i < providers.length; i++) {
-    const jsonObj = providers[i]
+  for (const jsonObj in providers) {
     const provider = providerDecoder(jsonObj)
     response.addProviders(provider)
   }

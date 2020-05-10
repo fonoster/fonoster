@@ -1,14 +1,14 @@
-var grpc = require('./grpc_hack')
-var merge = require('deepmerge')
-var fs = require('fs')
-var path = require('path')
-var logger = require('./logger')
-var getClientCredentials = require('../common/trust_util').getClientCredentials
-var defaultOptions = {
+const grpc = require('./grpc_hack')
+const merge = require('deepmerge')
+const fs = require('fs')
+const path = require('path')
+const logger = require('./logger')
+const { getClientCredentials } = require('../common/trust_util')
+const defaultOptions = {
   endpoint: 'localhost:50052',
   bucket: process.env.FS_DEFAULT_STORAGE_BUCKET || 'default'
 }
-var Service = /** @class */ (function () {
+class Service {
   /**
    * Use the Options object to overwrite the service default configuration.
    * @typedef {Object} Options
@@ -23,24 +23,21 @@ var Service = /** @class */ (function () {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  function Service (ServiceClient, options) {
-    if (options === void 0) {
-      options = {}
-    }
+  constructor (ServiceClient, options = {}) {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
-    var accessFile =
+    const accessFile =
       process.env.YAPS_ACCESS_FILE ||
       path.join(require('os').homedir(), '.yaps', 'access')
     try {
-      var fileContent = fs
+      const fileContent = fs
         .readFileSync(accessFile)
         .toString()
         .trim()
-      var inFileOptions = JSON.parse(fileContent)
+      const inFileOptions = JSON.parse(fileContent)
       this.options = merge(this.options, inFileOptions)
     } catch (err) {
-      throw new Error('Malformed access file found at: ' + accessFile)
+      throw new Error(`Malformed access file found at: ${accessFile}`)
     }
     if (process.env.YAPS_ENDPOINT)
       this.options.endpoint = process.env.YAPS_ENDPOINT
@@ -51,34 +48,33 @@ var Service = /** @class */ (function () {
     this.options = merge(this.options, options)
     logger.log(
       'debug',
-      '@yaps/core.Service constructor [merged options -> ' +
-        JSON.stringify(this.options) +
-        ']'
+      `@yaps/core.Service constructor [merged options -> ${JSON.stringify(
+        this.options
+      )}]`
     )
     if (!this.options.accessKeyId || !this.options.accessKeySecret) {
       throw new Error('Not valid credentials found')
     }
-    var metadata = new grpc.Metadata()
+    const metadata = new grpc.Metadata()
     metadata.add('access_key_id', this.options.accessKeyId)
     metadata.add('access_key_secret', this.options.accessKeySecret)
     this.metadata = metadata
   }
-  Service.prototype.init = function (endpoint, credentials) {
+  init () {
     this.service = new this.ServiceClient(
       this.options.endpoint,
       getClientCredentials()
     )
   }
-  Service.prototype.getOptions = function () {
+  getOptions () {
     return this.options
   }
-  Service.prototype.getService = function () {
+  getService () {
     return this.service
   }
-  Service.prototype.getMeta = function () {
+  getMeta () {
     return this.metadata
   }
-  return Service
-})()
+}
 module.exports = Service
 //# sourceMappingURL=yaps_service.js.map

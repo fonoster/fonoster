@@ -1,3 +1,5 @@
+export {}
+
 const winston = require('winston')
 const fluentTransport = require('fluent-logger').support.winstonTransport()
 

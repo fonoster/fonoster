@@ -4,8 +4,13 @@
   "scripts": {
     "docs": "node ./docs",
     "test": "NODE_ENV=dev mocha **/*.unit.test.js",
-    "clean": "rm package-lock.json; rm **/package-lock.json; lerna clean -y",
-    "format": "prettier-standard '**/*.js'"
+    "pretest": "npm run build",
+    "format": "prettier-standard '**/*.js'",
+    "bootstrap": "lerna bootstrap --hoist",
+    "postinstall": "npm run bootstrap",
+    "clean": "lerna run clean",
+    "build": "lerna run build",
+    "pub": "lerna publish"
   },
   "devDependencies": {
     "@yaps/agents": "^0.0.5",
@@ -47,5 +52,8 @@
     "hooks": {
       "pre-commit": "lint-staged --allow-empty && node docs.js && git add ../docs"
     }
+  },
+  "dependencies": {
+    "@types/node": "^13.13.5"
   }
 }

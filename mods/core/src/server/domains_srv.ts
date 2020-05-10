@@ -1,3 +1,5 @@
+export {}
+
 const { YAPSAuthError }= require('@yaps/errors')
 const routr = require('./routr')
 const grpc = require('grpc')
@@ -28,8 +30,7 @@ const listDomains = async (call, callback) => {
 
   const response = new ListDomainsResponse()
 
-  for (i = 0; i < domains.length; i++) {
-    const jsonObj = domains[i]
+  for (const jsonObj in domains) {
     const domain = domainDecoder(jsonObj)
     response.addDomains(domain)
   }

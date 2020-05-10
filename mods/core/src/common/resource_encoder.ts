@@ -1,17 +1,50 @@
-const Kind = {
-  AGENT: 'Agent',
-  GATEWAY: 'Gateway',
-  PEER: 'Peer',
-  DOMAIN: 'Domain',
-  NUMBER: 'Number'
+export {}
+
+enum Kind {
+  AGENT= 'Agent',
+  GATEWAY = 'Gateway',
+  PEER = 'Peer',
+  DOMAIN = 'Domain',
+  NUMBER = 'Number'
 }
 
-const Privacy = {
-  PRIVATE: 'Private',
-  NONE: 'None'
+enum Privacy {
+  PRIVATE = 'Private',
+  NONE = 'None'
 }
 
 class REncoder {
+  kind: Kind
+  apiVersion: string
+  metadata: { name: string; ref: string; gwRef?: string }
+  spec: {
+    context?:
+    { 
+      domainUri?: string
+      egressPolicy?: {
+        rule: string
+        numberRef: string
+      }
+      accessControlList?: {
+        allow?: string[]
+        deny?: string[]
+      }
+    }
+    credentials?: {
+      username: string
+      secret: string
+    }
+    host?: string
+    transport?: string
+    location?: {
+      telUrl: string
+      aorLink?: string
+    }
+    expires?: number
+    privacy?: Privacy
+    domains?: string[]
+  }
+
   constructor (kind, name, ref, apiVersion = 'v1beta1') {
     this.kind = kind
     this.apiVersion = apiVersion
@@ -23,13 +56,13 @@ class REncoder {
     if (kind === Kind.DOMAIN) this.spec.context = {}
   }
 
-  withMetadata (metadata) {
+  withMetadata (metadata: object) {
     const merge = require('deepmerge')
     this.metadata = merge(this.metadata, metadata)
     return this
   }
 
-  withCredentials (username, secret) {
+  withCredentials (username: string, secret: string) {
     if (![Kind.AGENT, Kind.GATEWAY, Kind.PEER].includes(this.kind))
       throw new Error(
         `Kind ${this.kind} resources don't have 'spec.credentials'`
@@ -43,7 +76,7 @@ class REncoder {
     return this
   }
 
-  withHost (host) {
+  withHost (host: string) {
     if (this.kind != Kind.GATEWAY)
       throw new Error(`Kind ${this.kind} does not holds 'spec.host' value`)
     this.spec.host = host
@@ -51,7 +84,7 @@ class REncoder {
     return this
   }
 
-  withTransport (transport) {
+  withTransport (transport: string) {
     if (this.kind != Kind.GATEWAY)
       throw new Error(`Kind ${this.kind} does not holds 'spec.transport' value`)
     this.spec.transport = transport
@@ -59,7 +92,7 @@ class REncoder {
     return this
   }
 
-  withExpires (expires) {
+  withExpires (expires: number) {
     if (this.kind != Kind.GATEWAY)
       throw new Error(`Kind ${this.kind} does not holds 'spec.expires' value`)
     this.spec.expires = expires
@@ -67,7 +100,7 @@ class REncoder {
     return this
   }
 
-  withLocation (telUrl, aorLink) {
+  withLocation (telUrl: string, aorLink: string) {
     if (this.kind != Kind.NUMBER)
       throw new Error(`Kind ${this.kind} does not holds 'spec.location' value`)
     this.spec.location = { telUrl, aorLink }
@@ -75,7 +108,7 @@ class REncoder {
     return this
   }
 
-  withGatewayRef (ref) {
+  withGatewayRef (ref: string) {
     if (this.kind != Kind.NUMBER)
       throw new Error(
         `Kind ${this.kind} does not holds 'spec.metadata.gwRef' value`
@@ -85,7 +118,7 @@ class REncoder {
     return this
   }
 
-  withDomainUri (domainUri) {
+  withDomainUri (domainUri: string) {
     if (this.kind != Kind.DOMAIN)
       throw new Error(
         `Kind ${this.kind} does not holds 'spec.context.domainUri' value`
@@ -95,7 +128,7 @@ class REncoder {
     return this
   }
 
-  withEgressPolicy (rule, numberRef) {
+  withEgressPolicy (rule: string, numberRef: string) {
     if (this.kind != Kind.DOMAIN)
       throw new Error(
         `Kind ${this.kind} does not holds 'spec.context.egressPolicy' value`
@@ -105,7 +138,7 @@ class REncoder {
     return this
   }
 
-  withACL (allow, deny) {
+  withACL (allow: string[], deny: string[]) {
     if (this.kind != Kind.DOMAIN)
       throw new Error(
         `Kind ${this.kind} does not holds 'spec.context.egressPolicy' value`
@@ -120,7 +153,7 @@ class REncoder {
     return this
   }
 
-  withPrivacy (privacy) {
+  withPrivacy (privacy: Privacy) {
     if (this.kind != Kind.AGENT)
       throw new Error(`Kind ${this.kind} does not holds 'spec.privacy' value`)
     this.spec.privacy = privacy
@@ -128,7 +161,7 @@ class REncoder {
     return this
   }
 
-  withDomains (domains) {
+  withDomains (domains: string[]) {
     if (this.kind != Kind.AGENT)
       throw new Error(`Kind ${this.kind} does not holds 'spec.domains' value`)
     this.spec.domains = domains

@@ -1,3 +1,5 @@
+//import type { Agent as RAgent } from "@yaps/types"
+
 const { Agent } = require('../../server/protos/agents_pb')
 
 module.exports = jsonObj => {

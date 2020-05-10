@@ -1,5 +1,5 @@
 // Bucket policy - GET requests on "storageBucket" bucket will not need authentication.
-module.exports = bucket => `
+module.exports = (bucket: string) => `
   {
     "Version": "2012-10-17",
     "Statement": [

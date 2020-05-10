@@ -1,3 +1,5 @@
+export {}
+
 const StoragePB = require('./protos/storage_pb')
 const { YAPSError, YAPSAuthError, YAPSFailedPrecondition, YAPSInvalidArgument} = require('@yaps/errors')
 const grpc = require('grpc')

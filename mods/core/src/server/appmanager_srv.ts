@@ -1,6 +1,7 @@
-const YAPSError = require('@yaps/errors')
+export {};
+
 const { 
-  YAPSInvalidArgument, 
+  YAPSError, 
   YAPSAuthError } = require('@yaps/errors')
 const { ListAppsResponse, App } = require('./protos/appmanager_pb')
 const { Empty } = require('./protos/common_pb')
@@ -27,8 +28,7 @@ const listApps = async (call, callback) => {
   const apps = await redis.lrange('apps', pageToken, upperRange)
   const response = new ListAppsResponse()
 
-  for (i = 0; i < apps.length; i++) {
-    const jsonObj = await redis.get(apps[i])
+  for (const jsonObj in apps) {
     const app = new App(JSON.parse(jsonObj).array)
     response.addApps(app)
   }

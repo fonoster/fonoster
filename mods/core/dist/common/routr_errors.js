@@ -1,8 +1,8 @@
-var Status = require('grpc').status
-var YAPSError = require('./yaps_errors').YAPSError
-module.exports = function (error) {
+const Status = require('grpc').status
+const { YAPSError } = require('@yaps/errors')
+module.exports = error => {
   if (!error.response) throw new YAPSError(Status.UNKNOWN, error)
-  var message = error.response.data.data
+  const message = error.response.data.data
     ? error.response.data.data
     : error.response.data.message
   switch (error.response.status) {

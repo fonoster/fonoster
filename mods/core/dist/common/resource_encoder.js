@@ -1,19 +1,20 @@
-var Kind = {
-  AGENT: 'Agent',
-  GATEWAY: 'Gateway',
-  PEER: 'Peer',
-  DOMAIN: 'Domain',
-  NUMBER: 'Number'
-}
-var Privacy = {
-  PRIVATE: 'Private',
-  NONE: 'None'
-}
-var REncoder = /** @class */ (function () {
-  function REncoder (kind, name, ref, apiVersion) {
-    if (apiVersion === void 0) {
-      apiVersion = 'v1beta1'
-    }
+'use strict'
+Object.defineProperty(exports, '__esModule', { value: true })
+var Kind
+;(function (Kind) {
+  Kind['AGENT'] = 'Agent'
+  Kind['GATEWAY'] = 'Gateway'
+  Kind['PEER'] = 'Peer'
+  Kind['DOMAIN'] = 'Domain'
+  Kind['NUMBER'] = 'Number'
+})(Kind || (Kind = {}))
+var Privacy
+;(function (Privacy) {
+  Privacy['PRIVATE'] = 'Private'
+  Privacy['NONE'] = 'None'
+})(Privacy || (Privacy = {}))
+class REncoder {
+  constructor (kind, name, ref, apiVersion = 'v1beta1') {
     this.kind = kind
     this.apiVersion = apiVersion
     this.metadata = {
@@ -23,92 +24,82 @@ var REncoder = /** @class */ (function () {
     this.spec = {}
     if (kind === Kind.DOMAIN) this.spec.context = {}
   }
-  REncoder.prototype.withMetadata = function (metadata) {
-    var merge = require('deepmerge')
+  withMetadata (metadata) {
+    const merge = require('deepmerge')
     this.metadata = merge(this.metadata, metadata)
     return this
   }
-  REncoder.prototype.withCredentials = function (username, secret) {
+  withCredentials (username, secret) {
     if (![Kind.AGENT, Kind.GATEWAY, Kind.PEER].includes(this.kind))
       throw new Error(
-        'Kind ' + this.kind + " resources don't have 'spec.credentials'"
+        `Kind ${this.kind} resources don't have 'spec.credentials'`
       )
-    this.spec.credentials = { username: username, secret: secret }
+    this.spec.credentials = { username, secret }
     // We removed if both are empty because Gateways may not have credentials
     if (!username && !secret) delete this.spec.credentials
     return this
   }
-  REncoder.prototype.withHost = function (host) {
+  withHost (host) {
     if (this.kind != Kind.GATEWAY)
-      throw new Error('Kind ' + this.kind + " does not holds 'spec.host' value")
+      throw new Error(`Kind ${this.kind} does not holds 'spec.host' value`)
     this.spec.host = host
     if (!host) delete this.spec.host
     return this
   }
-  REncoder.prototype.withTransport = function (transport) {
+  withTransport (transport) {
     if (this.kind != Kind.GATEWAY)
-      throw new Error(
-        'Kind ' + this.kind + " does not holds 'spec.transport' value"
-      )
+      throw new Error(`Kind ${this.kind} does not holds 'spec.transport' value`)
     this.spec.transport = transport
     if (!transport) delete this.spec.transport
     return this
   }
-  REncoder.prototype.withExpires = function (expires) {
+  withExpires (expires) {
     if (this.kind != Kind.GATEWAY)
-      throw new Error(
-        'Kind ' + this.kind + " does not holds 'spec.expires' value"
-      )
+      throw new Error(`Kind ${this.kind} does not holds 'spec.expires' value`)
     this.spec.expires = expires
     if (!expires) delete this.spec.expires
     return this
   }
-  REncoder.prototype.withLocation = function (telUrl, aorLink) {
+  withLocation (telUrl, aorLink) {
     if (this.kind != Kind.NUMBER)
-      throw new Error(
-        'Kind ' + this.kind + " does not holds 'spec.location' value"
-      )
-    this.spec.location = { telUrl: telUrl, aorLink: aorLink }
+      throw new Error(`Kind ${this.kind} does not holds 'spec.location' value`)
+    this.spec.location = { telUrl, aorLink }
     if (!telUrl && !aorLink) delete this.spec.location
     return this
   }
-  REncoder.prototype.withGatewayRef = function (ref) {
+  withGatewayRef (ref) {
     if (this.kind != Kind.NUMBER)
       throw new Error(
-        'Kind ' + this.kind + " does not holds 'spec.metadata.gwRef' value"
+        `Kind ${this.kind} does not holds 'spec.metadata.gwRef' value`
       )
     this.metadata.gwRef = ref
     if (!ref) delete this.metadata.gwRef
     return this
   }
-  REncoder.prototype.withDomainUri = function (domainUri) {
+  withDomainUri (domainUri) {
     if (this.kind != Kind.DOMAIN)
       throw new Error(
-        'Kind ' + this.kind + " does not holds 'spec.context.domainUri' value"
+        `Kind ${this.kind} does not holds 'spec.context.domainUri' value`
       )
     this.spec.context.domainUri = domainUri
     if (!domainUri) delete this.spec.context.domainUri
     return this
   }
-  REncoder.prototype.withEgressPolicy = function (rule, numberRef) {
+  withEgressPolicy (rule, numberRef) {
     if (this.kind != Kind.DOMAIN)
       throw new Error(
-        'Kind ' +
-          this.kind +
-          " does not holds 'spec.context.egressPolicy' value"
+        `Kind ${this.kind} does not holds 'spec.context.egressPolicy' value`
       )
-    this.spec.context.egressPolicy = { rule: rule, numberRef: numberRef }
+    this.spec.context.egressPolicy = { rule, numberRef }
     if (!rule && !numberRef) delete this.spec.context.egressPolicy
     return this
   }
-  REncoder.prototype.withACL = function (allow, deny) {
+  withACL (allow, deny) {
     if (this.kind != Kind.DOMAIN)
       throw new Error(
-        'Kind ' +
-          this.kind +
-          " does not holds 'spec.context.egressPolicy' value"
+        `Kind ${this.kind} does not holds 'spec.context.egressPolicy' value`
       )
-    this.spec.context.accessControlList = { allow: allow, deny: deny }
+    this.spec.context.accessControlList = { allow, deny }
     if (!allow || allow.length === 0)
       delete this.spec.context.accessControlList.allow
     if (!deny || deny.length === 0)
@@ -117,30 +108,25 @@ var REncoder = /** @class */ (function () {
       delete this.spec.context.accessControlList
     return this
   }
-  REncoder.prototype.withPrivacy = function (privacy) {
+  withPrivacy (privacy) {
     if (this.kind != Kind.AGENT)
-      throw new Error(
-        'Kind ' + this.kind + " does not holds 'spec.privacy' value"
-      )
+      throw new Error(`Kind ${this.kind} does not holds 'spec.privacy' value`)
     this.spec.privacy = privacy
     if (!privacy) delete this.spec.privacy
     return this
   }
-  REncoder.prototype.withDomains = function (domains) {
+  withDomains (domains) {
     if (this.kind != Kind.AGENT)
-      throw new Error(
-        'Kind ' + this.kind + " does not holds 'spec.domains' value"
-      )
+      throw new Error(`Kind ${this.kind} does not holds 'spec.domains' value`)
     this.spec.domains = domains
     if (!this.spec.domains || this.spec.domains.length === 0)
       delete this.spec.domains
     return this
   }
-  REncoder.prototype.build = function () {
+  build () {
     return this
   }
-  return REncoder
-})()
+}
 module.exports.REncoder = REncoder
 module.exports.Kind = Kind
 module.exports.Privacy = Privacy

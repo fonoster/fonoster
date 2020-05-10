@@ -1,7 +1,7 @@
-var Provider = require('../../server/protos/providers_pb').Provider
-module.exports = function (jsonObj) {
-  var provider = new Provider()
-  var spec = jsonObj.spec
+const { Provider } = require('../../server/protos/providers_pb')
+module.exports = jsonObj => {
+  const provider = new Provider()
+  const spec = jsonObj.spec
   provider.setRef(jsonObj.metadata.ref)
   provider.setName(jsonObj.metadata.name)
   provider.setCreateTime(jsonObj.metadata.createdOn)

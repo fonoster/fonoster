@@ -1,3 +1,5 @@
+export {}
+
 const RoutrClient = require('../common/routr_client')
 
 const apiUrl = `https://${process.env.SIPPROXY_HOST}:${

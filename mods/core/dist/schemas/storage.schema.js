@@ -1,5 +1,5 @@
-var Schema = require('validate')
-var uploadObjectRequest = new Schema({
+const Schema = require('validate')
+const uploadObjectRequest = new Schema({
   name: {
     type: String,
     required: true
@@ -13,7 +13,7 @@ var uploadObjectRequest = new Schema({
     required: false
   }
 })
-var getObjectURLRequest = new Schema({
+const getObjectURLRequest = new Schema({
   name: {
     type: String,
     required: true
@@ -24,7 +24,7 @@ var getObjectURLRequest = new Schema({
   }
 })
 module.exports = {
-  uploadObjectRequest: uploadObjectRequest,
-  getObjectURLRequest: getObjectURLRequest
+  uploadObjectRequest,
+  getObjectURLRequest
 }
 //# sourceMappingURL=storage.schema.js.map
