@@ -4,4 +4,4 @@ LABEL maintainer="Pedro Sanders <fonosterteam@fonoster.com>"
 WORKDIR /certs
 COPY certs /certs
 RUN npm i
-CMD ["node", "src/index.js"]
+CMD ["node", "src/certs.js"]
