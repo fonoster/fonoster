@@ -9,7 +9,7 @@ const expect = chai.expect
 
 describe('@yaps/core/common/decoders/agent_decoder', () => {
   context('agent decoder', () => {
-    const decoder = require('../src/common/decoders/agent_decoder')
+    const decoder = require('../dist/common/decoders/agent_decoder')
     it('should create an agent object from a json object', () => {
       const jsonObj = {
         metadata: {
@@ -41,7 +41,7 @@ describe('@yaps/core/common/decoders/agent_decoder', () => {
 
   context('domain decoder', () => {
     let jsonObj
-    const decoder = require('../src/common/decoders/domain_decoder')
+    const decoder = require('../dist/common/decoders/domain_decoder')
 
     beforeEach(() => {
       jsonObj = {
@@ -129,7 +129,7 @@ describe('@yaps/core/common/decoders/agent_decoder', () => {
 
   context('domain decoder', () => {
     let jsonObj
-    const decoder = require('../src/common/decoders/domain_decoder')
+    const decoder = require('../dist/common/decoders/domain_decoder')
 
     beforeEach(() => {
       jsonObj = {
@@ -220,7 +220,7 @@ describe('@yaps/core/common/decoders/agent_decoder', () => {
 
   context('number decoder', () => {
     let jsonObj
-    const decoder = require('../src/common/decoders/number_decoder')
+    const decoder = require('../dist/common/decoders/number_decoder')
 
     beforeEach(() => {
       jsonObj = {
@@ -269,7 +269,7 @@ describe('@yaps/core/common/decoders/agent_decoder', () => {
 
   context('provider decoder', () => {
     let jsonObj
-    const decoder = require('../src/common/decoders/provider_decoder')
+    const decoder = require('../dist/common/decoders/provider_decoder')
 
     beforeEach(() => {
       jsonObj = {

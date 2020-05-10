@@ -6,7 +6,7 @@
  */
 const logger = require('../src/common/logger')
 logger.transports.forEach(t => (t.silent = true))
-const YAPSService = require('../src/common/yaps_service')
+const YAPSService = require('../dist/common/yaps_service')
 const chai = require('chai')
 const sinon = require('sinon')
 const sinonChai = require('sinon-chai')

@@ -1,26 +1,29 @@
-const axios = require('axios')
-const btoa = require('btoa')
-const logger = require('./logger')
-const handleError = require('./routr_errors')
-
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 /**
  * Oversimplified version of a Routr API Client
  */
 class RoutrClient {
+  axios = require('axios')
+  logger = require('./logger')
+  handleError = require('./routr_errors')
+  apiUrl: any
+  username: any
+  secret: any
+  token: any
+  resource: any
   constructor (apiUrl, username, secret) {
-    logger.log('debug', `@yaps/core RoutrClient [creating instance]`)
-    logger.log('debug', `@yaps/core RoutrClient [apiUrl: ${apiUrl}]`)
+    this.logger.log('debug', `@yaps/core RoutrClient [creating instance]`)
+    this.logger.log('debug', `@yaps/core RoutrClient [apiUrl: ${apiUrl}]`)
     this.apiUrl = apiUrl
     this.username = username
     this.secret = secret
   }
 
   async connect () {
-    logger.log('debug', `@yaps/core RoutrClient [connecting]`)
+    this.logger.log('debug', `@yaps/core RoutrClient [connecting]`)
     this.token = await this.getToken(this.username, this.secret)
-    logger.log('debug', `@yaps/core RoutrClient [token: ${this.token}]`)
+    this.logger.log('debug', `@yaps/core RoutrClient [token: ${this.token}]`)
   }
 
   resourceType (resource) {
@@ -29,8 +32,9 @@ class RoutrClient {
   }
 
   async getToken (username, password) {
+    const btoa = require('btoa')
     try {
-      const response = await axios
+      const response = await this.axios
         .create({
           baseURL: `${this.apiUrl}/token`,
           headers: { Authorization: `Basic ${btoa(username + ':' + password)}` }
@@ -38,7 +42,7 @@ class RoutrClient {
         .get()
       return response.data.data
     } catch (err) {
-      handleError(err)
+      this.handleError(err)
     }
   }
 
@@ -48,58 +52,58 @@ class RoutrClient {
       const url = `${this.apiUrl}/${this.resource}?token=${
         this.token
       }&filter=*&${queryParams(params).join('&')}`
-      const response = await axios.get(url)
+      const response = await this.axios.get(url)
       return response.data
     } catch (err) {
-      handleError(err)
+      this.handleError(err)
     }
   }
 
   async get (ref) {
     ref = ref ? `/${ref}` : ''
     try {
-      const response = await axios.get(
+      const response = await this.axios.get(
         `${this.apiUrl}/${this.resource}${ref}?token=${this.token}`
       )
       return response.data.data
     } catch (err) {
-      handleError(err)
+      this.handleError(err)
     }
   }
 
   async delete (ref) {
     ref = ref ? `/${ref}` : ''
     try {
-      return await axios.delete(
+      return await this.axios.delete(
         `${this.apiUrl}/${this.resource}${ref}?token=${this.token}`
       )
     } catch (err) {
-      handleError(err)
+      this.handleError(err)
     }
   }
 
   async create (data) {
     try {
-      const response = await axios.post(
+      const response = await this.axios.post(
         `${this.apiUrl}/${this.resource}?token=${this.token}`,
         data
       )
       return response.data.data
     } catch (err) {
-      handleError(err)
+      this.handleError(err)
     }
   }
 
   async update (data) {
     try {
       const ref = data.metadata.ref
-      const response = await axios.put(
+      const response = await this.axios.put(
         `${this.apiUrl}/${this.resource}/${ref}?token=${this.token}`,
         data
       )
       return response.data.data
     } catch (err) {
-      handleError(err)
+      this.handleError(err)
     }
   }
 }

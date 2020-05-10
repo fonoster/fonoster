@@ -10,6 +10,10 @@ const defaultOptions = {
 }
 
 class Service {
+  ServiceClient: any
+  options: any
+  metadata: any
+  service: any
   /**
    * Use the Options object to overwrite the service default configuration.
    * @typedef {Object} Options

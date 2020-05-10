@@ -4,7 +4,7 @@
  *
  * Unit Test for the Service class
  */
-const logger = require('../src/common/logger')
+const logger = require('../dist/common/logger')
 logger.transports.forEach(t => (t.silent = true))
 const chai = require('chai')
 const sinon = require('sinon')
@@ -17,7 +17,7 @@ describe('@yaps/core/fsutils', () => {
   context('create new bucket', () => {
     let makeBucketWasCalled, setBucketPolicyCalled, createNewBucket
     var fsInstance = sinon
-      .stub(require('../src/common/utils'), 'fsInstance')
+      .stub(require('../dist/common/utils'), 'fsInstance')
       .returns({
         bucketExists: () => false,
         makeBucket: () =>
@@ -31,7 +31,7 @@ describe('@yaps/core/fsutils', () => {
             resolve()
           })
       })
-    createNewBucket = require('../src/common/fsutils')
+    createNewBucket = require('../dist/common/fsutils')
 
     beforeEach(() => {})
 
@@ -52,7 +52,7 @@ describe('@yaps/core/fsutils', () => {
         new Promise((resolve, reject) => {
           reject(new Error('Connection error'))
         })
-      const createNewBucket = require('../src/common/fsutils')
+      const createNewBucket = require('../dist/common/fsutils')
       await expect(createNewBucket('test')).to.be.rejectedWith(
         'Connection error'
       )

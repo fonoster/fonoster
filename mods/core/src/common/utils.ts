@@ -1,22 +1,21 @@
-const Minio = require('minio')
-//const inly = require('inly')
-const tar = require('tar')
-const path = require('path')
-const fs = require('fs')
-const walk = require('walk')
-const logger = require('../common/logger')
+const fsInstance = () => {
+  const Minio = require('minio')
 
-const fsInstance = () =>
-  new Minio.Client({
+  return new Minio.Client({
     endPoint: process.env.FS_HOST,
     port: parseInt(process.env.FS_PORT),
     useSSL: false,
     accessKey: process.env.FS_USERNAME,
     secretKey: process.env.FS_SECRET
   })
+}
 
 const uploadToFS = (bucket, pathToObject, object, metadata = {}) =>
   new Promise((resolve, reject) => {
+    const walk = require('walk')
+    const path = require('path')
+    const logger = require('../common/logger')
+
     logger.log('verbose', `@yaps/core uploadToFS [bucket: ${bucket}]`)
     logger.log('verbose', `@yaps/core uploadToFS [path: ${pathToObject}]`)
     logger.log('verbose', `@yaps/core uploadToFS [object: ${object}]`)
@@ -64,6 +63,8 @@ const uploadToFS = (bucket, pathToObject, object, metadata = {}) =>
   })
 
 const removeDirSync = path => {
+  const fs = require('fs')
+  const logger = require('../common/logger')
   if (fs.existsSync(path)) {
     const files = fs.readdirSync(path)
 
@@ -84,7 +85,10 @@ const removeDirSync = path => {
   }
 }
 
-const extract = (source, target) => tar.extract({ file: source, cwd: target })
+const extract = (source, target) =>  {
+  const tar = require('tar')
+  return tar.extract({ file: source, cwd: target })
+}
 
 // Replaced tar with inly to support more formats
 /*const extract = (source, target) => new Promise((resolve, reject) => {
@@ -99,7 +103,10 @@ const extract = (source, target) => tar.extract({ file: source, cwd: target })
     })
 })*/
 
-const getFilesizeInBytes = filename => fs.statSync(filename)['size']
+const getFilesizeInBytes = filename => {
+  const fs = require('fs')
+  return fs.statSync(filename)['size']
+}
 
 const mapToObj = map => {
   if (!map || map.toArray().length === 0) return {}

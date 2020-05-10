@@ -5,13 +5,20 @@
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/yaps#readme",
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build"
+  },
   "directories": {
     "src": "src",
     "test": "test"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "publishConfig": {
     "access": "public"
@@ -24,8 +31,9 @@
     "url": "https://github.com/fonoster/yaps/issues"
   },
   "dependencies": {
-    "@yaps/errors": "^0.0.5",
+    "@types/node": "^13.13.5",
     "@yaps/certs": "^0.0.5",
+    "@yaps/errors": "^0.0.5",
     "axios": "^0.19.2",
     "btoa": "^1.2.1",
     "deepmerge": "^4.2.2",
@@ -48,6 +56,7 @@
     "chai-as-promised": "^7.1.1",
     "rewire": "^5.0.0",
     "sinon": "^9.0.1",
-    "sinon-chai": "^3.5.0"
+    "sinon-chai": "^3.5.0",
+    "typescript": "^3.8"
   }
 }

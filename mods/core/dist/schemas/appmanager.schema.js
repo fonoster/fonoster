@@ -1,6 +1,5 @@
-const Schema = require('validate')
-
-const createAppRequest = new Schema({
+var Schema1 = require('validate')
+var createAppRequest = new Schema1({
   app: {
     name: {
       type: String,
@@ -12,7 +11,7 @@ const createAppRequest = new Schema({
     }
   }
 })
-
 module.exports = {
-  createAppRequest
+  createAppRequest: createAppRequest
 }
+//# sourceMappingURL=appmanager.schema.js.map

@@ -1,6 +1,6 @@
-const { Number } = require('../../server/protos/numbers_pb')
 
 module.exports = jsonObj => {
+  const { Number } = require('../../server/protos/numbers_pb')
   const number = new Number()
   const location = jsonObj.spec.location
   number.setRef(jsonObj.metadata.ref)
