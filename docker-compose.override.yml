@@ -37,6 +37,8 @@ services:
   mediaserver:
     logging:
       driver: json-file
+    environment:
+      ENABLE_TEST_ACCOUNT: 'true'        
     ports:
       - ${MS_SIP_PORT}:${MS_SIP_PORT}
 

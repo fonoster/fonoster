@@ -50,18 +50,16 @@ services:
 
   mediaserver:
     env_file: .env
-    image: ${MS_IMAGE}:${COMPOSE_PROJECT_VERSION}
+    image: ${MS_IMAGE}
     restart: always
     entrypoint: sh -c './run.sh'
     environment:
-      MS_EXTERN_ADDR: ${HOST_ADDR}
-      MS_AGI_URL: agi://${MC_HOST}
-      MS_SIP_BINDADDR: 0.0.0.0:${MS_SIP_PORT}
-      MS_SIPPROXY_HOST: ${SIPPROXY_HOST}
-      MS_SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
-      MS_SIPPROXY_SECRET: ${SIPPROXY_SECRET}
-    build:
-      context: mediaserver
+      EXTERN_ADDR: ${HOST_ADDR}
+      AGI_URL: agi://${MC_HOST}
+      SIP_BINDADDR: 0.0.0.0:${MS_SIP_PORT}
+      SIPPROXY_HOST: ${SIPPROXY_HOST}
+      SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
+      SIPPROXY_SECRET: ${SIPPROXY_SECRET}
     expose:
       - ${MS_SIP_PORT}
     logging:

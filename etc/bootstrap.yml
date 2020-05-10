@@ -7,7 +7,7 @@
   spec:
     credentials:
       username: ast
-      secret: '1234'
+      secret: 'changeit'
 
 # Local Domain
 
