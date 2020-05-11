@@ -13,13 +13,13 @@ services:
     ports:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
 
   sipproxy:
     env_file: .env
@@ -40,13 +40,13 @@ services:
       timeout: 5s
       retries: 1
     logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.sipproxy
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.sipproxy
 
   mediaserver:
     env_file: .env
@@ -63,17 +63,17 @@ services:
     expose:
       - ${MS_SIP_PORT}
     logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
 
   mediacontroller:
     env_file: .env
-    image: ${MC_IMAGE}:${COMPOSE_PROJECT_VERSION}
+    image: ${MC_IMAGE}
     restart: always
     environment:
       Fonos_ENDPOINT: ${APISERVER_ENDPOINT}
@@ -86,13 +86,13 @@ services:
     expose:
       - ${MC_AGI_PORT}
     logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediacontroller
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediacontroller
 
   datasource:
     env_file: .env
@@ -110,13 +110,13 @@ services:
       timeout: 10s
       retries: 3
     logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
 
   fs:
     image: ${FS_IMAGE}
@@ -135,13 +135,13 @@ services:
       timeout: 20s
       retries: 3
     logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.fs
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.fs
 
   tts:
     env_file: .env
@@ -150,13 +150,13 @@ services:
     expose:
       - ${TTS_ENGINE_PORT}
     logging:
-        driver: fluentd
-        options:
-            fluentd-address: localhost:24224
-            fluentd-async-connect: 'true'
-            fluentd-retry-wait: '1s'
-            fluentd-max-retries: '30'
-            tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.tts
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.tts
 
   logsdriver:
     env_file: .env
