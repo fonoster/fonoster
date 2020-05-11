@@ -33,7 +33,7 @@ var __awaiter =
     })
   }
 Object.defineProperty(exports, '__esModule', { value: true })
-const { YAPSAuthError } = require('@yaps/errors')
+const { FonosAuthError } = require('@fonos/errors')
 const AppManagerPB = require('./protos/appmanager_pb')
 const routr = require('./routr')
 const redis = require('./redis')
@@ -46,7 +46,7 @@ const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 const listProviders = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     if (!call.request.getPageToken()) {
       // Nothing to send
       callback(null, new ListProvidersResponse())
@@ -69,11 +69,11 @@ const listProviders = (call, callback) =>
   })
 const createProvider = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const provider = call.request.getProvider()
     logger.info(
       'verbose',
-      `@yaps/core createProvider [entity ${provider.getName()}]`
+      `@fonos/core createProvider [entity ${provider.getName()}]`
     )
     let encoder = new REncoder(Kind.GATEWAY, provider.getName())
       .withCredentials(provider.getUsername(), provider.getSecret())
@@ -83,7 +83,7 @@ const createProvider = (call, callback) =>
     const resource = encoder.build()
     logger.log(
       'debug',
-      `@yaps/core createProvider [resource: ${JSON.stringify(resource)}]`
+      `@fonos/core createProvider [resource: ${JSON.stringify(resource)}]`
     )
     try {
       yield routr.connect()
@@ -97,9 +97,9 @@ const createProvider = (call, callback) =>
   })
 const getProvider = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const providerRef = call.request.getRef()
-    logger.info('verbose', `@yaps/core getProvider [ref ${providerRef}]`)
+    logger.info('verbose', `@fonos/core getProvider [ref ${providerRef}]`)
     try {
       yield routr.connect()
       const jsonObj = yield routr.resourceType('gateways').get(providerRef)
@@ -110,11 +110,11 @@ const getProvider = (call, callback) =>
   })
 const updateProvider = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const provider = call.request.getProvider()
     logger.info(
       'verbose',
-      `@yaps/core updateProvider [entity ${provider.getName()}]`
+      `@fonos/core updateProvider [entity ${provider.getName()}]`
     )
     let encoder = new REncoder(
       Kind.GATEWAY,
@@ -132,7 +132,7 @@ const updateProvider = (call, callback) =>
     const resource = encoder.build()
     logger.log(
       'debug',
-      `@yaps/core updateProvider [resource: ${JSON.stringify(resource)}]`
+      `@fonos/core updateProvider [resource: ${JSON.stringify(resource)}]`
     )
     try {
       yield routr.connect()
@@ -146,9 +146,9 @@ const updateProvider = (call, callback) =>
   })
 const deleteProvider = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const providerRef = call.request.getRef()
-    logger.info('verbose', `@yaps/core deleteProvider [ref ${providerRef}]`)
+    logger.info('verbose', `@fonos/core deleteProvider [ref ${providerRef}]`)
     try {
       yield routr.connect()
       yield routr.resourceType('gateways').delete(providerRef)

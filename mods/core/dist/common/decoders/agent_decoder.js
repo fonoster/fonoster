@@ -1,4 +1,4 @@
-//import type { Agent as RAgent } from "@yaps/types"
+//import type { Agent as RAgent } from "@fonos/types"
 const { Agent } = require('../../server/protos/agents_pb')
 module.exports = jsonObj => {
   const agent = new Agent()

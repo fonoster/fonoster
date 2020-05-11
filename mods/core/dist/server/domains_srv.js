@@ -33,7 +33,7 @@ var __awaiter =
     })
   }
 Object.defineProperty(exports, '__esModule', { value: true })
-const { YAPSAuthError } = require('@yaps/errors')
+const { FonosAuthError } = require('@fonos/errors')
 const routr = require('./routr')
 const grpc = require('grpc')
 const logger = require('../common/logger')
@@ -44,7 +44,7 @@ const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 const listDomains = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     if (!call.request.getPageToken()) {
       // Nothing to send
       callback(null, new ListDomainsResponse())
@@ -67,11 +67,11 @@ const listDomains = (call, callback) =>
   })
 const createDomain = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const domain = call.request.getDomain()
     logger.info(
       'verbose',
-      `@yaps/core createDomain [entity ${domain.getName()}]`
+      `@fonos/core createDomain [entity ${domain.getName()}]`
     )
     const resource = new REncoder(Kind.DOMAIN, domain.getName())
       .withDomainUri(domain.getDomainUri())
@@ -80,7 +80,7 @@ const createDomain = (call, callback) =>
       .build()
     logger.log(
       'debug',
-      `@yaps/core createDomain [resource: ${JSON.stringify(resource)}]`
+      `@fonos/core createDomain [resource: ${JSON.stringify(resource)}]`
     )
     try {
       yield routr.connect()
@@ -94,9 +94,9 @@ const createDomain = (call, callback) =>
   })
 const getDomain = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const domainRef = call.request.getRef()
-    logger.info('verbose', `@yaps/core getDomain [ref ${domainRef}]`)
+    logger.info('verbose', `@fonos/core getDomain [ref ${domainRef}]`)
     try {
       yield routr.connect()
       const jsonObj = yield routr.resourceType('domains').get(domainRef)
@@ -107,11 +107,11 @@ const getDomain = (call, callback) =>
   })
 const updateDomain = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const domain = call.request.getDomain()
     logger.info(
       'verbose',
-      `@yaps/core updateDomain [entity ${domain.getName()}]`
+      `@fonos/core updateDomain [entity ${domain.getName()}]`
     )
     const resource = new REncoder(
       Kind.DOMAIN,
@@ -128,7 +128,7 @@ const updateDomain = (call, callback) =>
       .build()
     logger.log(
       'debug',
-      `@yaps/core updateDomain [resource: ${JSON.stringify(resource)}]`
+      `@fonos/core updateDomain [resource: ${JSON.stringify(resource)}]`
     )
     try {
       yield routr.connect()
@@ -142,9 +142,9 @@ const updateDomain = (call, callback) =>
   })
 const deleteDomain = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const domainRef = call.request.getRef()
-    logger.info('verbose', `@yaps/core deleteDomain [ref ${domainRef}]`)
+    logger.info('verbose', `@fonos/core deleteDomain [ref ${domainRef}]`)
     try {
       yield routr.connect()
       yield routr.resourceType('domains').delete(domainRef)

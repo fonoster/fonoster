@@ -1,5 +1,5 @@
 // Services
-module.exports.YAPSService = require('./common/yaps_service')
+module.exports.FonosService = require('./common/fonos_service')
 module.exports.AppManagerService = require('./server/protos/appmanager_grpc_pb')
 module.exports.StorageService = require('./server/protos/storage_grpc_pb')
 module.exports.ProvidersService = require('./server/protos/providers_grpc_pb')

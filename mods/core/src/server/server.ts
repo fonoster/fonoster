@@ -14,7 +14,7 @@ const { NumbersService } = require('./protos/numbers_grpc_pb')
 const { DomainsService } = require('./protos/domains_grpc_pb')
 const { AgentsService } = require('./protos/agents_grpc_pb')
 const { getServerCredentials } = require('../common/trust_util')
-const { accessExist, createAccessFile } = require('@yaps/certs')
+const { accessExist, createAccessFile } = require('@fonos/certs')
 const fs = require('fs')
 const logger = require('../common/logger')
 const grpc = require('../common/grpc_hack')
@@ -40,7 +40,7 @@ async function main () {
 
   logger.log(
     'info',
-    `YAPS APIServer is online @ ${endpoint} (API version = v1alpha1)`
+    `Fonos APIServer is online @ ${endpoint} (API version = v1alpha1)`
   )
 }
 

@@ -1,5 +1,5 @@
 require('../../config')
-const AppManager = require('@yaps/appmanager')
+const AppManager = require('@fonos/appmanager')
 const prettyjson = require('prettyjson')
 const { cli } = require('cli-ux')
 const path = require('path')
@@ -30,9 +30,9 @@ class DeployCommand extends Command {
   }
 }
 
-DeployCommand.description = `deploys application to a YAPS instance
+DeployCommand.description = `deploys application to a Fonos instance
 ...
-Run this command from the app root to deploy to YAPS.
+Run this command from the app root to deploy to Fonos.
 `
 
 module.exports = DeployCommand

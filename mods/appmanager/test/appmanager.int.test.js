@@ -1,6 +1,6 @@
 const AppManager = require('../src/appmanager')
 const assert = require('assert')
-const { updateBucketPolicy } = require('@yaps/core')
+const { updateBucketPolicy } = require('@fonos/core')
 const path = require('path')
 
 if (process.env.NODE_ENV === 'dev') {

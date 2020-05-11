@@ -34,11 +34,11 @@ var __awaiter =
   }
 Object.defineProperty(exports, '__esModule', { value: true })
 const {
-  YAPSError,
-  YAPSAuthError,
-  YAPSInvalidArgument,
-  YAPSFailedPrecondition
-} = require('@yaps/errors')
+  FonosError,
+  FonosAuthError,
+  FonosInvalidArgument,
+  FonosFailedPrecondition
+} = require('@fonos/errors')
 const AppManagerPB = require('./protos/appmanager_pb')
 const routr = require('./routr')
 const redis = require('./redis')
@@ -51,7 +51,7 @@ const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 const listNumbers = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     if (!call.request.getPageToken()) {
       // Nothing to send
       callback(null, new ListNumbersResponse())
@@ -74,28 +74,28 @@ const listNumbers = (call, callback) =>
   })
 const createNumber = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const number = call.request.getNumber()
     logger.info(
       'verbose',
-      `@yaps/core createNumber [entity ${number.getE164Number()}]`
+      `@fonos/core createNumber [entity ${number.getE164Number()}]`
     )
     if (!number.getE164Number()) {
       callback(
-        new YAPSInvalidArgument(`e164Number field must be a valid e164 value.`)
+        new FonosInvalidArgument(`e164Number field must be a valid e164 value.`)
       )
       return
     }
     if (number.getAorLink() && number.getIngressApp()) {
       callback(
-        new YAPSInvalidArgument(
+        new FonosInvalidArgument(
           `'ingressApp' and 'aorLink' are not compatible parameters`
         )
       )
       return
     } else if (!number.getAorLink() && !number.getIngressApp()) {
       callback(
-        new YAPSInvalidArgument(
+        new FonosInvalidArgument(
           `You must provider either an 'ingressApp' or and 'aorLink'`
         )
       )
@@ -119,14 +119,14 @@ const createNumber = (call, callback) =>
     const resource = encoder.build()
     logger.log(
       'debug',
-      `@yaps/core createNumber [resource: ${JSON.stringify(resource)}]`
+      `@fonos/core createNumber [resource: ${JSON.stringify(resource)}]`
     )
     try {
       yield routr.connect()
       if (number.getIngressApp()) {
         const app = yield redis.get(number.getIngressApp())
         if (!app)
-          throw new YAPSFailedPrecondition(
+          throw new FonosFailedPrecondition(
             `App ${number.ingressApp} doesn't exist`
           )
         yield redis.set(
@@ -144,9 +144,9 @@ const createNumber = (call, callback) =>
   })
 const getNumber = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const numberRef = call.request.getRef()
-    logger.info('verbose', `@yaps/core getNumber [ref ${numberRef}]`)
+    logger.info('verbose', `@fonos/core getNumber [ref ${numberRef}]`)
     try {
       yield routr.connect()
       const jsonObj = yield routr.resourceType('numbers').get(numberRef)
@@ -157,22 +157,22 @@ const getNumber = (call, callback) =>
   })
 const updateNumber = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const number = call.request.getNumber()
     logger.info(
       'verbose',
-      `@yaps/core updateNumber [entity ${number.getE164Number()}]`
+      `@fonos/core updateNumber [entity ${number.getE164Number()}]`
     )
     if (number.getAorLink() && number.getIngressApp()) {
       callback(
-        new YAPSInvalidArgument(
+        new FonosInvalidArgument(
           `'ingressApp' and 'aorLink' are not compatible parameters`
         )
       )
       return
     } else if (!number.getAorLink() && !number.getIngressApp()) {
       callback(
-        new YAPSInvalidArgument(
+        new FonosInvalidArgument(
           `You must provider either an 'ingressApp' or and 'aorLink'`
         )
       )
@@ -205,7 +205,7 @@ const updateNumber = (call, callback) =>
     const resource = encoder.build()
     logger.log(
       'debug',
-      `@yaps/core updateNumber [resource: ${JSON.stringify(resource)}]`
+      `@fonos/core updateNumber [resource: ${JSON.stringify(resource)}]`
     )
     try {
       yield routr.connect()
@@ -213,7 +213,7 @@ const updateNumber = (call, callback) =>
       if (number.getIngressApp()) {
         const app = yield redis.get(number.getIngressApp())
         if (!app)
-          throw new YAPSFailedPrecondition(
+          throw new FonosFailedPrecondition(
             `App ${number.ingressApp} doesn't exist`
           )
         yield redis.set(
@@ -232,9 +232,9 @@ const updateNumber = (call, callback) =>
   })
 const deleteNumber = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const numberRef = call.request.getRef()
-    logger.info('verbose', `@yaps/core deleteNumber [ref ${numberRef}]`)
+    logger.info('verbose', `@fonos/core deleteNumber [ref ${numberRef}]`)
     try {
       yield routr.connect()
       yield routr.resourceType('numbers').delete(numberRef)
@@ -245,13 +245,15 @@ const deleteNumber = (call, callback) =>
   })
 const getIngressApp = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const e164number = call.request.getE164Number()
     const appName = yield redis.get(`extlink:${call.request.getE164Number()}`)
-    logger.log('debug', `@yaps/core getIngressApp [appName: ${appName}]`)
+    logger.log('debug', `@fonos/core getIngressApp [appName: ${appName}]`)
     const appFromDB = yield redis.get(appName)
     if (!appFromDB) {
-      callback(new YAPSError(grpc.status.NOT_FOUND, `App ${appName} not found`))
+      callback(
+        new FonosError(grpc.status.NOT_FOUND, `App ${appName} not found`)
+      )
       return
     }
     const app = new AppManagerPB.App(JSON.parse(appFromDB).array)

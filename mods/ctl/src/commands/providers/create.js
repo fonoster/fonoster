@@ -1,5 +1,5 @@
 require('../../config')
-const Providers = require('@yaps/providers')
+const Providers = require('@fonos/providers')
 const { Command } = require('@oclif/command')
 const { CLIError } = require('@oclif/errors')
 const inquirer = require('inquirer')
@@ -20,17 +20,17 @@ class CreateCommand extends Command {
       {
         name: 'username',
         message: 'username',
-        type: 'input',
+        type: 'input'
       },
       {
         name: 'secret',
         message: 'secret',
-        type: 'password',
+        type: 'password'
       },
       {
         name: 'host',
         message: 'host',
-        type: 'input',
+        type: 'input'
       },
       {
         name: 'transport',

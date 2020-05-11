@@ -57,7 +57,7 @@ module.exports.getClientCredentials = () => {
 
 module.exports.auth = function (call): boolean {
   const jwt = require('jsonwebtoken')
-  const { getSalt } = require('@yaps/certs')
+  const { getSalt } = require('@fonos/certs')
   const salt = getSalt()
 
   if (

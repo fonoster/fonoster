@@ -1,6 +1,6 @@
 const fs = require('fs')
-const { logger } = require('@yaps/core')
-const Numbers = require('@yaps/numbers')
+const { logger } = require('@fonos/core')
+const Numbers = require('@fonos/numbers')
 
 module.exports.getIngressInfo = extension => {
   try {
@@ -14,19 +14,22 @@ module.exports.getIngressInfo = extension => {
     } catch (e) {
       logger.log(
         'error',
-        `@yaps/dispatcher getIngressInfo [could not find handler for ext '${extension}']`
+        `@fonos/dispatcher getIngressInfo [could not find handler for ext '${extension}']`
       )
     }
 
     logger.log(
       'debug',
-      `@yaps/dispatcher getIngressInfo [apps dir: ${process.env.MC_APPS_DIR}]`
+      `@fonos/dispatcher getIngressInfo [apps dir: ${process.env.MC_APPS_DIR}]`
     )
-    logger.log('debug', `@yaps/dispatcher getIngressInfo [appName: ${appName}]`)
+    logger.log(
+      'debug',
+      `@fonos/dispatcher getIngressInfo [appName: ${appName}]`
+    )
 
     const packageBase = `${process.env.MC_APPS_DIR}/${appName}`
     const pathToEntryPoint = `${packageBase}/package.json`
-    const pathToAppConfig = `${packageBase}/yaps.json`
+    const pathToAppConfig = `${packageBase}/fonos.json`
 
     let entryPoint
     let bucket

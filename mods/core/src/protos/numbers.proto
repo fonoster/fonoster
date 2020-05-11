@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package yaps.numbers.v1alpha1;
+package fonos.numbers.v1alpha1;
 
 import "common.proto";
 import "appmanager.proto";
@@ -18,13 +18,13 @@ service Numbers {
   // Creates a new Number resource.
   rpc CreateNumber (CreateNumberRequest) returns (Number) {};
   // Get an app for a given e164 number
-  rpc GetIngressApp (GetIngressAppRequest) returns (yaps.appmanager.v1alpha1.App) {};
+  rpc GetIngressApp (GetIngressAppRequest) returns (fonos.appmanager.v1alpha1.App) {};
   // Gets Number using its reference
   rpc GetNumber (GetNumberRequest) returns (Number) {};
   // Change or update fields in a resource
   rpc UpdateNumber (UpdateNumberRequest) returns (Number) {};
   // Hard delete of a Number resource
-  rpc DeleteNumber (DeleteNumberRequest) returns (yaps.common.v1alpha1.Empty) {};
+  rpc DeleteNumber (DeleteNumberRequest) returns (fonos.common.v1alpha1.Empty) {};
 }
 
 message ListNumbersRequest {
@@ -35,7 +35,7 @@ message ListNumbersRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  yaps.common.v1alpha1.View view = 3;
+  fonos.common.v1alpha1.View view = 3;
 }
 
 message ListNumbersResponse {

@@ -1,15 +1,15 @@
 <a name="Providers"></a>
 
-## Providers ⇐ <code>YAPSService</code>
-Use YAPS Providers, a capability of YAPS SIP Proxy subsystem,
-to create, update, get and delete providers. YAPS Providers requires of a
-running YAPS deployment.
+## Providers ⇐ <code>FonosService</code>
+Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
+to create, update, get and delete providers. Fonos Providers requires of a
+running Fonos deployment.
 
 **Kind**: global class  
-**Extends**: <code>YAPSService</code>  
-**See**: module:core:YAPSService  
+**Extends**: <code>FonosService</code>  
+**See**: module:core:FonosService  
 
-* [Providers](#Providers) ⇐ <code>YAPSService</code>
+* [Providers](#Providers) ⇐ <code>FonosService</code>
     * [new Providers()](#new_Providers_new)
     * [.createProvider(request)](#Providers+createProvider) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getProvider(ref)](#Providers+getProvider) ⇒ <code>Promise.&lt;Object&gt;</code>
@@ -24,8 +24,8 @@ Constructs a new Providers object.
 
 **Example**  
 ```js
-const YAPS = require('@yaps/sdk')
-const providers = new YAPS.Providers()
+const Fonos = require('@fonos/sdk')
+const providers = new Fonos.Providers()
 
 const request = {
   name: 'Provider Name',
@@ -53,8 +53,8 @@ Creates a new Provider on the SIP Proxy subsystem.
 | request.username | <code>string</code> | Username for the trunk. No required for static IP authentication |
 | request.secret | <code>string</code> | Password for the trunk. No required for static IP authentication |
 | request.host | <code>string</code> | Hostname or IP of the Provider |
-| request.transport | <code>string</code> | The transport for the Provider. YAPS will use TCP if none is provided |
-| request.expires | <code>string</code> | Expiration time for the registration. YAPS will use 3600 if non is provided |
+| request.transport | <code>string</code> | The transport for the Provider. Fonos will use TCP if none is provided |
+| request.expires | <code>string</code> | Expiration time for the registration. Fonos will use 3600 if non is provided |
 
 **Example**  
 ```js
@@ -108,8 +108,8 @@ Update a Provider at the SIP Proxy subsystem.
 | request.username | <code>string</code> | Username for the trunk. No required for static IP authentication |
 | request.secret | <code>string</code> | Password for the trunk. No required for static IP authentication |
 | request.host | <code>string</code> | Hostname or IP of the Provider |
-| request.transport | <code>string</code> | The transport for the Provider. YAPS will use TCP if none is provided |
-| request.expires | <code>string</code> | Expiration time for the registration. YAPS will use 3600 if non is provided |
+| request.transport | <code>string</code> | The transport for the Provider. Fonos will use TCP if none is provided |
+| request.expires | <code>string</code> | Expiration time for the registration. Fonos will use 3600 if non is provided |
 
 **Example**  
 ```js
@@ -126,7 +126,7 @@ providers.updateProvider(request)
 <a name="Providers+listProviders"></a>
 
 ### providers.listProviders(request) ⇒ <code>Promise.&lt;ListProvidersResponse&gt;</code>
-List the Providers registered in YAPS SIP Proxy subsystem.
+List the Providers registered in Fonos SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Providers</code>](#Providers)  
 **Returns**: <code>Promise.&lt;ListProvidersResponse&gt;</code> - List of Providers  

@@ -3,18 +3,18 @@ const http = require('http')
 const fs = require('fs')
 const path = require('path')
 const merge = require('deepmerge')
-const logger = require('@yaps/core').logger
+const logger = require('@fonos/core').logger
 const { computeFilename, optionsToQueryString } = require('./utils')
 
 /**
- * @classdesc The default TTS engine in a YAPS deployment.
+ * @classdesc The default TTS engine in a Fonos deployment.
  *
  * @extends AbstractTTS
  * @example
  *
- * const MaryTTS = require('@yaps/tts/marytts')
- * const Storage = require('@yaps/storage')
- * const { transcodeSync } = require('@yaps/tts/utils')
+ * const MaryTTS = require('@fonos/tts/marytts')
+ * const Storage = require('@fonos/storage')
+ * const { transcodeSync } = require('@fonos/tts/utils')
 
  *
  * // This is all done automatically when using the Say verb.
@@ -54,13 +54,13 @@ class MaryTTS extends AbstractTTS {
 
     logger.log(
       'debug',
-      `@yaps/tts.MaryTTS.constructor [initializing with config: ${JSON.stringify(
+      `@fonos/tts.MaryTTS.constructor [initializing with config: ${JSON.stringify(
         opts
       )}]`
     )
     logger.log(
       'verbose',
-      `@yaps/tts.MaryTTS.constructor [serviceUrl: ${this.serviceUrl}]`
+      `@fonos/tts.MaryTTS.constructor [serviceUrl: ${this.serviceUrl}]`
     )
   }
 
@@ -72,7 +72,7 @@ class MaryTTS extends AbstractTTS {
 
     logger.log(
       'debug',
-      `@yaps/tts.MaryTTS.synthesize [text: ${text}, options: ${JSON.stringify(
+      `@fonos/tts.MaryTTS.synthesize [text: ${text}, options: ${JSON.stringify(
         options
       )}]`
     )
@@ -86,9 +86,9 @@ class MaryTTS extends AbstractTTS {
 
     logger.log(
       'debug',
-      `@yaps/tts.MaryTTS.synthesize [pathToFile: ${pathToFile}]`
+      `@fonos/tts.MaryTTS.synthesize [pathToFile: ${pathToFile}]`
     )
-    logger.log('debug', `@yaps/tts.MaryTTS.synthesize [query: ${query}]`)
+    logger.log('debug', `@fonos/tts.MaryTTS.synthesize [query: ${query}]`)
 
     return new Promise((resolve, reject) => {
       http.get(
@@ -100,7 +100,7 @@ class MaryTTS extends AbstractTTS {
           }
           response.pipe(file)
 
-          logger.log('debug', `@yaps/tts.MaryTTS.synthesize [finished]`)
+          logger.log('debug', `@fonos/tts.MaryTTS.synthesize [finished]`)
           resolve(pathToFile)
         }
       )

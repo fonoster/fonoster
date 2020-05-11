@@ -1,5 +1,5 @@
 require('../../config')
-const Domains = require('@yaps/domains')
+const Domains = require('@fonos/domains')
 const { Command } = require('@oclif/command')
 const { CLIError } = require('@oclif/errors')
 const inquirer = require('inquirer')

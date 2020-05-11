@@ -1,9 +1,9 @@
 {
-  "name": "@yaps/errors",
+  "name": "@fonos/errors",
   "version": "0.0.5",
-  "description": "Handles YAPS errors",
+  "description": "Handles Fonos errors",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
+  "homepage": "https://github.com/fonoster/fonos#readme",
   "main": "src/errors.js",
   "license": "MIT",
   "directories": {
@@ -18,10 +18,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
+    "url": "git+https://github.com/fonoster/fonos.git"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
+    "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
     "grpc": "^1.24.2"

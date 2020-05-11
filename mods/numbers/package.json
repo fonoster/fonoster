@@ -1,9 +1,9 @@
 {
-  "name": "@yaps/numbers",
+  "name": "@fonos/numbers",
   "version": "0.0.5",
   "description": "Numbers",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
+  "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "src/numbers.js",
   "directories": {
@@ -18,13 +18,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
+    "url": "git+https://github.com/fonoster/fonos.git"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
+    "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@yaps/core": "^0.0.5",
+    "@fonos/core": "^0.0.5",
     "dotenv": "^8.2.0",
     "grpc-promise": "^1.4.0",
     "sync": "^0.2.4"

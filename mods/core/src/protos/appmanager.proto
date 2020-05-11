@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package yaps.appmanager.v1alpha1;
+package fonos.appmanager.v1alpha1;
 
 import "common.proto";
 
@@ -19,15 +19,15 @@ service AppManager {
   // Creates a new resource type app. Fails with ALREADY_EXISTS if
   // app-name is present in the system. The application creation, consist of:
   //
-  //    1. Validing a YAPS App
+  //    1. Validing a Fonos App
   //    2. Zipping (or taring) the application
-  //    3. Uploading the the file to a yaps endpoint
+  //    3. Uploading the the file to a fonos endpoint
   //    4. Registering and activatng the application
   rpc CreateApp (CreateAppRequest) returns (App) {};
   // Updates an app resource
   rpc UpdateApp (UpdateAppRequest) returns (App) {};
   // Peforms a hard delete of the app resource
-  rpc DeleteApp (DeleteAppRequest) returns (yaps.common.v1alpha1.Empty) {};
+  rpc DeleteApp (DeleteAppRequest) returns (fonos.common.v1alpha1.Empty) {};
 }
 
 message ListAppsRequest {
@@ -38,7 +38,7 @@ message ListAppsRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  yaps.common.v1alpha1.View view = 3;
+  fonos.common.v1alpha1.View view = 3;
 }
 
 message ListAppsResponse {
@@ -56,7 +56,7 @@ message GetAppRequest {
   // "apps/hello-world"
   string name = 1;
   // Requested level of detail
-  yaps.common.v1alpha1.View view = 2;
+  fonos.common.v1alpha1.View view = 2;
 }
 
 message CreateAppRequest {

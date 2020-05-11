@@ -18,17 +18,17 @@ class RoutrClient {
   resource: string
 
   constructor (apiUrl: string, username: string, secret: string) {
-    logger.log('debug', `@yaps/core RoutrClient [creating instance]`)
-    logger.log('debug', `@yaps/core RoutrClient [apiUrl: ${apiUrl}]`)
+    logger.log('debug', `@fonos/core RoutrClient [creating instance]`)
+    logger.log('debug', `@fonos/core RoutrClient [apiUrl: ${apiUrl}]`)
     this.apiUrl = apiUrl
     this.username = username
     this.secret = secret
   }
 
   async connect () {
-    logger.log('debug', `@yaps/core RoutrClient [connecting]`)
+    logger.log('debug', `@fonos/core RoutrClient [connecting]`)
     this.token = await this.getToken(this.username, this.secret)
-    logger.log('debug', `@yaps/core RoutrClient [token: ${this.token}]`)
+    logger.log('debug', `@fonos/core RoutrClient [token: ${this.token}]`)
   }
 
   resourceType (resource: string) {

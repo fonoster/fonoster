@@ -19,8 +19,8 @@ class Service {
    * @typedef {Object} Options
    * @property {string} endpoint - The endpoint URI to send requests to.
    * The endpoint should be a string like '{serviceHost}:{servicePort}'.
-   * @property {string} accessKeyId - your YAPS access key ID.
-   * @property {string} accessKeySecret - your YAPS secret access key.
+   * @property {string} accessKeyId - your Fonos access key ID.
+   * @property {string} accessKeySecret - your Fonos secret access key.
    * @property {string} bucket - The bucket to upload apps and media files.
    */
 
@@ -33,8 +33,8 @@ class Service {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
     const accessFile =
-      process.env.YAPS_ACCESS_FILE ||
-      path.join(require('os').homedir(), '.yaps', 'access')
+      process.env.Fonos_ACCESS_FILE ||
+      path.join(require('os').homedir(), '.fonos', 'access')
     try {
       const fileContent = fs
         .readFileSync(accessFile)
@@ -46,17 +46,17 @@ class Service {
       throw new Error(`Malformed access file found at: ${accessFile}`)
     }
 
-    if (process.env.YAPS_ENDPOINT)
-      this.options.endpoint = process.env.YAPS_ENDPOINT
-    if (process.env.YAPS_ACCESS_KEY_ID)
-      this.options.accessKeyId = process.env.YAPS_ACCESS_KEY_ID
-    if (process.env.YAPS_ACCESS_KEY_SECRET)
-      this.options.accessKeySecret = process.env.YAPS_ACCESS_KEY_SECRET
+    if (process.env.Fonos_ENDPOINT)
+      this.options.endpoint = process.env.Fonos_ENDPOINT
+    if (process.env.Fonos_ACCESS_KEY_ID)
+      this.options.accessKeyId = process.env.Fonos_ACCESS_KEY_ID
+    if (process.env.Fonos_ACCESS_KEY_SECRET)
+      this.options.accessKeySecret = process.env.Fonos_ACCESS_KEY_SECRET
     this.options = merge(this.options, options)
 
     logger.log(
       'debug',
-      `@yaps/core.Service constructor [merged options -> ${JSON.stringify(
+      `@fonos/core.Service constructor [merged options -> ${JSON.stringify(
         this.options
       )}]`
     )

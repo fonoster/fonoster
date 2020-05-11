@@ -12,29 +12,29 @@ var global = Function('return this')()
 var common_pb = require('./common_pb.js')
 goog.object.extend(proto, common_pb)
 goog.exportSymbol(
-  'proto.yaps.domains.v1alpha1.CreateDomainRequest',
+  'proto.fonos.domains.v1alpha1.CreateDomainRequest',
   null,
   global
 )
 goog.exportSymbol(
-  'proto.yaps.domains.v1alpha1.DeleteDomainRequest',
+  'proto.fonos.domains.v1alpha1.DeleteDomainRequest',
   null,
   global
 )
-goog.exportSymbol('proto.yaps.domains.v1alpha1.Domain', null, global)
-goog.exportSymbol('proto.yaps.domains.v1alpha1.GetDomainRequest', null, global)
+goog.exportSymbol('proto.fonos.domains.v1alpha1.Domain', null, global)
+goog.exportSymbol('proto.fonos.domains.v1alpha1.GetDomainRequest', null, global)
 goog.exportSymbol(
-  'proto.yaps.domains.v1alpha1.ListDomainsRequest',
-  null,
-  global
-)
-goog.exportSymbol(
-  'proto.yaps.domains.v1alpha1.ListDomainsResponse',
+  'proto.fonos.domains.v1alpha1.ListDomainsRequest',
   null,
   global
 )
 goog.exportSymbol(
-  'proto.yaps.domains.v1alpha1.UpdateDomainRequest',
+  'proto.fonos.domains.v1alpha1.ListDomainsResponse',
+  null,
+  global
+)
+goog.exportSymbol(
+  'proto.fonos.domains.v1alpha1.UpdateDomainRequest',
   null,
   global
 )
@@ -48,13 +48,13 @@ goog.exportSymbol(
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.domains.v1alpha1.ListDomainsRequest = function (opt_data) {
+proto.fonos.domains.v1alpha1.ListDomainsRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.domains.v1alpha1.ListDomainsRequest, jspb.Message)
+goog.inherits(proto.fonos.domains.v1alpha1.ListDomainsRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.domains.v1alpha1.ListDomainsRequest.displayName =
-    'proto.yaps.domains.v1alpha1.ListDomainsRequest'
+  proto.fonos.domains.v1alpha1.ListDomainsRequest.displayName =
+    'proto.fonos.domains.v1alpha1.ListDomainsRequest'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -67,10 +67,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.toObject = function (
+  proto.fonos.domains.v1alpha1.ListDomainsRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.domains.v1alpha1.ListDomainsRequest.toObject(
+    return proto.fonos.domains.v1alpha1.ListDomainsRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -80,11 +80,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.domains.v1alpha1.ListDomainsRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.domains.v1alpha1.ListDomainsRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.domains.v1alpha1.ListDomainsRequest.toObject = function (
+  proto.fonos.domains.v1alpha1.ListDomainsRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -103,14 +103,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.domains.v1alpha1.ListDomainsRequest}
+ * @return {!proto.fonos.domains.v1alpha1.ListDomainsRequest}
  */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.deserializeBinary = function (
+proto.fonos.domains.v1alpha1.ListDomainsRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.domains.v1alpha1.ListDomainsRequest()
-  return proto.yaps.domains.v1alpha1.ListDomainsRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.domains.v1alpha1.ListDomainsRequest()
+  return proto.fonos.domains.v1alpha1.ListDomainsRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -118,11 +118,11 @@ proto.yaps.domains.v1alpha1.ListDomainsRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.domains.v1alpha1.ListDomainsRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.domains.v1alpha1.ListDomainsRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.domains.v1alpha1.ListDomainsRequest}
+ * @return {!proto.fonos.domains.v1alpha1.ListDomainsRequest}
  */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.deserializeBinaryFromReader = function (
+proto.fonos.domains.v1alpha1.ListDomainsRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -141,7 +141,7 @@ proto.yaps.domains.v1alpha1.ListDomainsRequest.deserializeBinaryFromReader = fun
         msg.setPageToken(value)
         break
       case 3:
-        var value = /** @type {!proto.yaps.common.v1alpha1.View} */ (reader.readEnum())
+        var value = /** @type {!proto.fonos.common.v1alpha1.View} */ (reader.readEnum())
         msg.setView(value)
         break
       default:
@@ -155,9 +155,9 @@ proto.yaps.domains.v1alpha1.ListDomainsRequest.deserializeBinaryFromReader = fun
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.serializeBinary = function () {
+proto.fonos.domains.v1alpha1.ListDomainsRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.domains.v1alpha1.ListDomainsRequest.serializeBinaryToWriter(
+  proto.fonos.domains.v1alpha1.ListDomainsRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -166,11 +166,11 @@ proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.serializeBinary = funct
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.domains.v1alpha1.ListDomainsRequest} message
+ * @param {!proto.fonos.domains.v1alpha1.ListDomainsRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.serializeBinaryToWriter = function (
+proto.fonos.domains.v1alpha1.ListDomainsRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -192,11 +192,11 @@ proto.yaps.domains.v1alpha1.ListDomainsRequest.serializeBinaryToWriter = functio
  * optional int32 page_size = 1;
  * @return {number}
  */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.getPageSize = function () {
+proto.fonos.domains.v1alpha1.ListDomainsRequest.prototype.getPageSize = function () {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0))
 }
 /** @param {number} value */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.setPageSize = function (
+proto.fonos.domains.v1alpha1.ListDomainsRequest.prototype.setPageSize = function (
   value
 ) {
   jspb.Message.setProto3IntField(this, 1, value)
@@ -205,28 +205,28 @@ proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.setPageSize = function 
  * optional string page_token = 2;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.getPageToken = function () {
+proto.fonos.domains.v1alpha1.ListDomainsRequest.prototype.getPageToken = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.setPageToken = function (
+proto.fonos.domains.v1alpha1.ListDomainsRequest.prototype.setPageToken = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 2, value)
 }
 /**
- * optional yaps.common.v1alpha1.View view = 3;
- * @return {!proto.yaps.common.v1alpha1.View}
+ * optional fonos.common.v1alpha1.View view = 3;
+ * @return {!proto.fonos.common.v1alpha1.View}
  */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.getView = function () {
-  return /** @type {!proto.yaps.common.v1alpha1.View} */ (jspb.Message.getFieldWithDefault(
+proto.fonos.domains.v1alpha1.ListDomainsRequest.prototype.getView = function () {
+  return /** @type {!proto.fonos.common.v1alpha1.View} */ (jspb.Message.getFieldWithDefault(
     this,
     3,
     0
   ))
 }
-/** @param {!proto.yaps.common.v1alpha1.View} value */
-proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.setView = function (
+/** @param {!proto.fonos.common.v1alpha1.View} value */
+proto.fonos.domains.v1alpha1.ListDomainsRequest.prototype.setView = function (
   value
 ) {
   jspb.Message.setProto3EnumField(this, 3, value)
@@ -241,27 +241,27 @@ proto.yaps.domains.v1alpha1.ListDomainsRequest.prototype.setView = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse = function (opt_data) {
+proto.fonos.domains.v1alpha1.ListDomainsResponse = function (opt_data) {
   jspb.Message.initialize(
     this,
     opt_data,
     0,
     -1,
-    proto.yaps.domains.v1alpha1.ListDomainsResponse.repeatedFields_,
+    proto.fonos.domains.v1alpha1.ListDomainsResponse.repeatedFields_,
     null
   )
 }
-goog.inherits(proto.yaps.domains.v1alpha1.ListDomainsResponse, jspb.Message)
+goog.inherits(proto.fonos.domains.v1alpha1.ListDomainsResponse, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.domains.v1alpha1.ListDomainsResponse.displayName =
-    'proto.yaps.domains.v1alpha1.ListDomainsResponse'
+  proto.fonos.domains.v1alpha1.ListDomainsResponse.displayName =
+    'proto.fonos.domains.v1alpha1.ListDomainsResponse'
 }
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.repeatedFields_ = [1]
+proto.fonos.domains.v1alpha1.ListDomainsResponse.repeatedFields_ = [1]
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
    * Creates an object representation of this proto suitable for use in Soy templates.
@@ -273,10 +273,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.toObject = function (
+  proto.fonos.domains.v1alpha1.ListDomainsResponse.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.domains.v1alpha1.ListDomainsResponse.toObject(
+    return proto.fonos.domains.v1alpha1.ListDomainsResponse.toObject(
       opt_includeInstance,
       this
     )
@@ -286,11 +286,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.domains.v1alpha1.ListDomainsResponse} msg The msg instance to transform.
+   * @param {!proto.fonos.domains.v1alpha1.ListDomainsResponse} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.domains.v1alpha1.ListDomainsResponse.toObject = function (
+  proto.fonos.domains.v1alpha1.ListDomainsResponse.toObject = function (
     includeInstance,
     msg
   ) {
@@ -298,7 +298,7 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
       obj = {
         domainsList: jspb.Message.toObjectList(
           msg.getDomainsList(),
-          proto.yaps.domains.v1alpha1.Domain.toObject,
+          proto.fonos.domains.v1alpha1.Domain.toObject,
           includeInstance
         ),
         nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, '')
@@ -312,14 +312,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.domains.v1alpha1.ListDomainsResponse}
+ * @return {!proto.fonos.domains.v1alpha1.ListDomainsResponse}
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.deserializeBinary = function (
+proto.fonos.domains.v1alpha1.ListDomainsResponse.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.domains.v1alpha1.ListDomainsResponse()
-  return proto.yaps.domains.v1alpha1.ListDomainsResponse.deserializeBinaryFromReader(
+  var msg = new proto.fonos.domains.v1alpha1.ListDomainsResponse()
+  return proto.fonos.domains.v1alpha1.ListDomainsResponse.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -327,11 +327,11 @@ proto.yaps.domains.v1alpha1.ListDomainsResponse.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.domains.v1alpha1.ListDomainsResponse} msg The message object to deserialize into.
+ * @param {!proto.fonos.domains.v1alpha1.ListDomainsResponse} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.domains.v1alpha1.ListDomainsResponse}
+ * @return {!proto.fonos.domains.v1alpha1.ListDomainsResponse}
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.deserializeBinaryFromReader = function (
+proto.fonos.domains.v1alpha1.ListDomainsResponse.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -342,10 +342,10 @@ proto.yaps.domains.v1alpha1.ListDomainsResponse.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber()
     switch (field) {
       case 1:
-        var value = new proto.yaps.domains.v1alpha1.Domain()
+        var value = new proto.fonos.domains.v1alpha1.Domain()
         reader.readMessage(
           value,
-          proto.yaps.domains.v1alpha1.Domain.deserializeBinaryFromReader
+          proto.fonos.domains.v1alpha1.Domain.deserializeBinaryFromReader
         )
         msg.addDomains(value)
         break
@@ -364,9 +364,9 @@ proto.yaps.domains.v1alpha1.ListDomainsResponse.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.serializeBinary = function () {
+proto.fonos.domains.v1alpha1.ListDomainsResponse.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.domains.v1alpha1.ListDomainsResponse.serializeBinaryToWriter(
+  proto.fonos.domains.v1alpha1.ListDomainsResponse.serializeBinaryToWriter(
     this,
     writer
   )
@@ -375,11 +375,11 @@ proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.domains.v1alpha1.ListDomainsResponse} message
+ * @param {!proto.fonos.domains.v1alpha1.ListDomainsResponse} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.serializeBinaryToWriter = function (
+proto.fonos.domains.v1alpha1.ListDomainsResponse.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -389,7 +389,7 @@ proto.yaps.domains.v1alpha1.ListDomainsResponse.serializeBinaryToWriter = functi
     writer.writeRepeatedMessage(
       1,
       f,
-      proto.yaps.domains.v1alpha1.Domain.serializeBinaryToWriter
+      proto.fonos.domains.v1alpha1.Domain.serializeBinaryToWriter
     )
   }
   f = message.getNextPageToken()
@@ -399,27 +399,27 @@ proto.yaps.domains.v1alpha1.ListDomainsResponse.serializeBinaryToWriter = functi
 }
 /**
  * repeated Domain domains = 1;
- * @return {!Array<!proto.yaps.domains.v1alpha1.Domain>}
+ * @return {!Array<!proto.fonos.domains.v1alpha1.Domain>}
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.getDomainsList = function () {
-  return /** @type{!Array<!proto.yaps.domains.v1alpha1.Domain>} */ (jspb.Message.getRepeatedWrapperField(
+proto.fonos.domains.v1alpha1.ListDomainsResponse.prototype.getDomainsList = function () {
+  return /** @type{!Array<!proto.fonos.domains.v1alpha1.Domain>} */ (jspb.Message.getRepeatedWrapperField(
     this,
-    proto.yaps.domains.v1alpha1.Domain,
+    proto.fonos.domains.v1alpha1.Domain,
     1
   ))
 }
-/** @param {!Array<!proto.yaps.domains.v1alpha1.Domain>} value */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.setDomainsList = function (
+/** @param {!Array<!proto.fonos.domains.v1alpha1.Domain>} value */
+proto.fonos.domains.v1alpha1.ListDomainsResponse.prototype.setDomainsList = function (
   value
 ) {
   jspb.Message.setRepeatedWrapperField(this, 1, value)
 }
 /**
- * @param {!proto.yaps.domains.v1alpha1.Domain=} opt_value
+ * @param {!proto.fonos.domains.v1alpha1.Domain=} opt_value
  * @param {number=} opt_index
- * @return {!proto.yaps.domains.v1alpha1.Domain}
+ * @return {!proto.fonos.domains.v1alpha1.Domain}
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.addDomains = function (
+proto.fonos.domains.v1alpha1.ListDomainsResponse.prototype.addDomains = function (
   opt_value,
   opt_index
 ) {
@@ -427,22 +427,22 @@ proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.addDomains = function 
     this,
     1,
     opt_value,
-    proto.yaps.domains.v1alpha1.Domain,
+    proto.fonos.domains.v1alpha1.Domain,
     opt_index
   )
 }
-proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.clearDomainsList = function () {
+proto.fonos.domains.v1alpha1.ListDomainsResponse.prototype.clearDomainsList = function () {
   this.setDomainsList([])
 }
 /**
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.getNextPageToken = function () {
+proto.fonos.domains.v1alpha1.ListDomainsResponse.prototype.getNextPageToken = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.setNextPageToken = function (
+proto.fonos.domains.v1alpha1.ListDomainsResponse.prototype.setNextPageToken = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 2, value)
@@ -457,13 +457,13 @@ proto.yaps.domains.v1alpha1.ListDomainsResponse.prototype.setNextPageToken = fun
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.domains.v1alpha1.CreateDomainRequest = function (opt_data) {
+proto.fonos.domains.v1alpha1.CreateDomainRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.domains.v1alpha1.CreateDomainRequest, jspb.Message)
+goog.inherits(proto.fonos.domains.v1alpha1.CreateDomainRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.domains.v1alpha1.CreateDomainRequest.displayName =
-    'proto.yaps.domains.v1alpha1.CreateDomainRequest'
+  proto.fonos.domains.v1alpha1.CreateDomainRequest.displayName =
+    'proto.fonos.domains.v1alpha1.CreateDomainRequest'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -476,10 +476,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.domains.v1alpha1.CreateDomainRequest.prototype.toObject = function (
+  proto.fonos.domains.v1alpha1.CreateDomainRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.domains.v1alpha1.CreateDomainRequest.toObject(
+    return proto.fonos.domains.v1alpha1.CreateDomainRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -489,11 +489,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.domains.v1alpha1.CreateDomainRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.domains.v1alpha1.CreateDomainRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.domains.v1alpha1.CreateDomainRequest.toObject = function (
+  proto.fonos.domains.v1alpha1.CreateDomainRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -501,7 +501,7 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
       obj = {
         domain:
           (f = msg.getDomain()) &&
-          proto.yaps.domains.v1alpha1.Domain.toObject(includeInstance, f)
+          proto.fonos.domains.v1alpha1.Domain.toObject(includeInstance, f)
       }
     if (includeInstance) {
       obj.$jspbMessageInstance = msg
@@ -512,14 +512,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.domains.v1alpha1.CreateDomainRequest}
+ * @return {!proto.fonos.domains.v1alpha1.CreateDomainRequest}
  */
-proto.yaps.domains.v1alpha1.CreateDomainRequest.deserializeBinary = function (
+proto.fonos.domains.v1alpha1.CreateDomainRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.domains.v1alpha1.CreateDomainRequest()
-  return proto.yaps.domains.v1alpha1.CreateDomainRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.domains.v1alpha1.CreateDomainRequest()
+  return proto.fonos.domains.v1alpha1.CreateDomainRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -527,11 +527,11 @@ proto.yaps.domains.v1alpha1.CreateDomainRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.domains.v1alpha1.CreateDomainRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.domains.v1alpha1.CreateDomainRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.domains.v1alpha1.CreateDomainRequest}
+ * @return {!proto.fonos.domains.v1alpha1.CreateDomainRequest}
  */
-proto.yaps.domains.v1alpha1.CreateDomainRequest.deserializeBinaryFromReader = function (
+proto.fonos.domains.v1alpha1.CreateDomainRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -542,10 +542,10 @@ proto.yaps.domains.v1alpha1.CreateDomainRequest.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber()
     switch (field) {
       case 1:
-        var value = new proto.yaps.domains.v1alpha1.Domain()
+        var value = new proto.fonos.domains.v1alpha1.Domain()
         reader.readMessage(
           value,
-          proto.yaps.domains.v1alpha1.Domain.deserializeBinaryFromReader
+          proto.fonos.domains.v1alpha1.Domain.deserializeBinaryFromReader
         )
         msg.setDomain(value)
         break
@@ -560,9 +560,9 @@ proto.yaps.domains.v1alpha1.CreateDomainRequest.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.domains.v1alpha1.CreateDomainRequest.prototype.serializeBinary = function () {
+proto.fonos.domains.v1alpha1.CreateDomainRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.domains.v1alpha1.CreateDomainRequest.serializeBinaryToWriter(
+  proto.fonos.domains.v1alpha1.CreateDomainRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -571,11 +571,11 @@ proto.yaps.domains.v1alpha1.CreateDomainRequest.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.domains.v1alpha1.CreateDomainRequest} message
+ * @param {!proto.fonos.domains.v1alpha1.CreateDomainRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.domains.v1alpha1.CreateDomainRequest.serializeBinaryToWriter = function (
+proto.fonos.domains.v1alpha1.CreateDomainRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -585,35 +585,35 @@ proto.yaps.domains.v1alpha1.CreateDomainRequest.serializeBinaryToWriter = functi
     writer.writeMessage(
       1,
       f,
-      proto.yaps.domains.v1alpha1.Domain.serializeBinaryToWriter
+      proto.fonos.domains.v1alpha1.Domain.serializeBinaryToWriter
     )
   }
 }
 /**
  * optional Domain domain = 1;
- * @return {?proto.yaps.domains.v1alpha1.Domain}
+ * @return {?proto.fonos.domains.v1alpha1.Domain}
  */
-proto.yaps.domains.v1alpha1.CreateDomainRequest.prototype.getDomain = function () {
-  return /** @type{?proto.yaps.domains.v1alpha1.Domain} */ (jspb.Message.getWrapperField(
+proto.fonos.domains.v1alpha1.CreateDomainRequest.prototype.getDomain = function () {
+  return /** @type{?proto.fonos.domains.v1alpha1.Domain} */ (jspb.Message.getWrapperField(
     this,
-    proto.yaps.domains.v1alpha1.Domain,
+    proto.fonos.domains.v1alpha1.Domain,
     1
   ))
 }
-/** @param {?proto.yaps.domains.v1alpha1.Domain|undefined} value */
-proto.yaps.domains.v1alpha1.CreateDomainRequest.prototype.setDomain = function (
+/** @param {?proto.fonos.domains.v1alpha1.Domain|undefined} value */
+proto.fonos.domains.v1alpha1.CreateDomainRequest.prototype.setDomain = function (
   value
 ) {
   jspb.Message.setWrapperField(this, 1, value)
 }
-proto.yaps.domains.v1alpha1.CreateDomainRequest.prototype.clearDomain = function () {
+proto.fonos.domains.v1alpha1.CreateDomainRequest.prototype.clearDomain = function () {
   this.setDomain(undefined)
 }
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.yaps.domains.v1alpha1.CreateDomainRequest.prototype.hasDomain = function () {
+proto.fonos.domains.v1alpha1.CreateDomainRequest.prototype.hasDomain = function () {
   return jspb.Message.getField(this, 1) != null
 }
 /**
@@ -626,13 +626,13 @@ proto.yaps.domains.v1alpha1.CreateDomainRequest.prototype.hasDomain = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.domains.v1alpha1.UpdateDomainRequest = function (opt_data) {
+proto.fonos.domains.v1alpha1.UpdateDomainRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.domains.v1alpha1.UpdateDomainRequest, jspb.Message)
+goog.inherits(proto.fonos.domains.v1alpha1.UpdateDomainRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.domains.v1alpha1.UpdateDomainRequest.displayName =
-    'proto.yaps.domains.v1alpha1.UpdateDomainRequest'
+  proto.fonos.domains.v1alpha1.UpdateDomainRequest.displayName =
+    'proto.fonos.domains.v1alpha1.UpdateDomainRequest'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -645,10 +645,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.domains.v1alpha1.UpdateDomainRequest.prototype.toObject = function (
+  proto.fonos.domains.v1alpha1.UpdateDomainRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.domains.v1alpha1.UpdateDomainRequest.toObject(
+    return proto.fonos.domains.v1alpha1.UpdateDomainRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -658,11 +658,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.domains.v1alpha1.UpdateDomainRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.domains.v1alpha1.UpdateDomainRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.domains.v1alpha1.UpdateDomainRequest.toObject = function (
+  proto.fonos.domains.v1alpha1.UpdateDomainRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -670,7 +670,7 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
       obj = {
         domain:
           (f = msg.getDomain()) &&
-          proto.yaps.domains.v1alpha1.Domain.toObject(includeInstance, f)
+          proto.fonos.domains.v1alpha1.Domain.toObject(includeInstance, f)
       }
     if (includeInstance) {
       obj.$jspbMessageInstance = msg
@@ -681,14 +681,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.domains.v1alpha1.UpdateDomainRequest}
+ * @return {!proto.fonos.domains.v1alpha1.UpdateDomainRequest}
  */
-proto.yaps.domains.v1alpha1.UpdateDomainRequest.deserializeBinary = function (
+proto.fonos.domains.v1alpha1.UpdateDomainRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.domains.v1alpha1.UpdateDomainRequest()
-  return proto.yaps.domains.v1alpha1.UpdateDomainRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.domains.v1alpha1.UpdateDomainRequest()
+  return proto.fonos.domains.v1alpha1.UpdateDomainRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -696,11 +696,11 @@ proto.yaps.domains.v1alpha1.UpdateDomainRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.domains.v1alpha1.UpdateDomainRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.domains.v1alpha1.UpdateDomainRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.domains.v1alpha1.UpdateDomainRequest}
+ * @return {!proto.fonos.domains.v1alpha1.UpdateDomainRequest}
  */
-proto.yaps.domains.v1alpha1.UpdateDomainRequest.deserializeBinaryFromReader = function (
+proto.fonos.domains.v1alpha1.UpdateDomainRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -711,10 +711,10 @@ proto.yaps.domains.v1alpha1.UpdateDomainRequest.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber()
     switch (field) {
       case 1:
-        var value = new proto.yaps.domains.v1alpha1.Domain()
+        var value = new proto.fonos.domains.v1alpha1.Domain()
         reader.readMessage(
           value,
-          proto.yaps.domains.v1alpha1.Domain.deserializeBinaryFromReader
+          proto.fonos.domains.v1alpha1.Domain.deserializeBinaryFromReader
         )
         msg.setDomain(value)
         break
@@ -729,9 +729,9 @@ proto.yaps.domains.v1alpha1.UpdateDomainRequest.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.domains.v1alpha1.UpdateDomainRequest.prototype.serializeBinary = function () {
+proto.fonos.domains.v1alpha1.UpdateDomainRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.domains.v1alpha1.UpdateDomainRequest.serializeBinaryToWriter(
+  proto.fonos.domains.v1alpha1.UpdateDomainRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -740,11 +740,11 @@ proto.yaps.domains.v1alpha1.UpdateDomainRequest.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.domains.v1alpha1.UpdateDomainRequest} message
+ * @param {!proto.fonos.domains.v1alpha1.UpdateDomainRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.domains.v1alpha1.UpdateDomainRequest.serializeBinaryToWriter = function (
+proto.fonos.domains.v1alpha1.UpdateDomainRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -754,35 +754,35 @@ proto.yaps.domains.v1alpha1.UpdateDomainRequest.serializeBinaryToWriter = functi
     writer.writeMessage(
       1,
       f,
-      proto.yaps.domains.v1alpha1.Domain.serializeBinaryToWriter
+      proto.fonos.domains.v1alpha1.Domain.serializeBinaryToWriter
     )
   }
 }
 /**
  * optional Domain domain = 1;
- * @return {?proto.yaps.domains.v1alpha1.Domain}
+ * @return {?proto.fonos.domains.v1alpha1.Domain}
  */
-proto.yaps.domains.v1alpha1.UpdateDomainRequest.prototype.getDomain = function () {
-  return /** @type{?proto.yaps.domains.v1alpha1.Domain} */ (jspb.Message.getWrapperField(
+proto.fonos.domains.v1alpha1.UpdateDomainRequest.prototype.getDomain = function () {
+  return /** @type{?proto.fonos.domains.v1alpha1.Domain} */ (jspb.Message.getWrapperField(
     this,
-    proto.yaps.domains.v1alpha1.Domain,
+    proto.fonos.domains.v1alpha1.Domain,
     1
   ))
 }
-/** @param {?proto.yaps.domains.v1alpha1.Domain|undefined} value */
-proto.yaps.domains.v1alpha1.UpdateDomainRequest.prototype.setDomain = function (
+/** @param {?proto.fonos.domains.v1alpha1.Domain|undefined} value */
+proto.fonos.domains.v1alpha1.UpdateDomainRequest.prototype.setDomain = function (
   value
 ) {
   jspb.Message.setWrapperField(this, 1, value)
 }
-proto.yaps.domains.v1alpha1.UpdateDomainRequest.prototype.clearDomain = function () {
+proto.fonos.domains.v1alpha1.UpdateDomainRequest.prototype.clearDomain = function () {
   this.setDomain(undefined)
 }
 /**
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.yaps.domains.v1alpha1.UpdateDomainRequest.prototype.hasDomain = function () {
+proto.fonos.domains.v1alpha1.UpdateDomainRequest.prototype.hasDomain = function () {
   return jspb.Message.getField(this, 1) != null
 }
 /**
@@ -795,13 +795,13 @@ proto.yaps.domains.v1alpha1.UpdateDomainRequest.prototype.hasDomain = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.domains.v1alpha1.GetDomainRequest = function (opt_data) {
+proto.fonos.domains.v1alpha1.GetDomainRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.domains.v1alpha1.GetDomainRequest, jspb.Message)
+goog.inherits(proto.fonos.domains.v1alpha1.GetDomainRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.domains.v1alpha1.GetDomainRequest.displayName =
-    'proto.yaps.domains.v1alpha1.GetDomainRequest'
+  proto.fonos.domains.v1alpha1.GetDomainRequest.displayName =
+    'proto.fonos.domains.v1alpha1.GetDomainRequest'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -814,10 +814,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.domains.v1alpha1.GetDomainRequest.prototype.toObject = function (
+  proto.fonos.domains.v1alpha1.GetDomainRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.domains.v1alpha1.GetDomainRequest.toObject(
+    return proto.fonos.domains.v1alpha1.GetDomainRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -827,11 +827,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.domains.v1alpha1.GetDomainRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.domains.v1alpha1.GetDomainRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.domains.v1alpha1.GetDomainRequest.toObject = function (
+  proto.fonos.domains.v1alpha1.GetDomainRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -848,14 +848,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.domains.v1alpha1.GetDomainRequest}
+ * @return {!proto.fonos.domains.v1alpha1.GetDomainRequest}
  */
-proto.yaps.domains.v1alpha1.GetDomainRequest.deserializeBinary = function (
+proto.fonos.domains.v1alpha1.GetDomainRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.domains.v1alpha1.GetDomainRequest()
-  return proto.yaps.domains.v1alpha1.GetDomainRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.domains.v1alpha1.GetDomainRequest()
+  return proto.fonos.domains.v1alpha1.GetDomainRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -863,11 +863,11 @@ proto.yaps.domains.v1alpha1.GetDomainRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.domains.v1alpha1.GetDomainRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.domains.v1alpha1.GetDomainRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.domains.v1alpha1.GetDomainRequest}
+ * @return {!proto.fonos.domains.v1alpha1.GetDomainRequest}
  */
-proto.yaps.domains.v1alpha1.GetDomainRequest.deserializeBinaryFromReader = function (
+proto.fonos.domains.v1alpha1.GetDomainRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -892,9 +892,9 @@ proto.yaps.domains.v1alpha1.GetDomainRequest.deserializeBinaryFromReader = funct
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.domains.v1alpha1.GetDomainRequest.prototype.serializeBinary = function () {
+proto.fonos.domains.v1alpha1.GetDomainRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.domains.v1alpha1.GetDomainRequest.serializeBinaryToWriter(
+  proto.fonos.domains.v1alpha1.GetDomainRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -903,11 +903,11 @@ proto.yaps.domains.v1alpha1.GetDomainRequest.prototype.serializeBinary = functio
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.domains.v1alpha1.GetDomainRequest} message
+ * @param {!proto.fonos.domains.v1alpha1.GetDomainRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.domains.v1alpha1.GetDomainRequest.serializeBinaryToWriter = function (
+proto.fonos.domains.v1alpha1.GetDomainRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -921,11 +921,11 @@ proto.yaps.domains.v1alpha1.GetDomainRequest.serializeBinaryToWriter = function 
  * optional string ref = 1;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.GetDomainRequest.prototype.getRef = function () {
+proto.fonos.domains.v1alpha1.GetDomainRequest.prototype.getRef = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.GetDomainRequest.prototype.setRef = function (
+proto.fonos.domains.v1alpha1.GetDomainRequest.prototype.setRef = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 1, value)
@@ -940,13 +940,13 @@ proto.yaps.domains.v1alpha1.GetDomainRequest.prototype.setRef = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.domains.v1alpha1.DeleteDomainRequest = function (opt_data) {
+proto.fonos.domains.v1alpha1.DeleteDomainRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.domains.v1alpha1.DeleteDomainRequest, jspb.Message)
+goog.inherits(proto.fonos.domains.v1alpha1.DeleteDomainRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.domains.v1alpha1.DeleteDomainRequest.displayName =
-    'proto.yaps.domains.v1alpha1.DeleteDomainRequest'
+  proto.fonos.domains.v1alpha1.DeleteDomainRequest.displayName =
+    'proto.fonos.domains.v1alpha1.DeleteDomainRequest'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -959,10 +959,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.domains.v1alpha1.DeleteDomainRequest.prototype.toObject = function (
+  proto.fonos.domains.v1alpha1.DeleteDomainRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.domains.v1alpha1.DeleteDomainRequest.toObject(
+    return proto.fonos.domains.v1alpha1.DeleteDomainRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -972,11 +972,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.domains.v1alpha1.DeleteDomainRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.domains.v1alpha1.DeleteDomainRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.domains.v1alpha1.DeleteDomainRequest.toObject = function (
+  proto.fonos.domains.v1alpha1.DeleteDomainRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -993,14 +993,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.domains.v1alpha1.DeleteDomainRequest}
+ * @return {!proto.fonos.domains.v1alpha1.DeleteDomainRequest}
  */
-proto.yaps.domains.v1alpha1.DeleteDomainRequest.deserializeBinary = function (
+proto.fonos.domains.v1alpha1.DeleteDomainRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.domains.v1alpha1.DeleteDomainRequest()
-  return proto.yaps.domains.v1alpha1.DeleteDomainRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.domains.v1alpha1.DeleteDomainRequest()
+  return proto.fonos.domains.v1alpha1.DeleteDomainRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -1008,11 +1008,11 @@ proto.yaps.domains.v1alpha1.DeleteDomainRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.domains.v1alpha1.DeleteDomainRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.domains.v1alpha1.DeleteDomainRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.domains.v1alpha1.DeleteDomainRequest}
+ * @return {!proto.fonos.domains.v1alpha1.DeleteDomainRequest}
  */
-proto.yaps.domains.v1alpha1.DeleteDomainRequest.deserializeBinaryFromReader = function (
+proto.fonos.domains.v1alpha1.DeleteDomainRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -1037,9 +1037,9 @@ proto.yaps.domains.v1alpha1.DeleteDomainRequest.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.domains.v1alpha1.DeleteDomainRequest.prototype.serializeBinary = function () {
+proto.fonos.domains.v1alpha1.DeleteDomainRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.domains.v1alpha1.DeleteDomainRequest.serializeBinaryToWriter(
+  proto.fonos.domains.v1alpha1.DeleteDomainRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -1048,11 +1048,11 @@ proto.yaps.domains.v1alpha1.DeleteDomainRequest.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.domains.v1alpha1.DeleteDomainRequest} message
+ * @param {!proto.fonos.domains.v1alpha1.DeleteDomainRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.domains.v1alpha1.DeleteDomainRequest.serializeBinaryToWriter = function (
+proto.fonos.domains.v1alpha1.DeleteDomainRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -1066,11 +1066,11 @@ proto.yaps.domains.v1alpha1.DeleteDomainRequest.serializeBinaryToWriter = functi
  * optional string ref = 1;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.DeleteDomainRequest.prototype.getRef = function () {
+proto.fonos.domains.v1alpha1.DeleteDomainRequest.prototype.getRef = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.DeleteDomainRequest.prototype.setRef = function (
+proto.fonos.domains.v1alpha1.DeleteDomainRequest.prototype.setRef = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 1, value)
@@ -1085,27 +1085,27 @@ proto.yaps.domains.v1alpha1.DeleteDomainRequest.prototype.setRef = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.domains.v1alpha1.Domain = function (opt_data) {
+proto.fonos.domains.v1alpha1.Domain = function (opt_data) {
   jspb.Message.initialize(
     this,
     opt_data,
     0,
     -1,
-    proto.yaps.domains.v1alpha1.Domain.repeatedFields_,
+    proto.fonos.domains.v1alpha1.Domain.repeatedFields_,
     null
   )
 }
-goog.inherits(proto.yaps.domains.v1alpha1.Domain, jspb.Message)
+goog.inherits(proto.fonos.domains.v1alpha1.Domain, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.domains.v1alpha1.Domain.displayName =
-    'proto.yaps.domains.v1alpha1.Domain'
+  proto.fonos.domains.v1alpha1.Domain.displayName =
+    'proto.fonos.domains.v1alpha1.Domain'
 }
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.yaps.domains.v1alpha1.Domain.repeatedFields_ = [6, 7]
+proto.fonos.domains.v1alpha1.Domain.repeatedFields_ = [6, 7]
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
    * Creates an object representation of this proto suitable for use in Soy templates.
@@ -1117,10 +1117,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.domains.v1alpha1.Domain.prototype.toObject = function (
+  proto.fonos.domains.v1alpha1.Domain.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.domains.v1alpha1.Domain.toObject(
+    return proto.fonos.domains.v1alpha1.Domain.toObject(
       opt_includeInstance,
       this
     )
@@ -1130,11 +1130,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.domains.v1alpha1.Domain} msg The msg instance to transform.
+   * @param {!proto.fonos.domains.v1alpha1.Domain} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.domains.v1alpha1.Domain.toObject = function (
+  proto.fonos.domains.v1alpha1.Domain.toObject = function (
     includeInstance,
     msg
   ) {
@@ -1159,12 +1159,12 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.domains.v1alpha1.Domain}
+ * @return {!proto.fonos.domains.v1alpha1.Domain}
  */
-proto.yaps.domains.v1alpha1.Domain.deserializeBinary = function (bytes) {
+proto.fonos.domains.v1alpha1.Domain.deserializeBinary = function (bytes) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.domains.v1alpha1.Domain()
-  return proto.yaps.domains.v1alpha1.Domain.deserializeBinaryFromReader(
+  var msg = new proto.fonos.domains.v1alpha1.Domain()
+  return proto.fonos.domains.v1alpha1.Domain.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -1172,11 +1172,11 @@ proto.yaps.domains.v1alpha1.Domain.deserializeBinary = function (bytes) {
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.domains.v1alpha1.Domain} msg The message object to deserialize into.
+ * @param {!proto.fonos.domains.v1alpha1.Domain} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.domains.v1alpha1.Domain}
+ * @return {!proto.fonos.domains.v1alpha1.Domain}
  */
-proto.yaps.domains.v1alpha1.Domain.deserializeBinaryFromReader = function (
+proto.fonos.domains.v1alpha1.Domain.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -1233,19 +1233,19 @@ proto.yaps.domains.v1alpha1.Domain.deserializeBinaryFromReader = function (
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.serializeBinary = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.domains.v1alpha1.Domain.serializeBinaryToWriter(this, writer)
+  proto.fonos.domains.v1alpha1.Domain.serializeBinaryToWriter(this, writer)
   return writer.getResultBuffer()
 }
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.domains.v1alpha1.Domain} message
+ * @param {!proto.fonos.domains.v1alpha1.Domain} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.domains.v1alpha1.Domain.serializeBinaryToWriter = function (
+proto.fonos.domains.v1alpha1.Domain.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -1291,55 +1291,55 @@ proto.yaps.domains.v1alpha1.Domain.serializeBinaryToWriter = function (
  * optional string ref = 1;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getRef = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getRef = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setRef = function (value) {
+proto.fonos.domains.v1alpha1.Domain.prototype.setRef = function (value) {
   jspb.Message.setProto3StringField(this, 1, value)
 }
 /**
  * optional string name = 2;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getName = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getName = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setName = function (value) {
+proto.fonos.domains.v1alpha1.Domain.prototype.setName = function (value) {
   jspb.Message.setProto3StringField(this, 2, value)
 }
 /**
  * optional string domain_uri = 3;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getDomainUri = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getDomainUri = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setDomainUri = function (value) {
+proto.fonos.domains.v1alpha1.Domain.prototype.setDomainUri = function (value) {
   jspb.Message.setProto3StringField(this, 3, value)
 }
 /**
  * optional string egress_rule = 4;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getEgressRule = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getEgressRule = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setEgressRule = function (value) {
+proto.fonos.domains.v1alpha1.Domain.prototype.setEgressRule = function (value) {
   jspb.Message.setProto3StringField(this, 4, value)
 }
 /**
  * optional string egress_number_ref = 5;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getEgressNumberRef = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getEgressNumberRef = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setEgressNumberRef = function (
+proto.fonos.domains.v1alpha1.Domain.prototype.setEgressNumberRef = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 5, value)
@@ -1348,11 +1348,11 @@ proto.yaps.domains.v1alpha1.Domain.prototype.setEgressNumberRef = function (
  * repeated string access_deny = 6;
  * @return {!Array<string>}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getAccessDenyList = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getAccessDenyList = function () {
   return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 6))
 }
 /** @param {!Array<string>} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setAccessDenyList = function (
+proto.fonos.domains.v1alpha1.Domain.prototype.setAccessDenyList = function (
   value
 ) {
   jspb.Message.setField(this, 6, value || [])
@@ -1361,24 +1361,24 @@ proto.yaps.domains.v1alpha1.Domain.prototype.setAccessDenyList = function (
  * @param {string} value
  * @param {number=} opt_index
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.addAccessDeny = function (
+proto.fonos.domains.v1alpha1.Domain.prototype.addAccessDeny = function (
   value,
   opt_index
 ) {
   jspb.Message.addToRepeatedField(this, 6, value, opt_index)
 }
-proto.yaps.domains.v1alpha1.Domain.prototype.clearAccessDenyList = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.clearAccessDenyList = function () {
   this.setAccessDenyList([])
 }
 /**
  * repeated string access_allow = 7;
  * @return {!Array<string>}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getAccessAllowList = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getAccessAllowList = function () {
   return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 7))
 }
 /** @param {!Array<string>} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setAccessAllowList = function (
+proto.fonos.domains.v1alpha1.Domain.prototype.setAccessAllowList = function (
   value
 ) {
   jspb.Message.setField(this, 7, value || [])
@@ -1387,36 +1387,36 @@ proto.yaps.domains.v1alpha1.Domain.prototype.setAccessAllowList = function (
  * @param {string} value
  * @param {number=} opt_index
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.addAccessAllow = function (
+proto.fonos.domains.v1alpha1.Domain.prototype.addAccessAllow = function (
   value,
   opt_index
 ) {
   jspb.Message.addToRepeatedField(this, 7, value, opt_index)
 }
-proto.yaps.domains.v1alpha1.Domain.prototype.clearAccessAllowList = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.clearAccessAllowList = function () {
   this.setAccessAllowList([])
 }
 /**
  * optional string create_time = 8;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getCreateTime = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getCreateTime = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setCreateTime = function (value) {
+proto.fonos.domains.v1alpha1.Domain.prototype.setCreateTime = function (value) {
   jspb.Message.setProto3StringField(this, 8, value)
 }
 /**
  * optional string update_time = 9;
  * @return {string}
  */
-proto.yaps.domains.v1alpha1.Domain.prototype.getUpdateTime = function () {
+proto.fonos.domains.v1alpha1.Domain.prototype.getUpdateTime = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ''))
 }
 /** @param {string} value */
-proto.yaps.domains.v1alpha1.Domain.prototype.setUpdateTime = function (value) {
+proto.fonos.domains.v1alpha1.Domain.prototype.setUpdateTime = function (value) {
   jspb.Message.setProto3StringField(this, 9, value)
 }
-goog.object.extend(exports, proto.yaps.domains.v1alpha1)
+goog.object.extend(exports, proto.fonos.domains.v1alpha1)
 //# sourceMappingURL=domains_pb.js.map

@@ -1,5 +1,5 @@
 require('../config')
-const AppManager = require('@yaps/appmanager')
+const AppManager = require('@fonos/appmanager')
 const { CLIError } = require('@oclif/errors')
 const { Command, flags } = require('@oclif/command')
 const inquirer = require('inquirer')
@@ -13,7 +13,7 @@ class LoginCommand extends Command {
 
     let access = {}
     if (!flags.file) {
-      console.log(`YAPS Login`)
+      console.log(`Fonos Login`)
       access = await inquirer.prompt([
         {
           name: 'endpoint',
@@ -32,8 +32,8 @@ class LoginCommand extends Command {
       }
     }
 
-    const targetDir = path.join(os.homedir(), '.yaps')
-    const pathToAccess = path.join(os.homedir(), '.yaps', 'access')
+    const targetDir = path.join(os.homedir(), '.fonos')
+    const pathToAccess = path.join(os.homedir(), '.fonos', 'access')
 
     try {
       const appmanager = new AppManager({
@@ -41,10 +41,10 @@ class LoginCommand extends Command {
         accessKeyId: access.accessKeyId,
         accessKeySecret: access.accessKeySecret
       })
-      // validate (call something inside yaps)
+      // validate (call something inside fonos)
       await appmanager.listApps({ pageSize: 0 })
 
-      // write credentials at ~/.yaps/access
+      // write credentials at ~/.fonos/access
       const content = JSON.stringify(access, null, '  ')
 
       fs.mkdirSync(targetDir, { recursive: true })

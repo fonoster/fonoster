@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'dev') {
   require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 }
 
-describe('@yaps/tts/utils', () => {
+describe('@fonos/tts/utils', () => {
   it('converts a json object into a query string', () => {
     const options = {
       voice: 'peter',

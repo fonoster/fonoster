@@ -1,14 +1,14 @@
 <a name="Storage"></a>
 
-## Storage ⇐ <code>YAPSService</code>
-Use YAPS Storage, a capability of YAPS Object Storage subsystem,
+## Storage ⇐ <code>FonosService</code>
+Use Fonos Storage, a capability of Fonos Object Storage subsystem,
 to upload, download, and delete objects.
 
 **Kind**: global class  
-**Extends**: <code>YAPSService</code>  
-**See**: module:core:YAPSService  
+**Extends**: <code>FonosService</code>  
+**See**: module:core:FonosService  
 
-* [Storage](#Storage) ⇐ <code>YAPSService</code>
+* [Storage](#Storage) ⇐ <code>FonosService</code>
     * [new Storage()](#new_Storage_new)
     * [.uploadObject(request)](#Storage+uploadObject)
     * [.getObjectURL(request)](#Storage+getObjectURL) ⇒ <code>string</code>
@@ -20,8 +20,8 @@ Constructs a new Storage object.
 
 **Example**  
 ```js
-const YAPS = require('@yaps/sdk')
-const storage = new YAPS.Storage()
+const Fonos = require('@fonos/sdk')
+const storage = new Fonos.Storage()
 
 storage.uploadObject()
 .then(result => {
@@ -31,7 +31,7 @@ storage.uploadObject()
 <a name="Storage+uploadObject"></a>
 
 ### storage.uploadObject(request)
-Upload an object to YAPS Object Storage subsystem.
+Upload an object to Fonos Object Storage subsystem.
 
 **Kind**: instance method of [<code>Storage</code>](#Storage)  
 **Throws**:

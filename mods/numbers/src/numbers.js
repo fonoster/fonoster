@@ -1,17 +1,17 @@
-const { logger } = require('@yaps/core')
-const { YAPSService, NumbersService, NumbersPB } = require('@yaps/core')
+const { logger } = require('@fonos/core')
+const { FonosService, NumbersService, NumbersPB } = require('@fonos/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
- * @classdesc Use YAPS Numbers, a capability of YAPS SIP Proxy subsystem,
- * to create, update, get and delete numbers. YAPS Numbers requires of a
- * running YAPS deployment.
+ * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
+ * to create, update, get and delete numbers. Fonos Numbers requires of a
+ * running Fonos deployment.
  *
- * @extends YAPSService
+ * @extends FonosService
  * @example
  *
- * const YAPS = require('@yaps/sdk')
- * const numbers = new YAPS.Numbers()
+ * const Fonos = require('@fonos/sdk')
+ * const numbers = new Fonos.Numbers()
  *
  * const request = {
  *   providerRef: '516f1577bcf86cd797439012',
@@ -24,11 +24,11 @@ const promisifyAll = require('grpc-promise').promisifyAll
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Numbers extends YAPSService {
+class Numbers extends FonosService {
   /**
    * Constructs a new Numbers object.
    *
-   * @see module:core:YAPSService
+   * @see module:core:FonosService
    */
   constructor (options) {
     super(NumbersService.NumbersClient, options).init()
@@ -64,12 +64,12 @@ class Numbers extends YAPSService {
   async createNumber (request) {
     logger.log(
       'verbose',
-      `@yaps/numbers createNumber [request: ${JSON.stringify(request)}]`
+      `@fonos/numbers createNumber [request: ${JSON.stringify(request)}]`
     )
 
     logger.log(
       'debug',
-      `@yaps/numbers createNumber [validating number: ${request.e164Number}]`
+      `@fonos/numbers createNumber [validating number: ${request.e164Number}]`
     )
 
     const number = new NumbersPB.Number()
@@ -131,7 +131,7 @@ class Numbers extends YAPSService {
   async updateNumber (request) {
     logger.log(
       'verbose',
-      `@yaps/numbers updateNumber [request: ${JSON.stringify(request)}]`
+      `@fonos/numbers updateNumber [request: ${JSON.stringify(request)}]`
     )
 
     const numberFromDB = await this.getNumber(request.ref)
@@ -161,7 +161,7 @@ class Numbers extends YAPSService {
   }
 
   /**
-   * List the Numbers registered in YAPS SIP Proxy subsystem.
+   * List the Numbers registered in Fonos SIP Proxy subsystem.
    *
    * @param {Object} request
    * @param {number} request.pageSize - Number of element per page
@@ -184,7 +184,7 @@ class Numbers extends YAPSService {
   async listNumbers (request) {
     logger.log(
       'verbose',
-      `@yaps/numbers listNumber [request -> ${JSON.stringify(request)}]`
+      `@fonos/numbers listNumber [request -> ${JSON.stringify(request)}]`
     )
     const r = new NumbersPB.ListNumbersRequest()
     r.setPageSize(request.pageSize)
@@ -207,7 +207,7 @@ class Numbers extends YAPSService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteNumber (ref) {
-    logger.log('verbose', `@yaps/numbers deleteNumber [ref: ${ref}]`)
+    logger.log('verbose', `@fonos/numbers deleteNumber [ref: ${ref}]`)
 
     const req = new NumbersPB.DeleteNumberRequest()
     req.setRef(ref)
@@ -225,7 +225,7 @@ class Numbers extends YAPSService {
    * @param {string} request.e164Number - A number in E164 format for
    * incomming calls
    * @return {Promise<Object>}
-   * @throws if the Number is not register in YAPS
+   * @throws if the Number is not register in Fonos
    * @example
    *
    * const request = {
@@ -240,11 +240,11 @@ class Numbers extends YAPSService {
   async getIngressApp (request) {
     logger.log(
       'verbose',
-      `@yaps/numbers getIngressApp [request: ${JSON.stringify(request)}]`
+      `@fonos/numbers getIngressApp [request: ${JSON.stringify(request)}]`
     )
     logger.log(
       'debug',
-      `@yaps/numbers getIngressApp [validating number:  ${request.e164Number}]`
+      `@fonos/numbers getIngressApp [validating number:  ${request.e164Number}]`
     )
 
     const req = new NumbersPB.GetIngressAppRequest()

@@ -16,8 +16,8 @@ module.exports = function (plop) {
       },
       {
         type: 'add',
-        path: '{{cwd}}/yaps.json',
-        templateFile: 'templates/yaps.json',
+        path: '{{cwd}}/fonos.json',
+        templateFile: 'templates/fonos.json',
         abortOnFail: true
       }
     ]

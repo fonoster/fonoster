@@ -2,7 +2,7 @@ const MockChannel = require('./mock_channel')
 const Verbs = require('../src/verbs')
 const expect = require('chai').expect
 
-describe('@yaps/voice/verbs', () => {
+describe('@fonos/voice/verbs', () => {
   context('answer/hangup verbs', () => {
     const channel = new MockChannel()
     const verbs = new Verbs(channel)

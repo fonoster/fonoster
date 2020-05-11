@@ -1,15 +1,15 @@
 <a name="Numbers"></a>
 
-## Numbers ⇐ <code>YAPSService</code>
-Use YAPS Numbers, a capability of YAPS SIP Proxy subsystem,
-to create, update, get and delete numbers. YAPS Numbers requires of a
-running YAPS deployment.
+## Numbers ⇐ <code>FonosService</code>
+Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
+to create, update, get and delete numbers. Fonos Numbers requires of a
+running Fonos deployment.
 
 **Kind**: global class  
-**Extends**: <code>YAPSService</code>  
-**See**: module:core:YAPSService  
+**Extends**: <code>FonosService</code>  
+**See**: module:core:FonosService  
 
-* [Numbers](#Numbers) ⇐ <code>YAPSService</code>
+* [Numbers](#Numbers) ⇐ <code>FonosService</code>
     * [new Numbers()](#new_Numbers_new)
     * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;Object&gt;</code>
@@ -25,8 +25,8 @@ Constructs a new Numbers object.
 
 **Example**  
 ```js
-const YAPS = require('@yaps/sdk')
-const numbers = new YAPS.Numbers()
+const Fonos = require('@fonos/sdk')
+const numbers = new Fonos.Numbers()
 
 const request = {
   providerRef: '516f1577bcf86cd797439012',
@@ -120,7 +120,7 @@ numbers.updateNumber(request)
 <a name="Numbers+listNumbers"></a>
 
 ### numbers.listNumbers(request) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
-List the Numbers registered in YAPS SIP Proxy subsystem.
+List the Numbers registered in Fonos SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
 **Returns**: <code>Promise.&lt;ListNumbersResponse&gt;</code> - List of Numbers  
@@ -171,7 +171,7 @@ Get the Ingress App for a given e164 number.
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
 **Throws**:
 
-- if the Number is not register in YAPS
+- if the Number is not register in Fonos
 
 
 | Param | Type | Description |

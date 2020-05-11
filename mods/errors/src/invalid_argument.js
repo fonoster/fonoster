@@ -1,16 +1,16 @@
-const YAPSError = require('./error')
+const FonosError = require('./error')
 const grpc = require('grpc')
 
-class YAPSInvalidArgument extends YAPSError {
+class FonosInvalidArgument extends FonosError {
   constructor (...params) {
     super(...params)
 
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, YAPSInvalidArgument)
+      Error.captureStackTrace(this, FonosInvalidArgument)
     }
 
     this.code = grpc.status.INVALID_ARGUMENT
   }
 }
 
-module.exports = YAPSInvalidArgument
+module.exports = FonosInvalidArgument

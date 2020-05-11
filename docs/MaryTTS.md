@@ -1,7 +1,7 @@
 <a name="MaryTTS"></a>
 
 ## MaryTTS ⇐ [<code>AbstractTTS</code>](#AbstractTTS)
-The default TTS engine in a YAPS deployment.
+The default TTS engine in a Fonos deployment.
 
 **Kind**: global class  
 **Extends**: [<code>AbstractTTS</code>](#AbstractTTS)  
@@ -20,9 +20,9 @@ Constructs a new MaryTTS object.
 
 **Example**  
 ```js
-const MaryTTS = require('@yaps/tts/marytts')
-const Storage = require('@yaps/storage')
-const { transcodeSync } = require('@yaps/tts/utils')
+const MaryTTS = require('@fonos/tts/marytts')
+const Storage = require('@fonos/storage')
+const { transcodeSync } = require('@fonos/tts/utils')
 
 // This is all done automatically when using the Say verb.
 module.exports = chan => {

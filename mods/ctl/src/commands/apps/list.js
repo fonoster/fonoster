@@ -1,5 +1,5 @@
 require('../../config')
-const AppManager = require('@yaps/appmanager')
+const AppManager = require('@fonos/appmanager')
 const Table = require('easy-table')
 const truncate = require('truncate')
 const { CLIError } = require('@oclif/errors')

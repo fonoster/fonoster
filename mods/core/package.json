@@ -1,9 +1,9 @@
 {
-  "name": "@yaps/core",
+  "name": "@fonos/core",
   "version": "0.0.5",
   "description": "Core artifacts",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
+  "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",
@@ -25,16 +25,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
+    "url": "git+https://github.com/fonoster/fonos.git"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
+    "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
     "@types/node": "^13.13.5",
-    "@yaps/certs": "^0.0.5",
-    "@yaps/types": "^0.0.5",
-    "@yaps/errors": "^0.0.5",
+    "@fonos/certs": "^0.0.5",
+    "@fonos/types": "^0.0.5",
+    "@fonos/errors": "^0.0.5",
     "axios": "^0.19.2",
     "btoa": "^1.2.1",
     "deepmerge": "^4.2.2",

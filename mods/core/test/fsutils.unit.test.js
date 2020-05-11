@@ -13,7 +13,7 @@ chai.use(require('chai-as-promised'))
 const expect = chai.expect
 var sandbox = sinon.createSandbox()
 
-describe('@yaps/core/fsutils', () => {
+describe('@fonos/core/fsutils', () => {
   context('create new bucket', () => {
     let makeBucketWasCalled, setBucketPolicyCalled, createNewBucket
     var fsInstance = sinon

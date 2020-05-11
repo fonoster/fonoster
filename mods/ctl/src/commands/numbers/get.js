@@ -1,5 +1,5 @@
 require('../../config')
-const Numbers = require('@yaps/numbers')
+const Numbers = require('@fonos/numbers')
 const { CLIError } = require('@oclif/errors')
 const { Command, flags } = require('@oclif/command')
 const { cli } = require('cli-ux')
@@ -15,7 +15,7 @@ class GetCommand extends Command {
       const number = await numbers.getNumber(args.ref)
 
       const jsonObj = {
-         Ref: number.getRef(),
+        Ref: number.getRef(),
         'Provider Ref': number.getProviderRef(),
         'E164 Numbe': number.getE164Number(),
         'AOR Link': number.getAorLink() || '--',

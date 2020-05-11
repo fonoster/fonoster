@@ -10,22 +10,22 @@ var jspb = require('google-protobuf')
 var goog = jspb
 var global = Function('return this')()
 goog.exportSymbol(
-  'proto.yaps.storage.v1alpha1.GetObjectURLRequest',
+  'proto.fonos.storage.v1alpha1.GetObjectURLRequest',
   null,
   global
 )
 goog.exportSymbol(
-  'proto.yaps.storage.v1alpha1.GetObjectURLResponse',
+  'proto.fonos.storage.v1alpha1.GetObjectURLResponse',
   null,
   global
 )
 goog.exportSymbol(
-  'proto.yaps.storage.v1alpha1.UploadObjectRequest',
+  'proto.fonos.storage.v1alpha1.UploadObjectRequest',
   null,
   global
 )
 goog.exportSymbol(
-  'proto.yaps.storage.v1alpha1.UploadObjectResponse',
+  'proto.fonos.storage.v1alpha1.UploadObjectResponse',
   null,
   global
 )
@@ -39,13 +39,13 @@ goog.exportSymbol(
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest = function (opt_data) {
+proto.fonos.storage.v1alpha1.UploadObjectRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.storage.v1alpha1.UploadObjectRequest, jspb.Message)
+goog.inherits(proto.fonos.storage.v1alpha1.UploadObjectRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.storage.v1alpha1.UploadObjectRequest.displayName =
-    'proto.yaps.storage.v1alpha1.UploadObjectRequest'
+  proto.fonos.storage.v1alpha1.UploadObjectRequest.displayName =
+    'proto.fonos.storage.v1alpha1.UploadObjectRequest'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -58,10 +58,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.toObject = function (
+  proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.storage.v1alpha1.UploadObjectRequest.toObject(
+    return proto.fonos.storage.v1alpha1.UploadObjectRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -71,11 +71,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.storage.v1alpha1.UploadObjectRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.storage.v1alpha1.UploadObjectRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.storage.v1alpha1.UploadObjectRequest.toObject = function (
+  proto.fonos.storage.v1alpha1.UploadObjectRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -97,14 +97,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.storage.v1alpha1.UploadObjectRequest}
+ * @return {!proto.fonos.storage.v1alpha1.UploadObjectRequest}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.deserializeBinary = function (
+proto.fonos.storage.v1alpha1.UploadObjectRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.storage.v1alpha1.UploadObjectRequest()
-  return proto.yaps.storage.v1alpha1.UploadObjectRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.storage.v1alpha1.UploadObjectRequest()
+  return proto.fonos.storage.v1alpha1.UploadObjectRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -112,11 +112,11 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.storage.v1alpha1.UploadObjectRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.storage.v1alpha1.UploadObjectRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.storage.v1alpha1.UploadObjectRequest}
+ * @return {!proto.fonos.storage.v1alpha1.UploadObjectRequest}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.deserializeBinaryFromReader = function (
+proto.fonos.storage.v1alpha1.UploadObjectRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -162,9 +162,9 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.serializeBinary = function () {
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.storage.v1alpha1.UploadObjectRequest.serializeBinaryToWriter(
+  proto.fonos.storage.v1alpha1.UploadObjectRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -173,11 +173,11 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.storage.v1alpha1.UploadObjectRequest} message
+ * @param {!proto.fonos.storage.v1alpha1.UploadObjectRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.serializeBinaryToWriter = function (
+proto.fonos.storage.v1alpha1.UploadObjectRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -208,11 +208,11 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.serializeBinaryToWriter = functi
  * optional string name = 1;
  * @return {string}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getName = function () {
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.getName = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 /** @param {string} value */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setName = function (
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.setName = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 1, value)
@@ -221,11 +221,11 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setName = function (
  * optional string bucket = 2;
  * @return {string}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getBucket = function () {
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.getBucket = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 /** @param {string} value */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setBucket = function (
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.setBucket = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 2, value)
@@ -234,7 +234,7 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setBucket = function (
  * optional bytes chunks = 3;
  * @return {!(string|Uint8Array)}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getChunks = function () {
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.getChunks = function () {
   return /** @type {!(string|Uint8Array)} */ (jspb.Message.getFieldWithDefault(
     this,
     3,
@@ -246,7 +246,7 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getChunks = function (
  * This is a type-conversion wrapper around `getChunks()`
  * @return {string}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getChunks_asB64 = function () {
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.getChunks_asB64 = function () {
   return /** @type {string} */ (jspb.Message.bytesAsB64(this.getChunks()))
 }
 /**
@@ -256,11 +256,11 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getChunks_asB64 = func
  * This is a type-conversion wrapper around `getChunks()`
  * @return {!Uint8Array}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getChunks_asU8 = function () {
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.getChunks_asU8 = function () {
   return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(this.getChunks()))
 }
 /** @param {!(string|Uint8Array)} value */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setChunks = function (
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.setChunks = function (
   value
 ) {
   jspb.Message.setProto3BytesField(this, 3, value)
@@ -271,7 +271,7 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.setChunks = function (
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,string>}
  */
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getMetadataMap = function (
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.getMetadataMap = function (
   opt_noLazyCreate
 ) {
   return /** @type {!jspb.Map<string,string>} */ (jspb.Message.getMapField(
@@ -281,7 +281,7 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.getMetadataMap = funct
     null
   ))
 }
-proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.clearMetadataMap = function () {
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.clearMetadataMap = function () {
   this.getMetadataMap().clear()
 }
 /**
@@ -294,13 +294,13 @@ proto.yaps.storage.v1alpha1.UploadObjectRequest.prototype.clearMetadataMap = fun
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.storage.v1alpha1.UploadObjectResponse = function (opt_data) {
+proto.fonos.storage.v1alpha1.UploadObjectResponse = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.storage.v1alpha1.UploadObjectResponse, jspb.Message)
+goog.inherits(proto.fonos.storage.v1alpha1.UploadObjectResponse, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.storage.v1alpha1.UploadObjectResponse.displayName =
-    'proto.yaps.storage.v1alpha1.UploadObjectResponse'
+  proto.fonos.storage.v1alpha1.UploadObjectResponse.displayName =
+    'proto.fonos.storage.v1alpha1.UploadObjectResponse'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -313,10 +313,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.storage.v1alpha1.UploadObjectResponse.prototype.toObject = function (
+  proto.fonos.storage.v1alpha1.UploadObjectResponse.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.storage.v1alpha1.UploadObjectResponse.toObject(
+    return proto.fonos.storage.v1alpha1.UploadObjectResponse.toObject(
       opt_includeInstance,
       this
     )
@@ -326,11 +326,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.storage.v1alpha1.UploadObjectResponse} msg The msg instance to transform.
+   * @param {!proto.fonos.storage.v1alpha1.UploadObjectResponse} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.storage.v1alpha1.UploadObjectResponse.toObject = function (
+  proto.fonos.storage.v1alpha1.UploadObjectResponse.toObject = function (
     includeInstance,
     msg
   ) {
@@ -347,14 +347,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.storage.v1alpha1.UploadObjectResponse}
+ * @return {!proto.fonos.storage.v1alpha1.UploadObjectResponse}
  */
-proto.yaps.storage.v1alpha1.UploadObjectResponse.deserializeBinary = function (
+proto.fonos.storage.v1alpha1.UploadObjectResponse.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.storage.v1alpha1.UploadObjectResponse()
-  return proto.yaps.storage.v1alpha1.UploadObjectResponse.deserializeBinaryFromReader(
+  var msg = new proto.fonos.storage.v1alpha1.UploadObjectResponse()
+  return proto.fonos.storage.v1alpha1.UploadObjectResponse.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -362,11 +362,11 @@ proto.yaps.storage.v1alpha1.UploadObjectResponse.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.storage.v1alpha1.UploadObjectResponse} msg The message object to deserialize into.
+ * @param {!proto.fonos.storage.v1alpha1.UploadObjectResponse} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.storage.v1alpha1.UploadObjectResponse}
+ * @return {!proto.fonos.storage.v1alpha1.UploadObjectResponse}
  */
-proto.yaps.storage.v1alpha1.UploadObjectResponse.deserializeBinaryFromReader = function (
+proto.fonos.storage.v1alpha1.UploadObjectResponse.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -391,9 +391,9 @@ proto.yaps.storage.v1alpha1.UploadObjectResponse.deserializeBinaryFromReader = f
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.storage.v1alpha1.UploadObjectResponse.prototype.serializeBinary = function () {
+proto.fonos.storage.v1alpha1.UploadObjectResponse.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.storage.v1alpha1.UploadObjectResponse.serializeBinaryToWriter(
+  proto.fonos.storage.v1alpha1.UploadObjectResponse.serializeBinaryToWriter(
     this,
     writer
   )
@@ -402,11 +402,11 @@ proto.yaps.storage.v1alpha1.UploadObjectResponse.prototype.serializeBinary = fun
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.storage.v1alpha1.UploadObjectResponse} message
+ * @param {!proto.fonos.storage.v1alpha1.UploadObjectResponse} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.storage.v1alpha1.UploadObjectResponse.serializeBinaryToWriter = function (
+proto.fonos.storage.v1alpha1.UploadObjectResponse.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -420,11 +420,11 @@ proto.yaps.storage.v1alpha1.UploadObjectResponse.serializeBinaryToWriter = funct
  * optional int32 size = 1;
  * @return {number}
  */
-proto.yaps.storage.v1alpha1.UploadObjectResponse.prototype.getSize = function () {
+proto.fonos.storage.v1alpha1.UploadObjectResponse.prototype.getSize = function () {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0))
 }
 /** @param {number} value */
-proto.yaps.storage.v1alpha1.UploadObjectResponse.prototype.setSize = function (
+proto.fonos.storage.v1alpha1.UploadObjectResponse.prototype.setSize = function (
   value
 ) {
   jspb.Message.setProto3IntField(this, 1, value)
@@ -439,13 +439,13 @@ proto.yaps.storage.v1alpha1.UploadObjectResponse.prototype.setSize = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest = function (opt_data) {
+proto.fonos.storage.v1alpha1.GetObjectURLRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.storage.v1alpha1.GetObjectURLRequest, jspb.Message)
+goog.inherits(proto.fonos.storage.v1alpha1.GetObjectURLRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.storage.v1alpha1.GetObjectURLRequest.displayName =
-    'proto.yaps.storage.v1alpha1.GetObjectURLRequest'
+  proto.fonos.storage.v1alpha1.GetObjectURLRequest.displayName =
+    'proto.fonos.storage.v1alpha1.GetObjectURLRequest'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -458,10 +458,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.toObject = function (
+  proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.storage.v1alpha1.GetObjectURLRequest.toObject(
+    return proto.fonos.storage.v1alpha1.GetObjectURLRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -471,11 +471,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.storage.v1alpha1.GetObjectURLRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.storage.v1alpha1.GetObjectURLRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.storage.v1alpha1.GetObjectURLRequest.toObject = function (
+  proto.fonos.storage.v1alpha1.GetObjectURLRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -493,14 +493,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.storage.v1alpha1.GetObjectURLRequest}
+ * @return {!proto.fonos.storage.v1alpha1.GetObjectURLRequest}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest.deserializeBinary = function (
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.storage.v1alpha1.GetObjectURLRequest()
-  return proto.yaps.storage.v1alpha1.GetObjectURLRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.storage.v1alpha1.GetObjectURLRequest()
+  return proto.fonos.storage.v1alpha1.GetObjectURLRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -508,11 +508,11 @@ proto.yaps.storage.v1alpha1.GetObjectURLRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.storage.v1alpha1.GetObjectURLRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.storage.v1alpha1.GetObjectURLRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.storage.v1alpha1.GetObjectURLRequest}
+ * @return {!proto.fonos.storage.v1alpha1.GetObjectURLRequest}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest.deserializeBinaryFromReader = function (
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -541,9 +541,9 @@ proto.yaps.storage.v1alpha1.GetObjectURLRequest.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.serializeBinary = function () {
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.storage.v1alpha1.GetObjectURLRequest.serializeBinaryToWriter(
+  proto.fonos.storage.v1alpha1.GetObjectURLRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -552,11 +552,11 @@ proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.storage.v1alpha1.GetObjectURLRequest} message
+ * @param {!proto.fonos.storage.v1alpha1.GetObjectURLRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest.serializeBinaryToWriter = function (
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -574,11 +574,11 @@ proto.yaps.storage.v1alpha1.GetObjectURLRequest.serializeBinaryToWriter = functi
  * optional string name = 1;
  * @return {string}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.getName = function () {
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.getName = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 /** @param {string} value */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.setName = function (
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.setName = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 1, value)
@@ -587,11 +587,11 @@ proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.setName = function (
  * optional string bucket = 2;
  * @return {string}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.getBucket = function () {
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.getBucket = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 /** @param {string} value */
-proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.setBucket = function (
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.setBucket = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 2, value)
@@ -606,13 +606,13 @@ proto.yaps.storage.v1alpha1.GetObjectURLRequest.prototype.setBucket = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.storage.v1alpha1.GetObjectURLResponse = function (opt_data) {
+proto.fonos.storage.v1alpha1.GetObjectURLResponse = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.storage.v1alpha1.GetObjectURLResponse, jspb.Message)
+goog.inherits(proto.fonos.storage.v1alpha1.GetObjectURLResponse, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.storage.v1alpha1.GetObjectURLResponse.displayName =
-    'proto.yaps.storage.v1alpha1.GetObjectURLResponse'
+  proto.fonos.storage.v1alpha1.GetObjectURLResponse.displayName =
+    'proto.fonos.storage.v1alpha1.GetObjectURLResponse'
 }
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -625,10 +625,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.storage.v1alpha1.GetObjectURLResponse.prototype.toObject = function (
+  proto.fonos.storage.v1alpha1.GetObjectURLResponse.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.storage.v1alpha1.GetObjectURLResponse.toObject(
+    return proto.fonos.storage.v1alpha1.GetObjectURLResponse.toObject(
       opt_includeInstance,
       this
     )
@@ -638,11 +638,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.storage.v1alpha1.GetObjectURLResponse} msg The msg instance to transform.
+   * @param {!proto.fonos.storage.v1alpha1.GetObjectURLResponse} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.storage.v1alpha1.GetObjectURLResponse.toObject = function (
+  proto.fonos.storage.v1alpha1.GetObjectURLResponse.toObject = function (
     includeInstance,
     msg
   ) {
@@ -659,14 +659,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.storage.v1alpha1.GetObjectURLResponse}
+ * @return {!proto.fonos.storage.v1alpha1.GetObjectURLResponse}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLResponse.deserializeBinary = function (
+proto.fonos.storage.v1alpha1.GetObjectURLResponse.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.storage.v1alpha1.GetObjectURLResponse()
-  return proto.yaps.storage.v1alpha1.GetObjectURLResponse.deserializeBinaryFromReader(
+  var msg = new proto.fonos.storage.v1alpha1.GetObjectURLResponse()
+  return proto.fonos.storage.v1alpha1.GetObjectURLResponse.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -674,11 +674,11 @@ proto.yaps.storage.v1alpha1.GetObjectURLResponse.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.storage.v1alpha1.GetObjectURLResponse} msg The message object to deserialize into.
+ * @param {!proto.fonos.storage.v1alpha1.GetObjectURLResponse} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.storage.v1alpha1.GetObjectURLResponse}
+ * @return {!proto.fonos.storage.v1alpha1.GetObjectURLResponse}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLResponse.deserializeBinaryFromReader = function (
+proto.fonos.storage.v1alpha1.GetObjectURLResponse.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -703,9 +703,9 @@ proto.yaps.storage.v1alpha1.GetObjectURLResponse.deserializeBinaryFromReader = f
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLResponse.prototype.serializeBinary = function () {
+proto.fonos.storage.v1alpha1.GetObjectURLResponse.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.storage.v1alpha1.GetObjectURLResponse.serializeBinaryToWriter(
+  proto.fonos.storage.v1alpha1.GetObjectURLResponse.serializeBinaryToWriter(
     this,
     writer
   )
@@ -714,11 +714,11 @@ proto.yaps.storage.v1alpha1.GetObjectURLResponse.prototype.serializeBinary = fun
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.storage.v1alpha1.GetObjectURLResponse} message
+ * @param {!proto.fonos.storage.v1alpha1.GetObjectURLResponse} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.storage.v1alpha1.GetObjectURLResponse.serializeBinaryToWriter = function (
+proto.fonos.storage.v1alpha1.GetObjectURLResponse.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -732,14 +732,14 @@ proto.yaps.storage.v1alpha1.GetObjectURLResponse.serializeBinaryToWriter = funct
  * optional string url = 1;
  * @return {string}
  */
-proto.yaps.storage.v1alpha1.GetObjectURLResponse.prototype.getUrl = function () {
+proto.fonos.storage.v1alpha1.GetObjectURLResponse.prototype.getUrl = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 /** @param {string} value */
-proto.yaps.storage.v1alpha1.GetObjectURLResponse.prototype.setUrl = function (
+proto.fonos.storage.v1alpha1.GetObjectURLResponse.prototype.setUrl = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 1, value)
 }
-goog.object.extend(exports, proto.yaps.storage.v1alpha1)
+goog.object.extend(exports, proto.fonos.storage.v1alpha1)
 //# sourceMappingURL=storage_pb.js.map

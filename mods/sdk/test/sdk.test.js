@@ -2,6 +2,6 @@
 
 const sdk = require('..')
 
-describe('@yaps/sdk', () => {
+describe('@fonos/sdk', () => {
   it('needs tests')
 })

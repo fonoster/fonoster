@@ -1,5 +1,5 @@
 require('../../config')
-const Agents = require('@yaps/agents')
+const Agents = require('@fonos/agents')
 const { CLIError } = require('@oclif/errors')
 const { Command, flags } = require('@oclif/command')
 const { cli } = require('cli-ux')

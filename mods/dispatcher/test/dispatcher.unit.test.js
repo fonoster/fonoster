@@ -1,5 +1,5 @@
 'use strict'
 
-describe('@yaps/dispatcher', () => {
+describe('@fonos/dispatcher', () => {
   it('needs tests')
 })

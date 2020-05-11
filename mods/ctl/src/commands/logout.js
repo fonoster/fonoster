@@ -6,7 +6,7 @@ const os = require('os')
 
 class LogoutCommand extends Command {
   async run () {
-    const pathToAccess = path.join(os.homedir(), '.yaps', 'access')
+    const pathToAccess = path.join(os.homedir(), '.fonos', 'access')
 
     try {
       fs.unlinkSync(pathToAccess)

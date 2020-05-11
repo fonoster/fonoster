@@ -33,7 +33,7 @@ var __awaiter =
     })
   }
 Object.defineProperty(exports, '__esModule', { value: true })
-const { YAPSError, YAPSAuthError } = require('@yaps/errors')
+const { FonosError, FonosAuthError } = require('@fonos/errors')
 const { ListAppsResponse, App } = require('./protos/appmanager_pb')
 const { Empty } = require('./protos/common_pb')
 const { auth } = require('../common/trust_util')
@@ -45,7 +45,7 @@ const updateBucketPolicy = require('../common/fsutils')
 const Status = require('grpc').status
 const listApps = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     if (!call.request.getPageToken()) {
       // Nothing to send
       callback(null, new ListAppsResponse())
@@ -65,11 +65,11 @@ const listApps = (call, callback) =>
   })
 const getApp = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const result = yield redis.call('get', call.request.getName())
     if (!result) {
       callback(
-        new YAPSError(
+        new FonosError(
           Status.NOT_FOUND,
           `App ${call.request.getName()} does not exist`
         )
@@ -81,8 +81,8 @@ const getApp = (call, callback) =>
   })
 const createApp = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
-    logger.log('debug', `@yaps/core createApp`)
+    if (!auth(call)) return callback(new FonosAuthError())
+    logger.log('debug', `@fonos/core createApp`)
     const errors = appmanager.createAppRequest.validate({
       app: {
         name: call.request.getApp().getName(),
@@ -90,7 +90,7 @@ const createApp = (call, callback) =>
       }
     })
     if (errors.length > 0) {
-      //callback(new YAPSInvalidArgument(errors[0].message))
+      //callback(new FonosInvalidArgument(errors[0].message))
       return
     }
     const app = call.request.getApp()
@@ -103,7 +103,7 @@ const createApp = (call, callback) =>
     yield redis.set(app.getName(), `${JSON.stringify(app)}`)
     logger.log(
       'debug',
-      `@yaps/core createApp [updating bucket policy for app: ${app.getName()}]`
+      `@fonos/core createApp [updating bucket policy for app: ${app.getName()}]`
     )
     yield updateBucketPolicy(app.getBucket() || 'default')
     callback(null, app)
@@ -111,7 +111,7 @@ const createApp = (call, callback) =>
 // Not yet implemented
 const updateApp = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     console.log(`updating app: ${JSON.stringify(call.request)}`)
     // -- Operate here
     // ---
@@ -119,11 +119,11 @@ const updateApp = (call, callback) =>
   })
 const deleteApp = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const result = yield redis.call('get', call.request.getName())
     if (!result) {
       callback(
-        new YAPSError(
+        new FonosError(
           Status.NOT_FOUND,
           `App ${call.request.getName()} does not exist`
         )

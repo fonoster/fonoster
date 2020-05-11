@@ -1,16 +1,16 @@
-const YAPSError = require('./error')
+const FonosError = require('./error')
 const grpc = require('grpc')
 
-class YAPSSubsysUnavailable extends YAPSError {
+class FonosSubsysUnavailable extends FonosError {
   constructor (...params) {
     super(...params)
 
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, YAPSSubsysUnavailable)
+      Error.captureStackTrace(this, FonosSubsysUnavailable)
     }
 
     this.code = grpc.status.INTERNAL
   }
 }
 
-module.exports = YAPSSubsysUnavailable
+module.exports = FonosSubsysUnavailable

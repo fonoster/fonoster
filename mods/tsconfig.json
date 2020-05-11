@@ -5,7 +5,7 @@
     "baseUrl": ".",
     "esModuleInterop": true,
     "paths": {
-      "@yaps/*": ["*/src"]
+      "@fonos/*": ["*/src"]
     }
   }
 }

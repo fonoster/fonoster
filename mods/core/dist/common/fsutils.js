@@ -44,7 +44,7 @@ module.exports = bucket =>
       if (!exists) {
         logger.log(
           'verbose',
-          `@yaps/core fsutils [Creating storage and setting policy bucket: ${bucket}]`
+          `@fonos/core fsutils [Creating storage and setting policy bucket: ${bucket}]`
         )
         yield fsConn.makeBucket(bucket, 'us-west-1')
         yield fsConn.setBucketPolicy(bucket, policy(bucket))

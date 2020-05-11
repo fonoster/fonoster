@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package yaps.storage.v1alpha1;
+package fonos.storage.v1alpha1;
 
 service Storage {
     rpc UploadObject (stream UploadObjectRequest) returns (UploadObjectResponse) {};

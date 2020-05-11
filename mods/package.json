@@ -1,5 +1,6 @@
 {
-  "name": "root",
+  "version": "0.0.5",
+  "name": "fonos",
   "private": true,
   "scripts": {
     "docs": "node ./docs",
@@ -12,21 +13,25 @@
     "build": "lerna run build",
     "pub": "lerna publish"
   },
-  "devDependencies": {
-    "@yaps/agents": "^0.0.5",
-    "@yaps/appmanager": "^0.0.5",
-    "@yaps/certs": "^0.0.5",
-    "@yaps/core": "^0.0.5",
-    "@yaps/ctl": "^0.0.5",
-    "@yaps/dispatcher": "^0.0.5",
-    "@yaps/domains": "^0.0.5",
-    "@yaps/errors": "^0.0.5",
-    "@yaps/numbers": "^0.0.5",
-    "@yaps/providers": "^0.0.5",
-    "@yaps/sdk": "^0.0.5",
-    "@yaps/storage": "^0.0.5",
-    "@yaps/tts": "^0.0.5",
-    "@yaps/voice": "^0.0.5",
+  "bin": {
+    "run-mediacontroller": "mediacontroller.js",
+    "run-apiserver": "apiserver.js"
+  },
+  "dependencies": {
+    "@fonos/agents": "^0.0.5",
+    "@fonos/appmanager": "^0.0.5",
+    "@fonos/certs": "^0.0.5",
+    "@fonos/core": "^0.0.5",
+    "@fonos/ctl": "^0.0.5",
+    "@fonos/dispatcher": "^0.0.5",
+    "@fonos/domains": "^0.0.5",
+    "@fonos/errors": "^0.0.5",
+    "@fonos/numbers": "^0.0.5",
+    "@fonos/providers": "^0.0.5",
+    "@fonos/sdk": "^0.0.5",
+    "@fonos/storage": "^0.0.5",
+    "@fonos/tts": "^0.0.5",
+    "@fonos/voice": "^0.0.5",
     "assert": "^2.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
@@ -41,7 +46,8 @@
     "prettier-standard": "^9.1.1",
     "rewire": "^5.0.0",
     "sinon": "^9.0.1",
-    "sinon-chai": "^3.5.0"
+    "sinon-chai": "^3.5.0",
+    "@types/node": "^13.13.5"
   },
   "lint-staged": {
     "**/*.js": [
@@ -52,8 +58,5 @@
     "hooks": {
       "pre-commit": "lint-staged --allow-empty && node docs.js && git add ../docs"
     }
-  },
-  "dependencies": {
-    "@types/node": "^13.13.5"
   }
 }

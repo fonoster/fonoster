@@ -1,22 +1,22 @@
 {
-  "name": "@yaps/ctl",
-  "description": "Command-Line for YAPS",
+  "name": "@fonos/ctl",
+  "description": "Command-Line for Fonos",
   "version": "0.0.5",
   "author": "Pedro Sanders @psanders",
   "bin": {
-    "yaps": "./bin/run"
+    "fonos": "./bin/run"
   },
-  "bugs": "https://github.com/fonoster/yaps/issues",
+  "bugs": "https://github.com/fonoster/fonos/issues",
   "dependencies": {
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",
     "@oclif/plugin-help": "^2.2.3",
-    "@yaps/agents": "^0.0.5",
-    "@yaps/appmanager": "^0.0.5",
-    "@yaps/core": "^0.0.5",
-    "@yaps/domains": "^0.0.5",
-    "@yaps/numbers": "^0.0.5",
-    "@yaps/providers": "^0.0.5",
+    "@fonos/agents": "^0.0.5",
+    "@fonos/appmanager": "^0.0.5",
+    "@fonos/core": "^0.0.5",
+    "@fonos/domains": "^0.0.5",
+    "@fonos/numbers": "^0.0.5",
+    "@fonos/providers": "^0.0.5",
     "cli-ux": "^5.4.5",
     "dotenv": "^8.2.0",
     "easy-table": "^1.1.1",
@@ -49,12 +49,12 @@
     "/oclif.manifest.json",
     "/src"
   ],
-  "homepage": "https://github.com/fonoster/yaps",
+  "homepage": "https://github.com/fonoster/fonos",
   "license": "MIT",
   "main": "src/index.js",
   "oclif": {
     "commands": "./src/commands",
-    "bin": "yaps",
+    "bin": "fonos",
     "plugins": [
       "@oclif/plugin-help"
     ],
@@ -82,7 +82,7 @@
       }
     }
   },
-  "repository": "fonoster/yaps",
+  "repository": "fonoster/fonos",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "eslint .",

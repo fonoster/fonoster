@@ -1,8 +1,8 @@
-const { AppManager } = require('@yaps/appmanager')
-const { Storage } = require('@yaps/storage')
-const { Numbers } = require('@yaps/numbers')
-const { Domains } = require('@yaps/domains')
-const { Providers } = require('@yaps/providers')
+const { AppManager } = require('@fonos/appmanager')
+const { Storage } = require('@fonos/storage')
+const { Numbers } = require('@fonos/numbers')
+const { Domains } = require('@fonos/domains')
+const { Providers } = require('@fonos/providers')
 
 module.exports.AppManager = AppManager
 module.exports.Storage = Storage

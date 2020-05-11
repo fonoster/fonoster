@@ -1,6 +1,6 @@
 require('../../config')
-const Providers = require('@yaps/providers')
-const Apps = require('@yaps/appmanager')
+const Providers = require('@fonos/providers')
+const Apps = require('@fonos/appmanager')
 const { Command } = require('@oclif/command')
 const { CLIError } = require('@oclif/errors')
 const inquirer = require('inquirer')

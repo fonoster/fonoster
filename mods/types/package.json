@@ -1,9 +1,9 @@
 {
-  "name": "@yaps/types",
+  "name": "@fonos/types",
   "version": "0.0.5",
-  "description": "Handles YAPS types",
+  "description": "Handles Fonos types",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
+  "homepage": "https://github.com/fonoster/fonos#readme",
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
@@ -25,10 +25,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
+    "url": "git+https://github.com/fonoster/fonos.git"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
+    "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
     "@types/node": "^13.13.5"

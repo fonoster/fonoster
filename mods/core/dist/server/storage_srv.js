@@ -35,11 +35,11 @@ var __awaiter =
 Object.defineProperty(exports, '__esModule', { value: true })
 const StoragePB = require('./protos/storage_pb')
 const {
-  YAPSError,
-  YAPSAuthError,
-  YAPSFailedPrecondition,
-  YAPSInvalidArgument
-} = require('@yaps/errors')
+  FonosError,
+  FonosAuthError,
+  FonosFailedPrecondition,
+  FonosInvalidArgument
+} = require('@fonos/errors')
 const grpc = require('grpc')
 const objectid = require('objectid')
 const fs = require('fs')
@@ -55,18 +55,18 @@ const {
   fsInstance
 } = require('../common/utils')
 const uploadObject = (call, callback) => {
-  if (!auth(call)) return callback(new YAPSAuthError())
+  if (!auth(call)) return callback(new FonosAuthError())
   // I swear I don't like this :(
   const delayVerification = request => {
-    logger.log('verbose', `@yaps/core uploadObject [delay verification]`)
+    logger.log('verbose', `@fonos/core uploadObject [delay verification]`)
     // Validating the request
     const errors = storageValidator.uploadObjectRequest.validate({
       name: request.getName(),
       bucket: request.getBucket()
     })
     if (errors.length > 0) {
-      logger.log('warn', `@yaps/core uploadObject [invalid argument]`)
-      callback(new YAPSInvalidArgument(errors[0].message))
+      logger.log('warn', `@fonos/core uploadObject [invalid argument]`)
+      callback(new FonosInvalidArgument(errors[0].message))
       return
     }
   }
@@ -96,18 +96,18 @@ const uploadObject = (call, callback) => {
       try {
         logger.log(
           'verbose',
-          `@yaps/core uploadObject [object ready for upload]`
+          `@fonos/core uploadObject [object ready for upload]`
         )
-        logger.log('debug', `@yaps/core uploadObject [object: ${object}]`)
-        logger.log('debug', `@yaps/core uploadObject [bucket: ${bucket}]`)
+        logger.log('debug', `@fonos/core uploadObject [object: ${object}]`)
+        logger.log('debug', `@fonos/core uploadObject [bucket: ${bucket}]`)
         logger.log(
           'debug',
-          `@yaps/core uploadObject [metadata: ${JSON.stringify(metadata)}]`
+          `@fonos/core uploadObject [metadata: ${JSON.stringify(metadata)}]`
         )
         const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`)
         logger.log(
           'debug',
-          `@yaps/core uploadObject [file size -> ${fileSize}]`
+          `@fonos/core uploadObject [file size -> ${fileSize}]`
         )
         // Back to what it is supposed to be
         fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
@@ -120,7 +120,7 @@ const uploadObject = (call, callback) => {
         ) {
           logger.log(
             'verbose',
-            `@yaps/core uploadObject [extracting files: /tmp/${object}]`
+            `@fonos/core uploadObject [extracting files: /tmp/${object}]`
           )
           yield extract(`/tmp/${object}`, `/tmp`)
           const nameWithoutExt = object.split('.')[0]
@@ -141,21 +141,21 @@ const uploadObject = (call, callback) => {
         // Remove temporal file
         logger.log(
           'verbose',
-          `@yaps/core uploadObject [removing tmpfile: /tmp/${object}}]`
+          `@fonos/core uploadObject [removing tmpfile: /tmp/${object}}]`
         )
         fs.unlinkSync(`/tmp/${object}`)
       } catch (err) {
         if (err.code === 'NoSuchBucket') {
           logger.log('error', `${err.message} -> bucket: ${bucket}`)
           callback(
-            new YAPSFailedPrecondition(`${err.message} -> bucket: ${bucket}`)
+            new FonosFailedPrecondition(`${err.message} -> bucket: ${bucket}`)
           )
         } else if (err.code === 'TAR_BAD_ARCHIVE') {
           logger.log('error', err.message)
-          callback(new YAPSError(grpc.status.DATA_LOSS, err.message))
+          callback(new FonosError(grpc.status.DATA_LOSS, err.message))
         } else {
           logger.log('error', err.message)
-          callback(new YAPSError(grpc.status.UNKNOWN, err.message))
+          callback(new FonosError(grpc.status.UNKNOWN, err.message))
         }
       }
     })
@@ -164,7 +164,7 @@ const uploadObject = (call, callback) => {
 const getObjectURL = (call, callback) => {
   logger.log(
     'debug',
-    `@yaps/core getObjectURL [request: ${call.request.getName()}]`
+    `@fonos/core getObjectURL [request: ${call.request.getName()}]`
   )
   // Validating the request
   const errors = storageValidator.getObjectURLRequest.validate({
@@ -172,8 +172,8 @@ const getObjectURL = (call, callback) => {
     bucket: call.request.getBucket()
   })
   if (errors.length > 0) {
-    logger.log('warn', `@yaps/core getObjectURL [invalid argument]`)
-    callback(new YAPSInvalidArgument(errors[0].message))
+    logger.log('warn', `@fonos/core getObjectURL [invalid argument]`)
+    callback(new FonosInvalidArgument(errors[0].message))
     return
   }
   fsInstance().statObject(
@@ -184,7 +184,7 @@ const getObjectURL = (call, callback) => {
       const bucket = call.request.getBucket()
       if (err) {
         callback(
-          new YAPSError(
+          new FonosError(
             grpc.status.NOT_FOUND,
             `${err.message}: filename '${name}' in bucket '${bucket}'`
           )

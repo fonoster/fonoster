@@ -1,6 +1,6 @@
 require('../../config')
-const Agents = require('@yaps/agents')
-const Domains = require('@yaps/domains')
+const Agents = require('@fonos/agents')
+const Domains = require('@fonos/domains')
 const { Command } = require('@oclif/command')
 const { CLIError } = require('@oclif/errors')
 const inquirer = require('inquirer')
@@ -13,7 +13,10 @@ class CreateCommand extends Command {
     console.log('Press ^C at any time to quit.')
 
     // TODO: Consider using the autocomplete plugin
-    const response = await new Domains().listDomains({ pageSize: 25, pageToken: '1' })
+    const response = await new Domains().listDomains({
+      pageSize: 25,
+      pageToken: '1'
+    })
     const domains = response.getDomainsList().map(app => app.getDomainUri())
 
     const answers = await inquirer.prompt([

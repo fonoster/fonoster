@@ -1,9 +1,9 @@
 {
-  "name": "@yaps/dispatcher",
+  "name": "@fonos/dispatcher",
   "version": "0.0.5",
-  "description": "Application Router for YAPS",
+  "description": "Application Router for Fonos",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
+  "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "src/index.js",
   "directories": {
@@ -18,18 +18,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
+    "url": "git+https://github.com/fonoster/fonos.git"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
+    "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@yaps/appmanager": "^0.0.5",
-    "@yaps/core": "^0.0.5",
-    "@yaps/numbers": "^0.0.5",
-    "@yaps/storage": "^0.0.5",
-    "@yaps/tts": "^0.0.5",
-    "@yaps/voice": "^0.0.5",
+    "@fonos/appmanager": "^0.0.5",
+    "@fonos/core": "^0.0.5",
+    "@fonos/numbers": "^0.0.5",
+    "@fonos/storage": "^0.0.5",
+    "@fonos/tts": "^0.0.5",
+    "@fonos/voice": "^0.0.5",
     "agi-node": "github:psanders/agi-node",
     "dotenv": "^8.2.0",
     "vm2": "^3.6.10"

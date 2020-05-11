@@ -1,9 +1,9 @@
 {
-  "name": "@yaps/tts",
+  "name": "@fonos/tts",
   "version": "0.0.5",
-  "description": "YAPS TTS",
+  "description": "Fonos TTS",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
+  "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "src/index.js",
   "directories": {
@@ -18,13 +18,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
+    "url": "git+https://github.com/fonoster/fonos.git"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
+    "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@yaps/core": "^0.0.5",
+    "@fonos/core": "^0.0.5",
     "deepmerge": "^4.2.2",
     "dotenv": "^8.2.0",
     "flat": "^5.0.0",

@@ -4,13 +4,13 @@ const path = require('path')
 const os = require('os')
 const acme = require('acme-client')
 
-const pathToYAPSConfig = path.join(os.homedir(), '.yaps')
-const pathToSalt = path.join(pathToYAPSConfig, 'jwt.salt')
-const pathToAccess = path.join(pathToYAPSConfig, 'access')
-const accessKeyId = 'yaps' // WARNING: Fix hardcode
-const iss = 'yaps' // WARNING: Fix hardcode
+const pathToFonosConfig = path.join(os.homedir(), '.fonos')
+const pathToSalt = path.join(pathToFonosConfig, 'jwt.salt')
+const pathToAccess = path.join(pathToFonosConfig, 'access')
+const accessKeyId = 'fonos' // WARNING: Fix hardcode
+const iss = 'fonos' // WARNING: Fix hardcode
 
-if (!fs.existsSync(pathToYAPSConfig)) fs.mkdirSync(pathToYAPSConfig)
+if (!fs.existsSync(pathToFonosConfig)) fs.mkdirSync(pathToFonosConfig)
 
 const saltExist = () => fs.existsSync(pathToSalt)
 const getSalt = () =>

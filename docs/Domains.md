@@ -1,15 +1,15 @@
 <a name="Domains"></a>
 
-## Domains ⇐ <code>YAPSService</code>
-Use YAPS Domains, a capability of YAPS SIP Proxy Subsystem,
-to create, update, get and delete domains. YAPS Domains requires of a
-running YAPS deployment.
+## Domains ⇐ <code>FonosService</code>
+Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
+to create, update, get and delete domains. Fonos Domains requires of a
+running Fonos deployment.
 
 **Kind**: global class  
-**Extends**: <code>YAPSService</code>  
-**See**: module:core:YAPSService  
+**Extends**: <code>FonosService</code>  
+**See**: module:core:FonosService  
 
-* [Domains](#Domains) ⇐ <code>YAPSService</code>
+* [Domains](#Domains) ⇐ <code>FonosService</code>
     * [new Domains()](#new_Domains_new)
     * [.createDomain(request)](#Domains+createDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getDomain(ref)](#Domains+getDomain) ⇒ <code>Promise.&lt;Object&gt;</code>
@@ -24,8 +24,8 @@ Constructs a new Domains object.
 
 **Example**  
 ```js
-const YAPS = require('@yaps/sdk')
-const domains = new YAPS.Domains()
+const Fonos = require('@fonos/sdk')
+const domains = new Fonos.Domains()
 
 domains.createDomain({name: 'Local Domain', domainUri: 'sip.local'...})
 .then(result => {
@@ -44,7 +44,7 @@ Creates a new Domain on the SIP Proxy subsystem.
 | request | <code>Object</code> | Request for the provision of a new Domain |
 | request.name | <code>string</code> | Friendly name for the SIP domain |
 | request.domainUri | <code>string</code> | Domain URI. FQDN is recommended |
-| request.egressNumberRef | <code>string</code> | A valid reference to a Number in YAPS |
+| request.egressNumberRef | <code>string</code> | A valid reference to a Number in Fonos |
 | request.egressRule | <code>string</code> | Regular expression indicating when a call will be routed via request.egressNumberRef |
 | request.accessDeny | <code>string</code> | Optional list of IPs or networks that cannot communicate with this Domain |
 | request.accessAllow | <code>string</code> | Optiona list of IPs or networks allow if request.accessDeny is defined |
@@ -100,7 +100,7 @@ Update a Domain at the SIP Proxy subsystem.
 | request | <code>Object</code> | Request for the update of an existing Domain |
 | request.ref | <code>string</code> | To update a Domain you must provide its reference |
 | request.name | <code>string</code> | Friendly name for the SIP domain |
-| request.egressNumberRef | <code>string</code> | A valid reference to a Number in YAPS |
+| request.egressNumberRef | <code>string</code> | A valid reference to a Number in Fonos |
 | request.egressRule | <code>string</code> | Regular expression indicating when a call will be routed via request.egressNumberRef |
 | request.accessDeny | <code>string</code> | Optional list of IPs or networks that cannot communicate with this Domain |
 | request.accessAllow | <code>string</code> | Optiona list of IPs or networks allow if request.accessDeny is defined |
@@ -121,7 +121,7 @@ domains.updateDomain(request)
 <a name="Domains+listDomains"></a>
 
 ### domains.listDomains(request) ⇒ <code>Promise.&lt;ListDomainsResponse&gt;</code>
-List the Domains registered in YAPS SIP Proxy subsystem.
+List the Domains registered in Fonos SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Domains</code>](#Domains)  
 **Returns**: <code>Promise.&lt;ListDomainsResponse&gt;</code> - List of Domains  

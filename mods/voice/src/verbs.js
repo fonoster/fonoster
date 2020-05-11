@@ -1,7 +1,7 @@
 const path = require('path')
 const objectid = require('objectid')
-const { logger } = require('@yaps/core')
-const { computeFilename, transcodeSync } = require('@yaps/tts').utils
+const { logger } = require('@fonos/core')
+const { computeFilename, transcodeSync } = require('@fonos/tts').utils
 
 /**
  * @classdescNode JS Implementation of the Verbs API.
@@ -47,7 +47,7 @@ class Verbs {
    * some verbs, such as `Say`
    * @param {string} config.bucket - Change default bucket
    * @param {string} config.storage - A replacement for the storage. Use this
-   * Only to overwrite the parameters set in your `yaps.json.`
+   * Only to overwrite the parameters set in your `fonos.json.`
    * @param {string} config.tts - A replacement for the default TTS engine
    */
   config (config) {
@@ -102,7 +102,7 @@ class Verbs {
   play (file, options) {
     logger.log(
       'debug',
-      `@yaps/voice.YapsWrapperChannel.play [file: ${file}, options: ${JSON.stringify(
+      `@fonos/voice.YapsWrapperChannel.play [file: ${file}, options: ${JSON.stringify(
         options
       )}]`
     )
@@ -128,7 +128,7 @@ class Verbs {
 
     logger.log(
       'debug',
-      `@yaps/voice.YapsWrapperChannel.play [result: ${JSON.stringify(result)}]`
+      `@fonos/voice.YapsWrapperChannel.play [result: ${JSON.stringify(result)}]`
     )
 
     if (result.code === 200) return result.attributes.result
@@ -156,7 +156,7 @@ class Verbs {
   say (text, options) {
     logger.log(
       'verbose',
-      `@yaps/voice.YapsWrapperChannel.say [text: ${text}, options: ${JSON.stringify(
+      `@fonos/voice.YapsWrapperChannel.say [text: ${text}, options: ${JSON.stringify(
         options
       )}]`
     )
@@ -171,7 +171,7 @@ class Verbs {
 
     logger.log(
       'debug',
-      `@yaps/voice.YapsWrapperChannel.say [filename: ${filename}]`
+      `@fonos/voice.YapsWrapperChannel.say [filename: ${filename}]`
     )
 
     let url
@@ -184,11 +184,11 @@ class Verbs {
     } catch (e) {
       logger.log(
         'silly',
-        `@yaps/vouice.YapsWrapperChannel.say [no url found for file ${filename}]`
+        `@fonos/vouice.YapsWrapperChannel.say [no url found for file ${filename}]`
       )
     }
 
-    logger.log('debug', `@yaps/vouice.YapsWrapperChannel.say [url: ${url}]`)
+    logger.log('debug', `@fonos/vouice.YapsWrapperChannel.say [url: ${url}]`)
 
     if (url === undefined) {
       const pathToFile = this._config.tts.synthesizeSync(text, options)
@@ -197,7 +197,7 @@ class Verbs {
 
       logger.log(
         'debug',
-        `@yaps/vouice.YapsWrapperChannel.say[pathToTranscodedFile: ${pathToTranscodedFile}]`
+        `@fonos/vouice.YapsWrapperChannel.say[pathToTranscodedFile: ${pathToTranscodedFile}]`
       )
 
       this._config.storage.uploadObjectSync({

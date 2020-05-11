@@ -1,9 +1,9 @@
 {
-  "name": "@yaps/certs",
+  "name": "@fonos/certs",
   "version": "0.0.5",
-  "description": "Handle YAPS certificates",
+  "description": "Handle Fonos certificates",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
+  "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "src/jwt_gen.js",
   "directories": {
@@ -18,10 +18,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
+    "url": "git+https://github.com/fonoster/fonos.git"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
+    "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
     "acme-client": "^3.3.1"

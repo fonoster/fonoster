@@ -1,17 +1,17 @@
-const { logger } = require('@yaps/core')
-const { YAPSService, ProvidersService, ProvidersPB } = require('@yaps/core')
+const { logger } = require('@fonos/core')
+const { FonosService, ProvidersService, ProvidersPB } = require('@fonos/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
- * @classdesc Use YAPS Providers, a capability of YAPS SIP Proxy subsystem,
- * to create, update, get and delete providers. YAPS Providers requires of a
- * running YAPS deployment.
+ * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
+ * to create, update, get and delete providers. Fonos Providers requires of a
+ * running Fonos deployment.
  *
- * @extends YAPSService
+ * @extends FonosService
  * @example
  *
- * const YAPS = require('@yaps/sdk')
- * const providers = new YAPS.Providers()
+ * const Fonos = require('@fonos/sdk')
+ * const providers = new Fonos.Providers()
  *
  * const request = {
  *   name: 'Provider Name',
@@ -25,11 +25,11 @@ const promisifyAll = require('grpc-promise').promisifyAll
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Providers extends YAPSService {
+class Providers extends FonosService {
   /**
    * Constructs a new Providers object.
    *
-   * @see module:core:YAPSService
+   * @see module:core:FonosService
    */
   constructor (options) {
     super(ProvidersService.ProvidersClient, options).init()
@@ -47,9 +47,9 @@ class Providers extends YAPSService {
    * static IP authentication
    * @param {string} request.host - Hostname or IP of the Provider
    * @param {string} request.transport - The transport for the Provider.
-   * YAPS will use TCP if none is provided
+   * Fonos will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
-   * YAPS will use 3600 if non is provided
+   * Fonos will use 3600 if non is provided
    * @return {Promise<Object>}
    * @example
    *
@@ -68,12 +68,12 @@ class Providers extends YAPSService {
   async createProvider (request) {
     logger.log(
       'verbose',
-      `@yaps/providers createProvider [request: ${JSON.stringify(request)}]`
+      `@fonos/providers createProvider [request: ${JSON.stringify(request)}]`
     )
 
     logger.log(
       'debug',
-      `@yaps/providers createProvider [validating provider: ${request.name}]`
+      `@fonos/providers createProvider [validating provider: ${request.name}]`
     )
 
     const provider = new ProvidersPB.Provider()
@@ -124,9 +124,9 @@ class Providers extends YAPSService {
    * static IP authentication
    * @param {string} request.host - Hostname or IP of the Provider
    * @param {string} request.transport - The transport for the Provider.
-   * YAPS will use TCP if none is provided
+   * Fonos will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
-   * YAPS will use 3600 if non is provided
+   * Fonos will use 3600 if non is provided
    * @return {Promise<Object>}
    * @example
    *
@@ -143,7 +143,7 @@ class Providers extends YAPSService {
   async updateProvider (request) {
     logger.log(
       'verbose',
-      `@yaps/providers updateProvider [request: ${JSON.stringify(request)}]`
+      `@fonos/providers updateProvider [request: ${JSON.stringify(request)}]`
     )
 
     const providerFromDB = await this.getProvider(request.ref)
@@ -165,7 +165,7 @@ class Providers extends YAPSService {
   }
 
   /**
-   * List the Providers registered in YAPS SIP Proxy subsystem.
+   * List the Providers registered in Fonos SIP Proxy subsystem.
    *
    * @param {Object} request
    * @param {provider} request.pageSize - Provider of element per page
@@ -188,7 +188,7 @@ class Providers extends YAPSService {
   async listProviders (request) {
     logger.log(
       'verbose',
-      `@yaps/providers listProvider [request -> ${JSON.stringify(request)}]`
+      `@fonos/providers listProvider [request -> ${JSON.stringify(request)}]`
     )
     const r = new ProvidersPB.ListProvidersRequest()
     r.setPageSize(request.pageSize)
@@ -212,7 +212,7 @@ class Providers extends YAPSService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteProvider (ref) {
-    logger.log('verbose', `@yaps/providers deleteProvider [ref: ${ref}]`)
+    logger.log('verbose', `@fonos/providers deleteProvider [ref: ${ref}]`)
 
     const req = new ProvidersPB.DeleteProviderRequest()
     req.setRef(ref)

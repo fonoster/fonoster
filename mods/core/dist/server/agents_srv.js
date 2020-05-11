@@ -33,7 +33,7 @@ var __awaiter =
     })
   }
 Object.defineProperty(exports, '__esModule', { value: true })
-const { YAPSAuthError } = require('@yaps/errors')
+const { FonosAuthError } = require('@fonos/errors')
 const routr = require('./routr')
 const logger = require('../common/logger')
 const agentDecoder = require('../common/decoders/agent_decoder')
@@ -43,7 +43,7 @@ const { REncoder, Kind } = require('../common/resource_encoder')
 const { auth } = require('../common/trust_util')
 const listAgents = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     if (!call.request.getPageToken()) {
       // Nothing to send
       callback(null, new ListAgentsResponse())
@@ -66,9 +66,12 @@ const listAgents = (call, callback) =>
   })
 const createAgent = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const agent = call.request.getAgent()
-    logger.info('verbose', `@yaps/core createAgent [entity ${agent.getName()}]`)
+    logger.info(
+      'verbose',
+      `@fonos/core createAgent [entity ${agent.getName()}]`
+    )
     let encoder = new REncoder(Kind.AGENT, agent.getName())
       .withCredentials(agent.getUsername(), agent.getSecret())
       .withDomains(agent.getDomainsList())
@@ -76,7 +79,7 @@ const createAgent = (call, callback) =>
     const resource = encoder.build()
     logger.log(
       'debug',
-      `@yaps/core createAgent [resource: ${JSON.stringify(resource)}]`
+      `@fonos/core createAgent [resource: ${JSON.stringify(resource)}]`
     )
     try {
       yield routr.connect()
@@ -90,9 +93,9 @@ const createAgent = (call, callback) =>
   })
 const getAgent = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const agentRef = call.request.getRef()
-    logger.info('verbose', `@yaps/core getAgent [ref ${agentRef}]`)
+    logger.info('verbose', `@fonos/core getAgent [ref ${agentRef}]`)
     try {
       yield routr.connect()
       const jsonObj = yield routr.resourceType('agents').get(agentRef)
@@ -103,9 +106,12 @@ const getAgent = (call, callback) =>
   })
 const updateAgent = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const agent = call.request.getAgent()
-    logger.info('verbose', `@yaps/core updateAgent [entity ${agent.getName()}]`)
+    logger.info(
+      'verbose',
+      `@fonos/core updateAgent [entity ${agent.getName()}]`
+    )
     let encoder = new REncoder(Kind.AGENT, agent.getName(), agent.getRef())
       .withCredentials(agent.getUsername(), agent.getSecret())
       .withDomains(agent.getDomainsList())
@@ -117,7 +123,7 @@ const updateAgent = (call, callback) =>
     const resource = encoder.build()
     logger.log(
       'debug',
-      `@yaps/core updateAgent [resource: ${JSON.stringify(resource)}]`
+      `@fonos/core updateAgent [resource: ${JSON.stringify(resource)}]`
     )
     try {
       yield routr.connect()
@@ -131,9 +137,9 @@ const updateAgent = (call, callback) =>
   })
 const deleteAgent = (call, callback) =>
   __awaiter(void 0, void 0, void 0, function * () {
-    if (!auth(call)) return callback(new YAPSAuthError())
+    if (!auth(call)) return callback(new FonosAuthError())
     const agentRef = call.request.getRef()
-    logger.info('verbose', `@yaps/core deleteAgent [ref ${agentRef}]`)
+    logger.info('verbose', `@fonos/core deleteAgent [ref ${agentRef}]`)
     try {
       yield routr.connect()
       yield routr.resourceType('agents').delete(agentRef)

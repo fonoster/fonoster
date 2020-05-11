@@ -1,15 +1,15 @@
 <a name="AppManager"></a>
 
-## AppManager ⇐ <code>YAPSService</code>
-Use YAPS AppManager, a capability of YAPS Systems Manager,
-to create, manage, and deploy an applications. YAPS AppManager requires of a
-running YAPS deployment.
+## AppManager ⇐ <code>FonosService</code>
+Use Fonos AppManager, a capability of Fonos Systems Manager,
+to create, manage, and deploy an applications. Fonos AppManager requires of a
+running Fonos deployment.
 
 **Kind**: global class  
-**Extends**: <code>YAPSService</code>  
-**See**: module:core:YAPSService  
+**Extends**: <code>FonosService</code>  
+**See**: module:core:FonosService  
 
-* [AppManager](#AppManager) ⇐ <code>YAPSService</code>
+* [AppManager](#AppManager) ⇐ <code>FonosService</code>
     * [new AppManager()](#new_AppManager_new)
     * [.deployApp(path)](#AppManager+deployApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
     * [.getApp(name)](#AppManager+getApp) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
@@ -23,8 +23,8 @@ Constructs a new AppManager Object.
 
 **Example**  
 ```js
-const YAPS = require('@yaps/sdk')
-const appManager = new YAPS.AppManager()
+const Fonos = require('@fonos/sdk')
+const appManager = new Fonos.AppManager()
 
 appManager.deployApp('/path/to/app')
 .then(result => {
@@ -34,7 +34,7 @@ appManager.deployApp('/path/to/app')
 <a name="AppManager+deployApp"></a>
 
 ### appManager.deployApp(path) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-Deploys an application to YAPS.
+Deploys an application to Fonos.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
 **Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application just created  
@@ -89,7 +89,7 @@ appManager.getApp(name)
 <a name="AppManager+deleteApp"></a>
 
 ### appManager.deleteApp(name) ⇒ [<code>Promise.&lt;App&gt;</code>](#App)
-Deletes an application already registered in YAPS.
+Deletes an application already registered in Fonos.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
 **Returns**: [<code>Promise.&lt;App&gt;</code>](#App) - The application to remove  
@@ -112,7 +112,7 @@ appManager.deleteApp(name)
 <a name="AppManager+listApps"></a>
 
 ### appManager.listApps(request) ⇒ <code>Promise.&lt;ListAppsResponse&gt;</code>
-List the applications registered in YAPS.
+List the applications registered in Fonos.
 
 **Kind**: instance method of [<code>AppManager</code>](#AppManager)  
 **Returns**: <code>Promise.&lt;ListAppsResponse&gt;</code> - List of applications  

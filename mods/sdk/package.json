@@ -1,9 +1,9 @@
 {
-  "name": "@yaps/sdk",
+  "name": "@fonos/sdk",
   "version": "0.0.5",
   "description": "> TODO: description",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
-  "homepage": "https://github.com/fonoster/yaps#readme",
+  "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "src/sdk.js",
   "directories": {
@@ -18,17 +18,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/yaps.git"
+    "url": "git+https://github.com/fonoster/fonos.git"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/yaps/issues"
+    "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@yaps/appmanager": "^0.0.5",
-    "@yaps/domains": "^0.0.5",
-    "@yaps/numbers": "^0.0.5",
-    "@yaps/providers": "^0.0.5",
-    "@yaps/storage": "^0.0.5"
+    "@fonos/appmanager": "^0.0.5",
+    "@fonos/domains": "^0.0.5",
+    "@fonos/numbers": "^0.0.5",
+    "@fonos/providers": "^0.0.5",
+    "@fonos/storage": "^0.0.5"
   },
   "devDependencies": {
     "chai": "^4.2.0",

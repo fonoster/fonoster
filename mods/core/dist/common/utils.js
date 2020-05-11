@@ -13,28 +13,28 @@ const uploadToFS = (bucket, pathToObject, object, metadata = {}) =>
     const walk = require('walk')
     const path = require('path')
     const logger = require('../common/logger')
-    logger.log('verbose', `@yaps/core uploadToFS [bucket: ${bucket}]`)
-    logger.log('verbose', `@yaps/core uploadToFS [path: ${pathToObject}]`)
-    logger.log('verbose', `@yaps/core uploadToFS [object: ${object}]`)
+    logger.log('verbose', `@fonos/core uploadToFS [bucket: ${bucket}]`)
+    logger.log('verbose', `@fonos/core uploadToFS [path: ${pathToObject}]`)
+    logger.log('verbose', `@fonos/core uploadToFS [object: ${object}]`)
     const splitPath = p => path.dirname(p).split(path.sep)
     const dirCount = splitPath(pathToObject).length
     const baseDir = splitPath(pathToObject)
       .slice(0, dirCount)
       .join('/')
     const walker = walk.walk(pathToObject)
-    logger.log('debug', `@yaps/core uploadToFS [dirCount: ${dirCount}]`)
-    logger.log('debug', `@yaps/core uploadToFS [baseDir: ${baseDir}]`)
+    logger.log('debug', `@fonos/core uploadToFS [dirCount: ${dirCount}]`)
+    logger.log('debug', `@fonos/core uploadToFS [baseDir: ${baseDir}]`)
     walker.on('file', (root, stats, next) => {
       const filePath = root + '/' + stats.name
       const destFilePath = root + '/' + (object || stats.name)
       const dest = destFilePath.substring(baseDir.length + 1)
-      logger.log('debug', `@yaps/core uploadToFS [root: ${root}]`)
-      logger.log('debug', `@yaps/core uploadToFS [filePath: ${filePath}]`)
+      logger.log('debug', `@fonos/core uploadToFS [root: ${root}]`)
+      logger.log('debug', `@fonos/core uploadToFS [filePath: ${filePath}]`)
       logger.log(
         'debug',
-        `@yaps/core uploadToFS [destFilePath:${destFilePath}]`
+        `@fonos/core uploadToFS [destFilePath:${destFilePath}]`
       )
-      logger.log('debug', `@yaps/core uploadToFS [dest: ${dest}]`)
+      logger.log('debug', `@fonos/core uploadToFS [dest: ${dest}]`)
       fsInstance().fPutObject(bucket, dest, filePath, metadata, err => {
         if (err) {
           logger.log('error', err)

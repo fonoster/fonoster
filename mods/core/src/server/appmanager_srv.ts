@@ -1,8 +1,8 @@
 export {};
 
 const { 
-  YAPSError, 
-  YAPSAuthError } = require('@yaps/errors')
+  FonosError, 
+  FonosAuthError } = require('@fonos/errors')
 const { ListAppsResponse, App } = require('./protos/appmanager_pb')
 const { Empty } = require('./protos/common_pb')
 const { auth } = require('../common/trust_util')
@@ -14,7 +14,7 @@ const updateBucketPolicy = require('../common/fsutils')
 const Status = require('grpc').status
 
 const listApps = async (call, callback) => {
-  if (!auth(call)) return callback(new YAPSAuthError())
+  if (!auth(call)) return callback(new FonosAuthError())
 
   if (!call.request.getPageToken()) {
     // Nothing to send
@@ -39,13 +39,13 @@ const listApps = async (call, callback) => {
 }
 
 const getApp = async (call, callback) => {
-  if (!auth(call)) return callback(new YAPSAuthError())
+  if (!auth(call)) return callback(new FonosAuthError())
 
   const result = await redis.call('get', call.request.getName())
 
   if (!result) {
     callback(
-      new YAPSError(
+      new FonosError(
         Status.NOT_FOUND,
         `App ${call.request.getName()} does not exist`
       )
@@ -58,9 +58,9 @@ const getApp = async (call, callback) => {
 }
 
 const createApp = async (call, callback) => {
-  if (!auth(call)) return callback(new YAPSAuthError())
+  if (!auth(call)) return callback(new FonosAuthError())
 
-  logger.log('debug', `@yaps/core createApp`)
+  logger.log('debug', `@fonos/core createApp`)
 
   const errors = appmanager.createAppRequest.validate({
     app: {
@@ -70,7 +70,7 @@ const createApp = async (call, callback) => {
   })
 
   if (errors.length > 0) {
-    //callback(new YAPSInvalidArgument(errors[0].message))
+    //callback(new FonosInvalidArgument(errors[0].message))
     return
   }
 
@@ -86,7 +86,7 @@ const createApp = async (call, callback) => {
 
   logger.log(
     'debug',
-    `@yaps/core createApp [updating bucket policy for app: ${app.getName()}]`
+    `@fonos/core createApp [updating bucket policy for app: ${app.getName()}]`
   )
 
   await updateBucketPolicy(app.getBucket() || 'default')
@@ -96,7 +96,7 @@ const createApp = async (call, callback) => {
 
 // Not yet implemented
 const updateApp = async (call, callback) => {
-  if (!auth(call)) return callback(new YAPSAuthError())
+  if (!auth(call)) return callback(new FonosAuthError())
   console.log(`updating app: ${JSON.stringify(call.request)}`)
   // -- Operate here
   // ---
@@ -104,13 +104,13 @@ const updateApp = async (call, callback) => {
 }
 
 const deleteApp = async (call, callback) => {
-  if (!auth(call)) return callback(new YAPSAuthError())
+  if (!auth(call)) return callback(new FonosAuthError())
 
   const result = await redis.call('get', call.request.getName())
 
   if (!result) {
     callback(
-      new YAPSError(
+      new FonosError(
         Status.NOT_FOUND,
         `App ${call.request.getName()} does not exist`
       )

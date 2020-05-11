@@ -1,11 +1,11 @@
 const tar = require('tar')
 const fs = require('fs-extra')
 const path = require('path')
-const { logger } = require('@yaps/core')
-const { Storage } = require('@yaps/storage')
-const { appManagerValidator } = require('@yaps/core').validators
+const { logger } = require('@fonos/core')
+const { Storage } = require('@fonos/storage')
+const { appManagerValidator } = require('@fonos/core').validators
 const { promisifyAll } = require('grpc-promise')
-const { YAPSService, AppManagerService, AppManagerPB } = require('@yaps/core')
+const { FonosService, AppManagerService, AppManagerPB } = require('@fonos/core')
 
 const STATUS = {
   UNKNOWN: 0,
@@ -15,22 +15,22 @@ const STATUS = {
 }
 
 /**
- * @classdesc Use YAPS AppManager, a capability of YAPS Systems Manager,
- * to create, manage, and deploy an applications. YAPS AppManager requires of a
- * running YAPS deployment.
+ * @classdesc Use Fonos AppManager, a capability of Fonos Systems Manager,
+ * to create, manage, and deploy an applications. Fonos AppManager requires of a
+ * running Fonos deployment.
  *
- * @extends YAPSService
+ * @extends FonosService
  * @example
  *
- * const YAPS = require('@yaps/sdk')
- * const appManager = new YAPS.AppManager()
+ * const Fonos = require('@fonos/sdk')
+ * const appManager = new Fonos.AppManager()
  *
  * appManager.deployApp('/path/to/app')
  * .then(result => {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class AppManager extends YAPSService {
+class AppManager extends FonosService {
   /**
    * Application object
    *
@@ -46,7 +46,7 @@ class AppManager extends YAPSService {
   /**
    * Constructs a new AppManager Object.
    *
-   * @see module:core:YAPSService
+   * @see module:core:FonosService
    */
   constructor (options) {
     super(AppManagerService.AppManagerClient, options).init()
@@ -56,7 +56,7 @@ class AppManager extends YAPSService {
   }
 
   /**
-   * Deploys an application to YAPS.
+   * Deploys an application to Fonos.
    *
    * @param {string} path - path to the application
    * @return {Promise<App>} The application just created
@@ -76,9 +76,9 @@ class AppManager extends YAPSService {
    * change to UNKNOWN.
    */
   async deployApp (appPath) {
-    logger.log('verbose', `@yaps/appmananger deployApp [path -> ${appPath}]`)
-    logger.log('debug', '@yaps/appmananger deployApp [validating app]')
-    logger.log('debug', '@yaps/appmananger deployApp [getting package info]')
+    logger.log('verbose', `@fonos/appmananger deployApp [path -> ${appPath}]`)
+    logger.log('debug', '@fonos/appmananger deployApp [validating app]')
+    logger.log('debug', '@fonos/appmananger deployApp [getting package info]')
 
     try {
       const packagePath = path.join(appPath, 'package.json')
@@ -90,7 +90,7 @@ class AppManager extends YAPSService {
         pInfo = packageInfo(packagePath)
         logger.log(
           'debug',
-          `@yaps/appmananger deployApp [package info -> ${JSON.stringify(
+          `@fonos/appmananger deployApp [package info -> ${JSON.stringify(
             pInfo
           )}]`
         )
@@ -104,11 +104,11 @@ class AppManager extends YAPSService {
       let bucket = 'default'
 
       try {
-        const yapsConfigFile = await fs.readFileSync(
-          path.join(appPath, 'yaps.json')
+        const fonosConfigFile = await fs.readFileSync(
+          path.join(appPath, 'fonos.json')
         )
-        const yapsConfig = JSON.parse(yapsConfigFile)
-        bucket = yapsConfig.bucket
+        const fonosConfig = JSON.parse(fonosConfigFile)
+        bucket = fonosConfig.bucket
       } catch (e) {}
 
       const request = {
@@ -122,7 +122,7 @@ class AppManager extends YAPSService {
 
       logger.log(
         'debug',
-        `@yaps/appmananger deployApp [modified request -> ${JSON.stringify(
+        `@fonos/appmananger deployApp [modified request -> ${JSON.stringify(
           request
         )} ]`
       )
@@ -137,7 +137,7 @@ class AppManager extends YAPSService {
       })
 
       if (errors.length > 0) {
-        logger.log('warn', `@yaps/appmananger deployApp [invalid argument/s]`)
+        logger.log('warn', `@fonos/appmananger deployApp [invalid argument/s]`)
         throw new Error(
           'Please ensure package.json contains the name and description fields'
         )
@@ -156,7 +156,7 @@ class AppManager extends YAPSService {
         throw new Error(`not package.json found in ${request.dirPath}`)
       }
 
-      logger.log('debug', '@yaps/appmananger deployApp [registering app]')
+      logger.log('debug', '@fonos/appmananger deployApp [registering app]')
 
       const app = new AppManagerPB.App()
       app.setName(request.app.name)
@@ -176,13 +176,13 @@ class AppManager extends YAPSService {
 
       logger.log(
         'debug',
-        `@yaps/appmananger deployApp [copyed '${
+        `@fonos/appmananger deployApp [copyed '${
           request.dirPath
         }' into '/tmp/${dirName}'}]`
       )
       logger.log(
         'debug',
-        '@yaps/appmananger deployApp [archiving project folder]'
+        '@fonos/appmananger deployApp [archiving project folder]'
       )
 
       await tar.create({ file: `/tmp/${dirName}.tgz`, cwd: '/tmp' }, [dirName])
@@ -219,7 +219,7 @@ class AppManager extends YAPSService {
   }
 
   /**
-   * Deletes an application already registered in YAPS.
+   * Deletes an application already registered in Fonos.
    *
    * @param {string} name - The name of the application
    * @return {Promise<App>} The application to remove
@@ -238,7 +238,7 @@ class AppManager extends YAPSService {
   }
 
   /**
-   * List the applications registered in YAPS.
+   * List the applications registered in Fonos.
    *
    * @param {Object} request
    * @param {number} request.pageSize - Number of element per page
@@ -261,7 +261,7 @@ class AppManager extends YAPSService {
   async listApps (request) {
     logger.log(
       'verbose',
-      `@yaps/appmananger listApps [request -> ${JSON.stringify(request)}]`
+      `@fonos/appmananger listApps [request -> ${JSON.stringify(request)}]`
     )
     const r = new AppManagerPB.ListAppsRequest()
     r.setPageSize(request.pageSize)

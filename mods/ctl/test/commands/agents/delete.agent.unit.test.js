@@ -1,6 +1,6 @@
 const { expect, test } = require('@oclif/test')
 
-describe.skip('@yaps/ctl/agents', () => {
+describe.skip('@fonos/ctl/agents', () => {
   test
     .stdout()
     .command(['agents:delete'])

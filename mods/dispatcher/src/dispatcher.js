@@ -1,14 +1,14 @@
-const { Storage } = require('@yaps/storage')
+const { Storage } = require('@fonos/storage')
 const { AGIServer } = require('agi-node')
-const { MaryTTS } = require('@yaps/tts')
-const { Verbs } = require('@yaps/voice')
+const { MaryTTS } = require('@fonos/tts')
+const { Verbs } = require('@fonos/voice')
 const { NodeVM } = require('vm2')
 const { getIngressInfo } = require('./utils')
 const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 const vm = new NodeVM(require('../etc/vm.json'))
-const { logger, updateBucketPolicy } = require('@yaps/core')
+const { logger, updateBucketPolicy } = require('@fonos/core')
 
 if (process.env.NODE_ENV === 'dev') {
   const env = path.join(__dirname, '..', '..', '..', '.env')
@@ -17,20 +17,20 @@ if (process.env.NODE_ENV === 'dev') {
 
 function dispatch (channel) {
   try {
-    logger.log('verbose', `@yaps/dispatcher dispatch [entering]`)
+    logger.log('verbose', `@fonos/dispatcher dispatch [entering]`)
     logger.log(
       'debug',
-      `@yaps/dispatcher dispatch [extension: ${channel.request.extension}]`
+      `@fonos/dispatcher dispatch [extension: ${channel.request.extension}]`
     )
 
     const ingressInfo = getIngressInfo(channel.request.extension)
     logger.log(
       'silly',
-      `@yaps/dispatcher dispatch [appConfig: ${JSON.stringify(ingressInfo)}]`
+      `@fonos/dispatcher dispatch [appConfig: ${JSON.stringify(ingressInfo)}]`
     )
 
     const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
-    logger.log('silly', `@yaps/dispatcher dispatch [contents: ${contents}]`)
+    logger.log('silly', `@fonos/dispatcher dispatch [contents: ${contents}]`)
 
     const chann = new Verbs(channel, {
       tts: new MaryTTS(),
@@ -38,17 +38,17 @@ function dispatch (channel) {
       bucket: ingressInfo.bucket
     })
 
-    logger.log('verbose', `@yaps/dispatcher dispatch [running app]`)
+    logger.log('verbose', `@fonos/dispatcher dispatch [running app]`)
 
     vm.run(contents, ingressInfo.entryPoint)(chann)
 
     logger.log(
       'debug',
-      `@yaps/dispatcher dispatch [cdr: ${JSON.stringify(
+      `@fonos/dispatcher dispatch [cdr: ${JSON.stringify(
         chann.getCallDetailRecord()
       )}]`
     )
-    logger.log('verbose', `@yaps/dispatcher dispatch [leaving]`)
+    logger.log('verbose', `@fonos/dispatcher dispatch [leaving]`)
   } catch (err) {
     logger.log('error', err.message)
   }
@@ -56,7 +56,7 @@ function dispatch (channel) {
 
 logger.log(
   'info',
-  `YAPS Media Controller is online @ ${process.env.MC_AGI_PORT}`
+  `Fonos Media Controller is online @ ${process.env.MC_AGI_PORT}`
 )
 
 new AGIServer(dispatch, process.env.MC_AGI_PORT)

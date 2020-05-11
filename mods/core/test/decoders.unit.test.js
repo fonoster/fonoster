@@ -7,7 +7,7 @@
 const chai = require('chai')
 const expect = chai.expect
 
-describe('@yaps/core/common/decoders/agent_decoder', () => {
+describe('@fonos/core/common/decoders/agent_decoder', () => {
   context('agent decoder', () => {
     const decoder = require('../dist/common/decoders/agent_decoder')
     it('should create an agent object from a json object', () => {

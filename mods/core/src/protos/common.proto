@@ -2,11 +2,11 @@
  * MIT License
  * Copyright (c) 2020 Fonoster Inc
  *
- * This proto stores common messages for the yaps platform.
+ * This proto stores common messages for the fonos platform.
  */
 syntax = "proto3";
 
-package yaps.common.v1alpha1;
+package fonos.common.v1alpha1;
 
 //import "google/protobuf/any.proto";
 

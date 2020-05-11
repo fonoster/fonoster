@@ -1,12 +1,12 @@
 ctl
 ===
 
-Command-Line for for YAPS
+Command-Line for for Fonos
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/ctl.svg)](https://npmjs.org/package/ctl)
 [![Downloads/week](https://img.shields.io/npm/dw/ctl.svg)](https://npmjs.org/package/ctl)
-[![License](https://img.shields.io/npm/l/ctl.svg)](https://github.com/fonoster/yaps/blob/master/package.json)
+[![License](https://img.shields.io/npm/l/ctl.svg)](https://github.com/fonoster/fonos/blob/master/package.json)
 
 <!-- toc -->
 * [Usage](#usage)
@@ -15,96 +15,96 @@ Command-Line for for YAPS
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g @yaps/ctl
-$ yaps COMMAND
+$ npm install -g @fonos/ctl
+$ fonos COMMAND
 running command...
-$ yaps (-v|--version|version)
-@yaps/ctl/0.0.5 darwin-x64 node-v10.19.0
-$ yaps --help [COMMAND]
+$ fonos (-v|--version|version)
+@fonos/ctl/0.0.5 darwin-x64 node-v10.19.0
+$ fonos --help [COMMAND]
 USAGE
-  $ yaps COMMAND
+  $ fonos COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`yaps agents:create`](#yaps-agentscreate)
-* [`yaps agents:delete [REF]`](#yaps-agentsdelete-ref)
-* [`yaps agents:get [REF]`](#yaps-agentsget-ref)
-* [`yaps agents:list`](#yaps-agentslist)
-* [`yaps agents:update [REF]`](#yaps-agentsupdate-ref)
-* [`yaps apps:delete [NAME]`](#yaps-appsdelete-name)
-* [`yaps apps:deploy`](#yaps-appsdeploy)
-* [`yaps apps:get [NAME]`](#yaps-appsget-name)
-* [`yaps apps:init`](#yaps-appsinit)
-* [`yaps apps:list`](#yaps-appslist)
-* [`yaps domains:create`](#yaps-domainscreate)
-* [`yaps domains:delete [REF]`](#yaps-domainsdelete-ref)
-* [`yaps domains:get [REF]`](#yaps-domainsget-ref)
-* [`yaps domains:list`](#yaps-domainslist)
-* [`yaps domains:update [REF]`](#yaps-domainsupdate-ref)
-* [`yaps help [COMMAND]`](#yaps-help-command)
-* [`yaps login`](#yaps-login)
-* [`yaps logout`](#yaps-logout)
-* [`yaps numbers:create`](#yaps-numberscreate)
-* [`yaps numbers:delete [REF]`](#yaps-numbersdelete-ref)
-* [`yaps numbers:get [REF]`](#yaps-numbersget-ref)
-* [`yaps numbers:list`](#yaps-numberslist)
-* [`yaps numbers:update [REF]`](#yaps-numbersupdate-ref)
-* [`yaps providers:create`](#yaps-providerscreate)
-* [`yaps providers:delete [REF]`](#yaps-providersdelete-ref)
-* [`yaps providers:get [REF]`](#yaps-providersget-ref)
-* [`yaps providers:list`](#yaps-providerslist)
-* [`yaps providers:update [REF]`](#yaps-providersupdate-ref)
+* [`fonos agents:create`](#fonos-agentscreate)
+* [`fonos agents:delete [REF]`](#fonos-agentsdelete-ref)
+* [`fonos agents:get [REF]`](#fonos-agentsget-ref)
+* [`fonos agents:list`](#fonos-agentslist)
+* [`fonos agents:update [REF]`](#fonos-agentsupdate-ref)
+* [`fonos apps:delete [NAME]`](#fonos-appsdelete-name)
+* [`fonos apps:deploy`](#fonos-appsdeploy)
+* [`fonos apps:get [NAME]`](#fonos-appsget-name)
+* [`fonos apps:init`](#fonos-appsinit)
+* [`fonos apps:list`](#fonos-appslist)
+* [`fonos domains:create`](#fonos-domainscreate)
+* [`fonos domains:delete [REF]`](#fonos-domainsdelete-ref)
+* [`fonos domains:get [REF]`](#fonos-domainsget-ref)
+* [`fonos domains:list`](#fonos-domainslist)
+* [`fonos domains:update [REF]`](#fonos-domainsupdate-ref)
+* [`fonos help [COMMAND]`](#fonos-help-command)
+* [`fonos login`](#fonos-login)
+* [`fonos logout`](#fonos-logout)
+* [`fonos numbers:create`](#fonos-numberscreate)
+* [`fonos numbers:delete [REF]`](#fonos-numbersdelete-ref)
+* [`fonos numbers:get [REF]`](#fonos-numbersget-ref)
+* [`fonos numbers:list`](#fonos-numberslist)
+* [`fonos numbers:update [REF]`](#fonos-numbersupdate-ref)
+* [`fonos providers:create`](#fonos-providerscreate)
+* [`fonos providers:delete [REF]`](#fonos-providersdelete-ref)
+* [`fonos providers:get [REF]`](#fonos-providersget-ref)
+* [`fonos providers:list`](#fonos-providerslist)
+* [`fonos providers:update [REF]`](#fonos-providersupdate-ref)
 
-## `yaps agents:create`
+## `fonos agents:create`
 
 creates a new agent resource
 
 ```
 USAGE
-  $ yaps agents:create
+  $ fonos agents:create
 
 DESCRIPTION
   ...
   Creates a new Agent in the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/agents/create.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/create.js)_
+_See code: [src/commands/agents/create.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/agents/create.js)_
 
-## `yaps agents:delete [REF]`
+## `fonos agents:delete [REF]`
 
-remove agent from a YAPS deployment
+remove agent from a Fonos deployment
 
 ```
 USAGE
-  $ yaps agents:delete [REF]
+  $ fonos agents:delete [REF]
 
 ALIASES
-  $ yaps agents:del
-  $ yaps agents:rm
+  $ fonos agents:del
+  $ fonos agents:rm
 ```
 
-_See code: [src/commands/agents/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/delete.js)_
+_See code: [src/commands/agents/delete.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/agents/delete.js)_
 
-## `yaps agents:get [REF]`
+## `fonos agents:get [REF]`
 
 get information about an existing agent
 
 ```
 USAGE
-  $ yaps agents:get [REF]
+  $ fonos agents:get [REF]
 ```
 
-_See code: [src/commands/agents/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/get.js)_
+_See code: [src/commands/agents/get.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/agents/get.js)_
 
-## `yaps agents:list`
+## `fonos agents:list`
 
 list registered agents
 
 ```
 USAGE
-  $ yaps agents:list
+  $ fonos agents:list
 
 OPTIONS
   -s, --size=size  [default: 25] agent of result per page
@@ -114,93 +114,93 @@ DESCRIPTION
   List the registered agents
 
 ALIASES
-  $ yaps agents:ls
+  $ fonos agents:ls
 ```
 
-_See code: [src/commands/agents/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/list.js)_
+_See code: [src/commands/agents/list.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/agents/list.js)_
 
-## `yaps agents:update [REF]`
+## `fonos agents:update [REF]`
 
 updates a agent at the SIP Proxy subsystem
 
 ```
 USAGE
-  $ yaps agents:update [REF]
+  $ fonos agents:update [REF]
 
 DESCRIPTION
   ...
   Updates a agent at the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/agents/update.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/agents/update.js)_
+_See code: [src/commands/agents/update.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/agents/update.js)_
 
-## `yaps apps:delete [NAME]`
+## `fonos apps:delete [NAME]`
 
 removes application
 
 ```
 USAGE
-  $ yaps apps:delete [NAME]
+  $ fonos apps:delete [NAME]
 
 ALIASES
-  $ yaps apps:del
-  $ yaps apps:rm
+  $ fonos apps:del
+  $ fonos apps:rm
 ```
 
-_See code: [src/commands/apps/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/delete.js)_
+_See code: [src/commands/apps/delete.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/apps/delete.js)_
 
-## `yaps apps:deploy`
+## `fonos apps:deploy`
 
-deploys application to a YAPS instance
+deploys application to a Fonos instance
 
 ```
 USAGE
-  $ yaps apps:deploy
+  $ fonos apps:deploy
 
 DESCRIPTION
   ...
-  Run this command from the app root to deploy to YAPS.
+  Run this command from the app root to deploy to Fonos.
 ```
 
-_See code: [src/commands/apps/deploy.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/deploy.js)_
+_See code: [src/commands/apps/deploy.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/apps/deploy.js)_
 
-## `yaps apps:get [NAME]`
+## `fonos apps:get [NAME]`
 
 get information about an existing application
 
 ```
 USAGE
-  $ yaps apps:get [NAME]
+  $ fonos apps:get [NAME]
 
 DESCRIPTION
   ...
   Obtain information about an application
 ```
 
-_See code: [src/commands/apps/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/get.js)_
+_See code: [src/commands/apps/get.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/apps/get.js)_
 
-## `yaps apps:init`
+## `fonos apps:init`
 
 creates a new empty application
 
 ```
 USAGE
-  $ yaps apps:init
+  $ fonos apps:init
 
 DESCRIPTION
   ...
   Extra documentation goes here
 ```
 
-_See code: [src/commands/apps/init.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/init.js)_
+_See code: [src/commands/apps/init.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/apps/init.js)_
 
-## `yaps apps:list`
+## `fonos apps:list`
 
 list registered applications
 
 ```
 USAGE
-  $ yaps apps:list
+  $ fonos apps:list
 
 OPTIONS
   -s, --size=size  [default: 25] number of result per page
@@ -210,59 +210,59 @@ DESCRIPTION
   List the registered applications
 
 ALIASES
-  $ yaps apps:ls
+  $ fonos apps:ls
 ```
 
-_See code: [src/commands/apps/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/apps/list.js)_
+_See code: [src/commands/apps/list.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/apps/list.js)_
 
-## `yaps domains:create`
+## `fonos domains:create`
 
 creates a new domain resource
 
 ```
 USAGE
-  $ yaps domains:create
+  $ fonos domains:create
 
 DESCRIPTION
   ...
   Creates a new Domain in the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/domains/create.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/create.js)_
+_See code: [src/commands/domains/create.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/domains/create.js)_
 
-## `yaps domains:delete [REF]`
+## `fonos domains:delete [REF]`
 
-remove domain from a YAPS deployment
+remove domain from a Fonos deployment
 
 ```
 USAGE
-  $ yaps domains:delete [REF]
+  $ fonos domains:delete [REF]
 
 ALIASES
-  $ yaps domains:del
-  $ yaps domains:rm
+  $ fonos domains:del
+  $ fonos domains:rm
 ```
 
-_See code: [src/commands/domains/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/delete.js)_
+_See code: [src/commands/domains/delete.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/domains/delete.js)_
 
-## `yaps domains:get [REF]`
+## `fonos domains:get [REF]`
 
 get information about an existing domain
 
 ```
 USAGE
-  $ yaps domains:get [REF]
+  $ fonos domains:get [REF]
 ```
 
-_See code: [src/commands/domains/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/get.js)_
+_See code: [src/commands/domains/get.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/domains/get.js)_
 
-## `yaps domains:list`
+## `fonos domains:list`
 
 list registered domains
 
 ```
 USAGE
-  $ yaps domains:list
+  $ fonos domains:list
 
 OPTIONS
   -s, --size=size  [default: 25] number of result per page
@@ -272,33 +272,33 @@ DESCRIPTION
   List the registered domains
 
 ALIASES
-  $ yaps domains:ls
+  $ fonos domains:ls
 ```
 
-_See code: [src/commands/domains/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/list.js)_
+_See code: [src/commands/domains/list.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/domains/list.js)_
 
-## `yaps domains:update [REF]`
+## `fonos domains:update [REF]`
 
 updates a domain at the SIP Proxy subsystem
 
 ```
 USAGE
-  $ yaps domains:update [REF]
+  $ fonos domains:update [REF]
 
 DESCRIPTION
   ...
   Updates a domain at the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/domains/update.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/domains/update.js)_
+_See code: [src/commands/domains/update.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/domains/update.js)_
 
-## `yaps help [COMMAND]`
+## `fonos help [COMMAND]`
 
-display help for yaps
+display help for fonos
 
 ```
 USAGE
-  $ yaps help [COMMAND]
+  $ fonos help [COMMAND]
 
 ARGUMENTS
   COMMAND  command to show help for
@@ -309,79 +309,79 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3/src/commands/help.ts)_
 
-## `yaps login`
+## `fonos login`
 
 authenticates current station
 
 ```
 USAGE
-  $ yaps login
+  $ fonos login
 
 OPTIONS
   -f, --file=file  json file with access credentials
 ```
 
-_See code: [src/commands/login.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/login.js)_
+_See code: [src/commands/login.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/login.js)_
 
-## `yaps logout`
+## `fonos logout`
 
 revoke crendentials to current station
 
 ```
 USAGE
-  $ yaps logout
+  $ fonos logout
 ```
 
-_See code: [src/commands/logout.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/logout.js)_
+_See code: [src/commands/logout.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/logout.js)_
 
-## `yaps numbers:create`
+## `fonos numbers:create`
 
 creates a new number resource
 
 ```
 USAGE
-  $ yaps numbers:create
+  $ fonos numbers:create
 
 DESCRIPTION
   ...
   Creates a new Number in the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/numbers/create.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/create.js)_
+_See code: [src/commands/numbers/create.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/numbers/create.js)_
 
-## `yaps numbers:delete [REF]`
+## `fonos numbers:delete [REF]`
 
-remove number from a YAPS deployment
+remove number from a Fonos deployment
 
 ```
 USAGE
-  $ yaps numbers:delete [REF]
+  $ fonos numbers:delete [REF]
 
 ALIASES
-  $ yaps numbers:del
-  $ yaps numbers:rm
+  $ fonos numbers:del
+  $ fonos numbers:rm
 ```
 
-_See code: [src/commands/numbers/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/delete.js)_
+_See code: [src/commands/numbers/delete.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/numbers/delete.js)_
 
-## `yaps numbers:get [REF]`
+## `fonos numbers:get [REF]`
 
 get information about an existing number
 
 ```
 USAGE
-  $ yaps numbers:get [REF]
+  $ fonos numbers:get [REF]
 ```
 
-_See code: [src/commands/numbers/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/get.js)_
+_See code: [src/commands/numbers/get.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/numbers/get.js)_
 
-## `yaps numbers:list`
+## `fonos numbers:list`
 
 list registered numbers
 
 ```
 USAGE
-  $ yaps numbers:list
+  $ fonos numbers:list
 
 OPTIONS
   -s, --size=size  [default: 25] number of result per page
@@ -391,74 +391,74 @@ DESCRIPTION
   List the registered numbers
 
 ALIASES
-  $ yaps numbers:ls
+  $ fonos numbers:ls
 ```
 
-_See code: [src/commands/numbers/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/list.js)_
+_See code: [src/commands/numbers/list.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/numbers/list.js)_
 
-## `yaps numbers:update [REF]`
+## `fonos numbers:update [REF]`
 
 updates a number at the SIP Proxy subsystem
 
 ```
 USAGE
-  $ yaps numbers:update [REF]
+  $ fonos numbers:update [REF]
 
 DESCRIPTION
   ...
   Updates a number at the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/numbers/update.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/numbers/update.js)_
+_See code: [src/commands/numbers/update.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/numbers/update.js)_
 
-## `yaps providers:create`
+## `fonos providers:create`
 
 creates a new provider resource
 
 ```
 USAGE
-  $ yaps providers:create
+  $ fonos providers:create
 
 DESCRIPTION
   ...
   Creates a new Provider in the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/providers/create.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/create.js)_
+_See code: [src/commands/providers/create.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/providers/create.js)_
 
-## `yaps providers:delete [REF]`
+## `fonos providers:delete [REF]`
 
-remove provider from a YAPS deployment
+remove provider from a Fonos deployment
 
 ```
 USAGE
-  $ yaps providers:delete [REF]
+  $ fonos providers:delete [REF]
 
 ALIASES
-  $ yaps providers:del
-  $ yaps providers:rm
+  $ fonos providers:del
+  $ fonos providers:rm
 ```
 
-_See code: [src/commands/providers/delete.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/delete.js)_
+_See code: [src/commands/providers/delete.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/providers/delete.js)_
 
-## `yaps providers:get [REF]`
+## `fonos providers:get [REF]`
 
 get information about an existing provider
 
 ```
 USAGE
-  $ yaps providers:get [REF]
+  $ fonos providers:get [REF]
 ```
 
-_See code: [src/commands/providers/get.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/get.js)_
+_See code: [src/commands/providers/get.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/providers/get.js)_
 
-## `yaps providers:list`
+## `fonos providers:list`
 
 list registered providers
 
 ```
 USAGE
-  $ yaps providers:list
+  $ fonos providers:list
 
 OPTIONS
   -s, --size=size  [default: 25] provider of result per page
@@ -468,23 +468,23 @@ DESCRIPTION
   List the registered providers
 
 ALIASES
-  $ yaps providers:ls
+  $ fonos providers:ls
 ```
 
-_See code: [src/commands/providers/list.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/list.js)_
+_See code: [src/commands/providers/list.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/providers/list.js)_
 
-## `yaps providers:update [REF]`
+## `fonos providers:update [REF]`
 
 updates a provider at the SIP Proxy subsystem
 
 ```
 USAGE
-  $ yaps providers:update [REF]
+  $ fonos providers:update [REF]
 
 DESCRIPTION
   ...
   Updates a provider at the SIP Proxy subsystem
 ```
 
-_See code: [src/commands/providers/update.js](https://github.com/fonoster/yaps/blob/v0.0.5/src/commands/providers/update.js)_
+_See code: [src/commands/providers/update.js](https://github.com/fonoster/fonos/blob/v0.0.5/src/commands/providers/update.js)_
 <!-- commandsstop -->

@@ -12,7 +12,7 @@ module.exports = async (bucket: string) => {
     if (!exists) {
       logger.log(
         'verbose',
-        `@yaps/core fsutils [Creating storage and setting policy bucket: ${bucket}]`
+        `@fonos/core fsutils [Creating storage and setting policy bucket: ${bucket}]`
       )
       await fsConn.makeBucket(bucket, 'us-west-1')
       await fsConn.setBucketPolicy(bucket, policy(bucket))

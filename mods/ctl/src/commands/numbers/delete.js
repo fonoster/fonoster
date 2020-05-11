@@ -1,5 +1,5 @@
 require('../../config')
-const Numbers = require('@yaps/numbers')
+const Numbers = require('@fonos/numbers')
 const { CLIError } = require('@oclif/errors')
 const { Command } = require('@oclif/command')
 const { cli } = require('cli-ux')
@@ -21,7 +21,7 @@ class DeleteCommand extends Command {
   }
 }
 
-DeleteCommand.description = `remove number from a YAPS deployment
+DeleteCommand.description = `remove number from a Fonos deployment
 `
 
 DeleteCommand.args = [{ name: 'ref' }]

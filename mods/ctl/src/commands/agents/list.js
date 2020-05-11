@@ -1,5 +1,5 @@
 require('../../config')
-const Agents = require('@yaps/agents')
+const Agents = require('@fonos/agents')
 const Table = require('easy-table')
 const truncate = require('truncate')
 const { CLIError } = require('@oclif/errors')

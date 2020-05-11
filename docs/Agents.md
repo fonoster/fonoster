@@ -1,15 +1,15 @@
 <a name="Agents"></a>
 
-## Agents ⇐ <code>YAPSService</code>
-Use YAPS Agents, a capability of YAPS SIP Proxy subsystem,
-to create, update, get and delete Agents. YAPS Agents requires of a
-running YAPS deployment.
+## Agents ⇐ <code>FonosService</code>
+Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
+to create, update, get and delete Agents. Fonos Agents requires of a
+running Fonos deployment.
 
 **Kind**: global class  
-**Extends**: <code>YAPSService</code>  
-**See**: module:core:YAPSService  
+**Extends**: <code>FonosService</code>  
+**See**: module:core:FonosService  
 
-* [Agents](#Agents) ⇐ <code>YAPSService</code>
+* [Agents](#Agents) ⇐ <code>FonosService</code>
     * [new Agents()](#new_Agents_new)
     * [.createAgent(request)](#Agents+createAgent) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.getAgent(ref)](#Agents+getAgent) ⇒ <code>Promise.&lt;Object&gt;</code>
@@ -24,8 +24,8 @@ Constructs a new Agents object.
 
 **Example**  
 ```js
-const YAPS = require('@yaps/sdk')
-const agents = new YAPS.Agents()
+const Fonos = require('@fonos/sdk')
+const agents = new Fonos.Agents()
 
 const request = {
   name: 'John Doe',
@@ -53,7 +53,7 @@ Creates a new Agent on the SIP Proxy subsystem.
 | request.name | <code>string</code> | Friendly name for the SIP device |
 | request.username | <code>string</code> | Agent's credential username |
 | request.secret | <code>string</code> | Agent's credential secret |
-| request.privacy | <code>Array.&lt;string&gt;</code> | If set to 'Private' YAPS removes identifiable information for the requests. Defaults to 'None' |
+| request.privacy | <code>Array.&lt;string&gt;</code> | If set to 'Private' Fonos removes identifiable information for the requests. Defaults to 'None' |
 | request.domains | <code>Array.&lt;string&gt;</code> | List of domains this Agent has access to |
 
 **Example**  
@@ -123,7 +123,7 @@ agents.updateAgent(request)
 <a name="Agents+listAgents"></a>
 
 ### agents.listAgents(request) ⇒ <code>Promise.&lt;ListAgentsResponse&gt;</code>
-List the Agents registered in YAPS SIP Proxy subsystem.
+List the Agents registered in Fonos SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Agents</code>](#Agents)  
 **Returns**: <code>Promise.&lt;ListAgentsResponse&gt;</code> - List of Agents  

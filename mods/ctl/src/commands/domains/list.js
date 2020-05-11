@@ -1,5 +1,5 @@
 require('../../config')
-const Domains = require('@yaps/domains')
+const Domains = require('@fonos/domains')
 const Table = require('easy-table')
 const truncate = require('truncate')
 const { CLIError } = require('@oclif/errors')

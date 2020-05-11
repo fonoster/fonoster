@@ -1,5 +1,5 @@
 require('../../config')
-const AppManager = require('@yaps/appmanager')
+const AppManager = require('@fonos/appmanager')
 const { CLIError } = require('@oclif/errors')
 const { Command, flags } = require('@oclif/command')
 const { cli } = require('cli-ux')

@@ -1,17 +1,17 @@
-const { logger } = require('@yaps/core')
-const { YAPSService, AgentsService, AgentsPB } = require('@yaps/core')
+const { logger } = require('@fonos/core')
+const { FonosService, AgentsService, AgentsPB } = require('@fonos/core')
 const promisifyAll = require('grpc-promise').promisifyAll
 
 /**
- * @classdesc Use YAPS Agents, a capability of YAPS SIP Proxy subsystem,
- * to create, update, get and delete Agents. YAPS Agents requires of a
- * running YAPS deployment.
+ * @classdesc Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
+ * to create, update, get and delete Agents. Fonos Agents requires of a
+ * running Fonos deployment.
  *
- * @extends YAPSService
+ * @extends FonosService
  * @example
  *
- * const YAPS = require('@yaps/sdk')
- * const agents = new YAPS.Agents()
+ * const Fonos = require('@fonos/sdk')
+ * const agents = new Fonos.Agents()
  *
  * const request = {
  *   name: 'John Doe',
@@ -25,11 +25,11 @@ const promisifyAll = require('grpc-promise').promisifyAll
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Agents extends YAPSService {
+class Agents extends FonosService {
   /**
    * Constructs a new Agents object.
    *
-   * @see module:core:YAPSService
+   * @see module:core:FonosService
    */
   constructor (options) {
     super(AgentsService.AgentsClient, options).init()
@@ -43,7 +43,7 @@ class Agents extends YAPSService {
    * @param {string} request.name - Friendly name for the SIP device
    * @param {string} request.username -Agent's credential username
    * @param {string} request.secret - Agent's credential secret
-   * @param {string[]} request.privacy - If set to 'Private' YAPS removes
+   * @param {string[]} request.privacy - If set to 'Private' Fonos removes
    * identifiable information for the requests. Defaults to 'None'
    * @param {string[]} request.domains - List of domains this Agent has access to
    * @return {Promise<Object>} The Agent from the database
@@ -64,12 +64,12 @@ class Agents extends YAPSService {
   async createAgent (request) {
     logger.log(
       'verbose',
-      `@yaps/agents createAgent [request: ${JSON.stringify(request)}]`
+      `@fonos/agents createAgent [request: ${JSON.stringify(request)}]`
     )
 
     logger.log(
       'debug',
-      `@yaps/agents createAgent [validating agent: ${request.name}]`
+      `@fonos/agents createAgent [validating agent: ${request.name}]`
     )
 
     const agent = new AgentsPB.Agent()
@@ -130,7 +130,7 @@ class Agents extends YAPSService {
   async updateAgent (request) {
     logger.log(
       'verbose',
-      `@yaps/agents updateAgent [request: ${JSON.stringify(request)}]`
+      `@fonos/agents updateAgent [request: ${JSON.stringify(request)}]`
     )
 
     const agentFromDB = await this.getAgent(request.ref)
@@ -149,7 +149,7 @@ class Agents extends YAPSService {
   }
 
   /**
-   * List the Agents registered in YAPS SIP Proxy subsystem.
+   * List the Agents registered in Fonos SIP Proxy subsystem.
    *
    * @param {Object} request
    * @param {agent} request.pageSize - Agent of element per page
@@ -172,7 +172,7 @@ class Agents extends YAPSService {
   async listAgents (request) {
     logger.log(
       'verbose',
-      `@yaps/agents listAgent [request -> ${JSON.stringify(request)}]`
+      `@fonos/agents listAgent [request -> ${JSON.stringify(request)}]`
     )
     const r = new AgentsPB.ListAgentsRequest()
     r.setPageSize(request.pageSize)
@@ -195,7 +195,7 @@ class Agents extends YAPSService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteAgent (ref) {
-    logger.log('verbose', `@yaps/agents deleteAgent [ref: ${ref}]`)
+    logger.log('verbose', `@fonos/agents deleteAgent [ref: ${ref}]`)
 
     const req = new AgentsPB.DeleteAgentRequest()
     req.setRef(ref)

@@ -1,6 +1,6 @@
 const { Storage } = require('../src/storage')
-const { StoragePB } = require('@yaps/core')
-const { updateBucketPolicy } = require('@yaps/core')
+const { StoragePB } = require('@fonos/core')
+const { updateBucketPolicy } = require('@fonos/core')
 const assert = require('assert')
 const path = require('path')
 

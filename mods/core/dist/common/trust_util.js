@@ -53,7 +53,7 @@ module.exports.getClientCredentials = () => {
 }
 module.exports.auth = function (call) {
   const jwt = require('jsonwebtoken')
-  const { getSalt } = require('@yaps/certs')
+  const { getSalt } = require('@fonos/certs')
   const salt = getSalt()
   if (
     call.metadata._internal_repr.access_key_id === null ||

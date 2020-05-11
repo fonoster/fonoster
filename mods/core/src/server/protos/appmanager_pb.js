@@ -13,31 +13,31 @@ var global = Function('return this')()
 
 var common_pb = require('./common_pb.js')
 goog.object.extend(proto, common_pb)
-goog.exportSymbol('proto.yaps.appmanager.v1alpha1.App', null, global)
-goog.exportSymbol('proto.yaps.appmanager.v1alpha1.App.Status', null, global)
+goog.exportSymbol('proto.fonos.appmanager.v1alpha1.App', null, global)
+goog.exportSymbol('proto.fonos.appmanager.v1alpha1.App.Status', null, global)
 goog.exportSymbol(
-  'proto.yaps.appmanager.v1alpha1.CreateAppRequest',
+  'proto.fonos.appmanager.v1alpha1.CreateAppRequest',
   null,
   global
 )
 goog.exportSymbol(
-  'proto.yaps.appmanager.v1alpha1.DeleteAppRequest',
+  'proto.fonos.appmanager.v1alpha1.DeleteAppRequest',
   null,
   global
 )
-goog.exportSymbol('proto.yaps.appmanager.v1alpha1.GetAppRequest', null, global)
+goog.exportSymbol('proto.fonos.appmanager.v1alpha1.GetAppRequest', null, global)
 goog.exportSymbol(
-  'proto.yaps.appmanager.v1alpha1.ListAppsRequest',
-  null,
-  global
-)
-goog.exportSymbol(
-  'proto.yaps.appmanager.v1alpha1.ListAppsResponse',
+  'proto.fonos.appmanager.v1alpha1.ListAppsRequest',
   null,
   global
 )
 goog.exportSymbol(
-  'proto.yaps.appmanager.v1alpha1.UpdateAppRequest',
+  'proto.fonos.appmanager.v1alpha1.ListAppsResponse',
+  null,
+  global
+)
+goog.exportSymbol(
+  'proto.fonos.appmanager.v1alpha1.UpdateAppRequest',
   null,
   global
 )
@@ -52,13 +52,13 @@ goog.exportSymbol(
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest = function (opt_data) {
+proto.fonos.appmanager.v1alpha1.ListAppsRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.appmanager.v1alpha1.ListAppsRequest, jspb.Message)
+goog.inherits(proto.fonos.appmanager.v1alpha1.ListAppsRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.appmanager.v1alpha1.ListAppsRequest.displayName =
-    'proto.yaps.appmanager.v1alpha1.ListAppsRequest'
+  proto.fonos.appmanager.v1alpha1.ListAppsRequest.displayName =
+    'proto.fonos.appmanager.v1alpha1.ListAppsRequest'
 }
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -72,10 +72,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.toObject = function (
+  proto.fonos.appmanager.v1alpha1.ListAppsRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.appmanager.v1alpha1.ListAppsRequest.toObject(
+    return proto.fonos.appmanager.v1alpha1.ListAppsRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -86,11 +86,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.appmanager.v1alpha1.ListAppsRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.appmanager.v1alpha1.ListAppsRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.appmanager.v1alpha1.ListAppsRequest.toObject = function (
+  proto.fonos.appmanager.v1alpha1.ListAppsRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -111,14 +111,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.appmanager.v1alpha1.ListAppsRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.ListAppsRequest}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.deserializeBinary = function (
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.appmanager.v1alpha1.ListAppsRequest()
-  return proto.yaps.appmanager.v1alpha1.ListAppsRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.appmanager.v1alpha1.ListAppsRequest()
+  return proto.fonos.appmanager.v1alpha1.ListAppsRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -127,11 +127,11 @@ proto.yaps.appmanager.v1alpha1.ListAppsRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.appmanager.v1alpha1.ListAppsRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.appmanager.v1alpha1.ListAppsRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.appmanager.v1alpha1.ListAppsRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.ListAppsRequest}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.deserializeBinaryFromReader = function (
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -150,7 +150,7 @@ proto.yaps.appmanager.v1alpha1.ListAppsRequest.deserializeBinaryFromReader = fun
         msg.setPageToken(value)
         break
       case 3:
-        var value = /** @type {!proto.yaps.common.v1alpha1.View} */ (reader.readEnum())
+        var value = /** @type {!proto.fonos.common.v1alpha1.View} */ (reader.readEnum())
         msg.setView(value)
         break
       default:
@@ -165,9 +165,9 @@ proto.yaps.appmanager.v1alpha1.ListAppsRequest.deserializeBinaryFromReader = fun
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.serializeBinary = function () {
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.appmanager.v1alpha1.ListAppsRequest.serializeBinaryToWriter(
+  proto.fonos.appmanager.v1alpha1.ListAppsRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -177,11 +177,11 @@ proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.serializeBinary = funct
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.appmanager.v1alpha1.ListAppsRequest} message
+ * @param {!proto.fonos.appmanager.v1alpha1.ListAppsRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.serializeBinaryToWriter = function (
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -204,12 +204,12 @@ proto.yaps.appmanager.v1alpha1.ListAppsRequest.serializeBinaryToWriter = functio
  * optional int32 page_size = 1;
  * @return {number}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.getPageSize = function () {
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.prototype.getPageSize = function () {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0))
 }
 
 /** @param {number} value */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.setPageSize = function (
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.prototype.setPageSize = function (
   value
 ) {
   jspb.Message.setProto3IntField(this, 1, value)
@@ -219,31 +219,31 @@ proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.setPageSize = function 
  * optional string page_token = 2;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.getPageToken = function () {
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.prototype.getPageToken = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.setPageToken = function (
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.prototype.setPageToken = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 2, value)
 }
 
 /**
- * optional yaps.common.v1alpha1.View view = 3;
- * @return {!proto.yaps.common.v1alpha1.View}
+ * optional fonos.common.v1alpha1.View view = 3;
+ * @return {!proto.fonos.common.v1alpha1.View}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.getView = function () {
-  return /** @type {!proto.yaps.common.v1alpha1.View} */ (jspb.Message.getFieldWithDefault(
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.prototype.getView = function () {
+  return /** @type {!proto.fonos.common.v1alpha1.View} */ (jspb.Message.getFieldWithDefault(
     this,
     3,
     0
   ))
 }
 
-/** @param {!proto.yaps.common.v1alpha1.View} value */
-proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.setView = function (
+/** @param {!proto.fonos.common.v1alpha1.View} value */
+proto.fonos.appmanager.v1alpha1.ListAppsRequest.prototype.setView = function (
   value
 ) {
   jspb.Message.setProto3EnumField(this, 3, value)
@@ -259,27 +259,27 @@ proto.yaps.appmanager.v1alpha1.ListAppsRequest.prototype.setView = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse = function (opt_data) {
+proto.fonos.appmanager.v1alpha1.ListAppsResponse = function (opt_data) {
   jspb.Message.initialize(
     this,
     opt_data,
     0,
     -1,
-    proto.yaps.appmanager.v1alpha1.ListAppsResponse.repeatedFields_,
+    proto.fonos.appmanager.v1alpha1.ListAppsResponse.repeatedFields_,
     null
   )
 }
-goog.inherits(proto.yaps.appmanager.v1alpha1.ListAppsResponse, jspb.Message)
+goog.inherits(proto.fonos.appmanager.v1alpha1.ListAppsResponse, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.appmanager.v1alpha1.ListAppsResponse.displayName =
-    'proto.yaps.appmanager.v1alpha1.ListAppsResponse'
+  proto.fonos.appmanager.v1alpha1.ListAppsResponse.displayName =
+    'proto.fonos.appmanager.v1alpha1.ListAppsResponse'
 }
 /**
  * List of repeated fields within this message type.
  * @private {!Array<number>}
  * @const
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.repeatedFields_ = [1]
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.repeatedFields_ = [1]
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
   /**
@@ -292,10 +292,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.toObject = function (
+  proto.fonos.appmanager.v1alpha1.ListAppsResponse.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.appmanager.v1alpha1.ListAppsResponse.toObject(
+    return proto.fonos.appmanager.v1alpha1.ListAppsResponse.toObject(
       opt_includeInstance,
       this
     )
@@ -306,11 +306,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.appmanager.v1alpha1.ListAppsResponse} msg The msg instance to transform.
+   * @param {!proto.fonos.appmanager.v1alpha1.ListAppsResponse} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.appmanager.v1alpha1.ListAppsResponse.toObject = function (
+  proto.fonos.appmanager.v1alpha1.ListAppsResponse.toObject = function (
     includeInstance,
     msg
   ) {
@@ -318,7 +318,7 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
       obj = {
         appsList: jspb.Message.toObjectList(
           msg.getAppsList(),
-          proto.yaps.appmanager.v1alpha1.App.toObject,
+          proto.fonos.appmanager.v1alpha1.App.toObject,
           includeInstance
         ),
         nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, '')
@@ -334,14 +334,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.appmanager.v1alpha1.ListAppsResponse}
+ * @return {!proto.fonos.appmanager.v1alpha1.ListAppsResponse}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.deserializeBinary = function (
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.appmanager.v1alpha1.ListAppsResponse()
-  return proto.yaps.appmanager.v1alpha1.ListAppsResponse.deserializeBinaryFromReader(
+  var msg = new proto.fonos.appmanager.v1alpha1.ListAppsResponse()
+  return proto.fonos.appmanager.v1alpha1.ListAppsResponse.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -350,11 +350,11 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.appmanager.v1alpha1.ListAppsResponse} msg The message object to deserialize into.
+ * @param {!proto.fonos.appmanager.v1alpha1.ListAppsResponse} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.appmanager.v1alpha1.ListAppsResponse}
+ * @return {!proto.fonos.appmanager.v1alpha1.ListAppsResponse}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.deserializeBinaryFromReader = function (
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -365,10 +365,10 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber()
     switch (field) {
       case 1:
-        var value = new proto.yaps.appmanager.v1alpha1.App()
+        var value = new proto.fonos.appmanager.v1alpha1.App()
         reader.readMessage(
           value,
-          proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader
+          proto.fonos.appmanager.v1alpha1.App.deserializeBinaryFromReader
         )
         msg.addApps(value)
         break
@@ -388,9 +388,9 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.serializeBinary = function () {
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.appmanager.v1alpha1.ListAppsResponse.serializeBinaryToWriter(
+  proto.fonos.appmanager.v1alpha1.ListAppsResponse.serializeBinaryToWriter(
     this,
     writer
   )
@@ -400,11 +400,11 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.appmanager.v1alpha1.ListAppsResponse} message
+ * @param {!proto.fonos.appmanager.v1alpha1.ListAppsResponse} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.serializeBinaryToWriter = function (
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -414,7 +414,7 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.serializeBinaryToWriter = functi
     writer.writeRepeatedMessage(
       1,
       f,
-      proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter
+      proto.fonos.appmanager.v1alpha1.App.serializeBinaryToWriter
     )
   }
   f = message.getNextPageToken()
@@ -425,29 +425,29 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.serializeBinaryToWriter = functi
 
 /**
  * repeated App apps = 1;
- * @return {!Array<!proto.yaps.appmanager.v1alpha1.App>}
+ * @return {!Array<!proto.fonos.appmanager.v1alpha1.App>}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.getAppsList = function () {
-  return /** @type{!Array<!proto.yaps.appmanager.v1alpha1.App>} */ (jspb.Message.getRepeatedWrapperField(
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.prototype.getAppsList = function () {
+  return /** @type{!Array<!proto.fonos.appmanager.v1alpha1.App>} */ (jspb.Message.getRepeatedWrapperField(
     this,
-    proto.yaps.appmanager.v1alpha1.App,
+    proto.fonos.appmanager.v1alpha1.App,
     1
   ))
 }
 
-/** @param {!Array<!proto.yaps.appmanager.v1alpha1.App>} value */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.setAppsList = function (
+/** @param {!Array<!proto.fonos.appmanager.v1alpha1.App>} value */
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.prototype.setAppsList = function (
   value
 ) {
   jspb.Message.setRepeatedWrapperField(this, 1, value)
 }
 
 /**
- * @param {!proto.yaps.appmanager.v1alpha1.App=} opt_value
+ * @param {!proto.fonos.appmanager.v1alpha1.App=} opt_value
  * @param {number=} opt_index
- * @return {!proto.yaps.appmanager.v1alpha1.App}
+ * @return {!proto.fonos.appmanager.v1alpha1.App}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.addApps = function (
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.prototype.addApps = function (
   opt_value,
   opt_index
 ) {
@@ -455,12 +455,12 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.addApps = function (
     this,
     1,
     opt_value,
-    proto.yaps.appmanager.v1alpha1.App,
+    proto.fonos.appmanager.v1alpha1.App,
     opt_index
   )
 }
 
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.clearAppsList = function () {
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.prototype.clearAppsList = function () {
   this.setAppsList([])
 }
 
@@ -468,12 +468,12 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.clearAppsList = functi
  * optional string next_page_token = 2;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.getNextPageToken = function () {
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.prototype.getNextPageToken = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.setNextPageToken = function (
+proto.fonos.appmanager.v1alpha1.ListAppsResponse.prototype.setNextPageToken = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 2, value)
@@ -489,13 +489,13 @@ proto.yaps.appmanager.v1alpha1.ListAppsResponse.prototype.setNextPageToken = fun
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.appmanager.v1alpha1.GetAppRequest = function (opt_data) {
+proto.fonos.appmanager.v1alpha1.GetAppRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.appmanager.v1alpha1.GetAppRequest, jspb.Message)
+goog.inherits(proto.fonos.appmanager.v1alpha1.GetAppRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.appmanager.v1alpha1.GetAppRequest.displayName =
-    'proto.yaps.appmanager.v1alpha1.GetAppRequest'
+  proto.fonos.appmanager.v1alpha1.GetAppRequest.displayName =
+    'proto.fonos.appmanager.v1alpha1.GetAppRequest'
 }
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -509,10 +509,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.toObject = function (
+  proto.fonos.appmanager.v1alpha1.GetAppRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.appmanager.v1alpha1.GetAppRequest.toObject(
+    return proto.fonos.appmanager.v1alpha1.GetAppRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -523,11 +523,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.appmanager.v1alpha1.GetAppRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.appmanager.v1alpha1.GetAppRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.appmanager.v1alpha1.GetAppRequest.toObject = function (
+  proto.fonos.appmanager.v1alpha1.GetAppRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -547,14 +547,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.appmanager.v1alpha1.GetAppRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.GetAppRequest}
  */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.deserializeBinary = function (
+proto.fonos.appmanager.v1alpha1.GetAppRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.appmanager.v1alpha1.GetAppRequest()
-  return proto.yaps.appmanager.v1alpha1.GetAppRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.appmanager.v1alpha1.GetAppRequest()
+  return proto.fonos.appmanager.v1alpha1.GetAppRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -563,11 +563,11 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.appmanager.v1alpha1.GetAppRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.appmanager.v1alpha1.GetAppRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.appmanager.v1alpha1.GetAppRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.GetAppRequest}
  */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.deserializeBinaryFromReader = function (
+proto.fonos.appmanager.v1alpha1.GetAppRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -582,7 +582,7 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.deserializeBinaryFromReader = funct
         msg.setName(value)
         break
       case 2:
-        var value = /** @type {!proto.yaps.common.v1alpha1.View} */ (reader.readEnum())
+        var value = /** @type {!proto.fonos.common.v1alpha1.View} */ (reader.readEnum())
         msg.setView(value)
         break
       default:
@@ -597,9 +597,9 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.deserializeBinaryFromReader = funct
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.serializeBinary = function () {
+proto.fonos.appmanager.v1alpha1.GetAppRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.appmanager.v1alpha1.GetAppRequest.serializeBinaryToWriter(
+  proto.fonos.appmanager.v1alpha1.GetAppRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -609,11 +609,11 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.serializeBinary = functio
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.appmanager.v1alpha1.GetAppRequest} message
+ * @param {!proto.fonos.appmanager.v1alpha1.GetAppRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.serializeBinaryToWriter = function (
+proto.fonos.appmanager.v1alpha1.GetAppRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -632,31 +632,31 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.serializeBinaryToWriter = function 
  * optional string name = 1;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.getName = function () {
+proto.fonos.appmanager.v1alpha1.GetAppRequest.prototype.getName = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.setName = function (
+proto.fonos.appmanager.v1alpha1.GetAppRequest.prototype.setName = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 1, value)
 }
 
 /**
- * optional yaps.common.v1alpha1.View view = 2;
- * @return {!proto.yaps.common.v1alpha1.View}
+ * optional fonos.common.v1alpha1.View view = 2;
+ * @return {!proto.fonos.common.v1alpha1.View}
  */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.getView = function () {
-  return /** @type {!proto.yaps.common.v1alpha1.View} */ (jspb.Message.getFieldWithDefault(
+proto.fonos.appmanager.v1alpha1.GetAppRequest.prototype.getView = function () {
+  return /** @type {!proto.fonos.common.v1alpha1.View} */ (jspb.Message.getFieldWithDefault(
     this,
     2,
     0
   ))
 }
 
-/** @param {!proto.yaps.common.v1alpha1.View} value */
-proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.setView = function (
+/** @param {!proto.fonos.common.v1alpha1.View} value */
+proto.fonos.appmanager.v1alpha1.GetAppRequest.prototype.setView = function (
   value
 ) {
   jspb.Message.setProto3EnumField(this, 2, value)
@@ -672,13 +672,13 @@ proto.yaps.appmanager.v1alpha1.GetAppRequest.prototype.setView = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest = function (opt_data) {
+proto.fonos.appmanager.v1alpha1.CreateAppRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.appmanager.v1alpha1.CreateAppRequest, jspb.Message)
+goog.inherits(proto.fonos.appmanager.v1alpha1.CreateAppRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.appmanager.v1alpha1.CreateAppRequest.displayName =
-    'proto.yaps.appmanager.v1alpha1.CreateAppRequest'
+  proto.fonos.appmanager.v1alpha1.CreateAppRequest.displayName =
+    'proto.fonos.appmanager.v1alpha1.CreateAppRequest'
 }
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -692,10 +692,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.toObject = function (
+  proto.fonos.appmanager.v1alpha1.CreateAppRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.appmanager.v1alpha1.CreateAppRequest.toObject(
+    return proto.fonos.appmanager.v1alpha1.CreateAppRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -706,11 +706,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.appmanager.v1alpha1.CreateAppRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.appmanager.v1alpha1.CreateAppRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.appmanager.v1alpha1.CreateAppRequest.toObject = function (
+  proto.fonos.appmanager.v1alpha1.CreateAppRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -718,7 +718,7 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
       obj = {
         app:
           (f = msg.getApp()) &&
-          proto.yaps.appmanager.v1alpha1.App.toObject(includeInstance, f)
+          proto.fonos.appmanager.v1alpha1.App.toObject(includeInstance, f)
       }
 
     if (includeInstance) {
@@ -731,14 +731,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.appmanager.v1alpha1.CreateAppRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.CreateAppRequest}
  */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.deserializeBinary = function (
+proto.fonos.appmanager.v1alpha1.CreateAppRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.appmanager.v1alpha1.CreateAppRequest()
-  return proto.yaps.appmanager.v1alpha1.CreateAppRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.appmanager.v1alpha1.CreateAppRequest()
+  return proto.fonos.appmanager.v1alpha1.CreateAppRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -747,11 +747,11 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.appmanager.v1alpha1.CreateAppRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.appmanager.v1alpha1.CreateAppRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.appmanager.v1alpha1.CreateAppRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.CreateAppRequest}
  */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.deserializeBinaryFromReader = function (
+proto.fonos.appmanager.v1alpha1.CreateAppRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -762,10 +762,10 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber()
     switch (field) {
       case 2:
-        var value = new proto.yaps.appmanager.v1alpha1.App()
+        var value = new proto.fonos.appmanager.v1alpha1.App()
         reader.readMessage(
           value,
-          proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader
+          proto.fonos.appmanager.v1alpha1.App.deserializeBinaryFromReader
         )
         msg.setApp(value)
         break
@@ -781,9 +781,9 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.serializeBinary = function () {
+proto.fonos.appmanager.v1alpha1.CreateAppRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.appmanager.v1alpha1.CreateAppRequest.serializeBinaryToWriter(
+  proto.fonos.appmanager.v1alpha1.CreateAppRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -793,11 +793,11 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.appmanager.v1alpha1.CreateAppRequest} message
+ * @param {!proto.fonos.appmanager.v1alpha1.CreateAppRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.serializeBinaryToWriter = function (
+proto.fonos.appmanager.v1alpha1.CreateAppRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -807,31 +807,31 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.serializeBinaryToWriter = functi
     writer.writeMessage(
       2,
       f,
-      proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter
+      proto.fonos.appmanager.v1alpha1.App.serializeBinaryToWriter
     )
   }
 }
 
 /**
  * optional App app = 2;
- * @return {?proto.yaps.appmanager.v1alpha1.App}
+ * @return {?proto.fonos.appmanager.v1alpha1.App}
  */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.getApp = function () {
-  return /** @type{?proto.yaps.appmanager.v1alpha1.App} */ (jspb.Message.getWrapperField(
+proto.fonos.appmanager.v1alpha1.CreateAppRequest.prototype.getApp = function () {
+  return /** @type{?proto.fonos.appmanager.v1alpha1.App} */ (jspb.Message.getWrapperField(
     this,
-    proto.yaps.appmanager.v1alpha1.App,
+    proto.fonos.appmanager.v1alpha1.App,
     2
   ))
 }
 
-/** @param {?proto.yaps.appmanager.v1alpha1.App|undefined} value */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.setApp = function (
+/** @param {?proto.fonos.appmanager.v1alpha1.App|undefined} value */
+proto.fonos.appmanager.v1alpha1.CreateAppRequest.prototype.setApp = function (
   value
 ) {
   jspb.Message.setWrapperField(this, 2, value)
 }
 
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.clearApp = function () {
+proto.fonos.appmanager.v1alpha1.CreateAppRequest.prototype.clearApp = function () {
   this.setApp(undefined)
 }
 
@@ -839,7 +839,7 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.clearApp = function ()
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.hasApp = function () {
+proto.fonos.appmanager.v1alpha1.CreateAppRequest.prototype.hasApp = function () {
   return jspb.Message.getField(this, 2) != null
 }
 
@@ -853,13 +853,13 @@ proto.yaps.appmanager.v1alpha1.CreateAppRequest.prototype.hasApp = function () {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest = function (opt_data) {
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.appmanager.v1alpha1.UpdateAppRequest, jspb.Message)
+goog.inherits(proto.fonos.appmanager.v1alpha1.UpdateAppRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.appmanager.v1alpha1.UpdateAppRequest.displayName =
-    'proto.yaps.appmanager.v1alpha1.UpdateAppRequest'
+  proto.fonos.appmanager.v1alpha1.UpdateAppRequest.displayName =
+    'proto.fonos.appmanager.v1alpha1.UpdateAppRequest'
 }
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -873,10 +873,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.toObject = function (
+  proto.fonos.appmanager.v1alpha1.UpdateAppRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.appmanager.v1alpha1.UpdateAppRequest.toObject(
+    return proto.fonos.appmanager.v1alpha1.UpdateAppRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -887,11 +887,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.appmanager.v1alpha1.UpdateAppRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.appmanager.v1alpha1.UpdateAppRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.appmanager.v1alpha1.UpdateAppRequest.toObject = function (
+  proto.fonos.appmanager.v1alpha1.UpdateAppRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -899,7 +899,7 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
       obj = {
         app:
           (f = msg.getApp()) &&
-          proto.yaps.appmanager.v1alpha1.App.toObject(includeInstance, f)
+          proto.fonos.appmanager.v1alpha1.App.toObject(includeInstance, f)
       }
 
     if (includeInstance) {
@@ -912,14 +912,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.appmanager.v1alpha1.UpdateAppRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.UpdateAppRequest}
  */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.deserializeBinary = function (
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.appmanager.v1alpha1.UpdateAppRequest()
-  return proto.yaps.appmanager.v1alpha1.UpdateAppRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.appmanager.v1alpha1.UpdateAppRequest()
+  return proto.fonos.appmanager.v1alpha1.UpdateAppRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -928,11 +928,11 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.appmanager.v1alpha1.UpdateAppRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.appmanager.v1alpha1.UpdateAppRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.appmanager.v1alpha1.UpdateAppRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.UpdateAppRequest}
  */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.deserializeBinaryFromReader = function (
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -943,10 +943,10 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber()
     switch (field) {
       case 2:
-        var value = new proto.yaps.appmanager.v1alpha1.App()
+        var value = new proto.fonos.appmanager.v1alpha1.App()
         reader.readMessage(
           value,
-          proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader
+          proto.fonos.appmanager.v1alpha1.App.deserializeBinaryFromReader
         )
         msg.setApp(value)
         break
@@ -962,9 +962,9 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.serializeBinary = function () {
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.appmanager.v1alpha1.UpdateAppRequest.serializeBinaryToWriter(
+  proto.fonos.appmanager.v1alpha1.UpdateAppRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -974,11 +974,11 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.appmanager.v1alpha1.UpdateAppRequest} message
+ * @param {!proto.fonos.appmanager.v1alpha1.UpdateAppRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.serializeBinaryToWriter = function (
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -988,31 +988,31 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.serializeBinaryToWriter = functi
     writer.writeMessage(
       2,
       f,
-      proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter
+      proto.fonos.appmanager.v1alpha1.App.serializeBinaryToWriter
     )
   }
 }
 
 /**
  * optional App app = 2;
- * @return {?proto.yaps.appmanager.v1alpha1.App}
+ * @return {?proto.fonos.appmanager.v1alpha1.App}
  */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.getApp = function () {
-  return /** @type{?proto.yaps.appmanager.v1alpha1.App} */ (jspb.Message.getWrapperField(
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest.prototype.getApp = function () {
+  return /** @type{?proto.fonos.appmanager.v1alpha1.App} */ (jspb.Message.getWrapperField(
     this,
-    proto.yaps.appmanager.v1alpha1.App,
+    proto.fonos.appmanager.v1alpha1.App,
     2
   ))
 }
 
-/** @param {?proto.yaps.appmanager.v1alpha1.App|undefined} value */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.setApp = function (
+/** @param {?proto.fonos.appmanager.v1alpha1.App|undefined} value */
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest.prototype.setApp = function (
   value
 ) {
   jspb.Message.setWrapperField(this, 2, value)
 }
 
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.clearApp = function () {
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest.prototype.clearApp = function () {
   this.setApp(undefined)
 }
 
@@ -1020,7 +1020,7 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.clearApp = function ()
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.hasApp = function () {
+proto.fonos.appmanager.v1alpha1.UpdateAppRequest.prototype.hasApp = function () {
   return jspb.Message.getField(this, 2) != null
 }
 
@@ -1034,13 +1034,13 @@ proto.yaps.appmanager.v1alpha1.UpdateAppRequest.prototype.hasApp = function () {
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest = function (opt_data) {
+proto.fonos.appmanager.v1alpha1.DeleteAppRequest = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.appmanager.v1alpha1.DeleteAppRequest, jspb.Message)
+goog.inherits(proto.fonos.appmanager.v1alpha1.DeleteAppRequest, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.appmanager.v1alpha1.DeleteAppRequest.displayName =
-    'proto.yaps.appmanager.v1alpha1.DeleteAppRequest'
+  proto.fonos.appmanager.v1alpha1.DeleteAppRequest.displayName =
+    'proto.fonos.appmanager.v1alpha1.DeleteAppRequest'
 }
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -1054,10 +1054,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.toObject = function (
+  proto.fonos.appmanager.v1alpha1.DeleteAppRequest.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.appmanager.v1alpha1.DeleteAppRequest.toObject(
+    return proto.fonos.appmanager.v1alpha1.DeleteAppRequest.toObject(
       opt_includeInstance,
       this
     )
@@ -1068,11 +1068,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.appmanager.v1alpha1.DeleteAppRequest} msg The msg instance to transform.
+   * @param {!proto.fonos.appmanager.v1alpha1.DeleteAppRequest} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.appmanager.v1alpha1.DeleteAppRequest.toObject = function (
+  proto.fonos.appmanager.v1alpha1.DeleteAppRequest.toObject = function (
     includeInstance,
     msg
   ) {
@@ -1091,14 +1091,14 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.appmanager.v1alpha1.DeleteAppRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.DeleteAppRequest}
  */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest.deserializeBinary = function (
+proto.fonos.appmanager.v1alpha1.DeleteAppRequest.deserializeBinary = function (
   bytes
 ) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.appmanager.v1alpha1.DeleteAppRequest()
-  return proto.yaps.appmanager.v1alpha1.DeleteAppRequest.deserializeBinaryFromReader(
+  var msg = new proto.fonos.appmanager.v1alpha1.DeleteAppRequest()
+  return proto.fonos.appmanager.v1alpha1.DeleteAppRequest.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -1107,11 +1107,11 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.deserializeBinary = function (
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.appmanager.v1alpha1.DeleteAppRequest} msg The message object to deserialize into.
+ * @param {!proto.fonos.appmanager.v1alpha1.DeleteAppRequest} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.appmanager.v1alpha1.DeleteAppRequest}
+ * @return {!proto.fonos.appmanager.v1alpha1.DeleteAppRequest}
  */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest.deserializeBinaryFromReader = function (
+proto.fonos.appmanager.v1alpha1.DeleteAppRequest.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -1137,9 +1137,9 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.deserializeBinaryFromReader = fu
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.serializeBinary = function () {
+proto.fonos.appmanager.v1alpha1.DeleteAppRequest.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.appmanager.v1alpha1.DeleteAppRequest.serializeBinaryToWriter(
+  proto.fonos.appmanager.v1alpha1.DeleteAppRequest.serializeBinaryToWriter(
     this,
     writer
   )
@@ -1149,11 +1149,11 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.serializeBinary = func
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.appmanager.v1alpha1.DeleteAppRequest} message
+ * @param {!proto.fonos.appmanager.v1alpha1.DeleteAppRequest} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest.serializeBinaryToWriter = function (
+proto.fonos.appmanager.v1alpha1.DeleteAppRequest.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -1168,12 +1168,12 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.serializeBinaryToWriter = functi
  * optional string name = 1;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.getName = function () {
+proto.fonos.appmanager.v1alpha1.DeleteAppRequest.prototype.getName = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.setName = function (
+proto.fonos.appmanager.v1alpha1.DeleteAppRequest.prototype.setName = function (
   value
 ) {
   jspb.Message.setProto3StringField(this, 1, value)
@@ -1189,13 +1189,13 @@ proto.yaps.appmanager.v1alpha1.DeleteAppRequest.prototype.setName = function (
  * @extends {jspb.Message}
  * @constructor
  */
-proto.yaps.appmanager.v1alpha1.App = function (opt_data) {
+proto.fonos.appmanager.v1alpha1.App = function (opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null)
 }
-goog.inherits(proto.yaps.appmanager.v1alpha1.App, jspb.Message)
+goog.inherits(proto.fonos.appmanager.v1alpha1.App, jspb.Message)
 if (goog.DEBUG && !COMPILED) {
-  proto.yaps.appmanager.v1alpha1.App.displayName =
-    'proto.yaps.appmanager.v1alpha1.App'
+  proto.fonos.appmanager.v1alpha1.App.displayName =
+    'proto.fonos.appmanager.v1alpha1.App'
 }
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -1209,10 +1209,10 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    *     for transitional soy proto support: http://goto/soy-param-migration
    * @return {!Object}
    */
-  proto.yaps.appmanager.v1alpha1.App.prototype.toObject = function (
+  proto.fonos.appmanager.v1alpha1.App.prototype.toObject = function (
     opt_includeInstance
   ) {
-    return proto.yaps.appmanager.v1alpha1.App.toObject(
+    return proto.fonos.appmanager.v1alpha1.App.toObject(
       opt_includeInstance,
       this
     )
@@ -1223,11 +1223,11 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
    * @param {boolean|undefined} includeInstance Whether to include the JSPB
    *     instance for transitional soy proto support:
    *     http://goto/soy-param-migration
-   * @param {!proto.yaps.appmanager.v1alpha1.App} msg The msg instance to transform.
+   * @param {!proto.fonos.appmanager.v1alpha1.App} msg The msg instance to transform.
    * @return {!Object}
    * @suppress {unusedLocalVariables} f is only used for nested messages
    */
-  proto.yaps.appmanager.v1alpha1.App.toObject = function (
+  proto.fonos.appmanager.v1alpha1.App.toObject = function (
     includeInstance,
     msg
   ) {
@@ -1254,12 +1254,12 @@ if (jspb.Message.GENERATE_TO_OBJECT) {
 /**
  * Deserializes binary data (in protobuf wire format).
  * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.yaps.appmanager.v1alpha1.App}
+ * @return {!proto.fonos.appmanager.v1alpha1.App}
  */
-proto.yaps.appmanager.v1alpha1.App.deserializeBinary = function (bytes) {
+proto.fonos.appmanager.v1alpha1.App.deserializeBinary = function (bytes) {
   var reader = new jspb.BinaryReader(bytes)
-  var msg = new proto.yaps.appmanager.v1alpha1.App()
-  return proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader(
+  var msg = new proto.fonos.appmanager.v1alpha1.App()
+  return proto.fonos.appmanager.v1alpha1.App.deserializeBinaryFromReader(
     msg,
     reader
   )
@@ -1268,11 +1268,11 @@ proto.yaps.appmanager.v1alpha1.App.deserializeBinary = function (bytes) {
 /**
  * Deserializes binary data (in protobuf wire format) from the
  * given reader into the given message object.
- * @param {!proto.yaps.appmanager.v1alpha1.App} msg The message object to deserialize into.
+ * @param {!proto.fonos.appmanager.v1alpha1.App} msg The message object to deserialize into.
  * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.yaps.appmanager.v1alpha1.App}
+ * @return {!proto.fonos.appmanager.v1alpha1.App}
  */
-proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader = function (
+proto.fonos.appmanager.v1alpha1.App.deserializeBinaryFromReader = function (
   msg,
   reader
 ) {
@@ -1299,7 +1299,7 @@ proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader = function (
         msg.setUpdateTime(value)
         break
       case 5:
-        var value = /** @type {!proto.yaps.appmanager.v1alpha1.App.Status} */ (reader.readEnum())
+        var value = /** @type {!proto.fonos.appmanager.v1alpha1.App.Status} */ (reader.readEnum())
         msg.setStatus(value)
         break
       case 6:
@@ -1331,20 +1331,20 @@ proto.yaps.appmanager.v1alpha1.App.deserializeBinaryFromReader = function (
  * Serializes the message to binary data (in protobuf wire format).
  * @return {!Uint8Array}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.serializeBinary = function () {
+proto.fonos.appmanager.v1alpha1.App.prototype.serializeBinary = function () {
   var writer = new jspb.BinaryWriter()
-  proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter(this, writer)
+  proto.fonos.appmanager.v1alpha1.App.serializeBinaryToWriter(this, writer)
   return writer.getResultBuffer()
 }
 
 /**
  * Serializes the given message to binary data (in protobuf wire
  * format), writing to the given BinaryWriter.
- * @param {!proto.yaps.appmanager.v1alpha1.App} message
+ * @param {!proto.fonos.appmanager.v1alpha1.App} message
  * @param {!jspb.BinaryWriter} writer
  * @suppress {unusedLocalVariables} f is only used for nested messages
  */
-proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter = function (
+proto.fonos.appmanager.v1alpha1.App.serializeBinaryToWriter = function (
   message,
   writer
 ) {
@@ -1387,7 +1387,7 @@ proto.yaps.appmanager.v1alpha1.App.serializeBinaryToWriter = function (
 /**
  * @enum {number}
  */
-proto.yaps.appmanager.v1alpha1.App.Status = {
+proto.fonos.appmanager.v1alpha1.App.Status = {
   UNKNOWN: 0,
   CREATING: 1,
   RUNNING: 2,
@@ -1398,12 +1398,12 @@ proto.yaps.appmanager.v1alpha1.App.Status = {
  * optional string name = 1;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getName = function () {
+proto.fonos.appmanager.v1alpha1.App.prototype.getName = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setName = function (value) {
+proto.fonos.appmanager.v1alpha1.App.prototype.setName = function (value) {
   jspb.Message.setProto3StringField(this, 1, value)
 }
 
@@ -1411,12 +1411,14 @@ proto.yaps.appmanager.v1alpha1.App.prototype.setName = function (value) {
  * optional string description = 2;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getDescription = function () {
+proto.fonos.appmanager.v1alpha1.App.prototype.getDescription = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setDescription = function (value) {
+proto.fonos.appmanager.v1alpha1.App.prototype.setDescription = function (
+  value
+) {
   jspb.Message.setProto3StringField(this, 2, value)
 }
 
@@ -1424,12 +1426,12 @@ proto.yaps.appmanager.v1alpha1.App.prototype.setDescription = function (value) {
  * optional string create_time = 3;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getCreateTime = function () {
+proto.fonos.appmanager.v1alpha1.App.prototype.getCreateTime = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setCreateTime = function (value) {
+proto.fonos.appmanager.v1alpha1.App.prototype.setCreateTime = function (value) {
   jspb.Message.setProto3StringField(this, 3, value)
 }
 
@@ -1437,29 +1439,29 @@ proto.yaps.appmanager.v1alpha1.App.prototype.setCreateTime = function (value) {
  * optional string update_time = 4;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getUpdateTime = function () {
+proto.fonos.appmanager.v1alpha1.App.prototype.getUpdateTime = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setUpdateTime = function (value) {
+proto.fonos.appmanager.v1alpha1.App.prototype.setUpdateTime = function (value) {
   jspb.Message.setProto3StringField(this, 4, value)
 }
 
 /**
  * optional Status status = 5;
- * @return {!proto.yaps.appmanager.v1alpha1.App.Status}
+ * @return {!proto.fonos.appmanager.v1alpha1.App.Status}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getStatus = function () {
-  return /** @type {!proto.yaps.appmanager.v1alpha1.App.Status} */ (jspb.Message.getFieldWithDefault(
+proto.fonos.appmanager.v1alpha1.App.prototype.getStatus = function () {
+  return /** @type {!proto.fonos.appmanager.v1alpha1.App.Status} */ (jspb.Message.getFieldWithDefault(
     this,
     5,
     0
   ))
 }
 
-/** @param {!proto.yaps.appmanager.v1alpha1.App.Status} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setStatus = function (value) {
+/** @param {!proto.fonos.appmanager.v1alpha1.App.Status} value */
+proto.fonos.appmanager.v1alpha1.App.prototype.setStatus = function (value) {
   jspb.Message.setProto3EnumField(this, 5, value)
 }
 
@@ -1467,12 +1469,12 @@ proto.yaps.appmanager.v1alpha1.App.prototype.setStatus = function (value) {
  * optional string bucket = 6;
  * @return {string}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getBucket = function () {
+proto.fonos.appmanager.v1alpha1.App.prototype.getBucket = function () {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ''))
 }
 
 /** @param {string} value */
-proto.yaps.appmanager.v1alpha1.App.prototype.setBucket = function (value) {
+proto.fonos.appmanager.v1alpha1.App.prototype.setBucket = function (value) {
   jspb.Message.setProto3StringField(this, 6, value)
 }
 
@@ -1482,7 +1484,7 @@ proto.yaps.appmanager.v1alpha1.App.prototype.setBucket = function (value) {
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,string>}
  */
-proto.yaps.appmanager.v1alpha1.App.prototype.getLabelsMap = function (
+proto.fonos.appmanager.v1alpha1.App.prototype.getLabelsMap = function (
   opt_noLazyCreate
 ) {
   return /** @type {!jspb.Map<string,string>} */ (jspb.Message.getMapField(
@@ -1493,8 +1495,8 @@ proto.yaps.appmanager.v1alpha1.App.prototype.getLabelsMap = function (
   ))
 }
 
-proto.yaps.appmanager.v1alpha1.App.prototype.clearLabelsMap = function () {
+proto.fonos.appmanager.v1alpha1.App.prototype.clearLabelsMap = function () {
   this.getLabelsMap().clear()
 }
 
-goog.object.extend(exports, proto.yaps.appmanager.v1alpha1)
+goog.object.extend(exports, proto.fonos.appmanager.v1alpha1)

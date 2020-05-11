@@ -1,38 +1,38 @@
 const fs = require('fs')
 const path = require('path')
-const { grpc } = require('@yaps/core')
-const { logger } = require('@yaps/core')
-const { storageValidator } = require('@yaps/core').validators
-const { YAPSService, StorageService, StoragePB } = require('@yaps/core')
-const { getClientCredentials } = require('@yaps/core').trust_util
+const { grpc } = require('@fonos/core')
+const { logger } = require('@fonos/core')
+const { storageValidator } = require('@fonos/core').validators
+const { FonosService, StorageService, StoragePB } = require('@fonos/core')
+const { getClientCredentials } = require('@fonos/core').trust_util
 
 /**
- * @classdesc Use YAPS Storage, a capability of YAPS Object Storage subsystem,
+ * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
  * to upload, download, and delete objects.
  *
- * @extends YAPSService
+ * @extends FonosService
  * @example
  *
- * const YAPS = require('@yaps/sdk')
- * const storage = new YAPS.Storage()
+ * const Fonos = require('@fonos/sdk')
+ * const storage = new Fonos.Storage()
  *
  * storage.uploadObject()
  * .then(result => {
  *    console.log(result)            // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Storage extends YAPSService {
+class Storage extends FonosService {
   /**
    * Constructs a new Storage object.
    *
-   * @see module:core:YAPSService
+   * @see module:core:FonosService
    */
   constructor (options) {
     super(StorageService.StorageClient, options).init()
   }
 
   /**
-   * Upload an object to YAPS Object Storage subsystem.
+   * Upload an object to Fonos Object Storage subsystem.
    *
    * @param {Object} request - Object with information about the origin and
    * destination of an object
@@ -57,7 +57,7 @@ class Storage extends YAPSService {
     return new Promise((resolve, reject) => {
       logger.log(
         'verbose',
-        `@yaps/storage uploadObject [request -> ${JSON.stringify(request)}]`
+        `@fonos/storage uploadObject [request -> ${JSON.stringify(request)}]`
       )
 
       // WARNING: I'm not happy with this. Seems inconsistent with the other
@@ -73,7 +73,7 @@ class Storage extends YAPSService {
       })
 
       if (errors.length > 0) {
-        logger.log('warn', `@yaps/storage uploadObject [invalid argument/s]`)
+        logger.log('warn', `@fonos/storage uploadObject [invalid argument/s]`)
         reject(new Error(errors[0].message))
         return
       }
@@ -81,7 +81,7 @@ class Storage extends YAPSService {
       if (fs.lstatSync(request.filename).isDirectory()) {
         logger.log(
           'warn',
-          `@yaps/storage uploadObject [uploading directory is not supported]`
+          `@fonos/storage uploadObject [uploading directory is not supported]`
         )
         reject(new Error('Uploading a directory is not supported'))
         return
@@ -104,7 +104,7 @@ class Storage extends YAPSService {
 
       logger.log(
         'debug',
-        `@yaps/storage uploadObject [objectName -> ${objectName}]`
+        `@fonos/storage uploadObject [objectName -> ${objectName}]`
       )
 
       readStream
@@ -123,7 +123,7 @@ class Storage extends YAPSService {
         .on('end', () => {
           logger.log(
             'debug',
-            `@yaps/storage upload complete [filename -> ${request.filename}]`
+            `@fonos/storage upload complete [filename -> ${request.filename}]`
           )
           call.end()
         })
@@ -162,11 +162,11 @@ class Storage extends YAPSService {
     return new Promise((resolve, reject) => {
       logger.log(
         'verbose',
-        `@yaps/storage getObjectURL [name: ${request.name}]`
+        `@fonos/storage getObjectURL [name: ${request.name}]`
       )
       logger.log(
         'debug',
-        `@yaps/storage getObjectURL [bucket: ${request.bucket}]`
+        `@fonos/storage getObjectURL [bucket: ${request.bucket}]`
       )
 
       const gour = new StoragePB.GetObjectURLRequest()
@@ -178,7 +178,7 @@ class Storage extends YAPSService {
           logger.log('error', err)
           reject(err)
         } else {
-          logger.log('debug', `@yaps/storage getObjectURL [url: ${res}]`)
+          logger.log('debug', `@fonos/storage getObjectURL [url: ${res}]`)
           resolve(res.getUrl())
         }
       })

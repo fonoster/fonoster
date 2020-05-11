@@ -43,17 +43,17 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
  */
 class RoutrClient {
   constructor (apiUrl, username, secret) {
-    logger.log('debug', `@yaps/core RoutrClient [creating instance]`)
-    logger.log('debug', `@yaps/core RoutrClient [apiUrl: ${apiUrl}]`)
+    logger.log('debug', `@fonos/core RoutrClient [creating instance]`)
+    logger.log('debug', `@fonos/core RoutrClient [apiUrl: ${apiUrl}]`)
     this.apiUrl = apiUrl
     this.username = username
     this.secret = secret
   }
   connect () {
     return __awaiter(this, void 0, void 0, function * () {
-      logger.log('debug', `@yaps/core RoutrClient [connecting]`)
+      logger.log('debug', `@fonos/core RoutrClient [connecting]`)
       this.token = yield this.getToken(this.username, this.secret)
-      logger.log('debug', `@yaps/core RoutrClient [token: ${this.token}]`)
+      logger.log('debug', `@fonos/core RoutrClient [token: ${this.token}]`)
     })
   }
   resourceType (resource) {

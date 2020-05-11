@@ -1,16 +1,16 @@
-const YAPSError = require('./error')
+const FonosError = require('./error')
 const grpc = require('grpc')
 
-class YAPSAuthError extends YAPSError {
+class FonosAuthError extends FonosError {
   constructor (...params) {
     super(...params)
 
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, YAPSAuthError)
+      Error.captureStackTrace(this, FonosAuthError)
     }
 
     this.code = grpc.status.UNAUTHENTICATED
   }
 }
 
-module.exports = YAPSAuthError
+module.exports = FonosAuthError
