@@ -6,6 +6,6 @@
   "author": "Pedro Sanders",
   "license": "MIT",
   "dependencies": {
-    "@yaps/tts": "^0.0.3"
+    "@fonos/tts": "^0.0.3"
   }
 }

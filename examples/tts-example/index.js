@@ -2,8 +2,8 @@
  * @author Pedro Sanders
  * @since v1
  */
-const MaryTTS = require('@yaps/tts/marytts')
-const { transcodeSync } = require('@yaps/tts/utils')
+const MaryTTS = require('@fonos/tts/marytts')
+const { transcodeSync } = require('@fonos/tts/utils')
 const { storage } = require('./config')
 
 // This is how the Say verb works under the hood

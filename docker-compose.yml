@@ -76,7 +76,7 @@ services:
     image: ${MC_IMAGE}:${COMPOSE_PROJECT_VERSION}
     restart: always
     environment:
-      YAPS_ENDPOINT: ${APISERVER_ENDPOINT}
+      Fonos_ENDPOINT: ${APISERVER_ENDPOINT}
       MC_AGI_PORT: ${MC_AGI_PORT}
     build:
       context: mods

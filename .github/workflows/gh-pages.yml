@@ -19,4 +19,4 @@ jobs:
         ACTION_MAIL: fonosterteam@fonoster.com
         ACTION_NAME: psanders
         OWNER: fonoster
-        REPO_NAME: yaps
+        REPO_NAME: fonos

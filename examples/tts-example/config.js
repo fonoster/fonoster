@@ -1,4 +1,4 @@
-const YAPS = require('@yaps/sdk')
+const Fonos = require('@fonos/sdk')
 
 const config = {
     apptId: "tts-storage",
@@ -6,6 +6,6 @@ const config = {
     bucket: "default-test"
 }
 
-YAPS.initializeApp(config)
+Fonos.initializeApp(config)
 
-module.exports.storage = new YAPS.Storage()
+module.exports.storage = new Fonos.Storage()

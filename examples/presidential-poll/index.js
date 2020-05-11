@@ -1,5 +1,5 @@
 /**
- * This example shows the using of most all YAPS verbs.
+ * This example shows the using of most all Fonos verbs.
  */
 module.exports = chan => {
 

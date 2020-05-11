@@ -23,7 +23,7 @@ services:
     logging:
       driver: json-file
     volumes:
-      - credentials:/root/.yaps
+      - credentials:/root/.fonos
 
   sipproxy:
     logging:
@@ -38,7 +38,7 @@ services:
     logging:
       driver: json-file
     environment:
-      ENABLE_TEST_ACCOUNT: 'true'        
+      ENABLE_TEST_ACCOUNT: 'true'
     ports:
       - ${MS_SIP_PORT}:${MS_SIP_PORT}
 
@@ -46,7 +46,7 @@ services:
     logging:
       driver: json-file
     volumes:
-      - credentials:/root/.yaps:ro
+      - credentials:/root/.fonos:ro
 
   datasource:
     logging:
@@ -75,16 +75,16 @@ services:
       context: mods
       dockerfile: Dockerfile.mc
     environment:
-      YAPS_ENDPOINT: ${APISERVER_ENDPOINT}
+      FONOS_ENDPOINT: ${APISERVER_ENDPOINT}
     entrypoint: |
       sh -c '
-        #while [ ! -f /root/.yaps/access ]; do sleep 2; done
+        #while [ ! -f /root/.fonos/access ]; do sleep 2; done
         npm i nyc mocha -g
         cd /mods
         npm test
       '
     volumes:
-      - credentials:/root/.yaps:ro
+      - credentials:/root/.fonos:ro
 
 volumes:
   data1-1:
