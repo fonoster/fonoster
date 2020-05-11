@@ -1,0 +1,29 @@
+name: unit tests
+on:
+  push:
+    paths:
+    - 'mods/**'
+    branches:
+    - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Prepare environment
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+      - name: Running tests
+        uses: actions/setup-node@v1
+        with:
+          node-version: '13.x'
+      - run: |
+          cd mods
+          npm config set unsafe-perm true
+          npm install lerna nyc mocha -g
+          npm run clean
+          lerna bootstrap --no-ci
+          npm test
