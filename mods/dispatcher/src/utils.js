@@ -18,16 +18,14 @@ module.exports.getIngressInfo = extension => {
       )
     }
 
+    const appsDir = process.env.APPS_DIR || '/fonos/apps'
+
     logger.log(
       'debug',
-      `@fonos/dispatcher getIngressInfo [apps dir: ${process.env.MC_APPS_DIR}]`
-    )
-    logger.log(
-      'debug',
-      `@fonos/dispatcher getIngressInfo [appName: ${appName}]`
+      `@fonos/dispatcher getIngressInfo [apps dir: ${appsDir}, app name: ${appName}]`
     )
 
-    const packageBase = `${process.env.MC_APPS_DIR}/${appName}`
+    const packageBase = `${appsDir}/${appName}`
     const pathToEntryPoint = `${packageBase}/package.json`
     const pathToAppConfig = `${packageBase}/fonos.json`
 
@@ -44,7 +42,8 @@ module.exports.getIngressInfo = extension => {
 
     return {
       entryPoint: `${packageBase}/${entryPoint || 'index.js'}`,
-      bucket: bucket || process.env.FS_DEFAULT_STORAGE_BUCKET
+      bucket
+      //bucket: bucket || process.env.FS_DEFAULT_STORAGE_BUCKET
     }
   } catch (err) {
     throw err
