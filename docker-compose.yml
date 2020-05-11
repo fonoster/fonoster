@@ -3,11 +3,11 @@ services:
 
   apiserver:
     env_file: .env
-    image: ${APISERVER_IMAGE}:${COMPOSE_PROJECT_VERSION}
+    image: ${APISERVER_IMAGE}
     restart: always
-    build:
-      context: mods
-      dockerfile: Dockerfile.as
+    environment:
+      APISERVER_DS_HOST: ${DS_HOST}
+      APISERVER_DS_PORT: ${DS_PORT}
     expose:
       - ${APISERVER_PORT}
     ports:

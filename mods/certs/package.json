@@ -23,8 +23,10 @@
   "bugs": {
     "url": "https://github.com/fonoster/yaps/issues"
   },
+  "dependencies": {
+    "acme-client": "^3.3.1"
+  },
   "devDependencies": {
-    "acme-client": "^3.3.1",
     "jsonwebtoken": "^8.5.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
