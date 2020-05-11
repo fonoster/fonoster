@@ -77,8 +77,7 @@ class MaryTTS extends AbstractTTS {
       )}]`
     )
 
-    const tmpDirFromEnv = process.env.MC_TTS_TEMP_DIR
-    const tmpDir = tmpDirFromEnv ? tmpDirFromEnv : __dirname
+    const tmpDir = '/tmp'
     const pathToFile = path.join(tmpDir, computeFilename(text, options))
     let complete
     const file = fs.createWriteStream(pathToFile)
