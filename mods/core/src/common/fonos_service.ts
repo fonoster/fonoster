@@ -46,8 +46,8 @@ class Service {
       throw new Error(`Malformed access file found at: ${accessFile}`)
     }
 
-    if (process.env.Fonos_ENDPOINT)
-      this.options.endpoint = process.env.Fonos_ENDPOINT
+    if (process.env.FONOS_ENDPOINT)
+      this.options.endpoint = process.env.FONOS_ENDPOINT
     if (process.env.Fonos_ACCESS_KEY_ID)
       this.options.accessKeyId = process.env.Fonos_ACCESS_KEY_ID
     if (process.env.Fonos_ACCESS_KEY_SECRET)

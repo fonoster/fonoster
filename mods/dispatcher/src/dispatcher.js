@@ -56,7 +56,7 @@ function dispatch (channel) {
 
 logger.log(
   'info',
-  `Fonos Media Controller is online @ ${process.env.MC_AGI_PORT}`
+  `Fonos Media Controller is online @ ${process.env.AGI_PORT || 4573}`
 )
 
-new AGIServer(dispatch, process.env.MC_AGI_PORT)
+new AGIServer(dispatch, process.env.AGI_PORT || 4573)

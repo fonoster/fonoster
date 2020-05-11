@@ -75,14 +75,8 @@ services:
     env_file: .env
     image: ${MC_IMAGE}
     restart: always
-    environment:
-      Fonos_ENDPOINT: ${APISERVER_ENDPOINT}
-      MC_AGI_PORT: ${MC_AGI_PORT}
-    build:
-      context: mods
-      dockerfile: Dockerfile.mc
     volumes:
-      - data1-1:/fs
+      - data1-1:/fonos
     expose:
       - ${MC_AGI_PORT}
     logging:

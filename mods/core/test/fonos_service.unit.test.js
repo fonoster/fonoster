@@ -72,7 +72,7 @@ describe('@fonos/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      process.env.Fonos_ENDPOINT = 'apiserver:50053'
+      process.env.FONOS_ENDPOINT = 'apiserver:50053'
       const service = new FonosService()
       expect(service.getOptions())
         .to.have.property('endpoint')
