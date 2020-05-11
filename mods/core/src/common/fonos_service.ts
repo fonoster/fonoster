@@ -33,7 +33,7 @@ class Service {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
     const accessFile =
-      process.env.Fonos_ACCESS_FILE ||
+      process.env.API_ACCESS_FILE ||
       path.join(require('os').homedir(), '.fonos', 'access')
     try {
       const fileContent = fs
@@ -48,10 +48,10 @@ class Service {
 
     if (process.env.FONOS_ENDPOINT)
       this.options.endpoint = process.env.FONOS_ENDPOINT
-    if (process.env.Fonos_ACCESS_KEY_ID)
-      this.options.accessKeyId = process.env.Fonos_ACCESS_KEY_ID
-    if (process.env.Fonos_ACCESS_KEY_SECRET)
-      this.options.accessKeySecret = process.env.Fonos_ACCESS_KEY_SECRET
+    if (process.env.FONOS_ACCESS_KEY_ID)
+      this.options.accessKeyId = process.env.FONOS_ACCESS_KEY_ID
+    if (process.env.FONOS_ACCESS_KEY_SECRET)
+      this.options.accessKeySecret = process.env.FONOS_ACCESS_KEY_SECRET
     this.options = merge(this.options, options)
 
     logger.log(

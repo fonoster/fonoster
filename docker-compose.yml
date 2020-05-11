@@ -122,7 +122,7 @@ services:
     environment:
       MINIO_ACCESS_KEY: ${FS_USERNAME}
       MINIO_SECRET_KEY: ${FS_SECRET}
-    command: minio server /data1/minio/
+    command: minio server /data1/fonos/
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
