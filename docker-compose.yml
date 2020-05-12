@@ -3,13 +3,13 @@ services:
 
   apiserver:
     env_file: .env
-    image: ${APISERVER_IMAGE}
+    image: ${AS_IMAGE}
     restart: always
     environment:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
     expose:
-      - ${APISERVER_PORT}
+      - ${AS_PORT}
     logging:
       driver: fluentd
       options:
@@ -50,11 +50,9 @@ services:
     env_file: .env
     image: ${MS_IMAGE}
     restart: always
-    entrypoint: sh -c './run.sh'
     environment:
       EXTERN_ADDR: ${HOST_ADDR}
       AGI_URL: agi://${MC_HOST}
-      SIP_BINDADDR: 0.0.0.0:${MS_SIP_PORT}
       SIPPROXY_HOST: ${SIPPROXY_HOST}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
