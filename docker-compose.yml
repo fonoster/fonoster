@@ -6,12 +6,10 @@ services:
     image: ${APISERVER_IMAGE}
     restart: always
     environment:
-      APISERVER_DS_HOST: ${DS_HOST}
-      APISERVER_DS_PORT: ${DS_PORT}
+      DS_HOST: ${DS_HOST}
+      DS_PORT: ${DS_PORT}
     expose:
       - ${APISERVER_PORT}
-    ports:
-      - ${APISERVER_PORT}:${APISERVER_PORT}
     logging:
       driver: fluentd
       options:

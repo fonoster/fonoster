@@ -15,7 +15,7 @@ describe('App Manager Service', () => {
     await updateBucketPolicy('apps')
 
     appmanager = new AppManager({
-      endpoint: `${process.env.APISERVER_ENDPOINT}`,
+      endpoint: `${process.env.APISERVER_ADDR}`,
       bucket: 'apps'
     })
   })

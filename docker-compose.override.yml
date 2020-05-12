@@ -24,6 +24,8 @@ services:
       driver: json-file
     volumes:
       - credentials:/root/.fonos
+    ports:
+      - ${APISERVER_PORT}:${APISERVER_PORT}
 
   sipproxy:
     logging:

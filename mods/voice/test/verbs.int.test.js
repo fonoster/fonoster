@@ -11,7 +11,7 @@ describe('@fonos/tts', () => {
     await updateBucketPolicy('default')
 
     storage = new Storage({
-      endpoint: `${process.env.APISERVER_ENDPOINT}`
+      endpoint: `${process.env.APISERVER_ADDR}`
     })
   })
 

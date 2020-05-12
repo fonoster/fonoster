@@ -12,7 +12,7 @@ describe('Providers Service', () => {
 
   before(() => {
     providers = new Providers({
-      endpoint: `${process.env.APISERVER_ENDPOINT}`
+      endpoint: `${process.env.APISERVER_ADDR}`
     })
   })
 

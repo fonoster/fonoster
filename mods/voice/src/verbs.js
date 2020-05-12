@@ -386,7 +386,7 @@ class Verbs {
     }
 
     const filename = objectid()
-    const file = `${process.MS_RECORDINGS_TEMP_FOLDER}/${filename}`
+    const file = `/tmp/${filename}`
     const res = this.channel.recordFile(
       file,
       format,
@@ -399,7 +399,7 @@ class Verbs {
     if (res.code !== 200) throw new Error(res.rawReply)
 
     result.keyPressed = res.attributes.result
-    result.recordingUri = `${process.RECORDINGS_BASE_URI}/${filename}.${format}`
+    result.recordingUri = `/tmp/${filename}.${format}`
     result.filename = filename
     result.format = format
     result.callRef = this.callDetailRecord.ref

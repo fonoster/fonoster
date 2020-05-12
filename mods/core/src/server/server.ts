@@ -34,7 +34,7 @@ async function main () {
   server.addService(DomainsService, require('./domains_srv.js'))
   server.addService(AgentsService, require('./agents_srv.js'))
 
-  const endpoint = process.env.APISERVER_ENDPOINT || '0.0.0.0:50052'
+  const endpoint = process.env.BINDADDR || '0.0.0.0:50052'
   server.bind(endpoint, getServerCredentials())
   server.start()
 

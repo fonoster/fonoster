@@ -12,7 +12,7 @@ describe('Domains Service', () => {
 
   before(() => {
     domains = new Domains({
-      endpoint: `${process.env.APISERVER_ENDPOINT}`
+      endpoint: `${process.env.APISERVER_ADDR}`
     })
   })
 

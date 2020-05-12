@@ -12,7 +12,7 @@ describe('Agents Service', () => {
 
   before(() => {
     agents = new Agents({
-      endpoint: `${process.env.APISERVER_ENDPOINT}`
+      endpoint: `${process.env.APISERVER_ADDR}`
     })
   })
 
