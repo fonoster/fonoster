@@ -25,7 +25,7 @@ const createSaltFile = async () =>
 async function createAccessFile () {
   console.log('Creating access file')
   if (!saltExist()) {
-    console.log(`No salt found. Creating salt file`)
+    console.log(`Creating salt file`)
     await createSaltFile()
   }
 

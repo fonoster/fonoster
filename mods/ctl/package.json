@@ -82,6 +82,9 @@
       }
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },  
   "repository": "fonoster/fonos",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
