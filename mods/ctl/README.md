@@ -19,7 +19,7 @@ $ npm install -g @fonos/ctl
 $ fonos COMMAND
 running command...
 $ fonos (-v|--version|version)
-@fonos/ctl/0.0.0 darwin-x64 node-v10.19.0
+@fonos/ctl/0.0.1 darwin-x64 node-v10.19.0
 $ fonos --help [COMMAND]
 USAGE
   $ fonos COMMAND
@@ -45,7 +45,7 @@ DESCRIPTION
   Extra documentation goes here
 ```
 
-_See code: [src/commands/apps/init.js](https://github.com/fonoster/fonos/blob/v0.0.0/src/commands/apps/init.js)_
+_See code: [src/commands/apps/init.js](https://github.com/fonoster/fonos/blob/v0.0.1/src/commands/apps/init.js)_
 
 ## `fonos help [COMMAND]`
 
@@ -73,5 +73,5 @@ USAGE
   $ fonos logout
 ```
 
-_See code: [src/commands/logout.js](https://github.com/fonoster/fonos/blob/v0.0.0/src/commands/logout.js)_
+_See code: [src/commands/logout.js](https://github.com/fonoster/fonos/blob/v0.0.1/src/commands/logout.js)_
 <!-- commandsstop -->

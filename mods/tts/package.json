@@ -1,6 +1,6 @@
 {
   "name": "@fonos/tts",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Fonos TTS",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -24,7 +24,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.0",
+    "@fonos/core": "^0.0.1",
     "deepmerge": "^4.2.2",
     "dotenv": "^8.2.0",
     "flat": "^5.0.0",
