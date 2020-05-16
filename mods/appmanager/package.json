@@ -1,6 +1,6 @@
 {
   "name": "@fonos/appmanager",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Core artifacts",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -24,8 +24,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.1",
-    "@fonos/storage": "^0.0.1",
+    "@fonos/core": "^0.0.0",
+    "@fonos/storage": "^0.0.0",
     "dotenv": "^8.2.0",
     "fs-extra": "^8.1.0",
     "grpc-promise": "^1.4.0",
