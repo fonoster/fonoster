@@ -7,7 +7,7 @@ const handleError = require('./routr_errors')
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 /**
- * Oversimplified version of a Routr API Client.
+ * Oversimplified version of a Routr API Client
  */
 class RoutrClient {
 
