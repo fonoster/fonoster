@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 // Running APIServer
-require('@fonos/core/src/server/server')
+require('@fonos/core/dist/server/server')

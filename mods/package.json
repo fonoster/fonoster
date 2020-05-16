@@ -9,7 +9,7 @@
     "format": "prettier-standard '**/*.js'",
     "bootstrap": "lerna bootstrap --hoist",
     "postinstall": "npm run bootstrap",
-    "clean": "lerna run clean",
+    "clean": "rm -rf node_modules && rm -rf **/**/node_modules && lerna run clean",
     "build": "lerna run build",
     "pub": "lerna publish"
   },
@@ -32,22 +32,24 @@
     "@fonos/storage": "^0.0.5",
     "@fonos/tts": "^0.0.5",
     "@fonos/voice": "^0.0.5",
+    "jsonwebtoken": "^8.5.1",
+    "node-gyp": "^6.1.0",
+    "@types/node": "^13.13.5"
+  },
+  "devDependencies": {
     "assert": "^2.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "husky": "^4.2.3",
     "jsdoc-to-markdown": "^5.0.3",
-    "jsonwebtoken": "^8.5.1",
     "lerna": "^3.20.2",
     "lint-staged": "^10.0.8",
     "mocha": "^7.1.0",
-    "node-gyp": "^6.1.0",
     "nyc": "^15.0.0",
     "prettier-standard": "^9.1.1",
     "rewire": "^5.0.0",
     "sinon": "^9.0.1",
-    "sinon-chai": "^3.5.0",
-    "@types/node": "^13.13.5"
+    "sinon-chai": "^3.5.0"
   },
   "lint-staged": {
     "**/*.js": [
