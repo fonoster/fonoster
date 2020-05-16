@@ -1,6 +1,6 @@
 {
   "name": "@fonos/storage",
-  "version": "0.0.5",
+  "version": "0.0.1",
   "description": "Storage API",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -24,16 +24,16 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.5",
+    "@fonos/core": "^0.0.1",
     "dotenv": "^8.2.0",
     "grpc-promise": "^1.4.0",
     "minio": "^7.0.14",
     "sync": "^0.2.4"
   },
   "devDependencies": {
-    "fibers": "^4.0.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
+    "fibers": "^4.0.2",
     "sinon": "^9.0.1",
     "sinon-chai": "^3.5.0"
   }

@@ -1,6 +1,6 @@
 {
   "name": "@fonos/voice",
-  "version": "0.0.5",
+  "version": "0.0.1",
   "description": "Programmable Voice Capabilities",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -24,9 +24,9 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.5",
-    "@fonos/storage": "^0.0.5",
-    "@fonos/tts": "^0.0.5",
+    "@fonos/core": "^0.0.1",
+    "@fonos/storage": "^0.0.1",
+    "@fonos/tts": "^0.0.1",
     "dotenv": "^8.2.0",
     "minio": "^7.0.14",
     "objectid": "^3.2.1"

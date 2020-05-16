@@ -1,6 +1,6 @@
 {
   "name": "@fonos/numbers",
-  "version": "0.0.5",
+  "version": "0.0.1",
   "description": "Numbers",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -24,7 +24,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.5",
+    "@fonos/core": "^0.0.1",
     "dotenv": "^8.2.0",
     "grpc-promise": "^1.4.0",
     "sync": "^0.2.4"
