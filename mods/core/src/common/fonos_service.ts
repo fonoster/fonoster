@@ -14,6 +14,7 @@ class Service {
   options: any
   metadata: any
   service: any
+
   /**
    * Use the Options object to overwrite the service default configuration.
    * @typedef {Object} Options
@@ -29,7 +30,7 @@ class Service {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  constructor (ServiceClient, options = {}) {
+  constructor (ServiceClient?: any, options?: {}) {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
     const accessFile =

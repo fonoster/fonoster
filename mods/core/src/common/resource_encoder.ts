@@ -45,7 +45,7 @@ class REncoder {
     domains?: string[]
   }
 
-  constructor (kind, name, ref, apiVersion = 'v1beta1') {
+  constructor (kind: Kind, name: string, ref: string, apiVersion?: 'v1beta1') {
     this.kind = kind
     this.apiVersion = apiVersion
     this.metadata = {

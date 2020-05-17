@@ -1,3 +1,4 @@
+const { Agent } = require('@fonos/type')
 const { logger } = require('@fonos/core')
 const { FonosService, AgentsService, AgentsPB } = require('@fonos/core')
 const promisifyAll = require('grpc-promise').promisifyAll
@@ -31,8 +32,9 @@ class Agents extends FonosService {
    *
    * @see module:core:FonosService
    */
-  constructor (options) {
-    super(AgentsService.AgentsClient, options).init()
+  constructor (options: any) {
+    super(AgentsService.AgentsClient, options)
+    super.init()
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 
@@ -61,7 +63,7 @@ class Agents extends FonosService {
    *   console.log(result)            // returns the Agent object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createAgent (request) {
+  async createAgent (request: any): Promise<any> {
     logger.log(
       'verbose',
       `@fonos/agents createAgent [request: ${JSON.stringify(request)}]`
@@ -101,7 +103,7 @@ class Agents extends FonosService {
    *   console.log(result)             // returns the Agent object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getAgent (ref) {
+  async getAgent (ref: string): Promise<any> {
     const request = new AgentsPB.GetAgentRequest()
     request.setRef(ref)
     return this.service.getAgent().sendMessage(request)
@@ -127,7 +129,7 @@ class Agents extends FonosService {
    *   console.log(result)            // returns the Agent from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateAgent (request) {
+  async updateAgent (request: { ref: string; name: any; secret: any; privacy: any }): Promise<object> {
     logger.log(
       'verbose',
       `@fonos/agents updateAgent [request: ${JSON.stringify(request)}]`
@@ -169,7 +171,7 @@ class Agents extends FonosService {
    *   console.log(result)            // returns a ListAgentsResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listAgents (request) {
+  async listAgents (request: { pageSize: any; pageToken: any; view: any }): Promise<object> {
     logger.log(
       'verbose',
       `@fonos/agents listAgent [request -> ${JSON.stringify(request)}]`
@@ -194,7 +196,7 @@ class Agents extends FonosService {
    *   console.log('done')            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteAgent (ref) {
+  async deleteAgent (ref: string): Promise<object> {
     logger.log('verbose', `@fonos/agents deleteAgent [ref: ${ref}]`)
 
     const req = new AgentsPB.DeleteAgentRequest()
