@@ -1,5 +1,5 @@
 {
-  "version": "0.0.1",
+  "version": "0.0.2",
   "name": "fonos",
   "private": true,
   "scripts": {
@@ -7,9 +7,9 @@
     "test": "NODE_ENV=dev mocha **/*.unit.test.js",
     "pretest": "npm run build",
     "format": "prettier-standard '**/*.js'",
-    "bootstrap": "lerna bootstrap",
+    "bootstrap": "lerna bootstrap --hoist",
     "postinstall": "npm run bootstrap",
-    "clean": "rm -rf node_modules && rm -rf **/**/node_modules && lerna run clean",
+    "clean": "lerna run clean",
     "build": "lerna run build",
     "pub": "lerna publish"
   },
@@ -18,21 +18,6 @@
     "run-apiserver": "apiserver.js"
   },
   "dependencies": {
-    "@fonos/agents": "^0.0.1",
-    "@fonos/appmanager": "^0.0.1",
-    "@fonos/certs": "^0.0.1",
-    "@fonos/core": "^0.0.1",
-    "@fonos/ctl": "^0.0.1",
-    "@fonos/dispatcher": "^0.0.1",
-    "@fonos/domains": "^0.0.1",
-    "@fonos/errors": "^0.0.1",
-    "@fonos/numbers": "^0.0.1",
-    "@fonos/providers": "^0.0.1",
-    "@fonos/sdk": "^0.0.1",
-    "@fonos/storage": "^0.0.1",
-    "@fonos/tts": "^0.0.1",
-    "@fonos/voice": "^0.0.1",
-    "@types/node": "^13.13.5",
     "jsonwebtoken": "^8.5.1",
     "node-gyp": "^6.1.0"
   },

@@ -1,3 +1,4 @@
 #!/usr/bin/env node
 // Running APIServer
-require('@fonos/core/dist/server/server')
+process.env.NODE_ENV = 'dev'
+require('./core/dist/server/server')
