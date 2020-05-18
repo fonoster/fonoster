@@ -27,3 +27,17 @@ module.exports.validators = {
   storageValidator: require('./schemas/storage.schema'),
   appManagerValidator: require('./schemas/appmanager.schema')
 }
+
+const logger = module.exports.logger
+const promisifyAll = require('grpc-promise').promisifyAll
+const FonosService = module.exports.FonosService
+const AgentsService = module.exports.AgentsService
+const AgentsPB = module.exports.AgentsPB
+
+export { 
+  logger, 
+  promisifyAll, 
+  FonosService,
+  AgentsService, 
+  AgentsPB 
+}

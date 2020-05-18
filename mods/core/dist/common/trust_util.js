@@ -1,3 +1,6 @@
+'use strict'
+Object.defineProperty(exports, '__esModule', { value: true })
+exports.auth = exports.getServerCredentials = exports.getClientCredentials = void 0
 if (process.env.NODE_ENV === 'dev') {
   const path = require('path')
   const env = path.join(__dirname, '..', '..', '..', '.env')
@@ -10,7 +13,7 @@ const CLIENT_CRT = process.env.CERTS_PATH + '/client.crt'
 const CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
 const BOOL = ['on', 'true', 'yes', '1']
 const insecure = process.env.APISERVER_ENABLE_INSECURE
-module.exports.getServerCredentials = () => {
+const getServerCredentials = () => {
   const logger = require('./logger')
   const grpc = require('grpc')
   const fs = require('fs')
@@ -33,7 +36,8 @@ module.exports.getServerCredentials = () => {
     return grpc.ServerCredentials.createInsecure()
   }
 }
-module.exports.getClientCredentials = () => {
+exports.getServerCredentials = getServerCredentials
+const getClientCredentials = () => {
   const logger = require('./logger')
   const grpc = require('grpc')
   const fs = require('fs')
@@ -51,7 +55,8 @@ module.exports.getClientCredentials = () => {
     return grpc.credentials.createInsecure()
   }
 }
-module.exports.auth = function (call) {
+exports.getClientCredentials = getClientCredentials
+const auth = function (call) {
   const jwt = require('jsonwebtoken')
   const { getSalt } = require('@fonos/certs')
   const salt = getSalt()
@@ -76,4 +81,8 @@ module.exports.auth = function (call) {
   }
   return false
 }
+exports.auth = auth
+module.exports.getServerCredentials = getServerCredentials
+module.exports.getClientCredentials = getClientCredentials
+module.exports.auth = auth
 //# sourceMappingURL=trust_util.js.map

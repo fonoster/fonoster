@@ -14,7 +14,7 @@ var Privacy
   Privacy['NONE'] = 'None'
 })(Privacy || (Privacy = {}))
 class REncoder {
-  constructor (kind, name, ref, apiVersion = 'v1beta1') {
+  constructor (kind, name, ref, apiVersion) {
     this.kind = kind
     this.apiVersion = apiVersion
     this.metadata = {

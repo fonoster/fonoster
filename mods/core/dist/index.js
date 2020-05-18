@@ -1,3 +1,6 @@
+'use strict'
+Object.defineProperty(exports, '__esModule', { value: true })
+exports.AgentsPB = exports.AgentsService = exports.FonosService = exports.promisifyAll = exports.logger = void 0
 // Services
 module.exports.FonosService = require('./common/fonos_service')
 module.exports.AppManagerService = require('./server/protos/appmanager_grpc_pb')
@@ -24,4 +27,14 @@ module.exports.validators = {
   storageValidator: require('./schemas/storage.schema'),
   appManagerValidator: require('./schemas/appmanager.schema')
 }
+const logger = module.exports.logger
+exports.logger = logger
+const promisifyAll = require('grpc-promise').promisifyAll
+exports.promisifyAll = promisifyAll
+const FonosService = module.exports.FonosService
+exports.FonosService = FonosService
+const AgentsService = module.exports.AgentsService
+exports.AgentsService = AgentsService
+const AgentsPB = module.exports.AgentsPB
+exports.AgentsPB = AgentsPB
 //# sourceMappingURL=index.js.map

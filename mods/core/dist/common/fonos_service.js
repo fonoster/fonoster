@@ -1,12 +1,16 @@
-const grpc = require('./grpc_hack')
-const merge = require('deepmerge')
+'use strict'
+Object.defineProperty(exports, '__esModule', { value: true })
+const trust_util_1 = require('../common/trust_util')
+const types_1 = require('@fonos/types')
 const fs = require('fs')
 const path = require('path')
-const logger = require('./logger')
-const { getClientCredentials } = require('../common/trust_util')
+const logger_1 = require('./logger')
+const grpc_hack_1 = require('./grpc_hack')
+// The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
+const merge = require('deepmerge')
 const defaultOptions = {
   endpoint: 'localhost:50052',
-  bucket: process.env.FS_DEFAULT_STORAGE_BUCKET || 'default'
+  bucket: 'default'
 }
 class Service {
   /**
@@ -46,7 +50,7 @@ class Service {
     if (process.env.FONOS_ACCESS_KEY_SECRET)
       this.options.accessKeySecret = process.env.FONOS_ACCESS_KEY_SECRET
     this.options = merge(this.options, options)
-    logger.log(
+    logger_1.default.log(
       'debug',
       `@fonos/core.Service constructor [merged options -> ${JSON.stringify(
         this.options
@@ -55,7 +59,7 @@ class Service {
     if (!this.options.accessKeyId || !this.options.accessKeySecret) {
       throw new Error('Not valid credentials found')
     }
-    const metadata = new grpc.Metadata()
+    const metadata = new grpc_hack_1.default.Metadata()
     metadata.add('access_key_id', this.options.accessKeyId)
     metadata.add('access_key_secret', this.options.accessKeySecret)
     this.metadata = metadata
@@ -63,7 +67,7 @@ class Service {
   init () {
     this.service = new this.ServiceClient(
       this.options.endpoint,
-      getClientCredentials()
+      trust_util_1.getClientCredentials()
     )
   }
   getOptions () {

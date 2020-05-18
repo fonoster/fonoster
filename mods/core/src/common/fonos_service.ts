@@ -1,17 +1,21 @@
-const grpc = require('./grpc_hack')
+import { getClientCredentials } from '../common/trust_util'
+import { ServiceOptions } from '@fonos/types'
+import * as fs from 'fs'
+import * as path from 'path'
+import logger from './logger'
+import grpc from './grpc_hack'
+
+// The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
 const merge = require('deepmerge')
-const fs = require('fs')
-const path = require('path')
-const logger = require('./logger')
-const { getClientCredentials } = require('../common/trust_util')
+
 const defaultOptions = {
   endpoint: 'localhost:50052',
-  bucket: process.env.FS_DEFAULT_STORAGE_BUCKET || 'default'
+  bucket: 'default'
 }
 
 class Service {
   ServiceClient: any
-  options: any
+  options: ServiceOptions
   metadata: any
   service: any
 
@@ -30,7 +34,7 @@ class Service {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  constructor (ServiceClient?: any, options?: {}) {
+  constructor (ServiceClient?: any, options?: ServiceOptions) {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
     const accessFile =
@@ -72,24 +76,25 @@ class Service {
     this.metadata = metadata
   }
 
-  init () {
+  init (): void {
     this.service = new this.ServiceClient(
       this.options.endpoint,
       getClientCredentials()
     )
   }
 
-  getOptions () {
+  getOptions (): ServiceOptions {
     return this.options
   }
 
-  getService () {
+  getService (): any {
     return this.service
   }
 
-  getMeta () {
+  getMeta (): any {
     return this.metadata
   }
 }
 
 module.exports = Service
+export type { ServiceOptions }

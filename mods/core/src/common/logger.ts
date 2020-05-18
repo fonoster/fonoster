@@ -40,3 +40,4 @@ logger.on('finish', () => {
 // WARNING: Using logger.end() causes an exception (Error: write after end)
 
 module.exports = logger
+export { logger as default } 

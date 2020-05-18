@@ -12,7 +12,7 @@ const CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
 const BOOL = ['on', 'true', 'yes', '1']
 const insecure = process.env.APISERVER_ENABLE_INSECURE
 
-module.exports.getServerCredentials = () => {
+const getServerCredentials = () => {
   const logger = require('./logger')
   const grpc = require('grpc')
   const fs = require('fs')
@@ -36,7 +36,7 @@ module.exports.getServerCredentials = () => {
   }
 }
 
-module.exports.getClientCredentials = () => {
+const getClientCredentials = () => {
   const logger = require('./logger')
   const grpc = require('grpc')
   const fs = require('fs')
@@ -55,7 +55,7 @@ module.exports.getClientCredentials = () => {
   }
 }
 
-module.exports.auth = function (call): boolean {
+const auth = function (call): boolean {
   const jwt = require('jsonwebtoken')
   const { getSalt } = require('@fonos/certs')
   const salt = getSalt()
@@ -82,4 +82,14 @@ module.exports.auth = function (call): boolean {
     return true
   }
   return false
+}
+
+module.exports.getServerCredentials = getServerCredentials
+module.exports.getClientCredentials = getClientCredentials
+module.exports.auth = auth
+
+export {
+  getClientCredentials,
+  getServerCredentials,
+  auth
 }

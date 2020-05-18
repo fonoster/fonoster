@@ -1,5 +1,6 @@
 'use strict'
 Object.defineProperty(exports, '__esModule', { value: true })
+exports.default = void 0
 const winston = require('winston')
 const fluentTransport = require('fluent-logger').support.winstonTransport()
 const config = {
@@ -20,6 +21,7 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [fluent, new winston.transports.Console()]
 })
+exports.default = logger
 if (process.env.NODE_ENV === 'dev') {
   logger.remove(fluent)
 }
