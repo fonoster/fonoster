@@ -68,9 +68,7 @@ class MaryTTS extends AbstractTTS {
   /**
    * @inherit
    */
-  synthesize (text: string, options: any): Promise<string> {
-    options = options || {}
-
+  synthesize (text: string, options: any = {}): Promise<string> {
     /*logger.log(
       'debug',
       `@fonos/tts.MaryTTS.synthesize [text: ${text}, options: ${JSON.stringify(
