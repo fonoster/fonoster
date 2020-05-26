@@ -2,7 +2,7 @@
 
 ## AbstractTTS
 A building block for new TTS engines. You might use this class
-to create integration with ANY TTS by providing he abstracted functions, and
+to create integration with ANY TTS by providing the abstracted functions, and
 with help of the `tts/utils.`
 
 **Kind**: global class  
@@ -39,6 +39,6 @@ Converts a text to audio.
 <a name="AbstractTTS+getName"></a>
 
 ### abstractTTS.getName()
-Gets the name of the tts engine
+Gets the name of the TTS engine
 
 **Kind**: instance method of [<code>AbstractTTS</code>](#AbstractTTS)  

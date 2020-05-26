@@ -1,9 +1,8 @@
-import AbstractTTS from './abstract_tts'
 import http from 'http'
 import fs from 'fs'
 import path from 'path'
-import { computeFilename, optionsToQueryString } from './utils'
-//const logger = require('@fonos/core').logger
+import { AbstractTTS, optionsToQueryString, computeFilename } from '@fonos/tts'
+//const logger = require('@fonos/logger')
 
 /**
  * @classdesc The default TTS engine in a Fonos deployment.
@@ -33,7 +32,7 @@ class MaryTTS extends AbstractTTS {
    *
    * @see module:tts:AbstractTTS
    */
-  constructor (options: any) {
+  constructor (options?: any) {
     super('mary-tts')
 
     const defaultConfig = {

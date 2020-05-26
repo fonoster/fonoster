@@ -56,7 +56,7 @@ Converts a text to audio.
 <a name="AbstractTTS+getName"></a>
 
 ### maryTTS.getName()
-Gets the name of the tts engine
+Gets the name of the TTS engine
 
 **Kind**: instance method of [<code>MaryTTS</code>](#MaryTTS)  
 **Overrides**: [<code>getName</code>](#AbstractTTS+getName)  

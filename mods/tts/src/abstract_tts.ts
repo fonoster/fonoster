@@ -48,10 +48,10 @@ abstract class AbstractTTS {
    * settings for the TTS engine
    * @returns {string} The path to the synthesized audio
    */
-  abstract synthesize (text: string, options: any): Promise<string>
+  abstract synthesize (text: string, options?: any): Promise<string>
 
   /**
-   * Gets the name of the tts engine
+   * Gets the name of the TTS engine
    */
   getName (): string {
     return this.name

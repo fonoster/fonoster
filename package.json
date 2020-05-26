@@ -1,13 +1,24 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "test": "NODE_ENV=dev mocha -r ts-node/register mods/**/*.unit.test.ts",
+    "build": "lerna run build",
+    "postbuild": "npm test"
+  },
   "devDependencies": {
-    "lerna": "^3.22.0",
-    "typescript": "^3.9.3",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "chai": "^4.2.0",
     "husky": "^4.2.3",
+    "jsdoc-to-markdown": "^5.0.3",
+    "lerna": "^3.22.0",
     "lint-staged": "^10.0.8",
+    "mocha": "^7.2.0",
     "prettier-standard": "^9.1.1",
-    "jsdoc-to-markdown": "^5.0.3"
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.3"
   },
   "lint-staged": {
     "mods/**/*.ts": [

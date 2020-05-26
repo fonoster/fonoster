@@ -1,13 +1,9 @@
-const expect = require('chai').expect
-const path = require('path')
-const {
-  computeFilename,
-  transcode,
-  optionsToQueryString
-} = require('../src/utils')
+import { expect } from 'chai'
+import { join } from 'path'
+import { computeFilename, optionsToQueryString } from '../src/utils'
 
 if (process.env.NODE_ENV === 'dev') {
-  require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
+  require('dotenv').config({ path: join(__dirname, '..', '..', '.env') })
 }
 
 describe('@fonos/tts/utils', () => {

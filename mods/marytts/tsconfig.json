@@ -4,6 +4,9 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
+  "references": [
+    { "path":  "../tts" }
+  ], 
   "exclude": [
     "node_modules",
     "dist",
