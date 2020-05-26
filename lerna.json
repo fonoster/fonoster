@@ -1,0 +1,6 @@
+{
+  "packages": [
+    "mods/*"
+  ],
+  "version": "0.0.2"
+}

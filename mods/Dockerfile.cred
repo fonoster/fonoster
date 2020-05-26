@@ -1,7 +1,0 @@
-FROM node:13-alpine
-LABEL maintainer="Pedro Sanders <fonosterteam@fonoster.com>"
-
-WORKDIR /certs
-COPY certs /certs
-RUN npm i
-CMD ["node", "src/certs.js"]

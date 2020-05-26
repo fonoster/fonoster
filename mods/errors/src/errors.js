@@ -1,5 +1,0 @@
-module.exports = require('./error')
-module.exports.FonosError = require('./error')
-module.exports.FonosAuthError = require('./auth_error')
-module.exports.FonosInvalidArgument = require('./invalid_argument')
-module.exports.FonosFailedPrecondition = require('./failed_precondition')

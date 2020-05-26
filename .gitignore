@@ -12,6 +12,8 @@ coverage
 *.tar.gz
 *.zip
 build
+dist
+tsconfig.tsbuildinfo
 libs/app.*
 config/*.yml
 .gradle

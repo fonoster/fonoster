@@ -1,11 +1,17 @@
 {
   "name": "@fonos/tts",
   "version": "0.0.2",
-  "description": "Fonos TTS",
+  "description": "Fonos TTS module",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "src/index.js",
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
+    "compile": "tsc -b tsconfig.json"
+  },
   "directories": {
     "src": "src",
     "test": "test"
@@ -24,7 +30,6 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.1",
     "deepmerge": "^4.2.2",
     "dotenv": "^8.2.0",
     "flat": "^5.0.0",
@@ -32,10 +37,7 @@
     "sync": "^0.2.4"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "sinon": "^9.0.1",
-    "sinon-chai": "^3.5.0"
+    "typescript": "^3.9.3"
   },
   "gitHead": "c664aaddbf44840bdf6f97f602e255f5daf6571d"
 }
