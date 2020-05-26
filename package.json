@@ -3,6 +3,19 @@
   "private": true,
   "devDependencies": {
     "lerna": "^3.22.0",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.3",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.8",
+    "prettier-standard": "^9.1.1"
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "prettier-standard"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --allow-empty && node docs.js && git add ../docs"
+    }
   }
 }
