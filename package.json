@@ -10,7 +10,7 @@
     "jsdoc-to-markdown": "^5.0.3"
   },
   "lint-staged": {
-    "**/*.js": [
+    "**/*.ts": [
       "prettier-standard"
     ]
   },
