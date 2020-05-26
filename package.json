@@ -6,7 +6,8 @@
     "typescript": "^3.9.3",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.8",
-    "prettier-standard": "^9.1.1"
+    "prettier-standard": "^9.1.1",
+    "jsdoc-to-markdown": "^5.0.3"
   },
   "lint-staged": {
     "**/*.js": [
@@ -15,7 +16,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged --allow-empty && node docs.js && git add ../docs"
+      "pre-commit": "lint-staged --allow-empty && node docs.js && git add docs"
     }
   }
 }

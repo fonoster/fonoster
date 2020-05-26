@@ -11,7 +11,7 @@ The default TTS engine in a Fonos deployment.
     * [new MaryTTS()](#new_MaryTTS_new)
     * [.synthesize()](#MaryTTS+synthesize)
     * [.synthesizeSync(text, options)](#AbstractTTS+synthesizeSync) ⇒ <code>string</code>
-    * [.getEngineName()](#AbstractTTS+getEngineName)
+    * [.getName()](#AbstractTTS+getName)
 
 <a name="new_MaryTTS_new"></a>
 
@@ -46,17 +46,17 @@ Converts a text to audio.
 
 **Kind**: instance method of [<code>MaryTTS</code>](#MaryTTS)  
 **Overrides**: [<code>synthesizeSync</code>](#AbstractTTS+synthesizeSync)  
-**Returns**: <code>string</code> - The path to the audio synthesized from the text  
+**Returns**: <code>string</code> - The path to the synthesized audio  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | text | <code>string</code> | Text to convert to a audio sound |
-| options | <code>Object</code> | A an object pass to the final implementation with settings for the TTS engine |
+| options | <code>Object</code> | An object pass to the final implementation with settings for the TTS engine |
 
-<a name="AbstractTTS+getEngineName"></a>
+<a name="AbstractTTS+getName"></a>
 
-### maryTTS.getEngineName()
-Gets the name of the final implementating TTS engine
+### maryTTS.getName()
+Gets the name of the tts engine
 
 **Kind**: instance method of [<code>MaryTTS</code>](#MaryTTS)  
-**Overrides**: [<code>getEngineName</code>](#AbstractTTS+getEngineName)  
+**Overrides**: [<code>getName</code>](#AbstractTTS+getName)  

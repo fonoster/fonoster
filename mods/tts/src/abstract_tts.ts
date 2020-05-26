@@ -1,6 +1,6 @@
 /**
  * @classdesc A building block for new TTS engines. You might use this class
- * to create integration with ANY TTS by providing he abstracted functions, and
+ * to create integration with ANY TTS by providing the abstracted functions, and
  * with help of the `tts/utils.`
  */
 abstract class AbstractTTS {
