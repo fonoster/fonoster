@@ -1,12 +1,16 @@
 import crypto from 'crypto'
 
-const computeFilename = (text: string, options:any = {}, format:string = 'wav') => {
+const computeFilename = (
+  text: string,
+  options: any = {},
+  format: string = 'wav'
+) => {
   const flat = require('flat')
   let c = text
   if (options.cachingFields) {
     const flatObj = flat(options)
     c = options.cachingFields
-      .map((opt:string) => flatObj[opt])
+      .map((opt: string) => flatObj[opt])
       .sort()
       .join()
   }
@@ -23,7 +27,7 @@ const computeFilename = (text: string, options:any = {}, format:string = 'wav') 
 // Expects a json object one level deep
 const optionsToQueryString = (object: any) =>
   Object.keys(object)
-    .map((key:string) => `${key}=${object[key].toString()}`)
+    .map((key: string) => `${key}=${object[key].toString()}`)
     .join('&')
 
 // Keeping this simple for now
@@ -62,9 +66,4 @@ const transcodeSync = (fileIn: string, fileOut: string) => {
   return result
 }
 
-export {
-  computeFilename,
-  transcode,
-  transcodeSync,
-  optionsToQueryString
-}
+export { computeFilename, transcode, transcodeSync, optionsToQueryString }

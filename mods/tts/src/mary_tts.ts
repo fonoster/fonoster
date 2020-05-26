@@ -110,4 +110,3 @@ class MaryTTS extends AbstractTTS {
 }
 
 export default MaryTTS
-
