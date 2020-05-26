@@ -24,7 +24,8 @@ abstract class AbstractTTS {
    * settings for the TTS engine
    * @returns {string} The path to the synthesized audio
    */
-  synthesizeSync (text: string, options: any) : string {
+  synthesizeSync (text: string, options: any) 
+  : string {
     const sleep = require('sync').sleep
     let result
     let error
