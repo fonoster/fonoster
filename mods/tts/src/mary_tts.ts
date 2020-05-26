@@ -42,6 +42,7 @@ class MaryTTS extends AbstractTTS {
       locale: 'EN_US'
     }
 
+    // :(
     const merge = require('deepmerge')
     const opts = merge(defaultConfig, options || {})
 
