@@ -1,12 +1,27 @@
-import { expect } from 'chai'
+import chai from 'chai'
+import sinon from 'sinon'
+import sinonChai from 'sinon-chai'
+import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
-import { computeFilename, optionsToQueryString } from '../src/utils'
+import {
+  computeFilename,
+  optionsToQueryString,
+  transcode,
+  transcodeSync
+} from '../src/utils'
+
+const expect = chai.expect
+chai.use(sinonChai)
+chai.use(chaiAsPromised)
+const sandbox = sinon.createSandbox()
 
 if (process.env.NODE_ENV === 'dev') {
   require('dotenv').config({ path: join(__dirname, '..', '..', '.env') })
 }
 
 describe('@fonos/tts/utils', () => {
+  afterEach(() => sandbox.restore())
+
   it('converts a json object into a query string', () => {
     const options = {
       voice: 'peter',
@@ -24,5 +39,61 @@ describe('@fonos/tts/utils', () => {
       cachingFields: ['voice', 'speed']
     })
     expect(t).to.be.equal('940c2687367636c07be34668c6d8299f.wav')
+  })
+
+  it('converts a given audio into an audio works on asterisk', async () => {
+    const sox = require('sox-audio')
+    const run = sandbox.spy(sox.prototype, 'run')
+    const on = sandbox.stub(sox.prototype, 'on')
+    const error = { message: 'ups' }
+    on.withArgs('end').yields({})
+    //on.withArgs('error').yields(error);
+
+    const result = await transcode(
+      __dirname + '/../etc/test.wav',
+      __dirname + '/../etc/test_transcoded.wav'
+    )
+
+    expect(run).to.have.been.called
+    expect(on).to.have.been.called
+    expect(result).to.contain('/../etc/test_transcoded.wav')
+  })
+
+  it('converts a given audio into an audio works on asterisk sync', () => {
+    const sox = require('sox-audio')
+    sandbox.spy(sox.prototype, 'run')
+
+    const on = sandbox.stub(sox.prototype, 'on')
+    const error = { message: 'ups' }
+    on.withArgs('end').yields({})
+
+    const Sync = require('sync')
+
+    Sync(() => {
+      const result = transcodeSync(
+        __dirname + '/../etc/test.wav',
+        __dirname + '/../etc/test_transcoded.wav'
+      )
+      expect(result).to.contain('/../etc/test_transcoded.wav')
+    })
+  })
+
+  it('rejects promise if transcoding fails', () => {
+    const sox = require('sox-audio')
+    sandbox.spy(sox.prototype, 'run')
+    sandbox.spy(sox.prototype, 'input')
+
+    const on = sandbox.stub(sox.prototype, 'on')
+    const error = { message: 'nop' }
+
+    on.withArgs('end').yields({})
+    on.withArgs('error').yields(error).invokeCallback
+
+    expect(
+      transcode(
+        __dirname + '/../etc/test.wav',
+        __dirname + '/../etc/test_transcoded.wav'
+      )
+    ).to.eventually.be.rejectedWith('Cannot process audio')
   })
 })
