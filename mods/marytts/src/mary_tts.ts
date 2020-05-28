@@ -2,7 +2,7 @@ import http from 'http'
 import fs from 'fs'
 import path from 'path'
 import { AbstractTTS, optionsToQueryString, computeFilename } from '@fonos/tts'
-//const logger = require('@fonos/logger')
+import logger from '@fonos/logger'
 
 /**
  * @classdesc The default TTS engine in a Fonos deployment.
@@ -53,7 +53,7 @@ class MaryTTS extends AbstractTTS {
     }`
     this.serviceUrl = `http://${opts.host}:${opts.port}/process?${q}`
 
-    /*logger.log(
+    logger.log(
       'debug',
       `@fonos/tts.MaryTTS.constructor [initializing with config: ${JSON.stringify(
         opts
@@ -62,31 +62,30 @@ class MaryTTS extends AbstractTTS {
     logger.log(
       'verbose',
       `@fonos/tts.MaryTTS.constructor [serviceUrl: ${this.serviceUrl}]`
-    )*/
+    )
   }
 
   /**
    * @inherit
    */
   synthesize (text: string, options: any = {}): Promise<string> {
-    /*logger.log(
+    logger.log(
       'debug',
       `@fonos/tts.MaryTTS.synthesize [text: ${text}, options: ${JSON.stringify(
         options
       )}]`
-    )*/
+    )
 
     const tmpDir = '/tmp'
     const pathToFile = path.join(tmpDir, computeFilename(text, options))
-    let complete
     const file = fs.createWriteStream(pathToFile)
     const query = optionsToQueryString(options)
 
-    /*logger.log(
+    logger.log(
       'debug',
       `@fonos/tts.MaryTTS.synthesize [pathToFile: ${pathToFile}]`
     )
-    logger.log('debug', `@fonos/tts.MaryTTS.synthesize [query: ${query}]`)*/
+    logger.log('debug', `@fonos/tts.MaryTTS.synthesize [query: ${query}]`)
 
     return new Promise((resolve, reject) => {
       http.get(
@@ -95,10 +94,11 @@ class MaryTTS extends AbstractTTS {
           const { statusCode } = response
           if (statusCode !== 200) {
             reject(`Request failed status code: ${statusCode}`)
+            return
           }
           response.pipe(file)
 
-          //logger.log('debug', `@fonos/tts.MaryTTS.synthesize [finished]`)
+          logger.log('debug', `@fonos/tts.MaryTTS.synthesize [finished]`)
           resolve(pathToFile)
         }
       )

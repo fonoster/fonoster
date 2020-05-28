@@ -4,10 +4,6 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "references": [
-    { "path":  "../tts" },
-    { "path":  "../logger" }
-  ], 
   "exclude": [
     "node_modules",
     "dist",

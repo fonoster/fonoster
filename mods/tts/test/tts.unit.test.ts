@@ -54,8 +54,8 @@ describe('@fonos/tts/utils', () => {
       __dirname + '/../etc/test_transcoded.wav'
     )
 
-    expect(run).to.have.been.called
-    expect(on).to.have.been.called
+    expect(run).to.have.been.calledOnce
+    expect(on).to.have.been.calledTwice
     expect(result).to.contain('/../etc/test_transcoded.wav')
   })
 
@@ -64,7 +64,6 @@ describe('@fonos/tts/utils', () => {
     sandbox.spy(sox.prototype, 'run')
 
     const on = sandbox.stub(sox.prototype, 'on')
-    const error = { message: 'ups' }
     on.withArgs('end').yields({})
 
     const Sync = require('sync')

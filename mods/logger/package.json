@@ -1,7 +1,7 @@
 {
-  "name": "@fonos/marytts",
+  "name": "@fonos/logger",
   "version": "0.0.2",
-  "description": "Concrete implementation of AbstractTTS",
+  "description": "Logger module",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
@@ -30,13 +30,12 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/tts": "^0.0.2",
-    "@fonos/logger": "^0.0.2",
-    "deepmerge": "^4.2.2"
+    "fluent-logger": "^3.4.1",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
-    "typescript": "^3.9.3",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "typescript": "^3.9.3"
   },
   "gitHead": "c664aaddbf44840bdf6f97f602e255f5daf6571d"
 }
