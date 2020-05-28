@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === 'dev') {
 describe('@fonos/marytts', () => {
   afterEach(() => sandbox.restore())
 
-  it('synthesizes text and returns path to file', async () => {
+  it('rejects if the TTS engine response is not 200', async () => {
     const join = sandbox.spy(path, 'join')
     const createWriteStream = sandbox.spy(fs, 'createWriteStream')
     const get = sandbox.stub(http, 'get')
@@ -38,12 +38,12 @@ describe('@fonos/marytts', () => {
     )
 
     expect(pipe).to.not.have.been.called
+    expect(createWriteStream).to.not.have.been.called
     expect(join).to.have.been.calledOnce
-    expect(createWriteStream).to.have.been.calledOnce
     expect(get).to.have.been.calledOnce
   })
 
-  it('rejects if the TTS engine response is not 200', async () => {
+  it('synthesizes text and returns path to file', async () => {
     const join = sandbox.spy(path, 'join')
     const createWriteStream = sandbox.spy(fs, 'createWriteStream')
     const get = sandbox.stub(http, 'get')
@@ -56,9 +56,7 @@ describe('@fonos/marytts', () => {
 
     const tts = new MaryTTS()
 
-    expect(tts.synthesize('hello world')).to.eventually.rejectedWith(
-      'Request failed status code'
-    )
+    expect(tts.synthesize('hello world')).to.eventually.contain('/tmp/')
     expect(pipe).to.have.been.calledOnce
     expect(join).to.have.been.calledOnce
     expect(createWriteStream).to.have.been.calledOnce

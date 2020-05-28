@@ -69,6 +69,8 @@ class MaryTTS extends AbstractTTS {
    * @inherit
    */
   synthesize (text: string, options: any = {}): Promise<string> {
+    const pathToFile = path.join('/tmp', computeFilename(text, options))
+
     logger.log(
       'debug',
       `@fonos/tts.MaryTTS.synthesize [text: ${text}, options: ${JSON.stringify(
@@ -76,18 +78,8 @@ class MaryTTS extends AbstractTTS {
       )}]`
     )
 
-    const tmpDir = '/tmp'
-    const pathToFile = path.join(tmpDir, computeFilename(text, options))
-    const file = fs.createWriteStream(pathToFile)
-    const query = optionsToQueryString(options)
-
-    logger.log(
-      'debug',
-      `@fonos/tts.MaryTTS.synthesize [pathToFile: ${pathToFile}]`
-    )
-    logger.log('debug', `@fonos/tts.MaryTTS.synthesize [query: ${query}]`)
-
     return new Promise((resolve, reject) => {
+      const query = optionsToQueryString(options)
       http.get(
         `${this.serviceUrl}&INPUT_TEXT=${encodeURI(text)}&${query}`,
         (response: any) => {
@@ -96,9 +88,7 @@ class MaryTTS extends AbstractTTS {
             reject(`Request failed status code: ${statusCode}`)
             return
           }
-          response.pipe(file)
-
-          logger.log('debug', `@fonos/tts.MaryTTS.synthesize [finished]`)
+          response.pipe(fs.createWriteStream(pathToFile))
           resolve(pathToFile)
         }
       )
