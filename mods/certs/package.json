@@ -1,12 +1,12 @@
 {
-  "name": "@fonos/marytts",
+  "name": "@fonos/certs",
   "version": "0.0.2",
-  "description": "Concrete implementation of AbstractTTS",
+  "description": "Handles Fonos certificates",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "dist/certs",
+  "types": "dist/certs",
   "scripts": {
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
@@ -30,12 +30,12 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/tts": "^0.0.2",
-    "@fonos/logger": "^0.0.2",
-    "deepmerge": "^4.2.2"
+    "@types/jsonwebtoken": "^8.5.0",
+    "acme-client": "^3.3.1",
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
-    "typescript": "^3.9.3",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "typescript": "^3.9.3"
   }
 }

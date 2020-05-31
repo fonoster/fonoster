@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === 'dev') {
 describe('@fonos/marytts', () => {
   afterEach(() => sandbox.restore())
 
-  it('rejects if the TTS engine response is not 200', async () => {
+  it('rejects if the TTS engine response is not 200', () => {
     const join = sandbox.spy(path, 'join')
     const createWriteStream = sandbox.spy(fs, 'createWriteStream')
     const get = sandbox.stub(http, 'get')
@@ -43,16 +43,16 @@ describe('@fonos/marytts', () => {
     expect(get).to.have.been.calledOnce
   })
 
-  it('synthesizes text and returns path to file', async () => {
+  it('synthesizes text and returns path to file', () => {
     const join = sandbox.spy(path, 'join')
     const createWriteStream = sandbox.spy(fs, 'createWriteStream')
     const get = sandbox.stub(http, 'get')
     const pipe = sandbox.stub()
-    const resposne = {
+    const response = {
       statusCode: 200,
       pipe
     }
-    get.yields(resposne).invokeCallback
+    get.yields(response).invokeCallback
 
     const tts = new MaryTTS()
 
