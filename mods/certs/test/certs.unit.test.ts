@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === 'dev') {
 describe('@fonos/certs', () => {
   afterEach(() => sandbox.restore())
 
-  it.skip('creates an salt if it does not exist', async () => {
+  it('creates an salt if it does not exist', async () => {
     const existsSync = sandbox.stub(fs, 'existsSync').returns(false)
     const writeFileSync = sandbox.stub(fs, 'writeFileSync')
     const readFileSync = sandbox.stub(fs, 'readFileSync').returns('secret salt')
