@@ -2,15 +2,14 @@ import grpc from 'grpc'
 
 class FonosError extends Error {
   code: any
-
-  constructor (code = grpc.status.UNKNOWN, ...params: any) {
-    super(...params)
+  constructor (message: string, code = grpc.status.UNKNOWN) {
+    super(message)
+    this.name = this.constructor.name
+    this.code = code
 
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, FonosError)
+      Error.captureStackTrace(this, this.constructor)
     }
-
-    this.code = code
   }
 }
 

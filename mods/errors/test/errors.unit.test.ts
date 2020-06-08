@@ -3,6 +3,9 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
+import FonosError from '../src/error'
+import FonosInvalidArgument from '../src/invalid_argument'
+import grpc from 'grpc'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -16,5 +19,24 @@ if (process.env.NODE_ENV === 'dev') {
 describe('@fonos/errors', () => {
   afterEach(() => sandbox.restore())
 
-  it.skip('needs testing', () => {})
+  it('has correct constructor name and message', () => {
+    expect(new FonosError('test'))
+      .to.have.property('name')
+      .to.be.equal('FonosError')
+    expect(() => {
+      throw new FonosError('my message')
+    }).to.throw('my message')
+  })
+
+  it('has correct constructor name, message, and code', () => {
+    expect(new FonosInvalidArgument('test'))
+      .to.have.property('name')
+      .to.be.equal('FonosInvalidArgument')
+
+    expect(new FonosInvalidArgument())
+      .to.have.property('code')
+      .to.be.equal(grpc.status.INVALID_ARGUMENT)
+
+    expect(new FonosInvalidArgument()).to.have.property('stack')
+  })
 })
