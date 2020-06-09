@@ -10,7 +10,18 @@ const objectid = require('objectid')
 class Verbs {
   channel: any
   _config: any
-  callDetailRecord: { ref: any; date: Date; from: any; to: any; created: Date; modified: Date; start: Date; end: Date; duration: number; vars: Map<any, any> }
+  callDetailRecord: {
+    ref: any
+    date: Date
+    from: any
+    to: any
+    created: Date
+    modified: Date
+    start: Date
+    end: Date
+    duration: number
+    vars: Map<any, any>
+  }
   /**
    * Constructs a new Verbs object.
    * @params {Channel} channel - Channel object pass from AGI-Node
@@ -102,13 +113,7 @@ class Verbs {
    *
    * const result = chan.play('tts-monkeys', options)
    */
-  play (file: string, options?: any) {
-    logger.log(
-      'debug',
-      `@fonos/voice.YapsWrapperChannel.play [file: ${file}, options: ${JSON.stringify(
-        options
-      )}]`
-    )
+  play (file: string, options?: any): string {
     if (!file) throw new Error('you must indicate a file.')
     let finishOnKey = '#'
 
@@ -119,20 +124,13 @@ class Verbs {
           '1234567890#*'.indexOf(options.finishOnKey) < 0)
       )
         throw new Error(
-          `Invalid finishOnKey parameter: found ${
-            options.finishOnKey
-          } but must be a single digit type of 0-9,#,*`
+          `Invalid finishOnKey parameter: found ${options.finishOnKey} but must be a single digit type of 0-9,#,*`
         )
 
       if (options.finishOnKey) finishOnKey = options.finishOnKey
     }
 
     const result = this.channel.streamFile(file, finishOnKey)
-
-    logger.log(
-      'debug',
-      `@fonos/voice.YapsWrapperChannel.play [result: ${JSON.stringify(result)}]`
-    )
 
     if (result.code === 200) return result.attributes.result
 
@@ -157,12 +155,6 @@ class Verbs {
    * const result = chan.say('hello, this is an audio sample', options)
    */
   say (text: string, options?: any) {
-    logger.log(
-      'verbose',
-      `@fonos/voice.YapsWrapperChannel.say [text: ${text}, options: ${JSON.stringify(
-        options
-      )}]`
-    )
     if (!text) throw new Error('You must provide a text.')
     if (!this._config.tts) throw new Error('Not tts engine found')
     if (!this._config.storage) throw new Error('Not storage object found')
@@ -171,11 +163,6 @@ class Verbs {
     // The final format pushed to the bucket will always be .wav
     const metadata = { 'Content-Type': 'audio/x-wav' }
     const filename = 't_' + computeFilename(text, options)
-
-    logger.log(
-      'debug',
-      `@fonos/voice.YapsWrapperChannel.say [filename: ${filename}]`
-    )
 
     let url
 
@@ -191,17 +178,10 @@ class Verbs {
       )
     }
 
-    logger.log('debug', `@fonos/vouice.YapsWrapperChannel.say [url: ${url}]`)
-
     if (url === undefined) {
       const pathToFile = this._config.tts.synthesizeSync(text, options)
       const pathToTranscodedFile = path.join(path.dirname(pathToFile), filename)
       transcodeSync(pathToFile, pathToTranscodedFile)
-
-      logger.log(
-        'debug',
-        `@fonos/vouice.YapsWrapperChannel.say[pathToTranscodedFile: ${pathToTranscodedFile}]`
-      )
 
       this._config.storage.uploadObjectSync({
         filename: pathToTranscodedFile,
@@ -277,18 +257,14 @@ class Verbs {
       // Less than one second will have no effect on the timeout
       if (options.timeout && (isNaN(options.timeout) || options.timeout < 0))
         throw new Error(
-          `${
-            options.timeout
-          } is not an acceptable timeout value. For no timeout use zero. Timeout must be equal or greater than zero`
+          `${options.timeout} is not an acceptable timeout value. For no timeout use zero. Timeout must be equal or greater than zero`
         )
       if (
         options.maxDigits &&
         (options.maxDigits <= 0 || isNaN(options.maxDigits))
       )
         throw new Error(
-          `${
-            options.maxDigits
-          } is not an acceptable maxDigits value. The maxDigits value must be greater than zero. Omit value for no limit on the number of digits`
+          `${options.maxDigits} is not an acceptable maxDigits value. The maxDigits value must be greater than zero. Omit value for no limit on the number of digits`
         )
       if (!options.maxDigits && !options.timeout) {
         throw new Error('you must provide either maxDigits or timeout')
@@ -307,12 +283,6 @@ class Verbs {
     }
 
     for (;;) {
-      // Break it if
-      // 1. User enters finishOnKey(ie.: #)
-      // 2. The length of digits is equal or greater than maxDigits
-      // 3. Character c is null given that timeout !== 0
-      // Note: Timeout !== 0 means no timeout.
-      // Char 'c' will be null if timeout event is fired
       if (
         c === finishOnKey ||
         digits.length >= maxDigits ||
@@ -372,9 +342,7 @@ class Verbs {
     if (options) {
       if (options.maxDuration && options.maxDuration < 1)
         throw new Error(
-          `${
-            options.maxDuration
-          } is not an acceptable maxDuration value. Must be a number greater than 1. Default is 3600 (1 hour)`
+          `${options.maxDuration} is not an acceptable maxDuration value. Must be a number greater than 1. Default is 3600 (1 hour)`
         )
       if (options.beep && typeof options.beep !== 'boolean')
         throw new Error(
