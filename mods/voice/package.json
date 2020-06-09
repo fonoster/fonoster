@@ -1,0 +1,41 @@
+{
+  "name": "@fonos/voice",
+  "version": "0.0.2",
+  "description": "Voice verbs",
+  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "homepage": "https://github.com/fonoster/fonos#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
+    "compile": "tsc -b tsconfig.json"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonos/issues"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "typescript": "^3.9.3"
+  },
+  "dependencies": {
+    "objectid": "^3.2.1",
+    "@fonos/logger": "^0.0.2",
+    "@fonos/tts": "^0.0.2"    
+  }
+}

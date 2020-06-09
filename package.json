@@ -5,7 +5,8 @@
     "bootstrap": "lerna bootstrap",
     "test": "NODE_ENV=dev mocha -r ts-node/register mods/**/*.unit.test.ts",
     "build": "lerna run build",
-    "postbuild": "nyc --check-coverage npm test -check-coverage"
+    "postbuild": "nyc --check-coverage npm test -check-coverage",
+    "clean": "rm -rf **/*/tsconfig.tsbuildinfo && rm -rf **/*/dist && rm -rf **/*/dist && rm -rf **/*/node_modules"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
@@ -15,17 +16,15 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.2",
-    "husky": "^4.2.3",
-    "jsdoc-to-markdown": "^5.0.3",
-    "lerna": "^3.22.0",
-    "lint-staged": "^10.0.8",
-    "mocha": "^7.2.0",
-    "nyc": "^15.0.1",
-    "prettier-standard": "^9.1.1",
+    "husky": "^4.2.5",
+    "jsdoc-to-markdown": "^6.0.1",
+    "lerna": "^3.22.1",
+    "lint-staged": "^10.2.9",
+    "prettier-standard": "^16.3.0",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
-    "ts-node": "^8.10.1",
-    "typescript": "^3.9.3"
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
   },
   "lint-staged": {
     "mods/**/*.ts": [
@@ -36,5 +35,9 @@
     "hooks": {
       "pre-commit": "lint-staged --allow-empty && node docs.js && git add docs"
     }
+  },
+  "dependencies": {
+    "mocha": "^7.2.0",
+    "nyc": "^15.1.0"
   }
 }
