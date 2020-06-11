@@ -1,13 +1,8 @@
 import Verb from './verb'
 
 class Play extends Verb {
-  _config: any
-  channel: any
-
   constructor (config: any, channel: any) {
-    super(config)
-    this._config = config
-    this.channel = channel
+    super(config, channel)
   }
 
   run (file: string, options?: any) {

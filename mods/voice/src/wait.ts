@@ -2,16 +2,11 @@ import Verb from './verb'
 import Play from './play'
 
 class Wait extends Verb {
-  _config: any
-  channel: any
-
-  constructor (config: any, channel: any) {
-    super(config)
-    this._config = config
-    this.channel = channel
+  constructor (channel: any, config: any) {
+    super(channel, config)
   }
 
-  run (time: number) {
+  run (time: number): void {
     let t = 1
 
     if (time && time <= 0)
@@ -19,7 +14,7 @@ class Wait extends Verb {
     if (time) t = time
 
     while (t > 0) {
-      new Play(this._config, this.channel).run('silence/1')
+      new Play(this.config, this.channel).run('silence/1')
       t--
     }
   }

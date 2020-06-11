@@ -1,13 +1,8 @@
 import Verb from './verb'
 
 class Gather extends Verb {
-  _config: any
-  channel: any
-
-  constructor (config: any, channel: any) {
-    super(config)
-    this._config = config
-    this.channel = channel
+  constructor (channel: any) {
+    super(channel)
   }
 
   run (initDigits: string, options?: any) {

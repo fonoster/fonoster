@@ -3,13 +3,8 @@ import Verb from './verb'
 const objectid = require('objectid')
 
 class Record extends Verb {
-  _config: any
-  channel: any
-
-  constructor (config: any, channel: any) {
-    super(config)
-    this._config = config
-    this.channel = channel
+  constructor (channel: any) {
+    super(channel)
   }
 
   run (callDetailRecord: any, options?: any) {
