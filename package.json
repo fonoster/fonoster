@@ -20,6 +20,7 @@
     "jsdoc-to-markdown": "^6.0.1",
     "lerna": "^3.22.1",
     "lint-staged": "^10.2.9",
+    "nyc": "^15.1.0",
     "prettier-standard": "^16.3.0",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
@@ -37,7 +38,6 @@
     }
   },
   "dependencies": {
-    "mocha": "^7.2.0",
-    "nyc": "^15.1.0"
+    "mocha": "^7.2.0"
   }
 }

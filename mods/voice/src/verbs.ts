@@ -1,8 +1,8 @@
-import path from 'path'
-import logger from '@fonos/logger'
-import { transcodeSync, computeFilename } from '@fonos/tts'
-
-const objectid = require('objectid')
+import Say from './say'
+import Play from './play'
+import Wait from './wait'
+import Record from './record'
+import Gather from './gather'
 
 /**
  * @classdescNode JS Implementation of the Verbs API.
@@ -31,6 +31,7 @@ class Verbs {
    * @params {TTS} config.tts - An instance of a TTS engine implementation
    */
   constructor (channel: any, config?: any) {
+    const objectid = require('objectid')
     this.channel = channel
     this._config = config
     this.callDetailRecord = {
@@ -74,8 +75,6 @@ class Verbs {
    */
   answer () {
     return this.channel.answer()
-    //if (result.code !== 200) throw new Error(result.rawReply)
-    //return 0
   }
 
   /**
@@ -83,8 +82,6 @@ class Verbs {
    */
   hangup () {
     return this.channel.hangup()
-    //if (result.code !== 200) throw new Error(result.rawReply)
-    //return 1
   }
 
   /**
@@ -114,27 +111,7 @@ class Verbs {
    * const result = chan.play('tts-monkeys', options)
    */
   play (file: string, options?: any): string {
-    if (!file) throw new Error('you must indicate a file.')
-    let finishOnKey = '#'
-
-    if (options) {
-      if (
-        options.finishOnKey &&
-        (options.finishOnKey.length !== 1 ||
-          '1234567890#*'.indexOf(options.finishOnKey) < 0)
-      )
-        throw new Error(
-          `Invalid finishOnKey parameter: found ${options.finishOnKey} but must be a single digit type of 0-9,#,*`
-        )
-
-      if (options.finishOnKey) finishOnKey = options.finishOnKey
-    }
-
-    const result = this.channel.streamFile(file, finishOnKey)
-
-    if (result.code === 200) return result.attributes.result
-
-    throw new Error(result.rawReply)
+    return new Play(this.config, this.channel).run(file, options)
   }
 
   /**
@@ -154,48 +131,8 @@ class Verbs {
    *
    * const result = chan.say('hello, this is an audio sample', options)
    */
-  say (text: string, options?: any) {
-    if (!text) throw new Error('You must provide a text.')
-    if (!this._config.tts) throw new Error('Not tts engine found')
-    if (!this._config.storage) throw new Error('Not storage object found')
-    if (!this._config.bucket) throw new Error('Not bucket found')
-
-    // The final format pushed to the bucket will always be .wav
-    const metadata = { 'Content-Type': 'audio/x-wav' }
-    const filename = 't_' + computeFilename(text, options)
-
-    let url
-
-    try {
-      url = this._config.storage.getObjectURLSync({
-        name: filename,
-        bucket: this._config.bucket
-      })
-    } catch (e) {
-      logger.log(
-        'silly',
-        `@fonos/vouice.YapsWrapperChannel.say [no url found for file ${filename}]`
-      )
-    }
-
-    if (url === undefined) {
-      const pathToFile = this._config.tts.synthesizeSync(text, options)
-      const pathToTranscodedFile = path.join(path.dirname(pathToFile), filename)
-      transcodeSync(pathToFile, pathToTranscodedFile)
-
-      this._config.storage.uploadObjectSync({
-        filename: pathToTranscodedFile,
-        bucket: this._config.bucket,
-        metadata
-      })
-
-      url = this._config.storage.getObjectURLSync({
-        name: filename,
-        bucket: this._config.bucket
-      })
-    }
-
-    return this.play(url, options)
+  say (text: string, options?: any): string {
+    return new Say(this._config, this.channel).run(text, options)
   }
 
   /**
@@ -203,17 +140,8 @@ class Verbs {
    *
    * @params {number} time - A time seconds to wait for
    */
-  wait (time: number) {
-    let t = 1
-
-    if (time && time <= 0)
-      throw new Error('time must an number equal or greater than zero.')
-    if (time) t = time
-
-    while (t > 0) {
-      this.play('silence/1')
-      t--
-    }
+  wait (time: number): void {
+    new Wait(this._config, this.channel).run(time)
   }
 
   /**
@@ -237,70 +165,8 @@ class Verbs {
    *
    * const result = chan.gather(chan.say('this is an audio sample'), options)
    */
-  gather (initDigits: string, options?: any) {
-    // A timeout of 0 means no timeout
-    // Less than one second will have no effect
-    let timeout = 4 * 1000
-    let finishOnKey = '#'
-    let maxDigits = 0
-    let digits = ''
-    let c
-
-    if (initDigits) digits = initDigits
-
-    // Perform validations
-    if (options) {
-      if (options.finishOnKey && options.finishOnKey.length !== 1)
-        throw new Error(
-          'finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*'
-        )
-      // Less than one second will have no effect on the timeout
-      if (options.timeout && (isNaN(options.timeout) || options.timeout < 0))
-        throw new Error(
-          `${options.timeout} is not an acceptable timeout value. For no timeout use zero. Timeout must be equal or greater than zero`
-        )
-      if (
-        options.maxDigits &&
-        (options.maxDigits <= 0 || isNaN(options.maxDigits))
-      )
-        throw new Error(
-          `${options.maxDigits} is not an acceptable maxDigits value. The maxDigits value must be greater than zero. Omit value for no limit on the number of digits`
-        )
-      if (!options.maxDigits && !options.timeout) {
-        throw new Error('you must provide either maxDigits or timeout')
-      }
-
-      // Overwrites timeout
-      if (options.timeout) {
-        if (options.timeout === 0) timeout = 0
-        // Anywhere on from 0.1 to 0.9 the timeout should be near to zero(1 milly is close enough)
-        if (options.timeout > 0 && options.timeout <= 1) timeout = 1
-        // Rest on second to compensate the silence = 1 in getData
-        if (options.timeout > 1) timeout = (options.timeout - 1) * 1000
-      }
-      if (options.finishOnKey) finishOnKey = options.finishOnKey
-      if (options.maxDigits) maxDigits = options.maxDigits
-    }
-
-    for (;;) {
-      if (
-        c === finishOnKey ||
-        digits.length >= maxDigits ||
-        (c === null && timeout > 0)
-      ) {
-        return digits
-      }
-
-      c = this.channel.getData('silence/1', timeout, 1)
-
-      if (c && finishOnKey.indexOf(c) === -1) {
-        digits = digits.concat(c)
-        continue
-      }
-      break
-    }
-
-    return digits
+  gather (initDigits: string, options?: any): string {
+    return new Gather(this._config, this.channel).run(initDigits, options)
   }
 
   /**
@@ -333,48 +199,10 @@ class Verbs {
    * const result = chan.record(options)
    */
   record (options?: any): any {
-    const format = 'wav'
-    let offset = 0
-    let beep = true
-    let maxDuration = 3600 * 1000
-    let finishOnKey = '1234567890#*'
-
-    if (options) {
-      if (options.maxDuration && options.maxDuration < 1)
-        throw new Error(
-          `${options.maxDuration} is not an acceptable maxDuration value. Must be a number greater than 1. Default is 3600 (1 hour)`
-        )
-      if (options.beep && typeof options.beep !== 'boolean')
-        throw new Error(
-          `${options.beep} is not an acceptable value. Must be a true or false`
-        )
-
-      // Overwrite values
-      if (options.maxDuration) maxDuration = options.maxDuration * 1000
-      if (options.beep) beep = options.beep
-      if (options.finishOnKey) finishOnKey = options.finishOnKey
-    }
-
-    const filename = objectid()
-    const file = `/tmp/${filename}`
-    const res = this.channel.recordFile(
-      file,
-      format,
-      finishOnKey,
-      maxDuration,
-      offset,
-      beep
+    return new Record(this.config, this.channel).run(
+      this.callDetailRecord,
+      options
     )
-
-    if (res.code !== 200) throw new Error(res.rawReply)
-
-    return {
-      keyPressed: res.attributes.result,
-      recordingUri: `/tmp/${filename}.${format}`,
-      filename: filename,
-      format: format,
-      callRef: this.callDetailRecord.ref
-    }
   }
 
   /**
