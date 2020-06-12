@@ -1,7 +1,11 @@
 import logger from '@fonos/logger'
+import { PATH_TO_ACCESS } from '@fonos/certs'
+import path from 'path'
+import grpc from 'grpc'
+import fs from 'fs'
+import jwt from 'jsonwebtoken'
 
 if (process.env.NODE_ENV === 'dev') {
-  const path = require('path')
   const env = path.join(__dirname, '..', '..', '..', '.env')
   require('dotenv').config({ path: env })
 }
@@ -15,8 +19,6 @@ const BOOL = ['on', 'true', 'yes', '1']
 const insecure = process.env.APISERVER_ENABLE_INSECURE
 
 const getServerCredentials = () => {
-  const grpc = require('grpc')
-  const fs = require('fs')
   try {
     return grpc.ServerCredentials.createSsl(
       fs.readFileSync(CA_CRT),
@@ -38,8 +40,6 @@ const getServerCredentials = () => {
 }
 
 const getClientCredentials = () => {
-  const grpc = require('grpc')
-  const fs = require('fs')
   try {
     return grpc.credentials.createSsl(
       fs.readFileSync(CA_CRT),
@@ -55,10 +55,18 @@ const getClientCredentials = () => {
   }
 }
 
-const auth = function (call: { metadata: { _internal_repr: { access_key_id: { toString: () => any }; access_key_secret: { toString: () => any } } } }): boolean {
-  const jwt = require('jsonwebtoken')
-  const { getSalt } = require('@fonos/certs')
-  const salt = getSalt()
+const auth = function (call: {
+  metadata: {
+    _internal_repr: {
+      access_key_id: { toString: () => any }
+      access_key_secret: { toString: () => any }
+    }
+  }
+}): boolean {
+  const salt = fs
+    .readFileSync(PATH_TO_ACCESS)
+    .toString()
+    .trim()
 
   if (
     call.metadata._internal_repr.access_key_id === null ||
@@ -72,7 +80,7 @@ const auth = function (call: { metadata: { _internal_repr: { access_key_id: { to
 
   if (typeof accessKeySecret !== 'undefined') {
     try {
-      const decoded = jwt.verify(accessKeySecret, salt)
+      const decoded: any = jwt.verify(accessKeySecret, salt)
       if (!decoded || accessKeyId !== decoded.sub) {
         return false
       }
@@ -88,8 +96,4 @@ module.exports.getServerCredentials = getServerCredentials
 module.exports.getClientCredentials = getClientCredentials
 module.exports.auth = auth
 
-export {
-  getClientCredentials,
-  getServerCredentials,
-  auth
-}
+export { getClientCredentials, getServerCredentials, auth }

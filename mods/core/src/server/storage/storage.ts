@@ -7,15 +7,23 @@ import {
 } from '../protos/storage_pb'
 import { IStorageServer, StorageService } from '../protos/storage_grpc_pb'
 import getObjectURL from './get_object_url'
+import uploadObject from './upload_object'
 
 class StorageServer implements IStorageServer {
   uploadObject (
     call: grpc.ServerReadableStream<UploadObjectRequest>,
     callback: grpc.sendUnaryData<UploadObjectResponse>
   ): void {
-    const response = new UploadObjectResponse()
-    response.setSize(666)
-    callback(null, response)
+    //if (!auth(call)) return callback(new FonosAuthError())
+
+    try {
+      uploadObject(call, callback)
+      //const response = new UploadObjectResponse()
+      //response.setSize(size)
+      //callback(null, response)
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async getObjectURL (

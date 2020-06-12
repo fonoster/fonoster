@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import logger from '@fonos/logger'
 import { FonosService, StorageService, StoragePB } from '@fonos/core'
 
@@ -25,6 +27,111 @@ class Storage extends FonosService {
   constructor (options: any) {
     super(StorageService.StorageClient, options)
     super.init()
+  }
+
+  /**
+   * Upload an object to Fonos Object Storage subsystem.
+   *
+   * @param {Object} request - Object with information about the origin and
+   * destination of an object
+   * @param {string} request.filename - Path to the object to be uploaded
+   * @param {string} request.bucket - Directory at the Storage system to
+   * save your file.
+   * @throws if the path does not exist or if is a directory
+   * @throws if the bucket does not exist
+   * @example
+   *
+   * const request = {
+   *    filename: '/path/to/file',
+   *    bucklet: 'hello-monkeys'
+   * }
+   *
+   * storage.uploadObject(request)
+   * .then(() => {
+   *   console.log(result)            // returns and empty Object
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  async uploadObject (request: any) {
+    return new Promise((resolve, reject) => {
+      logger.log(
+        'verbose',
+        `@fonos/storage uploadObject [request -> ${JSON.stringify(request)}]`
+      )
+
+      // WARNING: I'm not happy with this. Seems inconsistent with the other
+      // errors...
+      // WARNING: There seems to be a bug with the validate method.
+      // If I pass request.metadata it will overwrite the object
+      // and make == {}
+      /*const meta = request.metadata
+      const errors = storageValidator.uploadObjectRequest.validate({
+        name: request.filename,
+        bucket: request.bucket
+        // metadata: request.metadata
+      })*/
+
+      /*if (errors.length > 0) {
+        logger.log('warn', `@fonos/storage uploadObject [invalid argument/s]`)
+        reject(new Error(errors[0].message))
+        return
+      }*/
+
+      if (fs.lstatSync(request.filename).isDirectory()) {
+        logger.log(
+          'warn',
+          `@fonos/storage uploadObject [uploading directory is not supported]`
+        )
+        reject(new Error('Uploading a directory is not supported'))
+        return
+      }
+
+      const objectName = path.basename(request.filename)
+      const readStream = fs.createReadStream(request.filename, {
+        highWaterMark: 1 * 1024
+      })
+
+      const call = super
+        .getService()
+        .uploadObject(super.getMeta(), (err: any, res: any) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(res)
+          }
+        })
+
+      logger.log(
+        'debug',
+        `@fonos/storage uploadObject [objectName -> ${objectName}]`
+      )
+
+      readStream
+        .on('data', chunk => {
+          const uor = new StoragePB.UploadObjectRequest()
+          uor.setChunks(Buffer.from(chunk))
+          uor.setName(objectName)
+          uor.setBucket(request.bucket)
+
+          if (request.metadata && Object.keys(request.metadata).length > 0) {
+            const keys = Object.keys(request.metadata)
+            keys.forEach(k => uor.getMetadataMap().set(k, request.metadata[k]))
+          }
+          call.write(uor)
+        })
+        .on('end', () => {
+          logger.log(
+            'debug',
+            `@fonos/storage upload complete [filename -> ${request.filename}]`
+          )
+          call.end()
+        })
+        .on('error', (err: any) => {
+          logger.log('error', err)
+          call.end()
+        })
+    }).catch(e => {
+      throw e
+    })
   }
 
   /**

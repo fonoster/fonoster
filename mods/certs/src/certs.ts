@@ -30,4 +30,11 @@ async function createAccessFile () {
   return access
 }
 
-export { createAccessFile as default }
+export {
+  createAccessFile as default,
+  PATH_TO_SALT,
+  PATH_TO_CONFIG,
+  PATH_TO_ACCESS,
+  ACCESS_KEY_ID,
+  ISS
+}

@@ -1,3 +1,8 @@
+import fs from 'fs'
+import walk from 'walk'
+import path from 'path'
+import logger from '@fonos/logger'
+
 const fsInstance = () => {
   const Minio = require('minio')
 
@@ -13,14 +18,10 @@ const fsInstance = () => {
 const uploadToFS = (
   bucket: string,
   pathToObject: string,
-  object: string,
-  metadata = {}
+  object?: string,
+  metadata: object = {}
 ) =>
   new Promise((resolve, reject) => {
-    const walk = require('walk')
-    const path = require('path')
-    const logger = require('../common/logger')
-
     logger.log('verbose', `@fonos/core uploadToFS [bucket: ${bucket}]`)
     logger.log('verbose', `@fonos/core uploadToFS [path: ${pathToObject}]`)
     logger.log('verbose', `@fonos/core uploadToFS [object: ${object}]`)
@@ -49,6 +50,7 @@ const uploadToFS = (
           `@fonos/core uploadToFS [destFilePath:${destFilePath}]`
         )
         logger.log('debug', `@fonos/core uploadToFS [dest: ${dest}]`)
+        logger.log('debug', `@fonos/core uploadToFS [metadata: ${metadata}]`)
 
         fsInstance().fPutObject(
           bucket,
@@ -77,8 +79,6 @@ const uploadToFS = (
   })
 
 const removeDirSync = (path: string) => {
-  const fs = require('fs')
-  const logger = require('../common/logger')
   if (fs.existsSync(path)) {
     const files = fs.readdirSync(path)
 
@@ -117,10 +117,7 @@ const extract = (source: string, target: string) => {
     })
 })*/
 
-const getFilesizeInBytes = (filename: string) => {
-  const fs = require('fs')
-  return fs.statSync(filename)['size']
-}
+const getFilesizeInBytes = (filename: string) => fs.statSync(filename)['size']
 
 const mapToObj = (map: {
   toArray: () => {

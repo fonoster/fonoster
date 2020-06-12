@@ -11,7 +11,7 @@
     "build": "npm run clean && npm run compile && cp -a ./src/server/protos/ ./dist/server/protos",
     "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
     "compile": "tsc -b tsconfig.json"
-  },  
+  },
   "directories": {
     "src": "src",
     "test": "test"
@@ -52,6 +52,8 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/walk": "^2.3.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "rewire": "^5.0.0",

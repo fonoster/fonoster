@@ -1,7 +1,7 @@
+import logger from '@fonos/logger'
 import { getClientCredentials } from '../common/trust_util'
 import * as fs from 'fs'
 import * as path from 'path'
-import logger from '@fonos/logger'
 import grpc from './grpc_hack'
 
 // The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
@@ -73,7 +73,7 @@ class Service {
     metadata.add('access_key_id', this.options.accessKeyId)
     metadata.add('access_key_secret', this.options.accessKeySecret)
     this.metadata = metadata
-    this.options.endpoint = "192.168.1.149:50052"
+    this.options.endpoint = '192.168.1.149:50052'
   }
 
   init (): void {
