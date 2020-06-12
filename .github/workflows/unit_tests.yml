@@ -23,6 +23,6 @@ jobs:
       - run: |
           cd mods
           npm config set unsafe-perm true
-          npm install lerna nyc mocha -g
+          npm install ts-node lerna nyc mocha -g
           lerna bootstrap --no-ci
           npm test
