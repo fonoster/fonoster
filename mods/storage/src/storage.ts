@@ -75,6 +75,22 @@ class Storage extends FonosService {
       throw e
     })
   }
+
+  // Internal API
+  getObjectURLSync (request: { name: string; bucket: string }) {
+    const sleep = require('sync').sleep
+    let result
+    let error
+    this.getObjectURL(request)
+      .then(r => (result = r))
+      .catch(e => (error = e))
+
+    while (result === undefined && error === undefined) sleep(100)
+
+    if (error) throw error
+
+    return result
+  }
 }
 
 export default Storage

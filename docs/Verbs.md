@@ -5,7 +5,7 @@
 **Params**: <code>Channel</code> channel - Channel object pass from AGI-Node  
 **Params**: <code>Object</code> config - This parameter is required for proper operation
 of some verbs, such as `Say`.  
-**Params**: <code>Storage</code> config.storage - An instance of the Storage object  
+**Params**: [<code>Storage</code>](#Storage) config.storage - An instance of the Storage object  
 **Params**: <code>TTS</code> config.tts - An instance of a TTS engine implementation  
 
 * [Verbs](#Verbs)
