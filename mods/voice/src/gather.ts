@@ -1,11 +1,10 @@
 import Verb from './verb'
-import assert from 'assert'
 
 interface GatherOptions {
-  timeout: number
-  finishOnKey: string
-  maxDigits: number
-  digits: string
+  timeout?: number
+  finishOnKey?: string
+  maxDigits?: number
+  digits?: string
 }
 
 const validateSingleChar = (name: string, value: string) => {
@@ -46,7 +45,12 @@ class Gather extends Verb {
   }
 
   run (initDigits?: string, options?: GatherOptions): string {
-    let { maxDigits, timeout = 4000, finishOnKey = '#', digits = '' } = options
+    let {
+      maxDigits = 1,
+      timeout = 4000,
+      finishOnKey = '#',
+      digits = ''
+    } = options
 
     this.validate(options)
 
@@ -73,4 +77,4 @@ class Gather extends Verb {
   }
 }
 
-export default Gather
+export { Gather as default, GatherOptions }

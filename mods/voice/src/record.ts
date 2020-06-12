@@ -3,9 +3,10 @@ import Verb from './verb'
 const objectid = require('objectid')
 
 interface RecordOptions {
-  beep: boolean
-  maxDuration: number
-  finishOnKey: string
+  beep?: boolean
+  maxDuration?: number
+  finishOnKey?: string
+  offset?: number
 }
 
 const validateMaxDuration = (maxDuration: number) => {
@@ -27,7 +28,8 @@ class Record extends Verb {
     let {
       beep = true,
       maxDuration = 3600,
-      finishOnKey = '1234567890#*'
+      finishOnKey = '1234567890#*',
+      offset = 0
     } = options
     validateMaxDuration(maxDuration)
     validateBeep(beep)
@@ -39,7 +41,7 @@ class Record extends Verb {
       'wav',
       finishOnKey,
       maxDuration * 1000,
-      0,
+      offset,
       beep
     )
 
@@ -55,4 +57,4 @@ class Record extends Verb {
   }
 }
 
-export default Record
+export { Record as default, RecordOptions }

@@ -1,7 +1,7 @@
 import Verb from './verb'
 
 interface PlayOptions {
-  finishOnKey: string
+  finishOnKey?: string
 }
 
 const validate = (file: string, options: PlayOptions) => {
@@ -31,4 +31,4 @@ class Play extends Verb {
   }
 }
 
-export default Play
+export { Play as default, PlayOptions }

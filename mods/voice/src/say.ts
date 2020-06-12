@@ -1,5 +1,5 @@
 import Verb from './verb'
-import Play from './play'
+import Play, { PlayOptions } from './play'
 import path from 'path'
 import logger from '@fonos/logger'
 import { transcodeSync, computeFilename } from '@fonos/tts'
@@ -31,7 +31,7 @@ class Say extends Verb {
     })
   }
 
-  run (text: string, options: any): string {
+  run (text: string, options: PlayOptions): string {
     if (!text) throw new Error('You must provide a text.')
     const filename = 't_' + computeFilename(text, options)
 

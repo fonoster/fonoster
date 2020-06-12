@@ -1,8 +1,8 @@
 import Say from './say'
-import Play from './play'
+import Play, { PlayOptions } from './play'
 import Wait from './wait'
-import Record from './record'
-import Gather from './gather'
+import Record, { RecordOptions } from './record'
+import Gather, { GatherOptions } from './gather'
 
 /**
  * @classdescNode JS Implementation of the Verbs API.
@@ -110,7 +110,7 @@ class Verbs {
    *
    * const result = chan.play('tts-monkeys', options)
    */
-  play (file: string, options?: any): string {
+  play (file: string, options: PlayOptions = {}): string {
     return new Play(this.channel, this._config).run(file, options)
   }
 
@@ -165,7 +165,7 @@ class Verbs {
    *
    * const result = chan.gather(chan.say('this is an audio sample'), options)
    */
-  gather (initDigits: string, options?: any): string {
+  gather (initDigits: string, options: GatherOptions = {}): string {
     return new Gather(this.channel).run(initDigits, options)
   }
 
@@ -198,7 +198,7 @@ class Verbs {
    *
    * const result = chan.record(options)
    */
-  record (options?: any): any {
+  record (options: RecordOptions = {}): any {
     return new Record(this.channel).run(this.callDetailRecord, options)
   }
 
