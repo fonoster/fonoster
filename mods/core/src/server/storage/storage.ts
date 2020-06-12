@@ -18,11 +18,14 @@ class StorageServer implements IStorageServer {
     callback(null, response)
   }
 
-  getObjectURL (
+  async getObjectURL (
     call: grpc.ServerUnaryCall<GetObjectURLRequest>,
     callback: grpc.sendUnaryData<GetObjectURLResponse>
-  ): void {
-    const url = getObjectURL(call.request.getBucket(), call.request.getName())
+  ): Promise<void> {
+    const url = await getObjectURL(
+      call.request.getBucket(),
+      call.request.getName()
+    )
     const response = new GetObjectURLResponse()
     response.setUrl(url)
     callback(null, response)
