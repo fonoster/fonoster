@@ -41,7 +41,7 @@ describe('@fonos/tts/utils', () => {
     expect(t).to.be.equal('940c2687367636c07be34668c6d8299f.wav')
   })
 
-  it('converts a given audio into an audio works on asterisk', async () => {
+  it.skip('converts a given audio into an audio works on asterisk', async () => {
     const sox = require('sox-audio')
     const run = sandbox.spy(sox.prototype, 'run')
     const on = sandbox.stub(sox.prototype, 'on')
