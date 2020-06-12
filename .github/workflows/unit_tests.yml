@@ -21,9 +21,8 @@ jobs:
         with:
           node-version: '13.x'
       - run: |
-          cd mods
           npm config set unsafe-perm true
           npm install lerna -g
           npm install
-          lerna bootstrap --no-ci
-          npm test
+          npm run bootstrap
+          npm run build
