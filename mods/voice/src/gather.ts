@@ -28,6 +28,11 @@ const validateHasMaxDigitsOrTimeout = (options: GatherOptions) => {
     throw `you must provide either maxDigits or timeout`
 }
 
+const foundFinishKey = (c: string, finishOnKey: string) => c === finishOnKey
+const reachedMaxDigits = (digits: string, maxDigits: number) =>
+  digits.length >= maxDigits
+const reachedTimeout = (c: string, timeout: number) => c === null && timeout > 0
+
 class Gather extends Verb {
   constructor (channel: any) {
     super(channel)
@@ -47,14 +52,8 @@ class Gather extends Verb {
 
     if (initDigits) digits = initDigits
 
-    const foundFinishKey = (c: string, finishOnKey: string) => c === finishOnKey
-    const reachedMaxDigits = (digits: string, maxDigits: number) =>
-      digits.length >= maxDigits
-    const reachedTimeout = (c: string, timeout: number) =>
-      c === null && timeout > 0
-
-    for (;;) {
-      let c
+    while (true) {
+      const c = this.channel.getData('silence/1', timeout, 1)
 
       if (
         foundFinishKey(c, finishOnKey) ||
@@ -62,8 +61,6 @@ class Gather extends Verb {
         reachedTimeout(c, timeout)
       )
         return digits
-
-      c = this.channel.getData('silence/1', timeout, 1)
 
       if (c && finishOnKey.indexOf(c) === -1) {
         digits = digits.concat(c)
