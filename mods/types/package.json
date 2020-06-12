@@ -1,7 +1,7 @@
 {
-  "name": "@fonos/errors",
+  "name": "@fonos/types",
   "version": "0.0.2",
-  "description": "Handles Fonos errors",
+  "description": "Handles Fonos types",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
@@ -28,6 +28,9 @@
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonos/issues"
+  },
+  "dependencies": {
+    "@types/node": "^13.13.5"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",

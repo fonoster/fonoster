@@ -1,8 +1,8 @@
-import grpc from 'grpc'
+import { UNKNOWN } from './codes'
 
 class FonosError extends Error {
   code: any
-  constructor (message: string, code = grpc.status.UNKNOWN) {
+  constructor (message: string, code = UNKNOWN) {
     super(message)
     this.name = this.constructor.name
     this.code = code

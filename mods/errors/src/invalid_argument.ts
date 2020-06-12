@@ -1,9 +1,9 @@
 import FonosError from './error'
-import grpc from 'grpc'
+import { INVALID_ARGUMENT } from './codes'
 
 class FonosInvalidArgument extends FonosError {
   constructor (message?: string) {
-    super(message, grpc.status.INVALID_ARGUMENT)
+    super(message, INVALID_ARGUMENT)
   }
 }
 

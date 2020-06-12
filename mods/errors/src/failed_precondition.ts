@@ -1,9 +1,9 @@
 import FonosError from './error'
-import grpc from 'grpc'
+import { FAILED_PRECONDITION } from './codes'
 
 class FonosFailedPrecondition extends FonosError {
   constructor (message?: string) {
-    super(message, grpc.status.FAILED_PRECONDITION)
+    super(message, FAILED_PRECONDITION)
   }
 }
 

@@ -6,27 +6,31 @@
     "test": "NODE_ENV=dev mocha -r ts-node/register mods/**/*.unit.test.ts",
     "build": "lerna run build",
     "postbuild": "nyc --check-coverage npm test -check-coverage",
-    "clean": "rm -rf **/*/tsconfig.tsbuildinfo && rm -rf **/*/dist && rm -rf **/*/dist && rm -rf **/*/node_modules"
+    "clean": "rm -rf **/*/tsconfig.tsbuildinfo && rm -rf **/*/dist && rm -rf **/*/dist && rm -rf **/*/node_modules",
+    "gen-proto": "./etc/gen_code_proto.sh",
+    "start": "NODE_ENV=dev && nodemon mods/core/dist/server/server"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/chai-as-promised": "^7.1.2",
+    "@types/google-protobuf": "^3.7.2",
     "@types/mocha": "^7.0.2",
     "@types/sinon-chai": "^3.2.4",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.2",
+    "grpc_tools_node_protoc_ts": "^4.0.0",
     "husky": "^4.2.5",
     "jsdoc-to-markdown": "^6.0.1",
     "lerna": "^3.22.1",
     "lint-staged": "^10.2.9",
+    "mocha": "^7.2.0",
     "nyc": "^15.1.0",
     "prettier-standard": "^16.3.0",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.5",
-    "mocha": "^7.2.0"
+    "typescript": "^3.9.5"
   },
   "lint-staged": {
     "mods/**/*.ts": [
@@ -37,5 +41,10 @@
     "hooks": {
       "pre-commit": "lint-staged --allow-empty && node docs.js && git add docs"
     }
+  },
+  "dependencies": {
+    "dedent": "^0.7.0",
+    "google-protobuf": "^3.12.2",
+    "nodemon": "^2.0.4"
   }
 }

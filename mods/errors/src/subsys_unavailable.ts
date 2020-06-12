@@ -1,9 +1,9 @@
 import FonosError from './error'
-import grpc from 'grpc'
+import { INTERNAL } from './codes'
 
 class FonosSubsysUnavailable extends FonosError {
   constructor (message?: string) {
-    super(message, grpc.status.INTERNAL)
+    super(message, INTERNAL)
   }
 }
 

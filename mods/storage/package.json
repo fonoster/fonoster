@@ -1,7 +1,7 @@
 {
-  "name": "@fonos/errors",
+  "name": "@fonos/storage",
   "version": "0.0.2",
-  "description": "Handles Fonos errors",
+  "description": "Fonos Storage Servoce",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
@@ -32,5 +32,10 @@
   "devDependencies": {
     "dotenv": "^8.2.0",
     "typescript": "^3.9.3"
+  },
+  "dependencies": {
+    "objectid": "^3.2.1",
+    "@fonos/core": "^0.0.2",
+    "@fonos/logger": "^0.0.2"
   }
 }

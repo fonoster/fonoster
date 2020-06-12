@@ -5,7 +5,7 @@ import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
 import FonosError from '../src/error'
 import FonosInvalidArgument from '../src/invalid_argument'
-import grpc from 'grpc'
+import { INVALID_ARGUMENT } from '../src/codes'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -35,7 +35,7 @@ describe('@fonos/errors', () => {
 
     expect(new FonosInvalidArgument())
       .to.have.property('code')
-      .to.be.equal(grpc.status.INVALID_ARGUMENT)
+      .to.be.equal(INVALID_ARGUMENT)
 
     expect(new FonosInvalidArgument()).to.have.property('stack')
   })

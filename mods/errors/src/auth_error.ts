@@ -1,9 +1,9 @@
 import FonosError from './error'
-import grpc from 'grpc'
+import { UNAUTHENTICATED } from './codes'
 
 class FonosAuthError extends FonosError {
   constructor (message?: string) {
-    super(message, grpc.status.UNAUTHENTICATED)
+    super(message, UNAUTHENTICATED)
   }
 }
 
