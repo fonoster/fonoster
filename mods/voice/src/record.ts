@@ -2,41 +2,45 @@ import Verb from './verb'
 
 const objectid = require('objectid')
 
+interface RecordOptions {
+  beep: boolean
+  maxDuration: number
+  finishOnKey: string
+}
+
+const validateMaxDuration = (maxDuration: number) => {
+  if (maxDuration && maxDuration < 1)
+    throw `${maxDuration} is not an acceptable maxDuration value. Must be a number greater than 1. Default is 3600 (1 hour)`
+}
+
+const validateBeep = (beep: boolean) => {
+  if (beep && typeof beep !== 'boolean')
+    throw `${beep} is not an acceptable value. Must be a true or false`
+}
+
 class Record extends Verb {
   constructor (channel: any) {
     super(channel)
   }
 
-  run (callDetailRecord: any, options?: any) {
+  run (callDetailRecord: any, options?: RecordOptions) {
+    let {
+      beep = true,
+      maxDuration = 3600,
+      finishOnKey = '1234567890#*'
+    } = options
+    validateMaxDuration(maxDuration)
+    validateBeep(beep)
+
     const format = 'wav'
-    let offset = 0
-    let beep = true
-    let maxDuration = 3600 * 1000
-    let finishOnKey = '1234567890#*'
-
-    if (options) {
-      if (options.maxDuration && options.maxDuration < 1)
-        throw new Error(
-          `${options.maxDuration} is not an acceptable maxDuration value. Must be a number greater than 1. Default is 3600 (1 hour)`
-        )
-      if (options.beep && typeof options.beep !== 'boolean')
-        throw new Error(
-          `${options.beep} is not an acceptable value. Must be a true or false`
-        )
-
-      // Overwrite values
-      if (options.maxDuration) maxDuration = options.maxDuration * 1000
-      if (options.beep) beep = options.beep
-      if (options.finishOnKey) finishOnKey = options.finishOnKey
-    }
-
     const filename = objectid()
     const file = `/tmp/${filename}`
+    const offset = 0
     const res = this.channel.recordFile(
       file,
       format,
       finishOnKey,
-      maxDuration,
+      maxDuration * 1000,
       offset,
       beep
     )
