@@ -34,14 +34,12 @@ class Record extends Verb {
 
     const format = 'wav'
     const filename = objectid()
-    const file = `/tmp/${filename}`
-    const offset = 0
     const res = this.channel.recordFile(
-      file,
-      format,
+      `/tmp/${filename}`,
+      'wav',
       finishOnKey,
       maxDuration * 1000,
-      offset,
+      0,
       beep
     )
 
