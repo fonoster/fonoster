@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "bootstrap": "lerna bootstrap",
+    "bootstrap": "lerna bootstrap --no-ci",
     "test": "NODE_ENV=dev mocha -r ts-node/register mods/**/*.unit.test.ts",
     "build": "lerna run build",
     "postbuild": "nyc --check-coverage npm test -check-coverage",
