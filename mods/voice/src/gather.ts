@@ -47,15 +47,21 @@ class Gather extends Verb {
 
     if (initDigits) digits = initDigits
 
+    const foundFinishKey = (c: string, finishOnKey: string) => c === finishOnKey
+    const reachedMaxDigits = (digits: string, maxDigits: number) =>
+      digits.length >= maxDigits
+    const reachedTimeout = (c: string, timeout: number) =>
+      c === null && timeout > 0
+
     for (;;) {
       let c
+
       if (
-        c === finishOnKey ||
-        digits.length >= maxDigits ||
-        (c === null && timeout > 0)
-      ) {
+        foundFinishKey(c, finishOnKey) ||
+        reachedMaxDigits(digits, maxDigits) ||
+        reachedTimeout(c, timeout)
+      )
         return digits
-      }
 
       c = this.channel.getData('silence/1', timeout, 1)
 

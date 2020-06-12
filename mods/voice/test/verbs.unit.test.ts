@@ -86,7 +86,7 @@ describe('@fonos/voice/verbs', () => {
       expect(result).to.be.equal('1234')
 
       // Stops reading at finishOnKey char
-      /*channel.setData(['1', '2', '3', '4', '*'])
+      channel.setData(['1', '2', '3', '4', '*'])
       channel.resetDataPointer()
       result = verbs.gather('', { maxDigits: 6, finishOnKey: '*' })
       expect(result).to.be.equal('1234')
@@ -95,7 +95,7 @@ describe('@fonos/voice/verbs', () => {
       channel.setData(['1', '2', '3', null])
       channel.resetDataPointer()
       result = verbs.gather('', { timeout: 5, maxDigits: 4 })
-      expect(result).to.be.equal('123')*/
+      expect(result).to.be.equal('123')
     })
   })
 
