@@ -6,6 +6,14 @@ import grpc from './grpc_hack'
 
 // The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
 const merge = require('deepmerge')
+const ACCEES_FILE =
+  process.env.API_ACCESS_FILE ||
+  path.join(require('os').homedir(), '.fonos', 'access')
+const getAccessFile = () =>
+  fs
+    .readFileSync(ACCEES_FILE)
+    .toString()
+    .trim()
 
 const defaultOptions = {
   endpoint: 'localhost:50052',
@@ -36,44 +44,22 @@ class Service {
   constructor (ServiceClient?: any, options?: any) {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
-    const accessFile =
-      process.env.API_ACCESS_FILE ||
-      path.join(require('os').homedir(), '.fonos', 'access')
+
     try {
-      const fileContent = fs
-        .readFileSync(accessFile)
-        .toString()
-        .trim()
-      const inFileOptions = JSON.parse(fileContent)
-      this.options = merge(this.options, inFileOptions)
+      this.options = merge(this.options, JSON.parse(getAccessFile()))
     } catch (err) {
-      throw new Error(`Malformed access file found at: ${accessFile}`)
+      throw new Error(`Malformed access file found at: ${ACCEES_FILE}`)
     }
 
-    if (process.env.FONOS_ENDPOINT)
-      this.options.endpoint = process.env.FONOS_ENDPOINT
-    if (process.env.FONOS_ACCESS_KEY_ID)
-      this.options.accessKeyId = process.env.FONOS_ACCESS_KEY_ID
-    if (process.env.FONOS_ACCESS_KEY_SECRET)
-      this.options.accessKeySecret = process.env.FONOS_ACCESS_KEY_SECRET
-    this.options = merge(this.options, options)
-
-    logger.log(
-      'debug',
-      `@fonos/core.Service constructor [merged options -> ${JSON.stringify(
-        this.options
-      )}]`
-    )
+    this.overwriteOptionsWithEnv(options)
 
     if (!this.options.accessKeyId || !this.options.accessKeySecret) {
       throw new Error('Not valid credentials found')
     }
 
-    const metadata = new grpc.Metadata()
-    metadata.add('access_key_id', this.options.accessKeyId)
-    metadata.add('access_key_secret', this.options.accessKeySecret)
-    this.metadata = metadata
-    this.options.endpoint = '192.168.1.149:50052'
+    this.metadata = new grpc.Metadata()
+    this.metadata.add('access_key_id', this.options.accessKeyId)
+    this.metadata.add('access_key_secret', this.options.accessKeySecret)
   }
 
   init (): void {
@@ -81,6 +67,16 @@ class Service {
       this.options.endpoint,
       getClientCredentials()
     )
+  }
+
+  overwriteOptionsWithEnv (options: any) {
+    if (process.env.FONOS_ENDPOINT)
+      this.options.endpoint = process.env.FONOS_ENDPOINT
+    if (process.env.FONOS_ACCESS_KEY_ID)
+      this.options.accessKeyId = process.env.FONOS_ACCESS_KEY_ID
+    if (process.env.FONOS_ACCESS_KEY_SECRET)
+      this.options.accessKeySecret = process.env.FONOS_ACCESS_KEY_SECRET
+    this.options = merge(this.options, options)
   }
 
   getOptions (): any {
