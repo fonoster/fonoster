@@ -5,7 +5,6 @@
     "bootstrap": "lerna bootstrap --no-ci",
     "test": "NODE_ENV=dev mocha -r ts-node/register mods/**/*.unit.test.ts",
     "build": "lerna run build",
-    "postbuild": "nyc --check-coverage npm test -check-coverage",
     "clean": "rm -rf **/*/tsconfig.tsbuildinfo && rm -rf **/*/dist && rm -rf **/*/dist && rm -rf **/*/node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
     "start": "NODE_ENV=dev && nodemon mods/core/dist/server/server"
