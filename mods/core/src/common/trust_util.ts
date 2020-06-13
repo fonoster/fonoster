@@ -1,5 +1,5 @@
 import logger from '@fonos/logger'
-import { PATH_TO_ACCESS } from '@fonos/certs'
+import { getSalt } from '@fonos/certs'
 import path from 'path'
 import grpc from 'grpc'
 import fs from 'fs'
@@ -55,19 +55,7 @@ const getClientCredentials = () => {
   }
 }
 
-const auth = function (call: {
-  metadata: {
-    _internal_repr: {
-      access_key_id: { toString: () => any }
-      access_key_secret: { toString: () => any }
-    }
-  }
-}): boolean {
-  const salt = fs
-    .readFileSync(PATH_TO_ACCESS)
-    .toString()
-    .trim()
-
+const auth = function (call: any): boolean {
   if (
     call.metadata._internal_repr.access_key_id === null ||
     call.metadata._internal_repr.access_key_secret === null
@@ -80,7 +68,7 @@ const auth = function (call: {
 
   if (typeof accessKeySecret !== 'undefined') {
     try {
-      const decoded: any = jwt.verify(accessKeySecret, salt)
+      const decoded: any = jwt.verify(accessKeySecret, getSalt())
       if (!decoded || accessKeyId !== decoded.sub) {
         return false
       }
