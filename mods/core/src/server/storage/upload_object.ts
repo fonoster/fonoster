@@ -11,8 +11,14 @@ import {
 } from '../../common/utils'
 import { UploadObjectResponse } from '../protos/storage_pb'
 
+const objectid = require('objectid')
+const isCompressFile = (object: string) =>
+  object.endsWith('.zip') ||
+  object.endsWith('.tar') ||
+  object.endsWith('.tgz') ||
+  object.endsWith('.tar.gz')
+
 export default async function (call: any, callback: any) {
-  const objectid = require('objectid')
   const tmpName = objectid()
   const writeStream = fs.createWriteStream(`/tmp/${tmpName}`)
   let object: string
@@ -32,43 +38,16 @@ export default async function (call: any, callback: any) {
 
   writeStream.on('finish', async () => {
     try {
-      logger.log(
-        'verbose',
-        `@fonos/core uploadObject [object ready for upload]`
-      )
-      logger.log('debug', `@fonos/core uploadObject [object: ${object}]`)
-      logger.log('debug', `@fonos/core uploadObject [bucket: ${bucket}]`)
-      logger.log(
-        'debug',
-        `@fonos/core uploadObject [metadata: ${JSON.stringify(metadata)}]`
-      )
-
       const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`)
-      logger.log('debug', `@fonos/core uploadObject [file size -> ${fileSize}]`)
-
       // Back to what it is supposed to be
       fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
 
       // Unzip file if needed
-      if (
-        object.endsWith('.zip') ||
-        object.endsWith('.tar') ||
-        object.endsWith('.tgz') ||
-        object.endsWith('.tar.gz')
-      ) {
-        logger.log(
-          'verbose',
-          `@fonos/core uploadObject [extracting files: /tmp/${object}]`
-        )
+      if (isCompressFile(object)) {
         await extract(`/tmp/${object}`, `/tmp`)
-
         const nameWithoutExt = object.split('.')[0]
-        // Upload to fs
         await uploadToFS(bucket, `/tmp/${nameWithoutExt}`)
-
-        // Removing extracted dir
         removeDirSync(`/tmp/${nameWithoutExt}`)
-
         const response = new UploadObjectResponse()
         response.setSize(fileSize)
         callback(null, response)
@@ -79,25 +58,19 @@ export default async function (call: any, callback: any) {
         response.setSize(fileSize)
         callback(null, response)
       }
-
-      // Remove temporal file
-      logger.log(
-        'verbose',
-        `@fonos/core uploadObject [removing tmpfile: /tmp/${object}}]`
-      )
       fs.unlinkSync(`/tmp/${object}`)
     } catch (err) {
-      if (err.code === 'NoSuchBucket') {
-        logger.log('error', `${err.message} -> bucket: ${bucket}`)
-        callback(
-          new FonosFailedPrecondition(`${err.message} -> bucket: ${bucket}`)
-        )
-      } else if (err.code === 'TAR_BAD_ARCHIVE') {
-        logger.log('error', err.message)
-        callback(new FonosError(err.message, grpc.status.DATA_LOSS))
-      } else {
-        logger.log('error', err.message)
-        callback(new FonosError(err.message, grpc.status.UNKNOWN))
+      switch (err.code) {
+        case 'NoSuchBucket':
+          callback(
+            new FonosFailedPrecondition(`${err.message} -> bucket: ${bucket}`)
+          )
+          break
+        case 'TAR_BAD_ARCHIVE':
+          callback(new FonosError(err.message, grpc.status.DATA_LOSS))
+          break
+        default:
+          callback(new FonosError(err.message, grpc.status.UNKNOWN))
       }
     }
   })

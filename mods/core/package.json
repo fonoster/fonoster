@@ -53,6 +53,8 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.0",
+    "@types/minio": "^7.0.5",
+    "@types/tar": "^4.0.3",
     "@types/walk": "^2.3.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
