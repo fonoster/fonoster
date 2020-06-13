@@ -1,6 +1,5 @@
-const { logger } = require('@fonos/core')
-const { FonosService, ProvidersService, ProvidersPB } = require('@fonos/core')
-const promisifyAll = require('grpc-promise').promisifyAll
+import { FonosService, ProvidersService, ProvidersPB } from '@fonos/core'
+import logger from '@fonos/logger'
 
 /**
  * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
@@ -31,8 +30,10 @@ class Providers extends FonosService {
    *
    * @see module:core:FonosService
    */
-  constructor (options) {
-    super(ProvidersService.ProvidersClient, options).init()
+  constructor (options?: any) {
+    super(ProvidersService.ProvidersClient, options)
+    super.init()
+    const promisifyAll = require('grpc-promise').promisifyAll
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 

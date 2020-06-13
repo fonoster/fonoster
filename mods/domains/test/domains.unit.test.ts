@@ -1,9 +1,19 @@
-const Domains = require('../src/domains')
-const assert = require('assert')
-const path = require('path')
+import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
+import Storage from '../src/storage'
+import chai from 'chai'
+import sinon from 'sinon'
+import sinonChai from 'sinon-chai'
+import chaiAsPromised from 'chai-as-promised'
+import { join } from 'path'
+import Fiber from 'fibers'
+
+const expect = chai.expect
+chai.use(sinonChai)
+chai.use(chaiAsPromised)
+const sandbox = sinon.createSandbox()
 
 if (process.env.NODE_ENV === 'dev') {
-  require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
+  require('dotenv').config({ path: join(__dirname, '..', '..', '.env') })
 }
 
 describe('Domains Service', () => {

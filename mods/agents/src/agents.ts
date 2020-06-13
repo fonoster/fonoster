@@ -1,7 +1,5 @@
-const { Agent } = require('@fonos/type')
-const { logger } = require('@fonos/core')
-const { FonosService, AgentsService, AgentsPB } = require('@fonos/core')
-const promisifyAll = require('grpc-promise').promisifyAll
+import { FonosService, AgentsService, AgentsPB } from '@fonos/core'
+import logger from '@fonos/logger'
 
 /**
  * @classdesc Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
@@ -35,6 +33,7 @@ class Agents extends FonosService {
   constructor (options: any) {
     super(AgentsService.AgentsClient, options)
     super.init()
+    const promisifyAll = require('grpc-promise').promisifyAll
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 
@@ -64,16 +63,6 @@ class Agents extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async createAgent (request: any): Promise<any> {
-    logger.log(
-      'verbose',
-      `@fonos/agents createAgent [request: ${JSON.stringify(request)}]`
-    )
-
-    logger.log(
-      'debug',
-      `@fonos/agents createAgent [validating agent: ${request.name}]`
-    )
-
     const agent = new AgentsPB.Agent()
     agent.setName(request.name)
     agent.setUsername(request.username)
@@ -206,8 +195,6 @@ class Agents extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteAgent (ref: string): Promise<object> {
-    logger.log('verbose', `@fonos/agents deleteAgent [ref: ${ref}]`)
-
     const req = new AgentsPB.DeleteAgentRequest()
     req.setRef(ref)
 
