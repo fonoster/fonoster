@@ -12,15 +12,20 @@ const ISS = 'fonos' // WARNING: Fix hardcode
 
 if (!fs.existsSync(PATH_TO_CONFIG)) fs.mkdirSync(PATH_TO_CONFIG)
 
-async function createAccessFile () {
-  if (!fs.existsSync(PATH_TO_SALT)) {
-    fs.writeFileSync(PATH_TO_SALT, await forge.createPrivateKey())
-  }
-
-  const salt = fs
+const getSalt = () =>
+  fs
     .readFileSync(PATH_TO_SALT)
     .toString()
     .trim()
+const accessExist = () => fs.existsSync(PATH_TO_ACCESS)
+const saltExist = () => fs.existsSync(PATH_TO_SALT)
+
+async function createAccessFile () {
+  if (!saltExist()) {
+    fs.writeFileSync(PATH_TO_SALT, await forge.createPrivateKey())
+  }
+
+  const salt = getSalt()
   const claims = { ISS, sub: ACCESS_KEY_ID }
   const access = {
     accessKeyId: ACCESS_KEY_ID,
@@ -32,6 +37,9 @@ async function createAccessFile () {
 
 export {
   createAccessFile as default,
+  getSalt,
+  accessExist,
+  saltExist,
   PATH_TO_SALT,
   PATH_TO_CONFIG,
   PATH_TO_ACCESS,
