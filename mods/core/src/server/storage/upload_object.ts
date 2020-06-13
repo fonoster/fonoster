@@ -73,8 +73,9 @@ export default async function (call: any, callback: any) {
       const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`)
       fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
       const response = isCompressFile(object)
-        ? handleCompressUpload(object, bucket, fileSize)
-        : handleUncompressUpload(object, bucket, fileSize)
+        ? await handleCompressUpload(object, bucket, fileSize)
+        : await handleUncompressUpload(object, bucket, fileSize)
+
       callback(null, response)
       fs.unlinkSync(`/tmp/${object}`)
     } catch (err) {

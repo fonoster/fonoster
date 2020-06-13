@@ -1,0 +1,8 @@
+{
+  "name": "hello-monkeys",
+  "version": "1.0.0",
+  "description": "Hello Monkeys Example",
+  "author": "Pedro Sanders",
+  "license": "MIT",
+  "main": "index.js"
+}

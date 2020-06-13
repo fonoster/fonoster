@@ -1,0 +1,45 @@
+{
+  "name": "@fonos/appmanager",
+  "version": "0.0.2",
+  "description": "Applications Manager",
+  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "homepage": "https://github.com/fonoster/fonos#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
+    "compile": "tsc -b tsconfig.json"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonos/issues"
+  },
+  "dependencies": {
+    "@fonos/core": "^0.0.2",
+    "@fonos/storage": "^0.0.2",
+    "@fonos/logger": "^0.0.2",
+    "dotenv": "^8.2.0",
+    "fs-extra": "^8.1.0",
+    "grpc-promise": "^1.4.0",
+    "tar": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.1",
+    "@types/tar": "^4.0.3"
+  }
+}
