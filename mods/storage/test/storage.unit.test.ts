@@ -1,10 +1,10 @@
+import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
+import Storage from '../src/storage'
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
-import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
-import Storage from '../src/storage'
 import Fiber from 'fibers'
 
 const expect = chai.expect
@@ -28,54 +28,29 @@ describe('Storage Service', () => {
     })
   })
 
-  /*it('Upload object with bad argument', done => {
-    // Will fail because of bad argument filename
-    storage
-      .uploadObject({
-        filenam: __dirname + '/../etc/hello-monkeys.tgz',
-        bucket: 'default'
-      })
-      .then(result => {
-        done('should not enter here')
-      })
-      .catch(e => {
-        assert.ok(e.message.includes('name is required'))
-        // Expected to enter gere
-        done()
-      })
-  })
-
-  it('Upload object with bad bucket', done => {
-    // Will fail for directories
-    storage
-      .uploadObject({
+  it('Upload object with bad bucket', () => {
+    // Will fail because directory does not exist
+    expect(
+      storage.uploadObject({
         filename: __dirname + '/../etc/hello-monkeys.tgz',
         bucket: 'bucket001'
       })
-      .then(result => done('should not enter here'))
-      .catch(err => {
-        assert.ok(err.message.includes('bucket does not exist'))
-        done()
-      })
+    ).to.eventually.be.rejectedWith(
+      'The specified bucket does not exist -> bucket: bucket001'
+    )
   })
 
-  it('Uploading a directory', done => {
+  it('Uploading a directory', () => {
     // Will fail for directories
-    storage
-      .uploadObject({
+    expect(
+      storage.uploadObject({
         filename: __dirname,
         bucket: 'default'
       })
-      .then(result => {
-        done('should not enter here')
-      })
-      .catch(e => {
-        assert.ok(e.message.includes('is not supported'))
-        done()
-      })
-  })*/
+    ).to.eventually.be.rejectedWith('is not supported')
+  })
 
-  it.only('Upload a single compress(tar) file', async () => {
+  it('Upload a single compress(tar) file', async () => {
     // Will pass
     const result = await storage.uploadObject({
       filename: __dirname + '/../etc/hello-monkeys.tgz',
@@ -87,28 +62,19 @@ describe('Storage Service', () => {
 
     // Asserted this way to prevent issue with size changes
     // different filesystems
-    //expect(result.getSize()).to.equal(0)
-    console.log(result)
+    expect(result.getSize()).to.be.greaterThan(0)
   })
 
-  /*
-  it('Upload a single uncompress file', done => {
+  it('Upload a single uncompress file', async () => {
     // Will pass
-    storage
-      .uploadObject({
-        filename: __dirname + '/../etc/test.txt',
-        bucket: 'default'
-      })
-      .then(result => {
-        // Asserted this way to prevent issue with size changes
-        // different filesystems
-        assert.ok(result.getSize() > 0)
-        done()
-      })
-      .catch(e => {
-        done(e)
-      })
-  })*/
+    const result = await storage.uploadObject({
+      filename: __dirname + '/../etc/test.txt',
+      bucket: 'default'
+    })
+    // Asserted this way to prevent issue with size changes
+    // different filesystems
+    expect(result.getSize()).to.be.greaterThan(0)
+  })
 
   it('fails because url was not found', () => {
     expect(

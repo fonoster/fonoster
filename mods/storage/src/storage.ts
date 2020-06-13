@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import logger from '@fonos/logger'
 import { FonosService, StorageService, StoragePB } from '@fonos/core'
+import { UploadObjectResponse } from '@fonos/core/src/server/protos/storage_pb'
 
 /**
  * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
@@ -51,7 +52,7 @@ class Storage extends FonosService {
    *   console.log(result)            // returns and empty Object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async uploadObject (request: any) {
+  async uploadObject (request: any): Promise<any> {
     return new Promise((resolve, reject) => {
       logger.log(
         'verbose',
@@ -96,7 +97,7 @@ class Storage extends FonosService {
           if (err) {
             reject(err)
           } else {
-            resolve(res)
+            resolve(res as UploadObjectResponse)
           }
         })
 
@@ -181,6 +182,23 @@ class Storage extends FonosService {
     }).catch(e => {
       throw e
     })
+  }
+
+  // Internal API
+  uploadObjectSync (request: any) {
+    const sleep = require('sync').sleep
+    let result
+    let error
+
+    this.uploadObject(request)
+      .then(r => (result = r))
+      .catch(e => (error = e))
+
+    while (result === undefined && error === undefined) sleep(100)
+
+    if (error) throw error
+
+    return result
   }
 
   // Internal API
