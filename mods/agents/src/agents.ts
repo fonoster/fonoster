@@ -30,7 +30,7 @@ class Agents extends FonosService {
    *
    * @see module:core:FonosService
    */
-  constructor (options: any) {
+  constructor (options?: any) {
     super(AgentsService.AgentsClient, options)
     super.init()
     const promisifyAll = require('grpc-promise').promisifyAll
@@ -124,11 +124,6 @@ class Agents extends FonosService {
     secret: any
     privacy: any
   }): Promise<object> {
-    logger.log(
-      'verbose',
-      `@fonos/agents updateAgent [request: ${JSON.stringify(request)}]`
-    )
-
     const agentFromDB = await this.getAgent(request.ref)
 
     if (request.name) agentFromDB.setName(request.name)
@@ -205,4 +200,4 @@ class Agents extends FonosService {
   }
 }
 
-module.exports = Agents
+export default Agents

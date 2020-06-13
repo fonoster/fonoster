@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@fonos/core": "^0.0.2",
+    "@fonos/logger": "^0.0.2",
     "dotenv": "^8.2.0",
     "grpc-promise": "^1.4.0",
     "sync": "^0.2.4"

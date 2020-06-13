@@ -30,7 +30,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.1",
+    "@fonos/core": "^0.0.2",
+    "@fonos/logger": "^0.0.2",
     "grpc-promise": "^1.4.0",
     "sync": "^0.2.4"
   }

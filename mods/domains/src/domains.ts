@@ -1,5 +1,4 @@
 import { FonosService, DomainsService, DomainsPB } from '@fonos/core'
-import logger from '@fonos/logger'
 
 /**
  * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
@@ -60,12 +59,7 @@ class Domains extends FonosService {
    *   console.log(result)            // returns the Domain object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createDomain (request) {
-    logger.log(
-      'verbose',
-      `@fonos/domains createDomain [request: ${JSON.stringify(request)}]`
-    )
-
+  async createDomain (request: any) {
     const domain = new DomainsPB.Domain()
     domain.setName(request.name)
     domain.setDomainUri(request.domainUri)
@@ -96,7 +90,7 @@ class Domains extends FonosService {
    *   console.log(result)             // returns the Domain object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getDomain (ref) {
+  async getDomain (ref: string) {
     const request = new DomainsPB.GetDomainRequest()
     request.setRef(ref)
     return this.service.getDomain().sendMessage(request)
@@ -129,12 +123,7 @@ class Domains extends FonosService {
    *   console.log(result)            // returns the Domain from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateDomain (request) {
-    logger.log(
-      'verbose',
-      `@fonos/domains updateDomain [request: ${JSON.stringify(request)}]`
-    )
-
+  async updateDomain (request: any) {
     const domain = await this.getDomain(request.ref)
 
     if (request.name) domain.setName(request.name)
@@ -174,11 +163,7 @@ class Domains extends FonosService {
    *   console.log(result)            // returns a ListDomainsResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listDomains (request) {
-    logger.log(
-      'verbose',
-      `@fonos/domains listDomain [request -> ${JSON.stringify(request)}]`
-    )
+  async listDomains (request: any) {
     const r = new DomainsPB.ListDomainsRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)
@@ -200,12 +185,9 @@ class Domains extends FonosService {
    *   console.log('done')            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteDomain (ref) {
-    logger.log('verbose', `@fonos/domains deleteDomain [ref: ${ref}]`)
-
+  async deleteDomain (ref: string) {
     const req = new DomainsPB.DeleteDomainRequest()
     req.setRef(ref)
-
     return super
       .getService()
       .deleteDomain()
@@ -213,4 +195,4 @@ class Domains extends FonosService {
   }
 }
 
-module.exports = Domains
+export default Domains

@@ -1,5 +1,6 @@
 import { FonosService, NumbersService, NumbersPB } from '@fonos/core'
 import { Number } from '@fonos/core/src/server/protos/numbers_pb'
+import { App } from '@fonos/core/src/server/protos/appmanager_pb'
 
 /**
  * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
@@ -221,7 +222,7 @@ class Numbers extends FonosService {
    *   console.log(result)            // returns the Application
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async getIngressApp (request: any) {
+  async getIngressApp (request: any): Promise<App> {
     const req = new NumbersPB.GetIngressAppRequest()
     req.setE164Number(request.e164Number)
 
@@ -232,7 +233,7 @@ class Numbers extends FonosService {
   }
 
   // Internal API
-  getIngressAppSync (request: any) {
+  getIngressAppSync (request: any): App {
     const sleep = require('sync').sleep
     let result
     let error

@@ -66,17 +66,7 @@ class Providers extends FonosService {
    *   console.log(result)            // returns the Provider object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createProvider (request) {
-    logger.log(
-      'verbose',
-      `@fonos/providers createProvider [request: ${JSON.stringify(request)}]`
-    )
-
-    logger.log(
-      'debug',
-      `@fonos/providers createProvider [validating provider: ${request.name}]`
-    )
-
+  async createProvider (request: any) {
     const provider = new ProvidersPB.Provider()
     provider.setName(request.name)
     provider.setUsername(request.username)
@@ -107,7 +97,7 @@ class Providers extends FonosService {
    *   console.log(result)             // returns the Provider object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getProvider (ref) {
+  async getProvider (ref: string) {
     const request = new ProvidersPB.GetProviderRequest()
     request.setRef(ref)
     return this.service.getProvider().sendMessage(request)
@@ -141,12 +131,7 @@ class Providers extends FonosService {
    *   console.log(result)            // returns the Provider from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateProvider (request) {
-    logger.log(
-      'verbose',
-      `@fonos/providers updateProvider [request: ${JSON.stringify(request)}]`
-    )
-
+  async updateProvider (request: any) {
     const providerFromDB = await this.getProvider(request.ref)
 
     if (request.name) providerFromDB.setName(request.name)
@@ -186,11 +171,7 @@ class Providers extends FonosService {
    *   console.log(result)            // returns a ListProvidersResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listProviders (request) {
-    logger.log(
-      'verbose',
-      `@fonos/providers listProvider [request -> ${JSON.stringify(request)}]`
-    )
+  async listProviders (request: any) {
     const r = new ProvidersPB.ListProvidersRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)
@@ -212,9 +193,7 @@ class Providers extends FonosService {
    *   console.log('done')            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteProvider (ref) {
-    logger.log('verbose', `@fonos/providers deleteProvider [ref: ${ref}]`)
-
+  async deleteProvider (ref: any) {
     const req = new ProvidersPB.DeleteProviderRequest()
     req.setRef(ref)
 
