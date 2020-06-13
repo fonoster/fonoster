@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import logger from '@fonos/logger'
 import { FonosService, StorageService, StoragePB } from '@fonos/core'
 import { UploadObjectResponse } from '@fonos/core/src/server/protos/storage_pb'
 

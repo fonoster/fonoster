@@ -2,7 +2,7 @@
 DIRNAME="$(cd "$(dirname "$0")"; pwd)"
 
 #PROTOS=(appmanager common storage providers numbers domains agents)
-PROTOS=(storage)
+PROTOS=(common appmanager storage)
 
 for proto in "${PROTOS[@]}"
 do
