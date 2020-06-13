@@ -1,0 +1,36 @@
+{
+  "name": "@fonos/sdk",
+  "version": "0.0.2",
+  "description": "Fonos SDK module",
+  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "homepage": "https://github.com/fonoster/fonos#readme",
+  "license": "MIT",
+  "main": "dist/certs",
+  "types": "dist/certs",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
+    "compile": "tsc -b tsconfig.json"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonos/issues"
+  },
+  "dependencies": {
+    "@fonos/appmanager": "^0.0.2",
+    "@fonos/storage": "^0.0.2"
+  }
+}
