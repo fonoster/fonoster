@@ -1,7 +1,7 @@
 {
-  "name": "@fonos/sdk",
+  "name": "@fonos/agents",
   "version": "0.0.2",
-  "description": "Fonos SDK module",
+  "description": "VoIP Agents",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
@@ -30,11 +30,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/appmanager": "^0.0.2",
-    "@fonos/storage": "^0.0.2",
-    "@fonos/providers": "^0.0.2",
-    "@fonos/numbers": "^0.0.2",   
-    "@fonos/domains": "^0.0.2",
-    "@fonos/agents": "^0.0.2"
+    "@fonos/core": "^0.0.1",
+    "grpc-promise": "^1.4.0",
+    "sync": "^0.2.4"
   }
 }

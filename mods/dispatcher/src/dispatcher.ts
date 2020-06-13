@@ -1,3 +1,4 @@
+const { logger, updateBucketPolicy } = require('@fonos/core')
 const { Storage } = require('@fonos/storage')
 const { AGIServer } = require('agi-node')
 const { MaryTTS } = require('@fonos/tts')
@@ -8,14 +9,13 @@ const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 const vm = new NodeVM(require('../etc/vm.json'))
-const { logger, updateBucketPolicy } = require('@fonos/core')
 
 if (process.env.NODE_ENV === 'dev') {
   const env = path.join(__dirname, '..', '..', '..', '.env')
   require('dotenv').config({ path: env })
 }
 
-function dispatch (channel) {
+function dispatch (channel: { request: { extension: any } }) {
   try {
     logger.log('verbose', `@fonos/dispatcher dispatch [entering]`)
     logger.log(

@@ -1,14 +1,13 @@
-const fs = require('fs')
-const { logger } = require('@fonos/core')
-const Numbers = require('@fonos/numbers')
+import Numbers from '@fonos/numbers'
+import logger from '@fonos/logger'
+import fs from 'fs'
 
-module.exports.getIngressInfo = extension => {
+export default function (extension: string) {
   try {
-    const numbers = new Numbers()
-
-    // We check for a handler, and return default if it does not exist
+    // We check for a handler, and return default none exist
     let appName = 'default'
     try {
+      const numbers = new Numbers()
       const app = numbers.getIngressAppSync({ e164Number: extension })
       appName = app.getName()
     } catch (e) {
@@ -19,12 +18,6 @@ module.exports.getIngressInfo = extension => {
     }
 
     const appsDir = process.env.APPS_DIR || '/fonos/apps'
-
-    logger.log(
-      'debug',
-      `@fonos/dispatcher getIngressInfo [apps dir: ${appsDir}, app name: ${appName}]`
-    )
-
     const packageBase = `${appsDir}/${appName}`
     const pathToEntryPoint = `${packageBase}/package.json`
     const pathToAppConfig = `${packageBase}/fonos.json`
@@ -37,13 +30,12 @@ module.exports.getIngressInfo = extension => {
     } catch (e) {}
 
     try {
-      bucket = JSON.parse(fs.readFileSync(pathToAppConfig)).bucket
+      bucket = JSON.parse(`${fs.readFileSync(pathToAppConfig)}`).bucket
     } catch (e) {}
 
     return {
       entryPoint: `${packageBase}/${entryPoint || 'index.js'}`,
       bucket
-      //bucket: bucket || process.env.FS_DEFAULT_STORAGE_BUCKET
     }
   } catch (err) {
     throw err

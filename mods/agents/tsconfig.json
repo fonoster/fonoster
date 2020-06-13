@@ -6,12 +6,9 @@
   },
   "references": [
     { "path":  "../core" },
-    { "path":  "../voice" },
-    { "path":  "../tts" },
-    { "path":  "../logger" },
-    { "path":  "../numbers" },
-    { "path":  "../appmanager" }
-  ],
+    { "path":  "../types" },
+    { "path":  "../logger" }    
+  ],   
   "exclude": [
     "node_modules",
     "dist",

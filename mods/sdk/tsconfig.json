@@ -4,6 +4,14 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
+  "references": [
+    { "path":  "../storage" },
+    { "path":  "../appmanager" },
+    { "path":  "../providers" },
+    { "path":  "../numbers" },
+    { "path":  "../domains" },
+    { "path":  "../agents" }
+  ],  
   "exclude": [
     "node_modules",
     "dist",

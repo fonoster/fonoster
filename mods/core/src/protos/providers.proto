@@ -1,0 +1,78 @@
+/**
+ * MIT License
+ * Copyright (c) 2020 Fonoster Inc
+ *
+ * The Providers proto contains the artificats for the administration
+ * of Providers.
+ */
+syntax = "proto3";
+
+package fonos.providers.v1alpha1;
+
+import "common.proto";
+
+service Providers {
+  // Lists Providers from the SIP Proxy subsystem
+  rpc ListProviders (ListProvidersRequest) returns (ListProvidersResponse) {};
+  // Creates a new Provider resource.
+  rpc CreateProvider (CreateProviderRequest) returns (Provider) {};
+  // Gets Provider using its reference
+  rpc GetProvider (GetProviderRequest) returns (Provider) {};
+  // Change or update fields in a resource
+  rpc UpdateProvider (UpdateProviderRequest) returns (Provider) {};
+  // Hard delete of a Provider resource
+  rpc DeleteProvider (DeleteProviderRequest) returns (fonos.common.v1alpha1.Empty) {};
+}
+
+message ListProvidersRequest {
+  // The maximum provider of items to return.
+  int32 page_size = 1;
+
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 2;
+
+  // Level of detail of the individual entities
+  fonos.common.v1alpha1.View view = 3;
+}
+
+message ListProvidersResponse {
+  // There will be a maximum provider of items returned based on the page_size field
+  // in the request.
+  repeated Provider providers = 1;
+
+  // Token to retrieve the next page of results, or empty if there are no
+  // more results in the list.
+  string next_page_token = 2;
+}
+
+message CreateProviderRequest {
+  Provider provider = 1;
+}
+
+message UpdateProviderRequest {
+  Provider provider = 1;
+}
+
+message GetProviderRequest {
+  string ref = 1;
+}
+
+message GetIngressAppRequest {
+  string e164_provider = 1;
+}
+
+message DeleteProviderRequest {
+  string ref = 1;
+}
+
+message Provider {
+  string ref = 1;
+  string name = 2;
+  string username = 3;
+  string secret = 4;
+  string host = 5;
+  string transport = 6;
+  int32 expires = 7;
+  string create_time = 8;
+  string update_time = 9;
+}
