@@ -54,11 +54,6 @@ class Storage extends FonosService {
    */
   async uploadObject (request: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      logger.log(
-        'verbose',
-        `@fonos/storage uploadObject [request -> ${JSON.stringify(request)}]`
-      )
-
       // WARNING: I'm not happy with this. Seems inconsistent with the other
       // errors...
       // WARNING: There seems to be a bug with the validate method.
@@ -78,11 +73,7 @@ class Storage extends FonosService {
       }*/
 
       if (fs.lstatSync(request.filename).isDirectory()) {
-        logger.log(
-          'warn',
-          `@fonos/storage uploadObject [uploading directory is not supported]`
-        )
-        reject(new Error('Uploading a directory is not supported'))
+        reject('Uploading a directory is not supported')
         return
       }
 
@@ -101,11 +92,6 @@ class Storage extends FonosService {
           }
         })
 
-      logger.log(
-        'debug',
-        `@fonos/storage uploadObject [objectName -> ${objectName}]`
-      )
-
       readStream
         .on('data', chunk => {
           const uor = new StoragePB.UploadObjectRequest()
@@ -119,15 +105,8 @@ class Storage extends FonosService {
           }
           call.write(uor)
         })
-        .on('end', () => {
-          logger.log(
-            'debug',
-            `@fonos/storage upload complete [filename -> ${request.filename}]`
-          )
-          call.end()
-        })
+        .on('end', () => call.end())
         .on('error', (err: any) => {
-          logger.log('error', err)
           call.end()
         })
     }).catch(e => {
@@ -159,11 +138,6 @@ class Storage extends FonosService {
    */
   async getObjectURL (request: { name: string; bucket: string }): Promise<any> {
     return new Promise((resolve, reject) => {
-      logger.log(
-        'verbose',
-        `@fonos/storage getObjectURL [name: ${request.name} bucket: ${request.bucket}]`
-      )
-
       const gour = new StoragePB.GetObjectURLRequest()
       gour.setName(request.name)
       gour.setBucket(request.bucket)
@@ -172,10 +146,8 @@ class Storage extends FonosService {
         .getService()
         .getObjectURL(gour, super.getMeta(), (err: any, res: any) => {
           if (err) {
-            logger.log('error', err)
             reject(err)
           } else {
-            logger.log('debug', `@fonos/storage getObjectURL [url: ${res}]`)
             resolve(res.getUrl())
           }
         })
