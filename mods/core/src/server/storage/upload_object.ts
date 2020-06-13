@@ -17,61 +17,68 @@ const isCompressFile = (object: string) =>
   object.endsWith('.tar') ||
   object.endsWith('.tgz') ||
   object.endsWith('.tar.gz')
+const handleError = (err: { code: any; message: string }, bucket: string) => {
+  switch (err.code) {
+    case 'NoSuchBucket':
+      return new FonosFailedPrecondition(`${err.message} -> bucket: ${bucket}`)
+    case 'TAR_BAD_ARCHIVE':
+      return new FonosError(err.message, grpc.status.DATA_LOSS)
+    default:
+      return new FonosError(err.message, grpc.status.UNKNOWN)
+  }
+}
+
+const handleCompressUpload = async (
+  object: string,
+  bucket: string,
+  fileSize: number
+) => {
+  await extract(`/tmp/${object}`, `/tmp`)
+  const nameWithoutExt = object.split('.')[0]
+  await uploadToFS(bucket, `/tmp/${nameWithoutExt}`)
+  removeDirSync(`/tmp/${nameWithoutExt}`)
+  const response = new UploadObjectResponse()
+  response.setSize(fileSize)
+  return response
+}
+
+const handleUncompressUpload = async (
+  object: string,
+  bucket: string,
+  fileSize: number
+) => {
+  await uploadToFS(bucket, `/tmp/${object}`, object)
+  const response = new UploadObjectResponse()
+  response.setSize(fileSize)
+  return response
+}
 
 export default async function (call: any, callback: any) {
-  const tmpName = objectid()
-  const writeStream = fs.createWriteStream(`/tmp/${tmpName}`)
-  let object: string
-  let bucket: any
-  let metadata: any
+  const tmpName = objectid(),
+    writeStream = fs.createWriteStream(`/tmp/${tmpName}`)
+  let object: string, bucket: any, metadata: any
 
   call.on('error', (err: any) => logger.log('error', err))
   call.on('end', () => writeStream.end())
-
   call.on('data', (request: any) => {
-    object = request.getName()
-    bucket = request.getBucket()
-    metadata = mapToObj(request.getMetadataMap())
     const chunk = request.getChunks()
     writeStream.write(Buffer.alloc(chunk.length, chunk))
+    object = request.getName()
+    bucket = request.getBucket()
+    metadata = mapToObj(request.getMetadataMap()) // ??
   })
 
   writeStream.on('finish', async () => {
     try {
       const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`)
-      // Back to what it is supposed to be
       fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
-
-      // Unzip file if needed
-      if (isCompressFile(object)) {
-        await extract(`/tmp/${object}`, `/tmp`)
-        const nameWithoutExt = object.split('.')[0]
-        await uploadToFS(bucket, `/tmp/${nameWithoutExt}`)
-        removeDirSync(`/tmp/${nameWithoutExt}`)
-        const response = new UploadObjectResponse()
-        response.setSize(fileSize)
-        callback(null, response)
-      } else {
-        // Upload to fs
-        await uploadToFS(bucket, `/tmp/${object}`, object)
-        const response = new UploadObjectResponse()
-        response.setSize(fileSize)
-        callback(null, response)
-      }
+      const response = isCompressFile(object)
+        ? handleCompressUpload(object, bucket, fileSize)
+        : handleUncompressUpload(object, bucket, fileSize)
+      callback(null, response)
       fs.unlinkSync(`/tmp/${object}`)
     } catch (err) {
-      switch (err.code) {
-        case 'NoSuchBucket':
-          callback(
-            new FonosFailedPrecondition(`${err.message} -> bucket: ${bucket}`)
-          )
-          break
-        case 'TAR_BAD_ARCHIVE':
-          callback(new FonosError(err.message, grpc.status.DATA_LOSS))
-          break
-        default:
-          callback(new FonosError(err.message, grpc.status.UNKNOWN))
-      }
+      callback(handleError(err, bucket))
     }
   })
 }
