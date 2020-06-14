@@ -5,8 +5,8 @@
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/certs",
-  "types": "dist/certs",
+  "main": "dist/dispatcher",
+  "types": "dist/dispatcher",
   "scripts": {
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
@@ -35,6 +35,7 @@
     "@fonos/numbers": "^0.0.2",
     "@fonos/storage": "^0.0.2",
     "@fonos/tts": "^0.0.2",
+    "@fonos/marytts": "^0.0.2",
     "@fonos/voice": "^0.0.2",
     "@fonos/logger": "^0.0.2",
     "agi-node": "github:psanders/agi-node",

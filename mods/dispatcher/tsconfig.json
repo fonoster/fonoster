@@ -8,6 +8,7 @@
     { "path":  "../core" },
     { "path":  "../voice" },
     { "path":  "../tts" },
+    { "path":  "../marytts" },
     { "path":  "../logger" },
     { "path":  "../numbers" },
     { "path":  "../appmanager" }

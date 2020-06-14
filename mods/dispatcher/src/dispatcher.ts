@@ -1,54 +1,30 @@
-const { logger, updateBucketPolicy } = require('@fonos/core')
-const { Storage } = require('@fonos/storage')
+import logger from '@fonos/logger'
+import  Storage from '@fonos/storage'
+import MaryTTS from '@fonos/marytts'
+import Verbs from '@fonos/voice'
+import getIngressInfo from './utils'
+import fs from 'fs'
+import path from 'path'
+import { NodeVM } from 'vm2'
 const { AGIServer } = require('agi-node')
-const { MaryTTS } = require('@fonos/tts')
-const { Verbs } = require('@fonos/voice')
-const { NodeVM } = require('vm2')
-const { getIngressInfo } = require('./utils')
-const fs = require('fs')
-const path = require('path')
-const dotenv = require('dotenv')
 const vm = new NodeVM(require('../etc/vm.json'))
+const SERVICE_PORT = process.env.AGI_PORT || 4573
 
 if (process.env.NODE_ENV === 'dev') {
   const env = path.join(__dirname, '..', '..', '..', '.env')
   require('dotenv').config({ path: env })
 }
 
-function dispatch (channel: { request: { extension: any } }) {
+function dispatch (channel: any) {
   try {
-    logger.log('verbose', `@fonos/dispatcher dispatch [entering]`)
-    logger.log(
-      'debug',
-      `@fonos/dispatcher dispatch [extension: ${channel.request.extension}]`
-    )
-
     const ingressInfo = getIngressInfo(channel.request.extension)
-    logger.log(
-      'silly',
-      `@fonos/dispatcher dispatch [appConfig: ${JSON.stringify(ingressInfo)}]`
-    )
-
     const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
-    logger.log('silly', `@fonos/dispatcher dispatch [contents: ${contents}]`)
-
     const chann = new Verbs(channel, {
       tts: new MaryTTS(),
       storage: new Storage({ bucket: ingressInfo.bucket }),
       bucket: ingressInfo.bucket
     })
-
-    logger.log('verbose', `@fonos/dispatcher dispatch [running app]`)
-
     vm.run(contents, ingressInfo.entryPoint)(chann)
-
-    logger.log(
-      'debug',
-      `@fonos/dispatcher dispatch [cdr: ${JSON.stringify(
-        chann.getCallDetailRecord()
-      )}]`
-    )
-    logger.log('verbose', `@fonos/dispatcher dispatch [leaving]`)
   } catch (err) {
     logger.log('error', err.message)
   }
@@ -56,7 +32,7 @@ function dispatch (channel: { request: { extension: any } }) {
 
 logger.log(
   'info',
-  `Fonos Media Controller is online @ ${process.env.AGI_PORT || 4573}`
+  `Fonos Media Controller is online @ ${SERVICE_PORT}`
 )
 
-new AGIServer(dispatch, process.env.AGI_PORT || 4573)
+new AGIServer(dispatch, SERVICE_PORT)
