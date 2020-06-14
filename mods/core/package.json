@@ -52,6 +52,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "@types/btoa": "^1.2.3",
     "@types/ioredis": "^4.16.5",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/minio": "^7.0.5",
