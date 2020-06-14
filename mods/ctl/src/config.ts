@@ -1,0 +1,1 @@
+//require('@fonos/logger').mute()

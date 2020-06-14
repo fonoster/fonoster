@@ -1,11 +1,10 @@
-import logger from '@fonos/logger'
+import Storage from '@fonos/storage'
+import { FonosService, AppManagerService, AppManagerPB } from '@fonos/core'
+import { App } from '@fonos/core/src/server/protos/appmanager_pb'
+import { View } from '@fonos/core/src/server/protos/common_pb'
 import fs from 'fs-extra'
 import path from 'path'
 import tar from 'tar'
-import { FonosService, AppManagerService, AppManagerPB } from '@fonos/core'
-import { App } from '@fonos/core/src/server/protos/appmanager_pb'
-import Storage from '@fonos/storage'
-import { View } from '@fonos/core/src/server/protos/common_pb'
 
 const STATUS = {
   UNKNOWN: 0,
@@ -30,7 +29,7 @@ const STATUS = {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class AppManager extends FonosService {
+export default class AppManager extends FonosService {
   storage: Storage
   /**
    * Application object
@@ -49,7 +48,7 @@ class AppManager extends FonosService {
    *
    * @see module:core:FonosService
    */
-  constructor (options: any) {
+  constructor (options?: any) {
     super(AppManagerService.AppManagerClient, options)
     super.init()
     this.storage = new Storage(super.getOptions())
@@ -242,5 +241,3 @@ class AppManager extends FonosService {
     return STATUS
   }
 }
-
-export default AppManager

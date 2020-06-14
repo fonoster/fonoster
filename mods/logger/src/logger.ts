@@ -35,6 +35,8 @@ logger.on('finish', () => {
   fluent.sender.end('end', {}, () => {})
 })
 
+const mute = () => logger.transports.forEach((t:any) => (t.silent = true))
+
 // WARNING: Using logger.end() causes an exception (Error: write after end)
 
-export { logger as default }
+export { logger as default, mute }

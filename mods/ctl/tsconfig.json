@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "references": [
+    { "path":  "../agents" },
+    { "path":  "../appmanager" },
+    { "path":  "../domains" },
+    { "path":  "../numbers" },
+    { "path":  "../providers" },
+    { "path":  "../logger" }
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test"
+  ]
+}

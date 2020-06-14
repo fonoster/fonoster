@@ -1,0 +1,8 @@
+{
+  "name": "{{ lowerCase pckgName }}",
+  "version": "{{ lowerCase pckgVersion }}",
+  "private": true,
+  "description": "{{ pckgDesc }}",
+  "author": "{{ author }}",
+  "license": "{{ license }}"
+}
