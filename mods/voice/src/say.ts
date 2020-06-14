@@ -35,21 +35,22 @@ class Say extends Verb {
     if (!text) throw new Error('You must provide a text.')
     const filename = 't_' + computeFilename(text, options)
 
+    let url
     try {
-      let url = this.config.storage.getObjectURLSync({
+      url = this.config.storage.getObjectURLSync({
         name: filename,
         bucket: this.config.bucket
       })
-
-      if (!url) url = this.synth(text, filename, options)
-
-      return new Play(this.config, this.channel).run(url, options)
     } catch (e) {
       logger.log(
         'silly',
-        `@fonos/vouice.YapsWrapperChannel.say [no url found for file ${filename}]`
+        `@fonos/voice.YapsWrapperChannel.say [no url found for file ${filename}]`
       )
     }
+
+    if (!url) url = this.synth(text, filename, options)
+
+    return new Play(this.channel, this.config).run(url, options)
   }
 }
 

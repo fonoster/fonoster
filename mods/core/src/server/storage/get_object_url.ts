@@ -17,6 +17,7 @@ export default async function (bucket: string, name: string): Promise<string> {
           grpc.status.NOT_FOUND
         )
         reject(fonosError)
+        return
       }
       resolve(
         `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${bucket}/${name}`

@@ -24,7 +24,7 @@ class Record extends Verb {
     super(channel)
   }
 
-  run (callDetailRecord: any, options?: RecordOptions) {
+  run (callDetailRecord: any, options: RecordOptions = {}) {
     let {
       beep = true,
       maxDuration = 3600,

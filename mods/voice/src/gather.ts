@@ -44,7 +44,7 @@ class Gather extends Verb {
     validateHasMaxDigitsOrTimeout(options)
   }
 
-  run (initDigits?: string, options?: GatherOptions): string {
+  run (initDigits?: string, options: GatherOptions = {}): string {
     let {
       maxDigits = 1,
       timeout = 4000,

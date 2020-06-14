@@ -15,11 +15,11 @@ const validate = (file: string, options: PlayOptions) => {
 }
 
 class Play extends Verb {
-  constructor (config: any, channel: any) {
-    super(config, channel)
+  constructor (channel: any, config: any) {
+    super(channel, config)
   }
 
-  run (file: string, options?: PlayOptions) {
+  run (file: string, options: PlayOptions = {}) {
     const { finishOnKey = '#' } = options
     validate(file, options)
 

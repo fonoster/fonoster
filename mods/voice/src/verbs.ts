@@ -110,7 +110,7 @@ class Verbs {
    *
    * const result = chan.play('tts-monkeys', options)
    */
-  play (file: string, options: PlayOptions = {}): string {
+  play (file: string, options?: PlayOptions): string {
     return new Play(this.channel, this._config).run(file, options)
   }
 
@@ -165,7 +165,7 @@ class Verbs {
    *
    * const result = chan.gather(chan.say('this is an audio sample'), options)
    */
-  gather (initDigits: string, options: GatherOptions = {}): string {
+  gather (initDigits: string, options?: GatherOptions): string {
     return new Gather(this.channel).run(initDigits, options)
   }
 
@@ -198,7 +198,7 @@ class Verbs {
    *
    * const result = chan.record(options)
    */
-  record (options: RecordOptions = {}): any {
+  record (options?: RecordOptions): any {
     return new Record(this.channel).run(this.callDetailRecord, options)
   }
 
