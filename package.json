@@ -3,12 +3,14 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap --no-ci",
-    "test": "NODE_ENV=dev mocha -r ts-node/register mods/**/*.unit.test.ts",
+    "test": "export NODE_ENV=dev mocha -r ts-node/register mods/**/*.unit.test.ts",
     "build": "lerna run build",
     "clean": "rm -rf **/*/tsconfig.tsbuildinfo && rm -rf **/*/dist && rm -rf **/*/dist && rm -rf **/*/node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
-    "start": "NODE_ENV=dev && nodemon mods/core/dist/server/server"
+    "run-apiserver": "export NODE_ENV=dev && node mods/core/dist/server/server",
+    "run-mediacontroller": "export NODE_ENV=dev && node mods/dispatcher/dist/dispatcher"
   },
+  "main": "docs",
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/chai-as-promised": "^7.1.2",
@@ -18,6 +20,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.2",
+    "dedent": "^0.7.0",
     "grpc_tools_node_protoc_ts": "^4.0.0",
     "husky": "^4.2.5",
     "jsdoc-to-markdown": "^6.0.1",
@@ -42,7 +45,6 @@
     }
   },
   "dependencies": {
-    "dedent": "^0.7.0",
     "google-protobuf": "^3.12.2",
     "nodemon": "^2.0.4"
   }
