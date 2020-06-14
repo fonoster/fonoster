@@ -35,7 +35,7 @@ export default function (extension: string) {
 
     return {
       entryPoint: `${packageBase}/${entryPoint || 'index.js'}`,
-      bucket
+      bucket: bucket || appName
     }
   } catch (err) {
     throw err
