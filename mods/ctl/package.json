@@ -94,6 +94,7 @@
     "truncate": "^2.1.0"
   },
   "devDependencies": {
+    "@types/prettyjson": "0.0.29",
     "dotenv": "^8.2.0",
     "typescript": "^3.9.3"
   }
