@@ -1,51 +1,36 @@
-import {
-  FonosAuthError,
-  FonosInvalidArgument,
-  FonosFailedPrecondition
-} from '@fonos/errors'
+import { FonosInvalidArgument, FonosFailedPrecondition } from '@fonos/errors'
+import { Number } from '../protos/numbers_pb'
 import routr from '../../common/routr'
 import redis from '../../common/redis'
-import logger from '@fonos/logger'
 import { REncoder, Kind } from '../../common/resource_encoder'
-import { auth } from '../../common/trust_util'
+import numberDecoder from '../../common/decoders/number_decoder'
 
-export default async function createNumber (call: any, callback: any) {
-  if (!auth(call)) return callback(new FonosAuthError())
-
-  const number = call.request.getNumber()
-
-  logger.info(
-    'verbose',
-    `@fonos/core createNumber [entity ${number.getE164Number()}]`
-  )
-
+const validateNumber = (number: Number) => {
   if (!number.getE164Number()) {
-    callback(
-      new FonosInvalidArgument(`e164Number field must be a valid e164 value.`)
+    throw new FonosInvalidArgument(
+      `e164Number field must be a valid e164 value.`
     )
-    return
   }
 
   if (number.getAorLink() && number.getIngressApp()) {
-    callback(
-      new FonosInvalidArgument(
-        `'ingressApp' and 'aorLink' are not compatible parameters`
-      )
+    throw new FonosInvalidArgument(
+      `'ingressApp' and 'aorLink' are not compatible parameters`
     )
-    return
   } else if (!number.getAorLink() && !number.getIngressApp()) {
-    callback(
-      new FonosInvalidArgument(
-        `You must provider either an 'ingressApp' or and 'aorLink'`
-      )
+    throw new FonosInvalidArgument(
+      `You must provider either an 'ingressApp' or and 'aorLink'`
     )
-    return
   }
+}
+
+export default async function createNumber (number: Number): Promise<Number> {
+  validateNumber(number)
+
+  console.log(JSON.stringify(number.toObject()))
 
   let encoder = new REncoder(
     Kind.NUMBER,
-    number.getE164Number(),
-    number.getRef()
+    number.getE164Number()
   ).withGatewayRef(number.getProviderRef())
 
   if (number.getAorLink()) {
@@ -62,11 +47,6 @@ export default async function createNumber (call: any, callback: any) {
 
   const resource = encoder.build()
 
-  logger.log(
-    'debug',
-    `@fonos/core createNumber [resource: ${JSON.stringify(resource)}]`
-  )
-
   try {
     await routr.connect()
 
@@ -75,7 +55,7 @@ export default async function createNumber (call: any, callback: any) {
 
       if (!app)
         throw new FonosFailedPrecondition(
-          `App ${number.ingressApp} doesn't exist`
+          `App ${number.getIngressApp()} doesn't exist`
         )
 
       await redis.set(
@@ -84,11 +64,11 @@ export default async function createNumber (call: any, callback: any) {
       )
     }
 
-    //const ref = await routr.resourceType('numbers').create(resource)
+    const ref = await routr.resourceType('numbers').create(resource)
     // We do this to get updated metadata from Routr
-    //const jsonObj = await routr.resourceType('numbers').get(ref)
-    //callback(null, numberDecoder(jsonObj))
+    const jsonObj = await routr.resourceType('numbers').get(ref)
+    return numberDecoder(jsonObj)
   } catch (err) {
-    return callback(err)
+    throw err
   }
 }

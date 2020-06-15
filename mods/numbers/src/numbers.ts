@@ -49,7 +49,7 @@ export default class Numbers extends FonosService {
    * @param {string} request.ingress_app - An Application where ingress calls
    * will be directed to
    * @note You can only provider an aorLink or an ingressApp but no both
-   * @return {Promise<Object>}
+   * @return {Promise<Number>}
    * @example
    *
    * const request = {
@@ -68,7 +68,7 @@ export default class Numbers extends FonosService {
     e164Number: any
     ingressApp: any
     aorLink: any
-  }) {
+  }): Promise<Number> {
     const number = new Number()
     number.setProviderRef(request.providerRef)
     number.setE164Number(request.e164Number)
@@ -88,7 +88,7 @@ export default class Numbers extends FonosService {
    * Retrives a Number by its reference.
    *
    * @param {string} ref - Reference to Number
-   * @return {Promise<Object>} The number
+   * @return {Promise<Number>} The number
    * @throws if ref is null or Number does not exist
    * @example
    *
@@ -97,7 +97,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)             // returns the Number object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getNumber (ref: string) {
+  async getNumber (ref: string): Promise<Number> {
     const request = new NumbersPB.GetNumberRequest()
     request.setRef(ref)
     return this.service.getNumber().sendMessage(request)
@@ -112,7 +112,7 @@ export default class Numbers extends FonosService {
    * @param {string} request.ingress_app - An Application where ingress calls
    * will be directed to
    * @note You can only provider an aorLink or an ingressApp but no both
-   * @return {Promise<Object>}
+   * @return {Promise<Number>}
    * @example
    *
    * const request = {
@@ -125,7 +125,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Number from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateNumber (request: { ref: any; aorLink: any; ingressApp: any }) {
+  async updateNumber (request: any): Promise<Number> {
     const numberFromDB = await this.getNumber(request.ref)
 
     if (request.aorLink && request.ingressApp) {
@@ -159,7 +159,7 @@ export default class Numbers extends FonosService {
    * (defaults to 20)
    * @param {string} request.pageToken - The next_page_token value returned from
    * a previous List request, if any
-   * @return {Promise<ListNumbersResponse>} List of Numbers
+   * @return {Promise<Number>} List of Numbers
    * @example
    *
    * const request = {
@@ -172,7 +172,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns a ListNumbersResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listNumbers (request: { pageSize: any; pageToken: any; view: any }) {
+  async listNumbers (request: any): Promise<Number> {
     const r = new NumbersPB.ListNumbersRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)
