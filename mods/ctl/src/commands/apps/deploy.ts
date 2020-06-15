@@ -1,9 +1,10 @@
 require('../../config')
 import AppManager from '@fonos/appmanager'
-import prettyjson from 'prettyjson'
 import { CLIError } from '@oclif/errors'
 import { cli } from 'cli-ux'
 import { Command } from '@oclif/command'
+
+const prettyjson = require('prettyjson')
 
 export default class DeployCommand extends Command {
   static description = `deploys application to a Fonos instance
@@ -13,15 +14,10 @@ export default class DeployCommand extends Command {
 
   async run () {
     try {
-      console.log('DBG000')
       cli.action.start('Deploying application')
-      console.log('DBG001')
       const appmanager = new AppManager()
-      console.log('DBG002')
       const app = await appmanager.deployApp(process.cwd())
-      console.log('DBG003')
       await cli.wait(1000)
-      console.log('DBG004')
       cli.action.stop('')
 
       const appJson = {
