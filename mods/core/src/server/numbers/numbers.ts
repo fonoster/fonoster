@@ -1,5 +1,4 @@
 import grpc from 'grpc'
-import { FonosAuthError } from '@fonos/errors'
 import listNumbers from './list_numbers'
 import createNumber from './create_number'
 import getNumber from './get_number'
@@ -17,7 +16,6 @@ import {
   GetIngressAppRequest
 } from '../protos/numbers_pb'
 import { Empty } from '../protos/common_pb'
-import { auth } from '../../common/trust_util'
 import {
   INumbersService,
   NumbersService,

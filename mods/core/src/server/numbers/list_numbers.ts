@@ -1,3 +1,9 @@
+import { FonosAuthError } from '@fonos/errors'
+import routr from '../../common/routr'
+import { auth } from '../../common/trust_util'
+import { ListNumbersResponse } from '../protos/numbers_pb'
+import numberDecoder from '../../common/decoders/number_decoder'
+
 export default async function listNumbers (call: any, callback: any) {
   if (!auth(call)) return callback(new FonosAuthError())
 

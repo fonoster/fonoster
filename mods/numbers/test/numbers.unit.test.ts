@@ -1,16 +1,13 @@
-import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
-import Storage from '../src/storage'
+import Numbers from '../src/numbers'
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
-import Fiber from 'fibers'
 
 const expect = chai.expect
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
-const sandbox = sinon.createSandbox()
 
 if (process.env.NODE_ENV === 'dev') {
   require('dotenv').config({ path: join(__dirname, '..', '..', '.env') })
@@ -26,123 +23,79 @@ describe('Numbers Service', () => {
     })
   })
 
-  it.skip('Create number missing provider reference', done => {
-    numbers
-      .createNumber({
+  it.only('fails because provider does not exist', () => {
+    expect(
+      numbers.createNumber({
         e164Number: '0000000000',
         ingressApp: 'hello-monkeys'
       })
-      .then(r => done('not good'))
-      .catch(err => {
-        assert.ok(err.message.includes('FAILED_PRECONDITION'))
-        done()
-      })
+    ).to.be.rejectedWith('FAILED_PRECONDITION')
   })
 
-  it.skip('Create number missing provider reference', done => {
-    numbers
-      .createNumber({
+  it('fails because provider ref is invalid', () => {
+    expect(
+      numbers.createNumber({
         providerRef: 'bad_reference',
         e164Number: '0000000000',
         ingressApp: 'hello-monkeys'
       })
-      .then(r => done('not good'))
-      .catch(err => {
-        assert.ok(err.message.includes('FAILED_PRECONDITION'))
-        done()
-      })
+    ).to.be.rejectedWith('FAILED_PRECONDITION')
   })
 
-  it.skip('Create number', done => {
-    numbers
-      .createNumber({
-        providerRef: '5e7fc0caa0484e0d669cb783',
-        e164Number: '0000000000',
-        ingressApp: 'hello-monkeys'
-      })
-      .then(number => {
-        numberRef = number.getRef()
-        assert.ok(number.getE164Number() === '0000000000')
-        done()
-      })
-      .catch(e => {
-        done(e)
-      })
+  it('creates a number for the given provider', async () => {
+    const number = numbers.createNumber({
+      providerRef: '5e7fc0caa0484e0d669cb783',
+      e164Number: '0000000000',
+      ingressApp: 'hello-monkeys'
+    })
+    expect(number.getRef()).to.be.equal('5e7fc0caa0484e0d669cb783')
+    expect(number.getE164Number()).to.be.equal('0000000000')
   })
 
-  it.skip('Get ingress app', done => {
-    numbers
-      .getIngressApp({ e164Number: '0000000000' })
-      .then(app => {
-        assert.ok(app.getName() === 'hello-monkeys')
-        done()
-      })
-      .catch(e => done(e))
+  it('returns ingress app', async () => {
+    const app = await numbers.getIngressApp({ e164Number: '0000000000' })
+    expect(app.getName()).to.be.equal('hello-monkeys')
   })
 
-  it.skip('Number already exist', done => {
-    numbers
-      .createNumber({
+  it('rejects request because number already exist', () => {
+    expect(
+      numbers.createNumber({
         providerRef: '5e7f86e3a0484e0615c36f09',
         e164Number: '+17853178070',
         ingressApp: 'hello-monkeys'
       })
-      .then(r => done('not good'))
-      .catch(err => {
-        assert.ok(err.message.includes('FAILED_PRECONDITION'))
-        done()
-      })
+    ).to.be.rejected('FAILED_PRECONDITION')
   })
 
-  it.skip('List numbers', done => {
-    numbers
-      .listNumbers({ pageSize: 10, pageToken: '0', view: 0 })
-      .then(result => {
-        assert.ok(result.getNumbersList().length > 0)
-        done()
-      })
-      .catch(err => done(err))
+  it('list all the numbers', () => {
+    const result = numbers.listNumbers({
+      pageSize: 10,
+      pageToken: '0',
+      view: 0
+    })
+    expect(result.getNumbersList()).to.be.greaterThan(0)
   })
 
-  it.skip('Get number by reference', done => {
-    numbers
-      .getNumber(numberRef)
-      .then(number => {
-        assert.ok(number.getRef() === numberRef)
-        done()
-      })
-      .catch(err => done(err))
+  it('gets a number by its reference', async () => {
+    const number = await numbers.getNumber(numberRef)
+    expect(number.getRef()).to.be.equal(numberRef)
   })
 
-  it.skip('Update number perfect case...', done => {
+  it('updates number', async () => {
     const number = {
       ref: numberRef,
       aorLink: 'sip:1001@sip.local'
     }
 
-    numbers
-      .updateNumber(number)
-      .then(numberFromDB => {
-        assert.ok(number.ref === numberFromDB.getRef())
-        done()
-      })
-      .catch(err => done(err))
+    const numberFromDB = await numbers.updateNumber(number)
+    expect(number.ref).to.be.equal(numberFromDB.getRef())
   })
 
-  it.skip('Delete number', done => {
-    numbers
-      .deleteNumber(numberRef)
-      .then(() => done())
-      .catch(err => done(err))
+  it('deletes number', () => {
+    numbers.deleteNumber(numberRef)
   })
 
-  it.skip('Number reference does not exist', done => {
-    numbers
-      .deleteNumber('1234')
-      .then(() => done('not good'))
-      .catch(err => {
-        assert.ok(err.message.includes('NOT_FOUND'))
-        done()
-      })
+  it('rejects request because number does not exist', () => {
+    expect(numbers.deleteNumber('1234')).to.be.rejectedWith('NOT_FOUND')
   })
 })
