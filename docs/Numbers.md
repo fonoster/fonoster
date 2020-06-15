@@ -11,10 +11,10 @@ running Fonos deployment.
 
 * [Numbers](#Numbers) ⇐ <code>FonosService</code>
     * [new Numbers()](#new_Numbers_new)
-    * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;Object&gt;</code>
-    * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;Object&gt;</code>
-    * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;Object&gt;</code>
-    * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
+    * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;Number&gt;</code>
+    * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;Number&gt;</code>
+    * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;Number&gt;</code>
+    * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;Number&gt;</code>
     * [.deleteNumber(ref)](#Numbers+deleteNumber)
     * [.getIngressApp(request)](#Numbers+getIngressApp) ⇒ <code>Promise.&lt;Object&gt;</code>
 
@@ -41,7 +41,7 @@ numbers.createNumber(request)
 ```
 <a name="Numbers+createNumber"></a>
 
-### numbers.createNumber(request) ⇒ <code>Promise.&lt;Object&gt;</code>
+### numbers.createNumber(request) ⇒ <code>Promise.&lt;Number&gt;</code>
 Creates a new Number on the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
@@ -70,11 +70,11 @@ numbers.createNumber(request)
 ```
 <a name="Numbers+getNumber"></a>
 
-### numbers.getNumber(ref) ⇒ <code>Promise.&lt;Object&gt;</code>
+### numbers.getNumber(ref) ⇒ <code>Promise.&lt;Number&gt;</code>
 Retrives a Number by its reference.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Returns**: <code>Promise.&lt;Object&gt;</code> - The number  
+**Returns**: <code>Promise.&lt;Number&gt;</code> - The number  
 **Throws**:
 
 - if ref is null or Number does not exist
@@ -93,7 +93,7 @@ numbers.getNumber(ref)
 ```
 <a name="Numbers+updateNumber"></a>
 
-### numbers.updateNumber(request) ⇒ <code>Promise.&lt;Object&gt;</code>
+### numbers.updateNumber(request) ⇒ <code>Promise.&lt;Number&gt;</code>
 Update a Number at the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
@@ -119,11 +119,11 @@ numbers.updateNumber(request)
 ```
 <a name="Numbers+listNumbers"></a>
 
-### numbers.listNumbers(request) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
+### numbers.listNumbers(request) ⇒ <code>Promise.&lt;Number&gt;</code>
 List the Numbers registered in Fonos SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Returns**: <code>Promise.&lt;ListNumbersResponse&gt;</code> - List of Numbers  
+**Returns**: <code>Promise.&lt;Number&gt;</code> - List of Numbers  
 
 | Param | Type | Description |
 | --- | --- | --- |

@@ -1,5 +1,5 @@
 enum Kind {
-  AGENT= 'Agent',
+  AGENT = 'Agent',
   GATEWAY = 'Gateway',
   PEER = 'Peer',
   DOMAIN = 'Domain',
@@ -16,8 +16,7 @@ class REncoder {
   apiVersion: string
   metadata: { name: string; ref: string; gwRef?: string }
   spec: {
-    context?:
-    { 
+    context?: {
       domainUri?: string
       egressPolicy?: {
         rule: string
@@ -43,7 +42,12 @@ class REncoder {
     domains?: string[]
   }
 
-  constructor (kind: Kind, name: string, ref: string, apiVersion?: 'v1beta1') {
+  constructor (
+    kind: Kind,
+    name: string,
+    ref?: string,
+    apiVersion: string = 'v1beta1'
+  ) {
     this.kind = kind
     this.apiVersion = apiVersion
     this.metadata = {
@@ -173,9 +177,4 @@ class REncoder {
   }
 }
 
-export {
-  REncoder,
-  Kind,
-  Privacy
-}
-
+export { REncoder, Kind, Privacy }

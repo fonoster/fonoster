@@ -8,7 +8,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
  * Oversimplified version of a Routr API Client
  */
 class RoutrClient {
-
   apiUrl: string
   username: string
   secret: string
@@ -16,17 +15,13 @@ class RoutrClient {
   resource: string
 
   constructor (apiUrl: string, username: string, secret: string) {
-    logger.log('debug', `@fonos/core RoutrClient [creating instance]`)
-    logger.log('debug', `@fonos/core RoutrClient [apiUrl: ${apiUrl}]`)
     this.apiUrl = apiUrl
     this.username = username
     this.secret = secret
   }
 
   async connect () {
-    logger.log('debug', `@fonos/core RoutrClient [connecting]`)
     this.token = await this.getToken(this.username, this.secret)
-    logger.log('debug', `@fonos/core RoutrClient [token: ${this.token}]`)
   }
 
   resourceType (resource: string) {
@@ -34,7 +29,7 @@ class RoutrClient {
     return this
   }
 
-  private async getToken (username:string, password: string) {
+  private async getToken (username: string, password: string) {
     try {
       const response = await axios
         .create({
@@ -62,10 +57,10 @@ class RoutrClient {
   }
 
   async get (ref: string) {
-    ref = ref ? `/${ref}` : ''
+    const ep = `/${ref}`
     try {
       const response = await axios.get(
-        `${this.apiUrl}/${this.resource}${ref}?token=${this.token}`
+        `${this.apiUrl}/${this.resource}${ep}?token=${this.token}`
       )
       return response.data.data
     } catch (err) {
@@ -74,17 +69,17 @@ class RoutrClient {
   }
 
   async delete (ref: string) {
-    ref = ref ? `/${ref}` : ''
+    const ep = `/${ref}`
     try {
-      return await axios.delete(
-        `${this.apiUrl}/${this.resource}${ref}?token=${this.token}`
+      await axios.delete(
+        `${this.apiUrl}/${this.resource}${ep}?token=${this.token}`
       )
     } catch (err) {
       handleError(err)
     }
   }
 
-  async create (data: string) {
+  async create (data: any) {
     try {
       const response = await axios.post(
         `${this.apiUrl}/${this.resource}?token=${this.token}`,
