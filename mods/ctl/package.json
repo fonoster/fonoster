@@ -24,7 +24,8 @@
   },
   "directories": {
     "src": "src",
-    "test": "test"
+    "test": "test",
+    "bin": "bin"
   },
   "files": [
     "/bin",
@@ -82,18 +83,18 @@
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",
     "@oclif/plugin-help": "^2.2.3",
+    "tslib": "^1",
     "cli-ux": "^5.4.5",
-    "dotenv": "^8.2.0",
     "easy-table": "^1.1.1",
     "inquirer": "^7.1.0",
     "moment": "^2.24.0",
     "node-plop": "^0.25.0",
     "ora": "^4.0.3",
     "prettyjson": "^1.2.1",
-    "truncate": "^2.1.0",
-    "typescript": "^3.9.3"
+    "truncate": "^2.1.0"
   },
   "devDependencies": {
-    "@types/prettyjson": "0.0.29"
+    "dotenv": "^8.2.0",
+    "typescript": "^3.9.3"
   }
 }
