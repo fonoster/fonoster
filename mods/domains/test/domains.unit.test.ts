@@ -1,4 +1,4 @@
-import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
+/*import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
 import Storage from '../src/storage'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -22,7 +22,7 @@ describe('Domains Service', () => {
 
   before(() => {
     domains = new Domains({
-      endpoint: `${process.env.APISERVER_ADDR}`
+      endpoint: `${process.env.APISERVER_ENDPOINT}`
     })
   })
 
@@ -123,3 +123,4 @@ describe('Domains Service', () => {
       })
   })
 })
+*/

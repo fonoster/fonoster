@@ -1,11 +1,9 @@
-import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
-import Storage from '../src/storage'
+/*
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
-import Fiber from 'fibers'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -22,7 +20,7 @@ describe('Providers Service', () => {
 
   before(() => {
     providers = new Providers({
-      endpoint: `${process.env.APISERVER_ADDR}`
+      endpoint: `${process.env.APISERVER_ENDPOINT}`
     })
   })
 
@@ -133,3 +131,4 @@ describe('Providers Service', () => {
       })
   })
 })
+*/
