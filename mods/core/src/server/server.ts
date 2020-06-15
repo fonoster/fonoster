@@ -8,6 +8,11 @@ import StorageServer, {
 import AppManagerServer, { AppManagerService } from './appmanager/appmanager'
 import { IAppManagerServer } from './protos/appmanager_grpc_pb'
 import createAccessFile, { accessExist } from '@fonos/certs'
+import NumbersServer, {
+  NumbersService,
+  INumbersServer
+} from './numbers/numbers'
+import {} from './protos/numbers_grpc_pb'
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
   const env = path.join(__dirname, '..', '..', '..', '..', '.env')
@@ -22,6 +27,7 @@ async function main () {
 
   const server = new grpc.Server()
   const endpoint = process.env.BINDADDR || '0.0.0.0:50052'
+  server.addService<INumbersServer>(NumbersService, new NumbersServer())
   server.addService<IStorageServer>(StorageService, new StorageServer())
   server.addService<IAppManagerServer>(
     AppManagerService,

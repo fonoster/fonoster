@@ -1,3 +1,1 @@
-import Numbers from './numbers'
-
-export default Numbers
+export * from './numbers'

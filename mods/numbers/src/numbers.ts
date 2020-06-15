@@ -24,7 +24,7 @@ import { App } from '@fonos/core/src/server/protos/appmanager_pb'
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Numbers extends FonosService {
+export default class Numbers extends FonosService {
   /**
    * Constructs a new Numbers object.
    *
@@ -248,5 +248,3 @@ class Numbers extends FonosService {
     return result
   }
 }
-
-export default Numbers
