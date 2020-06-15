@@ -1,1 +1,2 @@
-//require('@fonos/logger').mute()
+import { mute } from '@fonos/logger'
+mute()
