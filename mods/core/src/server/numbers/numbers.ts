@@ -1,8 +1,5 @@
 import grpc from 'grpc'
-import listNumbers from './list_numbers'
 import createNumber from './create_number'
-import getNumber from './get_number'
-import deleteNumber from './delete_number'
 import updateNumber from './update_number'
 import getIngressApp from './get_ingress_app'
 import {
@@ -22,20 +19,38 @@ import {
   INumbersServer
 } from '../protos/numbers_grpc_pb'
 import { App } from '../protos/appmanager_pb'
+import { auth } from '../../common/trust_util'
+import { FonosAuthError } from '@fonos/errors'
+import getResource from '../resources/get_resource'
+import listResources from '../resources/list_resources'
+import { Kind } from '../../common/resource_encoder'
+import numberDecoder from '../../common/decoders/number_decoder'
+import deleteResource from '../resources/delete_resource'
 
 class NumbersServer implements INumbersServer {
   async listNumbers (
     call: grpc.ServerUnaryCall<ListNumbersRequest>,
     callback: grpc.sendUnaryData<ListNumbersResponse>
   ) {
-    listNumbers(call, callback)
+    if (!auth(call)) return callback(new FonosAuthError(), null)
+    const r: any = await listResources(
+      parseInt(call.request.getPageToken()),
+      call.request.getPageSize(),
+      numberDecoder
+    )
+    callback(null, r)
   }
 
   async createNumber (
     call: grpc.ServerUnaryCall<CreateNumberRequest>,
     callback: grpc.sendUnaryData<Number>
   ) {
-    createNumber(call, callback)
+    if (!auth(call)) return callback(new FonosAuthError(), null)
+    try {
+      callback(null, await createNumber(call.request.getNumber()))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async updateNumber (
@@ -56,14 +71,18 @@ class NumbersServer implements INumbersServer {
     call: grpc.ServerUnaryCall<GetNumberRequest>,
     callback: grpc.sendUnaryData<Number>
   ) {
-    getNumber(call, callback)
+    callback(
+      null,
+      await getResource(call.request.getRef(), Kind.NUMBER, numberDecoder)
+    )
   }
 
   async deleteNumber (
     call: grpc.ServerUnaryCall<DeleteNumberRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    deleteNumber(call, callback)
+    if (!auth(call)) return callback(new FonosAuthError(), null)
+    callback(null, await deleteResource(call.request.getRef(), Kind.DOMAIN))
   }
 }
 

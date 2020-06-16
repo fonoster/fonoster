@@ -5,7 +5,6 @@ import {
 } from '@fonos/errors'
 import routr from '../../common/routr'
 import redis from '../../common/redis'
-import logger from '@fonos/logger'
 import numberDecoder from '../../common/decoders/number_decoder'
 import { REncoder, Kind } from '../../common/resource_encoder'
 import { auth } from '../../common/trust_util'
@@ -14,11 +13,6 @@ export default async function updateNumber (call: any, callback: any) {
   if (!auth(call)) return callback(new FonosAuthError())
 
   const number = call.request.getNumber()
-
-  logger.info(
-    'verbose',
-    `@fonos/core updateNumber [entity ${number.getE164Number()}]`
-  )
 
   if (number.getAorLink() && number.getIngressApp()) {
     callback(
@@ -63,11 +57,6 @@ export default async function updateNumber (call: any, callback: any) {
   }
 
   const resource = encoder.build()
-
-  logger.log(
-    'debug',
-    `@fonos/core updateNumber [resource: ${JSON.stringify(resource)}]`
-  )
 
   try {
     await routr.connect()

@@ -1,5 +1,4 @@
 import axios from 'axios'
-import logger from '@fonos/logger'
 import btoa from 'btoa'
 import handleError from './routr_errors'
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -7,7 +6,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 /**
  * Oversimplified version of a Routr API Client
  */
-class RoutrClient {
+export default class RoutrClient {
   apiUrl: string
   username: string
   secret: string
@@ -22,6 +21,7 @@ class RoutrClient {
 
   async connect () {
     this.token = await this.getToken(this.username, this.secret)
+    return this
   }
 
   resourceType (resource: string) {
@@ -85,8 +85,10 @@ class RoutrClient {
         `${this.apiUrl}/${this.resource}?token=${this.token}`,
         data
       )
+      console.log('DBG001', response.data.data)
       return response.data.data
     } catch (err) {
+      console.log('DBG002', err)
       handleError(err)
     }
   }
@@ -104,5 +106,3 @@ class RoutrClient {
     }
   }
 }
-
-export default RoutrClient

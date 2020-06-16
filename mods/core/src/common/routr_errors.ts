@@ -9,9 +9,7 @@ import { status as Status } from 'grpc'
 export default function (error: any) {
   if (!error.response) throw new FonosError(error)
 
-  const message = error.response.data.data
-    ? error.response.data.data
-    : error.response.data.message
+  const message = error.response.data.message
 
   switch (error.response.status) {
     case 409:
