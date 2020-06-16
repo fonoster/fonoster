@@ -14,28 +14,24 @@ import {
   DomainsService,
   IDomainsServer
 } from '../protos/domains_grpc_pb'
-import deleteResource from '../resources/delete_resource'
 import { Kind, REncoder } from '../../common/resource_encoder'
-import getResource from '../resources/get_resource'
-import listResources from '../resources/list_resources'
 import createResource from '../resources/create_resource'
 import updateResource from '../resources/update_resource'
 import domainDecoder from '../../common/decoders/domain_decoder'
 import { FonosAuthError } from '@fonos/errors'
 import { auth } from '../../common/trust_util'
+import ResourceServer from '../resources/resource_server'
 
-class DomainsServer implements IDomainsServer {
+class DomainsServer extends ResourceServer implements IDomainsServer {
+  constructor () {
+    super(Kind.DOMAIN, domainDecoder)
+  }
+
   async listDomains (
     call: grpc.ServerUnaryCall<ListDomainsRequest>,
     callback: grpc.sendUnaryData<ListDomainsResponse>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    const r: any = await listResources(
-      parseInt(call.request.getPageToken()),
-      call.request.getPageSize(),
-      domainDecoder
-    )
-    callback(null, r)
+    super.listResources(call, callback)
   }
 
   async createDomain (
@@ -82,19 +78,14 @@ class DomainsServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<GetDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    callback(
-      null,
-      await getResource(call.request.getRef(), Kind.DOMAIN, domainDecoder)
-    )
+    super.getResource(call, callback)
   }
 
   async deleteDomain (
     call: grpc.ServerUnaryCall<DeleteDomainRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    callback(null, await deleteResource(call.request.getRef(), Kind.DOMAIN))
+    super.deleteResource(call, callback)
   }
 }
 

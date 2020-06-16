@@ -1,5 +1,4 @@
 import grpc from 'grpc'
-import updateAgent from '../resources/update_resource'
 import {
   Agent,
   ListAgentsRequest,
@@ -18,26 +17,24 @@ import {
 import deleteResource from '../resources/delete_resource'
 import { Kind, REncoder } from '../../common/resource_encoder'
 import getResource from '../resources/get_resource'
-import listResources from '../resources/list_resources'
 import createResource from '../resources/create_resource'
 import updateResource from '../resources/update_resource'
 import agentDecoder from '../../common/decoders/agent_decoder'
 
 import { auth } from '../../common/trust_util'
 import { FonosAuthError } from '@fonos/errors'
+import ResourceServer from '../resources/resource_server'
 
-class AgentsServer implements IAgentsServer {
+class AgentsServer extends ResourceServer implements IAgentsServer {
+  constructor () {
+    super(Kind.AGENT, agentDecoder)
+  }
+
   async listAgents (
     call: grpc.ServerUnaryCall<ListAgentsRequest>,
     callback: grpc.sendUnaryData<ListAgentsResponse>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    const r: any = await listResources(
-      parseInt(call.request.getPageToken()),
-      call.request.getPageSize(),
-      agentDecoder
-    )
-    callback(null, r)
+    super.listResources(call, callback)
   }
 
   async createAgent (
@@ -75,19 +72,14 @@ class AgentsServer implements IAgentsServer {
     call: grpc.ServerUnaryCall<GetAgentRequest>,
     callback: grpc.sendUnaryData<Agent>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    callback(
-      null,
-      await getResource(call.request.getRef(), Kind.AGENT, agentDecoder)
-    )
+    super.getResource(call, callback)
   }
 
   async deleteAgent (
     call: grpc.ServerUnaryCall<DeleteAgentRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    callback(null, await deleteResource(call.request.getRef(), Kind.AGENT))
+    super.deleteResource(call, callback)
   }
 }
 

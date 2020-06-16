@@ -1,5 +1,4 @@
 import grpc from 'grpc'
-import updateProvider from './update_provider'
 import {
   Provider,
   ListProvidersRequest,
@@ -15,28 +14,24 @@ import {
   ProvidersService,
   IProvidersServer
 } from '../protos/providers_grpc_pb'
-import deleteResource from '../resources/delete_resource'
 import { Kind, REncoder } from '../../common/resource_encoder'
 import { FonosAuthError } from '@fonos/errors'
 import { auth } from '../../common/trust_util'
-import getResource from '../resources/get_resource'
-import listResources from '../resources/list_resources'
 import updateResource from '../resources/update_resource'
 import createResource from '../resources/create_resource'
 import providerDecoder from '../../common/decoders/provider_decoder'
+import ResourceServer from '../resources/resource_server'
 
-class ProvidersServer implements IProvidersServer {
+class ProvidersServer extends ResourceServer implements IProvidersServer {
+  constructor () {
+    super(Kind.GATEWAY, providerDecoder)
+  }
+
   async listProviders (
     call: grpc.ServerUnaryCall<ListProvidersRequest>,
     callback: grpc.sendUnaryData<ListProvidersResponse>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    const r: any = await listResources(
-      parseInt(call.request.getPageToken()),
-      call.request.getPageSize(),
-      providerDecoder
-    )
-    callback(null, r)
+    super.listResources(call, callback)
   }
 
   async createProvider (
@@ -86,19 +81,14 @@ class ProvidersServer implements IProvidersServer {
     call: grpc.ServerUnaryCall<GetProviderRequest>,
     callback: grpc.sendUnaryData<Provider>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    callback(
-      null,
-      await getResource(call.request.getRef(), Kind.DOMAIN, providerDecoder)
-    )
+    super.getResource(call, callback)
   }
 
   async deleteProvider (
     call: grpc.ServerUnaryCall<DeleteProviderRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-    callback(null, await deleteResource(call.request.getRef(), Kind.DOMAIN))
+    super.deleteResource(call, callback)
   }
 }
 
