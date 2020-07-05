@@ -1,11 +1,14 @@
-require('../../config')
-const Domains = require('@fonos/domains')
-const { CLIError } = require('@oclif/errors')
-const { Command, flags } = require('@oclif/command')
-const { cli } = require('cli-ux')
-const prettyjson = require('prettyjson')
+import '../../config'
+import Domains from '@fonos/domains'
+import { CLIError } from '@oclif/errors'
+import { Command, flags } from '@oclif/command'
+import { cli } from 'cli-ux'
+import { render } from 'prettyjson'
 
-class GetCommand extends Command {
+export default class GetCommand extends Command {
+  static description = 'get information about an existing domain'
+  static args = [{ name: 'ref' }]
+
   async run () {
     const { args } = this.parse(GetCommand)
 
@@ -37,16 +40,9 @@ class GetCommand extends Command {
 
       await cli.wait(1000)
       cli.action.stop('')
-      console.log(prettyjson.render(jsonObj, { noColor: true }))
+      console.log(render(jsonObj, { noColor: true }))
     } catch (e) {
       throw new CLIError(e.message)
     }
   }
 }
-
-GetCommand.description = `get information about an existing domain
-`
-
-GetCommand.args = [{ name: 'ref' }]
-
-module.exports = GetCommand
