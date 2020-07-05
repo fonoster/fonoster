@@ -1,5 +1,4 @@
 import grpc from 'grpc'
-import { DeleteAgentRequest } from '../protos/agents_pb'
 import { Empty } from '../protos/common_pb'
 import deleteResource from '../resources/delete_resource'
 import { Kind } from '../../common/resource_encoder'

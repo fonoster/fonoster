@@ -22,44 +22,68 @@ const rConfig = {
   apiUrl: `https://${host}:${port}/api/v1beta1`
 }
 
+const domain = {
+  apiVersion: 'v1beta1',
+  kind: 'Domain',
+  metadata: {
+    name: 'Local Office',
+    ref: 'DM001'
+  },
+  spec: {
+    context: {
+      domainUri: 'sip.local001'
+    }
+  }
+}
+
 const agent = {
   apiVersion: 'v1beta1',
   kind: 'Agent',
   metadata: {
     name: 'John',
-    ref: 'acv2'
+    ref: 'abc'
   },
   spec: {
     credentials: {
       username: 'test',
       secret: '1234'
     },
-    domains: ['sip.local']
+    domains: ['sip.local001']
   }
 }
 
 describe('Routr Server', () => {
   let routr: any
   before(async () => {
-    console.log(`=> ${JSON.stringify(rConfig)}`)
     routr = new RoutrClient(rConfig.apiUrl, rConfig.username, rConfig.secret)
     await routr.connect()
   })
 
-  it.only('creates new agent', () => {
-    expect(routr.resourceType('agents').create(agent)).fulfilled
-    expect(routr.resourceType('agents').create(agent)).fulfilled
+  it.only('creates new domain', async () => {
+    await expect(routr.resourceType('domains').create(domain)).fulfilled
   })
 
-  it('fails because of bad reference', () => {
-    agent.metadata.ref = ''
-    expect(routr.resourceType('agents').create(agent)).to.be.rejectedWith(
-      'FonosFailedPrecondition: $[0].metadata.ref: must be at least 3 characters long'
+  it.only('creates new agent', async () => {
+    await routr.resourceType('agents').create(agent)
+  })
+
+  it.only('failes because agent already exist', async () => {
+    await expect(
+      routr.resourceType('agents').create(agent)
+    ).to.be.eventually.rejectedWith('Entity already exist')
+  })
+
+  it.only('deletes the agent and domain', async () => {
+    await expect(routr.resourceType('agents').delete(agent.metadata.ref)).to.be
+      .eventually.fulfilled
+    await expect(routr.resourceType('domains').delete(domain.metadata.ref)).to
+      .be.eventually.fulfilled
+  })
+
+  it.only('fails because of bad reference', async () => {
+    agent.metadata.ref = 'a'
+    await expect(routr.resourceType('agents').create(agent)).to.be.rejectedWith(
+      '$[0].metadata.ref: must be at least 3 characters long'
     )
-  })
-
-  it('deletes the agent', () => {
-    expect(routr.resourceType('agents').delete(agent.metadata.ref)).to.be
-      .fulfilled
   })
 })
