@@ -85,10 +85,8 @@ export default class RoutrClient {
         `${this.apiUrl}/${this.resource}?token=${this.token}`,
         data
       )
-      console.log('DBG001', response.data.data)
       return response.data.data
     } catch (err) {
-      console.log('DBG002', err)
       handleError(err)
     }
   }
