@@ -164,7 +164,7 @@ class Agents extends FonosService {
     pageSize: any
     pageToken: any
     view: any
-  }): Promise<object> {
+  }): Promise<any> {
     logger.log(
       'verbose',
       `@fonos/agents listAgent [request -> ${JSON.stringify(request)}]`
