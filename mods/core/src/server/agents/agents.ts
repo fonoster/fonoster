@@ -14,9 +14,7 @@ import {
   IAgentsService,
   AgentsService
 } from '../protos/agents_grpc_pb'
-import deleteResource from '../resources/delete_resource'
 import { Kind, REncoder } from '../../common/resource_encoder'
-import getResource from '../resources/get_resource'
 import createResource from '../resources/create_resource'
 import updateResource from '../resources/update_resource'
 import agentDecoder from '../../common/decoders/agent_decoder'
