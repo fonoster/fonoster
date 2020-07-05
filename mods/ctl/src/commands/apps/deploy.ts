@@ -1,4 +1,4 @@
-require('../../config')
+import '../../config'
 import AppManager from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { cli } from 'cli-ux'
