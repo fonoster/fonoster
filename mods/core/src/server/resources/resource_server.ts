@@ -21,7 +21,7 @@ export default class ResourceServer {
     callback: grpc.sendUnaryData<any>
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
-    const r: any = await listResources(
+    const r = await listResources(
       this.kind,
       parseInt(call.request.getPageToken()),
       call.request.getPageSize(),

@@ -1,29 +1,49 @@
-require('../../config')
-const Providers = require('@fonos/providers')
+import '../../config'
+import Providers from '@fonos/providers'
+import { CLIError } from '@oclif/errors'
+import { Command, flags } from '@oclif/command'
+import inquirer from 'inquirer'
+import { View } from '../../../../core/src/server/protos/common_pb'
+import { Provider } from '../../../../agents/node_modules/@fonos/core/src/server/protos/providers_pb'
 const Table = require('easy-table')
-const truncate = require('truncate')
-const { CLIError } = require('@oclif/errors')
-const { Command, flags } = require('@oclif/command')
 const moment = require('moment')
-const inquirer = require('inquirer')
 
-class ListCommand extends Command {
+export default class ListCommand extends Command {
+  static description = `list registered providers
+  ...
+  List the registered providers
+  `
+  static flags = {
+    size: flags.integer({
+      char: 's',
+      default: 25,
+      description: 'provider of result per page'
+    })
+  }
+
+  static aliases = ['providers:ls']
+
   async run () {
     const { flags } = this.parse(ListCommand)
     try {
       const providers = new Providers()
       let firstBatch = true
-      let pageToken = '0'
+      let pageToken = '1'
       const pageSize = flags.size
+      const view: View = View.BASIC
       while (true) {
         // Get a list
-        const result = await providers.listProviders({ pageSize, pageToken })
+        const result = await providers.listProviders({
+          pageSize,
+          pageToken,
+          view
+        })
         const list = result.getProvidersList()
         pageToken = result.getNextPageToken()
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
-          const answer = await inquirer.prompt([
+          const answer: any = await inquirer.prompt([
             { name: 'q', message: 'More', type: 'confirm' }
           ])
           if (!answer.q) break
@@ -31,7 +51,7 @@ class ListCommand extends Command {
 
         const t = new Table()
 
-        list.forEach(provider => {
+        list.forEach((provider: Provider) => {
           t.cell('Ref', provider.getRef())
           t.cell('Name', provider.getName())
           t.cell('Username', provider.getUsername() || '(static)')
@@ -53,20 +73,3 @@ class ListCommand extends Command {
     }
   }
 }
-
-ListCommand.description = `list registered providers
-...
-List the registered providers
-`
-
-ListCommand.flags = {
-  size: flags.integer({
-    char: 's',
-    default: 25,
-    description: 'provider of result per page'
-  })
-}
-
-ListCommand.aliases = ['providers:ls']
-
-module.exports = ListCommand

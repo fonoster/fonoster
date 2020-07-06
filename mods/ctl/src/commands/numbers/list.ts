@@ -1,11 +1,12 @@
-require('../../config')
-const Numbers = require('@fonos/numbers')
+import '../../config'
+import Numbers from '@fonos/numbers'
+import { CLIError } from '@oclif/errors'
+import { Command, flags } from '@oclif/command'
+import inquirer from 'inquirer'
+import { View } from '../../../../core/src/server/protos/common_pb'
+import { Number } from '../../../../agents/node_modules/@fonos/core/src/server/protos/numbers_pb'
 const Table = require('easy-table')
-const truncate = require('truncate')
-const { CLIError } = require('@oclif/errors')
-const { Command, flags } = require('@oclif/command')
 const moment = require('moment')
-const inquirer = require('inquirer')
 
 class ListCommand extends Command {
   async run () {
@@ -13,17 +14,22 @@ class ListCommand extends Command {
     try {
       const numbers = new Numbers()
       let firstBatch = true
-      let pageToken = '0'
+      let pageToken = '1'
       const pageSize = flags.size
+      const view: View = View.BASIC
       while (true) {
         // Get a list
-        const result = await numbers.listNumbers({ pageSize, pageToken })
+        const result: any = await numbers.listNumbers({
+          pageSize,
+          pageToken,
+          view
+        })
         const list = result.getNumbersList()
         pageToken = result.getNextPageToken()
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
-          const answer = await inquirer.prompt([
+          const answer: any = await inquirer.prompt([
             { name: 'q', message: 'More', type: 'confirm' }
           ])
           if (!answer.q) break
@@ -31,7 +37,7 @@ class ListCommand extends Command {
 
         const t = new Table()
 
-        list.forEach(number => {
+        list.forEach((number: Number) => {
           t.cell('Ref', number.getRef())
           t.cell('Provider Ref', number.getProviderRef())
           t.cell('E164 Number', number.getE164Number())

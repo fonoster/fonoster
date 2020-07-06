@@ -1,29 +1,44 @@
-require('../../config')
-const Domains = require('@fonos/domains')
+import '../../config'
+import Domains from '@fonos/domains'
+import { CLIError } from '@oclif/errors'
+import { Command, flags } from '@oclif/command'
+import inquirer from 'inquirer'
+import { View } from '../../../../core/src/server/protos/common_pb'
+import { Domain } from '../../../../agents/node_modules/@fonos/core/src/server/protos/domains_pb'
 const Table = require('easy-table')
-const truncate = require('truncate')
-const { CLIError } = require('@oclif/errors')
-const { Command, flags } = require('@oclif/command')
 const moment = require('moment')
-const inquirer = require('inquirer')
 
-class ListCommand extends Command {
+export default class ListCommand extends Command {
+  static description = `list registered domains
+  ...
+  List the registered domains
+  `
+  static flags = {
+    size: flags.integer({
+      char: 's',
+      default: 25,
+      description: 'number of result per page'
+    })
+  }
+  static aliases = ['domains:ls']
+
   async run () {
     const { flags } = this.parse(ListCommand)
     try {
       const domains = new Domains()
       let firstBatch = true
-      let pageToken = '0'
+      let pageToken = '1'
       const pageSize = flags.size
+      const view: View = View.BASIC
       while (true) {
         // Get a list
-        const result = await domains.listDomains({ pageSize, pageToken })
+        const result = await domains.listDomains({ pageSize, pageToken, view })
         const list = result.getDomainsList()
         pageToken = result.getNextPageToken()
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
-          const answer = await inquirer.prompt([
+          const answer: any = await inquirer.prompt([
             { name: 'q', message: 'More', type: 'confirm' }
           ])
           if (!answer.q) break
@@ -31,7 +46,7 @@ class ListCommand extends Command {
 
         const t = new Table()
 
-        list.forEach(domain => {
+        list.forEach((domain: Domain) => {
           t.cell('Ref', domain.getRef())
           t.cell('Name', domain.getName())
           t.cell('Domain URI', domain.getDomainUri())
@@ -52,20 +67,3 @@ class ListCommand extends Command {
     }
   }
 }
-
-ListCommand.description = `list registered domains
-...
-List the registered domains
-`
-
-ListCommand.flags = {
-  size: flags.integer({
-    char: 's',
-    default: 25,
-    description: 'number of result per page'
-  })
-}
-
-ListCommand.aliases = ['domains:ls']
-
-module.exports = ListCommand
