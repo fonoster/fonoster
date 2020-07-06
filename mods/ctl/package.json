@@ -31,7 +31,7 @@
     "/bin",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json",
-    "/src"
+    "/dist"
   ],
   "oclif": {
     "commands": "./dist/commands",
