@@ -25,13 +25,13 @@ export default class CreateCommand extends Command {
       // TODO: Consider using the autocomplete plugin
       const res = await new Apps().listApps({
         pageSize: 25,
-        pageToken: '0',
+        pageToken: '1',
         view
       })
       const apps = res.getAppsList().map((app: App) => app.getName())
       const response = await new Providers().listProviders({
         pageSize: 25,
-        pageToken: '0'
+        pageToken: '1'
       })
       const providers = response.getProvidersList().map((p: Provider) => {
         const obj: any = {}
