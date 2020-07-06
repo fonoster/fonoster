@@ -77,13 +77,12 @@
     "@fonos/agents": "^0.0.2",
     "@fonos/appmanager": "^0.0.2",
     "@fonos/domains": "^0.0.2",
+    "@fonos/logger": "^0.0.2",
     "@fonos/numbers": "^0.0.2",
     "@fonos/providers": "^0.0.2",
-    "@fonos/logger": "^0.0.2",
     "@oclif/command": "^1.7.0",
     "@oclif/config": "^1.16.0",
     "@oclif/plugin-help": "^3.1.0",
-    "tslib": "^1",
     "cli-ux": "^5.4.5",
     "easy-table": "^1.1.1",
     "inquirer": "^7.1.0",
@@ -91,7 +90,8 @@
     "node-plop": "^0.25.0",
     "ora": "^4.0.3",
     "prettyjson": "^1.2.1",
-    "truncate": "^2.1.0"
+    "truncate": "^2.1.0",
+    "tslib": "^1"
   },
   "devDependencies": {
     "@types/prettyjson": "0.0.29",

@@ -34,8 +34,8 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
-    "objectid": "^3.2.1",
     "@fonos/logger": "^0.0.2",
-    "@fonos/tts": "^0.0.2"    
+    "@fonos/tts": "^0.0.2",
+    "objectid": "^3.2.1"
   }
 }

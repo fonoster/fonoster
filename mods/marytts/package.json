@@ -30,12 +30,12 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/tts": "^0.0.2",
     "@fonos/logger": "^0.0.2",
+    "@fonos/tts": "^0.0.2",
     "deepmerge": "^4.2.2"
   },
   "devDependencies": {
-    "typescript": "^3.9.3",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "typescript": "^3.9.3"
   }
 }

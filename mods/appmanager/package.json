@@ -31,13 +31,13 @@
   },
   "dependencies": {
     "@fonos/core": "^0.0.2",
-    "@fonos/storage": "^0.0.2",
     "@fonos/logger": "^0.0.2",
+    "@fonos/storage": "^0.0.2",
+    "@types/fs-extra": "^9.0.1",
+    "@types/tar": "^4.0.3",
     "fs-extra": "^8.1.0",
     "grpc-promise": "^1.4.0",
-    "tar": "^6.0.1",
-    "@types/fs-extra": "^9.0.1",
-    "@types/tar": "^4.0.3"
+    "tar": "^6.0.1"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"
