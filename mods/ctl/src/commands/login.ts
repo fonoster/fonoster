@@ -4,7 +4,7 @@ import { CLIError } from '@oclif/errors'
 import { Command, flags } from '@oclif/command'
 import { join } from 'path'
 import * as fs from 'fs'
-import os from 'os'
+import * as os from 'os'
 import { View } from '../../../appmanager/node_modules/@fonos/core/src/server/protos/common_pb'
 const inquirer = require('inquirer')
 
