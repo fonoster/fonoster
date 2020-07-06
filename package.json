@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "bootstrap": "lerna bootstrap --no-ci",
-    "test": "export NODE_ENV=dev mocha -r ts-node/register mods/**/*.unit.test.ts",
+    "test": "export NODE_ENV=dev && mocha -r ts-node/register mods/**/*.unit.test.ts",
     "build": "lerna run build",
     "clean": "rm -rf **/*/tsconfig.tsbuildinfo && rm -rf **/*/dist && rm -rf **/*/dist && rm -rf **/*/node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
