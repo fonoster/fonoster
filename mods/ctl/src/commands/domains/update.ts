@@ -1,12 +1,17 @@
-require('../../config')
-const Domains = require('@fonos/domains')
-const { Command } = require('@oclif/command')
-const { CLIError } = require('@oclif/errors')
+import '../../config'
+import Domains from '@fonos/domains'
+import { CLIError } from '@oclif/errors'
+import { Command } from '@oclif/command'
+import { cli } from 'cli-ux'
 const inquirer = require('inquirer')
-const path = require('path')
-const { cli } = require('cli-ux')
 
-class UpdateCommand extends Command {
+export default class UpdateCommand extends Command {
+  static args = [{ name: 'ref' }]
+  static description = `updates a domain at the SIP Proxy subsystem
+  ...
+  Updates a domain at the SIP Proxy subsystem
+  `
+
   async run () {
     console.log('This utility will help you create a basic voice application')
     console.log('to help you get start quickly. Press ^C at any time to quit.')
@@ -77,12 +82,3 @@ class UpdateCommand extends Command {
     }
   }
 }
-
-UpdateCommand.description = `updates a domain at the SIP Proxy subsystem
-...
-Updates a domain at the SIP Proxy subsystem
-`
-
-UpdateCommand.args = [{ name: 'ref' }]
-
-module.exports = UpdateCommand

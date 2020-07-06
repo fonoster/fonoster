@@ -1,17 +1,30 @@
-require('../config')
-const AppManager = require('@fonos/appmanager')
-const { CLIError } = require('@oclif/errors')
-const { Command, flags } = require('@oclif/command')
+import '../../config'
+import AppManager from '@fonos/appmanager'
+import { CLIError } from '@oclif/errors'
+import { Command, flags } from '@oclif/command'
+import { join } from 'path'
+import * as fs from 'fs'
+import os from 'os'
+import { View } from '../../../appmanager/node_modules/@fonos/core/src/server/protos/common_pb'
 const inquirer = require('inquirer')
-const fs = require('fs')
-const path = require('path')
-const os = require('os')
 
-class LoginCommand extends Command {
+export default class LoginCommand extends Command {
+  static description = `authenticates current station`
+  static flags = {
+    file: flags.string({
+      char: 'f',
+      description: 'json file with access credentials'
+    }),
+    size: flags.string({
+      char: 's',
+      description: 'json file with access credentials'
+    })
+  }
+
   async run () {
     const { flags } = this.parse(LoginCommand)
 
-    let access = {}
+    let access: any = {}
     if (!flags.file) {
       console.log(`Fonos Login`)
       access = await inquirer.prompt([
@@ -26,14 +39,18 @@ class LoginCommand extends Command {
       ])
     } else {
       try {
-        access = JSON.parse(fs.readFileSync(flags.file))
+        access = JSON.parse(`${fs.readFileSync(flags.file)}`)
       } catch (e) {
         throw new CLIError(`file ${flags.file} does not exist or is malformed`)
       }
     }
 
-    const targetDir = path.join(os.homedir(), '.fonos')
-    const pathToAccess = path.join(os.homedir(), '.fonos', 'access')
+    const targetDir = join(os.homedir(), '.fonos')
+    const pathToAccess = join(os.homedir(), '.fonos', 'access')
+
+    let pageToken = '0'
+    const view: View = View.BASIC
+    const pageSize = parseInt(flags.size)
 
     try {
       const appmanager = new AppManager({
@@ -42,10 +59,10 @@ class LoginCommand extends Command {
         accessKeySecret: access.accessKeySecret
       })
       // validate (call something inside fonos)
-      await appmanager.listApps({ pageSize: 0 })
+      await appmanager.listApps({ pageSize, pageToken, view })
 
       // write credentials at ~/.fonos/access
-      const content = JSON.stringify(access, null, '  ')
+      const content = JSON.stringify(access, null, '')
 
       fs.mkdirSync(targetDir, { recursive: true })
       fs.writeFileSync(pathToAccess, content)
@@ -58,14 +75,3 @@ class LoginCommand extends Command {
     }
   }
 }
-
-LoginCommand.description = `authenticates current station`
-
-LoginCommand.flags = {
-  file: flags.string({
-    char: 'f',
-    description: 'json file with access credentials'
-  })
-}
-
-module.exports = LoginCommand

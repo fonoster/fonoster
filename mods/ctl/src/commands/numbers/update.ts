@@ -1,11 +1,12 @@
-require('../../config')
-const Numbers = require('@fonos/numbers')
-const Apps = require('@fonos/appmanager')
-const { Command } = require('@oclif/command')
-const { CLIError } = require('@oclif/errors')
+import '../../config'
+import Numbers from '@fonos/numbers'
+import Apps from '@fonos/appmanager'
+import { CLIError } from '@oclif/errors'
+import { Command } from '@oclif/command'
+import { cli } from 'cli-ux'
+import { View } from '../../../../numbers/node_modules/@fonos/core/src/server/protos/common_pb'
+import { App } from '../../../../agents/node_modules/@fonos/core/src/server/protos/appmanager_pb'
 const inquirer = require('inquirer')
-const path = require('path')
-const { cli } = require('cli-ux')
 
 class UpdateCommand extends Command {
   async run () {
@@ -13,8 +14,13 @@ class UpdateCommand extends Command {
     console.log('Press ^C at any time to quit.')
 
     // TODO: Consider using the autocomplete plugin
-    const response = await new Apps().listApps({ pageSize: 25, pageToken: '0' })
-    const appsNames = response.getAppsList().map(app => app.getName())
+    const view: View = View.BASIC
+    const response = await new Apps().listApps({
+      pageSize: 25,
+      pageToken: '1',
+      view
+    })
+    const appsNames = response.getAppsList().map((app: App) => app.getName())
 
     const { args } = this.parse(UpdateCommand)
     const numbers = new Numbers()

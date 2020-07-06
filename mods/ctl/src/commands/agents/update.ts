@@ -1,12 +1,16 @@
-require('../../config')
-const Agents = require('@fonos/agents')
-const { Command } = require('@oclif/command')
-const { CLIError } = require('@oclif/errors')
+import '../../config'
+import Agents from '@fonos/agents'
+import { CLIError } from '@oclif/errors'
+import { Command } from '@oclif/command'
+import { cli } from 'cli-ux'
 const inquirer = require('inquirer')
-const path = require('path')
-const { cli } = require('cli-ux')
 
-class UpdateCommand extends Command {
+export default class UpdateCommand extends Command {
+  static args = [{ name: 'ref' }]
+  static description = `updates a agent at the SIP Proxy subsystem
+  ...
+  Updates a agent at the SIP Proxy subsystem
+  `
   async run () {
     console.log('This utility will help you update an existing Agent')
     console.log('Press ^C at any time to quit.')
@@ -61,12 +65,3 @@ class UpdateCommand extends Command {
     }
   }
 }
-
-UpdateCommand.description = `updates a agent at the SIP Proxy subsystem
-...
-Updates a agent at the SIP Proxy subsystem
-`
-
-UpdateCommand.args = [{ name: 'ref' }]
-
-module.exports = UpdateCommand

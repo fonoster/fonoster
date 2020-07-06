@@ -1,20 +1,20 @@
-require('../../config')
-const Providers = require('@fonos/providers')
-const Apps = require('@fonos/appmanager')
-const { Command } = require('@oclif/command')
-const { CLIError } = require('@oclif/errors')
+import '../../config'
+import Providers from '@fonos/providers'
+import { CLIError } from '@oclif/errors'
+import { Command } from '@oclif/command'
+import { cli } from 'cli-ux'
 const inquirer = require('inquirer')
-const path = require('path')
-const { cli } = require('cli-ux')
 
-class UpdateCommand extends Command {
+export default class UpdateCommand extends Command {
+  static args = [{ name: 'ref' }]
+  static description = `updates a provider at the SIP Proxy subsystem
+  ...
+  Updates a provider at the SIP Proxy subsystem
+  `
+
   async run () {
     console.log('This utility will help you update an existing Provider')
     console.log('Press ^C at any time to quit.')
-
-    // TODO: Consider using the autocomplete plugin
-    const response = await new Apps().listApps({ pageSize: 25, pageToken: '0' })
-    const appsNames = response.getAppsList().map(app => app.getName())
 
     const { args } = this.parse(UpdateCommand)
     const providers = new Providers()
@@ -84,12 +84,3 @@ class UpdateCommand extends Command {
     }
   }
 }
-
-UpdateCommand.description = `updates a provider at the SIP Proxy subsystem
-...
-Updates a provider at the SIP Proxy subsystem
-`
-
-UpdateCommand.args = [{ name: 'ref' }]
-
-module.exports = UpdateCommand
