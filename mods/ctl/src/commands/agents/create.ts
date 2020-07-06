@@ -1,13 +1,17 @@
-require('../../config')
-const Agents = require('@fonos/agents')
-const Domains = require('@fonos/domains')
-const { Command } = require('@oclif/command')
-const { CLIError } = require('@oclif/errors')
-const inquirer = require('inquirer')
-const path = require('path')
-const { cli } = require('cli-ux')
+import '../../config'
+import Agents from '@fonos/agents'
+import Domains from '@fonos/domains'
+import { CLIError } from '@oclif/errors'
+import { Command } from '@oclif/command'
+import inquirer from 'inquirer'
+import { cli } from 'cli-ux'
 
-class CreateCommand extends Command {
+export default class CreateCommand extends Command {
+  static description = `creates a new agent resource
+  ...
+  Creates a new Agent in the SIP Proxy subsystem
+  `
+
   async run () {
     console.log('This utility will help you create a new Agent')
     console.log('Press ^C at any time to quit.')
@@ -17,9 +21,11 @@ class CreateCommand extends Command {
       pageSize: 25,
       pageToken: '1'
     })
-    const domains = response.getDomainsList().map(app => app.getDomainUri())
+    const domains = response
+      .getDomainsList()
+      .map((app: any) => app.getDomainUri())
 
-    const answers = await inquirer.prompt([
+    const answers: any = await inquirer.prompt([
       {
         name: 'name',
         message: 'friendly name',
@@ -73,10 +79,3 @@ class CreateCommand extends Command {
     }
   }
 }
-
-CreateCommand.description = `creates a new agent resource
-...
-Creates a new Agent in the SIP Proxy subsystem
-`
-
-module.exports = CreateCommand
