@@ -1,12 +1,16 @@
-require('../../config')
-const Domains = require('@fonos/domains')
-const { Command } = require('@oclif/command')
-const { CLIError } = require('@oclif/errors')
+import '../../config'
+import Domains from '@fonos/domains'
+import { CLIError } from '@oclif/errors'
+import { Command } from '@oclif/command'
+import { cli } from 'cli-ux'
 const inquirer = require('inquirer')
-const path = require('path')
-const { cli } = require('cli-ux')
 
-class CreateCommand extends Command {
+export default class CreateCommand extends Command {
+  static description = `creates a new domain resource
+  ...
+  Creates a new Domain in the SIP Proxy subsystem
+  `
+
   async run () {
     console.log('This utility will help you create a new Domain')
     console.log('Press ^C at any time to quit.')
@@ -69,10 +73,3 @@ class CreateCommand extends Command {
     }
   }
 }
-
-CreateCommand.description = `creates a new domain resource
-...
-Creates a new Domain in the SIP Proxy subsystem
-`
-
-module.exports = CreateCommand

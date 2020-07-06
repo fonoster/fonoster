@@ -41,7 +41,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     const agent = call.request.getAgent()
-    const resource = new REncoder(Kind.AGENT, agent.getName(), agent.getRef())
+    const resource = new REncoder(Kind.AGENT, agent.getName())
       .withCredentials(agent.getUsername(), agent.getSecret())
       .withDomains(agent.getDomainsList())
       .build()

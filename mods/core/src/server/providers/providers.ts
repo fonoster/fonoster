@@ -51,7 +51,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
       .withExpires(provider.getExpires())
       .build()
 
-    callback(null, await createResource(provider, providerDecoder))
+    callback(null, await createResource(resource, providerDecoder))
   }
 
   async updateProvider (

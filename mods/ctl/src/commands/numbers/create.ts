@@ -1,28 +1,40 @@
-require('../../config')
-const Providers = require('@fonos/providers')
-const Numbers = require('@fonos/numbers')
-const Apps = require('@fonos/appmanager')
-const { Command } = require('@oclif/command')
-const { CLIError } = require('@oclif/errors')
+import '../../config'
+import Providers from '@fonos/providers'
+import Numbers from '@fonos/numbers'
+import Apps from '@fonos/appmanager'
+import { CLIError } from '@oclif/errors'
+import { Command } from '@oclif/command'
+import { cli } from 'cli-ux'
+import { View } from '../../../../numbers/node_modules/@fonos/core/src/server/protos/common_pb'
+import { App } from '../../../../agents/node_modules/@fonos/core/src/server/protos/appmanager_pb'
+import { Provider } from '../../../../providers/node_modules/@fonos/core/src/server/protos/providers_pb'
 const inquirer = require('inquirer')
-const path = require('path')
-const { cli } = require('cli-ux')
 
-class CreateCommand extends Command {
+export default class CreateCommand extends Command {
+  static description = `creates a new number resource
+  ...
+  Creates a new Number in the SIP Proxy subsystem
+  `
+
   async run () {
     console.log('This utility will help you create a new Number')
     console.log('Press ^C at any time to quit.')
 
+    const view: View = View.BASIC
     try {
       // TODO: Consider using the autocomplete plugin
-      const res = await new Apps().listApps({ pageSize: 25, pageToken: '0' })
-      const apps = res.getAppsList().map(app => app.getName())
+      const res = await new Apps().listApps({
+        pageSize: 25,
+        pageToken: '0',
+        view
+      })
+      const apps = res.getAppsList().map((app: App) => app.getName())
       const response = await new Providers().listProviders({
         pageSize: 25,
         pageToken: '0'
       })
-      const providers = response.getProvidersList().map(p => {
-        const obj = {}
+      const providers = response.getProvidersList().map((p: Provider) => {
+        const obj: any = {}
         obj.name = p.getName()
         obj.value = p.getRef()
         return obj
@@ -94,10 +106,3 @@ class CreateCommand extends Command {
     }
   }
 }
-
-CreateCommand.description = `creates a new number resource
-...
-Creates a new Number in the SIP Proxy subsystem
-`
-
-module.exports = CreateCommand

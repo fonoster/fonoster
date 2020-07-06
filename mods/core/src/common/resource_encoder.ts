@@ -56,6 +56,7 @@ class REncoder {
     }
     this.spec = {}
     if (kind === Kind.DOMAIN) this.spec.context = {}
+    if (!ref) delete this.metadata.ref
   }
 
   withMetadata (metadata: object) {

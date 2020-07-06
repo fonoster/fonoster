@@ -3,8 +3,8 @@ import Agents from '@fonos/agents'
 import Domains from '@fonos/domains'
 import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
-import inquirer from 'inquirer'
 import { cli } from 'cli-ux'
+const inquirer = require('inquirer')
 
 export default class CreateCommand extends Command {
   static description = `creates a new agent resource
