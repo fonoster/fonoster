@@ -5,10 +5,6 @@ import { cli } from 'cli-ux'
 
 export default abstract class extends Command {
   ref: string
-  flags = {
-    loglevel: flags.string({ options: ['error', 'warn', 'info', 'debug'] })
-  }
-
   async deleteResource (API: any, funcName: string) {
     cli.action.start(`Deleting resource with reference ${this.ref}`)
     await API[funcName](this.ref)
@@ -18,7 +14,6 @@ export default abstract class extends Command {
 
   async init () {
     const { args, flags } = this.parse(<Input<any>>this.constructor)
-    this.flags = flags
     this.ref = args.ref
   }
 
