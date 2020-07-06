@@ -1,4 +1,4 @@
-import '../../config'
+import '../config'
 import { Command, flags } from '@oclif/command'
 import { join } from 'path'
 import * as fs from 'fs'

@@ -1,4 +1,4 @@
-import '../../config'
+import '../config'
 import AppManager from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { Command, flags } from '@oclif/command'
