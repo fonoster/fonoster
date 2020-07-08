@@ -16,6 +16,7 @@ import NumbersServer, { NumbersService } from './numbers/numbers'
 import AgentsServer from './agents/agents'
 import DomainsServer from './domains/domains'
 import ProvidersServer from './providers/providers'
+import { getServerCredentials } from '../common/trust_util'
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
   const env = path.join(__dirname, '..', '..', '..', '..', '.env')
@@ -39,7 +40,7 @@ async function main () {
     AppManagerService,
     new AppManagerServer()
   )
-  server.bind(endpoint, grpc.ServerCredentials.createInsecure())
+  server.bind(endpoint, getServerCredentials())
   server.start()
 
   logger.log(

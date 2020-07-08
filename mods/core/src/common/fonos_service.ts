@@ -1,4 +1,3 @@
-import logger from '@fonos/logger'
 import { getClientCredentials } from '../common/trust_util'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -20,7 +19,7 @@ const defaultOptions = {
   bucket: 'default'
 }
 
-class Service {
+export default class Service {
   ServiceClient: any
   options: any
   metadata: any
@@ -91,5 +90,3 @@ class Service {
     return this.metadata
   }
 }
-
-export { Service as default }

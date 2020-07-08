@@ -15,8 +15,6 @@ const SERVER_CRT = process.env.CERTS_PATH + '/server.crt'
 const SERVER_KEY = process.env.CERTS_PATH + '/server.key'
 const CLIENT_CRT = process.env.CERTS_PATH + '/client.crt'
 const CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
-const BOOL = ['on', 'true', 'yes', '1']
-const insecure = process.env.APISERVER_ENABLE_INSECURE
 
 const getServerCredentials = () => {
   try {

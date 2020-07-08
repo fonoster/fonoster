@@ -49,8 +49,8 @@ export default class LoginCommand extends Command {
     const pathToAccess = join(os.homedir(), '.fonos', 'access')
 
     let pageToken = '0'
+    const pageSize = 1
     const view: View = View.BASIC
-    const pageSize = parseInt(flags.size)
 
     try {
       const appmanager = new AppManager({
