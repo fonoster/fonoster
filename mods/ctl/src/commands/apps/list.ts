@@ -1,12 +1,12 @@
 import '../../config'
 import AppManager from '@fonos/appmanager'
-import truncate from 'truncate'
 import { CLIError } from '@oclif/errors'
 import { Command, flags } from '@oclif/command'
-import moment from 'moment'
 import { prompt } from 'inquirer'
-import { View } from '../../../../core/src/server/protos/common_pb'
+import { View } from '@fonos/core/src/server/protos/common_pb'
 const Table = require('easy-table')
+const moment = require('moment')
+const truncate = require('truncate')
 
 export default class ListCommand extends Command {
   static aliases = ['apps:ls']

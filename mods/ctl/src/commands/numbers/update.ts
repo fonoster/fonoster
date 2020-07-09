@@ -4,8 +4,8 @@ import Apps from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
-import { View } from '../../../../numbers/node_modules/@fonos/core/src/server/protos/common_pb'
-import { App } from '../../../../agents/node_modules/@fonos/core/src/server/protos/appmanager_pb'
+import { View } from '@fonos/core/src/server/protos/common_pb'
+import { App } from '@fonos/core/src/server/protos/appmanager_pb'
 const inquirer = require('inquirer')
 
 class UpdateCommand extends Command {

@@ -3,8 +3,8 @@ import Agents from '@fonos/agents'
 import { CLIError } from '@oclif/errors'
 import { Command, flags } from '@oclif/command'
 import inquirer from 'inquirer'
-import { View } from '../../../../core/src/server/protos/common_pb'
-import { Agent } from '../../../../agents/node_modules/@fonos/core/src/server/protos/agents_pb'
+import { View } from '@fonos/core/src/server/protos/common_pb'
+import { Agent } from '@fonos/core/src/server/protos/agents_pb'
 const Table = require('easy-table')
 const moment = require('moment')
 

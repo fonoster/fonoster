@@ -5,9 +5,9 @@ import Apps from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
-import { View } from '../../../../numbers/node_modules/@fonos/core/src/server/protos/common_pb'
-import { App } from '../../../../agents/node_modules/@fonos/core/src/server/protos/appmanager_pb'
-import { Provider } from '../../../../providers/node_modules/@fonos/core/src/server/protos/providers_pb'
+import { View } from '@fonos/core/src/server/protos/common_pb'
+import { App } from '@fonos/core/src/server/protos/appmanager_pb'
+import { Provider } from '@fonos/core/src/server/protos/providers_pb'
 const inquirer = require('inquirer')
 
 export default class CreateCommand extends Command {
@@ -25,7 +25,7 @@ export default class CreateCommand extends Command {
       // TODO: Consider using the autocomplete plugin
       const res = await new Apps().listApps({
         pageSize: 25,
-        pageToken: '1',
+        pageToken: '0',
         view
       })
       const apps = res.getAppsList().map((app: App) => app.getName())
