@@ -74,8 +74,11 @@ services:
     env_file: .env
     image: ${MC_IMAGE}
     restart: always
+    environment:
+      CERTS_PATH: /certs
     volumes:
       - data1-1:/fonos
+      - ./etc/certs:/certs
     expose:
       - ${MC_AGI_PORT}
     logging:
@@ -91,7 +94,7 @@ services:
     env_file: .env
     image: ${DS_IMAGE}
     restart: always
-    command: ["redis-server", "--appendonly", "yes", "--loadmodule", "/usr/lib/redis/modules/rejson.so"]
+    command: ["redis-server", "--appendonly", "yes"]
     hostname: redis
     volumes:
       - datasource:/data
