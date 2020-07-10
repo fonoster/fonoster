@@ -2,23 +2,19 @@ import { FonosError, FonosAuthError } from '@fonos/errors'
 import redis from '../../common/redis'
 import grpc from 'grpc'
 import logger from '@fonos/logger'
-import { auth } from '../../common/trust_util'
+import jsonToApp from '../appmanager/json_to_app'
+import { App } from '../protos/appmanager_pb'
 
-export default async function getIngressApp (call: any, callback: any) {
-  if (!auth(call)) return callback(new FonosAuthError())
-
-  const e164number = call.request.getE164Number()
-  const appName = await redis.get(`extlink:${call.request.getE164Number()}`)
+export default async function (e164Number: string): Promise<App> {
+  const appName = await redis.get(`extlink:${e164Number}`)
 
   logger.log('debug', `@fonos/core getIngressApp [appName: ${appName}]`)
 
   const appFromDB = await redis.get(appName)
 
   if (!appFromDB) {
-    callback(new FonosError(`App ${appName} not found`, grpc.status.NOT_FOUND))
-    return
+    throw new FonosError(`App ${appName} not found`, grpc.status.NOT_FOUND)
   }
 
-  //const app = new AppManagerPB.App(JSON.parse(appFromDB).array)
-  //callback(null, app)
+  return jsonToApp(JSON.parse(appFromDB))
 }

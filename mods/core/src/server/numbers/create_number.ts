@@ -26,8 +26,6 @@ const validateNumber = (number: Number) => {
 export default async function createNumber (number: Number): Promise<Number> {
   validateNumber(number)
 
-  console.log(JSON.stringify(number.toObject()))
-
   let encoder = new REncoder(
     Kind.NUMBER,
     number.getE164Number()

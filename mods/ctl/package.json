@@ -74,6 +74,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
+    "@fonos/core": "^0.0.6",
     "@fonos/agents": "^0.0.6",
     "@fonos/appmanager": "^0.0.6",
     "@fonos/domains": "^0.0.6",
