@@ -1,3 +1,4 @@
+import { accessExist } from '@fonos/certs'
 import { getClientCredentials } from '../common/trust_util'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -45,7 +46,9 @@ export default class Service {
     this.options = merge(defaultOptions, options)
 
     try {
-      this.options = merge(this.options, JSON.parse(getAccessFile()))
+      if (accessExist()) {
+        this.options = merge(this.options, JSON.parse(getAccessFile()))
+      }
     } catch (err) {
       throw new Error(`Malformed access file found at: ${ACCEES_FILE}`)
     }
