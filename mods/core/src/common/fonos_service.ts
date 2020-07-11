@@ -15,7 +15,7 @@ const getAccessFile = () =>
     .trim()
 
 const defaultOptions = {
-  endpoint: 'localhost:50052',
+  endpoint: process.env.APISERVER_ENDPOINT || 'localhost:50052',
   bucket: 'default'
 }
 
