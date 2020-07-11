@@ -17,7 +17,8 @@
     "test": "test"
   },
   "files": [
-    "dist"
+    "dist",
+    "etc"
   ],
   "publishConfig": {
     "access": "public"
