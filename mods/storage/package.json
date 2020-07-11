@@ -38,7 +38,7 @@
   "devDependencies": {
     "@types/fibers": "^3.1.0",
     "dotenv": "^8.2.0",
-    "fibers": "^4.0.2",
+    "fibers": "^5.0.0",
     "typescript": "^3.9.3"
   }
 }

@@ -32,7 +32,6 @@
   "dependencies": {
     "@fonos/core": "^0.0.8",
     "@fonos/logger": "^0.0.8",
-    "grpc-promise": "^1.4.0",
-    "sync": "^0.2.4"
+    "grpc-promise": "^1.4.0"
   }
 }

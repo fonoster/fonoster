@@ -5,7 +5,6 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
-import Fiber from 'fibers'
 
 const expect = chai.expect
 chai.use(sinonChai)
