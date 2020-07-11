@@ -11,8 +11,6 @@ services:
       CERTS_PATH: /certs
     expose:
       - ${AS_PORT}
-    volumes:
-      - ./etc/certs:/certs 
     logging:
       driver: fluentd
       options:
@@ -74,11 +72,8 @@ services:
     env_file: .env
     image: ${MC_IMAGE}
     restart: always
-    environment:
-      CERTS_PATH: /certs
     volumes:
       - data1-1:/fonos
-      - ./etc/certs:/certs
     expose:
       - ${MC_AGI_PORT}
     logging:
@@ -189,5 +184,4 @@ services:
 # For custom volumes replace with volume driver configuration.
 volumes:
   data1-1:
-  credentials:
   datasource:
