@@ -1,6 +1,9 @@
-import { FonosService, NumbersService, NumbersPB } from '@fonos/core'
-import { Number } from '@fonos/core/src/server/protos/numbers_pb'
-import { App } from '@fonos/core/src/server/protos/appmanager_pb'
+import {
+  FonosService,
+  NumbersService,
+  NumbersPB,
+  AppManagerPB
+} from '@fonos/core'
 
 /**
  * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
@@ -69,7 +72,7 @@ export default class Numbers extends FonosService {
     ingressApp: any
     aorLink: any
   }): Promise<Number> {
-    const number = new Number()
+    const number = new NumbersPB.Number()
     number.setProviderRef(request.providerRef)
     number.setE164Number(request.e164Number)
     number.setIngressApp(request.ingressApp)
@@ -97,7 +100,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)             // returns the Number object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getNumber (ref: string): Promise<Number> {
+  async getNumber (ref: string): Promise<NumbersPB.Number> {
     const request = new NumbersPB.GetNumberRequest()
     request.setRef(ref)
     return this.service.getNumber().sendMessage(request)
@@ -126,7 +129,7 @@ export default class Numbers extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async updateNumber (request: any): Promise<Number> {
-    const numberFromDB = await this.getNumber(request.ref)
+    const numberFromDB: any = await this.getNumber(request.ref)
 
     if (request.aorLink && request.ingressApp) {
       throw `'ingressApp' and 'aorLink' are not compatible parameters`
@@ -222,7 +225,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Application
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async getIngressApp (request: any): Promise<App> {
+  async getIngressApp (request: any): Promise<AppManagerPB.App> {
     const req = new NumbersPB.GetIngressAppRequest()
     req.setE164Number(request.e164Number)
 
@@ -233,7 +236,7 @@ export default class Numbers extends FonosService {
   }
 
   // Internal API
-  getIngressAppSync (request: any): App {
+  getIngressAppSync (request: any): AppManagerPB.App {
     const sleep = require('sync').sleep
     let result
     let error
