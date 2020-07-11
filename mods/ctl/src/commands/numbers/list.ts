@@ -3,8 +3,7 @@ import Numbers from '@fonos/numbers'
 import { CLIError } from '@oclif/errors'
 import { Command, flags } from '@oclif/command'
 import inquirer from 'inquirer'
-import { View } from '@fonos/core/src/server/protos/common_pb'
-import { Number } from '@fonos/core/src/server/protos/numbers_pb'
+import { CommonPB, NumbersPB } from '@fonos/core'
 const Table = require('easy-table')
 const moment = require('moment')
 
@@ -16,7 +15,7 @@ class ListCommand extends Command {
       let firstBatch = true
       let pageToken = '1'
       const pageSize = flags.size
-      const view: View = View.BASIC
+      const view: CommonPB.View = CommonPB.View.BASIC
       while (true) {
         // Get a list
         const result: any = await numbers.listNumbers({
@@ -37,7 +36,7 @@ class ListCommand extends Command {
 
         const t = new Table()
 
-        list.forEach((number: Number) => {
+        list.forEach((number: NumbersPB.Number) => {
           t.cell('Ref', number.getRef())
           t.cell('Provider Ref', number.getProviderRef())
           t.cell('E164 Number', number.getE164Number())

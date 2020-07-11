@@ -11,6 +11,7 @@ import DomainsService from './server/protos/domains_grpc_pb'
 import DomainsPB from './server/protos/domains_pb'
 import AgentsService from './server/protos/agents_grpc_pb'
 import AgentsPB from './server/protos/agents_pb'
+import CommonPB from './server/protos/common_pb'
 
 export {
   FonosService,
@@ -25,5 +26,6 @@ export {
   DomainsService,
   DomainsPB,
   AgentsService,
-  AgentsPB
+  AgentsPB,
+  CommonPB
 }

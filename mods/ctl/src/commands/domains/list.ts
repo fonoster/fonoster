@@ -3,8 +3,7 @@ import Domains from '@fonos/domains'
 import { CLIError } from '@oclif/errors'
 import { Command, flags } from '@oclif/command'
 import inquirer from 'inquirer'
-import { View } from '@fonos/core/src/server/protos/common_pb'
-import { Domain } from '@fonos/core/src/server/protos/domains_pb'
+import { CommonPB, DomainsPB } from '@fonos/core'
 const Table = require('easy-table')
 const moment = require('moment')
 
@@ -29,7 +28,7 @@ export default class ListCommand extends Command {
       let firstBatch = true
       let pageToken = '1'
       const pageSize = flags.size
-      const view: View = View.BASIC
+      const view: CommonPB.View = CommonPB.View.BASIC
       while (true) {
         // Get a list
         const result = await domains.listDomains({ pageSize, pageToken, view })
@@ -46,7 +45,7 @@ export default class ListCommand extends Command {
 
         const t = new Table()
 
-        list.forEach((domain: Domain) => {
+        list.forEach((domain: DomainsPB.Domain) => {
           t.cell('Ref', domain.getRef())
           t.cell('Name', domain.getName())
           t.cell('Domain URI', domain.getDomainUri())

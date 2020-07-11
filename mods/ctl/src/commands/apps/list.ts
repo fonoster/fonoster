@@ -3,7 +3,7 @@ import AppManager from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { Command, flags } from '@oclif/command'
 import { prompt } from 'inquirer'
-import { View } from '@fonos/core/src/server/protos/common_pb'
+import { CommonPB } from '@fonos/core'
 const Table = require('easy-table')
 const moment = require('moment')
 const truncate = require('truncate')
@@ -28,7 +28,7 @@ export default class ListCommand extends Command {
       const appmanager = new AppManager()
       let firstBatch = true
       let pageToken = '0'
-      const view: View = View.BASIC
+      const view: CommonPB.View = CommonPB.View.BASIC
       const pageSize = flags.size
       while (true) {
         // Get a list

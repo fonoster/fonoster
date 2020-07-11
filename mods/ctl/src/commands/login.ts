@@ -5,7 +5,8 @@ import { Command, flags } from '@oclif/command'
 import { join } from 'path'
 import * as fs from 'fs'
 import * as os from 'os'
-import { View } from '@fonos/core/src/server/protos/common_pb'
+import { CommonPB } from '@fonos/core'
+
 const inquirer = require('inquirer')
 
 export default class LoginCommand extends Command {
@@ -50,7 +51,7 @@ export default class LoginCommand extends Command {
 
     let pageToken = '0'
     const pageSize = 1
-    const view: View = View.BASIC
+    const view: CommonPB.View = CommonPB.View.BASIC
 
     try {
       const appmanager = new AppManager({

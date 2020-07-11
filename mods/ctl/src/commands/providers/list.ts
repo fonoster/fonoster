@@ -3,8 +3,7 @@ import Providers from '@fonos/providers'
 import { CLIError } from '@oclif/errors'
 import { Command, flags } from '@oclif/command'
 import inquirer from 'inquirer'
-import { View } from '@fonos/core/src/server/protos/common_pb'
-import { Provider } from '@fonos/core/src/server/protos/providers_pb'
+import { CommonPB, ProvidersPB } from '@fonos/core'
 const Table = require('easy-table')
 const moment = require('moment')
 
@@ -30,7 +29,7 @@ export default class ListCommand extends Command {
       let firstBatch = true
       let pageToken = '1'
       const pageSize = flags.size
-      const view: View = View.BASIC
+      const view: CommonPB.View = CommonPB.View.BASIC
       while (true) {
         // Get a list
         const result = await providers.listProviders({
@@ -51,7 +50,7 @@ export default class ListCommand extends Command {
 
         const t = new Table()
 
-        list.forEach((provider: Provider) => {
+        list.forEach((provider: ProvidersPB.Provider) => {
           t.cell('Ref', provider.getRef())
           t.cell('Name', provider.getName())
           t.cell('Username', provider.getUsername() || '(static)')
