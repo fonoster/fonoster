@@ -61,8 +61,12 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     callback: grpc.sendUnaryData<App>
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
-    const app = await getIngressApp(call.request.getE164Number())
-    callback(null, app)
+
+    try {
+      callback(null, await getIngressApp(call.request.getE164Number()))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async getNumber (

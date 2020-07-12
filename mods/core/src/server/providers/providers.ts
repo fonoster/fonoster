@@ -40,18 +40,23 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     const provider = call.request.getProvider()
-    const resource = new REncoder(
-      Kind.GATEWAY,
-      provider.getName(),
-      provider.getRef()
-    )
-      .withCredentials(provider.getUsername(), provider.getSecret())
-      .withHost(provider.getHost())
-      .withTransport(provider.getTransport())
-      .withExpires(provider.getExpires())
-      .build()
 
-    callback(null, await createResource(resource, providerDecoder))
+    try {
+      const resource = new REncoder(
+        Kind.GATEWAY,
+        provider.getName(),
+        provider.getRef()
+      )
+        .withCredentials(provider.getUsername(), provider.getSecret())
+        .withHost(provider.getHost())
+        .withTransport(provider.getTransport())
+        .withExpires(provider.getExpires())
+        .build()
+
+      callback(null, await createResource(resource, providerDecoder))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async updateProvider (
@@ -59,22 +64,27 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
     callback: grpc.sendUnaryData<Provider>
   ) {
     const provider = call.request.getProvider()
-    const resource = new REncoder(
-      Kind.GATEWAY,
-      provider.getName(),
-      provider.getRef()
-    )
-      .withMetadata({
-        createdOn: provider.getCreateTime(),
-        modifiedOn: provider.getUpdateTime()
-      })
-      .withCredentials(provider.getUsername(), provider.getSecret())
-      .withHost(provider.getHost())
-      .withTransport(provider.getTransport())
-      .withExpires(provider.getExpires())
-      .build()
 
-    callback(null, await updateResource(resource, providerDecoder))
+    try {
+      const resource = new REncoder(
+        Kind.GATEWAY,
+        provider.getName(),
+        provider.getRef()
+      )
+        .withMetadata({
+          createdOn: provider.getCreateTime(),
+          modifiedOn: provider.getUpdateTime()
+        })
+        .withCredentials(provider.getUsername(), provider.getSecret())
+        .withHost(provider.getHost())
+        .withTransport(provider.getTransport())
+        .withExpires(provider.getExpires())
+        .build()
+
+      callback(null, await updateResource(resource, providerDecoder))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async getProvider (

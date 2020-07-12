@@ -27,14 +27,19 @@ class AppManagerServer implements IAppManagerServer {
     callback: grpc.sendUnaryData<ListAppsResponse>
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
-    const result = await listApps(
-      parseInt(call.request.getPageToken()),
-      call.request.getPageSize()
-    )
-    const response = new ListAppsResponse()
-    response.setAppsList(result.apps)
-    response.setNextPageToken('' + result.upperRange)
-    callback(null, response)
+
+    try {
+      const result = await listApps(
+        parseInt(call.request.getPageToken()),
+        call.request.getPageSize()
+      )
+      const response = new ListAppsResponse()
+      response.setAppsList(result.apps)
+      response.setNextPageToken('' + result.upperRange)
+      callback(null, response)
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async getApp (
@@ -55,8 +60,11 @@ class AppManagerServer implements IAppManagerServer {
     callback: grpc.sendUnaryData<App>
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
-    const app = await createApp(call.request.getApp())
-    callback(null, app)
+    try {
+      callback(null, await createApp(call.request.getApp()))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   updateApp (

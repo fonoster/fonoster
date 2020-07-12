@@ -41,12 +41,17 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     const agent = call.request.getAgent()
-    const resource = new REncoder(Kind.AGENT, agent.getName())
-      .withCredentials(agent.getUsername(), agent.getSecret())
-      .withDomains(agent.getDomainsList())
-      .build()
-    //.withPrivacy(provider.getPrivacy()) // TODO
-    callback(null, await createResource(resource, agentDecoder))
+
+    try {
+      const resource = new REncoder(Kind.AGENT, agent.getName())
+        .withCredentials(agent.getUsername(), agent.getSecret())
+        .withDomains(agent.getDomainsList())
+        .build()
+      //.withPrivacy(provider.getPrivacy()) // TODO
+      callback(null, await createResource(resource, agentDecoder))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async updateAgent (
@@ -55,15 +60,19 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     const agent = call.request.getAgent()
-    const resource = new REncoder(Kind.AGENT, agent.getName(), agent.getRef())
-      .withCredentials(agent.getUsername(), agent.getSecret())
-      .withDomains(agent.getDomainsList())
-      .withMetadata({
-        createdOn: agent.getCreateTime(),
-        modifiedOn: agent.getUpdateTime()
-      })
-      .build()
-    callback(null, await updateResource(resource, agentDecoder))
+    try {
+      const resource = new REncoder(Kind.AGENT, agent.getName(), agent.getRef())
+        .withCredentials(agent.getUsername(), agent.getSecret())
+        .withDomains(agent.getDomainsList())
+        .withMetadata({
+          createdOn: agent.getCreateTime(),
+          modifiedOn: agent.getUpdateTime()
+        })
+        .build()
+      callback(null, await updateResource(resource, agentDecoder))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async getAgent (

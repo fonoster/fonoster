@@ -40,16 +40,20 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     const domain = call.request.getDomain()
-    const resource = new REncoder(
-      Kind.DOMAIN,
-      domain.getName(),
-      domain.getRef()
-    )
-      .withDomainUri(domain.getDomainUri())
-      .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
-      .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
-      .build()
-    callback(null, await createResource(resource, domainDecoder))
+    try {
+      const resource = new REncoder(
+        Kind.DOMAIN,
+        domain.getName(),
+        domain.getRef()
+      )
+        .withDomainUri(domain.getDomainUri())
+        .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
+        .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
+        .build()
+      callback(null, await createResource(resource, domainDecoder))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async updateDomain (
@@ -58,20 +62,25 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     const domain = call.request.getDomain()
-    const resource = new REncoder(
-      Kind.DOMAIN,
-      domain.getName(),
-      domain.getRef()
-    )
-      .withMetadata({
-        createdOn: domain.getCreateTime(),
-        modifiedOn: domain.getUpdateTime()
-      })
-      .withDomainUri(domain.getDomainUri())
-      .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
-      .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
-      .build()
-    callback(null, await updateResource(resource, domainDecoder))
+
+    try {
+      const resource = new REncoder(
+        Kind.DOMAIN,
+        domain.getName(),
+        domain.getRef()
+      )
+        .withMetadata({
+          createdOn: domain.getCreateTime(),
+          modifiedOn: domain.getUpdateTime()
+        })
+        .withDomainUri(domain.getDomainUri())
+        .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
+        .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
+        .build()
+      callback(null, await updateResource(resource, domainDecoder))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async getDomain (

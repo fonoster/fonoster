@@ -21,13 +21,18 @@ export default class ResourceServer {
     callback: grpc.sendUnaryData<any>
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
-    const r = await listResources(
-      this.kind,
-      parseInt(call.request.getPageToken()),
-      call.request.getPageSize(),
-      this.decoder
-    )
-    callback(null, r)
+
+    try {
+      const r = await listResources(
+        this.kind,
+        parseInt(call.request.getPageToken()),
+        call.request.getPageSize(),
+        this.decoder
+      )
+      callback(null, r)
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async getResource (
@@ -35,10 +40,14 @@ export default class ResourceServer {
     callback: grpc.sendUnaryData<any>
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
-    callback(
-      null,
-      await getResource(call.request.getRef(), this.kind, this.decoder)
-    )
+    try {
+      callback(
+        null,
+        await getResource(call.request.getRef(), this.kind, this.decoder)
+      )
+    } catch (e) {
+      callback(e, null)
+    }
   }
 
   async deleteResource (
@@ -46,6 +55,10 @@ export default class ResourceServer {
     callback: grpc.sendUnaryData<Empty>
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
-    callback(null, await deleteResource(call.request.getRef(), this.kind))
+    try {
+      callback(null, await deleteResource(call.request.getRef(), this.kind))
+    } catch (e) {
+      callback(e, null)
+    }
   }
 }
