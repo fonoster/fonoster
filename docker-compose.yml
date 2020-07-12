@@ -113,13 +113,13 @@ services:
     image: ${FS_IMAGE}
     restart: always
     volumes:
-      - data1-1:/data1
+      - data1-1:/fonos
     expose:
       - ${FS_PORT}
     environment:
       MINIO_ACCESS_KEY: ${FS_USERNAME}
       MINIO_SECRET_KEY: ${FS_SECRET}
-    command: minio server /data1/fonos/
+    command: minio server /fonos
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
