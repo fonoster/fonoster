@@ -1,6 +1,6 @@
 {
   "name": "@fonos/core",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Core artifacts",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -30,10 +30,10 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/certs": "^0.0.12",
-    "@fonos/errors": "^0.0.12",
-    "@fonos/logger": "^0.0.12",
-    "@fonos/types": "^0.0.12",
+    "@fonos/certs": "^0.0.13",
+    "@fonos/errors": "^0.0.13",
+    "@fonos/logger": "^0.0.13",
+    "@fonos/types": "^0.0.13",
     "@types/node": "^13.13.5",
     "axios": "^0.19.2",
     "btoa": "^1.2.1",
