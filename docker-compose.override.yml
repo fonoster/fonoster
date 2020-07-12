@@ -97,11 +97,14 @@ services:
     entrypoint: |
       sh -c '
         cp /ca/* /certs
+        export CERT_NAME=server
+        export SUBJECT=apiserver
         gen-certs
-      '    
-    environment:
-      CERT_NAME: server
-      SUBJECT: apiserver
+
+        export CERT_NAME=client
+        export SUBJECT=localhost
+        gen-certs
+      '
     volumes:
       - certs:/certs
       - ./etc/certs:/ca
