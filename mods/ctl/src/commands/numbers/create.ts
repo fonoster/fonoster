@@ -5,9 +5,8 @@ import Apps from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
-import { View } from '@fonos/core/src/server/protos/common_pb'
-import { App } from '@fonos/core/src/server/protos/appmanager_pb'
-import { Provider } from '@fonos/core/src/server/protos/providers_pb'
+import { CommonPB, AppManagerPB, ProvidersPB } from '@fonos/core'
+
 const inquirer = require('inquirer')
 
 export default class CreateCommand extends Command {
@@ -20,7 +19,7 @@ export default class CreateCommand extends Command {
     console.log('This utility will help you create a new Number')
     console.log('Press ^C at any time to quit.')
 
-    const view: View = View.BASIC
+    const view: CommonPB.View = CommonPB.View.BASIC
     try {
       // TODO: Consider using the autocomplete plugin
       const res = await new Apps().listApps({
@@ -28,17 +27,21 @@ export default class CreateCommand extends Command {
         pageToken: '0',
         view
       })
-      const apps = res.getAppsList().map((app: App) => app.getName())
+      const apps = res
+        .getAppsList()
+        .map((app: AppManagerPB.App) => app.getName())
       const response = await new Providers().listProviders({
         pageSize: 25,
         pageToken: '1'
       })
-      const providers = response.getProvidersList().map((p: Provider) => {
-        const obj: any = {}
-        obj.name = p.getName()
-        obj.value = p.getRef()
-        return obj
-      })
+      const providers = response
+        .getProvidersList()
+        .map((p: ProvidersPB.Provider) => {
+          const obj: any = {}
+          obj.name = p.getName()
+          obj.value = p.getRef()
+          return obj
+        })
 
       if (providers.length === 0) {
         throw new Error('You must create a Provider before adding any Number')

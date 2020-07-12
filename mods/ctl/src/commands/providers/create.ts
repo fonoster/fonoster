@@ -38,7 +38,7 @@ export default class CreateCommand extends Command {
       },
       {
         name: 'transport',
-        message: 'host',
+        message: 'transport',
         type: 'list',
         choices: ['tcp', 'udp'],
         default: 'tcp'
