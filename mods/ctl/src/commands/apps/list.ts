@@ -27,7 +27,7 @@ export default class ListCommand extends Command {
     try {
       const appmanager = new AppManager()
       let firstBatch = true
-      let pageToken = '0'
+      let pageToken = '1'
       const view: CommonPB.View = CommonPB.View.BASIC
       const pageSize = flags.size
       while (true) {
@@ -60,7 +60,11 @@ export default class ListCommand extends Command {
           t.newRow()
         })
 
-        if (apps.length > 0) console.log(t.toString())
+        if (apps.length > 0) {
+          console.log(t.toString())
+        } else {
+          break
+        }
 
         firstBatch = false
         if (!pageToken) break
