@@ -35,7 +35,7 @@ class AppManagerServer implements IAppManagerServer {
       )
       const response = new ListAppsResponse()
       response.setAppsList(result.apps)
-      response.setNextPageToken('' + result.upperRange)
+      if (result.pageToken) response.setNextPageToken('' + result.pageToken)
       callback(null, response)
     } catch (e) {
       callback(e, null)
