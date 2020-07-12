@@ -3,7 +3,6 @@ import { App } from '../protos/appmanager_pb'
 import jsonToApp from './json_to_app'
 
 export default async function (pageToken: number, pageSize: number) {
-  console.log('PERRO SUCIO!')
   if (!pageToken) return {}
   pageToken--
   pageSize--
