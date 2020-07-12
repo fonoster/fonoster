@@ -39,7 +39,7 @@ export default async function createNumber (number: Number): Promise<Number> {
   } else {
     // TODO: Perhaps I should place this in a ENV
     encoder = encoder
-      .withLocation(`tel:${number.getE164Number()}`, 'sip:ast@mediaserver')
+      .withLocation(`tel:${number.getE164Number()}`, process.env.MS_ENDPOINT)
       .withMetadata({ ingressApp: number.getIngressApp() })
   }
 
