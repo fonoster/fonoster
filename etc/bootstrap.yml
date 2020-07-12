@@ -5,6 +5,7 @@
   metadata:
     name: Asterisk PBX
   spec:
+    device: sip.local
     credentials:
       username: ast
       secret: 'changeit'

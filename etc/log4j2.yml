@@ -9,4 +9,4 @@ Configuration:
     Root:
       AppenderRef:
       - ref: Console
-      level: info
+      level: debug
