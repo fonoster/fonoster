@@ -24,7 +24,7 @@ export default class CreateCommand extends Command {
       // TODO: Consider using the autocomplete plugin
       const res = await new Apps().listApps({
         pageSize: 25,
-        pageToken: '0',
+        pageToken: '1',
         view
       })
       const apps = res
@@ -69,7 +69,7 @@ export default class CreateCommand extends Command {
 
       if (!answers.aorLink) {
         if (apps.length === 0) {
-          throw new Error('Did not find any applications')
+          throw new Error('Not application or aorLink found')
         }
 
         const prompt = await inquirer.prompt([
