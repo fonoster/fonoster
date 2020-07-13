@@ -8,7 +8,6 @@ services:
     environment:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
-      CERTS_PATH: /certs
     expose:
       - ${AS_PORT}
     logging:
