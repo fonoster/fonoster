@@ -1,0 +1,13 @@
+redis:
+  usePassword: false
+  cluster:
+    enabled: false
+  persistence:
+    enabled: true
+    mountPath: /bitnami/redis
+    size: 5Gi
+
+minio:
+  accessKey: minio
+  secretKey: minio123
+  mountPath: /fonos

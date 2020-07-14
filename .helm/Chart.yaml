@@ -1,0 +1,21 @@
+apiVersion: v2
+name: fonos
+description: |
+    Project Fonos assembles the components needed to deploy a telephony system. 
+    It helps VoIP integrators quickly deploy new networks and include value-added 
+    services such as Programmable Voice, Messaging, and Video.
+type: application
+version: 0.0.1
+appVersion: 0.0.15
+dependencies:
+  - name: redis
+    version: 10.6.18
+    repository: https://charts.bitnami.com/bitnami
+  - name: minio
+    version: 5.0.23
+    repository: https://hkube.io/helm
+sources:
+  - https://github.com/fonoster/fonos
+keywords: [twilio, routr, sip, voip, webrtc, ims, proxy, registrar, asterisk, kamailio, freepbx, yate, freeswitch, fusionpbx, server]
+maintainers:
+  - name: psanders

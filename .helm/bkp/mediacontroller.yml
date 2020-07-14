@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include ".helm2.fullname" . }}-mediacontroller
+  labels:
+    {{- include ".helm2.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include ".helm2.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include ".helm2.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: mediacontroller
+        image: fonoster/fonos-nodejsmc:latest
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: /certs
+            name: fonos-ssl
+            readOnly: true
+          - mountPath: /root/.fonos
+            name: fonos-access
+            readOnly: true
+          - mountPath: /fonos
+            name: media-files
+            readOnly: true            
+        ports:
+        - name: agi
+          containerPort: 4573
+        envFrom:
+        - configMapRef:
+            name: env     
+      volumes:
+        - name: fonos-ssl
+          secret:
+            secretName: fonos-ssl
+        - name: fonos-access
+          secret:
+            secretName: fonos-access
+        - name: media-files
+          persistentVolumeClaim:
+            claimName: {{ include ".helm2.fullname" . }}-minio

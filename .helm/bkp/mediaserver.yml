@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include ".helm2.fullname" . }}-mediaserver
+  labels:
+    {{- include ".helm2.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include ".helm2.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include ".helm2.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: mediaserver
+        image: fonoster/fonos-mediaserver:latest
+        imagePullPolicy: Always       
+        ports:
+        - name: sip
+          containerPort: 6060
+        envFrom:
+        - configMapRef:
+            name: env

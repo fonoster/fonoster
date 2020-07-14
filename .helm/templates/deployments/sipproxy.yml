@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include ".helm2.fullname" . }}-sipproxy
+  labels:
+    {{- include ".helm2.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include ".helm2.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include ".helm2.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: sipproxy
+        image: fonoster/routr:latest
+        imagePullPolicy: Always       
+        ports:
+        - name: sip
+          containerPort: 5060
+        - name: api
+          containerPort: 4567          
+        envFrom:
+        - configMapRef:
+            name: env

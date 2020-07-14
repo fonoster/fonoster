@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include ".helm2.fullname" . }}-apiserver
+  labels:
+    {{- include ".helm2.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include ".helm2.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include ".helm2.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: fonos
+        image: fonoster/fonos-apiserver:latest
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /certs
+          name: fonos-ssl
+          readOnly: true
+        - mountPath: /root/.fonos
+          name: fonos-access
+          readOnly: true
+        ports:
+        - name: grpc
+          containerPort: 50052
+        envFrom:
+        - configMapRef:
+            name: env     
+      volumes:
+      - name: fonos-ssl
+        secret:
+          secretName: fonos-ssl
+      - name: fonos-access
+        secret:
+          secretName: fonos-access
