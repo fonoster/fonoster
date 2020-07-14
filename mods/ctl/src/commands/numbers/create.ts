@@ -6,7 +6,6 @@ import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
 import { CommonPB, AppManagerPB, ProvidersPB } from '@fonos/core'
-
 const inquirer = require('inquirer')
 
 export default class CreateCommand extends Command {
