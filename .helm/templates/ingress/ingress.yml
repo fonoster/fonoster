@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include ".helm2.fullname" . }}-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      underscores_in_headers on;
+      ignore_invalid_headers on;
+  labels:
+    {{- include ".helm2.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}    
+spec:
+  tls:
+  - hosts: [api.fonos]
+    secretName: fonos-certs
+  rules:
+  - host: api.fonos
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ include ".helm2.fullname" . }}-apiserver
+          servicePort: 50052

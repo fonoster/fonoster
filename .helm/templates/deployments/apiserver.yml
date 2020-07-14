@@ -24,22 +24,16 @@ spec:
         image: fonoster/fonos-apiserver:latest
         imagePullPolicy: Always
         volumeMounts:
-        - mountPath: /certs
-          name: fonos-ssl
-          readOnly: true
         - mountPath: /root/.fonos
           name: fonos-access
           readOnly: true
         ports:
-        - name: grpc
-          containerPort: 50052
+        - containerPort: 50052
+          protocol: TCP
         envFrom:
         - configMapRef:
             name: env     
       volumes:
-      - name: fonos-ssl
-        secret:
-          secretName: fonos-ssl
       - name: fonos-access
         secret:
           secretName: fonos-access

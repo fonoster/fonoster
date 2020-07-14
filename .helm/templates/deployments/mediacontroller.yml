@@ -24,9 +24,6 @@ spec:
         image: fonoster/fonos-nodejsmc:latest
         imagePullPolicy: Always
         volumeMounts:
-          - mountPath: /certs
-            name: fonos-ssl
-            readOnly: true
           - mountPath: /root/.fonos
             name: fonos-access
             readOnly: true
@@ -40,9 +37,6 @@ spec:
         - configMapRef:
             name: env     
       volumes:
-        - name: fonos-ssl
-          secret:
-            secretName: fonos-ssl
         - name: fonos-access
           secret:
             secretName: fonos-access
