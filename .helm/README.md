@@ -65,7 +65,6 @@ secret "fonos-certs" created
 
 > Add api.fonos your /etc/hosts
 
-
 Login
 
 ```fonos login```
