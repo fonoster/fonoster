@@ -44,7 +44,7 @@ docker run -it \
 
 Generate client certificates
 
-````
+```
 docker run -it \
   -v $(pwd)/certs:/certs \
   -e SUBJECT=api.fonos \
@@ -59,10 +59,12 @@ cd certs
 kubectl create secret tls fonos-certs --key tls.key --cert tls.crt
 secret "fonos-certs" created
 ```
+> Must make certs available with env CERTS_PATH
 
 # Login to the server
 
 > Add api.fonos your /etc/hosts
+
 
 Login
 

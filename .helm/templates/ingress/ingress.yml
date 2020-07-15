@@ -12,8 +12,8 @@ metadata:
   namespace: {{ .Release.Namespace }}    
 spec:
   tls:
-  - hosts: [api.fonos]
-    secretName: fonos-certs
+    - hosts: [api.fonos]
+      secretName: fonos-certs
   rules:
   - host: api.fonos
     http:

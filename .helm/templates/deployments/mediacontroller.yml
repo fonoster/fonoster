@@ -29,7 +29,7 @@ spec:
             readOnly: true
           - mountPath: /fonos
             name: media-files
-            readOnly: true            
+            readOnly: true
         ports:
         - name: agi
           containerPort: 4573

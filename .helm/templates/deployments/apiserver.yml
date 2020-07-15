@@ -28,8 +28,8 @@ spec:
           name: fonos-access
           readOnly: true
         ports:
-        - containerPort: 50052
-          protocol: TCP
+        - name: grpc
+          containerPort: 50052
         envFrom:
         - configMapRef:
             name: env     
