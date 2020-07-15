@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include ".helm2.fullname" . }}-sipproxy
   labels:
+    app: sipproxy
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -17,6 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
+        app: sipproxy
         {{- include ".helm2.selectorLabels" . | nindent 8 }}
     spec:
       containers:
@@ -24,10 +26,10 @@ spec:
         image: fonoster/routr:latest
         imagePullPolicy: Always       
         ports:
-        - name: sip
+        - name: sig
           containerPort: 5060
         - name: api
-          containerPort: 4567          
+          containerPort: 4567
         envFrom:
         - configMapRef:
             name: env

@@ -3,16 +3,18 @@ kind: Service
 metadata:
   name:  {{ include ".helm2.fullname" . }}-sipproxy
   labels:
+    app: sipproxy
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
   type: NodePort
   ports:
-  - name: sip
+  - name: sig
     port: 5060
     targetPort: 5060
   - name: api
     port: 4567
     targetPort: 4567
   selector:
+    app: sipproxy
     {{- include ".helm2.selectorLabels" . | nindent 4 }}
