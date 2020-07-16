@@ -6,6 +6,7 @@
 - Docker Engine
 - Kubernetes Cluster
 - NPM
+- Helm
 
 > This was tested in Minikube with K8S 1.18. Minikube was launched using hyperkit.
 
@@ -71,6 +72,12 @@ docker run -it \
 cd certs
 kubectl create secret tls fonos-certs --key tls.key --cert tls.crt
 kubectl create secret generic fonos-access --from-file=./access --from-file=./jwt.salt
+```
+
+## Install Helm Chart
+
+```
+helm install fonos .helm
 ```
 
 ## Add your domain to your `/etc/hosts` (Only if using Minikube)
