@@ -21,23 +21,6 @@ spec:
         app: mediacontroller
         {{- include ".helm2.selectorLabels" . | nindent 8 }}
     spec:
-      #securityContext:
-      #  runAsUser: 1000
-      #  runAsGroup: 1000
-      #  fsGroup: 1000
-      #initContainers:
-      #  - name: take-data-dir-ownership
-      #    image: alpine:3.6
-      #    # Give `mediacontroller` user (id 472) permissions a mounted volume
-      #    command:
-      #    - chown
-      #    - -R  
-      #    - 472:472
-      #    - /fonos/apps
-      #    volumeMounts:
-      #    - mountPath: /fonos
-      #      name: shared-files
-      #      readOnly: false  
       containers:
       - name: mediacontroller
         image: fonoster/fonos-nodejsmc:latest
@@ -54,7 +37,14 @@ spec:
           containerPort: 4573
         envFrom:
         - configMapRef:
-            name: {{ include ".helm2.fullname" . }}-env     
+            name: {{ include ".helm2.fullname" . }}-env
+      - name: chmodhelper
+        image: fonoster/chmodhelper:latest
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: /data
+            name: shared-files
+            readOnly: false    
       volumes:
         - name: fonos-access
           secret:

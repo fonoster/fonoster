@@ -37,7 +37,7 @@ nginx-ingress-controller-5984b97644-rnkrg   1/1       Running   0          1m
 storage-provisioner         
 ```
 
-## Creating and Installing the SSL certificates
+## Creating and Installing the SSL certificates and JWT Token
 
 Simply replace the subject with your own domain. Generate the server certificates using the `fonoster/certshelper` docker image, as follows:
 
@@ -59,12 +59,18 @@ docker run -it \
   fonoster/certshelper
 ```
 
+```
+docker run -it \
+  -v $(pwd)/certs:/certs \
+  fonoster/jwthelper
+```
+
 ## Create secret base on tls certificates
 
 ```
 cd certs
 kubectl create secret tls fonos-certs --key tls.key --cert tls.crt
-secret "fonos-certs" created
+kubectl create secret generic fonos-access --from-file=./access --from-file=./jwt.salt
 ```
 
 ## Add your domain to your `/etc/hosts` (Only if using Minikube)
