@@ -30,4 +30,4 @@ spec:
           containerPort: 6060
         envFrom:
         - configMapRef:
-            name: env
+            name: {{ include ".helm2.fullname" . }}-env

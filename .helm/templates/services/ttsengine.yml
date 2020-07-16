@@ -1,15 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name:  {{ include ".helm2.fullname" . }}-mediaserver
+  name:  {{ include ".helm2.fullname" . }}-ttsengine
   labels:
+    app: ttsengine
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
-  type: NodePort
   ports:
-  - name: sip
-    port: 6060
-    targetPort: 6060
+  - name: http
+    port: 59125
+    targetPort: 59125
   selector:
+    app: ttsengine
     {{- include ".helm2.selectorLabels" . | nindent 4 }}

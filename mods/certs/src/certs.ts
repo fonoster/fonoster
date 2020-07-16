@@ -7,8 +7,8 @@ import { homedir } from 'os'
 const PATH_TO_CONFIG = join(homedir(), '.fonos')
 const PATH_TO_SALT = join(PATH_TO_CONFIG, 'jwt.salt')
 const PATH_TO_ACCESS = join(PATH_TO_CONFIG, 'access')
-const ACCESS_KEY_ID = 'fonos' // WARNING: Fix hardcode
-const ISS = 'fonos' // WARNING: Fix hardcode
+const ACCESS_KEY_ID = process.env.ACCESS_KEY_ID || 'fonos'
+const ISS = process.env.ISS || 'fonos'
 
 if (!fs.existsSync(PATH_TO_CONFIG)) fs.mkdirSync(PATH_TO_CONFIG)
 

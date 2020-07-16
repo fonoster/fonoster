@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include ".helm2.fullname" . }}-sipproxy
+  name: {{ include ".helm2.fullname" . }}-ttsengine
   labels:
-    app: sipproxy
+    app: ttsengine
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -18,18 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       labels:
-        app: sipproxy
+        app: ttsengine
         {{- include ".helm2.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-      - name: sipproxy
-        image: fonoster/routr:latest
+      - name: ttsengine
+        image: synesthesiam/marytts:5.2
         imagePullPolicy: Always       
         ports:
-        - name: sig
-          containerPort: 5060
-        - name: api
-          containerPort: 4567
-        envFrom:
-        - configMapRef:
-            name: {{ include ".helm2.fullname" . }}-env
+        - name: http
+          containerPort: 59125
