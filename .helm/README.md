@@ -95,7 +95,7 @@ To install the chart with the release name my-release:
 
 ```
 $ kubectl create namespace fonos
-$ Helm install my-release fonoster/fonos --namespace fonos
+$ helm install my-release fonoster/fonos --namespace fonos
 ```
 
 The command deploys Project Fonos in the `fonos` namespace on the Kubernetes cluster in the default configuration.
