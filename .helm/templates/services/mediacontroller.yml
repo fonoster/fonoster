@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name:  {{ include ".helm2.fullname" . }}-mediacontroller
   labels:
+    app: mediacontroller
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -11,4 +12,5 @@ spec:
     port: 4573
     targetPort: 4573
   selector:
+    app: mediacontroller
     {{- include ".helm2.selectorLabels" . | nindent 4 }}

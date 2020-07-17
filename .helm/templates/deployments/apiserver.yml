@@ -20,19 +20,7 @@ spec:
       labels:
         app: apiserver
         {{- include ".helm2.selectorLabels" . | nindent 8 }}
-    spec:
-      initContainers:
-      - name: wait-for-{{ include ".helm2.fullname" . }}-minio
-        image: busybox
-        command: ['sh', '-c', 'until nslookup {{ include ".helm2.fullname" . }}-minio; do echo waiting for {{ include ".helm2.fullname" . }}-minio; sleep 2; done;']
-      - name: create-default-buckets
-        image: fonoster/fonos-apiserver:latest
-        command:
-        - node
-        - node_modules/@fonos/core/dist/common/fsutils.js
-        envFrom:
-          - configMapRef:
-              name: {{ include ".helm2.fullname" . }}-env              
+    spec:         
       containers:       
       - name: fonos
         image: fonoster/fonos-apiserver:latest

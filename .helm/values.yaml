@@ -11,3 +11,10 @@ minio:
   accessKey: minio
   secretKey: minio123
   mountPath: /fonos
+  buckets: 
+    - name: apps
+      policy: none
+      purge: false
+    - name: default
+      policy: public
+      purge: false

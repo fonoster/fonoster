@@ -31,7 +31,7 @@ spec:
             readOnly: true
           - mountPath: /fonos
             name: shared-files
-            readOnly: false
+            readOnly: true
         ports:
         - name: agi
           containerPort: 4573
@@ -44,7 +44,7 @@ spec:
         volumeMounts:
           - mountPath: /data
             name: shared-files
-            readOnly: false    
+            readOnly: false
       volumes:
         - name: fonos-access
           secret:

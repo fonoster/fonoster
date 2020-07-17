@@ -18,4 +18,7 @@ sources:
   - https://github.com/fonoster/fonos
 keywords: [twilio, routr, sip, voip, webrtc, ims, proxy, registrar, asterisk, kamailio, freepbx, yate, freeswitch, fusionpbx, server]
 maintainers:
+  - name: Fonoster
+    email: fonosterteam@fonoster.com
   - name: psanders
+    email: psanders@fonoster.com
