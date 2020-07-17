@@ -1,3 +1,13 @@
+
+## Login to the server
+
+Setup the certificates in your environment variable `CERTS_PATH`. Then, run the `fonos login` command and follow the
+prompt.
+
+```
+fonos login
+```
+
 # Configure the Voip network
 
 To configure your Voip network, by first creating a `Provider`. To create provider simply run the `fonos providers:create`
