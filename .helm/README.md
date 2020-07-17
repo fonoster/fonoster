@@ -119,7 +119,7 @@ Add the IP in the output to your `/etc/hosts`.
 To uninstall/delete the `my-release` deployment:
 
 ```bash
-$ Helm uninstall my-release
+$ helm uninstall my-release
 ```
 
 The command removes all the Kubernetes components associated with the chart and eliminates the release.
@@ -170,5 +170,5 @@ $ helm install --wait my-release \
 Alternatively, you can provide a YAML file that specifies the above parameters' values while installing the chart. For example:
 
 ```bash
-$ Helm install --wait my-release -f values.yaml fonoster/fonos
+$ helm install --wait my-release -f values.yaml fonoster/fonos
 ```
