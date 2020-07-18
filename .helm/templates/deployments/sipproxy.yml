@@ -24,7 +24,7 @@ spec:
       containers:
       - name: sipproxy
         image: fonoster/routr:latest
-        imagePullPolicy: Always       
+        imagePullPolicy: Always
         ports:
         - name: sig
           containerPort: 5060
