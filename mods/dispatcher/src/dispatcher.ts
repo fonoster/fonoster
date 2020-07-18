@@ -17,7 +17,8 @@ if (process.env.NODE_ENV === 'dev') {
 
 function dispatch (channel: any) {
   try {
-    const ingressInfo = getIngressInfo(channel.request.extension)
+    const toHeader = channel.getVariable('TO_HEADER').replace('<', '').replace('>', '')
+    const ingressInfo = getIngressInfo(toHeader.match(/^([^@]*)@/)[1])
     const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
     const chann = new Verbs(channel, {
       tts: new MaryTTS(),
