@@ -1,5 +1,5 @@
 import logger from '@fonos/logger'
-import  Storage from '@fonos/storage'
+import Storage from '@fonos/storage'
 import MaryTTS from '@fonos/marytts'
 import Verbs from '@fonos/voice'
 import getIngressInfo from './utils'
@@ -17,7 +17,11 @@ if (process.env.NODE_ENV === 'dev') {
 
 function dispatch (channel: any) {
   try {
-    const toHeader = channel.getVariable('TO_HEADER').replace('<', '').replace('>', '')
+    const toHeader = channel
+      .getVariable('TO_HEADER')
+      .replace('<', '')
+      .replace('>', '')
+      .replace('sip:', '')
     const ingressInfo = getIngressInfo(toHeader.match(/^([^@]*)@/)[1])
     const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
     const chann = new Verbs(channel, {
@@ -31,9 +35,6 @@ function dispatch (channel: any) {
   }
 }
 
-logger.log(
-  'info',
-  `Fonos Media Controller is online @ ${SERVICE_PORT}`
-)
+logger.log('info', `Fonos Media Controller is online @ ${SERVICE_PORT}`)
 
 new AGIServer(dispatch, SERVICE_PORT)
