@@ -170,5 +170,5 @@ fonoster/fonos
 Alternatively, you can provide a YAML file that specifies the above parameters' values while installing the chart. For example:
 
 ```bash
-$ helm install --wait my-release -f values.yaml fonoster/fonos
+helm install --wait fonos -f values.yaml fonoster/fonos
 ```
