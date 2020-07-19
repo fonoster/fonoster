@@ -1,4 +1,4 @@
-# Fonos
+# Project Fonos
 
 Project Fonos assembles the components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
