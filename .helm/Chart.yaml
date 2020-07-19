@@ -5,7 +5,7 @@ description: |
     It helps VoIP integrators quickly deploy new networks and include value-added 
     services such as Programmable Voice, Messaging, and Video.
 type: application
-version: 0.0.2
+version: 0.0.3
 appVersion: 0.0.19
 dependencies:
   - name: redis
