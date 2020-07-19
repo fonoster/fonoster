@@ -7,7 +7,7 @@ metadata:
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
-  type: NodePort
+  type: {{ .Values.sipproxy.serviceType }}
   ports:
   - name: sig
     port: 5060

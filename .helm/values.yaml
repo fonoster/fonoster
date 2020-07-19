@@ -1,3 +1,10 @@
+externAddr: ""
+sipproxy:
+  serviceType: NodePort
+
+mediaserver:
+  serviceType: NodePort
+
 redis:
   usePassword: false
   cluster:
