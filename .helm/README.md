@@ -162,9 +162,9 @@ redis:
 Specify each parameter using the --set key=value[,key=value] argument to helm install. For example,
 
 ```bash
-$ helm install --wait my-release \
-  --set fonos.logLevel=debug \
-  fonoster/fonos
+helm upgrade --wait fonos 
+--set sipproxy.serviceType=LoadBalancer \
+fonoster/fonos  
 ```
 
 Alternatively, you can provide a YAML file that specifies the above parameters' values while installing the chart. For example:
