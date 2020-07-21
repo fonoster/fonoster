@@ -4,8 +4,8 @@ import Apps from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
-import { View } from '@fonos/core/src/server/protos/common_pb'
-import { App } from '@fonos/core/src/server/protos/appmanager_pb'
+import { CommonPB, AppManagerPB } from '@fonos/core'
+
 const inquirer = require('inquirer')
 
 class UpdateCommand extends Command {
@@ -14,17 +14,17 @@ class UpdateCommand extends Command {
     console.log('Press ^C at any time to quit.')
 
     // TODO: Consider using the autocomplete plugin
-    const view: View = View.BASIC
+    const view: CommonPB.View = CommonPB.View.BASIC
     const response = await new Apps().listApps({
       pageSize: 25,
       pageToken: '1',
       view
     })
-    const appsNames = response.getAppsList().map((app: App) => app.getName())
-
+    const appsNames = response
+      .getAppsList()
+      .map((app: AppManagerPB.App) => app.getName())
     const { args } = this.parse(UpdateCommand)
     const numbers = new Numbers()
-    const number = await numbers.getNumber(args.ref)
 
     const answers = await inquirer.prompt([
       {
