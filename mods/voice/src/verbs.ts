@@ -71,6 +71,13 @@ class Verbs {
   }
 
   /**
+   * Returns configuration object
+   */
+  getConfig () {
+    return this._config
+  }
+
+  /**
    * Answer a call if not already answered.
    */
   answer () {
