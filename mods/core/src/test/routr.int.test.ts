@@ -59,28 +59,28 @@ describe('Routr Server', () => {
     await routr.connect()
   })
 
-  it.only('creates new domain', async () => {
+  it('creates new domain', async () => {
     await expect(routr.resourceType('domains').create(domain)).fulfilled
   })
 
-  it.only('creates new agent', async () => {
+  it('creates new agent', async () => {
     await routr.resourceType('agents').create(agent)
   })
 
-  it.only('failes because agent already exist', async () => {
+  it('failes because agent already exist', async () => {
     await expect(
       routr.resourceType('agents').create(agent)
     ).to.be.eventually.rejectedWith('Entity already exist')
   })
 
-  it.only('deletes the agent and domain', async () => {
+  it('deletes the agent and domain', async () => {
     await expect(routr.resourceType('agents').delete(agent.metadata.ref)).to.be
       .eventually.fulfilled
     await expect(routr.resourceType('domains').delete(domain.metadata.ref)).to
       .be.eventually.fulfilled
   })
 
-  it.only('fails because of bad reference', async () => {
+  it('fails because of bad reference', async () => {
     agent.metadata.ref = 'a'
     await expect(routr.resourceType('agents').create(agent)).to.be.rejectedWith(
       '$[0].metadata.ref: must be at least 3 characters long'
