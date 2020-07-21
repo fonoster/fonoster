@@ -2,7 +2,7 @@
  * @author Pedro Sanders
  * @since v1
  */
-const MaryTTS = require('@fonos/tts/marytts')
+const MaryTTS = require('@fonos/marytts')
 const { transcodeSync } = require('@fonos/tts/utils')
 const { storage } = require('./config')
 

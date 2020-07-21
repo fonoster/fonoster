@@ -6,6 +6,7 @@
   "author": "Pedro Sanders",
   "license": "MIT",
   "dependencies": {
+    "@fonos/googletts": "0.0.20",
     "@fonos/tts": "^0.0.3"
   }
 }

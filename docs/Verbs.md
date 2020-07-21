@@ -11,6 +11,7 @@ of some verbs, such as `Say`.
 * [Verbs](#Verbs)
     * [new Verbs()](#new_Verbs_new)
     * [.config(config)](#Verbs+config)
+    * [.getConfig()](#Verbs+getConfig)
     * [.answer()](#Verbs+answer)
     * [.hangup()](#Verbs+hangup)
     * [.setAutoHangup()](#Verbs+setAutoHangup)
@@ -40,6 +41,12 @@ Configure the Verbs object.
 | config.storage | <code>string</code> | A replacement for the storage. Use this Only to overwrite the parameters set in your `fonos.json.` |
 | config.tts | <code>string</code> | A replacement for the default TTS engine |
 
+<a name="Verbs+getConfig"></a>
+
+### verbs.getConfig()
+Returns configuration object
+
+**Kind**: instance method of [<code>Verbs</code>](#Verbs)  
 <a name="Verbs+answer"></a>
 
 ### verbs.answer()
