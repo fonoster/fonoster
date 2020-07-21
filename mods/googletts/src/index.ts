@@ -1,3 +1,3 @@
-import GoogleTTs from './google_tts'
+import GoogleTTS from './google_tts'
 
-export default GoogleTTs
+export default GoogleTTS
