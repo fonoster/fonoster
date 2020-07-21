@@ -162,7 +162,7 @@ redis:
 Specify each parameter using the --set key=value[,key=value] argument to helm install. For example,
 
 ```bash
-helm upgrade --wait fonos 
+helm upgrade --wait fonos \
 --set sipproxy.serviceType=LoadBalancer \
 fonoster/fonos  
 ```
