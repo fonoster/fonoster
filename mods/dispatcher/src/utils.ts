@@ -35,7 +35,7 @@ export default function (extension: string) {
 
     return {
       entryPoint: `${packageBase}/${entryPoint || 'index.js'}`,
-      bucket: bucket || 'default'
+      bucket: bucket || process.env.FS_DEFAULT_STORAGE_BUCKET
     }
   } catch (err) {
     throw err
