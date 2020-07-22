@@ -34,23 +34,22 @@ type Voice = {
  * }
  */
 class GoogleTTS extends AbstractTTS {
+  config: { projectId: string; keyFilename: string }
   /**
    * Constructs a new GoogleTTS object.
    *
    * @see module:tts:AbstractTTS
    */
-  constructor () {
+  constructor (config: { projectId: string; keyFilename: string }) {
     super('google-tts')
+    this.config = config
   }
 
   /**
    * @inherit
-   *
-   * options  {
-   * }
    */
   async synthesize (text: string, options: Voice = {}): Promise<string> {
-    const client = new textToSpeech.TextToSpeechClient()
+    const client = new textToSpeech.TextToSpeechClient(this.config)
     const pathToFile = path.join('/tmp', computeFilename(text, options, 'mp3'))
 
     logger.log(

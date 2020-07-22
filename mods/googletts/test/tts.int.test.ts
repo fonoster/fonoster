@@ -39,9 +39,12 @@ describe('@fonos/googletts', () => {
   })*/
 
   it.only('synthesizes text and returns path to file', async () => {
-    process.env.GOOGLE_APPLICATION_CREDENTIALS =
-      '/Users/pedrosanders/Projects/gtts/fonos_google_tts.json'
-    const tts = new GoogleTTS()
+    const config = {
+      projectId: 'clever-tube-275321',
+      keyFilename: '/Users/pedrosanders/Projects/fonos/credentials.json'
+    }
+
+    const tts = new GoogleTTS(config)
     await tts.synthesize('Hello Kayla, how are you doing today?', {
       ssmlGender: 'FEMALE'
     })
