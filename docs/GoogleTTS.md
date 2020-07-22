@@ -38,8 +38,7 @@ module.exports = chan => {
 
 ### googleTTS.synthesize()
 **Kind**: instance method of [<code>GoogleTTS</code>](#GoogleTTS)  
-**Inherit**: options  {
-}  
+**Inherit**:   
 <a name="AbstractTTS+synthesizeSync"></a>
 
 ### googleTTS.synthesizeSync(text, options) ⇒ <code>string</code>
