@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: {{ include ".helm2.fullname" . }}-ingress
   annotations:
+    # TODO: Perhaps, this should be a parameter in value.yaml
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     nginx.ingress.kubernetes.io/server-snippet: |
       underscores_in_headers on;
