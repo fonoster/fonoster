@@ -6,7 +6,7 @@ const GoogleTTS = require('@fonos/googletts').default
 const path = require('path')
 const googleCredentials = {
   projectId: 'clever-tube-275321',
-  keyFilename: path.join(__dirname, credentials.json)
+  keyFilename: path.join(__dirname, 'google_credentials.json')
 }
 
 module.exports = chan => {
