@@ -25,6 +25,31 @@ spec:
       - name: fonos
         image: fonoster/fonos-apiserver:latest
         imagePullPolicy: Always
+        env:
+        - name: SIPPROXY_HOST
+          value: {{ include ".helm2.fullname" . }}-sipproxy.{{ .Release.Namespace }}.svc.cluster.local
+        - name: MS_ENDPOINT  # Fixme
+          value: sip:ast@sip.local 
+        - name: DS_HOST
+          value: {{ include ".helm2.fullname" . }}-redis-master
+        - name: DS_PORT
+          value: "6379"
+        - name: SIPPROXY_API_PORT
+          value: "4567"
+        - name: SIPPROXY_API_USERNAME
+          value: admin
+        - name: SIPPROXY_API_SECRET
+          value: changeit
+        - name: FS_HOST
+          value: {{ include ".helm2.fullname" . }}-minio
+        - name: FS_PORT
+          value: "9000"
+        - name: FS_USERNAME
+          value: minio
+        - name: FS_SECRET
+          value: minio123
+        - name: FS_DEFAULT_STORAGE_BUCKET
+          value: default          
         volumeMounts:
         - mountPath: /root/.fonos
           name: fonos-access
@@ -32,9 +57,6 @@ spec:
         ports:
         - name: grpc
           containerPort: 50052
-        envFrom:
-        - configMapRef:
-            name: {{ include ".helm2.fullname" . }}-env   
       volumes:
       - name: fonos-access
         secret:

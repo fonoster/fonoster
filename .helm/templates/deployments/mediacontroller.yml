@@ -25,19 +25,23 @@ spec:
       - name: mediacontroller
         image: fonoster/fonos-nodejsmc:latest
         imagePullPolicy: Always
+        env:
+        - name: APISERVER_ENDPOINT
+          value: "{{ include ".helm2.fullname" . }}-apiserver:50052"
+        - name: TTS_ENGINE_HOST
+          value: {{ include ".helm2.fullname" . }}-ttsengine
+        - name: TTS_ENGINE_PORT
+          value: "59125"
         volumeMounts:
           - mountPath: /root/.fonos
             name: fonos-access
             readOnly: true
           - mountPath: /fonos
             name: shared-files
-            readOnly: true
+            readOnly: false
         ports:
         - name: agi
           containerPort: 4573
-        envFrom:
-        - configMapRef:
-            name: {{ include ".helm2.fullname" . }}-env
       - name: chmodhelper
         image: fonoster/chmodhelper:latest
         imagePullPolicy: Always

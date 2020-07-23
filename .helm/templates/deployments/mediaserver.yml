@@ -24,10 +24,25 @@ spec:
       containers:
       - name: mediaserver
         image: fonoster/fonos-mediaserver:latest
-        imagePullPolicy: Always       
+        imagePullPolicy: Always     
+        env:
+          # Asterisk will not send outbound registration in K8s unless it has a FQDN
+          # As a workaround we simply use the POD's FQND
+        - name: EXTERN_ADDR
+          value: {{ .Values.mediaserver.externAddr | quote }}
+        - name: EXTERN_PORT 
+          value: {{ .Values.mediaserver.externPort | quote }}
+        - name: SIPPROXY_HOST
+          value: {{ include ".helm2.fullname" . }}-sipproxy.{{ .Release.Namespace }}.svc.cluster.local
+        - name: SIPPROXY_USERNAME
+          value: {{ .Values.mediaserver.proxyUsername | quote }}
+        - name: SIPPROXY_SECRET
+          value: {{ .Values.mediaserver.proxySecret | quote }}
+        - name: ENABLE_TEST_ACCOUNT
+          value: "true"
+        - name: AGI_URL
+          value: agi://{{ include ".helm2.fullname" . }}-mediacontroller
         ports:
         - name: sip
           containerPort: 6060
-        envFrom:
-        - configMapRef:
-            name: {{ include ".helm2.fullname" . }}-env
+

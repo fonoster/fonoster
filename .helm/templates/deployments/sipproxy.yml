@@ -25,11 +25,17 @@ spec:
       - name: sipproxy
         image: fonoster/routr:latest
         imagePullPolicy: Always
+        env:
+        - name: REGISTRAR_INTF
+          value: Internal
+        - name: EXTERN_ADDR
+          value: {{ .Values.sipproxy.externAddr | quote }}
+        - name: DATA_SOURCE_PROVIDER
+          value: redis_data_provider
+        - name: DATA_SOURCE_PARAMETERS
+          value: host={{ include ".helm2.fullname" . }}-redis-master,port=6379
         ports:
         - name: sig
           containerPort: 5060
         - name: api
           containerPort: 4567
-        envFrom:
-        - configMapRef:
-            name: {{ include ".helm2.fullname" . }}-env

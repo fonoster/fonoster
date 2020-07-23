@@ -1,9 +1,15 @@
 externAddr: ""
 sipproxy:
   serviceType: NodePort
+  externAddr: ""
 
 mediaserver:
   serviceType: NodePort
+  externAddr: ""
+  externPort: 30001
+  proxyUsername: ast
+  proxySecret: changeit
+  port: 6060
 
 redis:
   usePassword: false

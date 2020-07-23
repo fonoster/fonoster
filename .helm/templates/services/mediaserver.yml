@@ -8,10 +8,14 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   type: {{ .Values.mediaserver.serviceType }}
+  externalTrafficPolicy: Local
   ports:
   - name: sip
-    port: 6060
-    targetPort: 6060
+    port: {{ .Values.mediaserver.port }}
+    targetPort: {{ .Values.mediaserver.port  }}
+    {{- if eq .Values.mediaserver.serviceType "NodePort" }}
+    nodePort: {{ .Values.mediaserver.externPort }}
+    {{- end }}
   selector:
     app: mediaserver
     {{- include ".helm2.selectorLabels" . | nindent 4 }}
