@@ -1,6 +1,7 @@
 {
     "console": "inherit",
     "require": {
-        "external": true
+	"external": true,
+	"builtin": ["fs", "path"]
     }
 }
