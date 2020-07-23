@@ -3,6 +3,7 @@ kind: Service
 metadata:
   name: {{ include ".helm2.fullname" . }}-apiserver
   labels:
+    app: apiserver
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -13,4 +14,5 @@ spec:
     port: 50052
     targetPort: 50052
   selector:
+    app: apiserver
     {{- include ".helm2.selectorLabels" . | nindent 4 }}
