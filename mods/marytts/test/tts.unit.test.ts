@@ -3,10 +3,9 @@ import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
-import { join } from 'path'
+import path from 'path'
 import http from 'http'
 import fs from 'fs'
-import path from 'path'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -14,7 +13,7 @@ chai.use(chaiAsPromised)
 const sandbox = sinon.createSandbox()
 
 if (process.env.NODE_ENV === 'dev') {
-  require('dotenv').config({ path: join(__dirname, '..', '..', '.env') })
+  require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') })
 }
 
 describe('@fonos/marytts', () => {
@@ -29,7 +28,7 @@ describe('@fonos/marytts', () => {
       statusCode: 201,
       pipe
     }
-    get.yields(response).invokeCallback
+    get.yields(response)
 
     const tts = new MaryTTS()
 
@@ -52,7 +51,7 @@ describe('@fonos/marytts', () => {
       statusCode: 200,
       pipe
     }
-    get.yields(response).invokeCallback
+    get.yields(response)
 
     const tts = new MaryTTS()
 

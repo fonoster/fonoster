@@ -45,7 +45,6 @@ describe('@fonos/tts/utils', () => {
     const sox = require('sox-audio')
     const run = sandbox.spy(sox.prototype, 'run')
     const on = sandbox.stub(sox.prototype, 'on')
-    const error = { message: 'ups' }
     on.withArgs('end').yields({})
     //on.withArgs('error').yields(error);
 
@@ -86,7 +85,7 @@ describe('@fonos/tts/utils', () => {
     const error = { message: 'nop' }
 
     on.withArgs('end').yields({})
-    on.withArgs('error').yields(error).invokeCallback
+    on.withArgs('error').yields(error)
 
     expect(
       transcode(

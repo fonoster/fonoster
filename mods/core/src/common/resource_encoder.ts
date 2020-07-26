@@ -151,7 +151,7 @@ class REncoder {
       delete this.spec.context.accessControlList.allow
     if (!deny || deny.length === 0)
       delete this.spec.context.accessControlList.deny
-    if ((!allow && !deny) || (allow.length === 0 && allow.length === 0))
+    if ((!allow && !deny) || allow.length === 0)
       delete this.spec.context.accessControlList
     return this
   }

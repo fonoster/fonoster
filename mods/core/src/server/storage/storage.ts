@@ -12,14 +12,14 @@ import { auth } from '../../common/trust_util'
 import { IStorageServer, StorageService } from '../protos/storage_grpc_pb'
 
 class StorageServer implements IStorageServer {
-  uploadObject (
+  async uploadObject (
     call: grpc.ServerReadableStream<UploadObjectRequest>,
     callback: grpc.sendUnaryData<UploadObjectResponse>
-  ): void {
+  ): Promise<void> {
     if (!auth(call)) return callback(new FonosAuthError(), null)
 
     try {
-      uploadObject(call, callback)
+      await uploadObject(call, callback)
     } catch (e) {
       callback(e, null)
     }

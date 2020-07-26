@@ -95,8 +95,8 @@ class Verbs {
    * Terminates at `timeout`
    */
   setAutoHangup (timeout: number) {
-    new Error('not yet implemented')
-    return this.channel.setAutoHangup(timeout)
+    throw new Error('not yet implemented')
+    //return this.channel.setAutoHangup(timeout)
   }
 
   /**
