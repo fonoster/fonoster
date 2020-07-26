@@ -7,9 +7,9 @@ import { transcodeSync, computeFilename } from '@fonos/tts'
 class Say extends Verb {
   constructor (channel: any, config: any) {
     super(channel, config)
-    if (!config.tts) throw 'Not tts engine found'
-    if (!config.storage) throw 'Not storage object found'
-    if (!config.bucket) throw 'Not bucket found'
+    if (!config.tts) throw 'No tts engine found'
+    if (!config.storage) throw 'No storage object found'
+    if (!config.bucket) throw 'No bucket found'
   }
 
   private synth (text: string, filename: string, options?: any): string {
