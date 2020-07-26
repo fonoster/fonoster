@@ -1,6 +1,6 @@
 {
   "name": "@fonos/numbers",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "description": "VoIP Numbers",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -30,8 +30,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.24",
-    "@fonos/logger": "^0.0.24",
+    "@fonos/core": "^0.0.25",
+    "@fonos/logger": "^0.0.25",
     "dotenv": "^8.2.0",
     "grpc-promise": "^1.4.0",
     "sync": "^0.2.4"
