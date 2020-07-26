@@ -12,8 +12,8 @@ dependencies:
     version: 10.6.18
     repository: https://charts.bitnami.com/bitnami
   - name: minio
-    version: 5.0.23
-    repository: https://hkube.io/helm
+    version: 5.0.5
+    repository: https://openchart.choerodon.com.cn/choerodon/c7n
 sources:
   - https://github.com/fonoster/fonos
 keywords: [twilio, routr, sip, voip, webrtc, ims, proxy, registrar, asterisk, kamailio, freepbx, yate, freeswitch, fusionpbx, server]
