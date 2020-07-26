@@ -31,3 +31,6 @@ minio:
     - name: default
       policy: public
       purge: false
+    - name: recordings
+      policy: public
+      purge: false

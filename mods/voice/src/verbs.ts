@@ -206,7 +206,10 @@ class Verbs {
    * const result = chan.record(options)
    */
   record (options?: RecordOptions): any {
-    return new Record(this.channel).run(this.callDetailRecord, options)
+    return new Record(this.channel, this._config).run(
+      this.callDetailRecord,
+      options
+    )
   }
 
   /**

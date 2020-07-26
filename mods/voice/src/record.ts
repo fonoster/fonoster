@@ -7,6 +7,7 @@ interface RecordOptions {
   maxDuration?: number
   finishOnKey?: string
   offset?: number
+  format?: string
 }
 
 const validateMaxDuration = (maxDuration: number) => {
@@ -20,8 +21,23 @@ const validateBeep = (beep: boolean) => {
 }
 
 class Record extends Verb {
-  constructor (channel: any) {
-    super(channel)
+  constructor (channel: any, config: any) {
+    super(channel, config)
+  }
+
+  private getFileURLWhenReady (name: string, bucket: string): string {
+    const sleep = require('sync').sleep
+    let cnt = 40 // 40 * 100 is 4 seconds
+    while (true) {
+      try {
+        const result = this.config.storage.getObjectURLSync({ name, bucket })
+        return result
+      } catch (e) {
+        if (cnt <= 0) return
+        sleep(100)
+        cnt--
+      }
+    }
   }
 
   run (callDetailRecord: any, options: RecordOptions = {}) {
@@ -29,16 +45,16 @@ class Record extends Verb {
       beep = true,
       maxDuration = 3600,
       finishOnKey = '1234567890#*',
-      offset = 0
+      offset = 0,
+      format = 'wav'
     } = options
     validateMaxDuration(maxDuration)
     validateBeep(beep)
 
-    const format = 'wav'
     const filename = objectid()
     const res = this.channel.recordFile(
       `/tmp/${filename}`,
-      'wav',
+      format,
       finishOnKey,
       maxDuration * 1000,
       offset,
@@ -47,11 +63,16 @@ class Record extends Verb {
 
     if (res.code !== 200) throw new Error(res.rawReply)
 
+    const recordingUri = this.getFileURLWhenReady(
+      `${filename}.${format}`,
+      this.config.bucket
+    )
+
     return {
       keyPressed: res.attributes.result,
-      recordingUri: `/tmp/${filename}.${format}`,
-      filename: filename,
-      format: format,
+      recordingUri,
+      filename,
+      format,
       callRef: callDetailRecord.ref
     }
   }

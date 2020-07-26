@@ -24,7 +24,7 @@ spec:
       containers:
       - name: mediaserver
         image: fonoster/fonos-mediaserver:latest
-        imagePullPolicy: Always     
+        imagePullPolicy: Always
         env:
           # Asterisk will not send outbound registration in K8s unless it has a FQDN
           # As a workaround we simply use the POD's FQND
@@ -45,4 +45,38 @@ spec:
         ports:
         - name: sip
           containerPort: 6060
-
+        - name: rtp1
+          containerPort: 30005    
+          protocol: UDP     
+        - name: rtp2
+          containerPort: 30006
+          protocol: UDP
+        - name: rtp3
+          containerPort: 30007
+          protocol: UDP
+        - name: rtp4
+          containerPort: 30008
+          protocol: UDP
+        volumeMounts:      
+        - mountPath: /tmp
+          name: recordings
+          readOnly: false          
+      - name: uploaderhelper
+        image: fonoster/uploaderhelper:latest
+        imagePullPolicy: Always
+        env:
+        - name: APISERVER_ENDPOINT
+          value: "{{ include ".helm2.fullname" . }}-apiserver:50052"
+        volumeMounts:
+        - mountPath: /root/.fonos
+          name: fonos-access
+          readOnly: true              
+        - mountPath: /data
+          name: recordings
+          readOnly: false
+      volumes:
+      - name: fonos-access
+        secret:
+          secretName: fonos-access        
+      - name: recordings
+        emptyDir: {}
