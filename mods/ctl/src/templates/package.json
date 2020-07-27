@@ -1,8 +1,9 @@
 {
   "name": "{{ lowerCase pckgName }}",
-  "version": "{{ lowerCase pckgVersion }}",
-  "private": true,
   "description": "{{ pckgDesc }}",
+  "version": "{{ lowerCase pckgVersion }}",
+  "main": "src/index.js",
   "author": "{{ author }}",
-  "license": "{{ license }}"
+  "license": "{{ license }}",
+  "private": true
 }
