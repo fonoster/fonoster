@@ -1,5 +1,6 @@
 import redis from '../../common/redis'
 import { App } from '../protos/appmanager_pb'
+import events from '../../common/events'
 
 export default async function (app: App): Promise<App> {
   app.setStatus(App.Status.CREATING)
@@ -10,5 +11,9 @@ export default async function (app: App): Promise<App> {
   await redis.lpush('apps', app.getName())
   // WARN: This feels very hacky but it works
   await redis.set(app.getName(), JSON.stringify(app.toObject()))
+  await events.sendToQ('APP_CREATED', {
+    name: app.getName(),
+    bucket: app.getName()
+  })
   return app
 }

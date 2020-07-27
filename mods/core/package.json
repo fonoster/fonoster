@@ -33,6 +33,7 @@
     "@fonos/certs": "^0.0.25",
     "@fonos/errors": "^0.0.25",
     "@fonos/logger": "^0.0.25",
+    "@fonos/events": "^0.0.25",
     "@fonos/types": "^0.0.25",
     "@types/node": "^13.13.5",
     "axios": "^0.19.2",
