@@ -160,6 +160,10 @@ export default class AppManager extends FonosService {
         bucket: 'apps' // TODO: Maybe I should place this in the .env
       })
 
+      // Cleanup after deploy
+      fs.rmdirSync(`/tmp/${dirName}`, { recursive: true })
+      fs.unlink(`/tmp/${dirName}.tgz`)
+
       return response
     } catch (e) {
       throw e
