@@ -1,3 +1,4 @@
-import EventsClient from './events_recvr'
+import EventsSender from '../src/events_sender'
+import EventsRecvr from '../src/events_recvr'
 
-export { EventsClient }
+export { EventsRecvr, EventsSender }
