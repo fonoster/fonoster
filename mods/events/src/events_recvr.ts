@@ -15,7 +15,8 @@ export default class EventsRecvr extends RabbitQConnector {
         channel.consume(
           this.q,
           (msg: any) => {
-            logger.debug(
+            logger.log(
+              'debug',
               `events.EventsClient.watchEvents [new event on q => ${
                 this.q
               }, payload ${msg.content.toString()}]`
