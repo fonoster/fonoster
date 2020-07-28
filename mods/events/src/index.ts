@@ -1,4 +1,4 @@
-import EventsSender from '../src/events_sender'
-import EventsRecvr from '../src/events_recvr'
+import EventsSender from './events_sender'
+import EventsRecvr from './events_recvr'
 
 export { EventsRecvr, EventsSender }
