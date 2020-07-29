@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@fonos/logger": "^0.0.29",
+    "@fonos/events": "^0.0.29",
     "@fonos/tts": "^0.0.29",
     "objectid": "^3.2.1"
   }

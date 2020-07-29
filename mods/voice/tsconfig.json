@@ -6,7 +6,8 @@
   },
   "references": [
     { "path":  "../tts" },
-    { "path":  "../logger" }
+    { "path":  "../logger" },
+    { "path":  "../events" }
   ],   
   "exclude": [
     "node_modules",

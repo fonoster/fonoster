@@ -1,4 +1,5 @@
 import Verb from './verb'
+import events from './events'
 
 const objectid = require('objectid')
 
@@ -67,6 +68,10 @@ class Record extends Verb {
       `${filename}.${format}`,
       this.config.bucket
     )
+
+    events.sendToQ('RECORDING_CREATED', {
+      filename
+    })
 
     return {
       keyPressed: res.attributes.result,
