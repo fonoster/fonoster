@@ -34,3 +34,11 @@ minio:
   - name: recordings
     policy: public
     purge: false
+
+rabbitmq:
+  image:
+    debug: true
+  auth:
+    username: rabbitmq
+    password: P32bSNyjQAdYQq
+    erlangCookie: P3NySNyjQAdYQqP32bSNyj3NySdYQqSAAGslgx24

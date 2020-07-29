@@ -45,6 +45,11 @@ spec:
       - name: chmodhelper
         image: fonoster/chmodhelper:latest
         imagePullPolicy: Always
+        env:
+          - name: EVENTS_BROKERS
+            value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include ".helm2.fullname" . }}-rabbitmq:5672
+          - name: EVENTS_QUEUE
+            value: apiserver     
         volumeMounts:
           - mountPath: /data
             name: shared-files

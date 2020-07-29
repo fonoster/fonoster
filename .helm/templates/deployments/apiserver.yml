@@ -49,7 +49,11 @@ spec:
         - name: FS_SECRET
           value: minio123
         - name: FS_DEFAULT_STORAGE_BUCKET
-          value: default          
+          value: default
+        - name: EVENTS_BROKERS
+          value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include ".helm2.fullname" . }}-rabbitmq:5672
+        - name: EVENTS_QUEUE
+          value: apiserver       
         volumeMounts:
         - mountPath: /root/.fonos
           name: fonos-access

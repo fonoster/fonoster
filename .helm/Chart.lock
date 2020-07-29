@@ -1,6 +1,12 @@
 dependencies:
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.6.18
 - name: minio
-  repository: https://hkube.io/helm
-  version: 5.0.23
-digest: sha256:4fec0905c5bd8f18187c7c5e7a6a889abec89a95f3e6d74aaf8ade72b367a4b4
-generated: "2020-07-13T15:45:38.944418-04:00"
+  repository: https://openchart.choerodon.com.cn/choerodon/c7n
+  version: 5.0.5
+- name: rabbitmq
+  repository: https://charts.bitnami.com/bitnami
+  version: 7.5.6
+digest: sha256:fe65c9934c89ba3014ee59e6988517d8d0c115b4379356c66ae8c718a78b9a9a
+generated: "2020-07-27T21:43:32.81806-04:00"
