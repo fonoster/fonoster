@@ -9,7 +9,7 @@ export default class EventsSender extends RabbitQConnector {
   async sendToQ (event: string, payload: any) {
     logger.log(
       'debug',
-      `events.EventsSender.sendToQ [sent event to q => ${this.q}, event: ${event}, payload: ${payload}]`
+      `events.EventsSender.sendToQ [sent event to q => ${this.q}, event: ${event}]`
     )
     await this.channelWrapper.sendToQueue(this.q, {
       name: event,

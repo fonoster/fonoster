@@ -13,7 +13,7 @@ export default async function (app: App): Promise<App> {
   await redis.set(app.getName(), JSON.stringify(app.toObject()))
   await events.sendToQ('APP_CREATED', {
     name: app.getName(),
-    bucket: app.getName()
+    bucket: app.getBucket()
   })
   return app
 }
