@@ -139,18 +139,6 @@ export default class AppManager extends FonosService {
         throw new Error(`not package.json found in ${request.dirPath}`)
       }
 
-      const app = new AppManagerPB.App()
-      app.setName(request.app.name)
-      app.setDescription(request.app.description)
-      app.setBucket(request.app.bucket)
-
-      const createAppRequest = new AppManagerPB.CreateAppRequest()
-      createAppRequest.setApp(app)
-
-      const response = await this.service
-        .createApp()
-        .sendMessage(createAppRequest)
-
       // TODO: Validate that the name is lower case and has no spaces
       const dirName = `${request.app.name}`
       await fs.copy(request.dirPath, `/tmp/${dirName}`)
@@ -163,6 +151,18 @@ export default class AppManager extends FonosService {
       // Cleanup after deploy
       fs.rmdirSync(`/tmp/${dirName}`, { recursive: true })
       fs.unlink(`/tmp/${dirName}.tgz`)
+
+      const app = new AppManagerPB.App()
+      app.setName(request.app.name)
+      app.setDescription(request.app.description)
+      app.setBucket(request.app.bucket)
+
+      const createAppRequest = new AppManagerPB.CreateAppRequest()
+      createAppRequest.setApp(app)
+
+      const response = await this.service
+        .createApp()
+        .sendMessage(createAppRequest)
 
       return response
     } catch (e) {
