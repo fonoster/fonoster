@@ -5,7 +5,7 @@ let instance: any
 
 try {
   if (!process.env.EVENTS_BROKERS)
-    throw 'core.common.events [environment variable EVENTS_BROKERS not set]'
+    throw 'voice [environment variable EVENTS_BROKERS not set]'
   const brokers = process.env.EVENTS_BROKERS.split(',')
   instance = new EventsSender(brokers, process.env.EVENTS_QUEUE)
   instance.connect()

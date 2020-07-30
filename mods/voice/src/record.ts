@@ -70,7 +70,7 @@ class Record extends Verb {
     )
 
     events.sendToQ('RECORDING_CREATED', {
-      filename
+      filename: `${filename}.${format}`
     })
 
     return {
