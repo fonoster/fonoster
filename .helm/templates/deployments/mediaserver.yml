@@ -67,6 +67,10 @@ spec:
         env:
         - name: APISERVER_ENDPOINT
           value: "{{ include ".helm2.fullname" . }}-apiserver:50052"
+        - name: EVENTS_BROKERS
+          value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include ".helm2.fullname" . }}-rabbitmq:5672
+        - name: EVENTS_QUEUE
+          value: apiserver               
         volumeMounts:
         - mountPath: /root/.fonos
           name: fonos-access
