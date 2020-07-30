@@ -1,6 +1,6 @@
 {
   "name": "@fonos/voice",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "Voice verbs",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -34,9 +34,9 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
-    "@fonos/events": "^0.0.30",
-    "@fonos/logger": "^0.0.30",
-    "@fonos/tts": "^0.0.30",
+    "@fonos/events": "^0.0.31",
+    "@fonos/logger": "^0.0.31",
+    "@fonos/tts": "^0.0.31",
     "objectid": "^3.2.1"
   }
 }
