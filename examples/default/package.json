@@ -1,0 +1,9 @@
+{
+  "name": "default",
+  "description": "Default handler",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "Pedro Sanders",
+  "license": "MIT",
+  "private": true
+}
