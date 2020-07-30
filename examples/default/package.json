@@ -1,8 +1,0 @@
-{
-  "name": "default",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Default handler",
-  "author": "Pedro Sanders",
-  "license": "MIT"
-}

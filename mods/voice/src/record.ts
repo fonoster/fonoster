@@ -64,14 +64,14 @@ class Record extends Verb {
 
     if (res.code !== 200) throw new Error(res.rawReply)
 
+    events.sendToQ('RECORDING_CREATED', {
+      filename: `${filename}.${format}`
+    })
+
     const recordingUri = this.getFileURLWhenReady(
       `${filename}.${format}`,
       this.config.bucket
     )
-
-    events.sendToQ('RECORDING_CREATED', {
-      filename: `${filename}.${format}`
-    })
 
     return {
       keyPressed: res.attributes.result,
