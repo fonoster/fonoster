@@ -118,7 +118,7 @@ Fonos' main features are:
 
 For bugs, questions, and discussions please use the [Github Issues](https://github.com/fonoster/fonos/issues)
 
-> We are currently unable to place calls using UDP do to NAT issues.
+> We are currently unable to place calls using UDP due to NAT issues.
 
 ## Contributing
 
