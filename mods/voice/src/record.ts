@@ -31,8 +31,7 @@ class Record extends Verb {
     let cnt = 40 // 40 * 100 is 4 seconds
     while (true) {
       try {
-        const result = this.config.storage.getObjectURLSync({ name, bucket })
-        return result
+        return this.config.storage.getObjectURLSync({ name, bucket })
       } catch (e) {
         if (cnt <= 0) return
         sleep(100)

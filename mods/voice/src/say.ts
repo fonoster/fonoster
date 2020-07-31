@@ -43,8 +43,8 @@ class Say extends Verb {
       })
     } catch (e) {
       logger.log(
-        'silly',
-        `@fonos/voice.YapsWrapperChannel.say [no url found for file ${filename}]`
+        'warn',
+        `@fonos/voice.Say [no url found for file ${filename} in bucket ${this.config.bucket}]`
       )
     }
 
