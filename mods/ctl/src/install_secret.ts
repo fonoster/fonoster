@@ -17,7 +17,9 @@ async function installConfig (context: string) {
     const jwtSalt = btoa(fs.readFileSync('/tmp/certs/jwt.salt'))
 
     cli.log(`Removing old 'fonos-config' secret from context '${context}'`)
-    await k8sApi.deleteNamespacedSecret('fonos-config', context)
+    try {
+      await k8sApi.deleteNamespacedSecret('fonos-config', context)
+    } catch (e) {}
 
     cli.log(`Installing new 'fonos-config' in context '${context}'`)
     await k8sApi.createNamespacedSecret(context, {
@@ -40,7 +42,9 @@ async function installTLSCerts (context: string) {
     const cert = btoa(fs.readFileSync('/tmp/certs/server.crt'))
 
     cli.log(`Removing old 'fonos-certs' secret from context '${context}'`)
-    await k8sApi.deleteNamespacedSecret('fonos-certs', context)
+    try {
+      await k8sApi.deleteNamespacedSecret('fonos-certs', context)
+    } catch (e) {}
 
     cli.log(`Installing new 'fonos-certs' in context '${context}'`)
     await k8sApi.createNamespacedSecret(context, {
