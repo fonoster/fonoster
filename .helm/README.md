@@ -12,75 +12,11 @@ This chart bootstraps Project Fonos for deployment on a [Kubernetes](https://kub
 
 - Kubernetes 1.18+
 - Helm 3.0-beta3+
+- Fonos CTL 
 - PV provisioner support in the underlying infrastructure
-
-## Installing NGINX Ingress Controller
-
-To enable the NGINX Ingress controller, run the following command:
-
-```
-minikube addons enable ingress
-```
-
-Verify that NGINX Ingress controller is running
-
-```
-kubectl get pods -n kube-system
-```
-
-> Note: This can take up to a minute.
-
-Your output should look like this:
-
-```
-NAME                                        READY     STATUS    RESTARTS   AGE
-default-http-backend-59868b7dd6-xb8tq       1/1       Running   0          1m
-kube-addon-manager-minikube                 1/1       Running   0          3m
-kube-dns-6dcb57bcc8-n4xd4                   3/3       Running   0          2m
-kubernetes-dashboard-5498ccf677-b8p5h       1/1       Running   0          2m
-nginx-ingress-controller-5984b97644-rnkrg   1/1       Running   0          1m
-storage-provisioner         
-```
+- NGINX ingress Controller
 
 ## Creating and Installing the SSL certificates and JWT Token
-
-Simply replace the subject with your own domain. Generate the server certificates using the `fonoster/certshelper` docker image, as follows:
-
-```
-docker run -it \
-  -v $(pwd)/certs:/certs \
-  -e SUBJECT=api.fonos \
-  -e CERT_NAME=tls \
-  fonoster/certshelper
-```
-
-And the client certificates:
-
-```
-docker run -it \
-  -v $(pwd)/certs:/certs \
-  -e SUBJECT=api.fonos \
-  -e CERT_NAME=client \
-  fonoster/certshelper
-```
-
-Create a JWT token and the corresponding private key:
-
-```
-docker run -it \
-  -v $(pwd)/certs:/certs \
-  fonoster/jwthelper
-```
-
-> We don't recommend using Self Signed Certificates for production environments
-
-Finally, install the certificates and the token as Kubernetes secrets:
-
-```
-cd certs
-kubectl create secret tls fonos-certs --key tls.key --cert tls.crt
-kubectl create secret generic fonos-access --from-file=./access --from-file=./jwt.salt
-```
 
 
 ## Add this Helm repository to your Helm client
