@@ -73,14 +73,14 @@ spec:
           value: apiserver               
         volumeMounts:
         - mountPath: /root/.fonos
-          name: fonos-access
+          name: fonos-config
           readOnly: true              
         - mountPath: /data
           name: recordings
           readOnly: false
       volumes:
-      - name: fonos-access
+      - name: fonos-config
         secret:
-          secretName: fonos-access        
+          secretName: fonos-config        
       - name: recordings
         emptyDir: {}

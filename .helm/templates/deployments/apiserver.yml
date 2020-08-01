@@ -56,12 +56,12 @@ spec:
           value: apiserver       
         volumeMounts:
         - mountPath: /root/.fonos
-          name: fonos-access
+          name: fonos-config
           readOnly: true
         ports:
         - name: grpc
           containerPort: 50052
       volumes:
-      - name: fonos-access
+      - name: fonos-config
         secret:
-          secretName: fonos-access
+          secretName: fonos-config
