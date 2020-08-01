@@ -1,5 +1,5 @@
-const Docker = require('dockerode')
 import { cli } from 'cli-ux'
+const Docker = require('dockerode')
 
 const getConfig = (subject?: string, name?: string) => {
   return {
@@ -25,7 +25,7 @@ export default async function (subject: string) {
 
     await docker.run('fonoster/jwthelper', [], null, getConfig())
 
-    cli.log('Creating client certificates ')
+    cli.log('Creating client certificates')
 
     await docker.run(
       'fonoster/certshelper',
