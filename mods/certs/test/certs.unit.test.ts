@@ -2,7 +2,7 @@ import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
-import createAccessFile from '../src/certs'
+import createConfigFile from '../src/certs'
 import jwt from 'jsonwebtoken'
 import fs from 'fs'
 import { join } from 'path'
@@ -24,7 +24,7 @@ describe('@fonos/certs', () => {
     const writeFileSync = sandbox.stub(fs, 'writeFileSync')
     const readFileSync = sandbox.stub(fs, 'readFileSync').returns('secret salt')
     const sign = sandbox.spy(jwt, 'sign')
-    const result = await createAccessFile()
+    const result = await createConfigFile()
 
     expect(result)
       .to.have.property('accessKeyId')
