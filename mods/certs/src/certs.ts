@@ -10,7 +10,7 @@ const PATH_TO_CONFIG = join(BASE_DIR, 'config')
 const ACCESS_KEY_ID = process.env.ACCESS_KEY_ID || 'fonos'
 const ISS = process.env.ISS || 'fonos'
 
-if (!fs.existsSync(PATH_TO_CONFIG)) fs.mkdirSync(PATH_TO_CONFIG)
+if (!fs.existsSync(BASE_DIR)) fs.mkdirSync(BASE_DIR)
 
 const getSalt = () =>
   fs
