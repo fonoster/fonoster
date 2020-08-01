@@ -1,7 +1,7 @@
 import { cli } from 'cli-ux'
 const Docker = require('dockerode')
 
-const getConfig = (subject?: string, name?: string) => {
+const getConfig = (subject?: string, name?: string, accessKeyId?: string) => {
   return {
     Volumes: {
       '/certs': {}
@@ -9,11 +9,16 @@ const getConfig = (subject?: string, name?: string) => {
     Hostconfig: {
       Binds: ['/tmp/certs:/certs']
     },
-    Env: [`SUBJECT=${subject}`, `CERT_NAME=${name}`]
+    Env: [
+      `SUBJECT=${subject}`,
+      `CERT_NAME=${name}`,
+      `ACCESS_KEY_ID=${accessKeyId}`,
+      `ISS=${accessKeyId}`
+    ]
   }
 }
 
-export default async function (subject: string) {
+export default async function (subject: string, accessKeyId: string) {
   try {
     cli.log('Pulling docker images')
 
@@ -23,7 +28,12 @@ export default async function (subject: string) {
 
     cli.log('Creating jwt token')
 
-    await docker.run('fonoster/jwthelper', [], null, getConfig())
+    await docker.run(
+      'fonoster/jwthelper',
+      [],
+      null,
+      getConfig(null, null, accessKeyId)
+    )
 
     cli.log('Creating client certificates')
 

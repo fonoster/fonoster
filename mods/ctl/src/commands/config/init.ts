@@ -67,7 +67,7 @@ export default class ConfigCommand extends Command {
 
       cli.action.start('Configuring deployment secrets')
 
-      await createCerts(config.subject)
+      await createCerts(config.subject, config.accessKeyId)
       await installConfig(config.kubeContext)
       await installTLSCerts(config.kubeContext)
       await installConfigLocal(config.subject)

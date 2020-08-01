@@ -18,12 +18,12 @@ async function installConfig (context: string) {
     const config = getContent('config')
     const jwtSalt = getContent('jwt.salt')
 
-    cli.log(`Removing old 'fonos-config' secret from context '${context}'`)
+    cli.log(`Removing old 'fonos-config' secret`)
     try {
       await k8sApi.deleteNamespacedSecret('fonos-config', context)
     } catch (e) {}
 
-    cli.log(`Installing new 'fonos-config' in context '${context}'`)
+    cli.log(`Installing new 'fonos-config'`)
     await k8sApi.createNamespacedSecret(context, {
       kind: 'Secret',
       metadata: { name: `fonos-config` },
@@ -43,12 +43,12 @@ async function installTLSCerts (context: string) {
     const key = getContent('server.key')
     const cert = getContent('server.crt')
 
-    cli.log(`Removing old 'fonos-certs' secret from context '${context}'`)
+    cli.log(`Removing old 'fonos-certs' secret`)
     try {
       await k8sApi.deleteNamespacedSecret('fonos-certs', context)
     } catch (e) {}
 
-    cli.log(`Installing new 'fonos-certs' in context '${context}'`)
+    cli.log(`Installing new 'fonos-certs'`)
     await k8sApi.createNamespacedSecret(context, {
       kind: 'Secret',
       metadata: { name: `fonos-certs` },
