@@ -1,4 +1,4 @@
-import { accessExist } from '@fonos/certs'
+import { configExist } from '@fonos/certs'
 import { getClientCredentials } from '../common/trust_util'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -6,12 +6,12 @@ import grpc from './grpc_hack'
 
 // The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
 const merge = require('deepmerge')
-const ACCEES_FILE =
-  process.env.API_ACCESS_FILE ||
-  path.join(require('os').homedir(), '.fonos', 'access')
-const getAccessFile = () =>
+const CONFIG_FILE =
+  process.env.API_CONFIG_FILE ||
+  path.join(require('os').homedir(), '.fonos', 'config')
+const getConfigFile = () =>
   fs
-    .readFileSync(ACCEES_FILE)
+    .readFileSync(CONFIG_FILE)
     .toString()
     .trim()
 
@@ -46,14 +46,12 @@ export default class Service {
     this.options = merge(defaultOptions, options)
 
     try {
-      if (accessExist()) {
-        this.options = merge(this.options, JSON.parse(getAccessFile()))
+      if (configExist()) {
+        this.options = merge(this.options, JSON.parse(getConfigFile()))
       }
     } catch (err) {
-      throw new Error(`Malformed access file found at: ${ACCEES_FILE}`)
+      throw new Error(`Malformed config file found at: ${CONFIG_FILE}`)
     }
-
-    this.overwriteOptionsWithEnv(options)
 
     if (!this.options.accessKeyId || !this.options.accessKeySecret) {
       throw new Error('Not valid credentials found')
@@ -69,16 +67,6 @@ export default class Service {
       this.options.endpoint,
       getClientCredentials()
     )
-  }
-
-  overwriteOptionsWithEnv (options: any) {
-    if (process.env.FONOS_ENDPOINT)
-      this.options.endpoint = process.env.FONOS_ENDPOINT
-    if (process.env.FONOS_ACCESS_KEY_ID)
-      this.options.accessKeyId = process.env.FONOS_ACCESS_KEY_ID
-    if (process.env.FONOS_ACCESS_KEY_SECRET)
-      this.options.accessKeySecret = process.env.FONOS_ACCESS_KEY_SECRET
-    this.options = merge(this.options, options)
   }
 
   getOptions (): any {

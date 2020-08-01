@@ -55,11 +55,8 @@
       "providers": {
         "description": "manage sip providers"
       },
-      "login": {
-        "description": "authenticates current station"
-      },
-      "logout": {
-        "description": "revoke crendentials to the current station"
+      "config": {
+        "description": "creates and installs certificates and tokens"
       }
     }
   },
@@ -81,10 +78,13 @@
     "@fonos/logger": "^0.0.32",
     "@fonos/numbers": "^0.0.32",
     "@fonos/providers": "^0.0.32",
+    "@kubernetes/client-node": "^0.12.0",
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",
     "@oclif/plugin-help": "^2.2.3",
+    "btoa": "^1.2.1",
     "cli-ux": "^5.4.5",
+    "dockerode": "^3.2.1",
     "easy-table": "^1.1.1",
     "inquirer": "^7.1.0",
     "moment": "^2.24.0",
@@ -95,6 +95,7 @@
     "tslib": "^1"
   },
   "devDependencies": {
+    "@types/dockerode": "^2.5.34",
     "@types/prettyjson": "0.0.29",
     "dotenv": "^8.2.0",
     "typescript": "^3.9.3"

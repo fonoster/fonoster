@@ -1,7 +1,6 @@
 import path from 'path'
 import logger from '@fonos/logger'
 import grpc from 'grpc'
-import createAccessFile, { accessExist } from '@fonos/certs'
 import StorageServer, {
   IStorageServer,
   StorageService
@@ -24,10 +23,10 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
 }
 
 async function main () {
-  if (!accessExist()) {
+  /*if (!accessExist()) {
     logger.log('info', `No access file found. Creating access file`)
     await createAccessFile()
-  }
+  }*/
 
   const server = new grpc.Server()
   const endpoint = process.env.BINDADDR || '0.0.0.0:50052'

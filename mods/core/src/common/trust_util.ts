@@ -2,28 +2,37 @@ import logger from '@fonos/logger'
 import { getSalt } from '@fonos/certs'
 import path from 'path'
 import grpc from 'grpc'
-import fs from 'fs'
 import jwt from 'jsonwebtoken'
+import * as os from 'os'
+import * as fs from 'fs'
+const atob = require('atob')
 
-if (process.env.NODE_ENV === 'dev') {
-  const env = path.join(__dirname, '..', '..', '..', '.env')
-  require('dotenv').config({ path: env })
-}
+const prepCert = (cert: string) => Buffer.from(atob(cert), 'utf-8')
 
-const CA_CRT = process.env.CERTS_PATH + '/ca.crt'
-const SERVER_CRT = process.env.CERTS_PATH + '/server.crt'
-const SERVER_KEY = process.env.CERTS_PATH + '/server.key'
-const CLIENT_CRT = process.env.CERTS_PATH + '/client.crt'
-const CLIENT_KEY = process.env.CERTS_PATH + '/client.key'
+let config: {
+  caCertificate?: string
+  serverCertificate?: string
+  serverKey?: string
+  clientCertificate?: string
+  clientKey?: string
+} = {}
+
+try {
+  config = JSON.parse(
+    fs
+      .readFileSync(path.join(os.homedir(), '.fonos', 'config'))
+      .toString('utf-8')
+  )
+} catch (e) {}
 
 const getServerCredentials = () => {
   try {
     return grpc.ServerCredentials.createSsl(
-      fs.readFileSync(CA_CRT),
+      prepCert(config.caCertificate),
       [
         {
-          cert_chain: fs.readFileSync(SERVER_CRT),
-          private_key: fs.readFileSync(SERVER_KEY)
+          cert_chain: prepCert(config.serverCertificate),
+          private_key: prepCert(config.serverKey)
         }
       ],
       true
@@ -40,9 +49,9 @@ const getServerCredentials = () => {
 const getClientCredentials = () => {
   try {
     return grpc.credentials.createSsl(
-      fs.readFileSync(CA_CRT),
-      fs.readFileSync(CLIENT_KEY),
-      fs.readFileSync(CLIENT_CRT)
+      prepCert(config.caCertificate),
+      prepCert(config.clientKey),
+      prepCert(config.clientCertificate)
     )
   } catch (e) {
     logger.log(

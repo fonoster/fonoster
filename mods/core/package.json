@@ -36,6 +36,7 @@
     "@fonos/logger": "^0.0.32",
     "@fonos/types": "^0.0.32",
     "@types/node": "^13.13.5",
+    "atob": "^2.1.2",
     "axios": "^0.19.2",
     "btoa": "^1.2.1",
     "deepmerge": "^4.2.2",
