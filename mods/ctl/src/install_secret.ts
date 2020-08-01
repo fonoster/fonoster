@@ -8,13 +8,15 @@ const btoa = require('btoa')
 const kc = new k8s.KubeConfig()
 kc.loadFromDefault()
 const BASE_DIR = '/tmp/certs'
+const getContent = (file: string) =>
+  btoa(fs.readFileSync(`${BASE_DIR}/${file}`).toString('utf-8'))
 
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
 
 async function installConfig (context: string) {
   try {
-    const config = btoa(fs.readFileSync('/tmp/certs/access'))
-    const jwtSalt = btoa(fs.readFileSync('/tmp/certs/jwt.salt'))
+    const config = getContent('config')
+    const jwtSalt = getContent('jwt.salt')
 
     cli.log(`Removing old 'fonos-config' secret from context '${context}'`)
     try {
@@ -38,8 +40,8 @@ async function installConfig (context: string) {
 
 async function installTLSCerts (context: string) {
   try {
-    const key = btoa(fs.readFileSync('/tmp/certs/server.key'))
-    const cert = btoa(fs.readFileSync('/tmp/certs/server.crt'))
+    const key = getContent('server.key')
+    const cert = getContent('server.crt')
 
     cli.log(`Removing old 'fonos-certs' secret from context '${context}'`)
     try {
@@ -67,26 +69,12 @@ async function installConfigLocal (subject: string) {
     const targetDir = join(os.homedir(), '.fonos')
     const pathToConfig = join(os.homedir(), '.fonos', 'config')
     const config = JSON.parse(
-      fs.readFileSync(join(BASE_DIR, 'access')).toString('utf-8')
+      fs.readFileSync(join(BASE_DIR, 'config')).toString('utf-8')
     )
     config.endpoint = subject
-    config.caCertificate = btoa(
-      fs.readFileSync(join(BASE_DIR, 'ca.crt')).toString('utf-8')
-    )
-    config.clientCertificate = btoa(
-      fs.readFileSync(join(BASE_DIR, 'client.crt')).toString('utf-8')
-    )
-    config.clientKey = btoa(
-      fs.readFileSync(join(BASE_DIR, 'client.key')).toString('utf-8')
-    )
-
-    // TODO: Remove this test
-    config.serverCertificate = btoa(
-      fs.readFileSync(join(BASE_DIR, 'server.crt')).toString('utf-8')
-    )
-    config.serverKey = btoa(
-      fs.readFileSync(join(BASE_DIR, 'server.key')).toString('utf-8')
-    )
+    config.caCertificate = getContent('ca.crt')
+    config.clientCertificate = getContent('client.crt')
+    config.clientKey = getContent('client.key')
 
     const content = JSON.stringify(config, null, '')
     fs.mkdirSync(targetDir, { recursive: true })
