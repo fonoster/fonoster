@@ -33,7 +33,7 @@ Requirements:
 <details><summary>Running the Infrastructure</summary>
 
 <br />
-To run Fonos in your cluster, please follow the [deployment instructions](https://github.com/fonoster/fonos/tree/master/.helm)
+To run Fonos in your cluster, please follow the <a href="https://github.com/fonoster/fonos/tree/master/.helm">deployment instructions</a>
 <br /><br />
 
 > Work is on the way to enable Fonos for Docker Swarm
