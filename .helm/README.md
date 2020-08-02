@@ -12,16 +12,23 @@ This chart bootstraps Project Fonos for deployment on a [Kubernetes](https://kub
 
 - Kubernetes 1.18+
 - Helm 3.0-beta3+
-- Fonos CTL 
+- [Fonos CTL](https://www.npmjs.com/package/@fonos/ctl)
 - PV provisioner support in the underlying infrastructure
 - NGINX ingress Controller
 
 ## Creating and Installing the SSL certificates and JWT Token
 
+To create and install the certificates and token, you need to run the following commmand:
+
+```
+fonos config:init
+```
+
+> You will need a running docker engine and also a kubectl properly configured
 
 ## Add this Helm repository to your Helm client
 
-```
+```bash
 helm repo add fonoster https://fonoster.github.io/fonos
 ```
 
@@ -29,7 +36,7 @@ helm repo add fonoster https://fonoster.github.io/fonos
 
 To install the chart with the release name my-release:
 
-```
+```bash
 kubectl create namespace fonos
 helm install my-release fonoster/fonos --namespace fonos
 ```
@@ -38,24 +45,12 @@ The command deploys Project Fonos in the `fonos` namespace on the Kubernetes clu
 
 > We recommend using a namespace for easy upgrades.
 
-## Add your domain to your `/etc/hosts` (Only if using Minikube)
-
-If you are using Minikube you must perform this extra step. First, find your cluster IP by running the following command:
-
-```
-minikube service fonos-apiserver --url
-```
-
-Add the IP in the output to your `/etc/hosts`. 
-
-> Use the same domain of your self-signed certificate.
-
 ## Uninstalling the Chart
 
 To uninstall/delete the `my-release` deployment:
 
 ```bash
-$ helm uninstall my-release
+helm uninstall my-release
 ```
 
 The command removes all the Kubernetes components associated with the chart and eliminates the release.
@@ -98,9 +93,7 @@ redis:
 Specify each parameter using the --set key=value[,key=value] argument to helm install. For example,
 
 ```bash
-helm upgrade --wait fonos \
---set sipproxy.serviceType=LoadBalancer \
-fonoster/fonos  
+helm upgrade --wait fonos fonoster/fonos  
 ```
 
 Alternatively, you can provide a YAML file that specifies the above parameters' values while installing the chart. For example:
