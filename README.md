@@ -24,9 +24,8 @@ Refer to websites of the various products in the list bellow for detail on insta
 
 Requirements:
 
-- Docker Compose
+- K8S Cluster
 - Node and NPM
-- Git (optional)
 - A softphone (with support for tcp)
 
 </details>
@@ -34,18 +33,10 @@ Requirements:
 <details><summary>Running the Infrastructure</summary>
 
 <br />
-Once all the requirements are installed, the next step is to run the infraestructure.
-For that, you must clone or download Fonos git repository. The first time you run this commands
-it will take awhile. Run using docker-compose
+To run Fonos in your cluster, please follow the [deployment instructions](https://github.com/fonoster/fonos/tree/master/.helm)
 <br /><br />
 
-```bash
-git clone https://github.com/fonoster/fonos
-cd fonos
-docker-compose up
-```
-
-> Work is on the way to enable Fonos for Docker Swarm and K8s.
+> Work is on the way to enable Fonos for Docker Swarm
 </details>
 
 <details><summary>Installing the Tools</summary>
@@ -81,8 +72,7 @@ For more examples go the [examples folder](/examples) in this repository.
 
 <details><summary>Testing</summary>
 <br />
-To interact with your application, point your softphone to Asterisk sub-system.
-Asterisk will be listening for SIP traffic on port <b>6060\tcp</b>. The testing information
+To interact with your application, point your softphone to Asterisk sub-system. The testing information
 is as follows:
  
 <br />
