@@ -1,5 +1,5 @@
 import '../config'
-import Command, { flags } from '@oclif/command'
+import Command from '@oclif/command'
 import { Input } from '@oclif/parser'
 import { cli } from 'cli-ux'
 

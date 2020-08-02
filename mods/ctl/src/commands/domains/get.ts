@@ -1,7 +1,7 @@
 import '../../config'
 import Domains from '@fonos/domains'
 import { CLIError } from '@oclif/errors'
-import { Command, flags } from '@oclif/command'
+import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
 import { render } from 'prettyjson'
 

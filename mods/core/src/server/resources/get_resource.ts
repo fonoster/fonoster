@@ -1,4 +1,3 @@
-import { FonosAuthError } from '@fonos/errors'
 import routr from '../../common/routr'
 import { Kind } from '../../common/resource_encoder'
 

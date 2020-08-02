@@ -1,4 +1,4 @@
-import { FonosError, FonosAuthError } from '@fonos/errors'
+import { FonosError } from '@fonos/errors'
 import redis from '../../common/redis'
 import grpc from 'grpc'
 import logger from '@fonos/logger'
