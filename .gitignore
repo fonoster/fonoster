@@ -4,8 +4,6 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # Other
-*_transcoded.wav
-.sln
 node_modules
 coverage
 .nyc_output
