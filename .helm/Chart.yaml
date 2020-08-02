@@ -6,7 +6,7 @@ description: |
     services such as Programmable Voice, Messaging, and Video.
 type: application
 version: 0.0.5
-appVersion: 0.0.19
+appVersion: 0.0.37
 dependencies:
   - name: redis
     version: 10.6.18

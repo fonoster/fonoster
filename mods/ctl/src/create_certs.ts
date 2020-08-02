@@ -1,4 +1,5 @@
 import { cli } from 'cli-ux'
+import { CLIError } from '@oclif/errors'
 const Docker = require('dockerode')
 
 const getConfig = (subject?: string, name?: string, accessKeyId?: string) => {
@@ -23,8 +24,19 @@ export default async function (subject: string, accessKeyId: string) {
     cli.log('Pulling docker images')
 
     const docker = new Docker()
-    await docker.pull('fonoster/jwthelper')
-    await docker.pull('fonoster/certshelper')
+
+    try {
+      await docker.ping()
+    } catch (e) {
+      throw new Error('Unable to connect to docker engine')
+    }
+
+    try {
+      await docker.pull('fonoster/jwthelper')
+      await docker.pull('fonoster/certshelper')
+    } catch (e) {
+      throw new Error('Failed to pull docker images')
+    }
 
     cli.log('Creating jwt token')
 
@@ -53,6 +65,6 @@ export default async function (subject: string, accessKeyId: string) {
       getConfig(subject, 'server')
     )
   } catch (e) {
-    console.log(e)
+    throw new CLIError(e.message)
   }
 }

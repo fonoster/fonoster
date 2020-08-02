@@ -2,28 +2,32 @@ import { join } from 'path'
 import * as fs from 'fs'
 import * as os from 'os'
 import { cli } from 'cli-ux'
+import { CLIError } from '@oclif/errors'
 
 const k8s = require('@kubernetes/client-node')
 const btoa = require('btoa')
-const kc = new k8s.KubeConfig()
-kc.loadFromDefault()
 const BASE_DIR = '/tmp/certs'
 const getContent = (file: string) =>
   btoa(fs.readFileSync(`${BASE_DIR}/${file}`).toString('utf-8'))
 
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api)
+function getK8sApi () {
+  const kc = new k8s.KubeConfig()
+  kc.loadFromDefault()
+  return kc.makeApiClient(k8s.CoreV1Api)
+}
 
 async function installConfig (context: string) {
   try {
+    const k8sApi = getK8sApi()
     const config = getContent('config')
     const jwtSalt = getContent('jwt.salt')
 
-    cli.log(`Removing old 'fonos-config' secret`)
+    cli.log(`Removing old configuration`)
     try {
       await k8sApi.deleteNamespacedSecret('fonos-config', context)
     } catch (e) {}
 
-    cli.log(`Installing new 'fonos-config'`)
+    cli.log(`Installing new configuration`)
     await k8sApi.createNamespacedSecret(context, {
       kind: 'Secret',
       metadata: { name: `fonos-config` },
@@ -34,32 +38,35 @@ async function installConfig (context: string) {
       }
     })
   } catch (e) {
-    console.log(e)
+    throw new CLIError(e.response.body.message)
   }
 }
 
 async function installTLSCerts (context: string) {
   try {
+    const k8sApi = getK8sApi()
     const key = getContent('server.key')
     const cert = getContent('server.crt')
 
-    cli.log(`Removing old 'fonos-certs' secret`)
+    cli.log(`Removing old certificates`)
     try {
       await k8sApi.deleteNamespacedSecret('fonos-certs', context)
     } catch (e) {}
 
-    cli.log(`Installing new 'fonos-certs'`)
-    await k8sApi.createNamespacedSecret(context, {
-      kind: 'Secret',
-      metadata: { name: `fonos-certs` },
-      type: 'kubernetes.io/tls',
-      data: {
-        'tls.key': key,
-        'tls.crt': cert
-      }
-    })
+    cli.log(`Installing new certificates`)
+    await k8sApi
+      .createNamespacedSecret(context, {
+        kind: 'Secret',
+        metadata: { name: `fonos-certs` },
+        type: 'kubernetes.io/tls',
+        data: {
+          'tls.key': key,
+          'tls.crt': cert
+        }
+      })
+      .catch((e: any) => console.log(e.message))
   } catch (e) {
-    console.log(e)
+    throw new CLIError(e.response.body.message)
   }
 }
 
@@ -80,7 +87,7 @@ async function installConfigLocal (subject: string) {
     fs.mkdirSync(targetDir, { recursive: true })
     fs.writeFileSync(pathToConfig, content)
   } catch (e) {
-    console.log(e)
+    throw new CLIError(e.message)
   }
 }
 

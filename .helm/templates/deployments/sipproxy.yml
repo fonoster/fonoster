@@ -21,6 +21,9 @@ spec:
         app: sipproxy
         {{- include ".helm2.selectorLabels" . | nindent 8 }}
     spec:
+      #initContainers:
+      #- name: netdiscover
+      #  image: cycoresystems/netdiscover:latest    
       containers:
       - name: sipproxy
         image: fonoster/routr:latest
