@@ -1,6 +1,6 @@
 {
   "name": "@fonos/agents",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "VoIP Agents",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -30,8 +30,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.36",
-    "@fonos/logger": "^0.0.36",
+    "@fonos/core": "^0.0.37",
+    "@fonos/logger": "^0.0.37",
     "grpc-promise": "^1.4.0"
   }
 }
