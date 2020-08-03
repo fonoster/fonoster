@@ -6,14 +6,20 @@ metadata:
     app: sipproxy
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
+  {{- with .Values.sipproxy.annotations }}
+  annotations:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}  
 spec:
-  replicas: 1
+  replicas: {{ .Values.sipproxy.replicaCount }}
+  strategy:
+    type: {{ .Values.sipproxy.strategyType | quote }}
   selector:
     matchLabels:
       {{- include ".helm2.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
+    {{- with .Values.sipproxy.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -21,13 +27,10 @@ spec:
         app: sipproxy
         {{- include ".helm2.selectorLabels" . | nindent 8 }}
     spec:
-      #initContainers:
-      #- name: netdiscover
-      #  image: cycoresystems/netdiscover:latest    
       containers:
       - name: sipproxy
-        image: fonoster/routr:latest
-        imagePullPolicy: Always
+        image: {{ .Values.sipproxy.image.repository }}:{{ .Values.sipproxy.image.tag }}
+        imagePullPolicy: {{ .Values.sipproxy.image.pullPolicy }}
         env:
         - name: REGISTRAR_INTF
           value: Internal
@@ -38,7 +41,16 @@ spec:
         - name: DATA_SOURCE_PARAMETERS
           value: host={{ include ".helm2.fullname" . }}-redis-master,port=6379
         ports:
-        - name: sig
+        - name: tcp
           containerPort: 5060
-        - name: api
+        - name: udp
+          containerPort: 5061
+          protocol: UDP
+        - name: tls
+          containerPort: 5062
+        - name: ws
+          containerPort: 5063 
+        - name: wss
+          containerPort: 5064             
+        - name: https
           containerPort: 4567

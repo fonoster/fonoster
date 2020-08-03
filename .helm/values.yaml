@@ -1,15 +1,87 @@
-externAddr: ""
-sipproxy:
-  serviceType: NodePort
-  externAddr: ""
+apiserver:
+  ingress:
+    enabled: true
+    host: fonos.local
 
-mediaserver:
-  serviceType: NodePort
+# sipproxy is the element in charge of dealing with sip signaling in Fonos
+sipproxy:
+  # externAddr is the public facing address for the SIPProxy component
   externAddr: ""
-  externPort: 30001
+  # replicaCount is the number of SIPProxy nodes
+  replicaCount: 1
+  # labels are addtional labels to be added to the SIPProxy component
+  labels: {}
+  # annotations are addtional annotations to be added to the SIPProxy component
+  annotations: {}
+  # podAnnotations are SIPProxy's pod labels
+  podAnnotations: {}
+  # strategyType is the StrategyType for SIPProxy component
+  strategyType: RollingUpdate
+  # image section cover image specific values
+  image: 
+    # registry is the SIPProxy's image registry
+    registry: docker.io
+    # registry is the SIPProxy's image repository
+    repository: fonoster/routr
+    # tag is the SIPProxy's image tag
+    tag: latest
+    # pullPolicy is the SIPProxy's image pull policy
+    pullPolicy: Always
+  # service section of component
+  service:  
+    # type is the service type
+    type: ClusterIP
+    # udpPort is the port for UDP signaling
+    udpPort: 5060
+    # tcpPort is the port for TCP signaling
+    tcpPort: 5060
+    # tlsPort is the port for TLS signaling
+    tlsPort: ""
+    # wsPort is the websocket signaling
+    wsPort: ""
+    # wssPort is the secured websocket signaling
+    wssPort: ""
+    # https is the admin port
+    https: 4567
+    # annnotations are added annontation for SIPProxy service
+    annnotations: {}
+
+# sipproxy is the element in charge of handling with media processing in Fonos
+mediaserver:
+  # externAddr is the public facing address for the MediaServer component
+  externAddr: ""
+  # externPort is the public facing port
+  externPort: 6060
+  # proxyUsername username at SIPProxy
   proxyUsername: ast
+  # replicproxySecret secret at SIPProxy
   proxySecret: changeit
-  port: 6060
+  # replicaCount is the number of MediaServer nodes
+  replicaCount: 1
+  # labels are addtional labels to be added to the MediaServer component
+  labels: {}
+  # annotations are addtional annotations to be added to the MediaServer component
+  annotations: {}
+  # podAnnotations are MediaServer's pod labels
+  podAnnotations: {}
+  # strategyType is the StrategyType for MediaServer component
+  strategyType: RollingUpdate
+  # image section that cover image specific values
+  image: 
+    # registry is the MediaServer's image registry
+    registry: docker.io
+    # registry is the MediaServer's image repository
+    repository: fonoster/fonos-mediaserver
+    # tag is the MediaServer's image tag
+    tag: latest
+    # pullPolicy is the MediaServer's image pull policy
+    pullPolicy: Always
+  service:
+    # type is the service type
+    type: ClusterIP
+    # type is the service type
+    port: 6060
+    annontation: {}
 
 redis:
   usePassword: false

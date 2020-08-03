@@ -7,8 +7,7 @@ metadata:
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
-  type: NodePort
-  sessionAffinity: None
+  type: ClusterIP
   ports:
   - name: grpc
     port: 50052

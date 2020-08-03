@@ -1,9 +1,9 @@
+{{ if eq .Values.apiserver.ingress.enabled true }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ include ".helm2.fullname" . }}-ingress
+  name: {{ include ".helm2.fullname" . }}-apiserver-ingress
   annotations:
-    # TODO: Perhaps, this should be a parameter in value.yaml
     nginx.ingress.kubernetes.io/proxy-body-size: 100m
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     nginx.ingress.kubernetes.io/server-snippet: |
@@ -14,13 +14,14 @@ metadata:
   namespace: {{ .Release.Namespace }}    
 spec:
   tls:
-    - hosts: [api.fonos]
+    - hosts: [{{ .Values.apiserver.ingress.host }} ]
       secretName: fonos-certs
   rules:
-  - host: api.fonos
+  - host: {{ .Values.apiserver.ingress.host }}
     http:
       paths:
       - path: /
         backend:
           serviceName: {{ include ".helm2.fullname" . }}-apiserver
           servicePort: 50052
+{{ end }}

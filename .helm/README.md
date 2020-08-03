@@ -14,7 +14,7 @@ This chart bootstraps Project Fonos for deployment on a [Kubernetes](https://kub
 - Helm 3.0-beta3+
 - [Fonos CTL](https://www.npmjs.com/package/@fonos/ctl)
 - PV provisioner support in the underlying infrastructure
-- NGINX ingress Controller
+- Nginx ingress Controller
 
 ## Creating and Installing the SSL certificates and JWT Token
 
@@ -25,6 +25,17 @@ fonos config:init
 ```
 
 > You will need a running docker engine and also a kubectl properly configured
+
+You will also need to patch Nginx Controller to accept tcp and udp traffic.
+
+```
+kubectl patch configmap tcp-services -n kube-system --patch '{"data":{"6060":"default/fonos-mediaserver:6060"}}'
+kubectl patch configmap tcp-services -n kube-system --patch '{"data":{"5060":"default/fonos-sipproxy:5060"}}'
+kubectl patch configmap udp-services -n kube-system --patch '{"data":{"5060":"default/fonos-sipproxy:5060"}}'
+kubectl patch deployment ingress-nginx-controller --patch "$(cat ingress-nginx-controller-patch.yaml)" -n kube-system
+```
+
+> Replace `kube-system` with nginx namespace and default with your the namespace of your release
 
 ## Add this Helm repository to your Helm client
 

@@ -7,13 +7,15 @@ metadata:
     {{- include ".helm2.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.mediaserver.replicaCount }}
+  strategy:
+    type: {{ .Values.mediaserver.strategyType | quote }}
   selector:
     matchLabels:
       {{- include ".helm2.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-    {{- with .Values.podAnnotations }}
+    {{- with .Values.mediaserver.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -23,15 +25,15 @@ spec:
     spec:
       containers:
       - name: mediaserver
-        image: fonoster/fonos-mediaserver:latest
-        imagePullPolicy: Always
+        image: {{ .Values.mediaserver.image.repository }}:{{ .Values.mediaserver.image.tag }}
+        imagePullPolicy: {{ .Values.mediaserver.image.pullPolicy }}
         env:
-          # Asterisk will not send outbound registration in K8s unless it has a FQDN
-          # As a workaround we simply use the POD's FQND
         - name: EXTERN_ADDR
           value: {{ .Values.mediaserver.externAddr | quote }}
         - name: EXTERN_PORT 
           value: {{ .Values.mediaserver.externPort | quote }}
+        # Asterisk will not send outbound registration in K8s unless it has a FQDN
+        # As a workaround we simply use the POD's FQND
         - name: SIPPROXY_HOST
           value: {{ include ".helm2.fullname" . }}-sipproxy.{{ .Release.Namespace }}.svc.cluster.local
         - name: SIPPROXY_USERNAME
