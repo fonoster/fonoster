@@ -49,9 +49,11 @@ Take the IP and create an entry in your local DNS host file. The host must match
 Finally, you need to overwrite the external address for your `sipproxy` and `mediaserver`. This is only neccesary when running Fonos in a local cluster.
 
 ```bash
-helm --wait install \
+helm install --wait my-release \
 --set sipproxy.externAddr=$(minikube ip) \
---set mediaserver.externAddr=$(minikube ip)\
+--set sipproxy.service.type=NodePort \
+--set mediaserver.externAddr=$(minikube ip) \
+--set mediaserver.service.type=NodePort \
 fonoster/fonos 
 ```
 
