@@ -41,44 +41,51 @@ storage-provisioner
 First, find your cluster IP by running the following command:
 
 ```bash
-minikube service list
+minikube ip
 ```
 
-Your output should look like this:
-
-```
-|-------------|------------------------------------|--------------|----------------------------|
-|  NAMESPACE  |                NAME                | TARGET PORT  |            URL             |
-|-------------|------------------------------------|--------------|----------------------------|
-| default     | fonos-apiserver                    | grpc/50052   | http://192.168.64.29:31014 |
-| default     | fonos-mediacontroller              | No node port |
-| default     | fonos-mediaserver                  | sip/6060     | http://192.168.64.29:30001 |
-|             |                                    | rtp1/30005   | http://192.168.64.29:30005 |
-|             |                                    | rtp2/30006   | http://192.168.64.29:30006 |
-|             |                                    | rtp3/30007   | http://192.168.64.29:30007 |
-|             |                                    | rtp4/30008   | http://192.168.64.29:30008 |
-| default     | fonos-minio                        | No node port |
-| default     | fonos-rabbitmq                     | No node port |
-| default     | fonos-rabbitmq-headless            | No node port |
-| default     | fonos-redis-headless               | No node port |
-| default     | fonos-redis-master                 | No node port |
-| default     | fonos-sipproxy                     | sig/5060     | http://192.168.64.29:30678 |
-|             |                                    | api/4567     | http://192.168.64.29:32526 |
-| default     | fonos-ttsengine                    | No node port |
-| default     | kubernetes                         | No node port |
-| kube-system | ingress-nginx-controller-admission | No node port |
-| kube-system | kube-dns                           | No node port |
-|-------------|------------------------------------|--------------|----------------------------|
-```
-
-Take the IP from the URL column (in this case 192.168.64.29), and create an entry in your local DNS host file. The host must 
-match your initial configuration. 
+Take the IP and create an entry in your local DNS host file. The host must match your initial configuration. 
 
 Finally, you need to overwrite the external address for your `sipproxy` and `mediaserver`. This is only neccesary when running Fonos in a local cluster.
 
 ```bash
 helm --wait install \
---set sipproxy.externAddr=192.168.64.28 \
---set mediaserver.externAddr=192.168.64.28 \
+--set sipproxy.externAddr=$(minikube ip) \
+--set mediaserver.externAddr=$(minikube ip)\
 fonoster/fonos 
 ```
+
+# Exposing SIP ports in Nginx Controller (Optional)
+
+Patch Nginx Controller to accept tcp and udp traffic.
+
+First,
+
+```
+kubectl patch configmap tcp-services -n kube-system --patch '{"data":{"6060":"default/fonos-mediaserver:6060"}}'
+kubectl patch configmap tcp-services -n kube-system --patch '{"data":{"5060":"default/fonos-sipproxy:5060"}}'
+kubectl patch configmap udp-services -n kube-system --patch '{"data":{"5060":"default/fonos-sipproxy:5060"}}'
+```
+
+Then,
+
+```
+kubectl patch deployment ingress-nginx-controller --patch "$(cat ingress-nginx-controller-patch.yaml)" -n kube-system
+```
+
+```
+spec:
+  template:
+    spec:
+      containers:
+      - name: controller
+        ports:
+         - containerPort: 4567
+           hostPort: 4567
+         - containerPort: 5060
+           hostPort: 5060
+         - containerPort: 6060
+           hostPort: 6060
+```
+
+> Replace `kube-system` with nginx namespace and `default` with your the namespace of your release

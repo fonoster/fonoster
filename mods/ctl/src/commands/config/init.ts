@@ -42,7 +42,8 @@ export default class ConfigCommand extends Command {
         {
           name: 'subject',
           message: 'Domain',
-          type: 'input'
+          type: 'input',
+          default: 'fonos.local'
         },
         {
           name: 'accessKeyId',
