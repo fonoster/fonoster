@@ -31,7 +31,7 @@ spec:
         - name: MS_ENDPOINT  # Fixme
           value: sip:ast@sip.local 
         - name: DS_HOST
-          value: {{ include ".helm2.fullname" . }}-redis-master
+          value: {{ printf "%s-%s" .Release.Name .Values.redis.nameOverride }}-master
         - name: DS_PORT
           value: "6379"
         - name: SIPPROXY_API_PORT
@@ -41,7 +41,7 @@ spec:
         - name: SIPPROXY_API_SECRET
           value: changeit
         - name: FS_HOST
-          value: {{ include ".helm2.fullname" . }}-minio
+          value: {{ printf "%s-%s" .Release.Name .Values.minio.nameOverride }}
         - name: FS_PORT
           value: "9000"
         - name: FS_USERNAME
@@ -51,7 +51,7 @@ spec:
         - name: FS_DEFAULT_STORAGE_BUCKET
           value: default
         - name: EVENTS_BROKERS
-          value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include ".helm2.fullname" . }}-rabbitmq:5672
+          value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ printf "%s-%s" .Release.Name .Values.rabbitmq.nameOverride }}:5672
         - name: EVENTS_QUEUE
           value: apiserver       
         volumeMounts:

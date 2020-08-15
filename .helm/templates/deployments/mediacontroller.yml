@@ -33,7 +33,7 @@ spec:
         - name: TTS_ENGINE_PORT
           value: "59125"
         - name: EVENTS_BROKERS
-          value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include ".helm2.fullname" . }}-rabbitmq:5672
+          value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ printf "%s-%s" .Release.Name .Values.rabbitmq.nameOverride }}:5672
         - name: EVENTS_QUEUE
           value: apiserver
         volumeMounts:
@@ -51,7 +51,7 @@ spec:
         imagePullPolicy: Always
         env:
           - name: EVENTS_BROKERS
-            value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include ".helm2.fullname" . }}-rabbitmq:5672
+            value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ printf "%s-%s" .Release.Name .Values.rabbitmq.nameOverride }}:5672
           - name: EVENTS_QUEUE
             value: apiserver     
         volumeMounts:
@@ -64,4 +64,4 @@ spec:
             secretName: fonos-config
         - name: shared-files
           persistentVolumeClaim:
-            claimName: {{ include ".helm2.fullname" . }}-minio
+            claimName: {{ printf "%s-%s" .Release.Name .Values.minio.nameOverride }}

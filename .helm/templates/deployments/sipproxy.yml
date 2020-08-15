@@ -39,7 +39,7 @@ spec:
         - name: DATA_SOURCE_PROVIDER
           value: redis_data_provider
         - name: DATA_SOURCE_PARAMETERS
-          value: host={{ include ".helm2.fullname" . }}-redis-master,port=6379
+          value: host={{ printf "%s-%s" .Release.Name .Values.redis.nameOverride }}-master,port=6379
         ports:
         - name: tcp
           containerPort: 5060

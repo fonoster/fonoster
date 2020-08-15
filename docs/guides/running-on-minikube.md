@@ -1,3 +1,11 @@
+## Prerequisites
+
+- Kubernetes 1.18+
+- Helm 3.0-beta3+
+- [Fonos CTL](https://www.npmjs.com/package/@fonos/ctl)
+- PV provisioner support in the underlying infrastructure
+- Nginx ingress Controller
+
 ## Starting Minikube
 
 Start minikube using at least 4GB of memory
@@ -14,7 +22,7 @@ To enable the NGINX Ingress controller, run the following command:
 minikube addons enable ingress
 ```
 
-> If you are having issues enabling the addon, and you are on OSX, try starting minikube with the Hyperkit driver
+> If you are having issues enabling the addon, and you are on OSX, try starting minikube with the `Hyperkit` driver
 
 Verify that NGINX Ingress controller is running
 
@@ -36,17 +44,17 @@ nginx-ingress-controller-5984b97644-rnkrg   1/1       Running   0          1m
 storage-provisioner         
 ```
 
-## Installing Fonos in your Cluster
+## Creating and Installing the SSL certificates and JWT Token
 
-First, find your cluster IP by running the following command:
+Run the following commmand to create and install the certificates and the token:
 
-```bash
-minikube ip
+```
+fonos config:init
 ```
 
-Take the IP and create an entry in your local DNS host file. The host must match your initial configuration. 
+## Installing Fonos in your Cluster
 
-Finally, you need to overwrite the external address for your `sipproxy` and `mediaserver`. This is only neccesary when running Fonos in a local cluster.
+Run the following command to install Fonos in your minikube:
 
 ```bash
 helm install --wait my-release \
@@ -54,8 +62,10 @@ helm install --wait my-release \
 --set sipproxy.service.type=NodePort \
 --set mediaserver.externAddr=$(minikube ip) \
 --set mediaserver.service.type=NodePort \
-fonoster/fonos 
+fonoster/fonos
 ```
+
+> Take your minikube's IP and create a new entry in your local DNS host file. The host must match your initial configuration(defaults to `fonos.local`).
 
 # Exposing SIP ports in Nginx Controller (Optional)
 
