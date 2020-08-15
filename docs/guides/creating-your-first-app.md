@@ -42,8 +42,8 @@ The fastest way to test your new application is to connect directly to the Media
 
 ```
 USENAME = 1001
+DOMAIN = test
 PASSWORD = 1234
-TEST EXTENSION = 1002
 ```
 
 Once you configure your softphone, call the extension `1002` to interact with your new application.
