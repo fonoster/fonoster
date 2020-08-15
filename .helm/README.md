@@ -93,11 +93,11 @@ redis:
 Specify each parameter using the --set key=value[,key=value] argument to helm install. For example,
 
 ```bash
-helm upgrade --wait fonos fonoster/fonos  
+helm upgrade --wait my-release fonoster/fonos  
 ```
 
 Alternatively, you can provide a YAML file that specifies the above parameters' values while installing the chart. For example:
 
 ```bash
-helm install --wait fonos -f values.yaml fonoster/fonos
+helm install --wait my-release -f values.yaml fonoster/fonos
 ```
