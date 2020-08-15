@@ -1,6 +1,6 @@
 {
   "name": "@fonos/sdk",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "Fonos SDK module",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -30,11 +30,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/agents": "^0.0.37",
-    "@fonos/appmanager": "^0.0.37",
-    "@fonos/domains": "^0.0.37",
-    "@fonos/numbers": "^0.0.37",
-    "@fonos/providers": "^0.0.37",
-    "@fonos/storage": "^0.0.37"
+    "@fonos/agents": "^0.0.38",
+    "@fonos/appmanager": "^0.0.38",
+    "@fonos/domains": "^0.0.38",
+    "@fonos/numbers": "^0.0.38",
+    "@fonos/providers": "^0.0.38",
+    "@fonos/storage": "^0.0.38"
   }
 }
