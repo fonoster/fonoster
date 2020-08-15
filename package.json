@@ -46,6 +46,7 @@
     }
   },
   "dependencies": {
+    "@fonos/ctl": "0.0.38",
     "google-protobuf": "^3.12.2",
     "nodemon": "^2.0.4"
   }
