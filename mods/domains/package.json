@@ -1,6 +1,6 @@
 {
   "name": "@fonos/domains",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "VoIP Domains",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -30,8 +30,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.38",
-    "@fonos/logger": "^0.0.38",
+    "@fonos/core": "^0.0.39",
+    "@fonos/logger": "^0.0.39",
     "grpc-promise": "^1.4.0",
     "sync": "^0.2.4"
   }
