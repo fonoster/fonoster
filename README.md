@@ -97,7 +97,7 @@ Congratulations if you made it this far. The next step with Fonos is to get fami
 Fonos' main features are:
 
 - Programmable Voice
-- Available on Docker and Kubernetes environments
+- Available on Kubernetes environment
 - Typical SIP Server functions; Proxy, Registrar, Location Service
 - Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
 - Per node Multi-Tenancy/Multi-Domain with Domain level Access Control List
@@ -107,8 +107,6 @@ Fonos' main features are:
 ## Bugs and Feedback
 
 For bugs, questions, and discussions please use the [Github Issues](https://github.com/fonoster/fonos/issues)
-
-> We are currently unable to place calls using UDP due to NAT issues.
 
 ## Contributing
 
