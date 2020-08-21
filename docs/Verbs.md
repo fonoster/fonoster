@@ -10,8 +10,7 @@ of some verbs, such as `Say`.
 
 * [Verbs](#Verbs)
     * [new Verbs()](#new_Verbs_new)
-    * [.config(config)](#Verbs+config)
-    * [.getConfig()](#Verbs+getConfig)
+    * [.overrideTTS(tts)](#Verbs+overrideTTS)
     * [.answer()](#Verbs+answer)
     * [.hangup()](#Verbs+hangup)
     * [.setAutoHangup()](#Verbs+setAutoHangup)
@@ -27,26 +26,18 @@ of some verbs, such as `Say`.
 ### new Verbs()
 Constructs a new Verbs object.
 
-<a name="Verbs+config"></a>
+<a name="Verbs+overrideTTS"></a>
 
-### verbs.config(config)
-Configure the Verbs object.
-
-**Kind**: instance method of [<code>Verbs</code>](#Verbs)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| config | <code>Object</code> | This parameter is required for proper operation of some verbs, such as `Say` |
-| config.bucket | <code>string</code> | Change default bucket |
-| config.storage | <code>string</code> | A replacement for the storage. Use this Only to overwrite the parameters set in your `fonos.json.` |
-| config.tts | <code>string</code> | A replacement for the default TTS engine |
-
-<a name="Verbs+getConfig"></a>
-
-### verbs.getConfig()
-Returns configuration object
+### verbs.overrideTTS(tts)
+/**
+Replaces default TTS engine with a new implementation.
 
 **Kind**: instance method of [<code>Verbs</code>](#Verbs)  
+
+| Param |
+| --- |
+| tts | 
+
 <a name="Verbs+answer"></a>
 
 ### verbs.answer()

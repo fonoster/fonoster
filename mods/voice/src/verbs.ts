@@ -57,24 +57,14 @@ class Verbs {
   }
 
   /**
-   * Configure the Verbs object.
-   *
-   * @param {Object} config - This parameter is required for proper operation of
-   * some verbs, such as `Say`
-   * @param {string} config.bucket - Change default bucket
-   * @param {string} config.storage - A replacement for the storage. Use this
-   * Only to overwrite the parameters set in your `fonos.json.`
-   * @param {string} config.tts - A replacement for the default TTS engine
-   */
-  config (config: any) {
-    this._config = config
-  }
 
   /**
-   * Returns configuration object
+   * Replaces default TTS engine with a new implementation.
+   * 
+   * @param tts 
    */
-  getConfig () {
-    return this._config
+  overrideTTS (tts: any) {
+    this._config.tts = tts
   }
 
   /**
@@ -148,7 +138,7 @@ class Verbs {
    * @params {number} time - A time seconds to wait for
    */
   wait (time: number): void {
-    new Wait(this._config, this.channel).run(time)
+    new Wait(this.channel, this._config).run(time)
   }
 
   /**
