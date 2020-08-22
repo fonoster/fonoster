@@ -51,9 +51,7 @@ spec:
         imagePullPolicy: Always
         env:
           - name: EVENTS_BROKERS
-            value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ printf "%s-%s" .Release.Name .Values.rabbitmq.nameOverride }}:5672
-          - name: EVENTS_QUEUE
-            value: apiserver     
+            value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ printf "%s-%s" .Release.Name .Values.rabbitmq.nameOverride }}:5672    
         volumeMounts:
           - mountPath: /data
             name: shared-files

@@ -1,5 +1,18 @@
 import Verb from './verb'
-import events from './events'
+import { EventsSender } from '@fonos/events'
+import logger from '@fonos/logger'
+
+let events: any
+
+try {
+  if (!process.env.EVENTS_BROKERS)
+    throw 'core.common.events [environment variable EVENTS_BROKERS not set]'
+  const brokers = process.env.EVENTS_BROKERS.split(',')
+  events = new EventsSender(brokers, 'RECORDING_CREATED')
+  events.connect()
+} catch (e) {
+  logger.error(e)
+}
 
 const objectid = require('objectid')
 
@@ -63,7 +76,7 @@ class Record extends Verb {
 
     if (res.code !== 200) throw new Error(res.rawReply)
 
-    events.sendToQ('RECORDING_CREATED', {
+    events.sendToQ({
       filename: `${filename}.${format}`
     })
 

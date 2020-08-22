@@ -18,12 +18,12 @@ export default class RabbitQConnector {
     const connection = amqp.connect(this.address)
     this.channelWrapper = connection.createChannel({
       json: true,
-      setup: (chanell: any) => {
+      setup: (channel: any) => {
         logger.log(
           'info',
           `events.RabbitQConnector.connect [setting up q => ${this.q}, durable => false]`
         )
-        return chanell.assertQueue(this.q, { durable: false })
+        return channel.assertQueue(this.q, { durable: false })
       }
     })
   }
