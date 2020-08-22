@@ -177,7 +177,7 @@ class Verbs {
    * @param {string} options.finishOnKey - Key to terminate the playing
    * @param {string} options.beep - Wether to beep or not before beginig the
    * recordings. Defaults to 'false'
-   * @param {string} options.offset - Causes the recording to first seek to the
+   * @param {string} options.silenceSeconds - Causes the recording to first seek to the
    * specified offset before recording begins
    * @param {string} options.maxDuration - Maximum duration of the recording.
    * Defaults to `1 hour.`
@@ -189,7 +189,7 @@ class Verbs {
    *     timeout: 4,         // Default
    *     finishOnKey: #,     // Characters used to finish the recording
    *     beep: true,
-   *     offset: 0,
+   *     silenceSeconds: 0,
    *     maxDuration: 3600   // Maximum duration in seconds
    * }
    *

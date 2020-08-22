@@ -20,7 +20,7 @@ interface RecordOptions {
   beep?: boolean
   maxDuration?: number
   finishOnKey?: string
-  offset?: number
+  silenceSeconds?: number
   format?: string
 }
 
@@ -58,7 +58,7 @@ class Record extends Verb {
       beep = true,
       maxDuration = 3600,
       finishOnKey = '1234567890#*',
-      offset = 0,
+      silenceSeconds = 0,
       format = 'wav'
     } = options
     validateMaxDuration(maxDuration)
@@ -70,7 +70,7 @@ class Record extends Verb {
       format,
       finishOnKey,
       maxDuration * 1000,
-      offset,
+      silenceSeconds,
       beep
     )
 
