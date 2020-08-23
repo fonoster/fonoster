@@ -154,7 +154,7 @@ Record creates a file with the sound send by receiving device
 | options.timeout | <code>string</code> | Time to finish if no key is pressed |
 | options.finishOnKey | <code>string</code> | Key to terminate the playing |
 | options.beep | <code>string</code> | Wether to beep or not before beginig the recordings. Defaults to 'false' |
-| options.offset | <code>string</code> | Causes the recording to first seek to the specified offset before recording begins |
+| options.silenceSeconds | <code>string</code> | Causes the recording to first seek to the specified offset before recording begins |
 | options.maxDuration | <code>string</code> | Maximum duration of the recording. Defaults to `1 hour.` |
 
 **Example**  
@@ -163,7 +163,7 @@ const options = {
     timeout: 4,         // Default
     finishOnKey: #,     // Characters used to finish the recording
     beep: true,
-    offset: 0,
+    silenceSeconds: 0,
     maxDuration: 3600   // Maximum duration in seconds
 }
 
