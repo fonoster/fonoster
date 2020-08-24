@@ -28,7 +28,6 @@ jobs:
         mv site/* out/docs
         mv docs/CNAME out
         mv docs/site_assets out
-        mv docs/index.html out
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v2.3.2
       env:
