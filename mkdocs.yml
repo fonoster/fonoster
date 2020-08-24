@@ -3,7 +3,7 @@ site_name: Documentation
 site_description: Programmable Voice, Messaging, and Video
 site_author: Pedro Sanders
 site_url: https://fonoster.github.com/docs
-google_analytics: ['UA-71722942-3', 'fonoster.io']
+google_analytics: ['UA-71722942-3', 'fonos.io']
 
 # Repository
 repo_name: fonoster/fonos
