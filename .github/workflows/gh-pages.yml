@@ -1,4 +1,4 @@
-name: publish_docs
+name: publish to gh pages
 on:
   push:
     paths:
@@ -9,14 +9,29 @@ jobs:
   build-deploy:
     runs-on: ubuntu-18.04
     steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Copy docs to Wiki
-      uses: docker://decathlon/wiki-page-creator-action:2.0.1
+    - uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.6'
+        architecture: 'x64'
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -Iv mkdocs==1.0.4
+        pip install -Iv pymdown-extensions==6.0
+        pip install -Iv mkdocs-material==4.4.0
+    - name: Build
+      run: |
+        mkdocs build
+        mkdir -p out/docs
+        mv site/* out/docs
+        mv docs/CNAME out
+        mv docs/site_assets out
+        mv docs/index.html out
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v2.3.2
       env:
-        GH_PAT: ${{ secrets.GH_PAT }}
-        MD_FOLDER: docs
-        ACTION_MAIL: fonosterteam@fonoster.com
-        ACTION_NAME: psanders
-        OWNER: fonoster
-        REPO_NAME: fonos
+        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: ./out
