@@ -22,11 +22,11 @@ function listen(chan, asr) {
 }
 
 module.exports = chan => {
-  // Setting up Google TTS and ASR
+  // Setting up Google TTS
   chan.overrideTTS(tts)
   chan.say(`Hi! What reminder do you want to schedule?`)
 
-  // We keep a loop until the we see the 'session.close' intent
+  // We keep a loop until we see the 'session.close' intent
   while(true) {
     try {
       const result = talk.findIntentSync(listen(chan, asr))
