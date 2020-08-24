@@ -1,0 +1,93 @@
+# Project information
+site_name: Documentation
+site_description: Programmable Voice, Messaging, and Video
+site_author: Pedro Sanders
+site_url: https://fonoster.github.com/docs
+google_analytics: ['UA-71722942-3', 'fonoster.io']
+
+# Repository
+repo_name: fonoster/fonos
+repo_url: https://github.com/fonoster/fonos
+edit_uri: /fonoster/fonos/edit/master/docs/
+
+nav:
+  - Programmable Voice: programmable-voice.md
+  - Guides:
+    - Installing Fonos on Minikube: guides/installing-on-minikube.md
+    - Deploying VOIP Network: guides/deploying-voip-network.md
+    - Creating Programmable Voice App: guides/creating-app.md
+  - Reference:
+    - AbstractTTS: reference/AbstractTTS.md
+    - Agents: reference/Agents.md
+    - AppManager: reference/AppManager.md
+    - Domains: reference/Domains.md
+    - GoogleASR: reference/GoogleASR.md
+    - GoogleTTS: reference/GoogleTTS.md
+    - MaryTTS: reference/MaryTTS.md
+    - Numbers: reference/Numbers.md
+    - Providers: reference/Providers.md
+    - Storage: reference/Storage.md
+    - Verbs: reference/Verbs.md
+
+# Copyright
+copyright: 'Copyright &copy; 2020 Fonoster Inc'
+theme:
+  name: material
+  custom_dir: docs/theme
+
+  # 404 page
+  static_templates:
+    - 404.html
+
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
+
+  # Default values, taken from mkdocs_theme.yml
+  language: en
+  palette:
+    primary: blue grey
+    accent: indigo
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: /assets/images/favicon.ico
+  icon:
+    logo: "\uE80C"
+extra:
+  social:
+    - type: globe
+      link: https://fonoster.com
+    - type: github-alt
+      link: https://github.com/fonoster
+    - type: twitter
+      link: https://twitter.com/fonoster
+    - type: linkedin
+      link: https://www.linkedin.com/company/fonoster/about/
+
+markdown_extensions:
+  - markdown.extensions.admonition
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - markdown.extensions.def_list
+  - markdown.extensions.footnotes
+  - markdown.extensions.meta
+  - markdown.extensions.toc:
+      permalink: true
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde

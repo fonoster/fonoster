@@ -1,0 +1,234 @@
+////
+/// Copyright (c) 2016-2018 Martin Donath <martin.donath@squidfunk.com>
+///
+/// Permission is hereby granted, free of charge, to any person obtaining a
+/// copy of this software and associated documentation files (the "Software"),
+/// to deal in the Software without restriction, including without limitation
+/// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+/// and/or sell copies of the Software, and to permit persons to whom the
+/// Software is furnished to do so, subject to the following conditions:
+///
+/// The above copyright notice and this permission notice shall be included in
+/// all copies or substantial portions of the Software.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+/// DEALINGS
+////
+
+// ----------------------------------------------------------------------------
+// Keyframes
+// ----------------------------------------------------------------------------
+
+// Show source facts
+@keyframes md-source__facts--done {
+  0% {
+    height: 0;
+  }
+
+  100% {
+    height: 1.3rem;
+  }
+}
+
+// Show source fact
+@keyframes md-source__fact--done {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Rules
+// ----------------------------------------------------------------------------
+
+// Source container
+.md-source {
+  display: block;
+  padding-right: 1.2rem;
+  transition: opacity 0.25s;
+  font-size: 1.3rem;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  // Adjust for RTL languages
+  [dir="rtl"] & {
+    padding-right: initial;
+    padding-left: 1.2rem;
+  }
+
+  // Hovered source container
+  &:hover {
+    opacity: 0.7;
+  }
+
+  // Necessary for vertical alignment
+  &::after {
+    display: inline-block;
+    height: 4.8rem;
+    content: "";
+    vertical-align: middle;
+  }
+
+  // Repository platform icon
+  &__icon {
+    display: inline-block;
+    width: 4.8rem;
+    height: 4.8rem;
+    content: "";
+    vertical-align: middle;
+
+    // Align SVG, do not scale, as this will incur strange formatting bugs
+    // in Internet Explorer and Edge
+    svg {
+      width: 2.4rem;
+      height: 2.4rem;
+      margin-top: 1.2rem;
+      margin-left: 1.2rem;
+
+      // Adjust for RTL languages
+      [dir="rtl"] & {
+        margin-right: 1.2rem;
+        margin-left: initial;
+      }
+    }
+
+    // Correct alignment, if icon is present
+    + .md-source__repository {
+      margin-left: -4.4rem;
+      padding-left: 4rem;
+
+      // Adjust for RTL languages
+      [dir="rtl"] & {
+        margin-right: -4.4rem;
+        margin-left: initial;
+        padding-right: 4rem;
+        padding-left: initial;
+      }
+    }
+  }
+
+  // Repository name
+  &__repository {
+    display: inline-block;
+    max-width: 100%;
+    margin-left: 1.2rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    vertical-align: middle;
+  }
+
+  // Source facts (statistics etc.)
+  &__facts {
+    margin: 0;
+    padding: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    list-style-type: none;
+    opacity: 0.75;
+    overflow: hidden;
+
+    // Show after the data was loaded
+    [data-md-state="done"] & {
+      animation: md-source__facts--done 0.25s ease-in;
+    }
+  }
+
+  // Fact
+  &__fact {
+    float: left;
+
+    // Adjust for RTL languages
+    [dir="rtl"] & {
+      float: right;
+    }
+
+    // Show after the data was loaded
+    [data-md-state="done"] & {
+      animation: md-source__fact--done 0.4s ease-out;
+    }
+
+    // Middle dot before fact
+    &::before {
+      margin: 0 0.2rem;
+      content: "\00B7";
+    }
+
+    // Remove middle dot on first fact
+    &:first-child::before {
+      display: none;
+    }
+  }
+}
+
+// Source file
+.md-source-file {
+  display: inline-block;
+  margin: 1em 0.5em 1em 0;
+  padding-right: 0.5rem;
+  border-radius: 0.2rem;
+  background-color: $md-color-black--lightest;
+  font-size: ms(-1);
+  list-style-type: none;
+  cursor: pointer;
+  overflow: hidden;
+
+  // Icon
+  &::before {
+    @extend %md-icon;
+
+    display: inline-block;
+    margin-right: 0.5rem;
+    padding: 0.5rem;
+    background-color: $md-color-black--lighter;
+    color: $md-color-white;
+    font-size: ms(0);
+    content: "\E86F"; // code
+    vertical-align: middle;
+  }
+
+  // Some properties need to be set with higher specificity due to the default
+  // styling of text links inside typesetted content
+  html & {
+    transition:
+      background 0.4s,
+      color      0.4s,
+      box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    // Icon
+    &::before {
+      transition: inherit;
+    }
+  }
+
+  // Color needs even higher specifity because custom color palettes are set
+  // using the body and override text links inside typesetted content
+  html body .md-typeset & {
+    color: $md-color-black--light;
+  }
+
+  // Hovered source file
+  &:hover {
+    @include z-depth-focus;
+
+    // Icon
+    &::before {
+      background-color: $md-color-accent;
+    }
+  }
+}

@@ -1,0 +1,182 @@
+<!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+  table {
+      width:100%;
+      box-shadow: none;
+      border-collapse: collapse;
+  }
+  .md-typeset__table {
+    width:100%;
+  }
+
+  .md-typeset table:not([class]) {
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  thead {
+    background-color: rgba(50, 94, 142, 0.54);
+  }
+
+  .topnav {
+    background-color: #33383d;
+    overflow: hidden;
+    z-index: 10;
+    display: flex;
+    position: fixed;
+    width: 100%;
+    font-family: Arial;
+    transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+    box-shadow: 0 0 6px rgba(0,0,0,.35);
+  }
+
+  .topnav a {
+    float: left;
+    display: block;
+    color: #ECEFF1;
+    text-align: center;
+    padding: 25px 30px;
+    text-decoration: none;
+    font-size: 16px;
+  }
+
+  a.logo {
+    padding-left: 15px;
+    padding-top: 11px;
+    height: 70px;
+  }
+
+  .topnav a:hover {
+    color: rgb(98, 190, 92);
+  }
+
+  .topnav .icon {
+    display: none;
+  }
+
+  @media screen and (max-width: 600px) {
+    .topnav a:not(:first-child) {display: none;}
+    .topnav a.icon {
+      float: right;
+      display: block;
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    .topnav.responsive {
+      display: block;
+    }
+    .topnav.responsive a.icon {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+    .topnav.responsive a {
+      float: none;
+      display: block;
+      text-align: left;
+    }
+  }
+
+  div.md-content {
+    margin-top: 60px;
+  }
+  div.md-sidebar {
+    margin-top: 60px;
+  }
+</style>
+
+<div class="topnav" id="topnav">
+  <a class="logo" href="/"><img src="/assets/logo.png" height="35"/></a>
+  <span style="flex:1"></span>
+  <a href="https://github.com/fonoster/fonos/issues">Report Bugs</a>
+  <!--<a href="/docs/introduction/community">Join the Community</a>
+  <a href="https://groups.google.com/forum/#!forum/routr-users">Ask Questions</a>-->
+  <a href="javascript:void(0);" class="icon" onclick="myFunction()">
+    <i class="fa fa-bars"></i>
+  </a>
+</div>
+
+<script type="text/javascript">
+  /* Toggle between adding and removing the "responsive" class to topnav when the user clicks on the icon */
+  function myFunction() {
+    var x = document.getElementById("topnav");
+    if (x.className === "topnav") {
+      x.className += " responsive";
+    } else {
+      x.className = "topnav";
+    }
+  }
+</script>
+
+<!-- Application header -->
+<header class="md-header" data-md-component="header" style="top: 70px;">
+
+  <!-- Top-level navigation -->
+  <nav class="md-header-nav md-grid" >
+    <div class="md-flex">
+
+      <!-- Link to home -->
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="{{ config.site_url | default(nav.homepage.url, true) | url }}"
+            title="{{ config.site_name }}"
+            class="md-header-nav__button md-logo">
+          {% if config.theme.logo.icon %}
+            <i class="md-icon">{{ config.theme.logo.icon }}</i>
+          {% else %}
+            <img src="{{ config.theme.logo | url }}" width="24" height="24" />
+          {% endif %}
+        </a>
+      </div>
+
+      <!-- Button to toggle drawer -->
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button"
+            for="__drawer"></label>
+      </div>
+
+      <!-- Header title -->
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title"
+            data-md-component="title">
+          {% block site_name %}
+            {% if config.site_name == page.title %}
+              {{ config.site_name }}
+            {% else %}
+              <span class="md-header-nav__topic">
+                {{ config.site_name }}
+              </span>
+              <span class="md-header-nav__topic">
+                {{ page.title }}
+              </span>
+            {% endif %}
+          {% endblock %}
+        </div>
+      </div>
+
+      <!-- Button to open search dialogue -->
+      <div class="md-flex__cell md-flex__cell--shrink">
+        {% block search_box %}
+          {% if "search" in config["plugins"] %}
+            <label class="md-icon md-icon--search md-header-nav__button"
+                for="__search"></label>
+
+            <!-- Search interface -->
+            {% include "partials/search.html" %}
+          {% endif %}
+        {% endblock %}
+      </div>
+
+      <!-- Repository containing source -->
+      {% if config.repo_url %}
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            {% include "partials/source.html" %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </nav>
+</header>

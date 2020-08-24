@@ -5,7 +5,7 @@ const path = require('path')
 
 /* input and output paths */
 const inputFile = 'mods/*/dist/*.js'
-const outputDir = path.join(__dirname, 'docs')
+const outputDir = path.join(__dirname, 'docs/reference')
 
 /* get template data */
 const templateData = jsdoc2md.getTemplateDataSync({ files: inputFile })
