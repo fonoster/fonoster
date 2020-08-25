@@ -9,8 +9,7 @@ class Talk {
         this.sessionPath = this.sessionClient.projectAgentSessionPath(projectId, sessionId)
     }
 
-    findIntentSync(txt) {
-        const sleep = require('sync').sleep
+    findIntent(txt, callback) {
         const request = {
             session: this.sessionPath,
             queryInput: {
@@ -20,16 +19,13 @@ class Talk {
                 },
             },
         }
-        let responses
-        let error
-        
-        this.sessionClient.detectIntent(request)
-            .then(r => (responses = r))
-            .catch(e => (error = e))
-
-        while (responses === undefined && error === undefined) sleep(100)
-
-        return responses[0].queryResult
+        process.nextTick(() => {
+            this.sessionClient.detectIntent(request)
+            .then(responses => {
+                callback(null, responses[0].queryResult)
+            })
+            .catch(e => callback(e))
+        })
     }
 }
 
