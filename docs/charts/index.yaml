@@ -2,8 +2,53 @@ apiVersion: v1
 entries:
   fonos:
   - apiVersion: v2
+    appVersion: 0.0.41
+    created: "2020-08-25T17:03:16.867939-04:00"
+    dependencies:
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.6.18
+    - name: minio
+      repository: https://openchart.choerodon.com.cn/choerodon/c7n
+      version: 5.0.5
+    - name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 7.5.6
+    description: "Project Fonos assembles the components needed to deploy a telephony
+      system. \nIt helps VoIP integrators quickly deploy new networks and include
+      value-added \nservices such as Programmable Voice, Messaging, and Video.\n"
+    digest: 1ba2389cc6616a729f81bf94ea10b14fcaefdc5d8a28b31f3ddd7de11aa4d1b2
+    keywords:
+    - twilio
+    - routr
+    - sip
+    - voip
+    - webrtc
+    - ims
+    - proxy
+    - registrar
+    - asterisk
+    - kamailio
+    - freepbx
+    - yate
+    - freeswitch
+    - fusionpbx
+    - server
+    maintainers:
+    - email: fonosterteam@fonoster.com
+      name: Fonoster
+    - email: psanders@fonoster.com
+      name: psanders
+    name: fonos
+    sources:
+    - https://github.com/fonoster/fonos
+    type: application
+    urls:
+    - fonos-0.0.7.tgz
+    version: 0.0.7
+  - apiVersion: v2
     appVersion: 0.0.37
-    created: "2020-08-14T22:25:07.914461-04:00"
+    created: "2020-08-25T17:03:16.860644-04:00"
     dependencies:
     - name: redis
       repository: https://charts.bitnami.com/bitnami
@@ -48,7 +93,7 @@ entries:
     version: 0.0.6
   - apiVersion: v2
     appVersion: 0.0.38
-    created: "2020-08-14T22:25:07.894345-04:00"
+    created: "2020-08-25T17:03:16.841554-04:00"
     dependencies:
     - name: redis
       repository: https://charts.bitnami.com/bitnami
@@ -93,7 +138,7 @@ entries:
     version: 0.0.5
   - apiVersion: v2
     appVersion: 0.0.19
-    created: "2020-08-14T22:25:07.858283-04:00"
+    created: "2020-08-25T17:03:16.820776-04:00"
     dependencies:
     - name: redis
       repository: https://charts.bitnami.com/bitnami
@@ -135,7 +180,7 @@ entries:
     version: 0.0.4
   - apiVersion: v2
     appVersion: 0.0.19
-    created: "2020-08-14T22:25:07.834813-04:00"
+    created: "2020-08-25T17:03:16.807236-04:00"
     dependencies:
     - name: redis
       repository: https://charts.bitnami.com/bitnami
@@ -177,7 +222,7 @@ entries:
     version: 0.0.3
   - apiVersion: v2
     appVersion: 0.0.19
-    created: "2020-08-14T22:25:07.820115-04:00"
+    created: "2020-08-25T17:03:16.791794-04:00"
     dependencies:
     - name: redis
       repository: https://charts.bitnami.com/bitnami
@@ -219,7 +264,7 @@ entries:
     version: 0.0.2
   - apiVersion: v2
     appVersion: 0.0.15
-    created: "2020-08-14T22:25:07.775993-04:00"
+    created: "2020-08-25T17:03:16.778472-04:00"
     dependencies:
     - name: redis
       repository: https://charts.bitnami.com/bitnami
@@ -256,4 +301,4 @@ entries:
     urls:
     - fonos-0.0.1.tgz
     version: 0.0.1
-generated: "2020-08-14T22:25:07.747196-04:00"
+generated: "2020-08-25T17:03:16.759723-04:00"
