@@ -33,6 +33,7 @@ module.exports = chan => {
       chan.say(result.fulfillmentText)
 
       // Add here your action handler
+  
       if (result.action === 'session.close') break
 
       if (result.action.startsWith('reminders.') &&
