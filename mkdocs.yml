@@ -12,30 +12,28 @@ edit_uri: /fonoster/fonos/edit/master/docs/
 
 nav:
   - Get started with Fonos:
-    - Overview: intro/overview.md
-    - Comparison to Alternatives: intro/comparison.md
-    - Community: intro/community.md
-    - FAQ: intro/faq.md
-    - Glossary: intro/glossary.md
+    - Overview: coming-soon.md
+    - Comparison to Alternatives: coming-soon.md
+    - Community: coming-soon.md
+    - FAQ: coming-soon.md
+    - Glossary: coming-soon.md
   - Manage your Deployment:
-    - Overview: deployment/overview.md
+    - Overview: coming-soon.md
     - Installing Fonos on K8s with Helm: deployment/installing-on-minikube.md
-    - Updating Fonos with Helm: deployment/installing-on-minikube.md
-    - Deploying your VOIP Network: deployment/installing-on-minikube.md
-    - Service Health: deployment/installing-on-minikube.md
+    - Deploying your VOIP Network: coming-soon.md
   - Programmable Voice:
-    - Overview: voice/overview.md
-    - Get Started: voice/get-started.md
-    - Log Events: voice/log-events.md
-    - Override TTS Engine: voice/overide-tts.md
-    - Using Speech to Text: voice/asr.md
-    - Data Collection and Usage: voice/data-collection.md
+    - Overview: coming-soon.md
+    - Get Started: coming-soon.md
+    - Log Events: coming-soon.md
+    - Override TTS Engine: coming-soon.md
+    - Using Speech to Text: coming-soon.md
+    - Data Collection and Usage: coming-soon.md
   - Storage:
-    - Overview: storage/overview.md
+    - Overview: coming-soon.md
   - Secrets:
-    - Overview: secrets/overview.md
+    - Overview: coming-soon.md
   - Security:
-    - Overview: security/overview.md
+    - Overview: coming-soon.md
   - Reference:
     - AbstractTTS: reference/AbstractTTS.md
     - Agents: reference/Agents.md
