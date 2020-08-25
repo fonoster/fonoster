@@ -2,16 +2,16 @@ This example shows the use of the third-party dependencies into a with Fonos Pro
 
 ## Pre-requirement
 
-Fonos CTL 
-A valid set of credentials for Google APIs
-Access to a Fonos deployment
-A softphone configure register against Fonos registrar
+- Fonos CTL 
+- A valid set of credentials for Google APIs
+- Access to a Fonos deployment
+- A softphone configure register against Fonos registrar
 
 ## Overview
 
 Before we continue, let's listen to audio featuring this example. As you can hear, It can even pick up my accent. It's simple, but with some minor adjustments, this AI-power Programmable Application could be your next reminder application.
 
-[Demo with a picture from Sound Cloud](https://soundcloud.com/pedro-sanders/dialog-example)
+[![Demo Picture at Sound Cloud](https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/prototype-recording.png)](https://soundcloud.com/pedro-sanders/dialog-example)
 
 ## Installing on Fonos
 
@@ -21,7 +21,7 @@ Next, you need your `fonos` properly configure against your Fonos deployment. Th
 
 ## Changing the Text-to-Speech Engine
 
-[Google TTS image]
+![Google TTS](https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/googletts.png)
 
 As mention before, we are using Google Text-to-Speech for the synthesis.    For this integration, Fonos uses the module @fonos/googletts. This module overrides the default TTS engine, @fonos/marytts. Notice the line:
 
@@ -35,11 +35,11 @@ Fonos will use this TTS for subsequent calls to the `Say` verb.
 
 DialogFlow Intents
 
-[Dialog screenshot cut]
+![DialogFlow Intents](https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/dialogflow-reminders.png)
 
 For this example, we are using the pre-built agent `Reminders` available on DialogFlow. We also added the intent `session.close.` The training phrases for the intent are: 
 
-[Screenshot with intent]
+![DialogFlow Intents](https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/dialogflow-intents.png)
 
 No, Goodbye
 No, Thanks
