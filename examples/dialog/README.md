@@ -13,7 +13,7 @@ This example shows the use of the third-party dependencies with Fonos Programmab
 
 Before we continue, let's listen to a recording featuring this example. It's simple, but with some adjustments, this AI-power Programmable Application could be the base for your next voice application.
 
-[![Demo Picture at Sound Cloud](https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/prototype-recording.png)](https://soundcloud.com/pedro-sanders/dialog-example)
+<a href="https://soundcloud.com/pedro-sanders/dialog-example"><img alt="Demo Picture at Sound Cloud" src="https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/prototype-recording.png"  height="210" /></a>
 
 ## Installing on Fonos
 
