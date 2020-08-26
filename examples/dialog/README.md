@@ -1,4 +1,4 @@
-# Programmable Voice Application - Reminders
+# Remindes - Programmable Voice Application
 
 This example shows the use of the third-party dependencies into a with Fonos Programmable Voice features, to build a reminders application. It uses Google Text-to-Speech for the synthesis, Google Speech-to-Text for speech transcription, and DialogFlow as the operation's brain.
 
