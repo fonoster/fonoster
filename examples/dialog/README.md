@@ -1,3 +1,5 @@
+# Programmable Voice Application - Reminders
+
 This example shows the use of the third-party dependencies into a with Fonos Programmable Voice features, to build a reminders application. It uses Google Text-to-Speech for the synthesis, Google Speech-to-Text for speech transcription, and DialogFlow as the operation's brain.
 
 ## Pre-requirement
@@ -21,7 +23,7 @@ Next, you need your `fonos` properly configure against your Fonos deployment. Th
 
 ## Changing the Text-to-Speech Engine
 
-![Google TTS](https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/googletts.png)
+<img alt="Google TTS" src="https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/googletts.png" height="140" />
 
 As mention before, we are using Google Text-to-Speech for the synthesis.    For this integration, Fonos uses the module @fonos/googletts. This module overrides the default TTS engine, @fonos/marytts. Notice the line:
 
@@ -29,17 +31,13 @@ As mention before, we are using Google Text-to-Speech for the synthesis.    For 
 chan.overrideTTS(tts)
 ```
 
-Fonos will use this TTS for subsequent calls to the `Say` verb. 
+Fonos will use this TTS for subsequent calls to the `Say` verb. Keep in mind, that you can pass a second parameter to the Say verb, to change the default voice and other settings. Those settings will be pass to the TTS engine. 
 
-> You can pass a second parameter to the Say verb, to change the default voice and other settings. Those settings will be pass to the TTS engine. 
-
-DialogFlow Intents
-
-![DialogFlow Intents](https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/dialogflow-reminders.png)
+## DialogFlow Intents
 
 For this example, we are using the pre-built agent `Reminders` available on DialogFlow. We also added the intent `session.close.` The training phrases for the intent are: 
 
-![DialogFlow Intents](https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/dialogflow-intents.png)
+<img alt="DialogFlow Intents" src="https://raw.githubusercontent.com/fonoster/fonos/master/examples/dialog/assets/dialogflow-intents.png" height="400" />
 
 No, Goodbye
 No, Thanks
@@ -50,11 +48,11 @@ Also, we added two responses for this intent: Great. Please call again if you ne
 
 ## Improvements
 
-Reduce the response time of the Text-to-Speech
+**Reduce the response time of the Text-to-Speech**
 
 There are two possible ways to improve in this area. This first is using a Text-to-Speech colocated in the same network with Fonos. The other way is to begin to stream the synthesize audio instead of downloading the file to play the sound then.
 
-Reduce the response time of the Speech-to-Speech
+**Reduce the response time of the Speech-to-Speech**
 
 Just as before, having the service in the same network could help speed things up.
 
