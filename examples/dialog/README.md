@@ -2,7 +2,7 @@
 
 This example shows the use of the third-party dependencies with Fonos Programmable Voice features to build an application for reminders. It uses Google Text-to-Speech for the synthesis, Google Speech-to-Text for speech transcription, and DialogFlow as the operation's brain.
 
-## Pre-requirement
+## Prerequisites
 
 - Fonos CTL 
 - Google APIs credentials
