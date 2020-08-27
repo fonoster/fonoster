@@ -51,5 +51,4 @@ There are two possible ways to improve in this area. The first is using a Text-t
 
 Just as before, having the service in the same network could help speed things up.
 
-Another improvement for this prototype is to start the `silenceSeconds`, for `listen` function, only after the person begins speaking. By starting the timer after the person starts talking, we can avoid repeating, "Sorry, I didn't quite get that. Can you say again?"
 
