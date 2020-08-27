@@ -19,7 +19,7 @@ Before we continue, let's listen to a recording featuring this example. It's sim
 
 Before you can run this example, you must have a valid set of credentials from [Google Cloud](https://console.developers.google.com/apis/credentials). At a minimum, you must enable the following Google APIs: Text-to-Speech, Speech-to-Text, and DialogFlow. Save the file as `google_credentials.json` at the root of this example.
 
-Next, you need your `fonos` Command-Line properly configure against your Fonos deployment. Then, from the example's directory run the `fonos:deploy` command.
+Next, you need your `fonos` Command-Line properly configure against your Fonos deployment. Then, from the example's directory run the `fonos apps:deploy` command.
 
 ## Changing the Text-to-Speech Engine
 
@@ -51,5 +51,4 @@ There are two possible ways to improve in this area. The first is using a Text-t
 
 Just as before, having the service in the same network could help speed things up.
 
-Another improvement for this prototype is to start the `silenceSeconds`, for `listen` function, only after the person begins speaking. By starting the timer after the person starts talking, we can avoid repeating, "Sorry, I didn't quite get that. Can you say again?"
 
