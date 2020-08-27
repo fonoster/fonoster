@@ -1,5 +1,5 @@
 {
-  "name": "dialog",
+  "name": "default",
   "description": "Example featuring Google's ASR, TTS and DialogFlow",
   "version": "1.0.0",
   "main": "src/index.js",
