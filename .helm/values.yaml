@@ -29,6 +29,9 @@ sipproxy:
     pullPolicy: Always
   # service section of component
   service:  
+    # If set to "Local", kube-proxy only proxies proxy requests to local endpoints, 
+    # will not forward traffic to other nodes
+    externalTrafficPolicy: Local
     # type is the service type
     type: ClusterIP
     # udpPort is the port for UDP signaling
