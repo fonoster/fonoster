@@ -13,6 +13,7 @@ metadata:
 spec:
   {{ with .Values.sipproxy.service }}
   type: {{ .type }}
+  externalTrafficPolicy: {{ .externalTrafficPolicy | quote }}
   ports:
   {{ if .tcpPort }}
   - name: tcp
