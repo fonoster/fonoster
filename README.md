@@ -6,7 +6,7 @@ Open-source communications for the cloud
 
 
 
-Project Fonos assembles the components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
+This repository assembles various components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0" bgcolor=green>
 <tr border="0">
