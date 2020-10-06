@@ -1,12 +1,12 @@
 # Project Fonos ![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
-Open-source communications for the cloud
+Open-source communications for the cloud. This repository assembles various components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
 ![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/master/repo_banner.jpg)
 
 
 
-This repository assembles various components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
+
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0" bgcolor=green>
 <tr border="0">
