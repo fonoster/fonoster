@@ -1,10 +1,10 @@
-# Project Fonos
+# Project Fonos ![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
 Open-source communications for the cloud
 
 ![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/master/repo_banner.jpg)
 
-![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
+
 
 Project Fonos assembles the components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
