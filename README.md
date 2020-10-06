@@ -1,5 +1,6 @@
 # Project Fonos
-## Open-source communications for the cloud
+
+Open-source communications for the cloud
 
 ![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/master/repo_banner.jpg)
 
