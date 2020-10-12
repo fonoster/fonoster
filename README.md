@@ -109,7 +109,7 @@ Fonos' main features are:
 
 The following is a list of modules and other subcomponents of Project Fonos by topic and current status. 
 
-| Module Name | Topic | Description | Status
+| Name        | Topic | Description | Status
 |-------------|-------|-------------|-------|
 | [core](/mods/core)                       | Core  		                         | Core API                                              | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [events](/mods/events)                   | Core  		                         | Event managment                                       | ![alpha](https://img.shields.io/badge/alpha-yellow)
@@ -131,11 +131,11 @@ The following is a list of modules and other subcomponents of Project Fonos by t
 | [numbers](/mods/numbers)                 | VoIP Network                     | API to create, update, get and delete `Numbers`       | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [sipproxy](/mods/sipproxy)               | VoIP Network                     | SIP proxy subcomponent                                | ![rc](https://img.shields.io/badge/rc-brightgreen)
 | mediarelay                               | VoIP Network                     | RTPEngine controller and balancer                     | ![alpha](https://img.shields.io/badge/alpha-yellow)
-| aaa                                      | VoIP Network  		                 | Access Authorization Accounting                       | ![not implemented](https://img.shields.io/badge/not_implemented-red)
+| aaa                                      | VoIP Network  		                 | Access Authorization Accounting                       | ![not yet implemented](https://img.shields.io/badge/nyi-red)
 | [logger](/mods/logger)  	                | Misc      	                      | Useful for Programmable Voice Applications (PVAs)     | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [certs](/mods/certs)  	                  | Misc  	                          | Certificate creation and managment                    | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [errors](/mods/errors)  	                | Misc  		                         | Util module for error managment                       | ![alpha](https://img.shields.io/badge/alpha-yellow)
-| roles           		                       | Misc                             | API Access Control                                    | ![not implemented](https://img.shields.io/badge/not_implemented-red)
+| roles           		                       | Misc                             | API Access Control                                    | ![not yet implemented](https://img.shields.io/badge/nyi-red)
 
 ## Bugs and Feedback
 
