@@ -113,7 +113,7 @@ The following is a list of modules and other subcomponents of Project Fonos by t
 |-------------|-------|-------------|-------|
 | [core](/mods/core)                       | Core  		                         | Core API                                              | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [events](/mods/events)                   | Core  		                         | Event managment                                       | ![alpha](https://img.shields.io/badge/alpha-yellow)
-| [storage](/mods/storage) 	               | Core  		                         | Util module for storage managment                     | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [storage](/mods/storage) 	               | Core  		                         | Utility module for storage managment                  | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [ctl](/mods/ctl) 		                      | Tooling  	                       | Controls a Fonos deployment using the API             | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [sdk](/mods/sdk) 		                      | Tooling  	                       | Bundle API for all user facing components             | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [voice](/mods/voice)                     | Programmable Voice               | NodeJS Implementation of Voice API                    | ![alpha](https://img.shields.io/badge/alpha-yellow)
