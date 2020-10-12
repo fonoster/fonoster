@@ -107,6 +107,8 @@ Fonos' main features are:
 
 ## Modules and Components
 
+The following is a list of modules and other subcomponents of Project Fonos by topic and current status. 
+
 | Module Name | Topic | Description | Status
 |-------------|-------|-------------|-------|
 | [core](/mods/core)                       | Core  		                      | Core API                                              | ![alpha](https://img.shields.io/badge/alpha-yellow)
