@@ -7,7 +7,7 @@ Project Fonos is open-source communications for the cloud. This repository assem
 <table border="0" width="100%" cellpadding="0" cellspacing="0" bgcolor=green>
 <tr border="0">
 <td border="0">
-:warning: This platform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/orgs/fonoster/projects">projects</a> section for development status.
+:warning: This platform is not yet production ready. 
 </td>
 </tr>
 </table>
