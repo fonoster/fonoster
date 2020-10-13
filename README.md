@@ -15,7 +15,7 @@ Project Fonos is open-source telecommunications for the cloud. This repository a
 		<br>
 		<sub><b>We now have a Slack Channel</b></sub>
 		<br>
-		<sub>We plan to discuss roadmaps and put more content there<br><a href="https://join.slack.com/t/fonoster/shared_invite/enQtODc2NDY5ODA3NzYzLTNjOTRmZDQ5NzgzZjQ1MTQ3ZDQzNTgwOGVjMzIzYTkwNjZlMWU0ZmZjODMxYjIzODJjZGIwY2FiODA3YjU4ZTk">Join the channel</a>.</sub>
+		<sub>We plan to discuss roadmaps and put more content there<br><a href="https://join.slack.com/t/fonoster/shared_invite/enQtODc2NDY5ODA3NzYzLTNjOTRmZDQ5NzgzZjQ1MTQ3ZDQzNTgwOGVjMzIzYTkwNjZlMWU0ZmZjODMxYjIzODJjZGIwY2FiODA3YjU4ZTk">Join the channel</a></sub>
 </p>
 
 ***
