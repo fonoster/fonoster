@@ -4,7 +4,21 @@
 
 Project Fonos is open-source telecommunications for the cloud. This repository assembles the various components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
-[Subscribe to the newsletter](https://fonosterteam.typeform.com/to/CvQqk9)
+***
+
+<p align="center">
+		<sup>Special Announcement:</sup>
+		<br>
+		<a href="https://join.slack.com/t/fonoster/shared_invite/enQtODc2NDY5ODA3NzYzLTNjOTRmZDQ5NzgzZjQ1MTQ3ZDQzNTgwOGVjMzIzYTkwNjZlMWU0ZmZjODMxYjIzODJjZGIwY2FiODA3YjU4ZTk">
+			<img width="70px" src="https://assets.brandfolder.com/pl546j-7le8zk-afym5u/original/Slack_Mark_Web.png">
+		</a>
+		<br>
+		<sub><b>We now have a Slack Channel</b></sub>
+		<br>
+		<sub>We plan to discuss roadmaps and put more content there<br><a href="https://join.slack.com/t/fonoster/shared_invite/enQtODc2NDY5ODA3NzYzLTNjOTRmZDQ5NzgzZjQ1MTQ3ZDQzNTgwOGVjMzIzYTkwNjZlMWU0ZmZjODMxYjIzODJjZGIwY2FiODA3YjU4ZTk">Join the channel</a>.</sub>
+</p>
+
+***
 
 ## Getting started
 
