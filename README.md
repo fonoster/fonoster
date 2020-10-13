@@ -4,14 +4,6 @@ Project Fonos is open-source communications for the cloud. This repository assem
 
 ![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/master/repo_banner.jpg)
 
-<table border="0" width="100%" cellpadding="0" cellspacing="0" bgcolor=green>
-<tr border="0">
-<td border="0">
-:warning: This platform is not yet production ready. 
-</td>
-</tr>
-</table>
-
 ## Getting started
 
 To get started with Fonos Programmable Voice follow the next few steps.
