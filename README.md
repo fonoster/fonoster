@@ -4,9 +4,7 @@ Project Fonos is open-source telecommunications for the cloud. This repository a
 
 ![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/master/repo_banner.jpg)
 
-[Learn about our SaaS  offering](https://fonoster.com)
-
-[Subscribe to the news letter](https://fonosterteam.typeform.com/to/CvQqk9)
+[Learn about our SaaS  offering](https://fonoster.com) | [Subscribe to the news letter](https://fonosterteam.typeform.com/to/CvQqk9)
 
 ## Getting started
 
