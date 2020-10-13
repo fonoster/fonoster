@@ -1,15 +1,10 @@
+# Project Fonos ![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
-# Fonos ![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fonoster_fonos&metric=alert_status)](https://sonarcloud.io/dashboard?id=fonoster_fonos) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
+Project Fonos is open-source telecommunications for the cloud. This repository assembles the various components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
-Project Fonos assembles the components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
+![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/master/repo_banner.jpg)
 
-<table border="0" width="100%" cellpadding="0" cellspacing="0" bgcolor=green>
-<tr border="0">
-<td border="0">
-:warning: This platform is not yet production ready. We are working to deliver a beta version as soon as possible. Please keep an eye on the <a href="https://github.com/orgs/fonoster/projects">projects</a> section for development status.
-</td>
-</tr>
-</table>
+[Learn about our SaaS  offering](https://fonoster.com) | [Subscribe to the newsletter](https://fonosterteam.typeform.com/to/CvQqk9)
 
 ## Getting started
 
@@ -103,6 +98,38 @@ Fonos' main features are:
 - Per node Multi-Tenancy/Multi-Domain with Domain level Access Control List
 - Transport: TCP, UDP, TLS, WebSocket
 - Database: Redis
+
+## Modules and Components
+
+The following is a list of modules and other subcomponents of Project Fonos by topic and current status. 
+
+| Name        | Topic | Description | Status
+|-------------|-------|-------------|-------|
+| [core](/mods/core)                       | Core  		                         | Core API                                              | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [events](/mods/events)                   | Core  		                         | Event managment                                       | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [storage](/mods/storage) 	               | Core  		                         | Utility module for storage managment                  | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [ctl](/mods/ctl) 		                      | Tooling  	                       | Controls a Fonos deployment using the API             | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [sdk](/mods/sdk) 		                      | Tooling  	                       | Bundle API for all user facing components             | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [voice](/mods/voice)                     | Programmable Voice               | NodeJS Implementation of Voice API                    | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [appmanager](/mods/appmanager)           | Programmable Voice               | API for deployment and managment of PVAs              | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [dispatcher](/mods/dispatcher)           | Programmable Voice               | Takes a call and passes control to media controller   | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [tts](/mods/tts)                         | Programmable Voice               | Abstracts for TTS features                            | ![beta](https://img.shields.io/badge/beta-brightgreen)
+| [marytts](/mods/marytts)                 | Programmable Voice               | Default TTS implementation                            | ![beta](https://img.shields.io/badge/beta-brightgreen)
+| [googleasr](/mods/googleasr)             | Programmable Voice               | Google implementation for ASR feature                 | ![beta](https://img.shields.io/badge/beta-brightgreen)
+| [googletts](/mods/googletts)             | Programmable Voice               | Google implementation for TTS feature                 | ![beta](https://img.shields.io/badge/beta-brightgreen)
+| [mediacontroller](/mods/mediacontroller) | Programmable Voice               | NodeJS implementation for Fonos media controller      | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [mediaserver](/mods/mediaserver)         | VoIP Network, Programmable Voice | Asterisk based media server                           | ![beta](https://img.shields.io/badge/beta-brightgreen)
+| [agents](/mods/agents)   	               | VoIP Network                     | API to create, update, get and delete `Agents`        | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [domains](/mods/domains)  	              | VoIP Network                     | API to create, update, get and delete `Domains`       | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [providers](/mods/providers)             | VoIP Network                     | API to create, update, get and delete `Providers`     | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [numbers](/mods/numbers)                 | VoIP Network                     | API to create, update, get and delete `Numbers`       | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [sipproxy](https://routr.io)             | VoIP Network                     | SIP proxy subcomponent                                | ![rc](https://img.shields.io/badge/rc-brightgreen)
+| mediarelay                               | VoIP Network                     | RTPEngine controller and balancer                     | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| aaa                                      | VoIP Network  		                 | Access Authorization Accounting                       | ![not yet implemented](https://img.shields.io/badge/nyi-red)
+| [logger](/mods/logger)  	                | Misc      	                      | Useful for Programmable Voice Applications (PVAs)     | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [certs](/mods/certs)  	                  | Misc  	                          | Certificate creation and managment                    | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [errors](/mods/errors)  	                | Misc  		                         | Util module for error managment                       | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| roles           		                       | Misc                             | API Access Control                                    | ![not yet implemented](https://img.shields.io/badge/nyi-red)
 
 ## Bugs and Feedback
 
