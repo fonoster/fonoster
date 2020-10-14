@@ -4,6 +4,8 @@
 
 Project Fonos is open-source telecommunications for the cloud. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video. This repository assembles the various components needed to deploy a telephony system at scale. 
 
+---
+
 We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
 
 **Platinum Sponsors**
