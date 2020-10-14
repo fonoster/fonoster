@@ -4,6 +4,16 @@
 
 Project Fonos is open-source telecommunications for the cloud. This repository assembles the various components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
+We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
+
+**Platinum Sponsors**
+
+<a href="https://github.com/sponsors/psanders"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
+
+Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
+
+> [Support Fono's developers on Gh Sponsors](https://github.com/sponsors/psanders)
+
 ***
 
 <p align="center">
@@ -19,16 +29,6 @@ Project Fonos is open-source telecommunications for the cloud. This repository a
 </p>
 
 ***
-
-We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
-
-**Platinum Sponsors**
-
-<a href="https://github.com/sponsors/psanders"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
-
-Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
-
-> [Support Fono's developers on Gh Sponsors](https://github.com/sponsors/psanders)
 
 ## Table of Contents
 
