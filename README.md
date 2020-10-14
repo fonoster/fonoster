@@ -20,7 +20,7 @@ Project Fonos is open-source telecommunications for the cloud. This repository a
 
 ***
 
-We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://opencollective.com/jovo-framework).
+We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
 
 **Platinum Sponsors**
 
