@@ -6,6 +6,20 @@ Project Fonos is open-source telecommunications for the cloud. It helps VoIP int
 
 ---
 
+<p align="center">
+		<sup>Special Announcement:</sup>
+		<br>
+		<a href="https://fonosterteam.typeform.com/to/CvQqk9">
+			<img width="70px" src="https://assets.brandfolder.com/pl546j-7le8zk-afym5u/original/Slack_Mark_Web.png">
+		</a>
+		<br>
+		<sub><b>We now have a Slack Channel</b></sub>
+		<br>
+		<sub>There we plan to discuss roadmaps, feature requests and more<br><a href="https://fonosterteam.typeform.com/to/CvQqk9">Join the channel</a></sub>
+</p>
+
+---
+
 We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
 
 **Platinum Sponsors**
@@ -118,23 +132,6 @@ Fonos' main features are:
 - Per node Multi-Tenancy/Multi-Domain with Domain level Access Control List
 - Transport: TCP, UDP, TLS, WebSocket
 - Database: Redis
-
-
----
-
-<p align="center">
-		<sup>Special Announcement:</sup>
-		<br>
-		<a href="https://fonosterteam.typeform.com/to/CvQqk9">
-			<img width="70px" src="https://assets.brandfolder.com/pl546j-7le8zk-afym5u/original/Slack_Mark_Web.png">
-		</a>
-		<br>
-		<sub><b>We now have a Slack Channel</b></sub>
-		<br>
-		<sub>There we plan to discuss roadmaps, feature requests and more<br><a href="https://fonosterteam.typeform.com/to/CvQqk9">Join the channel</a></sub>
-</p>
-
----
 
 ## Modules and Components
 
