@@ -20,16 +20,6 @@ Project Fonos is open-source telecommunications for the cloud. It helps VoIP int
 
 ---
 
-We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
-
-**Platinum Sponsors**
-
-<a href="https://github.com/sponsors/psanders"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
-
-Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
-
-> [Support Fono's developers on Gh Sponsors](https://github.com/sponsors/psanders)
-
 ## Table of Contents
 
 - [Getting Started](#getting-started)
@@ -175,6 +165,20 @@ For contributing, please see the following links:
 
  - [Contribution Documents](https://github.com/fonoster/fonos/blob/master/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonos/contributors)
+
+---
+
+We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
+
+**Platinum Sponsors**
+
+<a href="https://github.com/sponsors/psanders"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
+
+Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
+
+> [Support Fono's developers on Gh Sponsors](https://github.com/sponsors/psanders)
+
+---
 
 ## Authors
  - [Pedro Sanders](https://github.com/psanders)
