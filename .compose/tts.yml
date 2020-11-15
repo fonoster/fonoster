@@ -1,0 +1,17 @@
+
+services:
+
+  tts:
+    env_file: .env
+    image: ${TTS_IMAGE}
+    restart: always
+    expose:
+      - ${TTS_ENGINE_PORT}
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.tts

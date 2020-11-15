@@ -1,0 +1,26 @@
+# This service will create a new set of credentials
+services:
+
+  access-key:
+    image: fonoster/jwthelper
+    environment:
+      ACCESS_KEY_ID: fonos
+      ISS: fonos
+    volumes:
+      - config:/certs
+
+  client-certs:
+    image: fonoster/certshelper
+    environment:
+      CERT_NAME: server
+      SUBJECT: localhost
+    volumes:
+      - config:/certs
+
+  server-certs:
+    image: fonoster/certshelper
+    environment:
+      CERT_NAME: server
+      SUBJECT: apiserver.fonos
+    volumes:
+      - config:/certs

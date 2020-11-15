@@ -1,0 +1,18 @@
+version: '3'
+services:
+  letsencrypt:
+    image: linuxserver/letsencrypt
+    container_name: letsencrypt
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - URL=fonoster.com
+      - SUBDOMAINS=wildcard,
+      - VALIDATION=dns
+      - DNSPLUGIN=google
+      - EMAIL=sanderspedro@gmail.com
+      - DHLEVEL=4096
+    volumes:
+      - /Users/pedrosanders/.fonos:/config
+    restart: unless-stopped

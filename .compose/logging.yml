@@ -1,0 +1,32 @@
+services:
+
+  logsdriver:
+    env_file: .env
+    build: ../.fluentd
+    volumes:
+      - ../.fluentd/conf:/fluentd/etc
+    links:
+      - logsaggregator
+    expose:
+      - ${LOGS_DRIVER_PORT}
+      - ${LOGS_DRIVER_PORT}/udp
+
+  logsaggregator:
+    env_file: .env
+    image: ${LOGS_AGGREGATOR_IMAGE}
+    restart: always
+    environment:
+      - discovery.type=single-node
+    expose:
+      - ${LOGS_AGGREGRATOR_PORT}
+
+  logsmonitor:
+    env_file: .env
+    image: ${LOGS_MONITOR_IMAGE}
+    restart: always
+    links:
+      - logsaggregator
+    ports:
+      - ${LOGS_MONITOR_PORT}:${LOGS_MONITOR_PORT}
+    environment:
+      ELASTICSEARCH_HOSTS: http://logsaggregator:${LOGS_AGGREGRATOR_PORT}
