@@ -44,6 +44,7 @@ async function createConfig (subject: string, workdir: string) {
   try {
     const pathToConfig = join(workdir, 'config')
     const config = JSON.parse(fs.readFileSync(pathToConfig).toString('utf-8'))
+
     config.endpoint = subject
     config.caCertificate = getContent('ca.crt')
     config.clientCertificate = getContent('client.crt')
