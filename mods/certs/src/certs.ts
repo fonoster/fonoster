@@ -40,19 +40,38 @@ async function createAccessFile () {
   return config
 }
 
-async function createConfig (subject: string, workdir: string) {
+const writeConfig = (config: string, pathToConfig: string, workdir: string) => {
+  const content = JSON.stringify(config, null, '')
+  if (!fs.existsSync(workdir)) fs.mkdirSync(workdir, { recursive: true })
+  fs.writeFileSync(pathToConfig, content)
+}
+
+function createServerConfig (workdir: string) {
+  try {
+    const pathToConfig = join(workdir, 'config')
+    const config: any = {}
+
+    config.caCertificate = getContent(workdir, 'ca.crt')
+    config.serverCertificate = getContent(workdir, 'server.crt')
+    config.serverKey = getContent(workdir, 'server.key')
+
+    writeConfig(config, pathToConfig, workdir)
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+function createClientConfig (workdir: string, endpoint: string) {
   try {
     const pathToConfig = join(workdir, 'config')
     const config = JSON.parse(fs.readFileSync(pathToConfig).toString('utf-8'))
 
-    config.endpoint = subject
+    config.endpoint = endpoint
     config.caCertificate = getContent(workdir, 'ca.crt')
     config.clientCertificate = getContent(workdir, 'client.crt')
     config.clientKey = getContent(workdir, 'client.key')
 
-    const content = JSON.stringify(config, null, '')
-    fs.mkdirSync(workdir, { recursive: true })
-    fs.writeFileSync(pathToConfig, content)
+    writeConfig(config, pathToConfig, workdir)
   } catch (e) {
     console.error(e)
   }
@@ -60,7 +79,8 @@ async function createConfig (subject: string, workdir: string) {
 
 export {
   createAccessFile as default,
-  createConfig,
+  createServerConfig,
+  createClientConfig,
   getSalt,
   configExist,
   saltExist,

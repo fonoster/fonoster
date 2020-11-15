@@ -6,11 +6,12 @@ services:
       file: common.yml
       service: common 
     image: ${AS_IMAGE}
-    #entrypoint: |
-    #  sh -c '
-    #    while [ ! -f /certs/jwt.salt ]; do echo 'Wating'; sleep 2; done
-    #    run-apiserver
-    #  '
+    entrypoint: |
+      sh -c '
+        while [ ! -f ~/.fonos/config ]; do echo 'wating-for-config'; sleep .5; done
+        sleep 5
+        run-apiserver
+      '
     environment:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}

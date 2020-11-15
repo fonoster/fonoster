@@ -1,26 +1,52 @@
 # This service will create a new set of credentials
 services:
 
+  # Creates and installs the API credentials
   access-key:
     image: fonoster/jwthelper
     environment:
-      ACCESS_KEY_ID: fonos
-      ISS: fonos
+      ACCESS_KEY_ID: ${APISERVER_ACCESS_KEY_ID}
+      ISS: ${APISERVER_ACCESS_KEY_ISS}
     volumes:
       - config:/certs
 
+  # Creates and installs the API client certificates
   client-certs:
     image: fonoster/certshelper
     environment:
-      CERT_NAME: server
+      CERT_NAME: client
       SUBJECT: localhost
     volumes:
       - config:/certs
 
+  # Creates and installs the API server certificates.
   server-certs:
     image: fonoster/certshelper
     environment:
       CERT_NAME: server
-      SUBJECT: apiserver.fonos
+      SUBJECT: ${APISERVER_ENDPOINT}
     volumes:
       - config:/certs
+
+  # Combines credentials and certificates into a single file. On
+  # K8s this file is installed prior to running the APIServer.
+  config:
+    image: fonoster/confighelper
+    entrypoint: |
+      sh -c '
+        # This service depends on the following files to be present in the volume
+        while [ ! -f /certs/config ]; do echo 'wating-for-intial-config'; sleep .5; done
+        while [ ! -f /certs/ca.crt ]; do echo 'wating-for-ca-certs'; sleep .5; done
+        while [ ! -f /certs/server.crt ]; do echo 'wating-for-client-certs'; sleep .5; done
+
+        # Allow some time for the process to finish
+        sleep 4
+        run-confighelper
+      '
+    environment:
+      ENDPOINT: ${APISERVER_ENDPOINT_REMOTE}
+    volumes:
+      - config:/certs
+
+volumes:
+  config:
