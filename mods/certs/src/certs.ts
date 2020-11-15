@@ -40,19 +40,18 @@ async function createAccessFile () {
   return config
 }
 
-async function createConfig (subject: string) {
+async function createConfig (subject: string, workdir: string) {
   try {
-    const config = JSON.parse(
-      fs.readFileSync(join(BASE_DIR, 'config')).toString('utf-8')
-    )
+    const pathToConfig = join(workdir, 'config')
+    const config = JSON.parse(fs.readFileSync(pathToConfig).toString('utf-8'))
     config.endpoint = subject
     config.caCertificate = getContent('ca.crt')
     config.clientCertificate = getContent('client.crt')
     config.clientKey = getContent('client.key')
 
     const content = JSON.stringify(config, null, '')
-    fs.mkdirSync(BASE_DIR, { recursive: true })
-    fs.writeFileSync(PATH_TO_CONFIG, content)
+    fs.mkdirSync(workdir, { recursive: true })
+    fs.writeFileSync(pathToConfig, content)
   } catch (e) {
     console.error(e)
   }
