@@ -1,12 +1,36 @@
-# Project Fonos ![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
-
-Project Fonos is open-source telecommunications for the cloud. This repository assembles the various components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
-
 ![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/master/repo_banner.jpg)
 
-[Learn about our SaaS  offering](https://fonoster.com) | [Subscribe to the newsletter](https://fonosterteam.typeform.com/to/CvQqk9)
+![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
-## Getting started
+Project Fonos is open-source telecommunications for the cloud. It helps VoIP integrators quickly deploy new networks and benefit from value-added services such as Programmable Voice, Messaging, and Video. This repository assembles the various components needed to deploy a telephony system at scale.
+
+---
+
+<p align="center">
+		<sup>Special Announcement:</sup>
+		<br>
+		<a href="https://fonosterteam.typeform.com/to/CvQqk9">
+			<img width="70px" src="https://assets.brandfolder.com/pl546j-7le8zk-afym5u/original/Slack_Mark_Web.png">
+		</a>
+		<br>
+		<sub><b>We now have a Slack Channel</b></sub>
+		<br>
+		<sub>There we plan to discuss roadmaps, feature requests and more<br><a href="https://fonosterteam.typeform.com/to/CvQqk9">Join the channel</a></sub>
+</p>
+
+---
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Features](#features)
+- [Modules and Components](#modules-and-components)
+- [Bugs and Feedback](#bugs-and-feedback)
+- [Contributing](#contributing)
+- [Authors](#authors)
+- [License](#license)
+
+## Getting Started
 
 To get started with Fonos Programmable Voice follow the next few steps.
 
@@ -117,7 +141,7 @@ The following is a list of modules and other subcomponents of Project Fonos by t
 | [marytts](/mods/marytts)                 | Programmable Voice               | Default TTS implementation                            | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [googleasr](/mods/googleasr)             | Programmable Voice               | Google implementation for ASR feature                 | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [googletts](/mods/googletts)             | Programmable Voice               | Google implementation for TTS feature                 | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [mediacontroller](/mods/mediacontroller) | Programmable Voice               | NodeJS implementation for Fonos media controller      | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [mediacontroller](https://github.com/fonoster/fonos-nodejsmc) | Programmable Voice               | NodeJS implementation for Fonos media controller      | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [mediaserver](/mods/mediaserver)         | VoIP Network, Programmable Voice | Asterisk based media server                           | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [agents](/mods/agents)   	               | VoIP Network                     | API to create, update, get and delete `Agents`        | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [domains](/mods/domains)  	              | VoIP Network                     | API to create, update, get and delete `Domains`       | ![alpha](https://img.shields.io/badge/alpha-yellow)
@@ -141,6 +165,20 @@ For contributing, please see the following links:
 
  - [Contribution Documents](https://github.com/fonoster/fonos/blob/master/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonos/contributors)
+
+---
+
+We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
+
+**Platinum Sponsors**
+
+<a href="https://github.com/sponsors/psanders"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
+
+Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
+
+> [Support Fono's developers on Gh Sponsors](https://github.com/sponsors/psanders)
+
+---
 
 ## Authors
  - [Pedro Sanders](https://github.com/psanders)
