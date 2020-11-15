@@ -12,8 +12,8 @@ const PATH_TO_CONFIG = join(BASE_DIR, 'config')
 const ACCESS_KEY_ID = process.env.ACCESS_KEY_ID || 'fonos'
 const ISS = process.env.ISS || 'fonos'
 
-const getContent = (file: string) =>
-  btoa(fs.readFileSync(`${BASE_DIR}/${file}`).toString('utf-8'))
+const getContent = (workdir: string, file: string) =>
+  btoa(fs.readFileSync(`${workdir}/${file}`).toString('utf-8'))
 
 if (!fs.existsSync(BASE_DIR)) fs.mkdirSync(BASE_DIR)
 
@@ -46,9 +46,9 @@ async function createConfig (subject: string, workdir: string) {
     const config = JSON.parse(fs.readFileSync(pathToConfig).toString('utf-8'))
 
     config.endpoint = subject
-    config.caCertificate = getContent('ca.crt')
-    config.clientCertificate = getContent('client.crt')
-    config.clientKey = getContent('client.key')
+    config.caCertificate = getContent(workdir, 'ca.crt')
+    config.clientCertificate = getContent(workdir, 'client.crt')
+    config.clientKey = getContent(workdir, 'client.key')
 
     const content = JSON.stringify(config, null, '')
     fs.mkdirSync(workdir, { recursive: true })
