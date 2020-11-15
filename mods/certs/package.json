@@ -32,7 +32,8 @@
   "dependencies": {
     "@types/jsonwebtoken": "^8.5.0",
     "acme-client": "^3.3.1",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^8.5.1",
+    "btoa": "^1.2.1"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
