@@ -1,3 +1,6 @@
+# EFK services are optional but recommend to visualize the state 
+# of the deplotment
+
 services:
 
   logsdriver:
@@ -9,7 +12,8 @@ services:
     expose:
       - ${LOGS_DRIVER_PORT}
       - ${LOGS_DRIVER_PORT}/udp
-    networks: [fonos]
+    networks: 
+      - fonos: {}
 
   logsaggregator:
     image: ${LOGS_AGGREGATOR_IMAGE}
@@ -18,7 +22,8 @@ services:
       - discovery.type=single-node
     expose:
       - ${LOGS_AGGREGRATOR_PORT}
-    networks: [fonos]
+    networks: 
+      - fonos: {}
 
   logsmonitor:
     image: ${LOGS_MONITOR_IMAGE}
@@ -29,4 +34,5 @@ services:
       - ${LOGS_MONITOR_PORT}:${LOGS_MONITOR_PORT}
     environment:
       ELASTICSEARCH_HOSTS: http://logsaggregator:${LOGS_AGGREGRATOR_PORT}
-    networks: [fonos]
+    networks: 
+      - fonos: {}

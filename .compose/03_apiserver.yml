@@ -1,5 +1,4 @@
-# The following services are mandatories to run
-# 
+# The following services are mandatories for a Fonos deployment
 
 services:
 
