@@ -16,11 +16,21 @@ import AgentsServer from './agents/agents'
 import DomainsServer from './domains/domains'
 import ProvidersServer from './providers/providers'
 import { getServerCredentials } from '../common/trust_util'
+import {
+  GrpcHealthCheck,
+  HealthCheckResponse,
+  HealthService
+} from 'grpc-ts-health-check'
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
   const env = path.join(__dirname, '..', '..', '..', '..', '.env')
   require('dotenv').config({ path: env })
 }
+
+const healthCheckStatusMap = {
+  '': HealthCheckResponse.ServingStatus.SERVING
+}
+const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap)
 
 async function main () {
   /*if (!accessExist()) {
@@ -35,6 +45,7 @@ async function main () {
   server.addService<IAgentsServer>(AgentsService, new AgentsServer())
   server.addService<INumbersServer>(NumbersService, new NumbersServer())
   server.addService<IStorageServer>(StorageService, new StorageServer())
+  server.addService(HealthService, grpcHealthCheck)
   server.addService<IAppManagerServer>(
     AppManagerService,
     new AppManagerServer()
