@@ -2,9 +2,7 @@ version: '3.7'
 services:
 
   provisioner:
-    env_file: .env
-    build:
-      context: .rctl
+    image: fonoster/routr-ctl
     entrypoint: |
       sh -c '
         while ! nc -z $SIPPROXY_HOST ${SIPPROXY_API_PORT}; do sleep 0.1; done
