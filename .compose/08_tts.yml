@@ -1,0 +1,13 @@
+
+services:
+
+  tts:
+    extends:
+      file: common.yml
+      service: common   
+    image: ${TTS_IMAGE}
+    expose:
+      - ${TTS_ENGINE_PORT}
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.tts

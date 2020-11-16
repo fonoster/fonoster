@@ -1,17 +1,16 @@
+# A few configuration common to several services
 
 services:
 
-  tts:
+  common:
     env_file: .env
-    image: ${TTS_IMAGE}
     restart: always
-    expose:
-      - ${TTS_ENGINE_PORT}
+    init: true
     logging:
       driver: fluentd
       options:
-        fluentd-address: localhost:24224
+        fluentd-address: logsdriver:24224
         fluentd-async-connect: 'true'
         fluentd-retry-wait: '1s'
         fluentd-max-retries: '30'
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.tts
+    networks: [fonos]

@@ -1,0 +1,16 @@
+version: '3.7'
+services:
+
+  provisioner:
+    env_file: .env
+    build:
+      context: .rctl
+    entrypoint: |
+      sh -c '
+        while ! nc -z $SIPPROXY_HOST ${SIPPROXY_API_PORT}; do sleep 0.1; done
+        rctl login https://${SIPPROXY_HOST}:${SIPPROXY_API_PORT}/api/v1beta1 \
+          -u ${SIPPROXY_API_USERNAME} -p ${SIPPROXY_API_SECRET}
+        rctl create -f /etc/bootstrap.yml
+      '
+    volumes:
+      - ./etc/bootstrap.yml:/etc/bootstrap.yml:ro

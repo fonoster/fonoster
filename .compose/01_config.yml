@@ -1,0 +1,36 @@
+# The following set of services is used to create and install a set of certificates 
+# and access keys. When running on K8s this function is replaced with the 
+# command `fonos config:init`
+
+version: '3.7'
+
+services:
+  access-key:
+    image: fonoster/jwthelper
+    environment:
+      ISS: ${APISERVER_ACCESS_KEY_ISS}
+      ACCESS_KEY_ID: ${APISERVER_ACCESS_KEY_ID}
+    volumes:
+      - config:/certs:cached
+
+  client-certs:
+    image: fonoster/certshelper
+    environment:
+      CERT_NAME: client
+      SUBJECT: localhost
+    volumes:
+      - config:/certs:cached
+
+  server-certs:
+    image: fonoster/certshelper
+    environment:
+      CERT_NAME: server
+      SUBJECT: ${APISERVER_ENDPOINT}
+    volumes:
+      - config:/certs:cached
+volumes:
+  data1-1: {}
+  datasource: {}
+  config: {}
+networks:
+  fonos: {}

@@ -1,0 +1,20 @@
+version: '3.7'
+services:
+
+  integrationtests:
+    env_file: .env
+    image: integrationtests
+    build:
+      context: mods
+      dockerfile: Dockerfile.mc
+    environment:
+      FONOS_ENDPOINT: ${APISERVER_ENDPOINT}
+    entrypoint: |
+      sh -c '
+        #while [ ! -f /root/.fonos/access ]; do sleep 2; done
+        npm i nyc mocha -g
+        cd /mods
+        npm test
+      '
+    volumes:
+      - certs:/root/.fonos:ro
