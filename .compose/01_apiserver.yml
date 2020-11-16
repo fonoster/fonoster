@@ -7,13 +7,8 @@ services:
       file: common.yml
       service: common 
     image: ${AS_IMAGE}
-    entrypoint: |
-      sh -c '
-        while [ ! -f ~/.fonos/config ]; do echo 'wating-for-config'; sleep .5; done
-        sleep 5
-        run-apiserver
-      '
     environment:
+      ALLOW_INSECURE: 'true'
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
     ports:
