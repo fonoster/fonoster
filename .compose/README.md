@@ -1,10 +1,9 @@
 Run base project
 
 ```
-docker-compose -f config.yml \
-    -f base.yml \
-    -f logging.yml \
-    -f logging.yml up
+docker-compose -f 00_config.yml \
+    -f 01_base.yml \
+    -f 03_logging.yml
 ```
 
 Execute the following command with the infrastructure running:

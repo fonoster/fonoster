@@ -7,10 +7,11 @@ services:
     restart: always
     init: true
     logging:
-      driver: fluentd
-      options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: 'true'
-        fluentd-retry-wait: '1s'
-        fluentd-max-retries: '30'
+      #driver: fluentd
+      driver: json-file
+      #options:
+      #  fluentd-address: logsdriver:24224
+      #  fluentd-async-connect: 'true'
+      #  fluentd-retry-wait: '1s'
+      #  fluentd-max-retries: '30'
     networks: [fonos]
