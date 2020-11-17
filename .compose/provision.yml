@@ -1,4 +1,8 @@
+# This service will bootstrap the SIP server's database with Agents, Domains
+# Etc. Please look at the `bootstrap.yml` for details on the resources available.
+
 version: '3.7'
+
 services:
 
   provisioner:

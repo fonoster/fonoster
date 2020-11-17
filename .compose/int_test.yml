@@ -1,8 +1,11 @@
+# Run this service to perform integration test against a
+# Fonos deployment.
+
 version: '3.7'
+
 services:
 
   integrationtests:
-    env_file: .env
     image: integrationtests
     build:
       context: mods

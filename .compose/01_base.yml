@@ -25,7 +25,7 @@ services:
     networks:
       fonos:
         aliases:
-          - apiserver.fonos
+          - ${APISERVER_ENDPOINT}
     volumes:
       - config:/home/fonos/.fonos:cached
 

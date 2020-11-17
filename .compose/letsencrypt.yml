@@ -1,4 +1,7 @@
-version: '3'
+# Experimental service to generate certificate for production environments
+
+version: '3.7'
+
 services:
 
   letsencrypt:

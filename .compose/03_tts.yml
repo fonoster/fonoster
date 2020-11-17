@@ -1,3 +1,5 @@
+# The default TTS in Fonos is implemented with MaryTTS. It can be replaced 
+# with other engine, such as Google Text to Speech. This is an optional component.
 
 services:
 

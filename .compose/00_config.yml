@@ -1,4 +1,4 @@
-# The following set of services is used to create and install a set of certificates 
+# The following set of services is used to create and install the certificates 
 # and access keys. When running on K8s this function is replaced with the 
 # command `fonos config:init`
 
