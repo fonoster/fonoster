@@ -4,8 +4,9 @@ services:
 
   logsdriver:
     image: ${LOGS_DRIVER_IMAGE}
-    volumes:
-      - ./fluent.conf:/fluentd/etc/fluent.conf
+    configs:
+      - source: fluent
+        target: /fluentd/etc/fluent.conf
     links:
       - logsaggregator
     expose:
@@ -35,3 +36,6 @@ services:
       ELASTICSEARCH_HOSTS: http://logsaggregator:${LOGS_AGGREGRATOR_PORT}
     networks: 
       - fonos
+configs:
+  fluent:
+    external: true
