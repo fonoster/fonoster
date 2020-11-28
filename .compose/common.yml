@@ -4,7 +4,9 @@ services:
 
   common:
     env_file: .env
-    restart: always
+    deploy:
+      restart_policy: 
+        condition: on-failure
     init: true
     logging:
       driver: fluentd

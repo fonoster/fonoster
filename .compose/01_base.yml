@@ -35,8 +35,6 @@ services:
       service: common 
     image: ${DS_IMAGE}
     command: ['redis-server', '--appendonly', 'yes' ]
-    expose:
-      - ${DS_PORT}
     healthcheck:
       test: ['CMD', 'redis-cli','ping']
       interval: 30s
@@ -76,8 +74,6 @@ services:
     image: ${FS_IMAGE}
     volumes:
       - data1-1:/fonos
-    expose:
-      - ${FS_PORT}
     environment:
       MINIO_ACCESS_KEY: ${FS_USERNAME}
       MINIO_SECRET_KEY: ${FS_SECRET}

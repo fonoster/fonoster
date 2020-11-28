@@ -7,29 +7,18 @@ services:
     configs:
       - source: fluent
         target: /fluentd/etc/fluent.conf
-    links:
-      - logsaggregator
-    expose:
-      - ${LOGS_DRIVER_PORT}
-      - ${LOGS_DRIVER_PORT}/udp
     networks: 
       - fonos
 
   logsaggregator:
     image: ${LOGS_AGGREGATOR_IMAGE}
-    restart: always
     environment:
       - discovery.type=single-node
-    expose:
-      - ${LOGS_AGGREGRATOR_PORT}
     networks: 
       - fonos
 
   logsmonitor:
     image: ${LOGS_MONITOR_IMAGE}
-    restart: always
-    links:
-      - logsaggregator
     ports:
       - ${LOGS_MONITOR_PORT}:${LOGS_MONITOR_PORT}
     environment:
