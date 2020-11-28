@@ -27,7 +27,7 @@ services:
         aliases:
           - ${APISERVER_ENDPOINT}
     volumes:
-      - config:/home/fonos/.fonos:cached
+      - config:/home/fonos/.fonos
 
   datasource:
     extends:
@@ -50,7 +50,7 @@ services:
         aliases: 
           - ${DS_HOST}
     volumes: 
-      - datasource:/data:cached
+      - datasource:/data
 
   eventsbroker:
     extends:
