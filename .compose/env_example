@@ -38,6 +38,9 @@ EB_SECRET=changeit
 MS_ENDPOINT=ast@sip.local
 MS_HOST=mediaserver.fonos
 MS_SIP_PORT=6060
+MS_RTP_PORT_START=30005
+MS_RTP_PORT_END=30008
+MS_ENABLE_TEST_ACCOUNT=false
 MC_HOST=mediacontroller.fonos
 MC_AGI_PORT=4573
 

@@ -9,10 +9,17 @@ services:
     image: ${MS_IMAGE}
     environment:
       EXTERN_ADDR: ${HOST_ADDR}
+      EXTERN_PORT: ${MS_SIP_PORT}
       AGI_URL: agi://${MC_HOST}
       SIPPROXY_HOST: ${SIPPROXY_HOST}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
+      # Use only for direct access to the Media Server (No recommended for production)
+      ENABLE_TEST_ACCOUNT: ${MS_ENABLE_TEST_ACCOUNT}
+    ports:
+      - ${MS_SIP_PORT}:${MS_SIP_PORT}
+      # Use only for direct access to the Media Server (No recommended for production)
+      - ${MS_RTP_PORT_START}-${MS_RTP_PORT_END}:${MS_RTP_PORT_START}-${MS_RTP_PORT_END}/udp
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
