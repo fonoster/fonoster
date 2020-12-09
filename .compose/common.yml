@@ -3,16 +3,15 @@
 services:
 
   common:
-    env_file: .env
     deploy:
       restart_policy: 
         condition: on-failure
     init: true
-    #logging:
-    #  driver: fluentd
-    #  options:
-    #    fluentd-address: logsdriver:24224
-    #    fluentd-async-connect: 'true'
-    #    fluentd-retry-wait: '1s'
-    #    fluentd-max-retries: '30'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: logsdriver:24224
+        fluentd-async-connect: 'true'
+        fluentd-retry-wait: '1s'
+        fluentd-max-retries: '30'
     networks: [fonos]

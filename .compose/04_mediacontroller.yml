@@ -7,6 +7,12 @@ services:
       file: common.yml
       service: common
     image: ${MC_IMAGE}
+    environment:
+      APISERVER_ENDPOINT: ${APISERVER_ENDPOINT}:{APISERVER_PORT}
+      EVENTS_BROKERS: amqp://${EB_USERNAME}:${EB_SECRET}@${EB_HOST}:${EB_PORT}
+      EVENTS_QUEUE: apiserver
+      TTS_ENGINE_HOST: ${TTS_ENGINE_HOST}
+      TTS_ENGINE_PORT: ${TTS_ENGINE_PORT}
     volumes:
       - data1-1:/fonos
     logging:

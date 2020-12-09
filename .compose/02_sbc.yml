@@ -22,6 +22,10 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
+    deploy:
+      placement:
+        constraints:
+          - node.labels.topic == sip
     networks:
       fonos:
         aliases:
