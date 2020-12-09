@@ -47,6 +47,9 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
+    ports:
+      # Not recommended in production environments
+      - ${DS_HOST}:${DS_HOST}
     networks:
       fonos:
         aliases: 
@@ -65,7 +68,10 @@ services:
       RABBITMQ_NODE_PORT_NUMBER: ${EB_PORT}
     logging:
       options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.eventsbroker      
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.eventsbroker
+    ports:
+      # Not recommended in production environments
+      - ${EB_PORT}:${EB_PORT}
     networks:
       fonos:
         aliases: 
@@ -90,6 +96,9 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.fs
+    ports:
+      # Not recommended in production environments
+      - ${FS_PORT}:${FS_PORT}        
     networks:
       fonos:
         aliases: 
