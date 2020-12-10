@@ -5,18 +5,19 @@ const nodePlop = require('node-plop')
 const plop = nodePlop(join(__dirname, '..', '..', '..', 'dist', 'plopfile.js'))
 const init = plop.getGenerator('init')
 
+
 export default class InitCommand extends Command {
   static description = `creates a new empty application
   ...
   Extra documentation goes here
   `
 
-  async run () {
+  public async run () {
     console.log('This utility will help you create a basic voice application')
     console.log('to help you get start quickly. Press ^C at any time to quit.')
 
-    const dirname = basename(process.cwd())
-    const answers: any = await prompt([
+    const dirname: string = basename(process.cwd())
+    const questions: any = await prompt([
       {
         name: 'pckgName',
         message: 'package name',
@@ -52,12 +53,16 @@ export default class InitCommand extends Command {
       }
     ])
 
-    answers.cwd = process.cwd()
+    questions.cwd = process.cwd()
 
-    if (!answers.confirm) {
-      console.log('Aborted')
+    if(!questions.confirm){
+      console.log('Aborted');
     } else {
-      init.runActions(answers).then(() => console.log('All done'))
+      /** 
+       *  @description nodePlop have some issues about typeDef 
+       *  @example https://github.com/plopjs/node-plop/issues/194
+       **/
+      init.runActions(questions).then(() => console.log('All done'));
     }
   }
 }
