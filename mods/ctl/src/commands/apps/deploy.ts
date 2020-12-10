@@ -4,7 +4,7 @@ import { CLIError } from '@oclif/errors'
 import { cli } from 'cli-ux'
 import { Command } from '@oclif/command'
 
-const prettyjson = require('prettyjson')
+import prettyjson from 'prettyjson'
 
 export default class DeployCommand extends Command {
   static description = `deploys application to a Fonos instance
@@ -12,7 +12,7 @@ export default class DeployCommand extends Command {
   Run this command from the app root to deploy to Fonos.
   `
 
-  async run () {
+  public async run () {
     try {
       cli.action.start('Deploying application')
       const appmanager = new AppManager()
