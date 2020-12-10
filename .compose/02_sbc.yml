@@ -13,12 +13,13 @@ services:
       DATA_SOURCE_PROVIDER: redis_data_provider
       DATA_SOURCE_PARAMETERS: host=${DS_HOST},port=${DS_PORT}
     ports:
+      - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
       - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
