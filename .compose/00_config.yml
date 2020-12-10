@@ -3,21 +3,13 @@
 
 version: '3.7'
 
-services:
-  access-config:
-    image: fonoster/jwthelper
-    deploy:
-      restart_policy: 
-        condition: none
-    environment:
-      ISS: ${APISERVER_ACCESS_KEY_ISS}
-      ACCESS_KEY_ID: ${APISERVER_ACCESS_KEY_ID}
-      PRINT_ACCESS_INFO: 'true'
-    volumes:
-      - config:/home/fonos/access
 volumes:
   data1-1: {}
   datasource: {}
-  config: {}
 networks:
   fonos: {}
+configs:
+  config:
+    external: true
+  fluent:
+    external: true

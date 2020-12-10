@@ -29,6 +29,3 @@ services:
           - node.labels.topic == logging
     networks: 
       - fonos
-configs:
-  fluent:
-    external: true

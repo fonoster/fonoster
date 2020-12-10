@@ -13,8 +13,9 @@ services:
       EVENTS_QUEUE: apiserver
       TTS_ENGINE_HOST: ${TTS_ENGINE_HOST}
       TTS_ENGINE_PORT: ${TTS_ENGINE_PORT}
+      APPS_DIR: /home/fonos/apps
     volumes:
-      - data1-1:/fonos
+      - data1-1:/home/fonos
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediacontroller
@@ -22,3 +23,6 @@ services:
       fonos:
         aliases:
           - ${MC_HOST}
+    configs:
+      - source: config
+        target: /home/fonos/.fonos/config

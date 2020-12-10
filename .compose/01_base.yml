@@ -34,8 +34,6 @@ services:
       fonos:
         aliases:
           - ${APISERVER_ENDPOINT}
-    volumes:
-      - config:/home/fonos/.fonos
 
   datasource:
     extends:
