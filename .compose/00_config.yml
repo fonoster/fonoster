@@ -16,3 +16,5 @@ secrets:
 configs:
   fluent:
     external: true
+  bootstrap:
+    external: true

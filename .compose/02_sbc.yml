@@ -43,9 +43,9 @@ services:
       '
     deploy:
       restart_policy: 
-        condition: none      
-    volumes:
-      - ./bootstrap.yml:/bootstrap.yml:ro
+        condition: none
     networks:
       fonos:
- 
+    configs:
+      - source: bootstrap
+        target: /bootstrap.yml
