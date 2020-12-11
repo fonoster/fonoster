@@ -96,11 +96,6 @@ services:
     ports:
     - published: 6379
       target: 6379
-    secrets:
-    - source: config
-      target: /home/fonos/.fonos/config
-    - source: jwt-salt
-      target: /home/fonos/.fonos/jwt.salt
     volumes:
     - datasource:/data:rw
   eventsbroker:
@@ -126,11 +121,6 @@ services:
     ports:
     - published: 5672
       target: 5672
-    secrets:
-    - source: config
-      target: /home/fonos/.fonos/config
-    - source: jwt-salt
-      target: /home/fonos/.fonos/jwt.salt
   fs:
     command: minio server /fonos
     deploy:
@@ -163,11 +153,6 @@ services:
     ports:
     - published: 9000
       target: 9000
-    secrets:
-    - source: config
-      target: /home/fonos/.fonos/config
-    - source: jwt-salt
-      target: /home/fonos/.fonos/jwt.salt
     volumes:
     - data1-1:/fonos:rw
   logsaggregator:
@@ -197,9 +182,6 @@ services:
     - published: 5601
       target: 5601
   mediacontroller:
-    configs:
-    - source: config
-      target: /home/fonos/.fonos/config
     deploy:
       restart_policy:
         condition: on-failure
@@ -267,11 +249,6 @@ services:
     - protocol: udp
       published: 30008
       target: 30008
-    secrets:
-    - source: config
-      target: /home/fonos/.fonos/config
-    - source: jwt-salt
-      target: /home/fonos/.fonos/jwt.salt
   provisioner:
     deploy:
       restart_policy:
@@ -316,11 +293,6 @@ services:
       target: 4567
     - published: 5060
       target: 5060
-    secrets:
-    - source: config
-      target: /home/fonos/.fonos/config
-    - source: jwt-salt
-      target: /home/fonos/.fonos/jwt.salt
   tts:
     deploy:
       restart_policy:
@@ -341,11 +313,6 @@ services:
         tag: alpha.fonos.tts
     networks:
       fonos: {}
-    secrets:
-    - source: config
-      target: /home/fonos/.fonos/config
-    - source: jwt-salt
-      target: /home/fonos/.fonos/jwt.salt
 version: '3.7'
 volumes:
   data1-1: {}
