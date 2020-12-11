@@ -8,8 +8,11 @@ volumes:
   datasource: {}
 networks:
   fonos: {}
-configs:
+secrets:
+  jwt-salt:
+    external: true
   config:
     external: true
+configs:
   fluent:
     external: true

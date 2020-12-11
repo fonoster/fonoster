@@ -1,17 +1,18 @@
 configs:
-  config:
-    external: true
-    name: config
   fluent:
     external: true
     name: fluent
 networks:
   fonos: {}
+secrets:
+  config:
+    external: true
+    name: config
+  jwt-salt:
+    external: true
+    name: jwt-salt
 services:
   apiserver:
-    configs:
-    - source: config
-      target: /home/fonos/.fonos/config
     deploy:
       placement:
         constraints:
@@ -28,6 +29,8 @@ services:
       FS_PORT: '9000'
       FS_SECRET: minio123
       FS_USERNAME: minio
+      LOGS_DRIVER_HOST: logsdriver
+      LOGS_DRIVER_PORT: '24224'
       SIPPROXY_API_PORT: '4567'
       SIPPROXY_API_SECRET: changeit
       SIPPROXY_API_USERNAME: admin
@@ -35,12 +38,7 @@ services:
     image: fonoster/fonos-apiserver:latest
     init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.apiserver
     networks:
       fonos:
@@ -49,6 +47,11 @@ services:
     ports:
     - published: 50052
       target: 50052
+    secrets:
+    - source: config
+      target: /home/fonos/.fonos/config
+    - source: jwt-salt
+      target: /home/fonos/.fonos/jwt.salt
   createbuckets:
     deploy:
       restart_policy:
@@ -67,9 +70,6 @@ services:
     - redis-server
     - --appendonly
     - "yes"
-    configs:
-    - source: config
-      target: /home/fonos/.fonos/config
     deploy:
       placement:
         constraints:
@@ -87,12 +87,7 @@ services:
     image: redis:6.0.3-alpine
     init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.datasource
     networks:
       fonos:
@@ -101,12 +96,14 @@ services:
     ports:
     - published: 6379
       target: 6379
+    secrets:
+    - source: config
+      target: /home/fonos/.fonos/config
+    - source: jwt-salt
+      target: /home/fonos/.fonos/jwt.salt
     volumes:
     - datasource:/data:rw
   eventsbroker:
-    configs:
-    - source: config
-      target: /home/fonos/.fonos/config
     deploy:
       placement:
         constraints:
@@ -120,12 +117,7 @@ services:
     image: bitnami/rabbitmq:latest
     init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.eventsbroker
     networks:
       fonos:
@@ -134,11 +126,13 @@ services:
     ports:
     - published: 5672
       target: 5672
-  fs:
-    command: minio server /fonos
-    configs:
+    secrets:
     - source: config
       target: /home/fonos/.fonos/config
+    - source: jwt-salt
+      target: /home/fonos/.fonos/jwt.salt
+  fs:
+    command: minio server /fonos
     deploy:
       placement:
         constraints:
@@ -160,12 +154,7 @@ services:
     image: minio/minio:RELEASE.2020-02-27T00-23-05Z
     init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.fs
     networks:
       fonos:
@@ -174,6 +163,11 @@ services:
     ports:
     - published: 9000
       target: 9000
+    secrets:
+    - source: config
+      target: /home/fonos/.fonos/config
+    - source: jwt-salt
+      target: /home/fonos/.fonos/jwt.salt
     volumes:
     - data1-1:/fonos:rw
   logsaggregator:
@@ -214,28 +208,27 @@ services:
       APPS_DIR: /home/fonos/apps
       EVENTS_BROKERS: amqp://fonos:changeit@eventsbroker.fonos:5672
       EVENTS_QUEUE: apiserver
+      LOGS_DRIVER_HOST: logsdriver
+      LOGS_DRIVER_PORT: '24224'
       TTS_ENGINE_HOST: tts.fonos
       TTS_ENGINE_PORT: '59125'
     image: fonoster/fonos-nodejsmc:latest
     init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.mediacontroller
     networks:
       fonos:
         aliases:
         - mediacontroller.fonos
+    secrets:
+    - source: config
+      target: /home/fonos/.fonos/config
+    - source: jwt-salt
+      target: /home/fonos/.fonos/jwt.salt
     volumes:
     - data1-1:/home/fonos:rw
   mediaserver:
-    configs:
-    - source: config
-      target: /home/fonos/.fonos/config
     deploy:
       placement:
         constraints:
@@ -253,12 +246,7 @@ services:
     image: fonoster/fonos-mediaserver:15.7.4
     init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.mediaserver
     networks:
       fonos:
@@ -279,6 +267,11 @@ services:
     - protocol: udp
       published: 30008
       target: 30008
+    secrets:
+    - source: config
+      target: /home/fonos/.fonos/config
+    - source: jwt-salt
+      target: /home/fonos/.fonos/jwt.salt
   provisioner:
     deploy:
       restart_policy:
@@ -292,9 +285,6 @@ services:
     volumes:
     - /Users/pedrosanders/Projects/fonos/.compose/bootstrap.yml:/bootstrap.yml:ro
   sipproxy:
-    configs:
-    - source: config
-      target: /home/fonos/.fonos/config
     deploy:
       placement:
         constraints:
@@ -315,12 +305,7 @@ services:
     image: fonoster/routr:1.0.0-rc5
     init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.apiserver
     networks:
       fonos:
@@ -331,10 +316,12 @@ services:
       target: 4567
     - published: 5060
       target: 5060
-  tts:
-    configs:
+    secrets:
     - source: config
       target: /home/fonos/.fonos/config
+    - source: jwt-salt
+      target: /home/fonos/.fonos/jwt.salt
+  tts:
     deploy:
       restart_policy:
         condition: on-failure
@@ -350,15 +337,15 @@ services:
     image: synesthesiam/marytts:5.2
     init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.tts
     networks:
       fonos: {}
+    secrets:
+    - source: config
+      target: /home/fonos/.fonos/config
+    - source: jwt-salt
+      target: /home/fonos/.fonos/jwt.salt
 version: '3.7'
 volumes:
   data1-1: {}

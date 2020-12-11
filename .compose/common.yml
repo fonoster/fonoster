@@ -7,14 +7,12 @@ services:
       restart_policy: 
         condition: on-failure
     init: true
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: 'true'
-        fluentd-retry-wait: '1s'
-        fluentd-max-retries: '30'
-    networks: [fonos]
-    configs:
-      - source: config
-        target: /home/fonos/.fonos/config    
+    #logging:
+    #  driver: fluentd
+    #  options:
+    #    fluentd-address: ${LOGS_DRIVER_HOST}:${LOGS_DRIVER_PORT}
+    #    fluentd-async-connect: 'true'
+    #    fluentd-retry-wait: '1s'
+    #    fluentd-max-retries: '30'
+    networks: 
+      - fonos

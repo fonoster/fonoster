@@ -14,6 +14,8 @@ services:
       TTS_ENGINE_HOST: ${TTS_ENGINE_HOST}
       TTS_ENGINE_PORT: ${TTS_ENGINE_PORT}
       APPS_DIR: /home/fonos/apps
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
+      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
     volumes:
       - data1-1:/home/fonos
     logging:
@@ -23,6 +25,8 @@ services:
       fonos:
         aliases:
           - ${MC_HOST}
-    configs:
+    secrets:
+      - source: jwt-salt
+        target: /home/fonos/.fonos/jwt.salt
       - source: config
         target: /home/fonos/.fonos/config

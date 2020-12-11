@@ -21,6 +21,8 @@ services:
       SIPPROXY_API_PORT: ${SIPPROXY_API_PORT}
       SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
       SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
+      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
     ports:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     logging:
@@ -34,6 +36,11 @@ services:
       fonos:
         aliases:
           - ${APISERVER_ENDPOINT}
+    secrets:
+      - source: jwt-salt
+        target: /home/fonos/.fonos/jwt.salt
+      - source: config
+        target: /home/fonos/.fonos/config
 
   datasource:
     extends:
