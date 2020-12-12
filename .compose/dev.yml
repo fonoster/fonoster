@@ -20,9 +20,7 @@ services:
     - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
   mediaserver:
     environment:
-      # Use only for direct access to the Media Server (No recommended for production)
       ENABLE_TEST_ACCOUNT: ${MS_ENABLE_TEST_ACCOUNT}
     ports:
       - ${MS_SIP_PORT}:${MS_SIP_PORT}
-      # Use only for direct access to the Media Server (No recommended for production)
       - ${MS_RTP_PORT_START}-${MS_RTP_PORT_END}:${MS_RTP_PORT_START}-${MS_RTP_PORT_END}/udp
