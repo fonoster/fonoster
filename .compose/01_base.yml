@@ -107,6 +107,7 @@ services:
         condition: on-failure    
     entrypoint: >
       /bin/sh -c "
+      set -e;
       /usr/bin/mc config host add fs http://${FS_HOST}:${FS_PORT} ${FS_USERNAME} ${FS_SECRET};
       /usr/bin/mc mb fs/apps;
       /usr/bin/mc mb fs/default;
@@ -116,4 +117,4 @@ services:
       exit 0;
       "
     networks:
-      fonos:  
+      fonos:
