@@ -17,9 +17,6 @@ secrets:
 services:
   apiserver:
     deploy:
-      placement:
-        constraints:
-        - node.labels.topic == api
       restart_policy:
         condition: on-failure
     environment:
@@ -79,9 +76,6 @@ services:
     - --appendonly
     - "yes"
     deploy:
-      placement:
-        constraints:
-        - node.labels.topic == api
       restart_policy:
         condition: on-failure
     healthcheck:
@@ -113,9 +107,6 @@ services:
     - datasource:/data:rw
   eventsbroker:
     deploy:
-      placement:
-        constraints:
-        - node.labels.topic == api
       restart_policy:
         condition: on-failure
     environment:
@@ -142,9 +133,6 @@ services:
   fs:
     command: minio server /fonos
     deploy:
-      placement:
-        constraints:
-        - node.labels.topic == api
       restart_policy:
         condition: on-failure
     environment:
@@ -192,10 +180,6 @@ services:
     networks:
       fonos: {}
   logsmonitor:
-    deploy:
-      placement:
-        constraints:
-        - node.labels.topic == logging
     environment:
       ELASTICSEARCH_HOSTS: http://logsaggregator:9200
     image: kibana:7.9.3
@@ -270,6 +254,21 @@ services:
     ports:
     - published: 6060
       target: 6060
+    - protocol: udp
+      published: 30000
+      target: 30000
+    - protocol: udp
+      published: 30001
+      target: 30001
+    - protocol: udp
+      published: 30002
+      target: 30002
+    - protocol: udp
+      published: 30003
+      target: 30003
+    - protocol: udp
+      published: 30004
+      target: 30004
     - protocol: udp
       published: 30005
       target: 30005
@@ -357,6 +356,9 @@ services:
         tag: alpha.fonos.tts
     networks:
       fonos: {}
+    ports:
+    - published: 59125
+      target: 59125
 version: '3.7'
 volumes:
   data1-1: {}
