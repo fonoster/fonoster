@@ -41,6 +41,16 @@ class Say extends Verb {
         name: filename,
         bucket: this.config.bucket
       })
+
+      // We add this because in development the files server
+      // could be at a remote network
+      if (process.env.NODE_ENV === 'dev') {
+        logger.log(
+          'debug',
+          `@fonos/voice.Say [generating file url using enviroment variables from client side]`
+        )
+        url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${filename}`
+      }
     } catch (e) {
       logger.log(
         'warn',
