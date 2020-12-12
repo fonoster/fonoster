@@ -13,7 +13,6 @@ services:
       DATA_SOURCE_PROVIDER: redis_data_provider
       DATA_SOURCE_PARAMETERS: host=${DS_HOST},port=${DS_PORT}
     ports:
-      - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
       - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]

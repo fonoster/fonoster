@@ -52,9 +52,6 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
-    ports:
-      # Not recommended in production environments
-      - ${DS_PORT}:${DS_PORT}
     networks:
       fonos:
         aliases: 
@@ -74,9 +71,6 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.eventsbroker
-    ports:
-      # Not recommended in production environments
-      - ${EB_PORT}:${EB_PORT}
     networks:
       fonos:
         aliases: 
@@ -101,9 +95,6 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.fs
-    ports:
-      # Not recommended in production environments
-      - ${FS_PORT}:${FS_PORT}
     networks:
       fonos:
         aliases: 

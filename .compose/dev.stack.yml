@@ -100,6 +100,9 @@ services:
       fonos:
         aliases:
         - datasource.fonos
+    ports:
+    - published: 6379
+      target: 6379
     volumes:
     - datasource:/data:rw
   eventsbroker:
@@ -124,6 +127,9 @@ services:
       fonos:
         aliases:
         - eventsbroker.fonos
+    ports:
+    - published: 5672
+      target: 5672
   fs:
     command: minio server /fonos
     deploy:
@@ -155,6 +161,9 @@ services:
       fonos:
         aliases:
         - fs.fonos
+    ports:
+    - published: 9000
+      target: 9000
     volumes:
     - data1-1:/fonos:rw
   logsaggregator:
@@ -222,6 +231,7 @@ services:
         condition: on-failure
     environment:
       AGI_URL: agi://mediacontroller.fonos
+      ENABLE_TEST_ACCOUNT: "true"
       EXTERN_ADDR: 104.131.50.86
       EXTERN_PORT: '6060'
       SIPPROXY_HOST: sipproxy.fonos
@@ -241,6 +251,36 @@ services:
       fonos:
         aliases:
         - mediaserver.fonos
+    ports:
+    - published: 6060
+      target: 6060
+    - protocol: udp
+      published: 30000
+      target: 30000
+    - protocol: udp
+      published: 30001
+      target: 30001
+    - protocol: udp
+      published: 30002
+      target: 30002
+    - protocol: udp
+      published: 30003
+      target: 30003
+    - protocol: udp
+      published: 30004
+      target: 30004
+    - protocol: udp
+      published: 30005
+      target: 30005
+    - protocol: udp
+      published: 30006
+      target: 30006
+    - protocol: udp
+      published: 30007
+      target: 30007
+    - protocol: udp
+      published: 30008
+      target: 30008
   provisioner:
     configs:
     - source: bootstrap
@@ -287,6 +327,8 @@ services:
         aliases:
         - sipproxy.fonos
     ports:
+    - published: 4567
+      target: 4567
     - published: 5060
       target: 5060
   tts:
@@ -314,6 +356,9 @@ services:
         tag: alpha.fonos.tts
     networks:
       fonos: {}
+    ports:
+    - published: 59125
+      target: 59125
 version: '3.7'
 volumes:
   data1-1: {}
