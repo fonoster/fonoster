@@ -4,6 +4,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v1 
     - uses: actions/setup-node@v1
       with:
         node-version: '12'   
