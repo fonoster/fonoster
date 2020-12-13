@@ -1,5 +1,7 @@
-name: CI
-on: [workflow_dispatch]
+name: release
+on:
+  release:
+    types: [published]
 jobs:
   build:
     runs-on: ubuntu-latest
