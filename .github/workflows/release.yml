@@ -4,6 +4,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'   
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::$(node -e "console.log(require('./package.json').version)") 
     - name: Publishing APIServer Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -11,7 +17,7 @@ jobs:
         repo: fonoster/fonos-apiserver
         token: ${{ secrets.GH_PAT }}
         ref: master
-        inputs: '{"version": "0.0.47"}'
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing Media Controller Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -19,7 +25,7 @@ jobs:
         repo: fonoster/fonos-nodejsmc
         token: ${{ secrets.GH_PAT }}
         ref: master
-        inputs: '{"version": "0.0.47"}'
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing Uploader Helper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -27,7 +33,7 @@ jobs:
         repo: fonoster/uploaderhelper
         token: ${{ secrets.GH_PAT }}
         ref: master
-        inputs: '{"version": "0.0.47"}'
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing Config Helper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -35,7 +41,7 @@ jobs:
         repo: fonoster/confighelper
         token: ${{ secrets.GH_PAT }}
         ref: main
-        inputs: '{"version": "0.0.47"}'
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing Chmod Helper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -43,7 +49,7 @@ jobs:
         repo: fonoster/chmodhelper
         token: ${{ secrets.GH_PAT }}
         ref: master
-        inputs: '{"version": "0.0.47"}'
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing JWTHelper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -51,4 +57,4 @@ jobs:
         repo: fonoster/jwthelper
         token: ${{ secrets.GH_PAT }}
         ref: master
-        inputs: '{"version": "0.0.47"}'
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
