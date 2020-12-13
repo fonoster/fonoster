@@ -1,0 +1,54 @@
+name: CI
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Publishing APIServer Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/fonos-apiserver
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "0.0.47"}'
+    - name: Publishing Media Controller Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/fonos-nodejsmc
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "0.0.47"}'
+    - name: Publishing Uploader Helper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/uploaderhelper
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "0.0.47"}'
+    - name: Publishing Config Helper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/confighelper
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "0.0.47"}'
+    - name: Publishing Chmod Helper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/chmodhelper
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "0.0.47"}'
+    - name: Publishing JWTHelper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/jwthelper
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "0.0.47"}'
