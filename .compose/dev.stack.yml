@@ -232,7 +232,7 @@ services:
     environment:
       AGI_URL: agi://mediacontroller.fonos
       ENABLE_TEST_ACCOUNT: "true"
-      EXTERN_ADDR: 104.131.50.86
+      EXTERN_ADDR: 142.93.178.18
       EXTERN_PORT: '6060'
       SIPPROXY_HOST: sipproxy.fonos
       SIPPROXY_SECRET: changeit
@@ -305,7 +305,7 @@ services:
     environment:
       DATA_SOURCE_PARAMETERS: host=datasource.fonos,port=6379
       DATA_SOURCE_PROVIDER: redis_data_provider
-      EXTERN_ADDR: 104.131.50.86
+      EXTERN_ADDR: 142.93.178.18
     healthcheck:
       interval: 30s
       retries: 3
