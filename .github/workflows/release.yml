@@ -14,7 +14,7 @@ jobs:
         node-version: '12'   
     - name: Get the version
       id: get_version
-      run: echo ::set-output name=VERSION::$(node -e "console.log(require('./package.json').version)") 
+      run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)") 
     - name: Publishing APIServer Service
       uses: benc-uk/workflow-dispatch@v1
       with:
