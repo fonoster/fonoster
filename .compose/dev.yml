@@ -20,7 +20,7 @@ services:
     - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
   mediaserver:
     environment:
-      ENABLE_TEST_ACCOUNT: ${MS_ENABLE_TEST_ACCOUNT}
+      ENABLE_TEST_ACCOUNT: 'true'
     ports:
       - ${MS_SIP_PORT}:${MS_SIP_PORT}
       - ${MS_RTP_PORT_START}-${MS_RTP_PORT_END}:${MS_RTP_PORT_START}-${MS_RTP_PORT_END}/udp
