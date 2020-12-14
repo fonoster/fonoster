@@ -20,19 +20,7 @@ Constructs a new MaryTTS object.
 
 **Example**  
 ```js
-const MaryTTS = require('@fonos/tts/marytts')
-const Storage = require('@fonos/storage')
-const { transcodeSync } = require('@fonos/tts/utils')
-
-// This is all done automatically when using the Say verb.
-module.exports = chan => {
-   const storage = new Storage()
-   const tts = new MaryTTS()
-   const pathToFile = tts.synthesizeSync('Hello World')
-   const pathToTranscodedFile = transcodeSync(pathToFile)
-   const url = storage.uploadFileSync('hello-world.wav', pathToTranscodedFile)
-   chan.play(url)
-}
+const MaryTTS = require('@fonos/tts/marytts')const Storage = require('@fonos/storage')const { transcodeSync } = require('@fonos/tts/utils')// This is all done automatically when using the Say verb.module.exports = chan => {   const storage = new Storage()   const tts = new MaryTTS()   const pathToFile = tts.synthesizeSync('Hello World')   const pathToTranscodedFile = transcodeSync(pathToFile)   const url = storage.uploadFileSync('hello-world.wav', pathToTranscodedFile)   chan.play(url)}
 ```
 <a name="MaryTTS+synthesize"></a>
 
