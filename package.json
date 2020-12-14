@@ -1,6 +1,13 @@
 {
   "name": "root",
   "private": true,
+  "nodemonConfig":{
+    "watch": [
+      "./mods/",
+      "./examples/"
+    ],
+    "ext": "js"
+  },
   "scripts": {
     "bootstrap": "lerna bootstrap --no-ci",
     "test": "export NODE_ENV=dev && mocha -r ts-node/register mods/**/*.unit.test.ts",
@@ -9,7 +16,7 @@
     "gen-proto": "./etc/gen_code_proto.sh",
     "run-init": "export NODE_ENV=dev && node mods/core/dist/common/fsutils",
     "run-apiserver": "export NODE_ENV=dev && node mods/core/dist/server/server",
-    "run-mediacontroller": "export NODE_ENV=dev && node mods/dispatcher/dist/dispatcher"
+    "run-mediacontroller": "set NODE_ENV=dev && nodemon mods/dispatcher/dist/dispatcher"
   },
   "main": "docs",
   "devDependencies": {
