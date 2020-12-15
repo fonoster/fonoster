@@ -1,8 +1,7 @@
 <a name="Storage"></a>
 
 ## Storage ⇐ <code>FonosService</code>
-Use Fonos Storage, a capability of Fonos Object Storage subsystem,
-to upload, download, and delete objects.
+Use Fonos Storage, a capability of Fonos Object Storage subsystem,to upload, download, and delete objects.
 
 **Kind**: global class  
 **Extends**: <code>FonosService</code>  
@@ -20,13 +19,7 @@ Constructs a new Storage object.
 
 **Example**  
 ```js
-const Fonos = require('@fonos/sdk')
-const storage = new Fonos.Storage()
-
-storage.uploadObject()
-.then(result => {
-   console.log(result)            // successful response
-}).catch(e => console.error(e))   // an error occurred
+const Fonos = require('@fonos/sdk')const storage = new Fonos.Storage()storage.uploadObject().then(result => {   console.log(result)            // successful response}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Storage+uploadObject"></a>
 
@@ -48,15 +41,7 @@ Upload an object to Fonos Object Storage subsystem.
 
 **Example**  
 ```js
-const request = {
-   filename: '/path/to/file',
-   bucklet: 'hello-monkeys'
-}
-
-storage.uploadObject(request)
-.then(() => {
-  console.log(result)            // returns and empty Object
-}).catch(e => console.error(e))  // an error occurred
+const request = {   filename: '/path/to/file',   bucklet: 'hello-monkeys'}storage.uploadObject(request).then(() => {  console.log(result)            // returns and empty Object}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Storage+getObjectURL"></a>
 
@@ -78,13 +63,5 @@ Get Object URL.
 
 **Example**  
 ```js
-const request = {
-   name: 'object-name',
-   bucket: 'bucket-name'
-}
-
-storage.getObjectURL(request)
-.then(result => {
-  console.log(result)
-}).catch(e => console.error(e))  // an error occurred
+const request = {   name: 'object-name',   bucket: 'bucket-name'}storage.getObjectURL(request).then(result => {  console.log(result)}).catch(e => console.error(e))  // an error occurred
 ```
