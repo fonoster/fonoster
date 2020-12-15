@@ -2,6 +2,9 @@
 
 services:
 
+  apiserver:
+    environment:
+      ALLOW_INSECURE: 'true'
   datasource:
     ports:
     - ${DS_PORT}:${DS_PORT}

@@ -8,7 +8,6 @@ services:
       service: common 
     image: ${AS_IMAGE}
     environment:
-      ALLOW_INSECURE: 'true'
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
       FS_HOST: ${FS_HOST}
