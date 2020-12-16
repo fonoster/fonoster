@@ -1,7 +1,9 @@
 <a name="Domains"></a>
 
 ## Domains ⇐ <code>FonosService</code>
-Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,to create, update, get and delete domains. Fonos Domains requires of arunning Fonos deployment.
+Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
+to create, update, get and delete domains. Fonos Domains requires of a
+running Fonos deployment.
 
 **Kind**: global class  
 **Extends**: <code>FonosService</code>  
@@ -22,7 +24,13 @@ Constructs a new Domains object.
 
 **Example**  
 ```js
-const Fonos = require('@fonos/sdk')const domains = new Fonos.Domains()domains.createDomain({name: 'Local Domain', domainUri: 'sip.local'...}).then(result => {  console.log(result)             // successful response}).catch(e => console.error(e))   // an error occurred
+const Fonos = require('@fonos/sdk')
+const domains = new Fonos.Domains()
+
+domains.createDomain({name: 'Local Domain', domainUri: 'sip.local'...})
+.then(result => {
+  console.log(result)             // successful response
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Domains+createDomain"></a>
 
@@ -43,7 +51,19 @@ Creates a new Domain on the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {   name: 'Local Domain',   domainUri: 'sip.local',   egressRule: '.*',   egressNumberRef: '507f1f77bcf86cd799439011',   accessDeny: ['0.0.0.0/1']     // Deny all   accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']}domains.createDomain(request).then(result => {  console.log(result)            // returns the Domain object}).catch(e => console.error(e))  // an error occurred
+const request = {
+   name: 'Local Domain',
+   domainUri: 'sip.local',
+   egressRule: '.*',
+   egressNumberRef: '507f1f77bcf86cd799439011',
+   accessDeny: ['0.0.0.0/1']     // Deny all
+   accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']
+}
+
+domains.createDomain(request)
+.then(result => {
+  console.log(result)            // returns the Domain object
+}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Domains+getDomain"></a>
 
@@ -63,7 +83,10 @@ Retrives a Domain by its reference.
 
 **Example**  
 ```js
-domains.getDomain(ref).then(result => {  console.log(result)             // returns the Domain object}).catch(e => console.error(e))   // an error occurred
+domains.getDomain(ref)
+.then(result => {
+  console.log(result)             // returns the Domain object
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Domains+updateDomain"></a>
 
@@ -84,7 +107,16 @@ Update a Domain at the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {   ref: '507f1f77bcf86cd799439011'   name: 'Office Domain ',   accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']}domains.updateDomain(request).then(result => {  console.log(result)            // returns the Domain from the DB}).catch(e => console.error(e))  // an error occurred
+const request = {
+   ref: '507f1f77bcf86cd799439011'
+   name: 'Office Domain ',
+   accessAllow: ['192.168.1.0/255.255.255.0', '192.168.0.1/31']
+}
+
+domains.updateDomain(request)
+.then(result => {
+  console.log(result)            // returns the Domain from the DB
+}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Domains+listDomains"></a>
 
@@ -102,12 +134,21 @@ List the Domains registered in Fonos SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {   pageSize: 20,   pageToken: 2}domains.listDomains(request).then(() => {  console.log(result)            // returns a ListDomainsResponse object}).catch(e => console.error(e))  // an error occurred
+const request = {
+   pageSize: 20,
+   pageToken: 2
+}
+
+domains.listDomains(request)
+.then(() => {
+  console.log(result)            // returns a ListDomainsResponse object
+}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Domains+deleteDomain"></a>
 
 ### domains.deleteDomain(ref)
-Deletes a Domain from SIP Proxy subsystem. Notice, that in order to deletea Domain, you must first delete all it's Agents.
+Deletes a Domain from SIP Proxy subsystem. Notice, that in order to delete
+a Domain, you must first delete all it's Agents.
 
 **Kind**: instance method of [<code>Domains</code>](#Domains)  
 
@@ -117,5 +158,10 @@ Deletes a Domain from SIP Proxy subsystem. Notice, that in order to deletea Dom
 
 **Example**  
 ```js
-const ref = '507f1f77bcf86cd799439011'domains.deleteDomain(ref).then(() => {  console.log('done')            // returns an empty object}).catch(e => console.error(e))  // an error occurred
+const ref = '507f1f77bcf86cd799439011'
+
+domains.deleteDomain(ref)
+.then(() => {
+  console.log('done')            // returns an empty object
+}).catch(e => console.error(e))  // an error occurred
 ```

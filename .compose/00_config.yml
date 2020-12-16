@@ -6,8 +6,10 @@ version: '3.7'
 volumes:
   apps:
     external: true
-  data1-1: {}
-  datasource: {}
+  data1-1:
+    external: true
+  datasource:
+    external: true
 networks:
   fonos: {}
 secrets:

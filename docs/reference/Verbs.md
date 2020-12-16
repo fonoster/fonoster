@@ -3,7 +3,8 @@
 ## Verbs
 **Kind**: global class  
 **Params**: <code>Channel</code> channel - Channel object pass from AGI-Node  
-**Params**: <code>Object</code> config - This parameter is required for proper operationof some verbs, such as `Say`.  
+**Params**: <code>Object</code> config - This parameter is required for proper operation
+of some verbs, such as `Say`.  
 **Params**: [<code>Storage</code>](#Storage) config.storage - An instance of the Storage object  
 **Params**: <code>TTS</code> config.tts - An instance of a TTS engine implementation  
 
@@ -28,7 +29,8 @@ Constructs a new Verbs object.
 <a name="Verbs+overrideTTS"></a>
 
 ### verbs.overrideTTS(tts)
-/**Replaces default TTS engine with a new implementation.
+/**
+Replaces default TTS engine with a new implementation.
 
 **Kind**: instance method of [<code>Verbs</code>](#Verbs)  
 
@@ -60,7 +62,8 @@ Terminates at `timeout`
 Plays an audio in the calls channel.
 
 **Kind**: instance method of [<code>Verbs</code>](#Verbs)  
-**Returns**: <code>string</code> - Pressed key or undefined if no key was pressed beforetimeout  
+**Returns**: <code>string</code> - Pressed key or undefined if no key was pressed before
+timeout  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -70,7 +73,11 @@ Plays an audio in the calls channel.
 
 **Example**  
 ```js
-const options {  finishOnKey: '#'',}const result = chan.play('tts-monkeys', options)
+const options {
+  finishOnKey: '#'',
+}
+
+const result = chan.play('tts-monkeys', options)
 ```
 <a name="Verbs+say"></a>
 
@@ -78,7 +85,8 @@ const options {  finishOnKey: '#'',}const result = chan.play('tts-monkeys', 
 Sythentizes a text and streams the resulting audio.
 
 **Kind**: instance method of [<code>Verbs</code>](#Verbs)  
-**Returns**: <code>string</code> - Pressed key or undefined if no key was pressed beforetimeout  
+**Returns**: <code>string</code> - Pressed key or undefined if no key was pressed before
+timeout  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -88,7 +96,11 @@ Sythentizes a text and streams the resulting audio.
 
 **Example**  
 ```js
-const options {  finishOnKey: '#'',}const result = chan.say('hello, this is an audio sample', options)
+const options {
+  finishOnKey: '#'',
+}
+
+const result = chan.say('hello, this is an audio sample', options)
 ```
 <a name="Verbs+wait"></a>
 
@@ -103,7 +115,8 @@ Plays a silence for `time` seconds.
 The Gather verb is used in combination with Play, Say, Wait.
 
 **Kind**: instance method of [<code>Verbs</code>](#Verbs)  
-**Returns**: <code>string</code> - Pressed digits or undefined if no keys were pressed beforetimeout  
+**Returns**: <code>string</code> - Pressed digits or undefined if no keys were pressed before
+timeout  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -115,7 +128,12 @@ The Gather verb is used in combination with Play, Say, Wait.
 
 **Example**  
 ```js
-const options {  finishOnKey: '#'',  maxDigits: 4}const result = chan.gather(chan.say('this is an audio sample'), options)
+const options {
+  finishOnKey: '#'',
+  maxDigits: 4
+}
+
+const result = chan.gather(chan.say('this is an audio sample'), options)
 ```
 <a name="Verbs+record"></a>
 
@@ -141,7 +159,15 @@ Record creates a file with the sound send by receiving device
 
 **Example**  
 ```js
-const options = {    timeout: 4,         // Default    finishOnKey: #,     // Characters used to finish the recording    beep: true,    silenceSeconds: 0,    maxDuration: 3600   // Maximum duration in seconds}const result = chan.record(options)
+const options = {
+    timeout: 4,         // Default
+    finishOnKey: #,     // Characters used to finish the recording
+    beep: true,
+    silenceSeconds: 0,
+    maxDuration: 3600   // Maximum duration in seconds
+}
+
+const result = chan.record(options)
 ```
 <a name="Verbs+stash"></a>
 
