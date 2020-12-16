@@ -16,9 +16,6 @@ secrets:
     name: jwt-salt
 services:
   apiserver:
-    deploy:
-      restart_policy:
-        condition: on-failure
     environment:
       ALLOW_INSECURE: "true"
       DS_HOST: datasource.fonos
@@ -36,14 +33,8 @@ services:
       SIPPROXY_API_USERNAME: admin
       SIPPROXY_HOST: sipproxy.fonos
     image: fonoster/fonos-apiserver:latest
-    init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.apiserver
     networks:
       fonos:
@@ -75,9 +66,6 @@ services:
     - redis-server
     - --appendonly
     - "yes"
-    deploy:
-      restart_policy:
-        condition: on-failure
     healthcheck:
       interval: 30s
       retries: 3
@@ -87,14 +75,8 @@ services:
       - ping
       timeout: 10s
     image: redis:6.0.3-alpine
-    init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.datasource
     networks:
       fonos:
@@ -106,22 +88,13 @@ services:
     volumes:
     - datasource:/data:rw
   eventsbroker:
-    deploy:
-      restart_policy:
-        condition: on-failure
     environment:
       RABBITMQ_NODE_PORT_NUMBER: '5672'
       RABBITMQ_PASSWORD: changeit
       RABBITMQ_USERNAME: fonos
     image: bitnami/rabbitmq:latest
-    init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.eventsbroker
     networks:
       fonos:
@@ -132,9 +105,6 @@ services:
       target: 5672
   fs:
     command: minio server /fonos
-    deploy:
-      restart_policy:
-        condition: on-failure
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
@@ -148,14 +118,8 @@ services:
       - http://localhost:9000/minio/health/live
       timeout: 20s
     image: minio/minio:RELEASE.2020-02-27T00-23-05Z
-    init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.fs
     networks:
       fonos:
@@ -189,9 +153,6 @@ services:
     - published: 5601
       target: 5601
   mediacontroller:
-    deploy:
-      restart_policy:
-        condition: on-failure
     environment:
       APISERVER_ENDPOINT: apiserver.fonos:{APISERVER_PORT}
       APPS_DIR: /home/fonos/apps
@@ -202,14 +163,8 @@ services:
       TTS_ENGINE_HOST: tts.fonos
       TTS_ENGINE_PORT: '59125'
     image: fonoster/fonos-nodejsmc:latest
-    init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.mediacontroller
     networks:
       fonos:
@@ -227,8 +182,6 @@ services:
       placement:
         constraints:
         - node.labels.topic == sip
-      restart_policy:
-        condition: on-failure
     environment:
       AGI_URL: agi://mediacontroller.fonos
       ENABLE_TEST_ACCOUNT: "true"
@@ -238,14 +191,8 @@ services:
       SIPPROXY_SECRET: changeit
       SIPPROXY_USERNAME: ast
     image: fonoster/fonos-mediaserver:15.7.4
-    init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.mediaserver
     networks:
       fonos:
@@ -300,8 +247,6 @@ services:
       placement:
         constraints:
         - node.labels.topic == sip
-      restart_policy:
-        condition: on-failure
     environment:
       DATA_SOURCE_PARAMETERS: host=datasource.fonos,port=6379
       DATA_SOURCE_PROVIDER: redis_data_provider
@@ -314,14 +259,8 @@ services:
       - nc -z localhost 4567 || exit 1
       timeout: 30s
     image: fonoster/routr:1.0.0-rc5
-    init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.apiserver
     networks:
       fonos:
@@ -333,9 +272,6 @@ services:
     - published: 5060
       target: 5060
   tts:
-    deploy:
-      restart_policy:
-        condition: on-failure
     healthcheck:
       interval: 30s
       retries: 3
@@ -346,17 +282,9 @@ services:
       - http://localhost:59125
       timeout: 20s
     image: synesthesiam/marytts:5.2
-    init: true
     logging:
-      driver: fluentd
       options:
-        fluentd-address: logsdriver:24224
-        fluentd-async-connect: "true"
-        fluentd-max-retries: '30'
-        fluentd-retry-wait: 1s
         tag: alpha.fonos.tts
-    networks:
-      fonos: {}
     ports:
     - published: 59125
       target: 59125
@@ -365,6 +293,10 @@ volumes:
   apps:
     external: true
     name: apps
-  data1-1: {}
-  datasource: {}
+  data1-1:
+    external: true
+    name: data1-1
+  datasource:
+    external: true
+    name: datasource
 
