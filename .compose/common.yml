@@ -3,17 +3,14 @@
 services:
 
   common:
-    # WARN: This code is the only common factor for the 
-    # unresponsive containers we are getting after a `docker stack rm $stack`
-    # Temporarily quarantined! 
-    #
-    #deploy:
-    #  restart_policy: 
-    #    condition: on-failure
+    # WARN: This is causing the containers to become unresponsive.
     #logging:
     #  driver: fluentd
     #  options:
     #    fluentd-address: ${LOGS_DRIVER_HOST}:${LOGS_DRIVER_PORT}
     #    fluentd-async-connect: 'true'
-    #    fluentd-retry-wait: '1s'
-    #    fluentd-max-retries: '30'
+    #    fluentd-retry-wait: '60s'
+    #    fluentd-max-retries: '1440'
+    deploy:
+      restart_policy: 
+        condition: on-failure
