@@ -2,6 +2,9 @@
 
 services:
 
+  logsdriver:
+    ports:
+      - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}
   apiserver:
     environment:
       ALLOW_INSECURE: 'true'

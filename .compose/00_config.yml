@@ -11,7 +11,7 @@ volumes:
   datasource:
     external: true
 networks:
-  fonos: {}
+  fonos:
 secrets:
   jwt-salt:
     external: true

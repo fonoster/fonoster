@@ -16,6 +16,9 @@ secrets:
     name: jwt-salt
 services:
   apiserver:
+    deploy:
+      restart_policy:
+        condition: on-failure
     environment:
       ALLOW_INSECURE: "true"
       DS_HOST: datasource.fonos
@@ -26,7 +29,7 @@ services:
       FS_PORT: '9000'
       FS_SECRET: minio123
       FS_USERNAME: minio
-      LOGS_DRIVER_HOST: logsdriver
+      LOGS_DRIVER_HOST: logsdriver.fonos
       LOGS_DRIVER_PORT: '24224'
       SIPPROXY_API_PORT: '4567'
       SIPPROXY_API_SECRET: changeit
@@ -66,6 +69,9 @@ services:
     - redis-server
     - --appendonly
     - "yes"
+    deploy:
+      restart_policy:
+        condition: on-failure
     healthcheck:
       interval: 30s
       retries: 3
@@ -88,6 +94,9 @@ services:
     volumes:
     - datasource:/data:rw
   eventsbroker:
+    deploy:
+      restart_policy:
+        condition: on-failure
     environment:
       RABBITMQ_NODE_PORT_NUMBER: '5672'
       RABBITMQ_PASSWORD: changeit
@@ -105,6 +114,9 @@ services:
       target: 5672
   fs:
     command: minio server /fonos
+    deploy:
+      restart_policy:
+        condition: on-failure
     environment:
       MINIO_ACCESS_KEY: minio
       MINIO_SECRET_KEY: minio123
@@ -140,9 +152,16 @@ services:
     configs:
     - source: fluent
       target: /fluentd/etc/fluent.conf
+    deploy:
+      mode: global
     image: fonoster/fluent-elasticsearch:latest
     networks:
-      fonos: {}
+      fonos:
+        aliases:
+        - logsdriver.fonos
+    ports:
+    - published: 24224
+      target: 24224
   logsmonitor:
     environment:
       ELASTICSEARCH_HOSTS: http://logsaggregator:9200
@@ -153,12 +172,15 @@ services:
     - published: 5601
       target: 5601
   mediacontroller:
+    deploy:
+      restart_policy:
+        condition: on-failure
     environment:
       APISERVER_ENDPOINT: apiserver.fonos:{APISERVER_PORT}
       APPS_DIR: /home/fonos/apps
       EVENTS_BROKERS: amqp://fonos:changeit@eventsbroker.fonos:5672
       EVENTS_QUEUE: apiserver
-      LOGS_DRIVER_HOST: logsdriver
+      LOGS_DRIVER_HOST: logsdriver.fonos
       LOGS_DRIVER_PORT: '24224'
       TTS_ENGINE_HOST: tts.fonos
       TTS_ENGINE_PORT: '59125'
@@ -182,6 +204,8 @@ services:
       placement:
         constraints:
         - node.labels.topic == sip
+      restart_policy:
+        condition: on-failure
     environment:
       AGI_URL: agi://mediacontroller.fonos
       ENABLE_TEST_ACCOUNT: "true"
@@ -247,6 +271,8 @@ services:
       placement:
         constraints:
         - node.labels.topic == sip
+      restart_policy:
+        condition: on-failure
     environment:
       DATA_SOURCE_PARAMETERS: host=datasource.fonos,port=6379
       DATA_SOURCE_PROVIDER: redis_data_provider
@@ -272,6 +298,9 @@ services:
     - published: 5060
       target: 5060
   tts:
+    deploy:
+      restart_policy:
+        condition: on-failure
     healthcheck:
       interval: 30s
       retries: 3
