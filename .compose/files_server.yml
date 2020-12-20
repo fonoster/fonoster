@@ -14,7 +14,7 @@ services:
       MINIO_SECRET_KEY: ${FS_SECRET}
     command: minio server /fonos
     ports:
-      - 9000:9000
+      - ${FS_PORT}:${FS_PORT}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s

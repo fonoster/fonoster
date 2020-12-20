@@ -25,7 +25,7 @@ services:
       DS_PORT: '6379'
       EVENTS_BROKERS: amqp://fonos:changeit@eventsbroker.fonos:5672
       FS_DEFAULT_STORAGE_BUCKET: default
-      FS_HOST: api.fonoster.io
+      FS_HOST: fs.fonos
       FS_PORT: '9000'
       FS_SECRET: minio123
       FS_USERNAME: minio
@@ -51,19 +51,6 @@ services:
       target: /home/fonos/.fonos/config
     - source: jwt-salt
       target: /home/fonos/.fonos/jwt.salt
-  createbuckets:
-    deploy:
-      restart_policy:
-        condition: on-failure
-    entrypoint: '/bin/sh -c " set -e; /usr/bin/mc config host add fs http://api.fonoster.io:9000
-      minio minio123; /usr/bin/mc mb fs/apps; /usr/bin/mc mb fs/default; /usr/bin/mc
-      mb fs/recordings; /usr/bin/mc policy set public fs/default; /usr/bin/mc policy
-      set public fs/recordings; exit 0; "
-
-      '
-    image: minio/mc
-    networks:
-      fonos: {}
   datasource:
     command:
     - redis-server
@@ -112,36 +99,6 @@ services:
     ports:
     - published: 5672
       target: 5672
-  fs:
-    command: minio server /fonos
-    deploy:
-      restart_policy:
-        condition: on-failure
-    environment:
-      MINIO_ACCESS_KEY: minio
-      MINIO_SECRET_KEY: minio123
-    healthcheck:
-      interval: 30s
-      retries: 3
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9000/minio/health/live
-      timeout: 20s
-    image: minio/minio:RELEASE.2020-02-27T00-23-05Z
-    logging:
-      options:
-        tag: alpha.fonos.fs
-    networks:
-      fonos:
-        aliases:
-        - api.fonoster.io
-    ports:
-    - published: 9000
-      target: 9000
-    volumes:
-    - data1-1:/fonos:rw
   logsaggregator:
     environment:
       discovery.type: single-node
@@ -322,9 +279,6 @@ volumes:
   apps:
     external: true
     name: apps
-  data1-1:
-    external: true
-    name: data1-1
   datasource:
     external: true
     name: datasource

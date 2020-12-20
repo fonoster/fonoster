@@ -3,20 +3,21 @@
 
 version: '3.7'
 
+networks:
+  fonos:
+
 volumes:
   apps:
     external: true
-  data1-1:
-    external: true
   datasource:
     external: true
-networks:
-  fonos:
+
 secrets:
   jwt-salt:
     external: true
   config:
     external: true
+
 configs:
   fluent:
     external: true
