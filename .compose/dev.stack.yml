@@ -271,6 +271,10 @@ services:
     logging:
       options:
         tag: alpha.fonos.tts
+    networks:
+      fonos:
+        aliases:
+        - tts.fonos
     ports:
     - published: 59125
       target: 59125
