@@ -23,7 +23,7 @@ class Play extends Verb {
   run (file: string, options: PlayOptions = {}) {
     const { finishOnKey = '#' } = options
     validate(file, options)
-    logger.log('debug', '@fonos/voice.Play [Sending file to AGI Server]')
+    logger.log('debug', '@fonos/voice.Play [sending file to AGI Server]')
     const result = this.channel.streamFile(file, finishOnKey)
     logger.log(
       'debug',

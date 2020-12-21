@@ -29,14 +29,14 @@ export default function (extension: string) {
   } catch (e) {
     logger.log(
       'error',
-      `@fonos/dispatcher unable to access path to entry point`
+      '@fonos/dispatcher unable to access path to entry point'
     )
   }
 
   try {
     bucket = JSON.parse(`${fs.readFileSync(pathToAppConfig)}`).bucket
   } catch (e) {
-    logger.log('warrn', `@fonos/dispatcher using default storage bucket`)
+    logger.log('warrn', '@fonos/dispatcher using default storage bucket')
   }
 
   return {

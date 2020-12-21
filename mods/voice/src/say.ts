@@ -31,7 +31,7 @@ class Say extends Verb {
         bucket: this.config.bucket
       })
     } catch (e) {
-      logger.log('error', `@fonos/voice.Say [Error synthesizing audio]`)
+      logger.log('error', '@fonos/voice.Say [error synthesizing audio]')
       throw new Error(`@fonos/voice.Say [${e}]`)
     }
   }
@@ -52,7 +52,7 @@ class Say extends Verb {
       if (process.env.NODE_ENV === 'dev') {
         logger.log(
           'debug',
-          `@fonos/voice.Say [generating file url using enviroment variables from client side]`
+          '@fonos/voice.Say [generating file url using enviroment variables from client side]'
         )
         url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${filename}`
       }
@@ -67,7 +67,7 @@ class Say extends Verb {
     try {
       return new Play(this.channel, this.config).run(url, options)
     } catch (e) {
-      throw new Error(`@fonos/voice.Say [${e}] (Trying to play)`)
+      throw new Error(`@fonos/voice.Say [${e}] (failed to play)`)
     }
   }
 }
