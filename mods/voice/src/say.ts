@@ -13,22 +13,27 @@ class Say extends Verb {
   }
 
   private synth (text: string, filename: string, options?: any): string {
-    const pathToFile = this.config.tts.synthesizeSync(text, options)
+    try {
+      const pathToFile = this.config.tts.synthesizeSync(text, options)
 
-    const pathToTranscodedFile = path.join(path.dirname(pathToFile), filename)
-    transcodeSync(pathToFile, pathToTranscodedFile)
+      const pathToTranscodedFile = path.join(path.dirname(pathToFile), filename)
+      transcodeSync(pathToFile, pathToTranscodedFile)
 
-    const metadata = { 'Content-Type': 'audio/x-wav' }
-    this.config.storage.uploadObjectSync({
-      filename: pathToTranscodedFile,
-      bucket: this.config.bucket,
-      metadata
-    })
+      const metadata = { 'Content-Type': 'audio/x-wav' }
+      this.config.storage.uploadObjectSync({
+        filename: pathToTranscodedFile,
+        bucket: this.config.bucket,
+        metadata
+      })
 
-    return this.config.storage.getObjectURLSync({
-      name: filename,
-      bucket: this.config.bucket
-    })
+      return this.config.storage.getObjectURLSync({
+        name: filename,
+        bucket: this.config.bucket
+      })
+    } catch (e) {
+      logger.log('error', `@fonos/voice.Say [Error synthesizing audio]`)
+      throw new Error(e)
+    }
   }
 
   run (text: string, options: PlayOptions): string {
@@ -59,8 +64,11 @@ class Say extends Verb {
     }
 
     if (!url) url = this.synth(text, filename, options)
-
-    return new Play(this.channel, this.config).run(url, options)
+    try {
+      return new Play(this.channel, this.config).run(url, options)
+    } catch (e) {
+      throw new Error(`@fonos/voice.Say [${e}] (Trying to play)`)
+    }
   }
 }
 

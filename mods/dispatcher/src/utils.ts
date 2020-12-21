@@ -26,11 +26,18 @@ export default function (extension: string) {
 
   try {
     entryPoint = require(pathToEntryPoint).main
-  } catch (e) {}
+  } catch (e) {
+    logger.log(
+      'error',
+      `@fonos/dispatcher unable to access path to entry point`
+    )
+  }
 
   try {
     bucket = JSON.parse(`${fs.readFileSync(pathToAppConfig)}`).bucket
-  } catch (e) {}
+  } catch (e) {
+    logger.log('warrn', `@fonos/dispatcher using default storage bucket`)
+  }
 
   return {
     entryPoint: `${packageBase}/${entryPoint || 'index.js'}`,

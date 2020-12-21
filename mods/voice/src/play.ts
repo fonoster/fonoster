@@ -1,4 +1,5 @@
 import Verb from './verb'
+import logger from '@fonos/logger'
 
 interface PlayOptions {
   finishOnKey?: string
@@ -22,8 +23,12 @@ class Play extends Verb {
   run (file: string, options: PlayOptions = {}) {
     const { finishOnKey = '#' } = options
     validate(file, options)
-
+    logger.log('debug', '@fonos/voice.Play [Sending file to AGI Server]')
     const result = this.channel.streamFile(file, finishOnKey)
+    logger.log(
+      'debug',
+      `@fonos/voice.Play [rawReply from AGI '${result.rawReply}'`
+    )
 
     if (result.code === 200) return result.attributes.result
 

@@ -1,2 +1,2 @@
 // A simple hello monkeys
-module.exports = chan => chan.say('This is fonos default handler!')
+module.exports = chan => chan.say('Testing generating files')
