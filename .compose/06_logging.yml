@@ -7,8 +7,12 @@ services:
     configs:
       - source: fluent
         target: /fluentd/etc/fluent.conf  
-    networks: 
-      - fonos
+    deploy:
+      mode: global
+    networks:
+      fonos:
+        aliases: 
+          - ${LOGS_DRIVER_HOST}      
 
   logsaggregator:
     image: ${LOGS_AGGREGATOR_IMAGE}

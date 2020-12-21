@@ -17,7 +17,7 @@ services:
       LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
       LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
     volumes:
-      - data1-1:/home/fonos
+      - apps:/home/fonos/apps
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediacontroller

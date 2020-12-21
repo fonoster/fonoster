@@ -16,3 +16,7 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.tts
+    networks:
+      fonos:
+        aliases: 
+          - ${TTS_ENGINE_HOST}

@@ -20,7 +20,19 @@ Constructs a new GoogleTTS object.
 
 **Example**  
 ```js
-const GoogleTTS = require('@fonos/tts/googletts')const Storage = require('@fonos/storage')const { transcodeSync } = require('@fonos/tts/utils')// This is all done automatically when using the Say verb.module.exports = chan => {   const storage = new Storage()   const tts = new GoogleTTS()   const pathToFile = tts.synthesizeSync('Hello World')   const pathToTranscodedFile = transcodeSync(pathToFile)   const url = storage.uploadFileSync('hello-world.wav', pathToTranscodedFile)   chan.play(url)}
+const GoogleTTS = require('@fonos/tts/googletts')
+const Storage = require('@fonos/storage')
+const { transcodeSync } = require('@fonos/tts/utils')
+
+// This is all done automatically when using the Say verb.
+module.exports = chan => {
+   const storage = new Storage()
+   const tts = new GoogleTTS()
+   const pathToFile = tts.synthesizeSync('Hello World')
+   const pathToTranscodedFile = transcodeSync(pathToFile)
+   const url = storage.uploadFileSync('hello-world.wav', pathToTranscodedFile)
+   chan.play(url)
+}
 ```
 <a name="GoogleTTS+synthesize"></a>
 
