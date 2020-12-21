@@ -32,7 +32,7 @@ class Say extends Verb {
       })
     } catch (e) {
       logger.log('error', `@fonos/voice.Say [Error synthesizing audio]`)
-      throw new Error(e)
+      throw new Error(`@fonos/voice.Say [${e}]`)
     }
   }
 
