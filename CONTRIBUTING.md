@@ -11,8 +11,8 @@ top of things.
 
 ## Submitting Changes
 
-* Push your changes to your fork.
-* Submit a pull request.
+* Push your changes to your fork
+* Submit a pull request
 
 # Additional Resources
 
