@@ -20,7 +20,7 @@ const logger = winston.createLogger({
   transports: [fluent, new winston.transports.Console()]
 })
 
-// Removing in dev environment to avoid connection errors
+// Removing in dev environment to remove connection errors
 if (process.env.NODE_ENV === 'dev') {
   logger.remove(fluent)
 }
