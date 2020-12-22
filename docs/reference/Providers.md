@@ -1,9 +1,7 @@
 <a name="Providers"></a>
 
 ## Providers ⇐ <code>FonosService</code>
-Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
-to create, update, get and delete providers. Fonos Providers requires of a
-running Fonos deployment.
+Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,to create, update, get and delete providers. Fonos Providers requires of arunning Fonos deployment.
 
 **Kind**: global class  
 **Extends**: <code>FonosService</code>  
@@ -24,20 +22,7 @@ Constructs a new Providers object.
 
 **Example**  
 ```js
-const Fonos = require('@fonos/sdk')
-const providers = new Fonos.Providers()
-
-const request = {
-  name: 'Provider Name',
-  username: 'trunk001',
-  secret: 'secretkey',
-  host: 'sip.provider.net'
-}
-
-providers.createProvider(request)
-.then(result => {
-  console.log(result)             // successful response
-}).catch(e => console.error(e))   // an error occurred
+const Fonos = require('@fonos/sdk')const providers = new Fonos.Providers()const request = {  name: 'Provider Name',  username: 'trunk001',  secret: 'secretkey',  host: 'sip.provider.net'}providers.createProvider(request).then(result => {  console.log(result)             // successful response}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Providers+createProvider"></a>
 
@@ -58,17 +43,7 @@ Creates a new Provider on the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {
-  name: 'Provider Name',
-  username: 'trunk001',
-  secret: 'secretkey',
-  host: 'sip.provider.net'
-}
-
-providers.createProvider(request)
-.then(result => {
-  console.log(result)            // returns the Provider object
-}).catch(e => console.error(e))  // an error occurred
+const request = {  name: 'Provider Name',  username: 'trunk001',  secret: 'secretkey',  host: 'sip.provider.net'}providers.createProvider(request).then(result => {  console.log(result)            // returns the Provider object}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Providers+getProvider"></a>
 
@@ -88,10 +63,7 @@ Retrives a Provider by its reference.
 
 **Example**  
 ```js
-providers.getProvider(ref)
-.then(result => {
-  console.log(result)             // returns the Provider object
-}).catch(e => console.error(e))   // an error occurred
+providers.getProvider(ref).then(result => {  console.log(result)             // returns the Provider object}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Providers+updateProvider"></a>
 
@@ -113,15 +85,7 @@ Update a Provider at the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {
-  ref: '516f1577bcf86cd797439012',
-  host: 'sip.zone2.provider.net'
-}
-
-providers.updateProvider(request)
-.then(result => {
-  console.log(result)            // returns the Provider from the DB
-}).catch(e => console.error(e))  // an error occurred
+const request = {  ref: '516f1577bcf86cd797439012',  host: 'sip.zone2.provider.net'}providers.updateProvider(request).then(result => {  console.log(result)            // returns the Provider from the DB}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Providers+listProviders"></a>
 
@@ -139,21 +103,12 @@ List the Providers registered in Fonos SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {
-   pageSize: 20,
-   pageToken: 2
-}
-
-providers.listProviders(request)
-.then(() => {
-  console.log(result)            // returns a ListProvidersResponse object
-}).catch(e => console.error(e))  // an error occurred
+const request = {   pageSize: 20,   pageToken: 2}providers.listProviders(request).then(() => {  console.log(result)            // returns a ListProvidersResponse object}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Providers+deleteProvider"></a>
 
 ### providers.deleteProvider(ref)
-Deletes a Provider from SIP Proxy subsystem. Notice, that in order to delete
-a Provider, you must first delete all it's Agents.
+Deletes a Provider from SIP Proxy subsystem. Notice, that in order to deletea Provider, you must first delete all it's Agents.
 
 **Kind**: instance method of [<code>Providers</code>](#Providers)  
 
@@ -163,10 +118,5 @@ a Provider, you must first delete all it's Agents.
 
 **Example**  
 ```js
-const ref = '507f1f77bcf86cd799439011'
-
-providers.deleteProvider(ref)
-.then(() => {
-  console.log('done')            // returns an empty object
-}).catch(e => console.error(e))  // an error occurred
+const ref = '507f1f77bcf86cd799439011'providers.deleteProvider(ref).then(() => {  console.log('done')            // returns an empty object}).catch(e => console.error(e))  // an error occurred
 ```
