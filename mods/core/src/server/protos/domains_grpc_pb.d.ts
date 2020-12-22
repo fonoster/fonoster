@@ -22,9 +22,9 @@ interface IDomainsService_IListDomains
     domains_pb.ListDomainsRequest,
     domains_pb.ListDomainsResponse
   > {
-  path: string // "/fonos.domains.v1alpha1.Domains/ListDomains"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.domains.v1alpha1.Domains/ListDomains'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<domains_pb.ListDomainsRequest>
   requestDeserialize: grpc.deserialize<domains_pb.ListDomainsRequest>
   responseSerialize: grpc.serialize<domains_pb.ListDomainsResponse>
@@ -35,9 +35,9 @@ interface IDomainsService_ICreateDomain
     domains_pb.CreateDomainRequest,
     domains_pb.Domain
   > {
-  path: string // "/fonos.domains.v1alpha1.Domains/CreateDomain"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.domains.v1alpha1.Domains/CreateDomain'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<domains_pb.CreateDomainRequest>
   requestDeserialize: grpc.deserialize<domains_pb.CreateDomainRequest>
   responseSerialize: grpc.serialize<domains_pb.Domain>
@@ -48,9 +48,9 @@ interface IDomainsService_IGetDomain
     domains_pb.GetDomainRequest,
     domains_pb.Domain
   > {
-  path: string // "/fonos.domains.v1alpha1.Domains/GetDomain"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.domains.v1alpha1.Domains/GetDomain'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<domains_pb.GetDomainRequest>
   requestDeserialize: grpc.deserialize<domains_pb.GetDomainRequest>
   responseSerialize: grpc.serialize<domains_pb.Domain>
@@ -61,9 +61,9 @@ interface IDomainsService_IUpdateDomain
     domains_pb.UpdateDomainRequest,
     domains_pb.Domain
   > {
-  path: string // "/fonos.domains.v1alpha1.Domains/UpdateDomain"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.domains.v1alpha1.Domains/UpdateDomain'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<domains_pb.UpdateDomainRequest>
   requestDeserialize: grpc.deserialize<domains_pb.UpdateDomainRequest>
   responseSerialize: grpc.serialize<domains_pb.Domain>
@@ -74,9 +74,9 @@ interface IDomainsService_IDeleteDomain
     domains_pb.DeleteDomainRequest,
     common_pb.Empty
   > {
-  path: string // "/fonos.domains.v1alpha1.Domains/DeleteDomain"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.domains.v1alpha1.Domains/DeleteDomain'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<domains_pb.DeleteDomainRequest>
   requestDeserialize: grpc.deserialize<domains_pb.DeleteDomainRequest>
   responseSerialize: grpc.serialize<common_pb.Empty>

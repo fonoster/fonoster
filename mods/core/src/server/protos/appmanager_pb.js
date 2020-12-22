@@ -7,6 +7,8 @@
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
+/* eslint-disable */
+// @ts-nocheck
 
 var jspb = require('google-protobuf');
 var goog = jspb;
@@ -1331,7 +1333,8 @@ proto.fonos.appmanager.v1alpha1.App.Status = {
   UNKNOWN: 0,
   CREATING: 1,
   RUNNING: 2,
-  STOPPED: 3
+  STOPPED: 3,
+  REMOVED: 4
 };
 
 /**

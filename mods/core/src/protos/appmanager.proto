@@ -81,6 +81,8 @@ message App {
     RUNNING = 2;
     // Was stopped from by the client
     STOPPED = 3;
+    // Application was hidden
+    REMOVED = 4;
   }
   string name = 1;
   string description = 2;

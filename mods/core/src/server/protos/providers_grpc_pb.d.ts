@@ -22,9 +22,9 @@ interface IProvidersService_IListProviders
     providers_pb.ListProvidersRequest,
     providers_pb.ListProvidersResponse
   > {
-  path: string // "/fonos.providers.v1alpha1.Providers/ListProviders"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.providers.v1alpha1.Providers/ListProviders'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<providers_pb.ListProvidersRequest>
   requestDeserialize: grpc.deserialize<providers_pb.ListProvidersRequest>
   responseSerialize: grpc.serialize<providers_pb.ListProvidersResponse>
@@ -35,9 +35,9 @@ interface IProvidersService_ICreateProvider
     providers_pb.CreateProviderRequest,
     providers_pb.Provider
   > {
-  path: string // "/fonos.providers.v1alpha1.Providers/CreateProvider"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.providers.v1alpha1.Providers/CreateProvider'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<providers_pb.CreateProviderRequest>
   requestDeserialize: grpc.deserialize<providers_pb.CreateProviderRequest>
   responseSerialize: grpc.serialize<providers_pb.Provider>
@@ -48,9 +48,9 @@ interface IProvidersService_IGetProvider
     providers_pb.GetProviderRequest,
     providers_pb.Provider
   > {
-  path: string // "/fonos.providers.v1alpha1.Providers/GetProvider"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.providers.v1alpha1.Providers/GetProvider'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<providers_pb.GetProviderRequest>
   requestDeserialize: grpc.deserialize<providers_pb.GetProviderRequest>
   responseSerialize: grpc.serialize<providers_pb.Provider>
@@ -61,9 +61,9 @@ interface IProvidersService_IUpdateProvider
     providers_pb.UpdateProviderRequest,
     providers_pb.Provider
   > {
-  path: string // "/fonos.providers.v1alpha1.Providers/UpdateProvider"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.providers.v1alpha1.Providers/UpdateProvider'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<providers_pb.UpdateProviderRequest>
   requestDeserialize: grpc.deserialize<providers_pb.UpdateProviderRequest>
   responseSerialize: grpc.serialize<providers_pb.Provider>
@@ -74,9 +74,9 @@ interface IProvidersService_IDeleteProvider
     providers_pb.DeleteProviderRequest,
     common_pb.Empty
   > {
-  path: string // "/fonos.providers.v1alpha1.Providers/DeleteProvider"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.providers.v1alpha1.Providers/DeleteProvider'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<providers_pb.DeleteProviderRequest>
   requestDeserialize: grpc.deserialize<providers_pb.DeleteProviderRequest>
   responseSerialize: grpc.serialize<common_pb.Empty>
