@@ -103,7 +103,7 @@ function deserialize_fonos_common_v1alpha1_Empty(buffer_arg) {
 
 var AppManagerService = exports.AppManagerService = {
   // Lists user applications
-listApps: {
+  listApps: {
     path: '/fonos.appmanager.v1alpha1.AppManager/ListApps',
     requestStream: false,
     responseStream: false,
@@ -115,7 +115,7 @@ listApps: {
     responseDeserialize: deserialize_fonos_appmanager_v1alpha1_ListAppsResponse,
   },
   // Gets app with the app-name
-getApp: {
+  getApp: {
     path: '/fonos.appmanager.v1alpha1.AppManager/GetApp',
     requestStream: false,
     responseStream: false,
@@ -127,13 +127,13 @@ getApp: {
     responseDeserialize: deserialize_fonos_appmanager_v1alpha1_App,
   },
   // Creates a new resource type app. Fails with ALREADY_EXISTS if
-// app-name is present in the system. The application creation, consist of:
-//
-//    1. Validing a Fonos App
-//    2. Zipping (or taring) the application
-//    3. Uploading the the file to a fonos endpoint
-//    4. Registering and activatng the application
-createApp: {
+  // app-name is present in the system. The application creation, consist of:
+  //
+  //    1. Validing a Fonos App
+  //    2. Zipping (or taring) the application
+  //    3. Uploading the the file to a fonos endpoint
+  //    4. Registering and activatng the application
+  createApp: {
     path: '/fonos.appmanager.v1alpha1.AppManager/CreateApp',
     requestStream: false,
     responseStream: false,
@@ -145,7 +145,7 @@ createApp: {
     responseDeserialize: deserialize_fonos_appmanager_v1alpha1_App,
   },
   // Updates an app resource
-updateApp: {
+  updateApp: {
     path: '/fonos.appmanager.v1alpha1.AppManager/UpdateApp',
     requestStream: false,
     responseStream: false,
@@ -157,7 +157,7 @@ updateApp: {
     responseDeserialize: deserialize_fonos_appmanager_v1alpha1_App,
   },
   // Peforms a hard delete of the app resource
-deleteApp: {
+  deleteApp: {
     path: '/fonos.appmanager.v1alpha1.AppManager/DeleteApp',
     requestStream: false,
     responseStream: false,
