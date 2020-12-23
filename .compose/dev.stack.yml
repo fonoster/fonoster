@@ -31,6 +31,7 @@ services:
       FS_USERNAME: minio
       LOGS_DRIVER_HOST: logsdriver.fonos
       LOGS_DRIVER_PORT: '24224'
+      MS_ENDPOINT: ast@sip.local
       SIPPROXY_API_PORT: '4567'
       SIPPROXY_API_SECRET: changeit
       SIPPROXY_API_USERNAME: admin
