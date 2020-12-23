@@ -22,9 +22,9 @@ interface IAppManagerService_IListApps
     appmanager_pb.ListAppsRequest,
     appmanager_pb.ListAppsResponse
   > {
-  path: string // "/fonos.appmanager.v1alpha1.AppManager/ListApps"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.appmanager.v1alpha1.AppManager/ListApps'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<appmanager_pb.ListAppsRequest>
   requestDeserialize: grpc.deserialize<appmanager_pb.ListAppsRequest>
   responseSerialize: grpc.serialize<appmanager_pb.ListAppsResponse>
@@ -35,9 +35,9 @@ interface IAppManagerService_IGetApp
     appmanager_pb.GetAppRequest,
     appmanager_pb.App
   > {
-  path: string // "/fonos.appmanager.v1alpha1.AppManager/GetApp"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.appmanager.v1alpha1.AppManager/GetApp'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<appmanager_pb.GetAppRequest>
   requestDeserialize: grpc.deserialize<appmanager_pb.GetAppRequest>
   responseSerialize: grpc.serialize<appmanager_pb.App>
@@ -48,9 +48,9 @@ interface IAppManagerService_ICreateApp
     appmanager_pb.CreateAppRequest,
     appmanager_pb.App
   > {
-  path: string // "/fonos.appmanager.v1alpha1.AppManager/CreateApp"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.appmanager.v1alpha1.AppManager/CreateApp'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<appmanager_pb.CreateAppRequest>
   requestDeserialize: grpc.deserialize<appmanager_pb.CreateAppRequest>
   responseSerialize: grpc.serialize<appmanager_pb.App>
@@ -61,9 +61,9 @@ interface IAppManagerService_IUpdateApp
     appmanager_pb.UpdateAppRequest,
     appmanager_pb.App
   > {
-  path: string // "/fonos.appmanager.v1alpha1.AppManager/UpdateApp"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.appmanager.v1alpha1.AppManager/UpdateApp'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<appmanager_pb.UpdateAppRequest>
   requestDeserialize: grpc.deserialize<appmanager_pb.UpdateAppRequest>
   responseSerialize: grpc.serialize<appmanager_pb.App>
@@ -74,9 +74,9 @@ interface IAppManagerService_IDeleteApp
     appmanager_pb.DeleteAppRequest,
     common_pb.Empty
   > {
-  path: string // "/fonos.appmanager.v1alpha1.AppManager/DeleteApp"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.appmanager.v1alpha1.AppManager/DeleteApp'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<appmanager_pb.DeleteAppRequest>
   requestDeserialize: grpc.deserialize<appmanager_pb.DeleteAppRequest>
   responseSerialize: grpc.serialize<common_pb.Empty>

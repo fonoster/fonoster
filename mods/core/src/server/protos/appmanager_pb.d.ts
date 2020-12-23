@@ -268,6 +268,7 @@ export namespace App {
     UNKNOWN = 0,
     CREATING = 1,
     RUNNING = 2,
-    STOPPED = 3
+    STOPPED = 3,
+    REMOVED = 4
   }
 }
