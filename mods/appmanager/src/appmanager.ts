@@ -92,7 +92,7 @@ export default class AppManager extends FonosService {
         )
       }
 
-      let bucket = 'default'
+      let bucket = process.env.FS_DEFAULT_STORAGE_BUCKET
 
       try {
         const fonosConfigFile = fs.readFileSync(

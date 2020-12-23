@@ -17,7 +17,7 @@ const getConfigFile = () =>
 
 const defaultOptions = {
   endpoint: process.env.APISERVER_ENDPOINT || 'localhost:50052',
-  bucket: 'default'
+  bucket: process.env.FS_DEFAULT_STORAGE_BUCKET
 }
 
 export default class Service {
