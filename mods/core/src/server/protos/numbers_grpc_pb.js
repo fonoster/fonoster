@@ -126,7 +126,7 @@ function deserialize_fonos_numbers_v1alpha1_UpdateNumberRequest(buffer_arg) {
 
 var NumbersService = exports.NumbersService = {
   // Lists Numbers from the SIP Proxy subsystem
-listNumbers: {
+  listNumbers: {
     path: '/fonos.numbers.v1alpha1.Numbers/ListNumbers',
     requestStream: false,
     responseStream: false,
@@ -138,7 +138,7 @@ listNumbers: {
     responseDeserialize: deserialize_fonos_numbers_v1alpha1_ListNumbersResponse,
   },
   // Creates a new Number resource.
-createNumber: {
+  createNumber: {
     path: '/fonos.numbers.v1alpha1.Numbers/CreateNumber',
     requestStream: false,
     responseStream: false,
@@ -150,7 +150,7 @@ createNumber: {
     responseDeserialize: deserialize_fonos_numbers_v1alpha1_Number,
   },
   // Get an app for a given e164 number
-getIngressApp: {
+  getIngressApp: {
     path: '/fonos.numbers.v1alpha1.Numbers/GetIngressApp',
     requestStream: false,
     responseStream: false,
@@ -162,7 +162,7 @@ getIngressApp: {
     responseDeserialize: deserialize_fonos_appmanager_v1alpha1_App,
   },
   // Gets Number using its reference
-getNumber: {
+  getNumber: {
     path: '/fonos.numbers.v1alpha1.Numbers/GetNumber',
     requestStream: false,
     responseStream: false,
@@ -174,7 +174,7 @@ getNumber: {
     responseDeserialize: deserialize_fonos_numbers_v1alpha1_Number,
   },
   // Change or update fields in a resource
-updateNumber: {
+  updateNumber: {
     path: '/fonos.numbers.v1alpha1.Numbers/UpdateNumber',
     requestStream: false,
     responseStream: false,
@@ -186,7 +186,7 @@ updateNumber: {
     responseDeserialize: deserialize_fonos_numbers_v1alpha1_Number,
   },
   // Hard delete of a Number resource
-deleteNumber: {
+  deleteNumber: {
     path: '/fonos.numbers.v1alpha1.Numbers/DeleteNumber',
     requestStream: false,
     responseStream: false,

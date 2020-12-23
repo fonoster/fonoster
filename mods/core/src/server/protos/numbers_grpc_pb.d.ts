@@ -24,9 +24,9 @@ interface INumbersService_IListNumbers
     numbers_pb.ListNumbersRequest,
     numbers_pb.ListNumbersResponse
   > {
-  path: string // "/fonos.numbers.v1alpha1.Numbers/ListNumbers"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.numbers.v1alpha1.Numbers/ListNumbers'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<numbers_pb.ListNumbersRequest>
   requestDeserialize: grpc.deserialize<numbers_pb.ListNumbersRequest>
   responseSerialize: grpc.serialize<numbers_pb.ListNumbersResponse>
@@ -37,9 +37,9 @@ interface INumbersService_ICreateNumber
     numbers_pb.CreateNumberRequest,
     numbers_pb.Number
   > {
-  path: string // "/fonos.numbers.v1alpha1.Numbers/CreateNumber"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.numbers.v1alpha1.Numbers/CreateNumber'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<numbers_pb.CreateNumberRequest>
   requestDeserialize: grpc.deserialize<numbers_pb.CreateNumberRequest>
   responseSerialize: grpc.serialize<numbers_pb.Number>
@@ -50,9 +50,9 @@ interface INumbersService_IGetIngressApp
     numbers_pb.GetIngressAppRequest,
     appmanager_pb.App
   > {
-  path: string // "/fonos.numbers.v1alpha1.Numbers/GetIngressApp"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.numbers.v1alpha1.Numbers/GetIngressApp'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<numbers_pb.GetIngressAppRequest>
   requestDeserialize: grpc.deserialize<numbers_pb.GetIngressAppRequest>
   responseSerialize: grpc.serialize<appmanager_pb.App>
@@ -63,9 +63,9 @@ interface INumbersService_IGetNumber
     numbers_pb.GetNumberRequest,
     numbers_pb.Number
   > {
-  path: string // "/fonos.numbers.v1alpha1.Numbers/GetNumber"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.numbers.v1alpha1.Numbers/GetNumber'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<numbers_pb.GetNumberRequest>
   requestDeserialize: grpc.deserialize<numbers_pb.GetNumberRequest>
   responseSerialize: grpc.serialize<numbers_pb.Number>
@@ -76,9 +76,9 @@ interface INumbersService_IUpdateNumber
     numbers_pb.UpdateNumberRequest,
     numbers_pb.Number
   > {
-  path: string // "/fonos.numbers.v1alpha1.Numbers/UpdateNumber"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.numbers.v1alpha1.Numbers/UpdateNumber'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<numbers_pb.UpdateNumberRequest>
   requestDeserialize: grpc.deserialize<numbers_pb.UpdateNumberRequest>
   responseSerialize: grpc.serialize<numbers_pb.Number>
@@ -89,9 +89,9 @@ interface INumbersService_IDeleteNumber
     numbers_pb.DeleteNumberRequest,
     common_pb.Empty
   > {
-  path: string // "/fonos.numbers.v1alpha1.Numbers/DeleteNumber"
-  requestStream: boolean // false
-  responseStream: boolean // false
+  path: '/fonos.numbers.v1alpha1.Numbers/DeleteNumber'
+  requestStream: false
+  responseStream: false
   requestSerialize: grpc.serialize<numbers_pb.DeleteNumberRequest>
   requestDeserialize: grpc.deserialize<numbers_pb.DeleteNumberRequest>
   responseSerialize: grpc.serialize<common_pb.Empty>
