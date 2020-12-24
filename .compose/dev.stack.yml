@@ -58,6 +58,9 @@ services:
     - --appendonly
     - "yes"
     deploy:
+      placement:
+        constraints:
+        - node.role == manager
       restart_policy:
         condition: on-failure
     healthcheck:
@@ -284,7 +287,5 @@ volumes:
   apps:
     external: true
     name: apps
-  datasource:
-    external: true
-    name: datasource
+  datasource: {}
 

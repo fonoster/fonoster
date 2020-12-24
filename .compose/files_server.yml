@@ -7,6 +7,9 @@ services:
       restart_policy: 
         condition: on-failure
     image: ${FS_IMAGE}
+    deploy:
+      placement:
+        constraints: [node.role == manager]    
     volumes:
       - data1-1:/fonos
     environment:

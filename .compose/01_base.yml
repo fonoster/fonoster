@@ -43,6 +43,9 @@ services:
       file: common.yml
       service: common 
     image: ${DS_IMAGE}
+    deploy:
+      placement:
+        constraints: [node.role == manager]    
     command: ['redis-server', '--appendonly', 'yes' ]
     healthcheck:
       test: ['CMD', 'redis-cli','ping']
