@@ -26,6 +26,14 @@ class Say extends Verb {
         metadata
       })
 
+      if (process.env.NODE_ENV === 'dev') {
+        logger.log(
+          'debug',
+          '@fonos/voice.Say [generating file url using enviroment variables from client side]'
+        )
+        return `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${filename}`
+      }
+
       return this.config.storage.getObjectURLSync({
         name: filename,
         bucket: this.config.bucket
@@ -47,8 +55,6 @@ class Say extends Verb {
         bucket: this.config.bucket
       })
 
-      // We add this because in development the files server
-      // could be at a remote network
       if (process.env.NODE_ENV === 'dev') {
         logger.log(
           'debug',

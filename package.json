@@ -16,7 +16,7 @@
     "gen-proto": "./etc/gen_code_proto.sh",
     "run-init": "export NODE_ENV=dev && node mods/core/dist/common/fsutils",
     "run-apiserver": "export NODE_ENV=dev && node mods/core/dist/server/server",
-    "run-mediacontroller": "export NODE_ENV=dev && nodemon  mods/dispatcher/dist/dispatcher"
+    "run-mediacontroller": "export NODE_ENV=dev && nodemon mods/dispatcher/dist/dispatcher"
   },
   "main": "docs",
   "devDependencies": {
