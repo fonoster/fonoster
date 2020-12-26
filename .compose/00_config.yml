@@ -22,3 +22,5 @@ configs:
     external: true
   bootstrap:
     external: true
+  redis-conf:
+    external: true

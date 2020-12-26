@@ -5,6 +5,9 @@ configs:
   fluent:
     external: true
     name: fluent
+  redis-conf:
+    external: true
+    name: redis-conf
 networks:
   fonos: {}
 secrets:
@@ -55,8 +58,10 @@ services:
   datasource:
     command:
     - redis-server
-    - --appendonly
-    - "yes"
+    - /etc/redis/redis.conf
+    configs:
+    - source: redis-conf
+      target: /etc/redis/redis.conf
     deploy:
       placement:
         constraints:
