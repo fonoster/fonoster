@@ -82,6 +82,7 @@
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",
     "@oclif/plugin-help": "^2.2.3",
+    "@types/update-notifier": "^5.0.0",
     "btoa": "^1.2.1",
     "cli-ux": "^5.4.5",
     "dockerode": "^3.2.1",
@@ -92,7 +93,9 @@
     "ora": "^4.0.3",
     "prettyjson": "^1.2.1",
     "truncate": "^2.1.0",
-    "tslib": "^1"
+    "ts-node": "^9.1.1",
+    "tslib": "^1",
+    "update-notifier": "^5.0.1"
   },
   "devDependencies": {
     "@types/dockerode": "^2.5.34",
