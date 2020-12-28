@@ -1,19 +1,18 @@
 import { UpdateNotifier } from 'update-notifier'
 const pkg = require('../package.json')
 
-export function Notifier () {
+export function checkUpdate () {
   const notifier = new UpdateNotifier({
     pkg: {
       name: '@fonos/ctl',
       version: pkg.version
-    },
-    updateCheckInterval: 1000 * 60 * 60 * 24
+    }
   })
 
   notifier.check()
 
   if (notifier.update) {
-    let message = `
+    const message = `
       Update available: ${notifier.update.current} -> ${notifier.update.latest}
       To install run npm i @fonos/ctl \n`
 

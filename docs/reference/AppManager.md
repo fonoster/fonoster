@@ -1,7 +1,9 @@
 <a name="AppManager"></a>
 
 ## AppManager ⇐ <code>FonosService</code>
-Use Fonos AppManager, a capability of Fonos Systems Manager,to create, manage, and deploy an applications. Fonos AppManager requires of arunning Fonos deployment.
+Use Fonos AppManager, a capability of Fonos Systems Manager,
+to create, manage, and deploy an applications. Fonos AppManager requires of a
+running Fonos deployment.
 
 **Kind**: global class  
 **Extends**: <code>FonosService</code>  
@@ -21,7 +23,13 @@ Constructs a new AppManager Object.
 
 **Example**  
 ```js
-const Fonos = require('@fonos/sdk')const appManager = new Fonos.AppManager()appManager.deployApp('/path/to/app').then(result => {  console.log(result)             // successful response}).catch(e => console.error(e))   // an error occurred
+const Fonos = require('@fonos/sdk')
+const appManager = new Fonos.AppManager()
+
+appManager.deployApp('/path/to/app')
+.then(result => {
+  console.log(result)             // successful response
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="AppManager+deployApp"></a>
 
@@ -38,7 +46,8 @@ Deploys an application to Fonos.
 
 **Todo**
 
-- [ ] if the file uploading fails the state of the application shouldchange to UNKNOWN.
+- [ ] if the file uploading fails the state of the application should
+change to UNKNOWN.
 
 
 | Param | Type | Description |
@@ -47,7 +56,12 @@ Deploys an application to Fonos.
 
 **Example**  
 ```js
-const path = '/path/to/project'appManager.deployApp(path).then(result => {  console.log(result)            // returns the app object}).catch(e => console.error(e))   // an error occurred
+const path = '/path/to/project'
+
+appManager.deployApp(path)
+.then(result => {
+  console.log(result)            // returns the app object
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="AppManager+getApp"></a>
 
@@ -67,7 +81,10 @@ Retrives an application by name.
 
 **Example**  
 ```js
-appManager.getApp(name).then(result => {  console.log(result)             // returns the app object}).catch(e => console.error(e))   // an error occurred
+appManager.getApp(name)
+.then(result => {
+  console.log(result)             // returns the app object
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="AppManager+deleteApp"></a>
 
@@ -87,7 +104,10 @@ Deletes an application already registered in Fonos.
 
 **Example**  
 ```js
-appManager.deleteApp(name).then(() => {  console.log('finished')        // returns an empty object}).catch(e => console.error(e))  // an error occurred
+appManager.deleteApp(name)
+.then(() => {
+  console.log('finished')        // returns an empty object
+}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="AppManager+listApps"></a>
 
@@ -105,5 +125,13 @@ List the applications registered in Fonos.
 
 **Example**  
 ```js
-const request = {   pageSize: 20,   pageToken: 2}appManager.listApps(request).then(result => {  console.log(result)            // returns a ListAppsResponse}).catch(e => console.error(e))  // an error occurred
+const request = {
+   pageSize: 20,
+   pageToken: 2
+}
+
+appManager.listApps(request)
+.then(result => {
+  console.log(result)            // returns a ListAppsResponse
+}).catch(e => console.error(e))  // an error occurred
 ```

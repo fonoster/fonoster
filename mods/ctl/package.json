@@ -82,7 +82,6 @@
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",
     "@oclif/plugin-help": "^2.2.3",
-    "@types/update-notifier": "^5.0.0",
     "btoa": "^1.2.1",
     "cli-ux": "^5.4.5",
     "dockerode": "^3.2.1",
@@ -100,6 +99,7 @@
   "devDependencies": {
     "@types/dockerode": "^2.5.34",
     "@types/prettyjson": "0.0.29",
+    "@types/update-notifier": "^5.0.0",
     "dotenv": "^8.2.0",
     "typescript": "^3.9.3"
   }

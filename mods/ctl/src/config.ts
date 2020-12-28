@@ -1,4 +1,4 @@
 import { mute } from '@fonos/logger'
-import { Notifier } from './update_notifier'
+import { checkUpdate } from './update_notifier'
 mute()
-Notifier()
+checkUpdate()
