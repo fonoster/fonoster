@@ -6,9 +6,13 @@ services:
     image: ${LOGS_DRIVER_IMAGE}
     configs:
       - source: fluent
-        target: /fluentd/etc/fluent.conf
-    networks: 
-      - fonos
+        target: /fluentd/etc/fluent.conf  
+    deploy:
+      mode: global
+    networks:
+      fonos:
+        aliases: 
+          - ${LOGS_DRIVER_HOST}      
 
   logsaggregator:
     image: ${LOGS_AGGREGATOR_IMAGE}
@@ -25,6 +29,3 @@ services:
       ELASTICSEARCH_HOSTS: http://logsaggregator:${LOGS_AGGREGRATOR_PORT}
     networks: 
       - fonos
-configs:
-  fluent:
-    external: true

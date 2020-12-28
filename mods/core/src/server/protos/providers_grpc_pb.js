@@ -103,7 +103,7 @@ function deserialize_fonos_providers_v1alpha1_UpdateProviderRequest(buffer_arg) 
 
 var ProvidersService = exports.ProvidersService = {
   // Lists Providers from the SIP Proxy subsystem
-listProviders: {
+  listProviders: {
     path: '/fonos.providers.v1alpha1.Providers/ListProviders',
     requestStream: false,
     responseStream: false,
@@ -115,7 +115,7 @@ listProviders: {
     responseDeserialize: deserialize_fonos_providers_v1alpha1_ListProvidersResponse,
   },
   // Creates a new Provider resource.
-createProvider: {
+  createProvider: {
     path: '/fonos.providers.v1alpha1.Providers/CreateProvider',
     requestStream: false,
     responseStream: false,
@@ -127,7 +127,7 @@ createProvider: {
     responseDeserialize: deserialize_fonos_providers_v1alpha1_Provider,
   },
   // Gets Provider using its reference
-getProvider: {
+  getProvider: {
     path: '/fonos.providers.v1alpha1.Providers/GetProvider',
     requestStream: false,
     responseStream: false,
@@ -139,7 +139,7 @@ getProvider: {
     responseDeserialize: deserialize_fonos_providers_v1alpha1_Provider,
   },
   // Change or update fields in a resource
-updateProvider: {
+  updateProvider: {
     path: '/fonos.providers.v1alpha1.Providers/UpdateProvider',
     requestStream: false,
     responseStream: false,
@@ -151,7 +151,7 @@ updateProvider: {
     responseDeserialize: deserialize_fonos_providers_v1alpha1_Provider,
   },
   // Hard delete of a Provider resource
-deleteProvider: {
+  deleteProvider: {
     path: '/fonos.providers.v1alpha1.Providers/DeleteProvider',
     requestStream: false,
     responseStream: false,

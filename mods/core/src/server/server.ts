@@ -1,4 +1,10 @@
 import path from 'path'
+
+if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
+  const env = path.join(__dirname, '..', '..', '..', '..', '.env')
+  require('dotenv').config({ path: env })
+}
+
 import logger from '@fonos/logger'
 import grpc from 'grpc'
 import StorageServer, {
@@ -21,11 +27,6 @@ import {
   HealthCheckResponse,
   HealthService
 } from 'grpc-ts-health-check'
-
-if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
-  const env = path.join(__dirname, '..', '..', '..', '..', '.env')
-  require('dotenv').config({ path: env })
-}
 
 const healthCheckStatusMap = {
   '': HealthCheckResponse.ServingStatus.SERVING

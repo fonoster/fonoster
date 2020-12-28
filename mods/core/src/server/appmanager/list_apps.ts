@@ -14,7 +14,9 @@ export default async function (pageToken: number, pageSize: number) {
 
   for (const idx in appsNames) {
     const jsonString = await redis.get(appsNames[idx])
-    apps.push(jsonToApp(JSON.parse(jsonString)))
+    const app: App = jsonToApp(JSON.parse(jsonString))
+    if (App.Status.REMOVED != app.getStatus())
+      apps.push(jsonToApp(JSON.parse(jsonString)))
   }
 
   upperRange++

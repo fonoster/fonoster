@@ -21,6 +21,7 @@ config/*.yml
 mod/vendor
 jre
 site
+.env
 
 # User-specific stuff:
 .idea/workspace.xml

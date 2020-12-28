@@ -1,6 +1,6 @@
 const config = {
   finishOnKey: '*',
-  timeout: 1,
+  timeout: 2000,
   numDigits: 1
 }
 
@@ -26,7 +26,7 @@ module.exports = chan => {
   )
 
   const key = chan.gather(
-    chan.say('If you would like to be remove from our list, press 7'),
+    chan.say('If you would like to be remove from our list, press 7', { finishOnKey: '7' }),
     { timeout: 2, numDigits: 1 }
   )
 
@@ -34,7 +34,7 @@ module.exports = chan => {
 
   if (key === 7) removeFromList()
 
-  runMenu()
+  runMenu(chan)
 
   chan.say(
     'Thank you for participating. Review the results at www.georgia.gov. Goodbye!'
@@ -56,7 +56,7 @@ function removeFromList (chan) {
       }
     })
 }
-
+ 
 function runMenu (chan) {
   while (true) {
     const key = chan.gather(

@@ -1,0 +1,27 @@
+# Optional configuration for development environments
+
+services:
+
+  logsdriver:
+    ports:
+      - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}
+  apiserver:
+    environment:
+      ALLOW_INSECURE: 'true'
+  datasource:
+    ports:
+    - ${DS_PORT}:${DS_PORT}
+  eventsbroker:
+    ports:
+    - ${EB_PORT}:${EB_PORT}
+  sipproxy:
+    ports:
+    - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
+    - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
+  tts:
+    ports:
+    - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
+  mediaserver:
+    extends:
+      file: dev.mediaserver.yml
+      service: mediaserver 

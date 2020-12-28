@@ -7,8 +7,8 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "@fonos/googleasr": "0.0.41",
-    "@fonos/googletts": "0.0.41",
+    "@fonos/googleasr": "0.0.50",
+    "@fonos/googletts": "0.0.50",
     "@google-cloud/dialogflow": "^3.2.0"
   }
 }

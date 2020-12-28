@@ -19,15 +19,3 @@
   spec:
     context:
       domainUri: sip.local
-
-# Agents need Domains
-
-- apiVersion: v1beta1
-  kind: Agent
-  metadata:
-    name: John Doe
-  spec:
-    credentials:
-      username: '1001'
-      secret: '1234'
-    domains: [sip.local]

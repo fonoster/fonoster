@@ -1,6 +1,6 @@
 {
   "name": "@fonos/ctl",
-  "version": "0.0.47",
+  "version": "0.0.51",
   "description": "Command-Line for Fonos",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -71,13 +71,13 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/agents": "^0.0.47",
-    "@fonos/appmanager": "^0.0.47",
-    "@fonos/core": "^0.0.47",
-    "@fonos/domains": "^0.0.47",
-    "@fonos/logger": "^0.0.47",
-    "@fonos/numbers": "^0.0.47",
-    "@fonos/providers": "^0.0.47",
+    "@fonos/agents": "^0.0.51",
+    "@fonos/appmanager": "^0.0.51",
+    "@fonos/core": "^0.0.51",
+    "@fonos/domains": "^0.0.51",
+    "@fonos/logger": "^0.0.51",
+    "@fonos/numbers": "^0.0.51",
+    "@fonos/providers": "^0.0.51",
     "@kubernetes/client-node": "^0.12.0",
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",
@@ -92,11 +92,14 @@
     "ora": "^4.0.3",
     "prettyjson": "^1.2.1",
     "truncate": "^2.1.0",
-    "tslib": "^1"
+    "ts-node": "^9.1.1",
+    "tslib": "^1",
+    "update-notifier": "^5.0.1"
   },
   "devDependencies": {
     "@types/dockerode": "^2.5.34",
     "@types/prettyjson": "0.0.29",
+    "@types/update-notifier": "^5.0.0",
     "dotenv": "^8.2.0",
     "typescript": "^3.9.3"
   }

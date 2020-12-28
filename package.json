@@ -1,6 +1,13 @@
 {
   "name": "root",
   "private": true,
+  "nodemonConfig": {
+    "watch": [
+      "./mods/",
+      "./examples/"
+    ],
+    "ext": "js"
+  },
   "scripts": {
     "bootstrap": "lerna bootstrap --no-ci",
     "test": "export NODE_ENV=dev && mocha -r ts-node/register mods/**/*.unit.test.ts",
@@ -9,7 +16,7 @@
     "gen-proto": "./etc/gen_code_proto.sh",
     "run-init": "export NODE_ENV=dev && node mods/core/dist/common/fsutils",
     "run-apiserver": "export NODE_ENV=dev && node mods/core/dist/server/server",
-    "run-mediacontroller": "export NODE_ENV=dev && node mods/dispatcher/dist/dispatcher"
+    "run-mediacontroller": "export NODE_ENV=dev && nodemon mods/dispatcher/dist/dispatcher"
   },
   "main": "docs",
   "devDependencies": {
@@ -22,7 +29,7 @@
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.2",
     "dedent": "^0.7.0",
-    "grpc_tools_node_protoc_ts": "^4.0.0",
+    "grpc_tools_node_protoc_ts": "^4.1.5",
     "husky": "^4.2.5",
     "jsdoc-to-markdown": "^6.0.1",
     "lerna": "^3.22.1",
@@ -48,6 +55,7 @@
   "dependencies": {
     "@fonos/ctl": "0.0.38",
     "google-protobuf": "^3.12.2",
+    "grpc-tools": "^1.7.0",
     "nodemon": "^2.0.4"
   }
 }

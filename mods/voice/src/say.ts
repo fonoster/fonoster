@@ -13,22 +13,35 @@ class Say extends Verb {
   }
 
   private synth (text: string, filename: string, options?: any): string {
-    const pathToFile = this.config.tts.synthesizeSync(text, options)
+    try {
+      const pathToFile = this.config.tts.synthesizeSync(text, options)
 
-    const pathToTranscodedFile = path.join(path.dirname(pathToFile), filename)
-    transcodeSync(pathToFile, pathToTranscodedFile)
+      const pathToTranscodedFile = path.join(path.dirname(pathToFile), filename)
+      transcodeSync(pathToFile, pathToTranscodedFile)
 
-    const metadata = { 'Content-Type': 'audio/x-wav' }
-    this.config.storage.uploadObjectSync({
-      filename: pathToTranscodedFile,
-      bucket: this.config.bucket,
-      metadata
-    })
+      const metadata = { 'Content-Type': 'audio/x-wav' }
+      this.config.storage.uploadObjectSync({
+        filename: pathToTranscodedFile,
+        bucket: this.config.bucket,
+        metadata
+      })
 
-    return this.config.storage.getObjectURLSync({
-      name: filename,
-      bucket: this.config.bucket
-    })
+      if (process.env.NODE_ENV === 'dev') {
+        logger.log(
+          'debug',
+          '@fonos/voice.Say [generating file url using enviroment variables from client side]'
+        )
+        return `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${filename}`
+      }
+
+      return this.config.storage.getObjectURLSync({
+        name: filename,
+        bucket: this.config.bucket
+      })
+    } catch (e) {
+      logger.log('error', '@fonos/voice.Say [error synthesizing audio]')
+      throw new Error(`@fonos/voice.Say [${e}]`)
+    }
   }
 
   run (text: string, options: PlayOptions): string {
@@ -41,6 +54,14 @@ class Say extends Verb {
         name: filename,
         bucket: this.config.bucket
       })
+
+      if (process.env.NODE_ENV === 'dev') {
+        logger.log(
+          'debug',
+          '@fonos/voice.Say [generating file url using enviroment variables from client side]'
+        )
+        url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${filename}`
+      }
     } catch (e) {
       logger.log(
         'warn',
@@ -49,8 +70,11 @@ class Say extends Verb {
     }
 
     if (!url) url = this.synth(text, filename, options)
-
-    return new Play(this.channel, this.config).run(url, options)
+    try {
+      return new Play(this.channel, this.config).run(url, options)
+    } catch (e) {
+      throw new Error(`@fonos/voice.Say [${e}] (failed to play)`)
+    }
   }
 }
 

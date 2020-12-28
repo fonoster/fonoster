@@ -1,1 +1,27 @@
-# TODO: Add MS component
+# Asterisk base Media Sever
+
+services:
+
+  mediaserver:
+    extends:
+      file: common.yml
+      service: common
+    image: ${MS_IMAGE}
+    environment:
+      EXTERN_ADDR: ${HOST_ADDR}
+      EXTERN_PORT: ${MS_SIP_PORT}
+      AGI_URL: agi://${MC_HOST}
+      SIPPROXY_HOST: ${SIPPROXY_HOST}
+      SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
+      SIPPROXY_SECRET: ${SIPPROXY_SECRET}
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
+    deploy:
+      placement:
+        constraints:
+          - node.labels.topic == sip
+    networks:
+      fonos:
+        aliases:
+          - ${MS_HOST}

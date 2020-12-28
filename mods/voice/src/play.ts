@@ -1,4 +1,5 @@
 import Verb from './verb'
+import logger from '@fonos/logger'
 
 interface PlayOptions {
   finishOnKey?: string
@@ -22,12 +23,30 @@ class Play extends Verb {
   run (file: string, options: PlayOptions = {}) {
     const { finishOnKey = '#' } = options
     validate(file, options)
-
+    logger.log(
+      'debug',
+      `@fonos/voice.Play [streaming file '${file}' from Media Server to endpoint]`
+    )
     const result = this.channel.streamFile(file, finishOnKey)
+    logger.log(
+      'debug',
+      `@fonos/voice.Play [rawReply from Media Server '${result.rawReply}'`
+    )
 
-    if (result.code === 200) return result.attributes.result
+    if (result.code === 200) {
+      const res = parseInt(result.attributes.result)
+      if (res > 1) {
+        const charFromCode = String.fromCharCode(res)
+        logger.log('debug', `@fonos/voice.Play [key pressed '${charFromCode}'`)
+        return charFromCode
+      }
+      if (res === 0) {
+        logger.log('debug', `@fonos/voice.Play [key pressed ''`)
+        return ''
+      }
+    }
 
-    throw result.rawReply
+    throw new Error(result.rawReply)
   }
 }
 
