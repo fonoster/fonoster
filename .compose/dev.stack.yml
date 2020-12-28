@@ -170,8 +170,6 @@ services:
       placement:
         constraints:
         - node.labels.topic == sip
-      restart_policy:
-        condition: on-failure
     environment:
       AGI_URL: agi://mediacontroller.fonos
       ENABLE_TEST_ACCOUNT: "true"
