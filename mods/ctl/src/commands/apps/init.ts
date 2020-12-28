@@ -5,7 +5,6 @@ const nodePlop = require('node-plop')
 const plop = nodePlop(join(__dirname, '..', '..', '..', 'dist', 'plopfile.js'))
 const init = plop.getGenerator('init')
 
-
 export default class InitCommand extends Command {
   static description = `creates a new empty application
   ...
@@ -55,14 +54,14 @@ export default class InitCommand extends Command {
 
     questions.cwd = process.cwd()
 
-    if(!questions.confirm){
-      console.log('Aborted');
+    if (!questions.confirm) {
+      console.log('Aborted')
     } else {
-      /** 
-       *  @description nodePlop have some issues about typeDef 
+      /**
+       *  @description nodePlop have some issues about typeDef
        *  @example https://github.com/plopjs/node-plop/issues/194
        **/
-      init.runActions(questions).then(() => console.log('All done'));
+      init.runActions(questions).then(() => console.log('All done'))
     }
   }
 }

@@ -1,9 +1,7 @@
 <a name="Agents"></a>
 
 ## Agents ⇐ <code>FonosService</code>
-Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
-to create, update, get and delete Agents. Fonos Agents requires of a
-running Fonos deployment.
+Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,to create, update, get and delete Agents. Fonos Agents requires of arunning Fonos deployment.
 
 **Kind**: global class  
 **Extends**: <code>FonosService</code>  
@@ -24,20 +22,7 @@ Constructs a new Agents object.
 
 **Example**  
 ```js
-const Fonos = require('@fonos/sdk')
-const agents = new Fonos.Agents()
-
-const request = {
-  name: 'John Doe',
-  username: 'john',
-  secret: '1234',
-  domains: ['sip.local']
-}
-
-agents.createAgent(request)
-.then(result => {
-  console.log(result)             // successful response
-}).catch(e => console.error(e))   // an error occurred
+const Fonos = require('@fonos/sdk')const agents = new Fonos.Agents()const request = {  name: 'John Doe',  username: 'john',  secret: '1234',  domains: ['sip.local']}agents.createAgent(request).then(result => {  console.log(result)             // successful response}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Agents+createAgent"></a>
 
@@ -58,17 +43,7 @@ Creates a new Agent on the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {
-  name: 'John Doe',
-  username: 'john',
-  secret: '1234',
-  domains: ['sip.local']
-}
-
-agents.createAgent(request)
-.then(result => {
-  console.log(result)            // returns the Agent object
-}).catch(e => console.error(e))  // an error occurred
+const request = {  name: 'John Doe',  username: 'john',  secret: '1234',  domains: ['sip.local']}agents.createAgent(request).then(result => {  console.log(result)            // returns the Agent object}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Agents+getAgent"></a>
 
@@ -88,10 +63,7 @@ Retrives a Agent by its reference.
 
 **Example**  
 ```js
-agents.getAgent(ref)
-.then(result => {
-  console.log(result)             // returns the Agent object
-}).catch(e => console.error(e))   // an error occurred
+agents.getAgent(ref).then(result => {  console.log(result)             // returns the Agent object}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Agents+updateAgent"></a>
 
@@ -110,15 +82,7 @@ Update a Agent at the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {
-  name: 'John Dee',
-  secret: '12345'
-}
-
-agents.updateAgent(request)
-.then(result => {
-  console.log(result)            // returns the Agent from the DB
-}).catch(e => console.error(e))  // an error occurred
+const request = {  name: 'John Dee',  secret: '12345'}agents.updateAgent(request).then(result => {  console.log(result)            // returns the Agent from the DB}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Agents+listAgents"></a>
 
@@ -136,15 +100,7 @@ List the Agents registered in Fonos SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {
-   pageSize: 20,
-   pageToken: 2
-}
-
-agents.listAgents(request)
-.then(() => {
-  console.log(result)            // returns a ListAgentsResponse object
-}).catch(e => console.error(e))  // an error occurred
+const request = {   pageSize: 20,   pageToken: 2}agents.listAgents(request).then(() => {  console.log(result)            // returns a ListAgentsResponse object}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Agents+deleteAgent"></a>
 
@@ -159,10 +115,5 @@ Deletes a Agent from SIP Proxy subsystem.
 
 **Example**  
 ```js
-const ref = '507f1f77bcf86cd799439011'
-
-agents.deleteAgent(ref)
-.then(() => {
-  console.log('done')            // returns an empty object
-}).catch(e => console.error(e))  // an error occurred
+const ref = '507f1f77bcf86cd799439011'agents.deleteAgent(ref).then(() => {  console.log('done')            // returns an empty object}).catch(e => console.error(e))  // an error occurred
 ```
