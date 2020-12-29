@@ -12,13 +12,14 @@ function getCredentials() {
   }
 }
 
-const talk = new Talk(PROJECT_ID, getCredentials())
-const asr = new GoogleASR(getCredentials())
-const tts = new GoogleTTS(getCredentials())
-
 function listen(chan, asr) {
   const result = chan.record({ silenceSeconds: 1, beep: false })
   return asr.transcribeSync(result.recordingUri)
 }
 
-module.exports = { talk, listen, asr, tts}
+module.exports = { 
+  talk: new Talk(PROJECT_ID, getCredentials()), 
+  listen, 
+  asr: new GoogleASR(getCredentials()), 
+  tts: new GoogleTTS(getCredentials())
+}
