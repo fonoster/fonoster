@@ -20,7 +20,7 @@ export default class GetCommand extends Command {
       const jsonObj = {
         Ref: number.getRef(),
         'Provider Ref': number.getProviderRef(),
-        'E164 Numbe': number.getE164Number(),
+        'E164 Number': number.getE164Number(),
         'AOR Link': number.getAorLink() || '--',
         'Ingress App': number.getIngressApp() || '--',
         Created: number.getCreateTime(),
