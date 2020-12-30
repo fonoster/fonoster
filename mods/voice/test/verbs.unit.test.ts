@@ -38,7 +38,7 @@ describe('@fonos/voice/verbs', () => {
       expect(result).to.be.equal('1')
     })
 
-    it('will fail due to an invalid character on finishOnKey', () => {
+    it('will fail if finishOnKey is an invalid character', () => {
       expect(() => verbs.play('beep', { finishOnKey: '%' })).to.throw(
         'Invalid finishOnKey parameter: found % but must be a single digit type of 0-9,#,*'
       )
