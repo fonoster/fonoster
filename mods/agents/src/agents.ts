@@ -140,7 +140,7 @@ class Agents extends FonosService {
   }
 
   /**
-   * List the Agents registered in Fonos SIP Proxy subsystem.
+   * List registered Agents in Fonos SIP Proxy subsystem.
    *
    * @param {Object} request
    * @param {agent} request.pageSize - Agent of element per page
