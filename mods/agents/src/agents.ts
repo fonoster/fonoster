@@ -3,7 +3,7 @@ import logger from '@fonos/logger'
 
 /**
  * @classdesc Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
- * to create, update, get and delete Agents. Fonos Agents requires of a
+ * to create, update, get and delete Agents. Agents requires of a
  * running Fonos deployment.
  *
  * @extends FonosService
