@@ -179,7 +179,7 @@ class Agents extends FonosService {
   /**
    * Deletes an Agent from the SIP Proxy subsystem.
    *
-   * @param {string} ref - Reference to the Agent
+   * @param {string} ref - Agent's reference
    * @example
    *
    * const ref = '507f1f77bcf86cd799439011'
