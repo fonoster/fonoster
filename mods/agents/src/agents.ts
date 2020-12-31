@@ -143,7 +143,7 @@ class Agents extends FonosService {
    * List registered Agents in Fonos SIP Proxy subsystem.
    *
    * @param {Object} request
-   * @param {agent} request.pageSize - Agent of element per page
+   * @param {agent} request.pageSize - Elements per page
    * (defaults to 20)
    * @param {string} request.pageToken - The next_page_token value returned from
    * a previous List request, if any
