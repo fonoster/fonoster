@@ -99,7 +99,7 @@ class Agents extends FonosService {
   }
 
   /**
-   * Update a Agent at the SIP Proxy subsystem.
+   * Update an Agent at the SIP Proxy subsystem.
    *
    * @param {Object} request - Request update of an Agent
    * @param {string} request.ref - Reference to the Agent
@@ -177,7 +177,7 @@ class Agents extends FonosService {
   }
 
   /**
-   * Deletes a Agent from SIP Proxy subsystem.
+   * Deletes an Agent from the SIP Proxy subsystem.
    *
    * @param {string} ref - Reference to the Agent
    * @example
