@@ -80,7 +80,7 @@ class Agents extends FonosService {
   }
 
   /**
-   * Retrives an Agent by its reference.
+   * Retrives an Agent by reference.
    *
    * @param {string} ref - Reference to Agent
    * @return {Promise<Object>} The agent
