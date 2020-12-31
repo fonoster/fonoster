@@ -33,7 +33,7 @@ describe('@fonos/voice/verbs', () => {
     channel.setData(['1'])
     const verbs = new Verbs(channel)
 
-    it('plays the file', () => {
+    it.skip('plays the file', () => {
       const result = verbs.play('beep')
       expect(result).to.be.equal('1')
     })
