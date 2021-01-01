@@ -6,7 +6,7 @@ import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
 const inquirer = require('inquirer')
 
-export default class CreateCommand extends Command {
+export default class extends Command {
   static description = `creates a new agent resource
   ...
   Creates a new Agent in the SIP Proxy subsystem
