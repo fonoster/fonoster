@@ -1,6 +1,6 @@
 import { UNKNOWN } from './codes'
 
-class FonosError extends Error {
+export default class extends Error {
   code: any
   constructor (message: string, code = UNKNOWN) {
     super(message)
@@ -12,5 +12,3 @@ class FonosError extends Error {
     }
   }
 }
-
-export default FonosError
