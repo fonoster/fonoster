@@ -1,7 +1,7 @@
 import '../../config'
 import Providers from '@fonos/providers'
 import { CLIError } from '@oclif/errors'
-import { Command, flags } from '@oclif/command'
+import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
 import { CommonPB, ProvidersPB } from '@fonos/core'
 const Table = require('easy-table')
@@ -13,7 +13,7 @@ export default class ListCommand extends Command {
   List the registered providers
   `
   static flags = {
-    size: flags.integer({
+    size: oclifFlags.integer({
       char: 's',
       default: 25,
       description: 'provider of result per page'

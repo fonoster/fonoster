@@ -1,13 +1,28 @@
 import '../../config'
 import Numbers from '@fonos/numbers'
 import { CLIError } from '@oclif/errors'
-import { Command, flags } from '@oclif/command'
+import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
 import { CommonPB, NumbersPB } from '@fonos/core'
 const Table = require('easy-table')
 const moment = require('moment')
 
-class ListCommand extends Command {
+export default class ListCommand extends Command {
+  static description = `list registered numbers
+  ...
+  List the registered numbers
+  `
+
+  static flags = {
+    size: oclifFlags.integer({
+      char: 's',
+      default: 25,
+      description: 'number of result per page'
+    })
+  }
+
+  static aliases = ['numbers:ls']
+
   async run () {
     const { flags } = this.parse(ListCommand)
     try {
@@ -57,20 +72,3 @@ class ListCommand extends Command {
     }
   }
 }
-
-ListCommand.description = `list registered numbers
-...
-List the registered numbers
-`
-
-ListCommand.flags = {
-  size: flags.integer({
-    char: 's',
-    default: 25,
-    description: 'number of result per page'
-  })
-}
-
-ListCommand.aliases = ['numbers:ls']
-
-module.exports = ListCommand

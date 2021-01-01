@@ -1,7 +1,7 @@
 import '../../config'
 import Domains from '@fonos/domains'
 import { CLIError } from '@oclif/errors'
-import { Command, flags } from '@oclif/command'
+import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
 import { CommonPB, DomainsPB } from '@fonos/core'
 const Table = require('easy-table')
@@ -13,7 +13,7 @@ export default class ListCommand extends Command {
   List the registered domains
   `
   static flags = {
-    size: flags.integer({
+    size: oclifFlags.integer({
       char: 's',
       default: 25,
       description: 'number of result per page'

@@ -8,7 +8,14 @@ import { CommonPB, AppManagerPB } from '@fonos/core'
 
 const inquirer = require('inquirer')
 
-class UpdateCommand extends Command {
+export class UpdateCommand extends Command {
+  static description = `updates a number at the SIP Proxy subsystem
+  ...
+  Updates a number at the SIP Proxy subsystem
+  `
+
+  static args = [{ name: 'ref' }]
+
   async run () {
     console.log('This utility will help you update an existing Number')
     console.log('Press ^C at any time to quit.')
@@ -36,7 +43,7 @@ class UpdateCommand extends Command {
     ])
 
     if (!answers.aorLink) {
-      const prompt = await inquirer.prompt([
+      const ingressAppPrompt = await inquirer.prompt([
         {
           name: 'ingressApp',
           message: 'ingress app',
@@ -45,10 +52,10 @@ class UpdateCommand extends Command {
         }
       ])
 
-      answers.ingressApp = prompt.ingressApp
+      answers.ingressApp = ingressAppPrompt.ingressApp
     }
 
-    const prompt = await inquirer.prompt([
+    const confirmPrompt = await inquirer.prompt([
       {
         name: 'confirm',
         message: 'are you sure you want to update?',
@@ -56,7 +63,7 @@ class UpdateCommand extends Command {
       }
     ])
 
-    answers.confirm = prompt.confirm
+    answers.confirm = confirmPrompt.confirm
     answers.ref = args.ref
 
     if (!answers.confirm) {
@@ -81,12 +88,3 @@ class UpdateCommand extends Command {
     }
   }
 }
-
-UpdateCommand.description = `updates a number at the SIP Proxy subsystem
-...
-Updates a number at the SIP Proxy subsystem
-`
-
-UpdateCommand.args = [{ name: 'ref' }]
-
-module.exports = UpdateCommand
