@@ -8,9 +8,8 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
-    "build": "npm run clean && npm run compile",
-    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json"
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
   },
   "directories": {
     "src": "src",
@@ -35,5 +34,8 @@
     "dotenv": "^8.2.0",
     "grpc-promise": "^1.4.0",
     "sync": "^0.2.4"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
   }
 }

@@ -2,7 +2,7 @@
 
 ## Agents ⇐ <code>FonosService</code>
 Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
-to create, update, get and delete Agents. Fonos Agents requires of a
+to create, update, get and delete Agents. Agents requires of a
 running Fonos deployment.
 
 **Kind**: global class  
@@ -73,7 +73,7 @@ agents.createAgent(request)
 <a name="Agents+getAgent"></a>
 
 ### agents.getAgent(ref) ⇒ <code>Promise.&lt;Object&gt;</code>
-Retrives a Agent by its reference.
+Retrives an Agent by reference.
 
 **Kind**: instance method of [<code>Agents</code>](#Agents)  
 **Returns**: <code>Promise.&lt;Object&gt;</code> - The agent  
@@ -96,7 +96,7 @@ agents.getAgent(ref)
 <a name="Agents+updateAgent"></a>
 
 ### agents.updateAgent(request) ⇒ <code>Promise.&lt;Object&gt;</code>
-Update a Agent at the SIP Proxy subsystem.
+Update an Agent at the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Agents</code>](#Agents)  
 **Returns**: <code>Promise.&lt;Object&gt;</code> - The Agent from the database  
@@ -123,7 +123,7 @@ agents.updateAgent(request)
 <a name="Agents+listAgents"></a>
 
 ### agents.listAgents(request) ⇒ <code>Promise.&lt;ListAgentsResponse&gt;</code>
-List the Agents registered in Fonos SIP Proxy subsystem.
+List registered Agents in Fonos SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Agents</code>](#Agents)  
 **Returns**: <code>Promise.&lt;ListAgentsResponse&gt;</code> - List of Agents  
@@ -131,7 +131,7 @@ List the Agents registered in Fonos SIP Proxy subsystem.
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>Object</code> |  |
-| request.pageSize | <code>agent</code> | Agent of element per page (defaults to 20) |
+| request.pageSize | <code>agent</code> | Elements per page (defaults to 20) |
 | request.pageToken | <code>string</code> | The next_page_token value returned from a previous List request, if any |
 
 **Example**  
@@ -149,13 +149,13 @@ agents.listAgents(request)
 <a name="Agents+deleteAgent"></a>
 
 ### agents.deleteAgent(ref)
-Deletes a Agent from SIP Proxy subsystem.
+Deletes an Agent from the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Agents</code>](#Agents)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| ref | <code>string</code> | Reference to the Agent |
+| ref | <code>string</code> | Agent's reference |
 
 **Example**  
 ```js

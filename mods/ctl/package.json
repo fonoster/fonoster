@@ -14,9 +14,9 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "build": "npm run clean && npm run compile && cp -a ./src/templates ./dist",
-    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json",
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "postbuild": "cp -a ./src/templates ./dist",
+    "build": "tsc -b tsconfig.json",
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "oclif-dev manifest && oclif-dev readme",
     "version": "oclif-dev readme && git add README.md"
@@ -100,6 +100,7 @@
     "@types/prettyjson": "0.0.29",
     "@types/update-notifier": "^5.0.0",
     "dotenv": "^8.2.0",
+    "rimraf": "^3.0.2",
     "typescript": "^3.9.3"
   }
 }

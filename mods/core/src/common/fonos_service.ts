@@ -20,7 +20,7 @@ const defaultOptions = {
   bucket: process.env.FS_DEFAULT_STORAGE_BUCKET
 }
 
-export default class Service {
+export default class {
   ServiceClient: any
   options: any
   metadata: any

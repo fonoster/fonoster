@@ -13,7 +13,7 @@ export default abstract class extends Command {
   }
 
   async init () {
-    const { args, flags } = this.parse(<Input<any>>this.constructor)
+    const { args } = this.parse(<Input<any>>this.constructor)
     this.ref = args.ref
   }
 

@@ -8,9 +8,8 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
-    "build": "npm run clean && npm run compile",
-    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json"
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
   },
   "directories": {
     "src": "src",
@@ -31,13 +30,14 @@
   },
   "dependencies": {
     "@fonos/logger": "^0.0.51",
-    "@google-cloud/speech": "^4.1.1",
+    "@google-cloud/speech": "^4.1.5",
     "axios": "^0.19.2",
     "deepmerge": "^4.2.2",
     "objectid": "^3.2.1"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
+    "rimraf": "^3.0.2",
     "typescript": "^3.9.3"
   }
 }

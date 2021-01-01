@@ -24,8 +24,8 @@ export default async function (
   itemsPerPage: number,
   decoder: Function
 ) {
-  const getSetFunc = (kind: Kind) =>
-    kind === Kind.GATEWAY ? `setProvidersList` : `set${kind}sList`
+  const getSetFunc = (k: Kind) =>
+    k === Kind.GATEWAY ? `setProvidersList` : `set${k}sList`
 
   if (!page) return {}
   await routr.connect()

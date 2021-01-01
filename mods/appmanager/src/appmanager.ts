@@ -78,96 +78,88 @@ export default class AppManager extends FonosService {
    * change to UNKNOWN.
    */
   async deployApp (appPath: string): Promise<App> {
+    const packagePath = path.join(appPath, 'package.json')
+    // Expects an existing valid package.json
+    const packageInfo = (p: string) => JSON.parse(`${fs.readFileSync(p)}`)
+    let pInfo
+
     try {
-      const packagePath = path.join(appPath, 'package.json')
-      // Expects an existing valid package.json
-      const packageInfo = (p: string) => JSON.parse(`${fs.readFileSync(p)}`)
-      let pInfo
-
-      try {
-        pInfo = packageInfo(packagePath)
-      } catch (err) {
-        throw new Error(
-          `Unable to obtain project info. Ensure package.json exists in '${appPath}', and that is well formatted`
-        )
-      }
-
-      let bucket = process.env.FS_DEFAULT_STORAGE_BUCKET
-
-      try {
-        const fonosConfigFile = fs.readFileSync(
-          path.join(appPath, 'fonos.json')
-        )
-        const fonosConfig = JSON.parse(`${fonosConfigFile}`)
-        bucket = fonosConfig.bucket
-      } catch (e) {}
-
-      const request = {
-        dirPath: appPath,
-        app: {
-          name: pInfo.name,
-          description: pInfo.description,
-          bucket: bucket
-        }
-      }
-
-      // WARNING: I'm not happy with this. Seems inconsistent with the other
-      // errors...
-      /*const errors = appManagerValidator.createAppRequest.validate({
-        app: {
-          name: request.app.name,
-          description: request.app.description
-        }
-      })
-
-      if (errors.length > 0) {
-        throw new Error(
-          'Please ensure package.json contains the name and description fields'
-        )
-      }*/
-
-      if (
-        !fs.existsSync(request.dirPath) ||
-        !fs.lstatSync(request.dirPath).isDirectory()
-      ) {
-        throw new Error(
-          `${request.dirPath} does not exist or is not a directory`
-        )
-      }
-
-      if (!fs.existsSync(packagePath)) {
-        throw new Error(`not package.json found in ${request.dirPath}`)
-      }
-
-      // TODO: Validate that the name is lower case and has no spaces
-      const dirName = `${request.app.name}`
-      await fs.copy(request.dirPath, `/tmp/${dirName}`)
-      await tar.create({ file: `/tmp/${dirName}.tgz`, cwd: '/tmp' }, [dirName])
-      await this.storage.uploadObject({
-        filename: `/tmp/${dirName}.tgz`,
-        bucket: 'apps' // TODO: Maybe I should place this in the .env
-      })
-
-      // Cleanup after deploy
-      fs.rmdirSync(`/tmp/${dirName}`, { recursive: true })
-      fs.unlink(`/tmp/${dirName}.tgz`)
-
-      const app = new AppManagerPB.App()
-      app.setName(request.app.name)
-      app.setDescription(request.app.description)
-      app.setBucket(request.app.bucket)
-
-      const createAppRequest = new AppManagerPB.CreateAppRequest()
-      createAppRequest.setApp(app)
-
-      const response = await this.service
-        .createApp()
-        .sendMessage(createAppRequest)
-
-      return response
-    } catch (e) {
-      throw e
+      pInfo = packageInfo(packagePath)
+    } catch (err) {
+      throw new Error(
+        `Unable to obtain project info. Ensure package.json exists in '${appPath}', and that is well formatted`
+      )
     }
+
+    let bucket = process.env.FS_DEFAULT_STORAGE_BUCKET
+
+    try {
+      const fonosConfigFile = fs.readFileSync(path.join(appPath, 'fonos.json'))
+      const fonosConfig = JSON.parse(`${fonosConfigFile}`)
+      bucket = fonosConfig.bucket
+    } catch (e) {}
+
+    const request = {
+      dirPath: appPath,
+      app: {
+        name: pInfo.name,
+        description: pInfo.description,
+        bucket: bucket
+      }
+    }
+
+    // WARNING: I'm not happy with this. Seems inconsistent with the other
+    // errors...
+    /*const errors = appManagerValidator.createAppRequest.validate({
+      app: {
+        name: request.app.name,
+        description: request.app.description
+      }
+    })
+
+    if (errors.length > 0) {
+      throw new Error(
+        'Please ensure package.json contains the name and description fields'
+      )
+    }*/
+
+    if (
+      !fs.existsSync(request.dirPath) ||
+      !fs.lstatSync(request.dirPath).isDirectory()
+    ) {
+      throw new Error(`${request.dirPath} does not exist or is not a directory`)
+    }
+
+    if (!fs.existsSync(packagePath)) {
+      throw new Error(`not package.json found in ${request.dirPath}`)
+    }
+
+    // TODO: Validate that the name is lower case and has no spaces
+    const dirName = `${request.app.name}`
+    await fs.copy(request.dirPath, `/tmp/${dirName}`)
+    await tar.create({ file: `/tmp/${dirName}.tgz`, cwd: '/tmp' }, [dirName])
+    await this.storage.uploadObject({
+      filename: `/tmp/${dirName}.tgz`,
+      bucket: 'apps' // TODO: Maybe I should place this in the .env
+    })
+
+    // Cleanup after deploy
+    fs.rmdirSync(`/tmp/${dirName}`, { recursive: true })
+    fs.unlink(`/tmp/${dirName}.tgz`)
+
+    const app = new AppManagerPB.App()
+    app.setName(request.app.name)
+    app.setDescription(request.app.description)
+    app.setBucket(request.app.bucket)
+
+    const createAppRequest = new AppManagerPB.CreateAppRequest()
+    createAppRequest.setApp(app)
+
+    const response = await this.service
+      .createApp()
+      .sendMessage(createAppRequest)
+
+    return response
   }
 
   /**
