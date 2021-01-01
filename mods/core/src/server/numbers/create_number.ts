@@ -45,28 +45,21 @@ export default async function createNumber (number: Number): Promise<Number> {
 
   const resource = encoder.build()
 
-  try {
-    await routr.connect()
+  await routr.connect()
 
-    if (number.getIngressApp()) {
-      const app = await redis.get(number.getIngressApp())
+  if (number.getIngressApp()) {
+    const app = await redis.get(number.getIngressApp())
 
-      if (!app)
-        throw new FonosFailedPrecondition(
-          `App ${number.getIngressApp()} doesn't exist`
-        )
-
-      await redis.set(
-        `extlink:${number.getE164Number()}`,
-        number.getIngressApp()
+    if (!app)
+      throw new FonosFailedPrecondition(
+        `App ${number.getIngressApp()} doesn't exist`
       )
-    }
 
-    const ref = await routr.resourceType('numbers').create(resource)
-    // We do this to get updated metadata from Routr
-    const jsonObj = await routr.resourceType('numbers').get(ref)
-    return numberDecoder(jsonObj)
-  } catch (err) {
-    throw err
+    await redis.set(`extlink:${number.getE164Number()}`, number.getIngressApp())
   }
+
+  const ref = await routr.resourceType('numbers').create(resource)
+  // We do this to get updated metadata from Routr
+  const jsonObj = await routr.resourceType('numbers').get(ref)
+  return numberDecoder(jsonObj)
 }
