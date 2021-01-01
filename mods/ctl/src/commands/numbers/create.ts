@@ -71,7 +71,7 @@ export default class CreateCommand extends Command {
           throw new Error('Not application or aorLink found')
         }
 
-        const prompt = await inquirer.prompt([
+        const ingresAppPrompt = await inquirer.prompt([
           {
             name: 'ingressApp',
             message: 'ingress app',
@@ -80,10 +80,10 @@ export default class CreateCommand extends Command {
           }
         ])
 
-        answers.ingressApp = prompt.ingressApp
+        answers.ingressApp = ingresAppPrompt.ingressApp
       }
 
-      const prompt = await inquirer.prompt([
+      const confirmPrompt = await inquirer.prompt([
         {
           name: 'confirm',
           message: 'does everything look good?',
@@ -91,7 +91,7 @@ export default class CreateCommand extends Command {
         }
       ])
 
-      answers.confirm = prompt.confirm
+      answers.confirm = confirmPrompt.confirm
 
       if (!answers.confirm) {
         console.log('Aborted')

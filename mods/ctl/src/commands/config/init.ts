@@ -1,6 +1,6 @@
 import '../../config'
 import { CLIError } from '@oclif/errors'
-import { Command, flags } from '@oclif/command'
+import { Command, flags as oclifFlags } from '@oclif/command'
 import * as fs from 'fs'
 import createCerts from '../../create_certs'
 import {
@@ -16,11 +16,11 @@ const inquirer = require('inquirer')
 export default class ConfigCommand extends Command {
   static description = `authenticates current station`
   static flags = {
-    file: flags.string({
+    file: oclifFlags.string({
       char: 'f',
       description: 'json file with access credentials'
     }),
-    size: flags.string({
+    size: oclifFlags.string({
       char: 's',
       description: 'json file with access credentials'
     })

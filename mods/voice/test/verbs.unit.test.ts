@@ -124,9 +124,6 @@ describe('@fonos/voice/verbs', () => {
   })
 
   context('record verb', () => {
-    const channel = new ChannelMock()
-    const verbs = new Verbs(channel)
-
     it('throws because of invalid chacter', () => {
       const channel = new ChannelMock()
       const verbs = new Verbs(channel)
