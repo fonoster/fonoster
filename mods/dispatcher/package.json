@@ -8,9 +8,8 @@
   "main": "dist/dispatcher",
   "types": "dist/dispatcher",
   "scripts": {
-    "build": "npm run clean && npm run compile",
-    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json"
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
   },
   "directories": {
     "src": "src",
@@ -42,5 +41,8 @@
     "agi-node": "github:psanders/agi-node",
     "dotenv": "^8.2.0",
     "vm2": "^3.6.10"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
   }
 }

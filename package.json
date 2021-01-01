@@ -6,19 +6,20 @@
       "./mods/",
       "./examples/"
     ],
-    "ext": "js"
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "scripts": {
     "bootstrap": "lerna bootstrap --no-ci",
-    "test": "export NODE_ENV=dev && nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts",
+    "test": "cross-env NODE_ENV=dev && nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "build": "lerna run build",
-    "clean": "rm -rf **/*/tsconfig.tsbuildinfo && rm -rf **/*/dist && rm -rf **/*/dist && rm -rf **/*/node_modules",
+    "clean": "rimraf **/*/tsconfig.tsbuildinfo && rimraf **/*/dist && rimraf **/*/dist && rimraf **/*/node_modules && rimraf node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
-    "run-init": "export NODE_ENV=dev && node mods/core/dist/common/fsutils",
-    "run-apiserver": "export NODE_ENV=dev && node mods/core/dist/server/server",
-    "run-mediacontroller": "export NODE_ENV=dev && nodemon mods/dispatcher/dist/dispatcher"
+    "run-init": "cross-env NODE_ENV=dev && node mods/core/dist/common/fsutils",
+    "run-apiserver": "cross-env NODE_ENV=dev && nodemon mods/core/dist/server/server",
+    "run-mediacontroller": "cross-env NODE_ENV=dev && nodemon mods/dispatcher/dist/dispatcher"
   },
-  "main": "docs",
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/chai-as-promised": "^7.1.2",
@@ -35,8 +36,10 @@
     "lerna": "^3.22.1",
     "lint-staged": "^10.2.9",
     "mocha": "^7.2.0",
+    "nodemon": "^2.0.6",
     "nyc": "^15.1.0",
     "prettier-standard": "^16.3.0",
+    "rimraf": "^3.0.2",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
     "ts-node": "^8.10.2",
@@ -55,7 +58,6 @@
   "dependencies": {
     "@fonos/ctl": "0.0.38",
     "google-protobuf": "^3.12.2",
-    "grpc-tools": "^1.7.0",
-    "nodemon": "^2.0.4"
+    "grpc-tools": "^1.7.0"
   }
 }

@@ -8,9 +8,8 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
-    "build": "npm run clean && npm run compile",
-    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json"
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
   },
   "directories": {
     "src": "src",
@@ -36,5 +35,8 @@
     "@fonos/numbers": "^0.0.51",
     "@fonos/providers": "^0.0.51",
     "@fonos/storage": "^0.0.51"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2"
   }
 }

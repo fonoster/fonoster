@@ -8,9 +8,8 @@
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
-    "build": "npm run clean && npm run compile",
-    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json"
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
   },
   "directories": {
     "src": "src",
@@ -39,6 +38,7 @@
     "@types/fibers": "^3.1.0",
     "dotenv": "^8.2.0",
     "fibers": "^5.0.0",
+    "rimraf": "^3.0.2",
     "typescript": "^3.9.3"
   }
 }
