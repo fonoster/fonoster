@@ -1,0 +1,8 @@
+# TODO: Remove this file once the certificates module is implemented
+
+services:
+
+  apiserver:
+    environment:
+      ALLOW_INSECURE: 'true'
+ 
