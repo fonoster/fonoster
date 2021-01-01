@@ -21,7 +21,7 @@ const uploadToFS = (
   object?: string,
   metadata: object = {}
 ) =>
-  new Promise((resolve, reject) => {
+  new Promise<void>((resolve, reject) => {
     const splitPath = (p: string) => path.dirname(p).split(path.sep)
     const dirCount = splitPath(pathToObject).length
     const baseDir = splitPath(pathToObject)
@@ -61,21 +61,21 @@ const uploadToFS = (
     })
   })
 
-const removeDirSync = (path: string) => {
-  if (fs.existsSync(path)) {
-    const files = fs.readdirSync(path)
+const removeDirSync = (pathToFile: string) => {
+  if (fs.existsSync(pathToFile)) {
+    const files = fs.readdirSync(pathToFile)
 
     if (files.length > 0) {
       files.forEach(function (filename: string) {
-        if (fs.statSync(path + '/' + filename).isDirectory()) {
-          removeDirSync(path + '/' + filename)
+        if (fs.statSync(pathToFile + '/' + filename).isDirectory()) {
+          removeDirSync(pathToFile + '/' + filename)
         } else {
-          fs.unlinkSync(path + '/' + filename)
+          fs.unlinkSync(pathToFile + '/' + filename)
         }
       })
-      fs.rmdirSync(path)
+      fs.rmdirSync(pathToFile)
     } else {
-      fs.rmdirSync(path)
+      fs.rmdirSync(pathToFile)
     }
   } else {
     logger.log('warn', 'Directory path not found.')
