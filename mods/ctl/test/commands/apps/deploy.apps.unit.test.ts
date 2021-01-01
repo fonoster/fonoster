@@ -4,7 +4,7 @@ import sinonChai from 'sinon-chai'
 import AppManager from '@fonos/appmanager'
 import DeployCommand from '../../../dist/commands/apps/deploy'
 import { cli } from 'cli-ux'
-
+const sandbox = sinon.createSandbox()
 const expect = chai.expect
 chai.use(sinonChai)
 
@@ -13,8 +13,10 @@ describe('@fonos/ctl/apps', () => {
   let consoleStub: any
   let actionStub: any
 
-  /*beforeEach(() => {
-    actionStub = sinon.stub(cli.action, 'start')
+  afterEach(() => sandbox.restore())
+
+  beforeEach(() => {
+    actionStub = sandbox.stub(cli.action, 'start')
     deployAppStub = sinon.stub(AppManager.prototype, 'deployApp').returns(
       Promise.resolve({
         getName: () => 'My App',
@@ -23,10 +25,10 @@ describe('@fonos/ctl/apps', () => {
         getBucket: () => 'default'
       })
     )
-    consoleStub = sinon.stub(console, 'log')
-  })*/
+    consoleStub = sandbox.stub(console, 'log')
+  })
 
-  it.skip('should deploy app', async () => {
+  it('should deploy app', async () => {
     await DeployCommand.run()
     expect(deployAppStub).to.be.calledOnce
     expect(actionStub).to.be.calledOnce
