@@ -65,7 +65,8 @@ export default async function (call: any, callback: any) {
     writeStream.write(Buffer.alloc(chunk.length, chunk))
     object = request.getName()
     bucket = request.getBucket()
-    metadata = mapToObj(request.getMetadataMap()) // ??
+    // removed useless assignment
+    // metadata = mapToObj(request.getMetadataMap()) // ??
   })
 
   writeStream.on('finish', async () => {
