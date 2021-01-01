@@ -1,7 +1,7 @@
-import { Number as DID } from '../../server/protos/numbers_pb'
+import NumbersPB from '../../server/protos/numbers_pb'
 
 export default function (jsonObj: any) {
-  const number = new DID()
+  const number = new NumbersPB.Number()
   const location = jsonObj.spec.location
   number.setRef(jsonObj.metadata.ref)
   number.setProviderRef(jsonObj.metadata.gwRef)

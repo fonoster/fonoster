@@ -1,11 +1,11 @@
 import { FonosInvalidArgument, FonosFailedPrecondition } from '@fonos/errors'
-import { Number } from '../protos/numbers_pb'
+import NumbersPB from '../protos/numbers_pb'
 import routr from '../../common/routr'
 import redis from '../../common/redis'
 import { REncoder, Kind } from '../../common/resource_encoder'
 import numberDecoder from '../../common/decoders/number_decoder'
 
-const validateNumber = (number: Number) => {
+const validateNumber = (number: NumbersPB.Number) => {
   if (!number.getE164Number()) {
     throw new FonosInvalidArgument(
       `e164Number field must be a valid e164 value.`
@@ -23,7 +23,9 @@ const validateNumber = (number: Number) => {
   }
 }
 
-export default async function createNumber (number: Number): Promise<Number> {
+export default async function createNumber (
+  number: NumbersPB.Number
+): Promise<NumbersPB.Number> {
   validateNumber(number)
 
   let encoder = new REncoder(
