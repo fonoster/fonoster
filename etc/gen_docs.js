@@ -4,16 +4,16 @@ const fs = require('fs')
 const path = require('path')
 
 /* input and output paths */
-const inputFile = 'mods/*/dist/*.js'
-const outputDir = path.join(__dirname, 'docs/reference')
+const inputFile = path.join(__dirname, '../mods/*/dist/*.js')
+const outputDir = path.join(__dirname, '../docs/reference')
 
 /* get template data */
 const templateData = jsdoc2md.getTemplateDataSync({ files: inputFile })
 
 /* reduce templateData to an array of class names */
-const classNames = templateData.reduce((classNames, identifier) => {
-  if (identifier.kind === 'class') classNames.push(identifier.name)
-  return classNames
+const classNames = templateData.reduce((names, identifier) => {
+  if (identifier.kind === 'class') names.push(identifier.name)
+  return names
 }, [])
 
 /* create a documentation file for each class */
