@@ -1,0 +1,65 @@
+name: release
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1 
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12'   
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)") 
+    - name: Publishing APIServer Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/fonos-apiserver
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing Media Controller Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/fonos-nodejsmc
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing Uploader Helper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/uploaderhelper
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing Config Helper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/confighelper
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing Chmod Helper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/chmodhelper
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing JWTHelper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/jwthelper
+        token: ${{ secrets.GH_PAT }}
+        ref: master
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'

@@ -3,7 +3,7 @@ import logger from '@fonos/logger'
 
 /**
  * @classdesc Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
- * to create, update, get and delete Agents. Fonos Agents requires of a
+ * to create, update, get and delete Agents. Agents requires of a
  * running Fonos deployment.
  *
  * @extends FonosService
@@ -80,7 +80,7 @@ class Agents extends FonosService {
   }
 
   /**
-   * Retrives a Agent by its reference.
+   * Retrives an Agent by reference.
    *
    * @param {string} ref - Reference to Agent
    * @return {Promise<Object>} The agent
@@ -99,7 +99,7 @@ class Agents extends FonosService {
   }
 
   /**
-   * Update a Agent at the SIP Proxy subsystem.
+   * Update an Agent at the SIP Proxy subsystem.
    *
    * @param {Object} request - Request update of an Agent
    * @param {string} request.ref - Reference to the Agent
@@ -140,10 +140,10 @@ class Agents extends FonosService {
   }
 
   /**
-   * List the Agents registered in Fonos SIP Proxy subsystem.
+   * List registered Agents in Fonos SIP Proxy subsystem.
    *
    * @param {Object} request
-   * @param {agent} request.pageSize - Agent of element per page
+   * @param {agent} request.pageSize - Elements per page
    * (defaults to 20)
    * @param {string} request.pageToken - The next_page_token value returned from
    * a previous List request, if any
@@ -177,9 +177,9 @@ class Agents extends FonosService {
   }
 
   /**
-   * Deletes a Agent from SIP Proxy subsystem.
+   * Deletes an Agent from the SIP Proxy subsystem.
    *
-   * @param {string} ref - Reference to the Agent
+   * @param {string} ref - Agent's reference
    * @example
    *
    * const ref = '507f1f77bcf86cd799439011'

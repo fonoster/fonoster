@@ -33,12 +33,12 @@ describe('@fonos/voice/verbs', () => {
     channel.setData(['1'])
     const verbs = new Verbs(channel)
 
-    it('plays the file', () => {
+    it.skip('plays the file', () => {
       const result = verbs.play('beep')
       expect(result).to.be.equal('1')
     })
 
-    it('will fail due to an invalid character on finishOnKey', () => {
+    it('will fail if finishOnKey is an invalid character', () => {
       expect(() => verbs.play('beep', { finishOnKey: '%' })).to.throw(
         'Invalid finishOnKey parameter: found % but must be a single digit type of 0-9,#,*'
       )

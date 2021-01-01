@@ -49,7 +49,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged --allow-empty && node docs.js && git add docs"
+      "pre-commit": "lint-staged --allow-empty && node etc/gen_docs.js && git add docs"
     }
   },
   "dependencies": {
