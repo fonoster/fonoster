@@ -29,6 +29,7 @@ export default class DeployCommand extends Command {
 
       console.log(prettyjson.render(appJson, { noColor: true }))
     } catch (e) {
+      console.error(e)
       throw new CLIError(e.message)
     }
   }
