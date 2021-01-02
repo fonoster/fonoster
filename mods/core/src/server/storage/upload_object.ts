@@ -6,8 +6,7 @@ import {
   extract,
   removeDirSync,
   uploadToFS,
-  getFilesizeInBytes,
-  mapToObj
+  getFilesizeInBytes
 } from '../../common/utils'
 import { UploadObjectResponse } from '../protos/storage_pb'
 

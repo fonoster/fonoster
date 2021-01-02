@@ -1,10 +1,11 @@
 import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
+import { App } from '@fonos/core/src/server/protos/appmanager_pb'
 import AppManager from '@fonos/appmanager'
-import DeployCommand from '../../../dist/commands/apps/deploy'
+import DeployCommand from '../../../src/commands/apps/deploy'
 import { cli } from 'cli-ux'
-
+const sandbox = sinon.createSandbox()
 const expect = chai.expect
 chai.use(sinonChai)
 
@@ -13,20 +14,22 @@ describe('@fonos/ctl/apps', () => {
   let consoleStub: any
   let actionStub: any
 
-  /*beforeEach(() => {
-    actionStub = sinon.stub(cli.action, 'start')
-    deployAppStub = sinon.stub(AppManager.prototype, 'deployApp').returns(
-      Promise.resolve({
-        getName: () => 'My App',
-        getDescription: () => 'A test application',
-        getCreateTime: () => 'January 01, 1970 00:00:00 UTC.',
-        getBucket: () => 'default'
-      })
-    )
-    consoleStub = sinon.stub(console, 'log')
-  })*/
+  afterEach(() => sandbox.restore())
 
-  it.skip('should deploy app', async () => {
+  beforeEach(() => {
+    actionStub = sandbox.stub(cli.action, 'start')
+    const app = new App()
+    app.setName('My App')
+    app.setDescription('A test application')
+    app.setCreateTime('January 01, 1970 00:00:00 UTC.')
+    app.setBucket('default')
+    deployAppStub = sinon
+      .stub(AppManager.prototype, 'deployApp')
+      .returns(Promise.resolve(app))
+    consoleStub = sandbox.stub(console, 'log')
+  })
+
+  it('should deploy app', async () => {
     await DeployCommand.run()
     expect(deployAppStub).to.be.calledOnce
     expect(actionStub).to.be.calledOnce

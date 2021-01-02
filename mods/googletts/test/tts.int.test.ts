@@ -4,10 +4,10 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
-import http from 'http'
-import fs from 'fs'
-import path from 'path'
-import textToSpeech from '@google-cloud/text-to-speech'
+//import http from 'http'
+//import fs from 'fs'
+//import path from 'path'
+//import textToSpeech from '@google-cloud/text-to-speech'
 const { transcode } = require('@fonos/tts')
 
 const expect = chai.expect
@@ -38,7 +38,7 @@ describe('@fonos/googletts', () => {
     expect(synthesizeSpeech).to.not.have.been.called
   })*/
 
-  it.only('synthesizes text and returns path to file', async () => {
+  it('synthesizes text and returns path to file', async () => {
     const config = {
       projectId: 'clever-tube-275321',
       keyFilename: '/Users/pedrosanders/Projects/fonos/credentials.json'

@@ -3,7 +3,6 @@ import createNumber from './create_number'
 import updateNumber from './update_number'
 import getIngressApp from './get_ingress_app'
 import {
-  Number,
   ListNumbersRequest,
   ListNumbersResponse,
   GetNumberRequest,
@@ -12,6 +11,7 @@ import {
   DeleteNumberRequest,
   GetIngressAppRequest
 } from '../protos/numbers_pb'
+import NumberPB from '../protos/numbers_pb'
 import { Empty } from '../protos/common_pb'
 import {
   INumbersService,
@@ -39,7 +39,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
 
   async createNumber (
     call: grpc.ServerUnaryCall<CreateNumberRequest>,
-    callback: grpc.sendUnaryData<Number>
+    callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
@@ -51,7 +51,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
 
   async updateNumber (
     call: grpc.ServerUnaryCall<UpdateNumberRequest>,
-    callback: grpc.sendUnaryData<Number>
+    callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     updateNumber(call, callback)
   }
@@ -71,7 +71,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
 
   async getNumber (
     call: grpc.ServerUnaryCall<GetNumberRequest>,
-    callback: grpc.sendUnaryData<Number>
+    callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     super.getResource(call, callback)
   }
