@@ -9,6 +9,8 @@ networks:
 volumes:
   apps:
     external: true
+  recordings:
+    external: true    
   datasource:
 
 secrets:

@@ -14,6 +14,8 @@ services:
       SIPPROXY_HOST: ${SIPPROXY_HOST}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
+    volumes:
+      - recordings:/home/fonos/recordings
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
