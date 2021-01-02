@@ -10,7 +10,7 @@ volumes:
   apps:
     external: true
   recordings:
-    external: true    
+    external: true
   datasource:
 
 secrets:
