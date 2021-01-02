@@ -71,7 +71,7 @@ export default class Numbers extends FonosService {
     e164Number: any
     ingressApp: any
     aorLink: any
-  }): Promise<Number> {
+  }): Promise<NumbersPB.Number> {
     const number = new NumbersPB.Number()
     number.setProviderRef(request.providerRef)
     number.setE164Number(request.e164Number)
@@ -128,7 +128,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Number from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateNumber (request: any): Promise<Number> {
+  async updateNumber (request: any): Promise<NumbersPB.Number> {
     const numberFromDB: any = await this.getNumber(request.ref)
 
     if (request.aorLink && request.ingressApp) {
@@ -175,7 +175,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns a ListNumbersResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listNumbers (request: any): Promise<Number> {
+  async listNumbers (request: any): Promise<NumbersPB.Number> {
     const r = new NumbersPB.ListNumbersRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)

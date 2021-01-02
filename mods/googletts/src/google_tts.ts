@@ -69,16 +69,12 @@ class GoogleTTS extends AbstractTTS {
       audioConfig: { audioEncoding: 'MP3' }
     }
 
-    try {
-      // Performs the text-to-speech request
-      const [response] = await client.synthesizeSpeech(request as any)
-      // Write the binary audio content to a local file
-      const writeFile = util.promisify(fs.writeFile)
-      await writeFile(pathToFile, response.audioContent, 'binary')
-      return pathToFile
-    } catch (e) {
-      throw e
-    }
+    // Performs the text-to-speech request
+    const [response] = await client.synthesizeSpeech(request as any)
+    // Write the binary audio content to a local file
+    const writeFile = util.promisify(fs.writeFile)
+    await writeFile(pathToFile, response.audioContent, 'binary')
+    return pathToFile
   }
 }
 

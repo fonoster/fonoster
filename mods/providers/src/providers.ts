@@ -1,5 +1,4 @@
 import { FonosService, ProvidersService, ProvidersPB } from '@fonos/core'
-import logger from '@fonos/logger'
 
 /**
  * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
@@ -24,7 +23,7 @@ import logger from '@fonos/logger'
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-class Providers extends FonosService {
+export default class Providers extends FonosService {
   /**
    * Constructs a new Providers object.
    *
@@ -203,5 +202,3 @@ class Providers extends FonosService {
       .sendMessage(req)
   }
 }
-
-export default Providers
