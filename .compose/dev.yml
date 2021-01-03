@@ -17,7 +17,6 @@ services:
   sipproxy:
     ports:
     - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
-    - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
   tts:
     ports:
     - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
