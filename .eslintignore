@@ -1,0 +1,16 @@
+./node_modules/*
+*.css
+*.json
+*.ico
+*.svg
+*.html
+*.png
+*.jpg
+*.jpeg
+*.otf
+*.config
+*.md
+*dockerfile
+*.cmd
+*.yml
+*.protos
