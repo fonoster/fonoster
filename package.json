@@ -12,13 +12,13 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap --no-ci",
-    "test": "cross-env NODE_ENV=dev && nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
+    "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "build": "lerna run build",
     "clean": "rimraf **/*/tsconfig.tsbuildinfo && rimraf **/*/dist && rimraf **/*/dist && rimraf **/*/node_modules && rimraf node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
-    "run-init": "cross-env NODE_ENV=dev && node mods/core/dist/common/fsutils",
-    "run-apiserver": "cross-env NODE_ENV=dev && nodemon mods/core/dist/server/server",
-    "run-mediacontroller": "cross-env NODE_ENV=dev && nodemon mods/dispatcher/dist/dispatcher"
+    "run-init": "cross-env NODE_ENV=dev node mods/core/dist/common/fsutils",
+    "run-apiserver": "cross-env NODE_ENV=dev nodemon mods/core/src/server/server",
+    "run-mediacontroller": "cross-env NODE_ENV=dev nodemon mods/dispatcher/src/dispatcher"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
