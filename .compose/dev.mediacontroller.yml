@@ -1,0 +1,30 @@
+# The following are the minimun required services to test the mediacontroller
+# on a local station.
+
+services:
+
+  sipproxy:
+    ports:
+    - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
+
+  datasource:
+    image: ${DS_IMAGE}
+    networks:
+      fonos:
+        aliases: 
+          - ${DS_HOST}
+
+  provisioner:
+    depends_on:
+      sipproxy:
+        condition: service_healthy
+    volumes:
+      - ../etc/bootstrap.yml:/bootstrap.yml
+
+  mediaserver:
+    depends_on:
+      sipproxy:
+        condition: service_healthy
+    ports:
+    - ${MS_SIP_PORT}:${MS_SIP_PORT}
+    - ${MS_RTP_PORT_START}-${MS_RTP_PORT_END}:${MS_RTP_PORT_START}-${MS_RTP_PORT_END}/udp
