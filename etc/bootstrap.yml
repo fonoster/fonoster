@@ -1,3 +1,25 @@
+# Local Domain
+
+- apiVersion: v1beta1
+  kind: Domain
+  metadata:
+    name: Local SIP Server
+  spec:
+    context:
+      domainUri: sip.local
+
+# Routr Agent
+
+- apiVersion: v1beta1
+  kind: Agent
+  metadata:
+    name: Test Agent
+  spec:
+    domains: [sip.local]
+    credentials:
+      username: '1001'
+      secret: '1234'
+
 # Asterisk Peer
 
 - apiVersion: v1beta1
@@ -10,12 +32,3 @@
       username: ast
       secret: 'changeit'
 
-# Local Domain
-
-- apiVersion: v1beta1
-  kind: Domain
-  metadata:
-    name: Local SIP Server
-  spec:
-    context:
-      domainUri: sip.local
