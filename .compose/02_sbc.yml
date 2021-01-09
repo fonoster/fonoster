@@ -33,9 +33,6 @@ services:
 
   provisioner:
     image: fonoster/routr-ctl
-    deploy:
-      restart_policy: 
-        condition: on-failure    
     entrypoint: >
       /bin/sh -c "
       set -e;
