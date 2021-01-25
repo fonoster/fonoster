@@ -14,8 +14,12 @@ services:
       SIPPROXY_HOST: ${SIPPROXY_HOST}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
+      # Give asterisk a bad localnet to force it to always advertise its public address
+      LOCALNET: '8.8.8.8'
     volumes:
       - recordings:/home/fonos/recordings
+    ports:
+      - ${MS_SIP_PORT}:${MS_SIP_PORT}
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
