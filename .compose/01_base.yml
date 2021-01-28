@@ -10,7 +10,8 @@ services:
     environment:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
-      FS_HOST: ${FS_HOST}
+      # Warning: Temporal variable
+      FS_HOST: ${FS_HOST_PUBLIC}
       FS_PORT: ${FS_PORT}
       FS_USERNAME: ${FS_USERNAME}
       FS_SECRET: ${FS_SECRET}

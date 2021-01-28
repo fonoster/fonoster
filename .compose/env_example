@@ -5,6 +5,9 @@
 # FS = Files Server (Minio)
 # EB = Events Broker (RabbitMQ)
 
+# Warning: A wrong host address will cause NAT isssues
+HOST_ADDR=134.122.13.182
+
 # Images
 AS_IMAGE=fonoster/fonos-apiserver:latest
 MC_IMAGE=fonoster/fonos-nodejsmc:latest
@@ -21,7 +24,6 @@ LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
 # Other variables
 COMPOSE_PROJECT_NAME=fonos
 COMPOSE_PROJECT_VERSION=0.0.47
-HOST_ADDR=142.93.178.18
 
 APISERVER_PORT=50052
 APISERVER_ENDPOINT_REMOTE=fonos.local
@@ -71,3 +73,8 @@ LOG_OPT_TAG_PREFIX=alpha
 
 # Misc
 CERTS_PATH=/certs
+
+# Warning: The following variables are meant to be temporal
+FS_HOST_PUBLIC=api.fonoster.io
+MC_HOST_PUBLIC=api.fonoster.io
+SIPPROXY_HOST_PUBLIC=sip.fonoster.io

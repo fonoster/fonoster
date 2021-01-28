@@ -5,7 +5,9 @@ version: '3.7'
 
 networks:
   fonos:
-
+  host_mode:
+    external:
+      name: 'host'
 volumes:
   apps:
     external: true

@@ -10,16 +10,15 @@ services:
     environment:
       EXTERN_ADDR: ${HOST_ADDR}
       EXTERN_PORT: ${MS_SIP_PORT}
-      AGI_URL: agi://${MC_HOST}
-      SIPPROXY_HOST: ${SIPPROXY_HOST}
+      # Warning: Temporal value
+      AGI_URL: agi://${MC_HOST_PUBLIC}:${MC_AGI_PORT}
+      SIPPROXY_HOST: ${SIPPROXY_HOST_PUBLIC}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
-      # Give asterisk a bad localnet to force it to always advertise its public address
+      # Give asterisk a fake localnet to force it to always advertise its public address
       LOCALNET: '8.8.8.8'
     volumes:
       - recordings:/home/fonos/recordings
-    ports:
-      - ${MS_SIP_PORT}:${MS_SIP_PORT}
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
@@ -28,6 +27,4 @@ services:
         constraints:
           - node.labels.topic == sip
     networks:
-      fonos:
-        aliases:
-          - ${MS_HOST}
+      host_mode:
