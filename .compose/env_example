@@ -36,7 +36,7 @@ EB_PORT=5672
 EB_USERNAME=fonos
 EB_SECRET=changeit
 
-MS_ENDPOINT=ast@sip.local
+MS_ENDPOINT=sip:ast@sip.local
 MS_HOST=mediaserver.fonos
 MS_SIP_PORT=6060
 MS_RTP_PORT_START=30000
