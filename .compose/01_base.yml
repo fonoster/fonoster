@@ -5,7 +5,7 @@ services:
   apiserver:
     extends:
       file: common.yml
-      service: common 
+      service: common
     image: ${AS_IMAGE}
     environment:
       DS_HOST: ${DS_HOST}

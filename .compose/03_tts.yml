@@ -6,7 +6,7 @@ services:
   tts:
     extends:
       file: common.yml
-      service: common   
+      service: common
     image: ${TTS_IMAGE}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${TTS_ENGINE_PORT}"]
