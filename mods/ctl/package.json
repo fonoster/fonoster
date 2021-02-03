@@ -1,6 +1,6 @@
 {
   "name": "@fonos/ctl",
-  "version": "0.0.51",
+  "version": "0.0.52",
   "description": "Command-Line for Fonos",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -70,13 +70,13 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/agents": "^0.0.51",
-    "@fonos/appmanager": "^0.0.51",
-    "@fonos/core": "^0.0.51",
-    "@fonos/domains": "^0.0.51",
-    "@fonos/logger": "^0.0.51",
-    "@fonos/numbers": "^0.0.51",
-    "@fonos/providers": "^0.0.51",
+    "@fonos/agents": "^0.0.52",
+    "@fonos/appmanager": "^0.0.52",
+    "@fonos/core": "^0.0.52",
+    "@fonos/domains": "^0.0.52",
+    "@fonos/logger": "^0.0.52",
+    "@fonos/numbers": "^0.0.52",
+    "@fonos/providers": "^0.0.52",
     "@kubernetes/client-node": "^0.12.0",
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.14.0",

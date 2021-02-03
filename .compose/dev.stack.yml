@@ -216,6 +216,8 @@ services:
     - protocol: udp
       published: 30008
       target: 30008
+    volumes:
+    - recordings:/home/fonos/recordings:rw
   provisioner:
     configs:
     - source: bootstrap
@@ -291,4 +293,7 @@ volumes:
     external: true
     name: apps
   datasource: {}
+  recordings:
+    external: true
+    name: recordings
 

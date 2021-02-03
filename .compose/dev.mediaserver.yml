@@ -1,7 +1,0 @@
-services:
-  mediaserver:
-    environment:
-      ENABLE_TEST_ACCOUNT: 'true'
-    ports:
-      - ${MS_SIP_PORT}:${MS_SIP_PORT}
-      - ${MS_RTP_PORT_START}-${MS_RTP_PORT_END}:${MS_RTP_PORT_START}-${MS_RTP_PORT_END}/udp

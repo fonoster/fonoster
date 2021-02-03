@@ -10,6 +10,7 @@ services:
     environment:
       APISERVER_ENDPOINT: ${APISERVER_ENDPOINT}:{APISERVER_PORT}
       EVENTS_BROKERS: amqp://${EB_USERNAME}:${EB_SECRET}@${EB_HOST}:${EB_PORT}
+      # Warning: Hardcoded value
       EVENTS_QUEUE: apiserver
       TTS_ENGINE_HOST: ${TTS_ENGINE_HOST}
       TTS_ENGINE_PORT: ${TTS_ENGINE_PORT}
@@ -18,6 +19,9 @@ services:
       LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
     volumes:
       - apps:/home/fonos/apps
+    # Warning: Must determine a way to secure this port
+    ports:
+      - ${MC_AGI_PORT}:${MC_AGI_PORT}
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediacontroller

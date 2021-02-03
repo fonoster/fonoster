@@ -5,9 +5,13 @@ version: '3.7'
 
 networks:
   fonos:
-
+  host_mode:
+    external:
+      name: 'host'
 volumes:
   apps:
+    external: true
+  recordings:
     external: true
   datasource:
 
@@ -23,4 +27,6 @@ configs:
   bootstrap:
     external: true
   redis-conf:
+    external: true
+  routr-log4j2:
     external: true
