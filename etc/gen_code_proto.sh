@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 DIRNAME="$(cd "$(dirname "$0")"; pwd)"
 
-PROTOS=(appmanager common storage providers numbers domains agents usermanager)
+PROTOS=(appmanager common storage providers numbers domains agents)
 
 for proto in "${PROTOS[@]}"
 do
