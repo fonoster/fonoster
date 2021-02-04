@@ -1,0 +1,99 @@
+/**
+ * MIT License
+ * Copyright (c) 2020 Fonoster Inc
+ *
+ * The UserMananger proto contains the artificats for Users administration
+ * such as creation and deployment.
+ */
+syntax = "proto3";
+
+package fonos.usermanager.v1alpha1;
+
+import "common.proto";
+
+service UserManager {
+  // Lists user Userlications
+  rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {};
+  // Gets User with the User-name
+  rpc GetUser (GetUserRequest) returns (User) {};
+  // Creates a new resource type User. Fails with ALREADY_EXISTS if
+  // User-name is present in the system. The Userlication creation, consist of:
+  //
+  //    1. Validing a Fonos User
+  //    2. Zipping (or taring) the Userlication
+  //    3. Uploading the the file to a fonos endpoint
+  //    4. Registering and activatng the Userlication
+  rpc CreateUser (CreateUserRequest) returns (User) {};
+  // Updates an User resource
+  rpc UpdateUser (UpdateUserRequest) returns (User) {};
+  // Peforms a hard delete of the User resource
+  rpc DeleteUser (DeleteUserRequest) returns (fonos.common.v1alpha1.Empty) {};
+}
+
+message ListUsersRequest {
+  // The maximum number of items to return.
+  int32 page_size = 1;
+
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 2;
+
+  // Level of detail of the individual entities
+  fonos.common.v1alpha1.View view = 3;
+}
+
+message ListUsersResponse {
+  // There will be a maximum number of items returned based on the page_size field
+  // in the request.
+  repeated User users = 1;
+
+  // Token to retrieve the next page of results, or empty if there are no
+  // more results in the list.
+  string next_page_token = 2;
+}
+
+message GetUserRequest {
+  // The field will contain the reference of the User requested, for example:
+  // "Users/hello-world"
+  string name = 1;
+  // Requested level of detail
+  fonos.common.v1alpha1.View view = 2;
+}
+
+message CreateUserRequest {
+  User user = 2;
+}
+
+message UpdateUserRequest {
+  User user = 2;
+}
+
+message DeleteUserRequest {
+  string name = 1;
+}
+
+// An User resource with metadata used by the media controller
+message User {
+  enum Status {
+    UNKNOWN = 0;
+    // Unknow error
+    CREATED = 1;
+    // The User is ready for usage
+    REMOVED = 2;
+     // The User is hide/remove
+    ACTIVE = 3;
+    // The User is active
+    INACTIVE = 4;
+    // THE User temporally in inactive
+  }
+  string name = 1;
+  string lastname = 2;
+  string username = 3;
+  string email = 4;
+  string password = 5;
+  string roles = 6;
+  string create_time = 7;
+  string update_time = 8;
+  Status status = 9;
+  
+  map <string, string> labels = 10;
+}
