@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.usermanager.v1alpha1;
+package fonos.users.v1alpha1;
 
 import "common.proto";
 
@@ -54,7 +54,7 @@ message ListUsersResponse {
 message GetUserRequest {
   // The field will contain the reference of the User requested, for example:
   // "Users/hello-world"
-  string name = 1;
+  string email = 1;
   // Requested level of detail
   fonos.common.v1alpha1.View view = 2;
 }
@@ -68,24 +68,20 @@ message UpdateUserRequest {
 }
 
 message DeleteUserRequest {
-  string name = 1;
+  string email = 1;
 }
 
 // An User resource with metadata used by the media controller
 message User {
   enum Status {
-    UNKNOWN = 0;
-    // Unknow error
-    CREATED = 1;
+    DELETED = 0;
+    // The User is deleted
+    ACTIVE = 1;
     // The User is ready for usage
-    REMOVED = 2;
-     // The User is hide/remove
-    ACTIVE = 3;
-    // The User is active
-    INACTIVE = 4;
-    // THE User temporally in inactive
+    SUSPENDED = 2;
+    // The User is suspended or inactive
   }
-  string name = 1;
+  string firstname = 1;
   string lastname = 2;
   string username = 3;
   string email = 4;
