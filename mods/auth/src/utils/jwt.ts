@@ -3,10 +3,10 @@ import { readFile } from 'fs'
 import { promisify } from 'util'
 import { sign, verify } from 'jsonwebtoken'
 import logger from '@fonos/logger'
-import JwtPayload from '../utils/jwtPayload'
-import ITokenManager from './ITokenManager'
+import JwtPayload from './jwt_payload'
+import ITokenManager from './itoken_manager'
 /*
- * issuer 		— Module who issues the token.
+ * issuer 		— Organization who issue the toke.
  * role       — User role
  * accessKey  — User access key
  * expiresIn	— Expiration time after which the token will be invalid.
@@ -29,9 +29,8 @@ export default class JWT implements ITokenManager {
     )
   }
 
-  async encode (payload: JwtPayload): Promise<string> {
-    const cert = await this.readPrivateKey()
-    if (!cert) throw new Error('Token generation failure')
+  async encode (payload: JwtPayload, privateKey: string): Promise<string> {
+    if (!privateKey) throw new Error('Token generation failure')
     // @ts-ignore
     return promisify(sign)({ ...payload }, cert, {
       algorithm: 'RS256',
@@ -40,29 +39,18 @@ export default class JWT implements ITokenManager {
   }
 
   /**
-   * This method checks the token and returns the decoded data when token is valid in all respect
-   */
-  async validate (token: string): Promise<JwtPayload> {
-    const cert = await this.readPublicKey()
-    try {
-      // @ts-ignore
-      return (await promisify(verify)(token, cert)) as JwtPayload
-    } catch (e) {
-      logger.log('error', `@fonos/authentication [${e}}]`)
-      if (e && e.name === 'TokenExpiredError') throw new Error('Token expired')
-      // throws error if the token has not been encrypted by the private key
-    }
-  }
-
-  /**
    * Returns the decoded payload if the signature is valid even if it is expired
    */
-  async decode (token: string): Promise<JwtPayload> {
+  async decode (
+    token: string,
+    privateKey: string,
+    ignorateExpiration: boolean = false
+  ): Promise<JwtPayload> {
     const cert = await this.readPublicKey()
     try {
       // @ts-ignore
       return (await promisify(verify)(token, cert, {
-        ignoreExpiration: false
+        ignoreExpiration: ignorateExpiration
       })) as JwtPayload
     } catch (e) {
       logger.log('error', '@fonos/authentication [Bad token]')

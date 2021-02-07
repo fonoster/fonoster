@@ -1,6 +1,5 @@
-import JWT from './jwt'
-import JwtPayload from './jwtPayload'
-import ITokenManager from './ITokenManager'
+import JwtPayload from './jwt_payload'
+import ITokenManager from './itoken_manager'
 
 export declare interface UserToken {
   accessToken: string
@@ -20,7 +19,7 @@ export default class AuthUtils {
     if (
       !payload ||
       !payload.iss ||
-      !payload.userId ||
+      !payload.accessKeyId ||
       !payload.iss ||
       !payload.role
     )
@@ -29,12 +28,14 @@ export default class AuthUtils {
   }
 
   public createTokens = async (
-    userIdPayload: string,
+    accessKeyIdPayload: string,
     issuePayload: string,
-    rolePayload: string
+    rolePayload: string,
+    privateKey: string
   ): Promise<UserToken> => {
     const accessToken = await this.handler.encode(
-      new JwtPayload(issuePayload, rolePayload, userIdPayload)
+      new JwtPayload(issuePayload, rolePayload, accessKeyIdPayload),
+      privateKey
     )
 
     if (!accessToken) throw new Error('Error creating token')
@@ -44,11 +45,14 @@ export default class AuthUtils {
     } as UserToken
   }
 
-  public validateToken = async (token: UserToken): Promise<TokenResponse> => {
+  public validateToken = async (
+    token: UserToken,
+    privateKey: string
+  ): Promise<TokenResponse> => {
     let result = false
     let accessTokenData: JwtPayload
     try {
-      accessTokenData = await this.handler.decode(token.accessToken)
+      accessTokenData = await this.handler.decode(token.accessToken, privateKey)
       result = true
     } catch (e) {
       console.log('Invalid token')

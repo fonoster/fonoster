@@ -3,8 +3,8 @@ import sinon, { fake } from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
-import AuthUtils, { TokenResponse, UserToken } from '../src/utils/authUtils'
-import ITokenManager from '../src/utils/ITokenManager'
+import AuthUtils, { TokenResponse, UserToken } from '../src/utils/auth_utils'
+import ITokenManager from '../src/utils/itoken_manager'
 import Jwt from '../src/utils/jwt'
 const expect = chai.expect
 chai.use(sinonChai)
@@ -29,16 +29,18 @@ describe('@fonos/authentication', () => {
     let jwtDependency = new Jwt()
     let authUtils = new AuthUtils(jwtDependency)
     let parameter = {
-      userIdPayload: 'userId',
+      accessKeyIdPayload: 'userId',
       issuePayload: 'issue',
-      rolePayload: 'role'
+      rolePayload: 'role',
+      privateKey: 'privatekey'
     }
     const stub = sinon.stub(jwtDependency, 'encode').resolves(stubValue)
 
     let token = await authUtils.createTokens(
-      parameter.userIdPayload,
+      parameter.accessKeyIdPayload,
       parameter.issuePayload,
-      parameter.userIdPayload
+      parameter.rolePayload,
+      'privatekey'
     )
     expect(stub.calledOnce).to.be.true
     expect(token).to.be.equal(stubValue)
@@ -48,7 +50,7 @@ describe('@fonos/authentication', () => {
     const stubValue = {
       iss: 'iss',
       role: 'role',
-      userId: 'userid'
+      accessKeyId: 'userid'
     }
     let jwtDependency = new Jwt()
     let authUtils = new AuthUtils(jwtDependency)
@@ -57,7 +59,7 @@ describe('@fonos/authentication', () => {
     }
     const stub = sinon.stub(jwtDependency, 'decode').resolves(stubValue)
 
-    let token = await authUtils.validateToken(parameter)
+    let token = await authUtils.validateToken(parameter, 'privatekey')
     expect(stub.calledOnce).to.be.true
     expect(token).to.be.equal(stubValue)
   })
