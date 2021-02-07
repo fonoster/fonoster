@@ -26,7 +26,12 @@ export default class CreateCommand extends Command {
         message: 'domain uri',
         type: 'input'
       },
-      { name: 'egressRule', message: 'egress rule', type: 'input' },
+      {
+        name: 'egressRule',
+        message: 'egress rule',
+        type: 'input',
+        default: '.*'
+      },
       {
         name: 'egressNumberRef',
         message: 'number reference',

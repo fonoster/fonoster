@@ -14,7 +14,7 @@ export function checkUpdate () {
   if (notifier.update) {
     const message = `
       Update available: ${notifier.update.current} -> ${notifier.update.latest}
-      To install run npm i @fonos/ctl \n`
+      To install run npm install -g @fonos/ctl \n`
 
     return console.log(message)
   }
