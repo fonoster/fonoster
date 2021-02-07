@@ -2,7 +2,7 @@
   "name": "@fonos/voice",
   "version": "0.0.52",
   "description": "Voice verbs",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "dist/index",
