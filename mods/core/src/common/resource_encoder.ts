@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid'
+
 enum Kind {
   AGENT = 'Agent',
   GATEWAY = 'Gateway',
@@ -50,6 +52,8 @@ class REncoder {
   ) {
     this.kind = kind
     this.apiVersion = apiVersion
+    // TODO: Perhaps this should be a variable value?
+    if (!ref) ref = nanoid(10)
     this.metadata = {
       name: name,
       ref: ref
