@@ -15,7 +15,8 @@ services:
       BIND_ADDR: 0.0.0.0
       # Record-route is causing routing issues with Zoiper.
       #RECORD_ROUTE: 'true'
-      #REGISTRAR_INTF: Internal
+      # Not using internal causes Asterisk to reject calls from Routr
+      REGISTRAR_INTF: Internal
     ports:
       - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
     healthcheck:
