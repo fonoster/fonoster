@@ -2,7 +2,7 @@
   "name": "@fonos/auth",
   "version": "0.0.52",
   "description": "Authentication Module",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "author": "Raul Sanchez <rsanchez@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "dist/index",
