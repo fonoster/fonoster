@@ -14,25 +14,10 @@ import ITokenManager from './itoken_manager'
  */
 
 export default class JWT implements ITokenManager {
-  readPublicKey (): Promise<string> {
-    require('../../../certs/src/')
-    return promisify(readFile)(
-      path.join(__dirname, '../../../certs/public.pem'),
-      'utf8'
-    )
-  }
-
-  readPrivateKey (): Promise<string> {
-    return promisify(readFile)(
-      path.join(__dirname, '../../../certs/private.pem'),
-      'utf8'
-    )
-  }
-
   async encode (payload: JwtPayload, privateKey: string): Promise<string> {
     if (!privateKey) throw new Error('Token generation failure')
     // @ts-ignore
-    return promisify(sign)({ ...payload }, cert, {
+    return promisify(sign)({ ...payload }, privateKey, {
       algorithm: 'RS256',
       expiresIn: 10
     })
@@ -46,10 +31,9 @@ export default class JWT implements ITokenManager {
     privateKey: string,
     ignorateExpiration: boolean = false
   ): Promise<JwtPayload> {
-    const cert = await this.readPublicKey()
     try {
       // @ts-ignore
-      return (await promisify(verify)(token, cert, {
+      return (await promisify(verify)(token, privateKey, {
         ignoreExpiration: ignorateExpiration
       })) as JwtPayload
     } catch (e) {

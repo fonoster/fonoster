@@ -36,6 +36,10 @@ describe('@fonos/authentication', () => {
     }
     const stub = sinon.stub(jwtDependency, 'encode').resolves(stubValue)
 
+    let expectedValue = {
+      accessToken: stubValue
+    }
+
     let token = await authUtils.createTokens(
       parameter.accessKeyIdPayload,
       parameter.issuePayload,
@@ -43,7 +47,7 @@ describe('@fonos/authentication', () => {
       'privatekey'
     )
     expect(stub.calledOnce).to.be.true
-    expect(token).to.be.equal(stubValue)
+    expect(token.accessToken).to.be.equal(stubValue)
   })
 
   it('Should return a decode jwt', async () => {
@@ -61,6 +65,6 @@ describe('@fonos/authentication', () => {
 
     let token = await authUtils.validateToken(parameter, 'privatekey')
     expect(stub.calledOnce).to.be.true
-    expect(token).to.be.equal(stubValue)
+    expect(token.data).to.be.equal(stubValue)
   })
 })
