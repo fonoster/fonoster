@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'dev') {
 function dispatch (channel: any) {
   try {
     const toHeader = channel
-      .getVariable('TO_HEADER')
+      .getVariable('DID_INFO')
       .replace('<', '')
       .replace('>', '')
       .replace('sip:', '')
