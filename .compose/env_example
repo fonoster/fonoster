@@ -77,4 +77,5 @@ CERTS_PATH=/certs
 # Warning: The following variables are meant to be temporal
 FS_HOST_PUBLIC=api.fonoster.io
 MC_HOST_PUBLIC=api.fonoster.io
-SIPPROXY_HOST_PUBLIC=sip.fonoster.io
+# Deprecated
+# SIPPROXY_HOST_PUBLIC=sip.fonoster.io

@@ -12,7 +12,7 @@ services:
       EXTERN_PORT: ${MS_SIP_PORT}
       # Warning: Temporal value
       AGI_URL: agi://${MC_HOST_PUBLIC}:${MC_AGI_PORT}
-      SIPPROXY_HOST: ${SIPPROXY_HOST_PUBLIC}
+      SIPPROXY_HOST: ${HOST_ADDR}:${SIPPROXY_SIP_PORT}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
       # Give asterisk a fake localnet to force it to always advertise its public address
