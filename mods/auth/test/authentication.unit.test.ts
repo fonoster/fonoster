@@ -1,5 +1,5 @@
 import chai from 'chai'
-import sinon, { fake } from 'sinon'
+import sinon, { assert, fake } from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import { join } from 'path'
@@ -66,5 +66,43 @@ describe('@fonos/authentication', () => {
     let token = await authUtils.validateToken(parameter, 'privatekey')
     expect(stub.calledOnce).to.be.true
     expect(token.data).to.be.equal(stubValue)
+  })
+
+  it('Should generate a jwt', async () => {
+    const stubValue = {
+      iss: 'iss',
+      role: 'role',
+      accessKeyId: 'userid'
+    }
+    let jwtDependency = new Jwt()
+    let token = jwtDependency.encode(stubValue, 'secret')
+    expect(token).to.be.not.null
+  })
+
+  it('Should return an exception with no privatekey', async () => {
+    const stubValue = {
+      iss: 'iss',
+      role: 'role',
+      accessKeyId: 'userid'
+    }
+    let jwtDependency = new Jwt()
+    jwtDependency.encode(stubValue, '').catch(err => {
+      expect(err.message).to.be.equal('Token generation failure')
+    })
+  })
+
+  it('Should decode a token', async () => {
+    const stubValue = {
+      iss: 'iss',
+      role: 'role',
+      accessKeyId: 'userid'
+    }
+    let jwtDependency = new Jwt()
+    let token = ''
+    jwtDependency.encode(stubValue, 'secret').then(result => {
+      let docode = jwtDependency.decode(result, 'secret').then(objectJWT => {
+        expect(objectJWT.accessKeyId).to.be.equal(stubValue.accessKeyId)
+      })
+    })
   })
 })

@@ -14,12 +14,15 @@ import ITokenManager from './itoken_manager'
  */
 
 export default class JWT implements ITokenManager {
-  async encode (payload: JwtPayload, privateKey: string): Promise<string> {
+  async encode (
+    payload: JwtPayload,
+    privateKey: string,
+    expiration: Number = 500
+  ): Promise<string> {
     if (!privateKey) throw new Error('Token generation failure')
     // @ts-ignore
     return promisify(sign)({ ...payload }, privateKey, {
-      algorithm: 'RS256',
-      expiresIn: 10
+      expiresIn: expiration
     })
   }
 
