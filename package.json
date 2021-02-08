@@ -26,7 +26,7 @@
     "@types/google-protobuf": "^3.7.2",
     "@types/mocha": "^7.0.2",
     "@types/sinon-chai": "^3.2.4",
-    "chai": "^4.2.0",
+    "chai": "^4.0.0-canary.2",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.2",
     "dedent": "^0.7.0",
