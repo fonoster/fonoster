@@ -49,7 +49,7 @@ export default class CreateCommand extends Command {
       const answers = await inquirer.prompt([
         {
           name: 'e164Number',
-          message: 'number in e164 format',
+          message: 'number in e164 format (e.g. +16471234567)',
           type: 'input'
         },
         {
