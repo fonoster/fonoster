@@ -1,6 +1,6 @@
 {
   "name": "@fonos/auth",
-  "version": "0.0.56",
+  "version": "0.0.57",
   "description": "Authentication Module",
   "author": "Raul Sanchez <rsanchez@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
