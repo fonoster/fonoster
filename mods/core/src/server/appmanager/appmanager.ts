@@ -48,8 +48,7 @@ class AppManagerServer implements IAppManagerServer {
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
-      const app = await getApp(call.request.getName())
-      callback(null, app)
+      callback(null, await getApp(call.request.getName()))
     } catch (e) {
       callback(e, null)
     }

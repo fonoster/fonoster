@@ -3,6 +3,8 @@ import StorageService from './server/protos/storage_grpc_pb'
 import StoragePB from './server/protos/storage_pb'
 import AppManagerService from './server/protos/appmanager_grpc_pb'
 import AppManagerPB from './server/protos/appmanager_pb'
+import CallManagerService from './server/protos/callmanager_grpc_pb'
+import CallManagerPB from './server/protos/callmanager_pb'
 import ProvidersService from './server/protos/providers_grpc_pb'
 import ProvidersPB from './server/protos/providers_pb'
 import NumbersService from './server/protos/numbers_grpc_pb'
@@ -18,6 +20,8 @@ export {
   StorageService,
   AppManagerService,
   AppManagerPB,
+  CallManagerService,
+  CallManagerPB,
   StoragePB,
   ProvidersService,
   ProvidersPB,
