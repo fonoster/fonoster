@@ -69,9 +69,7 @@ describe('@fonos/core/callmanager', () => {
         expect(r.context).to.be.equal('context')
         expect(r.extension).to.be.equal('extension')
         expect(r.endpoint).to.be.equal(`PJSIP/trunk/sip:17853178070@acme.com`)
-        expect(r.variables['DID_INFO']).to.be.equal(
-          `<sip:19193178070@anonymous.invalid>`
-        )
+        expect(r.variables['DID_INFO']).to.be.equal('+19193178070')
       }
     }
     const channelStub = sandbox.spy(channel, 'originate')
