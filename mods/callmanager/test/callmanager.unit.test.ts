@@ -57,13 +57,4 @@ describe('@fonos/callmanager', () => {
     expect(result).to.have.property('app')
     expect(result).to.have.property('duration')
   })
-
-  it.only('quick integration test', async () => {
-    const manager = new CallManager()
-    await manager.call({
-      from: '9193193232',
-      to: '17853178070',
-      app: 'default'
-    })
-  })
 })
