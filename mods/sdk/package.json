@@ -31,6 +31,7 @@
   "dependencies": {
     "@fonos/agents": "^0.0.54",
     "@fonos/appmanager": "^0.0.54",
+    "@fonos/callmanager": "^0.0.54",
     "@fonos/domains": "^0.0.54",
     "@fonos/numbers": "^0.0.54",
     "@fonos/providers": "^0.0.54",
