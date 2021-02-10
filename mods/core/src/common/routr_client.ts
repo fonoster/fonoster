@@ -65,7 +65,13 @@ export default class RoutrClient {
       let response = await axios.get(url)
       const numberObj = response.data.data[0]
       if (numberObj) {
-        return numberObj.spec.location.aorLink.split('@')[1]
+        const url = `${this.apiUrl}/domains?token=${this.token}&filter=@.spec.context.egressPolicy.numberRef=='${numberObj.metadata.ref}'`
+        const res = await axios.get(url)
+        const domainObj = res.data.data[0]
+
+        if (domainObj) {
+          return domainObj.spec.context.domainUri
+        }
       }
     } catch (err) {
       handleError(err)
