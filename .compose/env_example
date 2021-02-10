@@ -43,7 +43,7 @@ EB_PORT=5672
 EB_USERNAME=fonos
 EB_SECRET=changeit
 
-MS_ENDPOINT=sip:ast@acme.com
+MS_ENDPOINT=sip:ast@node1
 MS_HOST=mediaserver.fonos
 MS_SIP_PORT=6060
 MS_RTP_PORT_START=10000

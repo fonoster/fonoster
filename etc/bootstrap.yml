@@ -1,21 +1,11 @@
-# Local Domain
-
-- apiVersion: v1beta1
-  kind: Domain
-  metadata:
-    name: Local SIP Server
-  spec:
-    context:
-      domainUri: sip.local
-
-# Asterisk Peer
+# Media Controller
 
 - apiVersion: v1beta1
   kind: Peer
   metadata:
-    name: Asterisk PBX
+    name: Media Controller @ Node 1
   spec:
-    device: sip.local
+    device: node1
     credentials:
       username: ast
       secret: 'changeit'
