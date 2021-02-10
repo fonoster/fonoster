@@ -33,7 +33,7 @@ export default async function (
     context: endpointInfo.context,
     extension: endpointInfo.extension,
     endpoint: `PJSIP/${endpointInfo.trunk}/sip:${to}@${endpointInfo.domain}`,
-    variables: { DID_INFO: `<sip:${from}@anonymous.invalid>` }
+    variables: { DID_INFO: `${phone(from)[0]}` }
   })
 
   return response
