@@ -10,6 +10,7 @@ services:
     environment:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
+      DS_SECRET: ${DS_SECRET}
       # Warning: Temporal variable
       FS_HOST: ${FS_HOST_PUBLIC}
       FS_PORT: ${FS_PORT}

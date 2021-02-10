@@ -6,7 +6,14 @@
 # EB = Events Broker (RabbitMQ)
 
 # Warning: A wrong host address will cause NAT isssues
-HOST_ADDR=134.122.13.182
+HOST_ADDR=134.209.38.11
+MS_ARI_URL=http://134.209.38.11:8088
+# Warning: The following variables are meant to be temporal
+FS_HOST_PUBLIC=api.fonoster.io
+MC_HOST_PUBLIC=api.fonoster.io
+
+# Deprecated
+# SIPPROXY_HOST_PUBLIC=sip.fonoster.io
 
 # Images
 AS_IMAGE=fonoster/fonos-apiserver:latest
@@ -44,7 +51,6 @@ MS_RTP_PORT_END=20000
 MS_TRUNK=routr
 MS_CONTEXT=local-ctx
 MS_EXTENSION=s
-MS_ARI_URL=http://134.122.13.182:8088
 MS_ARI_USERNAME=admin
 MS_ARI_SECRET=changeit
 MC_HOST=mediacontroller.fonos
@@ -52,6 +58,7 @@ MC_AGI_PORT=4573
 
 DS_HOST=datasource.fonos
 DS_PORT=6379
+DS_SECRET=changeit
 
 FS_HOST=fs.fonos
 FS_PORT=9000
@@ -79,9 +86,3 @@ LOG_OPT_TAG_PREFIX=alpha
 
 # Misc
 CERTS_PATH=/certs
-
-# Warning: The following variables are meant to be temporal
-FS_HOST_PUBLIC=api.fonoster.io
-MC_HOST_PUBLIC=api.fonoster.io
-# Deprecated
-# SIPPROXY_HOST_PUBLIC=sip.fonoster.io

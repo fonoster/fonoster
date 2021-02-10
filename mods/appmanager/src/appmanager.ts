@@ -136,6 +136,12 @@ export default class AppManager extends FonosService {
 
     // TODO: Validate that the name is lower case and has no spaces
     const dirName = `${request.app.name}`
+
+    // Cleanup before deploy
+    if (fs.existsSync(`/tmp/${dirName}`))
+      fs.rmdirSync(`/tmp/${dirName}`, { recursive: true })
+    if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`)
+
     await fs.copy(request.dirPath, `/tmp/${dirName}`)
     await tar.create({ file: `/tmp/${dirName}.tgz`, cwd: '/tmp' }, [dirName])
     await this.storage.uploadObject({
@@ -144,8 +150,9 @@ export default class AppManager extends FonosService {
     })
 
     // Cleanup after deploy
-    fs.rmdirSync(`/tmp/${dirName}`, { recursive: true })
-    fs.unlink(`/tmp/${dirName}.tgz`)
+    if (fs.existsSync(`/tmp/${dirName}`))
+      fs.rmdirSync(`/tmp/${dirName}`, { recursive: true })
+    if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`)
 
     const app = new AppManagerPB.App()
     app.setName(request.app.name)
