@@ -6,8 +6,8 @@
 # EB = Events Broker (RabbitMQ)
 
 # Warning: A wrong host address will cause NAT isssues
-HOST_ADDR=134.209.38.11
-MS_ARI_URL=http://134.209.38.11:8088
+HOST_ADDR=142.93.178.18
+MS_ARI_URL=http://142.93.178.18:8088
 # Warning: The following variables are meant to be temporal
 FS_HOST_PUBLIC=api.fonoster.io
 MC_HOST_PUBLIC=api.fonoster.io

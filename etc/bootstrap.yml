@@ -8,18 +8,6 @@
     context:
       domainUri: sip.local
 
-# Routr Agent
-
-- apiVersion: v1beta1
-  kind: Agent
-  metadata:
-    name: Test Agent
-  spec:
-    domains: [sip.local]
-    credentials:
-      username: '1001'
-      secret: '1234'
-
 # Asterisk Peer
 
 - apiVersion: v1beta1
