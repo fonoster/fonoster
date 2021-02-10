@@ -55,7 +55,7 @@ export default class ListCommand extends Command {
           )
           t.cell(
             'Updated',
-            moment(new Date(app.getCreateTime()).toISOString()).fromNow()
+            moment(new Date(app.getUpdateTime()).toISOString()).fromNow()
           )
           t.newRow()
         })

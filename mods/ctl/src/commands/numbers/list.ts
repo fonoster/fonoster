@@ -58,7 +58,7 @@ export default class ListCommand extends Command {
           t.cell('AOR Link', number.getAorLink() || '--')
           t.cell('Ingress App', number.getIngressApp() || '--')
           t.cell('Created', moment(number.getCreateTime()).fromNow())
-          t.cell('Updated', moment(number.getCreateTime()).fromNow())
+          t.cell('Updated', moment(number.getUpdateTime()).fromNow())
           t.newRow()
         })
 

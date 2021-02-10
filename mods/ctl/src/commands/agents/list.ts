@@ -52,7 +52,7 @@ export default class ListCommand extends Command {
           t.cell('Privacy', agent.getPrivacy())
           t.cell('Domains', agent.getDomainsList().join(','))
           t.cell('Created', moment(agent.getCreateTime()).fromNow())
-          t.cell('Updated', moment(agent.getCreateTime()).fromNow())
+          t.cell('Updated', moment(agent.getUpdateTime()).fromNow())
           t.newRow()
         })
 
