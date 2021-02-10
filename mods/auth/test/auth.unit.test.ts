@@ -24,7 +24,7 @@ describe('@fonos/authentication', () => {
     sandbox.stub(Jwt)
   })
 
-  it('Should create a valid token', async () => {
+  it('should create a valid token', async () => {
     const stubValue = 'tokenfake'
     let jwtDependency = new Jwt()
     let authUtils = new AuthUtils(jwtDependency)
@@ -50,7 +50,7 @@ describe('@fonos/authentication', () => {
     expect(token.accessToken).to.be.equal(stubValue)
   })
 
-  it('Should return a decode jwt', async () => {
+  it('should return a decode jwt', async () => {
     const stubValue = {
       iss: 'iss',
       role: 'role',
@@ -68,7 +68,7 @@ describe('@fonos/authentication', () => {
     expect(token.data).to.be.equal(stubValue)
   })
 
-  it('Should generate a jwt', async () => {
+  it('should generate a jwt', async () => {
     const stubValue = {
       iss: 'iss',
       role: 'role',
@@ -79,7 +79,7 @@ describe('@fonos/authentication', () => {
     expect(token).to.be.not.null
   })
 
-  it('Should return an exception with no privatekey', async () => {
+  it('should return an exception with no privatekey', async () => {
     const stubValue = {
       iss: 'iss',
       role: 'role',
@@ -91,7 +91,7 @@ describe('@fonos/authentication', () => {
     })
   })
 
-  it('Should decode a token', async () => {
+  it('should decode a token', async () => {
     const stubValue = {
       iss: 'iss',
       role: 'role',
