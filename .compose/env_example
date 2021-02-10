@@ -47,7 +47,6 @@ MS_EXTENSION=s
 MS_ARI_URL=http://134.122.13.182:8088
 MS_ARI_USERNAME=admin
 MS_ARI_SECRET=changeit
-MS_EXT_EX=s
 MC_HOST=mediacontroller.fonos
 MC_AGI_PORT=4573
 
