@@ -27,6 +27,10 @@ import {
   HealthCheckResponse,
   HealthService
 } from 'grpc-ts-health-check'
+import CallManagerServer, {
+  ICallManagerServer
+} from './callmanager/callmanager'
+import { CallManagerService } from './protos/callmanager_grpc_pb'
 
 const healthCheckStatusMap = {
   '': HealthCheckResponse.ServingStatus.SERVING
@@ -50,6 +54,10 @@ async function main () {
   server.addService<IAppManagerServer>(
     AppManagerService,
     new AppManagerServer()
+  )
+  server.addService<ICallManagerServer>(
+    CallManagerService,
+    new CallManagerServer()
   )
   server.bind(endpoint, getServerCredentials())
   server.start()
