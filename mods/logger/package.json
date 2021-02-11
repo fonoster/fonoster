@@ -30,11 +30,11 @@
   },
   "dependencies": {
     "fluent-logger": "^3.4.1",
-    "winston": "^3.2.1"
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2",
-    "typescript": "^3.9.3"
+    "typescript": "^4.1.5"
   }
 }

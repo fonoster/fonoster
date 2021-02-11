@@ -29,9 +29,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
+    "@fonos/logger": "^0.0.60",
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.0",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2"
   }

@@ -33,6 +33,7 @@
     "@fonos/appmanager": "^0.0.60",
     "@fonos/callmanager": "^0.0.60",
     "@fonos/domains": "^0.0.60",
+    "@fonos/logger": "^0.0.60",
     "@fonos/numbers": "^0.0.60",
     "@fonos/providers": "^0.0.60",
     "@fonos/storage": "^0.0.60"
