@@ -89,6 +89,7 @@
     "moment": "^2.24.0",
     "node-plop": "^0.25.0",
     "ora": "^4.0.3",
+    "phone": "^2.4.20",
     "prettyjson": "^1.2.1",
     "truncate": "^2.1.0",
     "ts-node": "^9.1.1",
@@ -97,6 +98,7 @@
   },
   "devDependencies": {
     "@types/dockerode": "^2.5.34",
+    "@types/phone": "^2.4.0",
     "@types/prettyjson": "0.0.29",
     "@types/update-notifier": "^5.0.0",
     "dotenv": "^8.2.0",

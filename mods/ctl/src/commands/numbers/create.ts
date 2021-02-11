@@ -6,6 +6,7 @@ import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
 import { CommonPB, AppManagerPB, ProvidersPB } from '@fonos/core'
+const phone = require('phone')
 const inquirer = require('inquirer')
 
 export default class CreateCommand extends Command {
@@ -96,7 +97,11 @@ export default class CreateCommand extends Command {
       if (!answers.confirm) {
         console.log('Aborted')
       } else {
-        cli.action.start(`Creating number ${answers.e164Number}`)
+        const number = phone(answers.e164Number)[0]
+        if (!number)
+          throw `number ${answers.e164Number} is not a valid e164 number (e.g. +16471234567)`
+        cli.action.start(`Creating number ${number}`)
+        answers.e164Number = number
         const numbers = new Numbers()
         await numbers.createNumber(answers)
         await cli.wait(1000)
