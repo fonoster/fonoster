@@ -54,8 +54,8 @@
       "providers": {
         "description": "manage sip providers"
       },
-      "config": {
-        "description": "creates and installs certificates and tokens"
+      "auth": {
+        "description": "manage fonos credentials"
       }
     }
   },
@@ -91,6 +91,7 @@
     "ora": "^4.0.3",
     "phone": "^2.4.20",
     "prettyjson": "^1.2.1",
+    "promise-fs": "^2.1.1",
     "truncate": "^2.1.0",
     "ts-node": "^9.1.1",
     "tslib": "^1",
@@ -100,6 +101,7 @@
     "@types/dockerode": "^2.5.34",
     "@types/phone": "^2.4.0",
     "@types/prettyjson": "0.0.29",
+    "@types/promise-fs": "^2.1.1",
     "@types/update-notifier": "^5.0.0",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2",
