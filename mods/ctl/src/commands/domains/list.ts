@@ -51,8 +51,6 @@ export default class ListCommand extends Command {
           t.cell('Domain URI', domain.getDomainUri())
           t.cell('Egress Rule', domain.getEgressRule())
           t.cell('Egress Number Ref', domain.getEgressNumberRef())
-          t.cell('Created', moment(domain.getCreateTime()).fromNow())
-          t.cell('Updated', moment(domain.getUpdateTime()).fromNow())
           t.newRow()
         })
 
