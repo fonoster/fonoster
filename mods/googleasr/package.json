@@ -1,6 +1,6 @@
 {
   "name": "@fonos/googleasr",
-  "version": "0.0.58",
+  "version": "0.0.59",
   "description": "Wrapper for Google ASR",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,7 +29,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.58",
+    "@fonos/logger": "^0.0.59",
     "@google-cloud/speech": "^4.1.5",
     "axios": "^0.19.2",
     "deepmerge": "^4.2.2",
