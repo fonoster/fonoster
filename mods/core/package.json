@@ -50,6 +50,7 @@
     "ioredis": "^4.16.0",
     "jsonwebtoken": "^8.5.1",
     "minio": "^7.0.15",
+    "mongoose": "^5.11.15",
     "nanoid": "^3.1.20",
     "objectid": "^3.2.1",
     "phone": "^2.4.20",
@@ -60,6 +61,7 @@
   },
   "devDependencies": {
     "@types/ari-client": "^2.2.2",
+    "@types/bcryptjs": "^2.4.2",
     "@types/btoa": "^1.2.3",
     "@types/ioredis": "^4.16.5",
     "@types/jsonwebtoken": "^8.5.0",

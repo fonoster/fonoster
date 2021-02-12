@@ -102,7 +102,7 @@ function deserialize_fonos_domains_v1alpha1_UpdateDomainRequest(buffer_arg) {
 
 var DomainsService = exports.DomainsService = {
   // Lists domains from the SIP Proxy subsystem
-  listDomains: {
+listDomains: {
     path: '/fonos.domains.v1alpha1.Domains/ListDomains',
     requestStream: false,
     responseStream: false,
@@ -114,7 +114,7 @@ var DomainsService = exports.DomainsService = {
     responseDeserialize: deserialize_fonos_domains_v1alpha1_ListDomainsResponse,
   },
   // Creates a new Domain resource.
-  createDomain: {
+createDomain: {
     path: '/fonos.domains.v1alpha1.Domains/CreateDomain',
     requestStream: false,
     responseStream: false,
@@ -126,7 +126,7 @@ var DomainsService = exports.DomainsService = {
     responseDeserialize: deserialize_fonos_domains_v1alpha1_Domain,
   },
   // Gets Domain using its reference
-  getDomain: {
+getDomain: {
     path: '/fonos.domains.v1alpha1.Domains/GetDomain',
     requestStream: false,
     responseStream: false,
@@ -138,7 +138,7 @@ var DomainsService = exports.DomainsService = {
     responseDeserialize: deserialize_fonos_domains_v1alpha1_Domain,
   },
   // Change or update fields in a resource
-  updateDomain: {
+updateDomain: {
     path: '/fonos.domains.v1alpha1.Domains/UpdateDomain',
     requestStream: false,
     responseStream: false,
@@ -150,7 +150,7 @@ var DomainsService = exports.DomainsService = {
     responseDeserialize: deserialize_fonos_domains_v1alpha1_Domain,
   },
   // Hard delete of a domain resource
-  deleteDomain: {
+deleteDomain: {
     path: '/fonos.domains.v1alpha1.Domains/DeleteDomain',
     requestStream: false,
     responseStream: false,

@@ -36,7 +36,7 @@ function deserialize_fonos_callmanager_v1alpha1_CallResponse(buffer_arg) {
 
 var CallManagerService = exports.CallManagerService = {
   // Originates a call and pass channel to an application
-  call: {
+call: {
     path: '/fonos.callmanager.v1alpha1.CallManager/Call',
     requestStream: false,
     responseStream: false,

@@ -1,12 +1,9 @@
-import redis from '../../common/redis'
-import { App } from '../protos/appmanager_pb'
-import { FonosError } from '@fonos/errors'
-import jsonToApp from './json_to_app'
+import { User } from '../protos/usermanager_pb'
+import jsonParser from './json_parser'
+import { userOperation } from './src/operations/UserOperation'
 
-export default async function (name: string): Promise<App> {
-  const jsonString = await redis.get(name)
-  const app: App = jsonToApp(JSON.parse(jsonString))
-  if (!jsonString || App.Status.REMOVED == app.getStatus())
-    throw new FonosError(`App ${name} does not exist`)
-  return jsonToApp(JSON.parse(jsonString))
+export default async function (email: string): Promise<User> {
+  const jsonString = await userOperation.getUserByEmail(email)
+  const user: User = jsonParser(jsonString)
+  return jsonParser(jsonString)
 }

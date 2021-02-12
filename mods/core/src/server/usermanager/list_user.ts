@@ -1,6 +1,6 @@
-import redis from '../../common/redis'
-import { App } from '../protos/appmanager_pb'
-import jsonToApp from './json_to_app'
+import { userOperation } from './src/operations/UserOperation'
+import { User } from '../protos/usermanager_pb'
+import jsonParse from './json_parser'
 
 export default async function (pageToken: number, pageSize: number) {
   if (!pageToken) return {}
@@ -9,20 +9,23 @@ export default async function (pageToken: number, pageSize: number) {
 
   let upperRange = pageToken + pageSize
 
-  const appsNames = await redis.lrange('apps', pageToken, upperRange)
-  const apps: App[] = []
+  const userMails = await userOperation.getUsers()
+  const users: User[] = []
 
-  for (const idx in appsNames) {
-    const jsonString = await redis.get(appsNames[idx])
-    const app: App = jsonToApp(JSON.parse(jsonString))
-    if (App.Status.REMOVED != app.getStatus())
-      apps.push(jsonToApp(JSON.parse(jsonString)))
+  for (const idx in userMails) {
+    let usrMail = userMails[idx].email
+
+    const jsonString = await userOperation.getUserByEmail(usrMail)
+    const user: User = jsonParse(jsonString)
+
+    if (User.Status.DELETED != user.getStatus())
+      users.push(jsonParse(jsonString))
   }
 
   upperRange++
 
   return {
-    apps,
+    users,
     pageToken: upperRange
   }
 }

@@ -103,7 +103,7 @@ function deserialize_fonos_common_v1alpha1_Empty(buffer_arg) {
 
 var AgentsService = exports.AgentsService = {
   // Lists Agents from the SIP Proxy subsystem
-  listAgents: {
+listAgents: {
     path: '/fonos.agents.v1alpha1.Agents/ListAgents',
     requestStream: false,
     responseStream: false,
@@ -115,7 +115,7 @@ var AgentsService = exports.AgentsService = {
     responseDeserialize: deserialize_fonos_agents_v1alpha1_ListAgentsResponse,
   },
   // Creates a new Agent resource.
-  createAgent: {
+createAgent: {
     path: '/fonos.agents.v1alpha1.Agents/CreateAgent',
     requestStream: false,
     responseStream: false,
@@ -127,7 +127,7 @@ var AgentsService = exports.AgentsService = {
     responseDeserialize: deserialize_fonos_agents_v1alpha1_Agent,
   },
   // Gets Agent using its reference
-  getAgent: {
+getAgent: {
     path: '/fonos.agents.v1alpha1.Agents/GetAgent',
     requestStream: false,
     responseStream: false,
@@ -139,7 +139,7 @@ var AgentsService = exports.AgentsService = {
     responseDeserialize: deserialize_fonos_agents_v1alpha1_Agent,
   },
   // Change or update fields in a resource
-  updateAgent: {
+updateAgent: {
     path: '/fonos.agents.v1alpha1.Agents/UpdateAgent',
     requestStream: false,
     responseStream: false,
@@ -151,7 +151,7 @@ var AgentsService = exports.AgentsService = {
     responseDeserialize: deserialize_fonos_agents_v1alpha1_Agent,
   },
   // Hard delete of a Agent resource
-  deleteAgent: {
+deleteAgent: {
     path: '/fonos.agents.v1alpha1.Agents/DeleteAgent',
     requestStream: false,
     responseStream: false,
