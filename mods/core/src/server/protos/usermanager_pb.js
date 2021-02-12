@@ -1177,8 +1177,8 @@ proto.fonos.usermanager.v1alpha1.User.toObject = function(includeInstance, msg) 
     lastname: jspb.Message.getFieldWithDefault(msg, 2, ""),
     username: jspb.Message.getFieldWithDefault(msg, 3, ""),
     email: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    roles: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    role: jspb.Message.getFieldWithDefault(msg, 6, ""),
     createTime: jspb.Message.getFieldWithDefault(msg, 7, ""),
     updateTime: jspb.Message.getFieldWithDefault(msg, 8, ""),
     status: jspb.Message.getFieldWithDefault(msg, 9, 0),
@@ -1237,11 +1237,11 @@ proto.fonos.usermanager.v1alpha1.User.deserializeBinaryFromReader = function(msg
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.setPassword(value);
+      msg.setAccessKeyId(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
-      msg.setRoles(value);
+      msg.setRole(value);
       break;
     case 7:
       var value = /** @type {string} */ (reader.readString());
@@ -1318,14 +1318,14 @@ proto.fonos.usermanager.v1alpha1.User.serializeBinaryToWriter = function(message
       f
     );
   }
-  f = message.getPassword();
+  f = message.getAccessKeyId();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getRoles();
+  f = message.getRole();
   if (f.length > 0) {
     writer.writeString(
       6,
@@ -1442,10 +1442,10 @@ proto.fonos.usermanager.v1alpha1.User.prototype.setEmail = function(value) {
 
 
 /**
- * optional string password = 5;
+ * optional string access_key_id = 5;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getPassword = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getAccessKeyId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
@@ -1454,16 +1454,16 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getPassword = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setPassword = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setAccessKeyId = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * optional string roles = 6;
+ * optional string role = 6;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getRoles = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getRole = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
@@ -1472,7 +1472,7 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getRoles = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setRoles = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setRole = function(value) {
   return jspb.Message.setProto3StringField(this, 6, value);
 };
 

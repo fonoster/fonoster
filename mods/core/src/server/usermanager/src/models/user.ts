@@ -6,8 +6,8 @@ export interface User extends mongoose.Document {
   lastname: string
   username: string
   email: string
-  password: string
-  roles: Role
+  accessKeyId: string
+  role: Role
   create_time: string
   update_time: string
   status: string
@@ -18,8 +18,8 @@ const UserSchema: Schema = new Schema({
   lastname: { type: String, required: true },
   username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  roles: { type: Schema.Types.ObjectId, required: true },
+  accessKeyId: { type: String, required: true },
+  role: { type: Schema.Types.String, required: true },
   create_time: { type: String },
   update_time: { type: String },
   status: { type: String, required: true }

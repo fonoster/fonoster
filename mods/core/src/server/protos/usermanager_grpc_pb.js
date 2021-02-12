@@ -126,14 +126,7 @@ getUser: {
     responseSerialize: serialize_fonos_usermanager_v1alpha1_User,
     responseDeserialize: deserialize_fonos_usermanager_v1alpha1_User,
   },
-  // Creates a new resource type User. Fails with ALREADY_EXISTS if
-// User-name is present in the system. The Userlication creation, consist of:
-//
-//    1. Validing a Fonos User
-//    2. Zipping (or taring) the Userlication
-//    3. Uploading the the file to a fonos endpoint
-//    4. Registering and activatng the Userlication
-createUser: {
+  createUser: {
     path: '/fonos.usermanager.v1alpha1.UserManager/CreateUser',
     requestStream: false,
     responseStream: false,

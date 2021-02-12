@@ -170,11 +170,11 @@ export class User extends jspb.Message {
     getEmail(): string;
     setEmail(value: string): User;
 
-    getPassword(): string;
-    setPassword(value: string): User;
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): User;
 
-    getRoles(): string;
-    setRoles(value: string): User;
+    getRole(): string;
+    setRole(value: string): User;
 
     getCreateTime(): string;
     setCreateTime(value: string): User;
@@ -206,8 +206,8 @@ export namespace User {
         lastname: string,
         username: string,
         email: string,
-        password: string,
-        roles: string,
+        accessKeyId: string,
+        role: string,
         createTime: string,
         updateTime: string,
         status: User.Status,

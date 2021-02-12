@@ -14,6 +14,8 @@ import DomainsPB from './server/protos/domains_pb'
 import AgentsService from './server/protos/agents_grpc_pb'
 import AgentsPB from './server/protos/agents_pb'
 import CommonPB from './server/protos/common_pb'
+import UserManagerService from './server/protos/usermanager_grpc_pb'
+import UserManagerPB from './server/protos/usermanager_pb'
 
 export {
   FonosService,
@@ -31,5 +33,7 @@ export {
   DomainsPB,
   AgentsService,
   AgentsPB,
-  CommonPB
+  CommonPB,
+  UserManagerService,
+  UserManagerPB
 }

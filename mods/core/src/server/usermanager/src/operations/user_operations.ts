@@ -25,8 +25,8 @@ class UserOperation {
       lastname,
       username,
       email,
-      password,
-      roles,
+      role,
+      accessKeyId,
       create_time,
       update_time,
       status
@@ -36,8 +36,8 @@ class UserOperation {
       lastname,
       username,
       email,
-      password,
-      roles,
+      role,
+      accessKeyId,
       create_time,
       update_time,
       status
@@ -46,7 +46,7 @@ class UserOperation {
     console.log({ new: users })
   }
 
-  public async updateUser (mail: string, new_status: string) {
+  public async updateUserStatus (mail: string, new_status: string) {
     await UserModel.updateOne(
       {
         email: mail

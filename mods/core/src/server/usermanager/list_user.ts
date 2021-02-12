@@ -1,4 +1,4 @@
-import { userOperation } from './src/operations/UserOperation'
+import { userOperation } from './src/operations/user_operations'
 import { User } from '../protos/usermanager_pb'
 import jsonParse from './json_parser'
 
