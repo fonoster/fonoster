@@ -32,6 +32,7 @@
     "@fonos/agents": "^0.0.61",
     "@fonos/appmanager": "^0.0.61",
     "@fonos/callmanager": "^0.0.61",
+    "@fonos/usermanager": "^0.0.61",
     "@fonos/domains": "^0.0.61",
     "@fonos/logger": "^0.0.61",
     "@fonos/numbers": "^0.0.61",
