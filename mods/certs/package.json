@@ -32,6 +32,7 @@
     "@types/acme-client": "^3.3.0",
     "@types/jsonwebtoken": "^8.5.0",
     "acme-client": "^4.1.2",
+    "axios": "^0.21.1",
     "btoa": "^1.2.1",
     "jsonwebtoken": "^8.5.1"
   },
