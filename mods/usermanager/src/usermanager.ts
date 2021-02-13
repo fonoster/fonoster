@@ -1,12 +1,11 @@
 import { FonosService, UserManagerService, UserManagerPB } from '@fonos/core'
-import { use } from 'chai'
 
 interface CreateUserRequest {
-  firstname: string,
-  lastname: string,
+  firstName: string,
+  lastName: string,
   username: string,
   email : string,
-  access_key_id : string
+  accessKeyId : string
 }
 
 interface User {
@@ -14,10 +13,10 @@ interface User {
   lastname: string,
   username: string,
   email : string,
-  access_key_id : string
+  accessKeyId : string
   role : string,
-  create_time : string,
-  update_time : string,
+  createTime : string,
+  updateTime : string,
   status : string
 }
 
@@ -57,27 +56,18 @@ export default class UserManager extends FonosService {
    * @param {RoleHasAccessRequest} request - The name of the application
    * @example
    *
-   * users.roleHasAccess({role: 'USER', sevice: '...'})
+   * users.createUser({})
    * .then(hasAccess => {
    *   console.log('hasAccess:' + hasAccess)  // returns true if role has access to the service
    * }).catch(e => console.error(e))          // an error occurred
    */
-
-  /*async createUser (request: RoleHasAccessRequest): Promise<boolean> {
-    /*const r = new UserManagerPB.RoleHasAccessRequest()
-    r.setRole(request.role)
-    r.setService(request.service)
-    return super.getService().roleHasAccess().sendMessage(r)
-  }*/
-
-
   async createUser (request: CreateUserRequest): Promise<User> {
     const user = new UserManagerPB.User();
-    user.setFirstname(request.firstname)
-    user.setLastname(request.lastname)
+    user.setFirstname(request.firstName)
+    user.setLastname(request.lastName)
     user.setUsername(request.username)
     user.setEmail(request.email)
-    user.setAccessKeyId(request.access_key_id)
+    user.setAccessKeyId(request.accessKeyId)
     const req = new UserManagerPB.CreateUserRequest()
     req.setUser(user);
 
@@ -91,15 +81,11 @@ export default class UserManager extends FonosService {
       lastname: userFromDatabase.getLastName(),
       username: userFromDatabase.getUserName(),
       email : userFromDatabase.getEmail(),
-      access_key_id : userFromDatabase.getAccessKeyId(),
+      accessKeyId : userFromDatabase.getAccessKeyId(),
       role : userFromDatabase.getRole(),
-      create_time : userFromDatabase.getCreateTime(),
-      update_time : userFromDatabase.UpdateTime(),
+      createTime : userFromDatabase.getCreateTime(),
+      updateTime : userFromDatabase.UpdateTime(),
       status : userFromDatabase.getStatus()
     }
-
-
   }
-
-
 }

@@ -36,9 +36,9 @@ import CallManagerServer, {
 } from './callmanager/callmanager'
 import { CallManagerService } from './protos/callmanager_grpc_pb'
 
-import connect from '../server/usermanager/src/util/database'
-const db = 'mongodb://localhost:27017/db'
-connect({ db })
+//import connect from '../server/usermanager/src/util/database'
+//const db = 'mongodb://localhost:27017/db'
+//connect({ db })
 
 const healthCheckStatusMap = {
   '': HealthCheckResponse.ServingStatus.SERVING
