@@ -7,6 +7,8 @@
   "references": [
     { "path":  "../storage" },
     { "path":  "../appmanager" },
+    { "path":  "../callmanager" },
+    { "path":  "../logger" },
     { "path":  "../providers" },
     { "path":  "../numbers" },
     { "path":  "../domains" },

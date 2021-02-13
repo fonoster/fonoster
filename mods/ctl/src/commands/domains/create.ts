@@ -18,21 +18,26 @@ export default class CreateCommand extends Command {
     const answers = await inquirer.prompt([
       {
         name: 'name',
-        message: 'domain name',
+        message: 'friendly name',
         type: 'input'
       },
       {
         name: 'domainUri',
-        message: 'domain uri',
+        message: 'domain uri (e.g acme.com)',
         type: 'input'
       },
-      { name: 'egressRule', message: 'egress rule', type: 'input' },
       {
         name: 'egressNumberRef',
         message: 'number reference',
         type: 'input'
       },
       {
+        name: 'egressRule',
+        message: 'egress rule',
+        type: 'input',
+        default: '.*'
+      },
+      /*{
         name: 'accessDeny',
         message: 'access deny list',
         type: 'input',
@@ -42,7 +47,7 @@ export default class CreateCommand extends Command {
         name: 'accessAllow',
         message: 'access allow list',
         type: 'input'
-      },
+      },*/
       {
         name: 'confirm',
         message: 'does everything look good?',
@@ -58,6 +63,7 @@ export default class CreateCommand extends Command {
         const accessAllow = answers.accessAllow
         answers.accessDeny = accessDeny ? accessDeny.split(',') : []
         answers.accessAllow = accessAllow ? accessAllow.split(',') : []
+        if (!answers.egressNumberRef) answers.egressRule = void 0
 
         cli.action.start(`Creating domain ${answers.name}`)
 

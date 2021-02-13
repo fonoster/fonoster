@@ -21,10 +21,3 @@ services:
     volumes:
       - ../etc/bootstrap.yml:/bootstrap.yml
 
-  mediaserver:
-    depends_on:
-      sipproxy:
-        condition: service_healthy
-    ports:
-      - ${MS_SIP_PORT}:${MS_SIP_PORT}
-      - ${MS_RTP_PORT_START}-${MS_RTP_PORT_END}:${MS_RTP_PORT_START}-${MS_RTP_PORT_END}/udp

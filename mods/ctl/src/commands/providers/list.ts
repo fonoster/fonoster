@@ -57,8 +57,6 @@ export default class ListCommand extends Command {
           t.cell('Host', provider.getHost())
           t.cell('Transport', provider.getTransport())
           t.cell('Expires', provider.getExpires())
-          t.cell('Created', moment(provider.getCreateTime()).fromNow())
-          t.cell('Updated', moment(provider.getCreateTime()).fromNow())
           t.newRow()
         })
 

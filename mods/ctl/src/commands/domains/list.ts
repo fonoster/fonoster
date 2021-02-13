@@ -46,13 +46,14 @@ export default class ListCommand extends Command {
         const t = new Table()
 
         list.forEach((domain: DomainsPB.Domain) => {
+          const egressRule = domain.getEgressNumberRef()
+            ? domain.getEgressRule()
+            : 'na'
           t.cell('Ref', domain.getRef())
           t.cell('Name', domain.getName())
           t.cell('Domain URI', domain.getDomainUri())
-          t.cell('Egress Rule', domain.getEgressRule())
+          t.cell('Egress Rule', egressRule)
           t.cell('Egress Number Ref', domain.getEgressNumberRef())
-          t.cell('Created', moment(domain.getCreateTime()).fromNow())
-          t.cell('Updated', moment(domain.getCreateTime()).fromNow())
           t.newRow()
         })
 

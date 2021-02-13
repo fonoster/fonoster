@@ -47,7 +47,7 @@ export default class CreateCommand extends Command {
         name: 'expires',
         message: 'expire',
         type: 'input',
-        default: 3600
+        default: 60
       },
       {
         name: 'confirm',

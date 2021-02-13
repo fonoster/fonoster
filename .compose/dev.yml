@@ -8,6 +8,7 @@ services:
   apiserver:
     environment:
       ALLOW_INSECURE: 'true'
+      DS_SECRET: ${DS_SECRET}
   datasource:
     ports:
       - ${DS_PORT}:${DS_PORT}
@@ -20,7 +21,3 @@ services:
   tts:
     ports:
       - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
-  mediaserver:
-    extends:
-      file: dev.mediaserver.yml
-      service: mediaserver 

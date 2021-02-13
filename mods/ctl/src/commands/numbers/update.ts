@@ -75,7 +75,7 @@ export class UpdateCommand extends Command {
         answers.accessDeny = accessDeny ? accessDeny.split(',') : []
         answers.accessAllow = accessAllow ? accessAllow.split(',') : []
 
-        cli.action.start(`Updating number ${answers.name}`)
+        cli.action.start(`Updating number`)
 
         await numbers.updateNumber(answers)
         await cli.wait(1000)

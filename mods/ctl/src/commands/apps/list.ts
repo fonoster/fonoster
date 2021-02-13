@@ -49,14 +49,6 @@ export default class ListCommand extends Command {
         apps.forEach((app: any) => {
           t.cell('Name', app.getName())
           t.cell('Description', truncate(app.getDescription(), 32))
-          t.cell(
-            'Created',
-            moment(new Date(app.getCreateTime()).toISOString()).fromNow()
-          )
-          t.cell(
-            'Updated',
-            moment(new Date(app.getCreateTime()).toISOString()).fromNow()
-          )
           t.newRow()
         })
 

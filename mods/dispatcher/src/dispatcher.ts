@@ -5,6 +5,7 @@ import Verbs from '@fonos/voice'
 import getIngressInfo from './utils'
 import fs from 'fs'
 import path from 'path'
+import phone from 'phone'
 import { NodeVM } from 'vm2'
 const { AGIServer } = require('agi-node')
 const vm = new NodeVM(require('../etc/vm.json'))
@@ -17,12 +18,8 @@ if (process.env.NODE_ENV === 'dev') {
 
 function dispatch (channel: any) {
   try {
-    const toHeader = channel
-      .getVariable('TO_HEADER')
-      .replace('<', '')
-      .replace('>', '')
-      .replace('sip:', '')
-    const ingressInfo = getIngressInfo(toHeader.match(/^([^@]*)@/)[1])
+    const e164Number = phone(channel.getVariable('DID_INFO'))[0]
+    const ingressInfo = getIngressInfo(e164Number)
     const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
     const chann = new Verbs(channel, {
       tts: new MaryTTS(),

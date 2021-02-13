@@ -1,6 +1,6 @@
 {
   "name": "@fonos/ctl",
-  "version": "0.0.52",
+  "version": "0.0.61",
   "description": "Command-Line for Fonos",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -54,8 +54,8 @@
       "providers": {
         "description": "manage sip providers"
       },
-      "config": {
-        "description": "creates and installs certificates and tokens"
+      "auth": {
+        "description": "manage fonos credentials"
       }
     }
   },
@@ -70,37 +70,41 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/agents": "^0.0.52",
-    "@fonos/appmanager": "^0.0.52",
-    "@fonos/core": "^0.0.52",
-    "@fonos/domains": "^0.0.52",
-    "@fonos/logger": "^0.0.52",
-    "@fonos/numbers": "^0.0.52",
-    "@fonos/providers": "^0.0.52",
-    "@kubernetes/client-node": "^0.12.0",
-    "@oclif/command": "^1.5.19",
-    "@oclif/config": "^1.14.0",
-    "@oclif/plugin-help": "^2.2.3",
+    "@fonos/agents": "^0.0.61",
+    "@fonos/appmanager": "^0.0.61",
+    "@fonos/core": "^0.0.61",
+    "@fonos/domains": "^0.0.61",
+    "@fonos/logger": "^0.0.61",
+    "@fonos/numbers": "^0.0.61",
+    "@fonos/providers": "^0.0.61",
+    "@kubernetes/client-node": "^0.13.2",
+    "@oclif/command": "^1.8.0",
+    "@oclif/config": "^1.17.0",
+    "@oclif/plugin-help": "^3.2.2",
     "btoa": "^1.2.1",
-    "cli-ux": "^5.4.5",
+    "cli-ux": "^5.5.1",
     "dockerode": "^3.2.1",
     "easy-table": "^1.1.1",
-    "inquirer": "^7.1.0",
-    "moment": "^2.24.0",
-    "node-plop": "^0.25.0",
-    "ora": "^4.0.3",
+    "inquirer": "^7.3.3",
+    "moment": "^2.29.1",
+    "node-plop": "^0.26.2",
+    "ora": "^5.3.0",
+    "phone": "^2.4.20",
     "prettyjson": "^1.2.1",
+    "promise-fs": "^2.1.1",
     "truncate": "^2.1.0",
     "ts-node": "^9.1.1",
-    "tslib": "^1",
-    "update-notifier": "^5.0.1"
+    "tslib": "^2",
+    "update-notifier": "^5.1.0"
   },
   "devDependencies": {
-    "@types/dockerode": "^2.5.34",
+    "@types/dockerode": "^3.2.2",
+    "@types/phone": "^2.4.0",
     "@types/prettyjson": "0.0.29",
+    "@types/promise-fs": "^2.1.1",
     "@types/update-notifier": "^5.0.0",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2",
-    "typescript": "^3.9.3"
+    "typescript": "^4.1.5"
   }
 }

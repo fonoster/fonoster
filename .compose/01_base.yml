@@ -10,6 +10,7 @@ services:
     environment:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
+      DS_SECRET: ${DS_SECRET}
       # Warning: Temporal variable
       FS_HOST: ${FS_HOST_PUBLIC}
       FS_PORT: ${FS_PORT}
@@ -24,6 +25,12 @@ services:
       LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
       LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
       MS_ENDPOINT: ${MS_ENDPOINT}
+      MS_TRUNK: ${MS_TRUNK}
+      MS_CONTEXT: ${MS_CONTEXT}
+      MS_EXTENSION: ${MS_EXTENSION}
+      MS_ARI_URL: ${MS_ARI_URL}
+      MS_ARI_USERNAME: ${MS_ARI_USERNAME}
+      MS_ARI_SECRET: ${MS_ARI_SECRET}
     ports:
       - ${APISERVER_PORT}:${APISERVER_PORT}
     logging:

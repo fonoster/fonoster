@@ -11,6 +11,10 @@ import StorageServer, {
   IStorageServer,
   StorageService
 } from './storage/storage'
+import UserManagerServer, {
+  UserManagerService
+} from './usermanager/usermanager'
+import { IUserManagerServer } from './protos/usermanager_grpc_pb'
 import AppManagerServer, { AppManagerService } from './appmanager/appmanager'
 import { IAppManagerServer } from './protos/appmanager_grpc_pb'
 import { INumbersServer } from './protos/numbers_grpc_pb'
@@ -27,6 +31,14 @@ import {
   HealthCheckResponse,
   HealthService
 } from 'grpc-ts-health-check'
+import CallManagerServer, {
+  ICallManagerServer
+} from './callmanager/callmanager'
+import { CallManagerService } from './protos/callmanager_grpc_pb'
+
+import connect from '../server/usermanager/src/util/database'
+const db = 'mongodb://localhost:27017/db'
+connect({ db })
 
 const healthCheckStatusMap = {
   '': HealthCheckResponse.ServingStatus.SERVING
@@ -51,6 +63,15 @@ async function main () {
     AppManagerService,
     new AppManagerServer()
   )
+
+  server.addService<ICallManagerServer>(
+    CallManagerService,
+    new CallManagerServer())
+
+  server.addService<IUserManagerServer>(
+    UserManagerService,
+    new UserManagerServer())
+
   server.bind(endpoint, getServerCredentials())
   server.start()
 

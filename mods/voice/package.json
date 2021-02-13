@@ -1,8 +1,8 @@
 {
   "name": "@fonos/voice",
-  "version": "0.0.52",
+  "version": "0.0.61",
   "description": "Voice verbs",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "dist/index",
@@ -31,12 +31,12 @@
   "devDependencies": {
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2",
-    "typescript": "^3.9.3"
+    "typescript": "^4.1.5"
   },
   "dependencies": {
-    "@fonos/events": "^0.0.52",
-    "@fonos/logger": "^0.0.52",
-    "@fonos/tts": "^0.0.52",
+    "@fonos/events": "^0.0.61",
+    "@fonos/logger": "^0.0.61",
+    "@fonos/tts": "^0.0.61",
     "objectid": "^3.2.1"
   }
 }
