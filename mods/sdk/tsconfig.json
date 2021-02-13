@@ -12,7 +12,8 @@
     { "path":  "../providers" },
     { "path":  "../numbers" },
     { "path":  "../domains" },
-    { "path":  "../agents" }
+    { "path":  "../agents" },
+    { "path":  "../usermanager" }
   ],  
   "exclude": [
     "node_modules",

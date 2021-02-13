@@ -63,8 +63,6 @@ class UserManagerServer implements IUserManagerServer {
   ) {
     if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
-      let user = call.request.getUser()
-
       callback(null, await createUser(call.request.getUser()))
     } catch (e) {
       callback(e, null)
