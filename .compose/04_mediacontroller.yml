@@ -30,7 +30,7 @@ services:
         aliases:
           - ${MC_HOST}
     secrets:
-      - source: jwt-salt
+      - source: jwt.salt
         target: /home/fonos/.fonos/jwt.salt
       - source: config
         target: /home/fonos/.fonos/config

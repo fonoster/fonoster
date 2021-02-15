@@ -53,7 +53,7 @@ services:
     secrets:
     - source: config
       target: /home/fonos/.fonos/config
-    - source: jwt-salt
+    - source: jwt.salt
       target: /home/fonos/.fonos/jwt.salt
   datasource:
     command:
@@ -161,7 +161,7 @@ services:
     secrets:
     - source: config
       target: /home/fonos/.fonos/config
-    - source: jwt-salt
+    - source: jwt.salt
       target: /home/fonos/.fonos/jwt.salt
     volumes:
     - apps:/home/fonos/apps:rw
