@@ -39,7 +39,7 @@ import CallManagerServer, {
 import { CallManagerService } from './protos/callmanager_grpc_pb'
 
 import connect from '../server/usermanager/src/util/database'
-const db = 'mongodb://localhost:27017/db'
+const db = 'mongodb://api.fonoster.net:27017/db'
 connect({ db })
 
 const healthCheckStatusMap = {

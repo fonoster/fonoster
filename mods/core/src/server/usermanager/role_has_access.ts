@@ -1,5 +1,4 @@
 import RoleController from './src/operations/role_operations'
-import Role from './src/models/role'
 
 export default async function (
   role: string,
@@ -7,9 +6,10 @@ export default async function (
 ): Promise<boolean> {
   const controller = new RoleController()
   const roles = await controller.getRoles({
-    _id: role,
-    access: service
+    role: role,
+    access: [service]
   })
+
   return new Promise((resolve, reject) => {
     try {
       if (!roles || roles.length == 0) resolve(false)
