@@ -1,4 +1,4 @@
-let access = [
+const access = [
     "/fonos.usermanager.v1alpha1.UserManager/ListUsers",
     "/fonos.usermanager.v1alpha1.UserManager/GetUser",
     "/fonos.usermanager.v1alpha1.UserManager/CreateUser",
@@ -33,9 +33,9 @@ let access = [
     "/fonos.agents.v1alpha1.Agents/GetAgent",
     "/fonos.agents.v1alpha1.Agents/UpdateAgent",
     "/fonos.agents.v1alpha1.Agents/DeleteAgent",
-] 
+];
 
-let roles =  [
+const roles =  [
     {
         role:"GUEST",
         description:"With access to createUser",
@@ -53,6 +53,7 @@ let roles =  [
         description:"Access to everything",
         access:access
     }
-]
-use fonos
+];
+
+db = db.getSiblingDB('fonos');
 db.roles.insertMany(roles);
