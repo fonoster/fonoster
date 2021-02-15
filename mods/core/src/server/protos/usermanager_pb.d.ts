@@ -158,14 +158,11 @@ export namespace DeleteUserRequest {
 }
 
 export class User extends jspb.Message { 
-    getFirstname(): string;
-    setFirstname(value: string): User;
+    getFirstName(): string;
+    setFirstName(value: string): User;
 
-    getLastname(): string;
-    setLastname(value: string): User;
-
-    getUsername(): string;
-    setUsername(value: string): User;
+    getLastName(): string;
+    setLastName(value: string): User;
 
     getEmail(): string;
     setEmail(value: string): User;
@@ -202,9 +199,8 @@ export class User extends jspb.Message {
 
 export namespace User {
     export type AsObject = {
-        firstname: string,
-        lastname: string,
-        username: string,
+        firstName: string,
+        lastName: string,
         email: string,
         accessKeyId: string,
         role: string,
