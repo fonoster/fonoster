@@ -21,7 +21,7 @@ export default class extends Command {
     const answers: any = await inquirer.prompt([
       {
         name: 'endpoint',
-        message: 'api endpoint',
+        message: 'API endpoint',
         type: 'input',
         default: 'api.fonoster.io:50052'
       },

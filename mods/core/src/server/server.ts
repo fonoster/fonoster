@@ -5,6 +5,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
   require('dotenv').config({ path: env })
 }
 
+import { getSalt } from '@fonos/certs'
 import AuthMiddleware from '../common/auth/auth_middleware'
 import interceptor from '@pionerlabs/grpc-interceptors'
 import logger from '@fonos/logger'
@@ -75,7 +76,9 @@ async function main () {
     new UserManagerServer()
   )
 
-  let authMiddleware = new AuthMiddleware('secret')
+  console.log(`privateKey=${getSalt()}`)
+
+  const authMiddleware = new AuthMiddleware(getSalt())
   server.bind(endpoint, getServerCredentials())
   server.use(authMiddleware.middleware)
   server.start()

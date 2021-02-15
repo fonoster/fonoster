@@ -30,7 +30,7 @@ export default class JWT implements ITokenManager {
   async decode (
     token: string,
     privateKey: string,
-    ignorateExpiration: boolean = false
+    ignorateExpiration: boolean = true
   ): Promise<JwtPayload> {
     try {
       // @ts-ignore
