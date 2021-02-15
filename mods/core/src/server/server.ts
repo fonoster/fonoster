@@ -37,10 +37,9 @@ import CallManagerServer, {
   ICallManagerServer
 } from './callmanager/callmanager'
 import { CallManagerService } from './protos/callmanager_grpc_pb'
+import mongoose from 'mongoose'
+import { db } from '../common/mongo'
 
-import connect from '../server/usermanager/src/util/database'
-const db = 'mongodb://api.fonoster.net:27017/db'
-connect({ db })
 
 const healthCheckStatusMap = {
   '': HealthCheckResponse.ServingStatus.SERVING
@@ -75,10 +74,24 @@ async function main () {
     new UserManagerServer()
   )
 
+  let mongoConnection = (db : any) => {
+    mongoose
+    .connect(db.toString(), { useNewUrlParser: true })
+    .then(() => {
+      return console.info(`Successfully connected to ${db}`)
+    })
+    .catch(error => {
+      console.error('Error connecting to database: ', error)
+      return process.exit(1)
+    })
+  }
+  mongoConnection(db);
+
   let authMiddleware = new AuthMiddleware('secret')
   server.bind(endpoint, getServerCredentials())
   server.use(authMiddleware.middleware)
   server.start()
+
 
   logger.log(
     'info',
