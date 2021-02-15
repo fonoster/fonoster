@@ -1,8 +1,8 @@
 import RoleModel, { Role } from '../models/role'
 
 export default class RoleController {
-  public async getRoles () {
-    return await RoleModel.find({})
+  public async getRoles (filter: object = {}) {
+    return await RoleModel.find(filter)
   }
 
   public async createRole (obj: any) {

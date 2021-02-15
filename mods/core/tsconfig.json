@@ -9,7 +9,8 @@
       { "path":  "../errors" },
       { "path":  "../types" },
       { "path":  "../events" },
-      { "path":  "../logger" }
+      { "path":  "../logger" },
+      { "path":  "../auth"}
     ],
     "exclude": [
       "node_modules",

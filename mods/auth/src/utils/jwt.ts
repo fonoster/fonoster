@@ -15,7 +15,7 @@ export default class JWT implements ITokenManager {
   async encode (
     payload: JwtPayload,
     privateKey: string,
-    expiration: Number = 500
+    expiration: String = '30d'
   ): Promise<string> {
     if (!privateKey) throw new Error('Token generation failure')
     // @ts-ignore
@@ -38,7 +38,8 @@ export default class JWT implements ITokenManager {
         ignoreExpiration: ignorateExpiration
       })) as JwtPayload
     } catch (e) {
-      logger.log('error', '@fonos/authentication [Bad token]')
+      logger.log('error', '@fonos/auth [Bad token]')
+      throw new Error(e)
     }
   }
 }
