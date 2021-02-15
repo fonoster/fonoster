@@ -1,8 +1,8 @@
 import RoleModel, { Role } from '../models/role'
 
 interface Filter {
-  readonly role: String,
-  readonly access: Array<String> 
+  readonly role: string,
+  readonly access: string
 }
 
 export default class RoleController {

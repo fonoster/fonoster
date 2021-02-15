@@ -1,6 +1,6 @@
 import grpc from 'grpc'
 import Auth, { Jwt } from '@fonos/auth'
-import role_has_access from '../../../src/server/usermanager/role_has_access'
+import roleHasAccess from '../../../src/server/usermanager/role_has_access'
 export default class AuthMiddleware {
   secretKeyToken: string
   constructor (secretKey: string) {
@@ -20,25 +20,26 @@ export default class AuthMiddleware {
         })
       }
 
-      const accessKeyId = ctx.call.metadata._internal_repr.access_key_id.toString()
       const accessKeySecret = ctx.call.metadata._internal_repr.access_key_secret.toString()
       const pathRequest = ctx.service.path
       jwtHandler
         .validateToken({ accessToken: accessKeySecret }, this.secretKeyToken)
         .then(async result => {
           if (result.isValid) {
-            let hasAccess = await role_has_access(result.data.role, pathRequest)
+            let hasAccess = await roleHasAccess(result.data.role, pathRequest)
             if (hasAccess) {
               await next()
             } else {
               errorCb({
                 code: grpc.status.PERMISSION_DENIED,
-                message: 'PERMISSION_DENIED'
+                // TODO: Improve error message
+                message: 'PERMISSION_DENIED' 
               })
             }
           } else {
             errorCb({
               code: grpc.status.UNAUTHENTICATED,
+              // TODO: Improve error message
               message: 'UNAUTHENTICATED'
             })
           }

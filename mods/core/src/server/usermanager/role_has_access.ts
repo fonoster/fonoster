@@ -7,7 +7,7 @@ export default async function (
   const controller = new RoleController()
   const roles = await controller.getRoles({
     role: role,
-    access: [service]
+    access: service
   })
 
   return new Promise((resolve, reject) => {

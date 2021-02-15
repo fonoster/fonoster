@@ -28,11 +28,8 @@ interface User {
  *
  * const Fonos = require('@fonos/sdk')
  * const users = new Fonos.UserManager()
- *
- * users.roleHasAccess(role, service)
- * .then(hasAccess => {
- *   console.log('hasAccess: ' + hasAccess) // successful response
- * }).catch(e => console.error(e))          // an error occurred
+ * 
+ * TODO: Adde example
  */
 export default class UserManager extends FonosService {
 
@@ -48,17 +45,6 @@ export default class UserManager extends FonosService {
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 
-  /**
-   * Checks if a given role has access to a service.
-   *
-   * @param {RoleHasAccessRequest} request - The name of the application
-   * @example
-   *
-   * users.createUser({})
-   * .then(hasAccess => {
-   *   console.log('hasAccess:' + hasAccess)  // returns true if role has access to the service
-   * }).catch(e => console.error(e))          // an error occurred
-   */
   async createUser (request: CreateUserRequest): Promise<User> {
     const user = new UserManagerPB.User();
     user.setFirstName(request.firstName)
