@@ -19,8 +19,6 @@ import {
   INumbersServer
 } from '../protos/numbers_grpc_pb'
 import { App } from '../protos/appmanager_pb'
-import { auth } from '../../common/trust_util'
-import { FonosAuthError } from '@fonos/errors'
 import { Kind } from '../../common/resource_encoder'
 import numberDecoder from '../../common/decoders/number_decoder'
 import ResourceServer from '../resources/resource_server'
@@ -41,7 +39,6 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<CreateNumberRequest>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
       callback(null, await createNumber(call.request.getNumber()))
     } catch (e) {
@@ -60,8 +57,6 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<GetIngressAppRequest>,
     callback: grpc.sendUnaryData<App>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-
     try {
       callback(null, await getIngressApp(call.request.getE164Number()))
     } catch (e) {

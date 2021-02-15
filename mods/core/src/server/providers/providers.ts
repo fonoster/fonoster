@@ -15,8 +15,6 @@ import {
   IProvidersServer
 } from '../protos/providers_grpc_pb'
 import { Kind, REncoder } from '../../common/resource_encoder'
-import { FonosAuthError } from '@fonos/errors'
-import { auth } from '../../common/trust_util'
 import updateResource from '../resources/update_resource'
 import createResource from '../resources/create_resource'
 import providerDecoder from '../../common/decoders/provider_decoder'
@@ -38,7 +36,6 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
     call: grpc.ServerUnaryCall<CreateProviderRequest>,
     callback: grpc.sendUnaryData<Provider>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     const provider = call.request.getProvider()
 
     try {

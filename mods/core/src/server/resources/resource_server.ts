@@ -4,8 +4,7 @@ import deleteResource from '../resources/delete_resource'
 import { Kind } from '../../common/resource_encoder'
 import getResource from '../resources/get_resource'
 import listResources from '../resources/list_resources'
-import { auth } from '../../common/trust_util'
-import { FonosAuthError } from '@fonos/errors'
+
 
 export default class ResourceServer {
   kind: Kind
@@ -20,7 +19,6 @@ export default class ResourceServer {
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<any>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
 
     try {
       const r = await listResources(
@@ -39,7 +37,6 @@ export default class ResourceServer {
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<any>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
       callback(
         null,
@@ -54,7 +51,6 @@ export default class ResourceServer {
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
       callback(null, await deleteResource(call.request.getRef(), this.kind))
     } catch (e) {

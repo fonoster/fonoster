@@ -7,10 +7,8 @@ if (process.env.NODE_ENV === 'dev') {
 
 import routr from '../../common/routr'
 import grpc from 'grpc'
-import { FonosAuthError } from '@fonos/errors'
 import client from 'ari-client'
 import { CallRequest, CallResponse } from '../protos/callmanager_pb'
-import { auth } from '../../common/trust_util'
 import originate, { EndpointInfo } from './call'
 import { ICallManagerServer } from '../protos/callmanager_grpc_pb'
 import logger from '@fonos/logger'
@@ -20,8 +18,6 @@ class CallManagerServer implements ICallManagerServer {
     call: grpc.ServerUnaryCall<CallRequest>,
     callback: grpc.sendUnaryData<CallResponse>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-
     const domain = await this.getDomainByNumber(call.request.getFrom())
     logger.debug('@core/callmanager call [originating call]')
     logger.debug(`@core/callmanager call [ari url ${process.env.MS_ARI_URL}]`)
