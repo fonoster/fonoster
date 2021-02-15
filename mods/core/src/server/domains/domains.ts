@@ -19,6 +19,7 @@ import createResource from '../resources/create_resource'
 import updateResource from '../resources/update_resource'
 import domainDecoder from '../../common/decoders/domain_decoder'
 import ResourceServer from '../resources/resource_server'
+import getAccessKeyId from '../resources/get_access_key_id'
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
   constructor () {
@@ -46,6 +47,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
         .withDomainUri(domain.getDomainUri())
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
+        .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build()
       callback(null, await createResource(resource, domainDecoder))
     } catch (e) {
@@ -73,7 +75,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
         .build()
-      callback(null, await updateResource(resource, domainDecoder))
+      callback(null, await updateResource(getAccessKeyId(call), resource, domainDecoder))
     } catch (e) {
       callback(e, null)
     }

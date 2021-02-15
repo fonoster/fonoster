@@ -18,6 +18,7 @@ import { Kind, REncoder } from '../../common/resource_encoder'
 import createResource from '../resources/create_resource'
 import updateResource from '../resources/update_resource'
 import agentDecoder from '../../common/decoders/agent_decoder'
+import getAccessKeyId from '../resources/get_access_key_id'
 
 import ResourceServer from '../resources/resource_server'
 
@@ -42,6 +43,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
       const resource = new REncoder(Kind.AGENT, agent.getName())
         .withCredentials(agent.getUsername(), agent.getSecret())
         .withDomains(agent.getDomainsList())
+        .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build()
       //.withPrivacy(provider.getPrivacy()) // TODO
       callback(null, await createResource(resource, agentDecoder))
@@ -64,7 +66,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
           modifiedOn: agent.getUpdateTime()
         })
         .build()
-      callback(null, await updateResource(resource, agentDecoder))
+      callback(null, await updateResource(getAccessKeyId(call), resource, agentDecoder))
     } catch (e) {
       callback(e, null)
     }

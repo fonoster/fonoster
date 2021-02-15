@@ -19,6 +19,7 @@ import updateResource from '../resources/update_resource'
 import createResource from '../resources/create_resource'
 import providerDecoder from '../../common/decoders/provider_decoder'
 import ResourceServer from '../resources/resource_server'
+import getAccessKeyId from '../resources/get_access_key_id'
 
 class ProvidersServer extends ResourceServer implements IProvidersServer {
   constructor () {
@@ -48,6 +49,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withHost(provider.getHost())
         .withTransport(provider.getTransport())
         .withExpires(provider.getExpires())
+        .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build()
 
       callback(null, await createResource(resource, providerDecoder))
@@ -78,7 +80,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withExpires(provider.getExpires())
         .build()
 
-      callback(null, await updateResource(resource, providerDecoder))
+      callback(null, await updateResource(getAccessKeyId(call), resource, providerDecoder))
     } catch (e) {
       callback(e, null)
     }
