@@ -74,17 +74,16 @@ message User {
     SUSPENDED = 2;
     // The User is suspended or inactive
   }
-  string firstname = 1;
-  string lastname = 2;
-  string username = 3;
-  string email = 4;
-  string access_key_id = 5;
-  string role = 6;
-  string create_time = 7;
-  string update_time = 8;
-  Status status = 9;
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  string access_key_id = 4;
+  string role = 5;
+  string create_time = 6;
+  string update_time = 7;
+  Status status = 8;
   
-  map <string, string> labels = 10;
+  map <string, string> labels = 9;
 }
 
 // TODO
