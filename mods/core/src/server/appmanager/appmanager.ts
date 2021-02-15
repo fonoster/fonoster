@@ -43,6 +43,7 @@ class AppManagerServer implements IAppManagerServer {
     call: grpc.ServerUnaryCall<GetAppRequest>,
     callback: grpc.sendUnaryData<App>
   ) {
+    console.log('dbg00x', this) 
     try {
       callback(null, await getApp(call.request.getName()))
     } catch (e) {

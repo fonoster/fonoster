@@ -3,7 +3,7 @@ import { Empty } from '../protos/common_pb'
 import deleteResource from '../resources/delete_resource'
 import { Kind } from '../../common/resource_encoder'
 import getResource from '../resources/get_resource'
-import listResources from '../resources/list_resources'
+import listResourcesHere from '../resources/list_resources'
 import getAccessKeyId from '../resources/get_access_key_id'
 
 export default class ResourceServer {
@@ -11,6 +11,7 @@ export default class ResourceServer {
   decoder: Function
 
   constructor (kind: Kind, decoder: Function) {
+    console.log('super.kind=', kind)
     this.kind = kind
     this.decoder = decoder
   }
@@ -19,17 +20,20 @@ export default class ResourceServer {
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<any>
   ) {
-
+    console.log('dbg001')
     try {
-      const r = await listResources(
+      console.log('dbg002', this)
+      const r = await listResourcesHere(
         getAccessKeyId(call),
         this.kind,
         parseInt(call.request.getPageToken()),
         call.request.getPageSize(),
         this.decoder
       )
+      console.log('dbg003')
       callback(null, r)
     } catch (e) {
+      console.error(e)
       callback(e, null)
     }
   }

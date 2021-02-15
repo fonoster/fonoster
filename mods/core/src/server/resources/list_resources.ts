@@ -19,12 +19,17 @@ const ResponseObj = (kind: Kind): any => {
 }
 
 export default async function (
-  accessKeyId: String,
+  accessKeyId: string,
   kind: Kind,
   page: number,
   itemsPerPage: number,
   decoder: Function
 ) {
+  console.log('accessKeyId', accessKeyId)
+  console.log('kind', kind)
+  console.log('page', page)
+  console.log('itemsPerPage', itemsPerPage)
+  console.log('decoder', decoder)
   const getSetFunc = (k: Kind) =>
     k === Kind.GATEWAY ? `setProvidersList` : `set${k}sList`
 

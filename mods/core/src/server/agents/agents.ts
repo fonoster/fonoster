@@ -45,6 +45,8 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
         .withDomains(agent.getDomainsList())
         .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build()
+
+      console.log(JSON.stringify(resource))
       //.withPrivacy(provider.getPrivacy()) // TODO
       callback(null, await createResource(resource, agentDecoder))
     } catch (e) {
