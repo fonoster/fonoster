@@ -53,7 +53,9 @@ export default class AuthUtils {
     let accessTokenData: JwtPayload
     try {
       accessTokenData = await this.handler.decode(token.accessToken, privateKey)
-      result = true
+      if (accessTokenData) {
+        result = true
+      }
     } catch (e) {
       console.log('Invalid token')
     }

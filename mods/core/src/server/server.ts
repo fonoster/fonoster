@@ -5,6 +5,8 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
   require('dotenv').config({ path: env })
 }
 
+import AuthMiddleware from '../common/auth/auth_middleware'
+import interceptor from '@pionerlabs/grpc-interceptors'
 import logger from '@fonos/logger'
 import grpc from 'grpc'
 import StorageServer, {
@@ -37,7 +39,9 @@ import CallManagerServer, {
 import { CallManagerService } from './protos/callmanager_grpc_pb'
 
 import connect from '../server/usermanager/src/util/database'
-const db = 'mongodb://localhost:27017/db'
+import role_has_access from './usermanager/role_has_access'
+const db =
+  'mongodb://admin:admin@localhost:27021/ubootsme?connectTimeoutMS=10000&authSource=admin'
 connect({ db })
 
 const healthCheckStatusMap = {
@@ -50,8 +54,7 @@ async function main () {
     logger.log('info', `No access file found. Creating access file`)
     await createAccessFile()
   }*/
-
-  const server = new grpc.Server()
+  const server = interceptor.serverProxy(new grpc.Server())
   const endpoint = process.env.BINDADDR || '0.0.0.0:50052'
   server.addService<IProvidersServer>(ProvidersService, new ProvidersServer())
   server.addService<IDomainsServer>(DomainsService, new DomainsServer())
@@ -66,13 +69,17 @@ async function main () {
 
   server.addService<ICallManagerServer>(
     CallManagerService,
-    new CallManagerServer())
+    new CallManagerServer()
+  )
 
   server.addService<IUserManagerServer>(
     UserManagerService,
-    new UserManagerServer())
+    new UserManagerServer()
+  )
 
+  let authMiddleware = new AuthMiddleware('secret')
   server.bind(endpoint, getServerCredentials())
+  server.use(authMiddleware.middleware)
   server.start()
 
   logger.log(

@@ -46,7 +46,7 @@ class AppManagerServer implements IAppManagerServer {
     call: grpc.ServerUnaryCall<GetAppRequest>,
     callback: grpc.sendUnaryData<App>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
+    //if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
       callback(null, await getApp(call.request.getName()))
     } catch (e) {
