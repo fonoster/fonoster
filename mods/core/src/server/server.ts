@@ -39,9 +39,7 @@ import CallManagerServer, {
 import { CallManagerService } from './protos/callmanager_grpc_pb'
 
 import connect from '../server/usermanager/src/util/database'
-import role_has_access from './usermanager/role_has_access'
-const db =
-  'mongodb://admin:admin@localhost:27021/ubootsme?connectTimeoutMS=10000&authSource=admin'
+const db = 'mongodb://localhost:27017/db'
 connect({ db })
 
 const healthCheckStatusMap = {

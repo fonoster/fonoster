@@ -1,8 +1,23 @@
 import { FonosService, UserManagerService, UserManagerPB } from '@fonos/core'
 
-interface RoleHasAccessRequest {
-  role: string,
-  service: string
+interface CreateUserRequest {
+  firstName: string,
+  lastName: string,
+  username: string,
+  email : string,
+  accessKeyId : string
+}
+
+interface User {
+  firstname: string,
+  lastname: string,
+  username: string,
+  email : string,
+  accessKeyId : string
+  role : string,
+  createTime : string,
+  updateTime : string,
+  status : string
 }
 
 /**
@@ -41,16 +56,36 @@ export default class UserManager extends FonosService {
    * @param {RoleHasAccessRequest} request - The name of the application
    * @example
    *
-   * users.roleHasAccess({role: 'USER', sevice: '...'})
+   * users.createUser({})
    * .then(hasAccess => {
    *   console.log('hasAccess:' + hasAccess)  // returns true if role has access to the service
    * }).catch(e => console.error(e))          // an error occurred
    */
-  /*async createUser (request: RoleHasAccessRequest): Promise<boolean> {
-    /*const r = new UserManagerPB.RoleHasAccessRequest()
-    r.setRole(request.role)
-    r.setService(request.service)
-    return super.getService().roleHasAccess().sendMessage(r)
-  }*/
+  async createUser (request: CreateUserRequest): Promise<User> {
+    const user = new UserManagerPB.User();
+    user.setFirstname(request.firstName)
+    user.setLastname(request.lastName)
+    user.setUsername(request.username)
+    user.setEmail(request.email)
+    user.setAccessKeyId(request.accessKeyId)
+    const req = new UserManagerPB.CreateUserRequest()
+    req.setUser(user);
 
+    const userFromDatabase =  await super
+    .getService()
+    .createUser()
+    .sendMessage(req)
+
+    return {
+      firstname: userFromDatabase.getFirstName(),
+      lastname: userFromDatabase.getLastName(),
+      username: userFromDatabase.getUserName(),
+      email : userFromDatabase.getEmail(),
+      accessKeyId : userFromDatabase.getAccessKeyId(),
+      role : userFromDatabase.getRole(),
+      createTime : userFromDatabase.getCreateTime(),
+      updateTime : userFromDatabase.UpdateTime(),
+      status : userFromDatabase.getStatus()
+    }
+  }
 }

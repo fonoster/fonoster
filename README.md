@@ -142,7 +142,7 @@ The following is a list of modules and other subcomponents of Project Fonos by t
 | [googleasr](/mods/googleasr)             | Programmable Voice               | Google implementation for ASR feature                 | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [googletts](/mods/googletts)             | Programmable Voice               | Google implementation for TTS feature                 | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [mediacontroller](https://github.com/fonoster/fonos-nodejsmc) | Programmable Voice               | NodeJS implementation for Fonos media controller      | ![alpha](https://img.shields.io/badge/alpha-yellow)
-| [mediaserver](/mods/mediaserver)         | VoIP Network, Programmable Voice | Asterisk based media server                           | ![beta](https://img.shields.io/badge/beta-brightgreen)
+| [mediaserver](https://github.com/fonoster/fonos-mediaserver)         | VoIP Network, Programmable Voice | Asterisk based media server                           | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [agents](/mods/agents)   	               | VoIP Network                     | API to create, update, get and delete `Agents`        | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [domains](/mods/domains)  	              | VoIP Network                     | API to create, update, get and delete `Domains`       | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [providers](/mods/providers)             | VoIP Network                     | API to create, update, get and delete `Providers`     | ![alpha](https://img.shields.io/badge/alpha-yellow)
