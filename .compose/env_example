@@ -61,7 +61,7 @@ DS_HOST=datasource.fonos
 DS_PORT=6379
 DS_SECRET=changeit
 DS_AUTH_HOST=datasource.auth.fonos
-DS_AUTH_PORTS=27017-27019
+DS_AUTH_PORT=27017
 
 FS_HOST=fs.fonos
 FS_PORT=9000

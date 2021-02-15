@@ -81,7 +81,7 @@ services:
     deploy:
       placement:
         constraints: [node.role == manager]    
-    #command: ['redis-server', '/etc/redis/redis.conf' ]
+    # TODO: Fix health check
     #healthcheck:
     #  test: ['CMD', 'redis-cli','ping']
     #  interval: 30s
