@@ -2,9 +2,8 @@ import { User } from '../protos/usermanager_pb'
 
 export default function (jsonObj: any): User {
   const user = new User()
-  user.setFirstname(jsonObj.firstname)
-  user.setLastname(jsonObj.lastname)
-  user.setUsername(jsonObj.username)
+  user.setFirstName(jsonObj.firstName)
+  user.setLastName(jsonObj.lastName)
   user.setEmail(jsonObj.email)
   user.setRole(jsonObj.role)
   user.setAccessKeyId(jsonObj.accessKeyId)

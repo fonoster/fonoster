@@ -18,8 +18,7 @@ describe('@fonos/usermanager', () => {
       {
         firstName: "test",
         lastName: "test",
-        username: "rihernandez",
-        email : "test@gmail.com",
+        email : "testing@gmail.com",
         accessKeyId : "fonos"
       }
     )    

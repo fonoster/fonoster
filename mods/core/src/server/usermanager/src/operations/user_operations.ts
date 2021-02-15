@@ -21,25 +21,23 @@ class UserOperation {
 
   public async saveUser (obj: any) {
     const {
-      firstname,
-      lastname,
-      username,
+      firstName,
+      lastName,
       email,
       role,
       accessKeyId,
-      create_time,
-      update_time,
+      createTime,
+      updateTime,
       status
     } = obj
     const users: User = new UserModel({
-      firstname,
-      lastname,
-      username,
+      firstName,
+      lastName,
       email,
       role,
       accessKeyId,
-      create_time,
-      update_time,
+      createTime,
+      updateTime,
       status
     })
     await users.save()
