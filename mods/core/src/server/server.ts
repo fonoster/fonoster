@@ -74,9 +74,9 @@ async function main () {
     new UserManagerServer()
   )
 
-  let mongoConnection = (db : any) => {
+  let mongoConnection = (db : string) => {
     mongoose
-    .connect(db.toString(), { useNewUrlParser: true })
+    .connect(db, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true, autoIndex: false })
     .then(() => {
       return console.info(`Successfully connected to ${db}`)
     })

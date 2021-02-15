@@ -57,7 +57,6 @@
   },
   "dependencies": {
     "google-protobuf": "^3.15.0-rc.1",
-    "grpc-tools": "^1.7.0",
-    "mongoose": "^5.11.16"
+    "grpc-tools": "^1.7.0"
   }
 }
