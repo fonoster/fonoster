@@ -18,8 +18,6 @@ import { Kind, REncoder } from '../../common/resource_encoder'
 import createResource from '../resources/create_resource'
 import updateResource from '../resources/update_resource'
 import domainDecoder from '../../common/decoders/domain_decoder'
-import { FonosAuthError } from '@fonos/errors'
-import { auth } from '../../common/trust_util'
 import ResourceServer from '../resources/resource_server'
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
@@ -38,7 +36,6 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<CreateDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     const domain = call.request.getDomain()
     try {
       const resource = new REncoder(
@@ -60,7 +57,6 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<UpdateDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     const domain = call.request.getDomain()
 
     try {

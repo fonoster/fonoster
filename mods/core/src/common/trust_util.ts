@@ -62,6 +62,9 @@ const getClientCredentials = () => {
   }
 }
 
+/**
+ * @deprecated The method should not be used
+ */
 const auth = function (call: any): boolean {
   if (
     call.metadata._internal_repr.access_key_id === null ||

@@ -1,5 +1,4 @@
 import grpc from 'grpc'
-import { FonosAuthError } from '@fonos/errors'
 import createUser from './create_user'
 import listUsers from './list_user'
 import getUser from './get_user'
@@ -14,7 +13,6 @@ import {
   DeleteUserRequest
 } from '../protos/usermanager_pb'
 import { Empty } from '../protos/common_pb'
-import { auth } from '../../common/trust_util'
 
 import {
   IUserManagerService,
@@ -27,7 +25,6 @@ class UserManagerServer implements IUserManagerServer {
     call: grpc.ServerUnaryCall<ListUsersRequest>,
     callback: grpc.sendUnaryData<ListUsersResponse>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
 
     try {
       const result = await listUsers(
@@ -47,7 +44,7 @@ class UserManagerServer implements IUserManagerServer {
     call: grpc.ServerUnaryCall<GetUserRequest>,
     callback: grpc.sendUnaryData<User>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
+
     try {
       let mail = call.request.getEmail()
       let usr = await getUser(mail)
@@ -61,7 +58,6 @@ class UserManagerServer implements IUserManagerServer {
     call: grpc.ServerUnaryCall<CreateUserRequest>,
     callback: grpc.sendUnaryData<User>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
       callback(null, await createUser(call.request.getUser()))
     } catch (e) {
@@ -73,14 +69,12 @@ class UserManagerServer implements IUserManagerServer {
     call: grpc.ServerUnaryCall<UpdateUserRequest>,
     callback: grpc.sendUnaryData<User>
   ): void {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
   }
 
   async deleteUser (
     call: grpc.ServerUnaryCall<DeleteUserRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
       await deleteUser(call.request.getEmail())
       callback(null, new Empty())
