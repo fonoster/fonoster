@@ -1,14 +1,3 @@
-db.createUser({
-    user: 'mongo',
-    pwd: 'changeit',
-    roles: [
-        {
-            role: 'readWrite',
-            db: 'auth'
-        }
-    ]
-})
-
 let access = [
             "/fonos.usermanager.v1alpha1.UserManager/ListUsers",
             "/fonos.usermanager.v1alpha1.UserManager/GetUser",
