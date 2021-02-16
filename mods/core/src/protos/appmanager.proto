@@ -92,6 +92,6 @@ message App {
   string update_time = 5;
   Status status = 6;
   string bucket = 7;
-  string account_id = 8;
+  string access_key_id = 8;
   map <string, string> labels = 9;
 }

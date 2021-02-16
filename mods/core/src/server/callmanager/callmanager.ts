@@ -12,6 +12,8 @@ import { CallRequest, CallResponse } from '../protos/callmanager_pb'
 import originate, { EndpointInfo } from './call'
 import { ICallManagerServer } from '../protos/callmanager_grpc_pb'
 import logger from '@fonos/logger'
+import getAccessKeyId from '../../common/get_access_key_id'
+import { FonosAuthError } from '@fonos/errors'
 
 class CallManagerServer implements ICallManagerServer {
   async call (
@@ -19,6 +21,9 @@ class CallManagerServer implements ICallManagerServer {
     callback: grpc.sendUnaryData<CallResponse>
   ) {
     const domain = await this.getDomainByNumber(call.request.getFrom())
+
+    if (domain.metadata.accessKeyId !== getAccessKeyId(call)) throw new FonosAuthError()
+
     logger.debug('@core/callmanager call [originating call]')
     logger.debug(`@core/callmanager call [ari url ${process.env.MS_ARI_URL}]`)
     logger.debug(

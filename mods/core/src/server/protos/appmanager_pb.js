@@ -1180,7 +1180,7 @@ proto.fonos.appmanager.v1alpha1.App.toObject = function(includeInstance, msg) {
     updateTime: jspb.Message.getFieldWithDefault(msg, 5, ""),
     status: jspb.Message.getFieldWithDefault(msg, 6, 0),
     bucket: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    accountId: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 8, ""),
     labelsMap: (f = msg.getLabelsMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
@@ -1248,7 +1248,7 @@ proto.fonos.appmanager.v1alpha1.App.deserializeBinaryFromReader = function(msg, 
       break;
     case 8:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAccountId(value);
+      msg.setAccessKeyId(value);
       break;
     case 9:
       var value = msg.getLabelsMap();
@@ -1334,7 +1334,7 @@ proto.fonos.appmanager.v1alpha1.App.serializeBinaryToWriter = function(message, 
       f
     );
   }
-  f = message.getAccountId();
+  f = message.getAccessKeyId();
   if (f.length > 0) {
     writer.writeString(
       8,
@@ -1486,10 +1486,10 @@ proto.fonos.appmanager.v1alpha1.App.prototype.setBucket = function(value) {
 
 
 /**
- * optional string account_id = 8;
+ * optional string access_key_id = 8;
  * @return {string}
  */
-proto.fonos.appmanager.v1alpha1.App.prototype.getAccountId = function() {
+proto.fonos.appmanager.v1alpha1.App.prototype.getAccessKeyId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
 };
 
@@ -1498,7 +1498,7 @@ proto.fonos.appmanager.v1alpha1.App.prototype.getAccountId = function() {
  * @param {string} value
  * @return {!proto.fonos.appmanager.v1alpha1.App} returns this
  */
-proto.fonos.appmanager.v1alpha1.App.prototype.setAccountId = function(value) {
+proto.fonos.appmanager.v1alpha1.App.prototype.setAccessKeyId = function(value) {
   return jspb.Message.setProto3StringField(this, 8, value);
 };
 

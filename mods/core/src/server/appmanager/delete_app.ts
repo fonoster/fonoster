@@ -24,7 +24,7 @@ export default async function (ref: string, accessKeyId: string) {
   if (!result) throw new FonosError(`App ${ref} does not exist`)
   const app: App = jsonToApp(JSON.parse(result))
 
-  if(!app || app.getAccountId() !== accessKeyId) throw new FonosError('resource does not exist')
+  if(!app || app.getAccessKeyId() !== accessKeyId) throw new FonosError('resource does not exist')
 
   app.setStatus(App.Status.REMOVED)
   await redis.set(app.getRef(), JSON.stringify(app.toObject()))

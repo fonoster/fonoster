@@ -8,5 +8,5 @@ export default async function (ref: string, accessKeyId: string): Promise<App> {
   const app: App = jsonToApp(JSON.parse(jsonString))
   if (!jsonString || App.Status.REMOVED == app.getStatus())
     throw new FonosError(`App ${ref} does not exist`)
-  return accessKeyId === app.getAccountId() ? app : null
+  return accessKeyId === app.getAccessKeyId() ? app : null
 }

@@ -16,7 +16,7 @@ export default async function (pageToken: number, pageSize: number, accessKeyId:
     const jsonString = await redis.get(appsRefs[idx])
     const app: App = jsonToApp(JSON.parse(jsonString))
     
-    if (app.getStatus() != App.Status.REMOVED && app.getAccountId() === accessKeyId)
+    if (app.getStatus() != App.Status.REMOVED && app.getAccessKeyId() === accessKeyId)
       apps.push(jsonToApp(JSON.parse(jsonString)))
   }
 
