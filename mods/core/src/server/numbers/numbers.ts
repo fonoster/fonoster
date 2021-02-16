@@ -25,6 +25,7 @@ import ResourceServer from '../resources/resource_server'
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   constructor () {
+    // Useless
     super(Kind.NUMBER, numberDecoder)
   }
 
@@ -32,7 +33,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<ListNumbersRequest>,
     callback: grpc.sendUnaryData<ListNumbersResponse>
   ) {
-    super.listResources(call, callback)
+    super.listResources(Kind.NUMBER, numberDecoder, call, callback)
   }
 
   async createNumber (
@@ -40,7 +41,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     try {
-      callback(null, await createNumber(call.request.getNumber()))
+      callback(null, await createNumber(call.request.getNumber(), call))
     } catch (e) {
       callback(e, null)
     }

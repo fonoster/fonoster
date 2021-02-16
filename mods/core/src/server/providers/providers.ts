@@ -23,6 +23,7 @@ import getAccessKeyId from '../resources/get_access_key_id'
 
 class ProvidersServer extends ResourceServer implements IProvidersServer {
   constructor () {
+    // Useless for now
     super(Kind.GATEWAY, providerDecoder)
   }
 
@@ -30,7 +31,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
     call: grpc.ServerUnaryCall<ListProvidersRequest>,
     callback: grpc.sendUnaryData<ListProvidersResponse>
   ) {
-    super.listResources(call, callback)
+    super.listResources(Kind.GATEWAY, providerDecoder, call, callback)
   }
 
   async createProvider (
@@ -49,7 +50,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withHost(provider.getHost())
         .withTransport(provider.getTransport())
         .withExpires(provider.getExpires())
-        .withMetadata({accessKeyId: getAccessKeyId(call)})
+        .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build()
 
       callback(null, await createResource(resource, providerDecoder))
@@ -78,6 +79,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withHost(provider.getHost())
         .withTransport(provider.getTransport())
         .withExpires(provider.getExpires())
+        
         .build()
 
       callback(null, await updateResource(getAccessKeyId(call), resource, providerDecoder))

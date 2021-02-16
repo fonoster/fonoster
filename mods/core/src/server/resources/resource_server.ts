@@ -11,26 +11,24 @@ export default class ResourceServer {
   decoder: Function
 
   constructor (kind: Kind, decoder: Function) {
-    console.log('super.kind=', kind)
     this.kind = kind
     this.decoder = decoder
   }
 
   async listResources (
-    call: grpc.ServerUnaryCall<any>,
-    callback: grpc.sendUnaryData<any>
+    kind: any,
+    decoder: Function,
+    call ?: grpc.ServerUnaryCall<any>,
+    callback ?: grpc.sendUnaryData<any>
   ) {
-    console.log('dbg001')
     try {
-      console.log('dbg002', this)
       const r = await listResourcesHere(
         getAccessKeyId(call),
-        this.kind,
+        kind,
         parseInt(call.request.getPageToken()),
         call.request.getPageSize(),
-        this.decoder
+        decoder
       )
-      console.log('dbg003')
       callback(null, r)
     } catch (e) {
       console.error(e)
@@ -48,8 +46,7 @@ export default class ResourceServer {
         await getResource(
           getAccessKeyId(call), 
           call.request.getRef(), 
-          this.kind, 
-          this.decoder)
+          this.kind)
       )
     } catch (e) {
       callback(e, null)

@@ -24,6 +24,7 @@ import ResourceServer from '../resources/resource_server'
 
 class AgentsServer extends ResourceServer implements IAgentsServer {
   constructor () {
+    // WARNING: This is not being used
     super(Kind.AGENT, agentDecoder)
   }
 
@@ -31,7 +32,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
     call: grpc.ServerUnaryCall<ListAgentsRequest>,
     callback: grpc.sendUnaryData<ListAgentsResponse>
   ) {
-    super.listResources(call, callback)
+    super.listResources(Kind.AGENT, agentDecoder, call, callback)
   }
 
   async createAgent (

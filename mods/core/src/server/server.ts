@@ -41,7 +41,6 @@ import { CallManagerService } from './protos/callmanager_grpc_pb'
 import mongoose from 'mongoose'
 import { db } from '../common/mongo'
 
-
 const healthCheckStatusMap = {
   '': HealthCheckResponse.ServingStatus.SERVING
 }
@@ -79,10 +78,10 @@ async function main () {
     mongoose
     .connect(db, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true, autoIndex: false })
     .then(() => {
-      return console.info(`Successfully connected to ${db}`)
+      return logger.info(`Successfully connected to ${db}`)
     })
     .catch(error => {
-      console.error('Error connecting to database: ', error)
+      logger.error('Error connecting to database: ', error)
       return process.exit(1)
     })
   }

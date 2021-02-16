@@ -25,11 +25,6 @@ export default async function (
   itemsPerPage: number,
   decoder: Function
 ) {
-  console.log('accessKeyId', accessKeyId)
-  console.log('kind', kind)
-  console.log('page', page)
-  console.log('itemsPerPage', itemsPerPage)
-  console.log('decoder', decoder)
   const getSetFunc = (k: Kind) =>
     k === Kind.GATEWAY ? `setProvidersList` : `set${k}sList`
 
@@ -41,7 +36,7 @@ export default async function (
 
   const resources = []
   for (const i in result.data) {
-    if(result.data[i].metadata.accessKeyId === accessKeyId) { 
+    if(result.data[i].metadata.accessKeyId.toString() === accessKeyId.toString()) { 
       resources.push(decoder(result.data[i]))
     }
   }

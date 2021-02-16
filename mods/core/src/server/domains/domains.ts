@@ -31,7 +31,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<ListDomainsRequest>,
     callback: grpc.sendUnaryData<ListDomainsResponse>
   ) {
-    super.listResources(call, callback)
+    super.listResources(Kind.DOMAIN, domainDecoder, call, callback)
   }
 
   async createDomain (

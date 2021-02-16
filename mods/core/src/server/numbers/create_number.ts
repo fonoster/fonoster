@@ -4,6 +4,7 @@ import routr from '../../common/routr'
 import redis from '../../common/redis'
 import { REncoder, Kind } from '../../common/resource_encoder'
 import numberDecoder from '../../common/decoders/number_decoder'
+import getAccessKeyId from '../resources/get_access_key_id'
 
 const validateNumber = (number: NumbersPB.Number) => {
   if (!number.getE164Number()) {
@@ -24,7 +25,8 @@ const validateNumber = (number: NumbersPB.Number) => {
 }
 
 export default async function createNumber (
-  number: NumbersPB.Number
+  number: NumbersPB.Number,
+  call: any
 ): Promise<NumbersPB.Number> {
   validateNumber(number)
 
@@ -32,6 +34,7 @@ export default async function createNumber (
     Kind.NUMBER,
     number.getE164Number()
   ).withGatewayRef(number.getProviderRef())
+  .withMetadata({ accessKeyId: getAccessKeyId(call) })
 
   if (number.getAorLink()) {
     encoder = encoder.withLocation(
