@@ -47,7 +47,6 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
         .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build()
 
-      console.log(JSON.stringify(resource))
       //.withPrivacy(provider.getPrivacy()) // TODO
       callback(null, await createResource(resource, agentDecoder))
     } catch (e) {
@@ -79,7 +78,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
     call: grpc.ServerUnaryCall<GetAgentRequest>,
     callback: grpc.sendUnaryData<Agent>
   ) {
-    super.getResource(agentDecoder, call, callback)
+    super.getResource(Kind.AGENT, agentDecoder, call, callback)
   }
 
   async deleteAgent (

@@ -53,8 +53,6 @@ export default class AuthUtils {
     let result = false
     let accessTokenData: JwtPayload
     try {
-      console.log('accessToken', token.accessToken)
-      console.log('privateKey', privateKey)
       accessTokenData = await this.handler.decode(token.accessToken, privateKey)
       if (accessTokenData) {
         result = true

@@ -69,7 +69,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<GetNumberRequest>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
-    super.getResource(numberDecoder, call, callback )
+    super.getResource(Kind.NUMBER, numberDecoder, call, callback )
   }
 
   async deleteNumber (

@@ -24,7 +24,6 @@ import getAccessKeyId from '../resources/get_access_key_id'
 class DomainsServer extends ResourceServer implements IDomainsServer {
   constructor () {
     super(Kind.DOMAIN, domainDecoder)
-    console.log('DBG001')
   }
 
   async listDomains (
@@ -86,7 +85,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<GetDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    super.getResource(domainDecoder, call, callback)
+    super.getResource(Kind.DOMAIN, domainDecoder, call, callback )
   }
 
   async deleteDomain (

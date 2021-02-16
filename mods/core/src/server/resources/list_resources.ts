@@ -36,7 +36,7 @@ export default async function (
 
   const resources = []
   for (const i in result.data) {
-    if(result.data[i].metadata.accessKeyId.toString() === accessKeyId.toString()) { 
+    if(result.data[i].metadata.accessKeyId === accessKeyId) { 
       resources.push(decoder(result.data[i]))
     }
   }

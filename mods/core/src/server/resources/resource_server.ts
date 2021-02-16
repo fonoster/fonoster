@@ -11,8 +11,8 @@ export default class ResourceServer {
   decoder: Function
 
   constructor (kind: Kind, decoder: Function) {
-    this.kind = kind
-    this.decoder = decoder
+    //this.kind = kind
+    //this.decoder = decoder
   }
 
   async listResources (
@@ -37,6 +37,7 @@ export default class ResourceServer {
   }
 
   async getResource (
+    kind: any,
     decoder: Function,
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<any>
@@ -45,10 +46,10 @@ export default class ResourceServer {
       callback(
         null,
         await getResource(
+          kind,
+          decoder,
           getAccessKeyId(call), 
-          call.request.getRef(), 
-          this.kind,
-          decoder
+          call.request.getRef()
         )
       )
     } catch (e) {
