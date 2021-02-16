@@ -1,6 +1,6 @@
 {
   "name": "@fonos/sdk",
-  "version": "0.0.63",
+  "version": "0.0.64",
   "description": "Fonos SDK module",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,15 +29,15 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/agents": "^0.0.63",
-    "@fonos/appmanager": "^0.0.63",
-    "@fonos/callmanager": "^0.0.63",
-    "@fonos/domains": "^0.0.63",
-    "@fonos/logger": "^0.0.63",
-    "@fonos/numbers": "^0.0.63",
-    "@fonos/providers": "^0.0.63",
-    "@fonos/storage": "^0.0.63",
-    "@fonos/usermanager": "^0.0.63"
+    "@fonos/agents": "^0.0.64",
+    "@fonos/appmanager": "^0.0.64",
+    "@fonos/callmanager": "^0.0.64",
+    "@fonos/domains": "^0.0.64",
+    "@fonos/logger": "^0.0.64",
+    "@fonos/numbers": "^0.0.64",
+    "@fonos/providers": "^0.0.64",
+    "@fonos/storage": "^0.0.64",
+    "@fonos/usermanager": "^0.0.64"
   },
   "devDependencies": {
     "rimraf": "^3.0.2"

@@ -1,6 +1,6 @@
 {
   "name": "@fonos/tts",
-  "version": "0.0.63",
+  "version": "0.0.64",
   "description": "Fonos TTS module",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
