@@ -3,8 +3,7 @@ import { FonosService, UserManagerService, UserManagerPB } from '@fonos/core'
 interface CreateUserRequest {
   firstName: string,
   lastName: string,
-  email : string,
-  accessKeyId : string
+  email : string
 }
 
 interface User {
@@ -50,7 +49,6 @@ export default class UserManager extends FonosService {
     user.setFirstName(request.firstName)
     user.setLastName(request.lastName)
     user.setEmail(request.email)
-    user.setAccessKeyId(request.accessKeyId)
     const req = new UserManagerPB.CreateUserRequest()
     req.setUser(user);
 
@@ -66,7 +64,7 @@ export default class UserManager extends FonosService {
       accessKeyId : userFromDatabase.getAccessKeyId(),
       role : userFromDatabase.getRole(),
       createTime : userFromDatabase.getCreateTime(),
-      updateTime : userFromDatabase.UpdateTime(),
+      updateTime : userFromDatabase.getUpdateTime(),
       status : userFromDatabase.getStatus()
     }
   }
