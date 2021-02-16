@@ -1,6 +1,6 @@
 import grpc from 'grpc'
 import Auth, { Jwt } from '@fonos/auth'
-import roleHasAccess from '../../../src/server/usermanager/role_has_access'
+import roleHasAccess from '../../server/usermanager/role_has_access'
 export default class AuthMiddleware {
   secretKeyToken: string
   constructor (secretKey: string) {

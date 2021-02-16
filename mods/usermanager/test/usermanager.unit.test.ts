@@ -12,7 +12,7 @@ const sandbox = sinon.createSandbox()
 describe('@fonos/usermanager', () => {
   afterEach(() => sandbox.restore())
 
-  it.only('needs testing', async () => {
+  it.skip('needs testing', async () => {
     const userManager = new UserManager();
     const res = await userManager.createUser(
       {
