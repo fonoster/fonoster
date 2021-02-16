@@ -1,6 +1,6 @@
 {
   "name": "@fonos/usermanager",
-  "version": "0.0.62",
+  "version": "0.0.63",
   "description": "Users Manager",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,8 +29,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.62",
-    "@fonos/logger": "^0.0.62",
+    "@fonos/core": "^0.0.63",
+    "@fonos/logger": "^0.0.63",
     "grpc-promise": "^1.4.0"
   },
   "devDependencies": {
