@@ -10,7 +10,7 @@ export default async function deleteResource (
   decoder: Function
 ): Promise<Empty> {
   await routr.connect()
-  if (getResource(accessKeyId, ref, kind)) {
+  if (getResource(accessKeyId, ref, kind, decoder)) {
     await routr.resourceType(`${kind.toLowerCase()}s`).delete(ref)
   }
   return new Empty()

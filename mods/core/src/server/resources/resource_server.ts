@@ -37,6 +37,7 @@ export default class ResourceServer {
   }
 
   async getResource (
+    decoder: Function,
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<any>
   ) {
@@ -46,7 +47,9 @@ export default class ResourceServer {
         await getResource(
           getAccessKeyId(call), 
           call.request.getRef(), 
-          this.kind)
+          this.kind,
+          decoder
+        )
       )
     } catch (e) {
       callback(e, null)
@@ -54,13 +57,15 @@ export default class ResourceServer {
   }
 
   async deleteResource (
+    kind: any,
+    decoder: Function,
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
       callback(null, await deleteResource(
         getAccessKeyId(call), 
-        call.request.getRef(), this.kind, this.decoder
+        call.request.getRef(), kind, decoder
       ))
     } catch (e) {
       callback(e, null)

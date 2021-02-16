@@ -92,14 +92,14 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
     call: grpc.ServerUnaryCall<GetProviderRequest>,
     callback: grpc.sendUnaryData<Provider>
   ) {
-    super.getResource(call, callback)
+    super.getResource(providerDecoder, call, callback)
   }
 
   async deleteProvider (
     call: grpc.ServerUnaryCall<DeleteProviderRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(call, callback)
+    super.deleteResource(Kind.GATEWAY, providerDecoder, call, callback)
   }
 }
 

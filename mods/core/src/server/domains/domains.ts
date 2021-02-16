@@ -86,14 +86,14 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<GetDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    super.getResource(call, callback)
+    super.getResource(domainDecoder, call, callback)
   }
 
   async deleteDomain (
     call: grpc.ServerUnaryCall<DeleteDomainRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(call, callback)
+    super.deleteResource(Kind.DOMAIN, domainDecoder, call, callback)
   }
 }
 

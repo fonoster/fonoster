@@ -79,14 +79,14 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
     call: grpc.ServerUnaryCall<GetAgentRequest>,
     callback: grpc.sendUnaryData<Agent>
   ) {
-    super.getResource(call, callback)
+    super.getResource(agentDecoder, call, callback)
   }
 
   async deleteAgent (
     call: grpc.ServerUnaryCall<DeleteAgentRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(call, callback)
+    super.deleteResource(Kind.AGENT, agentDecoder, call, callback)
   }
 }
 
