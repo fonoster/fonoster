@@ -18,7 +18,7 @@ export default class extends Command {
     try {
       await fs.rmdir(BASE_DIR, { recursive: true })
       await cli.wait(1000)
-      cli.action.stop('All done')
+      cli.action.stop('done')
     } catch (e) {
       cli.action.stop()
       throw new CLIError(e.message)

@@ -21,18 +21,18 @@ export default class extends Command {
     const answers: any = await inquirer.prompt([
       {
         name: 'endpoint',
-        message: 'API endpoint',
+        message: 'api endpoint',
         type: 'input',
         default: 'api.fonoster.io:50052'
       },
       {
         name: 'accessKeyId',
-        message: 'Access Key ID',
+        message: 'access key id',
         type: 'input'
       },
       {
         name: 'accessKeySecret',
-        message: 'Access Key Token',
+        message: 'access key token',
         type: 'password'
       },
       {
@@ -43,10 +43,10 @@ export default class extends Command {
     ])
 
     if (!answers.confirm) {
-      console.log('Aborted')
+      console.log('aborted')
     } else {
       try {
-        cli.action.start(`Accessing endpoint ${answers.endpoint}`)
+        cli.action.start(`accessing endpoint ${answers.endpoint}`)
 
         try {
           await fs.rmdir(BASE_DIR, { recursive: true })
@@ -58,10 +58,10 @@ export default class extends Command {
           await fs.writeFile(PATH_TO_CONFIG, JSON.stringify(answers))
 
           await cli.wait(1000)
-          cli.action.stop('All done')
+          cli.action.stop('done')
         } catch (e) {
           await cli.wait(1000)
-          cli.action.stop('Invalid credentials or endpoint')
+          cli.action.stop('invalid credentials or endpoint')
         }
       } catch (e) {
         cli.action.stop()

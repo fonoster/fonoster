@@ -61,7 +61,7 @@ export default class UpdateCommand extends Command {
     answers.ref = args.ref
 
     if (!answers.confirm) {
-      console.log('Aborted')
+      console.log('aborted')
     } else {
       try {
         const accessDeny = answers.accessDeny
@@ -69,12 +69,12 @@ export default class UpdateCommand extends Command {
         answers.accessDeny = accessDeny ? accessDeny.split(',') : []
         answers.accessAllow = accessAllow ? accessAllow.split(',') : []
 
-        cli.action.start(`Updating domain ${answers.name}`)
+        cli.action.start(`updating domain ${answers.name}`)
 
         await domains.updateDomain(answers)
         await cli.wait(1000)
 
-        cli.action.stop('All done')
+        cli.action.stop('done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

@@ -68,15 +68,15 @@ export default class UpdateCommand extends Command {
     answers.ref = args.ref
 
     if (!answers.confirm) {
-      console.log('Aborted')
+      console.log('aborted')
     } else {
       try {
-        cli.action.start(`Updating provider ${answers.name}`)
+        cli.action.start(`updating provider ${answers.name}`)
 
         await providers.updateProvider(answers)
         await cli.wait(1000)
 
-        cli.action.stop('All done')
+        cli.action.stop('done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

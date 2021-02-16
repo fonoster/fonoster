@@ -57,16 +57,16 @@ export default class CreateCommand extends Command {
     ])
 
     if (!answers.confirm) {
-      console.log('Aborted')
+      console.log('aborted')
     } else {
       try {
-        cli.action.start(`Creating provider ${answers.name}`)
+        cli.action.start(`creating provider ${answers.name}`)
 
         const providers = new Providers()
         await providers.createProvider(answers)
         await cli.wait(1000)
 
-        cli.action.stop('All done')
+        cli.action.stop('done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

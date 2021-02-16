@@ -55,13 +55,13 @@ export default class InitCommand extends Command {
     questions.cwd = process.cwd()
 
     if (!questions.confirm) {
-      console.log('Aborted')
+      console.log('aborted')
     } else {
       /**
        *  @description nodePlop have some issues about typeDef
        *  @example https://github.com/plopjs/node-plop/issues/194
        **/
-      init.runActions(questions).then(() => console.log('All done'))
+      init.runActions(questions).then(() => console.log('done'))
     }
   }
 }

@@ -14,7 +14,7 @@ export default class GetCommand extends Command {
 
     try {
       const providers = new Providers()
-      cli.action.start(`Getting provider ${args.ref}`)
+      cli.action.start(`getting provider ${args.ref}`)
       const provider = await providers.getProvider(args.ref)
 
       const jsonObj = {

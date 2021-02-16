@@ -15,7 +15,7 @@ export default class DeleteCommand extends Command {
 
     try {
       const appmanager = new AppManager()
-      cli.action.start(`Deleting application ${name}`)
+      cli.action.start(`deleting application ${name}`)
       await appmanager.deleteApp(name)
       await cli.wait(1000)
       cli.action.stop('done')

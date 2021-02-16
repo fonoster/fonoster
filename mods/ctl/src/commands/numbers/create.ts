@@ -44,7 +44,7 @@ export default class CreateCommand extends Command {
         })
 
       if (providers.length === 0) {
-        throw new Error('You must create a Provider before adding any Number')
+        throw new Error('you must create a provider before adding a number')
       }
 
       const answers = await inquirer.prompt([
@@ -95,7 +95,7 @@ export default class CreateCommand extends Command {
       answers.confirm = confirmPrompt.confirm
 
       if (!answers.confirm) {
-        console.log('Aborted')
+        console.log('aborted')
       } else {
         const number = phone(answers.e164Number)[0]
         if (!number)
@@ -105,7 +105,7 @@ export default class CreateCommand extends Command {
         const numbers = new Numbers()
         await numbers.createNumber(answers)
         await cli.wait(1000)
-        cli.action.stop('All done')
+        cli.action.stop('done')
       }
     } catch (e) {
       cli.action.stop()

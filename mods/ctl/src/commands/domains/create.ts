@@ -56,7 +56,7 @@ export default class CreateCommand extends Command {
     ])
 
     if (!answers.confirm) {
-      console.log('Aborted')
+      console.log('aborted')
     } else {
       try {
         const accessDeny = answers.accessDeny
@@ -65,13 +65,13 @@ export default class CreateCommand extends Command {
         answers.accessAllow = accessAllow ? accessAllow.split(',') : []
         if (!answers.egressNumberRef) answers.egressRule = void 0
 
-        cli.action.start(`Creating domain ${answers.name}`)
+        cli.action.start(`creating domain ${answers.name}`)
 
         const domains = new Domains()
         await domains.createDomain(answers)
         await cli.wait(1000)
 
-        cli.action.stop('All done')
+        cli.action.stop('done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

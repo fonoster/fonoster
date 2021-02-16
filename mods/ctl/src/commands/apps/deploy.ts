@@ -14,7 +14,7 @@ export default class DeployCommand extends Command {
 
   async run () {
     try {
-      cli.action.start('Deploying application')
+      cli.action.start('deploying application')
       const appmanager = new AppManager()
       const app = await appmanager.deployApp(process.cwd())
       await cli.wait(1000)
