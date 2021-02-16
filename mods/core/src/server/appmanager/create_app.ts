@@ -20,7 +20,6 @@ try {
 
 export default async function (app: App, accessKeyId: string): Promise<App> {
   app.setAccessKeyId(accessKeyId)
-  console.log('app.getRef()=', app.getRef())
   if (!app.getRef()) app.setRef(nanoid(10))
   app.setStatus(App.Status.CREATING)
   app.setCreateTime(new Date().toString())

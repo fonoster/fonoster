@@ -58,7 +58,9 @@ async function main () {
   server.addService<IAgentsServer>(AgentsService, new AgentsServer())
   server.addService<INumbersServer>(NumbersService, new NumbersServer())
   server.addService<IStorageServer>(StorageService, new StorageServer())
-  server.addService(HealthService, grpcHealthCheck)
+  // WARNINIG: We need to temporarily disable the healthcheck until we fix the 
+  // conflict with the authentication interceptor
+  // server.addService(HealthService, grpcHealthCheck)
   server.addService<IAppManagerServer>(
     AppManagerService,
     new AppManagerServer()
