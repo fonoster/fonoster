@@ -11,6 +11,8 @@ services:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
       DS_SECRET: ${DS_SECRET}
+      DS_AUTH_HOST: ${DS_AUTH_HOST}
+      DS_AUTH_PORT: ${DS_AUTH_PORT}
       # Warning: Temporal variable
       FS_HOST: ${FS_HOST_PUBLIC}
       FS_PORT: ${FS_PORT}
@@ -43,8 +45,6 @@ services:
     secrets:
       - source: jwt.salt
         target: /home/fonos/.fonos/jwt.salt
-      - source: config
-        target: /home/fonos/.fonos/config
 
   datasource:
     extends:
