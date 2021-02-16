@@ -4,7 +4,7 @@ import deleteResource from '../resources/delete_resource'
 import { Kind } from '../../common/resource_encoder'
 import getResource from '../resources/get_resource'
 import listResourcesHere from '../resources/list_resources'
-import getAccessKeyId from '../resources/get_access_key_id'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 export default class ResourceServer {
   kind: Kind

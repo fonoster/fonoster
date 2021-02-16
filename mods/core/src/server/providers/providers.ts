@@ -19,7 +19,7 @@ import updateResource from '../resources/update_resource'
 import createResource from '../resources/create_resource'
 import providerDecoder from '../../common/decoders/provider_decoder'
 import ResourceServer from '../resources/resource_server'
-import getAccessKeyId from '../resources/get_access_key_id'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 class ProvidersServer extends ResourceServer implements IProvidersServer {
   constructor () {

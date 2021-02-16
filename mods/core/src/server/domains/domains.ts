@@ -19,7 +19,7 @@ import createResource from '../resources/create_resource'
 import updateResource from '../resources/update_resource'
 import domainDecoder from '../../common/decoders/domain_decoder'
 import ResourceServer from '../resources/resource_server'
-import getAccessKeyId from '../resources/get_access_key_id'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
   constructor () {

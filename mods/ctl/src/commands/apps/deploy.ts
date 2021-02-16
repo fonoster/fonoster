@@ -7,16 +7,18 @@ import { Command } from '@oclif/command'
 const prettyjson = require('prettyjson')
 
 export default class DeployCommand extends Command {
+  static args = [{ name: 'ref' }]
   static description = `deploys application to a Fonos instance
   ...
   Run this command from the app root to deploy to Fonos.
   `
 
   async run () {
+    const { args } = this.parse(DeployCommand)
     try {
       cli.action.start('deploying application')
       const appmanager = new AppManager()
-      const app = await appmanager.deployApp(process.cwd())
+      const app = await appmanager.deployApp(process.cwd(), args.ref)
       await cli.wait(1000)
       cli.action.stop('')
 

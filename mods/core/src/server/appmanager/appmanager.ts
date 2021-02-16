@@ -13,6 +13,7 @@ import {
   DeleteAppRequest
 } from '../protos/appmanager_pb'
 import { Empty } from '../protos/common_pb'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 import {
   IAppManagerService,
@@ -28,7 +29,8 @@ class AppManagerServer implements IAppManagerServer {
     try {
       const result = await listApps(
         parseInt(call.request.getPageToken()),
-        call.request.getPageSize()
+        call.request.getPageSize(), 
+        getAccessKeyId(call)
       )
       const response = new ListAppsResponse()
       response.setAppsList(result.apps)
@@ -44,7 +46,7 @@ class AppManagerServer implements IAppManagerServer {
     callback: grpc.sendUnaryData<App>
   ) {
     try {
-      callback(null, await getApp(call.request.getName()))
+      callback(null, await getApp(call.request.getRef(), getAccessKeyId(call)))
     } catch (e) {
       callback(e, null)
     }
@@ -55,7 +57,7 @@ class AppManagerServer implements IAppManagerServer {
     callback: grpc.sendUnaryData<App>
   ) {
     try {
-      callback(null, await createApp(call.request.getApp()))
+      callback(null, await createApp(call.request.getApp(), getAccessKeyId(call)))
     } catch (e) {
       callback(e, null)
     }
@@ -72,7 +74,7 @@ class AppManagerServer implements IAppManagerServer {
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      await deleteApp(call.request.getName())
+      await deleteApp(call.request.getRef(), getAccessKeyId(call))
       callback(null, new Empty())
     } catch (e) {
       callback(e, null)

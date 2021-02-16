@@ -54,7 +54,7 @@ message ListAppsResponse {
 message GetAppRequest {
   // The field will contain the reference of the app requested, for example:
   // "apps/hello-world"
-  string name = 1;
+  string ref = 1;
   // Requested level of detail
   fonos.common.v1alpha1.View view = 2;
 }
@@ -68,7 +68,7 @@ message UpdateAppRequest {
 }
 
 message DeleteAppRequest {
-  string name = 1;
+  string ref = 1;
 }
 
 // An app resource with metadata used by the media controller
@@ -84,12 +84,14 @@ message App {
     // The app is hide/remove
     REMOVED = 4;
   }
-  string name = 1;
-  string description = 2;
+  string ref = 1;
+  string name = 2;
+  string description = 3;
   // TODO: Find a better way to store this information
-  string create_time = 3;
-  string update_time = 4;
-  Status status = 5;
-  string bucket = 6;
-  map <string, string> labels = 7;
+  string create_time = 4;
+  string update_time = 5;
+  Status status = 6;
+  string bucket = 7;
+  string account_id = 8;
+  map <string, string> labels = 9;
 }

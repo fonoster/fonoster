@@ -4,7 +4,7 @@ import routr from '../../common/routr'
 import redis from '../../common/redis'
 import { REncoder, Kind } from '../../common/resource_encoder'
 import numberDecoder from '../../common/decoders/number_decoder'
-import getAccessKeyId from '../resources/get_access_key_id'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 const validateNumber = (number: NumbersPB.Number) => {
   if (!number.getE164Number()) {

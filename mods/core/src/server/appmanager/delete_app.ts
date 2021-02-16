@@ -19,19 +19,17 @@ try {
   logger.error(e)
 }
 
-export default async function (name: string) {
-  const result = await redis.get(name)
-  if (!result) throw new FonosError(`App ${name} does not exist`)
+export default async function (ref: string, accessKeyId: string) {
+  const result = await redis.get(ref)
+  if (!result) throw new FonosError(`App ${ref} does not exist`)
   const app: App = jsonToApp(JSON.parse(result))
-  app.setName(app.getName())
-  app.setDescription(app.getDescription())
-  app.setCreateTime(app.getCreateTime())
-  app.setUpdateTime(app.getUpdateTime())
+
+  if(!app || app.getAccountId() !== accessKeyId) throw new FonosError('resource does not exist')
+
   app.setStatus(App.Status.REMOVED)
-  app.setBucket(app.getBucket())
-  await redis.set(app.getName(), JSON.stringify(app.toObject()))
+  await redis.set(app.getRef(), JSON.stringify(app.toObject()))
   await events.sendToQ({
-    name: app.getName(),
+    name: app.getRef(),
     bucket: app.getBucket()
   })
 }
