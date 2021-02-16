@@ -38,8 +38,7 @@ import CallManagerServer, {
   ICallManagerServer
 } from './callmanager/callmanager'
 import { CallManagerService } from './protos/callmanager_grpc_pb'
-import mongoose from 'mongoose'
-import { db } from '../common/mongo'
+import { mongoConnection } from '../common/mongo'
 
 const healthCheckStatusMap = {
   '': HealthCheckResponse.ServingStatus.SERVING
@@ -47,6 +46,7 @@ const healthCheckStatusMap = {
 const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap)
 
 async function main () {
+  mongoConnection();
   /*if (!accessExist()) {
     logger.log('info', `No access file found. Creating access file`)
     await createAccessFile()
@@ -73,19 +73,6 @@ async function main () {
     UserManagerService,
     new UserManagerServer()
   )
-
-  let mongoConnection = (db : string) => {
-    mongoose
-    .connect(db, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true, autoIndex: false })
-    .then(() => {
-      return logger.info(`Successfully connected to ${db}`)
-    })
-    .catch(error => {
-      logger.error('Error connecting to database: ', error)
-      return process.exit(1)
-    })
-  }
-  mongoConnection(db);
 
   let authMiddleware = new AuthMiddleware(getSalt())
 
