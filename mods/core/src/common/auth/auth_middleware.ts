@@ -20,12 +20,19 @@ export default class AuthMiddleware {
         })
       }
 
+      const accessKeyId = ctx.call.metadata._internal_repr.access_key_id.toString()
       const accessKeySecret = ctx.call.metadata._internal_repr.access_key_secret.toString()
       const pathRequest = ctx.service.path
       jwtHandler
         .validateToken({ accessToken: accessKeySecret }, this.secretKeyToken)
         .then(async result => {
           if (result.isValid) {
+            if(result.data.accessKeyId != accessKeyId) errorCb({
+              code: grpc.status.UNAUTHENTICATED,
+               // TODO: Improve error message
+               message: 'UNAUTHENTICATED' 
+            })
+
             let hasAccess = await roleHasAccess(result.data.role, pathRequest)
             if (hasAccess) {
               await next()
