@@ -16,6 +16,7 @@ const fsInstance = () => {
 }
 
 const uploadToFS = (
+  accessKeyId: string,
   bucket: string,
   pathToObject: string,
   object?: string,
@@ -32,9 +33,10 @@ const uploadToFS = (
     walker.on(
       'file',
       (root: string, stats: { name: string }, next: () => void) => {
+        console.log()
         const filePath = root + '/' + stats.name
         const destFilePath = root + '/' + (object || stats.name)
-        const dest = destFilePath.substring(baseDir.length + 1)
+        const dest = `${accessKeyId}/` + destFilePath.substring(baseDir.length + 1)
 
         fsInstance().fPutObject(
           bucket,

@@ -79,7 +79,6 @@ export default class AppManager extends FonosService {
    * change to UNKNOWN.
    */
   async deployApp (appPath: string, appRef ?: string): Promise<App> {
-    console.log('XXX WTF=', appRef)
     const packagePath = path.join(appPath, 'package.json')
     // Expects an existing valid package.json
     const packageInfo = (p: string) => JSON.parse(`${fs.readFileSync(p)}`)
@@ -93,6 +92,7 @@ export default class AppManager extends FonosService {
       )
     }
 
+    // Drepecated env FS_DEFAULT_STORAGE_BUCKET
     let bucket = process.env.FS_DEFAULT_STORAGE_BUCKET
 
     try {
@@ -157,7 +157,6 @@ export default class AppManager extends FonosService {
     if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`)
 
     const app = new AppManagerPB.App()
-    console.log('WTF=', appRef)
     app.setRef(appRef)
     app.setName(request.app.name)
     app.setDescription(request.app.description)

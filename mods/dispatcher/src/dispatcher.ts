@@ -23,8 +23,8 @@ function dispatch (channel: any) {
     const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
     const chann = new Verbs(channel, {
       tts: new MaryTTS(),
-      storage: new Storage({ bucket: ingressInfo.bucket }),
-      bucket: ingressInfo.bucket
+      storage: new Storage({ bucket: 'apps' }),
+      bucket: 'apps'
     })
     vm.run(contents, ingressInfo.entryPoint)(chann)
   } catch (err) {

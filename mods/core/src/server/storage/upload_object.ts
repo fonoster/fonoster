@@ -9,6 +9,7 @@ import {
   getFilesizeInBytes
 } from '../../common/utils'
 import { UploadObjectResponse } from '../protos/storage_pb'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 const objectid = require('objectid')
 const isCompressFile = (object: string) =>
@@ -28,13 +29,14 @@ const handleError = (err: { code: any; message: string }, bucket: string) => {
 }
 
 const handleCompressUpload = async (
+  accessKeyId: string,
   object: string,
   bucket: string,
   fileSize: number
 ) => {
   await extract(`/tmp/${object}`, `/tmp`)
   const nameWithoutExt = object.split('.')[0]
-  await uploadToFS(bucket, `/tmp/${nameWithoutExt}`)
+  await uploadToFS(accessKeyId, bucket, `/tmp/${nameWithoutExt}`)
   removeDirSync(`/tmp/${nameWithoutExt}`)
   const response = new UploadObjectResponse()
   response.setSize(fileSize)
@@ -42,11 +44,12 @@ const handleCompressUpload = async (
 }
 
 const handleUncompressUpload = async (
+  accessKeyId: string,
   object: string,
   bucket: string,
   fileSize: number
 ) => {
-  await uploadToFS(bucket, `/tmp/${object}`, object)
+  await uploadToFS(accessKeyId, bucket, `/tmp/${object}`, object)
   const response = new UploadObjectResponse()
   response.setSize(fileSize)
   return response
@@ -56,6 +59,7 @@ export default async function (call: any, callback: any) {
   const tmpName = objectid(),
     writeStream = fs.createWriteStream(`/tmp/${tmpName}`)
   let object: string, bucket: any, metadata: any
+  const accessKeyId = getAccessKeyId(call)
 
   call.on('error', (err: any) => logger.log('error', err))
   call.on('end', () => writeStream.end())
@@ -73,8 +77,8 @@ export default async function (call: any, callback: any) {
       const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`)
       fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
       const response = isCompressFile(object)
-        ? await handleCompressUpload(object, bucket, fileSize)
-        : await handleUncompressUpload(object, bucket, fileSize)
+        ? await handleCompressUpload(accessKeyId, object, bucket, fileSize)
+        : await handleUncompressUpload(accessKeyId, object, bucket, fileSize)
 
       callback(null, response)
       fs.unlinkSync(`/tmp/${object}`)
