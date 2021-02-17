@@ -29,8 +29,7 @@ export default async function (app: App, accessKeyId: string): Promise<App> {
   await redis.lpush('apps', app.getRef())
   await redis.set(app.getRef(), JSON.stringify(app.toObject()))
   await events.sendToQ({
-    name: app.getRef(),
-    bucket: app.getBucket()
+    name: app.getRef()
   })
   return app
 }

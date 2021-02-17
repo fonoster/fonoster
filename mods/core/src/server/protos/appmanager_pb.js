@@ -1179,8 +1179,7 @@ proto.fonos.appmanager.v1alpha1.App.toObject = function(includeInstance, msg) {
     createTime: jspb.Message.getFieldWithDefault(msg, 4, ""),
     updateTime: jspb.Message.getFieldWithDefault(msg, 5, ""),
     status: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    bucket: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 7, ""),
     labelsMap: (f = msg.getLabelsMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
@@ -1244,13 +1243,9 @@ proto.fonos.appmanager.v1alpha1.App.deserializeBinaryFromReader = function(msg, 
       break;
     case 7:
       var value = /** @type {string} */ (reader.readString());
-      msg.setBucket(value);
-      break;
-    case 8:
-      var value = /** @type {string} */ (reader.readString());
       msg.setAccessKeyId(value);
       break;
-    case 9:
+    case 8:
       var value = msg.getLabelsMap();
       reader.readMessage(value, function(message, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "", "");
@@ -1327,23 +1322,16 @@ proto.fonos.appmanager.v1alpha1.App.serializeBinaryToWriter = function(message, 
       f
     );
   }
-  f = message.getBucket();
+  f = message.getAccessKeyId();
   if (f.length > 0) {
     writer.writeString(
       7,
       f
     );
   }
-  f = message.getAccessKeyId();
-  if (f.length > 0) {
-    writer.writeString(
-      8,
-      f
-    );
-  }
   f = message.getLabelsMap(true);
   if (f && f.getLength() > 0) {
-    f.serializeBinary(9, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+    f.serializeBinary(8, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
   }
 };
 
@@ -1468,10 +1456,10 @@ proto.fonos.appmanager.v1alpha1.App.prototype.setStatus = function(value) {
 
 
 /**
- * optional string bucket = 7;
+ * optional string access_key_id = 7;
  * @return {string}
  */
-proto.fonos.appmanager.v1alpha1.App.prototype.getBucket = function() {
+proto.fonos.appmanager.v1alpha1.App.prototype.getAccessKeyId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
@@ -1480,38 +1468,20 @@ proto.fonos.appmanager.v1alpha1.App.prototype.getBucket = function() {
  * @param {string} value
  * @return {!proto.fonos.appmanager.v1alpha1.App} returns this
  */
-proto.fonos.appmanager.v1alpha1.App.prototype.setBucket = function(value) {
+proto.fonos.appmanager.v1alpha1.App.prototype.setAccessKeyId = function(value) {
   return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
 /**
- * optional string access_key_id = 8;
- * @return {string}
- */
-proto.fonos.appmanager.v1alpha1.App.prototype.getAccessKeyId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonos.appmanager.v1alpha1.App} returns this
- */
-proto.fonos.appmanager.v1alpha1.App.prototype.setAccessKeyId = function(value) {
-  return jspb.Message.setProto3StringField(this, 8, value);
-};
-
-
-/**
- * map<string, string> labels = 9;
+ * map<string, string> labels = 8;
  * @param {boolean=} opt_noLazyCreate Do not create the map if
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,string>}
  */
 proto.fonos.appmanager.v1alpha1.App.prototype.getLabelsMap = function(opt_noLazyCreate) {
   return /** @type {!jspb.Map<string,string>} */ (
-      jspb.Message.getMapField(this, 9, opt_noLazyCreate,
+      jspb.Message.getMapField(this, 8, opt_noLazyCreate,
       null));
 };
 

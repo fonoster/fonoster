@@ -91,7 +91,6 @@ message App {
   string create_time = 4;
   string update_time = 5;
   Status status = 6;
-  string bucket = 7;
-  string access_key_id = 8;
-  map <string, string> labels = 9;
+  string access_key_id = 7;
+  map <string, string> labels = 8;
 }

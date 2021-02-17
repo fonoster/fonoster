@@ -29,7 +29,6 @@ export default async function (ref: string, accessKeyId: string) {
   app.setStatus(App.Status.REMOVED)
   await redis.set(app.getRef(), JSON.stringify(app.toObject()))
   await events.sendToQ({
-    name: app.getRef(),
-    bucket: app.getBucket()
+    name: app.getRef()
   })
 }

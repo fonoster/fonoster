@@ -176,9 +176,6 @@ export class App extends jspb.Message {
     getStatus(): App.Status;
     setStatus(value: App.Status): App;
 
-    getBucket(): string;
-    setBucket(value: string): App;
-
     getAccessKeyId(): string;
     setAccessKeyId(value: string): App;
 
@@ -205,7 +202,6 @@ export namespace App {
         createTime: string,
         updateTime: string,
         status: App.Status,
-        bucket: string,
         accessKeyId: string,
 
         labelsMap: Array<[string, string]>,
