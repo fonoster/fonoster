@@ -43,10 +43,10 @@ export default class extends Command {
     ])
 
     if (!answers.confirm) {
-      console.log('aborted')
+      console.log('Aborted')
     } else {
       try {
-        cli.action.start(`accessing endpoint ${answers.endpoint}`)
+        cli.action.start(`Accessing endpoint ${answers.endpoint}`)
 
         try {
           await fs.rmdir(BASE_DIR, { recursive: true })
@@ -58,10 +58,10 @@ export default class extends Command {
           await fs.writeFile(PATH_TO_CONFIG, JSON.stringify(answers))
 
           await cli.wait(1000)
-          cli.action.stop('done')
+          cli.action.stop('Done')
         } catch (e) {
           await cli.wait(1000)
-          cli.action.stop('invalid credentials or endpoint')
+          cli.action.stop('Invalid credentials or endpoint')
         }
       } catch (e) {
         cli.action.stop()

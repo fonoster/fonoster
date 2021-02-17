@@ -14,7 +14,7 @@ export default class GetCommand extends Command {
 
     try {
       const domains = new Domains()
-      cli.action.start(`getting domain ${args.ref}`)
+      cli.action.start(`Getting domain ${args.ref}`)
       const domain = await domains.getDomain(args.ref)
 
       const allow =

@@ -15,10 +15,10 @@ export default class DeleteCommand extends Command {
 
     try {
       const appmanager = new AppManager()
-      cli.action.start(`deleting application ${name}`)
+      cli.action.start(`Deleting application ${name}`)
       await appmanager.deleteApp(name)
       await cli.wait(1000)
-      cli.action.stop('done')
+      cli.action.stop('Done')
     } catch (e) {
       throw new CLIError(e.message)
     }

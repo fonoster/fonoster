@@ -36,12 +36,6 @@ export default class InitCommand extends Command {
         type: 'input',
         default: 'src/index.js'
       },
-      {
-        name: 'bucket',
-        message: 'bucket name',
-        type: 'input',
-        default: 'default'
-      },
       { name: 'author', message: 'author', type: 'input' },
       { name: 'license', message: 'license', type: 'input', default: 'ISC' },
       { name: 'locale', message: 'locale', type: 'input', default: 'en_US' },
@@ -55,13 +49,13 @@ export default class InitCommand extends Command {
     questions.cwd = process.cwd()
 
     if (!questions.confirm) {
-      console.log('aborted')
+      console.log('Aborted')
     } else {
       /**
        *  @description nodePlop have some issues about typeDef
        *  @example https://github.com/plopjs/node-plop/issues/194
        **/
-      init.runActions(questions).then(() => console.log('done'))
+      init.runActions(questions).then(() => console.log('Done'))
     }
   }
 }

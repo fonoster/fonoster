@@ -62,16 +62,16 @@ export default class extends Command {
     ])
 
     if (!answers.confirm) {
-      console.log('aborted')
+      console.log('Aborted')
     } else {
       try {
-        cli.action.start(`creating agent ${answers.name}`)
+        cli.action.start(`Creating agent ${answers.name}`)
 
         const agents = new Agents()
         await agents.createAgent(answers)
         await cli.wait(1000)
 
-        cli.action.stop('done')
+        cli.action.stop('Done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

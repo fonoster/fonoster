@@ -67,7 +67,7 @@ export class UpdateCommand extends Command {
     answers.ref = args.ref
 
     if (!answers.confirm) {
-      console.log('aborted')
+      console.log('Aborted')
     } else {
       try {
         const accessDeny = answers.accessDeny
@@ -75,12 +75,12 @@ export class UpdateCommand extends Command {
         answers.accessDeny = accessDeny ? accessDeny.split(',') : []
         answers.accessAllow = accessAllow ? accessAllow.split(',') : []
 
-        cli.action.start(`updating number`)
+        cli.action.start(`Updating number`)
 
         await numbers.updateNumber(answers)
         await cli.wait(1000)
 
-        cli.action.stop('done')
+        cli.action.stop('Done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

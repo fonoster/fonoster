@@ -57,7 +57,7 @@ export default class UpdateCommand extends Command {
         await agents.updateAgent(answers)
         await cli.wait(1000)
 
-        cli.action.stop('All done')
+        cli.action.stop('Done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

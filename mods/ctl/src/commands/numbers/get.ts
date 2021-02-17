@@ -14,7 +14,7 @@ export default class GetCommand extends Command {
 
     try {
       const numbers = new Numbers()
-      cli.action.start(`getting number ${args.ref}`)
+      cli.action.start(`Getting number ${args.ref}`)
       const number = await numbers.getNumber(args.ref)
 
       const jsonObj = {

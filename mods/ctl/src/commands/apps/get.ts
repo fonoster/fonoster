@@ -18,7 +18,7 @@ export default class GetCommand extends Command {
 
     try {
       const appmanager = new AppManager()
-      cli.action.start(`getting application ${name}`)
+      cli.action.start(`Getting application ${name}`)
       const app = await appmanager.getApp(name)
 
       const appJson = {

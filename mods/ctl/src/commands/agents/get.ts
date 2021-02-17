@@ -14,7 +14,7 @@ export default class GetCommand extends Command {
 
     try {
       const agents = new Agents()
-      cli.action.start(`getting agent ${args.ref}`)
+      cli.action.start(`Getting agent ${args.ref}`)
       const agent = await agents.getAgent(args.ref)
 
       const jsonObj = {
