@@ -92,21 +92,16 @@ export default class AppManager extends FonosService {
       )
     }
 
-    // Drepecated env FS_DEFAULT_STORAGE_BUCKET
-    let bucket = process.env.FS_DEFAULT_STORAGE_BUCKET
-
     try {
       const fonosConfigFile = fs.readFileSync(path.join(appPath, 'fonos.json'))
       const fonosConfig = JSON.parse(`${fonosConfigFile}`)
-      bucket = fonosConfig.bucket
     } catch (e) {}
 
     const request = {
       dirPath: appPath,
       app: {
         name: pInfo.name,
-        description: pInfo.description,
-        bucket: bucket
+        description: pInfo.description
       }
     }
 
@@ -160,7 +155,6 @@ export default class AppManager extends FonosService {
     app.setRef(appRef)
     app.setName(request.app.name)
     app.setDescription(request.app.description)
-    app.setBucket(request.app.bucket)
 
     const createAppRequest = new AppManagerPB.CreateAppRequest()
     createAppRequest.setApp(app)
