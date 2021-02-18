@@ -1,8 +1,8 @@
-import Verb from './verb'
+import Verb, { VerbConfig } from './verb'
 import Play from './play'
 
 class Wait extends Verb {
-  constructor (channel: any, config: any) {
+  constructor (channel: any, config: VerbConfig) {
     super(channel, config)
   }
 

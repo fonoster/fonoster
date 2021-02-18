@@ -1,15 +1,12 @@
-import Verb from './verb'
+import Verb, { VerbConfig } from './verb'
 import Play, { PlayOptions } from './play'
 import path from 'path'
 import logger from '@fonos/logger'
 import { transcodeSync, computeFilename } from '@fonos/tts'
 
 class Say extends Verb {
-  constructor (channel: any, config: any) {
+  constructor (channel: any, config: VerbConfig) {
     super(channel, config)
-    if (!config.tts) throw 'No tts engine found'
-    if (!config.storage) throw 'No storage object found'
-    if (!config.bucket) throw 'No bucket found'
   }
 
   private synth (text: string, filename: string, options?: any): string {
@@ -31,12 +28,13 @@ class Say extends Verb {
           'debug',
           '@fonos/voice.Say [generating file url using enviroment variables from client side]'
         )
-        return `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${filename}`
+        return `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${this.config.accessKeyId}/${filename}`
       }
 
       return this.config.storage.getObjectURLSync({
-        name: filename,
-        bucket: this.config.bucket
+        filename: filename,
+        bucket: this.config.bucket,
+        accessKeyId: this.config.accessKeyId
       })
     } catch (e) {
       logger.log('error', '@fonos/voice.Say [error synthesizing audio]')
@@ -51,8 +49,9 @@ class Say extends Verb {
     let url
     try {
       url = this.config.storage.getObjectURLSync({
-        name: filename,
-        bucket: this.config.bucket
+        filename,
+        bucket: this.config.bucket,
+        accessKeyId: this.config.accessKeyId
       })
 
       if (process.env.NODE_ENV === 'dev') {
@@ -60,13 +59,14 @@ class Say extends Verb {
           'debug',
           '@fonos/voice.Say [generating file url using enviroment variables from client side]'
         )
-        url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${filename}`
+        url = `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${this.config.bucket}/${this.config.accessKeyId}/${filename}`
       }
     } catch (e) {
       logger.log(
-        'warn',
+        'error',
         `@fonos/voice.Say [no url found for file ${filename} in bucket ${this.config.bucket}]`
       )
+      logger.error(e)
     }
 
     if (!url) url = this.synth(text, filename, options)

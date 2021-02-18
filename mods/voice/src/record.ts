@@ -1,4 +1,4 @@
-import Verb from './verb'
+import Verb, { VerbConfig } from './verb'
 import { EventsSender } from '@fonos/events'
 import logger from '@fonos/logger'
 
@@ -6,7 +6,7 @@ let events: any
 
 try {
   if (!process.env.EVENTS_BROKERS)
-    throw 'core.common.events [environment variable EVENTS_BROKERS not set]'
+    throw new Error('core.common.events [environment variable EVENTS_BROKERS not set]')
   const brokers = process.env.EVENTS_BROKERS.split(',')
   events = new EventsSender(brokers, 'RECORDING_CREATED')
   events.connect()
@@ -35,7 +35,7 @@ const validateBeep = (beep: boolean) => {
 }
 
 class Record extends Verb {
-  constructor (channel: any, config: any) {
+  constructor (channel: any, config: VerbConfig) {
     super(channel, config)
   }
 

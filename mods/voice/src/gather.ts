@@ -1,4 +1,4 @@
-import Verb from './verb'
+import Verb, { VerbConfig } from './verb'
 
 interface GatherOptions {
   timeout?: number
@@ -41,8 +41,8 @@ const reachedMaxDigits = (digits: string, maxDigits: number) =>
 const reachedTimeout = (c: string, timeout: number) => c === null && timeout > 0
 
 class Gather extends Verb {
-  constructor (channel: any) {
-    super(channel)
+  constructor (channel: any, config: VerbConfig) {
+    super(channel, config)
   }
 
   validate (options: any) {
