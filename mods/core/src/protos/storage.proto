@@ -15,8 +15,13 @@ service Storage {
 }
 
 message UploadObjectRequest {
-    string name = 1;
-    string bucket = 2;
+    enum Bucket {
+        APPS = 0;
+        RECORDINGS = 1;
+        PUBLIC = 2;
+    }    
+    Bucket bucket = 1;
+    string filename = 2;
     bytes chunks = 3;
     map <string, string> metadata = 4;
 }
@@ -27,8 +32,13 @@ message UploadObjectResponse {
 }
 
 message GetObjectURLRequest {
-    string name = 1;
-    string bucket = 2;
+    enum Bucket {
+        APPS = 0;
+        RECORDINGS = 1;
+        PUBLIC = 2;
+    }    
+    Bucket bucket = 1;
+    string filename = 2;
 }
 
 message GetObjectURLResponse {

@@ -13,13 +13,13 @@ describe('@fonos/usermanager', () => {
   afterEach(() => sandbox.restore())
 
   it.skip('needs testing', async () => {
-    const userManager = new UserManager();
-    const res = await userManager.createUser(
+    const userManager = new UserManager()
+    await userManager.createUser(
       {
         firstName: "test",
         lastName: "test",
         email : "testing@gmail.com"
       }
-    )    
+    )
   })
 })

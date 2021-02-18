@@ -21,7 +21,7 @@ describe('Storage Service', () => {
 
   before(async () => {
     // This will create the bucket if it does not exist
-    await updateBucketPolicy('default')
+    await updateBucketPolicy('test')
 
     storage = new Storage({
       endpoint: `${process.env.APISERVER_ENDPOINT}`
@@ -32,11 +32,11 @@ describe('Storage Service', () => {
     // Will fail because directory does not exist
     expect(
       storage.uploadObject({
-        filename: __dirname + '/../etc/hello-monkeys.tgz',
-        bucket: 'bucket001'
+        bucket: 'apps',
+        filename: __dirname + '/../etc/hello-monkeys.tgz'
       })
     ).to.eventually.be.rejectedWith(
-      'The specified bucket does not exist -> bucket: bucket001'
+      'The specified bucket does not exist -> bucket: apps'
     )
   })
 
@@ -44,8 +44,8 @@ describe('Storage Service', () => {
     // Will fail for directories
     expect(
       storage.uploadObject({
-        filename: __dirname,
-        bucket: 'default'
+        bucket: 'public',
+        filename: __dirname
       })
     ).to.eventually.be.rejectedWith('is not supported')
   })
@@ -53,8 +53,8 @@ describe('Storage Service', () => {
   it('Upload a single compress(tar) file', async () => {
     // Will pass
     const result = await storage.uploadObject({
+      bucket: 'apps',
       filename: __dirname + '/../etc/hello-monkeys.tgz',
-      bucket: 'default',
       metadata: {
         contentType: 'text/html'
       }
@@ -62,36 +62,36 @@ describe('Storage Service', () => {
 
     // Asserted this way to prevent issue with size changes
     // different filesystems
-    expect(result.getSize()).to.be.greaterThan(0)
+    expect(result.size).to.be.greaterThan(0)
   })
 
   it('Upload a single uncompress file', async () => {
     // Will pass
     const result = await storage.uploadObject({
-      filename: __dirname + '/../etc/test.txt',
-      bucket: 'default'
+      bucket: 'apps',
+      filename: __dirname + '/../etc/test.txt'
     })
     // Asserted this way to prevent issue with size changes
     // different filesystems
-    expect(result.getSize()).to.be.greaterThan(0)
+    expect(result.size).to.be.greaterThan(0)
   })
 
   it('fails because url was not found', () => {
     expect(
-      storage.getObjectURL({ name: 'test.wav', bucket: 'default' })
-    ).to.eventually.rejectedWith("filename 'test.wav' in bucket 'default'")
+      storage.getObjectURL({ bucket: 'recordings', filename: 'test.wav' })
+    ).to.eventually.rejectedWith("filename 'test.wav' in dir 'default'")
   })
 
   it('gets object url', () => {
-    const p = storage.getObjectURL({ name: 'test.txt', bucket: 'default' })
+    const p = storage.getObjectURL({ bucket: 'public', filename: 'test.txt' })
     expect(p).to.eventually.include('/default/test.txt')
   })
 
   it('gets object url sync', () => {
     Fiber(() => {
       const url = storage.getObjectURLSync({
-        name: 'test.txt',
-        bucket: 'default'
+        bucket: 'public',
+        filename: 'test.txt'
       })
       expect(url).to.include('test.txt')
     }).run()
