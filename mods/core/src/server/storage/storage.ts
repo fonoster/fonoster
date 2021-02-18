@@ -8,6 +8,7 @@ import {
   GetObjectURLResponse
 } from '../protos/storage_pb'
 import { IStorageServer, StorageService } from '../protos/storage_grpc_pb'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 const getBucketName = (bucket:GetObjectURLRequest.Bucket) => {
   switch (bucket) {
@@ -40,6 +41,7 @@ class StorageServer implements IStorageServer {
 
     try {
       const url = await getObjectURL(
+        getAccessKeyId(call),
         getBucketName(call.request.getBucket()),
         call.request.getFilename()
       )

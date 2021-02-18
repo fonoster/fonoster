@@ -3,7 +3,7 @@ import grpc from 'grpc'
 import { FonosError } from '@fonos/errors'
 import { fsInstance } from '../../common/utils'
 
-export default async function (bucket: string, filename: string): Promise<string> {
+export default async function (accessKeyID: string, bucket: string, filename: string): Promise<string> {
   logger.log(
     'debug',
     `@fonos/core getObjectURL [bucket: ${bucket}, filename: ${filename}}]`
@@ -19,7 +19,7 @@ export default async function (bucket: string, filename: string): Promise<string
         return
       }
       resolve(
-        `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${bucket}/${filename}`
+        `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${bucket}/${accessKeyID}/${filename}`
       )
     })
   })
