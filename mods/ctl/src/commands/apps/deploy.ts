@@ -22,10 +22,14 @@ export default class DeployCommand extends Command {
       await cli.wait(1000)
       cli.action.stop('')
 
+      const stringDate  = app.getCreateTime();
+      const date = new Date(stringDate).toDateString();
+      const time = new Date(stringDate).toLocaleTimeString('es-ES');
+
       const appJson = {
         Name: app.getName(),
         Description: app.getDescription(),
-        Create: app.getCreateTime()
+        Create: date.substring(4)+time
       }
 
       console.log(prettyjson.render(appJson, { noColor: true }))
