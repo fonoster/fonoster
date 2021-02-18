@@ -23,6 +23,7 @@ import getAccessKeyId from '../../common/get_access_key_id'
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
   constructor () {
+    // Uselesss
     super(Kind.DOMAIN, domainDecoder)
   }
 

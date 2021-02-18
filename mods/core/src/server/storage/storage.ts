@@ -9,6 +9,17 @@ import {
 } from '../protos/storage_pb'
 import { IStorageServer, StorageService } from '../protos/storage_grpc_pb'
 
+const getBucketName = (bucket:GetObjectURLRequest.Bucket) => {
+  switch (bucket) {
+    case GetObjectURLRequest.Bucket.APPS:
+      return 'apps'
+    case GetObjectURLRequest.Bucket.RECORDINGS:
+      return 'recordings'
+    case GetObjectURLRequest.Bucket.PUBLIC:
+      return 'public'
+  }
+}
+
 class StorageServer implements IStorageServer {
   async uploadObject (
     call: grpc.ServerReadableStream<UploadObjectRequest>,
@@ -29,8 +40,8 @@ class StorageServer implements IStorageServer {
 
     try {
       const url = await getObjectURL(
-        call.request.getBucket(),
-        call.request.getName()
+        getBucketName(call.request.getBucket()),
+        call.request.getFilename()
       )
       const response = new GetObjectURLResponse()
       response.setUrl(url)
