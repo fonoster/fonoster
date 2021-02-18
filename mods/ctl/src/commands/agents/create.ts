@@ -66,12 +66,10 @@ export default class extends Command {
     } else {
       try {
         cli.action.start(`Creating agent ${answers.name}`)
-
         const agents = new Agents()
-        await agents.createAgent(answers)
+        const agent = await agents.createAgent(answers)
         await cli.wait(1000)
-
-        cli.action.stop('Done')
+        cli.action.stop(agent.getRef())
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

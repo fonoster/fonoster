@@ -63,10 +63,10 @@ export default class CreateCommand extends Command {
         cli.action.start(`Creating provider ${answers.name}`)
 
         const providers = new Providers()
-        await providers.createProvider(answers)
+        const provider = await providers.createProvider(answers)
         await cli.wait(1000)
 
-        cli.action.stop('Done')
+        cli.action.stop(provider.getRef())
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

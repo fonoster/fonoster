@@ -7,6 +7,6 @@ export default class DeleteCommand extends Command {
   static aliases = ['domains:del', 'domains:rm']
 
   async run () {
-    super.deleteResource(new Domains(), 'deleteDomain')
+      super.deleteResource(new Domains(), 'deleteDomain')
   }
 }

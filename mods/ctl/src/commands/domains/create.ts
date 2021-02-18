@@ -68,10 +68,10 @@ export default class CreateCommand extends Command {
         cli.action.start(`Creating domain ${answers.name}`)
 
         const domains = new Domains()
-        await domains.createDomain(answers)
+        const domain = await domains.createDomain(answers)
         await cli.wait(1000)
 
-        cli.action.stop('Done')
+        cli.action.stop(domain.getRef())
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

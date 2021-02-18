@@ -5,7 +5,6 @@ import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
 import { CommonPB, AgentsPB } from '@fonos/core'
 const Table = require('easy-table')
-const moment = require('moment')
 
 export default class ListCommand extends Command {
   static description = `list registered agents

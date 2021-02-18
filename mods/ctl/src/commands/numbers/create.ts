@@ -103,9 +103,9 @@ export default class CreateCommand extends Command {
         cli.action.start(`Creating number ${number}`)
         answers.e164Number = number
         const numbers = new Numbers()
-        await numbers.createNumber(answers)
+        const result = await numbers.createNumber(answers)
         await cli.wait(1000)
-        cli.action.stop('Done')
+        cli.action.stop(result.getRef())
       }
     } catch (e) {
       cli.action.stop()

@@ -5,7 +5,6 @@ import { Command, flags as oclifFlags } from '@oclif/command'
 import { prompt } from 'inquirer'
 import { CommonPB } from '@fonos/core'
 const Table = require('easy-table')
-const moment = require('moment')
 const truncate = require('truncate')
 
 export default class ListCommand extends Command {
