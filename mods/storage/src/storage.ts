@@ -10,7 +10,8 @@ interface UploadObjectRequest {
 
 interface GetObjectURLRequest {
   bucket: 'apps' | 'public' | 'recordings'
-  filename: string
+  filename: string,
+  accessKeyId?: string
 }
 
 /**
@@ -85,16 +86,16 @@ export default class Storage extends FonosService {
           }
         })
 
-      let bucket:StoragePB.GetObjectURLRequest.Bucket
+      let bucket:StoragePB.UploadObjectRequest.Bucket
       switch (request.bucket) {
         case 'apps':
-          bucket = StoragePB.GetObjectURLRequest.Bucket.APPS;
+          bucket = StoragePB.UploadObjectRequest.Bucket.APPS;
           break;
         case 'recordings':
-          bucket = StoragePB.GetObjectURLRequest.Bucket.RECORDINGS;
+          bucket = StoragePB.UploadObjectRequest.Bucket.RECORDINGS;
           break;
         case 'public':
-          bucket = StoragePB.GetObjectURLRequest.Bucket.PUBLIC;
+          bucket = StoragePB.UploadObjectRequest.Bucket.PUBLIC;
           break;  
       }
 
@@ -125,8 +126,9 @@ export default class Storage extends FonosService {
    *
    * @param {GetObjectURLRequest} request - Object with information about the location and
    * and name of the requested object
-   * @param {string} request.name - The name of the object
+   * @param {string} request.filename - The name of the object
    * save your file.
+   * @param {string} request.accessKeyId - Optional access key id
    * @return {Promise<string>} localy accessible URL to the object
    * @throws if directory or object doesn't exist
    * @example
@@ -153,12 +155,13 @@ export default class Storage extends FonosService {
           break;
         case 'public':
           bucket = StoragePB.GetObjectURLRequest.Bucket.PUBLIC;
-          break;  
+          break;
       }
 
       const gour = new StoragePB.GetObjectURLRequest()
       gour.setFilename(request.filename)
       gour.setBucket(bucket)
+      gour.setAccessKeyId(request.accessKeyId)
 
       super
         .getService()
