@@ -38,11 +38,16 @@ class StorageServer implements IStorageServer {
     call: grpc.ServerUnaryCall<GetObjectURLRequest>,
     callback: grpc.sendUnaryData<GetObjectURLResponse>
   ): Promise<void> {
+    const bucket = getBucketName(call.request.getBucket())
+    let accessKeyId = getAccessKeyId(call)
+    if (call.request.getAccessKeyId() && call.request.getBucket() === GetObjectURLRequest.Bucket.PUBLIC) {
+      accessKeyId = call.request.getAccessKeyId()
+    }
 
     try {
       const url = await getObjectURL(
-        getAccessKeyId(call),
-        getBucketName(call.request.getBucket()),
+        accessKeyId,
+        bucket,
         call.request.getFilename()
       )
       const response = new GetObjectURLResponse()
