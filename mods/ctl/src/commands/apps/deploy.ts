@@ -3,6 +3,7 @@ import AppManager from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { cli } from 'cli-ux'
 import { Command } from '@oclif/command'
+import moment from 'moment'
 
 export default class DeployCommand extends Command {
   static args = [{ name: 'ref' }]
