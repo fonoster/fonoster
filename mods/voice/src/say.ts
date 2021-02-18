@@ -48,11 +48,13 @@ class Say extends Verb {
 
     let url
     try {
-      url = this.config.storage.getObjectURLSync({
+      const res = this.config.storage.getObjectURLSync({
         filename,
         bucket: this.config.bucket,
         accessKeyId: this.config.accessKeyId
       })
+
+      url = res.getUrl()
 
       if (process.env.NODE_ENV === 'dev') {
         logger.log(
