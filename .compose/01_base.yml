@@ -7,6 +7,12 @@ services:
       file: common.yml
       service: common
     image: ${AS_IMAGE}
+    # TODO: Fix health check conflict with the new interceptor
+    healthcheck:
+      test: ["CMD-SHELL", "echo removethis"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
     environment:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}

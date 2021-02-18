@@ -7,19 +7,19 @@ export default function (extension: string) {
     const numbers = new Numbers()
     const app = numbers.getIngressAppSync({ e164Number: extension })
     const appsDir = `/fonos/apps/${app.getAccessKeyId()}`
-    const packageBase = `${appsDir}/${app.getName()}`
-    const pathToEntryPoint = `${packageBase}/package.json`
+    const packageBase = `${appsDir}/${app.getRef()}`
+    const pathToManifest = `${packageBase}/package.json`
     // const pathToAppConfig = `${packageBase}/fonos.json`
 
     try {
-      const entryPoint = require(pathToEntryPoint).main
+      const entryPoint = require(pathToManifest).main
       return {
         entryPoint: `${packageBase}/${entryPoint}`
       }
     } catch (e) {
       logger.log(
         'error',
-        `@fonos/dispatcher [unable find entry point. Ensure that path '${pathToEntryPoint}' exist and has the correct permissions.`
+        `@fonos/dispatcher [unable find entry point. Ensure that path '${pathToManifest}' exist and has the correct permissions.`
       )
     }
   } catch (e) {
