@@ -54,7 +54,7 @@ class Say extends Verb {
         accessKeyId: this.config.accessKeyId
       })
 
-      url = res.getUrl()
+      url = res.url
 
       if (process.env.NODE_ENV === 'dev') {
         logger.log(
