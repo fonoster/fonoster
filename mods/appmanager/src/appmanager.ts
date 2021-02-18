@@ -183,7 +183,7 @@ export default class AppManager extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteApp (ref: string) {
-    const request = new AppManagerPB.DeleteAppRequest()
+    const request = await new AppManagerPB.DeleteAppRequest()
     request.setRef(ref)
     return this.service.deleteApp().sendMessage(request)
   }

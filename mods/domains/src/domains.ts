@@ -186,7 +186,7 @@ class Domains extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteDomain (ref: string) {
-    const req = new DomainsPB.DeleteDomainRequest()
+    const req = await new DomainsPB.DeleteDomainRequest()
     req.setRef(ref)
     return super
       .getService()

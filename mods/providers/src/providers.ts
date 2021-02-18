@@ -193,7 +193,7 @@ export default class Providers extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteProvider (ref: any) {
-    const req = new ProvidersPB.DeleteProviderRequest()
+    const req = await new ProvidersPB.DeleteProviderRequest()
     req.setRef(ref)
 
     return super

@@ -190,7 +190,7 @@ class Agents extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteAgent (ref: string): Promise<object> {
-    const req = new AgentsPB.DeleteAgentRequest()
+    const req = await new AgentsPB.DeleteAgentRequest()
     req.setRef(ref)
 
     return super

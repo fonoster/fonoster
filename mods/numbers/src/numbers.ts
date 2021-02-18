@@ -197,7 +197,7 @@ export default class Numbers extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteNumber (ref: string) {
-    const req = new NumbersPB.DeleteNumberRequest()
+    const req = await new NumbersPB.DeleteNumberRequest()
     req.setRef(ref)
 
     return super
