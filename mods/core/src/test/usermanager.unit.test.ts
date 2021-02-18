@@ -24,7 +24,7 @@ describe('@fonos/core/usermanager', () => {
     expect(roleStub).to.have.been.calledOnce
   })
 
-  it.only('fails with role not having access', async () => {
+  it('fails with role not having access', async () => {
     const role = new Role({role: 'GUEST', description: '', access: ['a']})
     const roleStub = sandbox.stub(RoleController.prototype, 'getRoles').returns(Promise.resolve([]))
     const hasAccess = await roleHasAccess('GUEST', 'b')

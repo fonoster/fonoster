@@ -2,8 +2,9 @@ import chai from 'chai'
 import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
+import { FonosService } from '@fonos/core'
 import CallManager from '../src/callmanager'
-//import { CallManagerPB } from '@fonos/core'
+import { CallManagerPB } from '@fonos/core'
 
 const expect = chai.expect
 chai.use(sinonChai)
@@ -13,7 +14,7 @@ const sandbox = sinon.createSandbox()
 describe('@fonos/callmanager', () => {
   afterEach(() => sandbox.restore())
 
-  /*it('checks the requests parameters', async () => {
+  it('checks the requests parameters', async () => {
     const setFromStub = sandbox.stub(
       CallManagerPB.CallRequest.prototype,
       'setFrom'
@@ -24,7 +25,7 @@ describe('@fonos/callmanager', () => {
       'setApp'
     )
     const serviceStub = sandbox
-      .stub(CallManager.prototype, 'getService')
+      .stub(FonosService.prototype, 'getService')
       .returns({
         call: () => {
           return {
@@ -50,11 +51,12 @@ describe('@fonos/callmanager', () => {
     expect(setFromStub).to.be.calledOnceWith('9102104343')
     expect(setToStub).to.be.calledOnceWith('17853178070')
     expect(setAppStub).to.be.calledOnceWith('default')
-    expect(serviceStub).to.be.calledOnce
+    // Once in the constructor and one in the call function
+    expect(serviceStub).to.be.calledTwice
     expect(callStub).to.be.calledOnce
     expect(result).to.have.property('from')
     expect(result).to.have.property('to')
     expect(result).to.have.property('app')
     expect(result).to.have.property('duration')
-  })*/
+  })
 })
