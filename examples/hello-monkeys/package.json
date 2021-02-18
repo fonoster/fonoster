@@ -4,5 +4,6 @@
   "private": true,
   "description": "Hello Monkeys Example",
   "author": "Pedro Sanders",
+  "main": "index.js",
   "license": "MIT"
 }
