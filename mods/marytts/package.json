@@ -1,6 +1,6 @@
 {
   "name": "@fonos/marytts",
-  "version": "0.0.68",
+  "version": "0.0.69",
   "description": "Concrete implementation of AbstractTTS",
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,8 +29,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.68",
-    "@fonos/tts": "^0.0.68",
+    "@fonos/logger": "^0.0.69",
+    "@fonos/tts": "^0.0.69",
     "deepmerge": "^4.2.2"
   },
   "devDependencies": {
