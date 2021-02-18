@@ -6,10 +6,9 @@ export default function (extension: string) {
   try {
     const numbers = new Numbers()
     const app = numbers.getIngressAppSync({ e164Number: extension })
-    const appsDir = `/fonos/apps/${app.getAccessKeyId()}`
+    const appsDir = `/home/fonos/apps/${app.getAccessKeyId()}`
     const packageBase = `${appsDir}/${app.getRef()}`
     const pathToManifest = `${packageBase}/package.json`
-    // const pathToAppConfig = `${packageBase}/fonos.json`
 
     try {
       const entryPoint = require(pathToManifest).main
