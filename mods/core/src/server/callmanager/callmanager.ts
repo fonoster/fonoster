@@ -12,17 +12,18 @@ import { CallRequest, CallResponse } from '../protos/callmanager_pb'
 import originate, { EndpointInfo } from './call'
 import { ICallManagerServer } from '../protos/callmanager_grpc_pb'
 import logger from '@fonos/logger'
-import getAccessKeyId from '../../common/get_access_key_id'
-import { FonosAuthError } from '@fonos/errors'
 
 class CallManagerServer implements ICallManagerServer {
   async call (
     call: grpc.ServerUnaryCall<CallRequest>,
     callback: grpc.sendUnaryData<CallResponse>
   ) {
-    const domain = await this.getDomainByNumber(call.request.getFrom())
+    const getDomainByNumber = async (e164Number: string) => {
+      await routr.connect()
+      return await routr.getDomainUriFromNumber(e164Number)
+    }
 
-    if (domain.metadata.accessKeyId !== getAccessKeyId(call)) throw new FonosAuthError()
+    const domain = await getDomainByNumber(call.request.getFrom())
 
     logger.debug('@core/callmanager call [originating call]')
     logger.debug(`@core/callmanager call [ari url ${process.env.MS_ARI_URL}]`)
@@ -36,7 +37,7 @@ class CallManagerServer implements ICallManagerServer {
 
     try {
       const epInfo: EndpointInfo = {
-        domain: domain,
+        domain,
         trunk: process.env.MS_TRUNK,
         context: process.env.MS_CONTEXT,
         extension: process.env.MS_EXTENSION
@@ -54,10 +55,6 @@ class CallManagerServer implements ICallManagerServer {
     }
   }
 
-  private async getDomainByNumber (e164Number: string) {
-    await routr.connect()
-    return await routr.getDomainUriFromNumber(e164Number)
-  }
 }
 
 export { CallManagerServer as default, ICallManagerServer, CallManagerServer }
