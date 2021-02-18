@@ -39,6 +39,7 @@ message GetObjectURLRequest {
     }    
     Bucket bucket = 1;
     string filename = 2;
+    string access_key_id = 3;
 }
 
 message GetObjectURLResponse {
