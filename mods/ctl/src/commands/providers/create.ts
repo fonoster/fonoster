@@ -60,13 +60,13 @@ export default class CreateCommand extends Command {
       console.log('aborted')
     } else {
       try {
-        cli.action.start(`creating provider ${answers.name}`)
+        cli.action.start(`Creating provider ${answers.name}`)
 
         const providers = new Providers()
         await providers.createProvider(answers)
         await cli.wait(1000)
 
-        cli.action.stop('done')
+        cli.action.stop('Done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)
