@@ -5,6 +5,7 @@ import { View } from '@fonos/core/src/server/protos/common_pb'
 import fs from 'fs-extra'
 import path from 'path'
 import tar from 'tar'
+import { nanoid } from 'nanoid'
 
 const STATUS = {
   UNKNOWN: 0,
@@ -79,6 +80,7 @@ export default class AppManager extends FonosService {
    * change to UNKNOWN.
    */
   async deployApp (appPath: string, appRef ?: string): Promise<App> {
+    const dirName = appRef || nanoid(10)
     const packagePath = path.join(appPath, 'package.json')
     // Expects an existing valid package.json
     const packageInfo = (p: string) => JSON.parse(`${fs.readFileSync(p)}`)
@@ -105,21 +107,6 @@ export default class AppManager extends FonosService {
       }
     }
 
-    // WARNING: I'm not happy with this. Seems inconsistent with the other
-    // errors...
-    /*const errors = appManagerValidator.createAppRequest.validate({
-      app: {
-        name: request.app.name,
-        description: request.app.description
-      }
-    })
-
-    if (errors.length > 0) {
-      throw new Error(
-        'Please ensure package.json contains the name and description fields'
-      )
-    }*/
-
     if (
       !fs.existsSync(request.dirPath) ||
       !fs.lstatSync(request.dirPath).isDirectory()
@@ -130,9 +117,6 @@ export default class AppManager extends FonosService {
     if (!fs.existsSync(packagePath)) {
       throw new Error(`not package.json found in ${request.dirPath}`)
     }
-
-    // TODO: Validate that the name is lower case and has no spaces
-    const dirName = `${request.app.name}`
 
     // Cleanup before deploy
     if (fs.existsSync(`/tmp/${dirName}`))
@@ -152,7 +136,7 @@ export default class AppManager extends FonosService {
     if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`)
 
     const app = new AppManagerPB.App()
-    app.setRef(appRef)
+    app.setRef(dirName)
     app.setName(request.app.name)
     app.setDescription(request.app.description)
 
