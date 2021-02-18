@@ -78,6 +78,9 @@ export class GetObjectURLRequest extends jspb.Message {
     getFilename(): string;
     setFilename(value: string): GetObjectURLRequest;
 
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): GetObjectURLRequest;
+
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GetObjectURLRequest.AsObject;
@@ -93,6 +96,7 @@ export namespace GetObjectURLRequest {
     export type AsObject = {
         bucket: GetObjectURLRequest.Bucket,
         filename: string,
+        accessKeyId: string,
     }
 
     export enum Bucket {

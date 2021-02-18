@@ -521,7 +521,8 @@ proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.toObject = function(o
 proto.fonos.storage.v1alpha1.GetObjectURLRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     bucket: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    filename: jspb.Message.getFieldWithDefault(msg, 2, "")
+    filename: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -566,6 +567,10 @@ proto.fonos.storage.v1alpha1.GetObjectURLRequest.deserializeBinaryFromReader = f
       var value = /** @type {string} */ (reader.readString());
       msg.setFilename(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAccessKeyId(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -606,6 +611,13 @@ proto.fonos.storage.v1alpha1.GetObjectURLRequest.serializeBinaryToWriter = funct
   if (f.length > 0) {
     writer.writeString(
       2,
+      f
+    );
+  }
+  f = message.getAccessKeyId();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
       f
     );
   }
@@ -654,6 +666,24 @@ proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.getFilename = functio
  */
 proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.setFilename = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string access_key_id = 3;
+ * @return {string}
+ */
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.getAccessKeyId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.storage.v1alpha1.GetObjectURLRequest} returns this
+ */
+proto.fonos.storage.v1alpha1.GetObjectURLRequest.prototype.setAccessKeyId = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
