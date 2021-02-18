@@ -3,6 +3,7 @@ import AppManager from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { cli } from 'cli-ux'
 import { Command } from '@oclif/command'
+import moment from 'moment'
 
 const prettyjson = require('prettyjson')
 
@@ -22,14 +23,10 @@ export default class DeployCommand extends Command {
       await cli.wait(1000)
       cli.action.stop('')
 
-      const stringDate  = app.getCreateTime();
-      const date = new Date(stringDate).toDateString();
-      const time = new Date(stringDate).toLocaleTimeString('es-ES');
-
       const appJson = {
         Name: app.getName(),
         Description: app.getDescription(),
-        Create: date.substring(4)+time
+        Create: moment().format('lll')
       }
 
       console.log(prettyjson.render(appJson, { noColor: true }))
