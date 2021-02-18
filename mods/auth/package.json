@@ -1,6 +1,6 @@
 {
   "name": "@fonos/auth",
-  "version": "0.0.67",
+  "version": "0.0.68",
   "description": "Authentication Module",
   "author": "Raul Sanchez <rsanchez@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,7 +29,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.67",
+    "@fonos/logger": "^0.0.68",
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
