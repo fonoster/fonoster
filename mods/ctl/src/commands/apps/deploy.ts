@@ -21,7 +21,6 @@ export default class DeployCommand extends Command {
       await cli.wait(1000)
       cli.action.stop(app.getRef())
     } catch (e) {
-      console.error(e)
       throw new CLIError(e.message)
     }
   }

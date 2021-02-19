@@ -94,10 +94,11 @@ export default class AppManager extends FonosService {
       )
     }
 
-    try {
-      const fonosConfigFile = fs.readFileSync(path.join(appPath, 'fonos.json'))
-      const fonosConfig = JSON.parse(`${fonosConfigFile}`)
-    } catch (e) {}
+    if (!pInfo.main) throw new Error('Missing "main" entry at package.json')
+
+    const mainScript = `${appPath}/${pInfo.main}`
+
+    if (!fs.existsSync(mainScript)) throw new Error(`Cannot find main script at "${mainScript}"`)
 
     const request = {
       dirPath: appPath,
