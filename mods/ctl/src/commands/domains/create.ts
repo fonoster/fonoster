@@ -74,7 +74,11 @@ export default class CreateCommand extends Command {
         cli.action.stop(domain.getRef())
       } catch (e) {
         cli.action.stop()
-        throw new CLIError(e.message)
+        if (e.code === 9) {
+          throw new CLIError('This Domain already exist')
+        } else {
+          throw new CLIError(e)
+        }
       }
     }
   }

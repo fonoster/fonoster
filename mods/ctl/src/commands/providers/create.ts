@@ -69,7 +69,11 @@ export default class CreateCommand extends Command {
         cli.action.stop(provider.getRef())
       } catch (e) {
         cli.action.stop()
-        throw new CLIError(e.message)
+        if (e.code === 9) {
+          throw new CLIError('This Provider already exist')
+        } else {
+          throw new CLIError(e)
+        }
       }
     }
   }

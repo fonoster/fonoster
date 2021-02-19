@@ -72,7 +72,11 @@ export default class extends Command {
         cli.action.stop(agent.getRef())
       } catch (e) {
         cli.action.stop()
-        throw new CLIError(e.message)
+        if (e.code === 9) {
+          throw new CLIError('This Agent already exist')
+        } else {
+          throw new CLIError(e)
+        }
       }
     }
   }

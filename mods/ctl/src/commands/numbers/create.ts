@@ -115,7 +115,11 @@ export default class CreateCommand extends Command {
       }
     } catch (e) {
       cli.action.stop()
-      throw new CLIError(e.message)
+      if (e.code === 9) {
+        throw new CLIError('This Number already exist')
+      } else {
+        throw new CLIError(e)
+      }
     }
   }
 }
