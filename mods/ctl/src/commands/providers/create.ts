@@ -29,7 +29,8 @@ export default class CreateCommand extends Command {
       {
         name: 'secret',
         message: 'secret',
-        type: 'password'
+        type: 'password',
+        mask: true
       },
       {
         name: 'host',

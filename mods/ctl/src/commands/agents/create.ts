@@ -39,7 +39,8 @@ export default class extends Command {
       {
         name: 'secret',
         message: 'secret',
-        type: 'password'
+        type: 'password',
+        mask: true
       },
       {
         name: 'domains',
