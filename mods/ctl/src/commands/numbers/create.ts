@@ -56,7 +56,7 @@ export default class CreateCommand extends Command {
       const answers = await inquirer.prompt([
         {
           name: 'e164Number',
-          message: 'number in e164 format (e.g. +16471234567)',
+          message: 'number in E.164 format (e.g. +16471234567)',
           type: 'input'
         },
         {
@@ -105,7 +105,7 @@ export default class CreateCommand extends Command {
       } else {
         const number = phone(answers.e164Number)[0]
         if (!number)
-          throw `number ${answers.e164Number} is not a valid e164 number (e.g. +16471234567)`
+          throw new Error(`number ${answers.e164Number} is not a valid E.164 number`)
         cli.action.start(`Creating number ${number}`)
         answers.e164Number = number
         const numbers = new Numbers()
