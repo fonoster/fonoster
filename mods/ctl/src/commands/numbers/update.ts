@@ -27,9 +27,15 @@ export class UpdateCommand extends Command {
       pageToken: '1',
       view
     })
-    const appsNames = response
+    const apps = response
       .getAppsList()
-      .map((app: AppManagerPB.App) => app.getName())
+      .map((app: AppManagerPB.App) => { 
+        return { 
+          name: app.getName(), 
+          value: app.getRef() 
+        }
+      })
+
     const { args } = this.parse(UpdateCommand)
     const numbers = new Numbers()
 
@@ -48,7 +54,7 @@ export class UpdateCommand extends Command {
           name: 'ingressApp',
           message: 'ingress app',
           type: 'list',
-          choices: appsNames
+          choices: apps
         }
       ])
 

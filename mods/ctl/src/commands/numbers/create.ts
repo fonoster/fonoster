@@ -29,7 +29,13 @@ export default class CreateCommand extends Command {
       })
       const apps = res
         .getAppsList()
-        .map((app: AppManagerPB.App) => app.getName())
+        .map((app: AppManagerPB.App) => { 
+          return { 
+            name: app.getName(), 
+            value: app.getRef() 
+          }
+        })
+
       const response = await new Providers().listProviders({
         pageSize: 25,
         pageToken: '1'
