@@ -33,6 +33,7 @@ export default class extends Command {
       {
         name: 'accessKeySecret',
         message: 'access key token',
+        mask: true,
         type: 'password'
       },
       {
