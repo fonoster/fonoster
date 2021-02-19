@@ -27,6 +27,7 @@ export default async function (ref: string, accessKeyId: string) {
   if(!app || app.getAccessKeyId() !== accessKeyId) throw new FonosError('resource does not exist')
 
   app.setStatus(App.Status.REMOVED)
+  // NEED TO ALSO REMOVE FROM LRANGE
   await redis.set(app.getRef(), JSON.stringify(app.toObject()))
   await events.sendToQ({
     name: app.getRef()

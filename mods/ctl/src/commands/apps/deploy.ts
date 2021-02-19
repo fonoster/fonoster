@@ -3,7 +3,9 @@ import AppManager from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { cli } from 'cli-ux'
 import { Command } from '@oclif/command'
-import moment from 'moment'
+import { CommonPB } from '@fonos/core'
+const inquirer = require('inquirer')
+const view: CommonPB.View = CommonPB.View.BASIC
 
 export default class DeployCommand extends Command {
   static args = [{ name: 'ref' }]
@@ -11,15 +13,36 @@ export default class DeployCommand extends Command {
   ...
   Run this command from the app root to deploy to Fonos.
   `
-
   async run () {
     const { args } = this.parse(DeployCommand)
     try {
-      cli.action.start('Deploying application')
       const appmanager = new AppManager()
-      const app = await appmanager.deployApp(process.cwd(), args.ref)
-      await cli.wait(1000)
-      cli.action.stop(app.getRef())
+      // Get a list
+      const result = await appmanager.listApps({ pageSize: 1000, pageToken: '1', view })
+      const apps = result.getAppsList()
+      const appsName = apps.map((app:any) => app.getName())
+      const name = require(process.cwd() + '/package.json').name
+
+      let aborted = false
+      if (appsName.includes(name) && !args.ref) {
+        const answers: any = await inquirer.prompt([
+          {
+            name: 'confirm',
+            message: 'There is another app with the same name. Do you want to overwrite?',
+            type: 'confirm'
+          }
+        ])
+        if(!answers.confirm)  {
+          aborted = true
+        }
+      }
+
+      if (!aborted) {
+        cli.action.start('Deploying application')
+        const app = await appmanager.deployApp(process.cwd(), args.ref)
+        await cli.wait(1000)
+        cli.action.stop(app.getRef())
+      }
     } catch (e) {
       throw new CLIError(e.message)
     }
