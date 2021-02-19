@@ -68,7 +68,7 @@ export default class UpdateCommand extends Command {
     answers.ref = args.ref
 
     if (!answers.confirm) {
-      console.log('aborted')
+      console.log('Aborted')
     } else {
       try {
         cli.action.start(`updating provider ${answers.name}`)

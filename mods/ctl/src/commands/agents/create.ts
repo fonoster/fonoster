@@ -45,7 +45,7 @@ export default class extends Command {
       {
         name: 'domains',
         message: 'domains',
-        type: 'checkbox',
+        type: 'list',
         choices: domains
       },
       {

@@ -101,7 +101,7 @@ export default class CreateCommand extends Command {
       answers.confirm = confirmPrompt.confirm
 
       if (!answers.confirm) {
-        console.log('aborted')
+        console.log('Aborted')
       } else {
         const number = phone(answers.e164Number)[0]
         if (!number)

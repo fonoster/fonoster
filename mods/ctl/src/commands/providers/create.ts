@@ -58,7 +58,7 @@ export default class CreateCommand extends Command {
     ])
 
     if (!answers.confirm) {
-      console.log('aborted')
+      console.log('Aborted')
     } else {
       try {
         cli.action.start(`Creating provider ${answers.name}`)
