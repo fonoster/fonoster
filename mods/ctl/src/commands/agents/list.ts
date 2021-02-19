@@ -48,7 +48,7 @@ export default class ListCommand extends Command {
           t.cell('Ref', agent.getRef())
           t.cell('Name', agent.getName())
           t.cell('Username', agent.getUsername())
-          t.cell('Privacy', agent.getPrivacy())
+          //t.cell('Privacy', agent.getPrivacy())
           t.cell('Domains', agent.getDomainsList().join(','))
           t.newRow()
         })

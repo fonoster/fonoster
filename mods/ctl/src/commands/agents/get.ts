@@ -4,6 +4,7 @@ import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
 import { render } from 'prettyjson'
+const moment = require('moment')
 
 export default class GetCommand extends Command {
   static description = `get information about an existing agent`
@@ -21,10 +22,10 @@ export default class GetCommand extends Command {
         Ref: agent.getRef(),
         Name: agent.getName(),
         Username: agent.getUsername(),
-        Privacy: agent.getPrivacy(),
+        // Privacy: agent.getPrivacy(),
         Domains: agent.getDomainsList().join(','),
-        Created: agent.getCreateTime(),
-        Updated: agent.getUpdateTime()
+        Created: moment(agent.getCreateTime()).fromNow(),
+        Updated: moment(agent.getUpdateTime()).fromNow()
       }
 
       await cli.wait(1000)
