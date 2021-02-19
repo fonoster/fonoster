@@ -86,7 +86,7 @@ services:
     image: ${DS_AUTH_IMAGE}
     deploy:
       placement:
-        constraints: [node.role == manager]    
+        constraints: [node.role == manager]
     # TODO: Fix health check
     #healthcheck:
     #  test: ['CMD', 'redis-cli','ping']
