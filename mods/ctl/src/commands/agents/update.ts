@@ -30,6 +30,7 @@ export default class UpdateCommand extends Command {
         name: 'secret',
         message: 'secret',
         type: 'password',
+        mask: true,
         default: agent.getSecret()
       },
       {

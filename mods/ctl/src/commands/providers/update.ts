@@ -37,7 +37,8 @@ export default class UpdateCommand extends Command {
         name: 'secret',
         message: 'secret',
         type: 'password',
-        default: provider.getSecret()
+        default: provider.getSecret(),
+        mask: true
       },
       {
         name: 'host',
