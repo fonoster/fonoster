@@ -45,7 +45,9 @@ export default class {
   constructor (ServiceClient?: any, options: any = {}) {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
+  }
 
+  init (): void {
     try {
       if (configExist()) {
         this.options = merge(this.options, JSON.parse(getConfigFile()))
@@ -61,9 +63,7 @@ export default class {
     this.metadata = new grpc.Metadata()
     this.metadata.add('access_key_id', this.options.accessKeyId)
     this.metadata.add('access_key_secret', this.options.accessKeySecret)
-  }
 
-  init (): void {
     this.service = new this.ServiceClient(
       this.options.endpoint,
       getClientCredentials()

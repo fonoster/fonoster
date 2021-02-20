@@ -24,6 +24,9 @@ describe('@fonos/callmanager', () => {
       CallManagerPB.CallRequest.prototype,
       'setApp'
     )
+
+    const initStub = sandbox
+      .stub(FonosService.prototype, 'init').returns()
     const serviceStub = sandbox
       .stub(FonosService.prototype, 'getService')
       .returns({
@@ -51,6 +54,7 @@ describe('@fonos/callmanager', () => {
     expect(setFromStub).to.be.calledOnceWith('9102104343')
     expect(setToStub).to.be.calledOnceWith('17853178070')
     expect(setAppStub).to.be.calledOnceWith('default')
+    expect(initStub).to.be.calledOnce
     // Once in the constructor and one in the call function
     expect(serviceStub).to.be.calledTwice
     expect(callStub).to.be.calledOnce

@@ -17,8 +17,11 @@ services:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
       DS_SECRET: ${DS_SECRET}
+      DS_AUTH_USERNAME: ${DS_AUTH_USERNAME}
+      DS_AUTH_SECRET: ${DS_AUTH_SECRET}
       DS_AUTH_HOST: ${DS_AUTH_HOST}
       DS_AUTH_PORT: ${DS_AUTH_PORT}
+      DS_AUTH_DB: ${DS_AUTH_DB}
       # Warning: Temporal variable
       FS_HOST: ${FS_HOST_PUBLIC}
       FS_PORT: ${FS_PORT}
@@ -92,7 +95,7 @@ services:
       placement:
         constraints: [node.role == manager]
     healthcheck:
-      test: ['CMD', "echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet"]
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
       interval: 30s
       timeout: 10s
       retries: 3
