@@ -60,6 +60,9 @@ MC_AGI_PORT=4573
 DS_HOST=datasource.fonos
 DS_PORT=6379
 DS_SECRET=changeit
+DS_AUTH_DB=fonos_auth
+DS_AUTH_USERNAME=fonos
+DS_AUTH_SECRET=changeit
 DS_AUTH_HOST=datasource.auth.fonos
 DS_AUTH_PORT=27017
 

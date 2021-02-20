@@ -3,7 +3,12 @@ import logger from '@fonos/logger'
 
 const host = process.env.DS_AUTH_HOST || 'localhost'
 const port = process.env.DS_AUTH_PORT || 27017
-export const db = `mongodb://${host}:${port}/fonos`
+const dbname = process.env.DS_AUTH_DB || 'fonos'
+const credentials = process.env.DS_AUTH_USERNAME && process.env.DS_SECRET  
+    ? `${process.env.DS_AUTH_USERNAME}:${process.env.DS_SECRET}@` : ''
+export const db = `mongodb://${credentials}${host}:${port}/${dbname}`
+
+console.log('db:', db)
 
 export const mongoConnection = () => {
     mongoose
