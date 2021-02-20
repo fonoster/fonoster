@@ -184,4 +184,4 @@ Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
  - [Pedro Sanders](https://github.com/psanders)
 
 ## License
-Copyright (C) 2020 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonos/blob/master/LICENSE) for details).
+Copyright (C) 2021 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonos/blob/master/LICENSE) for details).
