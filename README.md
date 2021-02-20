@@ -148,12 +148,12 @@ The following is a list of modules and other subcomponents of Project Fonos by t
 | [providers](/mods/providers)             | VoIP Network                     | API to create, update, get and delete `Providers`     | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [numbers](/mods/numbers)                 | VoIP Network                     | API to create, update, get and delete `Numbers`       | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [sipproxy](https://routr.io)             | VoIP Network                     | SIP proxy subcomponent                                | ![rc](https://img.shields.io/badge/rc-brightgreen)
-| mediarelay                               | VoIP Network                     | RTPEngine controller and balancer                     | ![alpha](https://img.shields.io/badge/alpha-yellow)
+| [mediarelay](https://github.com/fonoster/fonos-rtpel7lb)                                 | VoIP Network                     | RTPEngine controller and balancer                     | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | aaa                                      | VoIP Network  		                 | Access Authorization Accounting                       | ![not yet implemented](https://img.shields.io/badge/nyi-red)
 | [logger](/mods/logger)  	                | Misc      	                      | Useful for Programmable Voice Applications (PVAs)     | ![beta](https://img.shields.io/badge/beta-brightgreen)
 | [certs](/mods/certs)  	                  | Misc  	                          | Certificate creation and managment                    | ![alpha](https://img.shields.io/badge/alpha-yellow)
 | [errors](/mods/errors)  	                | Misc  		                         | Util module for error managment                       | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| roles           		                       | Misc                             | API Access Control                                    | ![beta](https://img.shields.io/badge/beta-brightgreen)
+| [roles](/mods/auth)           		                       | Misc                             | API Access Control                                    | ![beta](https://img.shields.io/badge/beta-brightgreen)
 
 ## Bugs and Feedback
 
