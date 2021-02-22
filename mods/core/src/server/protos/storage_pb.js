@@ -137,6 +137,7 @@ proto.fonos.storage.v1alpha1.UploadObjectRequest.toObject = function(includeInst
     bucket: jspb.Message.getFieldWithDefault(msg, 1, 0),
     filename: jspb.Message.getFieldWithDefault(msg, 2, ""),
     chunks: msg.getChunks_asB64(),
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 4, ""),
     metadataMap: (f = msg.getMetadataMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
@@ -187,6 +188,10 @@ proto.fonos.storage.v1alpha1.UploadObjectRequest.deserializeBinaryFromReader = f
       msg.setChunks(value);
       break;
     case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAccessKeyId(value);
+      break;
+    case 5:
       var value = msg.getMetadataMap();
       reader.readMessage(value, function(message, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "", "");
@@ -242,9 +247,16 @@ proto.fonos.storage.v1alpha1.UploadObjectRequest.serializeBinaryToWriter = funct
       f
     );
   }
+  f = message.getAccessKeyId();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
   f = message.getMetadataMap(true);
   if (f && f.getLength() > 0) {
-    f.serializeBinary(4, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+    f.serializeBinary(5, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
   }
 };
 
@@ -337,14 +349,32 @@ proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.setChunks = function(
 
 
 /**
- * map<string, string> metadata = 4;
+ * optional string access_key_id = 4;
+ * @return {string}
+ */
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.getAccessKeyId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.storage.v1alpha1.UploadObjectRequest} returns this
+ */
+proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.setAccessKeyId = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * map<string, string> metadata = 5;
  * @param {boolean=} opt_noLazyCreate Do not create the map if
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,string>}
  */
 proto.fonos.storage.v1alpha1.UploadObjectRequest.prototype.getMetadataMap = function(opt_noLazyCreate) {
   return /** @type {!jspb.Map<string,string>} */ (
-      jspb.Message.getMapField(this, 4, opt_noLazyCreate,
+      jspb.Message.getMapField(this, 5, opt_noLazyCreate,
       null));
 };
 

@@ -23,7 +23,8 @@ message UploadObjectRequest {
     Bucket bucket = 1;
     string filename = 2;
     bytes chunks = 3;
-    map <string, string> metadata = 4;
+    string access_key_id = 4;
+    map <string, string> metadata = 5;
 }
 
 message UploadObjectResponse {

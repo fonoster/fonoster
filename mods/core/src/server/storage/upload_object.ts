@@ -59,7 +59,7 @@ export default async function (call: any, callback: any) {
   const tmpName = objectid(),
     writeStream = fs.createWriteStream(`/tmp/${tmpName}`)
   let object: string, bucket: string
-  const accessKeyId = getAccessKeyId(call)
+  let accessKeyId = getAccessKeyId(call)
 
   const getBucketName = (bucket:UploadObjectRequest.Bucket) => {
     switch (bucket) {
@@ -79,6 +79,10 @@ export default async function (call: any, callback: any) {
     writeStream.write(Buffer.alloc(chunk.length, chunk as string))
     object = request.getFilename()
     bucket = getBucketName(request.getBucket())
+    if (request.getAccessKeyId() && request.getBucket() === UploadObjectRequest.Bucket.PUBLIC) {
+      accessKeyId = request.getAccessKeyId()
+    }
+
     // removed useless assignment
     // metadata = mapToObj(request.getMetadataMap()) // ??
   })

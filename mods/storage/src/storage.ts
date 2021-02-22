@@ -6,6 +6,7 @@ interface UploadObjectRequest {
   bucket: 'apps' | 'public' | 'recordings'
   filename: string
   metadata?: any
+  accessKeyId?: string
 }
 
 interface GetObjectURLRequest {
@@ -105,6 +106,7 @@ export default class Storage extends FonosService {
           uor.setChunks(Buffer.from(chunk))
           uor.setFilename(objectName)
           uor.setBucket(bucket)
+          uor.setAccessKeyId(request.accessKeyId)
 
           if (request.metadata && Object.keys(request.metadata).length > 0) {
             const keys = Object.keys(request.metadata)

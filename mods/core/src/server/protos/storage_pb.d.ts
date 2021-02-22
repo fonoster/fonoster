@@ -18,6 +18,9 @@ export class UploadObjectRequest extends jspb.Message {
     getChunks_asB64(): string;
     setChunks(value: Uint8Array | string): UploadObjectRequest;
 
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): UploadObjectRequest;
+
 
     getMetadataMap(): jspb.Map<string, string>;
     clearMetadataMap(): void;
@@ -38,6 +41,7 @@ export namespace UploadObjectRequest {
         bucket: UploadObjectRequest.Bucket,
         filename: string,
         chunks: Uint8Array | string,
+        accessKeyId: string,
 
         metadataMap: Array<[string, string]>,
     }

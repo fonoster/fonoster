@@ -18,6 +18,7 @@ class Say extends Verb {
 
       const metadata = { 'Content-Type': 'audio/x-wav' }
       this.config.storage.uploadObjectSync({
+        accessKeyId: this.config.accessKeyId,
         filename: pathToTranscodedFile,
         bucket: this.config.bucket,
         metadata
