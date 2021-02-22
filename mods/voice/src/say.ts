@@ -36,7 +36,7 @@ class Say extends Verb {
         filename: filename,
         bucket: this.config.bucket,
         accessKeyId: this.config.accessKeyId
-      })
+      }).url
     } catch (e) {
       logger.log('error', '@fonos/voice.Say [error synthesizing audio]')
       throw new Error(`@fonos/voice.Say [${e}]`)
