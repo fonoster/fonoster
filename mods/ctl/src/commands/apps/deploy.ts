@@ -4,7 +4,6 @@ import { CLIError } from '@oclif/errors'
 import { cli } from 'cli-ux'
 import { Command } from '@oclif/command'
 import { CommonPB } from '@fonos/core'
-const inquirer = require('inquirer')
 const view: CommonPB.View = CommonPB.View.BASIC
 
 export default class DeployCommand extends Command {
@@ -23,26 +22,14 @@ export default class DeployCommand extends Command {
       const appsName = apps.map((app:any) => app.getName())
       const name = require(process.cwd() + '/package.json').name
 
-      let aborted = false
       if (appsName.includes(name) && !args.ref) {
-        const answers: any = await inquirer.prompt([
-          {
-            name: 'confirm',
-            message: 'There is another app with the same name. Do you want to overwrite?',
-            type: 'confirm'
-          }
-        ])
-        if(!answers.confirm)  {
-          aborted = true
-        }
+        throw new Error('App name already exist. To overwrite pass reference number.')
       }
 
-      if (!aborted) {
-        cli.action.start('Deploying application')
-        const app = await appmanager.deployApp(process.cwd(), args.ref)
-        await cli.wait(1000)
-        cli.action.stop(app.getRef())
-      }
+      cli.action.start('Deploying application')
+      const app = await appmanager.deployApp(process.cwd(), args.ref)
+      await cli.wait(1000)
+      cli.action.stop(app.getRef())
     } catch (e) {
       throw new CLIError(e.message)
     }
