@@ -7,10 +7,8 @@ if (process.env.NODE_ENV === 'dev') {
 
 import routr from '../../common/routr'
 import grpc from 'grpc'
-import { FonosAuthError } from '@fonos/errors'
 import client from 'ari-client'
 import { CallRequest, CallResponse } from '../protos/callmanager_pb'
-import { auth } from '../../common/trust_util'
 import originate, { EndpointInfo } from './call'
 import { ICallManagerServer } from '../protos/callmanager_grpc_pb'
 import logger from '@fonos/logger'
@@ -20,9 +18,13 @@ class CallManagerServer implements ICallManagerServer {
     call: grpc.ServerUnaryCall<CallRequest>,
     callback: grpc.sendUnaryData<CallResponse>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
+    const getDomainByNumber = async (e164Number: string) => {
+      await routr.connect()
+      return await routr.getDomainUriFromNumber(e164Number)
+    }
 
-    const domain = await this.getDomainByNumber(call.request.getFrom())
+    const domain = await getDomainByNumber(call.request.getFrom())
+
     logger.debug('@core/callmanager call [originating call]')
     logger.debug(`@core/callmanager call [ari url ${process.env.MS_ARI_URL}]`)
     logger.debug(
@@ -35,7 +37,7 @@ class CallManagerServer implements ICallManagerServer {
 
     try {
       const epInfo: EndpointInfo = {
-        domain: domain,
+        domain,
         trunk: process.env.MS_TRUNK,
         context: process.env.MS_CONTEXT,
         extension: process.env.MS_EXTENSION
@@ -53,10 +55,6 @@ class CallManagerServer implements ICallManagerServer {
     }
   }
 
-  private async getDomainByNumber (e164Number: string) {
-    await routr.connect()
-    return await routr.getDomainUriFromNumber(e164Number)
-  }
 }
 
 export { CallManagerServer as default, ICallManagerServer, CallManagerServer }

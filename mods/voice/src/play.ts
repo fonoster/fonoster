@@ -7,12 +7,12 @@ interface PlayOptions {
 
 const validate = (file: string, options: PlayOptions) => {
   const { finishOnKey = '#' } = options
-  if (!file) throw 'you must indicate a file.'
+  if (!file) throw new Error('you must indicate a file.')
   if (
     finishOnKey &&
     (finishOnKey.length !== 1 || '1234567890#*'.indexOf(finishOnKey) < 0)
   )
-    throw `Invalid finishOnKey parameter: found ${finishOnKey} but must be a single digit type of 0-9,#,*`
+    throw new Error(`Invalid finishOnKey parameter: found ${finishOnKey} but must be a single digit type of 0-9,#,*`)
 }
 
 class Play extends Verb {

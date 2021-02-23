@@ -1,5 +1,3 @@
-import path from 'path'
-import { readFile } from 'fs'
 import { promisify } from 'util'
 import { sign, verify } from 'jsonwebtoken'
 import logger from '@fonos/logger'
@@ -17,7 +15,7 @@ export default class JWT implements ITokenManager {
   async encode (
     payload: JwtPayload,
     privateKey: string,
-    expiration: Number = 500
+    expiration: String = '30d'
   ): Promise<string> {
     if (!privateKey) throw new Error('Token generation failure')
     // @ts-ignore
@@ -32,7 +30,7 @@ export default class JWT implements ITokenManager {
   async decode (
     token: string,
     privateKey: string,
-    ignorateExpiration: boolean = false
+    ignorateExpiration: boolean = true
   ): Promise<JwtPayload> {
     try {
       // @ts-ignore
@@ -40,7 +38,8 @@ export default class JWT implements ITokenManager {
         ignoreExpiration: ignorateExpiration
       })) as JwtPayload
     } catch (e) {
-      logger.log('error', '@fonos/authentication [Bad token]')
+      logger.log('error', '@fonos/auth [Bad token]')
+      throw new Error(e)
     }
   }
 }

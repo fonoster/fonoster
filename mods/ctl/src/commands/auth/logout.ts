@@ -13,12 +13,12 @@ export default class extends Command {
   static description = `log out from a fonos deployment`
 
   async run () {
-    cli.action.start(`login out`)
+    cli.action.start(`Login out`)
 
     try {
       await fs.rmdir(BASE_DIR, { recursive: true })
       await cli.wait(1000)
-      cli.action.stop('All done')
+      cli.action.stop('Done')
     } catch (e) {
       cli.action.stop()
       throw new CLIError(e.message)

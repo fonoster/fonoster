@@ -35,11 +35,6 @@ describe('AppManager Service', () => {
     )
   })
 
-  it('create app and upload required files', async () => {
-    const app = await appmanager.deployApp(__dirname + '/../etc/hello-monkeys')
-    expect(app.getBucket()).to.be.equal('default')
-  })
-
   it('list apps', async () => {
     const result = await appmanager.listApps({
       pageSize: 10,

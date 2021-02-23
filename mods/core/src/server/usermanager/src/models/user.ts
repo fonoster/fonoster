@@ -2,26 +2,24 @@ import mongoose, { Schema, model } from 'mongoose'
 import { Role } from './role'
 
 export interface User extends mongoose.Document {
-  firstname: string
-  lastname: string
-  username: string
+  firstName: string
+  lastName: string
   email: string
   accessKeyId: string
   role: Role
-  create_time: string
-  update_time: string
+  createTime: string
+  updateTime: string
   status: string
 }
 
 const UserSchema: Schema = new Schema({
-  firstname: { type: String, required: true },
-  lastname: { type: String, required: true },
-  username: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true, unique: true, match: [/.+\@.+\..+/, 'Invalid email format']}, 
   accessKeyId: { type: String, required: true },
   role: { type: Schema.Types.String, required: true },
-  create_time: { type: String },
-  update_time: { type: String },
+  createTime: { type: String },
+  updateTime: { type: String },
   status: { type: String, required: true }
 })
 

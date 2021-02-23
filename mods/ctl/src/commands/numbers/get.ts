@@ -4,6 +4,7 @@ import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
 import { render } from 'prettyjson'
+const moment = require('moment')
 
 export default class GetCommand extends Command {
   static description = 'get information about an existing number'
@@ -23,8 +24,8 @@ export default class GetCommand extends Command {
         'E164 Number': number.getE164Number(),
         'AOR Link': number.getAorLink() || '--',
         'Ingress App': number.getIngressApp() || '--',
-        Created: number.getCreateTime(),
-        Updated: number.getUpdateTime()
+        Created: moment(number.getCreateTime()).fromNow(),
+        Updated: moment(number.getUpdateTime()).fromNow()
       }
 
       await cli.wait(1000)

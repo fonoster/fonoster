@@ -27,12 +27,13 @@ export default class extends Command {
       },
       {
         name: 'accessKeyId',
-        message: 'Access Key ID',
+        message: 'access key id',
         type: 'input'
       },
       {
         name: 'accessKeySecret',
-        message: 'Access Key Token',
+        message: 'access key token',
+        mask: true,
         type: 'password'
       },
       {
@@ -58,7 +59,7 @@ export default class extends Command {
           await fs.writeFile(PATH_TO_CONFIG, JSON.stringify(answers))
 
           await cli.wait(1000)
-          cli.action.stop('All done')
+          cli.action.stop('Done')
         } catch (e) {
           await cli.wait(1000)
           cli.action.stop('Invalid credentials or endpoint')

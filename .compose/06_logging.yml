@@ -5,7 +5,7 @@ services:
   logsdriver:
     image: ${LOGS_DRIVER_IMAGE}
     configs:
-      - source: fluent
+      - source: fluent.conf
         target: /fluentd/etc/fluent.conf  
     deploy:
       mode: global

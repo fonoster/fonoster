@@ -132,9 +132,9 @@ export default class Numbers extends FonosService {
     const numberFromDB: any = await this.getNumber(request.ref)
 
     if (request.aorLink && request.ingressApp) {
-      throw `'ingressApp' and 'aorLink' are not compatible parameters`
+      throw new Error(`'ingressApp' and 'aorLink' are not compatible parameters`)
     } else if (!request.aorLink && !request.ingressApp) {
-      throw `You must provider either an 'ingressApp' or and 'aorLink'`
+      throw new Error(`You must provider either an 'ingressApp' or and 'aorLink'`)
     }
 
     if (request.aorLink) {
@@ -175,7 +175,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns a ListNumbersResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listNumbers (request: any): Promise<NumbersPB.Number> {
+  async listNumbers (request: any) {
     const r = new NumbersPB.ListNumbersRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)

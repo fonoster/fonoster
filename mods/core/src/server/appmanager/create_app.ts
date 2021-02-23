@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import redis from '../../common/redis'
 import { App } from '../protos/appmanager_pb'
 import { EventsSender } from '@fonos/events'
@@ -17,18 +18,18 @@ try {
   logger.error(e)
 }
 
-export default async function (app: App): Promise<App> {
+export default async function (app: App, accessKeyId: string): Promise<App> {
+  app.setAccessKeyId(accessKeyId)
+  if (!app.getRef()) app.setRef(nanoid(10))
   app.setStatus(App.Status.CREATING)
   app.setCreateTime(new Date().toString())
   app.setUpdateTime(new Date().toString())
 
-  await redis.lrem('apps', 0, app.getName())
-  await redis.lpush('apps', app.getName())
-  // WARN: This feels very hacky but it works
-  await redis.set(app.getName(), JSON.stringify(app.toObject()))
+  await redis.lrem('apps', 0, app.getRef())
+  await redis.lpush('apps', app.getRef())
+  await redis.set(app.getRef(), JSON.stringify(app.toObject()))
   await events.sendToQ({
-    name: app.getName(),
-    bucket: app.getBucket()
+    name: app.getRef()
   })
   return app
 }

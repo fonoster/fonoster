@@ -1173,15 +1173,14 @@ proto.fonos.usermanager.v1alpha1.User.prototype.toObject = function(opt_includeI
  */
 proto.fonos.usermanager.v1alpha1.User.toObject = function(includeInstance, msg) {
   var f, obj = {
-    firstname: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    lastname: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    username: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    email: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    role: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    createTime: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    updateTime: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    status: jspb.Message.getFieldWithDefault(msg, 9, 0),
+    firstName: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    lastName: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    email: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    role: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    createTime: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    updateTime: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    status: jspb.Message.getFieldWithDefault(msg, 8, 0),
     labelsMap: (f = msg.getLabelsMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
@@ -1221,41 +1220,37 @@ proto.fonos.usermanager.v1alpha1.User.deserializeBinaryFromReader = function(msg
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setFirstname(value);
+      msg.setFirstName(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setLastname(value);
+      msg.setLastName(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUsername(value);
+      msg.setEmail(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setEmail(value);
+      msg.setAccessKeyId(value);
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAccessKeyId(value);
+      msg.setRole(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
-      msg.setRole(value);
+      msg.setCreateTime(value);
       break;
     case 7:
       var value = /** @type {string} */ (reader.readString());
-      msg.setCreateTime(value);
-      break;
-    case 8:
-      var value = /** @type {string} */ (reader.readString());
       msg.setUpdateTime(value);
       break;
-    case 9:
+    case 8:
       var value = /** @type {!proto.fonos.usermanager.v1alpha1.User.Status} */ (reader.readEnum());
       msg.setStatus(value);
       break;
-    case 10:
+    case 9:
       var value = msg.getLabelsMap();
       reader.readMessage(value, function(message, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "", "");
@@ -1290,72 +1285,65 @@ proto.fonos.usermanager.v1alpha1.User.prototype.serializeBinary = function() {
  */
 proto.fonos.usermanager.v1alpha1.User.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getFirstname();
+  f = message.getFirstName();
   if (f.length > 0) {
     writer.writeString(
       1,
       f
     );
   }
-  f = message.getLastname();
+  f = message.getLastName();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getUsername();
+  f = message.getEmail();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getEmail();
+  f = message.getAccessKeyId();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = message.getAccessKeyId();
+  f = message.getRole();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getRole();
+  f = message.getCreateTime();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = message.getCreateTime();
+  f = message.getUpdateTime();
   if (f.length > 0) {
     writer.writeString(
       7,
       f
     );
   }
-  f = message.getUpdateTime();
-  if (f.length > 0) {
-    writer.writeString(
-      8,
-      f
-    );
-  }
   f = message.getStatus();
   if (f !== 0.0) {
     writer.writeEnum(
-      9,
+      8,
       f
     );
   }
   f = message.getLabelsMap(true);
   if (f && f.getLength() > 0) {
-    f.serializeBinary(10, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+    f.serializeBinary(9, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
   }
 };
 
@@ -1370,10 +1358,10 @@ proto.fonos.usermanager.v1alpha1.User.Status = {
 };
 
 /**
- * optional string firstname = 1;
+ * optional string first_name = 1;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getFirstname = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getFirstName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -1382,16 +1370,16 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getFirstname = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setFirstname = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setFirstName = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional string lastname = 2;
+ * optional string last_name = 2;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getLastname = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getLastName = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
@@ -1400,16 +1388,16 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getLastname = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setLastname = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setLastName = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional string username = 3;
+ * optional string email = 3;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getUsername = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getEmail = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -1418,16 +1406,16 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getUsername = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setUsername = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setEmail = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string email = 4;
+ * optional string access_key_id = 4;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getEmail = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getAccessKeyId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
@@ -1436,16 +1424,16 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getEmail = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setEmail = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setAccessKeyId = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional string access_key_id = 5;
+ * optional string role = 5;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getAccessKeyId = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getRole = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
@@ -1454,16 +1442,16 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getAccessKeyId = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setAccessKeyId = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setRole = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * optional string role = 6;
+ * optional string create_time = 6;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getRole = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getCreateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
@@ -1472,16 +1460,16 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getRole = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setRole = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setCreateTime = function(value) {
   return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
 /**
- * optional string create_time = 7;
+ * optional string update_time = 7;
  * @return {string}
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.getCreateTime = function() {
+proto.fonos.usermanager.v1alpha1.User.prototype.getUpdateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
@@ -1490,35 +1478,17 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getCreateTime = function() {
  * @param {string} value
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
-proto.fonos.usermanager.v1alpha1.User.prototype.setCreateTime = function(value) {
+proto.fonos.usermanager.v1alpha1.User.prototype.setUpdateTime = function(value) {
   return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
 /**
- * optional string update_time = 8;
- * @return {string}
- */
-proto.fonos.usermanager.v1alpha1.User.prototype.getUpdateTime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
- */
-proto.fonos.usermanager.v1alpha1.User.prototype.setUpdateTime = function(value) {
-  return jspb.Message.setProto3StringField(this, 8, value);
-};
-
-
-/**
- * optional Status status = 9;
+ * optional Status status = 8;
  * @return {!proto.fonos.usermanager.v1alpha1.User.Status}
  */
 proto.fonos.usermanager.v1alpha1.User.prototype.getStatus = function() {
-  return /** @type {!proto.fonos.usermanager.v1alpha1.User.Status} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+  return /** @type {!proto.fonos.usermanager.v1alpha1.User.Status} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
 };
 
 
@@ -1527,19 +1497,19 @@ proto.fonos.usermanager.v1alpha1.User.prototype.getStatus = function() {
  * @return {!proto.fonos.usermanager.v1alpha1.User} returns this
  */
 proto.fonos.usermanager.v1alpha1.User.prototype.setStatus = function(value) {
-  return jspb.Message.setProto3EnumField(this, 9, value);
+  return jspb.Message.setProto3EnumField(this, 8, value);
 };
 
 
 /**
- * map<string, string> labels = 10;
+ * map<string, string> labels = 9;
  * @param {boolean=} opt_noLazyCreate Do not create the map if
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,string>}
  */
 proto.fonos.usermanager.v1alpha1.User.prototype.getLabelsMap = function(opt_noLazyCreate) {
   return /** @type {!jspb.Map<string,string>} */ (
-      jspb.Message.getMapField(this, 10, opt_noLazyCreate,
+      jspb.Message.getMapField(this, 9, opt_noLazyCreate,
       null));
 };
 

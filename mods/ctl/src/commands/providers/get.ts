@@ -4,6 +4,7 @@ import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
 import { render } from 'prettyjson'
+const moment = require('moment')
 
 export default class GetCommand extends Command {
   static description = 'get information about an existing provider'
@@ -14,7 +15,7 @@ export default class GetCommand extends Command {
 
     try {
       const providers = new Providers()
-      cli.action.start(`Getting provider ${args.ref}`)
+      cli.action.start(`getting provider ${args.ref}`)
       const provider = await providers.getProvider(args.ref)
 
       const jsonObj = {
@@ -24,8 +25,8 @@ export default class GetCommand extends Command {
         Host: provider.getHost(),
         Transport: provider.getTransport(),
         Expires: provider.getExpires(),
-        Created: provider.getCreateTime(),
-        Updated: provider.getUpdateTime()
+        Created: moment(provider.getCreateTime()).fromNow(),
+        Updated: moment(provider.getUpdateTime()).fromNow()
       }
 
       await cli.wait(1000)

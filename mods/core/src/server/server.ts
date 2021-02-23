@@ -5,6 +5,9 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'dev') {
   require('dotenv').config({ path: env })
 }
 
+import { getSalt } from '@fonos/certs'
+import AuthMiddleware from '../common/auth/auth_middleware'
+import interceptor from '@pionerlabs/grpc-interceptors'
 import logger from '@fonos/logger'
 import grpc from 'grpc'
 import StorageServer, {
@@ -35,10 +38,7 @@ import CallManagerServer, {
   ICallManagerServer
 } from './callmanager/callmanager'
 import { CallManagerService } from './protos/callmanager_grpc_pb'
-
-import connect from '../server/usermanager/src/util/database'
-const db = 'mongodb://localhost:27017/db'
-connect({ db })
+import { mongoConnection } from '../common/mongo'
 
 const healthCheckStatusMap = {
   '': HealthCheckResponse.ServingStatus.SERVING
@@ -46,19 +46,21 @@ const healthCheckStatusMap = {
 const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap)
 
 async function main () {
+  mongoConnection();
   /*if (!accessExist()) {
     logger.log('info', `No access file found. Creating access file`)
     await createAccessFile()
   }*/
-
-  const server = new grpc.Server()
+  const server = interceptor.serverProxy(new grpc.Server())
   const endpoint = process.env.BINDADDR || '0.0.0.0:50052'
   server.addService<IProvidersServer>(ProvidersService, new ProvidersServer())
   server.addService<IDomainsServer>(DomainsService, new DomainsServer())
   server.addService<IAgentsServer>(AgentsService, new AgentsServer())
   server.addService<INumbersServer>(NumbersService, new NumbersServer())
   server.addService<IStorageServer>(StorageService, new StorageServer())
-  server.addService(HealthService, grpcHealthCheck)
+  // WARNINIG: We need to temporarily disable the healthcheck until we fix the 
+  // conflict with the authentication interceptor
+  // server.addService(HealthService, grpcHealthCheck)
   server.addService<IAppManagerServer>(
     AppManagerService,
     new AppManagerServer()
@@ -66,14 +68,20 @@ async function main () {
 
   server.addService<ICallManagerServer>(
     CallManagerService,
-    new CallManagerServer())
+    new CallManagerServer()
+  )
 
   server.addService<IUserManagerServer>(
     UserManagerService,
-    new UserManagerServer())
+    new UserManagerServer()
+  )
+
+  let authMiddleware = new AuthMiddleware(getSalt())
 
   server.bind(endpoint, getServerCredentials())
+  server.use(authMiddleware.middleware)
   server.start()
+
 
   logger.log(
     'info',

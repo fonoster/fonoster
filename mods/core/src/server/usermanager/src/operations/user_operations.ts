@@ -4,46 +4,40 @@ class UserOperation {
   public async getUsers () {
     const users = await UserModel.find()
     return users
-    //console.log(users);
   }
 
   public async getAll () {
     const users = await UserModel.find()
     return users
-    //console.log(users);
   }
 
   public async getUserByEmail (mail: string) {
     const users = await UserModel.findOne({ email: { $eq: mail } })
-    //console.log(users);
     return users
   }
 
   public async saveUser (obj: any) {
     const {
-      firstname,
-      lastname,
-      username,
+      firstName,
+      lastName,
       email,
       role,
       accessKeyId,
-      create_time,
-      update_time,
+      createTime,
+      updateTime,
       status
     } = obj
     const users: User = new UserModel({
-      firstname,
-      lastname,
-      username,
+      firstName,
+      lastName,
       email,
       role,
       accessKeyId,
-      create_time,
-      update_time,
+      createTime,
+      updateTime,
       status
     })
     await users.save()
-    console.log({ new: users })
   }
 
   public async updateUserStatus (mail: string, new_status: string) {

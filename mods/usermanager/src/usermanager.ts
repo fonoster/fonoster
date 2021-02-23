@@ -1,8 +1,20 @@
 import { FonosService, UserManagerService, UserManagerPB } from '@fonos/core'
 
-interface RoleHasAccessRequest {
-  role: string,
-  service: string
+interface CreateUserRequest {
+  firstName: string,
+  lastName: string,
+  email : string
+}
+
+interface User {
+  firstName: string,
+  lastName: string,
+  email : string,
+  accessKeyId : string
+  role : string,
+  createTime : string,
+  updateTime : string,
+  status : string
 }
 
 /**
@@ -15,11 +27,8 @@ interface RoleHasAccessRequest {
  *
  * const Fonos = require('@fonos/sdk')
  * const users = new Fonos.UserManager()
- *
- * users.roleHasAccess(role, service)
- * .then(hasAccess => {
- *   console.log('hasAccess: ' + hasAccess) // successful response
- * }).catch(e => console.error(e))          // an error occurred
+ * 
+ * TODO: Adde example
  */
 export default class UserManager extends FonosService {
 
@@ -35,22 +44,28 @@ export default class UserManager extends FonosService {
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 
-  /**
-   * Checks if a given role has access to a service.
-   *
-   * @param {RoleHasAccessRequest} request - The name of the application
-   * @example
-   *
-   * users.roleHasAccess({role: 'USER', sevice: '...'})
-   * .then(hasAccess => {
-   *   console.log('hasAccess:' + hasAccess)  // returns true if role has access to the service
-   * }).catch(e => console.error(e))          // an error occurred
-   */
-  /*async createUser (request: RoleHasAccessRequest): Promise<boolean> {
-    /*const r = new UserManagerPB.RoleHasAccessRequest()
-    r.setRole(request.role)
-    r.setService(request.service)
-    return super.getService().roleHasAccess().sendMessage(r)
-  }*/
+  async createUser (request: CreateUserRequest): Promise<User> {
+    const user = new UserManagerPB.User();
+    user.setFirstName(request.firstName)
+    user.setLastName(request.lastName)
+    user.setEmail(request.email)
+    const req = new UserManagerPB.CreateUserRequest()
+    req.setUser(user);
 
+    const userFromDatabase =  await super
+    .getService()
+    .createUser()
+    .sendMessage(req)
+
+    return {
+      firstName: userFromDatabase.getFirstName(),
+      lastName: userFromDatabase.getLastName(),
+      email : userFromDatabase.getEmail(),
+      accessKeyId : userFromDatabase.getAccessKeyId(),
+      role : userFromDatabase.getRole(),
+      createTime : userFromDatabase.getCreateTime(),
+      updateTime : userFromDatabase.getUpdateTime(),
+      status : userFromDatabase.getStatus()
+    }
+  }
 }

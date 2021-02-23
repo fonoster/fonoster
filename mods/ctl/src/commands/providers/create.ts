@@ -29,7 +29,8 @@ export default class CreateCommand extends Command {
       {
         name: 'secret',
         message: 'secret',
-        type: 'password'
+        type: 'password',
+        mask: true
       },
       {
         name: 'host',
@@ -47,7 +48,7 @@ export default class CreateCommand extends Command {
         name: 'expires',
         message: 'expire',
         type: 'input',
-        default: 60
+        default: 300
       },
       {
         name: 'confirm',
@@ -63,13 +64,17 @@ export default class CreateCommand extends Command {
         cli.action.start(`Creating provider ${answers.name}`)
 
         const providers = new Providers()
-        await providers.createProvider(answers)
+        const provider = await providers.createProvider(answers)
         await cli.wait(1000)
 
-        cli.action.stop('All done')
+        cli.action.stop(provider.getRef())
       } catch (e) {
         cli.action.stop()
-        throw new CLIError(e.message)
+        if (e.code === 9) {
+          throw new CLIError('This Provider already exist')
+        } else {
+          throw new CLIError(e)
+        }
       }
     }
   }

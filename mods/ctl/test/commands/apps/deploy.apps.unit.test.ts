@@ -22,7 +22,6 @@ describe('@fonos/ctl/apps', () => {
     app.setName('My App')
     app.setDescription('A test application')
     app.setCreateTime('January 01, 1970 00:00:00 UTC.')
-    app.setBucket('default')
     deployAppStub = sandbox
       .stub(AppManager.prototype, 'deployApp')
       .returns(Promise.resolve(app))

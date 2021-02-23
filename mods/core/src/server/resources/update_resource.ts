@@ -1,8 +1,13 @@
 import routr from '../../common/routr'
 
-export default async function (resource: any, decoder: Function) {
+export default async function (accessKeyId: string, resource: any, decoder: Function) {
   await routr.connect()
-  const ref = await routr.resourceType('agents').update(resource)
-  const jsonObj = await routr.resourceType('agents').get(ref)
-  return decoder(jsonObj)
+
+  const objFromDB = await routr.resourceType(`${resource.kind.toLowerCase()}s`).get(resource.metadata.ref)
+  if (objFromDB.metadata.accessKeyId === accessKeyId) {
+    resource.metadata.accessKeyId = accessKeyId
+    await routr.resourceType(`${resource.kind.toLowerCase()}s`).update(resource)
+    return decoder(resource)
+  }
+  return null
 }

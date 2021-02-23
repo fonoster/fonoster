@@ -3,47 +3,54 @@ import { Empty } from '../protos/common_pb'
 import deleteResource from '../resources/delete_resource'
 import { Kind } from '../../common/resource_encoder'
 import getResource from '../resources/get_resource'
-import listResources from '../resources/list_resources'
-import { auth } from '../../common/trust_util'
-import { FonosAuthError } from '@fonos/errors'
+import listResourcesHere from '../resources/list_resources'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 export default class ResourceServer {
   kind: Kind
   decoder: Function
 
   constructor (kind: Kind, decoder: Function) {
-    this.kind = kind
-    this.decoder = decoder
+    //this.kind = kind
+    //this.decoder = decoder
   }
 
   async listResources (
-    call: grpc.ServerUnaryCall<any>,
-    callback: grpc.sendUnaryData<any>
+    kind: any,
+    decoder: Function,
+    call ?: grpc.ServerUnaryCall<any>,
+    callback ?: grpc.sendUnaryData<any>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-
     try {
-      const r = await listResources(
-        this.kind,
+      const r = await listResourcesHere(
+        getAccessKeyId(call),
+        kind,
         parseInt(call.request.getPageToken()),
         call.request.getPageSize(),
-        this.decoder
+        decoder
       )
       callback(null, r)
     } catch (e) {
+      console.error(e)
       callback(e, null)
     }
   }
 
   async getResource (
+    kind: any,
+    decoder: Function,
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<any>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
       callback(
         null,
-        await getResource(call.request.getRef(), this.kind, this.decoder)
+        await getResource(
+          kind,
+          decoder,
+          getAccessKeyId(call), 
+          call.request.getRef()
+        )
       )
     } catch (e) {
       callback(e, null)
@@ -51,12 +58,16 @@ export default class ResourceServer {
   }
 
   async deleteResource (
+    kind: any,
+    decoder: Function,
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
-      callback(null, await deleteResource(call.request.getRef(), this.kind))
+      callback(null, await deleteResource(
+        getAccessKeyId(call), 
+        call.request.getRef(), kind, decoder
+      ))
     } catch (e) {
       callback(e, null)
     }

@@ -1,5 +1,6 @@
 import JwtPayload from './jwt_payload'
 import ITokenManager from './itoken_manager'
+import logger from '@fonos/logger'
 
 export declare interface UserToken {
   accessToken: string
@@ -53,9 +54,11 @@ export default class AuthUtils {
     let accessTokenData: JwtPayload
     try {
       accessTokenData = await this.handler.decode(token.accessToken, privateKey)
-      result = true
+      if (accessTokenData) {
+        result = true
+      }
     } catch (e) {
-      console.log('Invalid token')
+      logger.log('error', '@fonos/auth [Error decoding token]')
     }
     return {
       data: accessTokenData,

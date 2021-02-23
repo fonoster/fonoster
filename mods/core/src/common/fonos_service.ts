@@ -17,6 +17,7 @@ const getConfigFile = () =>
 
 const defaultOptions = {
   endpoint: process.env.APISERVER_ENDPOINT || 'localhost:50052',
+  // Drepecated env FS_DEFAULT_STORAGE_BUCKET
   bucket: process.env.FS_DEFAULT_STORAGE_BUCKET
 }
 
@@ -44,7 +45,9 @@ export default class {
   constructor (ServiceClient?: any, options: any = {}) {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
+  }
 
+  init (): void {
     try {
       if (configExist()) {
         this.options = merge(this.options, JSON.parse(getConfigFile()))
@@ -60,9 +63,7 @@ export default class {
     this.metadata = new grpc.Metadata()
     this.metadata.add('access_key_id', this.options.accessKeyId)
     this.metadata.add('access_key_secret', this.options.accessKeySecret)
-  }
 
-  init (): void {
     this.service = new this.ServiceClient(
       this.options.endpoint,
       getClientCredentials()

@@ -5,7 +5,6 @@ import { Command, flags as oclifFlags } from '@oclif/command'
 import { prompt } from 'inquirer'
 import { CommonPB } from '@fonos/core'
 const Table = require('easy-table')
-const moment = require('moment')
 const truncate = require('truncate')
 
 export default class ListCommand extends Command {
@@ -47,6 +46,7 @@ export default class ListCommand extends Command {
         const t = new Table()
 
         apps.forEach((app: any) => {
+          t.cell('Ref', app.getRef())
           t.cell('Name', app.getName())
           t.cell('Description', truncate(app.getDescription(), 32))
           t.newRow()

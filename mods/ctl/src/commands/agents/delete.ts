@@ -7,6 +7,6 @@ export default class extends Command {
   static aliases = ['agents:del', 'agents:rm']
 
   async run () {
-    super.deleteResource(new Agents(), 'deleteAgent')
+    await super.deleteResource(new Agents(), 'deleteAgent')
   }
 }

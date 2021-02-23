@@ -18,12 +18,12 @@ import { Kind, REncoder } from '../../common/resource_encoder'
 import createResource from '../resources/create_resource'
 import updateResource from '../resources/update_resource'
 import domainDecoder from '../../common/decoders/domain_decoder'
-import { FonosAuthError } from '@fonos/errors'
-import { auth } from '../../common/trust_util'
 import ResourceServer from '../resources/resource_server'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
   constructor () {
+    // Uselesss
     super(Kind.DOMAIN, domainDecoder)
   }
 
@@ -31,14 +31,13 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<ListDomainsRequest>,
     callback: grpc.sendUnaryData<ListDomainsResponse>
   ) {
-    super.listResources(call, callback)
+    super.listResources(Kind.DOMAIN, domainDecoder, call, callback)
   }
 
   async createDomain (
     call: grpc.ServerUnaryCall<CreateDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     const domain = call.request.getDomain()
     try {
       const resource = new REncoder(
@@ -49,6 +48,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
         .withDomainUri(domain.getDomainUri())
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
+        .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build()
       callback(null, await createResource(resource, domainDecoder))
     } catch (e) {
@@ -60,7 +60,6 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<UpdateDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     const domain = call.request.getDomain()
 
     try {
@@ -77,7 +76,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
         .build()
-      callback(null, await updateResource(resource, domainDecoder))
+      callback(null, await updateResource(getAccessKeyId(call), resource, domainDecoder))
     } catch (e) {
       callback(e, null)
     }
@@ -87,14 +86,14 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<GetDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    super.getResource(call, callback)
+    super.getResource(Kind.DOMAIN, domainDecoder, call, callback )
   }
 
   async deleteDomain (
     call: grpc.ServerUnaryCall<DeleteDomainRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(call, callback)
+    super.deleteResource(Kind.DOMAIN, domainDecoder, call, callback)
   }
 }
 

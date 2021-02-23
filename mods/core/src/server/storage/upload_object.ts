@@ -8,7 +8,8 @@ import {
   uploadToFS,
   getFilesizeInBytes
 } from '../../common/utils'
-import { UploadObjectResponse } from '../protos/storage_pb'
+import { UploadObjectResponse, UploadObjectRequest } from '../protos/storage_pb'
+import getAccessKeyId from '../../common/get_access_key_id'
 
 const objectid = require('objectid')
 const isCompressFile = (object: string) =>
@@ -28,13 +29,14 @@ const handleError = (err: { code: any; message: string }, bucket: string) => {
 }
 
 const handleCompressUpload = async (
+  accessKeyId: string,
   object: string,
   bucket: string,
   fileSize: number
 ) => {
   await extract(`/tmp/${object}`, `/tmp`)
   const nameWithoutExt = object.split('.')[0]
-  await uploadToFS(bucket, `/tmp/${nameWithoutExt}`)
+  await uploadToFS(accessKeyId, bucket, `/tmp/${nameWithoutExt}`)
   removeDirSync(`/tmp/${nameWithoutExt}`)
   const response = new UploadObjectResponse()
   response.setSize(fileSize)
@@ -42,11 +44,12 @@ const handleCompressUpload = async (
 }
 
 const handleUncompressUpload = async (
+  accessKeyId: string,
   object: string,
   bucket: string,
   fileSize: number
 ) => {
-  await uploadToFS(bucket, `/tmp/${object}`, object)
+  await uploadToFS(accessKeyId, bucket, `/tmp/${object}`, object)
   const response = new UploadObjectResponse()
   response.setSize(fileSize)
   return response
@@ -55,15 +58,31 @@ const handleUncompressUpload = async (
 export default async function (call: any, callback: any) {
   const tmpName = objectid(),
     writeStream = fs.createWriteStream(`/tmp/${tmpName}`)
-  let object: string, bucket: any, metadata: any
+  let object: string, bucket: string
+  let accessKeyId = getAccessKeyId(call)
+
+  const getBucketName = (bucket:UploadObjectRequest.Bucket) => {
+    switch (bucket) {
+      case UploadObjectRequest.Bucket.APPS:
+        return 'apps'
+      case UploadObjectRequest.Bucket.RECORDINGS:
+        return 'recordings'
+      case UploadObjectRequest.Bucket.PUBLIC:
+        return 'public'
+    }
+  }
 
   call.on('error', (err: any) => logger.log('error', err))
   call.on('end', () => writeStream.end())
-  call.on('data', (request: any) => {
+  call.on('data', (request: UploadObjectRequest) => {
     const chunk = request.getChunks()
-    writeStream.write(Buffer.alloc(chunk.length, chunk))
-    object = request.getName()
-    bucket = request.getBucket()
+    writeStream.write(Buffer.alloc(chunk.length, chunk as string))
+    object = request.getFilename()
+    bucket = getBucketName(request.getBucket())
+    if (request.getAccessKeyId() && request.getBucket() === UploadObjectRequest.Bucket.PUBLIC) {
+      accessKeyId = request.getAccessKeyId()
+    }
+
     // removed useless assignment
     // metadata = mapToObj(request.getMetadataMap()) // ??
   })
@@ -73,9 +92,10 @@ export default async function (call: any, callback: any) {
       const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`)
       fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`)
       const response = isCompressFile(object)
-        ? await handleCompressUpload(object, bucket, fileSize)
-        : await handleUncompressUpload(object, bucket, fileSize)
+        ? await handleCompressUpload(accessKeyId, object, bucket, fileSize)
+        : await handleUncompressUpload(accessKeyId, object, bucket, fileSize)
 
+        console.log('response', response.toString())
       callback(null, response)
       fs.unlinkSync(`/tmp/${object}`)
     } catch (err) {

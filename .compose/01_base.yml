@@ -7,10 +7,21 @@ services:
       file: common.yml
       service: common
     image: ${AS_IMAGE}
+    # TODO: Fix health check conflict with the new interceptor
+    healthcheck:
+      test: ["CMD-SHELL", "echo removethis"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
     environment:
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
       DS_SECRET: ${DS_SECRET}
+      DS_AUTH_USERNAME: ${DS_AUTH_USERNAME}
+      DS_AUTH_SECRET: ${DS_AUTH_SECRET}
+      DS_AUTH_HOST: ${DS_AUTH_HOST}
+      DS_AUTH_PORT: ${DS_AUTH_PORT}
+      DS_AUTH_DB: ${DS_AUTH_DB}
       # Warning: Temporal variable
       FS_HOST: ${FS_HOST_PUBLIC}
       FS_PORT: ${FS_PORT}
@@ -41,10 +52,8 @@ services:
         aliases:
           - ${APISERVER_ENDPOINT}
     secrets:
-      - source: jwt-salt
+      - source: jwt.salt
         target: /home/fonos/.fonos/jwt.salt
-      - source: config
-        target: /home/fonos/.fonos/config
 
   datasource:
     extends:
@@ -68,10 +77,40 @@ services:
         aliases: 
           - ${DS_HOST}
     configs:
-      - source: redis-conf
+      - source: redis.conf
         target: /etc/redis/redis.conf
     volumes: 
       - datasource:/data
+
+  datasource_auth:
+    extends:
+      file: common.yml
+      service: common 
+    image: ${DS_AUTH_IMAGE}
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DS_AUTH_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DS_AUTH_SECRET}
+      MONGO_INITDB_DATABASE: ${DS_AUTH_DB}
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource_auth
+    networks:
+      fonos:
+        aliases: 
+          - ${DS_AUTH_HOST}
+    configs:
+      - source: init_mongo.js
+        target: /docker-entrypoint-initdb.d/init-mongo.js
+    volumes: 
+      - datasource_auth:/data/db
 
   eventsbroker:
     extends:

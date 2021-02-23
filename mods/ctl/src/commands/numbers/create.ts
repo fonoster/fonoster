@@ -29,7 +29,13 @@ export default class CreateCommand extends Command {
       })
       const apps = res
         .getAppsList()
-        .map((app: AppManagerPB.App) => app.getName())
+        .map((app: AppManagerPB.App) => { 
+          return { 
+            name: app.getName(), 
+            value: app.getRef() 
+          }
+        })
+
       const response = await new Providers().listProviders({
         pageSize: 25,
         pageToken: '1'
@@ -44,13 +50,13 @@ export default class CreateCommand extends Command {
         })
 
       if (providers.length === 0) {
-        throw new Error('You must create a Provider before adding any Number')
+        throw new Error('you must create a provider before adding a number')
       }
 
       const answers = await inquirer.prompt([
         {
           name: 'e164Number',
-          message: 'number in e164 format (e.g. +16471234567)',
+          message: 'number in E.164 format (e.g. +16471234567)',
           type: 'input'
         },
         {
@@ -99,17 +105,21 @@ export default class CreateCommand extends Command {
       } else {
         const number = phone(answers.e164Number)[0]
         if (!number)
-          throw `number ${answers.e164Number} is not a valid e164 number (e.g. +16471234567)`
+          throw new Error(`number ${answers.e164Number} is not a valid E.164 number`)
         cli.action.start(`Creating number ${number}`)
         answers.e164Number = number
         const numbers = new Numbers()
-        await numbers.createNumber(answers)
+        const result = await numbers.createNumber(answers)
         await cli.wait(1000)
-        cli.action.stop('All done')
+        cli.action.stop(result.getRef())
       }
     } catch (e) {
       cli.action.stop()
-      throw new CLIError(e.message)
+      if (e.code === 9) {
+        throw new CLIError('This Number already exist')
+      } else {
+        throw new CLIError(e)
+      }
     }
   }
 }

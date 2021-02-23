@@ -64,8 +64,8 @@ export namespace ListAppsResponse {
 }
 
 export class GetAppRequest extends jspb.Message { 
-    getName(): string;
-    setName(value: string): GetAppRequest;
+    getRef(): string;
+    setRef(value: string): GetAppRequest;
 
     getView(): common_pb.View;
     setView(value: common_pb.View): GetAppRequest;
@@ -83,7 +83,7 @@ export class GetAppRequest extends jspb.Message {
 
 export namespace GetAppRequest {
     export type AsObject = {
-        name: string,
+        ref: string,
         view: common_pb.View,
     }
 }
@@ -137,8 +137,8 @@ export namespace UpdateAppRequest {
 }
 
 export class DeleteAppRequest extends jspb.Message { 
-    getName(): string;
-    setName(value: string): DeleteAppRequest;
+    getRef(): string;
+    setRef(value: string): DeleteAppRequest;
 
 
     serializeBinary(): Uint8Array;
@@ -153,11 +153,14 @@ export class DeleteAppRequest extends jspb.Message {
 
 export namespace DeleteAppRequest {
     export type AsObject = {
-        name: string,
+        ref: string,
     }
 }
 
 export class App extends jspb.Message { 
+    getRef(): string;
+    setRef(value: string): App;
+
     getName(): string;
     setName(value: string): App;
 
@@ -173,8 +176,8 @@ export class App extends jspb.Message {
     getStatus(): App.Status;
     setStatus(value: App.Status): App;
 
-    getBucket(): string;
-    setBucket(value: string): App;
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): App;
 
 
     getLabelsMap(): jspb.Map<string, string>;
@@ -193,12 +196,13 @@ export class App extends jspb.Message {
 
 export namespace App {
     export type AsObject = {
+        ref: string,
         name: string,
         description: string,
         createTime: string,
         updateTime: string,
         status: App.Status,
-        bucket: string,
+        accessKeyId: string,
 
         labelsMap: Array<[string, string]>,
     }

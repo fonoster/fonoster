@@ -3,33 +3,34 @@ import AppManager from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { cli } from 'cli-ux'
 import { Command } from '@oclif/command'
-
-const prettyjson = require('prettyjson')
+import { CommonPB } from '@fonos/core'
+const view: CommonPB.View = CommonPB.View.BASIC
 
 export default class DeployCommand extends Command {
+  static args = [{ name: 'ref' }]
   static description = `deploys application to a Fonos instance
   ...
   Run this command from the app root to deploy to Fonos.
   `
-
   async run () {
+    const { args } = this.parse(DeployCommand)
     try {
-      cli.action.start('Deploying application')
       const appmanager = new AppManager()
-      const app = await appmanager.deployApp(process.cwd())
-      await cli.wait(1000)
-      cli.action.stop('')
+      // Get a list
+      const result = await appmanager.listApps({ pageSize: 1000, pageToken: '1', view })
+      const apps = result.getAppsList()
+      const appsName = apps.map((app:any) => app.getName())
+      const name = require(process.cwd() + '/package.json').name
 
-      const appJson = {
-        Name: app.getName(),
-        Description: app.getDescription(),
-        Create: app.getCreateTime(),
-        'Default Bucket': app.getBucket()
+      if (appsName.includes(name) && !args.ref) {
+        throw new Error('App name already exist. To overwrite pass reference number.')
       }
 
-      console.log(prettyjson.render(appJson, { noColor: true }))
+      cli.action.start('Deploying application')
+      const app = await appmanager.deployApp(process.cwd(), args.ref)
+      await cli.wait(1000)
+      cli.action.stop(app.getRef())
     } catch (e) {
-      console.error(e)
       throw new CLIError(e.message)
     }
   }

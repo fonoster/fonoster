@@ -39,12 +39,13 @@ export default class extends Command {
       {
         name: 'secret',
         message: 'secret',
-        type: 'password'
+        type: 'password',
+        mask: true
       },
       {
         name: 'domains',
         message: 'domains',
-        type: 'checkbox',
+        type: 'list',
         choices: domains
       },
       {
@@ -66,15 +67,17 @@ export default class extends Command {
     } else {
       try {
         cli.action.start(`Creating agent ${answers.name}`)
-
         const agents = new Agents()
-        await agents.createAgent(answers)
+        const agent = await agents.createAgent(answers)
         await cli.wait(1000)
-
-        cli.action.stop('All done')
+        cli.action.stop(agent.getRef())
       } catch (e) {
         cli.action.stop()
-        throw new CLIError(e.message)
+        if (e.code === 9) {
+          throw new CLIError('This Agent already exist')
+        } else {
+          throw new CLIError(e)
+        }
       }
     }
   }

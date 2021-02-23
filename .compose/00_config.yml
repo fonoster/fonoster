@@ -14,19 +14,22 @@ volumes:
   recordings:
     external: true
   datasource:
+  datasource_auth:
 
 secrets:
-  jwt-salt:
+  jwt.salt:
     external: true
   config:
     external: true
 
 configs:
-  fluent:
+  fluent.conf:
     external: true
-  bootstrap:
+  bootstrap.yml:
     external: true
-  redis-conf:
+  redis.conf:
     external: true
-  routr-log4j2:
+  log4j2.yml:
+    external: true
+  init_mongo.js:
     external: true

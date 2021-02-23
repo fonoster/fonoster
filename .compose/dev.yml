@@ -12,6 +12,9 @@ services:
   datasource:
     ports:
       - ${DS_PORT}:${DS_PORT}
+  datasource_auth:
+    ports:
+      - ${DS_AUTH_PORT}:${DS_AUTH_PORT}      
   eventsbroker:
     ports:
       - ${EB_PORT}:${EB_PORT}

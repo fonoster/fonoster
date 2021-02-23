@@ -19,6 +19,7 @@ const ResponseObj = (kind: Kind): any => {
 }
 
 export default async function (
+  accessKeyId: string,
   kind: Kind,
   page: number,
   itemsPerPage: number,
@@ -34,7 +35,11 @@ export default async function (
     .list({ page, itemsPerPage })
 
   const resources = []
-  for (const i in result.data) resources.push(decoder(result.data[i]))
+  for (const i in result.data) {
+    if(result.data[i].metadata.accessKeyId === accessKeyId) { 
+      resources.push(decoder(result.data[i]))
+    }
+  }
   const res = new (ResponseObj(kind))()
   res.setNextPageToken(page + 1)
   res[getSetFunc(kind)](resources)

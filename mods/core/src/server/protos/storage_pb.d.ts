@@ -7,16 +7,19 @@
 import * as jspb from "google-protobuf";
 
 export class UploadObjectRequest extends jspb.Message { 
-    getName(): string;
-    setName(value: string): UploadObjectRequest;
+    getBucket(): UploadObjectRequest.Bucket;
+    setBucket(value: UploadObjectRequest.Bucket): UploadObjectRequest;
 
-    getBucket(): string;
-    setBucket(value: string): UploadObjectRequest;
+    getFilename(): string;
+    setFilename(value: string): UploadObjectRequest;
 
     getChunks(): Uint8Array | string;
     getChunks_asU8(): Uint8Array;
     getChunks_asB64(): string;
     setChunks(value: Uint8Array | string): UploadObjectRequest;
+
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): UploadObjectRequest;
 
 
     getMetadataMap(): jspb.Map<string, string>;
@@ -35,12 +38,20 @@ export class UploadObjectRequest extends jspb.Message {
 
 export namespace UploadObjectRequest {
     export type AsObject = {
-        name: string,
-        bucket: string,
+        bucket: UploadObjectRequest.Bucket,
+        filename: string,
         chunks: Uint8Array | string,
+        accessKeyId: string,
 
         metadataMap: Array<[string, string]>,
     }
+
+    export enum Bucket {
+    APPS = 0,
+    RECORDINGS = 1,
+    PUBLIC = 2,
+    }
+
 }
 
 export class UploadObjectResponse extends jspb.Message { 
@@ -65,11 +76,14 @@ export namespace UploadObjectResponse {
 }
 
 export class GetObjectURLRequest extends jspb.Message { 
-    getName(): string;
-    setName(value: string): GetObjectURLRequest;
+    getBucket(): GetObjectURLRequest.Bucket;
+    setBucket(value: GetObjectURLRequest.Bucket): GetObjectURLRequest;
 
-    getBucket(): string;
-    setBucket(value: string): GetObjectURLRequest;
+    getFilename(): string;
+    setFilename(value: string): GetObjectURLRequest;
+
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): GetObjectURLRequest;
 
 
     serializeBinary(): Uint8Array;
@@ -84,9 +98,17 @@ export class GetObjectURLRequest extends jspb.Message {
 
 export namespace GetObjectURLRequest {
     export type AsObject = {
-        name: string,
-        bucket: string,
+        bucket: GetObjectURLRequest.Bucket,
+        filename: string,
+        accessKeyId: string,
     }
+
+    export enum Bucket {
+    APPS = 0,
+    RECORDINGS = 1,
+    PUBLIC = 2,
+    }
+
 }
 
 export class GetObjectURLResponse extends jspb.Message { 

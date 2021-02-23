@@ -3,13 +3,14 @@ import Play, { PlayOptions } from './play'
 import Wait from './wait'
 import Record, { RecordOptions } from './record'
 import Gather, { GatherOptions } from './gather'
+import { VerbConfig } from './verb'
 
 /**
  * @classdescNode JS Implementation of the Verbs API.
  */
 class Verbs {
   channel: any
-  _config: any
+  _config: VerbConfig
   callDetailRecord: {
     ref: any
     date: Date
@@ -30,7 +31,7 @@ class Verbs {
    * @params {Storage} config.storage - An instance of the Storage object
    * @params {TTS} config.tts - An instance of a TTS engine implementation
    */
-  constructor (channel: any, config?: any) {
+  constructor (channel: any, config?: VerbConfig) {
     const objectid = require('objectid')
     this.channel = channel
     this._config = config
@@ -163,7 +164,7 @@ class Verbs {
    * const result = chan.gather(chan.say('this is an audio sample'), options)
    */
   gather (initDigits: string, options?: GatherOptions): string {
-    return new Gather(this.channel).run(initDigits, options)
+    return new Gather(this.channel, this._config).run(initDigits, options)
   }
 
   /**

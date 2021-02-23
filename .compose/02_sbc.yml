@@ -36,7 +36,7 @@ services:
         aliases:
           - ${SIPPROXY_HOST}
     configs:
-      - source: routr-log4j2
+      - source: log4j2.yml
         target: /opt/routr/config/log4j2.yml
 
   provisioner:
@@ -54,5 +54,5 @@ services:
     networks:
       fonos:
     configs:
-      - source: bootstrap
+      - source: bootstrap.yml
         target: /bootstrap.yml

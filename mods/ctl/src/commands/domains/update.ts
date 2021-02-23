@@ -74,7 +74,7 @@ export default class UpdateCommand extends Command {
         await domains.updateDomain(answers)
         await cli.wait(1000)
 
-        cli.action.stop('All done')
+        cli.action.stop('Done')
       } catch (e) {
         cli.action.stop()
         throw new CLIError(e.message)

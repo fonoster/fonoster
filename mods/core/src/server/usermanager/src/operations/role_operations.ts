@@ -1,8 +1,13 @@
 import RoleModel, { Role } from '../models/role'
 
+interface Filter {
+  readonly role: string,
+  readonly access: string
+}
+
 export default class RoleController {
-  public async getRoles () {
-    return await RoleModel.find({})
+  public async getRoles (filter: Filter) {
+    return await RoleModel.find(filter as any)
   }
 
   public async createRole (obj: any) {

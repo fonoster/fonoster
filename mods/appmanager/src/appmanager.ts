@@ -5,6 +5,7 @@ import { View } from '@fonos/core/src/server/protos/common_pb'
 import fs from 'fs-extra'
 import path from 'path'
 import tar from 'tar'
+import { nanoid } from 'nanoid'
 
 const STATUS = {
   UNKNOWN: 0,
@@ -61,6 +62,7 @@ export default class AppManager extends FonosService {
    * Deploys an application to Fonos.
    *
    * @param {string} path - path to the application
+   * @param {string} ref - optional reference to the application
    * @return {Promise<App>} The application just created
    * @throws if path to application does not exist or is not a directory
    * @throws the file package.json does not exist inside de application path
@@ -77,7 +79,8 @@ export default class AppManager extends FonosService {
    * @todo if the file uploading fails the state of the application should
    * change to UNKNOWN.
    */
-  async deployApp (appPath: string): Promise<App> {
+  async deployApp (appPath: string, appRef ?: string): Promise<App> {
+    const dirName = appRef || nanoid(10)
     const packagePath = path.join(appPath, 'package.json')
     // Expects an existing valid package.json
     const packageInfo = (p: string) => JSON.parse(`${fs.readFileSync(p)}`)
@@ -91,37 +94,19 @@ export default class AppManager extends FonosService {
       )
     }
 
-    let bucket = process.env.FS_DEFAULT_STORAGE_BUCKET
+    if (!pInfo.main) throw new Error('Missing "main" entry at package.json')
 
-    try {
-      const fonosConfigFile = fs.readFileSync(path.join(appPath, 'fonos.json'))
-      const fonosConfig = JSON.parse(`${fonosConfigFile}`)
-      bucket = fonosConfig.bucket
-    } catch (e) {}
+    const mainScript = `${appPath}/${pInfo.main}`
+
+    if (!fs.existsSync(mainScript)) throw new Error(`Cannot find main script at "${mainScript}"`)
 
     const request = {
       dirPath: appPath,
       app: {
         name: pInfo.name,
-        description: pInfo.description,
-        bucket: bucket
+        description: pInfo.description
       }
     }
-
-    // WARNING: I'm not happy with this. Seems inconsistent with the other
-    // errors...
-    /*const errors = appManagerValidator.createAppRequest.validate({
-      app: {
-        name: request.app.name,
-        description: request.app.description
-      }
-    })
-
-    if (errors.length > 0) {
-      throw new Error(
-        'Please ensure package.json contains the name and description fields'
-      )
-    }*/
 
     if (
       !fs.existsSync(request.dirPath) ||
@@ -133,9 +118,6 @@ export default class AppManager extends FonosService {
     if (!fs.existsSync(packagePath)) {
       throw new Error(`not package.json found in ${request.dirPath}`)
     }
-
-    // TODO: Validate that the name is lower case and has no spaces
-    const dirName = `${request.app.name}`
 
     // Cleanup before deploy
     if (fs.existsSync(`/tmp/${dirName}`))
@@ -155,9 +137,9 @@ export default class AppManager extends FonosService {
     if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`)
 
     const app = new AppManagerPB.App()
+    app.setRef(dirName)
     app.setName(request.app.name)
     app.setDescription(request.app.description)
-    app.setBucket(request.app.bucket)
 
     const createAppRequest = new AppManagerPB.CreateAppRequest()
     createAppRequest.setApp(app)
@@ -170,9 +152,9 @@ export default class AppManager extends FonosService {
   }
 
   /**
-   * Retrives an application by name.
+   * Retrives an application by reference.
    *
-   * @param {string} name - The name of the application
+   * @param {string} ref - The reference to the application
    * @return {Promise<App>} The application
    * @throws if name is null or application does not exist
    * @example
@@ -182,28 +164,28 @@ export default class AppManager extends FonosService {
    *   console.log(result)             // returns the app object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getApp (name: string): Promise<App> {
+  async getApp (ref: string): Promise<App> {
     const request = new AppManagerPB.GetAppRequest()
-    request.setName(name)
+    request.setRef(ref)
     return this.service.getApp().sendMessage(request)
   }
 
   /**
-   * Deletes an application already registered in Fonos.
+   * Deletes an application create on Fonos server.
    *
-   * @param {string} name - The name of the application
+   * @param {string} ref - The reference to the application
    * @return {Promise<App>} The application to remove
    * @throws if the application is not found
    * @example
    *
-   * appManager.deleteApp(name)
+   * appManager.deleteApp(ref)
    * .then(() => {
    *   console.log('finished')        // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteApp (name: string) {
+  async deleteApp (ref: string) {
     const request = new AppManagerPB.DeleteAppRequest()
-    request.setName(name)
+    request.setRef(ref)
     return this.service.deleteApp().sendMessage(request)
   }
 

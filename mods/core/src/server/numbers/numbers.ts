@@ -19,14 +19,13 @@ import {
   INumbersServer
 } from '../protos/numbers_grpc_pb'
 import { App } from '../protos/appmanager_pb'
-import { auth } from '../../common/trust_util'
-import { FonosAuthError } from '@fonos/errors'
 import { Kind } from '../../common/resource_encoder'
 import numberDecoder from '../../common/decoders/number_decoder'
 import ResourceServer from '../resources/resource_server'
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   constructor () {
+    // Useless
     super(Kind.NUMBER, numberDecoder)
   }
 
@@ -34,16 +33,15 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<ListNumbersRequest>,
     callback: grpc.sendUnaryData<ListNumbersResponse>
   ) {
-    super.listResources(call, callback)
+    super.listResources(Kind.NUMBER, numberDecoder, call, callback)
   }
 
   async createNumber (
     call: grpc.ServerUnaryCall<CreateNumberRequest>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
-      callback(null, await createNumber(call.request.getNumber()))
+      callback(null, await createNumber(call.request.getNumber(), call))
     } catch (e) {
       callback(e, null)
     }
@@ -60,8 +58,6 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<GetIngressAppRequest>,
     callback: grpc.sendUnaryData<App>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-
     try {
       callback(null, await getIngressApp(call.request.getE164Number()))
     } catch (e) {
@@ -73,14 +69,14 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<GetNumberRequest>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
-    super.getResource(call, callback)
+    super.getResource(Kind.NUMBER, numberDecoder, call, callback )
   }
 
   async deleteNumber (
     call: grpc.ServerUnaryCall<DeleteNumberRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(call, callback)
+    super.deleteResource(Kind.NUMBER, numberDecoder, call, callback)
   }
 }
 

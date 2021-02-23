@@ -1,5 +1,4 @@
 import grpc from 'grpc'
-import { FonosAuthError } from '@fonos/errors'
 import createApp from './create_app'
 import listApps from './list_apps'
 import getApp from './get_app'
@@ -14,7 +13,8 @@ import {
   DeleteAppRequest
 } from '../protos/appmanager_pb'
 import { Empty } from '../protos/common_pb'
-import { auth } from '../../common/trust_util'
+import getAccessKeyId from '../../common/get_access_key_id'
+
 import {
   IAppManagerService,
   AppManagerService,
@@ -26,12 +26,11 @@ class AppManagerServer implements IAppManagerServer {
     call: grpc.ServerUnaryCall<ListAppsRequest>,
     callback: grpc.sendUnaryData<ListAppsResponse>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
-
     try {
       const result = await listApps(
         parseInt(call.request.getPageToken()),
-        call.request.getPageSize()
+        call.request.getPageSize(), 
+        getAccessKeyId(call)
       )
       const response = new ListAppsResponse()
       response.setAppsList(result.apps)
@@ -46,9 +45,8 @@ class AppManagerServer implements IAppManagerServer {
     call: grpc.ServerUnaryCall<GetAppRequest>,
     callback: grpc.sendUnaryData<App>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
-      callback(null, await getApp(call.request.getName()))
+      callback(null, await getApp(call.request.getRef(), getAccessKeyId(call)))
     } catch (e) {
       callback(e, null)
     }
@@ -58,9 +56,8 @@ class AppManagerServer implements IAppManagerServer {
     call: grpc.ServerUnaryCall<CreateAppRequest>,
     callback: grpc.sendUnaryData<App>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
-      callback(null, await createApp(call.request.getApp()))
+      callback(null, await createApp(call.request.getApp(), getAccessKeyId(call)))
     } catch (e) {
       callback(e, null)
     }
@@ -70,16 +67,14 @@ class AppManagerServer implements IAppManagerServer {
     call: grpc.ServerUnaryCall<UpdateAppRequest>,
     callback: grpc.sendUnaryData<App>
   ): void {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
   }
 
   async deleteApp (
     call: grpc.ServerUnaryCall<DeleteAppRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    if (!auth(call)) return callback(new FonosAuthError(), null)
     try {
-      await deleteApp(call.request.getName())
+      await deleteApp(call.request.getRef(), getAccessKeyId(call))
       callback(null, new Empty())
     } catch (e) {
       callback(e, null)
