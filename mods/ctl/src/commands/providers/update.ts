@@ -63,7 +63,7 @@ export default class UpdateCommand extends Command {
       },
       {
         name: 'confirm',
-        message: 'does everything look good?',
+        message: 'everything looks good?',
         type: 'confirm'
       }
     ])
