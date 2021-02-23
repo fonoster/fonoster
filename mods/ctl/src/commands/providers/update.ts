@@ -13,10 +13,13 @@ export default class UpdateCommand extends Command {
   `
 
   async run () {
+    const { args } = this.parse(UpdateCommand)
+
+    if (!args.ref) throw new Error('Please provide reference number')
+
     console.log('This utility will help you update an existing Provider')
     console.log('Press ^C at any time to quit.')
 
-    const { args } = this.parse(UpdateCommand)
     const providers = new Providers()
     const provider = await providers.getProvider(args.ref)
 
@@ -37,7 +40,6 @@ export default class UpdateCommand extends Command {
         name: 'secret',
         message: 'secret',
         type: 'password',
-        default: provider.getSecret(),
         mask: true
       },
       {
@@ -72,7 +74,7 @@ export default class UpdateCommand extends Command {
       console.log('Aborted')
     } else {
       try {
-        cli.action.start(`updating provider ${answers.name}`)
+        cli.action.start(`Updating provider ${answers.name}`)
 
         await providers.updateProvider(answers)
         await cli.wait(1000)
