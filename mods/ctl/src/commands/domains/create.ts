@@ -1,9 +1,13 @@
 import '../../config'
 import Domains from '@fonos/domains'
+import Numbers from '@fonos/numbers'
+import { CommonPB } from '@fonos/core'
 import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
 import { cli } from 'cli-ux'
+
 const inquirer = require('inquirer')
+const view: CommonPB.View = CommonPB.View.BASIC
 
 export default class CreateCommand extends Command {
   static description = `creates a new domain resource
@@ -14,6 +18,19 @@ export default class CreateCommand extends Command {
   async run () {
     console.log('This utility will help you create a new Domain')
     console.log('Press ^C at any time to quit.')
+
+    const numbers = new Numbers()
+    const result = await numbers.listNumbers({ pageSize: 20, pageToken: '1', view})
+    const nums = result.getNumbersList().map((n:any) => {
+      return {
+        value: n.getRef(),
+        name: n.getE164Number()
+      }
+    })
+    nums.unshift({
+      value: 'none',
+      name: 'none'
+    })
 
     const answers = await inquirer.prompt([
       {
@@ -28,8 +45,10 @@ export default class CreateCommand extends Command {
       },
       {
         name: 'egressNumberRef',
-        message: 'number reference',
-        type: 'input'
+        message: 'egress number',
+        type: 'list',
+        choices: nums,
+        default: 'none'
       },
       {
         name: 'egressRule',
@@ -50,7 +69,7 @@ export default class CreateCommand extends Command {
       },*/
       {
         name: 'confirm',
-        message: 'does everything look good?',
+        message: 'everything looks good?',
         type: 'confirm'
       }
     ])
@@ -63,7 +82,10 @@ export default class CreateCommand extends Command {
         const accessAllow = answers.accessAllow
         answers.accessDeny = accessDeny ? accessDeny.split(',') : []
         answers.accessAllow = accessAllow ? accessAllow.split(',') : []
-        if (!answers.egressNumberRef) answers.egressRule = void 0
+        if (!answers.egressNumberRef || answers.egressNumberRef === 'none') {
+          delete answers.egressRule
+          delete answers.egressNumberRef
+        } 
 
         cli.action.start(`Creating domain ${answers.name}`)
 

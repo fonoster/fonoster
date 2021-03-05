@@ -1,2 +1,2 @@
-// A simple hello monkeys
-module.exports = chan => chan.play('tt-monkeys')
+// A simple hello world
+module.exports = chan => chan.say('Hello world')

@@ -57,6 +57,7 @@ const roles =  [
 
 db = db.getSiblingDB('fonos_auth');
 db.roles.insertMany(roles);
+db.users.ensureIndex({email: 1, type: 1},{unique: true});
 
 // WARNING: Harcoded value
 db.createUser({ user: "fonos", pwd: "changeit", roles:["dbOwner"] })
