@@ -18,7 +18,13 @@ export default function (extension: string) {
         accessKeyId: app.getAccessKeyId()
       }
     } catch (e) {
-      // TODO: This must distinguish between malformed, non-existent, and non-access errors
+      if (e instanceof SyntaxError) {
+        logger.log(
+          'error',
+          `@fonos/dispatcher [Ensure that package.json in ${pathToManifest} has a valid syntax]`
+        )
+      }
+      if (e instanceof Error)
       logger.log(
         'error',
         `@fonos/dispatcher [unable find entry point. Ensure that path '${pathToManifest}' exist and has the correct permissions.`
