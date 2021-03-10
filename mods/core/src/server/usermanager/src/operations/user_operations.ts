@@ -1,6 +1,7 @@
 import UserModel, { User } from '../models/user'
 
-class UserOperation {
+
+export default class UserOperation {
   public async getUsers () {
     const users = await UserModel.find()
     return users
@@ -53,13 +54,6 @@ class UserOperation {
     )
   }
 
-  public async deleteUserByEmail (email: string) {
-    UserModel.findOneAndUpdate({
-      query: { name: 'Alto' },
-      sort: { cno: 1 },
-      update: { $inc: { speed: 10 } }
-    })
-  }
+  
 }
 
-export const userOperation = new UserOperation()
