@@ -1,13 +1,13 @@
 import chai from 'chai'
-import sinon from 'sinon'
+import sinon, { server } from 'sinon'
 import sinonChai from 'sinon-chai'
 import chaiAsPromised from 'chai-as-promised'
 import roleHasAccess from '../server/usermanager/role_has_access'
 import RoleController from '../server/usermanager/src/operations/role_operations'
 import Role from '../server/usermanager/src/models/role'
 import User from '../server/usermanager/src/models/user'
-import {userOperation} from '../server/usermanager/src/operations/user_operations'
-import Mongoose from 'mongoose'
+import UserController from '../server/usermanager/src/operations/user_operations'
+
 
 
 const expect = chai.expect
@@ -40,35 +40,61 @@ describe('@fonos/core/usermanager/roleOperations', () => {
 })
 
 
-describe('@fonos/core/usermanager/userOperations', ()=>{
-  let findStub;
-  let sampleUser : any[];
 
-  beforeEach(()=>{
-    sampleUser = [{
-      firstName: 'GUEST',
-      lastName: 'GUEST',
-      email: 'GUEST@GMAIL.COM',
-      accessKeyId: '6033ed5bf911e40700000002',
-      role: 'USER',
-      createTime: "Tue Feb 23 2021 09:45:08 GMT-0400 (Atlantic Standard Time)",
-      updateTime: "Tue Feb 23 2021 09:45:08 GMT-0400 (Atlantic Standard Time)",
-      status: 'ACTIVE'
-    }]
-    findStub = sandbox.stub(Mongoose.Model, 'find' ).resolves(sampleUser);
+describe('@fonos/core/usermanager/userOperations', () => {
+
+   let sampleUser = new User();
+
+   beforeEach(()=>{
+    sampleUser = new User({
+      firstName : "test",
+      lastName : "test",
+      email:"test@gmail.com",
+      role : "TEST",
+      accessKeyId :"as3rts355sWd",
+      createTime : "2020-10-10",
+      updateTime : "2020-10-10",
+      status : "ACTIVE"
+     });
+   })
+
+
+  afterEach(() => sandbox.restore())
+
+  context('teting userOperation', () => {
+
+  it('should retrieve all users', async () => {
+   const findAllStub = sinon.stub(UserController.prototype,"getAll").returns(Promise.resolve([sampleUser]));
+   let user = new UserController();
+   user.getAll();
+   expect(findAllStub).to.has.been.calledOnce;
+   expect(sampleUser).to.be.a('object');
+
   })
 
-  afterEach(()=>{
-    sandbox.restore();
-  })
-
-  context('getUsers',()=>{
-    it('should return all users', (done)=>{
-      let result = userOperation.getUsers();
-      expect(result).to.exist;
-      done();
-    })
+  it('should create an user', async () => {
+    const createStub = sinon.stub(UserController.prototype,"saveUser");
+    let user = new UserController();
+    user.saveUser(sampleUser);
+    expect(createStub.calledOnce).to.be.true;
+    expect(createStub).to.have.been.calledWith(sampleUser);
 
   })
 
+  it('should retrieve an user by email', async() => {
+    const userByMailStub = sinon.stub(UserController.prototype,"getUserByEmail").resolves(sampleUser)
+    let user = new UserController();
+    user.getUserByEmail("test@gmail.com");
+    expect(userByMailStub.calledOnce).to.be.true;
+    expect(userByMailStub).to.have.been.calledWith("test@gmail.com");
+  })
+
+  it('should update an user status',async() =>{
+    const updateStub = sinon.stub(UserController.prototype,"updateUserStatus");
+    let user = new UserController();
+    user.updateUserStatus("test@gmail.com","ACTIVE")
+    expect(updateStub.calledOnce).to.be.true;
+  })
+
+})
 })
