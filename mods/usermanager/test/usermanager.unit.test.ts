@@ -15,31 +15,24 @@ const sandbox = sinon.createSandbox()
 describe('@fonos/usermanager', () => {
   afterEach(() => sandbox.restore())
 
-  it.only('checks the requests parameters', async () => {
-    const setFromStub = sandbox.stub(
-      UserManagerPB.GetUserRequest.prototype,
-      'setEmail'
-    )
-    
-    // const setToStub = sandbox.stub(UserManagerPB.GetUserRequest.prototype, 'setEmail')
-    // const setAppStub = sandbox.stub(
-    //   UserManagerPB.GetUserRequest.prototype,
-    //   'getEmail'
-    // )
+  it('checks the requests parameters', async () => {
 
-    const initStub = sandbox
-      .stub(FonosService.prototype, 'init').returns()
+    const initStub = sandbox.stub(FonosService.prototype, 'init').returns()
     const serviceStub = sandbox
       .stub(FonosService.prototype, 'getService')
       .returns({
-        call: () => {
+        createUser: () => {
           return {
             sendMessage: () =>
               Promise.resolve({
-                getFrom: () => '9102104343',
-                getTo: () => '17853178070',
-                getApp: () => 'default',
-                getDuration: () => 20
+                getFirstName: () => 'Richard',
+                getLastName: () => 'Hernandez',
+                getEmail: () => 'rhc921004@gmail.com',
+                getAccessKeyId: () => 'shdshhsdksd',
+                getRole: () => 'USER',
+                getCreateTime: () => '2020-10-10',
+                getUpdateTime: () => '2020-10-10',
+                getStatus:() => 'ACTIVE'
               })
           }
         }
@@ -53,9 +46,7 @@ describe('@fonos/usermanager', () => {
       email : "rhc0000000@gmail.com"
     })
 
-    // expect(setFromStub).to.be.calledOnceWith('rhc921004@gmail.com')
-    // expect(setToStub).to.be.calledOnceWith('rhc921004@gmail.com')
-    // expect(setAppStub).to.be.calledOnceWith('default')
+
     expect(initStub).to.be.calledOnce
     // Once in the constructor and one in the call function
     expect(serviceStub).to.be.calledTwice
