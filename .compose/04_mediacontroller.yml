@@ -16,6 +16,8 @@ services:
       TTS_ENGINE_PORT: ${TTS_ENGINE_PORT}
       LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
       LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
+      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
     volumes:
       - apps:/home/fonos/apps
     # Warning: Must determine a way to secure this port

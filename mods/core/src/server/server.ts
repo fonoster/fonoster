@@ -82,9 +82,7 @@ async function main () {
   server.use(authMiddleware.middleware)
   server.start()
 
-
-  logger.log(
-    'info',
+  logger.info(
     `Fonos APIServer is online @ ${endpoint} (API version = v1alpha1)`
   )
 }
