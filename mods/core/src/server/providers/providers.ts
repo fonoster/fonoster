@@ -78,8 +78,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withCredentials(provider.getUsername(), provider.getSecret())
         .withHost(provider.getHost())
         .withTransport(provider.getTransport())
-        .withExpires(provider.getExpires())
-        
+        .withExpires(provider.getExpires())        
         .build()
 
       callback(null, await updateResource(getAccessKeyId(call), resource, providerDecoder))
