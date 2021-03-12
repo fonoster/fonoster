@@ -5,7 +5,6 @@ import chaiAsPromised from 'chai-as-promised'
 import { FonosService } from '@fonos/core'
 
 import UserManager from '../src/usermanager'
-import { UserManagerPB } from '@fonos/core'
 
 const expect = chai.expect
 chai.use(sinonChai)
