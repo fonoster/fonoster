@@ -43,21 +43,16 @@ describe('@fonos/core/usermanager/roleOperations', () => {
 
 describe('@fonos/core/usermanager/userOperations', () => {
 
-   let sampleUser = new User();
-
-   beforeEach(()=>{
-    sampleUser = new User({
-      firstName : "test",
-      lastName : "test",
-      email:"test@gmail.com",
-      role : "TEST",
-      accessKeyId :"as3rts355sWd",
-      createTime : "2020-10-10",
-      updateTime : "2020-10-10",
-      status : "ACTIVE"
-     });
-   })
-
+  const sampleUser = new User({
+    firstName : "test",
+    lastName : "test",
+    email:"test@gmail.com",
+    role : "TEST",
+    accessKeyId :"70lkv20G5MCgUIKYJI6Z",
+    createTime : "2020-10-10",
+    updateTime : "2020-10-10",
+    status : "ACTIVE"
+   });
 
   afterEach(() => sandbox.restore())
 
@@ -65,7 +60,7 @@ describe('@fonos/core/usermanager/userOperations', () => {
 
   it('should retrieve all users', async () => {
    const findAllStub = sinon.stub(UserController.prototype,"getAll").returns(Promise.resolve([sampleUser]));
-   let user = new UserController();
+   const user = new UserController();
    user.getAll();
    expect(findAllStub).to.has.been.calledOnce;
    expect(sampleUser).to.be.a('object');
@@ -74,7 +69,7 @@ describe('@fonos/core/usermanager/userOperations', () => {
 
   it('should create an user', async () => {
     const createStub = sinon.stub(UserController.prototype,"saveUser");
-    let user = new UserController();
+    const user = new UserController();
     user.saveUser(sampleUser);
     expect(createStub.calledOnce).to.be.true;
     expect(createStub).to.have.been.calledWith(sampleUser);
@@ -83,7 +78,7 @@ describe('@fonos/core/usermanager/userOperations', () => {
 
   it('should retrieve an user by email', async() => {
     const userByMailStub = sinon.stub(UserController.prototype,"getUserByEmail").resolves(sampleUser)
-    let user = new UserController();
+    const user = new UserController();
     user.getUserByEmail("test@gmail.com");
     expect(userByMailStub.calledOnce).to.be.true;
     expect(userByMailStub).to.have.been.calledWith("test@gmail.com");
@@ -91,7 +86,7 @@ describe('@fonos/core/usermanager/userOperations', () => {
 
   it('should update an user status',async() =>{
     const updateStub = sinon.stub(UserController.prototype,"updateUserStatus");
-    let user = new UserController();
+    const user = new UserController();
     user.updateUserStatus("test@gmail.com","ACTIVE")
     expect(updateStub.calledOnce).to.be.true;
   })

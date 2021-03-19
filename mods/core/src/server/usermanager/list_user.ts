@@ -3,7 +3,7 @@ import { User } from '../protos/usermanager_pb'
 import jsonParse from './json_parser'
 
 export default async function (pageToken: number, pageSize: number) {
-  let userOperation = new UserOperation();
+  const userOperation = new UserOperation();
   
   if (!pageToken) return {}
   pageToken--
@@ -15,7 +15,7 @@ export default async function (pageToken: number, pageSize: number) {
   const users: User[] = []
 
   for (const idx in userMails) {
-    let usrMail = userMails[idx].email
+    const usrMail = userMails[idx].email
 
     const jsonString = await userOperation.getUserByEmail(usrMail)
     const user: User = jsonParse(jsonString)

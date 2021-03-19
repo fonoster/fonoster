@@ -24,10 +24,10 @@ describe('@fonos/usermanager', () => {
           return {
             sendMessage: () =>
               Promise.resolve({
-                getFirstName: () => 'Richard',
-                getLastName: () => 'Hernandez',
-                getEmail: () => 'rhc921004@gmail.com',
-                getAccessKeyId: () => 'shdshhsdksd',
+                getFirstName: () => 'Test',
+                getLastName: () => 'Test',
+                getEmail: () => 'testing@gmail.com',
+                getAccessKeyId: () => '70lkv20G5MCgUIKYJI6Z',
                 getRole: () => 'USER',
                 getCreateTime: () => '2020-10-10',
                 getUpdateTime: () => '2020-10-10',
@@ -40,9 +40,9 @@ describe('@fonos/usermanager', () => {
     const callStub = sandbox.spy(UserManager.prototype, 'createUser')
     const userManager = new UserManager()
     const result = await userManager.createUser({
-      firstName: "Richard",
-      lastName: "Hernandez",
-      email : "rhc0000000@gmail.com"
+      firstName: "Test",
+      lastName: "Test",
+      email : "testing@gmail.com"
     })
 
 
