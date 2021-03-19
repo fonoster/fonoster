@@ -3,6 +3,7 @@ import { User } from '../protos/usermanager_pb'
 import jsonParse from './json_parser'
 
 export default async function (pageToken: number, pageSize: number) {
+
   const userOperation = new UserOperation();
   
   if (!pageToken) return {}
