@@ -1,5 +1,21 @@
 import { FonosService, DomainsService, DomainsPB } from '@fonos/core'
 
+interface CreateDomainInterface {
+  ref?: string,
+  name: string,
+  domainUri: string,
+  egressRule: string,
+  egressNumberRef: string,
+  accessDeny?: string[],
+  accessAllow?: string[]
+}
+
+interface ListDomainsInterface {
+  pageSize: number,
+  pageToken: string,
+  view: number
+}
+
 /**
  * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
  * to create, update, get and delete domains. Fonos Domains requires of a
@@ -59,7 +75,7 @@ class Domains extends FonosService {
    *   console.log(result)            // returns the Domain object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createDomain (request: any) {
+  async createDomain (request: CreateDomainInterface): Promise<DomainsPB.Domain> {
     const domain = new DomainsPB.Domain()
     domain.setName(request.name)
     domain.setDomainUri(request.domainUri)
@@ -90,10 +106,10 @@ class Domains extends FonosService {
    *   console.log(result)             // returns the Domain object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getDomain (ref: string) {
+  async getDomain (ref: string): Promise<DomainsPB.Domain> {
     const request = new DomainsPB.GetDomainRequest()
     request.setRef(ref)
-    return this.service.getDomain().sendMessage(request)
+    return this.getService().getDomain().sendMessage(request)
   }
 
   /**
@@ -123,7 +139,7 @@ class Domains extends FonosService {
    *   console.log(result)            // returns the Domain from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateDomain (request: any) {
+  async updateDomain (request: CreateDomainInterface): Promise<DomainsPB.Domain> {
     const domain = await this.getDomain(request.ref)
 
     if (request.name) domain.setName(request.name)
@@ -163,12 +179,12 @@ class Domains extends FonosService {
    *   console.log(result)            // returns a ListDomainsResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listDomains (request: any) {
+  async listDomains (request: ListDomainsInterface): Promise<DomainsPB.Domain[]> {
     const r = new DomainsPB.ListDomainsRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)
     r.setView(request.view)
-    return this.service.listDomains().sendMessage(r)
+    return this.getService().listDomains().sendMessage(r)
   }
 
   /**
@@ -185,7 +201,7 @@ class Domains extends FonosService {
    *   console.log('done')            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteDomain (ref: string) {
+  async deleteDomain (ref: string): Promise<void> {
     const req = new DomainsPB.DeleteDomainRequest()
     req.setRef(ref)
     return super
