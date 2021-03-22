@@ -13,7 +13,7 @@ export default async function (pageToken: number, pageSize: number) {
   const users: User[] = []
 
   for (const idx in userMails) {
-    let usrMail = userMails[idx].email
+    const usrMail = userMails[idx].email
 
     const jsonString = await userOperation.getUserByEmail(usrMail)
     const user: User = jsonParse(jsonString)
