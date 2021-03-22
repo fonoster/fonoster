@@ -5,6 +5,40 @@ import {
   AppManagerPB
 } from '@fonos/core'
 
+
+export interface  Number {
+  ref?:string;
+  providerRef?:string;
+  e164Number?: string;
+  ingressApp?: string;
+  aorLink?:string;
+}
+enum View {
+  BASIC = 0,
+  STANDARD = 1,
+  FULL = 2,
+}
+
+export interface UpdateNumberRequest{
+  ref: string;
+  aorLink?: string;
+  ingressApp?: string;
+}
+
+export interface ListNumbersRequest{
+  pageSize: number;
+  pageToken: string;
+  view: View
+}
+
+export interface IngressAppRequest{
+  e164Number: string
+}
+
+export interface AsObject  {
+}
+
+
 /**
  * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
  * to create, update, get and delete numbers. Fonos Numbers requires of a
@@ -66,12 +100,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Number object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createNumber (request: {
-    providerRef: any
-    e164Number: any
-    ingressApp: any
-    aorLink: any
-  }): Promise<NumbersPB.Number> {
+  async createNumber (request: Number): Promise<NumbersPB.Number> {
     const number = new NumbersPB.Number()
     number.setProviderRef(request.providerRef)
     number.setE164Number(request.e164Number)
@@ -103,7 +132,7 @@ export default class Numbers extends FonosService {
   async getNumber (ref: string): Promise<NumbersPB.Number> {
     const request = new NumbersPB.GetNumberRequest()
     request.setRef(ref)
-    return this.service.getNumber().sendMessage(request)
+    return this.getService().getNumber().sendMessage(request)
   }
 
   /**
@@ -128,7 +157,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Number from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateNumber (request: any): Promise<NumbersPB.Number> {
+  async updateNumber (request: UpdateNumberRequest): Promise<NumbersPB.Number> {
     const numberFromDB: any = await this.getNumber(request.ref)
 
     if (request.aorLink && request.ingressApp) {
@@ -175,12 +204,12 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns a ListNumbersResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listNumbers (request: any) {
+  async listNumbers (request: ListNumbersRequest) : Promise<NumbersPB.Number[]> {    
     const r = new NumbersPB.ListNumbersRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)
     r.setView(request.view)
-    return this.service.listNumbers().sendMessage(r)
+    return this.getService().listNumbers().sendMessage(r)
   }
 
   /**
@@ -196,7 +225,7 @@ export default class Numbers extends FonosService {
    *   console.log('done')            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteNumber (ref: string) {
+  async deleteNumber (ref: string) :Promise<AsObject> {
     const req = new NumbersPB.DeleteNumberRequest()
     req.setRef(ref)
 
@@ -225,7 +254,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Application
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async getIngressApp (request: any): Promise<AppManagerPB.App> {
+  async getIngressApp (request: IngressAppRequest): Promise<AppManagerPB.App> {
     const req = new NumbersPB.GetIngressAppRequest()
     req.setE164Number(request.e164Number)
 
