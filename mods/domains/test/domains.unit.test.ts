@@ -3,7 +3,6 @@ import sinon from 'sinon'
 import sinonChai from 'sinon-chai'
 import Domains from '../src/domains'
 import chaiAsPromised from 'chai-as-promised'
-import { join } from 'path'
 import { DomainsPB, FonosService } from '@fonos/core'
 
 const expect = chai.expect
@@ -11,47 +10,40 @@ chai.use(sinonChai)
 chai.use(chaiAsPromised)
 const sandbox = sinon.createSandbox()
 
-if (process.env.NODE_ENV === 'dev') {
-  require('dotenv').config({ path: join(__dirname, '..', '..', '.env') })
-}
-
-
 describe('@Fonos/domains', () => {
-  let domains: any
-
-  before(() => {
-    domains = new Domains({
-      endpoint: `${process.env.APISERVER_ENDPOINT}`
-    })
-  })
 
   afterEach(() => {
-    sandbox.restore();
+    sandbox.restore()
   })
+
+  let domainsAPI = new Domains()
 
   const initStub = sandbox
   .stub(FonosService.prototype, 'init').returns()
+
   const serviceStub = sandbox
-  .stub(FonosService.prototype, 'getService')
-  .returns({
-    createDomain: () => {
-      return {
-        sendMessage: () =>
-          Promise.resolve({
-            ref: 'testref',
-            name: 'testname',
-            domainUri: 'testdomain',
-            egressRule: '*',
-            egressNumberRef: '12345'
-          })
+    .stub(FonosService.prototype, 'getService')
+    .returns({
+      createDomain: () => {
+        return {
+          sendMessage: () =>
+            Promise.resolve({
+              getRef: () => 'testref',
+              getName: () => 'testname',
+              getDomainUri: () => 'testdomain',
+              getEgressRule: () => '*',
+              getEgressNumberRef: () => '12345',
+              getAccessDenyList: () => ['123'],
+              getAccessAllowList: () => ['12'],
+              getCreateTime: () => Date.now,
+              getUpdateTime: () => Date.now
+            })
+        }
       }
-    }
-  })
+    })
 
-  const domainsAPI = new Domains()
-
-  it('Create domain', async () => {
-
+  it('should create a domain', async () => {
+   
     const req = {
       name: 'testname',
       domainUri: 'testdomain',
@@ -61,47 +53,47 @@ describe('@Fonos/domains', () => {
 
     let result = await domainsAPI.createDomain(req)
 
-    expect(initStub).to.be.calledTwice
     expect(result).to.have.property('ref').to.be.equal('testref')
     expect(result).to.have.property('name').to.be.string
     expect(result).to.have.property('domainUri').to.be.string
     expect(result).to.have.property('egressRule').to.be.string
-    expect(result).to.have.property('egressNumberRef').to.be.string
-    expect(result).to.exist
-    
+    expect(result).to.have.property('egressNumberRef').to.be.string    
   })
 
-  it('Get a Domain', async () => {
-    const serviceStub = sandbox
+  it('should get a domain', async () => {
+    const getDomainserviceStub = sandbox
     .stub(FonosService.prototype, 'getService')
     .returns({
       getDomain: () => {
         return {
           sendMessage: () =>
             Promise.resolve({
-              ref: 'testref',
-              name: 'testname',
-              domainUri: 'testdomain',
-              egressRule: '*',
-              egressNumberRef: '12345'
+              getRef: () => 'testref',
+              getName: () => 'testname',
+              getDomainUri: () => 'testdomain',
+              getEgressRule: () => '*',
+              getEgressNumberRef: () => '12345',
+              getAccessDenyList: () => ['123'],
+              getAccessAllowList: () => ['12'],
+              getCreateTime: () => Date.now,
+              getUpdateTime: () => Date.now
             })
         }
       }
     })
 
-    let request = 'testref';
-    let res = await domainsAPI.getDomain(request)
+    const request = 'testref'
+    const res = await domainsAPI.getDomain(request)
     
-    expect(initStub).to.be.calledTwice
     expect(res).to.have.property('ref').to.be.equal('testref')
-    expect(res).to.have.property('name').to.be.string
+    expect(res).to.have.property('name').to.be.equal('testname')
     expect(res).to.have.property('domainUri').to.be.string
     expect(res).to.have.property('egressRule').to.be.string
     expect(res).to.have.property('egressNumberRef').to.be.string
 
   })
 
-  it('Deletes a Domain', async () => {
+  it('should delete a Domain', async () => {
     const serviceStub = sandbox
     .stub(FonosService.prototype, 'getService')
     .returns({
@@ -113,51 +105,67 @@ describe('@Fonos/domains', () => {
       }
     })
 
-    let request = 'testref';
-    let res = await domainsAPI.deleteDomain(request)
+    const request = 'testref';
+    const res = await domainsAPI.deleteDomain(request)
     
-    expect(initStub).to.be.calledTwice
     expect(serviceStub).to.have.been.calledOnce
     expect(res).to.be.a('object').empty
   })
 
-  it('List domains', async () => {
+  it('should list domains', async () => {
     const stubListDomains = sandbox
     .stub(FonosService.prototype, 'getService')
     .returns({
       listDomains: () => {
         return {
-          sendMessage: ((r: any) => Promise.resolve([]))
+          sendMessage: (() => Promise.resolve({
+              ref: 'testref',
+              name: 'testname',
+              domainUri: 'testdomain',
+              egressRule: '*',
+              egressNumberRef: '12345'
+            }))
         }
       }
     })
 
     const request = {pageSize:0,pageToken:'qwert',view:0};
 
-    let result = await domainsAPI.listDomains(request)
+    const result = await domainsAPI.listDomains(request)
 
     expect(stubListDomains).to.be.calledOnce
-    expect(result).to.exist
+    expect(result).to.have.property('name').to.be.equal('testname')
   })
 
+  it('should update a domain (name)', async () => {
+    const request = {
+      name: 'newName'
+    }
 
-  it('Should udpdate a domain (name)', async () =>{
-    let request ={
-        name:"newName"
-    };
-    const returnDomain = new DomainsPB.Domain();
-    const stubDB = sandbox.stub(domains,'getDomain').returns(returnDomain)
-    const stubUpdateDomain = sandbox.stub(FonosService.prototype,'getService')
+    const returnDomain = { 
+      ref: 'reftest',
+      name: 'nametest',
+      domainUri: 'ward.copm',
+      egressRule: '*',
+      egressNumberRef: 'string',
+      accessDeny: ['nada'],
+      accessAllow: ['node'],
+      createdTime: new Date(),
+      updatedTime: new Date()
+    }
+
+    sandbox.stub(domainsAPI, 'getDomain').resolves(returnDomain as any)
+    const stubUpdateDomain = sandbox.stub(FonosService.prototype, 'getService')
     .returns({
-        updateDomain:() =>{
-          return{
-            sendMessage: ((r: any) => Promise.resolve(returnDomain))
+        updateDomain: () => {
+          return {
+            sendMessage: (() => Promise.resolve({getRef: () => 'testref'}))
           }
         }
       })
 
-    let result = await domains.updateDomain(request)
-    expect(result).to.be.equal(returnDomain)
+    const result = await domainsAPI.updateDomain(request)
+    expect(result).to.have.property('ref').to.be.equal('testref')
     expect(stubUpdateDomain).to.be.calledOnce
  })
 

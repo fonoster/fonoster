@@ -17,26 +17,27 @@ export default class GetCommand extends Command {
       const domains = new Domains()
       cli.action.start(`Getting domain ${args.ref}`)
       const domain = await domains.getDomain(args.ref)
+      console.log('geting domain: ')
 
       const allow =
-        domain.getAccessDenyList().length > 0
-          ? domain.getAccessDenyList().join(',')
+        domain.accessDeny.length > 0
+          ? domain.accessDeny.join(',')
           : 'None'
 
       const deny =
-        domain.getAccessAllowList().length > 0
-          ? domain.getAccessAllowList().join(',')
+        domain.accessAllow.length > 0
+          ? domain.accessAllow.join(',')
           : 'None'
 
       const jsonObj = {
-        Name: domain.getName(),
-        'Domain URI': domain.getDomainUri(),
-        'Egress Rule': domain.getEgressRule() || 'None',
-        'Egress Number Ref': domain.getEgressNumberRef() || 'None',
+        Name: domain.name,
+        'Domain URI': domain.domainUri,
+        'Egress Rule': domain.egressRule || 'None',
+        'Egress Number Ref': domain.egressNumberRef || 'None',
         'Access Deny List': deny,
         'Access Allow List': allow,
-        Created: moment(domain.getCreateTime()).fromNow(),
-        Updated: moment(domain.getUpdateTime()).fromNow()
+        Created: moment(domain.createdTime).fromNow(),
+        Updated: moment(domain.updatedTime).fromNow()
       }
 
       await cli.wait(1000)

@@ -25,31 +25,31 @@ export default class UpdateCommand extends Command {
         name: 'name',
         message: 'domain name',
         type: 'input',
-        default: domain.getName()
+        default: domain.name
       },
       {
         name: 'egressRule',
         message: 'egress rule',
         type: 'input',
-        default: domain.getEgressRule()
+        default: domain.egressRule
       },
       {
         name: 'egressNumberRef',
         message: 'number reference',
         type: 'input',
-        default: domain.getEgressNumberRef()
+        default: domain.egressNumberRef
       },
       {
         name: 'accessDeny',
         message: 'access deny list',
         type: 'input',
-        default: domain.getAccessDenyList().join(',')
+        default: domain.accessDeny.join(',')
       },
       {
         name: 'accessAllow',
         message: 'access allow list',
         type: 'input',
-        default: domain.getAccessAllowList().join(',')
+        default: domain.accessAllow.join(',')
       },
       {
         name: 'confirm',
