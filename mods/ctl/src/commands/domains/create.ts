@@ -93,7 +93,7 @@ export default class CreateCommand extends Command {
         const domain = await domains.createDomain(answers)
         await cli.wait(1000)
 
-        cli.action.stop(domain.getRef())
+        cli.action.stop(domain.ref)
       } catch (e) {
         cli.action.stop()
         if (e.code === 9) {

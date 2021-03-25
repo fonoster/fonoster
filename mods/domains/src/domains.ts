@@ -1,4 +1,6 @@
 import { FonosService, DomainsService, DomainsPB } from '@fonos/core'
+import { CreateDomainRequest, CreateDomainResponse, UpdateDomainRequest,
+UpdateDomainResponse, ListDomainsRequest, ListDomainsResponse, CreateGetResponse } from './types'
 
 /**
  * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
@@ -56,10 +58,10 @@ class Domains extends FonosService {
    *
    * domains.createDomain(request)
    * .then(result => {
-   *   console.log(result)            // returns the Domain object
+   *   console.log(result)            // returns the CreateDomainResponse interface
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createDomain (request: any) {
+  async createDomain (request: CreateDomainRequest): Promise<CreateGetResponse> {
     const domain = new DomainsPB.Domain()
     domain.setName(request.name)
     domain.setDomainUri(request.domainUri)
@@ -71,10 +73,20 @@ class Domains extends FonosService {
     const req = new DomainsPB.CreateDomainRequest()
     req.setDomain(domain)
 
-    return super
+    const res = await super
       .getService()
       .createDomain()
       .sendMessage(req)
+
+    return {
+      ref: res.getRef(),
+      name: res.getName(),
+      domainUri: res.getDomainUri(),
+      egressRule: res.getEgressRule(),
+      egressNumberRef: res.getEgressNumberRef(),
+      accessDeny: res.getAccessDenyList(),
+      accessAllow: res.getAccessAllowList()
+    }
   }
 
   /**
@@ -87,13 +99,29 @@ class Domains extends FonosService {
    *
    * domains.getDomain(ref)
    * .then(result => {
-   *   console.log(result)             // returns the Domain object
+   *   console.log(result)             // returns the CreateGetResponse interface
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getDomain (ref: string) {
+  async getDomain (ref: string): Promise<CreateGetResponse> {
     const request = new DomainsPB.GetDomainRequest()
     request.setRef(ref)
-    return this.service.getDomain().sendMessage(request)
+    
+    const res = await super
+      .getService()
+      .getDomain()
+      .sendMessage(request)
+
+    return {
+      ref: res.getRef(),
+      name: res.getName(),
+      domainUri: res.getDomainUri(),
+      egressRule: res.getEgressRule(),
+      egressNumberRef: res.getEgressNumberRef(),
+      accessDeny: res.getAccessDenyList(),
+      accessAllow: res.getAccessAllowList(),
+      createdTime: res.getCreateTime(),
+      updatedTime: res.getUpdateTime()
+    }
   }
 
   /**
@@ -120,12 +148,14 @@ class Domains extends FonosService {
    *
    * domains.updateDomain(request)
    * .then(result => {
-   *   console.log(result)            // returns the Domain from the DB
+   *   console.log(result)            // returns the UpdateDomainResponse interface
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateDomain (request: any) {
-    const domain = await this.getDomain(request.ref)
-
+  async updateDomain (request: UpdateDomainRequest): Promise<UpdateDomainResponse> {
+    const getDomainRequest = new DomainsPB.GetDomainRequest()
+    getDomainRequest.setRef(request.ref)
+    const domain = await this.getService().getDomain().sendMessage(getDomainRequest)
+    
     if (request.name) domain.setName(request.name)
     if (request.egressRule) domain.setEgressRule(request.egressRule)
     if (request.egressNumberRef)
@@ -136,10 +166,14 @@ class Domains extends FonosService {
     const req = new DomainsPB.UpdateDomainRequest()
     req.setDomain(domain)
 
-    return super
+    const res = await super
       .getService()
       .updateDomain()
       .sendMessage(req)
+
+    return {
+      ref: res.getRef()
+    }
   }
 
   /**
@@ -160,15 +194,15 @@ class Domains extends FonosService {
    *
    * domains.listDomains(request)
    * .then(() => {
-   *   console.log(result)            // returns a ListDomainsResponse object
+   *   console.log(result)            // returns a ListDomainsResponse interface
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listDomains (request: any) {
+  async listDomains (request: ListDomainsRequest): Promise<ListDomainsResponse> {
     const r = new DomainsPB.ListDomainsRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)
     r.setView(request.view)
-    return this.service.listDomains().sendMessage(r)
+    return this.getService().listDomains().sendMessage(r)
   }
 
   /**
@@ -182,10 +216,10 @@ class Domains extends FonosService {
    *
    * domains.deleteDomain(ref)
    * .then(() => {
-   *   console.log('done')            // returns an empty object
+   *   console.log('done')            // returns a reference of the domain
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteDomain (ref: string) {
+  async deleteDomain (ref: string): Promise<string> {
     const req = new DomainsPB.DeleteDomainRequest()
     req.setRef(ref)
     return super
