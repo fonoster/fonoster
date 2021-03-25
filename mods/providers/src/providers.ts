@@ -1,5 +1,5 @@
 import { FonosService, ProvidersService, ProvidersPB } from '@fonos/core'
-
+import { CreateProviderRequest, CreateProviderResponse, UpdateProviderRequest, UpdateProviderResponse } from './types'
 /**
  * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
  * to create, update, get and delete providers. Fonos Providers requires of a
@@ -65,7 +65,7 @@ export default class Providers extends FonosService {
    *   console.log(result)            // returns the Provider object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createProvider (request: any) {
+  async createProvider (request: CreateProviderRequest) : Promise<CreateProviderResponse> {
     const provider = new ProvidersPB.Provider()
     provider.setName(request.name)
     provider.setUsername(request.username)
@@ -130,7 +130,7 @@ export default class Providers extends FonosService {
    *   console.log(result)            // returns the Provider from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateProvider (request: any) {
+  async updateProvider (request: UpdateProviderRequest) {
     const providerFromDB = await this.getProvider(request.ref)
 
     if (request.name) providerFromDB.setName(request.name)
