@@ -1,6 +1,6 @@
 import '../../config'
 import Providers from '@fonos/providers'
-import Numbers from '@fonos/numbers'
+import Numbers from '../../../../numbers/src/numbers'
 import Apps from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
@@ -111,7 +111,7 @@ export default class CreateCommand extends Command {
         const numbers = new Numbers()
         const result = await numbers.createNumber(answers)
         await cli.wait(1000)
-        cli.action.stop(result.getRef())
+        cli.action.stop(result.ref)
       }
     } catch (e) {
       cli.action.stop()

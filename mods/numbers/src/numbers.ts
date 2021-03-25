@@ -5,38 +5,7 @@ import {
   AppManagerPB
 } from '@fonos/core'
 
-
-export interface  Number {
-  ref?:string;
-  providerRef?:string;
-  e164Number?: string;
-  ingressApp?: string;
-  aorLink?:string;
-}
-enum View {
-  BASIC = 0,
-  STANDARD = 1,
-  FULL = 2,
-}
-
-export interface UpdateNumberRequest{
-  ref: string;
-  aorLink?: string;
-  ingressApp?: string;
-}
-
-export interface ListNumbersRequest{
-  pageSize: number;
-  pageToken: string;
-  view: View
-}
-
-export interface IngressAppRequest{
-  e164Number: string
-}
-
-export interface AsObject  {
-}
+import { AsObject, IngressAppRequest, ListNumbersRequest, Number, UpdateNumberRequest,CreateNumberResponse,GetNumberResponse } from './types'
 
 
 /**
@@ -67,7 +36,7 @@ export default class Numbers extends FonosService {
    *
    * @see module:core:FonosService
    */
-  constructor (options?: any) {
+  constructor(options?: any) {
     super(NumbersService.NumbersClient, options)
     super.init()
     const { promisifyAll } = require('grpc-promise')
@@ -100,7 +69,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Number object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createNumber (request: Number): Promise<NumbersPB.Number> {
+  async createNumber(request: Number): Promise<CreateNumberResponse> {
     const number = new NumbersPB.Number()
     number.setProviderRef(request.providerRef)
     number.setE164Number(request.e164Number)
@@ -110,10 +79,19 @@ export default class Numbers extends FonosService {
     const req = new NumbersPB.CreateNumberRequest()
     req.setNumber(number)
 
-    return super
-      .getService()
-      .createNumber()
-      .sendMessage(req)
+    const result = await super
+    .getService()
+    .createNumber()
+    .sendMessage(req);
+
+    const response : CreateNumberResponse = {
+      aorLink:result.getAorLink(),
+      e164Number: result.getE164Number(),
+      ingressApp: result.getIngressApp(),
+      providerRef: result.getProviderRef(),
+      ref: result.getRef()
+    }
+    return response;
   }
 
   /**
@@ -129,10 +107,22 @@ export default class Numbers extends FonosService {
    *   console.log(result)             // returns the Number object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getNumber (ref: string): Promise<NumbersPB.Number> {
+  async getNumber(ref: string): Promise<GetNumberResponse> {
     const request = new NumbersPB.GetNumberRequest()
     request.setRef(ref)
-    return this.getService().getNumber().sendMessage(request)
+    const result =  this.getService().getNumber().sendMessage(request)
+    const response : GetNumberResponse = {
+      aorLink:result.getAorLink(),
+      e164Number: result.getE164Number(),
+      ingressApp: result.getIngressApp(),
+      providerRef: result.getProviderRef(),
+      ref: result.getRef(),
+      createTime: result.getCreateTime(),
+      updateTime: result.getUpdateTime()
+    }
+    console.log(response);
+    
+    return response;
   }
 
   /**
@@ -157,7 +147,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Number from the DB
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateNumber (request: UpdateNumberRequest): Promise<NumbersPB.Number> {
+  async updateNumber(request: UpdateNumberRequest): Promise<NumbersPB.Number> {
     const numberFromDB: any = await this.getNumber(request.ref)
 
     if (request.aorLink && request.ingressApp) {
@@ -204,7 +194,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns a ListNumbersResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listNumbers (request: ListNumbersRequest) : Promise<NumbersPB.Number[]> {    
+  async listNumbers(request: ListNumbersRequest): Promise<NumbersPB.Number[]> {
     const r = new NumbersPB.ListNumbersRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)
@@ -225,7 +215,7 @@ export default class Numbers extends FonosService {
    *   console.log('done')            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteNumber (ref: string) :Promise<AsObject> {
+  async deleteNumber(ref: string): Promise<AsObject> {
     const req = new NumbersPB.DeleteNumberRequest()
     req.setRef(ref)
 
@@ -254,7 +244,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Application
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async getIngressApp (request: IngressAppRequest): Promise<AppManagerPB.App> {
+  async getIngressApp(request: IngressAppRequest): Promise<AppManagerPB.App> {
     const req = new NumbersPB.GetIngressAppRequest()
     req.setE164Number(request.e164Number)
 
@@ -265,7 +255,7 @@ export default class Numbers extends FonosService {
   }
 
   // Internal API
-  getIngressAppSync (request: any): AppManagerPB.App {
+  getIngressAppSync(request: any): AppManagerPB.App {
     const sleep = require('sync').sleep
     let result
     let error

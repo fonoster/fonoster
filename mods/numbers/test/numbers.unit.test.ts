@@ -9,6 +9,9 @@ import {
   FonosService,
   NumbersPB,
 AppManagerPB} from '@fonos/core'
+
+import {CreateNumberResponse} from '../src/types'
+
 const expect = chai.expect
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
@@ -33,23 +36,34 @@ describe('Numbers Service', () => {
   })
 
   it('Creating Number',async () => {
-    const numberReturn = new NumbersPB.Number()
-    numberReturn.setE164Number('test');
+    const numberReturn : CreateNumberResponse ={
+      aorLink:'test',
+      e164Number:'test',
+      ingressApp:'test',
+      providerRef:'test',
+      ref:'test'
+    }
+    const numberReturnPromise = new NumbersPB.Number()
+    numberReturnPromise.setAorLink(numberReturn.aorLink);
+    numberReturnPromise.setIngressApp(numberReturn.ingressApp);
+
+   
     const stubNumber = sandbox.stub(FonosService.prototype,'getService').returns({
       createNumber:() =>{
         return{
-          sendMessage: ((r: any) => Promise.resolve(numberReturn)
+          sendMessage: ((r: any) => Promise.resolve(numberReturnPromise)
           )}
       }
     });
-    let result = await numbers.createNumber({
+    const result :CreateNumberResponse = await numbers.createNumber({
         e164Number: '0000000000',
         ingressApp: 'default'
       })
-      
-      
+        
     expect(stubNumber.calledOnce).to.be.equal(true)
-    expect(numberReturn).to.be.equal(result);
+    expect(numberReturn.aorLink).to.be.equal(result.aorLink);
+    expect(numberReturn.ingressApp).to.be.equal(result.ingressApp);
+
   })
 
   it('Get a number by ref', async () =>{
