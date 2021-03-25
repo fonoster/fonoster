@@ -51,8 +51,11 @@ describe('@fonos/usermanager', () => {
     expect(serviceStub).to.be.calledTwice
     expect(callStub).to.be.calledOnce
     expect(result).to.have.property('firstName')
+    expect(result).to.have.property('firstName').to.be.equal('Test')
     expect(result).to.have.property('lastName')
+    expect(result).to.have.property('lastName').to.be.equal('Test')
     expect(result).to.have.property('email')
+    expect(result).to.have.property('email').to.be.equal('testing@gmail.com')
   })
 })
 

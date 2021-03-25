@@ -1,21 +1,5 @@
 import { FonosService, UserManagerService, UserManagerPB } from '@fonos/core'
-
-interface CreateUserRequest {
-  firstName: string,
-  lastName: string,
-  email : string
-}
-
-interface User {
-  firstName: string,
-  lastName: string,
-  email : string,
-  accessKeyId : string
-  role : string,
-  createTime : string,
-  updateTime : string,
-  status : string
-}
+import {CreateUserRequest, CreateUserResponse} from './types'
 
 /**
  * @classdesc Use Fonos UserManager, a capability of Fonos Systems Manager,
@@ -44,7 +28,7 @@ export default class UserManager extends FonosService {
     promisifyAll(super.getService(), { metadata: super.getMeta() })
   }
 
-  async createUser (request: CreateUserRequest): Promise<User> {
+  async createUser (request: CreateUserRequest): Promise<CreateUserResponse> {
     const user = new UserManagerPB.User();
     user.setFirstName(request.firstName)
     user.setLastName(request.lastName)

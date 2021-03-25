@@ -1,6 +1,6 @@
 import UserModel, { User } from '../models/user'
 
-class UserOperation {
+export default class UserOperation {
   public async getUsers () {
     const users = await UserModel.find()
     return users
