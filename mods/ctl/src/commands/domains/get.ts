@@ -36,8 +36,8 @@ export default class GetCommand extends Command {
         'Egress Number Ref': domain.egressNumberRef || 'None',
         'Access Deny List': deny,
         'Access Allow List': allow,
-        Created: moment(domain.createdTime).fromNow(),
-        Updated: moment(domain.updatedTime).fromNow()
+        Created: moment(domain.createTime).fromNow(),
+        Updated: moment(domain.updateTime).fromNow()
       }
 
       await cli.wait(1000)

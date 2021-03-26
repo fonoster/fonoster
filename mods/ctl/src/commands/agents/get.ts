@@ -23,7 +23,7 @@ export default class GetCommand extends Command {
         Name: agent.getName(),
         Username: agent.getUsername(),
         // Privacy: agent.getPrivacy(),
-        Domains: agent.getDomainsList().join(','),
+        Domains: agent.domains.join(','),
         Created: moment(agent.getCreateTime()).fromNow(),
         Updated: moment(agent.getUpdateTime()).fromNow()
       }

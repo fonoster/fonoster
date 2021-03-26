@@ -4,6 +4,7 @@ import { CLIError } from '@oclif/errors'
 import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
 import { CommonPB, DomainsPB } from '@fonos/core'
+import { Domain } from '@fonos/domains/src/types'
 const Table = require('easy-table')
 
 export default class ListCommand extends Command {
@@ -31,8 +32,8 @@ export default class ListCommand extends Command {
       while (true) {
         // Get a list
         const result = await domains.listDomains({ pageSize, pageToken, view })
-        const list = result.getDomainsList()
-        pageToken = result.getNextPageToken()
+        const list = result.domains
+        pageToken = result.nextPageToken
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
@@ -44,15 +45,15 @@ export default class ListCommand extends Command {
 
         const t = new Table()
 
-        list.forEach((domain: DomainsPB.Domain) => {
-          const egressRule = domain.getEgressNumberRef()
-            ? domain.getEgressRule()
+        list.forEach((domain: Domain) => {
+          const egressRule = domain.egressNumberRef
+            ? domain.egressRule
             : 'na'
-          t.cell('Ref', domain.getRef())
-          t.cell('Name', domain.getName())
-          t.cell('Domain URI', domain.getDomainUri())
+          t.cell('Ref', domain.ref)
+          t.cell('Name', domain.name)
+          t.cell('Domain URI', domain.domainUri)
           t.cell('Egress Rule', egressRule)
-          t.cell('Egress Number Ref', domain.getEgressNumberRef())
+          t.cell('Egress Number Ref', domain.egressNumberRef)
           t.newRow()
         })
 

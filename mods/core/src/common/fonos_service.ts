@@ -1,5 +1,6 @@
 import { configExist } from '@fonos/certs'
 import { getClientCredentials } from '../common/trust_util'
+import { ServiceOptions } from './types'
 import * as fs from 'fs'
 import * as path from 'path'
 import grpc from './grpc_hack'
@@ -15,7 +16,7 @@ const getConfigFile = () =>
     .toString()
     .trim()
 
-const defaultOptions = {
+const defaultOptions: ServiceOptions = {
   endpoint: process.env.APISERVER_ENDPOINT || 'localhost:50052',
   // Drepecated env FS_DEFAULT_STORAGE_BUCKET
   bucket: process.env.FS_DEFAULT_STORAGE_BUCKET
@@ -42,7 +43,7 @@ export default class {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  constructor (ServiceClient?: unknown, options: any = {}) {
+  constructor (ServiceClient: unknown, options: ServiceOptions = {}) {
     this.ServiceClient = ServiceClient
     this.options = merge(defaultOptions, options)
   }
