@@ -26,10 +26,14 @@
     "@types/google-protobuf": "^3.7.2",
     "@types/mocha": "^8.2.0",
     "@types/sinon-chai": "^3.2.4",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
     "chai": "^4.0.0-canary.2",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.2",
     "dedent": "^0.7.0",
+    "eslint": "^7.22.0",
+    "eslint-config-google": "^0.14.0",
     "grpc_tools_node_protoc_ts": "^5.1.1",
     "husky": "^5.0.9",
     "jsdoc-to-markdown": "^6.0.1",
@@ -43,7 +47,11 @@
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.1.5",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-security": "^1.4.0",
+    "prettier": "^2.0.5"
   },
   "lint-staged": {
     "mods/**/*.ts": [
