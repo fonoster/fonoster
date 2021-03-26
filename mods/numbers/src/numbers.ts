@@ -32,6 +32,7 @@ import {
   NumbersService,
   NumbersPB,
   AppManagerPB,
+  ServiceOptions
 } from '@fonos/core'
 
 /**
@@ -62,7 +63,7 @@ export default class Numbers extends FonosService {
    *
    * @see module:core:FonosService
    */
-  constructor(options?: any) {
+  constructor(options?: ServiceOptions) {
     super(NumbersService.NumbersClient, options)
     super.init()
     const { promisifyAll } = require('grpc-promise')
@@ -72,7 +73,7 @@ export default class Numbers extends FonosService {
   /**
    * Creates a new Number on the SIP Proxy subsystem.
    *
-   * @param {Object} request -  Request for the provision of a new Number
+   * @param {CreateNumberRequest} request -  Request for the provision of a new Number
    * @param {string} request.providerRef - Idenfier to the Provider this Number belongs
    * with
    * @param {string} request.e164_number - A valid number @ Provider
@@ -81,7 +82,7 @@ export default class Numbers extends FonosService {
    * @param {string} request.ingress_app - An Application where ingress calls
    * will be directed to
    * @note You can only provider an aorLink or an ingressApp but no both
-   * @return {Promise<Number>}
+   * @return {Promise<CreateNumberResponse>}
    * @example
    *
    * const request = {
@@ -92,7 +93,7 @@ export default class Numbers extends FonosService {
    *
    * numbers.createNumber(request)
    * .then(result => {
-   *   console.log(result)            // returns the Number object
+   *   console.log(result)            // returns the CreateNumberResponse interface
    * }).catch(e => console.error(e))  // an error occurred
    */
   async createNumber(request: CreateNumberRequest): Promise<CreateNumberResponse> {
@@ -105,19 +106,18 @@ export default class Numbers extends FonosService {
     const req = new NumbersPB.CreateNumberRequest()
     req.setNumber(number)
 
-    const result = await super
+    const res = await super
       .getService()
       .createNumber()
       .sendMessage(req);
 
-    const response: CreateNumberResponse = {
-      aorLink: result.getAorLink(),
-      e164Number: result.getE164Number(),
-      ingressApp: result.getIngressApp(),
-      providerRef: result.getProviderRef(),
-      ref: result.getRef()
+    return {
+      aorLink: res.getAorLink(),
+      e164Number: res.getE164Number(),
+      ingressApp: res.getIngressApp(),
+      providerRef: res.getProviderRef(),
+      ref: res.getRef()
     }
-    return response;
   }
 
   /**
@@ -134,31 +134,30 @@ export default class Numbers extends FonosService {
    * }).catch(e => console.error(e))   // an error occurred
    */
   async getNumber(ref: string): Promise<GetNumberResponse> {
-    const request = new NumbersPB.GetNumberRequest()
-    request.setRef(ref)
-    const result = await this.getService().getNumber().sendMessage(request)
-    const response: GetNumberResponse = {
-      aorLink: result.getAorLink(),
-      e164Number: result.getE164Number(),
-      ingressApp: result.getIngressApp(),
-      providerRef: result.getProviderRef(),
-      ref: result.getRef(),
-      createTime: result.getCreateTime(),
-      updateTime: result.getUpdateTime()
+    const req = new NumbersPB.GetNumberRequest()
+    req.setRef(ref)
+    const res = await this.getService().getNumber().sendMessage(req)
+    return  {
+      aorLink: res.getAorLink(),
+      e164Number: res.getE164Number(),
+      ingressApp: res.getIngressApp(),
+      providerRef: res.getProviderRef(),
+      ref: res.getRef(),
+      createTime: res.getCreateTime(),
+      updateTime: res.getUpdateTime()
     }
-    return response;
   }
 
   /**
    * Update a Number at the SIP Proxy subsystem.
    *
-   * @param {Object} request - Request for the update of an existing Number
+   * @param {UpdateNumberRequest} request - Request for the update of an existing Number
    * @param {string} request.aorLink - An AOR where ingress calls will be
    * directed to
    * @param {string} request.ingress_app - An Application where ingress calls
    * will be directed to
    * @note You can only provider an aorLink or an ingressApp but no both
-   * @return {Promise<Number>}
+   * @return {Promise<UpdateNumberResponse>}
    * @example
    *
    * const request = {
@@ -207,12 +206,12 @@ export default class Numbers extends FonosService {
   /**
    * List the Numbers registered in Fonos SIP Proxy subsystem.
    *
-   * @param {Object} request
+   * @param {ListNumbersRequest} request
    * @param {number} request.pageSize - Number of element per page
    * (defaults to 20)
    * @param {string} request.pageToken - The next_page_token value returned from
    * a previous List request, if any
-   * @return {Promise<Number>} List of Numbers
+   * @return {Promise<ListNumbersResponse>} List of Numbers
    * @example
    *
    * const request = {
@@ -230,7 +229,21 @@ export default class Numbers extends FonosService {
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)
     r.setView(request.view)
-    return this.getService().listNumbers().sendMessage(r)
+    const paginatedList = await this.getService().listNumbers().sendMessage(r);
+    return {
+      nextPageToken: paginatedList.getNextPageToken(),
+      numbers: paginatedList.getNumbersList().map((n:NumbersPB.Number) => {
+        return {
+          ref: n.getRef(),
+          providerRef: n.getProviderRef(),
+          e164Number: n.getE164Number(),
+          ingressApp: n.getIngressApp(),
+          aorLink: n.getAorLink(),
+          createTime: n.getCreateTime(),
+          updateTime: n.getUpdateTime()
+        }
+      })
+    };
   }
 
   /**
@@ -250,16 +263,14 @@ export default class Numbers extends FonosService {
     const req = new NumbersPB.DeleteNumberRequest()
     req.setRef(ref)
 
-    const result = await  super
+    await  super
     .getService()
     .deleteNumber()
     .sendMessage(req)
 
-    const response : deleteNumberResponse = {
-      ref:ref
+    return {
+      ref
     }
-
-    return response;
   }
 
   /**

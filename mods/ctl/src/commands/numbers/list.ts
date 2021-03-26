@@ -1,9 +1,11 @@
 import '../../config'
-import Numbers from '../../../../numbers/src/numbers'
+import Numbers from '@fonos/numbers'
 import { CLIError } from '@oclif/errors'
 import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
 import { CommonPB, NumbersPB } from '@fonos/core'
+import { Number } from '@fonos/numbers/src/types'
+
 const Table = require('easy-table')
 
 export default class ListCommand extends Command {
@@ -37,8 +39,8 @@ export default class ListCommand extends Command {
           pageToken,
           view
         })
-        const list = result.getNumbersList()
-        pageToken = result.getNextPageToken()
+        const list = result.numbers;
+        pageToken = result.nextPageToken;
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
@@ -50,12 +52,12 @@ export default class ListCommand extends Command {
 
         const t = new Table()
 
-        list.forEach((number: NumbersPB.Number) => {
-          t.cell('Ref', number.getRef())
-          t.cell('Provider Ref', number.getProviderRef())
-          t.cell('E164 Number', number.getE164Number())
-          t.cell('AOR Link', number.getAorLink() || '--')
-          t.cell('Ingress App', number.getIngressApp() || '--')
+        list.forEach((number: Number) => {
+          t.cell('Ref', number.ref)
+          t.cell('Provider Ref', number.providerRef)
+          t.cell('E164 Number', number.e164Number)
+          t.cell('AOR Link', number.aorLink || '--')
+          t.cell('Ingress App', number.ingressApp || '--')
           t.newRow()
         })
 

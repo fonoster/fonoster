@@ -21,10 +21,10 @@ export default class CreateCommand extends Command {
 
     const numbers = new Numbers()
     const result = await numbers.listNumbers({ pageSize: 20, pageToken: '1', view})
-    const nums = result.getNumbersList().map((n:any) => {
+    const nums = result.numbers.map((n:any) => {
       return {
-        value: n.getRef(),
-        name: n.getE164Number()
+        value: n.ref,
+        name: n.e164Number
       }
     })
     nums.unshift({

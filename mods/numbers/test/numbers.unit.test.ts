@@ -20,7 +20,10 @@ const sandbox = sinon.createSandbox()
 
 describe('@fonos/number', () => {
   let numbers: any
-
+  const numberObj = new NumbersPB.Number();
+  numberObj.setRef("Nx05y-ldZa");
+  numberObj.setUpdateTime("...");
+  numberObj.setCreateTime("...");
   before(() => {
     numbers = new Numbers()
     // TODO Create provider and app if doesn't exist
@@ -111,13 +114,26 @@ describe('@fonos/number', () => {
     const stubNumber = sandbox.stub(FonosService.prototype, 'getService').returns({
       listNumbers: () => {
         return {
-          sendMessage: (() => Promise.resolve([])
+          sendMessage: (() => Promise.resolve({
+            getNextPageToken: () =>{
+              return '1'
+            },
+            getNumbersList:() => [numberObj]
+          })
           )
         }
       }
     });
-    let result = await numbers.listNumbers({ pageSize: 0, pageToken: 0, view: 0 });
+    const request = {
+      pageSize: 0,
+      pageToken: "1",
+      view: 0
+    };
+    let result = await numbers.listNumbers(request);
     expect(stubNumber.calledOnce).to.be.equal(true)
+    expect(result).to.have.property("nextPageToken").to.be.equal("1");
+    expect(result.numbers[0]).to.have.property("ref").to.be.equal("Nx05y-ldZa");
+
   })
 
   it('Should return error with aorLink and ingressApp', async () => {
