@@ -69,7 +69,7 @@ export default class CreateCommand extends Command {
       },*/
       {
         name: 'confirm',
-        message: 'does everything look good?',
+        message: 'everything looks good?',
         type: 'confirm'
       }
     ])
@@ -93,7 +93,7 @@ export default class CreateCommand extends Command {
         const domain = await domains.createDomain(answers)
         await cli.wait(1000)
 
-        cli.action.stop(domain.getRef())
+        cli.action.stop(domain.ref)
       } catch (e) {
         cli.action.stop()
         if (e.code === 9) {

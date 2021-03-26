@@ -77,6 +77,7 @@ class REncoder {
 
     this.spec.credentials = { username, secret }
 
+    if (!secret) delete this.spec.credentials.secret
     // We removed if both are empty because Gateways may not have credentials
     if (!username && !secret) delete this.spec.credentials
 

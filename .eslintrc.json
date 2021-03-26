@@ -1,0 +1,34 @@
+{
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "prettier",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:security/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 11,
+        "sourceType": "module"
+    },
+    "plugins": ["@typescript-eslint", "security", "prettier"],
+    "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/ban-ts-comment": "warn",
+        "security/detect-eval-with-expression": "error",
+        "linebreak-style": ["error", "windows"],
+        "quotes": ["warn", "single"],
+        "semi": ["error", "never"],
+        "no-useless-escape": "off",
+        "no-duplicate-imports": "warn",
+        "comma-dangle": ["error", "only-multiline"],
+        "prettier/prettier": ["error", {
+        "endOfLine": "auto"
+    }]
+  }
+}

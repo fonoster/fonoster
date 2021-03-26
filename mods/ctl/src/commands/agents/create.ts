@@ -43,8 +43,8 @@ export default class extends Command {
         mask: true
       },
       {
-        name: 'domains',
-        message: 'domains',
+        name: 'domain',
+        message: 'domain',
         type: 'list',
         choices: domains
       },
@@ -57,10 +57,12 @@ export default class extends Command {
       },
       {
         name: 'confirm',
-        message: 'does everything look good?',
+        message: 'everything looks good?',
         type: 'confirm'
       }
     ])
+
+    answers.domains = [answers.domain]
 
     if (!answers.confirm) {
       console.log('Aborted')
