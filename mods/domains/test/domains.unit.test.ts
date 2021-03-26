@@ -39,7 +39,7 @@ describe("@Fonos/domains", () => {
   domainObj.setEgressRule(".*");
   domainObj.setEgressNumberRef("cb8V0CNTfH");
   domainObj.setAccessDenyList(["10.0.0.1"]);
-  domainObj.setAccessAllowList(["10.0.0.1"]);
+  domainObj.setAccessAllowList(["10.0.0.2"]);
   domainObj.setUpdateTime("...");
   domainObj.setCreateTime("...");
 
@@ -60,7 +60,7 @@ describe("@Fonos/domains", () => {
       });
 
     const req = {
-      name: "Acme Corp",
+      name: "Walmart",
       domainUri: "sip.acme.com",
       egressRule: ".*",
       egressNumberRef: "cb8V0CNTfH"

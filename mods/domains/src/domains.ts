@@ -17,19 +17,19 @@
  * limitations under the License.
  */
 import { 
-  CreateDomainRequest, 
-  CreateDomainResponse, 
-  UpdateDomainRequest, 
-  UpdateDomainResponse, 
-  ListDomainsRequest, 
-  ListDomainsResponse, 
-  GetDomainResponse, 
-  DeleteDomainResponse 
+  CreateDomainRequest,
+  CreateDomainResponse,
+  UpdateDomainRequest,
+  UpdateDomainResponse,
+  ListDomainsRequest,
+  ListDomainsResponse,
+  GetDomainResponse,
+  DeleteDomainResponse
 } from "./types";
-import { 
-  FonosService, 
-  DomainsService, 
-  DomainsPB, 
+import {
+  FonosService,
+  DomainsService,
+  DomainsPB,
   ServiceOptions
 } from "@fonos/core";
 
@@ -161,7 +161,7 @@ export default class Domains extends FonosService {
   /**
    * Update a Domain at the SIP Proxy subsystem.
    *
-   * @param {Object} request - Request for the update of an existing Domain
+   * @param {UpdateDomainRequest} request - Request for the update of an existing Domain
    * @param {string} request.ref - To update a Domain you must provide its reference
    * @param {string} request.name - Friendly name for the SIP domain
    * @param {string} request.egressNumberRef - A valid reference to a Number in Fonos
@@ -182,7 +182,7 @@ export default class Domains extends FonosService {
    *
    * domains.updateDomain(request)
    * .then(result => {
-   *   console.log(result)            // returns the UpdateDomainResponse interface
+   *   console.log(result)             // returns the UpdateDomainResponse interface
    * }).catch(e => console.error(e));  // an error occurred
    */
   async updateDomain (request: UpdateDomainRequest): Promise<UpdateDomainResponse> {
