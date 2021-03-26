@@ -54,11 +54,11 @@ export default class Domains extends FonosService {
    *
    * @see module:core:FonosService
    */
-  constructor (options?: any) {
-    super(DomainsService.DomainsClient, options)
-    super.init()
-    const promisifyAll = require('grpc-promise').promisifyAll
-    promisifyAll(super.getService(), { metadata: super.getMeta() })
+  constructor (options?: ServiceOptions) {
+    super(DomainsService.DomainsClient, options);
+    super.init();
+    const promisifyAll = require('grpc-promise').promisifyAll;
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
