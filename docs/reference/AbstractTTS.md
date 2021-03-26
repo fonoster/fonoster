@@ -1,7 +1,9 @@
 <a name="AbstractTTS"></a>
 
 ## AbstractTTS
-A building block for new TTS engines. You might use this classto create integration with ANY TTS by providing the abstracted functions, andwith help of the `tts/utils.`
+A building block for new TTS engines. You might use this class
+to create integration with ANY TTS by providing the abstracted functions, and
+with help of the `tts/utils.`
 
 **Kind**: global class  
 **See**: module:tts:MaryTTS  
