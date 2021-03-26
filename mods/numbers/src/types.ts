@@ -1,9 +1,9 @@
-export interface Number {
-    ref?: string;
-    providerRef?: string;
-    e164Number?: string;
-    ingressApp?: string;
-    aorLink?: string;
+export interface CreateNumberRequest {
+    ref: string;
+    providerRef: string;
+    e164Number: string;
+    ingressApp: string;
+    aorLink: string;
   }
   enum View {
     BASIC = 0,
@@ -16,11 +16,19 @@ export interface Number {
     aorLink?: string;
     ingressApp?: string;
   }
+
+  export interface UpdateNumberResponse {
+    ref: string;
+  }
   
   export interface ListNumbersRequest {
     pageSize: number;
     pageToken: string;
     view: View
+  }
+
+  export interface deleteNumberResponse{
+    ref:string
   }
   
   export interface CreateNumberResponse{

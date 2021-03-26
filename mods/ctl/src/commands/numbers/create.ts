@@ -1,6 +1,6 @@
 import '../../config'
 import Providers from '@fonos/providers'
-import Numbers from '../../../../numbers/src/numbers'
+import Numbers from '@fonos/numbers'
 import Apps from '@fonos/appmanager'
 import { CLIError } from '@oclif/errors'
 import { Command } from '@oclif/command'
