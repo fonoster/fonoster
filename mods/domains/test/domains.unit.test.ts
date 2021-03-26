@@ -60,7 +60,7 @@ describe("@Fonos/domains", () => {
       });
 
     const req = {
-      name: "Walmart",
+      name: "Acme Corp",
       domainUri: "sip.acme.com",
       egressRule: ".*",
       egressNumberRef: "cb8V0CNTfH"
