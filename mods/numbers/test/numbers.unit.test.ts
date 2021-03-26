@@ -18,7 +18,7 @@ chai.use(sinonChai)
 chai.use(chaiAsPromised)
 const sandbox = sinon.createSandbox()
 
-describe('Numbers Service', () => {
+describe('@fonos/number', () => {
   let numbers: any
 
   before(() => {
@@ -31,7 +31,7 @@ describe('Numbers Service', () => {
     sinon.restore();
   })
 
-  it('Creating Number', async () => {
+  it('should create a number', async () => {
     const numberReturn: CreateNumberResponse = {
       aorLink: 'test',
       e164Number: 'test',
@@ -63,7 +63,7 @@ describe('Numbers Service', () => {
 
   })
 
-  it('Get a number by ref', async () => {
+  it('should get a number by ref', async () => {
     const numberReturn: CreateNumberResponse = {
       aorLink: 'test',
       e164Number: 'test',
@@ -89,7 +89,7 @@ describe('Numbers Service', () => {
     expect(numberReturn.ingressApp).to.be.equal(result.ingressApp);
   })
 
-  it('Deleting a number', async () => {
+  it('should delete a number', async () => {
     const refReturn = {
       ref:'ref'
     }
@@ -107,7 +107,7 @@ describe('Numbers Service', () => {
     expect(refReturn.ref).to.be.equal(result.ref);
   })
 
-  it('Listing a number', async () => {
+  it('should get a number list', async () => {
     const stubNumber = sandbox.stub(FonosService.prototype, 'getService').returns({
       listNumbers: () => {
         return {
