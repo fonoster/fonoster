@@ -252,7 +252,7 @@ export default class Domains extends FonosService {
           updateTime: d.getUpdateTime(),
         }
       })
-    }
+    };
   }
 
   /**
