@@ -91,7 +91,7 @@ describe('@fonos/number', () => {
 
   it('should delete a number', async () => {
     const refReturn = {
-      ref:'ref'
+      ref: 'ref'
     }
     const stubNumber = sandbox.stub(FonosService.prototype, 'getService').returns({
       deleteNumber: () => {
@@ -139,7 +139,7 @@ describe('@fonos/number', () => {
     });
     sandbox.stub(numbers, 'getNumber').returns({})
     sinon.spy(numbers, 'updateNumber')
-    expect(numbers.updateNumber(request)).to.eventually.be.rejectedWith('are not compatible parameters') 
+    expect(numbers.updateNumber(request)).to.eventually.be.rejectedWith('are not compatible parameters')
   })
   it('Should return error with no aorLink and ingressApp', async () => {
     let request = {
@@ -155,11 +155,11 @@ describe('@fonos/number', () => {
     });
     sandbox.stub(numbers, 'getNumber').returns({})
     sinon.spy(numbers, 'updateNumber')
-    expect(numbers.updateNumber(request)).to.eventually.be.rejectedWith('You must provider either') 
+    expect(numbers.updateNumber(request)).to.eventually.be.rejectedWith('You must provider either')
   })
   it('Should udpdate a number with aorLink', async () => {
     let request = {
-      ref:'x',
+      ref: 'x',
       aorLink: "x"
     };
     const returnNumberDb = new NumbersPB.Number();
@@ -185,7 +185,7 @@ describe('@fonos/number', () => {
   })
   it('Should udpdate a number with ingressApp', async () => {
     let request = {
-      ref:'x',
+      ref: 'x',
       ingressApp: "test"
     };
     const returnNumberDb = new NumbersPB.Number();

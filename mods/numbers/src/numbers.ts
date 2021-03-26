@@ -1,10 +1,21 @@
-import {
-  FonosService,
-  NumbersService,
-  NumbersPB,
-  AppManagerPB
-} from '@fonos/core'
-
+/* 
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {
   IngressAppRequest, 
   ListNumbersRequest, 
@@ -13,9 +24,15 @@ import {
   UpdateNumberRequest, 
   CreateNumberResponse, 
   GetNumberResponse,
-  deleteNumberResponse
+  deleteNumberResponse,
+  ListNumbersResponse
  } from './types'
-
+ import {
+  FonosService,
+  NumbersService,
+  NumbersPB,
+  AppManagerPB,
+} from '@fonos/core'
 
 /**
  * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
@@ -208,7 +225,7 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns a ListNumbersResponse object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listNumbers(request: ListNumbersRequest): Promise<NumbersPB.Number[]> {
+  async listNumbers(request: ListNumbersRequest): Promise<ListNumbersResponse> {
     const r = new NumbersPB.ListNumbersRequest()
     r.setPageSize(request.pageSize)
     r.setPageToken(request.pageToken)

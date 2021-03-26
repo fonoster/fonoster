@@ -1,5 +1,5 @@
 import '../../config'
-import Numbers from '@fonos/numbers'
+import Numbers from '../../../../numbers/src/numbers'
 import { CLIError } from '@oclif/errors'
 import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
