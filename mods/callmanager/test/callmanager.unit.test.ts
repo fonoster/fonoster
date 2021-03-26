@@ -58,9 +58,9 @@ describe('@fonos/callmanager', () => {
     // Once in the constructor and one in the call function
     expect(serviceStub).to.be.calledTwice
     expect(callStub).to.be.calledOnce
-    expect(result).to.have.property('from')
-    expect(result).to.have.property('to')
-    expect(result).to.have.property('app')
-    expect(result).to.have.property('duration')
+    expect(result).to.have.property('from').to.be.equal('9102104343')
+    expect(result).to.have.property('to').to.be.equal('17853178070')
+    expect(result).to.have.property('app').to.be.equal('default')
+    expect(result).to.have.property('duration').not.to.be.null
   })
 })

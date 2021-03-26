@@ -1,7 +1,9 @@
 <a name="Numbers"></a>
 
 ## Numbers ⇐ <code>FonosService</code>
-Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,to create, update, get and delete numbers. Fonos Numbers requires of arunning Fonos deployment.
+Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
+to create, update, get and delete numbers. Fonos Numbers requires of a
+running Fonos deployment.
 
 **Kind**: global class  
 **Extends**: <code>FonosService</code>  
@@ -23,7 +25,19 @@ Constructs a new Numbers object.
 
 **Example**  
 ```js
-const Fonos = require('@fonos/sdk')const numbers = new Fonos.Numbers()const request = {  providerRef: '516f1577bcf86cd797439012',  e164Number: '+17853177343',  ingressApp: 'hello-monkeys'}numbers.createNumber(request).then(result => {  console.log(result)             // successful response}).catch(e => console.error(e))   // an error occurred
+const Fonos = require('@fonos/sdk')
+const numbers = new Fonos.Numbers()
+
+const request = {
+  providerRef: '516f1577bcf86cd797439012',
+  e164Number: '+17853177343',
+  ingressApp: 'hello-monkeys'
+}
+
+numbers.createNumber(request)
+.then(result => {
+  console.log(result)             // successful response
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Numbers+createNumber"></a>
 
@@ -43,7 +57,16 @@ Creates a new Number on the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {  providerRef: '516f1577bcf86cd797439012',  e164Number: '+17853177343',  aorLink: 'sip:1001@sip.local'}numbers.createNumber(request).then(result => {  console.log(result)            // returns the Number object}).catch(e => console.error(e))  // an error occurred
+const request = {
+  providerRef: '516f1577bcf86cd797439012',
+  e164Number: '+17853177343',
+  aorLink: 'sip:1001@sip.local'
+}
+
+numbers.createNumber(request)
+.then(result => {
+  console.log(result)            // returns the Number object
+}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Numbers+getNumber"></a>
 
@@ -63,7 +86,10 @@ Retrives a Number by its reference.
 
 **Example**  
 ```js
-numbers.getNumber(ref).then(result => {  console.log(result)             // returns the Number object}).catch(e => console.error(e))   // an error occurred
+numbers.getNumber(ref)
+.then(result => {
+  console.log(result)             // returns the Number object
+}).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Numbers+updateNumber"></a>
 
@@ -81,7 +107,15 @@ Update a Number at the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {  ref: '516f1577bcf86cd797439012',  aorLink: 'sip:1001@sip.local'}numbers.updateNumber(request).then(result => {  console.log(result)            // returns the Number from the DB}).catch(e => console.error(e))  // an error occurred
+const request = {
+  ref: '516f1577bcf86cd797439012',
+  aorLink: 'sip:1001@sip.local'
+}
+
+numbers.updateNumber(request)
+.then(result => {
+  console.log(result)            // returns the Number from the DB
+}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Numbers+listNumbers"></a>
 
@@ -99,7 +133,15 @@ List the Numbers registered in Fonos SIP Proxy subsystem.
 
 **Example**  
 ```js
-const request = {   pageSize: 20,   pageToken: 2}numbers.listNumbers(request).then(() => {  console.log(result)            // returns a ListNumbersResponse object}).catch(e => console.error(e))  // an error occurred
+const request = {
+   pageSize: 20,
+   pageToken: 2
+}
+
+numbers.listNumbers(request)
+.then(() => {
+  console.log(result)            // returns a ListNumbersResponse object
+}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Numbers+deleteNumber"></a>
 
@@ -114,7 +156,12 @@ Deletes a Number from SIP Proxy subsystem.
 
 **Example**  
 ```js
-const ref = '507f1f77bcf86cd799439011'numbers.deleteNumber(ref).then(() => {  console.log('done')            // returns an empty object}).catch(e => console.error(e))  // an error occurred
+const ref = '507f1f77bcf86cd799439011'
+
+numbers.deleteNumber(ref)
+.then(() => {
+  console.log('done')            // returns an empty object
+}).catch(e => console.error(e))  // an error occurred
 ```
 <a name="Numbers+getIngressApp"></a>
 
@@ -134,5 +181,12 @@ Get the Ingress App for a given e164 number.
 
 **Example**  
 ```js
-const request = {   e164Number: '+17853178071'}numbers.getIngressApp(request).then(result => {  console.log(result)            // returns the Application}).catch(e => console.error(e))  // an error occurred
+const request = {
+   e164Number: '+17853178071'
+}
+
+numbers.getIngressApp(request)
+.then(result => {
+  console.log(result)            // returns the Application
+}).catch(e => console.error(e))  // an error occurred
 ```

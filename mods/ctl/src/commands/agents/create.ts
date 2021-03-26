@@ -22,8 +22,8 @@ export default class extends Command {
       pageToken: '1'
     })
     const domains = response
-      .getDomainsList()
-      .map((app: any) => app.getDomainUri())
+      .domains
+      .map((app: any) => app.domainUri)
 
     const answers: any = await inquirer.prompt([
       {
