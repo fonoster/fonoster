@@ -1,8 +1,8 @@
-import { promisify } from 'util'
-import { sign, verify } from 'jsonwebtoken'
-import logger from '@fonos/logger'
-import JwtPayload from './jwt_payload'
-import ITokenManager from './itoken_manager'
+import { promisify } from "util";
+import { sign, verify } from "jsonwebtoken";
+import logger from "@fonos/logger";
+import JwtPayload from "./jwt_payload";
+import ITokenManager from "./itoken_manager";
 /*
  * issuer 		— Organization who issue the toke.
  * role       — User role
@@ -12,34 +12,34 @@ import ITokenManager from './itoken_manager'
  */
 
 export default class JWT implements ITokenManager {
-  async encode (
+  async encode(
     payload: JwtPayload,
     privateKey: string,
-    expiration: String = '30d'
+    expiration = "30d"
   ): Promise<string> {
-    if (!privateKey) throw new Error('Token generation failure')
+    if (!privateKey) throw new Error("Token generation failure");
     // @ts-ignore
     return promisify(sign)({ ...payload }, privateKey, {
       expiresIn: expiration
-    })
+    });
   }
 
   /**
    * Returns the decoded payload if the signature is valid even if it is expired
    */
-  async decode (
+  async decode(
     token: string,
     privateKey: string,
-    ignorateExpiration: boolean = true
+    ignorateExpiration = true
   ): Promise<JwtPayload> {
     try {
       // @ts-ignore
       return (await promisify(verify)(token, privateKey, {
         ignoreExpiration: ignorateExpiration
-      })) as JwtPayload
+      })) as JwtPayload;
     } catch (e) {
-      logger.log('error', '@fonos/auth [Bad token]')
-      throw new Error(e)
+      logger.log("error", "@fonos/auth [Bad token]");
+      throw new Error(e);
     }
   }
 }

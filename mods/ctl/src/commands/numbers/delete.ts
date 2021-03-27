@@ -1,20 +1,22 @@
-import Command from '../../base/delete'
-import Numbers from '@fonos/numbers'
-import { CLIError } from '@oclif/errors'
+import Command from "../../base/delete";
+import Numbers from "@fonos/numbers";
+import { CLIError } from "@oclif/errors";
 
 export default class DeleteCommand extends Command {
-  static description = 'remove a number from a Fonos deployment'
-  static args = [{ name: 'ref' }]
-  static aliases = ['numbers:del', 'numbers:rm']
+  static description = "remove a number from a Fonos deployment";
+  static args = [{ name: "ref" }];
+  static aliases = ["numbers:del", "numbers:rm"];
 
-  async run () {
+  async run() {
     try {
-      await super.deleteResource(new Numbers(), 'deleteNumber')
-    } catch(e) {
+      await super.deleteResource(new Numbers(), "deleteNumber");
+    } catch (e) {
       if (e.code === 9) {
-        throw new CLIError('Unable to remove! Please ensure no Domain is using this Number')
+        throw new CLIError(
+          "Unable to remove! Please ensure no Domain is using this Number"
+        );
       } else {
-        throw new CLIError(e.message)
+        throw new CLIError(e.message);
       }
     }
   }

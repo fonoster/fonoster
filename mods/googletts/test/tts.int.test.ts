@@ -1,26 +1,26 @@
-import GoogleTTS from '../src/google_tts'
-import chai from 'chai'
-import sinon from 'sinon'
-import sinonChai from 'sinon-chai'
-import chaiAsPromised from 'chai-as-promised'
-import { join } from 'path'
+import GoogleTTS from "../src/google_tts";
+import chai from "chai";
+import sinon from "sinon";
+import sinonChai from "sinon-chai";
+import chaiAsPromised from "chai-as-promised";
+import { join } from "path";
 //import http from 'http'
 //import fs from 'fs'
 //import path from 'path'
 //import textToSpeech from '@google-cloud/text-to-speech'
-const { transcode } = require('@fonos/tts')
+const { transcode } = require("@fonos/tts");
 
-const expect = chai.expect
-chai.use(sinonChai)
-chai.use(chaiAsPromised)
-const sandbox = sinon.createSandbox()
+const expect = chai.expect;
+chai.use(sinonChai);
+chai.use(chaiAsPromised);
+const sandbox = sinon.createSandbox();
 
-if (process.env.NODE_ENV === 'dev') {
-  require('dotenv').config({ path: join(__dirname, '..', '..', '.env') })
+if (process.env.NODE_ENV === "dev") {
+  require("dotenv").config({ path: join(__dirname, "..", "..", ".env") });
 }
 
-describe('@fonos/googletts', () => {
-  afterEach(() => sandbox.restore())
+describe("@fonos/googletts", () => {
+  afterEach(() => sandbox.restore());
 
   /*it('rejects if the TTS because could not find default credentials', () => {
     process.env.GOOGLE_APPLICATION_CREDENTIALS = void(0)
@@ -38,19 +38,19 @@ describe('@fonos/googletts', () => {
     expect(synthesizeSpeech).to.not.have.been.called
   })*/
 
-  it('synthesizes text and returns path to file', async () => {
+  it("synthesizes text and returns path to file", async () => {
     const config = {
-      projectId: 'clever-tube-275321',
-      keyFilename: '/Users/pedrosanders/Projects/fonos/credentials.json'
-    }
+      projectId: "clever-tube-275321",
+      keyFilename: "/Users/pedrosanders/Projects/fonos/credentials.json"
+    };
 
-    const tts = new GoogleTTS(config)
-    await tts.synthesize('Hello Kayla, how are you doing today?', {
-      ssmlGender: 'FEMALE'
-    })
+    const tts = new GoogleTTS(config);
+    await tts.synthesize("Hello Kayla, how are you doing today?", {
+      ssmlGender: "FEMALE"
+    });
     transcode(
-      '/tmp/793891cb5510c196c4f487ad00c430fd.mp3',
-      '/tmp/t_793891cb5510c196c4f487ad00c430fd.wav'
-    )
-  })
-})
+      "/tmp/793891cb5510c196c4f487ad00c430fd.mp3",
+      "/tmp/t_793891cb5510c196c4f487ad00c430fd.wav"
+    );
+  });
+});

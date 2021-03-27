@@ -1,3 +1,3 @@
-import createAccessFile from './certs'
+import createAccessFile from "./certs";
 
-createAccessFile()
+createAccessFile();

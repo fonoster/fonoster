@@ -35,7 +35,6 @@
     "@fonos/errors": "^0.0.79",
     "@fonos/events": "^0.0.79",
     "@fonos/logger": "^0.0.79",
-    "@fonos/types": "^0.0.79",
     "@pionerlabs/grpc-interceptors": "^0.2.5",
     "@types/node": "^13.13.5",
     "ari-client": "^2.2.0",

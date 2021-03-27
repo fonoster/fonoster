@@ -1,25 +1,25 @@
-import grpc from 'grpc'
-import { Empty } from '../protos/common_pb'
-import deleteResource from '../resources/delete_resource'
-import { Kind } from '../../common/resource_encoder'
-import getResource from '../resources/get_resource'
-import listResourcesHere from '../resources/list_resources'
-import getAccessKeyId from '../../common/get_access_key_id'
+import grpc from "grpc";
+import { Empty } from "../protos/common_pb";
+import deleteResource from "../resources/delete_resource";
+import { Kind } from "../../common/resource_encoder";
+import getResource from "../resources/get_resource";
+import listResourcesHere from "../resources/list_resources";
+import getAccessKeyId from "../../common/get_access_key_id";
 
 export default class ResourceServer {
-  kind: Kind
-  decoder: Function
+  kind: Kind;
+  decoder: Function;
 
-  constructor (kind: Kind, decoder: Function) {
+  constructor(kind: Kind, decoder: Function) {
     //this.kind = kind
     //this.decoder = decoder
   }
 
-  async listResources (
+  async listResources(
     kind: any,
     decoder: Function,
-    call ?: grpc.ServerUnaryCall<any>,
-    callback ?: grpc.sendUnaryData<any>
+    call?: grpc.ServerUnaryCall<any>,
+    callback?: grpc.sendUnaryData<any>
   ) {
     try {
       const r = await listResourcesHere(
@@ -28,15 +28,15 @@ export default class ResourceServer {
         parseInt(call.request.getPageToken()),
         call.request.getPageSize(),
         decoder
-      )
-      callback(null, r)
+      );
+      callback(null, r);
     } catch (e) {
-      console.error(e)
-      callback(e, null)
+      console.error(e);
+      callback(e, null);
     }
   }
 
-  async getResource (
+  async getResource(
     kind: any,
     decoder: Function,
     call: grpc.ServerUnaryCall<any>,
@@ -48,28 +48,33 @@ export default class ResourceServer {
         await getResource(
           kind,
           decoder,
-          getAccessKeyId(call), 
+          getAccessKeyId(call),
           call.request.getRef()
         )
-      )
+      );
     } catch (e) {
-      callback(e, null)
+      callback(e, null);
     }
   }
 
-  async deleteResource (
+  async deleteResource(
     kind: any,
     decoder: Function,
     call: grpc.ServerUnaryCall<any>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      callback(null, await deleteResource(
-        getAccessKeyId(call), 
-        call.request.getRef(), kind, decoder
-      ))
+      callback(
+        null,
+        await deleteResource(
+          getAccessKeyId(call),
+          call.request.getRef(),
+          kind,
+          decoder
+        )
+      );
     } catch (e) {
-      callback(e, null)
+      callback(e, null);
     }
   }
 }

@@ -1,25 +1,25 @@
 export default function (plop: any) {
-  plop.setGenerator('init', {
-    description: 'application controller logic',
+  plop.setGenerator("init", {
+    description: "application controller logic",
     actions: [
       {
-        type: 'add',
-        path: '{{cwd}}/{{entryPoint}}',
-        templateFile: 'templates/index.js',
+        type: "add",
+        path: "{{cwd}}/{{entryPoint}}",
+        templateFile: "templates/index.js",
         abortOnFail: true
       },
       {
-        type: 'add',
-        path: '{{cwd}}/package.json',
-        templateFile: 'templates/package.json',
+        type: "add",
+        path: "{{cwd}}/package.json",
+        templateFile: "templates/package.json",
         abortOnFail: true
       },
       {
-        type: 'add',
-        path: '{{cwd}}/fonos.json',
-        templateFile: 'templates/fonos.json',
+        type: "add",
+        path: "{{cwd}}/fonos.json",
+        templateFile: "templates/fonos.json",
         abortOnFail: true
       }
     ]
-  })
+  });
 }

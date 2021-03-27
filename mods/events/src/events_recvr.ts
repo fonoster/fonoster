@@ -1,14 +1,14 @@
-import RabbitQConnector from './rabbitq_connector'
-import logger from '@fonos/logger'
+import RabbitQConnector from "./rabbitq_connector";
+import logger from "@fonos/logger";
 
 export default class EventsRecvr extends RabbitQConnector {
-  constructor (address: string[], q: string) {
-    super(address, q)
+  constructor(address: string[], q: string) {
+    super(address, q);
   }
 
-  watchEvents (func: Function) {
+  watchEvents(func: Function) {
     if (!this.channelWrapper) {
-      throw `events.EventsClient.watchEvents [must connect to rabbitq before watching.]`
+      throw `events.EventsClient.watchEvents [must connect to rabbitq before watching.]`;
     }
     this.channelWrapper.addSetup((channel: any) => {
       return Promise.all([
@@ -16,16 +16,16 @@ export default class EventsRecvr extends RabbitQConnector {
           this.q,
           (msg: any) => {
             logger.log(
-              'debug',
+              "debug",
               `events.EventsClient.watchEvents [new event on q => ${
                 this.q
               }, payload ${msg.content.toString()}]`
-            )
-            func(msg.content)
+            );
+            func(msg.content);
           },
           { noAck: true, exclusive: false }
         )
-      ])
-    })
+      ]);
+    });
   }
 }
