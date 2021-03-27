@@ -7,7 +7,6 @@
     "references": [
       { "path":  "../core" },
       { "path":  "../errors" },
-      { "path":  "../types" },
       { "path":  "../logger" }
     ],
     "exclude": [
