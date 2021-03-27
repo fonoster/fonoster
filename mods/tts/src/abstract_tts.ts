@@ -3,8 +3,8 @@
  * to create integration with ANY TTS by providing the abstracted functions, and
  * with help of the `tts/utils.`
  */
-abstract class AbstractTTS {
-  name: string
+ export default abstract class AbstractTTS {
+  name: string;
 
   /**
    * Constructs a new AbstractTTS object.
@@ -12,8 +12,8 @@ abstract class AbstractTTS {
    * @param {string} name friendly name for the TTS engine
    * @see module:tts:MaryTTS
    */
-  constructor (name: string) {
-    this.name = name
+  constructor(name: string) {
+    this.name = name;
   }
 
   /**
@@ -24,20 +24,20 @@ abstract class AbstractTTS {
    * settings for the TTS engine
    * @returns {string} The path to the synthesized audio
    */
-  synthesizeSync (text: string, options: any): string {
-    const sleep = require('sync').sleep
-    let result
-    let error
+  synthesizeSync(text: string, options: any): string {
+    const sleep = require("sync").sleep;
+    let result;
+    let error;
 
     this.synthesize(text, options)
       .then((r: string) => (result = r))
-      .catch((e: string) => (error = e))
+      .catch((e: string) => (error = e));
 
-    while (result === undefined && error === undefined) sleep(100)
+    while (result === undefined && error === undefined) sleep(100);
 
-    if (error) throw error
+    if (error) throw error;
 
-    return result
+    return result;
   }
 
   /**
@@ -48,14 +48,13 @@ abstract class AbstractTTS {
    * settings for the TTS engine
    * @returns {string} The path to the synthesized audio
    */
-  abstract synthesize (text: string, options?: any): Promise<string>
+  abstract synthesize(text: string, options?: any): Promise<string>;
 
   /**
    * Gets the name of the TTS engine
    */
-  getName (): string {
-    return this.name
+  getName(): string {
+    return this.name;
   }
 }
 
-export default AbstractTTS
