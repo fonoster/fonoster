@@ -1,4 +1,4 @@
-import { User } from "../protos/usermanager_pb";
+import {User} from "../protos/usermanager_pb";
 
 export default function (jsonObj: any): User {
   const user = new User();

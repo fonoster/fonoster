@@ -2,14 +2,14 @@ import Numbers from "../src/numbers";
 import chai from "chai";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { join } from "path";
+import {join} from "path";
 
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({ path: join(__dirname, "..", "..", "..", ".env") });
+  require("dotenv").config({path: join(__dirname, "..", "..", "..", ".env")});
 }
 
 describe("Numbers Service", () => {
@@ -55,7 +55,7 @@ describe("Numbers Service", () => {
   });
 
   it("returns ingress app", async () => {
-    const app = await numbers.getIngressApp({ e164Number: "0000000000" });
+    const app = await numbers.getIngressApp({e164Number: "0000000000"});
     expect(app.getName()).to.be.equal("default");
   });
 

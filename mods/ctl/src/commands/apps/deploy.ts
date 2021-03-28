@@ -1,19 +1,19 @@
 import "../../config";
 import AppManager from "@fonos/appmanager";
-import { CLIError } from "@oclif/errors";
-import { cli } from "cli-ux";
-import { Command } from "@oclif/command";
-import { CommonPB } from "@fonos/core";
+import {CLIError} from "@oclif/errors";
+import {cli} from "cli-ux";
+import {Command} from "@oclif/command";
+import {CommonPB} from "@fonos/core";
 const view: CommonPB.View = CommonPB.View.BASIC;
 
 export default class DeployCommand extends Command {
-  static args = [{ name: "ref" }];
+  static args = [{name: "ref"}];
   static description = `deploys application to a Fonos instance
   ...
   Run this command from the app root to deploy to Fonos.
   `;
   async run() {
-    const { args } = this.parse(DeployCommand);
+    const {args} = this.parse(DeployCommand);
     try {
       const appmanager = new AppManager();
       // Get a list

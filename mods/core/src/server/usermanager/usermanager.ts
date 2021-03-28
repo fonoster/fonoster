@@ -12,7 +12,7 @@ import {
   UpdateUserRequest,
   DeleteUserRequest
 } from "../protos/usermanager_pb";
-import { Empty } from "../protos/common_pb";
+import {Empty} from "../protos/common_pb";
 
 import {
   IUserManagerService,
@@ -81,8 +81,4 @@ class UserManagerServer implements IUserManagerServer {
   }
 }
 
-export {
-  UserManagerServer as default,
-  IUserManagerService,
-  UserManagerService
-};
+export {UserManagerServer as default, IUserManagerService, UserManagerService};

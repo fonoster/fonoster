@@ -1,5 +1,5 @@
 import routr from "../../common/routr";
-import { Kind } from "../../common/resource_encoder";
+import {Kind} from "../../common/resource_encoder";
 
 export default async function getResource(
   kind: Kind,

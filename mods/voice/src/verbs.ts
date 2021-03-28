@@ -1,9 +1,9 @@
 import Say from "./say";
-import Play, { PlayOptions } from "./play";
+import Play, {PlayOptions} from "./play";
 import Wait from "./wait";
-import Record, { RecordOptions } from "./record";
-import Gather, { GatherOptions } from "./gather";
-import { VerbConfig } from "./verb";
+import Record, {RecordOptions} from "./record";
+import Gather, {GatherOptions} from "./gather";
+import {VerbConfig} from "./verb";
 
 /**
  * @classdescNode JS Implementation of the Verbs API.

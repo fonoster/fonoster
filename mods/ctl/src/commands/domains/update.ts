@@ -1,12 +1,12 @@
 import "../../config";
 import Domains from "@fonos/domains";
-import { CLIError } from "@oclif/errors";
-import { Command } from "@oclif/command";
-import { cli } from "cli-ux";
+import {CLIError} from "@oclif/errors";
+import {Command} from "@oclif/command";
+import {cli} from "cli-ux";
 const inquirer = require("inquirer");
 
 export default class UpdateCommand extends Command {
-  static args = [{ name: "ref" }];
+  static args = [{name: "ref"}];
   static description = `updates a domain at the SIP Proxy subsystem
   ...
   Updates a domain at the SIP Proxy subsystem
@@ -16,7 +16,7 @@ export default class UpdateCommand extends Command {
     console.log("This utility will help you create a basic voice application");
     console.log("to help you get start quickly. Press ^C at any time to quit.");
 
-    const { args } = this.parse(UpdateCommand);
+    const {args} = this.parse(UpdateCommand);
     const domains = new Domains();
     const domain = await domains.getDomain(args.ref);
 

@@ -3,7 +3,7 @@
  * to create integration with ANY TTS by providing the abstracted functions, and
  * with help of the `tts/utils.`
  */
- export default abstract class AbstractTTS {
+export default abstract class AbstractTTS {
   name: string;
 
   /**
@@ -57,4 +57,3 @@
     return this.name;
   }
 }
-

@@ -1,7 +1,7 @@
 import logger from "@fonos/logger";
 import grpc from "grpc";
-import { FonosError } from "@fonos/errors";
-import { fsInstance } from "../../common/utils";
+import {FonosError} from "@fonos/errors";
+import {fsInstance} from "../../common/utils";
 
 export default async function (
   accessKeyId: string,
@@ -17,7 +17,7 @@ export default async function (
     fsInstance().statObject(
       bucket,
       `${accessKeyId}/${filename}`,
-      (err: { message: string }) => {
+      (err: {message: string}) => {
         if (err) {
           reject(
             new FonosError(

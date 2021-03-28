@@ -1,6 +1,6 @@
-import { configExist } from "@fonos/certs";
-import { getClientCredentials } from "../common/trust_util";
-import { ServiceOptions } from "./types";
+import {configExist} from "@fonos/certs";
+import {getClientCredentials} from "../common/trust_util";
+import {ServiceOptions} from "./types";
 import * as fs from "fs";
 import * as path from "path";
 import grpc from "./grpc_hack";

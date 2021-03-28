@@ -1,4 +1,4 @@
-import { join } from "path";
+import {join} from "path";
 
 if (process.env.NODE_ENV === "dev") {
   require("dotenv").config({
@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === "dev") {
 
 import logger from "@fonos/logger";
 import policy from "./bucket_policy";
-import { fsInstance } from "./utils";
+import {fsInstance} from "./utils";
 
 export default async function (bucket: string) {
   const fsConn = fsInstance();

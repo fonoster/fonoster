@@ -1,9 +1,9 @@
-import { FonosError } from "@fonos/errors";
+import {FonosError} from "@fonos/errors";
 import redis from "../../common/redis";
 import grpc from "grpc";
 import logger from "@fonos/logger";
 import jsonToApp from "../appmanager/json_to_app";
-import { App } from "../protos/appmanager_pb";
+import {App} from "../protos/appmanager_pb";
 
 export default async function (e164Number: string): Promise<App> {
   const appRef = await redis.get(`extlink:${e164Number}`);

@@ -1,10 +1,10 @@
-import { FonosError } from "@fonos/errors";
+import {FonosError} from "@fonos/errors";
 import {
   FonosAuthError,
   FonosFailedPrecondition,
   FonosInvalidArgument
 } from "@fonos/errors";
-import { status as Status } from "grpc";
+import {status as Status} from "grpc";
 
 export default function (error: any) {
   if (!error.response) throw new FonosError(error);

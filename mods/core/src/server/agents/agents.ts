@@ -8,13 +8,13 @@ import {
   UpdateAgentRequest,
   DeleteAgentRequest
 } from "../protos/agents_pb";
-import { Empty } from "../protos/common_pb";
+import {Empty} from "../protos/common_pb";
 import {
   IAgentsServer,
   IAgentsService,
   AgentsService
 } from "../protos/agents_grpc_pb";
-import { Kind, REncoder } from "../../common/resource_encoder";
+import {Kind, REncoder} from "../../common/resource_encoder";
 import createResource from "../resources/create_resource";
 import updateResource from "../resources/update_resource";
 import agentDecoder from "../../common/decoders/agent_decoder";
@@ -44,7 +44,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
       const resource = new REncoder(Kind.AGENT, agent.getName())
         .withCredentials(agent.getUsername(), agent.getSecret())
         .withDomains(agent.getDomainsList())
-        .withMetadata({ accessKeyId: getAccessKeyId(call) })
+        .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
       //.withPrivacy(provider.getPrivacy()) // TODO
@@ -92,4 +92,4 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   }
 }
 
-export { AgentsServer as default, IAgentsService, AgentsService };
+export {AgentsServer as default, IAgentsService, AgentsService};

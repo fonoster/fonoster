@@ -12,7 +12,7 @@ import {
   UpdateAppRequest,
   DeleteAppRequest
 } from "../protos/appmanager_pb";
-import { Empty } from "../protos/common_pb";
+import {Empty} from "../protos/common_pb";
 import getAccessKeyId from "../../common/get_access_key_id";
 
 import {
@@ -84,4 +84,4 @@ class AppManagerServer implements IAppManagerServer {
   }
 }
 
-export { AppManagerServer as default, IAppManagerService, AppManagerService };
+export {AppManagerServer as default, IAppManagerService, AppManagerService};

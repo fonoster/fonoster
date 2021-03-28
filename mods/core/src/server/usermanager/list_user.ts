@@ -1,5 +1,5 @@
-import { userOperation } from "./src/operations/user_operations";
-import { User } from "../protos/usermanager_pb";
+import {userOperation} from "./src/operations/user_operations";
+import {User} from "../protos/usermanager_pb";
 import jsonParse from "./json_parser";
 
 export default async function (pageToken: number, pageSize: number) {

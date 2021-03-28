@@ -13,4 +13,4 @@ class Verb {
     this.config = config;
   }
 }
-export { Verb as default, VerbConfig };
+export {Verb as default, VerbConfig};

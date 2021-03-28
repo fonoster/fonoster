@@ -16,7 +16,7 @@ export class Response extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Response.AsObject;
   static toObject(includeInstance: boolean, msg: Response): Response.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -56,7 +56,7 @@ export class Error extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Error.AsObject;
   static toObject(includeInstance: boolean, msg: Error): Error.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -79,7 +79,7 @@ export class Empty extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Empty.AsObject;
   static toObject(includeInstance: boolean, msg: Empty): Empty.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };

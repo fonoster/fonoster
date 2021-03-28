@@ -1,8 +1,8 @@
-import { FonosInvalidArgument, FonosFailedPrecondition } from "@fonos/errors";
+import {FonosInvalidArgument, FonosFailedPrecondition} from "@fonos/errors";
 import routr from "../../common/routr";
 import redis from "../../common/redis";
 import numberDecoder from "../../common/decoders/number_decoder";
-import { REncoder, Kind } from "../../common/resource_encoder";
+import {REncoder, Kind} from "../../common/resource_encoder";
 
 export default async function updateNumber(call: any, callback: any) {
   const number = call.request.getNumber();

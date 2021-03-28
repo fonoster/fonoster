@@ -1,7 +1,7 @@
-import { nanoid } from "nanoid";
+import {nanoid} from "nanoid";
 import redis from "../../common/redis";
-import { App } from "../protos/appmanager_pb";
-import { EventsSender } from "@fonos/events";
+import {App} from "../protos/appmanager_pb";
+import {EventsSender} from "@fonos/events";
 import logger from "@fonos/logger";
 
 let events: any;

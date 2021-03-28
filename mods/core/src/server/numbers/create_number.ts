@@ -1,8 +1,8 @@
-import { FonosInvalidArgument, FonosFailedPrecondition } from "@fonos/errors";
+import {FonosInvalidArgument, FonosFailedPrecondition} from "@fonos/errors";
 import NumbersPB from "../protos/numbers_pb";
 import routr from "../../common/routr";
 import redis from "../../common/redis";
-import { REncoder, Kind } from "../../common/resource_encoder";
+import {REncoder, Kind} from "../../common/resource_encoder";
 import numberDecoder from "../../common/decoders/number_decoder";
 import getAccessKeyId from "../../common/get_access_key_id";
 
@@ -32,7 +32,7 @@ export default async function createNumber(
 
   let encoder = new REncoder(Kind.NUMBER, number.getE164Number())
     .withGatewayRef(number.getProviderRef())
-    .withMetadata({ accessKeyId: getAccessKeyId(call) });
+    .withMetadata({accessKeyId: getAccessKeyId(call)});
 
   if (number.getAorLink()) {
     encoder = encoder.withLocation(
@@ -43,7 +43,7 @@ export default async function createNumber(
     // TODO: Perhaps I should place this in a ENV
     encoder = encoder
       .withLocation(`tel:${number.getE164Number()}`, process.env.MS_ENDPOINT)
-      .withMetadata({ ingressApp: number.getIngressApp() });
+      .withMetadata({ingressApp: number.getIngressApp()});
   }
 
   const resource = encoder.build();

@@ -30,7 +30,7 @@ const uploadToFS = (
 
     walker.on(
       "file",
-      (root: string, stats: { name: string }, next: () => void) => {
+      (root: string, stats: {name: string}, next: () => void) => {
         const filePath = root + "/" + stats.name;
         const destFilePath = root + "/" + (object || stats.name);
         const dest =
@@ -83,7 +83,7 @@ const removeDirSync = (pathToFile: string) => {
 };
 
 const extract = (source: string, target: string) =>
-  tar.extract({ file: source, cwd: target });
+  tar.extract({file: source, cwd: target});
 const getFilesizeInBytes = (filename: string) => fs.statSync(filename)["size"];
 
 const mapToObj = (map: {
@@ -91,7 +91,7 @@ const mapToObj = (map: {
     (): any;
     new (): any;
     length: number;
-    reduce: { (arg0: (e: any[]) => {}): any; new (): any };
+    reduce: {(arg0: (e: any[]) => {}): any; new (): any};
   };
 }) => {
   if (!map || map.toArray().length === 0) return {};

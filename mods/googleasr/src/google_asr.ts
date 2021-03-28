@@ -11,11 +11,11 @@ const defaultAudioProfile = {
 };
 
 class GoogleASR {
-  config: { projectId: string; keyFilename: string };
+  config: {projectId: string; keyFilename: string};
   /**
    * Constructs a new GoogleASR client object.
    */
-  constructor(config: { projectId: string; keyFilename: string }) {
+  constructor(config: {projectId: string; keyFilename: string}) {
     this.config = config;
   }
 

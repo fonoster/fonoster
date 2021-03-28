@@ -5,7 +5,7 @@ export default function (extension: string) {
   // We check for a handler, and return default none exist
   try {
     const numbers = new Numbers();
-    const app = numbers.getIngressAppSync({ e164Number: extension });
+    const app = numbers.getIngressAppSync({e164Number: extension});
     const appsDirBase = process.env.APPS_DIR || "/home/fonos/apps";
     const appsDir = `${appsDirBase}/${app.getAccessKeyId()}`;
     const packageBase = `${appsDir}/${app.getRef()}`;

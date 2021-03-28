@@ -1,6 +1,6 @@
 //import redis from '../../common/redis'
-import { User } from "../protos/usermanager_pb";
-import { userOperation } from "./src/operations/user_operations";
+import {User} from "../protos/usermanager_pb";
+import {userOperation} from "./src/operations/user_operations";
 const objectid = require("objectid");
 
 export default async function (user: User): Promise<User> {

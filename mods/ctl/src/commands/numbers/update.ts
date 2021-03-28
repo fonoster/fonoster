@@ -1,10 +1,10 @@
 import "../../config";
 import Numbers from "@fonos/numbers";
 import Apps from "@fonos/appmanager";
-import { CLIError } from "@oclif/errors";
-import { Command } from "@oclif/command";
-import { cli } from "cli-ux";
-import { CommonPB, AppManagerPB } from "@fonos/core";
+import {CLIError} from "@oclif/errors";
+import {Command} from "@oclif/command";
+import {cli} from "cli-ux";
+import {CommonPB, AppManagerPB} from "@fonos/core";
 
 const inquirer = require("inquirer");
 
@@ -14,7 +14,7 @@ export class UpdateCommand extends Command {
   Updates a number at the SIP Proxy subsystem
   `;
 
-  static args = [{ name: "ref" }];
+  static args = [{name: "ref"}];
 
   async run() {
     console.log("This utility will help you update an existing Number");
@@ -34,7 +34,7 @@ export class UpdateCommand extends Command {
       };
     });
 
-    const { args } = this.parse(UpdateCommand);
+    const {args} = this.parse(UpdateCommand);
     const numbers = new Numbers();
 
     const answers = await inquirer.prompt([

@@ -8,13 +8,13 @@ import {
   UpdateDomainRequest,
   DeleteDomainRequest
 } from "../protos/domains_pb";
-import { Empty } from "../protos/common_pb";
+import {Empty} from "../protos/common_pb";
 import {
   IDomainsService,
   DomainsService,
   IDomainsServer
 } from "../protos/domains_grpc_pb";
-import { Kind, REncoder } from "../../common/resource_encoder";
+import {Kind, REncoder} from "../../common/resource_encoder";
 import createResource from "../resources/create_resource";
 import updateResource from "../resources/update_resource";
 import domainDecoder from "../../common/decoders/domain_decoder";
@@ -48,7 +48,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
         .withDomainUri(domain.getDomainUri())
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
-        .withMetadata({ accessKeyId: getAccessKeyId(call) })
+        .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
       callback(null, await createResource(resource, domainDecoder));
     } catch (e) {
@@ -100,4 +100,4 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 }
 
-export { DomainsServer as default, IDomainsService, DomainsService };
+export {DomainsServer as default, IDomainsService, DomainsService};

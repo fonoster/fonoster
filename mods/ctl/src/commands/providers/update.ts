@@ -1,19 +1,19 @@
 import "../../config";
 import Providers from "@fonos/providers";
-import { CLIError } from "@oclif/errors";
-import { Command } from "@oclif/command";
-import { cli } from "cli-ux";
+import {CLIError} from "@oclif/errors";
+import {Command} from "@oclif/command";
+import {cli} from "cli-ux";
 const inquirer = require("inquirer");
 
 export default class UpdateCommand extends Command {
-  static args = [{ name: "ref" }];
+  static args = [{name: "ref"}];
   static description = `updates a provider at the SIP Proxy subsystem
   ...
   Updates a provider at the SIP Proxy subsystem
   `;
 
   async run() {
-    const { args } = this.parse(UpdateCommand);
+    const {args} = this.parse(UpdateCommand);
 
     if (!args.ref) throw new Error("Please provide reference number");
 

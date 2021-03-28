@@ -1,9 +1,9 @@
 import routr from "../../common/routr";
-import { Kind } from "../../common/resource_encoder";
-import { ListAgentsResponse } from "../protos/agents_pb";
-import { ListNumbersResponse } from "../protos/numbers_pb";
-import { ListProvidersResponse } from "../protos/providers_pb";
-import { ListDomainsResponse } from "../protos/domains_pb";
+import {Kind} from "../../common/resource_encoder";
+import {ListAgentsResponse} from "../protos/agents_pb";
+import {ListNumbersResponse} from "../protos/numbers_pb";
+import {ListProvidersResponse} from "../protos/providers_pb";
+import {ListDomainsResponse} from "../protos/domains_pb";
 
 const ResponseObj = (kind: Kind): any => {
   switch (kind) {
@@ -32,7 +32,7 @@ export default async function (
   await routr.connect();
   const result = await routr
     .resourceType(`${kind.toLowerCase()}s`)
-    .list({ page, itemsPerPage });
+    .list({page, itemsPerPage});
 
   const resources = [];
   for (const i in result.data) {

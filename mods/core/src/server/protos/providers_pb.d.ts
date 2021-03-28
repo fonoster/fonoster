@@ -23,7 +23,7 @@ export class ListProvidersRequest extends jspb.Message {
     includeInstance: boolean,
     msg: ListProvidersRequest
   ): ListProvidersRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -61,7 +61,7 @@ export class ListProvidersResponse extends jspb.Message {
     includeInstance: boolean,
     msg: ListProvidersResponse
   ): ListProvidersResponse.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -95,7 +95,7 @@ export class CreateProviderRequest extends jspb.Message {
     includeInstance: boolean,
     msg: CreateProviderRequest
   ): CreateProviderRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -128,7 +128,7 @@ export class UpdateProviderRequest extends jspb.Message {
     includeInstance: boolean,
     msg: UpdateProviderRequest
   ): UpdateProviderRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -159,7 +159,7 @@ export class GetProviderRequest extends jspb.Message {
     includeInstance: boolean,
     msg: GetProviderRequest
   ): GetProviderRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -190,7 +190,7 @@ export class GetIngressAppRequest extends jspb.Message {
     includeInstance: boolean,
     msg: GetIngressAppRequest
   ): GetIngressAppRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -221,7 +221,7 @@ export class DeleteProviderRequest extends jspb.Message {
     includeInstance: boolean,
     msg: DeleteProviderRequest
   ): DeleteProviderRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -273,7 +273,7 @@ export class Provider extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Provider.AsObject;
   static toObject(includeInstance: boolean, msg: Provider): Provider.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };

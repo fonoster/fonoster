@@ -23,7 +23,7 @@ export class ListAgentsRequest extends jspb.Message {
     includeInstance: boolean,
     msg: ListAgentsRequest
   ): ListAgentsRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -61,7 +61,7 @@ export class ListAgentsResponse extends jspb.Message {
     includeInstance: boolean,
     msg: ListAgentsResponse
   ): ListAgentsResponse.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -95,7 +95,7 @@ export class CreateAgentRequest extends jspb.Message {
     includeInstance: boolean,
     msg: CreateAgentRequest
   ): CreateAgentRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -128,7 +128,7 @@ export class UpdateAgentRequest extends jspb.Message {
     includeInstance: boolean,
     msg: UpdateAgentRequest
   ): UpdateAgentRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -159,7 +159,7 @@ export class GetAgentRequest extends jspb.Message {
     includeInstance: boolean,
     msg: GetAgentRequest
   ): GetAgentRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -190,7 +190,7 @@ export class GetIngressAppRequest extends jspb.Message {
     includeInstance: boolean,
     msg: GetIngressAppRequest
   ): GetIngressAppRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -221,7 +221,7 @@ export class DeleteAgentRequest extends jspb.Message {
     includeInstance: boolean,
     msg: DeleteAgentRequest
   ): DeleteAgentRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -272,7 +272,7 @@ export class Agent extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Agent.AsObject;
   static toObject(includeInstance: boolean, msg: Agent): Agent.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };

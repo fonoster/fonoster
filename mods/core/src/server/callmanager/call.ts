@@ -1,5 +1,5 @@
-import { CallRequest, CallResponse } from "../protos/callmanager_pb";
-import { FonosError } from "@fonos/errors";
+import {CallRequest, CallResponse} from "../protos/callmanager_pb";
+import {FonosError} from "@fonos/errors";
 import phone from "phone";
 export interface EndpointInfo {
   domain: string;
@@ -33,7 +33,7 @@ export default async function (
     context: endpointInfo.context,
     extension: endpointInfo.extension,
     endpoint: `PJSIP/${endpointInfo.trunk}/sip:${to}@${endpointInfo.domain}`,
-    variables: { DID_INFO: `${phone(from)[0]}` }
+    variables: {DID_INFO: `${phone(from)[0]}`}
   });
 
   return response;

@@ -1,4 +1,4 @@
-import { FonosService, UserManagerService, UserManagerPB } from "@fonos/core";
+import {FonosService, UserManagerService, UserManagerPB} from "@fonos/core";
 
 interface CreateUserRequest {
   firstName: string;
@@ -39,8 +39,8 @@ export default class UserManager extends FonosService {
   constructor(options?: any) {
     super(UserManagerService.UserManagerClient, options);
     super.init();
-    const { promisifyAll } = require("grpc-promise");
-    promisifyAll(super.getService(), { metadata: super.getMeta() });
+    const {promisifyAll} = require("grpc-promise");
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   async createUser(request: CreateUserRequest): Promise<User> {

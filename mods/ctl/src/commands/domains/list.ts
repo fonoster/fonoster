@@ -1,10 +1,10 @@
 import "../../config";
 import Domains from "@fonos/domains";
-import { CLIError } from "@oclif/errors";
-import { Command, flags as oclifFlags } from "@oclif/command";
+import {CLIError} from "@oclif/errors";
+import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
-import { CommonPB, DomainsPB } from "@fonos/core";
-import { Domain } from "@fonos/domains/src/types";
+import {CommonPB, DomainsPB} from "@fonos/core";
+import {Domain} from "@fonos/domains/src/types";
 const Table = require("easy-table");
 
 export default class ListCommand extends Command {
@@ -22,7 +22,7 @@ export default class ListCommand extends Command {
   static aliases = ["domains:ls"];
 
   async run() {
-    const { flags } = this.parse(ListCommand);
+    const {flags} = this.parse(ListCommand);
     try {
       const domains = new Domains();
       let firstBatch = true;
@@ -31,14 +31,14 @@ export default class ListCommand extends Command {
       const view: CommonPB.View = CommonPB.View.BASIC;
       while (true) {
         // Get a list
-        const result = await domains.listDomains({ pageSize, pageToken, view });
+        const result = await domains.listDomains({pageSize, pageToken, view});
         const list = result.domains;
         pageToken = result.nextPageToken;
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
           const answer: any = await inquirer.prompt([
-            { name: "q", message: "More", type: "confirm" }
+            {name: "q", message: "More", type: "confirm"}
           ]);
           if (!answer.q) break;
         }

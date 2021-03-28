@@ -1,11 +1,11 @@
 import Storage from "@fonos/storage";
-import { FonosService, AppManagerService, AppManagerPB } from "@fonos/core";
-import { App } from "@fonos/core/src/server/protos/appmanager_pb";
-import { View } from "@fonos/core/src/server/protos/common_pb";
+import {FonosService, AppManagerService, AppManagerPB} from "@fonos/core";
+import {App} from "@fonos/core/src/server/protos/appmanager_pb";
+import {View} from "@fonos/core/src/server/protos/common_pb";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
-import { nanoid } from "nanoid";
+import {nanoid} from "nanoid";
 
 const STATUS = {
   UNKNOWN: 0,
@@ -54,8 +54,8 @@ export default class AppManager extends FonosService {
     super.init();
     this.storage = new Storage(super.getOptions());
     this.service = super.getService();
-    const { promisifyAll } = require("grpc-promise");
-    promisifyAll(super.getService(), { metadata: super.getMeta() });
+    const {promisifyAll} = require("grpc-promise");
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**
@@ -124,11 +124,11 @@ export default class AppManager extends FonosService {
 
     // Cleanup before deploy
     if (fs.existsSync(`/tmp/${dirName}`))
-      fs.rmdirSync(`/tmp/${dirName}`, { recursive: true });
+      fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
     if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`);
 
     await fs.copy(request.dirPath, `/tmp/${dirName}`);
-    await tar.create({ file: `/tmp/${dirName}.tgz`, cwd: "/tmp" }, [dirName]);
+    await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
     await this.storage.uploadObject({
       filename: `/tmp/${dirName}.tgz`,
       bucket: "apps" // TODO: Maybe I should place this in the .env
@@ -136,7 +136,7 @@ export default class AppManager extends FonosService {
 
     // Cleanup after deploy
     if (fs.existsSync(`/tmp/${dirName}`))
-      fs.rmdirSync(`/tmp/${dirName}`, { recursive: true });
+      fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
     if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`);
 
     const app = new AppManagerPB.App();
@@ -213,7 +213,7 @@ export default class AppManager extends FonosService {
    *   console.log(result)            // returns a ListAppsResponse
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listApps(request: { pageSize: number; pageToken: string; view: View }) {
+  async listApps(request: {pageSize: number; pageToken: string; view: View}) {
     const r = new AppManagerPB.ListAppsRequest();
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);

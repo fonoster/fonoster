@@ -1,5 +1,5 @@
 import chai from "chai";
-import sinon, { stub } from "sinon";
+import sinon, {stub} from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import roleHasAccess from "../server/usermanager/role_has_access";

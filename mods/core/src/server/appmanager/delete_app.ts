@@ -1,8 +1,8 @@
 import redis from "../../common/redis";
-import { FonosError } from "@fonos/errors";
+import {FonosError} from "@fonos/errors";
 import jsonToApp from "./json_to_app";
-import { App } from "../protos/appmanager_pb";
-import { EventsSender } from "@fonos/events";
+import {App} from "../protos/appmanager_pb";
+import {EventsSender} from "@fonos/events";
 import logger from "@fonos/logger";
 
 let events: any;

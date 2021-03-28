@@ -22,7 +22,7 @@ export class CallRequest extends jspb.Message {
     includeInstance: boolean,
     msg: CallRequest
   ): CallRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -64,7 +64,7 @@ export class CallResponse extends jspb.Message {
     includeInstance: boolean,
     msg: CallResponse
   ): CallResponse.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };

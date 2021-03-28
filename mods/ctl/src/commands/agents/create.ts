@@ -1,9 +1,9 @@
 import "../../config";
 import Agents from "@fonos/agents";
 import Domains from "@fonos/domains";
-import { CLIError } from "@oclif/errors";
-import { Command } from "@oclif/command";
-import { cli } from "cli-ux";
+import {CLIError} from "@oclif/errors";
+import {Command} from "@oclif/command";
+import {cli} from "cli-ux";
 const inquirer = require("inquirer");
 
 export default class extends Command {

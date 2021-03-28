@@ -1,4 +1,4 @@
-import Verb, { VerbConfig } from "./verb";
+import Verb, {VerbConfig} from "./verb";
 
 interface GatherOptions {
   timeout?: number;
@@ -86,4 +86,4 @@ class Gather extends Verb {
   }
 }
 
-export { Gather as default, GatherOptions };
+export {Gather as default, GatherOptions};

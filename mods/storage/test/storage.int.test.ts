@@ -4,7 +4,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { join } from "path";
+import {join} from "path";
 import Fiber from "fibers";
 
 const expect = chai.expect;
@@ -13,7 +13,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({ path: join(__dirname, "..", "..", "..", ".env") });
+  require("dotenv").config({path: join(__dirname, "..", "..", "..", ".env")});
 }
 
 describe("Storage Service", () => {
@@ -78,12 +78,12 @@ describe("Storage Service", () => {
 
   it("fails because url was not found", () => {
     expect(
-      storage.getObjectURL({ bucket: "recordings", filename: "test.wav" })
+      storage.getObjectURL({bucket: "recordings", filename: "test.wav"})
     ).to.eventually.rejectedWith("filename 'test.wav' in dir 'default'");
   });
 
   it("gets object url", () => {
-    const p = storage.getObjectURL({ bucket: "public", filename: "test.txt" });
+    const p = storage.getObjectURL({bucket: "public", filename: "test.txt"});
     expect(p).to.eventually.include("/default/test.txt");
   });
 

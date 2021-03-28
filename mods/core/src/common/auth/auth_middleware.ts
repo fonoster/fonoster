@@ -1,5 +1,5 @@
 import grpc from "grpc";
-import Auth, { Jwt } from "@fonos/auth";
+import Auth, {Jwt} from "@fonos/auth";
 import roleHasAccess from "../../server/usermanager/role_has_access";
 export default class AuthMiddleware {
   secretKeyToken: string;
@@ -24,7 +24,7 @@ export default class AuthMiddleware {
       const accessKeySecret = ctx.call.metadata._internal_repr.access_key_secret.toString();
       const pathRequest = ctx.service.path;
       jwtHandler
-        .validateToken({ accessToken: accessKeySecret }, this.secretKeyToken)
+        .validateToken({accessToken: accessKeySecret}, this.secretKeyToken)
         .then(async (result) => {
           if (result.isValid) {
             if (result.data.accessKeyId != accessKeyId)

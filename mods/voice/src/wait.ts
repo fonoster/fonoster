@@ -1,4 +1,4 @@
-import Verb, { VerbConfig } from "./verb";
+import Verb, {VerbConfig} from "./verb";
 import Play from "./play";
 
 class Wait extends Verb {

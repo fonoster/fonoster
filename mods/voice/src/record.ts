@@ -1,5 +1,5 @@
-import Verb, { VerbConfig } from "./verb";
-import { EventsSender } from "@fonos/events";
+import Verb, {VerbConfig} from "./verb";
+import {EventsSender} from "@fonos/events";
 import logger from "@fonos/logger";
 
 let events: any;
@@ -46,7 +46,7 @@ class Record extends Verb {
     let cnt = 40; // 40 * 100 is 4 seconds
     while (true) {
       try {
-        return this.config.storage.getObjectURLSync({ name, bucket });
+        return this.config.storage.getObjectURLSync({name, bucket});
       } catch (e) {
         if (cnt <= 0) return;
         sleep(100);
@@ -97,4 +97,4 @@ class Record extends Verb {
   }
 }
 
-export { Record as default, RecordOptions };
+export {Record as default, RecordOptions};

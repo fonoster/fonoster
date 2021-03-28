@@ -1,9 +1,9 @@
 import "../../config";
 import Providers from "@fonos/providers";
-import { CLIError } from "@oclif/errors";
-import { Command, flags as oclifFlags } from "@oclif/command";
+import {CLIError} from "@oclif/errors";
+import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
-import { CommonPB, ProvidersPB } from "@fonos/core";
+import {CommonPB, ProvidersPB} from "@fonos/core";
 const Table = require("easy-table");
 
 export default class ListCommand extends Command {
@@ -22,7 +22,7 @@ export default class ListCommand extends Command {
   static aliases = ["providers:ls"];
 
   async run() {
-    const { flags } = this.parse(ListCommand);
+    const {flags} = this.parse(ListCommand);
     try {
       const providers = new Providers();
       let firstBatch = true;
@@ -42,7 +42,7 @@ export default class ListCommand extends Command {
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
           const answer: any = await inquirer.prompt([
-            { name: "q", message: "More", type: "confirm" }
+            {name: "q", message: "More", type: "confirm"}
           ]);
           if (!answer.q) break;
         }

@@ -2,8 +2,8 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { join } from "path";
-import { ChannelMock } from "./mock_channel";
+import {join} from "path";
+import {ChannelMock} from "./mock_channel";
 import Verbs from "../src/verbs";
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -11,7 +11,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({ path: join(__dirname, "..", "..", ".env") });
+  require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
 }
 
 describe("@fonos/voice/verbs", () => {
@@ -39,7 +39,7 @@ describe("@fonos/voice/verbs", () => {
     });
 
     it("will fail if finishOnKey is an invalid character", () => {
-      expect(() => verbs.play("beep", { finishOnKey: "%" })).to.throw(
+      expect(() => verbs.play("beep", {finishOnKey: "%"})).to.throw(
         "Invalid finishOnKey parameter: found % but must be a single digit type of 0-9,#,*"
       );
     });
@@ -50,13 +50,13 @@ describe("@fonos/voice/verbs", () => {
     const verbs = new Verbs(channel);
 
     it("will fail finishOnKey is not a single char", () => {
-      expect(() => verbs.gather("", { finishOnKey: "aa" })).to.throw(
+      expect(() => verbs.gather("", {finishOnKey: "aa"})).to.throw(
         "finishOnKey must a single char. Default value is #. Acceptable values are digits from 0-9,#,*"
       );
     });
 
     it("will fail if timeout < 0", () => {
-      expect(() => verbs.gather("", { timeout: -1 })).to.throw(
+      expect(() => verbs.gather("", {timeout: -1})).to.throw(
         "-1 is not an acceptable timeout value. For no timeout use zero. Timeout must be equal or greater than zero"
       );
       /*expect(() => verbs.gather('', { timeout: 'a' })).to.throw(
@@ -65,7 +65,7 @@ describe("@fonos/voice/verbs", () => {
     });
 
     it("will fail if maxDigits < 0 or not a number", () => {
-      expect(() => verbs.gather("", { maxDigits: -1 })).to.throw(
+      expect(() => verbs.gather("", {maxDigits: -1})).to.throw(
         "-1 is not an acceptable maxDigits value. The maxDigits value must be greater than zero. Omit value for no limit on the number of digits"
       );
       /*expect(() => verbs.gather('', { maxDigits: 'a' })).to.throw(
@@ -82,19 +82,19 @@ describe("@fonos/voice/verbs", () => {
     it("will gather some digits", () => {
       // Stops reading at maxDigits
       channel.setData(["1", "2", "3", "4"]);
-      let result = verbs.gather("", { maxDigits: 4 });
+      let result = verbs.gather("", {maxDigits: 4});
       expect(result).to.be.equal("1234");
 
       // Stops reading at finishOnKey char
       channel.setData(["1", "2", "3", "4", "*"]);
       channel.resetDataPointer();
-      result = verbs.gather("", { maxDigits: 6, finishOnKey: "*" });
+      result = verbs.gather("", {maxDigits: 6, finishOnKey: "*"});
       expect(result).to.be.equal("1234");
 
       // Stops reading at null because a timeout event
       channel.setData(["1", "2", "3", null]);
       channel.resetDataPointer();
-      result = verbs.gather("", { timeout: 5, maxDigits: 4 });
+      result = verbs.gather("", {timeout: 5, maxDigits: 4});
       expect(result).to.be.equal("123");
     });
   });

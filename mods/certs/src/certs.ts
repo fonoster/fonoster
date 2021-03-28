@@ -1,8 +1,8 @@
 import fs from "fs";
 import jwt from "jsonwebtoken";
-import { forge } from "acme-client";
-import { join } from "path";
-import { homedir } from "os";
+import {forge} from "acme-client";
+import {join} from "path";
+import {homedir} from "os";
 
 const btoa = require("btoa");
 
@@ -27,7 +27,7 @@ async function createAccessFile() {
   }
 
   const salt = getSalt();
-  const claims = { ISS, sub: ACCESS_KEY_ID };
+  const claims = {ISS, sub: ACCESS_KEY_ID};
   const config = {
     accessKeyId: ACCESS_KEY_ID,
     accessKeySecret: jwt.sign(claims, salt)
@@ -38,7 +38,7 @@ async function createAccessFile() {
 
 const writeConfig = (config: string, pathToConfig: string, workdir: string) => {
   const content = JSON.stringify(config, null, "");
-  if (!fs.existsSync(workdir)) fs.mkdirSync(workdir, { recursive: true });
+  if (!fs.existsSync(workdir)) fs.mkdirSync(workdir, {recursive: true});
   fs.writeFileSync(pathToConfig, content);
 };
 

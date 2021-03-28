@@ -1,6 +1,6 @@
-import { Command } from "@oclif/command";
-import { prompt } from "inquirer";
-import { join, basename } from "path";
+import {Command} from "@oclif/command";
+import {prompt} from "inquirer";
+import {join, basename} from "path";
 const nodePlop = require("node-plop");
 const plop = nodePlop(join(__dirname, "..", "..", "..", "dist", "plopfile.js"));
 const init = plop.getGenerator("init");
@@ -29,16 +29,16 @@ export default class InitCommand extends Command {
         type: "input",
         default: "1.0.0"
       },
-      { name: "pckgDesc", message: "description", type: "input" },
+      {name: "pckgDesc", message: "description", type: "input"},
       {
         name: "entryPoint",
         message: "entry point",
         type: "input",
         default: "src/index.js"
       },
-      { name: "author", message: "author", type: "input" },
-      { name: "license", message: "license", type: "input", default: "ISC" },
-      { name: "locale", message: "locale", type: "input", default: "en_US" },
+      {name: "author", message: "author", type: "input"},
+      {name: "license", message: "license", type: "input", default: "ISC"},
+      {name: "locale", message: "locale", type: "input", default: "en_US"},
       {
         name: "confirm",
         message: "everything looks good?",

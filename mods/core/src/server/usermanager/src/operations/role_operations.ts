@@ -1,4 +1,4 @@
-import RoleModel, { Role } from "../models/role";
+import RoleModel, {Role} from "../models/role";
 
 interface Filter {
   readonly role: string;
@@ -11,7 +11,7 @@ export default class RoleController {
   }
 
   public async createRole(obj: any) {
-    const { role, description, access } = obj;
+    const {role, description, access} = obj;
     const roles: Role = new RoleModel({
       role,
       description,

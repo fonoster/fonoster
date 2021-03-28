@@ -2,10 +2,10 @@ import "../../config";
 import Providers from "@fonos/providers";
 import Numbers from "@fonos/numbers";
 import Apps from "@fonos/appmanager";
-import { CLIError } from "@oclif/errors";
-import { Command } from "@oclif/command";
-import { cli } from "cli-ux";
-import { CommonPB, AppManagerPB, ProvidersPB } from "@fonos/core";
+import {CLIError} from "@oclif/errors";
+import {Command} from "@oclif/command";
+import {cli} from "cli-ux";
+import {CommonPB, AppManagerPB, ProvidersPB} from "@fonos/core";
 const phone = require("phone");
 const inquirer = require("inquirer");
 

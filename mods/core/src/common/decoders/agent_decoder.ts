@@ -1,4 +1,4 @@
-import { Agent } from "../../server/protos/agents_pb";
+import {Agent} from "../../server/protos/agents_pb";
 
 export default function (jsonObj: any) {
   const agent = new Agent();

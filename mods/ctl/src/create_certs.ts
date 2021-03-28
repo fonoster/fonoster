@@ -1,5 +1,5 @@
-import { cli } from "cli-ux";
-import { CLIError } from "@oclif/errors";
+import {cli} from "cli-ux";
+import {CLIError} from "@oclif/errors";
 const Docker = require("dockerode");
 
 const getConfig = (subject?: string, name?: string, accessKeyId?: string) => {

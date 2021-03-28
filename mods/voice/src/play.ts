@@ -6,7 +6,7 @@ interface PlayOptions {
 }
 
 const validate = (file: string, options: PlayOptions) => {
-  const { finishOnKey = "#" } = options;
+  const {finishOnKey = "#"} = options;
   if (!file) throw new Error("you must indicate a file.");
   if (
     finishOnKey &&
@@ -23,7 +23,7 @@ class Play extends Verb {
   }
 
   run(file: string, options: PlayOptions = {}) {
-    const { finishOnKey = "#" } = options;
+    const {finishOnKey = "#"} = options;
     validate(file, options);
     logger.log(
       "debug",
@@ -52,4 +52,4 @@ class Play extends Verb {
   }
 }
 
-export { Play as default, PlayOptions };
+export {Play as default, PlayOptions};

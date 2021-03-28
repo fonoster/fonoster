@@ -1,4 +1,4 @@
-import { FonosService, ProvidersService, ProvidersPB } from "@fonos/core";
+import {FonosService, ProvidersService, ProvidersPB} from "@fonos/core";
 
 /**
  * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
@@ -33,7 +33,7 @@ export default class Providers extends FonosService {
     super(ProvidersService.ProvidersClient, options);
     super.init();
     const promisifyAll = require("grpc-promise").promisifyAll;
-    promisifyAll(super.getService(), { metadata: super.getMeta() });
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**

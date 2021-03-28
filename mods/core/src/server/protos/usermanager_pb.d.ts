@@ -23,7 +23,7 @@ export class ListUsersRequest extends jspb.Message {
     includeInstance: boolean,
     msg: ListUsersRequest
   ): ListUsersRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -61,7 +61,7 @@ export class ListUsersResponse extends jspb.Message {
     includeInstance: boolean,
     msg: ListUsersResponse
   ): ListUsersResponse.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -96,7 +96,7 @@ export class GetUserRequest extends jspb.Message {
     includeInstance: boolean,
     msg: GetUserRequest
   ): GetUserRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -130,7 +130,7 @@ export class CreateUserRequest extends jspb.Message {
     includeInstance: boolean,
     msg: CreateUserRequest
   ): CreateUserRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -163,7 +163,7 @@ export class UpdateUserRequest extends jspb.Message {
     includeInstance: boolean,
     msg: UpdateUserRequest
   ): UpdateUserRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -194,7 +194,7 @@ export class DeleteUserRequest extends jspb.Message {
     includeInstance: boolean,
     msg: DeleteUserRequest
   ): DeleteUserRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -246,7 +246,7 @@ export class User extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): User.AsObject;
   static toObject(includeInstance: boolean, msg: User): User.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };

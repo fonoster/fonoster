@@ -1,4 +1,4 @@
-import { nanoid } from "nanoid";
+import {nanoid} from "nanoid";
 
 enum Kind {
   AGENT = "Agent",
@@ -16,7 +16,7 @@ enum Privacy {
 class REncoder {
   kind: Kind;
   apiVersion: string;
-  metadata: { name: string; ref: string; gwRef?: string };
+  metadata: {name: string; ref: string; gwRef?: string};
   spec: {
     context?: {
       domainUri?: string;
@@ -70,7 +70,7 @@ class REncoder {
         `Kind ${this.kind} resources don't have 'spec.credentials'`
       );
 
-    this.spec.credentials = { username, secret };
+    this.spec.credentials = {username, secret};
 
     if (!secret) delete this.spec.credentials.secret;
     // We removed if both are empty because Gateways may not have credentials
@@ -108,7 +108,7 @@ class REncoder {
   withLocation(telUrl: string, aorLink: string) {
     if (this.kind != Kind.NUMBER)
       throw new Error(`Kind ${this.kind} does not holds 'spec.location' value`);
-    this.spec.location = { telUrl, aorLink };
+    this.spec.location = {telUrl, aorLink};
     if (!telUrl && !aorLink) delete this.spec.location;
     return this;
   }
@@ -138,7 +138,7 @@ class REncoder {
       throw new Error(
         `Kind ${this.kind} does not holds 'spec.context.egressPolicy' value`
       );
-    this.spec.context.egressPolicy = { rule, numberRef };
+    this.spec.context.egressPolicy = {rule, numberRef};
     if (!rule && !numberRef) delete this.spec.context.egressPolicy;
     return this;
   }
@@ -148,7 +148,7 @@ class REncoder {
       throw new Error(
         `Kind ${this.kind} does not holds 'spec.context.egressPolicy' value`
       );
-    this.spec.context.accessControlList = { allow, deny };
+    this.spec.context.accessControlList = {allow, deny};
     if (!allow || allow.length === 0)
       delete this.spec.context.accessControlList.allow;
     if (!deny || deny.length === 0)
@@ -180,4 +180,4 @@ class REncoder {
   }
 }
 
-export { REncoder, Kind, Privacy };
+export {REncoder, Kind, Privacy};

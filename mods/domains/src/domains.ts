@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
  *
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { 
+import {
   CreateDomainRequest,
   CreateDomainResponse,
   UpdateDomainRequest,
@@ -32,10 +32,12 @@ import {
   DomainsPB,
   ServiceOptions
 } from "@fonos/core";
+import {promisifyAll} from "grpc-promise";
 
 /**
- * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem, to create, 
- * update, get and delete Domains. The API requires of a running Fonos deployment.
+ * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
+ * to create, update, get and delete Domains. The API requires of a running
+ * Fonos deployment.
  *
  * @extends FonosService
  * @example
@@ -52,22 +54,24 @@ export default class Domains extends FonosService {
   /**
    * Constructs a new Domains object.
    *
+   * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
-  constructor (options?: ServiceOptions) {
+  constructor(options?: ServiceOptions) {
     super(DomainsService.DomainsClient, options);
     super.init();
-    const promisifyAll = require("grpc-promise").promisifyAll;
-    promisifyAll(super.getService(), { metadata: super.getMeta() });
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**
    * Creates a new Domain on the SIP Proxy subsystem.
    *
-   * @param {CreateDomainRequest} request - Request for the provision of a new Domain
+   * @param {CreateDomainRequest} request - Request for the provision of
+   * a new Domain
    * @param {string} request.name - Friendly name for the SIP domain
    * @param {string} request.domainUri - Domain URI. FQDN is recommended
-   * @param {string} request.egressNumberRef - A valid reference to a Number in Fonos
+   * @param {string} request.egressNumberRef - A valid reference to a Number
+   * in Fonos
    * @param {string} request.egressRule - Regular expression indicating when a
    * call will be routed via request.egressNumberRef
    * @param {string} request.accessDeny - Optional list of IPs or networks that
@@ -88,10 +92,12 @@ export default class Domains extends FonosService {
    *
    * domains.createDomain(request)
    * .then(result => {
-   *   console.log(result)            // returns the CreateDomainResponse interface
-   * }).catch(e => console.error(e));  // an error occurred
+   *   console.log(result) // returns the CreateDomainResponse interface
+   * }).catch(e => console.error(e)); // an error occurred
    */
-  async createDomain (request: CreateDomainRequest): Promise<CreateDomainResponse> {
+  async createDomain(
+    request: CreateDomainRequest
+  ): Promise<CreateDomainResponse> {
     const domain = new DomainsPB.Domain();
     domain.setName(request.name);
     domain.setDomainUri(request.domainUri);
@@ -100,13 +106,10 @@ export default class Domains extends FonosService {
     domain.setAccessDenyList(request.accessDeny);
     domain.setAccessAllowList(request.accessAllow);
 
-    const req = new DomainsPB.CreateDomainRequest();
-    req.setDomain(domain);
+    const outRequest = new DomainsPB.CreateDomainRequest();
+    outRequest.setDomain(domain);
 
-    const res = await super
-      .getService()
-      .createDomain()
-      .sendMessage(req);
+    const res = await super.getService().createDomain().sendMessage(outRequest);
 
     return {
       ref: res.getRef(),
@@ -128,22 +131,19 @@ export default class Domains extends FonosService {
    * @return {Promise<GetDomainResponse>} The domain
    * @throws if ref is null or Domain does not exist
    * @example
-   * 
+   *
    * const ref = "Nx05y-ldZa";
-   * 
+   *
    * domains.getDomain(ref)
    * .then(result => {
-   *   console.log(result)             // returns the CreateGetResponse interface
-   * }).catch(e => console.error(e));   // an error occurred
+   *   console.log(result) // returns the CreateGetResponse interface
+   * }).catch(e => console.error(e)); // an error occurred
    */
-  async getDomain (ref: string): Promise<GetDomainResponse> {
+  async getDomain(ref: string): Promise<GetDomainResponse> {
     const request = new DomainsPB.GetDomainRequest();
     request.setRef(ref);
-    
-    const res = await super
-      .getService()
-      .getDomain()
-      .sendMessage(request);
+
+    const res = await super.getService().getDomain().sendMessage(request);
 
     return {
       ref: res.getRef(),
@@ -161,10 +161,13 @@ export default class Domains extends FonosService {
   /**
    * Update a Domain at the SIP Proxy subsystem.
    *
-   * @param {UpdateDomainRequest} request - Request for the update of an existing Domain
-   * @param {string} request.ref - To update a Domain you must provide its reference
+   * @param {UpdateDomainRequest} request - Request for the update of an
+   * existing Domain
+   * @param {string} request.ref - To update a Domain you must provide
+   * its reference
    * @param {string} request.name - Friendly name for the SIP domain
-   * @param {string} request.egressNumberRef - A valid reference to a Number in Fonos
+   * @param {string} request.egressNumberRef - A valid reference to a
+   * Number in Fonos
    * @param {string} request.egressRule - Regular expression indicating when a
    * call will be routed via request.egressNumberRef
    * @param {string} request.accessDeny - Optional list of IPs or networks that
@@ -182,27 +185,30 @@ export default class Domains extends FonosService {
    *
    * domains.updateDomain(request)
    * .then(result => {
-   *   console.log(result)             // returns the UpdateDomainResponse interface
-   * }).catch(e => console.error(e));  // an error occurred
+   *   console.log(result) // returns the UpdateDomainResponse interface
+   * }).catch(e => console.error(e)); // an error occurred
    */
-  async updateDomain (request: UpdateDomainRequest): Promise<UpdateDomainResponse> {
+  async updateDomain(
+    request: UpdateDomainRequest
+  ): Promise<UpdateDomainResponse> {
     const getDomainRequest = new DomainsPB.GetDomainRequest();
     getDomainRequest.setRef(request.ref);
-    const domain = await this.getService().getDomain().sendMessage(getDomainRequest);
-    
-    if (request.name) domain.setName(request.name)
+    const domain = await this.getService()
+      .getDomain()
+      .sendMessage(getDomainRequest);
+
+    if (request.name) domain.setName(request.name);
     if (request.egressRule) domain.setEgressRule(request.egressRule);
-    if (request.egressNumberRef) domain.setEgressNumberRef(request.egressNumberRef);
+    if (request.egressNumberRef) {
+      domain.setEgressNumberRef(request.egressNumberRef);
+    }
     if (request.accessDeny) domain.setAccessDenyList(request.accessDeny);
     if (request.accessAllow) domain.setAccessAllowList(request.accessAllow);
 
     const req = new DomainsPB.UpdateDomainRequest();
     req.setDomain(domain);
 
-    const res = await super
-      .getService()
-      .updateDomain()
-      .sendMessage(req);
+    const res = await super.getService().updateDomain().sendMessage(req);
 
     return {
       ref: res.getRef()
@@ -212,7 +218,8 @@ export default class Domains extends FonosService {
   /**
    * List the Domains registered in Fonos SIP Proxy subsystem.
    *
-   * @param {ListDomainsRequest} request - Optional parameter with size and token for the request
+   * @param {ListDomainsRequest} request - Optional parameter with size and
+   * token for the request
    * @param {number} request.pageSize - Number of element per page
    * (defaults to 20)
    * @param {string} request.pageToken - The next_page_token value returned from
@@ -230,7 +237,7 @@ export default class Domains extends FonosService {
    *   console.log(result)            // returns a ListDomainsResponse interface
    * }).catch(e => console.error(e));  // an error occurred
    */
-  async listDomains (request: ListDomainsRequest): Promise<ListDomainsResponse> {
+  async listDomains(request: ListDomainsRequest): Promise<ListDomainsResponse> {
     const r = new DomainsPB.ListDomainsRequest();
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);
@@ -239,7 +246,7 @@ export default class Domains extends FonosService {
 
     return {
       nextPageToken: paginatedList.getNextPageToken(),
-      domains: paginatedList.getDomainsList().map((d:DomainsPB.Domain) => {
+      domains: paginatedList.getDomainsList().map((d: DomainsPB.Domain) => {
         return {
           ref: d.getRef(),
           name: d.getName(),
@@ -249,8 +256,8 @@ export default class Domains extends FonosService {
           accessDeny: d.getAccessDenyList(),
           accessAllow: d.getAccessAllowList(),
           createTime: d.getCreateTime(),
-          updateTime: d.getUpdateTime(),
-        }
+          updateTime: d.getUpdateTime()
+        };
       })
     };
   }
@@ -269,10 +276,10 @@ export default class Domains extends FonosService {
    *   console.log("done")            // returns a reference of the domain
    * }).catch(e => console.error(e));  // an error occurred
    */
-  async deleteDomain (ref: string): Promise<DeleteDomainResponse> {
+  async deleteDomain(ref: string): Promise<DeleteDomainResponse> {
     const req = new DomainsPB.DeleteDomainRequest();
     req.setRef(ref);
     await super.getService().deleteDomain().sendMessage(req);
-    return { ref };
+    return {ref};
   }
 }

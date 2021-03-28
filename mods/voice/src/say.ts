@@ -1,8 +1,8 @@
-import Verb, { VerbConfig } from "./verb";
-import Play, { PlayOptions } from "./play";
+import Verb, {VerbConfig} from "./verb";
+import Play, {PlayOptions} from "./play";
 import path from "path";
 import logger from "@fonos/logger";
-import { transcodeSync, computeFilename } from "@fonos/tts";
+import {transcodeSync, computeFilename} from "@fonos/tts";
 
 class Say extends Verb {
   constructor(channel: any, config: VerbConfig) {
@@ -19,7 +19,7 @@ class Say extends Verb {
       );
       transcodeSync(pathToFile, pathToTranscodedFile);
 
-      const metadata = { "Content-Type": "audio/x-wav" };
+      const metadata = {"Content-Type": "audio/x-wav"};
       this.config.storage.uploadObjectSync({
         accessKeyId: this.config.accessKeyId,
         filename: pathToTranscodedFile,

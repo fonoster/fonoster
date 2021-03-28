@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { FonosService, StorageService, StoragePB } from "@fonos/core";
+import {FonosService, StorageService, StoragePB} from "@fonos/core";
 
 interface UploadObjectRequest {
   bucket: "apps" | "public" | "recordings";
@@ -82,7 +82,7 @@ export default class Storage extends FonosService {
           if (err) {
             reject(err);
           } else {
-            resolve({ size: res.getSize() });
+            resolve({size: res.getSize()});
           }
         });
 

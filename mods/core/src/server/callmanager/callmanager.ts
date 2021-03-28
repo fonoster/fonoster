@@ -2,15 +2,15 @@ import path from "path";
 
 if (process.env.NODE_ENV === "dev") {
   const env = path.join(__dirname, "..", "..", "..", ".env");
-  require("dotenv").config({ path: env });
+  require("dotenv").config({path: env});
 }
 
 import routr from "../../common/routr";
 import grpc from "grpc";
 import client from "ari-client";
-import { CallRequest, CallResponse } from "../protos/callmanager_pb";
-import originate, { EndpointInfo } from "./call";
-import { ICallManagerServer } from "../protos/callmanager_grpc_pb";
+import {CallRequest, CallResponse} from "../protos/callmanager_pb";
+import originate, {EndpointInfo} from "./call";
+import {ICallManagerServer} from "../protos/callmanager_grpc_pb";
 import logger from "@fonos/logger";
 
 class CallManagerServer implements ICallManagerServer {
@@ -56,4 +56,4 @@ class CallManagerServer implements ICallManagerServer {
   }
 }
 
-export { CallManagerServer as default, ICallManagerServer, CallManagerServer };
+export {CallManagerServer as default, ICallManagerServer, CallManagerServer};

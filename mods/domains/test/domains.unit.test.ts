@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
  *
@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import Domains from "../src/domains";
 import chaiAsPromised from "chai-as-promised";
-import { FonosService, DomainsPB } from "@fonos/core";
+import {FonosService, DomainsPB} from "@fonos/core";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -29,7 +29,6 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 describe("@Fonos/domains", () => {
-
   const domainsAPI = new Domains();
 
   const domainObj = new DomainsPB.Domain();
@@ -43,9 +42,9 @@ describe("@Fonos/domains", () => {
   domainObj.setUpdateTime("...");
   domainObj.setCreateTime("...");
 
-  sandbox.stub(FonosService.prototype, 'init').returns()
+  sandbox.stub(FonosService.prototype, "init").returns();
 
-  afterEach(() => sandbox.restore())
+  afterEach(() => sandbox.restore());
 
   it("should create a domain", async () => {
     const serviceStub = sandbox
@@ -53,9 +52,8 @@ describe("@Fonos/domains", () => {
       .returns({
         createDomain: () => {
           return {
-            sendMessage: () =>
-              Promise.resolve(domainObj)
-          }
+            sendMessage: () => Promise.resolve(domainObj)
+          };
         }
       });
 
@@ -72,14 +70,16 @@ describe("@Fonos/domains", () => {
     expect(result).to.have.property("name").to.be.equal("Acme Corp");
     expect(result).to.have.property("domainUri").to.be.equal("sip.acme.com");
     expect(result).to.have.property("egressRule").to.be.equal(".*");
-    expect(result).to.have.property("egressNumberRef").to.be.equal("cb8V0CNTfH");
+    expect(result)
+      .to.have.property("egressNumberRef")
+      .to.be.equal("cb8V0CNTfH");
     expect(result).to.have.property("accessDeny").to.be.lengthOf(1);
     expect(result).to.have.property("accessAllow").to.be.lengthOf(1);
     expect(result).to.have.property("createTime").not.to.be.null;
     expect(result).to.have.property("updateTime").not.to.be.null;
 
     expect(serviceStub).to.have.been.calledOnce;
-  })
+  });
 
   it("should get a domain", async () => {
     const serviceStub = sandbox
@@ -87,15 +87,14 @@ describe("@Fonos/domains", () => {
       .returns({
         getDomain: () => {
           return {
-            sendMessage: () =>
-              Promise.resolve(domainObj)
-          }
+            sendMessage: () => Promise.resolve(domainObj)
+          };
         }
       });
 
     const request = "Nx05y-ldZa";
     const res = await domainsAPI.getDomain(request);
-    
+
     expect(res).to.have.property("ref").to.be.equal("Nx05y-ldZa");
     expect(res).to.have.property("name").to.be.equal("Acme Corp");
     expect(res).to.have.property("domainUri").to.be.equal("sip.acme.com");
@@ -106,8 +105,7 @@ describe("@Fonos/domains", () => {
     expect(res).to.have.property("createTime").not.to.be.null;
     expect(res).to.have.property("updateTime").not.to.be.null;
     expect(serviceStub).to.have.been.calledOnce;
-
-  })
+  });
 
   it("should delete a Domain", async () => {
     const serviceStub = sandbox
@@ -115,18 +113,17 @@ describe("@Fonos/domains", () => {
       .returns({
         deleteDomain: () => {
           return {
-            sendMessage: () =>
-              Promise.resolve({ref: "Nx05y-ldZa"})
-          }
+            sendMessage: () => Promise.resolve({ref: "Nx05y-ldZa"})
+          };
         }
       });
 
     const ref = "Nx05y-ldZa";
     const res = await domainsAPI.deleteDomain(ref);
-    
+
     expect(serviceStub).to.have.been.calledOnce;
     expect(res).to.have.property("ref").to.be.equal(ref);
-  })
+  });
 
   it("should list domains", async () => {
     const serviceStub = sandbox
@@ -134,13 +131,12 @@ describe("@Fonos/domains", () => {
       .returns({
         listDomains: () => {
           return {
-            sendMessage: (() => Promise.resolve({
-              getNextPageToken: () => "1",
-              getDomainsList: ()=> [
-                domainObj
-              ]
-            }))
-          }
+            sendMessage: () =>
+              Promise.resolve({
+                getNextPageToken: () => "1",
+                getDomainsList: () => [domainObj]
+              })
+          };
         }
       });
 
@@ -149,19 +145,23 @@ describe("@Fonos/domains", () => {
       pageToken: "1",
       view: 0
     };
-    
+
     const result = await domainsAPI.listDomains(request);
 
     expect(serviceStub).to.be.calledOnce;
     expect(result).to.have.property("nextPageToken").to.be.equal("1");
     expect(result.domains[0]).to.have.property("ref").to.be.equal("Nx05y-ldZa");
     expect(result.domains[0]).to.have.property("name").to.be.equal("Acme Corp");
-    expect(result.domains[0]).to.have.property("domainUri").to.be.equal("sip.acme.com");
+    expect(result.domains[0])
+      .to.have.property("domainUri")
+      .to.be.equal("sip.acme.com");
     expect(result.domains[0]).to.have.property("egressRule").to.be.equal(".*");
-    expect(result.domains[0]).to.have.property("egressNumberRef").to.be.equal("cb8V0CNTfH");
-    expect(result.domains[0]).to.have.property("accessDeny").to.be.lengthOf(1)
-    expect(result.domains[0]).to.have.property("accessAllow").to.be.lengthOf(1)
-  })
+    expect(result.domains[0])
+      .to.have.property("egressNumberRef")
+      .to.be.equal("cb8V0CNTfH");
+    expect(result.domains[0]).to.have.property("accessDeny").to.be.lengthOf(1);
+    expect(result.domains[0]).to.have.property("accessAllow").to.be.lengthOf(1);
+  });
 
   it("should update a domain (name)", async () => {
     const request = {
@@ -169,37 +169,37 @@ describe("@Fonos/domains", () => {
       name: "Acme Corp."
     };
 
-    const returnDomain = { 
+    const returnDomain = {
       ref: "Nx05y-ldZa",
       name: "Acme Corp",
       domainUri: "sip.acme.com",
       egressRule: ".*",
-      egressNumberRef: 'cb8V0CNTfH',
+      egressNumberRef: "cb8V0CNTfH",
       accessDeny: [""],
       accessAllow: [""],
       createdTime: "...",
       updatedTime: "..."
     };
 
-    sandbox.stub(domainsAPI, "getDomain").resolves(returnDomain as any)
+    sandbox.stub(domainsAPI, "getDomain").resolves(returnDomain);
 
-    const updateDomainStub = sandbox.stub(FonosService.prototype, "getService")
+    const updateDomainStub = sandbox
+      .stub(FonosService.prototype, "getService")
       .returns({
         updateDomain: () => {
           return {
-            sendMessage: (() => Promise.resolve({getRef: () => "Nx05y-ldZa"}))
-          }
+            sendMessage: () => Promise.resolve({getRef: () => "Nx05y-ldZa"})
+          };
         },
         getDomain: () => {
           return {
-            sendMessage: (() => Promise.resolve(domainObj))
-          }
+            sendMessage: () => Promise.resolve(domainObj)
+          };
         }
       });
 
     const result = await domainsAPI.updateDomain(request);
     expect(result).to.have.property("ref").to.be.equal("Nx05y-ldZa");
     expect(updateDomainStub).to.be.calledTwice;
- })
-
-})
+  });
+});

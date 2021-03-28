@@ -30,7 +30,7 @@ export class UploadObjectRequest extends jspb.Message {
     includeInstance: boolean,
     msg: UploadObjectRequest
   ): UploadObjectRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -72,7 +72,7 @@ export class UploadObjectResponse extends jspb.Message {
     includeInstance: boolean,
     msg: UploadObjectResponse
   ): UploadObjectResponse.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -109,7 +109,7 @@ export class GetObjectURLRequest extends jspb.Message {
     includeInstance: boolean,
     msg: GetObjectURLRequest
   ): GetObjectURLRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -148,7 +148,7 @@ export class GetObjectURLResponse extends jspb.Message {
     includeInstance: boolean,
     msg: GetObjectURLResponse
   ): GetObjectURLResponse.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };

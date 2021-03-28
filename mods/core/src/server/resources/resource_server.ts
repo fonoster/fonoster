@@ -1,7 +1,7 @@
 import grpc from "grpc";
-import { Empty } from "../protos/common_pb";
+import {Empty} from "../protos/common_pb";
 import deleteResource from "../resources/delete_resource";
-import { Kind } from "../../common/resource_encoder";
+import {Kind} from "../../common/resource_encoder";
 import getResource from "../resources/get_resource";
 import listResourcesHere from "../resources/list_resources";
 import getAccessKeyId from "../../common/get_access_key_id";

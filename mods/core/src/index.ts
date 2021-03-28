@@ -16,7 +16,7 @@ import AgentsPB from "./server/protos/agents_pb";
 import CommonPB from "./server/protos/common_pb";
 import UserManagerService from "./server/protos/usermanager_grpc_pb";
 import UserManagerPB from "./server/protos/usermanager_pb";
-import { ServiceOptions } from "./common/types";
+import {ServiceOptions} from "./common/types";
 
 export {
   ServiceOptions,

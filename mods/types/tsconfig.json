@@ -6,7 +6,6 @@
   },
   "exclude": [
     "node_modules",
-    "dist",
-    "**/protos/*"
+    "dist"
   ]
 }

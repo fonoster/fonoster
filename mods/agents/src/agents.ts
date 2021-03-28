@@ -1,4 +1,4 @@
-import { FonosService, AgentsService, AgentsPB } from "@fonos/core";
+import {FonosService, AgentsService, AgentsPB} from "@fonos/core";
 import logger from "@fonos/logger";
 
 /**
@@ -34,7 +34,7 @@ export default class Agents extends FonosService {
     super(AgentsService.AgentsClient, options);
     super.init();
     const promisifyAll = require("grpc-promise").promisifyAll;
-    promisifyAll(super.getService(), { metadata: super.getMeta() });
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**
@@ -190,4 +190,3 @@ export default class Agents extends FonosService {
     return super.getService().deleteAgent().sendMessage(req);
   }
 }
-

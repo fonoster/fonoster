@@ -1,4 +1,4 @@
-import { UpdateNotifier } from "update-notifier";
+import {UpdateNotifier} from "update-notifier";
 const pkg = require("../package.json");
 
 export function checkUpdate() {

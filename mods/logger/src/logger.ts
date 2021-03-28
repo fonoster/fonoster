@@ -31,4 +31,4 @@ logger.on("finish", () => {
 
 const mute = () => logger.transports.forEach((t: any) => (t.silent = true));
 
-export { logger as default, mute };
+export {logger as default, mute};

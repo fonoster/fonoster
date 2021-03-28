@@ -23,7 +23,7 @@ export class ListDomainsRequest extends jspb.Message {
     includeInstance: boolean,
     msg: ListDomainsRequest
   ): ListDomainsRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -61,7 +61,7 @@ export class ListDomainsResponse extends jspb.Message {
     includeInstance: boolean,
     msg: ListDomainsResponse
   ): ListDomainsResponse.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -95,7 +95,7 @@ export class CreateDomainRequest extends jspb.Message {
     includeInstance: boolean,
     msg: CreateDomainRequest
   ): CreateDomainRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -128,7 +128,7 @@ export class UpdateDomainRequest extends jspb.Message {
     includeInstance: boolean,
     msg: UpdateDomainRequest
   ): UpdateDomainRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -159,7 +159,7 @@ export class GetDomainRequest extends jspb.Message {
     includeInstance: boolean,
     msg: GetDomainRequest
   ): GetDomainRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -190,7 +190,7 @@ export class DeleteDomainRequest extends jspb.Message {
     includeInstance: boolean,
     msg: DeleteDomainRequest
   ): DeleteDomainRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -246,7 +246,7 @@ export class Domain extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Domain.AsObject;
   static toObject(includeInstance: boolean, msg: Domain): Domain.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };

@@ -1,6 +1,6 @@
 import routr from "../../common/routr";
-import { Empty } from "../protos/common_pb";
-import { Kind } from "../../common/resource_encoder";
+import {Empty} from "../protos/common_pb";
+import {Kind} from "../../common/resource_encoder";
 import getResource from "./get_resource";
 
 export default async function deleteResource(

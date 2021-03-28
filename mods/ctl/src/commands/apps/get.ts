@@ -1,9 +1,9 @@
 import "../../config";
 import AppManager from "@fonos/appmanager";
-import { CLIError } from "@oclif/errors";
-import { Command } from "@oclif/command";
-import { cli } from "cli-ux";
-import { render } from "prettyjson";
+import {CLIError} from "@oclif/errors";
+import {Command} from "@oclif/command";
+import {cli} from "cli-ux";
+import {render} from "prettyjson";
 const moment = require("moment");
 
 export default class GetCommand extends Command {
@@ -11,10 +11,10 @@ export default class GetCommand extends Command {
   ...
   Obtain information about an application
   `;
-  static args = [{ name: "name" }];
+  static args = [{name: "name"}];
 
   async run() {
-    const { args } = this.parse(GetCommand);
+    const {args} = this.parse(GetCommand);
     const name = args.name;
 
     try {
@@ -31,7 +31,7 @@ export default class GetCommand extends Command {
 
       await cli.wait(1000);
       cli.action.stop("");
-      console.log(render(appJson, { noColor: true }));
+      console.log(render(appJson, {noColor: true}));
     } catch (e) {
       throw new CLIError(e.message);
     }

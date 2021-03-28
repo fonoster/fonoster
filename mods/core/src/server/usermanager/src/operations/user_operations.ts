@@ -1,4 +1,4 @@
-import UserModel, { User } from "../models/user";
+import UserModel, {User} from "../models/user";
 
 class UserOperation {
   public async getUsers() {
@@ -12,7 +12,7 @@ class UserOperation {
   }
 
   public async getUserByEmail(mail: string) {
-    const users = await UserModel.findOne({ email: { $eq: mail } });
+    const users = await UserModel.findOne({email: {$eq: mail}});
     return users;
   }
 
@@ -55,9 +55,9 @@ class UserOperation {
 
   public async deleteUserByEmail(email: string) {
     UserModel.findOneAndUpdate({
-      query: { name: "Alto" },
-      sort: { cno: 1 },
-      update: { $inc: { speed: 10 } }
+      query: {name: "Alto"},
+      sort: {cno: 1},
+      update: {$inc: {speed: 10}}
     });
   }
 }

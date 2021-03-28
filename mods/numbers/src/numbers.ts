@@ -36,8 +36,8 @@ export default class Numbers extends FonosService {
   constructor(options?: any) {
     super(NumbersService.NumbersClient, options);
     super.init();
-    const { promisifyAll } = require("grpc-promise");
-    promisifyAll(super.getService(), { metadata: super.getMeta() });
+    const {promisifyAll} = require("grpc-promise");
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**

@@ -1,7 +1,7 @@
 import http from "http";
 import fs from "fs";
 import path from "path";
-import { AbstractTTS, optionsToQueryString, computeFilename } from "@fonos/tts";
+import {AbstractTTS, optionsToQueryString, computeFilename} from "@fonos/tts";
 import logger from "@fonos/logger";
 
 /**
@@ -25,7 +25,7 @@ import logger from "@fonos/logger";
  *    chan.play(url)
  * }
  */
- export default class MaryTTS extends AbstractTTS {
+export default class MaryTTS extends AbstractTTS {
   serviceUrl: string;
   /**
    * Constructs a new MaryTTS object.
@@ -81,7 +81,7 @@ import logger from "@fonos/logger";
       http.get(
         `${this.serviceUrl}&INPUT_TEXT=${encodeURI(text)}&${query}`,
         (response: any) => {
-          const { statusCode } = response;
+          const {statusCode} = response;
           if (statusCode !== 200) {
             reject(`Request failed status code: ${statusCode}`);
             return;

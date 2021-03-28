@@ -12,14 +12,14 @@ import {
   GetIngressAppRequest
 } from "../protos/numbers_pb";
 import NumberPB from "../protos/numbers_pb";
-import { Empty } from "../protos/common_pb";
+import {Empty} from "../protos/common_pb";
 import {
   INumbersService,
   NumbersService,
   INumbersServer
 } from "../protos/numbers_grpc_pb";
-import { App } from "../protos/appmanager_pb";
-import { Kind } from "../../common/resource_encoder";
+import {App} from "../protos/appmanager_pb";
+import {Kind} from "../../common/resource_encoder";
 import numberDecoder from "../../common/decoders/number_decoder";
 import ResourceServer from "../resources/resource_server";
 
@@ -80,4 +80,4 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 }
 
-export { NumbersServer as default, INumbersService, NumbersService };
+export {NumbersServer as default, INumbersService, NumbersService};

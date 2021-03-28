@@ -2,7 +2,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { join } from "path";
+import {join} from "path";
 import EventsSender from "../src/events_sender";
 import EventsRecvr from "../src/events_recvr";
 
@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({ path: join(__dirname, "..", "..", ".env") });
+  require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
 }
 
 describe("Events Module", () => {
@@ -26,7 +26,7 @@ describe("Events Module", () => {
       "test"
     );
     er.connect();
-    await er.sendToQ("APP_CREATED", { appId: "001", name: "blah" });
+    await er.sendToQ("APP_CREATED", {appId: "001", name: "blah"});
   });
 
   it("wait for events", async () => {

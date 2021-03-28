@@ -1,7 +1,7 @@
 import "../config";
 import Command from "@oclif/command";
-import { Input } from "@oclif/parser";
-import { cli } from "cli-ux";
+import {Input} from "@oclif/parser";
+import {cli} from "cli-ux";
 
 export default abstract class extends Command {
   ref: string;
@@ -13,7 +13,7 @@ export default abstract class extends Command {
   }
 
   async init() {
-    const { args } = this.parse(<Input<any>>this.constructor);
+    const {args} = this.parse(<Input<any>>this.constructor);
     this.ref = args.ref;
   }
 

@@ -1,17 +1,14 @@
 import logger from "@fonos/logger";
 import grpc from "grpc";
 import fs from "fs";
-import { FonosError, FonosFailedPrecondition } from "@fonos/errors";
+import {FonosError, FonosFailedPrecondition} from "@fonos/errors";
 import {
   extract,
   removeDirSync,
   uploadToFS,
   getFilesizeInBytes
 } from "../../common/utils";
-import {
-  UploadObjectResponse,
-  UploadObjectRequest
-} from "../protos/storage_pb";
+import {UploadObjectResponse, UploadObjectRequest} from "../protos/storage_pb";
 import getAccessKeyId from "../../common/get_access_key_id";
 
 const objectid = require("objectid");
@@ -20,7 +17,7 @@ const isCompressFile = (object: string) =>
   object.endsWith(".tar") ||
   object.endsWith(".tgz") ||
   object.endsWith(".tar.gz");
-const handleError = (err: { code: any; message: string }, bucket: string) => {
+const handleError = (err: {code: any; message: string}, bucket: string) => {
   switch (err.code) {
     case "NoSuchBucket":
       return new FonosFailedPrecondition(`${err.message} -> bucket: ${bucket}`);

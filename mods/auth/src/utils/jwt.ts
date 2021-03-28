@@ -1,5 +1,5 @@
-import { promisify } from "util";
-import { sign, verify } from "jsonwebtoken";
+import {promisify} from "util";
+import {sign, verify} from "jsonwebtoken";
 import logger from "@fonos/logger";
 import JwtPayload from "./jwt_payload";
 import ITokenManager from "./itoken_manager";
@@ -19,7 +19,7 @@ export default class JWT implements ITokenManager {
   ): Promise<string> {
     if (!privateKey) throw new Error("Token generation failure");
     // @ts-ignore
-    return promisify(sign)({ ...payload }, privateKey, {
+    return promisify(sign)({...payload}, privateKey, {
       expiresIn: expiration
     });
   }

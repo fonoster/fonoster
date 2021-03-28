@@ -1,5 +1,5 @@
 import logger from "@fonos/logger";
-import { getSalt } from "@fonos/certs";
+import {getSalt} from "@fonos/certs";
 import path from "path";
 import grpc from "grpc";
 import jwt from "jsonwebtoken";
@@ -94,4 +94,4 @@ module.exports.getServerCredentials = getServerCredentials;
 module.exports.getClientCredentials = getClientCredentials;
 module.exports.auth = auth;
 
-export { getClientCredentials, getServerCredentials, auth };
+export {getClientCredentials, getServerCredentials, auth};

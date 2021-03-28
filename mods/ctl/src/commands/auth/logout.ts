@@ -1,10 +1,10 @@
 import "../../config";
-import { CLIError } from "@oclif/errors";
-import { Command } from "@oclif/command";
-import { cli } from "cli-ux";
+import {CLIError} from "@oclif/errors";
+import {Command} from "@oclif/command";
+import {cli} from "cli-ux";
 import fs from "promise-fs";
-import { join } from "path";
-import { homedir } from "os";
+import {join} from "path";
+import {homedir} from "os";
 
 const BASE_DIR = join(homedir(), ".fonos");
 const PATH_TO_CONFIG = join(BASE_DIR, "config");
@@ -16,7 +16,7 @@ export default class extends Command {
     cli.action.start(`Login out`);
 
     try {
-      await fs.rmdir(BASE_DIR, { recursive: true });
+      await fs.rmdir(BASE_DIR, {recursive: true});
       await cli.wait(1000);
       cli.action.stop("Done");
     } catch (e) {

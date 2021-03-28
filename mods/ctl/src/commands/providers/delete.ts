@@ -1,10 +1,10 @@
 import Command from "../../base/delete";
 import Providers from "@fonos/providers";
-import { CLIError } from "@oclif/errors";
+import {CLIError} from "@oclif/errors";
 
 export default class DeleteCommand extends Command {
   static description = "removes a provider from a Fonos deployment";
-  static args = [{ name: "ref" }];
+  static args = [{name: "ref"}];
   static aliases = ["providers:del", "providers:rm"];
 
   async run() {

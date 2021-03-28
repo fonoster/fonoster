@@ -2,43 +2,36 @@ import path from "path";
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === "dev") {
   const env = path.join(__dirname, "..", "..", "..", "..", ".env");
-  require("dotenv").config({ path: env });
+  require("dotenv").config({path: env});
 }
 
-import { getSalt } from "@fonos/certs";
+import {getSalt} from "@fonos/certs";
 import AuthMiddleware from "../common/auth/auth_middleware";
 import interceptor from "@pionerlabs/grpc-interceptors";
 import logger from "@fonos/logger";
 import grpc from "grpc";
-import StorageServer, {
-  IStorageServer,
-  StorageService
-} from "./storage/storage";
-import UserManagerServer, {
-  UserManagerService
-} from "./usermanager/usermanager";
-import { IUserManagerServer } from "./protos/usermanager_grpc_pb";
-import AppManagerServer, { AppManagerService } from "./appmanager/appmanager";
-import { IAppManagerServer } from "./protos/appmanager_grpc_pb";
-import { INumbersServer } from "./protos/numbers_grpc_pb";
-import { IAgentsServer, AgentsService } from "./protos/agents_grpc_pb";
-import { IDomainsServer, DomainsService } from "./protos/domains_grpc_pb";
-import { IProvidersServer, ProvidersService } from "./protos/providers_grpc_pb";
-import NumbersServer, { NumbersService } from "./numbers/numbers";
+import StorageServer, {IStorageServer, StorageService} from "./storage/storage";
+import UserManagerServer, {UserManagerService} from "./usermanager/usermanager";
+import {IUserManagerServer} from "./protos/usermanager_grpc_pb";
+import AppManagerServer, {AppManagerService} from "./appmanager/appmanager";
+import {IAppManagerServer} from "./protos/appmanager_grpc_pb";
+import {INumbersServer} from "./protos/numbers_grpc_pb";
+import {IAgentsServer, AgentsService} from "./protos/agents_grpc_pb";
+import {IDomainsServer, DomainsService} from "./protos/domains_grpc_pb";
+import {IProvidersServer, ProvidersService} from "./protos/providers_grpc_pb";
+import NumbersServer, {NumbersService} from "./numbers/numbers";
 import AgentsServer from "./agents/agents";
 import DomainsServer from "./domains/domains";
 import ProvidersServer from "./providers/providers";
-import { getServerCredentials } from "../common/trust_util";
+import {getServerCredentials} from "../common/trust_util";
 import {
   GrpcHealthCheck,
   HealthCheckResponse,
   HealthService
 } from "grpc-ts-health-check";
-import CallManagerServer, {
-  ICallManagerServer
-} from "./callmanager/callmanager";
-import { CallManagerService } from "./protos/callmanager_grpc_pb";
-import { mongoConnection } from "../common/mongo";
+import CallManagerServer, {ICallManagerServer} from "./callmanager/callmanager";
+import {CallManagerService} from "./protos/callmanager_grpc_pb";
+import {mongoConnection} from "../common/mongo";
 
 const healthCheckStatusMap = {
   "": HealthCheckResponse.ServingStatus.SERVING

@@ -1,4 +1,4 @@
-import { EventsSender } from "@fonos/events";
+import {EventsSender} from "@fonos/events";
 import logger from "@fonos/logger";
 
 let instance: any;

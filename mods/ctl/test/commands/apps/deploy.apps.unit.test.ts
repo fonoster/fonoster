@@ -1,10 +1,10 @@
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
-import { App } from "@fonos/core/src/server/protos/appmanager_pb";
+import {App} from "@fonos/core/src/server/protos/appmanager_pb";
 import AppManager from "@fonos/appmanager";
 import DeployCommand from "../../../src/commands/apps/deploy";
-import { cli } from "cli-ux";
+import {cli} from "cli-ux";
 const sandbox = sinon.createSandbox();
 const expect = chai.expect;
 chai.use(sinonChai);

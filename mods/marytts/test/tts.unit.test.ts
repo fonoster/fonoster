@@ -13,7 +13,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({ path: path.join(__dirname, "..", "..", ".env") });
+  require("dotenv").config({path: path.join(__dirname, "..", "..", ".env")});
 }
 
 describe("@fonos/marytts", () => {

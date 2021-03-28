@@ -8,13 +8,13 @@ import {
   UpdateProviderRequest,
   DeleteProviderRequest
 } from "../protos/providers_pb";
-import { Empty } from "../protos/common_pb";
+import {Empty} from "../protos/common_pb";
 import {
   IProvidersService,
   ProvidersService,
   IProvidersServer
 } from "../protos/providers_grpc_pb";
-import { Kind, REncoder } from "../../common/resource_encoder";
+import {Kind, REncoder} from "../../common/resource_encoder";
 import updateResource from "../resources/update_resource";
 import createResource from "../resources/create_resource";
 import providerDecoder from "../../common/decoders/provider_decoder";
@@ -50,7 +50,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withHost(provider.getHost())
         .withTransport(provider.getTransport())
         .withExpires(provider.getExpires())
-        .withMetadata({ accessKeyId: getAccessKeyId(call) })
+        .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
       callback(null, await createResource(resource, providerDecoder));
@@ -105,4 +105,4 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 }
 
-export { ProvidersServer as default, IProvidersService, ProvidersService };
+export {ProvidersServer as default, IProvidersService, ProvidersService};

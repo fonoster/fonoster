@@ -82,4 +82,4 @@ const transcodeSync = (fileIn: string, fileOut: string): string => {
   return result;
 };
 
-export { computeFilename, transcode, transcodeSync, optionsToQueryString };
+export {computeFilename, transcode, transcodeSync, optionsToQueryString};

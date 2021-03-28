@@ -2,7 +2,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { join } from "path";
+import {join} from "path";
 import {
   computeFilename,
   optionsToQueryString,
@@ -16,7 +16,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({ path: join(__dirname, "..", "..", ".env") });
+  require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
 }
 
 describe("@fonos/tts/utils", () => {
@@ -82,7 +82,7 @@ describe("@fonos/tts/utils", () => {
     sandbox.spy(sox.prototype, "input");
 
     const on = sandbox.stub(sox.prototype, "on");
-    const error = { message: "nop" };
+    const error = {message: "nop"};
 
     on.withArgs("end").yields({});
     on.withArgs("error").yields(error);

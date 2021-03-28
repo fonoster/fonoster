@@ -1,9 +1,9 @@
 import "../../config";
 import AppManager from "@fonos/appmanager";
-import { CLIError } from "@oclif/errors";
-import { Command, flags as oclifFlags } from "@oclif/command";
-import { prompt } from "inquirer";
-import { CommonPB } from "@fonos/core";
+import {CLIError} from "@oclif/errors";
+import {Command, flags as oclifFlags} from "@oclif/command";
+import {prompt} from "inquirer";
+import {CommonPB} from "@fonos/core";
 const Table = require("easy-table");
 const truncate = require("truncate");
 
@@ -22,7 +22,7 @@ export default class ListCommand extends Command {
   };
 
   async run() {
-    const { flags } = this.parse(ListCommand);
+    const {flags} = this.parse(ListCommand);
     try {
       const appmanager = new AppManager();
       let firstBatch = true;
@@ -31,14 +31,14 @@ export default class ListCommand extends Command {
       const pageSize = flags.size;
       while (true) {
         // Get a list
-        const result = await appmanager.listApps({ pageSize, pageToken, view });
+        const result = await appmanager.listApps({pageSize, pageToken, view});
         const apps = result.getAppsList();
         pageToken = result.getNextPageToken();
 
         // Dont ask this if is the first time or empty data
         if (apps.length > 0 && !firstBatch) {
           const answer: any = await prompt([
-            { name: "q", message: "More", type: "confirm" }
+            {name: "q", message: "More", type: "confirm"}
           ]);
           if (!answer.q) break;
         }

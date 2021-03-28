@@ -2,7 +2,7 @@ import fs from "fs";
 import util from "util";
 import path from "path";
 import textToSpeech from "@google-cloud/text-to-speech";
-import { AbstractTTS, computeFilename } from "@fonos/tts";
+import {AbstractTTS, computeFilename} from "@fonos/tts";
 import logger from "@fonos/logger";
 
 type Voice = {
@@ -34,13 +34,13 @@ type Voice = {
  * }
  */
 class GoogleTTS extends AbstractTTS {
-  config: { projectId: string; keyFilename: string };
+  config: {projectId: string; keyFilename: string};
   /**
    * Constructs a new GoogleTTS object.
    *
    * @see module:tts:AbstractTTS
    */
-  constructor(config: { projectId: string; keyFilename: string }) {
+  constructor(config: {projectId: string; keyFilename: string}) {
     super("google-tts");
     this.config = config;
   }
@@ -59,14 +59,14 @@ class GoogleTTS extends AbstractTTS {
       )}]`
     );
 
-    const defaultVoice = { languageCode: "en-US", ssmlGender: "NEUTRAL" };
+    const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
     const merge = require("deepmerge");
     const voice = merge(defaultVoice, options || {});
 
     const request = {
-      input: { text },
+      input: {text},
       voice,
-      audioConfig: { audioEncoding: "MP3" }
+      audioConfig: {audioEncoding: "MP3"}
     };
 
     // Performs the text-to-speech request

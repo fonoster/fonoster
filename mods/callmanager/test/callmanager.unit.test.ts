@@ -2,9 +2,9 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { FonosService } from "@fonos/core";
+import {FonosService} from "@fonos/core";
 import CallManager from "../src/callmanager";
-import { CallManagerPB } from "@fonos/core";
+import {CallManagerPB} from "@fonos/core";
 
 const expect = chai.expect;
 chai.use(sinonChai);

@@ -1,4 +1,4 @@
-import { App } from "../protos/appmanager_pb";
+import {App} from "../protos/appmanager_pb";
 
 export default function (jsonObj: any) {
   const app = new App();

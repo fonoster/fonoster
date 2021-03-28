@@ -23,7 +23,7 @@ export class ListAppsRequest extends jspb.Message {
     includeInstance: boolean,
     msg: ListAppsRequest
   ): ListAppsRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -61,7 +61,7 @@ export class ListAppsResponse extends jspb.Message {
     includeInstance: boolean,
     msg: ListAppsResponse
   ): ListAppsResponse.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -96,7 +96,7 @@ export class GetAppRequest extends jspb.Message {
     includeInstance: boolean,
     msg: GetAppRequest
   ): GetAppRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -130,7 +130,7 @@ export class CreateAppRequest extends jspb.Message {
     includeInstance: boolean,
     msg: CreateAppRequest
   ): CreateAppRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -163,7 +163,7 @@ export class UpdateAppRequest extends jspb.Message {
     includeInstance: boolean,
     msg: UpdateAppRequest
   ): UpdateAppRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -194,7 +194,7 @@ export class DeleteAppRequest extends jspb.Message {
     includeInstance: boolean,
     msg: DeleteAppRequest
   ): DeleteAppRequest.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };
@@ -243,7 +243,7 @@ export class App extends jspb.Message {
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): App.AsObject;
   static toObject(includeInstance: boolean, msg: App): App.AsObject;
-  static extensions: { [key: number]: jspb.ExtensionFieldInfo<jspb.Message> };
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
   static extensionsBinary: {
     [key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>;
   };

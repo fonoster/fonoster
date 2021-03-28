@@ -1,4 +1,4 @@
-import { Domain } from "../../server/protos/domains_pb";
+import {Domain} from "../../server/protos/domains_pb";
 
 export default function (jsonObj: any) {
   const domain = new Domain();

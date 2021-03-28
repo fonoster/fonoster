@@ -15,7 +15,7 @@ describe("@fonos/core/usermanager", () => {
   afterEach(() => sandbox.restore());
 
   it("checks if a role has access to a service", async () => {
-    const role1 = new Role({ role: "GUEST", description: "", access: ["a"] });
+    const role1 = new Role({role: "GUEST", description: "", access: ["a"]});
     const role2 = new Role({
       role: "USER",
       description: "",
@@ -35,7 +35,7 @@ describe("@fonos/core/usermanager", () => {
   });
 
   it("fails with role not having access", async () => {
-    const role = new Role({ role: "GUEST", description: "", access: ["a"] });
+    const role = new Role({role: "GUEST", description: "", access: ["a"]});
     const roleStub = sandbox
       .stub(RoleController.prototype, "getRoles")
       .returns(Promise.resolve([]));

@@ -40,7 +40,7 @@ class ChannelMock {
   streamFile(file: string, escapeDigits: string) {
     const d = this.data[this.dataPointer];
     this.dataPointer = this.dataPointer + 1;
-    return { code: 200, attributes: { result: d } };
+    return {code: 200, attributes: {result: d}};
   }
 
   setData(data: any) {
@@ -75,4 +75,4 @@ class ChannelMock {
   }
 }
 
-export { CHANNEL_STATUS_AVAILABLE, CHANNEL_STATUS_UP, ChannelMock };
+export {CHANNEL_STATUS_AVAILABLE, CHANNEL_STATUS_UP, ChannelMock};

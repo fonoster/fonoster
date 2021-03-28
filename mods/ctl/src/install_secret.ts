@@ -1,8 +1,8 @@
-import { join } from "path";
+import {join} from "path";
 import * as fs from "fs";
 import * as os from "os";
-import { cli } from "cli-ux";
-import { CLIError } from "@oclif/errors";
+import {cli} from "cli-ux";
+import {CLIError} from "@oclif/errors";
 
 const k8s = require("@kubernetes/client-node");
 const btoa = require("btoa");
@@ -30,7 +30,7 @@ async function installConfig(context: string) {
     cli.log(`Installing new configuration`);
     await k8sApi.createNamespacedSecret(context, {
       kind: "Secret",
-      metadata: { name: `fonos-config` },
+      metadata: {name: `fonos-config`},
       type: "Opaque",
       data: {
         config,
@@ -57,7 +57,7 @@ async function installTLSCerts(context: string) {
     await k8sApi
       .createNamespacedSecret(context, {
         kind: "Secret",
-        metadata: { name: `fonos-certs` },
+        metadata: {name: `fonos-certs`},
         type: "kubernetes.io/tls",
         data: {
           "tls.key": key,
@@ -84,7 +84,7 @@ async function installConfigLocal(subject: string) {
     config.clientKey = getContent("client.key");
 
     const content = JSON.stringify(config, null, "");
-    fs.mkdirSync(targetDir, { recursive: true });
+    fs.mkdirSync(targetDir, {recursive: true});
     fs.writeFileSync(pathToConfig, content);
   } catch (e) {
     throw new CLIError(e.message);
@@ -93,7 +93,7 @@ async function installConfigLocal(subject: string) {
 
 function cleanup() {
   cli.log("Removing temporary files");
-  fs.rmdirSync(BASE_DIR, { recursive: true });
+  fs.rmdirSync(BASE_DIR, {recursive: true});
 }
 
-export { installConfig, installTLSCerts, installConfigLocal, cleanup };
+export {installConfig, installTLSCerts, installConfigLocal, cleanup};
