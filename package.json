@@ -18,7 +18,8 @@
     "gen-proto": "./etc/gen_code_proto.sh",
     "run-init": "cross-env NODE_ENV=dev node mods/core/dist/common/fsutils",
     "run-apiserver": "cross-env NODE_ENV=dev nodemon mods/core/src/server/server",
-    "run-mediacontroller": "cross-env NODE_ENV=dev nodemon mods/dispatcher/src/dispatcher"
+    "run-mediacontroller": "cross-env NODE_ENV=dev nodemon mods/dispatcher/src/dispatcher",
+    "lint": "eslint mods --ext .ts --fix"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
@@ -54,7 +55,7 @@
   },
   "lint-staged": {
     "mods/**/*.ts": [
-      "eslint --quiet"
+      "lint"
     ]
   },
   "husky": {
