@@ -54,7 +54,7 @@
   },
   "lint-staged": {
     "mods/**/*.ts": [
-      "eslint mods --ext .ts --fix"
+      "eslint --fix"
     ]
   },
   "husky": {
