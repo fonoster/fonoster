@@ -39,7 +39,7 @@
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-prettier": "^3.3.1",
     "grpc_tools_node_protoc_ts": "^5.1.1",
-    "husky": "^5.0.9",
+    "husky": "^5.2.0",
     "jsdoc-to-markdown": "^6.0.1",
     "lerna": "^3.22.1",
     "lint-staged": "^10.2.9",
