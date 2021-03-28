@@ -54,7 +54,7 @@
   },
   "lint-staged": {
     "mods/**/*.ts": [
-      "eslint --fix"
+      "eslint --quiet"
     ]
   },
   "husky": {

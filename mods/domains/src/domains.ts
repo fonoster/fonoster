@@ -107,7 +107,7 @@ export default class Domains extends FonosService {
     domain.setAccessAllowList(request.accessAllow);
 
     const outRequest = new DomainsPB.CreateDomainRequest();
-    outRequest.setDomain(domain);
+    outRequest.setDomain(domain)
 
     const res = await super.getService().createDomain().sendMessage(outRequest);
 
