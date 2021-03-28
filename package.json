@@ -60,7 +60,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && node etc/gen_docs.js && git add docs"
+      "pre-commit": "echo shit"
     }
   },
   "dependencies": {
