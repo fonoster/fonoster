@@ -1,5 +1,22 @@
-import {FonosService, ProvidersService, ProvidersPB} from "@fonos/core";
+import {
+  FonosService,
+  ProvidersService,
+  ProvidersPB,
+  ServiceOptions
+} from "@fonos/core";
 
+import {
+  CreateProviderRequest,
+  CreateProviderResponse,
+  UpdateProviderRequest,
+  UpdateProviderResponse,
+  ListProviderRequest,
+  ListProviderResponse,
+  GetProviderResponse,
+  DeleteProviderResponse
+} from "./types";
+
+import {promisifyAll} from "grpc-promise";
 /**
  * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
  * to create, update, get and delete providers. Fonos Providers requires of a
@@ -8,31 +25,31 @@ import {FonosService, ProvidersService, ProvidersPB} from "@fonos/core";
  * @extends FonosService
  * @example
  *
- * const Fonos = require('@fonos/sdk')
- * const providers = new Fonos.Providers()
+ * const Fonos = require("@fonos/sdk");
+ * const providers = new Fonos.Providers();
  *
  * const request = {
- *   name: 'Provider Name',
- *   username: 'trunk001',
- *   secret: 'secretkey',
- *   host: 'sip.provider.net'
- * }
+ *   name: "Provider Name",
+ *   username: "trunk001",
+ *   secret: "secretkey",
+ *   host: "sip.provider.net"
+ * };
  *
  * providers.createProvider(request)
  * .then(result => {
  *   console.log(result)             // successful response
- * }).catch(e => console.error(e))   // an error occurred
+ * }).catch(e => console.error(e));   // an error occurred
  */
 export default class Providers extends FonosService {
   /**
    * Constructs a new Providers object.
    *
+   * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
-  constructor(options?: any) {
+  constructor(options?: ServiceOptions) {
     super(ProvidersService.ProvidersClient, options);
     super.init();
-    const promisifyAll = require("grpc-promise").promisifyAll;
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
@@ -54,18 +71,20 @@ export default class Providers extends FonosService {
    * @example
    *
    * const request = {
-   *   name: 'Provider Name',
-   *   username: 'trunk001',
-   *   secret: 'secretkey',
-   *   host: 'sip.provider.net'
-   * }
+   *   name: "Provider Name",
+   *   username: "trunk001",
+   *   secret: "secretkey",
+   *   host: "sip.provider.net"
+   * };
    *
    * providers.createProvider(request)
    * .then(result => {
    *   console.log(result)            // returns the Provider object
-   * }).catch(e => console.error(e))  // an error occurred
+   * }).catch(e => console.error(e));  // an error occurred
    */
-  async createProvider(request: any) {
+  async createProvider(
+    request: CreateProviderRequest
+  ): Promise<CreateProviderResponse> {
     const provider = new ProvidersPB.Provider();
     provider.setName(request.name);
     provider.setUsername(request.username);
@@ -77,7 +96,19 @@ export default class Providers extends FonosService {
     const req = new ProvidersPB.CreateProviderRequest();
     req.setProvider(provider);
 
-    return super.getService().createProvider().sendMessage(req);
+    const res = await super.getService().createProvider().sendMessage(req);
+
+    return {
+      ref: res.getRef(),
+      name: res.getName(),
+      username: res.getUsername(),
+      secret: res.getSecret(),
+      host: res.getHost(),
+      transport: res.getTransport(),
+      expires: res.getExpires(),
+      createTime: res.getCreateTime(),
+      updateTime: res.getUpdateTime()
+    };
   }
 
   /**
@@ -91,12 +122,25 @@ export default class Providers extends FonosService {
    * providers.getProvider(ref)
    * .then(result => {
    *   console.log(result)             // returns the Provider object
-   * }).catch(e => console.error(e))   // an error occurred
+   * }).catch(e => console.error(e));   // an error occurred
    */
-  async getProvider(ref: string) {
+  async getProvider(ref: string): Promise<GetProviderResponse> {
     const request = new ProvidersPB.GetProviderRequest();
     request.setRef(ref);
-    return this.service.getProvider().sendMessage(request);
+
+    const res = await super.getService().getProvider().sendMessage(request);
+
+    return {
+      ref: res.getRef(),
+      name: res.getName(),
+      username: res.getUsername(),
+      secret: res.getSecret(),
+      host: res.getHost(),
+      transport: res.getTransport(),
+      expires: res.getExpires(),
+      createTime: res.getCreateTime(),
+      updateTime: res.getUpdateTime()
+    };
   }
 
   /**
@@ -118,29 +162,39 @@ export default class Providers extends FonosService {
    * @example
    *
    * const request = {
-   *   ref: '516f1577bcf86cd797439012',
-   *   host: 'sip.zone2.provider.net'
-   * }
+   *   ref: "516f1577bcf86cd797439012",
+   *   host: "sip.zone2.provider.net"
+   * };
    *
    * providers.updateProvider(request)
    * .then(result => {
    *   console.log(result)            // returns the Provider from the DB
-   * }).catch(e => console.error(e))  // an error occurred
+   * }).catch(e => console.error(e));  // an error occurred
    */
-  async updateProvider(request: any) {
-    const providerFromDB = await this.getProvider(request.ref);
+  async updateProvider(
+    request: UpdateProviderRequest
+  ): Promise<UpdateProviderResponse> {
+    const getProviderRequest = new ProvidersPB.GetProviderRequest();
+    getProviderRequest.setRef(request.ref);
+    const provider = await this.getService()
+      .getProvider()
+      .sendMessage(getProviderRequest);
 
-    if (request.name) providerFromDB.setName(request.name);
-    if (request.username) providerFromDB.setUsername(request.username);
-    if (request.secret) providerFromDB.setSecret(request.secret);
-    if (request.host) providerFromDB.setHost(request.host);
-    if (request.transport) providerFromDB.setTransport(request.transport);
-    if (request.expires) providerFromDB.setExpires(request.expires);
+    if (request.name) provider.setName(request.name);
+    if (request.username) provider.setUsername(request.username);
+    if (request.secret) provider.setSecret(request.secret);
+    if (request.host) provider.setHost(request.host);
+    if (request.transport) provider.setTransport(request.transport);
+    if (request.expires) provider.setExpires(request.expires);
 
     const req = new ProvidersPB.UpdateProviderRequest();
-    req.setProvider(providerFromDB);
+    req.setProvider(provider);
 
-    return super.getService().updateProvider().sendMessage(req);
+    const res = await super.getService().updateProvider().sendMessage(req);
+
+    return {
+      ref: res.getRef()
+    };
   }
 
   /**
@@ -157,39 +211,63 @@ export default class Providers extends FonosService {
    * const request = {
    *    pageSize: 20,
    *    pageToken: 2
-   * }
+   * };
    *
    * providers.listProviders(request)
    * .then(() => {
    *   console.log(result)            // returns a ListProvidersResponse object
-   * }).catch(e => console.error(e))  // an error occurred
+   * }).catch(e => console.error(e));  // an error occurred
    */
-  async listProviders(request: any) {
+  async listProviders(
+    request: ListProviderRequest
+  ): Promise<ListProviderResponse> {
     const r = new ProvidersPB.ListProvidersRequest();
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);
     r.setView(request.view);
-    return this.service.listProviders().sendMessage(r);
+
+    const paginatedList = await this.getService()
+      .listProviders()
+      .sendMessage(r);
+
+    return {
+      nextPageToken: paginatedList.getNextPageToken(),
+      providers: paginatedList
+        .getProvidersList()
+        .map((provider: ProvidersPB.Provider) => {
+          return {
+            ref: provider.getRef(),
+            name: provider.getName(),
+            username: provider.getUsername(),
+            secret: provider.getSecret(),
+            host: provider.getHost(),
+            transport: provider.getTransport(),
+            expires: provider.getExpires(),
+            createTime: provider.getCreateTime(),
+            updateTime: provider.getUpdateTime()
+          };
+        })
+    };
   }
 
   /**
    * Deletes a Provider from SIP Proxy subsystem. Notice, that in order to delete
-   * a Provider, you must first delete all it's Agents.
+   * a Provider, you must first delete all it"s Agents.
    *
    * @param {string} ref - Reference to the Provider
    * @example
    *
-   * const ref = '507f1f77bcf86cd799439011'
+   * const ref = "507f1f77bcf86cd799439011";
    *
    * providers.deleteProvider(ref)
    * .then(() => {
-   *   console.log('done')            // returns an empty object
-   * }).catch(e => console.error(e))  // an error occurred
+   *   console.log("done")            // returns an empty object
+   * }).catch(e => console.error(e));  // an error occurred
    */
-  async deleteProvider(ref: any) {
+  async deleteProvider(ref: string): Promise<DeleteProviderResponse> {
     const req = new ProvidersPB.DeleteProviderRequest();
     req.setRef(ref);
-
-    return super.getService().deleteProvider().sendMessage(req);
+    await super.getService().deleteProvider().sendMessage(req);
+    return {ref};
   }
 }

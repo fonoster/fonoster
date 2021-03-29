@@ -19,14 +19,14 @@ export default class GetCommand extends Command {
       const provider = await providers.getProvider(args.ref);
 
       const jsonObj = {
-        Ref: provider.getRef(),
-        Name: provider.getName(),
-        Username: provider.getUsername() || "(static)",
-        Host: provider.getHost(),
-        Transport: provider.getTransport(),
-        Expires: provider.getExpires(),
-        Created: moment(provider.getCreateTime()).fromNow(),
-        Updated: moment(provider.getUpdateTime()).fromNow()
+        Ref: provider.ref,
+        Name: provider.name,
+        Username: provider.username || "(static)",
+        Host: provider.host,
+        Transport: provider.transport,
+        Expires: provider.expires,
+        Created: moment(provider.createTime).fromNow(),
+        Updated: moment(provider.updateTime).fromNow()
       };
 
       await cli.wait(1000);

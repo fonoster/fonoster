@@ -30,7 +30,7 @@ describe("Numbers Service", () => {
         ingressApp: "default"
       })
     ).to.be.rejected;
-    //).to.be.rejectedWith('FAILED_PRECONDITION')
+    // ).to.be.rejectedWith('FAILED_PRECONDITION')
   });
 
   it.skip("fails because provider ref does not exist", () => {
@@ -41,7 +41,7 @@ describe("Numbers Service", () => {
         ingressApp: "default"
       })
     ).to.be.rejected;
-    //).to.be.rejectedWith('FAILED_PRECONDITION')
+    // ).to.be.rejectedWith('FAILED_PRECONDITION')
   });
 
   it("creates a number for the given provider", async () => {

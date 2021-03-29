@@ -28,13 +28,13 @@ export default class UpdateCommand extends Command {
         name: "name",
         message: "friendly name",
         type: "input",
-        default: provider.getName()
+        default: provider.name
       },
       {
         name: "username",
         message: "username",
         type: "input",
-        default: provider.getUsername()
+        default: provider.username
       },
       {
         name: "secret",
@@ -46,20 +46,20 @@ export default class UpdateCommand extends Command {
         name: "host",
         message: "host",
         type: "input",
-        default: provider.getHost()
+        default: provider.host
       },
       {
         name: "transport",
         message: "host",
         type: "list",
         choices: ["tcp", "udp"],
-        default: provider.getTransport()
+        default: provider.transport
       },
       {
         name: "expires",
         message: "expire",
         type: "input",
-        default: provider.getExpires()
+        default: provider.expires
       },
       {
         name: "confirm",
