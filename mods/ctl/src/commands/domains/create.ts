@@ -19,18 +19,14 @@ export default class CreateCommand extends Command {
     console.log("This utility will help you create a new Domain");
     console.log("Press ^C at any time to quit.");
 
-    const numbers = new Numbers();
-    const result = await numbers.listNumbers({
-      pageSize: 20,
-      pageToken: "1",
-      view
-    });
-    const nums = result.getNumbersList().map((n: any) => {
+    const numbers = new Numbers()
+    const result = await numbers.listNumbers({ pageSize: 20, pageToken: '1', view})
+    const nums = result.numbers.map((n:any) => {
       return {
-        value: n.getRef(),
-        name: n.getE164Number()
-      };
-    });
+        value: n.ref,
+        name: n.e164Number
+      }
+    })
     nums.unshift({
       value: "none",
       name: "none"

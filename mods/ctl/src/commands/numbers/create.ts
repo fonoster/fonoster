@@ -103,15 +103,13 @@ export default class CreateCommand extends Command {
       } else {
         const number = phone(answers.e164Number)[0];
         if (!number)
-          throw new Error(
-            `number ${answers.e164Number} is not a valid E.164 number`
-          );
-        cli.action.start(`Creating number ${number}`);
-        answers.e164Number = number;
-        const numbers = new Numbers();
-        const result = await numbers.createNumber(answers);
-        await cli.wait(1000);
-        cli.action.stop(result.getRef());
+          throw new Error(`number ${answers.e164Number} is not a valid E.164 number`)
+        cli.action.start(`Creating number ${number}`)
+        answers.e164Number = number
+        const numbers = new Numbers()
+        const result = await numbers.createNumber(answers)
+        await cli.wait(1000)
+        cli.action.stop(result.ref)
       }
     } catch (e) {
       cli.action.stop();

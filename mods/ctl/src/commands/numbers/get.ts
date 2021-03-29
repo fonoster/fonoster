@@ -19,14 +19,14 @@ export default class GetCommand extends Command {
       const number = await numbers.getNumber(args.ref);
 
       const jsonObj = {
-        Ref: number.getRef(),
-        "Provider Ref": number.getProviderRef(),
-        "E164 Number": number.getE164Number(),
-        "AOR Link": number.getAorLink() || "--",
-        "Ingress App": number.getIngressApp() || "--",
-        Created: moment(number.getCreateTime()).fromNow(),
-        Updated: moment(number.getUpdateTime()).fromNow()
-      };
+        Ref: number.ref,
+        'Provider Ref': number.providerRef,
+        'E164 Number': number.e164Number,
+        'AOR Link': number.aorLink || '--',
+        'Ingress App': number.ingressApp || '--',
+        Created: moment(number.createTime).fromNow(),
+        Updated: moment(number.updateTime).fromNow()
+      }
 
       await cli.wait(1000);
       cli.action.stop("");
