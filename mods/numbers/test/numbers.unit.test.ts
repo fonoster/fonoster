@@ -1,13 +1,10 @@
 import Numbers from "../src/numbers";
 import chai from "chai";
 import sinonChai from "sinon-chai";
-import sinon, { assert, fake } from "sinon";
-
+import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
-import { join } from "path";
-import { FonosService, NumbersPB, AppManagerPB } from "@fonos/core";
-
-import { CreateNumberResponse } from "../src/types";
+import {FonosService, NumbersPB, AppManagerPB} from "@fonos/core";
+import {CreateNumberResponse} from "../src/types";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -15,7 +12,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 describe("@fonos/number", () => {
-  let numbers: any;
+  let numbers: Numbers;
   const numberObj = new NumbersPB.Number();
   numberObj.setRef("Nx05y-ldZa");
   numberObj.setUpdateTime("...");
@@ -53,7 +50,7 @@ describe("@fonos/number", () => {
       });
     const result: CreateNumberResponse = await numbers.createNumber({
       e164Number: "0000000000",
-      ingressApp: "default"
+      providerRef: "000"
     });
 
     expect(stubNumber.calledOnce).to.be.equal(true);
@@ -136,6 +133,7 @@ describe("@fonos/number", () => {
 
   it("Should return error with aorLink and ingressApp", async () => {
     const request = {
+      ref: "x",
       aorLink: "x",
       ingressApp: "x"
     };
@@ -145,18 +143,19 @@ describe("@fonos/number", () => {
     sandbox.stub(FonosService.prototype, "getService").returns({
       getNumber: () => {
         return {
-          sendMessage: (r: any) => Promise.resolve(numberReturnPromise)
+          sendMessage: () => Promise.resolve(numberReturnPromise)
         };
       }
     });
-    sandbox.stub(numbers, "getNumber").returns({});
     sinon.spy(numbers, "updateNumber");
     expect(numbers.updateNumber(request)).to.eventually.be.rejectedWith(
       "are not compatible parameters"
     );
   });
   it("Should return error with no aorLink and ingressApp", async () => {
-    const request = {};
+    const request = {
+      ref: "x"
+    };
     const numberReturnPromise = new NumbersPB.Number();
     sandbox.stub(FonosService.prototype, "getService").returns({
       getNumber: () => {
@@ -165,7 +164,6 @@ describe("@fonos/number", () => {
         };
       }
     });
-    sandbox.stub(numbers, "getNumber").returns({});
     sinon.spy(numbers, "updateNumber");
     expect(numbers.updateNumber(request)).to.eventually.be.rejectedWith(
       "You must provider either"
@@ -202,7 +200,6 @@ describe("@fonos/number", () => {
     const returnNumberDb = new NumbersPB.Number();
     returnNumberDb.setRef(request.ref);
 
-    sandbox.stub(numbers, "getNumber").returns(returnNumberDb);
     sandbox.stub(FonosService.prototype, "getService").returns({
       updateNumber: () => {
         return {
@@ -222,13 +219,13 @@ describe("@fonos/number", () => {
   it("Should return an app", async () => {
     const returnApp = new AppManagerPB.App();
     const returnResult = {
-      "accessKeyId": "",
-      "createTime": "",
-      "description": "",
-      "name": "",
-      "ref": "",
-      "updateTime": ""
-    }
+      accessKeyId: "",
+      createTime: "",
+      description: "",
+      name: "",
+      ref: "",
+      updateTime: ""
+    };
     sandbox.stub(FonosService.prototype, "getService").returns({
       getIngressApp: () => {
         return {
@@ -236,7 +233,7 @@ describe("@fonos/number", () => {
         };
       }
     });
-    const result = await numbers.getIngressApp("ref");
+    const result = await numbers.getIngressApp({e164Number: "x"});
     expect(result.ref).to.be.equal(returnResult.ref);
   });
 });

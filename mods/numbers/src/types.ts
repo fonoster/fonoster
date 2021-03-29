@@ -33,11 +33,11 @@ export interface ListNumbersResponse {
 }
 
 export interface CreateNumberRequest {
-  ref: string;
+  ref?: string;
   providerRef: string;
   e164Number: string;
-  ingressApp: string;
-  aorLink: string;
+  ingressApp?: string;
+  aorLink?: string;
 }
 enum View {
   BASIC = 0,

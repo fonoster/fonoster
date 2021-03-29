@@ -34,6 +34,8 @@ import {
   NumbersPB,
   ServiceOptions
 } from "@fonos/core";
+import {promisifyAll} from "grpc-promise";
+import sleep from "sync";
 
 /**
  * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
@@ -43,13 +45,13 @@ import {
  * @extends FonosService
  * @example
  *
- * const Fonos = require('@fonos/sdk')
+ * const Fonos = require("@fonos/sdk")
  * const numbers = new Fonos.Numbers()
  *
  * const request = {
- *   providerRef: '516f1577bcf86cd797439012',
- *   e164Number: '+17853177343',
- *   ingressApp: 'hello-monkeys'
+ *   providerRef: "516f1577bcf86cd797439012",
+ *   e164Number: "+17853177343",
+ *   ingressApp: "hello-monkeys"
  * }
  *
  * numbers.createNumber(request)
@@ -60,13 +62,12 @@ import {
 export default class Numbers extends FonosService {
   /**
    * Constructs a new Numbers object.
-   *
+   * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
   constructor(options?: ServiceOptions) {
     super(NumbersService.NumbersClient, options);
     super.init();
-    const {promisifyAll} = require("grpc-promise");
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
@@ -86,9 +87,9 @@ export default class Numbers extends FonosService {
    * @example
    *
    * const request = {
-   *   providerRef: '516f1577bcf86cd797439012',
-   *   e164Number: '+17853177343',
-   *   aorLink: 'sip:1001@sip.local'
+   *   providerRef: "516f1577bcf86cd797439012",
+   *   e164Number: "+17853177343",
+   *   aorLink: "sip:1001@sip.local"
    * }
    *
    * numbers.createNumber(request)
@@ -160,8 +161,8 @@ export default class Numbers extends FonosService {
    * @example
    *
    * const request = {
-   *   ref: '516f1577bcf86cd797439012',
-   *   aorLink: 'sip:1001@sip.local'
+   *   ref: "516f1577bcf86cd797439012",
+   *   aorLink: "sip:1001@sip.local"
    * }
    *
    * numbers.updateNumber(request)
@@ -255,11 +256,11 @@ export default class Numbers extends FonosService {
    * @param {string} ref - Reference to the Number
    * @example
    *
-   * const ref = '507f1f77bcf86cd799439011'
+   * const ref = "507f1f77bcf86cd799439011"
    *
    * numbers.deleteNumber(ref)
    * .then(() => {
-   *   console.log('done')            // returns an empty object
+   *   console.log("done")            // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteNumber(ref: string): Promise<DeleteNumberResponse> {
@@ -284,7 +285,7 @@ export default class Numbers extends FonosService {
    * @example
    *
    * const request = {
-   *    e164Number: '+17853178071'
+   *    e164Number: "+17853178071"
    * }
    *
    * numbers.getIngressApp(request)
@@ -310,7 +311,7 @@ export default class Numbers extends FonosService {
     };
   }
 
-   /**
+  /**
    * Get the Ingress App for a given e164 number.
    *
    * @param {GetIngressAppRequest} request
@@ -321,7 +322,7 @@ export default class Numbers extends FonosService {
    * @example
    *
    * const request = {
-   *    e164Number: '+17853178071'
+   *    e164Number: "+17853178071"
    * }
    *
    * numbers.getIngressApp(request)
@@ -330,7 +331,6 @@ export default class Numbers extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   getIngressAppSync(request: GetIngressAppRequest): GetIngressAppResponse {
-    const sleep = require("sync").sleep;
     let result;
     let error;
     this.getIngressApp(request)
