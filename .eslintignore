@@ -12,8 +12,6 @@ mods/googleasr
 mods/googletts
 mods/logger
 mods/marytts
-mods/numbers
-mods/providers
 mods/sdk
 mods/storage
 mods/tts
