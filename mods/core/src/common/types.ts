@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
  *
@@ -17,6 +17,6 @@
  * limitations under the License.
  */
 export interface ServiceOptions {
-    endpoint?: string;
-    bucket?: string;
+  endpoint?: string;
+  bucket?: string;
 }

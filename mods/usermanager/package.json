@@ -5,8 +5,8 @@
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "dist/usermanager",
+  "types": "dist/usermanager",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json"

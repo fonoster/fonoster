@@ -1,22 +1,22 @@
-import UserModel, { User } from '../models/user'
+import UserModel, {User} from "../models/user";
 
 class UserOperation {
-  public async getUsers () {
-    const users = await UserModel.find()
-    return users
+  public async getUsers() {
+    const users = await UserModel.find();
+    return users;
   }
 
-  public async getAll () {
-    const users = await UserModel.find()
-    return users
+  public async getAll() {
+    const users = await UserModel.find();
+    return users;
   }
 
-  public async getUserByEmail (mail: string) {
-    const users = await UserModel.findOne({ email: { $eq: mail } })
-    return users
+  public async getUserByEmail(mail: string) {
+    const users = await UserModel.findOne({email: {$eq: mail}});
+    return users;
   }
 
-  public async saveUser (obj: any) {
+  public async saveUser(obj: any) {
     const {
       firstName,
       lastName,
@@ -26,7 +26,7 @@ class UserOperation {
       createTime,
       updateTime,
       status
-    } = obj
+    } = obj;
     const users: User = new UserModel({
       firstName,
       lastName,
@@ -36,11 +36,11 @@ class UserOperation {
       createTime,
       updateTime,
       status
-    })
-    await users.save()
+    });
+    await users.save();
   }
 
-  public async updateUserStatus (mail: string, new_status: string) {
+  public async updateUserStatus(mail: string, new_status: string) {
     await UserModel.updateOne(
       {
         email: mail
@@ -50,16 +50,16 @@ class UserOperation {
           status: new_status
         }
       }
-    )
+    );
   }
 
-  public async deleteUserByEmail (email: string) {
+  public async deleteUserByEmail(email: string) {
     UserModel.findOneAndUpdate({
-      query: { name: 'Alto' },
-      sort: { cno: 1 },
-      update: { $inc: { speed: 10 } }
-    })
+      query: {name: "Alto"},
+      sort: {cno: 1},
+      update: {$inc: {speed: 10}}
+    });
   }
 }
 
-export const userOperation = new UserOperation()
+export const userOperation = new UserOperation();

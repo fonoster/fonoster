@@ -5,8 +5,8 @@
   "author": "Pedro Sanders <sanderspedro@gmail.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "dist/appmanager",
+  "types": "dist/appmanager",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json"
@@ -32,13 +32,13 @@
     "@fonos/core": "^0.0.79",
     "@fonos/logger": "^0.0.79",
     "@fonos/storage": "^0.0.79",
-    "@types/fs-extra": "^9.0.1",
-    "@types/tar": "^4.0.3",
     "fs-extra": "^8.1.0",
     "grpc-promise": "^1.4.0",
     "tar": "^6.0.1"
   },
   "devDependencies": {
+    "@types/fs-extra": "^9.0.1",
+    "@types/tar": "^4.0.3",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2"
   }

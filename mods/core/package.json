@@ -35,9 +35,7 @@
     "@fonos/errors": "^0.0.79",
     "@fonos/events": "^0.0.79",
     "@fonos/logger": "^0.0.79",
-    "@fonos/types": "^0.0.79",
     "@pionerlabs/grpc-interceptors": "^0.2.5",
-    "@types/node": "^13.13.5",
     "ari-client": "^2.2.0",
     "atob": "^2.1.2",
     "axios": "^0.21.1",
@@ -62,6 +60,7 @@
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "@types/node": "^14.14.37",
     "@types/ari-client": "^2.2.2",
     "@types/bcryptjs": "^2.4.2",
     "@types/btoa": "^1.2.3",

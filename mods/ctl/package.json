@@ -101,7 +101,6 @@
     "@types/dockerode": "^3.2.2",
     "@types/phone": "^2.4.0",
     "@types/prettyjson": "0.0.29",
-    "@types/promise-fs": "^2.1.1",
     "@types/update-notifier": "^5.0.0",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2",

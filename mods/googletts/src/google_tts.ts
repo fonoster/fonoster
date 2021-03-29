@@ -1,16 +1,16 @@
-import fs from 'fs'
-import util from 'util'
-import path from 'path'
-import textToSpeech from '@google-cloud/text-to-speech'
-import { AbstractTTS, computeFilename } from '@fonos/tts'
-import logger from '@fonos/logger'
+import fs from "fs";
+import util from "util";
+import path from "path";
+import textToSpeech from "@google-cloud/text-to-speech";
+import {AbstractTTS, computeFilename} from "@fonos/tts";
+import logger from "@fonos/logger";
 
 type Voice = {
-  name?: string
-  ssmlGender?: 'MALE' | 'FEMALE'
-  naturalSampleRateHertz?: number
-  languageCodes?: string[]
-}
+  name?: string;
+  ssmlGender?: "MALE" | "FEMALE";
+  naturalSampleRateHertz?: number;
+  languageCodes?: string[];
+};
 
 /**
  * @classdesc Optional TTS engine for Fonos.
@@ -34,48 +34,48 @@ type Voice = {
  * }
  */
 class GoogleTTS extends AbstractTTS {
-  config: { projectId: string; keyFilename: string }
+  config: {projectId: string; keyFilename: string};
   /**
    * Constructs a new GoogleTTS object.
    *
    * @see module:tts:AbstractTTS
    */
-  constructor (config: { projectId: string; keyFilename: string }) {
-    super('google-tts')
-    this.config = config
+  constructor(config: {projectId: string; keyFilename: string}) {
+    super("google-tts");
+    this.config = config;
   }
 
   /**
    * @inherit
    */
-  async synthesize (text: string, options: Voice = {}): Promise<string> {
-    const client = new textToSpeech.TextToSpeechClient(this.config)
-    const pathToFile = path.join('/tmp', computeFilename(text, options, 'mp3'))
+  async synthesize(text: string, options: Voice = {}): Promise<string> {
+    const client = new textToSpeech.TextToSpeechClient(this.config);
+    const pathToFile = path.join("/tmp", computeFilename(text, options, "mp3"));
 
     logger.log(
-      'debug',
+      "debug",
       `@fonos/tts.GoogleTTS.synthesize [text: ${text}, options: ${JSON.stringify(
         options
       )}]`
-    )
+    );
 
-    const defaultVoice = { languageCode: 'en-US', ssmlGender: 'NEUTRAL' }
-    const merge = require('deepmerge')
-    const voice = merge(defaultVoice, options || {})
+    const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
+    const merge = require("deepmerge");
+    const voice = merge(defaultVoice, options || {});
 
     const request = {
-      input: { text },
+      input: {text},
       voice,
-      audioConfig: { audioEncoding: 'MP3' }
-    }
+      audioConfig: {audioEncoding: "MP3"}
+    };
 
     // Performs the text-to-speech request
-    const [response] = await client.synthesizeSpeech(request as any)
+    const [response] = await client.synthesizeSpeech(request as any);
     // Write the binary audio content to a local file
-    const writeFile = util.promisify(fs.writeFile)
-    await writeFile(pathToFile, response.audioContent, 'binary')
-    return pathToFile
+    const writeFile = util.promisify(fs.writeFile);
+    await writeFile(pathToFile, response.audioContent, "binary");
+    return pathToFile;
   }
 }
 
-export default GoogleTTS
+export default GoogleTTS;

@@ -1,8 +1,8 @@
-import grpc from 'grpc'
-import createApp from './create_app'
-import listApps from './list_apps'
-import getApp from './get_app'
-import deleteApp from './delete_app'
+import grpc from "grpc";
+import createApp from "./create_app";
+import listApps from "./list_apps";
+import getApp from "./get_app";
+import deleteApp from "./delete_app";
 import {
   App,
   ListAppsRequest,
@@ -11,75 +11,77 @@ import {
   CreateAppRequest,
   UpdateAppRequest,
   DeleteAppRequest
-} from '../protos/appmanager_pb'
-import { Empty } from '../protos/common_pb'
-import getAccessKeyId from '../../common/get_access_key_id'
+} from "../protos/appmanager_pb";
+import {Empty} from "../protos/common_pb";
+import getAccessKeyId from "../../common/get_access_key_id";
 
 import {
   IAppManagerService,
   AppManagerService,
   IAppManagerServer
-} from '../protos/appmanager_grpc_pb'
+} from "../protos/appmanager_grpc_pb";
 
 class AppManagerServer implements IAppManagerServer {
-  async listApps (
+  async listApps(
     call: grpc.ServerUnaryCall<ListAppsRequest>,
     callback: grpc.sendUnaryData<ListAppsResponse>
   ) {
     try {
       const result = await listApps(
         parseInt(call.request.getPageToken()),
-        call.request.getPageSize(), 
+        call.request.getPageSize(),
         getAccessKeyId(call)
-      )
-      const response = new ListAppsResponse()
-      response.setAppsList(result.apps)
-      if (result.pageToken) response.setNextPageToken('' + result.pageToken)
-      callback(null, response)
+      );
+      const response = new ListAppsResponse();
+      response.setAppsList(result.apps);
+      if (result.pageToken) response.setNextPageToken("" + result.pageToken);
+      callback(null, response);
     } catch (e) {
-      callback(e, null)
+      callback(e, null);
     }
   }
 
-  async getApp (
+  async getApp(
     call: grpc.ServerUnaryCall<GetAppRequest>,
     callback: grpc.sendUnaryData<App>
   ) {
     try {
-      callback(null, await getApp(call.request.getRef(), getAccessKeyId(call)))
+      callback(null, await getApp(call.request.getRef(), getAccessKeyId(call)));
     } catch (e) {
-      callback(e, null)
+      callback(e, null);
     }
   }
 
-  async createApp (
+  async createApp(
     call: grpc.ServerUnaryCall<CreateAppRequest>,
     callback: grpc.sendUnaryData<App>
   ) {
     try {
-      callback(null, await createApp(call.request.getApp(), getAccessKeyId(call)))
+      callback(
+        null,
+        await createApp(call.request.getApp(), getAccessKeyId(call))
+      );
     } catch (e) {
-      callback(e, null)
+      callback(e, null);
     }
   }
 
-  updateApp (
+  updateApp(
     call: grpc.ServerUnaryCall<UpdateAppRequest>,
     callback: grpc.sendUnaryData<App>
-  ): void {
-  }
+  ): void {}
 
-  async deleteApp (
+  async deleteApp(
     call: grpc.ServerUnaryCall<DeleteAppRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      await deleteApp(call.request.getRef(), getAccessKeyId(call))
-      callback(null, new Empty())
+      await deleteApp(call.request.getRef(), getAccessKeyId(call));
+      callback(null, new Empty());
     } catch (e) {
-      callback(e, null)
+      callback(e, null);
     }
   }
 }
 
-export { AppManagerServer as default, IAppManagerService, AppManagerService }
+export {AppManagerServer as default, IAppManagerService, AppManagerService};

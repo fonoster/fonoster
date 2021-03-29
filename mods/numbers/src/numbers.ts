@@ -176,9 +176,13 @@ export default class Numbers extends FonosService {
     const numberFromDB = await this.getService().getNumber().sendMessage(getRequest)
     
     if (request.aorLink && request.ingressApp) {
-      throw new Error(`'ingressApp' and 'aorLink' are not compatible parameters`)
+      throw new Error(
+        `'ingressApp' and 'aorLink' are not compatible parameters`
+      );
     } else if (!request.aorLink && !request.ingressApp) {
-      throw new Error(`You must provider either an 'ingressApp' or and 'aorLink'`)
+      throw new Error(
+        `You must provider either an 'ingressApp' or and 'aorLink'`
+      );
     }
 
     if (request.aorLink) {
@@ -310,13 +314,13 @@ export default class Numbers extends FonosService {
     let result
     let error
     this.getIngressApp(request)
-      .then(r => (result = r))
-      .catch(e => (error = e))
+      .then((r) => (result = r))
+      .catch((e) => (error = e));
 
-    while (result === undefined && error === undefined) sleep(100)
+    while (result === undefined && error === undefined) sleep(100);
 
-    if (error) throw error
+    if (error) throw error;
 
-    return result
+    return result;
   }
 }

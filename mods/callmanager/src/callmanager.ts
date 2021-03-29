@@ -1,4 +1,4 @@
-import { FonosService, CallManagerService, CallManagerPB } from '@fonos/core'
+import {FonosService, CallManagerService, CallManagerPB} from "@fonos/core";
 
 /**
  * Call request object
@@ -9,9 +9,9 @@ import { FonosService, CallManagerService, CallManagerPB } from '@fonos/core'
  * @property {string} app - Application to handle the call once the destination answers the call
  */
 export interface CallRequest {
-  from: string
-  to: string
-  app: string
+  from: string;
+  to: string;
+  app: string;
 }
 
 /**
@@ -23,10 +23,10 @@ export interface CallRequest {
  * @property {string} app - Application to handle the call once the destination answers the call
  */
 export interface CallResponse {
-  from: string
-  to: string
-  app: string
-  duration: number
+  from: string;
+  to: string;
+  app: string;
+  duration: number;
 }
 
 /**
@@ -55,11 +55,11 @@ export default class CallManager extends FonosService {
    *
    * @see module:core:FonosService
    */
-  constructor (options?: any) {
-    super(CallManagerService.CallManagerClient, options)
-    super.init()
-    const { promisifyAll } = require('grpc-promise')
-    promisifyAll(super.getService(), { metadata: super.getMeta() })
+  constructor(options?: any) {
+    super(CallManagerService.CallManagerClient, options);
+    super.init();
+    const {promisifyAll} = require("grpc-promise");
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**
@@ -81,22 +81,19 @@ export default class CallManager extends FonosService {
    * }).catch(e => console.error(e))   // an error occurred
    *
    */
-  async call (request: CallRequest): Promise<CallResponse> {
-    const r = new CallManagerPB.CallRequest()
-    r.setFrom(request.from)
-    r.setTo(request.to)
-    r.setApp(request.app)
+  async call(request: CallRequest): Promise<CallResponse> {
+    const r = new CallManagerPB.CallRequest();
+    r.setFrom(request.from);
+    r.setTo(request.to);
+    r.setApp(request.app);
 
-    const p = await super
-      .getService()
-      .call()
-      .sendMessage(r)
+    const p = await super.getService().call().sendMessage(r);
 
     return {
       from: p.getFrom(),
       to: p.getTo(),
       app: p.getApp(),
       duration: p.getDuration()
-    }
+    };
   }
 }

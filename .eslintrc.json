@@ -1,0 +1,26 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,    // Allows for the parsing of modern ECMAScript features
+    "sourceType": "module"  // Allows for the use of imports
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "no-loops",
+    "prettier"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "google",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
+  "rules": {
+    "quotes": ["error", "double"],
+    "no-loops/no-loops": 2,
+    "no-console": 1,       // Means warning
+    "prettier/prettier": 2 // Means error
+  }
+}

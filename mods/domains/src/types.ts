@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
  *
@@ -84,7 +84,7 @@ export interface ListDomainsRequest {
 
 export interface ListDomainsResponse {
   nextPageToken: string;
-  domains: Domain[]
+  domains: Domain[];
 }
 
 export interface DeleteDomainResponse {

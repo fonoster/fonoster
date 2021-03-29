@@ -1,57 +1,64 @@
-const CHANNEL_STATUS_AVAILABLE = 0 // Channel is down and available
-const CHANNEL_STATUS_UP = 6 // Line is up
+const CHANNEL_STATUS_AVAILABLE = 0; // Channel is down and available
+const CHANNEL_STATUS_UP = 6; // Line is up
 
 class ChannelMock {
-  status: number
+  status: number;
   request: {
-    callerId?: string,
-      extension?: string
-  }
-  data: any
-  dataPointer: any
-  constructor (callerId?: string, extension?: string) {
-    this.status = CHANNEL_STATUS_AVAILABLE
-    this.resetDataPointer()
-    this.request = {}
-    this.request.callerId = callerId ? callerId : '1234'
-    this.request.extension = extension ? extension : '4321'
-  }
-
-  answer () {
-    this.status = CHANNEL_STATUS_UP
-    return 0 // success
+    callerId?: string;
+    extension?: string;
+  };
+  data: any;
+  dataPointer: any;
+  constructor(callerId?: string, extension?: string) {
+    this.status = CHANNEL_STATUS_AVAILABLE;
+    this.resetDataPointer();
+    this.request = {};
+    this.request.callerId = callerId ? callerId : "1234";
+    this.request.extension = extension ? extension : "4321";
   }
 
-  hangup () {
-    this.status = CHANNEL_STATUS_AVAILABLE
-    return 1 // success
+  answer() {
+    this.status = CHANNEL_STATUS_UP;
+    return 0; // success
   }
 
-  setAutoHangup (timeout: number) {
-    throw new Error('not yet implemented')
+  hangup() {
+    this.status = CHANNEL_STATUS_AVAILABLE;
+    return 1; // success
   }
 
-  getData (file: string, timeout: number, maxDigits: number) {
-    const d = this.data[this.dataPointer]
-    this.dataPointer = this.dataPointer + 1
-    return d
+  setAutoHangup(timeout: number) {
+    throw new Error("not yet implemented");
   }
 
-  streamFile (file: string, escapeDigits: string) {
-    const d = this.data[this.dataPointer]
-    this.dataPointer = this.dataPointer + 1
-    return { code: 200, attributes: { result: d } }
+  getData(file: string, timeout: number, maxDigits: number) {
+    const d = this.data[this.dataPointer];
+    this.dataPointer = this.dataPointer + 1;
+    return d;
   }
 
-  setData (data: any) {
-    this.data = data
+  streamFile(file: string, escapeDigits: string) {
+    const d = this.data[this.dataPointer];
+    this.dataPointer = this.dataPointer + 1;
+    return {code: 200, attributes: {result: d}};
   }
 
-  resetDataPointer () {
-    this.dataPointer = 0
+  setData(data: any) {
+    this.data = data;
   }
 
-  recordFile (file: string, format: string, finishOnKey: string, maxDuration: number, offset: number, beep: string) {
+  resetDataPointer() {
+    this.dataPointer = 0;
+  }
+
+  recordFile(
+    file: string,
+    format: string,
+    finishOnKey: string,
+    maxDuration: number,
+    offset: number,
+    beep: string
+  ) {
     return {
       code: 200,
       attributes: {
@@ -64,12 +71,8 @@ class ChannelMock {
           beep
         }
       }
-    }
+    };
   }
 }
 
-export {
-    CHANNEL_STATUS_AVAILABLE,
-    CHANNEL_STATUS_UP,
-    ChannelMock
-}
+export {CHANNEL_STATUS_AVAILABLE, CHANNEL_STATUS_UP, ChannelMock};

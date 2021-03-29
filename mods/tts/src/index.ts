@@ -1,4 +1,4 @@
-import AbstractTTS from './abstract_tts'
+import AbstractTTS from "./abstract_tts";
 
-export * from './utils'
-export { AbstractTTS }
+export * from "./utils";
+export {AbstractTTS};

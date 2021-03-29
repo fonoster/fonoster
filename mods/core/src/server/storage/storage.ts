@@ -1,47 +1,49 @@
-import grpc from 'grpc'
-import getObjectURL from './get_object_url'
-import uploadObject from './upload_object'
+import grpc from "grpc";
+import getObjectURL from "./get_object_url";
+import uploadObject from "./upload_object";
 import {
   UploadObjectRequest,
   UploadObjectResponse,
   GetObjectURLRequest,
   GetObjectURLResponse
-} from '../protos/storage_pb'
-import { IStorageServer, StorageService } from '../protos/storage_grpc_pb'
-import getAccessKeyId from '../../common/get_access_key_id'
+} from "../protos/storage_pb";
+import {IStorageServer, StorageService} from "../protos/storage_grpc_pb";
+import getAccessKeyId from "../../common/get_access_key_id";
 
-const getBucketName = (bucket:GetObjectURLRequest.Bucket) => {
+const getBucketName = (bucket: GetObjectURLRequest.Bucket) => {
   switch (bucket) {
     case GetObjectURLRequest.Bucket.APPS:
-      return 'apps'
+      return "apps";
     case GetObjectURLRequest.Bucket.RECORDINGS:
-      return 'recordings'
+      return "recordings";
     case GetObjectURLRequest.Bucket.PUBLIC:
-      return 'public'
+      return "public";
   }
-}
+};
 
 class StorageServer implements IStorageServer {
-  async uploadObject (
+  async uploadObject(
     call: grpc.ServerReadableStream<UploadObjectRequest>,
     callback: grpc.sendUnaryData<UploadObjectResponse>
   ): Promise<void> {
-
     try {
-      await uploadObject(call, callback)
+      await uploadObject(call, callback);
     } catch (e) {
-      callback(e, null)
+      callback(e, null);
     }
   }
 
-  async getObjectURL (
+  async getObjectURL(
     call: grpc.ServerUnaryCall<GetObjectURLRequest>,
     callback: grpc.sendUnaryData<GetObjectURLResponse>
   ): Promise<void> {
-    const bucket = getBucketName(call.request.getBucket())
-    let accessKeyId = getAccessKeyId(call)
-    if (call.request.getAccessKeyId() && call.request.getBucket() === GetObjectURLRequest.Bucket.PUBLIC) {
-      accessKeyId = call.request.getAccessKeyId()
+    const bucket = getBucketName(call.request.getBucket());
+    let accessKeyId = getAccessKeyId(call);
+    if (
+      call.request.getAccessKeyId() &&
+      call.request.getBucket() === GetObjectURLRequest.Bucket.PUBLIC
+    ) {
+      accessKeyId = call.request.getAccessKeyId();
     }
 
     try {
@@ -49,14 +51,14 @@ class StorageServer implements IStorageServer {
         accessKeyId,
         bucket,
         call.request.getFilename()
-      )
-      const response = new GetObjectURLResponse()
-      response.setUrl(url)
-      callback(null, response)
+      );
+      const response = new GetObjectURLResponse();
+      response.setUrl(url);
+      callback(null, response);
     } catch (e) {
-      callback(e, null)
+      callback(e, null);
     }
   }
 }
 
-export { StorageServer as default, IStorageServer, StorageService }
+export {StorageServer as default, IStorageServer, StorageService};
