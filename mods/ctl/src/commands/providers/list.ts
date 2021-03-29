@@ -4,6 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
 import {CommonPB, ProvidersPB} from "@fonos/core";
+import { Provider } from "@fonos/providers/src/types";
 const Table = require("easy-table");
 
 export default class ListCommand extends Command {
@@ -36,8 +37,8 @@ export default class ListCommand extends Command {
           pageToken,
           view
         });
-        const list = result.getProvidersList();
-        pageToken = result.getNextPageToken();
+        const list = result.providers;
+        pageToken = result.nextPageToken;
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
@@ -49,13 +50,13 @@ export default class ListCommand extends Command {
 
         const t = new Table();
 
-        list.forEach((provider: ProvidersPB.Provider) => {
-          t.cell("Ref", provider.getRef());
-          t.cell("Name", provider.getName());
-          t.cell("Username", provider.getUsername() || "(static)");
-          t.cell("Host", provider.getHost());
-          t.cell("Transport", provider.getTransport());
-          t.cell("Expires", provider.getExpires());
+        list.forEach((provider: Provider) => {
+          t.cell("Ref", provider.ref);
+          t.cell("Name", provider.name);
+          t.cell("Username", provider.username || "(static)");
+          t.cell("Host", provider.host);
+          t.cell("Transport", provider.transport);
+          t.cell("Expires", provider.expires);
           t.newRow();
         });
 
