@@ -7,15 +7,15 @@ export default function (extension: string) {
     const numbers = new Numbers();
     const app = numbers.getIngressAppSync({e164Number: extension});
     const appsDirBase = process.env.APPS_DIR || "/home/fonos/apps";
-    const appsDir = `${appsDirBase}/${app.getAccessKeyId()}`;
-    const packageBase = `${appsDir}/${app.getRef()}`;
+    const appsDir = `${appsDirBase}/${app.accessKeyId}`;
+    const packageBase = `${appsDir}/${app.ref}`;
     const pathToManifest = `${packageBase}/package.json`;
 
     try {
       const entryPoint = require(pathToManifest).main;
       return {
         entryPoint: `${packageBase}/${entryPoint}`,
-        accessKeyId: app.getAccessKeyId()
+        accessKeyId: app.accessKeyId
       };
     } catch (e) {
       // TODO: This must distinguish between malformed, non-existent, and non-access errors

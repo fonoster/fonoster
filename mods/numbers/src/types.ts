@@ -1,5 +1,4 @@
-
-/* 
+/*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
  *
@@ -30,7 +29,7 @@ export interface Number {
 
 export interface ListNumbersResponse {
   nextPageToken: string;
-  numbers: Number[]
+  numbers: number[];
 }
 
 export interface CreateNumberRequest {
@@ -43,7 +42,7 @@ export interface CreateNumberRequest {
 enum View {
   BASIC = 0,
   STANDARD = 1,
-  FULL = 2,
+  FULL = 2
 }
 
 export interface UpdateNumberRequest {
@@ -59,11 +58,11 @@ export interface UpdateNumberResponse {
 export interface ListNumbersRequest {
   pageSize: number;
   pageToken: string;
-  view: View
+  view: View;
 }
 
-export interface deleteNumberResponse {
-  ref: string
+export interface DeleteNumberResponse {
+  ref: string;
 }
 
 export interface CreateNumberResponse {
@@ -82,9 +81,15 @@ export interface GetNumberResponse {
   createTime: string;
   updateTime: string;
 }
-export interface IngressAppRequest {
-  e164Number: string
+export interface GetIngressAppRequest {
+  e164Number: string;
 }
 
-export interface AsObject {
+export interface GetIngressAppResponse {
+  ref: string;
+  name: string;
+  description: string;
+  createTime: string;
+  updateTime: string;
+  accessKeyId: string;
 }
