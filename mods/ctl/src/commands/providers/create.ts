@@ -67,7 +67,7 @@ export default class CreateCommand extends Command {
         const provider = await providers.createProvider(answers);
         await cli.wait(1000);
 
-        cli.action.stop(provider.getRef());
+        cli.action.stop(provider.ref);
       } catch (e) {
         cli.action.stop();
         if (e.code === 9) {
