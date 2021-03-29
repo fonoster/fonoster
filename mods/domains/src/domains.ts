@@ -25,7 +25,7 @@ import {
   ListDomainsResponse,
   GetDomainResponse,
   DeleteDomainResponse
-} from "./types";
+} from "./types"
 import {
   FonosService,
   DomainsService,
