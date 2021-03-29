@@ -130,11 +130,11 @@ export default class Numbers extends FonosService {
 
     if (request.aorLink && request.ingressApp) {
       throw new Error(
-        `'ingressApp' and 'aorLink' are not compatible parameters`
+        "'ingressApp' and 'aorLink' are not compatible parameters"
       );
     } else if (!request.aorLink && !request.ingressApp) {
       throw new Error(
-        `You must provider either an 'ingressApp' or and 'aorLink'`
+        "You must provider either an 'ingressApp' or and 'aorLink'"
       );
     }
 

@@ -36,10 +36,10 @@ describe("@Fonos/providers", () => {
   providerObj.setRef("Nx05y-ldZa");
   providerObj.setName("Acme Corp");
   providerObj.setUsername("test");
-  providerObj.setSecret("uio3uwd12s23")
-  providerObj.setHost("fonoster.api.io")
-  providerObj.setTransport("tcp")
-  providerObj.setExpires(3600)
+  providerObj.setSecret("uio3uwd12s23");
+  providerObj.setHost("fonoster.api.io");
+  providerObj.setTransport("tcp");
+  providerObj.setExpires(3600);
   providerObj.setUpdateTime("...");
   providerObj.setCreateTime("...");
 
@@ -59,7 +59,6 @@ describe("@Fonos/providers", () => {
       });
 
     const req = {
-    
       ref: "",
       name: "orange",
       username: "test",
@@ -69,7 +68,6 @@ describe("@Fonos/providers", () => {
       expires: 3600,
       createdTime: "...",
       updatedTime: "..."
-
     };
 
     const result = await providerAPI.createProvider(req);
@@ -150,10 +148,18 @@ describe("@Fonos/providers", () => {
 
     expect(serviceStub).to.be.calledOnce;
     expect(result).to.have.property("nextPageToken").to.be.equal("1");
-    expect(result.providers[0]).to.have.property("ref").to.be.equal("Nx05y-ldZa");
-    expect(result.providers[0]).to.have.property("name").to.be.equal("Acme Corp");
-    expect(result.providers[0]).to.have.property("host").to.be.equal("fonoster.api.io");
-    expect(result.providers[0]).to.have.property("transport").to.be.equal("tcp");
+    expect(result.providers[0])
+      .to.have.property("ref")
+      .to.be.equal("Nx05y-ldZa");
+    expect(result.providers[0])
+      .to.have.property("name")
+      .to.be.equal("Acme Corp");
+    expect(result.providers[0])
+      .to.have.property("host")
+      .to.be.equal("fonoster.api.io");
+    expect(result.providers[0])
+      .to.have.property("transport")
+      .to.be.equal("tcp");
     expect(result.providers[0]).to.have.property("createTime").not.to.be.null;
     expect(result.providers[0]).to.have.property("updateTime").not.to.be.null;
   });
@@ -169,11 +175,9 @@ describe("@Fonos/providers", () => {
       expires: 3600,
       createdTime: "...",
       updatedTime: "..."
-
     };
 
     const returnProvider = {
-
       ref: "Nx05y-ldZa",
       name: "Acme Corp",
       username: "test",
@@ -183,7 +187,6 @@ describe("@Fonos/providers", () => {
       expires: 3600,
       createdTime: "...",
       updatedTime: "..."
-
     };
 
     sandbox.stub(providerAPI, "getProvider").resolves(returnProvider);
