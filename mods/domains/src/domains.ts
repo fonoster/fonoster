@@ -25,14 +25,14 @@ import {
   ListDomainsResponse,
   GetDomainResponse,
   DeleteDomainResponse
-} from "./types"
+} from "./types";
 import {
   FonosService,
   DomainsService,
   DomainsPB,
   ServiceOptions
 } from "@fonos/core";
-import {promisifyAll} from "grpc-promise"
+import {promisifyAll} from "grpc-promise";
 
 /**
  * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
