@@ -32,7 +32,7 @@ import {
   DomainsPB,
   ServiceOptions
 } from "@fonos/core";
-import {promisifyAll} from "grpc-promise";
+import {promisifyAll} from "grpc-promise"
 
 /**
  * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
