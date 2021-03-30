@@ -1,5 +1,4 @@
 mods/agents
-mods/appmanager
 mods/auth
 mods/callmanager
 mods/certs
@@ -11,9 +10,7 @@ mods/events
 mods/googleasr
 mods/googletts
 mods/logger
-mods/marytts
 mods/sdk
-mods/storage
 mods/tts
 mods/types
 mods/usermanager
