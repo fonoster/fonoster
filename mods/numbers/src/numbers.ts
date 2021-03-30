@@ -45,19 +45,19 @@ import sleep from "sync";
  * @extends FonosService
  * @example
  *
- * const Fonos = require("@fonos/sdk")
- * const numbers = new Fonos.Numbers()
+ * const Fonos = require("@fonos/sdk");
+ * const numbers = new Fonos.Numbers();
  *
  * const request = {
  *   providerRef: "516f1577bcf86cd797439012",
  *   e164Number: "+17853177343",
  *   ingressApp: "hello-monkeys"
- * }
+ * };
  *
  * numbers.createNumber(request)
  * .then(result => {
  *   console.log(result)             // successful response
- * }).catch(e => console.error(e))   // an error occurred
+ * }).catch(e => console.error(e));   // an error occurred
  */
 export default class Numbers extends FonosService {
   /**
@@ -90,12 +90,12 @@ export default class Numbers extends FonosService {
    *   providerRef: "516f1577bcf86cd797439012",
    *   e164Number: "+17853177343",
    *   aorLink: "sip:1001@sip.local"
-   * }
+   * };
    *
    * numbers.createNumber(request)
    * .then(result => {
    *   console.log(result)            // returns the CreateNumberResponse interface
-   * }).catch(e => console.error(e))  // an error occurred
+   * }).catch(e => console.error(e));  // an error occurred
    */
   async createNumber(
     request: CreateNumberRequest
@@ -131,7 +131,7 @@ export default class Numbers extends FonosService {
    * numbers.getNumber(ref)
    * .then(result => {
    *   console.log(result)             // returns the GetNumberResponse object
-   * }).catch(e => console.error(e))   // an error occurred
+   * }).catch(e => console.error(e));   // an error occurred
    */
   async getNumber(ref: string): Promise<GetNumberResponse> {
     const req = new NumbersPB.GetNumberRequest();
@@ -163,12 +163,12 @@ export default class Numbers extends FonosService {
    * const request = {
    *   ref: "516f1577bcf86cd797439012",
    *   aorLink: "sip:1001@sip.local"
-   * }
+   * };
    *
    * numbers.updateNumber(request)
    * .then(result => {
    *   console.log(result)            // returns the Number from the DB
-   * }).catch(e => console.error(e))  // an error occurred
+   * }).catch(e => console.error(e));  // an error occurred
    */
   async updateNumber(
     request: UpdateNumberRequest
@@ -221,12 +221,12 @@ export default class Numbers extends FonosService {
    * const request = {
    *    pageSize: 20,
    *    pageToken: 2
-   * }
+   * };
    *
    * numbers.listNumbers(request)
    * .then(() => {
    *   console.log(result)            // returns a ListNumbersResponse object
-   * }).catch(e => console.error(e))  // an error occurred
+   * }).catch(e => console.error(e));  // an error occurred
    */
   async listNumbers(request: ListNumbersRequest): Promise<ListNumbersResponse> {
     const r = new NumbersPB.ListNumbersRequest();
@@ -256,7 +256,7 @@ export default class Numbers extends FonosService {
    * @param {string} ref - Reference to the Number
    * @example
    *
-   * const ref = "507f1f77bcf86cd799439011"
+   * const ref = "cb8V0CNTfH";
    *
    * numbers.deleteNumber(ref)
    * .then(() => {
@@ -286,12 +286,12 @@ export default class Numbers extends FonosService {
    *
    * const request = {
    *    e164Number: "+17853178071"
-   * }
+   * };
    *
    * numbers.getIngressApp(request)
    * .then(result => {
    *   console.log(result)            // returns the Application
-   * }).catch(e => console.error(e))  // an error occurred
+   * }).catch(e => console.error(e));  // an error occurred
    */
   async getIngressApp(
     request: GetIngressAppRequest
@@ -323,12 +323,12 @@ export default class Numbers extends FonosService {
    *
    * const request = {
    *    e164Number: "+17853178071"
-   * }
+   * };
    *
    * numbers.getIngressApp(request)
    * .then(result => {
    *   console.log(result)            // returns the Application
-   * }).catch(e => console.error(e))  // an error occurred
+   * }).catch(e => console.error(e));  // an error occurred
    */
   getIngressAppSync(request: GetIngressAppRequest): GetIngressAppResponse {
     let result;
