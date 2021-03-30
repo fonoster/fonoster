@@ -29,8 +29,6 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 describe("@Fonos/domains", () => {
-  const domainsAPI = new Domains();
-
   const domainObj = new DomainsPB.Domain();
   domainObj.setRef("Nx05y-ldZa");
   domainObj.setName("Acme Corp");
@@ -42,11 +40,10 @@ describe("@Fonos/domains", () => {
   domainObj.setUpdateTime("...");
   domainObj.setCreateTime("...");
 
-  sandbox.stub(FonosService.prototype, "init").returns();
-
   afterEach(() => sandbox.restore());
 
   it("should create a domain", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -58,30 +55,36 @@ describe("@Fonos/domains", () => {
       });
 
     const req = {
-      name: "Acme Corp",
-      domainUri: "sip.acme.com",
-      egressRule: ".*",
-      egressNumberRef: "cb8V0CNTfH"
+      name: domainObj.getName(),
+      domainUri: domainObj.getDomainUri(),
+      egressRule: domainObj.getEgressRule(),
+      egressNumberRef: domainObj.getEgressNumberRef()
     };
 
+    const domainsAPI = new Domains();
     const result = await domainsAPI.createDomain(req);
 
-    expect(result).to.have.property("ref").to.be.equal("Nx05y-ldZa");
-    expect(result).to.have.property("name").to.be.equal("Acme Corp");
-    expect(result).to.have.property("domainUri").to.be.equal("sip.acme.com");
-    expect(result).to.have.property("egressRule").to.be.equal(".*");
+    expect(result).to.have.property("ref").to.be.equal(domainObj.getRef());
+    expect(result).to.have.property("name").to.be.equal(domainObj.getName());
+    expect(result)
+      .to.have.property("domainUri")
+      .to.be.equal(domainObj.getDomainUri());
+    expect(result)
+      .to.have.property("egressRule")
+      .to.be.equal(domainObj.getEgressRule());
     expect(result)
       .to.have.property("egressNumberRef")
-      .to.be.equal("cb8V0CNTfH");
+      .to.be.equal(domainObj.getEgressNumberRef());
     expect(result).to.have.property("accessDeny").to.be.lengthOf(1);
     expect(result).to.have.property("accessAllow").to.be.lengthOf(1);
     expect(result).to.have.property("createTime").not.to.be.null;
     expect(result).to.have.property("updateTime").not.to.be.null;
 
-    expect(serviceStub).to.have.been.calledOnce;
+    expect(serviceStub).to.have.been.calledTwice;
   });
 
   it("should get a domain", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -93,21 +96,30 @@ describe("@Fonos/domains", () => {
       });
 
     const request = "Nx05y-ldZa";
-    const res = await domainsAPI.getDomain(request);
 
-    expect(res).to.have.property("ref").to.be.equal("Nx05y-ldZa");
-    expect(res).to.have.property("name").to.be.equal("Acme Corp");
-    expect(res).to.have.property("domainUri").to.be.equal("sip.acme.com");
-    expect(res).to.have.property("egressRule").to.be.equal(".*");
-    expect(res).to.have.property("egressNumberRef").to.be.equal("cb8V0CNTfH");
-    expect(res).to.have.property("accessDeny").to.be.lengthOf(1);
-    expect(res).to.have.property("accessAllow").to.be.lengthOf(1);
-    expect(res).to.have.property("createTime").not.to.be.null;
-    expect(res).to.have.property("updateTime").not.to.be.null;
-    expect(serviceStub).to.have.been.calledOnce;
+    const domainsAPI = new Domains();
+    const result = await domainsAPI.getDomain(request);
+
+    expect(result).to.have.property("ref").to.be.equal(domainObj.getRef());
+    expect(result).to.have.property("name").to.be.equal(domainObj.getName());
+    expect(result)
+      .to.have.property("domainUri")
+      .to.be.equal(domainObj.getDomainUri());
+    expect(result)
+      .to.have.property("egressRule")
+      .to.be.equal(domainObj.getEgressRule());
+    expect(result)
+      .to.have.property("egressNumberRef")
+      .to.be.equal(domainObj.getEgressNumberRef());
+    expect(result).to.have.property("accessDeny").to.be.lengthOf(1);
+    expect(result).to.have.property("accessAllow").to.be.lengthOf(1);
+    expect(result).to.have.property("createTime").not.to.be.null;
+    expect(result).to.have.property("updateTime").not.to.be.null;
+    expect(serviceStub).to.have.been.calledTwice;
   });
 
   it("should delete a Domain", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -118,14 +130,15 @@ describe("@Fonos/domains", () => {
         }
       });
 
-    const ref = "Nx05y-ldZa";
-    const res = await domainsAPI.deleteDomain(ref);
+    const domainsAPI = new Domains();
+    const res = await domainsAPI.deleteDomain(domainObj.getRef());
 
-    expect(serviceStub).to.have.been.calledOnce;
-    expect(res).to.have.property("ref").to.be.equal(ref);
+    expect(serviceStub).to.have.been.calledTwice;
+    expect(res).to.have.property("ref").to.be.equal(domainObj.getRef());
   });
 
   it("should list domains", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -146,49 +159,43 @@ describe("@Fonos/domains", () => {
       view: 0
     };
 
+    const domainsAPI = new Domains();
     const result = await domainsAPI.listDomains(request);
 
-    expect(serviceStub).to.be.calledOnce;
-    expect(result).to.have.property("nextPageToken").to.be.equal("1");
-    expect(result.domains[0]).to.have.property("ref").to.be.equal("Nx05y-ldZa");
-    expect(result.domains[0]).to.have.property("name").to.be.equal("Acme Corp");
+    expect(serviceStub).to.be.calledTwice;
+    expect(result.domains[0])
+      .to.have.property("ref")
+      .to.be.equal(domainObj.getRef());
+    expect(result.domains[0])
+      .to.have.property("name")
+      .to.be.equal(domainObj.getName());
     expect(result.domains[0])
       .to.have.property("domainUri")
-      .to.be.equal("sip.acme.com");
-    expect(result.domains[0]).to.have.property("egressRule").to.be.equal(".*");
+      .to.be.equal(domainObj.getDomainUri());
+    expect(result.domains[0])
+      .to.have.property("egressRule")
+      .to.be.equal(domainObj.getEgressRule());
     expect(result.domains[0])
       .to.have.property("egressNumberRef")
-      .to.be.equal("cb8V0CNTfH");
+      .to.be.equal(domainObj.getEgressNumberRef());
     expect(result.domains[0]).to.have.property("accessDeny").to.be.lengthOf(1);
     expect(result.domains[0]).to.have.property("accessAllow").to.be.lengthOf(1);
   });
 
   it("should update a domain (name)", async () => {
     const request = {
-      ref: "Nx05y-ldZa",
-      name: "Acme Corp."
+      ref: domainObj.getRef(),
+      name: domainObj.getName()
     };
 
-    const returnDomain = {
-      ref: "Nx05y-ldZa",
-      name: "Acme Corp",
-      domainUri: "sip.acme.com",
-      egressRule: ".*",
-      egressNumberRef: "cb8V0CNTfH",
-      accessDeny: [""],
-      accessAllow: [""],
-      createdTime: "...",
-      updatedTime: "..."
-    };
-
-    sandbox.stub(domainsAPI, "getDomain").resolves(returnDomain);
-
+    sandbox.stub(FonosService.prototype, "init").returns();
     const updateDomainStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
         updateDomain: () => {
           return {
-            sendMessage: () => Promise.resolve({getRef: () => "Nx05y-ldZa"})
+            sendMessage: () =>
+              Promise.resolve({getRef: () => domainObj.getRef()})
           };
         },
         getDomain: () => {
@@ -198,8 +205,9 @@ describe("@Fonos/domains", () => {
         }
       });
 
+    const domainsAPI = new Domains();
     const result = await domainsAPI.updateDomain(request);
-    expect(result).to.have.property("ref").to.be.equal("Nx05y-ldZa");
-    expect(updateDomainStub).to.be.calledTwice;
+    expect(result).to.have.property("ref").to.be.equal(domainObj.getRef());
+    expect(updateDomainStub).to.be.calledThrice;
   });
 });

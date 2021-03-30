@@ -65,7 +65,7 @@ export default class Numbers extends FonosService {
    * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options: ServiceOptions = {}) {
     super(NumbersService.NumbersClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});

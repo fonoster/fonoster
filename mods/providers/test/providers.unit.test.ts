@@ -30,24 +30,21 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 describe("@Fonos/providers", () => {
-  const providerAPI = new Providers();
-
   const providerObj = new ProvidersPB.Provider();
   providerObj.setRef("Nx05y-ldZa");
-  providerObj.setName("Acme Corp");
+  providerObj.setName("Fake Provider");
   providerObj.setUsername("test");
   providerObj.setSecret("uio3uwd12s23");
-  providerObj.setHost("fonoster.api.io");
+  providerObj.setHost("sip.provider.net");
   providerObj.setTransport("tcp");
   providerObj.setExpires(3600);
   providerObj.setUpdateTime("...");
   providerObj.setCreateTime("...");
 
-  sandbox.stub(FonosService.prototype, "init").returns();
-
   afterEach(() => sandbox.restore());
 
   it("should create a provider", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -59,30 +56,33 @@ describe("@Fonos/providers", () => {
       });
 
     const req = {
-      ref: "",
-      name: "orange",
-      username: "test",
-      secret: "uio3uwd12s23",
-      host: "fonos.api.io",
-      transport: "tcp",
-      expires: 3600,
-      createdTime: "...",
-      updatedTime: "..."
+      name: providerObj.getName(),
+      username: providerObj.getUsername(),
+      secret: providerObj.getSecret(),
+      host: providerObj.getHost(),
+      transport: providerObj.getTransport(),
+      expires: providerObj.getExpires(),
+      createTime: providerObj.getCreateTime(),
+      updateTime: providerObj.getUpdateTime()
     };
 
+    const providerAPI = new Providers();
     const result = await providerAPI.createProvider(req);
 
-    expect(result).to.have.property("ref").to.be.equal("Nx05y-ldZa");
-    expect(result).to.have.property("name").to.be.equal("Acme Corp");
-    expect(result).to.have.property("host").to.be.equal("fonoster.api.io");
-    expect(result).to.have.property("transport").to.be.equal("tcp");
+    expect(result).to.have.property("ref").to.be.equal(providerObj.getRef());
+    expect(result).to.have.property("name").to.be.equal(providerObj.getName());
+    expect(result).to.have.property("host").to.be.equal(providerObj.getHost());
+    expect(result)
+      .to.have.property("transport")
+      .to.be.equal(providerObj.getTransport());
     expect(result).to.have.property("createTime").not.to.be.null;
     expect(result).to.have.property("updateTime").not.to.be.null;
 
-    expect(serviceStub).to.have.been.calledOnce;
+    expect(serviceStub).to.have.been.calledTwice;
   });
 
   it("should get a provider", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -94,36 +94,41 @@ describe("@Fonos/providers", () => {
       });
 
     const request = "Nx05y-ldZa";
-    const res = await providerAPI.getProvider(request);
 
-    expect(res).to.have.property("ref").to.be.equal("Nx05y-ldZa");
-    expect(res).to.have.property("name").to.be.equal("Acme Corp");
-    expect(res).to.have.property("host").to.be.equal("fonoster.api.io");
-    expect(res).to.have.property("transport").to.be.equal("tcp");
-    expect(res).to.have.property("createTime").not.to.be.null;
-    expect(res).to.have.property("updateTime").not.to.be.null;
-    expect(serviceStub).to.have.been.calledOnce;
+    const providerAPI = new Providers();
+    const result = await providerAPI.getProvider(request);
+
+    expect(result).to.have.property("ref").to.be.equal(providerObj.getRef());
+    expect(result).to.have.property("name").to.be.equal(providerObj.getName());
+    expect(result).to.have.property("host").to.be.equal(providerObj.getHost());
+    expect(result)
+      .to.have.property("transport")
+      .to.be.equal(providerObj.getTransport());
+    expect(result).to.have.property("createTime").not.to.be.null;
+    expect(result).to.have.property("updateTime").not.to.be.null;
+    expect(serviceStub).to.have.been.calledTwice;
   });
 
   it("should delete a Provider", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
         deleteProvider: () => {
           return {
-            sendMessage: () => Promise.resolve({ref: "Nx05y-ldZa"})
+            sendMessage: () => Promise.resolve({ref: providerObj.getRef()})
           };
         }
       });
 
-    const ref = "Nx05y-ldZa";
-    const res = await providerAPI.deleteProvider(ref);
-
-    expect(serviceStub).to.have.been.calledOnce;
-    expect(res).to.have.property("ref").to.be.equal(ref);
+    const providerAPI = new Providers();
+    const res = await providerAPI.deleteProvider(providerObj.getRef());
+    expect(serviceStub).to.have.been.calledTwice;
+    expect(res).to.have.property("ref").to.be.equal(providerObj.getRef());
   });
 
   it("should list providers", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -132,7 +137,7 @@ describe("@Fonos/providers", () => {
             sendMessage: () =>
               Promise.resolve({
                 getNextPageToken: () => "1",
-                getDomainsList: () => [providerObj]
+                getProvidersList: () => [providerObj]
               })
           };
         }
@@ -144,70 +149,65 @@ describe("@Fonos/providers", () => {
       view: 0
     };
 
+    const providerAPI = new Providers();
     const result = await providerAPI.listProviders(request);
 
-    expect(serviceStub).to.be.calledOnce;
+    expect(serviceStub).to.be.calledTwice;
     expect(result).to.have.property("nextPageToken").to.be.equal("1");
     expect(result.providers[0])
       .to.have.property("ref")
-      .to.be.equal("Nx05y-ldZa");
+      .to.be.equal(providerObj.getRef());
     expect(result.providers[0])
       .to.have.property("name")
-      .to.be.equal("Acme Corp");
+      .to.be.equal(providerObj.getName());
     expect(result.providers[0])
       .to.have.property("host")
-      .to.be.equal("fonoster.api.io");
+      .to.be.equal(providerObj.getHost());
     expect(result.providers[0])
       .to.have.property("transport")
-      .to.be.equal("tcp");
+      .to.be.equal(providerObj.getTransport());
     expect(result.providers[0]).to.have.property("createTime").not.to.be.null;
     expect(result.providers[0]).to.have.property("updateTime").not.to.be.null;
   });
 
   it("should update a provider (name)", async () => {
     const request = {
-      ref: "Nx05y-ldZa",
-      name: "Acme Corp",
-      username: "test",
-      secret: "uio3uwd12s23",
-      host: "fonos.api.io",
-      transport: "tcp",
-      expires: 3600,
-      createdTime: "...",
-      updatedTime: "..."
+      ref: providerObj.getRef(),
+      name: providerObj.getName()
     };
 
     const returnProvider = {
-      ref: "Nx05y-ldZa",
-      name: "Acme Corp",
-      username: "test",
-      secret: "uio3uwd12s23",
-      host: "fonos.api.io",
-      transport: "tcp",
-      expires: 3600,
-      createdTime: "...",
-      updatedTime: "..."
+      ref: providerObj.getRef(),
+      name: providerObj.getName(),
+      username: providerObj.getName(),
+      secret: providerObj.getName(),
+      host: providerObj.getName(),
+      transport: providerObj.getName(),
+      expires: providerObj.getName(),
+      createTime: providerObj.getCreateTime(),
+      updateTime: providerObj.getUpdateTime()
     };
 
-    sandbox.stub(providerAPI, "getProvider").resolves(returnProvider);
-
-    const updateDomainStub = sandbox
+    sandbox.stub(FonosService.prototype, "init").returns();
+    const updateProviderStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
-        updateDomain: () => {
+        updateProvider: () => {
           return {
-            sendMessage: () => Promise.resolve({getRef: () => "Nx05y-ldZa"})
+            sendMessage: () =>
+              Promise.resolve({getRef: () => returnProvider.ref})
           };
         },
-        getDomain: () => {
+        getProvider: () => {
           return {
             sendMessage: () => Promise.resolve(providerObj)
           };
         }
       });
 
+    const providerAPI = new Providers();
     const result = await providerAPI.updateProvider(request);
-    expect(result).to.have.property("ref").to.be.equal("Nx05y-ldZa");
-    expect(updateDomainStub).to.be.calledTwice;
+    expect(result).to.have.property("ref").to.be.equal(returnProvider.ref);
+    expect(updateProviderStub).to.be.calledThrice;
   });
 });

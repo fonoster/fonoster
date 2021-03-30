@@ -29,7 +29,7 @@ import {promisifyAll} from "grpc-promise";
  * const providers = new Fonos.Providers();
  *
  * const request = {
- *   name: "Provider Name",
+ *   name: "SIP Provider",
  *   username: "trunk001",
  *   secret: "secretkey",
  *   host: "sip.provider.net"
@@ -162,8 +162,8 @@ export default class Providers extends FonosService {
    * @example
    *
    * const request = {
-   *   ref: "516f1577bcf86cd797439012",
-   *   host: "sip.zone2.provider.net"
+   *   ref: "hYTHYCYv_U",
+   *   host: "sip.provider.net"
    * };
    *
    * providers.updateProvider(request)
@@ -257,7 +257,7 @@ export default class Providers extends FonosService {
    * @param {string} ref - Reference to the Provider
    * @example
    *
-   * const ref = "507f1f77bcf86cd799439011";
+   * const ref = "hYTHYCYv_U";
    *
    * providers.deleteProvider(ref)
    * .then(() => {

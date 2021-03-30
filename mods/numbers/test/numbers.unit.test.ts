@@ -12,7 +12,6 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 describe("@fonos/number", () => {
-  const numbers = new Numbers();
   const numberObj = new NumbersPB.Number();
   const numberPlain = {
     ref: "cb8V0CNTfH",
@@ -28,18 +27,11 @@ describe("@fonos/number", () => {
   numberObj.setIngressApp("hYTHYCYv_U");
   numberObj.setUpdateTime("...");
   numberObj.setCreateTime("...");
-  sandbox.stub(FonosService.prototype, "init").returns();
 
-  before(() => {
-    // TODO Create provider and app if doesn't exist
-  });
-
-  afterEach(() => {
-    sandbox.restore();
-    sinon.restore();
-  });
+  afterEach(() => sandbox.restore());
 
   it("should create a number", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     const stubNumber = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -49,12 +41,14 @@ describe("@fonos/number", () => {
           };
         }
       });
+
+    const numbers = new Numbers();
     const result: CreateNumberResponse = await numbers.createNumber({
       e164Number: numberPlain.e164Number,
       providerRef: numberPlain.providerRef
     });
 
-    expect(stubNumber.calledOnce).to.be.equal(true);
+    expect(stubNumber).to.be.calledTwice;
     expect(result).to.have.property("ref").to.be.equal(numberPlain.ref);
     expect(result)
       .to.have.property("e164Number")
@@ -66,6 +60,7 @@ describe("@fonos/number", () => {
   });
 
   it("should get a number by ref", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
       getNumber: () => {
         return {
@@ -73,6 +68,8 @@ describe("@fonos/number", () => {
         };
       }
     });
+
+    const numbers = new Numbers();
     const result = await numbers.getNumber(numberPlain.ref);
     expect(result).to.have.property("ref").to.be.equal(numberPlain.ref);
     expect(result)
@@ -90,6 +87,7 @@ describe("@fonos/number", () => {
     const refReturn = {
       ref: numberPlain.ref
     };
+    sandbox.stub(FonosService.prototype, "init").returns();
     const stubNumber = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -99,9 +97,11 @@ describe("@fonos/number", () => {
           };
         }
       });
+
+    const numbers = new Numbers();
     const result = await numbers.deleteNumber(numberPlain.ref);
 
-    expect(stubNumber.calledOnce).to.be.equal(true);
+    expect(stubNumber).to.be.calledTwice;
     expect(result).to.have.property("ref").to.be.equal(numberPlain.ref);
   });
 
@@ -112,6 +112,7 @@ describe("@fonos/number", () => {
       view: 0
     };
 
+    sandbox.stub(FonosService.prototype, "init").returns();
     const stubNumber = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
@@ -128,8 +129,9 @@ describe("@fonos/number", () => {
         }
       });
 
+    const numbers = new Numbers();
     const result = await numbers.listNumbers(request);
-    expect(stubNumber.calledOnce).to.be.equal(true);
+    expect(stubNumber).to.be.calledTwice;
     expect(result)
       .to.have.property("nextPageToken")
       .to.be.equal(request.pageToken);
@@ -156,6 +158,7 @@ describe("@fonos/number", () => {
       ingressApp: numberPlain.ingressApp
     };
 
+    sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
       getNumber: () => {
         return {
@@ -163,14 +166,18 @@ describe("@fonos/number", () => {
         };
       }
     });
+
+    const numbers = new Numbers();
     expect(numbers.updateNumber(request)).to.eventually.be.rejectedWith(
       "are not compatible parameters"
     );
   });
+
   it("Should return error with no aorLink and ingressApp", async () => {
     const request = {
       ref: numberPlain.ref
     };
+    sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
       getNumber: () => {
         return {
@@ -178,15 +185,19 @@ describe("@fonos/number", () => {
         };
       }
     });
+
+    const numbers = new Numbers();
     expect(numbers.updateNumber(request)).to.eventually.be.rejectedWith(
       "You must provider either"
     );
   });
+
   it("Should udpdate a number with aorLink", async () => {
     const request = {
       ref: numberPlain.ref,
       aorLink: numberPlain.aorLink
     };
+    sandbox.stub(FonosService.prototype, "init").returns();
     const returnNumberDb = new NumbersPB.Number();
     returnNumberDb.setRef(request.ref);
     sandbox.stub(FonosService.prototype, "getService").returns({
@@ -201,10 +212,13 @@ describe("@fonos/number", () => {
         };
       }
     });
+
+    const numbers = new Numbers();
     const result = await numbers.updateNumber(request);
 
     expect(result).to.have.property("ref").to.be.equal(numberPlain.ref);
   });
+
   it("Should udpdate a number with ingressApp", async () => {
     const request = {
       ref: numberPlain.ref,
@@ -213,6 +227,7 @@ describe("@fonos/number", () => {
     const returnNumberDb = new NumbersPB.Number();
     returnNumberDb.setRef(request.ref);
 
+    sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
       updateNumber: () => {
         return {
@@ -225,6 +240,8 @@ describe("@fonos/number", () => {
         };
       }
     });
+
+    const numbers = new Numbers();
     const result = await numbers.updateNumber(request);
     expect(result).to.have.property("ref").to.be.equal(numberPlain.ref);
   });
@@ -243,6 +260,8 @@ describe("@fonos/number", () => {
       name: "app",
       ref: "Nx05y-ldZa"
     };
+
+    sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
       getIngressApp: () => {
         return {
@@ -250,6 +269,8 @@ describe("@fonos/number", () => {
         };
       }
     });
+
+    const numbers = new Numbers();
     const result = await numbers.getIngressApp({e164Number: "16471234567"});
     expect(result).to.have.property("ref").to.be.equal(returnResult.ref);
     expect(result).to.have.property("name").to.be.equal(returnResult.name);

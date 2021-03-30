@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 export interface Provider {
-  ref?: string;
+  ref: string;
   name: string;
   username: string;
   secret: string;
@@ -41,37 +41,37 @@ export interface CreateProviderRequest {
 }
 
 export interface CreateProviderResponse {
-  ref?: string;
+  ref: string;
   name: string;
   username: string;
   secret: string;
   host: string;
   transport: string;
   expires: number;
-  createTime?: string;
-  updateTime?: string;
+  createTime: string;
+  updateTime: string;
 }
 
 export interface GetProviderResponse {
-  ref?: string;
+  ref: string;
   name: string;
   username: string;
   secret: string;
   host: string;
   transport: string;
   expires: number;
-  createTime?: string;
-  updateTime?: string;
+  createTime: string;
+  updateTime: string;
 }
 
 export interface UpdateProviderRequest {
-  ref?: string;
-  name: string;
-  username: string;
-  secret: string;
-  host: string;
-  transport: string;
-  expires: number;
+  ref: string;
+  name?: string;
+  username?: string;
+  secret?: string;
+  host?: string;
+  transport?: string;
+  expires?: number;
   createTime?: string;
   updateTime?: string;
 }
