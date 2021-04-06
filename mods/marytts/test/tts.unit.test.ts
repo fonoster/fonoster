@@ -65,8 +65,8 @@ describe("@fonos/marytts", () => {
     const get = sandbox.stub(http, "get").yields({statusCode: 200, pipe});
 
     const tts = new MaryTTS(defConfig);
-    const algo = await tts.synthesize("hello world");
-    expect(algo).to.contain("tmp");
+    const synth = await tts.synthesize("hello world");
+    expect(synth).to.contain("tmp");
     expect(pipe).to.have.been.calledOnce;
     expect(join).to.have.been.calledOnce;
     expect(createWriteStream).to.have.been.calledOnce;
