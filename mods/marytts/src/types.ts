@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface OptionsInterface {
+export interface MarySynthOptions {
   locale: string;
   voice?: string;
 }
 
-export interface DefaultConfig {
+export interface MaryTTSConfig {
   host: string;
   port: string | number;
   locale: string;
