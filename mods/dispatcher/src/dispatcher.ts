@@ -18,11 +18,16 @@ if (process.env.NODE_ENV === "dev") {
 
 function dispatch(channel: any) {
   try {
+    const maryTTSConfig = {
+      host: process.env.TTS_ENGINE_HOST,
+      port: process.env.TTS_ENGINE_PORT,
+      locale: "EN_US"
+    };
     const e164Number = phone(channel.getVariable("DID_INFO"))[0];
     const ingressInfo = getIngressInfo(e164Number);
     const contents = fs.readFileSync(ingressInfo.entryPoint, "utf8");
     const chann = new Verbs(channel, {
-      tts: new MaryTTS(),
+      tts: new MaryTTS(maryTTSConfig),
       storage: new Storage({}),
       bucket: "public",
       accessKeyId: ingressInfo.accessKeyId
