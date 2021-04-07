@@ -38,15 +38,9 @@ export default class ListCommand extends Command {
           pageSize,
           pageToken,
           view
-<<<<<<< HEAD
         })
         const list = result.numbers;
         pageToken = result.nextPageToken;
-=======
-        });
-        const list = result.getNumbersList();
-        pageToken = result.getNextPageToken();
->>>>>>> fonosorigin/dev
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
@@ -58,7 +52,6 @@ export default class ListCommand extends Command {
 
         const t = new Table();
 
-<<<<<<< HEAD
         list.forEach((number: Number) => {
           t.cell('Ref', number.ref)
           t.cell('Provider Ref', number.providerRef)
@@ -67,16 +60,6 @@ export default class ListCommand extends Command {
           t.cell('Ingress App', number.ingressApp || '--')
           t.newRow()
         })
-=======
-        list.forEach((number: NumbersPB.Number) => {
-          t.cell("Ref", number.getRef());
-          t.cell("Provider Ref", number.getProviderRef());
-          t.cell("E164 Number", number.getE164Number());
-          t.cell("AOR Link", number.getAorLink() || "--");
-          t.cell("Ingress App", number.getIngressApp() || "--");
-          t.newRow();
-        });
->>>>>>> fonosorigin/dev
 
         if (list.length > 0) console.log(t.toString());
 
