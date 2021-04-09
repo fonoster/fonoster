@@ -28,7 +28,6 @@ import {
   getObjectURLResponse,
   UploadObjectResponse
 } from "./types";
-import {constants} from "./constants";
 import {promisifyAll} from "grpc-promise";
 import {utils} from "./utils";
 
@@ -39,7 +38,7 @@ import {utils} from "./utils";
  * @extends FonosService
  * @example
  *
- * const Fonos = require('@fonos/sdk')
+ * const Fonos = require("@fonos/sdk")
  * const storage = new Fonos.Storage()
  *
  * storage.uploadObject()
@@ -68,15 +67,14 @@ export default class Storage extends FonosService {
    * @param {string} request.dir - Directory on the Storage system where your objec will be uploaded
    * @param {string} request.filename - Path to the object to be uploaded
    * @return {Promise<UploadObjectResponse>} localy accessible URL to the object
-
    * @throws if the path does not exist or if is a directory
    * @throws if the directory does not exist
    * @example
    *
    * const request = {
-   *    filename: '/path/to/file',
-   *    bucket: 'apps',
-   *    directory: '/'
+   *    filename: "/path/to/file",
+   *    bucket: "apps",
+   *    directory: "/"
    * }
    *
    * storage.uploadObject(request)
@@ -87,49 +85,17 @@ export default class Storage extends FonosService {
   async uploadObject(
     request: UploadObjectRequest
   ): Promise<UploadObjectResponse> {
-    const result = await this.uploadObjectInternal(request);
-    return {
-      size: result
-    };
-  }
-
-  /**
-   * Upload an object to Fonos Object Storage subsystem.
-   *
-   * @param {UploadObjectRequest} request - Object with information about the origin and
-   * destination of an object
-   * @param {string} request.bucket - Bucket at the Storage system
-   * @param {string} request.dir - Directory on the Storage system where your objec will be uploaded
-   * @param {string} request.filename - Path to the object to be uploaded
-   * @return {Promise<UploadObjectResponse>} localy accessible URL to the object
-
-   * @throws if the path does not exist or if is a directory
-   * @throws if the directory does not exist
-   * @example
-   *
-   * const request = {
-   *    filename: '/path/to/file',
-   *    bucket: 'apps',
-   *    directory: '/'
-   * }
-   *
-   * storage.uploadObject(request)
-   * .then(() => {
-   *   console.log(result)            // returns and empty Object
-   * }).catch(e => console.error(e))  // an error occurred
-   */
-  private async uploadObjectInternal(
-    request: UploadObjectRequest
-  ): Promise<number> {
     if (utils.isDirectory(request.filename)) {
-      throw constants.REJECT_UPLOAD_DIRECTORY;
+      throw new Error("Uploading a directory is not supported");
     }
     // Must pass empty UploadObjectRequest
     const uor = new StoragePB.UploadObjectRequest();
 
     const result = await this.getService().uploadObject().sendMessage(uor);
     const size = utils.uploadServiceUtils(request, result.stream);
-    return size;
+    return {
+      size: size
+    };
   }
 
   /**
@@ -145,8 +111,8 @@ export default class Storage extends FonosService {
    * @example
    *
    * const request = {
-   *    filename: 'object-name',
-   *    bucket: 'bucket-name'
+   *    filename: "object-name",
+   *    bucket: "bucket-name"
    * }
    *
    * storage.getObjectURL(request)
@@ -157,45 +123,15 @@ export default class Storage extends FonosService {
   async getObjectURL(
     request: GetObjectURLRequest
   ): Promise<getObjectURLResponse> {
-    const result = await this.getObjectURLInternal(request);
-    return {url: result};
-  }
-
-  /**
-   * Get Object URL.
-   *
-   * @param {GetObjectURLRequest} request - Object with information about the location and
-   * and name of the requested object
-   * @param {string} request.filename - The name of the object
-   * save your file.
-   * @param {string} request.accessKeyId - Optional access key id
-   * @return {Promise<getObjectURLResponse>} localy accessible URL to the object
-   * @throws if directory or object doesn't exist
-   * @example
-   *
-   * const request = {
-   *    filename: 'object-name',
-   *    bucket: 'bucket-name'
-   * }
-   *
-   * storage.getObjectURL(request)
-   * .then(result => {
-   *   console.log(result)
-   * }).catch(e => console.error(e))  // an error occurred
-   */
-  private async getObjectURLInternal(
-    request: GetObjectURLRequest
-  ): Promise<string> {
     const result = await this.getService()
       .getObjectURL()
       .sendMessage(utils.getObjectServiceUtils(request));
 
-    return result.getUrl();
+    return {url: result.getUrl()};
   }
 
-  // Internal API
   /**
-   * Upload an object to Fonos Object Storage subsystem.
+   * Upload an object to Fonos Object Storage subsystem with synchronous method.
    *
    * @param {UploadObjectRequest} request - Object with information about the origin and
    * destination of an object
@@ -203,15 +139,14 @@ export default class Storage extends FonosService {
    * @param {string} request.dir - Directory on the Storage system where your objec will be uploaded
    * @param {string} request.filename - Path to the object to be uploaded
    * @return {Promise<UploadObjectResponse>} localy accessible URL to the object
-
    * @throws if the path does not exist or if is a directory
    * @throws if the directory does not exist
    * @example
    *
    * const request = {
-   *    filename: '/path/to/file',
-   *    bucket: 'apps',
-   *    directory: '/'
+   *    filename: "/path/to/file",
+   *    bucket: "apps",
+   *    directory: "/"
    * }
    *
    * storage.uploadObject(request)
@@ -235,9 +170,8 @@ export default class Storage extends FonosService {
     return result;
   }
 
-  // Internal API
   /**
-   * Get Object URL.
+   * Get Object URL with synchronous method.
    *
    * @param {GetObjectURLRequest} request - Object with information about the location and
    * and name of the requested object
@@ -249,8 +183,8 @@ export default class Storage extends FonosService {
    * @example
    *
    * const request = {
-   *    filename: 'object-name',
-   *    bucket: 'bucket-name'
+   *    filename: "object-name",
+   *    bucket: "bucket-name"
    * }
    *
    * storage.getObjectURL(request)
