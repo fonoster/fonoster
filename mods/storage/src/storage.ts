@@ -1,19 +1,36 @@
-import fs from "fs";
-import path from "path";
-import {FonosService, StorageService, StoragePB} from "@fonos/core";
-
-interface UploadObjectRequest {
-  bucket: "apps" | "public" | "recordings";
-  filename: string;
-  metadata?: any;
-  accessKeyId?: string;
-}
-
-interface GetObjectURLRequest {
-  bucket: "apps" | "public" | "recordings";
-  filename: string;
-  accessKeyId?: string;
-}
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {
+  FonosService,
+  StorageService,
+  StoragePB,
+  ServiceOptions
+} from "@fonos/core";
+import {
+  GetObjectURLRequest,
+  UploadObjectRequest,
+  getObjectURLResponse,
+  UploadObjectResponse
+} from "./types";
+import {constants} from "./constants";
+import {promisifyAll} from "grpc-promise";
+import {utils} from "./utils";
 
 /**
  * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
@@ -33,12 +50,13 @@ interface GetObjectURLRequest {
 export default class Storage extends FonosService {
   /**
    * Constructs a new Storage object.
-   *
+   * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
-  constructor(options: any) {
+  constructor(options?: ServiceOptions) {
     super(StorageService.StorageClient, options);
     super.init();
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**
@@ -49,6 +67,8 @@ export default class Storage extends FonosService {
    * @param {string} request.bucket - Bucket at the Storage system
    * @param {string} request.dir - Directory on the Storage system where your objec will be uploaded
    * @param {string} request.filename - Path to the object to be uploaded
+   * @return {Promise<UploadObjectResponse>} localy accessible URL to the object
+
    * @throws if the path does not exist or if is a directory
    * @throws if the directory does not exist
    * @example
@@ -64,64 +84,52 @@ export default class Storage extends FonosService {
    *   console.log(result)            // returns and empty Object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async uploadObject(request: UploadObjectRequest): Promise<any> {
-    return new Promise((resolve, reject) => {
-      if (fs.lstatSync(request.filename).isDirectory()) {
-        reject("Uploading a directory is not supported");
-        return;
-      }
+  async uploadObject(
+    request: UploadObjectRequest
+  ): Promise<UploadObjectResponse> {
+    const result = await this.uploadObjectInternal(request);
+    return {
+      size: result
+    };
+  }
 
-      const objectName = path.basename(request.filename);
-      const readStream = fs.createReadStream(request.filename, {
-        highWaterMark: 1 * 1024
-      });
+  /**
+   * Upload an object to Fonos Object Storage subsystem.
+   *
+   * @param {UploadObjectRequest} request - Object with information about the origin and
+   * destination of an object
+   * @param {string} request.bucket - Bucket at the Storage system
+   * @param {string} request.dir - Directory on the Storage system where your objec will be uploaded
+   * @param {string} request.filename - Path to the object to be uploaded
+   * @return {Promise<UploadObjectResponse>} localy accessible URL to the object
 
-      const call = super
-        .getService()
-        .uploadObject(super.getMeta(), (err: any, res: any) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({size: res.getSize()});
-          }
-        });
+   * @throws if the path does not exist or if is a directory
+   * @throws if the directory does not exist
+   * @example
+   *
+   * const request = {
+   *    filename: '/path/to/file',
+   *    bucket: 'apps',
+   *    directory: '/'
+   * }
+   *
+   * storage.uploadObject(request)
+   * .then(() => {
+   *   console.log(result)            // returns and empty Object
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  private async uploadObjectInternal(
+    request: UploadObjectRequest
+  ): Promise<number> {
+    if (utils.isDirectory(request.filename)) {
+      throw constants.REJECT_UPLOAD_DIRECTORY;
+    }
+    // Must pass empty UploadObjectRequest
+    const uor = new StoragePB.UploadObjectRequest();
 
-      let bucket: StoragePB.UploadObjectRequest.Bucket;
-      switch (request.bucket) {
-        case "apps":
-          bucket = StoragePB.UploadObjectRequest.Bucket.APPS;
-          break;
-        case "recordings":
-          bucket = StoragePB.UploadObjectRequest.Bucket.RECORDINGS;
-          break;
-        case "public":
-          bucket = StoragePB.UploadObjectRequest.Bucket.PUBLIC;
-          break;
-      }
-
-      readStream
-        .on("data", (chunk) => {
-          const uor = new StoragePB.UploadObjectRequest();
-          uor.setChunks(Buffer.from(chunk));
-          uor.setFilename(objectName);
-          uor.setBucket(bucket);
-          uor.setAccessKeyId(request.accessKeyId);
-
-          if (request.metadata && Object.keys(request.metadata).length > 0) {
-            const keys = Object.keys(request.metadata);
-            keys.forEach((k) =>
-              uor.getMetadataMap().set(k, request.metadata[k])
-            );
-          }
-          call.write(uor);
-        })
-        .on("end", () => call.end())
-        .on("error", (err: any) => {
-          call.end();
-        });
-    }).catch((e) => {
-      throw e;
-    });
+    const result = await this.getService().uploadObject().sendMessage(uor);
+    const size = utils.uploadServiceUtils(request, result.stream);
+    return size;
   }
 
   /**
@@ -132,7 +140,7 @@ export default class Storage extends FonosService {
    * @param {string} request.filename - The name of the object
    * save your file.
    * @param {string} request.accessKeyId - Optional access key id
-   * @return {Promise<string>} localy accessible URL to the object
+   * @return {Promise<getObjectURLResponse>} localy accessible URL to the object
    * @throws if directory or object doesn't exist
    * @example
    *
@@ -146,44 +154,72 @@ export default class Storage extends FonosService {
    *   console.log(result)
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async getObjectURL(request: GetObjectURLRequest): Promise<any> {
-    return new Promise((resolve, reject) => {
-      let bucket: StoragePB.GetObjectURLRequest.Bucket;
-      switch (request.bucket) {
-        case "apps":
-          bucket = StoragePB.GetObjectURLRequest.Bucket.APPS;
-          break;
-        case "recordings":
-          bucket = StoragePB.GetObjectURLRequest.Bucket.RECORDINGS;
-          break;
-        case "public":
-          bucket = StoragePB.GetObjectURLRequest.Bucket.PUBLIC;
-          break;
-      }
+  async getObjectURL(
+    request: GetObjectURLRequest
+  ): Promise<getObjectURLResponse> {
+    const result = await this.getObjectURLInternal(request);
+    return {url: result};
+  }
 
-      const gour = new StoragePB.GetObjectURLRequest();
-      gour.setFilename(request.filename);
-      gour.setBucket(bucket);
-      gour.setAccessKeyId(request.accessKeyId);
+  /**
+   * Get Object URL.
+   *
+   * @param {GetObjectURLRequest} request - Object with information about the location and
+   * and name of the requested object
+   * @param {string} request.filename - The name of the object
+   * save your file.
+   * @param {string} request.accessKeyId - Optional access key id
+   * @return {Promise<getObjectURLResponse>} localy accessible URL to the object
+   * @throws if directory or object doesn't exist
+   * @example
+   *
+   * const request = {
+   *    filename: 'object-name',
+   *    bucket: 'bucket-name'
+   * }
+   *
+   * storage.getObjectURL(request)
+   * .then(result => {
+   *   console.log(result)
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  private async getObjectURLInternal(
+    request: GetObjectURLRequest
+  ): Promise<string> {
+    const result = await this.getService()
+      .getObjectURL()
+      .sendMessage(utils.getObjectServiceUtils(request));
 
-      super
-        .getService()
-        .getObjectURL(gour, super.getMeta(), (err: any, res: any) => {
-          if (err) {
-            reject(err as Error);
-          } else {
-            resolve({
-              url: res.getUrl()
-            });
-          }
-        });
-    }).catch((e) => {
-      throw e;
-    });
+    return result.getUrl();
   }
 
   // Internal API
-  uploadObjectSync(request: UploadObjectRequest) {
+  /**
+   * Upload an object to Fonos Object Storage subsystem.
+   *
+   * @param {UploadObjectRequest} request - Object with information about the origin and
+   * destination of an object
+   * @param {string} request.bucket - Bucket at the Storage system
+   * @param {string} request.dir - Directory on the Storage system where your objec will be uploaded
+   * @param {string} request.filename - Path to the object to be uploaded
+   * @return {Promise<UploadObjectResponse>} localy accessible URL to the object
+
+   * @throws if the path does not exist or if is a directory
+   * @throws if the directory does not exist
+   * @example
+   *
+   * const request = {
+   *    filename: '/path/to/file',
+   *    bucket: 'apps',
+   *    directory: '/'
+   * }
+   *
+   * storage.uploadObject(request)
+   * .then(() => {
+   *   console.log(result)            // returns and empty Object
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  uploadObjectSync(request: UploadObjectRequest): UploadObjectResponse {
     const sleep = require("sync").sleep;
     let result;
     let error;
@@ -200,7 +236,29 @@ export default class Storage extends FonosService {
   }
 
   // Internal API
-  getObjectURLSync(request: GetObjectURLRequest) {
+  /**
+   * Get Object URL.
+   *
+   * @param {GetObjectURLRequest} request - Object with information about the location and
+   * and name of the requested object
+   * @param {string} request.filename - The name of the object
+   * save your file.
+   * @param {string} request.accessKeyId - Optional access key id
+   * @return {Promise<getObjectURLResponse>} localy accessible URL to the object
+   * @throws if directory or object doesn't exist
+   * @example
+   *
+   * const request = {
+   *    filename: 'object-name',
+   *    bucket: 'bucket-name'
+   * }
+   *
+   * storage.getObjectURL(request)
+   * .then(result => {
+   *   console.log(result)
+   * }).catch(e => console.error(e))  // an error occurred
+   */
+  getObjectURLSync(request: GetObjectURLRequest): getObjectURLResponse {
     const sleep = require("sync").sleep;
     let result;
     let error;

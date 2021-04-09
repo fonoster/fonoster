@@ -9,7 +9,8 @@
   "types": "dist/storage",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "build": "tsc -b tsconfig.json",
+    "test": "ts-node ./src/test.ts"
   },
   "directories": {
     "src": "src",
