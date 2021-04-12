@@ -28,7 +28,7 @@ export default class CreateCommand extends Command {
         pageToken: "1",
         view
       });
-      const apps = res.getAppsList().map((app: AppManagerPB.App) => {
+      const apps = res.apps.map((app: any) => {
         return {
           name: app.getName(),
           value: app.getRef()

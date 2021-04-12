@@ -27,7 +27,7 @@ export class UpdateCommand extends Command {
       pageToken: "1",
       view
     });
-    const apps = response.getAppsList().map((app: AppManagerPB.App) => {
+    const apps = response.apps.map((app: any) => {
       return {
         name: app.getName(),
         value: app.getRef()
