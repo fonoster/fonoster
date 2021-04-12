@@ -29,7 +29,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 import path from "path";
-import Fiber from "fibers";
+import fiber from "fibers";
 
 describe("@fonos/storage", () => {
   let storage: Storage;
@@ -192,7 +192,7 @@ describe("@fonos/storage", () => {
         return getUrlObjectStubReturn;
       }
     });
-    Fiber(() => {
+    fiber(() => {
       const result = storage.getObjectURLSync({
         bucket: "recordings",
         filename: __dirname + "/../etc/hello-monkeys.tgz"

@@ -1,18 +1,42 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import Storage from "@fonos/storage";
-import {FonosService, AppManagerService, AppManagerPB} from "@fonos/core";
-import {App} from "@fonos/core/src/server/protos/appmanager_pb";
-import {View} from "@fonos/core/src/server/protos/common_pb";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 import {nanoid} from "nanoid";
-
-const STATUS = {
-  UNKNOWN: 0,
-  CREATING: 1,
-  RUNNING: 2,
-  STOPPED: 3
-};
+import {promisifyAll} from "grpc-promise";
+import {
+  FonosService,
+  AppManagerService,
+  AppManagerPB,
+  ServiceOptions
+} from "@fonos/core";
+import {
+  GetAppResponse,
+  ListAppRequest,
+  ListAppResponse,
+  DeleteAppResponse,
+  CreateAppRequest,
+  AppRequest
+} from "./types";
 
 /**
  * @classdesc Use Fonos AppManager, a capability of Fonos Systems Manager,
@@ -41,28 +65,27 @@ export default class AppManager extends FonosService {
    * @property {string} description - A description for the application.
    * @property {number} createTime - Time the application was created.
    * @property {number} updateTime - Last time the application was updated.
-   * @property {map} labels - Metadata for this application.
    */
 
   /**
    * Constructs a new AppManager Object.
    *
+   * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
-  constructor(options?: any) {
+  constructor(options?: ServiceOptions) {
     super(AppManagerService.AppManagerClient, options);
     super.init();
     this.storage = new Storage(super.getOptions());
     this.service = super.getService();
-    const {promisifyAll} = require("grpc-promise");
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**
    * Deploys an application to Fonos.
    *
-   * @param {string} path - path to the application
-   * @param {string} ref - optional reference to the application
+   * @param {string} appPath - path to the application
+   * @param {string} appRef - optional reference to the application
    * @return {Promise<App>} The application just created
    * @throws if path to application does not exist or is not a directory
    * @throws the file package.json does not exist inside de application path
@@ -79,8 +102,54 @@ export default class AppManager extends FonosService {
    * @todo if the file uploading fails the state of the application should
    * change to UNKNOWN.
    */
-  async deployApp(appPath: string, appRef?: string): Promise<App> {
+  async deployApp(appPath: string, appRef?: string): Promise<CreateAppRequest> {
     const dirName = appRef || nanoid(10);
+    const request = this.verifyPkg(appPath);
+
+    // Cleanup before deploy
+    this.cleanup(dirName);
+
+    await fs.copy(request.dirPath, `/tmp/${dirName}`);
+    await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
+    await this.storage.uploadObject({
+      filename: `/tmp/${dirName}.tgz`,
+      bucket: "apps" // TODO: Maybe I should place this in the .env
+    });
+
+    // Cleanup after deploy
+    this.cleanup(dirName);
+
+    const app = new AppManagerPB.App();
+    app.setRef(dirName);
+    app.setName(request.app.name);
+    app.setDescription(request.app.description);
+
+    const createAppRequest = new AppManagerPB.CreateAppRequest();
+    createAppRequest.setApp(app);
+
+    const response = await super
+      .getService()
+      .createApp()
+      .sendMessage(createAppRequest);
+
+    return {
+      ref: response.getRef(),
+      name: response.getName(),
+      description: response.getDescription(),
+      accessKeyId: response.getAccessKeyId()
+    };
+  }
+
+  /* eslint-disable */
+  private cleanup(dirName: string): void {
+    // Cleanup before and after deploy
+    if (fs.existsSync(`/tmp/${dirName}`))
+      fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
+    if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`);
+  }
+
+  /* eslint-disable */
+  private verifyPkg(appPath: string): AppRequest {
     const packagePath = path.join(appPath, "package.json");
     // Expects an existing valid package.json
     const packageInfo = (p: string) => JSON.parse(`${fs.readFileSync(p)}`);
@@ -94,7 +163,7 @@ export default class AppManager extends FonosService {
       );
     }
 
-    if (!pInfo.main) throw new Error('Missing "main" entry at package.json');
+    if (!pInfo.main) throw new Error("Missing 'main' entry at package.json");
 
     const mainScript = `${appPath}/${pInfo.main}`;
 
@@ -122,36 +191,7 @@ export default class AppManager extends FonosService {
       throw new Error(`not package.json found in ${request.dirPath}`);
     }
 
-    // Cleanup before deploy
-    if (fs.existsSync(`/tmp/${dirName}`))
-      fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
-    if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`);
-
-    await fs.copy(request.dirPath, `/tmp/${dirName}`);
-    await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
-    await this.storage.uploadObject({
-      filename: `/tmp/${dirName}.tgz`,
-      bucket: "apps" // TODO: Maybe I should place this in the .env
-    });
-
-    // Cleanup after deploy
-    if (fs.existsSync(`/tmp/${dirName}`))
-      fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
-    if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`);
-
-    const app = new AppManagerPB.App();
-    app.setRef(dirName);
-    app.setName(request.app.name);
-    app.setDescription(request.app.description);
-
-    const createAppRequest = new AppManagerPB.CreateAppRequest();
-    createAppRequest.setApp(app);
-
-    const response = await this.service
-      .createApp()
-      .sendMessage(createAppRequest);
-
-    return response;
+    return request;
   }
 
   /**
@@ -167,10 +207,19 @@ export default class AppManager extends FonosService {
    *   console.log(result)             // returns the app object
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getApp(ref: string): Promise<App> {
+  async getApp(ref: string): Promise<GetAppResponse> {
     const request = new AppManagerPB.GetAppRequest();
     request.setRef(ref);
-    return this.service.getApp().sendMessage(request);
+    const response = await super.getService().getApp().sendMessage(request);
+    return {
+      ref: response.getRef(),
+      name: response.getName(),
+      description: response.getDescription(),
+      createTime: response.getCreateTime(),
+      updateTime: response.getUpdateTime(),
+      status: response.getStatus(),
+      accessKeyId: response.getAccessKeyId()
+    };
   }
 
   /**
@@ -186,10 +235,11 @@ export default class AppManager extends FonosService {
    *   console.log('finished')        // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteApp(ref: string) {
+  async deleteApp(ref: string): Promise<DeleteAppResponse> {
     const request = new AppManagerPB.DeleteAppRequest();
     request.setRef(ref);
-    return this.service.deleteApp().sendMessage(request);
+    await super.getService().deleteApp().sendMessage(request);
+    return {ref};
   }
 
   /**
@@ -213,15 +263,28 @@ export default class AppManager extends FonosService {
    *   console.log(result)            // returns a ListAppsResponse
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listApps(request: {pageSize: number; pageToken: string; view: View}) {
+  async listApps(
+    request: ListAppRequest
+  ): Promise<ListAppResponse> {
     const r = new AppManagerPB.ListAppsRequest();
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);
     r.setView(request.view);
-    return this.service.listApps().sendMessage(r);
-  }
+    const paginatedList = await this.getService().listApps().sendMessage(r);
 
-  static get STATES() {
-    return STATUS;
+    return {
+      nextPageToken: paginatedList.getNextPageToken(),
+      apps: paginatedList.getAppsList().map((a: AppManagerPB.App) => {
+        return {
+          ref: a.getRef(),
+          name: a.getName(),
+          description: a.getDescription(),
+          createTime: a.getCreateTime(),
+          updateTime: a.getUpdateTime(),
+          status: a.getStatus(),
+          accessKeyId: a.getAccessKeyId()
+        };
+      })
+    };
   }
 }

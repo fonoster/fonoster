@@ -28,8 +28,10 @@ import {
   getObjectURLResponse,
   UploadObjectResponse
 } from "./types";
-import {promisifyAll} from "grpc-promise";
+
 import {utils} from "./utils";
+
+import {promisifyAll} from "grpc-promise";
 
 /**
  * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,

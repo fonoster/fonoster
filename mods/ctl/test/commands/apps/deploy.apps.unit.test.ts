@@ -1,7 +1,6 @@
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
-import {App} from "@fonos/core/src/server/protos/appmanager_pb";
 import AppManager from "@fonos/appmanager";
 import DeployCommand from "../../../src/commands/apps/deploy";
 import {cli} from "cli-ux";
@@ -18,10 +17,15 @@ describe("@fonos/ctl/apps", () => {
 
   beforeEach(() => {
     actionStub = sandbox.stub(cli.action, "start");
-    const app = new App();
-    app.setName("My App");
-    app.setDescription("A test application");
-    app.setCreateTime("January 01, 1970 00:00:00 UTC.");
+    const app = {
+      name:"My App",
+      description: "A test application",
+      createTime: "January 01, 1970 00:00:00 UTC.",
+      updateTime: "January 01, 1970 00:00:00 UTC.",
+      status: "ACTIVE",
+      accessKeyId: "70lkv20G5MCgUIKYJI6Z"
+  };
+  
     deployAppStub = sandbox
       .stub(AppManager.prototype, "deployApp")
       .returns(Promise.resolve(app));

@@ -32,8 +32,8 @@ export default class ListCommand extends Command {
       while (true) {
         // Get a list
         const result = await appmanager.listApps({pageSize, pageToken, view});
-        const apps = result.getAppsList();
-        pageToken = result.getNextPageToken();
+        const apps = result.apps;
+        pageToken = result.nextPageToken;
 
         // Dont ask this if is the first time or empty data
         if (apps.length > 0 && !firstBatch) {
@@ -46,9 +46,9 @@ export default class ListCommand extends Command {
         const t = new Table();
 
         apps.forEach((app: any) => {
-          t.cell("Ref", app.getRef());
-          t.cell("Name", app.getName());
-          t.cell("Description", truncate(app.getDescription(), 32));
+          t.cell("Ref", app.ref);
+          t.cell("Name", app.name);
+          t.cell("Description", truncate(app.description, 32));
           t.newRow();
         });
 
