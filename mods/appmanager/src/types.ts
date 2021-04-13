@@ -24,7 +24,6 @@ export interface AppManagers {
   updateTime: string;
   status: string;
   accessKeyId: string;
-  labels: string;
 }
 
 export interface CreateAppManagerRequest {
@@ -35,7 +34,6 @@ export interface CreateAppManagerRequest {
   updateTime: string;
   status: string;
   accessKeyId: string;
-  labels: string;
 }
 
 export interface CreateAppManagerResponse {
@@ -46,7 +44,6 @@ export interface CreateAppManagerResponse {
   updateTime: string;
   status: string;
   accessKeyId: string;
-  labels: string;
 }
 
 export interface GetAppManagerResponse {
@@ -57,7 +54,6 @@ export interface GetAppManagerResponse {
   updateTime?: string;
   status: string;
   accessKeyId: string;
-  labels: string;
 }
 
 export interface UpdateAppManagerRequest {
@@ -68,7 +64,6 @@ export interface UpdateAppManagerRequest {
   updateTime?: string;
   status: string;
   accessKeyId: string;
-  labels: string;
 }
 
 export interface UpdateAppManagerResponse {

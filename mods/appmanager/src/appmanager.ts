@@ -65,7 +65,6 @@ export default class AppManager extends FonosService {
    * @property {string} description - A description for the application.
    * @property {number} createTime - Time the application was created.
    * @property {number} updateTime - Last time the application was updated.
-   * @property {map} labels - Metadata for this application.
    */
 
   /**
@@ -144,7 +143,6 @@ export default class AppManager extends FonosService {
       updateTime: response.getUpdateTime(),
       status: response.getStatus(),
       accessKeyId: response.getAccessKeyId(),
-      labels: response.getLabelsMap()
     };
   }
 
@@ -226,8 +224,7 @@ export default class AppManager extends FonosService {
       createTime: response.getCreateTime(),
       updateTime: response.getUpdateTime(),
       status: response.getStatus(),
-      accessKeyId: response.getAccessKeyId(),
-      labels: response.getLabelsMap()
+      accessKeyId: response.getAccessKeyId()
     };
   }
 
@@ -291,8 +288,7 @@ export default class AppManager extends FonosService {
           createTime: a.getCreateTime(),
           updateTime: a.getUpdateTime(),
           status: a.getStatus(),
-          accessKeyId: a.getAccessKeyId(),
-          labels: a.getLabelsMap()
+          accessKeyId: a.getAccessKeyId()
         };
       })
     };
