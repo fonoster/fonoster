@@ -32,7 +32,7 @@ import {
 import {utils} from "./utils";
 
 
-// import {promisifyAll} from "grpc-promise";
+import {promisifyAll} from "grpc-promise";
 
 
 /**
@@ -59,7 +59,7 @@ export default class Storage extends FonosService {
   constructor(options?: ServiceOptions) {
     super(StorageService.StorageClient, options);
     super.init();
-    // promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**
