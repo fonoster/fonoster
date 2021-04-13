@@ -26,16 +26,17 @@ import {promisifyAll} from "grpc-promise";
 import {
   FonosService,
   AppManagerService,
-  AppManagerPB
+  AppManagerPB,
+  ServiceOptions
 } from "@fonos/core";
 import {
   GetAppManagerResponse,
   ListAppManagerRequest,
   ListAppManagerResponse,
   DeleteAppManagerResponse,
-  CreateAppManagerRequest
+  CreateAppManagerRequest,
+  AppRequest
 } from "./types";
-
 
 /**
  * @classdesc Use Fonos AppManager, a capability of Fonos Systems Manager,
@@ -70,9 +71,10 @@ export default class AppManager extends FonosService {
   /**
    * Constructs a new AppManager Object.
    *
+   * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
-  constructor(options?: unknown) {
+  constructor(options?: ServiceOptions) {
     super(AppManagerService.AppManagerClient, options);
     super.init();
     this.storage = new Storage(super.getOptions());
@@ -83,8 +85,8 @@ export default class AppManager extends FonosService {
   /**
    * Deploys an application to Fonos.
    *
-   * @param {string} path - path to the application
-   * @param {string} ref - optional reference to the application
+   * @param {string} appPath - path to the application
+   * @param {string} appRef - optional reference to the application
    * @return {Promise<App>} The application just created
    * @throws if path to application does not exist or is not a directory
    * @throws the file package.json does not exist inside de application path
@@ -101,12 +103,12 @@ export default class AppManager extends FonosService {
    * @todo if the file uploading fails the state of the application should
    * change to UNKNOWN.
    */
-
-  async deployApp(appPath: string, appRef?: string): Promise<CreateAppManagerRequest> {
+  async deployApp(
+    appPath: string,
+    appRef?: string
+  ): Promise<CreateAppManagerRequest> {
     const dirName = appRef || nanoid(10);
-    const request = this.verifyPkg(appPath)
-
-    console.log("this is the path ", request);
+    const request = this.verifyPkg(appPath);
 
     // Cleanup before deploy
     this.cleanup(dirName);
@@ -129,7 +131,10 @@ export default class AppManager extends FonosService {
     const createAppRequest = new AppManagerPB.CreateAppRequest();
     createAppRequest.setApp(app);
 
-    const response = await super.getService().createApp().sendMessage(createAppRequest);
+    const response = await super
+      .getService()
+      .createApp()
+      .sendMessage(createAppRequest);
 
     return {
       ref: response.getRef(),
@@ -139,63 +144,63 @@ export default class AppManager extends FonosService {
       updateTime: response.getUpdateTime(),
       status: response.getStatus(),
       accessKeyId: response.getAccessKeyId(),
-      labels: response.getLabelsMap(),
+      labels: response.getLabelsMap()
     };
   }
 
-
-  cleanup(dirName: string): void {
+  /* eslint-disable */
+  private cleanup(dirName: string): void {
     // Cleanup before and after deploy
     if (fs.existsSync(`/tmp/${dirName}`))
       fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
     if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`);
   }
 
-  verifyPkg(appPath: string) {
-      const packagePath = path.join(appPath, "package.json");
-      // Expects an existing valid package.json
-      const packageInfo = (p: string) => JSON.parse(`${fs.readFileSync(p)}`);
-      let pInfo;
-  
-      try {
-        pInfo = packageInfo(packagePath);
-      } catch (err) {
-        throw new Error(
-          `Unable to obtain project info. Ensure package.json exists in '${appPath}', and that is well formatted`
-        );
+  /* eslint-disable */
+  private verifyPkg(appPath: string): AppRequest {
+    const packagePath = path.join(appPath, "package.json");
+    // Expects an existing valid package.json
+    const packageInfo = (p: string) => JSON.parse(`${fs.readFileSync(p)}`);
+    let pInfo;
+
+    try {
+      pInfo = packageInfo(packagePath);
+    } catch (err) {
+      throw new Error(
+        `Unable to obtain project info. Ensure package.json exists in '${appPath}', and that is well formatted`
+      );
+    }
+
+    if (!pInfo.main) throw new Error("Missing 'main' entry at package.json");
+
+    const mainScript = `${appPath}/${pInfo.main}`;
+
+    if (!fs.existsSync(mainScript))
+      throw new Error(`Cannot find main script at "${mainScript}"`);
+
+    const request = {
+      dirPath: appPath,
+      app: {
+        name: pInfo.name,
+        description: pInfo.description
       }
-  
-      if (!pInfo.main) throw new Error('Missing "main" entry at package.json');
-  
-      const mainScript = `${appPath}/${pInfo.main}`;
-  
-      if (!fs.existsSync(mainScript))
-        throw new Error(`Cannot find main script at "${mainScript}"`);
-  
-      const request = {
-        dirPath: appPath,
-        app: {
-          name: pInfo.name,
-          description: pInfo.description
-        }
-      };
-  
-      if (
-        !fs.existsSync(request.dirPath) ||
-        !fs.lstatSync(request.dirPath).isDirectory()
-      ) {
-        throw new Error(
-          `${request.dirPath} does not exist or is not a directory`
-        );
-      }
-  
-      if (!fs.existsSync(packagePath)) {
-        throw new Error(`not package.json found in ${request.dirPath}`);
-      }
+    };
+
+    if (
+      !fs.existsSync(request.dirPath) ||
+      !fs.lstatSync(request.dirPath).isDirectory()
+    ) {
+      throw new Error(
+        `${request.dirPath} does not exist or is not a directory`
+      );
+    }
+
+    if (!fs.existsSync(packagePath)) {
+      throw new Error(`not package.json found in ${request.dirPath}`);
+    }
 
     return request;
   }
-
 
   /**
    * Retrives an application by reference.
@@ -221,12 +226,11 @@ export default class AppManager extends FonosService {
       createTime: response.getCreateTime(),
       updateTime: response.getUpdateTime(),
       status: response.getStatus(),
-      accessKeyId: response.getAccessKeyId(), 
-      labels: response.getLabelsMap(),
-    }
+      accessKeyId: response.getAccessKeyId(),
+      labels: response.getLabelsMap()
+    };
   }
 
-  
   /**
    * Deletes an application create on Fonos server.
    *
@@ -268,7 +272,9 @@ export default class AppManager extends FonosService {
    *   console.log(result)            // returns a ListAppsResponse
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listApps(request: ListAppManagerRequest) : Promise<ListAppManagerResponse> {
+  async listApps(
+    request: ListAppManagerRequest
+  ): Promise<ListAppManagerResponse> {
     const r = new AppManagerPB.ListAppsRequest();
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);
@@ -286,7 +292,7 @@ export default class AppManager extends FonosService {
           updateTime: a.getUpdateTime(),
           status: a.getStatus(),
           accessKeyId: a.getAccessKeyId(),
-          labels: a.getLabelsMap(),
+          labels: a.getLabelsMap()
         };
       })
     };

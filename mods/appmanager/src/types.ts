@@ -17,76 +17,83 @@
  * limitations under the License.
  */
 export interface AppManagers {
-    ref?: string,
-    name: string,
-    description: string,
-    createTime: string,
-    updateTime: string,
-    status: string,
-    accessKeyId: string,
-    labels: string
-  }
-    
-    export interface CreateAppManagerRequest {
-      ref?: string,
-      name: string,
-      description: string,
-      createTime: string,
-      updateTime: string,
-      status: string,
-      accessKeyId: string,
-      labels: string
-    }
-    
-    export interface CreateAppManagerResponse {
-      ref?: string,
-      name: string,
-      description: string,
-      createTime: string,
-      updateTime: string,
-      status: string,
-      accessKeyId: string,
-      labels: string
-    }
-    
-    export interface GetAppManagerResponse {
-      ref?: string,
-      name: string,
-      description: string,
-      createTime?: string;
-      updateTime?: string;
-      status: string,
-      accessKeyId: string,
-      labels: string
-    }
-    
-    export interface UpdateAppManagerRequest {
-      ref?: string,
-      name: string,
-      description: string,
-      createTime?: string;
-      updateTime?: string;
-      status: string,
-      accessKeyId: string,
-      labels: string
-    }
-    
-    export interface UpdateAppManagerResponse {
-      ref: string;
-    }
-    
-    export interface ListAppManagerRequest {
-      pageSize?: number;
-      pageToken?: string;
-      view?: number;
-    }
-    
-    export interface ListAppManagerResponse {
-      nextPageToken: string;
-      apps: AppManagers[];
-    }
-    
-    export interface DeleteAppManagerResponse {
-      ref: string;
-    }
-    
+  ref?: string;
+  name: string;
+  description: string;
+  createTime: string;
+  updateTime: string;
+  status: string;
+  accessKeyId: string;
+  labels: string;
+}
+
+export interface CreateAppManagerRequest {
+  ref?: string;
+  name: string;
+  description: string;
+  createTime: string;
+  updateTime: string;
+  status: string;
+  accessKeyId: string;
+  labels: string;
+}
+
+export interface CreateAppManagerResponse {
+  ref?: string;
+  name: string;
+  description: string;
+  createTime: string;
+  updateTime: string;
+  status: string;
+  accessKeyId: string;
+  labels: string;
+}
+
+export interface GetAppManagerResponse {
+  ref?: string;
+  name: string;
+  description: string;
+  createTime?: string;
+  updateTime?: string;
+  status: string;
+  accessKeyId: string;
+  labels: string;
+}
+
+export interface UpdateAppManagerRequest {
+  ref?: string;
+  name: string;
+  description: string;
+  createTime?: string;
+  updateTime?: string;
+  status: string;
+  accessKeyId: string;
+  labels: string;
+}
+
+export interface UpdateAppManagerResponse {
+  ref: string;
+}
+
+export interface ListAppManagerRequest {
+  pageSize?: number;
+  pageToken?: string;
+  view?: number;
+}
+
+export interface ListAppManagerResponse {
+  nextPageToken: string;
+  apps: AppManagers[];
+}
+
+export interface DeleteAppManagerResponse {
+  ref: string;
+}
+
+export interface AppRequest {
+  dirPath: string;
+  app: {
+    name: string;
+    description: string;
+  };
+}

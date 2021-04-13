@@ -22,7 +22,7 @@ import sinonChai from "sinon-chai";
 import AppManager from "../src/appmanager";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService, AppManagerPB} from "@fonos/core";
-import { App } from "@fonos/core/dist/server/protos/appmanager_pb";
+import {App} from "@fonos/core/dist/server/protos/appmanager_pb";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -38,8 +38,7 @@ describe("@Fonos/domains", () => {
   appObj.setCreateTime("...");
   appObj.setStatus(App.Status.CREATING);
 
-  const dirPath = '/Users/rhc/Workspace/new-workspace/test/15';
-  const appDesc = { name: '15', description: 'adsfasdf' };
+  const dirPath = "/Users/rhc/Workspace/new-workspace/test/15";
 
   afterEach(() => sandbox.restore());
 
@@ -64,12 +63,14 @@ describe("@Fonos/domains", () => {
       status: appObj.getStatus()
     };
 
-    const appAPI = new AppManager()
+    const appAPI = new AppManager();
     const result = await appAPI.deployApp(dirPath, req.ref);
 
     expect(result).to.have.property("ref").to.be.equal(appObj.getRef());
     expect(result).to.have.property("name").to.be.equal(appObj.getName());
-    expect(result).to.have.property("description").to.be.equal(appObj.getDescription());
+    expect(result)
+      .to.have.property("description")
+      .to.be.equal(appObj.getDescription());
     expect(result).to.have.property("createTime").not.to.be.null;
     expect(result).to.have.property("updateTime").not.to.be.null;
 
@@ -90,12 +91,14 @@ describe("@Fonos/domains", () => {
 
     const request = "IkvhghVpvv";
 
-    const appAPI = new AppManager()
+    const appAPI = new AppManager();
     const result = await appAPI.getApp(request);
 
     expect(result).to.have.property("ref").to.be.equal(appObj.getRef());
     expect(result).to.have.property("name").to.be.equal(appObj.getName());
-    expect(result).to.have.property("description").to.be.equal(appObj.getDescription());
+    expect(result)
+      .to.have.property("description")
+      .to.be.equal(appObj.getDescription());
     expect(result).to.have.property("createTime").not.to.be.null;
     expect(result).to.have.property("updateTime").not.to.be.null;
     expect(serviceStub).to.have.been.calledTwice;
@@ -112,7 +115,7 @@ describe("@Fonos/domains", () => {
           };
         }
       });
-    const appAPI = new AppManager()
+    const appAPI = new AppManager();
     const result = await appAPI.deleteApp(appObj.getRef());
 
     expect(serviceStub).to.have.been.calledTwice;
@@ -121,19 +124,17 @@ describe("@Fonos/domains", () => {
 
   it("should list apps", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
-    const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
-      .returns({
-        listApps: () => {
-          return {
-            sendMessage: () =>
-              Promise.resolve({
-                getNextPageToken: () => "1",
-                getAppsList: () => [appObj]
-              })
-          };
-        }
-      });
+    sandbox.stub(FonosService.prototype, "getService").returns({
+      listApps: () => {
+        return {
+          sendMessage: () =>
+            Promise.resolve({
+              getNextPageToken: () => "1",
+              getAppsList: () => [appObj]
+            })
+        };
+      }
+    });
 
     const request = {
       pageSize: 0,
@@ -141,13 +142,17 @@ describe("@Fonos/domains", () => {
       view: 0
     };
 
-    const appAPI = new AppManager()
+    const appAPI = new AppManager();
     const result = await appAPI.listApps(request);
 
     expect(result.apps[0]).to.have.property("ref").to.be.equal(appObj.getRef());
-    expect(result.apps[0]).to.have.property("name").to.be.equal(appObj.getName());
-    expect(result.apps[0]).to.have.property("description").to.be.equal(appObj.getDescription());
+    expect(result.apps[0])
+      .to.have.property("name")
+      .to.be.equal(appObj.getName());
+    expect(result.apps[0])
+      .to.have.property("description")
+      .to.be.equal(appObj.getDescription());
     expect(result.apps[0]).to.have.property("createTime").not.to.be.null;
-    expect(result.apps[0]).to.have.property("updateTime").not.to.be.null; 
+    expect(result.apps[0]).to.have.property("updateTime").not.to.be.null;
   });
 });

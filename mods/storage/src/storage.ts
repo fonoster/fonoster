@@ -31,9 +31,7 @@ import {
 
 import {utils} from "./utils";
 
-
 import {promisifyAll} from "grpc-promise";
-
 
 /**
  * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
