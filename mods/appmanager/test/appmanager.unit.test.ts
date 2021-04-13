@@ -148,9 +148,6 @@ describe("@Fonos/domains", () => {
     expect(result.apps[0]).to.have.property("name").to.be.equal(appObj.getName());
     expect(result.apps[0]).to.have.property("description").to.be.equal(appObj.getDescription());
     expect(result.apps[0]).to.have.property("createTime").not.to.be.null;
-    expect(result.apps[0]).to.have.property("updateTime").not.to.be.null;
-      
+    expect(result.apps[0]).to.have.property("updateTime").not.to.be.null; 
   });
-
-  
 });

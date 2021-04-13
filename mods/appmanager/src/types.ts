@@ -25,7 +25,7 @@ export interface AppManagers {
     status: string,
     accessKeyId: string,
     labels: string
-    }
+  }
     
     export interface CreateAppManagerRequest {
       ref?: string,

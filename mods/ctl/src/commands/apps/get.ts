@@ -32,7 +32,6 @@ export default class GetCommand extends Command {
          Updated: moment(updateTime.toUTCString()).fromNow()
       };
 
-
       await cli.wait(1000);
       cli.action.stop("");
       console.log(render(appJson, {noColor: true}));

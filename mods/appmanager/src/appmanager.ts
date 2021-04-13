@@ -1,20 +1,33 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import Storage from "@fonos/storage";
-//import {FonosService, AppManagerService, AppManagerPB, ServiceOptions} from "@fonos/core";
-// import {App} from "@fonos/core/src/server/protos/appmanager_pb";
-// import {View} from "@fonos/core/src/server/protos/common_pb";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 import {nanoid} from "nanoid";
-
 import {promisifyAll} from "grpc-promise";
-
 import {
   FonosService,
   AppManagerService,
   AppManagerPB
 } from "@fonos/core";
-
 import {
   GetAppManagerResponse,
   ListAppManagerRequest,
@@ -22,7 +35,6 @@ import {
   DeleteAppManagerResponse,
   CreateAppManagerRequest
 } from "./types";
-
 
 
 /**
