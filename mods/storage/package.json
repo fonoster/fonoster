@@ -1,6 +1,6 @@
 {
   "name": "@fonos/storage",
-  "version": "0.0.79",
+  "version": "0.0.80",
   "description": "Fonos Storage Servoce",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,8 +43,8 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.79",
-    "@fonos/logger": "^0.0.79",
+    "@fonos/core": "^0.0.80",
+    "@fonos/logger": "^0.0.80",
     "grpc": "^1.24.6",
     "grpc-ts-health-check": "^2.0.6",
     "objectid": "^3.2.1",
