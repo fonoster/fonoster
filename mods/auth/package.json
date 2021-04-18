@@ -36,5 +36,6 @@
     "@types/jsonwebtoken": "^8.5.0",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2"
-  }
+  },
+  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

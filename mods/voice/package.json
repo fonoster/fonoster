@@ -38,5 +38,6 @@
     "@fonos/logger": "^0.0.80",
     "@fonos/tts": "^0.0.80",
     "objectid": "^3.2.1"
-  }
+  },
+  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

@@ -77,5 +77,6 @@
     "sinon": "^9.0.1",
     "sinon-chai": "^3.5.0",
     "typescript": "^3.9.3"
-  }
+  },
+  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

@@ -38,5 +38,6 @@
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2",
     "typescript": "^3.9.3"
-  }
+  },
+  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }
