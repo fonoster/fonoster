@@ -1,6 +1,8 @@
-import {runService} from "@fonos/core";
+#!/usr/bin/env node
+
 import StorageServer from "./service/storage"
-import {IStorageServer, StorageService} from "./service/protos/storage_grpc_pb";
+import {StorageService} from "./service/protos/storage_grpc_pb";
+import {runService} from "@fonos/core";
 
 runService({
   name: "Storage Service",

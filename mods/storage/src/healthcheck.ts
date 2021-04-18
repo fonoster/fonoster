@@ -1,1 +1,3 @@
-console.log("Fuck yeah")
+#!/usr/bin/env node
+
+console.log("Check...")
