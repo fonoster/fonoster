@@ -1,6 +1,4 @@
 import FonosService from "./common/fonos_service";
-import StorageService from "./server/protos/storage_grpc_pb";
-import StoragePB from "./server/protos/storage_pb";
 import AppManagerService from "./server/protos/appmanager_grpc_pb";
 import AppManagerPB from "./server/protos/appmanager_pb";
 import CallManagerService from "./server/protos/callmanager_grpc_pb";
@@ -17,16 +15,24 @@ import CommonPB from "./server/protos/common_pb";
 import UserManagerService from "./server/protos/usermanager_grpc_pb";
 import UserManagerPB from "./server/protos/usermanager_pb";
 import {ServiceOptions} from "./common/types";
+import {getClientCredentials, getServerCredentials} from "./common/trust_util";
+import getAccessKeyId from "./common/get_access_key_id"
+import {
+  extract,
+  removeDirSync,
+  uploadToFS,
+  getFilesizeInBytes,
+  fsInstance
+} from "./common/utils";
+import runService from "./service_runner"
 
 export {
   ServiceOptions,
   FonosService,
-  StorageService,
   AppManagerService,
   AppManagerPB,
   CallManagerService,
   CallManagerPB,
-  StoragePB,
   ProvidersService,
   ProvidersPB,
   NumbersService,
@@ -37,5 +43,14 @@ export {
   AgentsPB,
   CommonPB,
   UserManagerService,
-  UserManagerPB
+  UserManagerPB,
+  getClientCredentials,
+  getServerCredentials,
+  getAccessKeyId,
+  extract,
+  removeDirSync,
+  uploadToFS,
+  getFilesizeInBytes,
+  fsInstance,
+  runService
 };

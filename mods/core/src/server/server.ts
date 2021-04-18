@@ -10,7 +10,6 @@ import AuthMiddleware from "../common/auth/auth_middleware";
 import interceptor from "@pionerlabs/grpc-interceptors";
 import logger from "@fonos/logger";
 import grpc from "grpc";
-import StorageServer, {IStorageServer, StorageService} from "./storage/storage";
 import UserManagerServer, {UserManagerService} from "./usermanager/usermanager";
 import {IUserManagerServer} from "./protos/usermanager_grpc_pb";
 import AppManagerServer, {AppManagerService} from "./appmanager/appmanager";
@@ -50,7 +49,6 @@ async function main() {
   server.addService<IDomainsServer>(DomainsService, new DomainsServer());
   server.addService<IAgentsServer>(AgentsService, new AgentsServer());
   server.addService<INumbersServer>(NumbersService, new NumbersServer());
-  server.addService<IStorageServer>(StorageService, new StorageServer());
   // WARNINIG: We need to temporarily disable the healthcheck until we fix the
   // conflict with the authentication interceptor
   // server.addService(HealthService, grpcHealthCheck)

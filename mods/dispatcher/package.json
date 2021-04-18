@@ -9,7 +9,16 @@
   "types": "dist/dispatcher",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "build": "tsc -b tsconfig.json",
+    "start": "cross-env NODE_ENV=dev nodemon src/dispatcher"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "./src/"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "directories": {
     "src": "src",
@@ -45,6 +54,7 @@
   },
   "devDependencies": {
     "@types/phone": "^2.4.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "nodemon": "^2.0.6"
   }
 }

@@ -1,24 +1,12 @@
 {
   "name": "root",
   "private": true,
-  "nodemonConfig": {
-    "watch": [
-      "./mods/",
-      "./examples/"
-    ],
-    "ext": "ts",
-    "exec": "ts-node",
-    "ignore": "**/*.d.ts"
-  },
   "scripts": {
     "bootstrap": "lerna bootstrap --no-ci",
     "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "build": "lerna run build",
     "clean": "rimraf **/*/tsconfig.tsbuildinfo && rimraf **/*/dist && rimraf **/*/dist && rimraf **/*/node_modules && rimraf node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
-    "run-init": "cross-env NODE_ENV=dev node mods/core/dist/common/fsutils",
-    "run-apiserver": "cross-env NODE_ENV=dev nodemon mods/core/src/server/server",
-    "run-mediacontroller": "cross-env NODE_ENV=dev nodemon mods/dispatcher/src/dispatcher",
     "lint": "eslint mods --ext .ts --fix"
   },
   "devDependencies": {
@@ -44,7 +32,6 @@
     "lerna": "^3.22.1",
     "lint-staged": "^10.2.9",
     "mocha": "^8.3.0",
-    "nodemon": "^2.0.6",
     "nyc": "^15.1.0",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",

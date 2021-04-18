@@ -1,6 +1,3 @@
-# The following set of services is used to create and install access keys. 
-# When running on K8s this function is replaced with the command `fonos config:init`
-
 version: '3.7'
 
 networks:
@@ -8,28 +5,15 @@ networks:
   host_mode:
     external:
       name: 'host'
+
 volumes:
   apps:
     external: true
   recordings:
     external: true
   datasource:
+    external: true
   datasource_auth:
-
-secrets:
-  jwt.salt:
     external: true
-  config:
-    external: true
-
-configs:
-  fluent.conf:
-    external: true
-  bootstrap.yml:
-    external: true
-  redis.conf:
-    external: true
-  log4j2.yml:
-    external: true
-  init_mongo.js:
+  data1-1:
     external: true

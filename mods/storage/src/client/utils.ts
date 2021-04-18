@@ -19,7 +19,7 @@
 import fs from "fs";
 import path from "path";
 import {constants} from "./constants";
-import {StoragePB} from "@fonos/core";
+import StoragePB from "../service/protos/storage_pb";
 import {UploadObjectRequest, GetObjectURLRequest} from "./types";
 
 interface CallService {

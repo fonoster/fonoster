@@ -1,0 +1,87 @@
+version: '3.7'
+
+services:
+
+  apiserver:
+    image: ${AS_IMAGE}
+    restart: ${RESTART_POLICY}
+    environment:
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+      ALLOW_INSECURE: ${APISERVER_ALLOW_INSECURE}
+      DS_HOST: ${DS_HOST}
+      DS_PORT: ${DS_PORT}
+      DS_SECRET: ${DS_SECRET}
+      DS_AUTH_USERNAME: ${DS_AUTH_USERNAME}
+      DS_AUTH_SECRET: ${DS_AUTH_SECRET}
+      DS_AUTH_HOST: ${DS_AUTH_HOST}
+      DS_AUTH_PORT: ${DS_AUTH_PORT}
+      DS_AUTH_DB: ${DS_AUTH_DB}
+      # Warning: Temporal variable
+      FS_HOST: ${FS_HOST_PUBLIC}
+      FS_PORT: ${FS_PORT}
+      FS_USERNAME: ${FS_USERNAME}
+      FS_SECRET: ${FS_SECRET}
+      FS_DEFAULT_STORAGE_BUCKET: ${FS_DEFAULT_STORAGE_BUCKET}
+      EVENTS_BROKERS: amqp://${EB_USERNAME}:${EB_SECRET}@${EB_HOST}:${EB_PORT}
+      SIPPROXY_HOST: ${SIPPROXY_HOST}
+      SIPPROXY_API_PORT: ${SIPPROXY_API_PORT}
+      SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
+      SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
+      MS_ENDPOINT: ${MS_ENDPOINT}
+      MS_TRUNK: ${MS_TRUNK}
+      MS_CONTEXT: ${MS_CONTEXT}
+      MS_EXTENSION: ${MS_EXTENSION}
+      MS_ARI_URL: ${MS_ARI_URL}
+      MS_ARI_USERNAME: ${MS_ARI_USERNAME}
+      MS_ARI_SECRET: ${MS_ARI_SECRET}
+      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
+      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
+    labels:
+      - "traefik.http.routers.apiserver.rule=PathPrefix(`/fonos.appmanager.v1alpha1`)"
+      - "traefik.http.services.apiserver.loadbalancer.server.scheme=h2c"
+    # ports:
+    #  - ${APISERVER_PORT}:${APISERVER_PORT}
+    # TODO: Fix health check conflict with the new interceptor
+    healthcheck:
+      test: ["CMD-SHELL", "echo removethis"]
+      interval: 30s
+      timeout: 30s
+      retries: 3      
+    networks:
+      fonos:
+        aliases:
+          - ${APISERVER_ENDPOINT}
+    volumes:
+      - ${CONFIG}/certs/ca-key.pem:/home/fonos/.fonos/jwt.salt
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
+
+  storage:
+    image: fonoster/fonos-storage
+    restart: ${RESTART_POLICY}
+    environment:
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+      ALLOW_INSECURE: ${APISERVER_ALLOW_INSECURE}
+      # Warning: Temporal variable
+      FS_HOST: ${FS_HOST_PUBLIC}
+      FS_PORT: ${FS_PORT}
+      FS_USERNAME: ${FS_USERNAME}
+      FS_SECRET: ${FS_SECRET}
+      FS_DEFAULT_STORAGE_BUCKET: ${FS_DEFAULT_STORAGE_BUCKET}
+      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
+      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
+    labels:
+      - "traefik.http.routers.apiserver.rule=PathPrefix(`/fonos.storage.v1alpha1`)"
+      - "traefik.http.services.apiserver.loadbalancer.server.scheme=h2c"
+    # ports:
+    #  - 50052:50052   
+    networks:
+      fonos:
+    volumes:
+      - ${CONFIG}/certs/ca-key.pem:/home/fonos/.fonos/jwt.salt
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.storage

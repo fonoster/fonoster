@@ -1,0 +1,77 @@
+version: '3.7'
+
+services:
+
+  reverse-proxy:
+    image: traefik:v2.4
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      fonos:
+
+  datasource:
+    image: ${DS_IMAGE} 
+    restart: ${RESTART_POLICY}
+    command: ['redis-server', '/etc/redis/redis.conf' ]
+    healthcheck:
+      test: ['CMD', 'redis-cli','ping']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
+    #ports:
+    #  - ${DS_PORT}:${DS_PORT}
+    networks:
+      fonos:
+        aliases: 
+          - ${DS_HOST}
+    volumes: 
+      - ${CONFIG}/redis.conf:/etc/redis/redis.conf
+      - datasource:/data
+
+  eventsbroker:
+    image: ${EB_IMAGE}
+    restart: ${RESTART_POLICY}
+    environment:
+      RABBITMQ_USERNAME: ${EB_USERNAME}
+      RABBITMQ_PASSWORD: ${EB_SECRET}
+      RABBITMQ_NODE_PORT_NUMBER: ${EB_PORT}
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.eventsbroker
+    # ports:
+    #  - ${EB_PORT}:${EB_PORT}
+    networks:
+      fonos:
+        aliases: 
+          - ${EB_HOST}
+
+  fs:
+    image: ${FS_IMAGE}
+    restart: ${RESTART_POLICY}
+    command: minio server /fonos
+    volumes:
+      - data1-1:/fonos
+    environment:
+      MINIO_ACCESS_KEY: ${FS_USERNAME}
+      MINIO_SECRET_KEY: ${FS_SECRET}
+    # ports:
+    #  - ${FS_PORT}:${FS_PORT}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.fs
+    networks:
+      fonos:
+        aliases:
+          - ${FS_HOST}

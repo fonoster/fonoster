@@ -7,7 +7,7 @@
   "references": [
     { "path":  "../tts" },
     { "path":  "../logger" },
-    { "path":  "../core" }    
+    { "path":  "../core" }
   ],   
   "exclude": [
     "node_modules",

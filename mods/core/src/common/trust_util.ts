@@ -62,36 +62,4 @@ const getClientCredentials = () => {
   }
 };
 
-/**
- * @deprecated The method should not be used
- */
-const auth = function (call: any): boolean {
-  if (
-    call.metadata._internal_repr.access_key_id === null ||
-    call.metadata._internal_repr.access_key_secret === null
-  ) {
-    return false;
-  }
-
-  const accessKeyId = call.metadata._internal_repr.access_key_id.toString();
-  const accessKeySecret = call.metadata._internal_repr.access_key_secret.toString();
-
-  if (typeof accessKeySecret !== "undefined") {
-    try {
-      const decoded: any = jwt.verify(accessKeySecret, getSalt());
-      if (!decoded || accessKeyId !== decoded.sub) {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
-    return true;
-  }
-  return false;
-};
-
-module.exports.getServerCredentials = getServerCredentials;
-module.exports.getClientCredentials = getClientCredentials;
-module.exports.auth = auth;
-
-export {getClientCredentials, getServerCredentials, auth};
+export {getClientCredentials, getServerCredentials};

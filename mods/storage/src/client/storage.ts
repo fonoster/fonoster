@@ -18,10 +18,12 @@
  */
 import {
   FonosService,
-  StorageService,
-  StoragePB,
   ServiceOptions
 } from "@fonos/core";
+import {
+  StorageService,
+} from "../service/protos/storage_grpc_pb";
+import StoragePB from "../service/protos/storage_pb";
 import {
   GetObjectURLRequest,
   UploadObjectRequest,

@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Storage from "../src/storage";
+import Storage from "../src/client/storage";
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import fs, {Stats} from "fs";
 import {FonosService} from "@fonos/core";
-import {utils} from "./../src/utils";
+import {utils} from "../src/client/utils";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
