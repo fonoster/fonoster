@@ -2,7 +2,7 @@
   "name": "@fonos/agents",
   "version": "0.0.81",
   "description": "VoIP Agents",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "dist/agents",

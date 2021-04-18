@@ -2,7 +2,7 @@
   "name": "@fonos/sdk",
   "version": "0.0.81",
   "description": "Fonos SDK module",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "dist/index",

@@ -15,7 +15,7 @@
   },
   "bin": {
     "run": "dist/srv_runner.js",
-    "healthcheck": "healthcheck.js"
+    "healthcheck": "dist/healthcheck.js"
   },
   "nodemonConfig": {
     "watch": [
@@ -44,8 +44,10 @@
   },
   "dependencies": {
     "@fonos/core": "^0.0.81",
+    "@fonos/errors": "^0.0.81",
     "@fonos/logger": "^0.0.81",
     "grpc": "^1.24.6",
+    "grpc-promise": "^1.4.0",
     "grpc-ts-health-check": "^2.0.6",
     "objectid": "^3.2.1",
     "sync": "^0.2.5"
