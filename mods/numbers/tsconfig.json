@@ -6,7 +6,9 @@
   },
   "references": [
     { "path":  "../core" },
-    { "path":  "../logger" }
+    { "path":  "../logger" },
+    { "path":  "../errors" },
+    { "path":  "../appmanager" }
   ],
   "exclude": [
     "node_modules",

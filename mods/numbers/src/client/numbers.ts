@@ -27,13 +27,10 @@ import {
   GetNumberResponse,
   DeleteNumberResponse,
   ListNumbersResponse
-} from "./types";
-import {
-  FonosService,
-  NumbersService,
-  NumbersPB,
-  ServiceOptions
-} from "@fonos/core";
+} from "../types";
+import {FonosService, ServiceOptions} from "@fonos/core";
+import {NumbersService} from "../service/protos/numbers_grpc_pb";
+import NumbersPB from "../service/protos/numbers_pb";
 import {promisifyAll} from "grpc-promise";
 import sleep from "sync";
 

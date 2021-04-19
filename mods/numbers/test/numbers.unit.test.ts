@@ -1,4 +1,4 @@
-import Numbers from "../src/numbers";
+import Numbers from "../src/client/numbers";
 import chai from "chai";
 import sinonChai from "sinon-chai";
 import sinon from "sinon";
