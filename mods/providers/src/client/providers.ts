@@ -12,6 +12,7 @@ import {
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {ProvidersService} from "../service/protos/providers_grpc_pb";
 import ProvidersPB from "../service/protos/providers_pb";
+import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 /**
  * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
@@ -267,3 +268,5 @@ export default class Providers extends FonosService {
     return {ref};
   }
 }
+
+export {ProvidersPB, CommonPB};

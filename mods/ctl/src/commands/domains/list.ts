@@ -3,9 +3,9 @@ import Domains from "@fonos/domains";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
-import {CommonPB, DomainsPB} from "@fonos/core";
+import {CommonPB, DomainsPB} from "@fonos/domains";
 import {Domain} from "@fonos/domains/src/types";
-const Table = require("easy-table");
+import Table from "easy-table";
 
 export default class ListCommand extends Command {
   static description = `list registered domains

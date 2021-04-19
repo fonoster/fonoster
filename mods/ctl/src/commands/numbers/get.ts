@@ -4,7 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {render} from "prettyjson";
-const moment = require("moment");
+import moment from "moment";
 
 export default class GetCommand extends Command {
   static description = "get information about an existing number";

@@ -3,7 +3,7 @@ import AppManager from "@fonos/appmanager";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {prompt} from "inquirer";
-import {CommonPB} from "@fonos/core";
+import { CommonPB } from "@fonos/appmanager";
 const Table = require("easy-table");
 const truncate = require("truncate");
 

@@ -3,8 +3,8 @@ import Agents from "@fonos/agents";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
-import {CommonPB, AgentsPB} from "@fonos/core";
-const Table = require("easy-table");
+import { AgentsPB, CommonPB } from "@fonos/agents";
+import Table from "easy-table";
 
 export default class ListCommand extends Command {
   static description = `list registered agents

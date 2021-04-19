@@ -3,7 +3,7 @@ import Providers from "@fonos/providers";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
-import {CommonPB, ProvidersPB} from "@fonos/core";
+import {CommonPB} from "@fonos/providers";
 import { Provider } from "@fonos/providers/src/types";
 const Table = require("easy-table");
 

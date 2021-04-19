@@ -3,7 +3,8 @@ import chai from "chai";
 import sinonChai from "sinon-chai";
 import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService, NumbersPB, AppManagerPB} from "@fonos/core";
+import {FonosService} from "@fonos/core";
+import {NumbersPB, AppManagerPB} from "../src/client/numbers";
 import {CreateNumberResponse} from "../src/types";
 
 const expect = chai.expect;

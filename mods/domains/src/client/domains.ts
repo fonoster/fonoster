@@ -29,6 +29,7 @@ import {
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {DomainsService} from "../service/protos/domains_grpc_pb";
 import DomainsPB from "../service/protos/domains_pb";
+import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 
 /**
@@ -280,3 +281,5 @@ export default class Domains extends FonosService {
     return {ref};
   }
 }
+
+export {DomainsPB, CommonPB};

@@ -84,5 +84,3 @@ services:
       fonos:
         aliases:
           - ${MC_HOST}
-
-

@@ -20,9 +20,9 @@
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
-import Providers from "../src/client/providers";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService, ProvidersPB} from "@fonos/core";
+import {FonosService} from "@fonos/core";
+import Providers, {ProvidersPB} from "../src/client/providers";
 
 const expect = chai.expect;
 chai.use(sinonChai);

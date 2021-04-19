@@ -3,7 +3,7 @@ import Domains from "@fonos/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-const inquirer = require("inquirer");
+import inquirer from "inquirer";
 
 export default class UpdateCommand extends Command {
   static args = [{name: "ref"}];
@@ -20,7 +20,7 @@ export default class UpdateCommand extends Command {
     const domains = new Domains();
     const domain = await domains.getDomain(args.ref);
 
-    const answers = await inquirer.prompt([
+    const answers:any = await inquirer.prompt([
       {
         name: "name",
         message: "domain name",

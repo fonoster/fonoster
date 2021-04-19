@@ -1,5 +1,5 @@
 import {FonosError} from "@fonos/errors";
-import {redis}from "@fonos/core";
+import {redis} from "@fonos/core";
 import grpc from "grpc";
 import logger from "@fonos/logger";
 import jsonToApp from "@fonos/appmanager/src/service/json_to_app";

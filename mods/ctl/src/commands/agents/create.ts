@@ -4,7 +4,7 @@ import Domains from "@fonos/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-const inquirer = require("inquirer");
+import inquirer from "inquirer";
 
 export default class extends Command {
   static description = `creates a new agent resource

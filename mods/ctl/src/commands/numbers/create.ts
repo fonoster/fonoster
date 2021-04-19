@@ -5,10 +5,10 @@ import Apps from "@fonos/appmanager";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import {CommonPB, AppManagerPB, ProvidersPB} from "@fonos/core";
+import {CommonPB, AppManagerPB} from "@fonos/numbers";
 import { Provider } from "@fonos/providers/src/types";
-const phone = require("phone");
-const inquirer = require("inquirer");
+import phone from "phone";
+import inquirer from "inquirer";
 
 export default class CreateCommand extends Command {
   static description = `creates a new number resource
@@ -51,7 +51,7 @@ export default class CreateCommand extends Command {
         throw new Error("you must create a provider before adding a number");
       }
 
-      const answers = await inquirer.prompt([
+      const answers:any = await inquirer.prompt([
         {
           name: "e164Number",
           message: "number in E.164 format (e.g. +16471234567)",

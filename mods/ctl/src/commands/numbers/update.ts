@@ -4,7 +4,7 @@ import Apps from "@fonos/appmanager";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import {CommonPB, AppManagerPB} from "@fonos/core";
+import {CommonPB, AppManagerPB} from "@fonos/numbers";
 
 const inquirer = require("inquirer");
 

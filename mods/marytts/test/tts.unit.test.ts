@@ -54,7 +54,7 @@ describe("@fonos/marytts", () => {
       .to.have.property("message", "Request failed status code: 201");
     expect(pipe).to.not.have.been.calledOnce;
     expect(createWriteStream).to.not.have.been.calledOnce;
-    expect(join).to.have.been.calledTwice;
+    expect(join).to.have.been.calledOnce;
     expect(get).to.have.been.calledOnce;
   });
 
@@ -66,7 +66,7 @@ describe("@fonos/marytts", () => {
 
     const tts = new MaryTTS(defConfig);
     const synth = await tts.synthesize("hello world");
-    expect(synth).to.contain("\\tmp\\");
+    expect(synth).to.contain("/tmp");
     expect(pipe).to.have.been.calledOnce;
     expect(join).to.have.been.calledOnce;
     expect(createWriteStream).to.have.been.calledOnce;

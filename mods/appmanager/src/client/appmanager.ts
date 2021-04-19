@@ -4,6 +4,7 @@ import {View} from "../service/protos/common_pb";
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {AppManagerService} from "../service/protos/appmanager_grpc_pb";
 import AppManagerPB from "../service/protos/appmanager_pb";
+import CommonPB from "../service/protos/common_pb";
 
 import fs from "fs-extra";
 import path from "path";
@@ -228,3 +229,5 @@ export default class AppManager extends FonosService {
     return STATUS;
   }
 }
+
+export {AppManagerPB, CommonPB};

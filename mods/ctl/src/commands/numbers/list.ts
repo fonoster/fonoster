@@ -3,10 +3,9 @@ import Numbers from '@fonos/numbers'
 import { CLIError } from '@oclif/errors'
 import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
-import { CommonPB, NumbersPB } from '@fonos/core'
+import { CommonPB } from '@fonos/numbers'
 import { Number } from '@fonos/numbers/src/types'
-
-const Table = require('easy-table')
+import Table from 'easy-table'
 
 export default class ListCommand extends Command {
   static description = `list registered numbers

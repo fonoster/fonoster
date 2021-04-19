@@ -51,7 +51,9 @@
     }
   },
   "dependencies": {
+    "fluent-logger": "^3.4.1",
     "google-protobuf": "^3.15.0-rc.1",
-    "grpc-tools": "^1.7.0"
+    "grpc-tools": "^1.7.0",
+    "winston": "^3.3.3"
   }
 }

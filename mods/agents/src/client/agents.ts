@@ -6,6 +6,7 @@ import {
   AgentsService,
 } from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
+import CommonPB from "../service/protos/common_pb";
 import logger from "@fonos/logger";
 
 /**
@@ -197,3 +198,5 @@ export default class Agents extends FonosService {
     return super.getService().deleteAgent().sendMessage(req);
   }
 }
+
+export { AgentsPB, CommonPB }

@@ -3,9 +3,10 @@ import {
   ServiceOptions
 } from "@fonos/core";
 import {
-  CallManagerService,
+  CallManagerService
 } from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
+import {promisifyAll} from "grpc-promise";
 
 /**
  * Call request object
@@ -65,7 +66,6 @@ export default class CallManager extends FonosService {
   constructor(options?: ServiceOptions) {
     super(CallManagerService.CallManagerClient, options);
     super.init();
-    const {promisifyAll} = require("grpc-promise");
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
@@ -104,3 +104,5 @@ export default class CallManager extends FonosService {
     };
   }
 }
+
+export {CallManagerPB}

@@ -6,6 +6,7 @@ import {
   UserManagerService
 } from "../service/protos/usermanager_grpc_pb";
 import UserManagerPB from "../service/protos/usermanager_pb";
+import CommonPB from "../service/protos/common_pb";
 
 interface CreateUserRequest {
   firstName: string;
@@ -75,3 +76,5 @@ export default class UserManager extends FonosService {
     };
   }
 }
+
+export {UserManagerPB, CommonPB}

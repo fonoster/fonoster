@@ -31,6 +31,8 @@ import {
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {NumbersService} from "../service/protos/numbers_grpc_pb";
 import NumbersPB from "../service/protos/numbers_pb";
+import CommonPB from "../service/protos/common_pb";
+import {AppManagerPB} from "@fonos/appmanager";
 import {promisifyAll} from "grpc-promise";
 import sleep from "sync";
 
@@ -341,3 +343,5 @@ export default class Numbers extends FonosService {
     return result;
   }
 }
+
+export {NumbersPB, AppManagerPB, CommonPB};

@@ -9,7 +9,9 @@
   "types": "dist/client/appmanager",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
+    "build": "tsc -b tsconfig.json",
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
   },
   "bin": {
     "run": "dist/srv_runner.js",

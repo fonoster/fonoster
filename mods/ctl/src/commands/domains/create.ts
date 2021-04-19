@@ -1,7 +1,7 @@
 import "../../config";
 import Domains from "@fonos/domains";
 import Numbers from "@fonos/numbers";
-import {CommonPB} from "@fonos/core";
+import {CommonPB} from "@fonos/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";

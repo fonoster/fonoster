@@ -19,6 +19,7 @@
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {StorageService} from "../service/protos/storage_grpc_pb";
 import StoragePB from "../service/protos/storage_pb";
+import CommonPB from "../service/protos/common_pb";
 import {
   GetObjectURLRequest,
   UploadObjectRequest,
@@ -204,3 +205,5 @@ export default class Storage extends FonosService {
     return result;
   }
 }
+
+export {StoragePB, CommonPB};
