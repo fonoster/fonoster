@@ -2,7 +2,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import UserManager from "../src/usermanager";
+import UserManager from "../src/client/usermanager";
 
 const expect = chai.expect;
 chai.use(sinonChai);

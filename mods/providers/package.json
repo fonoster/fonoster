@@ -5,11 +5,25 @@
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/providers",
-  "types": "dist/providers",
+  "main": "dist/client/providers",
+  "types": "dist/client/providers",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
+    "build": "tsc -b tsconfig.json",
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+  },
+  "bin": {
+    "run": "dist/srv_runner.js",
+    "healthcheck": "dist/healthcheck.js"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "./src/"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "directories": {
     "src": "src",
@@ -31,7 +45,9 @@
   "dependencies": {
     "@fonos/core": "^0.0.81",
     "@fonos/logger": "^0.0.81",
-    "grpc-promise": "^1.4.0"
+    "grpc": "^1.24.6",
+    "grpc-promise": "^1.4.0",
+    "grpc-ts-health-check": "^2.0.6"
   },
   "devDependencies": {
     "rimraf": "^3.0.2"

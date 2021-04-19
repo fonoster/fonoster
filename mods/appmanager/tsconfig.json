@@ -7,7 +7,9 @@
   "references": [
     { "path":  "../storage" },
     { "path":  "../logger" },
-    { "path":  "../core" }    
+    { "path":  "../core" },
+    { "path":  "../events" },
+    { "path":  "../errors" }
   ],   
   "exclude": [
     "node_modules",

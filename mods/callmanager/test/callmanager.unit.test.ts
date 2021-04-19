@@ -3,7 +3,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/core";
-import CallManager from "../src/callmanager";
+import CallManager from "../src/client/callmanager";
 import {CallManagerPB} from "@fonos/core";
 
 const expect = chai.expect;

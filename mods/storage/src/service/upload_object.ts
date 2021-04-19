@@ -25,7 +25,7 @@ import {
   removeDirSync,
   uploadToFS,
   getFilesizeInBytes
-} from "@fonos/core"
+} from "@fonos/core";
 import {UploadObjectResponse, UploadObjectRequest} from "./protos/storage_pb";
 import {getAccessKeyId} from "@fonos/core";
 
@@ -52,7 +52,7 @@ const handleCompressUpload = async (
   bucket: string,
   fileSize: number
 ) => {
-  await extract(`/tmp/${object}`, `/tmp`);
+  await extract(`/tmp/${object}`, "/tmp");
   const nameWithoutExt = object.split(".")[0];
   await uploadToFS(accessKeyId, bucket, `/tmp/${nameWithoutExt}`);
   removeDirSync(`/tmp/${nameWithoutExt}`);
@@ -74,9 +74,10 @@ const handleUncompressUpload = async (
 };
 
 export default async function (call: any, callback: any) {
-  const tmpName = objectid(),
-    writeStream = fs.createWriteStream(`/tmp/${tmpName}`);
-  let object: string, bucket: string;
+  const tmpName = objectid();
+  const writeStream = fs.createWriteStream(`/tmp/${tmpName}`);
+  let object: string;
+  let bucket: string;
   let accessKeyId = getAccessKeyId(call);
 
   const getBucketName = (bucket: UploadObjectRequest.Bucket) => {

@@ -1,5 +1,5 @@
 import updateBucketPolicy from "@fonos/core/dist/common/fsutils";
-import AppManager from "../src/appmanager";
+import AppManager from "../src/client/appmanager";
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";

@@ -19,7 +19,7 @@
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
-import Domains from "../src/domains";
+import Domains from "../src/client/domains";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService, DomainsPB} from "@fonos/core";
 

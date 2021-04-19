@@ -5,11 +5,23 @@
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/appmanager",
-  "types": "dist/appmanager",
+  "main": "dist/client/appmanager",
+  "types": "dist/client/appmanager",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json"
+  },
+  "bin": {
+    "run": "dist/srv_runner.js",
+    "healthcheck": "dist/healthcheck.js"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "./src/"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "directories": {
     "src": "src",
@@ -32,8 +44,12 @@
     "@fonos/core": "^0.0.81",
     "@fonos/logger": "^0.0.81",
     "@fonos/storage": "^0.0.81",
+    "@fonos/events": "^0.0.81",
+    "@fonos/errors": "^0.0.81",
     "fs-extra": "^8.1.0",
+    "grpc": "^1.24.6",
     "grpc-promise": "^1.4.0",
+    "grpc-ts-health-check": "^2.0.6",
     "tar": "^6.0.1"
   },
   "devDependencies": {

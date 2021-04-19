@@ -26,7 +26,7 @@ import {
   GetObjectURLResponse
 } from "./protos/storage_pb";
 import {IStorageServer, StorageService} from "./protos/storage_grpc_pb";
-import { getAccessKeyId } from "@fonos/core";
+import {getAccessKeyId} from "@fonos/core";
 
 const getBucketName = (bucket: GetObjectURLRequest.Bucket) => {
   switch (bucket) {

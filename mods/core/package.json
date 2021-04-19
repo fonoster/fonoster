@@ -9,7 +9,6 @@
   "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "postbuild": "cp -a ./src/server/protos/ ./dist/server/protos",
     "build": "tsc -b tsconfig.json"
   },
   "directories": {
@@ -49,11 +48,9 @@
     "grpc-ts-health-check": "^2.0.6",
     "ioredis": "^4.16.0",
     "jsonwebtoken": "^8.5.1",
-    "minio": "^7.0.15",
-    "mongoose": "^5.11.15",
+    "mongoose": "^5.12.4",
     "nanoid": "^3.1.20",
-    "objectid": "^3.2.1",
-    "phone": "^2.4.20",
+    "phone": "^2.4.21",
     "tar": "^6.0.1",
     "validate": "^5.1.0",
     "walk": "^2.3.14",
@@ -65,9 +62,7 @@
     "@types/btoa": "^1.2.3",
     "@types/ioredis": "^4.16.5",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/minio": "^7.0.5",
     "@types/node": "^14.14.37",
-    "@types/phone": "^2.4.0",
     "@types/tar": "^4.0.3",
     "@types/walk": "^2.3.0",
     "chai": "^4.2.0",
