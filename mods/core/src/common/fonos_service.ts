@@ -39,7 +39,7 @@ export default class {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  constructor(ServiceClient: unknown, options: ServiceOptions = {}) {
+  constructor(ServiceClient: any, options: ServiceOptions = {}) {
     this.ServiceClient = ServiceClient;
     this.options = merge(defaultOptions, options);
   }
