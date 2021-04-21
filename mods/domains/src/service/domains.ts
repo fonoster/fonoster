@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable require-jsdoc */
 import grpc from "grpc";
 import {
   Domain,
@@ -14,26 +16,25 @@ import {
   DomainsService,
   IDomainsServer
 } from "./protos/domains_grpc_pb";
-import {Kind, REncoder} from "@fonos/core/src/common/resource_encoder";
 import {
   createResource,
   updateResource,
   ResourceServer,
-  getAccessKeyId
+  getAccessKeyId,
+  Kind,
+  ResourceBuilder
 } from "@fonos/core";
-import domainDecoder from "./decoder";
+import unmarshalDomain from "./decoder";
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
-  constructor() {
-    // Useless
-    super(Kind.DOMAIN, domainDecoder);
-  }
 
   async listDomains(
     call: grpc.ServerUnaryCall<ListDomainsRequest>,
     callback: grpc.sendUnaryData<ListDomainsResponse>
   ) {
-    super.listResources(Kind.DOMAIN, domainDecoder, call, callback);
+    // const response = super.listResources(Kind.DOMAIN, call);
+    // const 
+    // callback(null, await unmarshalDomain(response))
   }
 
   async createDomain(
@@ -42,7 +43,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   ) {
     const domain = call.request.getDomain();
     try {
-      const resource = new REncoder(
+      const resource = new ResourceBuilder(
         Kind.DOMAIN,
         domain.getName(),
         domain.getRef()
@@ -52,7 +53,9 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
         .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
-      callback(null, await createResource(resource, domainDecoder));
+
+      const response = await createResource(resource);
+      callback(null, unmarshalDomain(response));
     } catch (e) {
       callback(e, null);
     }
@@ -65,7 +68,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     const domain = call.request.getDomain();
 
     try {
-      const resource = new REncoder(
+      const resource = new ResourceBuilder(
         Kind.DOMAIN,
         domain.getName(),
         domain.getRef()
@@ -78,10 +81,10 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
         .build();
-      callback(
-        null,
-        await updateResource(getAccessKeyId(call), resource, domainDecoder)
-      );
+      /* callback(
+         null,
+         //await updateResource(getAccessKeyId(call), resource, unmarshalDomain)
+      );*/
     } catch (e) {
       callback(e, null);
     }
@@ -91,14 +94,14 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<GetDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    super.getResource(Kind.DOMAIN, domainDecoder, call, callback);
+    super.getResource(Kind.DOMAIN, call);
   }
 
   async deleteDomain(
     call: grpc.ServerUnaryCall<DeleteDomainRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(Kind.DOMAIN, domainDecoder, call, callback);
+    super.deleteResource(Kind.DOMAIN, call);
   }
 }
 

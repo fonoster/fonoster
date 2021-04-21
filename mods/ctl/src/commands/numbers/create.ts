@@ -112,6 +112,7 @@ export default class CreateCommand extends Command {
         cli.action.stop(result.ref)
       }
     } catch (e) {
+      console.log(e)
       cli.action.stop();
       if (e.code === 9) {
         throw new CLIError("This Number already exist");

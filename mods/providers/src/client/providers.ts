@@ -8,9 +8,8 @@ import {
   GetProviderResponse,
   DeleteProviderResponse
 } from "../types";
-
 import {FonosService, ServiceOptions} from "@fonos/core";
-import {ProvidersService} from "../service/protos/providers_grpc_pb";
+import {ProvidersClient} from "../service/protos/providers_grpc_pb";
 import ProvidersPB from "../service/protos/providers_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
@@ -45,7 +44,7 @@ export default class Providers extends FonosService {
    * @see module:core:FonosService
    */
   constructor(options?: ServiceOptions) {
-    super(ProvidersService.ProvidersClient, options);
+    super(ProvidersClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }

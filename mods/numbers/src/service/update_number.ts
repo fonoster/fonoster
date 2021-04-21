@@ -1,5 +1,7 @@
+/* eslint-disable require-jsdoc */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import {FonosInvalidArgument, FonosFailedPrecondition} from "@fonos/errors";
-import {REncoder, Kind, routr, redis} from "@fonos/core";
+import {ResourceBuilder, Kind, routr, redis} from "@fonos/core";
 import numberDecoder from "./decoder";
 
 export default async function updateNumber(call: any, callback: any) {
@@ -21,7 +23,7 @@ export default async function updateNumber(call: any, callback: any) {
     return;
   }
 
-  let encoder = new REncoder(
+  let encoder = new ResourceBuilder(
     Kind.NUMBER,
     number.getE164Number(),
     number.getRef()

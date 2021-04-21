@@ -15,14 +15,14 @@ import redis from "./common/redis"
 import ResourceServer from "./resources/resource_server";
 import createResource from "./resources/create_resource";
 import updateResource from "./resources/update_resource";
-import { Kind, REncoder } from "./common/resource_encoder"
+import { Kind, ResourceBuilder } from "./common/resource_builder";
 
 export {
   ResourceServer,
   ServiceOptions,
   FonosService,
   Kind,
-  REncoder,
+  ResourceBuilder,
   routr,
   redis,
   getClientCredentials,

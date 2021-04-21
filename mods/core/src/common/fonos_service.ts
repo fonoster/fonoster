@@ -4,6 +4,7 @@ import {ServiceOptions} from "./types";
 import * as fs from "fs";
 import * as path from "path";
 import grpc from "./grpc_hack";
+import logger from "@fonos/logger";
 
 // The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
 const merge = require("deepmerge");

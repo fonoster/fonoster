@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 import {FonosError} from "@fonos/errors";
 import {redis} from "@fonos/core";
 import grpc from "grpc";

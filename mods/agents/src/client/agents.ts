@@ -3,7 +3,7 @@ import {
   ServiceOptions
 } from "@fonos/core";
 import {
-  AgentsService,
+  AgentsClient,
 } from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -40,7 +40,7 @@ export default class Agents extends FonosService {
    * @see module:core:FonosService
    */
   constructor(options?: ServiceOptions) {
-    super(AgentsService.AgentsClient, options);
+    super(AgentsClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }

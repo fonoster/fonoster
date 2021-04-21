@@ -27,7 +27,7 @@ import {
   DeleteDomainResponse
 } from "../types";
 import {FonosService, ServiceOptions} from "@fonos/core";
-import {DomainsService} from "../service/protos/domains_grpc_pb";
+import {DomainsClient} from "../service/protos/domains_grpc_pb";
 import DomainsPB from "../service/protos/domains_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
@@ -56,7 +56,7 @@ export default class Domains extends FonosService {
    * @see module:core:FonosService
    */
   constructor(options?: ServiceOptions) {
-    super(DomainsService.DomainsClient, options);
+    super(DomainsClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
