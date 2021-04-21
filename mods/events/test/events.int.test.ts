@@ -26,7 +26,7 @@ describe("Events Module", () => {
       "test"
     );
     er.connect();
-    await er.sendToQ("APP_CREATED", {appId: "001", name: "blah"});
+    // await er.sendToQ("APP_CREATED", {appId: "001", name: "blah"});
   });
 
   it("wait for events", async () => {
