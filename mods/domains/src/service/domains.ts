@@ -18,7 +18,6 @@ import {
 } from "./protos/domains_grpc_pb";
 import {
   createResource,
-  updateResource,
   ResourceServer,
   getAccessKeyId,
   Kind,
@@ -27,7 +26,6 @@ import {
 import unmarshalDomain from "./decoder";
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
-
   async listDomains(
     call: grpc.ServerUnaryCall<ListDomainsRequest>,
     callback: grpc.sendUnaryData<ListDomainsResponse>

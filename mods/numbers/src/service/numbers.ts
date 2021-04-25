@@ -21,7 +21,6 @@ import {
   INumbersServer
 } from "./protos/numbers_grpc_pb";
 import {App} from "@fonos/appmanager/src/service/protos/appmanager_pb";
-import numberDecoder from "./decoder";
 import {Kind, ResourceServer} from "@fonos/core";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
