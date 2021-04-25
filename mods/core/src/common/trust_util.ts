@@ -44,7 +44,7 @@ const getServerCredentials = () => {
   }
 };
 
-const getClientCredentials = (grpc?) => {
+const getClientCredentials = (grpc) => {
   try {
     return grpc.credentials.createSsl(
       prepCert(config.caCertificate),

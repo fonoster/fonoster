@@ -28,6 +28,7 @@ import {
 } from "./types";
 import {promisifyAll} from "grpc-promise";
 import {utils} from "./utils";
+import grpc from "grpc";
 
 /**
  * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
@@ -52,7 +53,7 @@ export default class Storage extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(StorageClient, options);
-    super.init();
+    super.init(grpc);
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

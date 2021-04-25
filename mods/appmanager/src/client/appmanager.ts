@@ -5,11 +5,12 @@ import {FonosService, ServiceOptions} from "@fonos/core";
 import {AppManagerClient} from "../service/protos/appmanager_grpc_pb";
 import AppManagerPB from "../service/protos/appmanager_pb";
 import CommonPB from "../service/protos/common_pb";
-
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 import {nanoid} from "nanoid";
+import {promisifyAll} from "grpc-promise";
+import grpc from "grpc";
 
 const STATUS = {
   UNKNOWN: 0,
@@ -55,10 +56,9 @@ export default class AppManager extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(AppManagerClient, options);
-    super.init();
+    super.init(grpc);
     this.storage = new Storage(super.getOptions());
     this.service = super.getService();
-    const {promisifyAll} = require("grpc-promise");
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

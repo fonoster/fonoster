@@ -13,6 +13,8 @@ import {ProvidersClient} from "../service/protos/providers_grpc_pb";
 import ProvidersPB from "../service/protos/providers_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
+import grpc from "grpc";
+
 /**
  * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
  * to create, update, get and delete providers. Fonos Providers requires of a
@@ -45,7 +47,7 @@ export default class Providers extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(ProvidersClient, options);
-    super.init();
+    super.init(grpc);
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

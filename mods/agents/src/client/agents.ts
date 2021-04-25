@@ -9,6 +9,7 @@ import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
 import logger from "@fonos/logger";
 import {promisifyAll} from "grpc-promise";
+import grpc from "grpc";
 
 /**
  * @classdesc Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
@@ -41,7 +42,7 @@ export default class Agents extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(AgentsClient, options);
-    super.init();
+    super.init(grpc);
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
