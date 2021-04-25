@@ -2,11 +2,11 @@
 
 import NumbersServer from "./service/numbers";
 import {NumbersService} from "./service/protos/numbers_grpc_pb";
-import {runService} from "@fonos/core";
+import {runServices} from "@fonos/core";
 
-runService({
-  name: "Numbers Service",
+runServices([{
+  name: "Numbers",
   version: "v1alpha1",
   service: NumbersService,
   server: new NumbersServer()
-});
+}]);

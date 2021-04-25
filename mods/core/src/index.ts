@@ -9,7 +9,7 @@ import {
   getFilesizeInBytes,
   fsInstance
 } from "./common/utils";
-import runService from "./service_runner"
+import runServices from "./service_runner"
 import routr from "./common/routr"
 import redis from "./common/redis"
 import ResourceServer from "./resources/resource_server";
@@ -33,7 +33,7 @@ export {
   uploadToFS,
   getFilesizeInBytes,
   fsInstance,
-  runService,
+  runServices,
   createResource,
   updateResource
 };

@@ -2,11 +2,11 @@
 
 import DomainsServer from "./service/domains";
 import {DomainsService} from "./service/protos/domains_grpc_pb";
-import {runService} from "@fonos/core";
+import {runServices} from "@fonos/core";
 
-runService({
-  name: "Domains Service",
+runServices([{
+  name: "Domains",
   version: "v1alpha1",
   service: DomainsService,
   server: new DomainsServer()
-});
+}]);

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import UserManagerServer from "./service/usermanager";
 import {UserManagerService} from "./service/protos/usermanager_grpc_pb";
-import {runService} from "@fonos/core";
+import {runServices} from "@fonos/core";
 
-runService({
-  name: "UserManager Service",
+runServices([{
+  name: "UserManager",
   version: "v1alpha1",
   service: UserManagerService, 
   server: new UserManagerServer()
-});
+}]);

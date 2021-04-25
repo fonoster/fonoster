@@ -2,11 +2,11 @@
 
 import ProvidersServer from "./service/providers";
 import {ProvidersService} from "./service/protos/providers_grpc_pb";
-import {runService} from "@fonos/core";
+import {runServices} from "@fonos/core";
 
-runService({
-  name: "Providers Service",
+runServices([{
+  name: "Providers",
   version: "v1alpha1",
   service: ProvidersService,
   server: new ProvidersServer()
-});
+}]);

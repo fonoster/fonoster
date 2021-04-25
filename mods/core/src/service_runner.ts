@@ -15,20 +15,31 @@ interface ServiceInf {
     server: unknown
 }
 
-export default function run(srvInf: ServiceInf) {
+export default function run(srvInfList: ServiceInf[]) {
   const healthCheckStatusMap = {
     "": HealthCheckResponse.ServingStatus.SERVING
   };
-  const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
   const server = new grpc.Server();
 
-  server.addService(srvInf.service, srvInf.server);
+  // Adding health endpoint
+  const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
   server.addService(HealthService, grpcHealthCheck)
+
+  logger.info(
+    `Starting API runner @ ${ENDPOINT} (API version = ${srvInfList[0].version})`
+  );
+
+  srvInfList.forEach((srvInf: ServiceInf) => {
+    logger.info(`Adding service ${srvInf.name} `)
+    server.addService(srvInf.service, srvInf.server);
+  })
+  
   server.bind(ENDPOINT, getServerCredentials());
   server.start();
 
   logger.info(
-    `Fonos ${srvInf.name} is online @ ${ENDPOINT} (API version = ${srvInf.version})`
+    `API Runner is online!`
   );
+
 }
 
