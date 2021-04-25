@@ -22,7 +22,7 @@ export default function run(srvInf: ServiceInf) {
   const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
   const server = new grpc.Server();
 
-  server.addService<unknown>(srvInf.service, srvInf.server);
+  server.addService(srvInf.service, srvInf.server);
   server.addService(HealthService, grpcHealthCheck)
   server.bind(ENDPOINT, getServerCredentials());
   server.start();

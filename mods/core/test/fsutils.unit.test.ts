@@ -1,17 +1,15 @@
-/*
-const logger = require('../dist/common/logger')
-logger.transports.forEach(t => (t.silent = true))
-const chai = require('chai')
-const sinon = require('sinon')
+import logger from '@fonos/logger'
+import chai from 'chai'
+import sinon from 'sinon'
 chai.use(require('sinon-chai'))
 chai.use(require('chai-as-promised'))
 const expect = chai.expect
 var sandbox = sinon.createSandbox()
 
+logger.transports.forEach(t => (t.silent = true))
+
+/*
 describe('@fonos/core/fsutils', () => {
-
-
-
   context('create new bucket', () => {
     let makeBucketWasCalled, setBucketPolicyCalled, createNewBucket
     var fsInstance = sinon
@@ -19,12 +17,12 @@ describe('@fonos/core/fsutils', () => {
       .returns({
         bucketExists: () => false,
         makeBucket: () =>
-          new Promise(resolve => {
+          new Promise<void>(resolve => {
             makeBucketWasCalled = true
             resolve()
           }),
         setBucketPolicy: () =>
-          new Promise(resolve => {
+          new Promise<void>(resolve => {
             setBucketPolicyCalled = true
             resolve()
           })
@@ -47,7 +45,7 @@ describe('@fonos/core/fsutils', () => {
 
     it.skip('should throw connectivity error', async () => {
       fsInstance.makeBucket = () =>
-        new Promise((resolve, reject) => {
+        new Promise((_resolve, reject) => {
           reject(new Error('Connection error'))
         })
       const createNewBucket = require('../dist/common/fsutils')

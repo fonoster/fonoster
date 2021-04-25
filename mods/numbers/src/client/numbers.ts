@@ -29,12 +29,13 @@ import {
   ListNumbersResponse
 } from "../types";
 import {FonosService, ServiceOptions} from "@fonos/core";
-import {NumbersService} from "../service/protos/numbers_grpc_pb";
+import {NumbersClient} from "../service/protos/numbers_grpc_pb";
 import NumbersPB from "../service/protos/numbers_pb";
 import CommonPB from "../service/protos/common_pb";
 import {AppManagerPB} from "@fonos/appmanager";
 import {promisifyAll} from "grpc-promise";
 import sleep from "sync";
+import grpc from "grpc";
 
 /**
  * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
@@ -65,8 +66,8 @@ export default class Numbers extends FonosService {
    * @see module:core:FonosService
    */
   constructor(options: ServiceOptions = {}) {
-    super(NumbersService.NumbersClient, options);
-    super.init();
+    super(NumbersClient, options);
+    super.init(grpc);
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

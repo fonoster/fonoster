@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/core";
 import Providers, {ProvidersPB} from "../src/client/providers";
+import providerDecoder from "../src/service/decoder";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -209,5 +209,58 @@ describe("@Fonos/providers", () => {
     const result = await providerAPI.updateProvider(request);
     expect(result).to.have.property("ref").to.be.equal(returnProvider.ref);
     expect(updateProviderStub).to.be.calledThrice;
+  });
+
+  context("provider decoder", () => {
+    let jsonObj;
+
+    beforeEach(() => {
+      jsonObj = {
+        metadata: {
+          ref: "001",
+          name: "provider002",
+          createdOn: "DATE",
+          modifiedOn: "DATE"
+        },
+        spec: {
+          host: "127.0.0.1",
+          transport: "tcp",
+          expires: 0,
+          credentials: {
+            username: "trunk001",
+            secret: "1234"
+          }
+        }
+      };
+    });
+
+    it("should create a provider object from a json object", () => {
+      const provider = providerDecoder(jsonObj);
+      expect(provider.getRef()).to.be.equal(jsonObj.metadata.ref);
+      expect(provider.getName()).to.be.equal(jsonObj.metadata.name);
+      expect(provider.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
+      expect(provider.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn);
+      expect(provider.getHost()).to.be.equal(jsonObj.spec.host);
+      expect(provider.getTransport()).to.be.equal(jsonObj.spec.transport);
+      expect(provider.getExpires()).to.be.equal(jsonObj.spec.expires);
+      expect(provider.getUsername()).to.be.equal(
+        jsonObj.spec.credentials.username
+      );
+      expect(provider.getSecret()).to.be.equal(jsonObj.spec.credentials.secret);
+    });
+
+    it("should create a provider object from a json object without credentials", () => {
+      delete jsonObj.spec.credentials;
+      const provider = providerDecoder(jsonObj);
+      expect(provider.getRef()).to.be.equal(jsonObj.metadata.ref);
+      expect(provider.getName()).to.be.equal(jsonObj.metadata.name);
+      expect(provider.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
+      expect(provider.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn);
+      expect(provider.getHost()).to.be.equal(jsonObj.spec.host);
+      expect(provider.getTransport()).to.be.equal(jsonObj.spec.transport);
+      expect(provider.getExpires()).to.be.equal(jsonObj.spec.expires);
+      expect(provider.getUsername()).to.be.a("string").lengthOf(0);
+      expect(provider.getSecret()).to.be.a("string").lengthOf(0);
+    });
   });
 });

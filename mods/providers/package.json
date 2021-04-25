@@ -45,11 +45,12 @@
   "dependencies": {
     "@fonos/core": "^0.0.81",
     "@fonos/logger": "^0.0.81",
-    "grpc": "^1.24.6",
+    "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
     "grpc-ts-health-check": "^2.0.6"
   },
   "devDependencies": {
+    "nodemon": "^2.0.7",
     "rimraf": "^3.0.2"
   },
   "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"

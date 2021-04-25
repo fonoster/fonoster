@@ -16,6 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+enum View {
+  BASIC = 0,
+  STANDARD = 1,
+  FULL = 2
+}
 
 export interface Number {
   ref: string;
@@ -38,11 +43,6 @@ export interface CreateNumberRequest {
   e164Number: string;
   ingressApp?: string;
   aorLink?: string;
-}
-enum View {
-  BASIC = 0,
-  STANDARD = 1,
-  FULL = 2
 }
 
 export interface UpdateNumberRequest {

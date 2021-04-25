@@ -1,11 +1,9 @@
 import logger from "@fonos/logger";
-import {getSalt} from "@fonos/certs";
 import path from "path";
-import grpc from "grpc";
-import jwt from "jsonwebtoken";
 import * as os from "os";
 import * as fs from "fs";
-const atob = require("atob");
+import atob from "atob";
+import grpc from "grpc";
 
 const prepCert = (cert: string) => Buffer.from(atob(cert), "utf-8");
 
@@ -46,7 +44,7 @@ const getServerCredentials = () => {
   }
 };
 
-const getClientCredentials = () => {
+const getClientCredentials = (grpc?) => {
   try {
     return grpc.credentials.createSsl(
       prepCert(config.caCertificate),

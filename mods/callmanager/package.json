@@ -47,7 +47,7 @@
     "@fonos/errors": "^0.0.81",
     "@fonos/logger": "^0.0.81",
     "ari-client": "^2.2.0",
-    "grpc": "^1.24.6",
+    "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
     "grpc-ts-health-check": "^2.0.6",
     "phone": "^2.4.21"

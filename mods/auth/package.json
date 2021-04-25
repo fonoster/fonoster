@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@fonos/logger": "^0.0.81",
-    "grpc": "^1.24.6",
+    "grpc": "^1.24.7",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.4"
   },
