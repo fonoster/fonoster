@@ -8,7 +8,10 @@
     "build": "lerna run build",
     "clean": "rimraf **/*/tsconfig.tsbuildinfo && rimraf **/*/dist && rimraf **/*/dist && rimraf **/*/node_modules && rimraf node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
-    "lint": "eslint mods --ext .ts --fix"
+    "lint": "eslint mods --ext .ts",
+    "format": "prettier --write mods/",
+    "check-types": "tsc --noEmit",
+    "postinstall": "husky install"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
@@ -28,10 +31,9 @@
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-prettier": "^3.3.1",
     "grpc_tools_node_protoc_ts": "^5.1.1",
-    "husky": "^5.0.9",
+    "husky": "^6.0.0",
     "jsdoc-to-markdown": "^6.0.1",
     "lerna": "^3.22.1",
-    "lint-staged": "^10.2.9",
     "mocha": "^8.3.0",
     "nyc": "^15.1.0",
     "prettier": "^2.2.1",
@@ -48,16 +50,6 @@
     "ext": "ts",
     "exec": "ts-node",
     "ignore": "**/*.d.ts"
-  },  
-  "lint-staged": {
-    "mods/**/*.ts": [
-      "npm run lint"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged && node etc/gen_docs.js && git add docs"
-    }
   },
   "dependencies": {
     "fluent-logger": "^3.4.1",
