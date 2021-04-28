@@ -1,6 +1,7 @@
 import logger from "@fonos/logger";
 import grpc from "grpc";
 import {getServerCredentials} from "./common/trust_util";
+import interceptor from '@pionerlabs/grpc-interceptors'
 import {
   GrpcHealthCheck,
   HealthCheckResponse,
@@ -15,20 +16,43 @@ interface ServiceInf {
     server: unknown
 }
 
-export default function run(srvInf: ServiceInf) {
+interface Middleware {
+  name: string;
+  description?: string;
+  middlewareObj: any;
+}
+
+export default function run(srvInfList: ServiceInf[], middlewareList?: Middleware[]) {
   const healthCheckStatusMap = {
     "": HealthCheckResponse.ServingStatus.SERVING
   };
-  const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
-  const server = new grpc.Server();
+  const server = interceptor.serverProxy(new grpc.Server())
 
-  server.addService<unknown>(srvInf.service, srvInf.server);
+  // Adding health endpoint
+  const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
   server.addService(HealthService, grpcHealthCheck)
+
+  logger.info(
+    `Starting API runner @ ${ENDPOINT} (API version = ${srvInfList[0].version})`
+  );
+
+  if (middlewareList) {
+    middlewareList.forEach(middleware => {
+      logger.info(`Adding ${middleware.name} middleware`)
+      server.use(middleware.middlewareObj)
+    })
+  }
+
+  srvInfList.forEach((srvInf: ServiceInf) => {
+    logger.info(`Adding ${srvInf.name} service`)
+    server.addService(srvInf.service, srvInf.server);
+  })
+  
   server.bind(ENDPOINT, getServerCredentials());
   server.start();
 
   logger.info(
-    `Fonos ${srvInf.name} is online @ ${ENDPOINT} (API version = ${srvInf.version})`
+    `API Runner is online!`
   );
 }
 

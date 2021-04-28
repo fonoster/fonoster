@@ -14,7 +14,7 @@ import {
   IAgentsService,
   AgentsService
 } from "./protos/agents_grpc_pb";
-import {Kind, REncoder} from "@fonos/core/src/common/resource_encoder";
+import {Kind, ResourceBuilder} from "@fonos/core/src/common/resource_builder";
 import agentDecoder from "./decoder";
 import {
   updateResource,
@@ -24,16 +24,11 @@ import {
 } from "@fonos/core"
 
 class AgentsServer extends ResourceServer implements IAgentsServer {
-  constructor() {
-    // WARNING: This is not being used
-    super(Kind.AGENT, agentDecoder);
-  }
-
   async listAgents(
     call: grpc.ServerUnaryCall<ListAgentsRequest>,
     callback: grpc.sendUnaryData<ListAgentsResponse>
   ) {
-    super.listResources(Kind.AGENT, agentDecoder, call, callback);
+    super.listResources(Kind.AGENT, call);
   }
 
   async createAgent(
@@ -42,14 +37,14 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   ) {
     const agent = call.request.getAgent();
     try {
-      const resource = new REncoder(Kind.AGENT, agent.getName())
+      const resource = new ResourceBuilder(Kind.AGENT, agent.getName())
         .withCredentials(agent.getUsername(), agent.getSecret())
         .withDomains(agent.getDomainsList())
         .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
       //.withPrivacy(provider.getPrivacy()) // TODO
-      callback(null, await createResource(resource, agentDecoder));
+      callback(null, await createResource(resource));
     } catch (e) {
       callback(e, null);
     }
@@ -61,7 +56,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   ) {
     const agent = call.request.getAgent();
     try {
-      const resource = new REncoder(Kind.AGENT, agent.getName(), agent.getRef())
+      const resource = new ResourceBuilder(Kind.AGENT, agent.getName(), agent.getRef())
         .withCredentials(agent.getUsername(), agent.getSecret())
         .withDomains(agent.getDomainsList())
         .withMetadata({
@@ -71,7 +66,8 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
         .build();
       callback(
         null,
-        await updateResource(getAccessKeyId(call), resource, agentDecoder)
+        null
+        // await updateResource(getAccessKeyId(call), resource, agentDecoder)
       );
     } catch (e) {
       callback(e, null);
@@ -82,14 +78,14 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
     call: grpc.ServerUnaryCall<GetAgentRequest>,
     callback: grpc.sendUnaryData<Agent>
   ) {
-    super.getResource(Kind.AGENT, agentDecoder, call, callback);
+    super.getResource(Kind.AGENT, call);
   }
 
   async deleteAgent(
     call: grpc.ServerUnaryCall<DeleteAgentRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(Kind.AGENT, agentDecoder, call, callback);
+    super.deleteResource(Kind.AGENT, call);
   }
 }
 

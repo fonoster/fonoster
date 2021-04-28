@@ -23,6 +23,7 @@ import Domains from "../src/client/domains";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/core";
 import DomainsPB from "../src/service/protos/domains_pb";
+import domainDecoder from "../src/service/decoder";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -210,5 +211,76 @@ describe("@Fonos/domains", () => {
     const result = await domainsAPI.updateDomain(request);
     expect(result).to.have.property("ref").to.be.equal(domainObj.getRef());
     expect(updateDomainStub).to.be.calledThrice;
+  });
+
+  context("domain decoder", () => {
+    let jsonObj;
+
+    beforeEach(() => {
+      jsonObj = {
+        metadata: {
+          ref: "001",
+          name: "Peter",
+          createdOn: "DATE",
+          modifiedOn: "DATE"
+        },
+        spec: {
+          context: {
+            domainUri: "sip.local",
+            egressPolicy: {
+              rule: ".*",
+              numberRef: "001"
+            },
+            accessControlList: {
+              allow: ["192.168.1.1", "10.0.0.1"],
+              deny: ["0.0.0.0/31"]
+            }
+          }
+        }
+      };
+    });
+
+    it("should create a domain object from a json object w/ no acl", () => {
+      delete jsonObj.spec.context.accessControlList;
+      const domains = domainDecoder(jsonObj);
+      expect(domains.getRef()).to.be.equal(jsonObj.metadata.ref);
+      expect(domains.getName()).to.be.equal(jsonObj.metadata.name);
+      expect(domains.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
+      expect(domains.getEgressRule()).to.be.equal(
+        jsonObj.spec.context.egressPolicy.rule
+      );
+      expect(domains.getEgressNumberRef()).to.be.equal(
+        jsonObj.spec.context.egressPolicy.numberRef
+      );
+      expect(domains.getAccessDenyList()).to.be.a("array").lengthOf(0);
+      expect(domains.getAccessAllowList()).to.be.a("array").lengthOf(0);
+    });
+
+    it("should create a domain object from a json object w/ no egress policy", () => {
+      delete jsonObj.spec.context.egressPolicy;
+      const domains = domainDecoder(jsonObj);
+      expect(domains.getRef()).to.be.equal(jsonObj.metadata.ref);
+      expect(domains.getName()).to.be.equal(jsonObj.metadata.name);
+      expect(domains.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
+      expect(domains.getEgressRule()).to.be.a("string").lengthOf(0);
+      expect(domains.getEgressNumberRef()).to.be.a("string").lengthOf(0);
+      expect(domains.getAccessDenyList()).to.be.a("array").lengthOf(1);
+      expect(domains.getAccessAllowList()).to.be.a("array").lengthOf(2);
+    });
+
+    it("should create a domain object from a json object", () => {
+      const domains = domainDecoder(jsonObj);
+      expect(domains.getRef()).to.be.equal(jsonObj.metadata.ref);
+      expect(domains.getName()).to.be.equal(jsonObj.metadata.name);
+      expect(domains.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
+      expect(domains.getEgressRule()).to.be.equal(
+        jsonObj.spec.context.egressPolicy.rule
+      );
+      expect(domains.getEgressNumberRef()).to.be.equal(
+        jsonObj.spec.context.egressPolicy.numberRef
+      );
+      expect(domains.getAccessDenyList()).to.be.a("array").lengthOf(1);
+      expect(domains.getAccessAllowList()).to.be.a("array").lengthOf(2);
+    });
   });
 });

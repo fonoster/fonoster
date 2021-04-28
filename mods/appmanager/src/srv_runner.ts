@@ -2,11 +2,12 @@
 
 import AppManagerServer from "./service/appmanager";
 import {AppManagerService} from "./service/protos/appmanager_grpc_pb";
-import {runService} from "@fonos/core";
+import {runServices} from "@fonos/core";
 
-runService({
-  name: "AppManager Service",
+runServices([{
+  name: "AppManager",
   version: "v1alpha1",
   service: AppManagerService,
   server: new AppManagerServer()
-});
+}]);
+

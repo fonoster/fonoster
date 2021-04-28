@@ -27,10 +27,11 @@ import {
   DeleteDomainResponse
 } from "../types";
 import {FonosService, ServiceOptions} from "@fonos/core";
-import {DomainsService} from "../service/protos/domains_grpc_pb";
+import {DomainsClient} from "../service/protos/domains_grpc_pb";
 import DomainsPB from "../service/protos/domains_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
+import grpc from "grpc";
 
 /**
  * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
@@ -56,8 +57,8 @@ export default class Domains extends FonosService {
    * @see module:core:FonosService
    */
   constructor(options?: ServiceOptions) {
-    super(DomainsService.DomainsClient, options);
-    super.init();
+    super(DomainsClient, options);
+    super.init(grpc);
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

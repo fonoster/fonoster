@@ -1,6 +1,7 @@
+/* eslint-disable require-jsdoc */
 import {FonosInvalidArgument, FonosFailedPrecondition} from "@fonos/errors";
 import NumbersPB from "./protos/numbers_pb";
-import {REncoder, Kind, routr, redis, getAccessKeyId} from "@fonos/core";
+import {ResourceBuilder, Kind, routr, redis, getAccessKeyId} from "@fonos/core";
 import numberDecoder from "./decoder";
 
 const validateNumber = (number: NumbersPB.Number) => {
@@ -27,7 +28,7 @@ export default async function createNumber(
 ): Promise<NumbersPB.Number> {
   validateNumber(number);
 
-  let encoder = new REncoder(Kind.NUMBER, number.getE164Number())
+  let encoder = new ResourceBuilder(Kind.NUMBER, number.getE164Number())
     .withGatewayRef(number.getProviderRef())
     .withMetadata({accessKeyId: getAccessKeyId(call)});
 

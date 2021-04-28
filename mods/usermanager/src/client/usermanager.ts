@@ -3,10 +3,12 @@ import {
   ServiceOptions
 } from "@fonos/core";
 import {
-  UserManagerService
+  UserManagerClient
 } from "../service/protos/usermanager_grpc_pb";
 import UserManagerPB from "../service/protos/usermanager_pb";
 import CommonPB from "../service/protos/common_pb";
+import { promisifyAll } from "grpc-promise";
+import grpc from "grpc";
 
 interface CreateUserRequest {
   firstName: string;
@@ -45,9 +47,8 @@ export default class UserManager extends FonosService {
    * @see module:core:FonosService
    */
   constructor(options?: ServiceOptions) {
-    super(UserManagerService.UserManagerClient, options);
-    super.init();
-    const {promisifyAll} = require("grpc-promise");
+    super(UserManagerClient, options);
+    super.init(grpc);
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

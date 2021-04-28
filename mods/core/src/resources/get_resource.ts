@@ -1,15 +1,12 @@
 import routr from "../common/routr";
-import {Kind} from "../common/resource_encoder";
+import { GetResourceRequest } from "./types";
 
-export default async function getResource(
-  kind: Kind,
-  decoder: Function,
-  accessKeyId: string,
-  ref: string
-) {
+export default async function getResource(request: GetResourceRequest): Promise<Object> {
   await routr.connect();
-  const jsonObj = await routr.resourceType(`${kind.toLowerCase()}s`).get(ref);
-  return jsonObj && jsonObj.metadata.accessKeyId === accessKeyId
-    ? decoder(jsonObj)
+  const jsonObj = await routr.resourceType(`${request.kind.toLowerCase()}s`)
+    .get(request.ref);
+  // Return only if exist and is the owner of the resource
+  return jsonObj && jsonObj.metadata.accessKeyId === request.accessKeyId
+    ? jsonObj
     : null;
 }

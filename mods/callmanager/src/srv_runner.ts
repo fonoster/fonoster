@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-
-import CallManagerServer from "./service/callmanager"
+import CallManagerServer from "./service/callmanager";
 import {CallManagerService} from "./service/protos/callmanager_grpc_pb";
-import {runService} from "@fonos/core";
+import {runServices} from "@fonos/core";
 
-runService({
-  name: "CallManager Service",
+runServices([{
+  name: "CallManager",
   version: "v1alpha1",
   service: CallManagerService, 
   server: new CallManagerServer()
-})
+}]);

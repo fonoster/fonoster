@@ -3,7 +3,7 @@ import AppManager from "@fonos/appmanager";
 import {CLIError} from "@oclif/errors";
 import {cli} from "cli-ux";
 import {Command} from "@oclif/command";
-import CommonPB from "@fonos/appmanager/src/service/protos/common_pb";
+import {CommonPB} from "@fonos/appmanager";
 const view: CommonPB.View = CommonPB.View.BASIC;
 
 export default class DeployCommand extends Command {

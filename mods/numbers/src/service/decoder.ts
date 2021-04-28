@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 import NumbersPB from "./protos/numbers_pb";
 
 export default function (jsonObj: any) {

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {FonosService, ServiceOptions} from "@fonos/core";
-import {StorageService} from "../service/protos/storage_grpc_pb";
+import {StorageClient} from "../service/protos/storage_grpc_pb";
 import StoragePB from "../service/protos/storage_pb";
 import CommonPB from "../service/protos/common_pb";
 import {
@@ -28,6 +28,7 @@ import {
 } from "./types";
 import {promisifyAll} from "grpc-promise";
 import {utils} from "./utils";
+import grpc from "grpc";
 
 /**
  * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
@@ -51,8 +52,8 @@ export default class Storage extends FonosService {
    * @see module:core:FonosService
    */
   constructor(options?: ServiceOptions) {
-    super(StorageService.StorageClient, options);
-    super.init();
+    super(StorageClient, options);
+    super.init(grpc);
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

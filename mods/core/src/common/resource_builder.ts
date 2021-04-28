@@ -13,7 +13,7 @@ enum Privacy {
   NONE = "None"
 }
 
-class REncoder {
+class ResourceBuilder {
   kind: Kind;
   apiVersion: string;
   metadata: {name: string; ref: string; gwRef?: string};
@@ -180,4 +180,4 @@ class REncoder {
   }
 }
 
-export {REncoder, Kind, Privacy};
+export {ResourceBuilder, Kind, Privacy};

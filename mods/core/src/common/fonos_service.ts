@@ -3,7 +3,6 @@ import {getClientCredentials} from "../common/trust_util";
 import {ServiceOptions} from "./types";
 import * as fs from "fs";
 import * as path from "path";
-import grpc from "./grpc_hack";
 
 // The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
 const merge = require("deepmerge");
@@ -39,12 +38,12 @@ export default class {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  constructor(ServiceClient: unknown, options: ServiceOptions = {}) {
+  constructor(ServiceClient: any, options: ServiceOptions = {}) {
     this.ServiceClient = ServiceClient;
     this.options = merge(defaultOptions, options);
   }
 
-  init(): void {
+  init(grpc: { Metadata: new () => any; }): void {
     try {
       if (configExist()) {
         this.options = merge(this.options, JSON.parse(getConfigFile()));
@@ -63,7 +62,7 @@ export default class {
 
     this.service = new this.ServiceClient(
       this.options.endpoint,
-      getClientCredentials()
+      getClientCredentials(grpc)
     );
   }
 

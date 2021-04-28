@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable require-jsdoc */
 import grpc from "grpc";
 import {
   Provider,
@@ -14,7 +16,7 @@ import {
   ProvidersService,
   IProvidersServer
 } from "./protos/providers_grpc_pb";
-import {Kind, REncoder} from "@fonos/core/src/common/resource_encoder";
+import {Kind, ResourceBuilder} from "@fonos/core/src/common/resource_builder";
 import providerDecoder from "./decoder";
 import {
   updateResource,
@@ -24,16 +26,11 @@ import {
 } from "@fonos/core";
 
 class ProvidersServer extends ResourceServer implements IProvidersServer {
-  constructor() {
-    // Useless for now
-    super(Kind.GATEWAY, providerDecoder);
-  }
-
   async listProviders(
     call: grpc.ServerUnaryCall<ListProvidersRequest>,
     callback: grpc.sendUnaryData<ListProvidersResponse>
   ) {
-    super.listResources(Kind.GATEWAY, providerDecoder, call, callback);
+    super.listResources(Kind.GATEWAY, call);
   }
 
   async createProvider(
@@ -43,7 +40,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
     const provider = call.request.getProvider();
 
     try {
-      const resource = new REncoder(
+      const resource = new ResourceBuilder(
         Kind.GATEWAY,
         provider.getName(),
         provider.getRef()
@@ -55,7 +52,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
-      callback(null, await createResource(resource, providerDecoder));
+      callback(null, await createResource(resource));
     } catch (e) {
       callback(e, null);
     }
@@ -68,7 +65,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
     const provider = call.request.getProvider();
 
     try {
-      const resource = new REncoder(
+      const resource = new ResourceBuilder(
         Kind.GATEWAY,
         provider.getName(),
         provider.getRef()
@@ -85,7 +82,8 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
 
       callback(
         null,
-        await updateResource(getAccessKeyId(call), resource, providerDecoder)
+        null
+        // await updateResource(getAccessKeyId(call), resource, providerDecoder)
       );
     } catch (e) {
       callback(e, null);
@@ -96,14 +94,14 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
     call: grpc.ServerUnaryCall<GetProviderRequest>,
     callback: grpc.sendUnaryData<Provider>
   ) {
-    super.getResource(Kind.GATEWAY, providerDecoder, call, callback);
+    super.getResource(Kind.GATEWAY, call);
   }
 
   async deleteProvider(
     call: grpc.ServerUnaryCall<DeleteProviderRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(Kind.GATEWAY, providerDecoder, call, callback);
+    super.deleteResource(Kind.GATEWAY, call);
   }
 }
 

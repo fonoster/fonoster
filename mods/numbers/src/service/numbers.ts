@@ -1,3 +1,5 @@
+/* eslint-disable require-jsdoc */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import grpc from "grpc";
 import createNumber from "./create_number";
 import updateNumber from "./update_number";
@@ -19,20 +21,14 @@ import {
   INumbersServer
 } from "./protos/numbers_grpc_pb";
 import {App} from "@fonos/appmanager/src/service/protos/appmanager_pb";
-import numberDecoder from "./decoder";
 import {Kind, ResourceServer} from "@fonos/core";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
-  constructor() {
-    // Useless
-    super(Kind.NUMBER, numberDecoder);
-  }
-
   async listNumbers(
     call: grpc.ServerUnaryCall<ListNumbersRequest>,
     callback: grpc.sendUnaryData<ListNumbersResponse>
   ) {
-    super.listResources(Kind.NUMBER, numberDecoder, call, callback);
+    super.listResources(Kind.NUMBER, call);
   }
 
   async createNumber(
@@ -68,14 +64,14 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<GetNumberRequest>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
-    super.getResource(Kind.NUMBER, numberDecoder, call, callback);
+    super.getResource(Kind.NUMBER, call);
   }
 
   async deleteNumber(
     call: grpc.ServerUnaryCall<DeleteNumberRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(Kind.NUMBER, numberDecoder, call, callback);
+    super.deleteResource(Kind.NUMBER, call);
   }
 }
 

@@ -3,8 +3,7 @@ import jwt from "jsonwebtoken";
 import {forge} from "acme-client";
 import {join} from "path";
 import {homedir} from "os";
-
-const btoa = require("btoa");
+import btoa from "btoa";
 
 const BASE_DIR = join(homedir(), ".fonos");
 const PATH_TO_SALT = join(BASE_DIR, "jwt.salt");

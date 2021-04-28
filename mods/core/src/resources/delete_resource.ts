@@ -1,18 +1,11 @@
 import routr from "../common/routr";
-//import {Empty} from "./protos/common_pb";
-import {Kind} from "../common/resource_encoder";
 import getResource from "./get_resource";
+import { DeleteResourceRequest } from "./types";
 
-export default async function deleteResource(
-  accessKeyId: string,
-  ref: string,
-  kind: Kind,
-  decoder: Function,
-  Empty: Function
-): Promise<unknown> {
+export default async function deleteResource(request: DeleteResourceRequest): Promise<string> {
   await routr.connect();
-  if (await getResource(kind, decoder, accessKeyId, ref)) {
-    await routr.resourceType(`${kind.toLowerCase()}s`).delete(ref);
+  if (await getResource(request)) {
+    await routr.resourceType(`${request.kind.toLowerCase()}s`).delete(request.ref);
   }
-  return new (Empty());
+  return request.ref
 }

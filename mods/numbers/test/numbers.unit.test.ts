@@ -6,6 +6,7 @@ import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/core";
 import {NumbersPB, AppManagerPB} from "../src/client/numbers";
 import {CreateNumberResponse} from "../src/types";
+import numberDecoder from "../src/service/decoder";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -283,5 +284,51 @@ describe("@fonos/number", () => {
       .to.be.equal(returnResult.accessKeyId);
     expect(result).to.have.property("createTime").not.to.be.null;
     expect(result).to.have.property("updateTime").not.to.be.null;
+  });
+
+  context("number decoder", () => {
+    let jsonObj;
+
+    beforeEach(() => {
+      jsonObj = {
+        metadata: {
+          ref: "001",
+          gwRef: "1001",
+          createdOn: "DATE",
+          modifiedOn: "DATE",
+          ingressApp: "hello-monkeys"
+        },
+        spec: {
+          location: {
+            telUrl: "tel:17853178070"
+          }
+        }
+      };
+    });
+
+    it("should create a number object from a json object", () => {
+      const number = numberDecoder(jsonObj);
+      expect(number.getRef()).to.be.equal(jsonObj.metadata.ref);
+      expect(number.getProviderRef()).to.be.equal(jsonObj.metadata.gwRef);
+      expect(number.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
+      expect(number.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn);
+      expect(number.getIngressApp()).to.be.equal(jsonObj.metadata.ingressApp);
+      expect(number.getE164Number()).to.be.equal(
+        jsonObj.spec.location.telUrl.split(":")[1]
+      );
+    });
+
+    it("should create a number object from without ingress app", () => {
+      delete jsonObj.metadata.ingressApp;
+      const number = numberDecoder(jsonObj);
+      expect(number.getRef()).to.be.equal(jsonObj.metadata.ref);
+      expect(number.getProviderRef()).to.be.equal(jsonObj.metadata.gwRef);
+      expect(number.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
+      expect(number.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn);
+      expect(number.getIngressApp()).to.be.a("string").lengthOf(0);
+      expect(number.getE164Number()).to.be.equal(
+        jsonObj.spec.location.telUrl.split(":")[1]
+      );
+    });
   });
 });

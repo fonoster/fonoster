@@ -1,48 +1,27 @@
 import routr from "../common/routr";
-import {Kind} from "../common/resource_encoder";
-/*import {ListAgentsResponse} from "../protos/agents_pb";
-import {ListNumbersResponse} from "../protos/numbers_pb";
-import {ListProvidersResponse} from "../protos/providers_pb";
-import {ListDomainsResponse} from "../protos/domains_pb";
-
-const ResponseObj = (kind: Kind): any => {
-  switch (kind) {
-    case Kind.AGENT:
-      return ListAgentsResponse;
-    case Kind.DOMAIN:
-      return ListDomainsResponse;
-    case Kind.NUMBER:
-      return ListNumbersResponse;
-    case Kind.GATEWAY:
-      return ListProvidersResponse;
-  }
-};*/
+import {ListResourceRequest, ListResourceResponse} from "./types";
 
 export default async function (
-  accessKeyId: string,
-  kind: Kind,
-  page: number,
-  itemsPerPage: number,
-  decoder: Function,
-  IResponse: Function
-) {
-  const getSetFunc = (k: Kind) =>
-    k === Kind.GATEWAY ? `setProvidersList` : `set${k}sList`;
-
-  if (!page) return {};
+  request: ListResourceRequest
+): Promise<ListResourceResponse> {
+  if (!request.page) return {};
   await routr.connect();
   const result = await routr
-    .resourceType(`${kind.toLowerCase()}s`)
-    .list({page, itemsPerPage});
+    .resourceType(`${request.kind.toLowerCase()}s`)
+    .list({
+      page: request.page, 
+      itemsPerPage:request.itemsPerPage
+    });
 
   const resources = [];
   for (const i in result.data) {
-    if (result.data[i].metadata.accessKeyId === accessKeyId) {
-      resources.push(decoder(result.data[i]));
+    if (result.data[i].metadata.accessKeyId === request.accessKeyId) {
+      resources.push(result.data[i]);
     }
   }
-  const res = new (IResponse(kind))();
-  res.setNextPageToken(page + 1);
-  res[getSetFunc(kind)](resources);
-  return res;
+
+  return {
+    nextPageToken: request.page + 1,
+    resources
+  }
 }
