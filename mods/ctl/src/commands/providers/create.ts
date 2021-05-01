@@ -3,7 +3,7 @@ import Providers from "@fonos/providers";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import inquirer from "inquirer";
+const inquirer = require('inquirer')
 
 export default class CreateCommand extends Command {
   static description = `creates a new provider resource

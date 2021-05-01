@@ -1,8 +1,16 @@
 /* eslint-disable require-jsdoc */
 import {FonosInvalidArgument, FonosFailedPrecondition} from "@fonos/errors";
 import NumbersPB from "./protos/numbers_pb";
-import {ResourceBuilder, Kind, routr, redis, getAccessKeyId} from "@fonos/core";
+import {
+  ResourceBuilder,
+  Kind,
+  routr,
+  getAccessKeyId,
+  getRedisConnection
+} from "@fonos/core";
 import numberDecoder from "./decoder";
+
+const redis = getRedisConnection();
 
 const validateNumber = (number: NumbersPB.Number) => {
   if (!number.getE164Number()) {

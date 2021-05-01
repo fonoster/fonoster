@@ -5,7 +5,9 @@ import { Command, flags as oclifFlags } from '@oclif/command'
 import inquirer from 'inquirer'
 import { CommonPB } from '@fonos/numbers'
 import { Number } from '@fonos/numbers/src/types'
-import Table from 'easy-table'
+
+// Using import will cause: Error: easy_table_1.default is not a constructor
+const Table = require("easy-table");
 
 export default class ListCommand extends Command {
   static description = `list registered numbers

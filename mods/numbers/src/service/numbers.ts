@@ -22,13 +22,21 @@ import {
 } from "./protos/numbers_grpc_pb";
 import {App} from "@fonos/appmanager/src/service/protos/appmanager_pb";
 import {Kind, ResourceServer} from "@fonos/core";
+import decoder from "./decoder";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   async listNumbers(
     call: grpc.ServerUnaryCall<ListNumbersRequest>,
     callback: grpc.sendUnaryData<ListNumbersResponse>
   ) {
-    super.listResources(Kind.NUMBER, call);
+    const result = await super.listResources(Kind.NUMBER, call);
+    const response = new ListNumbersResponse();
+    if (result && result.resources) {
+      const domains = result.resources.map((resource) => decoder(resource));
+      response.setNextPageToken(result.nextPageToken + "");
+      response.setNumbersList(domains);
+    }
+    callback(null, response);
   }
 
   async createNumber(
@@ -64,14 +72,24 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     call: grpc.ServerUnaryCall<GetNumberRequest>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
-    super.getResource(Kind.NUMBER, call);
+    try {
+      const result = await super.getResource(Kind.NUMBER, call);
+      callback(null, decoder(result));
+    } catch (e) {
+      callback(e, null);
+    }
   }
 
   async deleteNumber(
     call: grpc.ServerUnaryCall<DeleteNumberRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(Kind.NUMBER, call);
+    try {
+      await super.deleteResource(Kind.NUMBER, call);
+      callback(null, new Empty());
+    } catch (e) {
+      callback(e, null);
+    }
   }
 }
 

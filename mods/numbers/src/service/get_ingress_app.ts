@@ -1,9 +1,11 @@
 /* eslint-disable require-jsdoc */
 import {FonosError} from "@fonos/errors";
-import {redis} from "@fonos/core";
 import grpc from "grpc";
 import logger from "@fonos/logger";
+import {getRedisConnection} from "@fonos/core";
 //import {App, jsonToApp} from "@fonos/appmanager";
+
+const redis = getRedisConnection();
 
 export default async function (e164Number: string): Promise<any> {
   const appRef = await redis.get(`extlink:${e164Number}`);

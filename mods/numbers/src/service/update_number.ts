@@ -1,8 +1,10 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import {FonosInvalidArgument, FonosFailedPrecondition} from "@fonos/errors";
-import {ResourceBuilder, Kind, routr, redis} from "@fonos/core";
+import {ResourceBuilder, Kind, routr, getRedisConnection} from "@fonos/core";
 import numberDecoder from "./decoder";
+
+const redis = getRedisConnection();
 
 export default async function updateNumber(call: any, callback: any) {
   const number = call.request.getNumber();

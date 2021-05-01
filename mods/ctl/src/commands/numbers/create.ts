@@ -7,8 +7,8 @@ import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB, AppManagerPB} from "@fonos/numbers";
 import { Provider } from "@fonos/providers/src/types";
-import phone from "phone";
-import inquirer from "inquirer";
+const phone = require("phone");
+const inquirer = require("inquirer");
 
 export default class CreateCommand extends Command {
   static description = `creates a new number resource
@@ -112,7 +112,6 @@ export default class CreateCommand extends Command {
         cli.action.stop(result.ref)
       }
     } catch (e) {
-      console.log(e)
       cli.action.stop();
       if (e.code === 9) {
         throw new CLIError("This Number already exist");
