@@ -12,7 +12,7 @@ let credentials =
 
 export const db = `mongodb://${credentials}${host}:${port}/${dbname}`;
 
-const mongoConnection = async() => {
+export default async function () {
   try { 
     await mongoose.connect(db, {
         useNewUrlParser: true,
@@ -32,5 +32,3 @@ const mongoConnection = async() => {
     process.exit(1);
   }
 };
-
-export default mongoConnection;
