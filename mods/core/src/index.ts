@@ -2,6 +2,7 @@ import FonosService from "./common/fonos_service";
 import {ServiceOptions} from "./common/types";
 import {getClientCredentials, getServerCredentials} from "./common/trust_util";
 import getAccessKeyId from "./common/get_access_key_id"
+import getRedisConnection from "./common/redis"
 import {
   extract,
   removeDirSync,
@@ -11,7 +12,6 @@ import {
 } from "./common/utils";
 import runServices from "./service_runner"
 import routr from "./common/routr"
-import redis from "./common/redis"
 import ResourceServer from "./resources/resource_server";
 import createResource from "./resources/create_resource";
 import updateResource from "./resources/update_resource";
@@ -24,7 +24,7 @@ export {
   Kind,
   ResourceBuilder,
   routr,
-  redis,
+  getRedisConnection,
   getClientCredentials,
   getServerCredentials,
   getAccessKeyId,

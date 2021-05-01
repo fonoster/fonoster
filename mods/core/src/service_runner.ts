@@ -8,6 +8,7 @@ import {
   HealthService
 } from "grpc-ts-health-check";
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
+import { mongoConnection } from '@fonos/auth'
 
 interface ServiceInf {
     name: string,
@@ -23,6 +24,8 @@ interface Middleware {
 }
 
 export default function run(srvInfList: ServiceInf[], middlewareList?: Middleware[]) {
+  mongoConnection();
+
   const healthCheckStatusMap = {
     "": HealthCheckResponse.ServingStatus.SERVING
   };

@@ -23,3 +23,8 @@ export interface ListResourceResponse {
     nextPageToken?: number;
     resources?: object[];
 }
+
+export interface UpdateResourceRequest {
+    accessKeyId: string;
+    resource: unknown;
+}

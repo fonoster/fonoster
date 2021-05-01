@@ -27,7 +27,7 @@ export default class ResourceServer {
   async getResource(
     kind: Kind,
     call: grpc.ServerUnaryCall<any>
-  ): Promise<any> {
+  ): Promise<unknown> {
     try {
       return await getResourceHere({
         ref: call.request.getRef(),

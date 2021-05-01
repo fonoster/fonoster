@@ -48,6 +48,7 @@
     "grpc-ts-health-check": "^2.0.6",
     "ioredis": "^4.16.0",
     "jsonwebtoken": "^8.5.1",
+    "minio": "^7.0.18",
     "mongoose": "^5.12.4",
     "nanoid": "^3.1.20",
     "phone": "^2.4.21",

@@ -1,6 +1,6 @@
 import routr from "../common/routr";
 
-export default async function (resource: object) {
+export default async function (resource: object): Promise<any> {
   await routr.connect();
   const ref = await routr
     .resourceType(`${resource['kind'].toLowerCase()}s`)

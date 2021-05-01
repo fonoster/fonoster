@@ -1,25 +1,21 @@
 import routr from "../common/routr";
-
-
-interface UpdateResourceRequest {
-  accessKeyId: string,
-  resource: object
-}
+import { UpdateResourceRequest } from "./types";
 
 export default async function (
-request: UpdateResourceRequest
-): Promise<string> {
+  request: UpdateResourceRequest
+): Promise<any>{
   await routr.connect();
 
   const objFromDB = await routr
     .resourceType(`${request.resource['kind'].toLowerCase()}s`)
-    .get(request['metadata'].ref);
+    .get(request.resource['metadata'].ref);
+
   if (objFromDB.metadata.accessKeyId === request.accessKeyId) {
     request.resource['metadata'].accessKeyId = request.accessKeyId;
     await routr
       .resourceType(`${request.resource['kind'].toLowerCase()}s`)
       .update(request.resource);
-    return request.resource['ref']
+    return request.resource;
   }
   return null;
 }

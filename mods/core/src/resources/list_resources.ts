@@ -19,9 +19,9 @@ export default async function (
       resources.push(result.data[i]);
     }
   }
-
+ 
   return {
-    nextPageToken: request.page + 1,
+    nextPageToken: resources.length > 0 ? request.page + 1 : null,
     resources
   }
 }
