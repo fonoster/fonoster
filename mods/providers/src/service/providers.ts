@@ -17,20 +17,27 @@ import {
   IProvidersServer
 } from "./protos/providers_grpc_pb";
 import {Kind, ResourceBuilder} from "@fonos/core/src/common/resource_builder";
-import providerDecoder from "./decoder";
 import {
   updateResource,
   createResource,
   ResourceServer,
   getAccessKeyId
 } from "@fonos/core";
+import decoder from "./decoder";
 
 class ProvidersServer extends ResourceServer implements IProvidersServer {
   async listProviders(
     call: grpc.ServerUnaryCall<ListProvidersRequest>,
     callback: grpc.sendUnaryData<ListProvidersResponse>
   ) {
-    super.listResources(Kind.GATEWAY, call);
+    const result = await super.listResources(Kind.GATEWAY, call);
+    const response = new ListProvidersResponse();
+    if (result.resources) {
+      const providers = result.resources.map((resource) => decoder(resource));
+      response.setNextPageToken(result.nextPageToken + "");
+      response.setProvidersList(providers);
+    }
+    callback(null, response);
   }
 
   async createProvider(
@@ -52,7 +59,8 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
-      callback(null, await createResource(resource));
+      const result = await createResource(resource);
+      callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
     }
@@ -80,11 +88,12 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
         .withExpires(provider.getExpires())
         .build();
 
-      callback(
-        null,
-        null
-        // await updateResource(getAccessKeyId(call), resource, providerDecoder)
-      );
+      const result = await updateResource({
+        resource,
+        accessKeyId: getAccessKeyId(call)
+      });
+
+      callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
     }
@@ -94,14 +103,24 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
     call: grpc.ServerUnaryCall<GetProviderRequest>,
     callback: grpc.sendUnaryData<Provider>
   ) {
-    super.getResource(Kind.GATEWAY, call);
+    try {
+      const result = await super.getResource(Kind.GATEWAY, call);
+      callback(null, decoder(result));
+    } catch (e) {
+      callback(e, null);
+    }
   }
 
   async deleteProvider(
     call: grpc.ServerUnaryCall<DeleteProviderRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(Kind.GATEWAY, call);
+    try {
+      await super.deleteResource(Kind.GATEWAY, call);
+      callback(null, new Empty());
+    } catch (e) {
+      callback(e, null);
+    }
   }
 }
 
