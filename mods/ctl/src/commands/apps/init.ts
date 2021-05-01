@@ -41,7 +41,7 @@ export default class InitCommand extends Command {
       {name: "locale", message: "locale", type: "input", default: "en_US"},
       {
         name: "confirm",
-        message: "everything looks good?",
+        message: "ready?",
         type: "confirm"
       }
     ]);

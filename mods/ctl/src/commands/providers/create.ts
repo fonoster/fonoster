@@ -52,7 +52,7 @@ export default class CreateCommand extends Command {
       },
       {
         name: "confirm",
-        message: "everything looks good?",
+        message: "ready?",
         type: "confirm"
       }
     ]);

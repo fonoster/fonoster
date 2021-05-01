@@ -91,7 +91,7 @@ export default class CreateCommand extends Command {
       const confirmPrompt = await inquirer.prompt([
         {
           name: "confirm",
-          message: "does everything look good?",
+          message: "ready?",
           type: "confirm"
         }
       ]);
