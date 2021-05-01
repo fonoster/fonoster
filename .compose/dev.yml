@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+
+  datasource:
+    ports:
+      - ${DS_PORT}:${DS_PORT}
+  datasource_auth:
+    ports:
+      - 27017:27017
+  eventsbroker:
+    ports:
+      - ${EB_PORT}:${EB_PORT}
+  fs:
+    ports:
+      - ${FS_PORT}:${FS_PORT}
+  sipproxy:
+    ports:
+      - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
+  mediacontroller:
+    ports:
+      - ${MC_AGI_PORT}:${MC_AGI_PORT}

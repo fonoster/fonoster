@@ -6,8 +6,8 @@ const port = process.env.DS_AUTH_PORT || 27017;
 const dbname = process.env.DS_AUTH_DB || "fonos_auth";
 
 let credentials =
-  process.env.DS_AUTH_USERNAME && process.env.DS_SECRET
-    ? `${process.env.DS_AUTH_USERNAME}:${process.env.DS_SECRET}@`
+  process.env.DS_AUTH_USERNAME && process.env.DS_AUTH_SECRET
+    ? `${process.env.DS_AUTH_USERNAME}:${process.env.DS_AUTH_SECRET}@`
     : "";
 
 export const db = `mongodb://${credentials}${host}:${port}/${dbname}`;

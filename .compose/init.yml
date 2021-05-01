@@ -1,0 +1,35 @@
+version: '3.7'
+
+networks:
+  fonos:
+
+services:
+
+  create_buckets:
+    image: minio/mc:latest
+    entrypoint: >
+      /bin/sh -c "
+      set -e;
+      /usr/bin/mc config host add fs http://${FS_HOST}:${FS_PORT} ${FS_USERNAME} ${FS_SECRET};
+      /usr/bin/mc mb fs/public;
+      /usr/bin/mc mb fs/apps;
+      /usr/bin/mc mb fs/recordings;
+      /usr/bin/mc policy set download fs/public;
+      exit 0;
+      "
+    networks:
+      fonos:
+
+  bootstrap_sipnet:
+    image: fonoster/routr-ctl
+    entrypoint: >
+      /bin/sh -c "
+      set -e;
+      rctl login https://${SIPPROXY_HOST}:${SIPPROXY_API_PORT}/api/v1beta1 -u ${SIPPROXY_API_USERNAME} -p ${SIPPROXY_API_SECRET};
+      rctl create -f /bootstrap.yml;
+      exit 0;
+      "
+    volumes:
+      - ${CONFIG}/bootstrap.yml:/bootstrap.yml
+    networks:
+      fonos:

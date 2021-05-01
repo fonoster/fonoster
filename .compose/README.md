@@ -1,17 +1,41 @@
 # Running Project Fonos with Docker Composer
 
-## Running Project with Docker Compose
+## Running Project Fonos
 
-To run Fonos using Docker Compose, simply run the following command:
+To run Project Fonos, use the following steps:
 
-```bash
-docker-compose -f 00_config.yml \
-    -f 01_base.yml \
-    -f 02_sbc.yml \
-    -f 03_tts.yml \
-    -f 04_mediacontroller.yml \
-    -f 05_mediaserver.yml \
-    -f 06_logging.yml up \
-    -d 
+1. Create the external volumes
+
+```
+docker volume create --name=datasource
+docker volume create --name=datasource_auth
+docker volume create --name=data1-1
 ```
 
+2. Copy `env_example` into `.env`
+
+
+3. Run infrastructure with docker compose
+
+
+```bash
+docker-compose --env-file .env \
+    -f 00_config.yml \
+    -f 01_deps.yml \
+    -f 02_api.yml \
+    -f 03_sipnet.yml up -d
+```
+
+Once all the services all up an running initialize the system with:
+
+```
+docker-compose -f init.yml up
+```
+
+4. Launch additional services (Optional)
+
+```bash
+docker-compose --env-file .env -f extras.yml -up -d
+```
+
+> Append `dev.yml` if you want to open the ports on all the services (Only recommended for development)

@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
 
-  reverse-proxy:
+  reverse_proxy:
     image: traefik:v2.4
     command: --api.insecure=true --providers.docker
     ports:
@@ -25,14 +25,34 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
-    #ports:
-    #  - ${DS_PORT}:${DS_PORT}
     networks:
       fonos:
         aliases: 
           - ${DS_HOST}
     volumes: 
       - ${CONFIG}/redis.conf:/etc/redis/redis.conf
+      - datasource:/data
+
+  datasource_auth:
+    image: ${DS_AUTH_IMAGE}
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DS_AUTH_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DS_AUTH_SECRET}
+      MONGO_INITDB_DATABASE: ${DS_AUTH_DB}
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource_auth
+    networks:
+      fonos:
+        aliases: 
+          - ${DS_AUTH_HOST}
+    volumes: 
+      - ${CONFIG}/init_mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
       - datasource:/data
 
   eventsbroker:
@@ -45,8 +65,6 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.eventsbroker
-    # ports:
-    #  - ${EB_PORT}:${EB_PORT}
     networks:
       fonos:
         aliases: 
@@ -61,8 +79,6 @@ services:
     environment:
       MINIO_ACCESS_KEY: ${FS_USERNAME}
       MINIO_SECRET_KEY: ${FS_SECRET}
-    # ports:
-    #  - ${FS_PORT}:${FS_PORT}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
