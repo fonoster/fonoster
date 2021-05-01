@@ -1,9 +1,9 @@
-import redis from "@fonos/core/src/common/redis";
 import {FonosError} from "@fonos/errors";
 import jsonToApp from "./json_to_app";
 import {App} from "./protos/appmanager_pb";
 import {EventsSender} from "@fonos/events";
 import logger from "@fonos/logger";
+import {getRedisConnection} from "@fonos/core";
 
 let events: any;
 
@@ -16,8 +16,10 @@ try {
   events = new EventsSender(brokers, "APP_REMOVED");
   events.connect();
 } catch (e) {
-  logger.error(e);
+  logger.error(e.message);
 }
+
+const redis = getRedisConnection();
 
 export default async function (ref: string, accessKeyId: string) {
   const result = await redis.get(ref);

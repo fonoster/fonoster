@@ -1,6 +1,8 @@
-import redis from "@fonos/core/src/common/redis";
 import {App} from "./protos/appmanager_pb";
 import jsonToApp from "./json_to_app";
+import {getRedisConnection} from "@fonos/core";
+
+const redis = getRedisConnection();
 
 export default async function (
   pageToken: number,

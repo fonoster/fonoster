@@ -1,8 +1,8 @@
 import {nanoid} from "nanoid";
-import redis from "@fonos/core/src/common/redis";
 import {App} from "./protos/appmanager_pb";
 import {EventsSender} from "@fonos/events";
 import logger from "@fonos/logger";
+import {getRedisConnection} from "@fonos/core";
 
 let events: any;
 
@@ -15,8 +15,10 @@ try {
   events = new EventsSender(brokers, "APP_CREATED");
   events.connect();
 } catch (e) {
-  logger.error(e);
+  logger.error(e.message);
 }
+
+const redis = getRedisConnection();
 
 export default async function (app: App, accessKeyId: string): Promise<App> {
   app.setAccessKeyId(accessKeyId);
