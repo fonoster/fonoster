@@ -22,13 +22,21 @@ import {
   ResourceServer,
   getAccessKeyId
 } from "@fonos/core"
+import decoder from "./decoder";
 
 class AgentsServer extends ResourceServer implements IAgentsServer {
   async listAgents(
     call: grpc.ServerUnaryCall<ListAgentsRequest>,
     callback: grpc.sendUnaryData<ListAgentsResponse>
   ) {
-    super.listResources(Kind.AGENT, call);
+    const result = await super.listResources(Kind.AGENT, call);
+    const response = new ListAgentsResponse();
+    if (result.resources) {
+      const domains = result.resources.map((resource) => decoder(resource));
+      response.setNextPageToken(result.nextPageToken + "");
+      response.setAgentsList(domains);
+    }
+    callback(null, response);
   }
 
   async createAgent(
@@ -44,7 +52,8 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
         .build();
 
       //.withPrivacy(provider.getPrivacy()) // TODO
-      callback(null, await createResource(resource));
+      const response = await createResource(resource);
+      callback(null, decoder(response));
     } catch (e) {
       callback(e, null);
     }
@@ -64,11 +73,13 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
           modifiedOn: agent.getUpdateTime()
         })
         .build();
-      callback(
-        null,
-        null
-        // await updateResource(getAccessKeyId(call), resource, agentDecoder)
-      );
+
+        const result = await updateResource({
+          resource,
+          accessKeyId: getAccessKeyId(call)
+        });
+  
+        callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
     }
@@ -78,14 +89,24 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
     call: grpc.ServerUnaryCall<GetAgentRequest>,
     callback: grpc.sendUnaryData<Agent>
   ) {
-    super.getResource(Kind.AGENT, call);
+    try {
+      const result = await super.getResource(Kind.AGENT, call);
+      callback(null, decoder(result));
+    } catch (e) {
+      callback(e, null);
+    }
   }
 
   async deleteAgent(
     call: grpc.ServerUnaryCall<DeleteAgentRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(Kind.AGENT, call);
+    try {
+      await super.deleteResource(Kind.AGENT, call);
+      callback(null, new Empty());
+    } catch (e) {
+      callback(e, null);
+    }
   }
 }
 
