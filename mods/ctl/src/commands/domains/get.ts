@@ -4,7 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {render} from "prettyjson";
-import moment from "moment";
+const moment = require("moment");
 
 export default class GetCommand extends Command {
   static description = "get information about an existing domain";

@@ -21,18 +21,25 @@ import {
   ResourceServer,
   getAccessKeyId,
   Kind,
-  ResourceBuilder
+  ResourceBuilder,
+  updateResource
 } from "@fonos/core";
 import unmarshalDomain from "./decoder";
+import decoder from "./decoder";
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
   async listDomains(
     call: grpc.ServerUnaryCall<ListDomainsRequest>,
     callback: grpc.sendUnaryData<ListDomainsResponse>
   ) {
-    // const response = super.listResources(Kind.DOMAIN, call);
-    // const 
-    // callback(null, await unmarshalDomain(response))
+    const result = await super.listResources(Kind.DOMAIN, call);
+    const response = new ListDomainsResponse();
+    if (result.resources) {
+      const domains = result.resources.map((resource) => decoder(resource));
+      response.setNextPageToken(result.nextPageToken + "");
+      response.setDomainsList(domains);
+    }
+    callback(null, response);
   }
 
   async createDomain(
@@ -79,10 +86,13 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
         .build();
-      /* callback(
-         null,
-         //await updateResource(getAccessKeyId(call), resource, unmarshalDomain)
-      );*/
+
+      const result = await updateResource({
+        resource,
+        accessKeyId: getAccessKeyId(call)
+      });
+
+      callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
     }
@@ -92,14 +102,24 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     call: grpc.ServerUnaryCall<GetDomainRequest>,
     callback: grpc.sendUnaryData<Domain>
   ) {
-    super.getResource(Kind.DOMAIN, call);
+    try {
+      const result = await super.getResource(Kind.DOMAIN, call);
+      callback(null, decoder(result));
+    } catch (e) {
+      callback(e, null);
+    }
   }
 
   async deleteDomain(
     call: grpc.ServerUnaryCall<DeleteDomainRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
-    super.deleteResource(Kind.DOMAIN, call);
+    try {
+      await super.deleteResource(Kind.DOMAIN, call);
+      callback(null, new Empty());
+    } catch (e) {
+      callback(e, null);
+    }
   }
 }
 
