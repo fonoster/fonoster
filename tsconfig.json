@@ -9,16 +9,7 @@
     "strict": false,
     "module": "commonjs",
     "target": "es6",
-    "lib": [ "es6" ],
-    "strict": true,
-    "sourceMap": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "strictPropertyInitialization": false,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true
+    "lib": [ "es6" ]
   },
   "exclude": [
     "node_modules",
