@@ -15,13 +15,13 @@ jobs:
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)") 
-    - name: Publish Storage API at Docker Hub
+    - name: Publish Agents API at Docker Hub
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-storage
+        name: fonoster/fonos-agents
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        workdir: mods/storage
+        workdir: mods/agents
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
     - name: Publishing Media Controller Service
       uses: benc-uk/workflow-dispatch@v1
