@@ -21,14 +21,70 @@ jobs:
         npm install
         npm run bootstrap
         npm run build
-    - name: Publish Agents API at Docker Hub
+    - name: Publish to Docker Hub the Agents API 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: fonoster/fonos-agents
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/agents
-        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Domains API 
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-domains
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/domains
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Numbers API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-numbers
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/numbers
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Providers API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-providers
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/providers
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Storage API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-storage
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/storage
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the AppManager API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-appmanager
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/appmanager
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the CallManager API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-callmanager
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/callmanager
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the UserManager API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-usermanager
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/usermanager
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publishing Media Controller Service
       uses: benc-uk/workflow-dispatch@v1
       with:
