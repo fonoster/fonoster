@@ -1,7 +1,7 @@
-import winston from 'winston'
-import fluentLogger from 'fluent-logger'
+import winston from "winston";
+import fluentLogger from "fluent-logger";
 
-const fluentTransport = fluentLogger.support.winstonTransport()
+const fluentTransport = fluentLogger.support.winstonTransport();
 
 const fluent = new fluentTransport(
   `${process.env.LOG_OPT_TAG_PREFIX}.${process.env.COMPOSE_PROJECT_NAME}.mediacontroller`,
@@ -11,23 +11,24 @@ const fluent = new fluentTransport(
     timeout: 3.0,
     requireAckResponse: true
   }
-)
+);
 
-const transports = process.env.NODE_ENV === 'dev' ?
-  [new winston.transports.Console()]:
-  [fluent]
+const transports =
+  process.env.NODE_ENV === "dev"
+    ? [new winston.transports.Console()]
+    : [fluent];
 
 const logger = winston.createLogger({
-  level: 'debug',
+  level: "debug",
   levels: winston.config.npm.levels,
   format: winston.format.json(),
   transports
-})
+});
 
-logger.on('finish', () => {
-  fluent.sender.end('end', {}, () => {})
-})
+logger.on("finish", () => {
+  fluent.sender.end("end", {}, () => {});
+});
 
-const mute = () => logger.transports.forEach((t: any) => (t.silent = true))
+const mute = () => logger.transports.forEach((t: any) => (t.silent = true));
 
-export { logger as default, mute }
+export {logger as default, mute};

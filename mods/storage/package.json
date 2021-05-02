@@ -1,15 +1,29 @@
 {
   "name": "@fonos/storage",
-  "version": "0.0.79",
+  "version": "0.0.83",
   "description": "Fonos Storage Servoce",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "dist/client/storage",
+  "types": "dist/client/storage",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
+    "build": "tsc -b tsconfig.json",
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+  },
+  "bin": {
+    "run": "dist/srv_runner.js",
+    "healthcheck": "dist/healthcheck.js"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "../"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "directories": {
     "src": "src",
@@ -29,8 +43,12 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.79",
-    "@fonos/logger": "^0.0.79",
+    "@fonos/core": "^0.0.83",
+    "@fonos/errors": "^0.0.83",
+    "@fonos/logger": "^0.0.83",
+    "grpc": "^1.24.7",
+    "grpc-promise": "^1.4.0",
+    "grpc-ts-health-check": "^2.0.6",
     "objectid": "^3.2.1",
     "sync": "^0.2.5"
   },
@@ -38,7 +56,9 @@
     "@types/fibers": "^3.1.0",
     "dotenv": "^8.2.0",
     "fibers": "^5.0.0",
+    "nodemon": "^2.0.7",
     "rimraf": "^3.0.2",
     "typescript": "^4.1.5"
-  }
+  },
+  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

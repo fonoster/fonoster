@@ -1,0 +1,77 @@
+/**
+ * MIT License
+ * Copyright (c) 2021 Fonoster Inc
+ *
+ * The Agents proto contains the artificats for the administration
+ * of Agents.
+ */
+syntax = "proto3";
+
+package fonos.agents.v1alpha1;
+
+import "common.proto";
+
+service Agents {
+  // Lists Agents from the SIP Proxy subsystem
+  rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse) {};
+  // Creates a new Agent resource.
+  rpc CreateAgent (CreateAgentRequest) returns (Agent) {};
+  // Gets Agent using its reference
+  rpc GetAgent (GetAgentRequest) returns (Agent) {};
+  // Change or update fields in a resource
+  rpc UpdateAgent (UpdateAgentRequest) returns (Agent) {};
+  // Hard delete of a Agent resource
+  rpc DeleteAgent (DeleteAgentRequest) returns (fonos.common.v1alpha1.Empty) {};
+}
+
+message ListAgentsRequest {
+  // The maximum agent of items to return.
+  int32 page_size = 1;
+
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 2;
+
+  // Level of detail of the individual entities
+  fonos.common.v1alpha1.View view = 3;
+}
+
+message ListAgentsResponse {
+  // There will be a maximum agent of items returned based on the page_size field
+  // in the request.
+  repeated Agent agents = 1;
+
+  // Token to retrieve the next page of results, or empty if there are no
+  // more results in the list.
+  string next_page_token = 2;
+}
+
+message CreateAgentRequest {
+  Agent agent = 1;
+}
+
+message UpdateAgentRequest {
+  Agent agent = 1;
+}
+
+message GetAgentRequest {
+  string ref = 1;
+}
+
+message GetIngressAppRequest {
+  string e164_agent = 1;
+}
+
+message DeleteAgentRequest {
+  string ref = 1;
+}
+
+message Agent {
+  string ref = 1;
+  string name = 2;
+  string username = 3;
+  string secret = 4;
+  repeated string domains = 5;
+  string privacy = 6;
+  string create_time = 7;
+  string update_time = 8;
+}

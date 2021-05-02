@@ -1,4 +1,4 @@
-import crypto from 'crypto'
+import crypto from "crypto";
 
 /**
  * Uses the input text and options to generate a filename. This is
@@ -9,29 +9,20 @@ import crypto from 'crypto'
  * @param {sting} - resulting format. Defaults to '.wav'
  * @returns {string} compute filename
  */
-const computeFilename = (
-  text: string,
-  options: any = {},
-  format: string = 'wav'
-) => {
-  const flat = require('flat')
-  let c = text
+const computeFilename = (text: string, options: any = {}, format = "wav") => {
+  const flat = require("flat");
+  let c = text;
   if (options.cachingFields) {
-    const flatObj = flat(options)
+    const flatObj = flat(options);
     c = options.cachingFields
       .map((opt: string) => flatObj[opt])
       .sort()
-      .join()
+      .join();
   }
   return (
-    crypto
-      .createHash('md5')
-      .update(`${text},${c}`)
-      .digest('hex') +
-    '.' +
-    format
-  )
-}
+    crypto.createHash("md5").update(`${text},${c}`).digest("hex") + "." + format
+  );
+};
 
 /**
  * Takes a json object and creates a query formatted string
@@ -42,7 +33,7 @@ const computeFilename = (
 const optionsToQueryString = (obj: any): string =>
   Object.keys(obj)
     .map((key: string) => `${key}=${obj[key].toString()}`)
-    .join('&')
+    .join("&");
 
 /**
  * Gets the path to a file as input and transcode to
@@ -55,20 +46,17 @@ const optionsToQueryString = (obj: any): string =>
 const transcode = (fileIn: string, fileOut: string): Promise<string> =>
   new Promise((resolve, reject) => {
     // We need a new instance to avoid collisions
-    const sox = require('sox-audio')()
-    sox.on('error', (err: any, stdout: any, stderr: any) =>
+    const sox = require("sox-audio")();
+    sox.on("error", (err: any, stdout: any, stderr: any) =>
       reject(`Cannot process audio: ${err.message}`)
-    )
-    sox.input(fileIn)
+    );
+    sox.input(fileIn);
 
     // TODO: Investigate other formats that can produce a better audio quality
-    sox
-      .output(fileOut)
-      .outputSampleRate(8000)
-      .outputFileType('wav')
-    sox.run()
-    sox.on('end', () => resolve(fileOut))
-  })
+    sox.output(fileOut).outputSampleRate(8000).outputFileType("wav");
+    sox.run();
+    sox.on("end", () => resolve(fileOut));
+  });
 
 /**
  * Gets the path to a file as input and transcode synchronously to
@@ -79,19 +67,19 @@ const transcode = (fileIn: string, fileOut: string): Promise<string> =>
  * @returns {string} path to the resulting file
  */
 const transcodeSync = (fileIn: string, fileOut: string): string => {
-  const sleep = require('sync').sleep
-  let result
-  let error
+  const sleep = require("sync").sleep;
+  let result;
+  let error;
 
   transcode(fileIn, fileOut)
-    .then(r => (result = r))
-    .catch(e => (error = e))
+    .then((r) => (result = r))
+    .catch((e) => (error = e));
 
-  while (result === undefined && error === undefined) sleep(100)
+  while (result === undefined && error === undefined) sleep(100);
 
-  if (error) throw error
+  if (error) throw error;
 
-  return result
-}
+  return result;
+};
 
-export { computeFilename, transcode, transcodeSync, optionsToQueryString }
+export {computeFilename, transcode, transcodeSync, optionsToQueryString};

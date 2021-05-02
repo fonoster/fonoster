@@ -1,3 +1,3 @@
-import Verbs from './verbs'
+import Verbs from "./verbs";
 
-export default Verbs
+export default Verbs;

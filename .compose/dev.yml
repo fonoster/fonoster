@@ -1,26 +1,25 @@
-# Optional configuration for development environments
+version: '3.7'
 
 services:
 
-  logsdriver:
-    ports:
-      - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}
-  apiserver:
-    environment:
-      ALLOW_INSECURE: 'true'
-      DS_SECRET: ${DS_SECRET}
   datasource:
     ports:
       - ${DS_PORT}:${DS_PORT}
   datasource_auth:
     ports:
-      - ${DS_AUTH_PORT}:${DS_AUTH_PORT}      
+      - 27017:27017
   eventsbroker:
     ports:
       - ${EB_PORT}:${EB_PORT}
+  fs:
+    ports:
+      - ${FS_PORT}:${FS_PORT}
   sipproxy:
     ports:
       - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
-  tts:
+  mediacontroller:
     ports:
-      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
+      - ${MC_AGI_PORT}:${MC_AGI_PORT}
+  mediaserver:
+    environment:
+      ENABLE_TEST_ACCOUNT: "true"

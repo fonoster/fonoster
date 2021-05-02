@@ -1,15 +1,29 @@
 {
   "name": "@fonos/callmanager",
-  "version": "0.0.79",
+  "version": "0.0.83",
   "description": "Call Manager",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "dist/client/callmanager",
+  "types": "dist/client/callmanager",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
+    "build": "tsc -b tsconfig.json",
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+  },
+  "bin": {
+    "run": "dist/srv_runner.js",
+    "healthcheck": "dist/healthcheck.js"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "../"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "directories": {
     "src": "src",
@@ -29,12 +43,19 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.79",
-    "@fonos/logger": "^0.0.79",
-    "grpc-promise": "^1.4.0"
+    "@fonos/core": "^0.0.83",
+    "@fonos/errors": "^0.0.83",
+    "@fonos/logger": "^0.0.83",
+    "ari-client": "^2.2.0",
+    "grpc": "^1.24.7",
+    "grpc-promise": "^1.4.0",
+    "grpc-ts-health-check": "^2.0.6",
+    "phone": "^2.4.21"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
+    "nodemon": "^2.0.7",
     "rimraf": "^3.0.2"
-  }
+  },
+  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

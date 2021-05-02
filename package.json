@@ -1,24 +1,17 @@
 {
   "name": "root",
   "private": true,
-  "nodemonConfig": {
-    "watch": [
-      "./mods/",
-      "./examples/"
-    ],
-    "ext": "ts",
-    "exec": "ts-node",
-    "ignore": "**/*.d.ts"
-  },
   "scripts": {
+    "start": "cross-env NODE_ENV=dev nodemon ./run_services",
     "bootstrap": "lerna bootstrap --no-ci",
     "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "build": "lerna run build",
     "clean": "rimraf **/*/tsconfig.tsbuildinfo && rimraf **/*/dist && rimraf **/*/dist && rimraf **/*/node_modules && rimraf node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
-    "run-init": "cross-env NODE_ENV=dev node mods/core/dist/common/fsutils",
-    "run-apiserver": "cross-env NODE_ENV=dev nodemon mods/core/src/server/server",
-    "run-mediacontroller": "cross-env NODE_ENV=dev nodemon mods/dispatcher/src/dispatcher"
+    "lint": "eslint mods --ext .ts",
+    "format": "prettier --write mods/",
+    "check-types": "tsc --noEmit",
+    "postinstall": "husky install"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",
@@ -32,17 +25,19 @@
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.2",
     "dedent": "^0.7.0",
-    "eslint": "^7.22.0",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.23.0",
     "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-prettier": "^3.3.1",
     "grpc_tools_node_protoc_ts": "^5.1.1",
-    "husky": "^5.0.9",
+    "husky": "^6.0.0",
     "jsdoc-to-markdown": "^6.0.1",
     "lerna": "^3.22.1",
-    "lint-staged": "^10.2.9",
     "mocha": "^8.3.0",
-    "nodemon": "^2.0.6",
     "nyc": "^15.1.0",
-    "prettier-standard": "^16.3.0",
+    "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "sinon": "^9.0.2",
     "sinon-chai": "^3.5.0",
@@ -53,18 +48,19 @@
     "eslint-plugin-security": "^1.4.0",
     "prettier": "^2.0.5"
   },
-  "lint-staged": {
-    "mods/**/*.ts": [
-      "prettier-standard"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged --allow-empty && node etc/gen_docs.js && git add docs"
-    }
+  "nodemonConfig": {
+    "watch": [
+      "../"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "dependencies": {
+    "fluent-logger": "^3.4.1",
     "google-protobuf": "^3.15.0-rc.1",
-    "grpc-tools": "^1.7.0"
+    "grpc-tools": "^1.7.0",
+    "nodemon": "^2.0.7",
+    "winston": "^3.3.3"
   }
 }

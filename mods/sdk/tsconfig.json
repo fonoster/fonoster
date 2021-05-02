@@ -5,19 +5,15 @@
     "rootDir": "./src"
   },
   "references": [
-    { "path":  "../storage" },
-    { "path":  "../appmanager" },
-    { "path":  "../callmanager" },
-    { "path":  "../logger" },
-    { "path":  "../providers" },
-    { "path":  "../numbers" },
-    { "path":  "../domains" },
-    { "path":  "../agents" },
-    { "path":  "../usermanager" }
-  ],  
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test"
-  ]
+    {"path": "../storage"},
+    {"path": "../appmanager"},
+    {"path": "../callmanager"},
+    {"path": "../logger"},
+    {"path": "../providers"},
+    {"path": "../numbers"},
+    {"path": "../domains"},
+    {"path": "../agents"},
+    {"path": "../usermanager"}
+  ],
+  "exclude": ["node_modules", "dist", "test"]
 }

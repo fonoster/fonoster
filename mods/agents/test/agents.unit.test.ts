@@ -1,4 +1,4 @@
-/*import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
+/* import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
 import Storage from '../src/storage'
 import chai from 'chai'
 import sinon from 'sinon'
@@ -22,6 +22,37 @@ describe('Agents Service', () => {
   before(() => {
     agents = new Agents({
       endpoint: `${process.env.APISERVER_ENDPOINT}`
+    })
+  })
+
+ context('agent decoder', () => {
+    const decoder = require('../dist/common/decoders/agent_decoder')
+    it('should create an agent object from a json object', () => {
+      const jsonObj = {
+        metadata: {
+          ref: '001',
+          name: 'Peter',
+          createdOn: 'DATE',
+          modifiedOn: 'DATE'
+        },
+        spec: {
+          credentials: {
+            username: 'peter',
+            secret: 'secret'
+          },
+          domains: ['sip.local']
+        }
+      }
+      const agent = decoder(jsonObj)
+      expect(agent.getRef()).to.be.equal(jsonObj.metadata.ref)
+      expect(agent.getName()).to.be.equal(jsonObj.metadata.name)
+      expect(agent.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn)
+      expect(agent.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn)
+      expect(agent.getUsername()).to.be.equal(jsonObj.spec.credentials.username)
+      expect(agent.getSecret()).to.be.equal(jsonObj.spec.credentials.secret)
+      expect(agent.getDomainsList())
+        .to.be.a('array')
+        .lengthOf(1)
     })
   })
 

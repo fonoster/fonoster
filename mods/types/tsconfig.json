@@ -4,9 +4,5 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/protos/*"
-  ]
+  "exclude": ["node_modules", "dist"]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@fonos/auth",
-  "version": "0.0.79",
+  "version": "0.0.83",
   "description": "Authentication Module",
   "author": "Raul Sanchez <rsanchez@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,12 +29,15 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.79",
-    "jsonwebtoken": "^8.5.1"
+    "@fonos/logger": "^0.0.83",
+    "grpc": "^1.24.7",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.4"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.0",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2"
-  }
+  },
+  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }
