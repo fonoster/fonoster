@@ -91,3 +91,14 @@ services:
       fonos:
         aliases:
           - ${FS_HOST}
+
+networks:
+  fonos:
+
+volumes:
+  datasource:
+    external: true
+  datasource_auth:
+    external: true
+  data1-1:
+    external: true

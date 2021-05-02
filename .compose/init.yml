@@ -1,8 +1,5 @@
 version: '3.7'
 
-networks:
-  fonos:
-
 services:
 
   create_buckets:
@@ -33,3 +30,6 @@ services:
       - ${CONFIG}/bootstrap.yml:/bootstrap.yml
     networks:
       fonos:
+
+networks:
+  fonos:
