@@ -22,6 +22,3 @@ mods/storage
 mods/voice
 node_modules
 dist
-./*.d.ts
-./mods/**/src/service/protos/*
-**/package-lock.json
