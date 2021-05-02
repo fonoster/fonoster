@@ -8,21 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v1 
+      uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
         node-version: '14'   
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)") 
-    - name: Publishing APIServer Service
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/fonos-apiserver
-        token: ${{ secrets.GH_PAT }}
-        ref: master
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publish Storage API at Docker Hub
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
