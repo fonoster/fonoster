@@ -1,6 +1,6 @@
 {
   "name": "@fonos/appmanager",
-  "version": "0.0.81",
+  "version": "0.0.82",
   "description": "Applications Manager",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,16 +43,16 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/core": "^0.0.81",
-    "@fonos/logger": "^0.0.81",
-    "@fonos/storage": "^0.0.81",
-    "@fonos/events": "^0.0.81",
-    "@fonos/errors": "^0.0.81",
+    "@fonos/core": "^0.0.82",
+    "@fonos/errors": "^0.0.82",
+    "@fonos/events": "^0.0.82",
+    "@fonos/logger": "^0.0.82",
+    "@fonos/storage": "^0.0.82",
     "fs-extra": "^8.1.0",
+    "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
     "grpc-ts-health-check": "^2.0.6",
-    "tar": "^6.0.1",
-    "grpc": "^1.24.7"
+    "tar": "^6.0.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
