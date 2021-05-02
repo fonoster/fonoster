@@ -1,10 +1,10 @@
-import '../../config'
-import Numbers from '@fonos/numbers'
-import { CLIError } from '@oclif/errors'
-import { Command, flags as oclifFlags } from '@oclif/command'
-import inquirer from 'inquirer'
-import { CommonPB } from '@fonos/numbers'
-import { Number } from '@fonos/numbers/src/types'
+import "../../config";
+import Numbers from "@fonos/numbers";
+import {CLIError} from "@oclif/errors";
+import {Command, flags as oclifFlags} from "@oclif/command";
+import inquirer from "inquirer";
+import {CommonPB} from "@fonos/numbers";
+import {Number} from "@fonos/numbers/src/types";
 
 // Using import will cause: Error: easy_table_1.default is not a constructor
 const Table = require("easy-table");
@@ -39,7 +39,7 @@ export default class ListCommand extends Command {
           pageSize,
           pageToken,
           view
-        })
+        });
         const list = result.numbers;
         pageToken = result.nextPageToken;
 
@@ -54,13 +54,13 @@ export default class ListCommand extends Command {
         const t = new Table();
 
         list.forEach((number: Number) => {
-          t.cell('Ref', number.ref)
-          t.cell('Provider Ref', number.providerRef)
-          t.cell('E164 Number', number.e164Number)
-          t.cell('AOR Link', number.aorLink || '--')
-          t.cell('Ingress App', number.ingressApp || '--')
-          t.newRow()
-        })
+          t.cell("Ref", number.ref);
+          t.cell("Provider Ref", number.providerRef);
+          t.cell("E164 Number", number.e164Number);
+          t.cell("AOR Link", number.aorLink || "--");
+          t.cell("Ingress App", number.ingressApp || "--");
+          t.newRow();
+        });
 
         if (list.length > 0) console.log(t.toString());
 

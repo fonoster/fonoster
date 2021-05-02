@@ -1,9 +1,11 @@
+mods/appmanager
 mods/agents
 mods/auth
 mods/callmanager
 mods/certs
 mods/core
 mods/ctl
+mods/domains
 mods/dispatcher
 mods/errors
 mods/events
@@ -14,6 +16,12 @@ mods/sdk
 mods/tts
 mods/types
 mods/usermanager
+mods/numbers
+mods/providers
+mods/storage
 mods/voice
 node_modules
 dist
+*.d.ts
+mods/**/src/service/protos
+**/package-lock.json

@@ -1,20 +1,15 @@
 {
-    "extends": "../../tsconfig.json",
-    "compilerOptions": {
-      "outDir": "./dist",
-      "rootDir": "./src"
-    },
-    "references": [
-      { "path":  "../certs" },
-      { "path":  "../errors" },
-      { "path":  "../events" },
-      { "path":  "../logger" },
-      { "path":  "../auth"}
-    ],
-    "exclude": [
-      "node_modules",
-      "dist",
-      "test"
-    ]
-  }
-  
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "references": [
+    {"path": "../certs"},
+    {"path": "../errors"},
+    {"path": "../events"},
+    {"path": "../logger"},
+    {"path": "../auth"}
+  ],
+  "exclude": ["node_modules", "dist", "test"]
+}

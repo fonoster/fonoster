@@ -1,10 +1,5 @@
-import {
-  FonosService,
-  ServiceOptions
-} from "@fonos/core";
-import {
-  AgentsClient,
-} from "../service/protos/agents_grpc_pb";
+import {FonosService, ServiceOptions} from "@fonos/core";
+import {AgentsClient} from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
 import logger from "@fonos/logger";
@@ -200,4 +195,4 @@ export default class Agents extends FonosService {
   }
 }
 
-export { AgentsPB, CommonPB }
+export {AgentsPB, CommonPB};

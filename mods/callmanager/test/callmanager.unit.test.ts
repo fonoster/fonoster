@@ -65,7 +65,7 @@ describe("@fonos/callmanager", () => {
     expect(result).to.have.property("app").to.be.equal("default");
     expect(result).to.have.property("duration").not.to.be.null;
   });
-/*
+  /*
 
   it("checks all parameters", async () => {
     const callInfo: EndpointInfo = {
@@ -141,5 +141,4 @@ describe("@fonos/callmanager", () => {
     expect(response.getApp()).to.be.equal("default");
     expect(channelStub).to.have.been.calledOnce;
   });*/
-  
 });

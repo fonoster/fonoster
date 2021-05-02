@@ -43,7 +43,7 @@ export default class {
     this.options = merge(defaultOptions, options);
   }
 
-  init(grpc: { Metadata: new () => any; }): void {
+  init(grpc: {Metadata: new () => any}): void {
     try {
       if (configExist()) {
         this.options = merge(this.options, JSON.parse(getConfigFile()));

@@ -3,7 +3,7 @@ import Providers from "@fonos/providers";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-const inquirer = require('inquirer')
+const inquirer = require("inquirer");
 
 export default class UpdateCommand extends Command {
   static args = [{name: "ref"}];
@@ -23,7 +23,7 @@ export default class UpdateCommand extends Command {
     const providers = new Providers();
     const provider = await providers.getProvider(args.ref);
 
-    const answers:any = await inquirer.prompt([
+    const answers: any = await inquirer.prompt([
       {
         name: "name",
         message: "friendly name",

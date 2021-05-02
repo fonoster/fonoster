@@ -13,22 +13,24 @@ let credentials =
 export const db = `mongodb://${credentials}${host}:${port}/${dbname}`;
 
 export default async function () {
-  try { 
+  try {
     await mongoose.connect(db, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
-        useCreateIndex: true,
-        autoIndex: false
-      });
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+      useCreateIndex: true,
+      autoIndex: false
+    });
 
     // Hidding credentials...
     if (credentials.length > 0) {
       credentials = `${process.env.DS_AUTH_USERNAME}:*****@`;
     }
-    logger.info(`Successfully connected to mongodb://${credentials}${host}:${port}/${dbname}`);
-  } catch(error) {
+    logger.info(
+      `Successfully connected to mongodb://${credentials}${host}:${port}/${dbname}`
+    );
+  } catch (error) {
     logger.error("Error connecting to database: ", error);
     process.exit(1);
   }
-};
+}

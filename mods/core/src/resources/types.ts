@@ -1,15 +1,15 @@
 import {Kind} from "../common/resource_builder";
 
 export interface GetResourceRequest {
-    ref: string;
-    kind: Kind;
-    accessKeyId: string;
+  ref: string;
+  kind: Kind;
+  accessKeyId: string;
 }
-  
+
 export interface DeleteResourceRequest {
-    ref: string;
-    kind: Kind;
-    accessKeyId: string;
+  ref: string;
+  kind: Kind;
+  accessKeyId: string;
 }
 
 export interface ListResourceRequest {
@@ -20,11 +20,11 @@ export interface ListResourceRequest {
 }
 
 export interface ListResourceResponse {
-    nextPageToken?: number;
-    resources?: object[];
+  nextPageToken?: number;
+  resources?: object[];
 }
 
 export interface UpdateResourceRequest {
-    accessKeyId: string;
-    resource: unknown;
+  accessKeyId: string;
+  resource: unknown;
 }

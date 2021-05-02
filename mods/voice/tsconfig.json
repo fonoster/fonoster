@@ -5,13 +5,9 @@
     "rootDir": "./src"
   },
   "references": [
-    { "path":  "../tts" },
-    { "path":  "../logger" },
-    { "path":  "../events" }
-  ],   
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test"
-  ]
+    {"path": "../tts"},
+    {"path": "../logger"},
+    {"path": "../events"}
+  ],
+  "exclude": ["node_modules", "dist", "test"]
 }

@@ -51,5 +51,4 @@ describe("@fonos/usermanager", () => {
     expect(roleStub).to.has.been.calledOnce;
     expect(hasAccess).to.be.equal(false);
   });*/
-
 });

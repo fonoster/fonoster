@@ -9,8 +9,8 @@ export default async function (
   const result = await routr
     .resourceType(`${request.kind.toLowerCase()}s`)
     .list({
-      page: request.page, 
-      itemsPerPage:request.itemsPerPage
+      page: request.page,
+      itemsPerPage: request.itemsPerPage
     });
 
   const resources = [];
@@ -19,9 +19,9 @@ export default async function (
       resources.push(result.data[i]);
     }
   }
- 
+
   return {
     nextPageToken: resources.length > 0 ? request.page + 1 : null,
     resources
-  }
+  };
 }

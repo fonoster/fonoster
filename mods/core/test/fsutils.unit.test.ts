@@ -1,12 +1,12 @@
-import logger from '@fonos/logger'
-import chai from 'chai'
-import sinon from 'sinon'
-chai.use(require('sinon-chai'))
-chai.use(require('chai-as-promised'))
-const expect = chai.expect
-var sandbox = sinon.createSandbox()
+import logger from "@fonos/logger";
+import chai from "chai";
+import sinon from "sinon";
+chai.use(require("sinon-chai"));
+chai.use(require("chai-as-promised"));
+const expect = chai.expect;
+var sandbox = sinon.createSandbox();
 
-logger.transports.forEach(t => (t.silent = true))
+logger.transports.forEach((t) => (t.silent = true));
 
 /*
 describe('@fonos/core/fsutils', () => {

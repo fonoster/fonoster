@@ -5,7 +5,7 @@ if (process.env.NODE_ENV === "dev") {
   require("dotenv").config({path: env});
 }
 
-import { routr } from "@fonos/core";
+import {routr} from "@fonos/core";
 import grpc from "grpc";
 import client from "ari-client";
 import {CallRequest, CallResponse} from "./protos/callmanager_pb";

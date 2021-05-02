@@ -15,7 +15,7 @@ describe("@fonos/ctl/apps", () => {
   let actionStub: any;
 
   afterEach(() => sandbox.restore());
-/*
+  /*
   beforeEach(() => {
     actionStub = sandbox.stub(cli.action, "start");
     const app = new AppManagerPB.App();

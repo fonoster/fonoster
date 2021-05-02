@@ -20,7 +20,7 @@ export default class UpdateCommand extends Command {
     const domains = new Domains();
     const domain = await domains.getDomain(args.ref);
 
-    const answers:any = await inquirer.prompt([
+    const answers: any = await inquirer.prompt([
       {
         name: "name",
         message: "domain name",

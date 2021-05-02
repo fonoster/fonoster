@@ -6,11 +6,10 @@ import {userOperation} from "./operations/user_operations";
 import mongoConnection from "./mongo";
 
 export {
-    mongoConnection,
-    userOperation,
-    Jwt, 
-    JwtPayload, 
-    ITokenManager,
-    AuthUtils as default
+  mongoConnection,
+  userOperation,
+  Jwt,
+  JwtPayload,
+  ITokenManager,
+  AuthUtils as default
 };
-

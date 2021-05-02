@@ -1,13 +1,8 @@
-import {
-  FonosService,
-  ServiceOptions
-} from "@fonos/core";
-import {
-  UserManagerClient
-} from "../service/protos/usermanager_grpc_pb";
+import {FonosService, ServiceOptions} from "@fonos/core";
+import {UserManagerClient} from "../service/protos/usermanager_grpc_pb";
 import UserManagerPB from "../service/protos/usermanager_pb";
 import CommonPB from "../service/protos/common_pb";
-import { promisifyAll } from "grpc-promise";
+import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
 
 interface CreateUserRequest {
@@ -78,4 +73,4 @@ export default class UserManager extends FonosService {
   }
 }
 
-export {UserManagerPB, CommonPB}
+export {UserManagerPB, CommonPB};

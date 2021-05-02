@@ -20,13 +20,13 @@ export default class GetCommand extends Command {
 
       const jsonObj = {
         Ref: number.ref,
-        'Provider Ref': number.providerRef,
-        'E164 Number': number.e164Number,
-        'AOR Link': number.aorLink || '--',
-        'Ingress App': number.ingressApp || '--',
+        "Provider Ref": number.providerRef,
+        "E164 Number": number.e164Number,
+        "AOR Link": number.aorLink || "--",
+        "Ingress App": number.ingressApp || "--",
         Created: moment(number.createTime).fromNow(),
         Updated: moment(number.updateTime).fromNow()
-      }
+      };
 
       await cli.wait(1000);
       cli.action.stop("");

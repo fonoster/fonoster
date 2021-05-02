@@ -4,7 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
 import {CommonPB} from "@fonos/providers";
-import { Provider } from "@fonos/providers/src/types";
+import {Provider} from "@fonos/providers/src/types";
 
 // Using import will cause: Error: easy_table_1.default is not a constructor
 const Table = require("easy-table");

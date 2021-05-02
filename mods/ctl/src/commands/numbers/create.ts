@@ -6,7 +6,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB, AppManagerPB} from "@fonos/numbers";
-import { Provider } from "@fonos/providers/src/types";
+import {Provider} from "@fonos/providers/src/types";
 const phone = require("phone");
 const inquirer = require("inquirer");
 
@@ -39,19 +39,18 @@ export default class CreateCommand extends Command {
         pageSize: 25,
         pageToken: "1"
       });
-      const providers = response.providers
-        .map((p: Provider) => {
-          const obj: any = {};
-          obj.name = p.name;
-          obj.value = p.ref;
-          return obj;
-        });
+      const providers = response.providers.map((p: Provider) => {
+        const obj: any = {};
+        obj.name = p.name;
+        obj.value = p.ref;
+        return obj;
+      });
 
       if (providers.length === 0) {
         throw new Error("you must create a provider before adding a number");
       }
 
-      const answers:any = await inquirer.prompt([
+      const answers: any = await inquirer.prompt([
         {
           name: "e164Number",
           message: "number in E.164 format (e.g. +16471234567)",
@@ -103,13 +102,15 @@ export default class CreateCommand extends Command {
       } else {
         const number = phone(answers.e164Number)[0];
         if (!number)
-          throw new Error(`number ${answers.e164Number} is not a valid E.164 number`)
-        cli.action.start(`Creating number ${number}`)
-        answers.e164Number = number
-        const numbers = new Numbers()
-        const result = await numbers.createNumber(answers)
-        await cli.wait(1000)
-        cli.action.stop(result.ref)
+          throw new Error(
+            `number ${answers.e164Number} is not a valid E.164 number`
+          );
+        cli.action.start(`Creating number ${number}`);
+        answers.e164Number = number;
+        const numbers = new Numbers();
+        const result = await numbers.createNumber(answers);
+        await cli.wait(1000);
+        cli.action.stop(result.ref);
       }
     } catch (e) {
       cli.action.stop();

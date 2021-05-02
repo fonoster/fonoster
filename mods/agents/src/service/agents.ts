@@ -21,7 +21,7 @@ import {
   createResource,
   ResourceServer,
   getAccessKeyId
-} from "@fonos/core"
+} from "@fonos/core";
 import decoder from "./decoder";
 
 class AgentsServer extends ResourceServer implements IAgentsServer {
@@ -65,7 +65,11 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   ) {
     const agent = call.request.getAgent();
     try {
-      const resource = new ResourceBuilder(Kind.AGENT, agent.getName(), agent.getRef())
+      const resource = new ResourceBuilder(
+        Kind.AGENT,
+        agent.getName(),
+        agent.getRef()
+      )
         .withCredentials(agent.getUsername(), agent.getSecret())
         .withDomains(agent.getDomainsList())
         .withMetadata({
@@ -74,12 +78,12 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
         })
         .build();
 
-        const result = await updateResource({
-          resource,
-          accessKeyId: getAccessKeyId(call)
-        });
-  
-        callback(null, decoder(result));
+      const result = await updateResource({
+        resource,
+        accessKeyId: getAccessKeyId(call)
+      });
+
+      callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
     }

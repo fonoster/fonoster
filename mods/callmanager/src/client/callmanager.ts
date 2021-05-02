@@ -1,10 +1,5 @@
-import {
-  FonosService,
-  ServiceOptions
-} from "@fonos/core";
-import {
-  CallManagerClient
-} from "../service/protos/callmanager_grpc_pb";
+import {FonosService, ServiceOptions} from "@fonos/core";
+import {CallManagerClient} from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
 import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
@@ -106,4 +101,4 @@ export default class CallManager extends FonosService {
   }
 }
 
-export {CallManagerPB}
+export {CallManagerPB};

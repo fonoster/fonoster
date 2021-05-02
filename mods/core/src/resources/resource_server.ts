@@ -4,10 +4,9 @@ import getResourceHere from "./get_resource";
 import listResourcesHere from "./list_resources";
 import deleteResourceHere from "./delete_resource";
 import getAccessKeyId from "../common/get_access_key_id";
-import { ListResourceResponse } from "./types";
+import {ListResourceResponse} from "./types";
 
 export default class ResourceServer {
-
   async listResources(
     kind: Kind,
     call: grpc.ServerUnaryCall<any>
@@ -20,7 +19,7 @@ export default class ResourceServer {
         itemsPerPage: call.request.getPageSize()
       });
     } catch (e) {
-      return null
+      return null;
     }
   }
 
@@ -32,21 +31,18 @@ export default class ResourceServer {
       return await getResourceHere({
         ref: call.request.getRef(),
         kind,
-        accessKeyId: getAccessKeyId(call),
-      })
+        accessKeyId: getAccessKeyId(call)
+      });
     } catch (e) {
-      return null
+      return null;
     }
   }
 
-  async deleteResource(
-    kind: Kind,
-    call: grpc.ServerUnaryCall<any>,
-  ) {
+  async deleteResource(kind: Kind, call: grpc.ServerUnaryCall<any>) {
     await deleteResourceHere({
       ref: call.request.getRef(),
       kind,
       accessKeyId: getAccessKeyId(call)
-    })
+    });
   }
 }
