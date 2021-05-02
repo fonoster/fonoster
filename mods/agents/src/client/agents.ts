@@ -18,10 +18,10 @@ import grpc from "grpc";
  * const agents = new Fonos.Agents()
  *
  * const request = {
- *   name: 'John Doe',
- *   username: 'john',
- *   secret: '1234',
- *   domains: ['sip.local']
+ *   name: "John Doe",
+ *   username: "john",
+ *   secret: "1234",
+ *   domains: ["sip.local"]
  * }
  *
  * agents.createAgent(request)
