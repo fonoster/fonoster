@@ -14,8 +14,7 @@ import {
   IAgentsService,
   AgentsService
 } from "./protos/agents_grpc_pb";
-import {Kind, ResourceBuilder} from "@fonos/core/src/common/resource_builder";
-import agentDecoder from "./decoder";
+import {Kind, ResourceBuilder} from "@fonos/core";
 import {
   updateResource,
   createResource,

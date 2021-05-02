@@ -224,7 +224,7 @@
 213 silly root dependencies {}
 214 silly leaf dependencies {}
 215 info Installing external dependencies
-216 verbose actions 3 actions, concurrency 4
+216 verbose actions 1 actions, concurrency 4
 217 silly npmInstallDependencies @fonos/dispatcher [
 217 silly npmInstallDependencies   'dotenv@^8.2.0',
 217 silly npmInstallDependencies   'rimraf@^3.0.2',
@@ -235,122 +235,85 @@
 217 silly npmInstallDependencies   'vm2@^3.6.10'
 217 silly npmInstallDependencies ]
 218 silly npmInstallDependencies backup /Users/pedrosanders/Projects/fonos/mods/dispatcher/package.json
-219 silly npmInstallDependencies @fonos/storage [
-219 silly npmInstallDependencies   'dotenv@^8.2.0',
-219 silly npmInstallDependencies   'rimraf@^3.0.2',
-219 silly npmInstallDependencies   'typescript@^4.1.5',
-219 silly npmInstallDependencies   'nodemon@^2.0.7',
-219 silly npmInstallDependencies   'grpc@^1.24.7',
-219 silly npmInstallDependencies   'grpc-promise@^1.4.0',
-219 silly npmInstallDependencies   'grpc-ts-health-check@^2.0.6',
-219 silly npmInstallDependencies   'sync@^0.2.5',
-219 silly npmInstallDependencies   'objectid@^3.2.1',
-219 silly npmInstallDependencies   '@types/fibers@^3.1.0',
-219 silly npmInstallDependencies   'fibers@^5.0.0'
-219 silly npmInstallDependencies ]
-220 silly npmInstallDependencies backup /Users/pedrosanders/Projects/fonos/mods/storage/package.json
-221 silly npmInstallDependencies @fonos/agents [
-221 silly npmInstallDependencies   'rimraf@^3.0.2',
-221 silly npmInstallDependencies   'nodemon@^2.0.7',
-221 silly npmInstallDependencies   'grpc@^1.24.7',
-221 silly npmInstallDependencies   'grpc-promise@^1.4.0',
-221 silly npmInstallDependencies   'grpc-ts-health-check@^2.0.6'
-221 silly npmInstallDependencies ]
-222 silly npmInstallDependencies backup /Users/pedrosanders/Projects/fonos/mods/agents/package.json
-223 silly npmInstallDependencies writing tempJson {
-223 silly npmInstallDependencies   name: '@fonos/dispatcher',
-223 silly npmInstallDependencies   version: '0.0.81',
-223 silly npmInstallDependencies   description: 'Application Router for Fonos',
-223 silly npmInstallDependencies   author: 'Pedro Sanders <psanders@fonoster.com>',
-223 silly npmInstallDependencies   homepage: 'https://github.com/fonoster/fonos#readme',
-223 silly npmInstallDependencies   license: 'MIT',
-223 silly npmInstallDependencies   main: 'dist/dispatcher',
-223 silly npmInstallDependencies   types: 'dist/dispatcher',
-223 silly npmInstallDependencies   nodemonConfig: { watch: [ '../' ], ext: 'ts', exec: 'ts-node', ignore: '**/*.d.ts' },
-223 silly npmInstallDependencies   directories: { src: 'src', test: 'test' },
-223 silly npmInstallDependencies   files: [ 'dist', 'etc' ],
-223 silly npmInstallDependencies   publishConfig: { access: 'public' },
-223 silly npmInstallDependencies   repository: { type: 'git', url: 'git+https://github.com/fonoster/fonos.git' },
-223 silly npmInstallDependencies   bugs: { url: 'https://github.com/fonoster/fonos/issues' },
-223 silly npmInstallDependencies   dependencies: {
-223 silly npmInstallDependencies     'agi-node': 'github:psanders/agi-node',
-223 silly npmInstallDependencies     dotenv: '^8.2.0',
-223 silly npmInstallDependencies     phone: '^2.4.20',
-223 silly npmInstallDependencies     vm2: '^3.6.10'
-223 silly npmInstallDependencies   },
-223 silly npmInstallDependencies   devDependencies: { '@types/phone': '^2.4.0', nodemon: '^2.0.6', rimraf: '^3.0.2' },
-223 silly npmInstallDependencies   gitHead: '8efbe2e8601b3a0618e770804a205e8584d49580'
-223 silly npmInstallDependencies }
-224 silly npmInstallDependencies writing tempJson {
-224 silly npmInstallDependencies   name: '@fonos/storage',
-224 silly npmInstallDependencies   version: '0.0.81',
-224 silly npmInstallDependencies   description: 'Fonos Storage Servoce',
-224 silly npmInstallDependencies   author: 'Pedro Sanders <psanders@fonoster.com>',
-224 silly npmInstallDependencies   homepage: 'https://github.com/fonoster/fonos#readme',
-224 silly npmInstallDependencies   license: 'MIT',
-224 silly npmInstallDependencies   main: 'dist/client/storage',
-224 silly npmInstallDependencies   types: 'dist/client/storage',
-224 silly npmInstallDependencies   bin: { run: 'dist/srv_runner.js', healthcheck: 'dist/healthcheck.js' },
-224 silly npmInstallDependencies   nodemonConfig: { watch: [ '../' ], ext: 'ts', exec: 'ts-node', ignore: '**/*.d.ts' },
-224 silly npmInstallDependencies   directories: { src: 'src', test: 'test' },
-224 silly npmInstallDependencies   files: [ 'dist' ],
-224 silly npmInstallDependencies   publishConfig: { access: 'public' },
-224 silly npmInstallDependencies   repository: { type: 'git', url: 'git+https://github.com/fonoster/fonos.git' },
-224 silly npmInstallDependencies   bugs: { url: 'https://github.com/fonoster/fonos/issues' },
-224 silly npmInstallDependencies   dependencies: {
-224 silly npmInstallDependencies     grpc: '^1.24.7',
-224 silly npmInstallDependencies     'grpc-promise': '^1.4.0',
-224 silly npmInstallDependencies     'grpc-ts-health-check': '^2.0.6',
-224 silly npmInstallDependencies     objectid: '^3.2.1',
-224 silly npmInstallDependencies     sync: '^0.2.5'
-224 silly npmInstallDependencies   },
-224 silly npmInstallDependencies   devDependencies: {
-224 silly npmInstallDependencies     '@types/fibers': '^3.1.0',
-224 silly npmInstallDependencies     dotenv: '^8.2.0',
-224 silly npmInstallDependencies     fibers: '^5.0.0',
-224 silly npmInstallDependencies     nodemon: '^2.0.7',
-224 silly npmInstallDependencies     rimraf: '^3.0.2',
-224 silly npmInstallDependencies     typescript: '^4.1.5'
-224 silly npmInstallDependencies   },
-224 silly npmInstallDependencies   gitHead: '8efbe2e8601b3a0618e770804a205e8584d49580'
-224 silly npmInstallDependencies }
-225 silly npmInstallDependencies writing tempJson {
-225 silly npmInstallDependencies   name: '@fonos/agents',
-225 silly npmInstallDependencies   version: '0.0.81',
-225 silly npmInstallDependencies   description: 'VoIP Agents',
-225 silly npmInstallDependencies   author: 'Pedro Sanders <psanders@fonoster.com>',
-225 silly npmInstallDependencies   homepage: 'https://github.com/fonoster/fonos#readme',
-225 silly npmInstallDependencies   license: 'MIT',
-225 silly npmInstallDependencies   main: 'dist/client/agents',
-225 silly npmInstallDependencies   types: 'dist/client/agents',
-225 silly npmInstallDependencies   bin: { run: 'dist/srv_runner.js', healthcheck: 'dist/healthcheck.js' },
-225 silly npmInstallDependencies   nodemonConfig: { watch: [ '../' ], ext: 'ts', exec: 'ts-node', ignore: '**/*.d.ts' },
-225 silly npmInstallDependencies   directories: { src: 'src', test: 'test' },
-225 silly npmInstallDependencies   files: [ 'dist' ],
-225 silly npmInstallDependencies   publishConfig: { access: 'public' },
-225 silly npmInstallDependencies   repository: { type: 'git', url: 'git+https://github.com/fonoster/fonos.git' },
-225 silly npmInstallDependencies   bugs: { url: 'https://github.com/fonoster/fonos/issues' },
-225 silly npmInstallDependencies   dependencies: {
-225 silly npmInstallDependencies     grpc: '^1.24.7',
-225 silly npmInstallDependencies     'grpc-promise': '^1.4.0',
-225 silly npmInstallDependencies     'grpc-ts-health-check': '^2.0.6'
-225 silly npmInstallDependencies   },
-225 silly npmInstallDependencies   devDependencies: { nodemon: '^2.0.7', rimraf: '^3.0.2' },
-225 silly npmInstallDependencies   gitHead: '8efbe2e8601b3a0618e770804a205e8584d49580'
-225 silly npmInstallDependencies }
-226 silly getExecOpts /Users/pedrosanders/Projects/fonos/mods/storage undefined
-227 silly npmInstall [ 'npm', [ 'install' ] ]
-228 silly getExecOpts /Users/pedrosanders/Projects/fonos/mods/dispatcher undefined
-229 silly npmInstall [ 'npm', [ 'install' ] ]
-230 silly getExecOpts /Users/pedrosanders/Projects/fonos/mods/agents undefined
-231 silly npmInstall [ 'npm', [ 'install' ] ]
-232 silly npmInstallDependencies cleanup /Users/pedrosanders/Projects/fonos/mods/dispatcher/package.json
-233 verbose installed leaf @fonos/dispatcher
-234 silly npmInstallDependencies cleanup /Users/pedrosanders/Projects/fonos/mods/agents/package.json
-235 verbose installed leaf @fonos/agents
-236 silly npmInstallDependencies cleanup /Users/pedrosanders/Projects/fonos/mods/storage/package.json
-237 verbose installed leaf @fonos/storage
-238 info Symlinking packages and binaries
+219 silly npmInstallDependencies writing tempJson {
+219 silly npmInstallDependencies   name: '@fonos/dispatcher',
+219 silly npmInstallDependencies   version: '0.0.83',
+219 silly npmInstallDependencies   description: 'Application Router for Fonos',
+219 silly npmInstallDependencies   author: 'Pedro Sanders <psanders@fonoster.com>',
+219 silly npmInstallDependencies   homepage: 'https://github.com/fonoster/fonos#readme',
+219 silly npmInstallDependencies   license: 'MIT',
+219 silly npmInstallDependencies   main: 'dist/dispatcher',
+219 silly npmInstallDependencies   types: 'dist/dispatcher',
+219 silly npmInstallDependencies   nodemonConfig: { watch: [ '../' ], ext: 'ts', exec: 'ts-node', ignore: '**/*.d.ts' },
+219 silly npmInstallDependencies   directories: { src: 'src', test: 'test' },
+219 silly npmInstallDependencies   files: [ 'dist', 'etc' ],
+219 silly npmInstallDependencies   publishConfig: { access: 'public' },
+219 silly npmInstallDependencies   repository: { type: 'git', url: 'git+https://github.com/fonoster/fonos.git' },
+219 silly npmInstallDependencies   bugs: { url: 'https://github.com/fonoster/fonos/issues' },
+219 silly npmInstallDependencies   dependencies: {
+219 silly npmInstallDependencies     'agi-node': 'github:psanders/agi-node',
+219 silly npmInstallDependencies     dotenv: '^8.2.0',
+219 silly npmInstallDependencies     phone: '^2.4.20',
+219 silly npmInstallDependencies     vm2: '^3.6.10'
+219 silly npmInstallDependencies   },
+219 silly npmInstallDependencies   devDependencies: { '@types/phone': '^2.4.0', nodemon: '^2.0.6', rimraf: '^3.0.2' },
+219 silly npmInstallDependencies   gitHead: '8efbe2e8601b3a0618e770804a205e8584d49580'
+219 silly npmInstallDependencies }
+220 silly getExecOpts /Users/pedrosanders/Projects/fonos/mods/dispatcher undefined
+221 silly npmInstall [ 'npm', [ 'install' ] ]
+222 silly npmInstallDependencies cleanup /Users/pedrosanders/Projects/fonos/mods/dispatcher/package.json
+223 verbose installed leaf @fonos/dispatcher
+224 info Symlinking packages and binaries
+225 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/auth
+226 verbose resolveSymlink [
+226 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/auth',
+226 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth'
+226 verbose resolveSymlink ]
+227 silly createSymlink [
+227 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth',
+227 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/auth',
+227 silly createSymlink   'junction'
+227 silly createSymlink ]
+228 silly createSymbolicLink [
+228 silly createSymbolicLink   '../../../auth',
+228 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/auth',
+228 silly createSymbolicLink   'junction'
+228 silly createSymbolicLink ]
+229 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/certs
+230 verbose resolveSymlink [
+230 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/certs',
+230 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/certs'
+230 verbose resolveSymlink ]
+231 silly createSymlink [
+231 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/certs',
+231 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/certs',
+231 silly createSymlink   'junction'
+231 silly createSymlink ]
+232 silly createSymbolicLink [
+232 silly createSymbolicLink   '../../../certs',
+232 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/certs',
+232 silly createSymbolicLink   'junction'
+232 silly createSymbolicLink ]
+233 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/core
+234 verbose resolveSymlink [
+234 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/core',
+234 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core'
+234 verbose resolveSymlink ]
+235 silly createSymlink [
+235 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core',
+235 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/core',
+235 silly createSymlink   'junction'
+235 silly createSymlink ]
+236 silly createSymbolicLink [
+236 silly createSymbolicLink   '../../../core',
+236 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/core',
+236 silly createSymbolicLink   'junction'
+236 silly createSymbolicLink ]
+237 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/logger
+238 verbose resolveSymlink [
+238 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/logger',
+238 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
+238 verbose resolveSymlink ]
 239 silly createSymlink [
 239 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
 239 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/logger',
@@ -361,357 +324,357 @@
 240 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/logger',
 240 silly createSymbolicLink   'junction'
 240 silly createSymbolicLink ]
-241 silly createSymlink [
-241 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core',
-241 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/core',
-241 silly createSymlink   'junction'
-241 silly createSymlink ]
-242 silly createSymbolicLink [
-242 silly createSymbolicLink   '../../../core',
-242 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/agents/node_modules/@fonos/core',
-242 silly createSymbolicLink   'junction'
-242 silly createSymbolicLink ]
-243 silly actions finished @fonos/agents
-244 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/core
-245 verbose resolveSymlink [
-245 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/core',
-245 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core'
-245 verbose resolveSymlink ]
-246 silly createSymlink [
-246 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core',
-246 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/core',
-246 silly createSymlink   'junction'
-246 silly createSymlink ]
-247 silly createSymbolicLink [
-247 silly createSymbolicLink   '../../../core',
-247 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/core',
-247 silly createSymbolicLink   'junction'
-247 silly createSymbolicLink ]
-248 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/storage
-249 verbose resolveSymlink [
-249 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/storage',
-249 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/storage'
-249 verbose resolveSymlink ]
-250 silly createSymlink [
-250 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/storage',
-250 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/storage',
-250 silly createSymlink   'junction'
-250 silly createSymlink ]
-251 silly createSymbolicLink [
-251 silly createSymbolicLink   '../../../storage',
-251 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/storage',
-251 silly createSymbolicLink   'junction'
-251 silly createSymbolicLink ]
-252 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/events
-253 verbose resolveSymlink [
-253 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/events',
-253 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/events'
-253 verbose resolveSymlink ]
-254 silly createSymlink [
-254 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/events',
-254 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/events',
-254 silly createSymlink   'junction'
-254 silly createSymlink ]
-255 silly createSymbolicLink [
-255 silly createSymbolicLink   '../../../events',
-255 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/events',
-255 silly createSymbolicLink   'junction'
-255 silly createSymbolicLink ]
-256 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/errors
-257 verbose resolveSymlink [
-257 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/errors',
-257 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors'
-257 verbose resolveSymlink ]
-258 silly createSymlink [
-258 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors',
-258 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/errors',
-258 silly createSymlink   'junction'
-258 silly createSymlink ]
-259 silly createSymbolicLink [
-259 silly createSymbolicLink   '../../../errors',
-259 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/errors',
-259 silly createSymbolicLink   'junction'
-259 silly createSymbolicLink ]
-260 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/logger
-261 verbose resolveSymlink [
-261 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/logger',
-261 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
-261 verbose resolveSymlink ]
+241 silly actions finished @fonos/agents
+242 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/core
+243 verbose resolveSymlink [
+243 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/core',
+243 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core'
+243 verbose resolveSymlink ]
+244 silly createSymlink [
+244 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core',
+244 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/core',
+244 silly createSymlink   'junction'
+244 silly createSymlink ]
+245 silly createSymbolicLink [
+245 silly createSymbolicLink   '../../../core',
+245 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/core',
+245 silly createSymbolicLink   'junction'
+245 silly createSymbolicLink ]
+246 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/errors
+247 verbose resolveSymlink [
+247 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/errors',
+247 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors'
+247 verbose resolveSymlink ]
+248 silly createSymlink [
+248 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors',
+248 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/errors',
+248 silly createSymlink   'junction'
+248 silly createSymlink ]
+249 silly createSymbolicLink [
+249 silly createSymbolicLink   '../../../errors',
+249 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/errors',
+249 silly createSymbolicLink   'junction'
+249 silly createSymbolicLink ]
+250 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/events
+251 verbose resolveSymlink [
+251 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/events',
+251 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/events'
+251 verbose resolveSymlink ]
+252 silly createSymlink [
+252 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/events',
+252 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/events',
+252 silly createSymlink   'junction'
+252 silly createSymlink ]
+253 silly createSymbolicLink [
+253 silly createSymbolicLink   '../../../events',
+253 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/events',
+253 silly createSymbolicLink   'junction'
+253 silly createSymbolicLink ]
+254 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/logger
+255 verbose resolveSymlink [
+255 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/logger',
+255 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
+255 verbose resolveSymlink ]
+256 silly createSymlink [
+256 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
+256 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/logger',
+256 silly createSymlink   'junction'
+256 silly createSymlink ]
+257 silly createSymbolicLink [
+257 silly createSymbolicLink   '../../../logger',
+257 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/logger',
+257 silly createSymbolicLink   'junction'
+257 silly createSymbolicLink ]
+258 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/storage
+259 verbose resolveSymlink [
+259 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/storage',
+259 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/storage'
+259 verbose resolveSymlink ]
+260 silly createSymlink [
+260 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/storage',
+260 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/storage',
+260 silly createSymlink   'junction'
+260 silly createSymlink ]
+261 silly createSymbolicLink [
+261 silly createSymbolicLink   '../../../storage',
+261 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/storage',
+261 silly createSymbolicLink   'junction'
+261 silly createSymbolicLink ]
 262 silly createSymlink [
-262 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
-262 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/logger',
-262 silly createSymlink   'junction'
+262 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/storage/dist/srv_runner.js',
+262 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/.bin/run',
+262 silly createSymlink   'exec'
 262 silly createSymlink ]
-263 silly createSymbolicLink [
-263 silly createSymbolicLink   '../../../logger',
-263 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/@fonos/logger',
-263 silly createSymbolicLink   'junction'
-263 silly createSymbolicLink ]
-264 silly createSymlink [
-264 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/storage/dist/srv_runner.js',
-264 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/.bin/run',
-264 silly createSymlink   'exec'
-264 silly createSymlink ]
-265 silly createSymlink [
-265 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/storage/dist/healthcheck.js',
-265 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/.bin/healthcheck',
-265 silly createSymlink   'exec'
-265 silly createSymlink ]
-266 silly shShim [
-266 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/storage/dist/srv_runner.js',
-266 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/.bin/run',
-266 silly shShim   'file'
-266 silly shShim ]
-267 silly shShim [
-267 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/storage/dist/healthcheck.js',
-267 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/.bin/healthcheck',
-267 silly shShim   'file'
-267 silly shShim ]
-268 silly actions finished @fonos/appmanager
-269 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/auth/node_modules/@fonos/logger
-270 verbose resolveSymlink [
-270 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth/node_modules/@fonos/logger',
-270 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
-270 verbose resolveSymlink ]
-271 silly createSymlink [
-271 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
-271 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth/node_modules/@fonos/logger',
-271 silly createSymlink   'junction'
-271 silly createSymlink ]
-272 silly createSymbolicLink [
-272 silly createSymbolicLink   '../../../logger',
-272 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/auth/node_modules/@fonos/logger',
-272 silly createSymbolicLink   'junction'
-272 silly createSymbolicLink ]
-273 silly actions finished @fonos/auth
-274 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/core
-275 verbose resolveSymlink [
-275 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/core',
-275 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core'
-275 verbose resolveSymlink ]
-276 silly createSymlink [
-276 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core',
-276 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/core',
-276 silly createSymlink   'junction'
-276 silly createSymlink ]
-277 silly createSymbolicLink [
-277 silly createSymbolicLink   '../../../core',
-277 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/core',
-277 silly createSymbolicLink   'junction'
-277 silly createSymbolicLink ]
-278 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/logger
-279 verbose resolveSymlink [
-279 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/logger',
-279 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
-279 verbose resolveSymlink ]
-280 silly createSymlink [
-280 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
-280 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/logger',
-280 silly createSymlink   'junction'
-280 silly createSymlink ]
-281 silly createSymbolicLink [
-281 silly createSymbolicLink   '../../../logger',
-281 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/logger',
-281 silly createSymbolicLink   'junction'
-281 silly createSymbolicLink ]
-282 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/errors
-283 verbose resolveSymlink [
-283 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/errors',
-283 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors'
-283 verbose resolveSymlink ]
-284 silly createSymlink [
-284 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors',
-284 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/errors',
-284 silly createSymlink   'junction'
-284 silly createSymlink ]
-285 silly createSymbolicLink [
-285 silly createSymbolicLink   '../../../errors',
-285 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/errors',
-285 silly createSymbolicLink   'junction'
-285 silly createSymbolicLink ]
-286 silly actions finished @fonos/callmanager
-287 silly actions finished @fonos/certs
-288 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/auth
-289 verbose resolveSymlink [
-289 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/auth',
-289 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth'
-289 verbose resolveSymlink ]
-290 silly createSymlink [
-290 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth',
-290 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/auth',
-290 silly createSymlink   'junction'
-290 silly createSymlink ]
-291 silly createSymbolicLink [
-291 silly createSymbolicLink   '../../../auth',
-291 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/auth',
-291 silly createSymbolicLink   'junction'
-291 silly createSymbolicLink ]
-292 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/errors
-293 verbose resolveSymlink [
-293 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/errors',
-293 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors'
-293 verbose resolveSymlink ]
-294 silly createSymlink [
-294 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors',
-294 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/errors',
-294 silly createSymlink   'junction'
-294 silly createSymlink ]
-295 silly createSymbolicLink [
-295 silly createSymbolicLink   '../../../errors',
-295 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/errors',
-295 silly createSymbolicLink   'junction'
-295 silly createSymbolicLink ]
-296 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/events
-297 verbose resolveSymlink [
-297 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/events',
-297 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/events'
-297 verbose resolveSymlink ]
-298 silly createSymlink [
-298 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/events',
-298 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/events',
-298 silly createSymlink   'junction'
-298 silly createSymlink ]
-299 silly createSymbolicLink [
-299 silly createSymbolicLink   '../../../events',
-299 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/events',
-299 silly createSymbolicLink   'junction'
-299 silly createSymbolicLink ]
-300 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/logger
-301 verbose resolveSymlink [
-301 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/logger',
-301 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
-301 verbose resolveSymlink ]
-302 silly createSymlink [
-302 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
-302 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/logger',
-302 silly createSymlink   'junction'
-302 silly createSymlink ]
-303 silly createSymbolicLink [
-303 silly createSymbolicLink   '../../../logger',
-303 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/logger',
-303 silly createSymbolicLink   'junction'
-303 silly createSymbolicLink ]
-304 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/certs
-305 verbose resolveSymlink [
-305 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/certs',
-305 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/certs'
-305 verbose resolveSymlink ]
-306 silly createSymlink [
-306 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/certs',
-306 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/certs',
-306 silly createSymlink   'junction'
-306 silly createSymlink ]
-307 silly createSymbolicLink [
-307 silly createSymbolicLink   '../../../certs',
-307 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/certs',
-307 silly createSymbolicLink   'junction'
-307 silly createSymbolicLink ]
-308 silly actions finished @fonos/core
-309 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/appmanager
-310 verbose resolveSymlink [
-310 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/appmanager',
-310 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager'
-310 verbose resolveSymlink ]
-311 silly createSymlink [
-311 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager',
-311 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/appmanager',
-311 silly createSymlink   'junction'
-311 silly createSymlink ]
-312 silly createSymbolicLink [
-312 silly createSymbolicLink   '../../../appmanager',
-312 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/appmanager',
-312 silly createSymbolicLink   'junction'
-312 silly createSymbolicLink ]
-313 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/core
-314 verbose resolveSymlink [
-314 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/core',
-314 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core'
-314 verbose resolveSymlink ]
-315 silly createSymlink [
-315 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core',
-315 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/core',
-315 silly createSymlink   'junction'
-315 silly createSymlink ]
-316 silly createSymbolicLink [
-316 silly createSymbolicLink   '../../../core',
-316 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/core',
-316 silly createSymbolicLink   'junction'
-316 silly createSymbolicLink ]
-317 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/domains
-318 verbose resolveSymlink [
-318 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/domains',
-318 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/domains'
-318 verbose resolveSymlink ]
-319 silly createSymlink [
-319 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/domains',
-319 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/domains',
-319 silly createSymlink   'junction'
-319 silly createSymlink ]
-320 silly createSymbolicLink [
-320 silly createSymbolicLink   '../../../domains',
-320 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/domains',
-320 silly createSymbolicLink   'junction'
-320 silly createSymbolicLink ]
-321 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/logger
-322 verbose resolveSymlink [
-322 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/logger',
-322 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
-322 verbose resolveSymlink ]
-323 silly createSymlink [
-323 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
-323 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/logger',
-323 silly createSymlink   'junction'
-323 silly createSymlink ]
-324 silly createSymbolicLink [
-324 silly createSymbolicLink   '../../../logger',
-324 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/logger',
-324 silly createSymbolicLink   'junction'
-324 silly createSymbolicLink ]
-325 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/numbers
-326 verbose resolveSymlink [
-326 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/numbers',
-326 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/numbers'
-326 verbose resolveSymlink ]
-327 silly createSymlink [
-327 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/numbers',
-327 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/numbers',
-327 silly createSymlink   'junction'
-327 silly createSymlink ]
-328 silly createSymbolicLink [
-328 silly createSymbolicLink   '../../../numbers',
-328 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/numbers',
-328 silly createSymbolicLink   'junction'
-328 silly createSymbolicLink ]
-329 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/providers
-330 verbose resolveSymlink [
-330 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/providers',
-330 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/providers'
-330 verbose resolveSymlink ]
-331 silly createSymlink [
-331 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/providers',
-331 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/providers',
-331 silly createSymlink   'junction'
-331 silly createSymlink ]
-332 silly createSymbolicLink [
-332 silly createSymbolicLink   '../../../providers',
-332 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/providers',
-332 silly createSymbolicLink   'junction'
-332 silly createSymbolicLink ]
-333 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/agents
-334 verbose resolveSymlink [
-334 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/agents',
-334 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents'
-334 verbose resolveSymlink ]
+263 silly createSymlink [
+263 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/storage/dist/healthcheck.js',
+263 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/.bin/healthcheck',
+263 silly createSymlink   'exec'
+263 silly createSymlink ]
+264 silly createSymbolicLink [
+264 silly createSymbolicLink   '../../../storage/dist/srv_runner.js',
+264 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/.bin/run',
+264 silly createSymbolicLink   'file'
+264 silly createSymbolicLink ]
+265 silly createSymbolicLink [
+265 silly createSymbolicLink   '../../../storage/dist/healthcheck.js',
+265 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/node_modules/.bin/healthcheck',
+265 silly createSymbolicLink   'file'
+265 silly createSymbolicLink ]
+266 silly actions finished @fonos/appmanager
+267 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/auth/node_modules/@fonos/logger
+268 verbose resolveSymlink [
+268 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth/node_modules/@fonos/logger',
+268 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
+268 verbose resolveSymlink ]
+269 silly createSymlink [
+269 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
+269 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth/node_modules/@fonos/logger',
+269 silly createSymlink   'junction'
+269 silly createSymlink ]
+270 silly createSymbolicLink [
+270 silly createSymbolicLink   '../../../logger',
+270 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/auth/node_modules/@fonos/logger',
+270 silly createSymbolicLink   'junction'
+270 silly createSymbolicLink ]
+271 silly actions finished @fonos/auth
+272 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/core
+273 verbose resolveSymlink [
+273 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/core',
+273 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core'
+273 verbose resolveSymlink ]
+274 silly createSymlink [
+274 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core',
+274 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/core',
+274 silly createSymlink   'junction'
+274 silly createSymlink ]
+275 silly createSymbolicLink [
+275 silly createSymbolicLink   '../../../core',
+275 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/core',
+275 silly createSymbolicLink   'junction'
+275 silly createSymbolicLink ]
+276 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/errors
+277 verbose resolveSymlink [
+277 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/errors',
+277 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors'
+277 verbose resolveSymlink ]
+278 silly createSymlink [
+278 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors',
+278 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/errors',
+278 silly createSymlink   'junction'
+278 silly createSymlink ]
+279 silly createSymbolicLink [
+279 silly createSymbolicLink   '../../../errors',
+279 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/errors',
+279 silly createSymbolicLink   'junction'
+279 silly createSymbolicLink ]
+280 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/logger
+281 verbose resolveSymlink [
+281 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/logger',
+281 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
+281 verbose resolveSymlink ]
+282 silly createSymlink [
+282 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
+282 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/logger',
+282 silly createSymlink   'junction'
+282 silly createSymlink ]
+283 silly createSymbolicLink [
+283 silly createSymbolicLink   '../../../logger',
+283 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/callmanager/node_modules/@fonos/logger',
+283 silly createSymbolicLink   'junction'
+283 silly createSymbolicLink ]
+284 silly actions finished @fonos/callmanager
+285 silly actions finished @fonos/certs
+286 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/auth
+287 verbose resolveSymlink [
+287 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/auth',
+287 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth'
+287 verbose resolveSymlink ]
+288 silly createSymlink [
+288 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/auth',
+288 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/auth',
+288 silly createSymlink   'junction'
+288 silly createSymlink ]
+289 silly createSymbolicLink [
+289 silly createSymbolicLink   '../../../auth',
+289 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/auth',
+289 silly createSymbolicLink   'junction'
+289 silly createSymbolicLink ]
+290 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/errors
+291 verbose resolveSymlink [
+291 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/errors',
+291 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors'
+291 verbose resolveSymlink ]
+292 silly createSymlink [
+292 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/errors',
+292 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/errors',
+292 silly createSymlink   'junction'
+292 silly createSymlink ]
+293 silly createSymbolicLink [
+293 silly createSymbolicLink   '../../../errors',
+293 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/errors',
+293 silly createSymbolicLink   'junction'
+293 silly createSymbolicLink ]
+294 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/events
+295 verbose resolveSymlink [
+295 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/events',
+295 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/events'
+295 verbose resolveSymlink ]
+296 silly createSymlink [
+296 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/events',
+296 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/events',
+296 silly createSymlink   'junction'
+296 silly createSymlink ]
+297 silly createSymbolicLink [
+297 silly createSymbolicLink   '../../../events',
+297 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/events',
+297 silly createSymbolicLink   'junction'
+297 silly createSymbolicLink ]
+298 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/certs
+299 verbose resolveSymlink [
+299 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/certs',
+299 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/certs'
+299 verbose resolveSymlink ]
+300 silly createSymlink [
+300 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/certs',
+300 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/certs',
+300 silly createSymlink   'junction'
+300 silly createSymlink ]
+301 silly createSymbolicLink [
+301 silly createSymbolicLink   '../../../certs',
+301 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/certs',
+301 silly createSymbolicLink   'junction'
+301 silly createSymbolicLink ]
+302 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/logger
+303 verbose resolveSymlink [
+303 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/logger',
+303 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
+303 verbose resolveSymlink ]
+304 silly createSymlink [
+304 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
+304 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/logger',
+304 silly createSymlink   'junction'
+304 silly createSymlink ]
+305 silly createSymbolicLink [
+305 silly createSymbolicLink   '../../../logger',
+305 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/core/node_modules/@fonos/logger',
+305 silly createSymbolicLink   'junction'
+305 silly createSymbolicLink ]
+306 silly actions finished @fonos/core
+307 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/agents
+308 verbose resolveSymlink [
+308 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/agents',
+308 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents'
+308 verbose resolveSymlink ]
+309 silly createSymlink [
+309 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents',
+309 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/agents',
+309 silly createSymlink   'junction'
+309 silly createSymlink ]
+310 silly createSymbolicLink [
+310 silly createSymbolicLink   '../../../agents',
+310 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/agents',
+310 silly createSymbolicLink   'junction'
+310 silly createSymbolicLink ]
+311 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/appmanager
+312 verbose resolveSymlink [
+312 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/appmanager',
+312 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager'
+312 verbose resolveSymlink ]
+313 silly createSymlink [
+313 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager',
+313 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/appmanager',
+313 silly createSymlink   'junction'
+313 silly createSymlink ]
+314 silly createSymbolicLink [
+314 silly createSymbolicLink   '../../../appmanager',
+314 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/appmanager',
+314 silly createSymbolicLink   'junction'
+314 silly createSymbolicLink ]
+315 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/core
+316 verbose resolveSymlink [
+316 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/core',
+316 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/core'
+316 verbose resolveSymlink ]
+317 silly createSymlink [
+317 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/core',
+317 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/core',
+317 silly createSymlink   'junction'
+317 silly createSymlink ]
+318 silly createSymbolicLink [
+318 silly createSymbolicLink   '../../../core',
+318 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/core',
+318 silly createSymbolicLink   'junction'
+318 silly createSymbolicLink ]
+319 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/domains
+320 verbose resolveSymlink [
+320 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/domains',
+320 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/domains'
+320 verbose resolveSymlink ]
+321 silly createSymlink [
+321 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/domains',
+321 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/domains',
+321 silly createSymlink   'junction'
+321 silly createSymlink ]
+322 silly createSymbolicLink [
+322 silly createSymbolicLink   '../../../domains',
+322 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/domains',
+322 silly createSymbolicLink   'junction'
+322 silly createSymbolicLink ]
+323 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/logger
+324 verbose resolveSymlink [
+324 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/logger',
+324 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger'
+324 verbose resolveSymlink ]
+325 silly createSymlink [
+325 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/logger',
+325 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/logger',
+325 silly createSymlink   'junction'
+325 silly createSymlink ]
+326 silly createSymbolicLink [
+326 silly createSymbolicLink   '../../../logger',
+326 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/logger',
+326 silly createSymbolicLink   'junction'
+326 silly createSymbolicLink ]
+327 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/numbers
+328 verbose resolveSymlink [
+328 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/numbers',
+328 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/numbers'
+328 verbose resolveSymlink ]
+329 silly createSymlink [
+329 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/numbers',
+329 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/numbers',
+329 silly createSymlink   'junction'
+329 silly createSymlink ]
+330 silly createSymbolicLink [
+330 silly createSymbolicLink   '../../../numbers',
+330 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/numbers',
+330 silly createSymbolicLink   'junction'
+330 silly createSymbolicLink ]
+331 silly resolveSymlink /Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/providers
+332 verbose resolveSymlink [
+332 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/providers',
+332 verbose resolveSymlink   '/Users/pedrosanders/Projects/fonos/mods/providers'
+332 verbose resolveSymlink ]
+333 silly createSymlink [
+333 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/providers',
+333 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/providers',
+333 silly createSymlink   'junction'
+333 silly createSymlink ]
+334 silly createSymbolicLink [
+334 silly createSymbolicLink   '../../../providers',
+334 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/providers',
+334 silly createSymbolicLink   'junction'
+334 silly createSymbolicLink ]
 335 silly createSymlink [
-335 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents',
-335 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/agents',
-335 silly createSymlink   'junction'
+335 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/dist/srv_runner.js',
+335 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
+335 silly createSymlink   'exec'
 335 silly createSymlink ]
-336 silly createSymbolicLink [
-336 silly createSymbolicLink   '../../../agents',
-336 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/@fonos/agents',
-336 silly createSymbolicLink   'junction'
-336 silly createSymbolicLink ]
+336 silly createSymlink [
+336 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/dist/healthcheck.js',
+336 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
+336 silly createSymlink   'exec'
+336 silly createSymlink ]
 337 silly createSymlink [
 337 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/appmanager/dist/srv_runner.js',
 337 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
@@ -722,94 +685,84 @@
 338 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
 338 silly createSymlink   'exec'
 338 silly createSymlink ]
-339 silly createSymlink [
-339 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/providers/dist/srv_runner.js',
-339 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
-339 silly createSymlink   'exec'
-339 silly createSymlink ]
-340 silly createSymlink [
-340 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/providers/dist/healthcheck.js',
-340 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
-340 silly createSymlink   'exec'
-340 silly createSymlink ]
-341 silly createSymlink [
-341 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/dist/srv_runner.js',
-341 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
-341 silly createSymlink   'exec'
-341 silly createSymlink ]
-342 silly createSymlink [
-342 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/agents/dist/healthcheck.js',
-342 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
-342 silly createSymlink   'exec'
-342 silly createSymlink ]
+339 silly createSymbolicLink [
+339 silly createSymbolicLink   '../../../agents/dist/srv_runner.js',
+339 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
+339 silly createSymbolicLink   'file'
+339 silly createSymbolicLink ]
+340 silly createSymbolicLink [
+340 silly createSymbolicLink   '../../../agents/dist/healthcheck.js',
+340 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
+340 silly createSymbolicLink   'file'
+340 silly createSymbolicLink ]
+341 silly createSymbolicLink [
+341 silly createSymbolicLink   '../../../appmanager/dist/srv_runner.js',
+341 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
+341 silly createSymbolicLink   'file'
+341 silly createSymbolicLink ]
+342 silly createSymbolicLink [
+342 silly createSymbolicLink   '../../../appmanager/dist/healthcheck.js',
+342 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
+342 silly createSymbolicLink   'file'
+342 silly createSymbolicLink ]
 343 silly createSymlink [
-343 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/numbers/dist/srv_runner.js',
+343 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/domains/dist/srv_runner.js',
 343 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
 343 silly createSymlink   'exec'
 343 silly createSymlink ]
 344 silly createSymlink [
-344 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/numbers/dist/healthcheck.js',
+344 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/domains/dist/healthcheck.js',
 344 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
 344 silly createSymlink   'exec'
 344 silly createSymlink ]
 345 silly createSymlink [
-345 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/domains/dist/srv_runner.js',
+345 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/providers/dist/srv_runner.js',
 345 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
 345 silly createSymlink   'exec'
 345 silly createSymlink ]
 346 silly createSymlink [
-346 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/domains/dist/healthcheck.js',
+346 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/providers/dist/healthcheck.js',
 346 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
 346 silly createSymlink   'exec'
 346 silly createSymlink ]
-347 silly createSymbolicLink [
-347 silly createSymbolicLink   '../../../appmanager/dist/srv_runner.js',
-347 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
-347 silly createSymbolicLink   'file'
-347 silly createSymbolicLink ]
-348 silly createSymbolicLink [
-348 silly createSymbolicLink   '../../../appmanager/dist/healthcheck.js',
-348 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
-348 silly createSymbolicLink   'file'
-348 silly createSymbolicLink ]
-349 silly shShim [
-349 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/providers/dist/srv_runner.js',
-349 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
-349 silly shShim   'file'
-349 silly shShim ]
-350 silly shShim [
-350 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/providers/dist/healthcheck.js',
-350 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
-350 silly shShim   'file'
-350 silly shShim ]
-351 silly shShim [
-351 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/agents/dist/srv_runner.js',
-351 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
-351 silly shShim   'file'
-351 silly shShim ]
-352 silly shShim [
-352 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/agents/dist/healthcheck.js',
-352 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
-352 silly shShim   'file'
-352 silly shShim ]
+347 silly createSymlink [
+347 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/numbers/dist/srv_runner.js',
+347 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
+347 silly createSymlink   'exec'
+347 silly createSymlink ]
+348 silly createSymlink [
+348 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/numbers/dist/healthcheck.js',
+348 silly createSymlink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
+348 silly createSymlink   'exec'
+348 silly createSymlink ]
+349 silly createSymbolicLink [
+349 silly createSymbolicLink   '../../../domains/dist/srv_runner.js',
+349 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
+349 silly createSymbolicLink   'file'
+349 silly createSymbolicLink ]
+350 silly createSymbolicLink [
+350 silly createSymbolicLink   '../../../domains/dist/healthcheck.js',
+350 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
+350 silly createSymbolicLink   'file'
+350 silly createSymbolicLink ]
+351 silly createSymbolicLink [
+351 silly createSymbolicLink   '../../../providers/dist/srv_runner.js',
+351 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
+351 silly createSymbolicLink   'file'
+351 silly createSymbolicLink ]
+352 silly createSymbolicLink [
+352 silly createSymbolicLink   '../../../providers/dist/healthcheck.js',
+352 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
+352 silly createSymbolicLink   'file'
+352 silly createSymbolicLink ]
 353 silly createSymbolicLink [
-353 silly createSymbolicLink   '../../../numbers/dist/healthcheck.js',
-353 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
+353 silly createSymbolicLink   '../../../numbers/dist/srv_runner.js',
+353 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
 353 silly createSymbolicLink   'file'
 353 silly createSymbolicLink ]
 354 silly createSymbolicLink [
-354 silly createSymbolicLink   '../../../numbers/dist/srv_runner.js',
-354 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
+354 silly createSymbolicLink   '../../../numbers/dist/healthcheck.js',
+354 silly createSymbolicLink   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
 354 silly createSymbolicLink   'file'
 354 silly createSymbolicLink ]
-355 silly shShim [
-355 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/domains/dist/srv_runner.js',
-355 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/run',
-355 silly shShim   'file'
-355 silly shShim ]
-356 silly shShim [
-356 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/domains/dist/healthcheck.js',
-356 silly shShim   '/Users/pedrosanders/Projects/fonos/mods/ctl/node_modules/.bin/healthcheck',
-356 silly shShim   'file'
-356 silly shShim ]
-357 error
+355 error

@@ -2,6 +2,9 @@ version: '3.7'
 
 services:
 
+  reverse_proxy:
+    ports:
+      - 8080:8080
   datasource:
     ports:
       - ${DS_PORT}:${DS_PORT}
