@@ -6,9 +6,14 @@ First, install multipass:
 
 ```
 multipass launch --name fonos \
---disk 4G \
+--disk 8G \
 --cpus 2 \
 --mem 4G
+
+multipass shell fonos
+
+sudo apt update
+sudo apt install docker.io docker-compose
 ```
 
 To run Project Fonos, use the following steps:
@@ -23,12 +28,13 @@ docker volume create --name=data1-1
 
 2. Copy `env_example` into `.env`
 
-
 3. Run infrastructure with docker compose
 
 
 ```bash
-docker-compose --env-file .env \
+git clone https://github.com/fonoster/fonos --depth=1
+cd .compose
+sudo docker-compose --env-file .env \
     -f 00_config.yml \
     -f 01_deps.yml \
     -f 02_api.yml \
