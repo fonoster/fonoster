@@ -11,7 +11,7 @@ jobs:
       uses: actions/checkout@v1 
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'   
+        node-version: '14'   
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)") 
@@ -23,6 +23,14 @@ jobs:
         token: ${{ secrets.GH_PAT }}
         ref: master
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publish Storage API at Docker Hub
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-storage
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/storage
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
     - name: Publishing Media Controller Service
       uses: benc-uk/workflow-dispatch@v1
       with:
