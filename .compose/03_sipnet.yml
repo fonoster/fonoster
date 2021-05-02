@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 
 services:
 
@@ -52,6 +52,8 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
+    # This doesn't work on osx 
+    # see: https://github.com/docker/for-mac/issues/1031
     network_mode: "host"
 
   mediacontroller:

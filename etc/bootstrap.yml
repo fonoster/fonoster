@@ -5,7 +5,7 @@
   metadata:
     name: Media Controller @ Node 1
   spec:
-    device: node1
+    device: sip.acme.com
     credentials:
       username: ast
       secret: 'changeit'

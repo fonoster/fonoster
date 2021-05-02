@@ -2,6 +2,15 @@
 
 ## Running Project Fonos
 
+First, install multipass:
+
+```
+multipass launch --name fonos \
+--disk 4G \
+--cpus 2 \
+--mem 4G
+```
+
 To run Project Fonos, use the following steps:
 
 1. Create the external volumes

@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 
 services:
 
@@ -20,3 +20,6 @@ services:
   mediacontroller:
     ports:
       - ${MC_AGI_PORT}:${MC_AGI_PORT}
+  mediaserver:
+    environment:
+      ENABLE_TEST_ACCOUNT: "true"
