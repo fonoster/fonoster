@@ -14,7 +14,7 @@ FS_HOST_PUBLIC=              # Warning: The following variables are meant to be 
 MC_HOST_PUBLIC=              # Warning: The following variables are meant to be temporal
 
 # Images
-AS_IMAGE=fonoster/fonos-apiserver:latest
+AS_IMAGE=traefik:v2.4
 MC_IMAGE=fonoster/fonos-nodejsmc:latest
 MS_IMAGE=fonoster/fonos-mediaserver:15.7.4
 EB_IMAGE=bitnami/rabbitmq:latest
@@ -31,12 +31,9 @@ LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
 COMPOSE_PROJECT_NAME=fonos
 COMPOSE_PROJECT_VERSION=0.0.47
 
-APISERVER_PORT=50052
-APISERVER_ENDPOINT_REMOTE=fonos.local
-APISERVER_ENDPOINT=apiserver.fonos
-APISERVER_ACCESS_KEY_ID=fonos
-APISERVER_ACCESS_KEY_ISS=fonos
-APISERVER_ALLOW_INSECURE=true
+AS_PORT=50051
+AS_ENDPOINT=apiserver.fonos
+AS_ALLOW_INSECURE=true
 
 EB_HOST=eventsbroker.fonos
 EB_PORT=5672

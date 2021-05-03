@@ -36,7 +36,8 @@
     "commands": "./dist/commands",
     "bin": "fonos",
     "plugins": [
-      "@oclif/plugin-help"
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins"
     ],
     "topics": {
       "apps": {
@@ -81,6 +82,7 @@
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/plugin-help": "^3.2.2",
+    "@oclif/plugin-plugins": "^1.10.0",
     "btoa": "^1.2.1",
     "cli-ux": "^5.5.1",
     "dockerode": "^3.2.1",
