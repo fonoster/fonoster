@@ -16,7 +16,7 @@ import {
   ProvidersService,
   IProvidersServer
 } from "./protos/providers_grpc_pb";
-import {Kind, ResourceBuilder} from "@fonos/core/src/common/resource_builder";
+import {Kind, ResourceBuilder} from "@fonos/core";
 import {
   updateResource,
   createResource,

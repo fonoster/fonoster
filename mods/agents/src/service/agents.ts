@@ -30,7 +30,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   ) {
     const result = await super.listResources(Kind.AGENT, call);
     const response = new ListAgentsResponse();
-    if (result.resources) {
+    if (result && result.resources) {
       const domains = result.resources.map((resource) => decoder(resource));
       response.setNextPageToken(result.nextPageToken + "");
       response.setAgentsList(domains);

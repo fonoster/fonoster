@@ -4,61 +4,65 @@ services:
 
   agents_api:
     image: fonoster/fonos-agents
-    restart: ${RESTART_POLICY}
-    environment:
-      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
-      ALLOW_INSECURE: ${APISERVER_ALLOW_INSECURE}
-      ALLOW_INSECURE: ${APISERVER_ALLOW_INSECURE}
-      DS_HOST: ${DS_HOST}
-      DS_PORT: ${DS_PORT}
-      DS_SECRET: ${DS_SECRET}
-      DS_AUTH_USERNAME: ${DS_AUTH_USERNAME}
-      DS_AUTH_SECRET: ${DS_AUTH_SECRET}
-      DS_AUTH_HOST: ${DS_AUTH_HOST}
-      DS_AUTH_PORT: ${DS_AUTH_PORT}
-      DS_AUTH_DB: ${DS_AUTH_DB}
-      SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
-      SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
-      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
-      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
-      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
-    ports:
-      - 50052:50052
+    extends:
+      file: api-common.yml
+      service: common
     labels:
       - "traefik.http.routers.agents_api.rule=PathPrefix(`/fonos.agents.v1alpha1`)"
       - "traefik.http.services.agents_api.loadbalancer.server.scheme=h2c"
-    networks:
-      fonos:
-    volumes:
-      - ${CONFIG}/config:/home/fonos/.fonos/config
-      - ${CONFIG}/certs/ca-key.pem:/home/fonos/.fonos/jwt.salt
-    logging:
-      options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.agents_api
+  
+  domains_api:
+    image: fonoster/fonos-domains
+    extends:
+      file: api-common.yml
+      service: common
+    expose:
+      - 50052
+    labels:
+      - "traefik.http.routers.domains_api.rule=PathPrefix(`/fonos.domains.v1alpha1`)"
+      - "traefik.http.services.domains_api.loadbalancer.server.scheme=h2c"
+  
+  numbers_api:
+    image: fonoster/fonos-numbers
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.http.routers.numbers_api.rule=PathPrefix(`/fonos.numbers.v1alpha1`)"
+      - "traefik.http.services.numbers_api.loadbalancer.server.scheme=h2c"
+
+  providers_api:
+    image: fonoster/fonos-providers
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.http.routers.providers_api.rule=PathPrefix(`/fonos.providers.v1alpha1`)"
+      - "traefik.http.services.providers_api.loadbalancer.server.scheme=h2c"
 
   storage_api:
     image: fonoster/fonos-storage
-    restart: ${RESTART_POLICY}
-    environment:
-      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
-      ALLOW_INSECURE: ${APISERVER_ALLOW_INSECURE}
-      FS_HOST: ${FS_HOST_PUBLIC}
-      FS_PORT: ${FS_PORT}
-      FS_USERNAME: ${FS_USERNAME}
-      FS_SECRET: ${FS_SECRET}
-      FS_DEFAULT_STORAGE_BUCKET: ${FS_DEFAULT_STORAGE_BUCKET}
-      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
-      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
-      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
-    ports:
-      - 50052:50053
+    extends:
+      file: api-common.yml
+      service: common
     labels:
       - "traefik.http.routers.storage_api.rule=PathPrefix(`/fonos.storage.v1alpha1`)"
       - "traefik.http.services.storage_api.loadbalancer.server.scheme=h2c"
-    networks:
-      fonos:
-    volumes:
-      - ${CONFIG}/certs/ca-key.pem:/home/fonos/.fonos/jwt.salt
-    logging:
-      options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.storage_api
+  
+  callmanager_api:
+    image: fonoster/fonos-callmanager
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.http.routers.callmanager_api.rule=PathPrefix(`/fonos.callmanager.v1alpha1`)"
+      - "traefik.http.services.callmanager_api.loadbalancer.server.scheme=h2c"
+
+  usermanager_api:
+    image: fonoster/fonos-usermanager
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.http.routers.usermanager_api.rule=PathPrefix(`/fonos.usermanager.v1alpha1`)"
+      - "traefik.http.services.usermanager_api.loadbalancer.server.scheme=h2c"

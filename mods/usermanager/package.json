@@ -46,6 +46,7 @@
     "@fonos/auth": "^0.0.84",
     "@fonos/core": "^0.0.84",
     "@fonos/logger": "^0.0.84",
+    "@fonos/certs": "^0.0.84",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
     "grpc-ts-health-check": "^2.0.6",

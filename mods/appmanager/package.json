@@ -48,6 +48,8 @@
     "@fonos/events": "^0.0.84",
     "@fonos/logger": "^0.0.84",
     "@fonos/storage": "^0.0.84",
+    "@fonos/auth": "^0.0.84",
+    "@fonos/certs": "^0.0.84",
     "fs-extra": "^8.1.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
