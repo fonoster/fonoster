@@ -16,8 +16,6 @@ services:
     extends:
       file: api-common.yml
       service: common
-    expose:
-      - 50052
     labels:
       - "traefik.http.routers.domains_api.rule=PathPrefix(`/fonos.domains.v1alpha1`)"
       - "traefik.http.services.domains_api.loadbalancer.server.scheme=h2c"
