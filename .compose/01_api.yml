@@ -64,3 +64,12 @@ services:
     labels:
       - "traefik.http.routers.usermanager_api.rule=PathPrefix(`/fonos.usermanager.v1alpha1`)"
       - "traefik.http.services.usermanager_api.loadbalancer.server.scheme=h2c"
+
+  appmanager_api:
+    image: fonoster/fonos-appmanager
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.http.routers.appmanager_api.rule=PathPrefix(`/fonos.appmanager.v1alpha1`)"
+      - "traefik.http.services.appmanager_api.loadbalancer.server.scheme=h2c"

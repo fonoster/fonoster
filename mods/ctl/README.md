@@ -8,14 +8,16 @@ Command-Line for for Fonos
 [![License](https://img.shields.io/npm/l/ctl.svg)](https://github.com/fonoster/fonos/blob/master/package.json)
 
 <!-- toc -->
-* [ctl](#ctl)
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [ctl](#ctl)
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @fonos/ctl
 $ fonos COMMAND
@@ -27,39 +29,41 @@ USAGE
   $ fonos COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`fonos agents:create`](#fonos-agentscreate)
-* [`fonos agents:delete [REF]`](#fonos-agentsdelete-ref)
-* [`fonos agents:get [REF]`](#fonos-agentsget-ref)
-* [`fonos agents:list`](#fonos-agentslist)
-* [`fonos agents:update [REF]`](#fonos-agentsupdate-ref)
-* [`fonos apps:delete [NAME]`](#fonos-appsdelete-name)
-* [`fonos apps:deploy [REF]`](#fonos-appsdeploy-ref)
-* [`fonos apps:get [NAME]`](#fonos-appsget-name)
-* [`fonos apps:init`](#fonos-appsinit)
-* [`fonos apps:list`](#fonos-appslist)
-* [`fonos auth:login`](#fonos-authlogin)
-* [`fonos auth:logout`](#fonos-authlogout)
-* [`fonos domains:create`](#fonos-domainscreate)
-* [`fonos domains:delete [REF]`](#fonos-domainsdelete-ref)
-* [`fonos domains:get [REF]`](#fonos-domainsget-ref)
-* [`fonos domains:list`](#fonos-domainslist)
-* [`fonos domains:update [REF]`](#fonos-domainsupdate-ref)
-* [`fonos help [COMMAND]`](#fonos-help-command)
-* [`fonos numbers:create`](#fonos-numberscreate)
-* [`fonos numbers:delete [REF]`](#fonos-numbersdelete-ref)
-* [`fonos numbers:get [REF]`](#fonos-numbersget-ref)
-* [`fonos numbers:list`](#fonos-numberslist)
-* [`fonos numbers:update [REF]`](#fonos-numbersupdate-ref)
-* [`fonos providers:create`](#fonos-providerscreate)
-* [`fonos providers:delete [REF]`](#fonos-providersdelete-ref)
-* [`fonos providers:get [REF]`](#fonos-providersget-ref)
-* [`fonos providers:list`](#fonos-providerslist)
-* [`fonos providers:update [REF]`](#fonos-providersupdate-ref)
+
+- [`fonos agents:create`](#fonos-agentscreate)
+- [`fonos agents:delete [REF]`](#fonos-agentsdelete-ref)
+- [`fonos agents:get [REF]`](#fonos-agentsget-ref)
+- [`fonos agents:list`](#fonos-agentslist)
+- [`fonos agents:update [REF]`](#fonos-agentsupdate-ref)
+- [`fonos apps:delete [NAME]`](#fonos-appsdelete-name)
+- [`fonos apps:deploy [REF]`](#fonos-appsdeploy-ref)
+- [`fonos apps:get [NAME]`](#fonos-appsget-name)
+- [`fonos apps:init`](#fonos-appsinit)
+- [`fonos apps:list`](#fonos-appslist)
+- [`fonos auth:login`](#fonos-authlogin)
+- [`fonos auth:logout`](#fonos-authlogout)
+- [`fonos domains:create`](#fonos-domainscreate)
+- [`fonos domains:delete [REF]`](#fonos-domainsdelete-ref)
+- [`fonos domains:get [REF]`](#fonos-domainsget-ref)
+- [`fonos domains:list`](#fonos-domainslist)
+- [`fonos domains:update [REF]`](#fonos-domainsupdate-ref)
+- [`fonos help [COMMAND]`](#fonos-help-command)
+- [`fonos numbers:create`](#fonos-numberscreate)
+- [`fonos numbers:delete [REF]`](#fonos-numbersdelete-ref)
+- [`fonos numbers:get [REF]`](#fonos-numbersget-ref)
+- [`fonos numbers:list`](#fonos-numberslist)
+- [`fonos numbers:update [REF]`](#fonos-numbersupdate-ref)
+- [`fonos providers:create`](#fonos-providerscreate)
+- [`fonos providers:delete [REF]`](#fonos-providersdelete-ref)
+- [`fonos providers:get [REF]`](#fonos-providersget-ref)
+- [`fonos providers:list`](#fonos-providerslist)
+- [`fonos providers:update [REF]`](#fonos-providersupdate-ref)
 
 ## `fonos agents:create`
 
@@ -488,4 +492,5 @@ DESCRIPTION
 ```
 
 _See code: [dist/commands/providers/update.ts](https://github.com/fonoster/fonos/blob/v0.0.85/dist/commands/providers/update.ts)_
+
 <!-- commandsstop -->

@@ -35,10 +35,9 @@ docker volume create --name=data1-1
 git clone https://github.com/fonoster/fonos --depth=1
 cd .compose
 sudo docker-compose --env-file .env \
-    -f 00_config.yml \
-    -f 01_deps.yml \
-    -f 02_api.yml \
-    -f 03_sipnet.yml up -d
+    -f 00_deps.yml \
+    -f 01_api.yml \
+    -f 02_sipnet.yml up 
 ```
 
 Once all the services all up an running initialize the system with:
