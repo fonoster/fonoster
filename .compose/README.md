@@ -28,7 +28,7 @@ docker volume create --name=data1-1
 
 2. Copy `env_example` into `.env`
 
-3. Run infrastructure with docker compose
+3. Run infrastructure with docker-compose
 
 
 ```bash

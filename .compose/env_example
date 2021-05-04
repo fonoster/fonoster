@@ -26,10 +26,11 @@ TTS_IMAGE=synesthesiam/marytts:5.2
 LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
 LOGS_MONITOR_IMAGE=kibana:7.9.3
 LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
+SECRETS_IMAGE=vault
 
 # Other variables
 COMPOSE_PROJECT_NAME=fonos
-COMPOSE_PROJECT_VERSION=0.0.47
+COMPOSE_PROJECT_VERSION=0.0.86
 
 AS_PORT=50051
 AS_ENDPOINT=apiserver.fonos

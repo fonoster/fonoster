@@ -2,6 +2,9 @@ version: '3.7'
 
 services:
 
+  secrets:
+    ports:
+      - "8200:8200"
   reverse_proxy:
     ports:
       - 8080:8080
