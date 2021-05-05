@@ -22,6 +22,7 @@ mod/vendor
 jre
 site
 .env
+lerna-debug.log
 
 # User-specific stuff:
 .idea/workspace.xml

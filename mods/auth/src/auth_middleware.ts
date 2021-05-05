@@ -2,6 +2,7 @@ import grpc from "grpc";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./role_has_access";
+
 export default class AuthMiddleware {
   secretKeyToken: string;
   constructor(secretKey: string) {
