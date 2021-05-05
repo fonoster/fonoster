@@ -5,7 +5,7 @@ services:
   secrets:
     ports:
       - "8200:8200"
-  reverse_proxy:
+  apiserver:
     ports:
       - 8080:8080
   datasource:
