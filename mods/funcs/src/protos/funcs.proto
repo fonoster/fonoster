@@ -1,0 +1,92 @@
+/**
+ * MIT License
+ * Copyright (c) 2021 Fonoster Inc
+ *
+ * The Funcs proto contains the artificats for function administration
+ * such as creation and deployment.
+ */
+syntax = "proto3";
+
+package fonos.appmanager.v1alpha1;
+
+import "common.proto";
+
+service Funcs {
+  // Shows a list of user functions
+  rpc ListFuncs (ListFuncsRequest) returns (ListFuncsResponse) {};
+  // Gets a function by namem
+  rpc GetFunc (GetFuncRequest) returns (Func) {};
+  // Orders the functions subsystem to download and deploy a function
+  rpc CreateFunc (CreateFuncRequest) returns (Func) {};
+  // Peforms a hard delete of the function
+  rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1alpha1.Empty) {};
+  // Peforms a hard delete of the function
+  rpc GetFuncLogs (GetFuncLogsRequest) returns (stream FuncLog) {};
+}
+
+message ListFuncsRequest {
+  // The maximum number of items to return.
+  int32 page_size = 1;
+
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 2;
+
+  // Level of detail of the individual entities
+  fonos.common.v1alpha1.View view = 3;
+}
+
+message ListFuncsResponse {
+  // There will be a maximum number of items returned based on the page_size field
+  // in the request.
+  repeated Func funcs = 1;
+
+  // Token to retrieve the next page of results, or empty if there are no
+  // more results in the list.
+  string next_page_token = 2;
+}
+
+message GetFuncLogsRequest {
+  string name = 1;
+  // Only return logs after a specific date (RFC3339)
+  string since = 2;
+  int32 tail = 3;
+  bool follow = 4;
+}
+
+message GetFuncRequest {
+  // The field will contain the reference of the app requested, for example:
+  // "apps/hello-world"
+  string ref = 1;
+  // Requested level of detail
+  fonos.common.v1alpha1.View view = 2;
+}
+
+message CreateFuncRequest {
+  Func func = 2;
+}
+
+message DeleteFuncRequest {
+  string ref = 1;
+}
+
+message Func {
+  string name = 1;
+  string image = 2;
+  int32 invocation_count = 3;
+  int32 replicas = 4;
+  int32 available_replicas = 5;
+  Resource limits = 6;
+  Resource requests = 7;
+}
+
+message Resource {
+  string memory = 1;
+  string cpu = 2;
+}
+
+message FuncLog {
+  string name = 1;
+  string instance = 2;
+  string timestamp = 3;
+  string text = 4;
+}

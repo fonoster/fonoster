@@ -1,0 +1,60 @@
+{
+  "name": "@fonos/funcs",
+  "version": "0.0.86",
+  "description": "Fonoster functions support",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonos#readme",
+  "license": "MIT",
+  "main": "dist/client/funcs",
+  "types": "dist/client/funcs",
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
+    "build": "tsc -b tsconfig.json",
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+  },
+  "bin": {
+    "run": "dist/srv_runner.js",
+    "healthcheck": "dist/healthcheck.js"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "../"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonos/issues"
+  },
+  "dependencies": {
+    "@fonos/auth": "^0.0.86",
+    "@fonos/certs": "^0.0.86",
+    "@fonos/core": "^0.0.86",
+    "@fonos/errors": "^0.0.86",
+    "@fonos/logger": "^0.0.86",
+    "grpc": "^1.24.7",
+    "grpc-promise": "^1.4.0",
+    "grpc-ts-health-check": "^2.0.6",
+    "tar": "^6.0.1"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "rimraf": "^3.0.2"
+  }
+}
