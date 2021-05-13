@@ -18,6 +18,8 @@ service Funcs {
   rpc GetFunc (GetFuncRequest) returns (Func) {};
   // Orders the functions subsystem to download and deploy a function
   rpc CreateFunc (CreateFuncRequest) returns (Func) {};
+  // Updates a function, keeping metrics intact
+  rpc UpdateFunc (UpdateFuncRequest) returns (Func) {};
   // Peforms a hard delete of the function
   rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1alpha1.Empty) {};
   // Peforms a hard delete of the function
@@ -62,6 +64,10 @@ message GetFuncRequest {
 }
 
 message CreateFuncRequest {
+  Func func = 2;
+}
+
+message UpdateFuncRequest {
   Func func = 2;
 }
 

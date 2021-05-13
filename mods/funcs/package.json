@@ -43,17 +43,16 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.86",
     "@fonos/certs": "^0.0.86",
     "@fonos/core": "^0.0.86",
     "@fonos/errors": "^0.0.86",
     "@fonos/logger": "^0.0.86",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
-    "grpc-ts-health-check": "^2.0.6",
-    "tar": "^6.0.1"
+    "openfaas-client": "github:fonoster/openfaas-client"
   },
   "devDependencies": {
+    "@types/node": "^8",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2"
   }

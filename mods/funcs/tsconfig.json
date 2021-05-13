@@ -5,7 +5,6 @@
     "rootDir": "./src"
   },
   "references": [
-    {"path": "../auth"},
     {"path": "../certs"},
     {"path": "../logger"},
     {"path": "../core"},

@@ -6,7 +6,7 @@
     "bootstrap": "lerna bootstrap --no-ci",
     "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "build": "lerna run build",
-    "clean": "rimraf **/*/tsconfig.tsbuildinfo && rimraf **/*/dist && rimraf **/*/dist && rimraf **/*/node_modules && rimraf node_modules",
+    "clean": "rimraf **/*/tsconfig.tsbuildinfo dist coverage **/*/dist **/*/package-lock.json **/*/node_modules node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
     "lint": "eslint mods --ext .ts",
     "format": "prettier --write mods/",
