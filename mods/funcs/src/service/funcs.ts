@@ -218,10 +218,13 @@ class FuncsServer implements IFuncsServer {
       callback(null, new Empty());
     } catch (e) {
       if (e.response.statusCode === 404) {
-        callback(new FonosError(
-          `Function name "${call.request.getName()}" doesn't exist`,
-          ErrorCodes.NOT_FOUND
-        ), null);
+        callback(
+          new FonosError(
+            `Function name "${call.request.getName()}" doesn't exist`,
+            ErrorCodes.NOT_FOUND
+          ),
+          null
+        );
       }
       callback(e, null);
     }
