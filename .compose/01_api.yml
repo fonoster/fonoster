@@ -2,6 +2,15 @@ version: '3.7'
 
 services:
 
+  funcs_api:
+    image: fonoster/fonos-funcs
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.http.routers.funcs_api.rule=PathPrefix(`/fonos.funcs.v1alpha1`)"
+      - "traefik.http.services.funcs_api.loadbalancer.server.scheme=h2c"
+
   agents_api:
     image: fonoster/fonos-agents
     extends:

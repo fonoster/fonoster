@@ -93,8 +93,8 @@ services:
 
   secrets:
     image: ${SECRETS_IMAGE}
-    ports:
-      - "127.0.0.1:8200:8200"
+    # ports:
+      # - "127.0.0.1:8200:8200"
     volumes:
       - ${CONFIG}/file:/vault/file:rw
       - ${CONFIG}/vault.json:/vault/config/vault.json:rw
