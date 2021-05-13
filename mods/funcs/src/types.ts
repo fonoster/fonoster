@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -18,71 +17,71 @@
  * limitations under the License.
  */
 enum View {
-    BASIC = 0,
-    STANDARD = 1,
-    FULL = 2
+  BASIC = 0,
+  STANDARD = 1,
+  FULL = 2
 }
 
 export interface DeployFuncRequest {
-    name: string;
-    image: string;
-    limits: {
-        memory: undefined | string;
-        cpu: undefined | string;
-    },
-    requests: {
-        memory: undefined | string;
-        cpu: undefined | string;
-    }
+  name: string;
+  image: string;
+  limits: {
+    memory: undefined | string;
+    cpu: undefined | string;
+  };
+  requests: {
+    memory: undefined | string;
+    cpu: undefined | string;
+  };
 }
 
 export interface DeployFuncResponse {
-    name: string;
-    image: string;
-    invocationCount: number;
-    replicas: number;
-    availableReplicas: number;
+  name: string;
+  image: string;
+  invocationCount: number;
+  replicas: number;
+  availableReplicas: number;
 }
 
 export interface GetFuncRequest {
-    name: string;
+  name: string;
 }
 
 export interface GetFuncRequest {
-    name: string;
+  name: string;
 }
 
 export interface GetFuncResponse {
-    name: string;
-    image: string;
-    invocationCount: number;
-    replicas: number;
-    availableReplicas: number;
+  name: string;
+  image: string;
+  invocationCount: number;
+  replicas: number;
+  availableReplicas: number;
 }
 
 export interface DeleteFuncRequest {
-    name: string;
+  name: string;
 }
 
 export interface DeleteFuncResponse {
-    name: string;
+  name: string;
 }
 
 export interface Func {
-    name: string;
-    image: string;
-    invocationCount: number;
-    replicas: number;
-    availableReplicas: number;
-} 
+  name: string;
+  image: string;
+  invocationCount: number;
+  replicas: number;
+  availableReplicas: number;
+}
 
 export interface ListFuncsRequest {
-    pageSize: number;
-    pageToken: string;
-    view: View;
+  pageSize: number;
+  pageToken: string;
+  view: View;
 }
 
 export interface ListFuncsResponse {
-    nextPageToken: string;
-    funcs: Func[];
+  nextPageToken: string;
+  funcs: Func[];
 }

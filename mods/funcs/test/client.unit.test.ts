@@ -20,9 +20,9 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { FonosService } from "@fonos/core";
-import Funcs, { createFuncFromRequest, FuncsPB } from "../src/client/funcs";
-import { DeployFuncRequest } from "../src/types";
+import {FonosService} from "@fonos/core";
+import Funcs, {createFuncFromRequest, FuncsPB} from "../src/client/funcs";
+import {DeployFuncRequest} from "../src/types";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -41,18 +41,18 @@ describe("@Fonos/funcs/client", () => {
 
   it("returns a function object a DeployFuncRequest", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
-    const request:DeployFuncRequest = {
+    const request: DeployFuncRequest = {
       name: "function1",
       image: "docker.io/functions/function1",
       limits: {
         memory: "10Mi",
-        cpu: "110m",
+        cpu: "110m"
       },
       requests: {
         memory: "5Mi",
         cpu: "100m"
       }
-    }
+    };
     const func = createFuncFromRequest(request);
 
     expect(func.getName()).to.be.equal(request.name);
@@ -80,7 +80,9 @@ describe("@Fonos/funcs/client", () => {
     expect(result)
       .to.have.property("invocationCount")
       .to.be.equal(funcObj.getInvocationCount());
-    expect(result).to.have.property("replicas").to.be.equal(funcObj.getReplicas());
+    expect(result)
+      .to.have.property("replicas")
+      .to.be.equal(funcObj.getReplicas());
     expect(result)
       .to.have.property("availableReplicas")
       .to.be.equal(funcObj.getAvailableReplicas());

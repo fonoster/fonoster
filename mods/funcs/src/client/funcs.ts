@@ -22,16 +22,25 @@ import FuncsPB from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
-import { DeleteFuncRequest, DeleteFuncResponse, DeployFuncRequest, DeployFuncResponse, GetFuncRequest, GetFuncResponse, ListFuncsRequest, ListFuncsResponse } from "../types";
+import {
+  DeleteFuncRequest,
+  DeleteFuncResponse,
+  DeployFuncRequest,
+  DeployFuncResponse,
+  GetFuncRequest,
+  GetFuncResponse,
+  ListFuncsRequest,
+  ListFuncsResponse
+} from "../types";
 
 const createFuncFromRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
-  limits.setCpu(request.limits.cpu)
-  limits.setMemory(request.limits.memory)
+  limits.setCpu(request.limits.cpu);
+  limits.setMemory(request.limits.memory);
 
   const requests = new FuncsPB.Resource();
-  requests.setCpu(request.requests.cpu)
-  requests.setMemory(request.requests.memory)
+  requests.setCpu(request.requests.cpu);
+  requests.setMemory(request.requests.memory);
 
   const func = new FuncsPB.Func();
   func.setName(request.name);
@@ -39,7 +48,7 @@ const createFuncFromRequest = (request: DeployFuncRequest) => {
   func.setLimits(limits);
   func.setRequests(requests);
   return func;
-}
+};
 
 /**
  * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,
@@ -51,7 +60,7 @@ const createFuncFromRequest = (request: DeployFuncRequest) => {
  *
  * const Fonos = require("@fonos/sdk");
  * const funcs = new Fonos.Funcs();
- * 
+ *
  * const request = {
  *   name: "function1",
  *   image: "docker.io/functions/function1:latest",
@@ -87,7 +96,7 @@ export default class Funcs extends FonosService {
    * Creates or updates a function in the FaaS subsystem.
    *
    * @param {DeployFuncRequest} request - Request to create or update a function
-   * @param {string} request.name - Unique function name 
+   * @param {string} request.name - Unique function name
    * @param {string} request.image - An image available in a public or private docker registry
    * @param {string} request.limit.memory - Optional limit for function's memory utilization
    * @param {string} request.limit.cpu - Optional limit for function's cpu utilization
@@ -105,18 +114,18 @@ export default class Funcs extends FonosService {
    * .then(result => {
    *   console.log(result)              // successful response
    * }).catch(e => console.error(e));   // an error occurred
-   */ 
+   */
   async deployFunc(request: DeployFuncRequest): Promise<DeployFuncResponse> {
     const req = new FuncsPB.CreateFuncRequest();
     req.setFunc(createFuncFromRequest(request));
 
     let exist = false;
-    
+
     try {
-      this.getFunc({name:request.name})
+      this.getFunc({name: request.name});
       exist = true;
-    } catch(e) {
-      // TODO: If the error is different than 400 we should pass error to the client 
+    } catch (e) {
+      // TODO: If the error is different than 400 we should pass error to the client
     }
 
     let res = null;
@@ -152,7 +161,7 @@ export default class Funcs extends FonosService {
    * .then(result => {
    *   console.log(result)              // successful response with the function as the body65
    * }).catch(e => console.error(e));   // an error occurred
-   */ 
+   */
   async getFunc(request: GetFuncRequest): Promise<GetFuncResponse> {
     const req = new FuncsPB.GetFuncRequest();
     req.setRef(request.name);
@@ -169,7 +178,7 @@ export default class Funcs extends FonosService {
   }
 
   /**
-   * Removes a function by its name. 
+   * Removes a function by its name.
    *
    * @param {DeleteFuncRequest} request - Request to delete a function
    * @param {string} request.name - Unique function name
@@ -185,7 +194,7 @@ export default class Funcs extends FonosService {
    * .then(result => {
    *   console.log(result)              // returns the name of the function
    * }).catch(e => console.error(e));   // an error occurred
-   */ 
+   */
   async deleteFunc(request: DeleteFuncRequest): Promise<DeleteFuncResponse> {
     const req = new FuncsPB.DeleteFuncRequest();
     req.setRef(request.name);
