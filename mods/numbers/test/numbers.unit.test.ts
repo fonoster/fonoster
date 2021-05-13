@@ -15,13 +15,6 @@ const sandbox = sinon.createSandbox();
 
 describe("@fonos/number", () => {
   const numberObj = new NumbersPB.Number();
-  const numberPlain = {
-    ref: "cb8V0CNTfH",
-    e164Number: "16471234567",
-    aorLink: "sip:john@sip.local",
-    ingressApp: "hYTHYCYv_U",
-    providerRef: "Nx05y-ldZa"
-  };
   numberObj.setRef("cb8V0CNTfH");
   numberObj.setE164Number("16471234567");
   numberObj.setAorLink("sip:john@sip.local");
@@ -29,6 +22,14 @@ describe("@fonos/number", () => {
   numberObj.setIngressApp("hYTHYCYv_U");
   numberObj.setUpdateTime("...");
   numberObj.setCreateTime("...");
+
+  const numberPlain = {
+    ref: numberObj.getRef(),
+    e164Number: numberObj.getE164Number(),
+    aorLink: numberObj.getAorLink(),
+    ingressApp: numberObj.getIngressApp(),
+    providerRef: numberObj.getProviderRef()
+  };
 
   afterEach(() => sandbox.restore());
 
