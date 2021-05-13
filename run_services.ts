@@ -6,6 +6,7 @@ if (process.env.NODE_ENV === "dev") {
   dotenv.config({path: join(__dirname, ".env")});
 }
 
+import FuncsServer from "./mods/funcs/src/service/funcs";
 import AgentsServer from "./mods/agents/src/service/agents";
 import DomainsServer from "./mods/domains/src/service/domains";
 import NumbersServer from "./mods/numbers/src/service/numbers";
@@ -14,6 +15,7 @@ import CallManagerServer from "./mods/callmanager/src/service/callmanager";
 import AppManagerServer from "./mods/appmanager/src/service/appmanager";
 import StorageServer from "./mods/storage/src/service/storage";
 import UserManagerServer from "./mods/usermanager/src/service/usermanager";
+import {FuncsService} from "./mods/funcs/src/service/protos/funcs_grpc_pb";
 import {AgentsService} from "./mods/agents/src/service/protos/agents_grpc_pb";
 import {DomainsService} from "./mods/domains/src/service/protos/domains_grpc_pb";
 import {NumbersService} from "./mods/numbers/src/service/protos/numbers_grpc_pb";
@@ -22,12 +24,20 @@ import {CallManagerService} from "./mods/callmanager/src/service/protos/callmana
 import {AppManagerService} from "./mods/appmanager/src/service/protos/appmanager_grpc_pb";
 import {StorageService} from "./mods/storage/src/service/protos/storage_grpc_pb";
 import {UserManagerService} from "./mods/usermanager/src/service/protos/usermanager_grpc_pb";
-import {getSalt} from "./mods/certs/src/certs";
+
 import runServices from "./mods/core/src/service_runner";
-// Taking this from the module to avoid Mongoose complication error
-import {AuthMiddleware} from "@fonos/auth";
+
+//  Temporarily removing the authentication middleware to avoid Mongoose complication error
+//  import {AuthMiddleware} from "@fonos/auth";
+//  import {getSalt} from "./mods/certs/src/certs";
 
 const services = [
+  {
+    name: "Funcs",
+    version: "v1alpha1",
+    service: FuncsService,
+    server: new FuncsServer()
+  },
   {
     name: "Agents",
     version: "v1alpha1",
@@ -78,11 +88,11 @@ const services = [
   }
 ];
 
-const middlewares = [
-  {
-    name: "Authentication",
-    middlewareObj: new AuthMiddleware(getSalt()).middleware
-  }
-];
+//  const middlewares = [
+//  {
+//    name: "Authentication",
+//    middlewareObj: new AuthMiddleware(getSalt()).middleware
+//   }
+//  ];
 
-runServices(services, middlewares);
+runServices(services, []);

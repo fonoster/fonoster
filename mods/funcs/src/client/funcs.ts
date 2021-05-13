@@ -15,7 +15,16 @@ export default class Funcs extends FonosService {
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
-  // eslint-disable-next-line require-jsdoc
+  /**
+   *
+   * @param appPath
+   * @param appRef
+   * @returns
+   * @throws if function already exist (Instead use updateFunc)
+   * @throws if fails to authenticate with FaaS of Docker registry
+   * @throws if function name or image is empty
+   * @throws if unable to connect with FaaS
+   */
   async deployApp(appPath: string, appRef?: string): Promise<unknown> {
     return null;
   }

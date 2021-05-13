@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-import AppManagerServer from "./service/funcs";
-import {AppManagerService} from "./service/protos/appmanager_grpc_pb";
 import {AuthMiddleware} from "@fonos/auth";
-import {getSalt} from "@fonos/certs";
 import {runServices} from "@fonos/core";
+import {getSalt} from "@fonos/certs";
+import {FuncsService} from "./service/protos/funcs_grpc_pb";
+import FuncsServer from "./service/funcs";
 
 const services = [
   {
-    name: "AppManager",
+    name: "Funcs",
     version: "v1alpha1",
-    service: AppManagerService,
-    server: new AppManagerServer()
+    service: FuncsService,
+    server: new FuncsServer()
   }
 ];
 

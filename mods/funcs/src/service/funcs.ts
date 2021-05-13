@@ -21,23 +21,19 @@ import logger from "@fonos/logger";
 import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
 import {getAccessKeyId} from "@fonos/core";
 
-const registryAuth = "cHNhbmRlcnM6RzR0MHA0cmQwIw==";
-
-const auth = new HttpBasicAuth();
-auth.username = "admin";
-auth.password =
-  "N4iuzYIh2IZJ0ZPMoJQH1xOLlUIhOBvTvruXzjT4LIhD3Lfr4RbuFc7PPv8V8Uk";
-
+// Initializing access info for FaaS
 const faas = new FaaS();
+const auth = new HttpBasicAuth();
+auth.username = process.env.FUNCS_USERNAME;
+auth.password = process.env.FUNCS_SECRET;
 faas.setDefaultAuthentication(auth);
-faas.basePath = "http://faasd.fonoster.net:8080";
+faas.basePath = process.env.FUNCS_URL;
 
 const getFuncName = (accessKeyId: string, name: string) =>
   `fn-${accessKeyId}-${name}`;
 
 interface FuncParameters {
   func: Func;
-  registryAuth: string;
   accessKeyId: string;
   jwtSignature: string;
 }
@@ -55,7 +51,7 @@ const prepareParameters = (params: FuncParameters) => {
       cpu: undefined
     },
     envProcess: "npm run start",
-    registryAuth,
+    registryAuth: process.env.DOCKER_REGISTRY_AUTH,
     labels: {
       funcName: params.func.getName()
     },
@@ -75,7 +71,7 @@ const prepareParameters = (params: FuncParameters) => {
   return parameters;
 };
 
-const rawFuncToFunc = (rawFunc:any) => {
+const rawFuncToFunc = (rawFunc: any) => {
   const func = new Func();
   func.setName(rawFunc.labels.funcName);
   func.setImage(rawFunc.image);
@@ -83,7 +79,7 @@ const rawFuncToFunc = (rawFunc:any) => {
   func.setReplicas(rawFunc.replicas);
   func.setAvailableReplicas(rawFunc.availableReplicas);
   return func;
-}
+};
 
 class FuncsServer implements IFuncsServer {
   getFuncLogs: grpc.handleServerStreamingCall<GetFuncLogsRequest, FuncLog>;
@@ -100,7 +96,7 @@ class FuncsServer implements IFuncsServer {
       (f) => f.envVars.ACCESS_KEY_ID === accessKeyId
     );
 
-    const funcs = rawFuncs.map(f => rawFuncToFunc(f));
+    const funcs = rawFuncs.map((f) => rawFuncToFunc(f));
     const response = new ListFuncsResponse();
     response.setFuncsList(funcs);
     // No pagination need because the list of function is likely to be short
@@ -141,7 +137,6 @@ class FuncsServer implements IFuncsServer {
     try {
       const parameters = prepareParameters({
         func: call.request.getFunc(),
-        registryAuth,
         accessKeyId: getAccessKeyId(call),
         jwtSignature: "" // TODO
       });
@@ -180,7 +175,6 @@ class FuncsServer implements IFuncsServer {
       const accessKeyId = getAccessKeyId(call);
       const parameters = prepareParameters({
         func: call.request.getFunc(),
-        registryAuth,
         accessKeyId: accessKeyId,
         jwtSignature: "" // TODO
       });
@@ -191,7 +185,7 @@ class FuncsServer implements IFuncsServer {
         (f) =>
           f.name === getFuncName(accessKeyId, call.request.getFunc().getName())
       )[0];
-     
+
       callback(null, rawFuncToFunc(rawFunction));
     } catch (e) {
       logger.error(e.message);

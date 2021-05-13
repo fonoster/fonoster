@@ -8,6 +8,11 @@
 #   FS => Files Server (Minio)
 
 EVENTS_BROKERS: amqp://fonos:changeit@localhost:5672
+# Base64 string with username:password
+DOCKER_REGISTRY_AUTH=
+FUNCS_URL=https://faas:8080
+FUNCS_USERNAME=admin
+FUNCS_SECRET=changeit
 MS_ARI_URL=http://localhost:8088
 MS_ARI_USERNAME=admin
 MS_ARI_SECRET=changeit
