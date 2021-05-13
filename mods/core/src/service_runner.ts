@@ -7,7 +7,7 @@ import {
   HealthCheckResponse,
   HealthService
 } from "grpc-ts-health-check";
-const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50051";
+const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
 import {mongoConnection} from "@fonos/auth";
 
 interface ServiceInf {
