@@ -1,6 +1,6 @@
 {
   "name": "@fonos/core",
-  "version": "0.0.86",
+  "version": "0.0.87",
   "description": "Core artifacts",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,11 +29,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.86",
-    "@fonos/certs": "^0.0.86",
-    "@fonos/errors": "^0.0.86",
-    "@fonos/events": "^0.0.86",
-    "@fonos/logger": "^0.0.86",
+    "@fonos/auth": "^0.0.87",
+    "@fonos/certs": "^0.0.87",
+    "@fonos/errors": "^0.0.87",
+    "@fonos/events": "^0.0.87",
+    "@fonos/logger": "^0.0.87",
     "@pionerlabs/grpc-interceptors": "^0.2.5",
     "ari-client": "^2.2.0",
     "atob": "^2.1.2",
