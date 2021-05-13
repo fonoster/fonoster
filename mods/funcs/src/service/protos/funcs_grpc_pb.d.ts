@@ -12,6 +12,7 @@ interface IFuncsService extends grpc.ServiceDefinition<grpc.UntypedServiceImplem
     listFuncs: IFuncsService_IListFuncs;
     getFunc: IFuncsService_IGetFunc;
     createFunc: IFuncsService_ICreateFunc;
+    updateFunc: IFuncsService_IUpdateFunc;
     deleteFunc: IFuncsService_IDeleteFunc;
     getFuncLogs: IFuncsService_IGetFuncLogs;
 }
@@ -43,6 +44,15 @@ interface IFuncsService_ICreateFunc extends grpc.MethodDefinition<funcs_pb.Creat
     responseSerialize: grpc.serialize<funcs_pb.Func>;
     responseDeserialize: grpc.deserialize<funcs_pb.Func>;
 }
+interface IFuncsService_IUpdateFunc extends grpc.MethodDefinition<funcs_pb.UpdateFuncRequest, funcs_pb.Func> {
+    path: "/fonos.appmanager.v1alpha1.Funcs/UpdateFunc";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<funcs_pb.UpdateFuncRequest>;
+    requestDeserialize: grpc.deserialize<funcs_pb.UpdateFuncRequest>;
+    responseSerialize: grpc.serialize<funcs_pb.Func>;
+    responseDeserialize: grpc.deserialize<funcs_pb.Func>;
+}
 interface IFuncsService_IDeleteFunc extends grpc.MethodDefinition<funcs_pb.DeleteFuncRequest, common_pb.Empty> {
     path: "/fonos.appmanager.v1alpha1.Funcs/DeleteFunc";
     requestStream: false;
@@ -68,6 +78,7 @@ export interface IFuncsServer {
     listFuncs: grpc.handleUnaryCall<funcs_pb.ListFuncsRequest, funcs_pb.ListFuncsResponse>;
     getFunc: grpc.handleUnaryCall<funcs_pb.GetFuncRequest, funcs_pb.Func>;
     createFunc: grpc.handleUnaryCall<funcs_pb.CreateFuncRequest, funcs_pb.Func>;
+    updateFunc: grpc.handleUnaryCall<funcs_pb.UpdateFuncRequest, funcs_pb.Func>;
     deleteFunc: grpc.handleUnaryCall<funcs_pb.DeleteFuncRequest, common_pb.Empty>;
     getFuncLogs: grpc.handleServerStreamingCall<funcs_pb.GetFuncLogsRequest, funcs_pb.FuncLog>;
 }
@@ -82,6 +93,9 @@ export interface IFuncsClient {
     createFunc(request: funcs_pb.CreateFuncRequest, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
     createFunc(request: funcs_pb.CreateFuncRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
     createFunc(request: funcs_pb.CreateFuncRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
+    updateFunc(request: funcs_pb.UpdateFuncRequest, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
+    updateFunc(request: funcs_pb.UpdateFuncRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
+    updateFunc(request: funcs_pb.UpdateFuncRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
     deleteFunc(request: funcs_pb.DeleteFuncRequest, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
     deleteFunc(request: funcs_pb.DeleteFuncRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
     deleteFunc(request: funcs_pb.DeleteFuncRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
@@ -100,6 +114,9 @@ export class FuncsClient extends grpc.Client implements IFuncsClient {
     public createFunc(request: funcs_pb.CreateFuncRequest, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
     public createFunc(request: funcs_pb.CreateFuncRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
     public createFunc(request: funcs_pb.CreateFuncRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
+    public updateFunc(request: funcs_pb.UpdateFuncRequest, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
+    public updateFunc(request: funcs_pb.UpdateFuncRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
+    public updateFunc(request: funcs_pb.UpdateFuncRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: funcs_pb.Func) => void): grpc.ClientUnaryCall;
     public deleteFunc(request: funcs_pb.DeleteFuncRequest, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
     public deleteFunc(request: funcs_pb.DeleteFuncRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
     public deleteFunc(request: funcs_pb.DeleteFuncRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;

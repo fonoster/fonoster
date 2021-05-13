@@ -100,6 +100,17 @@ function deserialize_fonos_appmanager_v1alpha1_ListFuncsResponse(buffer_arg) {
   return funcs_pb.ListFuncsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonos_appmanager_v1alpha1_UpdateFuncRequest(arg) {
+  if (!(arg instanceof funcs_pb.UpdateFuncRequest)) {
+    throw new Error('Expected argument of type fonos.appmanager.v1alpha1.UpdateFuncRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonos_appmanager_v1alpha1_UpdateFuncRequest(buffer_arg) {
+  return funcs_pb.UpdateFuncRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonos_common_v1alpha1_Empty(arg) {
   if (!(arg instanceof common_pb.Empty)) {
     throw new Error('Expected argument of type fonos.common.v1alpha1.Empty');
@@ -146,6 +157,18 @@ createFunc: {
     responseType: funcs_pb.Func,
     requestSerialize: serialize_fonos_appmanager_v1alpha1_CreateFuncRequest,
     requestDeserialize: deserialize_fonos_appmanager_v1alpha1_CreateFuncRequest,
+    responseSerialize: serialize_fonos_appmanager_v1alpha1_Func,
+    responseDeserialize: deserialize_fonos_appmanager_v1alpha1_Func,
+  },
+  // Updates a function, keeping metrics intact
+updateFunc: {
+    path: '/fonos.appmanager.v1alpha1.Funcs/UpdateFunc',
+    requestStream: false,
+    responseStream: false,
+    requestType: funcs_pb.UpdateFuncRequest,
+    responseType: funcs_pb.Func,
+    requestSerialize: serialize_fonos_appmanager_v1alpha1_UpdateFuncRequest,
+    requestDeserialize: deserialize_fonos_appmanager_v1alpha1_UpdateFuncRequest,
     responseSerialize: serialize_fonos_appmanager_v1alpha1_Func,
     responseDeserialize: deserialize_fonos_appmanager_v1alpha1_Func,
   },

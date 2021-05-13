@@ -133,6 +133,29 @@ export namespace CreateFuncRequest {
     }
 }
 
+export class UpdateFuncRequest extends jspb.Message { 
+
+    hasFunc(): boolean;
+    clearFunc(): void;
+    getFunc(): Func | undefined;
+    setFunc(value?: Func): UpdateFuncRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): UpdateFuncRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: UpdateFuncRequest): UpdateFuncRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: UpdateFuncRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): UpdateFuncRequest;
+    static deserializeBinaryFromReader(message: UpdateFuncRequest, reader: jspb.BinaryReader): UpdateFuncRequest;
+}
+
+export namespace UpdateFuncRequest {
+    export type AsObject = {
+        func?: Func.AsObject,
+    }
+}
+
 export class DeleteFuncRequest extends jspb.Message { 
     getRef(): string;
     setRef(value: string): DeleteFuncRequest;
