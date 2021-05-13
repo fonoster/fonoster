@@ -164,7 +164,7 @@ export default class Funcs extends FonosService {
    */
   async getFunc(request: GetFuncRequest): Promise<GetFuncResponse> {
     const req = new FuncsPB.GetFuncRequest();
-    req.setRef(request.name);
+    req.setName(request.name);
 
     const res = await super.getService().getFunc().sendMessage(req);
 
@@ -197,7 +197,7 @@ export default class Funcs extends FonosService {
    */
   async deleteFunc(request: DeleteFuncRequest): Promise<DeleteFuncResponse> {
     const req = new FuncsPB.DeleteFuncRequest();
-    req.setRef(request.name);
+    req.setName(request.name);
     await super.getService().deleteFunc().sendMessage(req);
     return {
       name: request.name

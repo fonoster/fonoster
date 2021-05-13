@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.appmanager.v1alpha1;
+package fonos.funcs.v1alpha1;
 
 import "common.proto";
 
@@ -56,9 +56,7 @@ message GetFuncLogsRequest {
 }
 
 message GetFuncRequest {
-  // The field will contain the reference of the app requested, for example:
-  // "apps/hello-world"
-  string ref = 1;
+  string name = 1;
   // Requested level of detail
   fonos.common.v1alpha1.View view = 2;
 }
@@ -72,7 +70,7 @@ message UpdateFuncRequest {
 }
 
 message DeleteFuncRequest {
-  string ref = 1;
+  string name = 1;
 }
 
 message Func {

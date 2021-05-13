@@ -114,12 +114,12 @@ class FuncsServer implements IFuncsServer {
       const list = (await faas.systemFunctionsGet()).response.body;
       const accessKeyId = getAccessKeyId(call);
       const rawFunction = list.filter(
-        (f) => f.name === getFuncName(accessKeyId, call.request.getRef())
+        (f) => f.name === getFuncName(accessKeyId, call.request.getName())
       )[0];
 
       if (!rawFunction)
         throw new FonosError(
-          `Function name ${call.request.getRef()} doesn't exist`,
+          `Function name ${call.request.getName()} doesn't exist`,
           ErrorCodes.NOT_FOUND
         );
 
@@ -213,7 +213,7 @@ class FuncsServer implements IFuncsServer {
   ) {
     try {
       const accessKeyId = getAccessKeyId(call);
-      const functionName = getFuncName(accessKeyId, call.request.getRef());
+      const functionName = getFuncName(accessKeyId, call.request.getName());
       await faas.systemFunctionsDelete({functionName});
       callback(null, new Empty());
     } catch (e) {
