@@ -49,7 +49,7 @@
     "@fonos/logger": "^0.0.87",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
-    "openfaas-client": "github:fonoster/openfaas-client"
+    "openfaas-client": "^0.0.2"
   },
   "devDependencies": {
     "@types/node": "^8",

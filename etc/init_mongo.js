@@ -32,7 +32,13 @@ const access = [
   "/fonos.agents.v1alpha1.Agents/CreateAgent",
   "/fonos.agents.v1alpha1.Agents/GetAgent",
   "/fonos.agents.v1alpha1.Agents/UpdateAgent",
-  "/fonos.agents.v1alpha1.Agents/DeleteAgent"
+  "/fonos.agents.v1alpha1.Agents/DeleteAgent",
+  "/fonos.funcs.v1alpha1.Funcs/ListFuncs",
+  "/fonos.funcs.v1alpha1.Funcs/GetFunc",
+  "/fonos.funcs.v1alpha1.Funcs/CreateFunc",
+  "/fonos.funcs.v1alpha1.Funcs/UpdateFunc",
+  "/fonos.funcs.v1alpha1.Funcs/DeleteFunc",
+  "/fonos.funcs.v1alpha1.Funcs/GetFuncLogs"
 ];
 
 const roles = [

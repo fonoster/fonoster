@@ -37,7 +37,7 @@ cd .compose
 sudo docker-compose --env-file .env \
     -f 00_deps.yml \
     -f 01_api.yml \
-    -f 02_sipnet.yml up 
+    -f 02_sipnet.yml up
 ```
 
 Once all the services all up an running initialize the system with:

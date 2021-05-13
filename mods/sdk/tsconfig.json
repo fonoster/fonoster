@@ -5,6 +5,7 @@
     "rootDir": "./src"
   },
   "references": [
+    {"path": "../funcs"},
     {"path": "../storage"},
     {"path": "../appmanager"},
     {"path": "../callmanager"},
