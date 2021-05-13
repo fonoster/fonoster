@@ -119,7 +119,7 @@ class FuncsServer implements IFuncsServer {
 
       if (!rawFunction)
         throw new FonosError(
-          `Function name ${call.request.getName()} doesn't exist`,
+          `Function name "${call.request.getName()}" doesn't exist`,
           ErrorCodes.NOT_FOUND
         );
 
@@ -211,14 +211,17 @@ class FuncsServer implements IFuncsServer {
     call: grpc.ServerUnaryCall<DeleteFuncRequest>,
     callback: grpc.sendUnaryData<Empty>
   ) {
+    const accessKeyId = getAccessKeyId(call);
+    const functionName = getFuncName(accessKeyId, call.request.getName());
     try {
-      const accessKeyId = getAccessKeyId(call);
-      const functionName = getFuncName(accessKeyId, call.request.getName());
       await faas.systemFunctionsDelete({functionName});
       callback(null, new Empty());
     } catch (e) {
       if (e.response.statusCode === 404) {
-        callback(new FonosError(e.response.body, ErrorCodes.NOT_FOUND), null);
+        callback(new FonosError(
+          `Function name "${call.request.getName()}" doesn't exist`,
+          ErrorCodes.NOT_FOUND
+        ), null);
       }
       callback(e, null);
     }
