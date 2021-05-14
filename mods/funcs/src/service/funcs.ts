@@ -54,7 +54,7 @@ const getFuncName = (accessKeyId: string, name: string) =>
   `fn.${accessKeyId}.${name}`;
 
 const getImageName = (accessKeyId: string, name: string) =>
-`${process.env.DOCKER_REGISTRY_REPO}/fn.${accessKeyId}.${name}`;
+  `${process.env.DOCKER_REGISTRY_REPO}/fn.${accessKeyId}.${name}`;
 
 interface FuncParameters {
   func: Func;
@@ -267,23 +267,28 @@ class FuncsServer implements IFuncsServer {
   ) {
     try {
       if (!call.request.getFuncName())
-        throw new FonosError('Missing function name', ErrorCodes.INVALID_ARGUMENT)
+        throw new FonosError(
+          "Missing function name",
+          ErrorCodes.INVALID_ARGUMENT
+        );
       const endpoint = process.env.DOCKER_REGISTRY_AUTH_ENDPOINT;
       const service = process.env.DOCKER_REGISTRY_SERVICE;
       const repo = process.env.DOCKER_REGISTRY_REPO;
       const auth = process.env.DOCKER_REGISTRY_AUTH;
-      const accessKeyId = getAccessKeyId(call); 
+      const accessKeyId = getAccessKeyId(call);
       const image = getImageName(accessKeyId, call.request.getFuncName());
       const baseURL = `${endpoint}?service=${service}&scope=repository:${image}:push`;
-      const result = await axios.create({
+      const result = await axios
+        .create({
           headers: {Authorization: `Basic ${auth}`}
-        }).get(baseURL);
+        })
+        .get(baseURL);
       const token = result.data.token;
       const res = new CreateRegistryTokenResponse();
       res.setToken(token);
       res.setImage(image);
       callback(null, res);
-    } catch(e) {
+    } catch (e) {
       callback(new FonosError(e), null);
     }
   }
