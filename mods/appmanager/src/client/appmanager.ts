@@ -135,7 +135,7 @@ export default class AppManager extends FonosService {
     await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
     await this.storage.uploadObject({
       filename: `/tmp/${dirName}.tgz`,
-      bucket: "apps" // TODO: Maybe I should place this in the .env
+      bucket: "apps"
     });
 
     // Cleanup after deploy
