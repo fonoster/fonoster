@@ -8,11 +8,13 @@
 #   FS => Files Server (Minio)
 
 EVENTS_BROKERS: amqp://fonos:changeit@localhost:5672
-# Base64 string with username:password
-DOCKER_REGISTRY_AUTH=
 FUNCS_URL=https://faas:8080
 FUNCS_USERNAME=admin
 FUNCS_SECRET=changeit
+DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
+DOCKER_REGISTRY_AUTH=YWRtaW46Y2hhbmdlaXQ=
+DOCKER_REGISTRY_REPO=docker.io/yourrepo
+DOCKER_REGISTRY_SERVICE=registry.docker.io
 MS_ARI_URL=http://localhost:8088
 MS_ARI_USERNAME=admin
 MS_ARI_SECRET=changeit
@@ -40,4 +42,3 @@ SIPPROXY_API_SECRET=changeit
 LOGS_DRIVER_HOST=logsdriver.fonos
 LOGS_DRIVER_PORT=24224
 LOG_OPT_TAG_PREFIX=alpha
-
