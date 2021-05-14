@@ -63,10 +63,13 @@ const prepareParameters = (params: FuncParameters) => {
   const limits = params.func.getLimits();
   const requests = params.func.getRequests();
 
-  if (limits && limits.getMemory()) parameters.limits.memory = limits.getMemory();
+  if (limits && limits.getMemory())
+    parameters.limits.memory = limits.getMemory();
   if (limits && limits.getCpu()) parameters.limits.cpu = limits.getCpu();
-  if (requests && requests.getMemory()) parameters.requests.memory = requests.getMemory();
-  if (requests && requests.getCpu()) parameters.requests.cpu = requests.getCpu();
+  if (requests && requests.getMemory())
+    parameters.requests.memory = requests.getMemory();
+  if (requests && requests.getCpu())
+    parameters.requests.cpu = requests.getCpu();
 
   return parameters;
 };
