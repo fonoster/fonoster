@@ -24,6 +24,8 @@ service Funcs {
   rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1alpha1.Empty) {};
   // Peforms a hard delete of the function
   rpc GetFuncLogs (GetFuncLogsRequest) returns (stream FuncLog) {};
+  // Creates a one time scoped token for access to the registry 
+  rpc CreateRegistryToken (CreateRegistryTokenRequest) returns (CreateRegistryTokenResponse);
 }
 
 message ListFuncsRequest {
@@ -71,6 +73,15 @@ message UpdateFuncRequest {
 
 message DeleteFuncRequest {
   string name = 1;
+}
+
+message CreateRegistryTokenRequest {
+  string func_name = 1;
+}
+
+message CreateRegistryTokenResponse {
+  string token = 1;
+  string image = 2;
 }
 
 message Func {

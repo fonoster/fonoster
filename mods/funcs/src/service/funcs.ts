@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import grpc from "grpc";
 import {Empty} from "./protos/common_pb";
 import {
@@ -6,6 +24,8 @@ import {
   IFuncsServer
 } from "./protos/funcs_grpc_pb";
 import {
+  CreateRegistryTokenRequest,
+  CreateRegistryTokenResponse,
   CreateFuncRequest,
   UpdateFuncRequest,
   DeleteFuncRequest,
@@ -20,6 +40,7 @@ import {HttpBasicAuth, DefaultApi as FaaS} from "openfaas-client";
 import logger from "@fonos/logger";
 import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
 import {getAccessKeyId} from "@fonos/core";
+import axios from "axios";
 
 // Initializing access info for FaaS
 const faas = new FaaS();
@@ -30,7 +51,10 @@ faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
 
 const getFuncName = (accessKeyId: string, name: string) =>
-  `fn-${accessKeyId}-${name}`;
+  `fn.${accessKeyId}.${name}`;
+
+const getImageName = (accessKeyId: string, name: string) =>
+`${process.env.DOCKER_REGISTRY_REPO}/fn.${accessKeyId}.${name}`;
 
 interface FuncParameters {
   func: Func;
@@ -230,6 +254,37 @@ class FuncsServer implements IFuncsServer {
         );
       }
       callback(e, null);
+    }
+  }
+
+  /**
+   * This function creates a single use, scoped token, useful for pushing images
+   * to a private Docker registry.
+   */
+  async createRegistryToken(
+    call: grpc.ServerUnaryCall<CreateRegistryTokenRequest>,
+    callback: grpc.sendUnaryData<CreateRegistryTokenResponse>
+  ) {
+    try {
+      if (!call.request.getFuncName())
+        throw new FonosError('Missing function name', ErrorCodes.INVALID_ARGUMENT)
+      const endpoint = process.env.DOCKER_REGISTRY_AUTH_ENDPOINT;
+      const service = process.env.DOCKER_REGISTRY_SERVICE;
+      const repo = process.env.DOCKER_REGISTRY_REPO;
+      const auth = process.env.DOCKER_REGISTRY_AUTH;
+      const accessKeyId = getAccessKeyId(call); 
+      const image = getImageName(accessKeyId, call.request.getFuncName());
+      const baseURL = `${endpoint}?service=${service}&scope=repository:${image}:push`;
+      const result = await axios.create({
+          headers: {Authorization: `Basic ${auth}`}
+        }).get(baseURL);
+      const token = result.data.token;
+      const res = new CreateRegistryTokenResponse();
+      res.setToken(token);
+      res.setImage(image);
+      callback(null, res);
+    } catch(e) {
+      callback(new FonosError(e), null);
     }
   }
 }

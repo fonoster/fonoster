@@ -47,6 +47,7 @@
     "@fonos/core": "^0.0.87",
     "@fonos/errors": "^0.0.87",
     "@fonos/logger": "^0.0.87",
+    "axios": "^0.21.1",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
     "openfaas-client": "^0.0.2"
