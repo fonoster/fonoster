@@ -16,33 +16,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { UploadObjectResponse } from "../service/protos/storage_pb";
-import { extract, removeDirSync } from "./files";
-import { uploadToFS } from "./storage";
+import {UploadObjectResponse} from "../service/protos/storage_pb";
+import {extract, removeDirSync} from "./files";
+import {uploadToFS} from "./storage";
 
 export const handleCompressUpload = async (
-    accessKeyId: string,
-    object: string,
-    bucket: string,
-    fileSize: number
+  accessKeyId: string,
+  object: string,
+  bucket: string,
+  fileSize: number
 ) => {
-    await extract(`/tmp/${object}`, "/tmp");
-    const nameWithoutExt = object.split(".")[0];
-    await uploadToFS(accessKeyId, bucket, `/tmp/${nameWithoutExt}`);
-    removeDirSync(`/tmp/${nameWithoutExt}`);
-    const response = new UploadObjectResponse();
-    response.setSize(fileSize);
-    return response;
+  await extract(`/tmp/${object}`, "/tmp");
+  const nameWithoutExt = object.split(".")[0];
+  await uploadToFS(accessKeyId, bucket, `/tmp/${nameWithoutExt}`);
+  removeDirSync(`/tmp/${nameWithoutExt}`);
+  const response = new UploadObjectResponse();
+  response.setSize(fileSize);
+  return response;
 };
 
 export const handleUncompressUpload = async (
-    accessKeyId: string,
-    object: string,
-    bucket: string,
-    fileSize: number
+  accessKeyId: string,
+  object: string,
+  bucket: string,
+  fileSize: number
 ) => {
-    await uploadToFS(accessKeyId, bucket, `/tmp/${object}`, object);
-    const response = new UploadObjectResponse();
-    response.setSize(fileSize);
-    return response;
+  await uploadToFS(accessKeyId, bucket, `/tmp/${object}`, object);
+  const response = new UploadObjectResponse();
+  response.setSize(fileSize);
+  return response;
 };

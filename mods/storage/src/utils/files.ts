@@ -21,33 +21,34 @@ import tar from "tar";
 import logger from "@fonos/logger";
 
 export const isCompressFile = (object: string) =>
-    object.endsWith(".zip") ||
-    object.endsWith(".tar") ||
-    object.endsWith(".tgz") ||
-    object.endsWith(".tar.gz");
+  object.endsWith(".zip") ||
+  object.endsWith(".tar") ||
+  object.endsWith(".tgz") ||
+  object.endsWith(".tar.gz");
 
 export const removeDirSync = (pathToFile: string) => {
-    if (fs.existsSync(pathToFile)) {
-        const files = fs.readdirSync(pathToFile);
+  if (fs.existsSync(pathToFile)) {
+    const files = fs.readdirSync(pathToFile);
 
-        if (files.length > 0) {
-            files.forEach(function (filename: string) {
-                if (fs.statSync(pathToFile + "/" + filename).isDirectory()) {
-                    removeDirSync(pathToFile + "/" + filename);
-                } else {
-                    fs.unlinkSync(pathToFile + "/" + filename);
-                }
-            });
-            fs.rmdirSync(pathToFile);
+    if (files.length > 0) {
+      files.forEach(function (filename: string) {
+        if (fs.statSync(pathToFile + "/" + filename).isDirectory()) {
+          removeDirSync(pathToFile + "/" + filename);
         } else {
-            fs.rmdirSync(pathToFile);
+          fs.unlinkSync(pathToFile + "/" + filename);
         }
+      });
+      fs.rmdirSync(pathToFile);
     } else {
-        logger.log("warn", "Directory path not found.");
+      fs.rmdirSync(pathToFile);
     }
+  } else {
+    logger.log("warn", "Directory path not found.");
+  }
 };
 
 export const extract = (source: string, target: string) =>
-    tar.extract({ file: source, cwd: target });
+  tar.extract({file: source, cwd: target});
 
-export const getFilesizeInBytes = (filename: string) => fs.statSync(filename)["size"];
+export const getFilesizeInBytes = (filename: string) =>
+  fs.statSync(filename)["size"];

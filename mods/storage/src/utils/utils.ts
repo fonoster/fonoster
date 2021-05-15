@@ -1,5 +1,5 @@
-import { FonosError, FonosFailedPrecondition } from "@fonos/errors";
-import { UploadObjectRequest } from "../service/protos/storage_pb";
+import {FonosError, FonosFailedPrecondition} from "@fonos/errors";
+import {UploadObjectRequest} from "../service/protos/storage_pb";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
@@ -24,9 +24,9 @@ import grpc from "grpc";
 export const mapToObj = (map: {
   toArray: () => {
     (): any;
-    new(): any;
+    new (): any;
     length: number;
-    reduce: { (arg0: (e: any[]) => {}): any; new(): any };
+    reduce: {(arg0: (e: any[]) => {}): any; new (): any};
   };
 }) => {
   if (!map || map.toArray().length === 0) return {};
@@ -37,7 +37,10 @@ export const mapToObj = (map: {
   });
 };
 
-export const handleError = (err: { code: any; message: string }, bucket: string) => {
+export const handleError = (
+  err: {code: any; message: string},
+  bucket: string
+) => {
   switch (err.code) {
     case "NoSuchBucket":
       return new FonosFailedPrecondition(`${err.message} -> bucket: ${bucket}`);

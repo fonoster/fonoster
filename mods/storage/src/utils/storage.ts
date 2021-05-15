@@ -85,7 +85,6 @@ export const uploadToFS = (
     });
   });
 
-
 export default async function (bucket: string) {
   const fsConn = fsInstance();
   const exists = await fsConn.bucketExists(bucket);

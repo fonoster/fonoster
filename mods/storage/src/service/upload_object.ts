@@ -20,9 +20,9 @@ import logger from "@fonos/logger";
 import fs from "fs";
 import {UploadObjectRequest} from "./protos/storage_pb";
 import {getAccessKeyId} from "@fonos/core";
-import { getFilesizeInBytes, isCompressFile } from "../utils/files";
-import { handleCompressUpload, handleUncompressUpload } from "../utils/helper";
-import { getBucketName, handleError } from "../utils/utils";
+import {getFilesizeInBytes, isCompressFile} from "../utils/files";
+import {handleCompressUpload, handleUncompressUpload} from "../utils/helper";
+import {getBucketName, handleError} from "../utils/utils";
 const objectid = require("objectid");
 
 export default async function (call: any, callback: any) {
