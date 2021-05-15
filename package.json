@@ -4,7 +4,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=dev nodemon ./run_services",
     "bootstrap": "lerna bootstrap --no-ci",
-    "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.int.test.ts --exit",
+    "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "build": "lerna run build",
     "clean": "rimraf **/*/tsconfig.tsbuildinfo dist coverage **/*/dist package-lock.json **/*/package-lock.json **/*/node_modules node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
