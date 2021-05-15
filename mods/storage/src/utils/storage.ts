@@ -1,11 +1,34 @@
-import fs from "fs";
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import walk from "walk";
 import path from "path";
 import logger from "@fonos/logger";
-import tar from "tar";
-import policyForBucket from "./bucket_policy";
+import policyForBucket from "../bucket_policy";
+import {join} from "path";
 
-const fsInstance = () => {
+if (process.env.NODE_ENV === "dev") {
+  require("dotenv").config({
+    path: join(__dirname, "..", "..", "..", "..", ".env")
+  });
+}
+
+export const fsInstance = () => {
   const Minio = require("minio");
   return new Minio.Client({
     endPoint: process.env.FS_HOST,
@@ -16,7 +39,7 @@ const fsInstance = () => {
   });
 };
 
-const uploadToFS = (
+export const uploadToFS = (
   accessKeyId: string,
   bucket: string,
   pathToObject: string,
@@ -62,63 +85,6 @@ const uploadToFS = (
     });
   });
 
-const removeDirSync = (pathToFile: string) => {
-  if (fs.existsSync(pathToFile)) {
-    const files = fs.readdirSync(pathToFile);
-
-    if (files.length > 0) {
-      files.forEach(function (filename: string) {
-        if (fs.statSync(pathToFile + "/" + filename).isDirectory()) {
-          removeDirSync(pathToFile + "/" + filename);
-        } else {
-          fs.unlinkSync(pathToFile + "/" + filename);
-        }
-      });
-      fs.rmdirSync(pathToFile);
-    } else {
-      fs.rmdirSync(pathToFile);
-    }
-  } else {
-    logger.log("warn", "Directory path not found.");
-  }
-};
-
-const extract = (source: string, target: string) =>
-  tar.extract({file: source, cwd: target});
-const getFilesizeInBytes = (filename: string) => fs.statSync(filename)["size"];
-
-const mapToObj = (map: {
-  toArray: () => {
-    (): any;
-    new (): any;
-    length: number;
-    reduce: {(arg0: (e: any[]) => {}): any; new (): any};
-  };
-}) => {
-  if (!map || map.toArray().length === 0) return {};
-  return map.toArray().reduce((e: any[]) => {
-    const r: any = {};
-    r[e[0]] = e[1];
-    return r;
-  });
-};
-
-export {
-  extract,
-  removeDirSync,
-  fsInstance,
-  uploadToFS,
-  getFilesizeInBytes,
-  mapToObj
-};
-
-import {join} from "path";
-
-if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({
-    path: join(__dirname, "..", "..", "..", "..", ".env")
-  });
-}
 
 export default async function (bucket: string) {
   const fsConn = fsInstance();
