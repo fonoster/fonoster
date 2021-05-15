@@ -16,13 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FuncsPB, { Func } from "./service/protos/funcs_pb";
+import FuncsPB, {Func} from "./service/protos/funcs_pb";
 import {DeployFuncRequest, FuncParameters} from "./types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 
-export const buildDeployFuncRequest = (request: DeployFuncRequest, exist: boolean) => {
+export const buildDeployFuncRequest = (
+  request: DeployFuncRequest,
+  exist: boolean
+) => {
   const limits = new FuncsPB.Resource();
   const requests = new FuncsPB.Resource();
 
@@ -36,7 +39,9 @@ export const buildDeployFuncRequest = (request: DeployFuncRequest, exist: boolea
     requests.setMemory(request.requests.memory);
   }
 
-  const cfr = exist ? new FuncsPB.UpdateFuncRequest() : new FuncsPB.CreateFuncRequest();
+  const cfr = exist
+    ? new FuncsPB.UpdateFuncRequest()
+    : new FuncsPB.CreateFuncRequest();
   cfr.setName(request.name);
   cfr.setBaseImage(request.baseImage);
   cfr.setLimits(limits);

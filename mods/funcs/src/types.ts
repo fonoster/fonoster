@@ -1,4 +1,4 @@
-import { CreateFuncRequest } from "./service/protos/funcs_pb";
+import {CreateFuncRequest} from "./service/protos/funcs_pb";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)

@@ -42,7 +42,12 @@ import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
 import {getAccessKeyId} from "@fonos/core";
 import axios from "axios";
 import {FuncsPB} from "../client/funcs";
-import { rawFuncToFunc, getFuncName, prepareParameters, getImageName } from "../utils";
+import {
+  rawFuncToFunc,
+  getFuncName,
+  prepareParameters,
+  getImageName
+} from "../utils";
 
 // Initializing access info for FaaS
 const faas = new FaaS();
@@ -74,7 +79,7 @@ export default class FuncsServer implements IFuncsServer {
       // No pagination need because the list of function is likely to be short
       // response.setNextPageToken()
       callback(null, response);
-    } catch(e) {
+    } catch (e) {
       logger.error(`@fonos/funcs list [${e}]`);
     }
   }
@@ -122,7 +127,7 @@ export default class FuncsServer implements IFuncsServer {
 
       callback(null, func);
     } catch (e) {
-      logger.error(`@fonos/funcs create [${e}]` );
+      logger.error(`@fonos/funcs create [${e}]`);
       if (e.response.body.includes("already exists")) {
         callback(
           new FonosError(
@@ -167,7 +172,7 @@ export default class FuncsServer implements IFuncsServer {
 
       callback(null, rawFuncToFunc(rawFunction));
     } catch (e) {
-      logger.error(`@fonos/funcs update [${e}]` );
+      logger.error(`@fonos/funcs update [${e}]`);
       if (e.response.statusCode === 400) {
         callback(
           new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT),
