@@ -51,14 +51,17 @@
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
+    "minio": "^7.0.18",
     "objectid": "^3.2.1",
     "sync": "^0.2.5",
+    "tar": "^6.1.0",
     "walk": "^2.3.14"
   },
   "devDependencies": {
     "@types/fibers": "^3.1.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "dotenv": "^8.6.0",
     "fibers": "^5.0.0",
     "nodemon": "^2.0.7",
     "rimraf": "^3.0.2",

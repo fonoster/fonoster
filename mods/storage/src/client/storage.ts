@@ -27,8 +27,8 @@ import {
   UploadObjectResponse
 } from "./types";
 import {promisifyAll} from "grpc-promise";
-import {utils} from "./utils";
 import grpc from "grpc";
+import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
 
 /**
  * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
@@ -84,16 +84,14 @@ export default class Storage extends FonosService {
   async uploadObject(
     request: UploadObjectRequest
   ): Promise<UploadObjectResponse> {
-    if (utils.isDirectory(request.filename)) {
+    if (isDirectory(request.filename)) {
       throw new Error("Uploading a directory is not supported");
     }
-    // Must pass empty UploadObjectRequest
+    // Passing empty UploadObjectRequest only for initialization
     const uor = new StoragePB.UploadObjectRequest();
-
     const result = await this.getService().uploadObject().sendMessage(uor);
-    const size = utils.uploadServiceUtils(request, result.stream);
     return {
-      size: size
+      size: await uploadServiceUtils(request, result.stream)
     };
   }
 
@@ -124,7 +122,7 @@ export default class Storage extends FonosService {
   ): Promise<getObjectURLResponse> {
     const result = await this.getService()
       .getObjectURL()
-      .sendMessage(utils.getObjectServiceUtils(request));
+      .sendMessage(getObjectServiceUtils(request));
 
     return {url: result.getUrl()};
   }
@@ -208,3 +206,4 @@ export default class Storage extends FonosService {
 }
 
 export {StoragePB, CommonPB};
+

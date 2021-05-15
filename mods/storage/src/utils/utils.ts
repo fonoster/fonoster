@@ -20,6 +20,8 @@ import {UploadObjectRequest} from "../service/protos/storage_pb";
  * limitations under the License.
  */
 import grpc from "grpc";
+import {constants} from "./constants";
+import {StoragePB} from "../client/storage";
 
 export const mapToObj = (map: {
   toArray: () => {
@@ -51,15 +53,30 @@ export const handleError = (
   }
 };
 
-export const getBucketName = (bucket: UploadObjectRequest.Bucket) => {
+export const getBucketAsString = (bucket: UploadObjectRequest.Bucket) => {
   switch (bucket) {
     case UploadObjectRequest.Bucket.FUNCS:
-      return "funcs";
+      return constants.FUNCS_BUCKET;
     case UploadObjectRequest.Bucket.APPS:
-      return "apps";
+      return constants.APPS_BUCKET;
     case UploadObjectRequest.Bucket.RECORDINGS:
-      return "recordings";
+      return constants.RECORDINGS_BUCKET;
     case UploadObjectRequest.Bucket.PUBLIC:
-      return "public";
+      return constants.PUBLIC_BUCKET;
+  }
+};
+
+export const getBucketAsPB = (bucket: string): UploadObjectRequest.Bucket => {
+  switch (bucket) {
+    case constants.APPS_BUCKET:
+      return StoragePB.GetObjectURLRequest.Bucket.APPS;
+    case constants.FUNCS_BUCKET:
+      return StoragePB.GetObjectURLRequest.Bucket.FUNCS;
+    case constants.RECORDINGS_BUCKET:
+      return StoragePB.GetObjectURLRequest.Bucket.RECORDINGS;
+    case constants.PUBLIC_BUCKET:
+      return StoragePB.GetObjectURLRequest.Bucket.PUBLIC;
+    default:
+      throw new FonosError(`Bucket ${bucket} is not a valid one`);
   }
 };

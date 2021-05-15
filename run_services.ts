@@ -33,55 +33,55 @@ import runServices from "./mods/core/src/service_runner";
 
 const services = [
   {
-    name: "Funcs",
+    name: "funcs",
     version: "v1alpha1",
     service: FuncsService,
     server: new FuncsServer()
   },
   {
-    name: "Agents",
+    name: "agents",
     version: "v1alpha1",
     service: AgentsService,
     server: new AgentsServer()
   },
   {
-    name: "Domains",
+    name: "domains",
     version: "v1alpha1",
     service: DomainsService,
     server: new DomainsServer()
   },
   {
-    name: "Numbers",
+    name: "numbers",
     version: "v1alpha1",
     service: NumbersService,
     server: new NumbersServer()
   },
   {
-    name: "Providers",
+    name: "providers",
     version: "v1alpha1",
     service: ProvidersService,
     server: new ProvidersServer()
   },
   {
-    name: "CallManager",
+    name: "callmanager",
     version: "v1alpha1",
     service: CallManagerService,
     server: new CallManagerServer()
   },
   {
-    name: "AppManager",
+    name: "appmanager",
     version: "v1alpha1",
     service: AppManagerService,
     server: new AppManagerServer()
   },
   {
-    name: "Storage",
+    name: "storage",
     version: "v1alpha1",
     service: StorageService,
     server: new StorageServer()
   },
   {
-    name: "UserManager",
+    name: "usermanager",
     version: "v1alpha1",
     service: UserManagerService,
     server: new UserManagerServer()
@@ -90,7 +90,7 @@ const services = [
 
 //  const middlewares = [
 //  {
-//    name: "Authentication",
+//    name: "authentication",
 //    middlewareObj: new AuthMiddleware(getSalt()).middleware
 //   }
 //  ];

@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 export interface UploadObjectRequest {
-  bucket: "apps" | "public" | "recordings";
+  bucket: string;
   filename: string;
   metadata?: unknown;
   accessKeyId?: string;
 }
 
 export interface GetObjectURLRequest {
-  bucket: "apps" | "public" | "recordings";
+  bucket: string;
   filename: string;
   accessKeyId?: string;
 }

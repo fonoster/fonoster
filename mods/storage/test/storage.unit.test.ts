@@ -23,13 +23,13 @@ import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import fs, {Stats} from "fs";
 import {FonosService} from "@fonos/core";
-import {utils} from "../src/client/utils";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 import path from "path";
 import fiber from "fibers";
+import * as utils from "../src/client/utils";
 
 describe("@fonos/storage", () => {
   const objectUrlReturn = {
@@ -151,7 +151,7 @@ describe("@fonos/storage", () => {
   it("should return an URL with apps bucket from the service", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
-      getObjectURL: () => {
+      getObjectURL: (a: any, b: any) => {
         return getUrlObjectStubReturn;
       }
     });

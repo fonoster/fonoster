@@ -59,6 +59,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
+    "@types/node": "^15.3.0",
     "@types/tar": "^4.0.3",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
