@@ -49,15 +49,18 @@
     "@fonos/core": "^0.0.87",
     "@fonos/errors": "^0.0.87",
     "@fonos/logger": "^0.0.87",
-    "dotenv": "^8.2.0",
+    "google-protobuf": "^3.17.0",
     "grpc": "^1.24.6",
     "grpc-promise": "^1.4.0",
-    "grpc-ts-health-check": "^2.0.6",
     "sync": "^0.2.4"
   },
   "devDependencies": {
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
     "nodemon": "^2.0.7",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "sinon": "^10.0.0",
+    "sinon-chai": "^3.6.0"
   },
   "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

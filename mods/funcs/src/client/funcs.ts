@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Storage from "@fonos/storage";
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {FuncsClient} from "../service/protos/funcs_grpc_pb";
 import FuncsPB from "../service/protos/funcs_pb";
@@ -32,23 +33,7 @@ import {
   ListFuncsRequest,
   ListFuncsResponse
 } from "../types";
-
-const createFuncFromRequest = (request: DeployFuncRequest) => {
-  const limits = new FuncsPB.Resource();
-  limits.setCpu(request.limits.cpu);
-  limits.setMemory(request.limits.memory);
-
-  const requests = new FuncsPB.Resource();
-  requests.setCpu(request.requests.cpu);
-  requests.setMemory(request.requests.memory);
-
-  const func = new FuncsPB.Func();
-  func.setName(request.name);
-  func.setImage(request.image);
-  func.setLimits(limits);
-  func.setRequests(requests);
-  return func;
-};
+import { buildCreateFuncRequest, cleanupTmpDir, copyFuncAtTmp, validateFunc } from "../utils";
 
 /**
  * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,
@@ -80,6 +65,7 @@ const createFuncFromRequest = (request: DeployFuncRequest) => {
  * }).catch(e => console.error(e));   // an error occurred
  */
 export default class Funcs extends FonosService {
+  storage: any;
   /**
    * Constructs a new Funcs object.
    * @param {ServiceOptions} options - Options to indicate the objects endpoint
@@ -88,7 +74,7 @@ export default class Funcs extends FonosService {
   constructor(options?: ServiceOptions) {
     super(FuncsClient, options);
     super.init(grpc);
-    //this.service = super.getService();
+    this.storage = new Storage(super.getOptions());
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
@@ -97,7 +83,8 @@ export default class Funcs extends FonosService {
    *
    * @param {DeployFuncRequest} request - Request to create or update a function
    * @param {string} request.name - Unique function name
-   * @param {string} request.image - An image available in a public or private docker registry
+   * @param {string} request.baseImage - The image base to create the function
+   * @param {string} request.pathToFunc - The directory where the function lives
    * @param {string} request.limit.memory - Optional limit for function's memory utilization
    * @param {string} request.limit.cpu - Optional limit for function's cpu utilization
    * @param {string} request.requests.memory - Optional requested memory allocation for the function
@@ -116,9 +103,19 @@ export default class Funcs extends FonosService {
    * }).catch(e => console.error(e));   // an error occurred
    */
   async deployFunc(request: DeployFuncRequest): Promise<DeployFuncResponse> {
-    const req = new FuncsPB.CreateFuncRequest();
-    req.setFunc(createFuncFromRequest(request));
+    validateFunc(request.pathToFunc);
+    cleanupTmpDir(request.name)
+    await copyFuncAtTmp(request.pathToFunc, request.name)
+    await this.storage.uploadObject({
+      filename: `/tmp/${request.name}.tgz`,
+      bucket: "funcs"
+    });
 
+    /*
+    // Cleanup before deploy
+    cleanupTmpDir(request.name)
+
+    const req = buildCreateFuncRequest(request)
     let exist = false;
 
     try {
@@ -142,7 +139,8 @@ export default class Funcs extends FonosService {
       invocationCount: res.getInvocationCount(),
       replicas: res.getReplicas(),
       availableReplicas: res.getAvailableReplicas()
-    };
+    };*/
+    return null;
   }
 
   /**
@@ -246,4 +244,4 @@ export default class Funcs extends FonosService {
   }
 }
 
-export {FuncsPB, CommonPB, createFuncFromRequest};
+export {FuncsPB, CommonPB, buildCreateFuncRequest};

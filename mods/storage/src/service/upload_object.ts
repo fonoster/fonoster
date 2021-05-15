@@ -20,14 +20,9 @@ import logger from "@fonos/logger";
 import grpc from "grpc";
 import fs from "fs";
 import {FonosError, FonosFailedPrecondition} from "@fonos/errors";
-import {
-  extract,
-  removeDirSync,
-  uploadToFS,
-  getFilesizeInBytes
-} from "@fonos/core";
 import {UploadObjectResponse, UploadObjectRequest} from "./protos/storage_pb";
 import {getAccessKeyId} from "@fonos/core";
+import { extract, getFilesizeInBytes, removeDirSync, uploadToFS } from "../utils";
 
 const objectid = require("objectid");
 const isCompressFile = (object: string) =>
@@ -82,6 +77,8 @@ export default async function (call: any, callback: any) {
 
   const getBucketName = (bucket: UploadObjectRequest.Bucket) => {
     switch (bucket) {
+      case UploadObjectRequest.Bucket.FUNCS:
+        return "funcs";
       case UploadObjectRequest.Bucket.APPS:
         return "apps";
       case UploadObjectRequest.Bucket.RECORDINGS:

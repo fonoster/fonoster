@@ -3,6 +3,7 @@ import walk from "walk";
 import path from "path";
 import logger from "@fonos/logger";
 import tar from "tar";
+import policyForBucket from "./bucket_policy";
 
 const fsInstance = () => {
   const Minio = require("minio");
@@ -110,3 +111,25 @@ export {
   getFilesizeInBytes,
   mapToObj
 };
+
+import {join} from "path";
+
+if (process.env.NODE_ENV === "dev") {
+  require("dotenv").config({
+    path: join(__dirname, "..", "..", "..", "..", ".env")
+  });
+}
+
+export default async function (bucket: string) {
+  const fsConn = fsInstance();
+  const exists = await fsConn.bucketExists(bucket);
+
+  if (!exists) {
+    logger.log(
+      "verbose",
+      `@fonos/core fsutils [Creating storage and setting policy bucket: ${bucket}]`
+    );
+    await fsConn.makeBucket(bucket, "us-west-1");
+    await fsConn.setBucketPolicy(bucket, policyForBucket(bucket));
+  }
+}

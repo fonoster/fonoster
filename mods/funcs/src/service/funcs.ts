@@ -41,6 +41,7 @@ import logger from "@fonos/logger";
 import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
 import {getAccessKeyId} from "@fonos/core";
 import axios from "axios";
+import { FuncsPB } from "../client/funcs";
 
 // Initializing access info for FaaS
 const faas = new FaaS();
@@ -57,15 +58,15 @@ const getImageName = (accessKeyId: string, name: string) =>
   `${process.env.DOCKER_REGISTRY_REPO}/fn.${accessKeyId}.${name}`;
 
 interface FuncParameters {
-  func: Func;
+  request: CreateFuncRequest;
   accessKeyId: string;
   jwtSignature: string;
 }
 
 const prepareParameters = (params: FuncParameters) => {
   const parameters = {
-    service: getFuncName(params.accessKeyId, params.func.getName()),
-    image: params.func.getImage(),
+    service: getFuncName(params.accessKeyId, params.request.getName()),
+    image: getImageName(params.accessKeyId, params.request.getName()),
     limits: {
       memory: undefined,
       cpu: undefined
@@ -77,15 +78,15 @@ const prepareParameters = (params: FuncParameters) => {
     envProcess: "npm run start",
     registryAuth: process.env.DOCKER_REGISTRY_AUTH,
     labels: {
-      funcName: params.func.getName()
+      funcName: params.request.getName()
     },
     envVars: {
       ACCESS_KEY_ID: params.accessKeyId,
       JWT_SIGNATURE: params.jwtSignature
     }
   };
-  const limits = params.func.getLimits();
-  const requests = params.func.getRequests();
+  const limits = params.request.getLimits();
+  const requests = params.request.getRequests();
 
   if (limits && limits.getMemory())
     parameters.limits.memory = limits.getMemory();
@@ -163,12 +164,15 @@ class FuncsServer implements IFuncsServer {
   ) {
     try {
       const parameters = prepareParameters({
-        func: call.request.getFunc(),
+        request: call.request,
         accessKeyId: getAccessKeyId(call),
         jwtSignature: "" // TODO
       });
       await faas.systemFunctionsPost(parameters);
-      callback(null, call.request.getFunc());
+      const func = new FuncsPB.Func()
+      
+
+      callback(null, func);
     } catch (e) {
       if (e.response.body.includes("already exists")) {
         callback(
@@ -201,7 +205,7 @@ class FuncsServer implements IFuncsServer {
     try {
       const accessKeyId = getAccessKeyId(call);
       const parameters = prepareParameters({
-        func: call.request.getFunc(),
+        request: call.request,
         accessKeyId: accessKeyId,
         jwtSignature: "" // TODO
       });
@@ -210,7 +214,7 @@ class FuncsServer implements IFuncsServer {
       const list = (await faas.systemFunctionsGet()).response.body;
       const rawFunction = list.filter(
         (f) =>
-          f.name === getFuncName(accessKeyId, call.request.getFunc().getName())
+          f.name === getFuncName(accessKeyId, call.request.getName())
       )[0];
 
       callback(null, rawFuncToFunc(rawFunction));
@@ -273,7 +277,6 @@ class FuncsServer implements IFuncsServer {
         );
       const endpoint = process.env.DOCKER_REGISTRY_AUTH_ENDPOINT;
       const service = process.env.DOCKER_REGISTRY_SERVICE;
-      const repo = process.env.DOCKER_REGISTRY_REPO;
       const auth = process.env.DOCKER_REGISTRY_AUTH;
       const accessKeyId = getAccessKeyId(call);
       const image = getImageName(accessKeyId, call.request.getFuncName());

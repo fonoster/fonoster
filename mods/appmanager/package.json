@@ -51,14 +51,19 @@
     "@fonos/logger": "^0.0.87",
     "@fonos/storage": "^0.0.87",
     "fs-extra": "^8.1.0",
+    "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
-    "grpc-ts-health-check": "^2.0.6",
+    "nanoid": "^3.1.23",
     "tar": "^6.0.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",
     "@types/tar": "^4.0.3",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "sinon": "^10.0.0",
+    "sinon-chai": "^3.6.0",
     "dotenv": "^8.2.0",
     "rimraf": "^3.0.2"
   },

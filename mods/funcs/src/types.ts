@@ -24,12 +24,13 @@ enum View {
 
 export interface DeployFuncRequest {
   name: string;
-  image: string;
-  limits: {
+  baseImage: string;
+  pathToFunc: string;
+  limits?: {
     memory: undefined | string;
     cpu: undefined | string;
   };
-  requests: {
+  requests?: {
     memory: undefined | string;
     cpu: undefined | string;
   };

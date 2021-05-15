@@ -64,11 +64,17 @@ message GetFuncRequest {
 }
 
 message CreateFuncRequest {
-  Func func = 2;
+  string name = 1;
+  string base_image = 2;
+  Resource limits = 6;
+  Resource requests = 7;
 }
 
 message UpdateFuncRequest {
-  Func func = 2;
+  string name = 1;
+  string base_image = 2;
+  Resource limits = 6;
+  Resource requests = 7;
 }
 
 message DeleteFuncRequest {

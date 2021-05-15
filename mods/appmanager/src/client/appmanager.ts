@@ -58,7 +58,6 @@ export default class AppManager extends FonosService {
     super(AppManagerClient, options);
     super.init(grpc);
     this.storage = new Storage(super.getOptions());
-    this.service = super.getService();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

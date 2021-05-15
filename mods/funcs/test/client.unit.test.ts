@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/core";
-import Funcs, {createFuncFromRequest, FuncsPB} from "../src/client/funcs";
+import Funcs, {buildCreateFuncRequest, FuncsPB} from "../src/client/funcs";
 import {DeployFuncRequest} from "../src/types";
 
 const expect = chai.expect;
@@ -43,7 +43,8 @@ describe("@Fonos/funcs/client", () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const request: DeployFuncRequest = {
       name: "function1",
-      image: "docker.io/functions/function1",
+      baseImage: "docker.io/functions/function1",
+      pathToFunc: "...",
       limits: {
         memory: "10Mi",
         cpu: "110m"
@@ -53,10 +54,10 @@ describe("@Fonos/funcs/client", () => {
         cpu: "100m"
       }
     };
-    const func = createFuncFromRequest(request);
+    const func = buildCreateFuncRequest(request);
 
     expect(func.getName()).to.be.equal(request.name);
-    expect(func.getImage()).to.be.equal(request.image);
+    expect(func.getBaseImage()).to.be.equal(request.baseImage);
     expect(func.getLimits().getMemory()).to.be.equal(request.limits.memory);
     expect(func.getLimits().getCpu()).to.be.equal(request.limits.cpu);
     expect(func.getRequests().getMemory()).to.be.equal(request.requests.memory);

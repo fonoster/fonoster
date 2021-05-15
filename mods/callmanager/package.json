@@ -49,12 +49,16 @@
     "@fonos/errors": "^0.0.87",
     "@fonos/logger": "^0.0.87",
     "ari-client": "^2.2.0",
+    "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
-    "grpc-ts-health-check": "^2.0.6",
     "phone": "^2.4.21"
   },
   "devDependencies": {
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "sinon": "^10.0.0",
+    "sinon-chai": "^3.6.0",
     "dotenv": "^8.2.0",
     "nodemon": "^2.0.7",
     "rimraf": "^3.0.2"

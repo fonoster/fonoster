@@ -46,14 +46,16 @@
     "@fonos/auth": "^0.0.87",
     "@fonos/certs": "^0.0.87",
     "@fonos/core": "^0.0.87",
-    "@fonos/logger": "^0.0.87",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
-    "grpc-ts-health-check": "^2.0.6",
-    "objectid": "^3.2.1"
+    "objectid": "^3.2.1",
+    "sinon": "^10.0.0",
+    "sinon-chai": "^3.6.0"
   },
   "devDependencies": {
-    "dotenv": "^8.2.0",
     "nodemon": "^2.0.7",
     "rimraf": "^3.0.2"
   },

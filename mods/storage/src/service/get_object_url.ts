@@ -19,7 +19,7 @@
 import logger from "@fonos/logger";
 import grpc from "grpc";
 import {FonosError} from "@fonos/errors";
-import {fsInstance} from "@fonos/core";
+import { fsInstance } from "../utils";
 
 export default async function (
   accessKeyId: string,
