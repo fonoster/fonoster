@@ -26,12 +26,12 @@ export const handleCompressUpload = async (
   bucket: string,
   fileSize: number
 ) => {
-  await extract(`/tmp/${object}`, "/tmp");
+  const response = new UploadObjectResponse();
   const nameWithoutExt = object.split(".")[0];
+  response.setSize(fileSize);
+  await extract(`/tmp/${object}`, "/tmp");
   await uploadToFS(accessKeyId, bucket, `/tmp/${nameWithoutExt}`);
   removeDirSync(`/tmp/${nameWithoutExt}`);
-  const response = new UploadObjectResponse();
-  response.setSize(fileSize);
   return response;
 };
 
@@ -41,8 +41,8 @@ export const handleUncompressUpload = async (
   bucket: string,
   fileSize: number
 ) => {
-  await uploadToFS(accessKeyId, bucket, `/tmp/${object}`, object);
   const response = new UploadObjectResponse();
   response.setSize(fileSize);
+  await uploadToFS(accessKeyId, bucket, `/tmp/${object}`, object);
   return response;
 };

@@ -42,6 +42,7 @@ import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
 import {getAccessKeyId} from "@fonos/core";
 import axios from "axios";
 import {FuncsPB} from "../client/funcs";
+import { rawFuncToFunc, getFuncName, prepareParameters, getImageName } from "../utils";
 
 // Initializing access info for FaaS
 const faas = new FaaS();
@@ -51,65 +52,7 @@ auth.password = process.env.FUNCS_SECRET;
 faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
 
-const getFuncName = (accessKeyId: string, name: string) =>
-  `fn.${accessKeyId}.${name}`;
-
-const getImageName = (accessKeyId: string, name: string) =>
-  `${process.env.DOCKER_REGISTRY_REPO}/fn.${accessKeyId}.${name}`;
-
-interface FuncParameters {
-  request: CreateFuncRequest;
-  accessKeyId: string;
-  jwtSignature: string;
-}
-
-const prepareParameters = (params: FuncParameters) => {
-  const parameters = {
-    service: getFuncName(params.accessKeyId, params.request.getName()),
-    image: getImageName(params.accessKeyId, params.request.getName()),
-    limits: {
-      memory: undefined,
-      cpu: undefined
-    },
-    requests: {
-      memory: undefined,
-      cpu: undefined
-    },
-    envProcess: "npm run start",
-    registryAuth: process.env.DOCKER_REGISTRY_AUTH,
-    labels: {
-      funcName: params.request.getName()
-    },
-    envVars: {
-      ACCESS_KEY_ID: params.accessKeyId,
-      JWT_SIGNATURE: params.jwtSignature
-    }
-  };
-  const limits = params.request.getLimits();
-  const requests = params.request.getRequests();
-
-  if (limits && limits.getMemory())
-    parameters.limits.memory = limits.getMemory();
-  if (limits && limits.getCpu()) parameters.limits.cpu = limits.getCpu();
-  if (requests && requests.getMemory())
-    parameters.requests.memory = requests.getMemory();
-  if (requests && requests.getCpu())
-    parameters.requests.cpu = requests.getCpu();
-
-  return parameters;
-};
-
-const rawFuncToFunc = (rawFunc: any) => {
-  const func = new Func();
-  func.setName(rawFunc.labels.funcName);
-  func.setImage(rawFunc.image);
-  func.setInvocationCount(rawFunc.invocationCount);
-  func.setReplicas(rawFunc.replicas);
-  func.setAvailableReplicas(rawFunc.availableReplicas);
-  return func;
-};
-
-class FuncsServer implements IFuncsServer {
+export default class FuncsServer implements IFuncsServer {
   getFuncLogs: grpc.handleServerStreamingCall<GetFuncLogsRequest, FuncLog>;
 
   // See client-side for comments
@@ -117,20 +60,23 @@ class FuncsServer implements IFuncsServer {
     call: grpc.ServerUnaryCall<ListFuncsRequest>,
     callback: grpc.sendUnaryData<ListFuncsResponse>
   ) {
-    if (!call.request.getPageToken()) callback(null, new ListFuncsResponse());
-    const accessKeyId = getAccessKeyId(call);
-    const list = (await faas.systemFunctionsGet()).response.body;
-    const rawFuncs = list.filter(
-      (f) => f.envVars.ACCESS_KEY_ID === accessKeyId
-    );
+    try {
+      if (!call.request.getPageToken()) callback(null, new ListFuncsResponse());
+      const accessKeyId = getAccessKeyId(call);
+      const list = (await faas.systemFunctionsGet()).response.body;
+      const rawFuncs = list.filter(
+        (f) => f.envVars.ACCESS_KEY_ID === accessKeyId
+      );
 
-    const funcs = rawFuncs.map((f) => rawFuncToFunc(f));
-    const response = new ListFuncsResponse();
-    response.setFuncsList(funcs);
-    // No pagination need because the list of function is likely to be short
-    // response.setNextPageToken()
-
-    callback(null, response);
+      const funcs = rawFuncs.map((f) => rawFuncToFunc(f));
+      const response = new ListFuncsResponse();
+      response.setFuncsList(funcs);
+      // No pagination need because the list of function is likely to be short
+      // response.setNextPageToken()
+      callback(null, response);
+    } catch(e) {
+      logger.error(`@fonos/funcs list [${e}]`);
+    }
   }
 
   // See client-side for comments
@@ -141,7 +87,7 @@ class FuncsServer implements IFuncsServer {
     try {
       const list = (await faas.systemFunctionsGet()).response.body;
       const accessKeyId = getAccessKeyId(call);
-      const rawFunction = list.filter(
+      const rawFunction: Func = list.filter(
         (f) => f.name === getFuncName(accessKeyId, call.request.getName())
       )[0];
 
@@ -153,6 +99,7 @@ class FuncsServer implements IFuncsServer {
 
       callback(null, rawFuncToFunc(rawFunction));
     } catch (e) {
+      logger.error(`@fonos/funcs get [${e}]`);
       callback(e, null);
     }
   }
@@ -170,9 +117,12 @@ class FuncsServer implements IFuncsServer {
       });
       await faas.systemFunctionsPost(parameters);
       const func = new FuncsPB.Func();
+      func.setName(parameters.service);
+      func.setImage(parameters.image);
 
       callback(null, func);
     } catch (e) {
+      logger.error(`@fonos/funcs create [${e}]` );
       if (e.response.body.includes("already exists")) {
         callback(
           new FonosError(
@@ -217,7 +167,7 @@ class FuncsServer implements IFuncsServer {
 
       callback(null, rawFuncToFunc(rawFunction));
     } catch (e) {
-      logger.error(e.message);
+      logger.error(`@fonos/funcs update [${e}]` );
       if (e.response.statusCode === 400) {
         callback(
           new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT),
@@ -246,6 +196,7 @@ class FuncsServer implements IFuncsServer {
       await faas.systemFunctionsDelete({functionName});
       callback(null, new Empty());
     } catch (e) {
+      logger.error(`@fonos/funcs delete [${e}]`);
       if (e.response.statusCode === 404) {
         callback(
           new FonosError(
@@ -294,5 +245,3 @@ class FuncsServer implements IFuncsServer {
     }
   }
 }
-
-export {FuncsServer as default, IFuncsService, FuncsService};

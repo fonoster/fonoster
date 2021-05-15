@@ -16,22 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FuncsPB from "./service/protos/funcs_pb";
-import {DeployFuncRequest} from "./types";
+import FuncsPB, { Func } from "./service/protos/funcs_pb";
+import {DeployFuncRequest, FuncParameters} from "./types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 
-export const buildCreateFuncRequest = (request: DeployFuncRequest) => {
+export const buildDeployFuncRequest = (request: DeployFuncRequest, exist: boolean) => {
   const limits = new FuncsPB.Resource();
-  limits.setCpu(request.limits.cpu);
-  limits.setMemory(request.limits.memory);
-
   const requests = new FuncsPB.Resource();
-  requests.setCpu(request.requests.cpu);
-  requests.setMemory(request.requests.memory);
 
-  const cfr = new FuncsPB.CreateFuncRequest();
+  if (request.limits) {
+    limits.setCpu(request.limits.cpu);
+    limits.setMemory(request.limits.memory);
+  }
+
+  if (request.requests) {
+    requests.setCpu(request.requests.cpu);
+    requests.setMemory(request.requests.memory);
+  }
+
+  const cfr = exist ? new FuncsPB.UpdateFuncRequest() : new FuncsPB.CreateFuncRequest();
   cfr.setName(request.name);
   cfr.setBaseImage(request.baseImage);
   cfr.setLimits(limits);
@@ -79,4 +84,56 @@ export const cleanupTmpDir = (dirName: string) => {
 export const copyFuncAtTmp = async (funcPath: string, dirName: string) => {
   await fs.copy(funcPath, `/tmp/${dirName}`);
   await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
+};
+
+export const getFuncName = (accessKeyId: string, name: string) =>
+  `fn.${accessKeyId}.${name}`;
+
+export const getImageName = (accessKeyId: string, name: string) =>
+  `${process.env.DOCKER_REGISTRY_REPO}/fn.${accessKeyId}.${name}`;
+
+export const prepareParameters = (params: FuncParameters) => {
+  const parameters = {
+    service: getFuncName(params.accessKeyId, params.request.getName()),
+    image: getImageName(params.accessKeyId, params.request.getName()),
+    limits: {
+      memory: undefined,
+      cpu: undefined
+    },
+    requests: {
+      memory: undefined,
+      cpu: undefined
+    },
+    envProcess: "npm run start",
+    registryAuth: process.env.DOCKER_REGISTRY_AUTH,
+    labels: {
+      funcName: params.request.getName()
+    },
+    envVars: {
+      ACCESS_KEY_ID: params.accessKeyId,
+      JWT_SIGNATURE: params.jwtSignature
+    }
+  };
+  const limits = params.request.getLimits();
+  const requests = params.request.getRequests();
+
+  if (limits && limits.getMemory())
+    parameters.limits.memory = limits.getMemory();
+  if (limits && limits.getCpu()) parameters.limits.cpu = limits.getCpu();
+  if (requests && requests.getMemory())
+    parameters.requests.memory = requests.getMemory();
+  if (requests && requests.getCpu())
+    parameters.requests.cpu = requests.getCpu();
+
+  return parameters;
+};
+
+export const rawFuncToFunc = (rawFunc: any) => {
+  const func = new Func();
+  func.setName(rawFunc.labels.funcName);
+  func.setImage(rawFunc.image);
+  func.setInvocationCount(rawFunc.invocationCount);
+  func.setReplicas(rawFunc.replicas);
+  func.setAvailableReplicas(rawFunc.availableReplicas);
+  return func;
 };

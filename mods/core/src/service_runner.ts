@@ -39,7 +39,7 @@ export default function run(
   server.addService(HealthService, grpcHealthCheck);
 
   logger.info(
-    `@fonos/core [starting service runner @ ${ENDPOINT} (api version = ${srvInfList[0].version})`
+    `@fonos/core service runner [starting @ ${ENDPOINT}, api = ${srvInfList[0].version}]`
   );
 
   if (middlewareList) {
@@ -59,5 +59,5 @@ export default function run(
   server.bind(ENDPOINT, getServerCredentials());
   server.start();
 
-  logger.info(`@fonos/core service runner [api runner is online!]`);
+  logger.info(`@fonos/core service runner [runner is online]`);
 }

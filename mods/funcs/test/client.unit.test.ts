@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/core";
-import Funcs, {buildCreateFuncRequest, FuncsPB} from "../src/client/funcs";
+import Funcs, {buildDeployFuncRequest, FuncsPB} from "../src/client/funcs";
 import {DeployFuncRequest} from "../src/types";
 
 const expect = chai.expect;
@@ -54,7 +54,7 @@ describe("@Fonos/funcs/client", () => {
         cpu: "100m"
       }
     };
-    const func = buildCreateFuncRequest(request);
+    const func = buildDeployFuncRequest(request, false);
 
     expect(func.getName()).to.be.equal(request.name);
     expect(func.getBaseImage()).to.be.equal(request.baseImage);

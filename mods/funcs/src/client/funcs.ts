@@ -34,7 +34,7 @@ import {
   ListFuncsResponse
 } from "../types";
 import {
-  buildCreateFuncRequest,
+  buildDeployFuncRequest,
   cleanupTmpDir,
   copyFuncAtTmp,
   validateFunc
@@ -116,26 +116,22 @@ export default class Funcs extends FonosService {
       bucket: "funcs"
     });
 
-    /*
-    // Cleanup before deploy
-    cleanupTmpDir(request.name)
-
-    const req = buildCreateFuncRequest(request)
     let exist = false;
 
     try {
-      this.getFunc({name: request.name});
+      await this.getFunc({name: request.name});
       exist = true;
     } catch (e) {
       // TODO: If the error is different than 400 we should pass error to the client
     }
 
     let res = null;
+    const req = buildDeployFuncRequest(request, exist);
 
-    if (!exist) {
-      res = await super.getService().createFunc().sendMessage(req);
-    } else {
+    if (exist) {
       res = await super.getService().updateFunc().sendMessage(req);
+    } else {
+      res = await super.getService().createFunc().sendMessage(req);
     }
 
     return {
@@ -144,8 +140,7 @@ export default class Funcs extends FonosService {
       invocationCount: res.getInvocationCount(),
       replicas: res.getReplicas(),
       availableReplicas: res.getAvailableReplicas()
-    };*/
-    return null;
+    };
   }
 
   /**
@@ -249,4 +244,4 @@ export default class Funcs extends FonosService {
   }
 }
 
-export {FuncsPB, CommonPB, buildCreateFuncRequest};
+export {FuncsPB, CommonPB, buildDeployFuncRequest};

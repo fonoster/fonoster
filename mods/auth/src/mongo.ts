@@ -21,9 +21,7 @@ export default async function () {
       useCreateIndex: true,
       autoIndex: false
     });
-    logger.info(
-      `@fonos/auth mongo [connected to db ${dbname}]`
-    );
+    logger.info(`@fonos/auth mongo [connected to db ${dbname}]`);
   } catch (e) {
     logger.error("Error connecting to database: ", e);
     process.exit(1);

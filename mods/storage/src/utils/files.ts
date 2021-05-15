@@ -19,6 +19,17 @@
 import fs from "fs";
 import tar from "tar";
 import logger from "@fonos/logger";
+import { FonosError } from "@fonos/errors";
+
+export const extract = (source: string, target: string) =>
+  tar.extract({file: source, cwd: target});
+
+export const getFilesizeInBytes = (filename: string) => {
+  if (!fs.existsSync(filename)) {
+    throw new FonosError(`file ${filename} does not exist`);
+  }
+  return fs.statSync(filename)["size"];
+}
 
 export const isCompressFile = (object: string) =>
   object.endsWith(".zip") ||
@@ -47,8 +58,3 @@ export const removeDirSync = (pathToFile: string) => {
   }
 };
 
-export const extract = (source: string, target: string) =>
-  tar.extract({file: source, cwd: target});
-
-export const getFilesizeInBytes = (filename: string) =>
-  fs.statSync(filename)["size"];

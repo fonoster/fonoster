@@ -35,7 +35,7 @@ export default async function (call: any, callback: any) {
   call.on("error", (err: any) => {
     logger.log(
       "error",
-      `@fonos/storage upload_objects [an error ocurred while uploading object ${object} to bucket '${bucket}']`
+      `@fonos/storage upload [an error ocurred while uploading object ${object} to bucket '${bucket}']`
     );
     logger.log("error", err);
   });
@@ -60,29 +60,29 @@ export default async function (call: any, callback: any) {
       }
       logger.log(
         "debug",
-        `@fonos/storage upload_objects [started uploading object ${object} to the "${bucket}" bucket]`
+        `@fonos/storage upload [started uploading object ${object} to the "${bucket}" bucket]`
       );
     }
 
     logger.log(
       "verbose",
-      `@fonos/storage upload_objects [received data chunk(${chunk.length}) for object ${object}]`
+      `@fonos/storage upload [received chunk(${chunk.length}) for ${object}]`
     );
   });
 
   writeStream.on("finish", async () => {
     try {
+      const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`);
+      fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`);
+
       logger.log(
         "verbose",
-        `@fonos/storage upload_objects [moving tmp object ${tmpName} into ${object} (final name)]`
+        `@fonos/storage upload [moved ${tmpName} into ${object} (final name)]`
       );
 
-      fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`);
-      const fileSize = getFilesizeInBytes(`/tmp/${object}`);
-
       logger.log(
         "verbose",
-        `@fonos/storage upload_objects [uploading file to storage backend (S3)]`
+        `@fonos/storage upload [uploading file to storage backend (s3)]`
       );
 
       const response = isCompressFile(object)
@@ -91,14 +91,13 @@ export default async function (call: any, callback: any) {
 
       logger.log(
         "verbose",
-        `@fonos/storage upload_objects [removing tmp file /tmp/${object}]`
+        `@fonos/storage upload [removing tmp file /tmp/${object}]`
       );
 
       fs.unlinkSync(`/tmp/${object}`);
       callback(null, response);
     } catch (e) {
-      logger.log("error", `@fonos/storage upload_objects [${e}]`);
-
+      logger.log("error", `@fonos/storage upload [${e}]`);
       callback(handleError(e, bucket));
     }
   });

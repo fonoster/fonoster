@@ -1,3 +1,5 @@
+import { CreateFuncRequest } from "./service/protos/funcs_pb";
+
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -85,4 +87,10 @@ export interface ListFuncsRequest {
 export interface ListFuncsResponse {
   nextPageToken: string;
   funcs: Func[];
+}
+
+export interface FuncParameters {
+  request: CreateFuncRequest;
+  accessKeyId: string;
+  jwtSignature: string;
 }

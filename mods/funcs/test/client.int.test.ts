@@ -32,11 +32,10 @@ describe("@Fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
   it("should fail because path doesn't exist a function", async () => {
-    const path = __dirname + "/../etc/testfunc1";
     const request: DeployFuncRequest = {
       name: "function1",
       baseImage: "fonoster/base:latest",
-      pathToFunc: path
+      pathToFunc: __dirname + "/../etc/testfunc1"
     };
 
     const funcs = new Funcs();
@@ -46,16 +45,13 @@ describe("@Fonos/funcs/client", () => {
   });
 
   it.only("should deploy a function", async () => {
-    const path = __dirname + "/../etc/testfunc";
     const request: DeployFuncRequest = {
       name: "function1",
       baseImage: "fonoster/base:latest",
-      pathToFunc: "/Users/pedrosanders/Projects/image-builder"
+      pathToFunc: __dirname + "/../etc/testfunc"
     };
-
     const funcs = new Funcs();
     const result = await funcs.deployFunc(request);
-    console.log(result);
-    //expect(result).to.have.property("name").to.be.equal(response.name);
+    expect(result).to.have.property("name").to.be.equal(request.name);
   });
 });
