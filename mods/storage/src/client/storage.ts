@@ -206,4 +206,3 @@ export default class Storage extends FonosService {
 }
 
 export {StoragePB, CommonPB};
-
