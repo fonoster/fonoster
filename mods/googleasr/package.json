@@ -29,7 +29,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@google-cloud/speech": "^4.2.0",
+    "@google-cloud/speech": "^4.5.0",
     "axios": "^0.21.1",
     "objectid": "^3.2.1",
     "sync": "^0.2.5"
