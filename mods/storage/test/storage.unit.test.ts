@@ -201,8 +201,7 @@ describe("@fonos/storage", () => {
 
   it("should return an URL with Sync method", async () => {
     const objectUrlReturn = {
-      url:
-        "http://api.fonoster.net:9000/recordings/60368b263e9a7d0800000004/test.txt"
+      url: "http://api.fonoster.net:9000/recordings/60368b263e9a7d0800000004/test.txt"
     };
     sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({

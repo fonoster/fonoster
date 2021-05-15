@@ -22,8 +22,10 @@ export default class AuthMiddleware {
         });
       }
 
-      const accessKeyId = ctx.call.metadata._internal_repr.access_key_id.toString();
-      const accessKeySecret = ctx.call.metadata._internal_repr.access_key_secret.toString();
+      const accessKeyId =
+        ctx.call.metadata._internal_repr.access_key_id.toString();
+      const accessKeySecret =
+        ctx.call.metadata._internal_repr.access_key_secret.toString();
       const pathRequest = ctx.service.path;
       jwtHandler
         .validateToken({accessToken: accessKeySecret}, this.secretKeyToken)

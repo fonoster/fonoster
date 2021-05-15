@@ -9,7 +9,7 @@
     "clean": "rimraf **/*/tsconfig.tsbuildinfo dist coverage **/*/dist package-lock.json **/*/package-lock.json **/*/node_modules node_modules",
     "gen-proto": "./etc/gen_code_proto.sh",
     "lint": "eslint mods --ext .ts",
-    "format": "prettier --write mods/",
+    "format": "prettier --write mods",
     "check-types": "tsc --noEmit",
     "postinstall": "husky install"
   },
@@ -25,6 +25,7 @@
     "nodemon": "^2.0.7"
   },
   "devDependencies": {
+    "@fonos/auth": "^0.0.87",
     "@types/mocha": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
@@ -40,8 +41,9 @@
     "lerna": "^3.22.1",
     "mocha": "^8.3.0",
     "nyc": "^15.1.0",
-    "prettier": "^2.2.1",
+    "prettier": "^2.3.0",
     "rimraf": "^3.0.2",
+    "ts-node": "^9.1.1",
     "typescript": "^4.1.5"
   }
 }

@@ -22,7 +22,7 @@ import fs from "fs";
 import {FonosError, FonosFailedPrecondition} from "@fonos/errors";
 import {UploadObjectResponse, UploadObjectRequest} from "./protos/storage_pb";
 import {getAccessKeyId} from "@fonos/core";
-import { extract, getFilesizeInBytes, removeDirSync, uploadToFS } from "../utils";
+import {extract, getFilesizeInBytes, removeDirSync, uploadToFS} from "../utils";
 
 const objectid = require("objectid");
 const isCompressFile = (object: string) =>

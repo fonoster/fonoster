@@ -107,7 +107,7 @@ describe("@Fonos/funcs/client", () => {
     const funcs = new Funcs();
     const result = await funcs.deleteFunc({name: funcObj.getName()});
 
-    expect(stubFunc).to.be.calledTwice;
+    expect(stubFunc).to.be.calledThrice;
     expect(result).to.have.property("name").to.be.equal(response.name);
   });
 
@@ -137,7 +137,7 @@ describe("@Fonos/funcs/client", () => {
 
     const funcs = new Funcs();
     const result = await funcs.listFuncs(request);
-    expect(stubFunc).to.be.calledTwice;
+    expect(stubFunc).to.be.calledThrice;
     expect(result)
       .to.have.property("nextPageToken")
       .to.be.equal(request.pageToken);

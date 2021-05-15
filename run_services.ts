@@ -27,7 +27,7 @@ import {UserManagerService} from "./mods/usermanager/src/service/protos/usermana
 
 import runServices from "./mods/core/src/service_runner";
 
-//  Temporarily removing the authentication middleware to avoid Mongoose complication error
+//  Temporarily removing the authentication middleware to avoid Mongoose compilation error
 //  import {AuthMiddleware} from "@fonos/auth";
 //  import {getSalt} from "./mods/certs/src/certs";
 

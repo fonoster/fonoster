@@ -36,11 +36,13 @@ describe("@Fonos/funcs/client", () => {
     const request: DeployFuncRequest = {
       name: "function1",
       baseImage: "fonoster/base:latest",
-      pathToFunc: path,
-    }
+      pathToFunc: path
+    };
 
     const funcs = new Funcs();
-    expect(funcs.deployFunc(request)).to.eventually.rejectedWith("Unable to obtain function info.");
+    expect(funcs.deployFunc(request)).to.eventually.rejectedWith(
+      "Unable to obtain function info."
+    );
   });
 
   it.only("should deploy a function", async () => {
@@ -48,12 +50,12 @@ describe("@Fonos/funcs/client", () => {
     const request: DeployFuncRequest = {
       name: "function1",
       baseImage: "fonoster/base:latest",
-      pathToFunc: "/Users/pedrosanders/Projects/image-builder",
-    }
+      pathToFunc: "/Users/pedrosanders/Projects/image-builder"
+    };
 
     const funcs = new Funcs();
     const result = await funcs.deployFunc(request);
-    console.log(result)
+    console.log(result);
     //expect(result).to.have.property("name").to.be.equal(response.name);
   });
 });

@@ -41,7 +41,7 @@ import logger from "@fonos/logger";
 import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
 import {getAccessKeyId} from "@fonos/core";
 import axios from "axios";
-import { FuncsPB } from "../client/funcs";
+import {FuncsPB} from "../client/funcs";
 
 // Initializing access info for FaaS
 const faas = new FaaS();
@@ -169,8 +169,7 @@ class FuncsServer implements IFuncsServer {
         jwtSignature: "" // TODO
       });
       await faas.systemFunctionsPost(parameters);
-      const func = new FuncsPB.Func()
-      
+      const func = new FuncsPB.Func();
 
       callback(null, func);
     } catch (e) {
@@ -213,8 +212,7 @@ class FuncsServer implements IFuncsServer {
       // Get result from the system
       const list = (await faas.systemFunctionsGet()).response.body;
       const rawFunction = list.filter(
-        (f) =>
-          f.name === getFuncName(accessKeyId, call.request.getName())
+        (f) => f.name === getFuncName(accessKeyId, call.request.getName())
       )[0];
 
       callback(null, rawFuncToFunc(rawFunction));

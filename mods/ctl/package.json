@@ -17,7 +17,7 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "postbuild": "cp -a ./src/templates ./dist",
     "build": "tsc -b tsconfig.json",
-    "postpack": "rm -f oclif.manifest.json",
+    "postpack": "rimraf -f oclif.manifest.json",
     "prepack": "oclif-dev manifest && oclif-dev readme",
     "version": "oclif-dev readme && git add README.md"
   },

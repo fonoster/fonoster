@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import FuncsPB from "./service/protos/funcs_pb";
-import { DeployFuncRequest } from "./types";
+import {DeployFuncRequest} from "./types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
@@ -54,34 +54,29 @@ export const validateFunc = (pathToFunc: string) => {
     );
   }
 
-  if (!pInfo.main) throw new Error("Missing \"main\" entry at package.json");
+  if (!pInfo.main) throw new Error('Missing "main" entry at package.json');
 
   const mainScript = `${pathToFunc}/${pInfo.main}`;
 
   if (!fs.existsSync(mainScript))
     throw new Error(`Cannot find main script at "${mainScript}"`);
 
-  if (
-    !fs.existsSync(pathToFunc) ||
-    !fs.lstatSync(pathToFunc).isDirectory()
-  ) {
-    throw new Error(
-      `${pathToFunc} does not exist or is not a directory`
-    );
+  if (!fs.existsSync(pathToFunc) || !fs.lstatSync(pathToFunc).isDirectory()) {
+    throw new Error(`${pathToFunc} does not exist or is not a directory`);
   }
 
   if (!fs.existsSync(packagePath)) {
     throw new Error(`not package.json found in ${pathToFunc}`);
   }
-}
+};
 
 export const cleanupTmpDir = (dirName: string) => {
   if (fs.existsSync(`/tmp/${dirName}`))
-    fs.rmdirSync(`/tmp/${dirName}`, { recursive: true });
+    fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
   if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`);
-}
+};
 
 export const copyFuncAtTmp = async (funcPath: string, dirName: string) => {
   await fs.copy(funcPath, `/tmp/${dirName}`);
-  await tar.create({ file: `/tmp/${dirName}.tgz`, cwd: "/tmp" }, [dirName]);
-}
+  await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
+};

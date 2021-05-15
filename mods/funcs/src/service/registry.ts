@@ -17,13 +17,13 @@
  * limitations under the License.
  */
 interface FuncInfo {
-    baseImage: string;
-    pathToFile: string;
+  baseImage: string;
+  pathToFile: string;
 }
 
-// Push image function 
+// Push image function
 export default async function (request: FuncInfo) {
-    // Look for the file at pathToFile
-    // Decompress if neccesary
-    // Push to repo
-} 
+  // Look for the file at pathToFile
+  // Decompress if neccesary
+  // Push to repo
+}
