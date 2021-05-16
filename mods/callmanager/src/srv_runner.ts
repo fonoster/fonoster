@@ -7,7 +7,7 @@ import {runServices} from "@fonos/core";
 
 const services = [
   {
-    name: "CallManager",
+    name: "callmanager",
     version: "v1alpha1",
     service: CallManagerService,
     server: new CallManagerServer()
@@ -15,7 +15,7 @@ const services = [
 ];
 
 const middleware = {
-  name: "Authentication",
+  name: "authentication",
   middlewareObj: new AuthMiddleware(getSalt()).middleware
 };
 
