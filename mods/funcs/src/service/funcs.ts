@@ -56,9 +56,7 @@ auth.password = process.env.FUNCS_SECRET;
 faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
 
-const publish = async (
-  call: grpc.ServerUnaryCall<DeployFuncRequest>
-) => {
+const publish = async (call: grpc.ServerUnaryCall<DeployFuncRequest>) => {
   const accessKeyId = getAccessKeyId(call);
   const parameters = buildFaasCreateParameters({
     request: call.request,

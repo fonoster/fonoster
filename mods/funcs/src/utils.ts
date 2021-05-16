@@ -23,9 +23,7 @@ import path from "path";
 import tar from "tar";
 import {FonosError, ErrorCodes} from "@fonos/errors";
 
-export const buildDeployFuncRequest = (
-  request: DeployFuncRequest
-) => {
+export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
   const requests = new FuncsPB.Resource();
 
@@ -39,7 +37,7 @@ export const buildDeployFuncRequest = (
     requests.setMemory(request.requests.memory);
   }
 
-  const dfr = new FuncsPB.DeployFuncRequest()
+  const dfr = new FuncsPB.DeployFuncRequest();
   dfr.setName(request.name);
   dfr.setBaseImage(request.baseImage);
   dfr.setLimits(limits);

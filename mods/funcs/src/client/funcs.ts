@@ -33,11 +33,7 @@ import {
   ListFuncsRequest,
   ListFuncsResponse
 } from "../types";
-import {
-  buildDeployFuncRequest,
-  cleanupTmpDir,
-  copyFuncAtTmp
-} from "../utils";
+import {buildDeployFuncRequest, cleanupTmpDir, copyFuncAtTmp} from "../utils";
 
 /**
  * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,
@@ -108,7 +104,7 @@ export default class Funcs extends FonosService {
    * }).catch(e => console.error(e));   // an error occurred
    */
   async deployFunc(request: DeployFuncRequest): Promise<DeployFuncResponse> {
-    if(request.pathToFunc) {
+    if (request.pathToFunc) {
       cleanupTmpDir(request.name);
       await copyFuncAtTmp(request.pathToFunc, request.name);
       await this.storage.uploadObject({
