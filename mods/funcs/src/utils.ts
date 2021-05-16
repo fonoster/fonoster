@@ -83,7 +83,7 @@ export const validateFunc = (pathToFunc: string) => {
 export const cleanupTmpDir = (dirName: string) => {
   if (fs.existsSync(`/tmp/${dirName}`))
     fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
-  if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlink(`/tmp/${dirName}.tgz`);
+  if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlinkSync(`/tmp/${dirName}.tgz`);
 };
 
 export const copyFuncAtTmp = async (funcPath: string, dirName: string) => {
@@ -95,9 +95,14 @@ export const getFuncName = (accessKeyId: string, name: string) =>
   `fn.${accessKeyId}.${name}`;
 
 export const getImageName = (accessKeyId: string, name: string) =>
-  `${process.env.DOCKER_REGISTRY_REPO}/fn.${accessKeyId}.${name}`;
+  `${process.env.DOCKER_REGISTRY_ORG}/fn.${accessKeyId}.${name}`;
 
-export const prepareParameters = (params: FuncParameters) => {
+export const getBuildDir = (accessKeyId: string, funcName: string) => 
+  process.env.NODE_ENV === "dev"
+    ? "/tmp/testfunc" 
+    : `${process.env.FUNCS_WORKDIR}/${accessKeyId}/${funcName}` 
+
+export const buildFaasCreateParameters = (params: FuncParameters) => {
   const parameters = {
     service: getFuncName(params.accessKeyId, params.request.getName()),
     image: getImageName(params.accessKeyId, params.request.getName()),
@@ -110,7 +115,6 @@ export const prepareParameters = (params: FuncParameters) => {
       cpu: undefined
     },
     envProcess: "npm run start",
-    registryAuth: process.env.DOCKER_REGISTRY_AUTH,
     labels: {
       funcName: params.request.getName()
     },

@@ -46,12 +46,12 @@ describe("@Fonos/funcs/client", () => {
 
   it.only("should deploy a function", async () => {
     const request: DeployFuncRequest = {
-      name: "function1",
-      baseImage: "fonoster/base:latest",
+      name: "function2",
+      baseImage: "index.docker.io/fonoster/routr:latest",
       pathToFunc: __dirname + "/../etc/testfunc"
     };
     const funcs = new Funcs();
     const result = await funcs.deployFunc(request);
-    expect(result).to.have.property("name").to.be.equal(request.name);
+    expect(result).to.have.property("name").to.include(request.name);
   });
 });

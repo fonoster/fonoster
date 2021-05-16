@@ -67,8 +67,8 @@ export const uploadServiceUtils = async (
         callService.write(uor);
       })
       .on("end", () => {
-        callService.end();
         resolve(fs.statSync(request.filename)["size"]);
+        callService.end();
       })
       .on("error", (err) => {
         callService.end();

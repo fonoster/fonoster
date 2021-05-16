@@ -58,9 +58,8 @@ export default async function (call: any, callback: any) {
       ) {
         accessKeyId = request.getAccessKeyId();
       }
-      logger.log(
-        "debug",
-        `@fonos/storage upload [started uploading object ${object} to the "${bucket}" bucket]`
+      logger.debug(
+        `@fonos/storage upload [started uploading object ${object} into "${bucket}" bucket]`
       );
     }
 
@@ -75,13 +74,11 @@ export default async function (call: any, callback: any) {
       const fileSize = getFilesizeInBytes(`/tmp/${tmpName}`);
       fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`);
 
-      logger.log(
-        "verbose",
+      logger.verbose(
         `@fonos/storage upload [moved ${tmpName} into ${object} (final name)]`
       );
 
-      logger.log(
-        "verbose",
+      logger.verbose(
         `@fonos/storage upload [uploading file to storage backend (s3)]`
       );
 
@@ -89,13 +86,11 @@ export default async function (call: any, callback: any) {
         ? await handleCompressUpload(accessKeyId, object, bucket, fileSize)
         : await handleUncompressUpload(accessKeyId, object, bucket, fileSize);
 
-      logger.log(
-        "verbose",
+      logger.verbose(
         `@fonos/storage upload [removing tmp file /tmp/${object}]`
       );
 
-      fs.unlinkSync(`/tmp/${object}`);
-      callback(null, response);
+      fs.unlink(`/tmp/${object}`, () => callback(null, response));
     } catch (e) {
       logger.log("error", `@fonos/storage upload [${e}]`);
       callback(handleError(e, bucket));

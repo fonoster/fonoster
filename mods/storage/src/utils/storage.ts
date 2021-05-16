@@ -22,6 +22,9 @@ import logger from "@fonos/logger";
 import policyForBucket from "../bucket_policy";
 import {join} from "path";
 
+const splitPath = (p: string) => path.dirname(p).split(path.sep);
+
+// WARNING: Is this still needed?
 if (process.env.NODE_ENV === "dev") {
   require("dotenv").config({
     path: join(__dirname, "..", "..", "..", "..", ".env")
@@ -39,14 +42,13 @@ export const fsInstance = () => {
   });
 };
 
-export const uploadToFS = (
+export const uploadToFS = async (
   accessKeyId: string,
   bucket: string,
   pathToObject: string,
   object?: string,
   metadata: object = {}
-) =>
-  new Promise<void>((resolve, reject) => {
+) => new Promise<void>((resolve, reject) => {
     const splitPath = (p: string) => path.dirname(p).split(path.sep);
     const dirCount = splitPath(pathToObject).length;
     const baseDir = splitPath(pathToObject).slice(0, dirCount).join("/");
@@ -60,15 +62,19 @@ export const uploadToFS = (
         const dest =
           `${accessKeyId}/` + destFilePath.substring(baseDir.length + 1);
 
+        logger.verbose(`@fonos/storage upload fs [uploading ${stats.name} file]`)
+
         fsInstance().fPutObject(
           bucket,
           dest,
           filePath,
           metadata,
-          (err: any) => {
-            if (err) {
-              reject(err);
+          (e: any) => {
+            if (e) {
+              logger.error(`@fonos/storage upload fs [${e}]`)
+              reject(e);
             } else {
+              logger.verbose(`@fonos/storage upload fs [finished uploading ${stats.name} file]`)
               next();
             }
           }
@@ -76,14 +82,16 @@ export const uploadToFS = (
       }
     );
 
-    walker.on("errors", (root: any, nodeStatsArray: any, next: any) => {
+    walker.on("errors", (root: any) => {
       reject(root);
     });
 
     walker.on("end", () => {
+      logger.verbose(`@fonos/storage upload fs [finished uploading ${pathToObject}]`)
       resolve();
     });
   });
+
 
 export default async function (bucket: string) {
   const fsConn = fsInstance();

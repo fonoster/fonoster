@@ -19,8 +19,6 @@
 import grpc from "grpc";
 import {Empty} from "./protos/common_pb";
 import {
-  IFuncsService,
-  FuncsService,
   IFuncsServer
 } from "./protos/funcs_grpc_pb";
 import {
@@ -45,9 +43,12 @@ import {FuncsPB} from "../client/funcs";
 import {
   rawFuncToFunc,
   getFuncName,
-  prepareParameters,
-  getImageName
+  buildFaasCreateParameters,
+  getImageName,
+  getBuildDir
 } from "../utils";
+import buildAndPublishImage from "./registry";
+import btoa from "btoa";
 
 // Initializing access info for FaaS
 const faas = new FaaS();
@@ -56,6 +57,28 @@ auth.username = process.env.FUNCS_USERNAME;
 auth.password = process.env.FUNCS_SECRET;
 faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
+
+const publish = async (call: grpc.ServerUnaryCall<UpdateFuncRequest | CreateFuncRequest>) => {
+  const accessKeyId = getAccessKeyId(call);
+  const parameters = buildFaasCreateParameters({
+    request: call.request, 
+    accessKeyId: accessKeyId,
+    jwtSignature: "" 
+  });
+
+  await buildAndPublishImage({
+    baseImage: call.request.getBaseImage(),
+    registry: process.env.DOCKER_REGISTRY,
+    image: parameters.image,
+    pathToFunc: getBuildDir(accessKeyId, call.request.getName()),
+    username: process.env.DOCKER_REGISTRY_USERNAME,
+    secret: process.env.DOCKER_REGISTRY_SECRET
+  });
+
+  await faas.systemFunctionsPut(parameters);
+
+  return parameters;
+}
 
 export default class FuncsServer implements IFuncsServer {
   getFuncLogs: grpc.handleServerStreamingCall<GetFuncLogsRequest, FuncLog>;
@@ -98,7 +121,7 @@ export default class FuncsServer implements IFuncsServer {
 
       if (!rawFunction)
         throw new FonosError(
-          `Function name "${call.request.getName()}" doesn't exist`,
+          `function name "${call.request.getName()}" doesn't exist`,
           ErrorCodes.NOT_FOUND
         );
 
@@ -110,24 +133,22 @@ export default class FuncsServer implements IFuncsServer {
   }
 
   // See client-side for comments
+  // WARNING: Validate that function name is lowercase and without strange characters
+  // TODO: Add JWT Signature
   async createFunc(
     call: grpc.ServerUnaryCall<CreateFuncRequest>,
     callback: grpc.sendUnaryData<Func>
   ) {
     try {
-      const parameters = prepareParameters({
-        request: call.request,
-        accessKeyId: getAccessKeyId(call),
-        jwtSignature: "" // TODO
-      });
-      await faas.systemFunctionsPost(parameters);
+      const parameters = await publish(call);
+      
       const func = new FuncsPB.Func();
       func.setName(parameters.service);
       func.setImage(parameters.image);
 
       callback(null, func);
     } catch (e) {
-      logger.error(`@fonos/funcs create [${e}]`);
+      logger.error(`@fonos/funcs create [${JSON.stringify(e)}]`);
       if (e.response.body.includes("already exists")) {
         callback(
           new FonosError(
@@ -152,22 +173,18 @@ export default class FuncsServer implements IFuncsServer {
   }
 
   // See client-side for comments
+  // WARNING: Validate that function name is lowercase and without strange characters
+  // TODO: Resign with JWT token
   async updateFunc(
     call: grpc.ServerUnaryCall<UpdateFuncRequest>,
     callback: grpc.sendUnaryData<Func>
   ) {
     try {
-      const accessKeyId = getAccessKeyId(call);
-      const parameters = prepareParameters({
-        request: call.request,
-        accessKeyId: accessKeyId,
-        jwtSignature: "" // TODO
-      });
-      await faas.systemFunctionsPut(parameters);
+      await publish(call);
       // Get result from the system
       const list = (await faas.systemFunctionsGet()).response.body;
       const rawFunction = list.filter(
-        (f) => f.name === getFuncName(accessKeyId, call.request.getName())
+        (f) => f.name === getFuncName(getAccessKeyId(call), call.request.getName())
       )[0];
 
       callback(null, rawFuncToFunc(rawFunction));
@@ -216,6 +233,8 @@ export default class FuncsServer implements IFuncsServer {
   }
 
   /**
+   * @deprecated
+   * 
    * This function creates a single use, scoped token, useful for pushing images
    * to a private Docker registry.
    */
@@ -231,7 +250,7 @@ export default class FuncsServer implements IFuncsServer {
         );
       const endpoint = process.env.DOCKER_REGISTRY_AUTH_ENDPOINT;
       const service = process.env.DOCKER_REGISTRY_SERVICE;
-      const auth = process.env.DOCKER_REGISTRY_AUTH;
+      const auth = btoa(`${process.env.DOCKER_REGISTRY_USERNAME}:${process.env.DOCKER_REGISTRY_SECRET}`);
       const accessKeyId = getAccessKeyId(call);
       const image = getImageName(accessKeyId, call.request.getFuncName());
       const baseURL = `${endpoint}?service=${service}&scope=repository:${image}:push`;

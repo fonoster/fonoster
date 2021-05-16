@@ -19,6 +19,7 @@
 import {UploadObjectResponse} from "../service/protos/storage_pb";
 import {extract, removeDirSync} from "./files";
 import {uploadToFS} from "./storage";
+import logger from "@fonos/logger";
 
 export const handleCompressUpload = async (
   accessKeyId: string,
@@ -29,8 +30,11 @@ export const handleCompressUpload = async (
   const response = new UploadObjectResponse();
   const nameWithoutExt = object.split(".")[0];
   response.setSize(fileSize);
+  logger.verbose(`@fonos/storage helper [extrating ${object} into /tmp]`)
   await extract(`/tmp/${object}`, "/tmp");
+  logger.verbose(`@fonos/storage helper [uploading ${nameWithoutExt} to bucket ${bucket}]`)
   await uploadToFS(accessKeyId, bucket, `/tmp/${nameWithoutExt}`);
+  logger.verbose(`@fonos/storage helper [removing /tmp/${nameWithoutExt}]`)
   removeDirSync(`/tmp/${nameWithoutExt}`);
   return response;
 };

@@ -90,9 +90,8 @@ export default class Storage extends FonosService {
     // Passing empty UploadObjectRequest only for initialization
     const uor = new StoragePB.UploadObjectRequest();
     const result = await this.getService().uploadObject().sendMessage(uor);
-    return {
-      size: await uploadServiceUtils(request, result.stream)
-    };
+    const size = await uploadServiceUtils(request, result.stream);
+    return { size };
   }
 
   /**

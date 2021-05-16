@@ -1,4 +1,4 @@
-import {CreateFuncRequest} from "./service/protos/funcs_pb";
+import {CreateFuncRequest, UpdateFuncRequest} from "./service/protos/funcs_pb";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
@@ -90,7 +90,7 @@ export interface ListFuncsResponse {
 }
 
 export interface FuncParameters {
-  request: CreateFuncRequest;
+  request: CreateFuncRequest | UpdateFuncRequest;
   accessKeyId: string;
   jwtSignature: string;
 }

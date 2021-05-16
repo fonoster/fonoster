@@ -37,10 +37,15 @@ DOCKER_REGISTRY_AUTH=
 FUNCS_URL=https://faas:8080
 FUNCS_USERNAME=admin
 FUNCS_SECRET=changeit
-DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
-DOCKER_REGISTRY_AUTH=YWRtaW46Y2hhbmdlaXQ=
-DOCKER_REGISTRY_REPO=docker.io/yourrepo
+FUNCS_WORKDIR=/home/fonos/funcs
+
+# Docker private registry information
+DOCKER_REGISTRY_ORG=yourorg
+DOCKER_REGISTRY_USERNAME=yourorg
+DOCKER_REGISTRY_SECRET=changeit
+DOCKER_REGISTRY=docker.io
 DOCKER_REGISTRY_SERVICE=registry.docker.io
+DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
 
 AS_PORT=50051
 AS_ENDPOINT=apiserver.fonos

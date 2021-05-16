@@ -1,6 +1,7 @@
 import {UpdateNotifier} from "update-notifier";
 const pkg = require("../package.json");
 
+// @deprecated
 export function checkUpdate() {
   const notifier = new UpdateNotifier({
     pkg: {
