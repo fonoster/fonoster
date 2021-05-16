@@ -43,7 +43,8 @@ import {
   getFuncName,
   buildFaasCreateParameters,
   getImageName,
-  getBuildDir
+  getBuildDir,
+  assertValidFuncName
 } from "../utils";
 import buildAndPublishImage from "./registry";
 import btoa from "btoa";
@@ -269,8 +270,5 @@ export default class FuncsServer implements IFuncsServer {
       callback(new FonosError(e), null);
     }
   }
-}
-function assertValidFuncName(arg0: string) {
-  throw new Error("Function not implemented.");
 }
 

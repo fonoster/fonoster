@@ -47,7 +47,7 @@ describe("@Fonos/funcs/client", () => {
   it.only("should deploy a function", async () => {
     const request: DeployFuncRequest = {
       name: "function2",
-      baseImage: "index.docker.io/fonoster/routr:latest",
+      baseImage: "registry-1.docker.io/fonoster/routr:latest",
       pathToFunc: __dirname + "/../etc/testfunc"
     };
     const funcs = new Funcs();
