@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc, { ServerWritableStream } from "grpc";
+import grpc, {ServerWritableStream} from "grpc";
 import {Empty} from "./protos/common_pb";
 import {IFuncsServer} from "./protos/funcs_grpc_pb";
 import {
@@ -47,8 +47,8 @@ import {
 } from "../utils";
 import buildAndPublishImage from "./registry";
 import btoa from "btoa";
-const { promisify } = require('util')
-const sleep = promisify(setTimeout)
+const {promisify} = require("util");
+const sleep = promisify(setTimeout);
 
 // Initializing access info for FaaS
 const faas = new FaaS();
@@ -71,7 +71,10 @@ export class ServerStream {
   }
 }
 
-const publish = async (call: grpc.ServerUnaryCall<DeployFuncRequest>, serverStream: ServerStream) => {
+const publish = async (
+  call: grpc.ServerUnaryCall<DeployFuncRequest>,
+  serverStream: ServerStream
+) => {
   const accessKeyId = getAccessKeyId(call);
   const parameters = buildFaasCreateParameters({
     request: call.request,
@@ -79,36 +82,42 @@ const publish = async (call: grpc.ServerUnaryCall<DeployFuncRequest>, serverStre
     jwtSignature: ""
   });
 
-  await buildAndPublishImage({
-    baseImage: call.request.getBaseImage(),
-    registry: process.env.DOCKER_REGISTRY,
-    image: parameters.image,
-    pathToFunc: getBuildDir(accessKeyId, call.request.getName()),
-    username: process.env.DOCKER_REGISTRY_USERNAME,
-    secret: process.env.DOCKER_REGISTRY_SECRET
-  }, serverStream);
+  await buildAndPublishImage(
+    {
+      baseImage: call.request.getBaseImage(),
+      registry: process.env.DOCKER_REGISTRY,
+      image: parameters.image,
+      pathToFunc: getBuildDir(accessKeyId, call.request.getName()),
+      username: process.env.DOCKER_REGISTRY_USERNAME,
+      secret: process.env.DOCKER_REGISTRY_SECRET
+    },
+    serverStream
+  );
 
   logger.verbose("@fonos/funcs publish [publishing to funcs subsystem]");
 
-  const attempts = [1,2,3];
+  const attempts = [1, 2, 3];
   let index;
   for (index in attempts) {
     // Sometime the image is not inmediatly available so we try a few times
-    logger.verbose(`@fonos/funcs publish [publishing to functions subsystem (try #${attempts[index]})`);
-    serverStream.write(`publishing to functions subsystem (try #${attempts[index]})`);
-    await sleep(20000)
+    logger.verbose(
+      `@fonos/funcs publish [publishing to functions subsystem (try #${attempts[index]})`
+    );
+    serverStream.write(
+      `publishing to functions subsystem (try #${attempts[index]})`
+    );
+    await sleep(20000);
     try {
       // If the function already exist this will fail
       logger.verbose(`@fonos/funcs publish [first trying post]`);
       await faas.systemFunctionsPost(parameters);
-      break
-    } catch(e) {
+      break;
+    } catch (e) {
       logger.verbose(`@fonos/funcs publish [now trying trying put]`);
       try {
         await faas.systemFunctionsPut(parameters);
-        break
-      } catch(e) {
-      }
+        break;
+      } catch (e) {}
     }
   }
 
@@ -173,7 +182,7 @@ export default class FuncsServer implements IFuncsServer {
     call: ServerWritableStream<DeployFuncRequest, DeployStream>
   ) {
     try {
-      assertValidFuncName(call.request.getName())
+      assertValidFuncName(call.request.getName());
       const serverStream = new ServerStream(call);
       serverStream.write("starting function deployment");
       await publish(call, serverStream);
@@ -182,14 +191,23 @@ export default class FuncsServer implements IFuncsServer {
       call.end();
     } catch (e) {
       logger.error(`@fonos/funcs deploy [${e}]`);
-      if (e.response.statusCode === 400) {      
-        call.emit('error', new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT));
+      if (e.response.statusCode === 400) {
+        call.emit(
+          "error",
+          new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT)
+        );
       } else if (e.response.statusCode === 401) {
-        call.emit('error', new FonosSubsysUnavailable("Functions subsystem unavailable"));
+        call.emit(
+          "error",
+          new FonosSubsysUnavailable("Functions subsystem unavailable")
+        );
       } else if (e.response.statusCode === 404) {
-        call.emit('error', new FonosError(e.response.body, ErrorCodes.NOT_FOUND));
+        call.emit(
+          "error",
+          new FonosError(e.response.body, ErrorCodes.NOT_FOUND)
+        );
       }
-      call.emit('error', new FonosError(e, ErrorCodes.NOT_FOUND));
+      call.emit("error", new FonosError(e, ErrorCodes.NOT_FOUND));
     }
   }
 

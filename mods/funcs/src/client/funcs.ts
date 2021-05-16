@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import Storage from "@fonos/storage";
-import { FonosService, ServiceOptions } from "@fonos/core";
-import { FuncsClient } from "../service/protos/funcs_grpc_pb";
-import FuncsPB, { DeployStream } from "../service/protos/funcs_pb";
+import {FonosService, ServiceOptions} from "@fonos/core";
+import {FuncsClient} from "../service/protos/funcs_grpc_pb";
+import FuncsPB, {DeployStream} from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
-import { promisifyAll } from "grpc-promise";
+import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
 import {
   DeleteFuncRequest,
@@ -32,7 +32,7 @@ import {
   ListFuncsRequest,
   ListFuncsResponse
 } from "../types";
-import { buildDeployFuncRequest, cleanupTmpDir, copyFuncAtTmp } from "../utils";
+import {buildDeployFuncRequest, cleanupTmpDir, copyFuncAtTmp} from "../utils";
 import logger from "@fonos/logger";
 
 /**
@@ -104,7 +104,10 @@ export default class Funcs extends FonosService {
    *   console.log(result)              // successful response
    * }).catch(e => console.error(e));   // an error occurred
    */
-  async deployFunc(request: DeployFuncRequest, emitter?: Function): Promise<void> {
+  async deployFunc(
+    request: DeployFuncRequest,
+    emitter?: Function
+  ): Promise<void> {
     if (request.pathToFunc) {
       cleanupTmpDir(request.name);
       await copyFuncAtTmp(request.pathToFunc, request.name);
@@ -117,14 +120,14 @@ export default class Funcs extends FonosService {
     return new Promise<void>((resolve, reject) => {
       const req = buildDeployFuncRequest(request);
       const stream = super.getService().deployFunc(req, super.getMeta());
-      stream.on('data', (message: any) => {
+      stream.on("data", (message: any) => {
         if (emitter) emitter(message);
       });
-      stream.on('end', ()=> {
-        resolve()
+      stream.on("end", () => {
+        resolve();
       });
-      stream.on('error', (e: any)=> {
-        reject(e)
+      stream.on("error", (e: any) => {
+        reject(e);
       });
     });
   }
@@ -159,9 +162,9 @@ export default class Funcs extends FonosService {
           invocationCount: res.getInvocationCount(),
           replicas: res.getReplicas(),
           availableReplicas: res.getAvailableReplicas()
-        })
+        });
       });
-    })
+    });
   }
 
   /**
@@ -193,7 +196,7 @@ export default class Funcs extends FonosService {
           name: request.name
         });
       });
-    })
+    });
   }
 
   /**
@@ -223,24 +226,26 @@ export default class Funcs extends FonosService {
       req.setPageSize(request.pageSize);
       req.setPageToken(request.pageToken);
       req.setView(request.view);
-      super.getService().listFuncs(req, (e: any, paginatedList: FuncsPB.ListFuncsResponse) => {
-        if (e) reject(e);
+      super
+        .getService()
+        .listFuncs(req, (e: any, paginatedList: FuncsPB.ListFuncsResponse) => {
+          if (e) reject(e);
 
-        resolve({
-          nextPageToken: paginatedList.getNextPageToken(),
-          funcs: paginatedList.getFuncsList().map((f: FuncsPB.Func) => {
-            return {
-              name: f.getName(),
-              image: f.getImage(),
-              replicas: f.getReplicas(),
-              invocationCount: f.getInvocationCount(),
-              availableReplicas: f.getAvailableReplicas()
-            };
-          })
+          resolve({
+            nextPageToken: paginatedList.getNextPageToken(),
+            funcs: paginatedList.getFuncsList().map((f: FuncsPB.Func) => {
+              return {
+                name: f.getName(),
+                image: f.getImage(),
+                replicas: f.getReplicas(),
+                invocationCount: f.getInvocationCount(),
+                availableReplicas: f.getAvailableReplicas()
+              };
+            })
+          });
         });
-      });
-    })
+    });
   }
 }
 
-export { FuncsPB, CommonPB, buildDeployFuncRequest };
+export {FuncsPB, CommonPB, buildDeployFuncRequest};

@@ -51,7 +51,7 @@ describe("@Fonos/funcs/client", () => {
       baseImage: "index.docker.io/fonoster/node12base:latest"
     };
     const funcs = new Funcs();
-    await funcs.deployFunc(request, (messsage: string)=> {
+    await funcs.deployFunc(request, (messsage: string) => {
       logger.info(`=> ${messsage}`);
     });
     // expect(result).to.have.property("name").to.include(request.name);
@@ -66,7 +66,7 @@ describe("@Fonos/funcs/client", () => {
     };
 
     const funcs = new Funcs();
-    await funcs.deployFunc(request, (messsage: string)=> {
+    await funcs.deployFunc(request, (messsage: string) => {
       logger.info(`=> ${messsage}`);
     });
     // expect(result).to.have.property("name").to.include(request.name);

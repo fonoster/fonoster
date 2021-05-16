@@ -20,7 +20,7 @@ import {Image} from "container-image-builder";
 import {ErrorCodes, FonosError} from "@fonos/errors";
 import fs from "fs";
 import logger from "@fonos/logger";
-import { ServerStream } from "./funcs";
+import {ServerStream} from "./funcs";
 
 export interface BuildInfo {
   baseImage: string;
@@ -54,15 +54,13 @@ function getAuth(request) {
 
 // Push image function
 export default async function (request: BuildInfo, serverStream: ServerStream) {
-  serverStream.write(
-    `getting base image ${request.baseImage}]`
-  );
-  serverStream.write(
-    `setting destination image to ${request.image}]`
-  );
+  serverStream.write(`getting base image ${request.baseImage}]`);
+  serverStream.write(`setting destination image to ${request.image}]`);
 
   serverStream.write(
-    `checking path to func... has function? ${fs.existsSync(request.pathToFunc)}`
+    `checking path to func... has function? ${fs.existsSync(
+      request.pathToFunc
+    )}`
   );
 
   serverStream.write("obtaining authentication handler");
@@ -74,15 +72,13 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
   );
 
   if (fs.existsSync(request.pathToFunc)) {
-    serverStream.write(
-      `adding ${request.pathToFunc} into workdir (/home/app)`
-    );
+    serverStream.write(`adding ${request.pathToFunc} into workdir (/home/app)`);
     // await image.addFiles({'/home/app':request.pathToFunc})
     // await image.addFiles({'/':'/Users/pedrosanders/Projects/fonos/examples'})
-   await image.addFiles({ '/etc': './etc' });
+    await image.addFiles({"/etc": "./etc"});
   }
 
-  image.WorkingDir = "/home/app"
+  image.WorkingDir = "/home/app";
 
   serverStream.write(
     `preparing image for publishing on ${request.registry} registry`
@@ -93,7 +89,6 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
     serverStream.write("image pusblished");
     return;
   } catch (e) {
-
     if (e.message.includes("no auth handler for")) {
       serverStream.write("no auth handler found");
       throw new FonosError(

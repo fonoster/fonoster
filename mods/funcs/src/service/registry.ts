@@ -19,8 +19,8 @@
 import Docker from "dockerode";
 import fs from "fs";
 import logger from "@fonos/logger";
-import { ServerStream } from "./funcs";
-import { FonosError } from "@fonos/errors";
+import {ServerStream} from "./funcs";
+import {FonosError} from "@fonos/errors";
 
 export interface BuildInfo {
   baseImage: string;
@@ -39,7 +39,7 @@ function getAuth(request) {
   return {
     username: request.username,
     password: request.secret,
-    serveraddress: 'https://index.docker.io/v1'
+    serveraddress: "https://index.docker.io/v1"
   };
 }
 
@@ -48,23 +48,21 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
   serverStream.write(`getting base image ${request.baseImage}`);
   serverStream.write("connecting to the builder daemon");
 
-  const docker = new Docker({socketPath: '/var/run/docker.sock'})
+  const docker = new Docker({socketPath: "/var/run/docker.sock"});
+
+  serverStream.write(`setting destination image to ${request.image}]`);
 
   serverStream.write(
-    `setting destination image to ${request.image}]`
-  );
-
-  serverStream.write(
-    `checking path to func... has function? ${fs.existsSync(request.pathToFunc)}`
+    `checking path to func... has function? ${fs.existsSync(
+      request.pathToFunc
+    )}`
   );
 
   serverStream.write("obtaining authentication handler");
-  const auth = getAuth(request)
-  const files = ['Dockerfile', 'index.js', 'package.json']
+  const auth = getAuth(request);
+  const files = ["Dockerfile", "index.js", "package.json"];
   if (fs.existsSync(request.pathToFunc)) {
-    serverStream.write(
-      `adding ${request.pathToFunc} into workdir (/home/app)`
-    );
+    serverStream.write(`adding ${request.pathToFunc} into workdir (/home/app)`);
     // files.push('')
   }
 
@@ -73,26 +71,38 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
   );
 
   try {
-    const stream = await docker.buildImage({
-      context: request.pathToFunc,
-      src: files
-    }, {t: request.image});
+    const stream = await docker.buildImage(
+      {
+        context: request.pathToFunc,
+        src: files
+      },
+      {t: request.image}
+    );
 
     await new Promise((resolve, reject) => {
-      docker.modem.followProgress(stream, (err, res) => err ? reject(err) : resolve(res));
+      docker.modem.followProgress(stream, (err, res) =>
+        err ? reject(err) : resolve(res)
+      );
     });
 
     serverStream.write("build complete");
     const image = docker.getImage(request.image);
 
-    const stream2 = await image.push({tag: 'latest', authconfig: getAuth(request) });
+    const stream2 = await image.push({
+      tag: "latest",
+      authconfig: getAuth(request)
+    });
     stream2.pipe(process.stdout);
 
     await new Promise((resolve, reject) => {
-      docker.modem.followProgress(stream2, (err, res) => err ? reject(err) : resolve(res));
+      docker.modem.followProgress(stream2, (err, res) =>
+        err ? reject(err) : resolve(res)
+      );
     });
-  } catch(e) {
-    logger.error(JSON.stringify(e))
-    throw new FonosError(`Unable to pulish image ${request.image} to registry ${request.registry}`);
+  } catch (e) {
+    logger.error(JSON.stringify(e));
+    throw new FonosError(
+      `Unable to pulish image ${request.image} to registry ${request.registry}`
+    );
   }
 }
