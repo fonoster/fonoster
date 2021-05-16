@@ -21,6 +21,7 @@ import {DeployFuncRequest, FuncParameters} from "./types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
+import { FonosError, ErrorCodes} from "@fonos/errors";
 
 export const buildDeployFuncRequest = (
   request: DeployFuncRequest,
@@ -48,6 +49,10 @@ export const buildDeployFuncRequest = (
   cfr.setRequests(requests);
   return cfr;
 };
+
+export const assertValidFuncName = (name: string) => {
+  if(!/[^a-z0-9_]/.test(name)) throw new FonosError("function name must be a-z0-9_", ErrorCodes.INVALID_ARGUMENT)
+}
 
 export const validateFunc = (pathToFunc: string) => {
   const packagePath = path.join(pathToFunc, "package.json");

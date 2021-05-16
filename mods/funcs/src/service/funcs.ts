@@ -133,19 +133,17 @@ export default class FuncsServer implements IFuncsServer {
   }
 
   // See client-side for comments
-  // WARNING: Validate that function name is lowercase and without strange characters
   // TODO: Add JWT Signature
   async createFunc(
     call: grpc.ServerUnaryCall<CreateFuncRequest>,
     callback: grpc.sendUnaryData<Func>
   ) {
     try {
+      assertValidFuncName(call.request.getName());
       const parameters = await publish(call);
-
       const func = new FuncsPB.Func();
       func.setName(parameters.service);
       func.setImage(parameters.image);
-
       callback(null, func);
     } catch (e) {
       logger.error(`@fonos/funcs create [${JSON.stringify(e)}]`);
@@ -173,13 +171,13 @@ export default class FuncsServer implements IFuncsServer {
   }
 
   // See client-side for comments
-  // WARNING: Validate that function name is lowercase and without strange characters
   // TODO: Resign with JWT token
   async updateFunc(
     call: grpc.ServerUnaryCall<UpdateFuncRequest>,
     callback: grpc.sendUnaryData<Func>
   ) {
     try {
+      assertValidFuncName(call.request.getName());
       await publish(call);
       // Get result from the system
       const list = (await faas.systemFunctionsGet()).response.body;
@@ -272,3 +270,7 @@ export default class FuncsServer implements IFuncsServer {
     }
   }
 }
+function assertValidFuncName(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+
