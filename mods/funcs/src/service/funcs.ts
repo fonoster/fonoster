@@ -22,8 +22,7 @@ import {IFuncsServer} from "./protos/funcs_grpc_pb";
 import {
   CreateRegistryTokenRequest,
   CreateRegistryTokenResponse,
-  CreateFuncRequest,
-  UpdateFuncRequest,
+  DeployFuncRequest,
   DeleteFuncRequest,
   Func,
   FuncLog,
@@ -58,7 +57,7 @@ faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
 
 const publish = async (
-  call: grpc.ServerUnaryCall<UpdateFuncRequest | CreateFuncRequest>
+  call: grpc.ServerUnaryCall<DeployFuncRequest>
 ) => {
   const accessKeyId = getAccessKeyId(call);
   const parameters = buildFaasCreateParameters({
@@ -76,7 +75,12 @@ const publish = async (
     secret: process.env.DOCKER_REGISTRY_SECRET
   });
 
-  await faas.systemFunctionsPut(parameters);
+  // Try post then put.
+  try {
+    await faas.systemFunctionsPost(parameters);
+  } catch {
+    await faas.systemFunctionsPut(parameters);
+  }
 
   return parameters;
 };
@@ -134,52 +138,15 @@ export default class FuncsServer implements IFuncsServer {
   }
 
   // See client-side for comments
-  // TODO: Add JWT Signature
-  async createFunc(
-    call: grpc.ServerUnaryCall<CreateFuncRequest>,
+  // TODO: Resign with JWT token
+  async deployFunc(
+    call: grpc.ServerUnaryCall<DeployFuncRequest>,
     callback: grpc.sendUnaryData<Func>
   ) {
     try {
       assertValidFuncName(call.request.getName());
       const parameters = await publish(call);
-      const func = new FuncsPB.Func();
-      func.setName(parameters.service);
-      func.setImage(parameters.image);
-      callback(null, func);
-    } catch (e) {
-      logger.error(`@fonos/funcs create [${JSON.stringify(e)}]`);
-      if (e.response.body.includes("already exists")) {
-        callback(
-          new FonosError(
-            "Entity already exist",
-            ErrorCodes.ENTITY_ALREADY_EXIST
-          ),
-          null
-        );
-      } else if (e.response.statusCode === 400) {
-        callback(
-          new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT),
-          null
-        );
-      } else if (e.response.statusCode === 401) {
-        callback(
-          new FonosSubsysUnavailable("Functions subsystem unavailable"),
-          null
-        );
-      }
-      callback(e.response, null);
-    }
-  }
 
-  // See client-side for comments
-  // TODO: Resign with JWT token
-  async updateFunc(
-    call: grpc.ServerUnaryCall<UpdateFuncRequest>,
-    callback: grpc.sendUnaryData<Func>
-  ) {
-    try {
-      assertValidFuncName(call.request.getName());
-      await publish(call);
       // Get result from the system
       const list = (await faas.systemFunctionsGet()).response.body;
       const rawFunction = list.filter(
@@ -187,9 +154,17 @@ export default class FuncsServer implements IFuncsServer {
           f.name === getFuncName(getAccessKeyId(call), call.request.getName())
       )[0];
 
+      // Is a new function...
+      if (!rawFunction) {
+        const func = new FuncsPB.Func();
+        func.setName(parameters.service);
+        func.setImage(parameters.image);
+        callback(null, func);
+      }
+
       callback(null, rawFuncToFunc(rawFunction));
     } catch (e) {
-      logger.error(`@fonos/funcs update [${e}]`);
+      logger.error(`@fonos/funcs deploy [${e}]`);
       if (e.response.statusCode === 400) {
         callback(
           new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT),
@@ -271,4 +246,3 @@ export default class FuncsServer implements IFuncsServer {
     }
   }
 }
-

@@ -24,8 +24,7 @@ import tar from "tar";
 import {FonosError, ErrorCodes} from "@fonos/errors";
 
 export const buildDeployFuncRequest = (
-  request: DeployFuncRequest,
-  exist: boolean
+  request: DeployFuncRequest
 ) => {
   const limits = new FuncsPB.Resource();
   const requests = new FuncsPB.Resource();
@@ -40,24 +39,23 @@ export const buildDeployFuncRequest = (
     requests.setMemory(request.requests.memory);
   }
 
-  const cfr = exist
-    ? new FuncsPB.UpdateFuncRequest()
-    : new FuncsPB.CreateFuncRequest();
-  cfr.setName(request.name);
-  cfr.setBaseImage(request.baseImage);
-  cfr.setLimits(limits);
-  cfr.setRequests(requests);
-  return cfr;
+  const dfr = new FuncsPB.DeployFuncRequest()
+  dfr.setName(request.name);
+  dfr.setBaseImage(request.baseImage);
+  dfr.setLimits(limits);
+  dfr.setRequests(requests);
+  return dfr;
 };
 
 export const assertValidFuncName = (name: string) => {
-  if (/[^a-z0-9_]/.test(name)) 
-      throw new FonosError(
+  if (/[^a-z0-9_]/.test(name))
+    throw new FonosError(
       "function name must be a-z0-9_",
       ErrorCodes.INVALID_ARGUMENT
     );
 };
 
+// @deprecated
 export const validateFunc = (pathToFunc: string) => {
   const packagePath = path.join(pathToFunc, "package.json");
   let pInfo;

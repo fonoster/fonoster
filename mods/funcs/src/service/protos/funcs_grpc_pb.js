@@ -23,17 +23,6 @@ function deserialize_fonos_common_v1alpha1_Empty(buffer_arg) {
   return common_pb.Empty.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_funcs_v1alpha1_CreateFuncRequest(arg) {
-  if (!(arg instanceof funcs_pb.CreateFuncRequest)) {
-    throw new Error('Expected argument of type fonos.funcs.v1alpha1.CreateFuncRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonos_funcs_v1alpha1_CreateFuncRequest(buffer_arg) {
-  return funcs_pb.CreateFuncRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_fonos_funcs_v1alpha1_CreateRegistryTokenRequest(arg) {
   if (!(arg instanceof funcs_pb.CreateRegistryTokenRequest)) {
     throw new Error('Expected argument of type fonos.funcs.v1alpha1.CreateRegistryTokenRequest');
@@ -65,6 +54,17 @@ function serialize_fonos_funcs_v1alpha1_DeleteFuncRequest(arg) {
 
 function deserialize_fonos_funcs_v1alpha1_DeleteFuncRequest(buffer_arg) {
   return funcs_pb.DeleteFuncRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonos_funcs_v1alpha1_DeployFuncRequest(arg) {
+  if (!(arg instanceof funcs_pb.DeployFuncRequest)) {
+    throw new Error('Expected argument of type fonos.funcs.v1alpha1.DeployFuncRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonos_funcs_v1alpha1_DeployFuncRequest(buffer_arg) {
+  return funcs_pb.DeployFuncRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonos_funcs_v1alpha1_Func(arg) {
@@ -133,17 +133,6 @@ function deserialize_fonos_funcs_v1alpha1_ListFuncsResponse(buffer_arg) {
   return funcs_pb.ListFuncsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_funcs_v1alpha1_UpdateFuncRequest(arg) {
-  if (!(arg instanceof funcs_pb.UpdateFuncRequest)) {
-    throw new Error('Expected argument of type fonos.funcs.v1alpha1.UpdateFuncRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonos_funcs_v1alpha1_UpdateFuncRequest(buffer_arg) {
-  return funcs_pb.UpdateFuncRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 
 var FuncsService = exports.FuncsService = {
   // Shows a list of user functions
@@ -171,26 +160,14 @@ getFunc: {
     responseDeserialize: deserialize_fonos_funcs_v1alpha1_Func,
   },
   // Orders the functions subsystem to download and deploy a function
-createFunc: {
-    path: '/fonos.funcs.v1alpha1.Funcs/CreateFunc',
+deployFunc: {
+    path: '/fonos.funcs.v1alpha1.Funcs/DeployFunc',
     requestStream: false,
     responseStream: false,
-    requestType: funcs_pb.CreateFuncRequest,
+    requestType: funcs_pb.DeployFuncRequest,
     responseType: funcs_pb.Func,
-    requestSerialize: serialize_fonos_funcs_v1alpha1_CreateFuncRequest,
-    requestDeserialize: deserialize_fonos_funcs_v1alpha1_CreateFuncRequest,
-    responseSerialize: serialize_fonos_funcs_v1alpha1_Func,
-    responseDeserialize: deserialize_fonos_funcs_v1alpha1_Func,
-  },
-  // Updates a function, keeping metrics intact
-updateFunc: {
-    path: '/fonos.funcs.v1alpha1.Funcs/UpdateFunc',
-    requestStream: false,
-    responseStream: false,
-    requestType: funcs_pb.UpdateFuncRequest,
-    responseType: funcs_pb.Func,
-    requestSerialize: serialize_fonos_funcs_v1alpha1_UpdateFuncRequest,
-    requestDeserialize: deserialize_fonos_funcs_v1alpha1_UpdateFuncRequest,
+    requestSerialize: serialize_fonos_funcs_v1alpha1_DeployFuncRequest,
+    requestDeserialize: deserialize_fonos_funcs_v1alpha1_DeployFuncRequest,
     responseSerialize: serialize_fonos_funcs_v1alpha1_Func,
     responseDeserialize: deserialize_fonos_funcs_v1alpha1_Func,
   },

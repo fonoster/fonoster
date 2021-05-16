@@ -36,8 +36,7 @@ import {
 import {
   buildDeployFuncRequest,
   cleanupTmpDir,
-  copyFuncAtTmp,
-  validateFunc
+  copyFuncAtTmp
 } from "../utils";
 
 /**
@@ -53,7 +52,7 @@ import {
  *
  * const request = {
  *   name: "function1",
- *   image: "docker.io/functions/function1:latest",
+ *   baseImage: "docker.io/functions/function1:latest",
  *   limits: {
  *      cpu: 100m,
  *      memory: 40Mi
@@ -89,7 +88,8 @@ export default class Funcs extends FonosService {
    * @param {DeployFuncRequest} request - Request to create or update a function
    * @param {string} request.name - Unique function name
    * @param {string} request.baseImage - The image base to create the function
-   * @param {string} request.pathToFunc - The directory where the function lives
+   * @param {string} request.pathToFunc - Optional path to the function. If none is provided, then the base image will be
+   * used to deploy the function
    * @param {string} request.limit.memory - Optional limit for function's memory utilization
    * @param {string} request.limit.cpu - Optional limit for function's cpu utilization
    * @param {string} request.requests.memory - Optional requested memory allocation for the function
@@ -99,7 +99,7 @@ export default class Funcs extends FonosService {
    *
    * const request = {
    *   name: "function1",
-   *   image: "docker.io/functions/function1",
+   *   baseImage: "docker.io/functions/function1",
    * };
    *
    * funcs.deployFunc(request)
@@ -108,31 +108,17 @@ export default class Funcs extends FonosService {
    * }).catch(e => console.error(e));   // an error occurred
    */
   async deployFunc(request: DeployFuncRequest): Promise<DeployFuncResponse> {
-    validateFunc(request.pathToFunc);
-    cleanupTmpDir(request.name);
-    await copyFuncAtTmp(request.pathToFunc, request.name);
-    await this.storage.uploadObject({
-      filename: `/tmp/${request.name}.tgz`,
-      bucket: "funcs"
-    });
-
-    let exist = false;
-
-    try {
-      await this.getFunc({name: request.name});
-      exist = true;
-    } catch (e) {
-      // TODO: If the error is different than 400 we should pass error to the client
+    if(request.pathToFunc) {
+      cleanupTmpDir(request.name);
+      await copyFuncAtTmp(request.pathToFunc, request.name);
+      await this.storage.uploadObject({
+        filename: `/tmp/${request.name}.tgz`,
+        bucket: "funcs"
+      });
     }
 
-    let res = null;
-    const req = buildDeployFuncRequest(request, exist);
-
-    if (exist) {
-      res = await super.getService().updateFunc().sendMessage(req);
-    } else {
-      res = await super.getService().createFunc().sendMessage(req);
-    }
+    const req = buildDeployFuncRequest(request);
+    const res = await super.getService().deployFunc().sendMessage(req);
 
     return {
       name: res.getName(),

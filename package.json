@@ -22,9 +22,6 @@
     "exec": "ts-node",
     "ignore": "**/*.d.ts"
   },
-  "dependencies": {
-    "nodemon": "^2.0.7"
-  },
   "devDependencies": {
     "@fonos/auth": "^0.0.87",
     "@types/mocha": "^8.2.0",
@@ -37,10 +34,12 @@
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-no-loops": "^0.3.0",
     "eslint-plugin-prettier": "^3.3.1",
+    "grpc_tools_node_protoc_ts": "^5.2.2",
     "husky": "^6.0.0",
     "jsdoc-to-markdown": "^7.0.1",
     "lerna": "^3.22.1",
     "mocha": "^8.3.0",
+    "nodemon": "^2.0.7",
     "nyc": "^15.1.0",
     "prettier": "^2.3.0",
     "rimraf": "^3.0.2",

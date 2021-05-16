@@ -1,4 +1,4 @@
-import {CreateFuncRequest, UpdateFuncRequest} from "./service/protos/funcs_pb";
+import FuncPB from "./service/protos/funcs_pb";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
@@ -27,7 +27,7 @@ enum View {
 export interface DeployFuncRequest {
   name: string;
   baseImage: string;
-  pathToFunc: string;
+  pathToFunc?: string;
   limits?: {
     memory: undefined | string;
     cpu: undefined | string;
@@ -90,7 +90,7 @@ export interface ListFuncsResponse {
 }
 
 export interface FuncParameters {
-  request: CreateFuncRequest | UpdateFuncRequest;
+  request: FuncPB.DeployFuncRequest;
   accessKeyId: string;
   jwtSignature: string;
 }

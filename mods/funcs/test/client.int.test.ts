@@ -44,11 +44,21 @@ describe("@Fonos/funcs/client", () => {
     );
   });
 
+  it("should deploy a function from base image", async () => {
+    const request: DeployFuncRequest = {
+      name: "function2",
+      baseImage: "index.docker.io/fonoster/node12base:latest"
+    };
+    const funcs = new Funcs();
+    const result = await funcs.deployFunc(request);
+    expect(result).to.have.property("name").to.include(request.name);
+  });
+
   it.only("should deploy a function", async () => {
     const request: DeployFuncRequest = {
       name: "function2",
-      baseImage: "registry-1.docker.io/fonoster/routr:latest",
-      pathToFunc: __dirname + "/../etc/testfunc"
+      baseImage: "index.docker.io/fonoster/node12base:latest",
+      pathToFunc: __dirname + "/../etc/example"
     };
     const funcs = new Funcs();
     const result = await funcs.deployFunc(request);

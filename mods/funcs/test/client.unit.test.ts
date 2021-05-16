@@ -54,7 +54,7 @@ describe("@Fonos/funcs/client", () => {
         cpu: "100m"
       }
     };
-    const func = buildDeployFuncRequest(request, false);
+    const func = buildDeployFuncRequest(request);
 
     expect(func.getName()).to.be.equal(request.name);
     expect(func.getBaseImage()).to.be.equal(request.baseImage);

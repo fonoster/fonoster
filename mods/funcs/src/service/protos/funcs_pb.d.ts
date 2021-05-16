@@ -110,68 +110,33 @@ export namespace GetFuncRequest {
     }
 }
 
-export class CreateFuncRequest extends jspb.Message { 
+export class DeployFuncRequest extends jspb.Message { 
     getName(): string;
-    setName(value: string): CreateFuncRequest;
+    setName(value: string): DeployFuncRequest;
     getBaseImage(): string;
-    setBaseImage(value: string): CreateFuncRequest;
+    setBaseImage(value: string): DeployFuncRequest;
 
     hasLimits(): boolean;
     clearLimits(): void;
     getLimits(): Resource | undefined;
-    setLimits(value?: Resource): CreateFuncRequest;
+    setLimits(value?: Resource): DeployFuncRequest;
 
     hasRequests(): boolean;
     clearRequests(): void;
     getRequests(): Resource | undefined;
-    setRequests(value?: Resource): CreateFuncRequest;
+    setRequests(value?: Resource): DeployFuncRequest;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): CreateFuncRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: CreateFuncRequest): CreateFuncRequest.AsObject;
+    toObject(includeInstance?: boolean): DeployFuncRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: DeployFuncRequest): DeployFuncRequest.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: CreateFuncRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): CreateFuncRequest;
-    static deserializeBinaryFromReader(message: CreateFuncRequest, reader: jspb.BinaryReader): CreateFuncRequest;
+    static serializeBinaryToWriter(message: DeployFuncRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): DeployFuncRequest;
+    static deserializeBinaryFromReader(message: DeployFuncRequest, reader: jspb.BinaryReader): DeployFuncRequest;
 }
 
-export namespace CreateFuncRequest {
-    export type AsObject = {
-        name: string,
-        baseImage: string,
-        limits?: Resource.AsObject,
-        requests?: Resource.AsObject,
-    }
-}
-
-export class UpdateFuncRequest extends jspb.Message { 
-    getName(): string;
-    setName(value: string): UpdateFuncRequest;
-    getBaseImage(): string;
-    setBaseImage(value: string): UpdateFuncRequest;
-
-    hasLimits(): boolean;
-    clearLimits(): void;
-    getLimits(): Resource | undefined;
-    setLimits(value?: Resource): UpdateFuncRequest;
-
-    hasRequests(): boolean;
-    clearRequests(): void;
-    getRequests(): Resource | undefined;
-    setRequests(value?: Resource): UpdateFuncRequest;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): UpdateFuncRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: UpdateFuncRequest): UpdateFuncRequest.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: UpdateFuncRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): UpdateFuncRequest;
-    static deserializeBinaryFromReader(message: UpdateFuncRequest, reader: jspb.BinaryReader): UpdateFuncRequest;
-}
-
-export namespace UpdateFuncRequest {
+export namespace DeployFuncRequest {
     export type AsObject = {
         name: string,
         baseImage: string,

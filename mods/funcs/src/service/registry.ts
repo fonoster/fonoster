@@ -48,9 +48,6 @@ function getAuth(request) {
   }
   const authObj = {auth: {}};
   authObj.auth[request.registry] = credentials;
-  logger.verbose(
-    `@fonos/funcs image build [auth obj is = ${JSON.stringify(authObj)}]`
-  );
   return authObj;
 }
 
@@ -66,18 +63,21 @@ export default async function (request: BuildInfo) {
     `@fonos/funcs image build [inspecting path to func ${request.pathToFunc}]`
   );
 
-  if (!fs.existsSync(request.pathToFunc)) {
-    throw new FonosError(`path ${request.pathToFunc} does not exist`);
-  }
-
   const image = new Image(
     request.baseImage,
     `index.${request.registry}/${request.image}`,
     getAuth(request)
   );
 
+  if (fs.existsSync(request.pathToFunc)) {
+    logger.verbose(
+      `@fonos/funcs image build [adding ${request.pathToFunc} into /home/app]`
+    );
+    //await image.addFiles(request.pathToFunc, "/home/app")
+  }
+
   logger.verbose(
-    `@fonos/funcs image build [pushing image to registry ${request.registry}]`
+    `@fonos/funcs image build [pushing image to ${request.registry} registry]`
   );
 
   try {

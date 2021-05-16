@@ -17,9 +17,7 @@ service Funcs {
   // Gets a function by namem
   rpc GetFunc (GetFuncRequest) returns (Func) {};
   // Orders the functions subsystem to download and deploy a function
-  rpc CreateFunc (CreateFuncRequest) returns (Func) {};
-  // Updates a function, keeping metrics intact
-  rpc UpdateFunc (UpdateFuncRequest) returns (Func) {};
+  rpc DeployFunc (DeployFuncRequest) returns (Func) {};
   // Peforms a hard delete of the function
   rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1alpha1.Empty) {};
   // Peforms a hard delete of the function
@@ -63,18 +61,11 @@ message GetFuncRequest {
   fonos.common.v1alpha1.View view = 2;
 }
 
-message CreateFuncRequest {
+message DeployFuncRequest {
   string name = 1;
   string base_image = 2;
-  Resource limits = 6;
-  Resource requests = 7;
-}
-
-message UpdateFuncRequest {
-  string name = 1;
-  string base_image = 2;
-  Resource limits = 6;
-  Resource requests = 7;
+  Resource limits = 3;
+  Resource requests = 4;
 }
 
 message DeleteFuncRequest {
