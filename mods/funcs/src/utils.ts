@@ -83,7 +83,8 @@ export const validateFunc = (pathToFunc: string) => {
 export const cleanupTmpDir = (dirName: string) => {
   if (fs.existsSync(`/tmp/${dirName}`))
     fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
-  if (fs.existsSync(`/tmp/${dirName}.tgz`)) fs.unlinkSync(`/tmp/${dirName}.tgz`);
+  if (fs.existsSync(`/tmp/${dirName}.tgz`))
+    fs.unlinkSync(`/tmp/${dirName}.tgz`);
 };
 
 export const copyFuncAtTmp = async (funcPath: string, dirName: string) => {
@@ -97,10 +98,10 @@ export const getFuncName = (accessKeyId: string, name: string) =>
 export const getImageName = (accessKeyId: string, name: string) =>
   `${process.env.DOCKER_REGISTRY_ORG}/fn.${accessKeyId}.${name}`;
 
-export const getBuildDir = (accessKeyId: string, funcName: string) => 
+export const getBuildDir = (accessKeyId: string, funcName: string) =>
   process.env.NODE_ENV === "dev"
-    ? "/tmp/testfunc" 
-    : `${process.env.FUNCS_WORKDIR}/${accessKeyId}/${funcName}` 
+    ? "/tmp/testfunc"
+    : `${process.env.FUNCS_WORKDIR}/${accessKeyId}/${funcName}`;
 
 export const buildFaasCreateParameters = (params: FuncParameters) => {
   const parameters = {

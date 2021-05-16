@@ -48,7 +48,8 @@ export const uploadToFS = async (
   pathToObject: string,
   object?: string,
   metadata: object = {}
-) => new Promise<void>((resolve, reject) => {
+) =>
+  new Promise<void>((resolve, reject) => {
     const splitPath = (p: string) => path.dirname(p).split(path.sep);
     const dirCount = splitPath(pathToObject).length;
     const baseDir = splitPath(pathToObject).slice(0, dirCount).join("/");
@@ -62,23 +63,21 @@ export const uploadToFS = async (
         const dest =
           `${accessKeyId}/` + destFilePath.substring(baseDir.length + 1);
 
-        logger.verbose(`@fonos/storage upload fs [uploading ${stats.name} file]`)
-
-        fsInstance().fPutObject(
-          bucket,
-          dest,
-          filePath,
-          metadata,
-          (e: any) => {
-            if (e) {
-              logger.error(`@fonos/storage upload fs [${e}]`)
-              reject(e);
-            } else {
-              logger.verbose(`@fonos/storage upload fs [finished uploading ${stats.name} file]`)
-              next();
-            }
-          }
+        logger.verbose(
+          `@fonos/storage upload fs [uploading ${stats.name} file]`
         );
+
+        fsInstance().fPutObject(bucket, dest, filePath, metadata, (e: any) => {
+          if (e) {
+            logger.error(`@fonos/storage upload fs [${e}]`);
+            reject(e);
+          } else {
+            logger.verbose(
+              `@fonos/storage upload fs [finished uploading ${stats.name} file]`
+            );
+            next();
+          }
+        });
       }
     );
 
@@ -87,11 +86,12 @@ export const uploadToFS = async (
     });
 
     walker.on("end", () => {
-      logger.verbose(`@fonos/storage upload fs [finished uploading ${pathToObject}]`)
+      logger.verbose(
+        `@fonos/storage upload fs [finished uploading ${pathToObject}]`
+      );
       resolve();
     });
   });
-
 
 export default async function (bucket: string) {
   const fsConn = fsInstance();

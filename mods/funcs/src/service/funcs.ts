@@ -18,9 +18,7 @@
  */
 import grpc from "grpc";
 import {Empty} from "./protos/common_pb";
-import {
-  IFuncsServer
-} from "./protos/funcs_grpc_pb";
+import {IFuncsServer} from "./protos/funcs_grpc_pb";
 import {
   CreateRegistryTokenRequest,
   CreateRegistryTokenResponse,
@@ -58,12 +56,14 @@ auth.password = process.env.FUNCS_SECRET;
 faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
 
-const publish = async (call: grpc.ServerUnaryCall<UpdateFuncRequest | CreateFuncRequest>) => {
+const publish = async (
+  call: grpc.ServerUnaryCall<UpdateFuncRequest | CreateFuncRequest>
+) => {
   const accessKeyId = getAccessKeyId(call);
   const parameters = buildFaasCreateParameters({
-    request: call.request, 
+    request: call.request,
     accessKeyId: accessKeyId,
-    jwtSignature: "" 
+    jwtSignature: ""
   });
 
   await buildAndPublishImage({
@@ -78,7 +78,7 @@ const publish = async (call: grpc.ServerUnaryCall<UpdateFuncRequest | CreateFunc
   await faas.systemFunctionsPut(parameters);
 
   return parameters;
-}
+};
 
 export default class FuncsServer implements IFuncsServer {
   getFuncLogs: grpc.handleServerStreamingCall<GetFuncLogsRequest, FuncLog>;
@@ -141,7 +141,7 @@ export default class FuncsServer implements IFuncsServer {
   ) {
     try {
       const parameters = await publish(call);
-      
+
       const func = new FuncsPB.Func();
       func.setName(parameters.service);
       func.setImage(parameters.image);
@@ -184,7 +184,8 @@ export default class FuncsServer implements IFuncsServer {
       // Get result from the system
       const list = (await faas.systemFunctionsGet()).response.body;
       const rawFunction = list.filter(
-        (f) => f.name === getFuncName(getAccessKeyId(call), call.request.getName())
+        (f) =>
+          f.name === getFuncName(getAccessKeyId(call), call.request.getName())
       )[0];
 
       callback(null, rawFuncToFunc(rawFunction));
@@ -234,7 +235,7 @@ export default class FuncsServer implements IFuncsServer {
 
   /**
    * @deprecated
-   * 
+   *
    * This function creates a single use, scoped token, useful for pushing images
    * to a private Docker registry.
    */
@@ -250,7 +251,9 @@ export default class FuncsServer implements IFuncsServer {
         );
       const endpoint = process.env.DOCKER_REGISTRY_AUTH_ENDPOINT;
       const service = process.env.DOCKER_REGISTRY_SERVICE;
-      const auth = btoa(`${process.env.DOCKER_REGISTRY_USERNAME}:${process.env.DOCKER_REGISTRY_SECRET}`);
+      const auth = btoa(
+        `${process.env.DOCKER_REGISTRY_USERNAME}:${process.env.DOCKER_REGISTRY_SECRET}`
+      );
       const accessKeyId = getAccessKeyId(call);
       const image = getImageName(accessKeyId, call.request.getFuncName());
       const baseURL = `${endpoint}?service=${service}&scope=repository:${image}:push`;
