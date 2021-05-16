@@ -1,0 +1,1 @@
+FROM functions/nodeinfo:latest

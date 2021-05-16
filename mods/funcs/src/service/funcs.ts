@@ -16,13 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "grpc";
+import grpc, { ServerWritableStream } from "grpc";
 import {Empty} from "./protos/common_pb";
 import {IFuncsServer} from "./protos/funcs_grpc_pb";
 import {
   CreateRegistryTokenRequest,
   CreateRegistryTokenResponse,
   DeployFuncRequest,
+  DeployStream,
   DeleteFuncRequest,
   Func,
   FuncLog,
@@ -36,7 +37,6 @@ import logger from "@fonos/logger";
 import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
 import {getAccessKeyId} from "@fonos/core";
 import axios from "axios";
-import {FuncsPB} from "../client/funcs";
 import {
   rawFuncToFunc,
   getFuncName,
@@ -47,6 +47,8 @@ import {
 } from "../utils";
 import buildAndPublishImage from "./registry";
 import btoa from "btoa";
+const { promisify } = require('util')
+const sleep = promisify(setTimeout)
 
 // Initializing access info for FaaS
 const faas = new FaaS();
@@ -56,7 +58,20 @@ auth.password = process.env.FUNCS_SECRET;
 faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
 
-const publish = async (call: grpc.ServerUnaryCall<DeployFuncRequest>) => {
+export class ServerStream {
+  call: any;
+  constructor(call) {
+    this.call = call;
+  }
+
+  write(message: string) {
+    const msg = new DeployStream();
+    msg.setText(message);
+    this.call.write(msg);
+  }
+}
+
+const publish = async (call: grpc.ServerUnaryCall<DeployFuncRequest>, serverStream: ServerStream) => {
   const accessKeyId = getAccessKeyId(call);
   const parameters = buildFaasCreateParameters({
     request: call.request,
@@ -71,13 +86,30 @@ const publish = async (call: grpc.ServerUnaryCall<DeployFuncRequest>) => {
     pathToFunc: getBuildDir(accessKeyId, call.request.getName()),
     username: process.env.DOCKER_REGISTRY_USERNAME,
     secret: process.env.DOCKER_REGISTRY_SECRET
-  });
+  }, serverStream);
 
-  // Try post then put.
-  try {
-    await faas.systemFunctionsPost(parameters);
-  } catch {
-    await faas.systemFunctionsPut(parameters);
+  logger.verbose("@fonos/funcs publish [publishing to funcs subsystem]");
+
+  const attempts = [1,2,3];
+  let index;
+  for (index in attempts) {
+    // Sometime the image is not inmediatly available so we try a few times
+    logger.verbose(`@fonos/funcs publish [publishing to functions subsystem (try #${attempts[index]})`);
+    serverStream.write(`publishing to functions subsystem (try #${attempts[index]})`);
+    await sleep(20000)
+    try {
+      // If the function already exist this will fail
+      logger.verbose(`@fonos/funcs publish [first trying post]`);
+      await faas.systemFunctionsPost(parameters);
+      break
+    } catch(e) {
+      logger.verbose(`@fonos/funcs publish [now trying trying put]`);
+      try {
+        await faas.systemFunctionsPut(parameters);
+        break
+      } catch(e) {
+      }
+    }
   }
 
   return parameters;
@@ -138,45 +170,26 @@ export default class FuncsServer implements IFuncsServer {
   // See client-side for comments
   // TODO: Resign with JWT token
   async deployFunc(
-    call: grpc.ServerUnaryCall<DeployFuncRequest>,
-    callback: grpc.sendUnaryData<Func>
+    call: ServerWritableStream<DeployFuncRequest, DeployStream>
   ) {
     try {
-      assertValidFuncName(call.request.getName());
-      const parameters = await publish(call);
-
-      // Get result from the system
-      const list = (await faas.systemFunctionsGet()).response.body;
-      const rawFunction = list.filter(
-        (f) =>
-          f.name === getFuncName(getAccessKeyId(call), call.request.getName())
-      )[0];
-
-      // Is a new function...
-      if (!rawFunction) {
-        const func = new FuncsPB.Func();
-        func.setName(parameters.service);
-        func.setImage(parameters.image);
-        callback(null, func);
-      }
-
-      callback(null, rawFuncToFunc(rawFunction));
+      assertValidFuncName(call.request.getName())
+      const serverStream = new ServerStream(call);
+      serverStream.write("starting function deployment");
+      await publish(call, serverStream);
+      serverStream.write("deployment complete");
+      serverStream.write("your function will be available shortly");
+      call.end();
     } catch (e) {
       logger.error(`@fonos/funcs deploy [${e}]`);
-      if (e.response.statusCode === 400) {
-        callback(
-          new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT),
-          null
-        );
+      if (e.response.statusCode === 400) {      
+        call.emit('error', new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT));
       } else if (e.response.statusCode === 401) {
-        callback(
-          new FonosSubsysUnavailable("Functions subsystem unavailable"),
-          null
-        );
+        call.emit('error', new FonosSubsysUnavailable("Functions subsystem unavailable"));
       } else if (e.response.statusCode === 404) {
-        callback(new FonosError(e.response.body, ErrorCodes.NOT_FOUND), null);
+        call.emit('error', new FonosError(e.response.body, ErrorCodes.NOT_FOUND));
       }
-      callback(e.response, null);
+      call.emit('error', new FonosError(e, ErrorCodes.NOT_FOUND));
     }
   }
 
@@ -226,8 +239,7 @@ export default class FuncsServer implements IFuncsServer {
       const auth = btoa(
         `${process.env.DOCKER_REGISTRY_USERNAME}:${process.env.DOCKER_REGISTRY_SECRET}`
       );
-      const accessKeyId = getAccessKeyId(call);
-      const image = getImageName(accessKeyId, call.request.getFuncName());
+      const image = getImageName();
       const baseURL = `${endpoint}?service=${service}&scope=repository:${image}:push`;
       const result = await axios
         .create({

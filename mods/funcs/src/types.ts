@@ -38,14 +38,6 @@ export interface DeployFuncRequest {
   };
 }
 
-export interface DeployFuncResponse {
-  name: string;
-  image: string;
-  invocationCount: number;
-  replicas: number;
-  availableReplicas: number;
-}
-
 export interface GetFuncRequest {
   name: string;
 }

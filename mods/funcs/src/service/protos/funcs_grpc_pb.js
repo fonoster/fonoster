@@ -67,6 +67,17 @@ function deserialize_fonos_funcs_v1alpha1_DeployFuncRequest(buffer_arg) {
   return funcs_pb.DeployFuncRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonos_funcs_v1alpha1_DeployStream(arg) {
+  if (!(arg instanceof funcs_pb.DeployStream)) {
+    throw new Error('Expected argument of type fonos.funcs.v1alpha1.DeployStream');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonos_funcs_v1alpha1_DeployStream(buffer_arg) {
+  return funcs_pb.DeployStream.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonos_funcs_v1alpha1_Func(arg) {
   if (!(arg instanceof funcs_pb.Func)) {
     throw new Error('Expected argument of type fonos.funcs.v1alpha1.Func');
@@ -163,13 +174,13 @@ getFunc: {
 deployFunc: {
     path: '/fonos.funcs.v1alpha1.Funcs/DeployFunc',
     requestStream: false,
-    responseStream: false,
+    responseStream: true,
     requestType: funcs_pb.DeployFuncRequest,
-    responseType: funcs_pb.Func,
+    responseType: funcs_pb.DeployStream,
     requestSerialize: serialize_fonos_funcs_v1alpha1_DeployFuncRequest,
     requestDeserialize: deserialize_fonos_funcs_v1alpha1_DeployFuncRequest,
-    responseSerialize: serialize_fonos_funcs_v1alpha1_Func,
-    responseDeserialize: deserialize_fonos_funcs_v1alpha1_Func,
+    responseSerialize: serialize_fonos_funcs_v1alpha1_DeployStream,
+    responseDeserialize: deserialize_fonos_funcs_v1alpha1_DeployStream,
   },
   // Peforms a hard delete of the function
 deleteFunc: {

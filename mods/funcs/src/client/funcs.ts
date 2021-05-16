@@ -17,23 +17,23 @@
  * limitations under the License.
  */
 import Storage from "@fonos/storage";
-import {FonosService, ServiceOptions} from "@fonos/core";
-import {FuncsClient} from "../service/protos/funcs_grpc_pb";
-import FuncsPB from "../service/protos/funcs_pb";
+import { FonosService, ServiceOptions } from "@fonos/core";
+import { FuncsClient } from "../service/protos/funcs_grpc_pb";
+import FuncsPB, { DeployStream } from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 import grpc from "grpc";
 import {
   DeleteFuncRequest,
   DeleteFuncResponse,
   DeployFuncRequest,
-  DeployFuncResponse,
   GetFuncRequest,
   GetFuncResponse,
   ListFuncsRequest,
   ListFuncsResponse
 } from "../types";
-import {buildDeployFuncRequest, cleanupTmpDir, copyFuncAtTmp} from "../utils";
+import { buildDeployFuncRequest, cleanupTmpDir, copyFuncAtTmp } from "../utils";
+import logger from "@fonos/logger";
 
 /**
  * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,
@@ -74,8 +74,8 @@ export default class Funcs extends FonosService {
   constructor(options?: ServiceOptions) {
     super(FuncsClient, options);
     super.init(grpc);
+    //promisifyAll(super.getService(), ['getFunc', 'listFunc', 'deleteFunc'], { metadata: super.getMeta() });
     this.storage = new Storage(super.getOptions());
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
   /**
@@ -90,6 +90,7 @@ export default class Funcs extends FonosService {
    * @param {string} request.limit.cpu - Optional limit for function's cpu utilization
    * @param {string} request.requests.memory - Optional requested memory allocation for the function
    * @param {string} request.requests.cpu - Optional requested cpu allocation for the function
+   * @param {Function(string)} emitter - Optional callback to capture deployment events
    * @return {Promise<DeployFuncResponse>}
    * @example
    *
@@ -98,12 +99,12 @@ export default class Funcs extends FonosService {
    *   baseImage: "docker.io/functions/function1",
    * };
    *
-   * funcs.deployFunc(request)
+   * funcs.deployFunc(request, callback)
    * .then(result => {
    *   console.log(result)              // successful response
    * }).catch(e => console.error(e));   // an error occurred
    */
-  async deployFunc(request: DeployFuncRequest): Promise<DeployFuncResponse> {
+  async deployFunc(request: DeployFuncRequest, emitter?: Function): Promise<void> {
     if (request.pathToFunc) {
       cleanupTmpDir(request.name);
       await copyFuncAtTmp(request.pathToFunc, request.name);
@@ -113,16 +114,19 @@ export default class Funcs extends FonosService {
       });
     }
 
-    const req = buildDeployFuncRequest(request);
-    const res = await super.getService().deployFunc().sendMessage(req);
-
-    return {
-      name: res.getName(),
-      image: res.getImage(),
-      invocationCount: res.getInvocationCount(),
-      replicas: res.getReplicas(),
-      availableReplicas: res.getAvailableReplicas()
-    };
+    return new Promise<void>((resolve, reject) => {
+      const req = buildDeployFuncRequest(request);
+      const stream = super.getService().deployFunc(req, super.getMeta());
+      stream.on('data', (message: any) => {
+        if (emitter) emitter(message);
+      });
+      stream.on('end', ()=> {
+        resolve()
+      });
+      stream.on('error', (e: any)=> {
+        reject(e)
+      });
+    });
   }
 
   /**
@@ -143,18 +147,21 @@ export default class Funcs extends FonosService {
    * }).catch(e => console.error(e));   // an error occurred
    */
   async getFunc(request: GetFuncRequest): Promise<GetFuncResponse> {
-    const req = new FuncsPB.GetFuncRequest();
-    req.setName(request.name);
+    return new Promise((resolve, reject) => {
+      const req = new FuncsPB.GetFuncRequest();
+      req.setName(request.name);
+      super.getService().getFunc(req, (e, res: FuncsPB.Func) => {
+        if (e) reject(e);
 
-    const res = await super.getService().getFunc().sendMessage(req);
-
-    return {
-      name: res.getName(),
-      image: res.getImage(),
-      invocationCount: res.getInvocationCount(),
-      replicas: res.getReplicas(),
-      availableReplicas: res.getAvailableReplicas()
-    };
+        resolve({
+          name: res.getName(),
+          image: res.getImage(),
+          invocationCount: res.getInvocationCount(),
+          replicas: res.getReplicas(),
+          availableReplicas: res.getAvailableReplicas()
+        })
+      });
+    })
   }
 
   /**
@@ -176,12 +183,17 @@ export default class Funcs extends FonosService {
    * }).catch(e => console.error(e));   // an error occurred
    */
   async deleteFunc(request: DeleteFuncRequest): Promise<DeleteFuncResponse> {
-    const req = new FuncsPB.DeleteFuncRequest();
-    req.setName(request.name);
-    await super.getService().deleteFunc().sendMessage(req);
-    return {
-      name: request.name
-    };
+    return new Promise((resolve, reject) => {
+      const req = new FuncsPB.DeleteFuncRequest();
+      req.setName(request.name);
+      super.getService().deleteFunc(req, (e: any) => {
+        if (e) reject(e);
+
+        resolve({
+          name: request.name
+        });
+      });
+    })
   }
 
   /**
@@ -206,24 +218,29 @@ export default class Funcs extends FonosService {
    * }).catch(e => console.error(e));  // an error occurred
    */
   async listFuncs(request: ListFuncsRequest): Promise<ListFuncsResponse> {
-    const r = new FuncsPB.ListFuncsRequest();
-    r.setPageSize(request.pageSize);
-    r.setPageToken(request.pageToken);
-    r.setView(request.view);
-    const paginatedList = await this.getService().listFuncs().sendMessage(r);
-    return {
-      nextPageToken: paginatedList.getNextPageToken(),
-      funcs: paginatedList.getFuncsList().map((f: FuncsPB.Func) => {
-        return {
-          name: f.getName(),
-          image: f.getImage(),
-          replicas: f.getReplicas(),
-          invocationCount: f.getInvocationCount(),
-          availableReplicas: f.getAvailableReplicas()
-        };
-      })
-    };
+    return new Promise((resolve, reject) => {
+      const req = new FuncsPB.ListFuncsRequest();
+      req.setPageSize(request.pageSize);
+      req.setPageToken(request.pageToken);
+      req.setView(request.view);
+      super.getService().listFuncs(req, (e: any, paginatedList: FuncsPB.ListFuncsResponse) => {
+        if (e) reject(e);
+
+        resolve({
+          nextPageToken: paginatedList.getNextPageToken(),
+          funcs: paginatedList.getFuncsList().map((f: FuncsPB.Func) => {
+            return {
+              name: f.getName(),
+              image: f.getImage(),
+              replicas: f.getReplicas(),
+              invocationCount: f.getInvocationCount(),
+              availableReplicas: f.getAvailableReplicas()
+            };
+          })
+        });
+      });
+    })
   }
 }
 
-export {FuncsPB, CommonPB, buildDeployFuncRequest};
+export { FuncsPB, CommonPB, buildDeployFuncRequest };

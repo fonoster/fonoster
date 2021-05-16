@@ -12,6 +12,7 @@ services:
       - "traefik.http.services.funcs_api.loadbalancer.server.scheme=h2c"
     volumes:
       - data1-1:/home/fonos
+      # - /var/run/docker.sock:/var/run/docker.sock
 
   agents_api:
     image: fonoster/fonos-agents

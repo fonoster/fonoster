@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Docker from "dockerode";
+import {Image} from "container-image-builder";
+import {ErrorCodes, FonosError} from "@fonos/errors";
 import fs from "fs";
 import logger from "@fonos/logger";
 import { ServerStream } from "./funcs";
-import { FonosError } from "@fonos/errors";
 
 export interface BuildInfo {
   baseImage: string;
@@ -36,20 +36,27 @@ function getAuth(request) {
   logger.verbose(
     `@fonos/funcs image build [constructing auth obj for ${request.registry}]`
   );
-  return {
-    username: request.username,
-    password: request.secret,
-    serveraddress: 'https://index.docker.io/v1'
-  };
+  let credentials = {};
+  if (request.username) {
+    credentials = {
+      Username: request.username,
+      Secret: request.secret
+    };
+  } else if (request.token) {
+    credentials = {
+      token: request.token
+    };
+  }
+  const authObj = {auth: {}};
+  authObj.auth[request.registry] = credentials;
+  return authObj;
 }
 
 // Push image function
 export default async function (request: BuildInfo, serverStream: ServerStream) {
-  serverStream.write(`getting base image ${request.baseImage}`);
-  serverStream.write("connecting to the builder daemon");
-
-  const docker = new Docker({socketPath: '/var/run/docker.sock'})
-
+  serverStream.write(
+    `getting base image ${request.baseImage}]`
+  );
   serverStream.write(
     `setting destination image to ${request.image}]`
   );
@@ -59,40 +66,45 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
   );
 
   serverStream.write("obtaining authentication handler");
-  const auth = getAuth(request)
-  const files = ['Dockerfile', 'index.js', 'package.json']
+
+  const image = new Image(
+    request.baseImage,
+    `index.${request.registry}/${request.image}`,
+    getAuth(request)
+  );
+
   if (fs.existsSync(request.pathToFunc)) {
     serverStream.write(
       `adding ${request.pathToFunc} into workdir (/home/app)`
     );
-    // files.push('')
+    // await image.addFiles({'/home/app':request.pathToFunc})
+    // await image.addFiles({'/':'/Users/pedrosanders/Projects/fonos/examples'})
+   await image.addFiles({ '/etc': './etc' });
   }
+
+  image.WorkingDir = "/home/app"
 
   serverStream.write(
     `preparing image for publishing on ${request.registry} registry`
   );
 
   try {
-    const stream = await docker.buildImage({
-      context: request.pathToFunc,
-      src: files
-    }, {t: request.image});
+    const result = await image.save();
+    serverStream.write("image pusblished");
+    return;
+  } catch (e) {
 
-    await new Promise((resolve, reject) => {
-      docker.modem.followProgress(stream, (err, res) => err ? reject(err) : resolve(res));
-    });
-
-    serverStream.write("build complete");
-    const image = docker.getImage(request.image);
-
-    const stream2 = await image.push({tag: 'latest', authconfig: getAuth(request) });
-    stream2.pipe(process.stdout);
-
-    await new Promise((resolve, reject) => {
-      docker.modem.followProgress(stream2, (err, res) => err ? reject(err) : resolve(res));
-    });
-  } catch(e) {
-    logger.error(JSON.stringify(e))
-    throw new FonosError(`Unable to pulish image ${request.image} to registry ${request.registry}`);
+    if (e.message.includes("no auth handler for")) {
+      serverStream.write("no auth handler found");
+      throw new FonosError(
+        "failed to find image, be sure to add full repo path (i.e docker.io/repo/image)",
+        ErrorCodes.INVALID_ARGUMENT
+      );
+    }
+    serverStream.write(`error publishing image: ${e.message}`);
   }
+  throw new FonosError(
+    `Unable to pulish image ${request.image} to registry ${request.registry}`,
+    ErrorCodes.UNKNOWN
+  );
 }

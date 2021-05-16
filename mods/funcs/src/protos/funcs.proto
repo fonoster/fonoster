@@ -17,7 +17,7 @@ service Funcs {
   // Gets a function by namem
   rpc GetFunc (GetFuncRequest) returns (Func) {};
   // Orders the functions subsystem to download and deploy a function
-  rpc DeployFunc (DeployFuncRequest) returns (Func) {};
+  rpc DeployFunc (DeployFuncRequest) returns (stream DeployStream) {};
   // Peforms a hard delete of the function
   rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1alpha1.Empty) {};
   // Peforms a hard delete of the function
@@ -101,4 +101,8 @@ message FuncLog {
   string instance = 2;
   string timestamp = 3;
   string text = 4;
+}
+
+message DeployStream {
+  string text = 1;
 }

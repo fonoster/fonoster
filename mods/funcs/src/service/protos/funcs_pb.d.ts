@@ -303,3 +303,23 @@ export namespace FuncLog {
         text: string,
     }
 }
+
+export class DeployStream extends jspb.Message { 
+    getText(): string;
+    setText(value: string): DeployStream;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): DeployStream.AsObject;
+    static toObject(includeInstance: boolean, msg: DeployStream): DeployStream.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: DeployStream, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): DeployStream;
+    static deserializeBinaryFromReader(message: DeployStream, reader: jspb.BinaryReader): DeployStream;
+}
+
+export namespace DeployStream {
+    export type AsObject = {
+        text: string,
+    }
+}
