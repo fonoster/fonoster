@@ -1,6 +1,6 @@
 {
   "name": "@fonos/providers",
-  "version": "0.0.90",
+  "version": "0.0.91",
   "description": "VoIP Providers",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,9 +43,9 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.90",
-    "@fonos/certs": "^0.0.90",
-    "@fonos/core": "^0.0.90",
+    "@fonos/auth": "^0.0.91",
+    "@fonos/certs": "^0.0.91",
+    "@fonos/core": "^0.0.91",
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0"
