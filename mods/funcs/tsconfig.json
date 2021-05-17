@@ -8,7 +8,8 @@
     {"path": "../certs"},
     {"path": "../logger"},
     {"path": "../core"},
-    {"path": "../errors"}
+    {"path": "../errors"},
+    {"path": "../storage"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

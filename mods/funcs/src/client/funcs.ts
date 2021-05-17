@@ -21,7 +21,6 @@ import {FonosService, ServiceOptions} from "@fonos/core";
 import {FuncsClient} from "../service/protos/funcs_grpc_pb";
 import FuncsPB, {DeployStream} from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
 import {
   DeleteFuncRequest,
@@ -74,7 +73,6 @@ export default class Funcs extends FonosService {
   constructor(options?: ServiceOptions) {
     super(FuncsClient, options);
     super.init(grpc);
-    //promisifyAll(super.getService(), ['getFunc', 'listFunc', 'deleteFunc'], { metadata: super.getMeta() });
     this.storage = new Storage(super.getOptions());
   }
 

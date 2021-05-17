@@ -7,8 +7,8 @@
 #   DS_AUTH => Data Source for Authentication
 #   FS => Files Server (Minio)
 
-EVENTS_BROKERS: amqp://fonos:changeit@localhost:5672
-FUNCS_URL=https://faas:8080
+EVENTS_BROKERS=amqp://fonos:changeit@localhost:5672
+FUNCS_URL=http://faas:8080
 FUNCS_USERNAME=admin
 FUNCS_SECRET=changeit
 FUNCS_WORKDIR=/tmp
