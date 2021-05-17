@@ -35,8 +35,7 @@ const access = [
   "/fonos.agents.v1alpha1.Agents/DeleteAgent",
   "/fonos.funcs.v1alpha1.Funcs/ListFuncs",
   "/fonos.funcs.v1alpha1.Funcs/GetFunc",
-  "/fonos.funcs.v1alpha1.Funcs/CreateFunc",
-  "/fonos.funcs.v1alpha1.Funcs/UpdateFunc",
+  "/fonos.funcs.v1alpha1.Funcs/DeployFunc",
   "/fonos.funcs.v1alpha1.Funcs/DeleteFunc",
   "/fonos.funcs.v1alpha1.Funcs/GetFuncLogs"
 ];

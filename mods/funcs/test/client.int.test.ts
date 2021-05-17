@@ -60,7 +60,7 @@ describe("@Fonos/funcs/client", () => {
 
   it.only("should deploy a function", async () => {
     const request: DeployFuncRequest = {
-      name: "testing2001",
+      name: "test",
       baseImage: "docker.io/functions/nodeinfo:latest",
       pathToFunc: __dirname + "/../etc/example"
     };
