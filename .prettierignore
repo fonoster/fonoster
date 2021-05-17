@@ -3,3 +3,4 @@
 **/*.d.ts
 **/dist
 **/package-lock.json
+**/*.md
