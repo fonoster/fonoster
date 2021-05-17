@@ -35,6 +35,7 @@ funcObj.setImage("docker.io/functions/fn001");
 funcObj.setAvailableReplicas(1);
 funcObj.setReplicas(1);
 funcObj.setInvocationCount(1000);
+funcObj.setSchedule("* * * * *");
 
 describe("@Fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
@@ -43,8 +44,8 @@ describe("@Fonos/funcs/client", () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const request: DeployFuncRequest = {
       name: "function1",
-      baseImage: "docker.io/functions/function1",
-      pathToFunc: "...",
+      path: "...",
+      schedule: "0 0 */1 * *",
       limits: {
         memory: "10Mi",
         cpu: "110m"
@@ -57,7 +58,7 @@ describe("@Fonos/funcs/client", () => {
     const func = buildDeployFuncRequest(request);
 
     expect(func.getName()).to.be.equal(request.name);
-    expect(func.getBaseImage()).to.be.equal(request.baseImage);
+    expect(func.getSchedule()).to.be.equal(request.schedule);
     expect(func.getLimits().getMemory()).to.be.equal(request.limits.memory);
     expect(func.getLimits().getCpu()).to.be.equal(request.limits.cpu);
     expect(func.getRequests().getMemory()).to.be.equal(request.requests.memory);
@@ -84,6 +85,9 @@ describe("@Fonos/funcs/client", () => {
     expect(result)
       .to.have.property("replicas")
       .to.be.equal(funcObj.getReplicas());
+    expect(result)
+      .to.have.property("shedule")
+      .to.be.equal(funcObj.getSchedule());
     expect(result)
       .to.have.property("availableReplicas")
       .to.be.equal(funcObj.getAvailableReplicas());

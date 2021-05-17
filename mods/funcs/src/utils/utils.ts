@@ -16,12 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FuncsPB, {Func} from "./service/protos/funcs_pb";
-import {DeployFuncRequest, FuncParameters} from "./types";
+import FuncsPB, {Func} from "../service/protos/funcs_pb";
+import {DeployFuncRequest, FuncParameters} from "../types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 import {FonosError, ErrorCodes} from "@fonos/errors";
+import logger from "@fonos/logger";
 
 export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
@@ -39,9 +40,9 @@ export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
 
   const dfr = new FuncsPB.DeployFuncRequest();
   dfr.setName(request.name);
-  dfr.setBaseImage(request.baseImage);
   dfr.setLimits(limits);
   dfr.setRequests(requests);
+  dfr.setSchedule(request.schedule);
   return dfr;
 };
 
@@ -127,11 +128,21 @@ export const buildFaasDeployParameters = (params: FuncParameters) => {
     envVars: {
       ACCESS_KEY_ID: params.accessKeyId,
       JWT_SIGNATURE: params.jwtSignature
+    },
+    annotations: {
+      topic: undefined,
+      schedule: undefined
     }
   };
   const limits = params.request.getLimits();
   const requests = params.request.getRequests();
 
+  if (params.request.getSchedule()) {
+    parameters.annotations = {
+      topic: "cron-function",
+      schedule: params.request.getSchedule()
+    } 
+  }
   if (limits && limits.getMemory())
     parameters.limits.memory = limits.getMemory();
   if (limits && limits.getCpu()) parameters.limits.cpu = limits.getCpu();
@@ -150,5 +161,8 @@ export const rawFuncToFunc = (rawFunc: any) => {
   func.setInvocationCount(rawFunc.invocationCount);
   func.setReplicas(rawFunc.replicas);
   func.setAvailableReplicas(rawFunc.availableReplicas);
+  if(rawFunc.annotations && rawFunc.annotations.schedule) {
+    func.setSchedule(rawFunc.annotations.schedule)
+  }
   return func;
 };

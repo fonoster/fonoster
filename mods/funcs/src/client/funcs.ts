@@ -19,7 +19,7 @@
 import Storage from "@fonos/storage";
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {FuncsClient} from "../service/protos/funcs_grpc_pb";
-import FuncsPB, {DeployStream} from "../service/protos/funcs_pb";
+import FuncsPB from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
 import grpc from "grpc";
 import {
@@ -31,8 +31,8 @@ import {
   ListFuncsRequest,
   ListFuncsResponse
 } from "../types";
-import {buildDeployFuncRequest, cleanupTmpDir, copyFuncAtTmp} from "../utils";
-import logger from "@fonos/logger";
+import {buildDeployFuncRequest, cleanupTmpDir, copyFuncAtTmp} from "../utils/utils";
+import { StreamWrapper } from "./stream_wrapper";
 
 /**
  * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,
@@ -42,25 +42,16 @@ import logger from "@fonos/logger";
  * @extends FonosService
  * @example
  *
- * const Fonos = require("@fonos/sdk");
- * const funcs = new Fonos.Funcs();
- *
  * const request = {
  *   name: "function1",
- *   baseImage: "docker.io/functions/function1:latest",
- *   limits: {
- *      cpu: 100m,
- *      memory: 40Mi
- *   },
- *   requests: {
- *      cpu: 100m,
- *      memory: 40Mi
- *   }
+ *   path: "/path/to/function",
  * };
  *
  * funcs.deployFunc(request)
- * .then(result => {
- *   console.log(result)              // successful response
+ * .then(stream => {
+ *   stream.onMessage(msg => console.log(msg))
+ *   stream.onFinish(() => console.log("end"))
+ *   stream.onError(e => console.error(e))
  * }).catch(e => console.error(e));   // an error occurred
  */
 export default class Funcs extends FonosService {
@@ -81,9 +72,8 @@ export default class Funcs extends FonosService {
    *
    * @param {DeployFuncRequest} request - Request to create or update a function
    * @param {string} request.name - Unique function name
-   * @param {string} request.baseImage - The image base to create the function
-   * @param {string} request.pathToFunc - Optional path to the function. If none is provided, then the base image will be
-   * used to deploy the function
+   * @param {string} request.schedule - Unique function name
+   * @param {string} request.path - Path to the function.
    * @param {string} request.limit.memory - Optional limit for function's memory utilization
    * @param {string} request.limit.cpu - Optional limit for function's cpu utilization
    * @param {string} request.requests.memory - Optional requested memory allocation for the function
@@ -92,42 +82,44 @@ export default class Funcs extends FonosService {
    * @return {Promise<DeployFuncResponse>}
    * @example
    *
+   * const Fonos = require("@fonos/sdk");
+   * const funcs = new Fonos.Funcs();
+   *
    * const request = {
    *   name: "function1",
-   *   baseImage: "docker.io/functions/function1",
+   *   schedule: "* * * * *",  // Intervals using standard cron syntax
+   *   path: "/path/to/function",
+   *   limits: {
+   *      cpu: 100m,
+   *      memory: 40Mi
+   *   },
+   *   requests: {
+   *      cpu: 100m,
+   *      memory: 40Mi
+   *   }
    * };
    *
-   * funcs.deployFunc(request, callback)
-   * .then(result => {
-   *   console.log(result)              // successful response
+   * funcs.deployFunc(request)
+   * .then(stream => {
+   *   stream.onMessage(msg => console.log(msg))
+   *   stream.onFinish(() => console.log("end"))
+   *   stream.onError(e => console.error(e))
    * }).catch(e => console.error(e));   // an error occurred
    */
   async deployFunc(
-    request: DeployFuncRequest,
-    emitter?: Function
-  ): Promise<void> {
-    if (request.pathToFunc) {
+    request: DeployFuncRequest
+  ): Promise<StreamWrapper> {
+    if (request.path) {
       cleanupTmpDir(request.name);
-      await copyFuncAtTmp(request.pathToFunc, request.name);
+      await copyFuncAtTmp(request.path, request.name);
       await this.storage.uploadObject({
         filename: `/tmp/${request.name}.tgz`,
         bucket: "funcs"
       });
     }
-
-    return new Promise<void>((resolve, reject) => {
-      const req = buildDeployFuncRequest(request);
-      const stream = super.getService().deployFunc(req, super.getMeta());
-      stream.on("data", (message: any) => {
-        if (emitter) emitter(message);
-      });
-      stream.on("end", () => {
-        resolve();
-      });
-      stream.on("error", (e: any) => {
-        reject(e);
-      });
-    });
+    const req = buildDeployFuncRequest(request);
+    const stream = super.getService().deployFunc(req, super.getMeta());
+    return new StreamWrapper(stream);
   }
 
   /**

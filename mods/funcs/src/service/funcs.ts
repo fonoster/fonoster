@@ -44,7 +44,7 @@ import {
   getImageName,
   getBuildDir,
   assertValidFuncName
-} from "../utils";
+} from "../utils/utils";
 import buildAndPublishImage from "./registry";
 import btoa from "btoa";
 const {promisify} = require("util");
@@ -84,7 +84,6 @@ const publish = async (
 
   await buildAndPublishImage(
     {
-      baseImage: call.request.getBaseImage(),
       registry: process.env.DOCKER_REGISTRY,
       image: parameters.image,
       pathToFunc: getBuildDir(accessKeyId, call.request.getName()),

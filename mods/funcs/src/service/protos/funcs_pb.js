@@ -1071,7 +1071,7 @@ proto.fonos.funcs.v1alpha1.DeployFuncRequest.prototype.toObject = function(opt_i
 proto.fonos.funcs.v1alpha1.DeployFuncRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    baseImage: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    schedule: jspb.Message.getFieldWithDefault(msg, 2, ""),
     limits: (f = msg.getLimits()) && proto.fonos.funcs.v1alpha1.Resource.toObject(includeInstance, f),
     requests: (f = msg.getRequests()) && proto.fonos.funcs.v1alpha1.Resource.toObject(includeInstance, f)
   };
@@ -1116,7 +1116,7 @@ proto.fonos.funcs.v1alpha1.DeployFuncRequest.deserializeBinaryFromReader = funct
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setBaseImage(value);
+      msg.setSchedule(value);
       break;
     case 3:
       var value = new proto.fonos.funcs.v1alpha1.Resource;
@@ -1164,7 +1164,7 @@ proto.fonos.funcs.v1alpha1.DeployFuncRequest.serializeBinaryToWriter = function(
       f
     );
   }
-  f = message.getBaseImage();
+  f = message.getSchedule();
   if (f.length > 0) {
     writer.writeString(
       2,
@@ -1209,10 +1209,10 @@ proto.fonos.funcs.v1alpha1.DeployFuncRequest.prototype.setName = function(value)
 
 
 /**
- * optional string base_image = 2;
+ * optional string schedule = 2;
  * @return {string}
  */
-proto.fonos.funcs.v1alpha1.DeployFuncRequest.prototype.getBaseImage = function() {
+proto.fonos.funcs.v1alpha1.DeployFuncRequest.prototype.getSchedule = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
@@ -1221,7 +1221,7 @@ proto.fonos.funcs.v1alpha1.DeployFuncRequest.prototype.getBaseImage = function()
  * @param {string} value
  * @return {!proto.fonos.funcs.v1alpha1.DeployFuncRequest} returns this
  */
-proto.fonos.funcs.v1alpha1.DeployFuncRequest.prototype.setBaseImage = function(value) {
+proto.fonos.funcs.v1alpha1.DeployFuncRequest.prototype.setSchedule = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
@@ -1758,7 +1758,8 @@ proto.fonos.funcs.v1alpha1.Func.toObject = function(includeInstance, msg) {
     replicas: jspb.Message.getFieldWithDefault(msg, 4, 0),
     availableReplicas: jspb.Message.getFieldWithDefault(msg, 5, 0),
     limits: (f = msg.getLimits()) && proto.fonos.funcs.v1alpha1.Resource.toObject(includeInstance, f),
-    requests: (f = msg.getRequests()) && proto.fonos.funcs.v1alpha1.Resource.toObject(includeInstance, f)
+    requests: (f = msg.getRequests()) && proto.fonos.funcs.v1alpha1.Resource.toObject(includeInstance, f),
+    schedule: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -1824,6 +1825,10 @@ proto.fonos.funcs.v1alpha1.Func.deserializeBinaryFromReader = function(msg, read
       var value = new proto.fonos.funcs.v1alpha1.Resource;
       reader.readMessage(value,proto.fonos.funcs.v1alpha1.Resource.deserializeBinaryFromReader);
       msg.setRequests(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSchedule(value);
       break;
     default:
       reader.skipField();
@@ -1903,6 +1908,13 @@ proto.fonos.funcs.v1alpha1.Func.serializeBinaryToWriter = function(message, writ
       7,
       f,
       proto.fonos.funcs.v1alpha1.Resource.serializeBinaryToWriter
+    );
+  }
+  f = message.getSchedule();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
+      f
     );
   }
 };
@@ -2069,6 +2081,24 @@ proto.fonos.funcs.v1alpha1.Func.prototype.clearRequests = function() {
  */
 proto.fonos.funcs.v1alpha1.Func.prototype.hasRequests = function() {
   return jspb.Message.getField(this, 7) != null;
+};
+
+
+/**
+ * optional string schedule = 8;
+ * @return {string}
+ */
+proto.fonos.funcs.v1alpha1.Func.prototype.getSchedule = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.funcs.v1alpha1.Func} returns this
+ */
+proto.fonos.funcs.v1alpha1.Func.prototype.setSchedule = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
 };
 
 

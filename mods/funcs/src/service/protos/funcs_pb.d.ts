@@ -113,8 +113,8 @@ export namespace GetFuncRequest {
 export class DeployFuncRequest extends jspb.Message { 
     getName(): string;
     setName(value: string): DeployFuncRequest;
-    getBaseImage(): string;
-    setBaseImage(value: string): DeployFuncRequest;
+    getSchedule(): string;
+    setSchedule(value: string): DeployFuncRequest;
 
     hasLimits(): boolean;
     clearLimits(): void;
@@ -139,7 +139,7 @@ export class DeployFuncRequest extends jspb.Message {
 export namespace DeployFuncRequest {
     export type AsObject = {
         name: string,
-        baseImage: string,
+        schedule: string,
         limits?: Resource.AsObject,
         requests?: Resource.AsObject,
     }
@@ -229,6 +229,8 @@ export class Func extends jspb.Message {
     clearRequests(): void;
     getRequests(): Resource | undefined;
     setRequests(value?: Resource): Func;
+    getSchedule(): string;
+    setSchedule(value: string): Func;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Func.AsObject;
@@ -249,6 +251,7 @@ export namespace Func {
         availableReplicas: number,
         limits?: Resource.AsObject,
         requests?: Resource.AsObject,
+        schedule: string,
     }
 }
 

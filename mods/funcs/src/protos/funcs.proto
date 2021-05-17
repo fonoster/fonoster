@@ -63,7 +63,7 @@ message GetFuncRequest {
 
 message DeployFuncRequest {
   string name = 1;
-  string base_image = 2;
+  string schedule = 2;
   Resource limits = 3;
   Resource requests = 4;
 }
@@ -89,6 +89,7 @@ message Func {
   int32 available_replicas = 5;
   Resource limits = 6;
   Resource requests = 7;
+  string schedule = 8;
 }
 
 message Resource {

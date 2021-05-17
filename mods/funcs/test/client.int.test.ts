@@ -23,6 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import Funcs from "../src/client/funcs";
 import {DeployFuncRequest} from "../src/types";
 import logger from "@fonos/logger";
+import { DeployStream } from "../src/service/protos/funcs_pb";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -35,8 +36,7 @@ describe("@Fonos/funcs/client", () => {
   it("should fail because path doesn't exist a function", async () => {
     const request: DeployFuncRequest = {
       name: "function1",
-      baseImage: "fonoster/base:latest",
-      pathToFunc: __dirname + "/../etc/testfunc1"
+      path: __dirname + "/../etc/testfunc1"
     };
 
     const funcs = new Funcs();
@@ -48,28 +48,58 @@ describe("@Fonos/funcs/client", () => {
   it("should deploy a function from base image", async () => {
     const request: DeployFuncRequest = {
       name: "myfunc",
-      baseImage: "index.docker.io/fonoster/node12base:latest"
+      path: __dirname + "/../etc/example",
     };
     const funcs = new Funcs();
-    await funcs.deployFunc(request, (messsage: string) => {
-      logger.info(`=> ${messsage}`);
-    });
-    // expect(result).to.have.property("name").to.include(request.name);
+    await funcs.deployFunc(request);
     // For now test by observation :(
   });
 
-  it.only("should deploy a function", async () => {
+  it("should deploy a function", async () => {
     const request: DeployFuncRequest = {
+      path: __dirname + "/../etc/example",
       name: "test",
-      baseImage: "docker.io/functions/nodeinfo:latest",
-      pathToFunc: __dirname + "/../etc/example"
+      schedule: "0 0 *\/1 * *"
     };
 
     const funcs = new Funcs();
-    await funcs.deployFunc(request, (messsage: string) => {
-      logger.info(`=> ${messsage}`);
-    });
-    // expect(result).to.have.property("name").to.include(request.name);
+    const stream = await funcs.deployFunc(request);
+
+    await new Promise<void>((resolve, reject) => {
+      stream.onMessage((msg: string) => {
+        logger.info(msg);
+      });
+      stream.onFinish(() => {
+        resolve();
+      });
+      stream.onError((e: Error) => {
+        reject(e);
+      });  
+    })
+    // For now test by observation :(
+  });
+
+  it.only("should deploy a function(then/catch)", (done) => {
+    const request: DeployFuncRequest = {
+      path: __dirname + "/../etc/example",
+      name: "test",
+      schedule: "0 0 *\/1 * *"
+    };
+
+    const funcs = new Funcs();
+    funcs.deployFunc(request).then(stream => {
+      stream.onMessage((msg: string) => {
+        logger.info(msg);
+      });
+      stream.onFinish(() => {
+        logger.verbose("end")
+        done()
+      });
+      stream.onError((e: Error) => {
+        logger.error("end")
+        done(e)
+      });  
+    })
     // For now test by observation :(
   });
 });

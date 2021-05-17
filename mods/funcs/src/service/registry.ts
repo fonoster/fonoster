@@ -24,7 +24,6 @@ import {FonosError} from "@fonos/errors";
 import walk from "walk";
 
 export interface BuildInfo {
-  baseImage: string;
   image: string;
   pathToFunc: string;
   registry: string;
@@ -78,7 +77,6 @@ const ls = (pathToFunc: string): Promise<string[]> => {
 
 // Push image function
 export default async function (request: BuildInfo, serverStream: ServerStream) {
-  serverStream.write(`getting base image ${request.baseImage}`);
   serverStream.write("connecting to the builder daemon");
 
   const docker = new Docker({socketPath: "/var/run/docker.sock"});
