@@ -58,7 +58,6 @@
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
-    "objectid": "^3.2.1",
     "openfaas-client": "^0.0.2",
     "tar": "^6.0.1"
   },

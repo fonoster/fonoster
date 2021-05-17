@@ -257,7 +257,8 @@ export default class FuncsServer implements IFuncsServer {
       const auth = btoa(
         `${process.env.DOCKER_REGISTRY_USERNAME}:${process.env.DOCKER_REGISTRY_SECRET}`
       );
-      const image = getImageName();
+      const accessKeyId = getAccessKeyId(call);
+      const image = getImageName(accessKeyId, call.request.getFuncName());
       const baseURL = `${endpoint}?service=${service}&scope=repository:${image}:push`;
       const result = await axios
         .create({

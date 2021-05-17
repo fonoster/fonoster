@@ -22,7 +22,6 @@ import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 import {FonosError, ErrorCodes} from "@fonos/errors";
-import objectid from "objectid";
 
 export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
@@ -101,18 +100,18 @@ export const copyFuncAtTmp = async (funcPath: string, dirName: string) => {
 export const getFuncName = (accessKeyId: string, name: string) =>
   `fn${accessKeyId}${name}`;
 
-export const getImageName = () =>
-  `${process.env.DOCKER_REGISTRY_ORG}/fn${objectid()}`;
+export const getImageName = (accessKeyId:string, name:string) =>
+  `${process.env.DOCKER_REGISTRY_ORG}/fn${accessKeyId}${name}`;
 
 export const getBuildDir = (accessKeyId: string, funcName: string) =>
   process.env.NODE_ENV === "dev"
-    ? "/tmp/testfunc/function"
+    ? "/tmp/example"
     : `${process.env.FUNCS_WORKDIR}/${accessKeyId}/${funcName}`;
 
 export const buildFaasCreateParameters = (params: FuncParameters) => {
   const parameters = {
     service: getFuncName(params.accessKeyId, params.request.getName()),
-    image: getImageName(),
+    image: getImageName(params.accessKeyId, params.request.getName()),
     limits: {
       memory: undefined,
       cpu: undefined
