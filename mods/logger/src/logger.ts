@@ -13,7 +13,7 @@ const fluent = new fluentTransport(
   }
 );
 
-const level = process.env.NODE_ENV === "dev" ? "debug" : "info";
+const level = process.env.NODE_ENV !== "production" ? "verbose" : "info";
 
 const transports =
   process.env.NODE_ENV !== "production"
@@ -21,7 +21,7 @@ const transports =
     : [fluent];
 
 const format =
-  process.env.NODE_ENV === "production"
+  process.env.NODE_ENV !== "production"
     ? winston.format.simple()
     : winston.format.json();
 

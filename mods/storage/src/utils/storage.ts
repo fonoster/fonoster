@@ -64,7 +64,7 @@ export const uploadToFS = async (
           `${accessKeyId}/` + destFilePath.substring(baseDir.length + 1);
 
         logger.verbose(
-          `@fonos/storage upload fs [uploading ${stats.name} file]`
+          `@fonos/storage upload fs [uploading ${stats.name} file to ${bucket}]`
         );
 
         fsInstance().fPutObject(bucket, dest, filePath, metadata, (e: any) => {
