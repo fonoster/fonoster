@@ -42,11 +42,11 @@ const getAuth = (request: BuildInfo) => {
     password: request.secret,
     serveraddress: "https://index.docker.io/v1"
   };
-}
+};
 
 const ls = (pathToFunc: string): Promise<string[]> => {
   const walker = walk.walk(pathToFunc);
-  const files = []
+  const files = [];
 
   return new Promise((resolve, reject) => {
     walker.on(
@@ -55,28 +55,26 @@ const ls = (pathToFunc: string): Promise<string[]> => {
         let base = root.substring(pathToFunc.length + 1);
         base = base.length > 0 ? base + "/" : "";
         const file = base + stats.name;
-  
+
         logger.verbose(
           `@fonos/storage walk [base = ${base}, name = ${stats.name}]`
         );
 
-        files.push(file)
+        files.push(file);
         next();
       }
     );
-  
+
     walker.on("errors", (e: any) => {
       reject(e);
     });
-  
+
     walker.on("end", () => {
-      logger.verbose(
-        `@fonos/storage walk [finished walking ${pathToFunc}]`
-      );
+      logger.verbose(`@fonos/storage walk [finished walking ${pathToFunc}]`);
       resolve(files);
     });
-  })
-}
+  });
+};
 
 // Push image function
 export default async function (request: BuildInfo, serverStream: ServerStream) {
@@ -93,11 +91,11 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
     )}`
   );
 
-  let files:string[] = []
+  let files: string[] = [];
 
   if (fs.existsSync(request.pathToFunc)) {
     serverStream.write(`adding ${request.pathToFunc} into workdir (/home/app)`);
-    files = await ls(request.pathToFunc)
+    files = await ls(request.pathToFunc);
   }
 
   serverStream.write(
