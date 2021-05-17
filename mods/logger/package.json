@@ -1,6 +1,6 @@
 {
   "name": "@fonos/logger",
-  "version": "0.0.89",
+  "version": "0.0.90",
   "description": "Logger module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
