@@ -8,14 +8,16 @@ Command-Line for for Fonos
 [![License](https://img.shields.io/npm/l/ctl.svg)](https://github.com/fonoster/fonos/blob/master/package.json)
 
 <!-- toc -->
-* [ctl](#ctl)
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [ctl](#ctl)
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @fonos/ctl
 $ fonos COMMAND
@@ -27,47 +29,49 @@ USAGE
   $ fonos COMMAND
 ...
 ```
+
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-* [`fonos agents:create`](#fonos-agentscreate)
-* [`fonos agents:delete [REF]`](#fonos-agentsdelete-ref)
-* [`fonos agents:get [REF]`](#fonos-agentsget-ref)
-* [`fonos agents:list`](#fonos-agentslist)
-* [`fonos agents:update [REF]`](#fonos-agentsupdate-ref)
-* [`fonos apps:delete [NAME]`](#fonos-appsdelete-name)
-* [`fonos apps:deploy [REF]`](#fonos-appsdeploy-ref)
-* [`fonos apps:get [NAME]`](#fonos-appsget-name)
-* [`fonos apps:init`](#fonos-appsinit)
-* [`fonos apps:list`](#fonos-appslist)
-* [`fonos auth:login`](#fonos-authlogin)
-* [`fonos auth:logout`](#fonos-authlogout)
-* [`fonos autocomplete [SHELL]`](#fonos-autocomplete-shell)
-* [`fonos domains:create`](#fonos-domainscreate)
-* [`fonos domains:delete [REF]`](#fonos-domainsdelete-ref)
-* [`fonos domains:get [REF]`](#fonos-domainsget-ref)
-* [`fonos domains:list`](#fonos-domainslist)
-* [`fonos domains:update [REF]`](#fonos-domainsupdate-ref)
-* [`fonos help [COMMAND]`](#fonos-help-command)
-* [`fonos numbers:create`](#fonos-numberscreate)
-* [`fonos numbers:delete [REF]`](#fonos-numbersdelete-ref)
-* [`fonos numbers:get [REF]`](#fonos-numbersget-ref)
-* [`fonos numbers:list`](#fonos-numberslist)
-* [`fonos numbers:update [REF]`](#fonos-numbersupdate-ref)
-* [`fonos plugins`](#fonos-plugins)
-* [`fonos plugins:inspect PLUGIN...`](#fonos-pluginsinspect-plugin)
-* [`fonos plugins:install PLUGIN...`](#fonos-pluginsinstall-plugin)
-* [`fonos plugins:link PLUGIN`](#fonos-pluginslink-plugin)
-* [`fonos plugins:uninstall PLUGIN...`](#fonos-pluginsuninstall-plugin)
-* [`fonos plugins:update`](#fonos-pluginsupdate)
-* [`fonos providers:create`](#fonos-providerscreate)
-* [`fonos providers:delete [REF]`](#fonos-providersdelete-ref)
-* [`fonos providers:get [REF]`](#fonos-providersget-ref)
-* [`fonos providers:list`](#fonos-providerslist)
-* [`fonos providers:update [REF]`](#fonos-providersupdate-ref)
-* [`fonos update [CHANNEL]`](#fonos-update-channel)
+
+- [`fonos agents:create`](#fonos-agentscreate)
+- [`fonos agents:delete [REF]`](#fonos-agentsdelete-ref)
+- [`fonos agents:get [REF]`](#fonos-agentsget-ref)
+- [`fonos agents:list`](#fonos-agentslist)
+- [`fonos agents:update [REF]`](#fonos-agentsupdate-ref)
+- [`fonos apps:delete [NAME]`](#fonos-appsdelete-name)
+- [`fonos apps:deploy [REF]`](#fonos-appsdeploy-ref)
+- [`fonos apps:get [NAME]`](#fonos-appsget-name)
+- [`fonos apps:init`](#fonos-appsinit)
+- [`fonos apps:list`](#fonos-appslist)
+- [`fonos auth:login`](#fonos-authlogin)
+- [`fonos auth:logout`](#fonos-authlogout)
+- [`fonos autocomplete [SHELL]`](#fonos-autocomplete-shell)
+- [`fonos domains:create`](#fonos-domainscreate)
+- [`fonos domains:delete [REF]`](#fonos-domainsdelete-ref)
+- [`fonos domains:get [REF]`](#fonos-domainsget-ref)
+- [`fonos domains:list`](#fonos-domainslist)
+- [`fonos domains:update [REF]`](#fonos-domainsupdate-ref)
+- [`fonos help [COMMAND]`](#fonos-help-command)
+- [`fonos numbers:create`](#fonos-numberscreate)
+- [`fonos numbers:delete [REF]`](#fonos-numbersdelete-ref)
+- [`fonos numbers:get [REF]`](#fonos-numbersget-ref)
+- [`fonos numbers:list`](#fonos-numberslist)
+- [`fonos numbers:update [REF]`](#fonos-numbersupdate-ref)
+- [`fonos plugins`](#fonos-plugins)
+- [`fonos plugins:inspect PLUGIN...`](#fonos-pluginsinspect-plugin)
+- [`fonos plugins:install PLUGIN...`](#fonos-pluginsinstall-plugin)
+- [`fonos plugins:link PLUGIN`](#fonos-pluginslink-plugin)
+- [`fonos plugins:uninstall PLUGIN...`](#fonos-pluginsuninstall-plugin)
+- [`fonos plugins:update`](#fonos-pluginsupdate)
+- [`fonos providers:create`](#fonos-providerscreate)
+- [`fonos providers:delete [REF]`](#fonos-providersdelete-ref)
+- [`fonos providers:get [REF]`](#fonos-providersget-ref)
+- [`fonos providers:list`](#fonos-providerslist)
+- [`fonos providers:update [REF]`](#fonos-providersupdate-ref)
+- [`fonos update [CHANNEL]`](#fonos-update-channel)
 
 ## `fonos agents:create`
 
@@ -502,15 +506,15 @@ DESCRIPTION
 
   Installation of a user-installed plugin will override a core plugin.
 
-  e.g. If you have a core plugin that has a 'hello' command, installing a user-installed plugin with a 'hello' command 
-  will override the core plugin implementation. This is useful if a user needs to update core plugin functionality in 
+  e.g. If you have a core plugin that has a 'hello' command, installing a user-installed plugin with a 'hello' command
+  will override the core plugin implementation. This is useful if a user needs to update core plugin functionality in
   the CLI without the need to patch and update the whole CLI.
 
 ALIASES
   $ fonos plugins:add
 
 EXAMPLES
-  $ fonos plugins:install myplugin 
+  $ fonos plugins:install myplugin
   $ fonos plugins:install https://github.com/someuser/someplugin
   $ fonos plugins:install someuser/someplugin
 ```
@@ -535,7 +539,7 @@ OPTIONS
 DESCRIPTION
   Installation of a linked plugin will override a user-installed or core plugin.
 
-  e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello' 
+  e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello'
   command will override the user-installed or core plugin implementation. This is useful for development work.
 
 EXAMPLE
@@ -668,4 +672,5 @@ USAGE
 ```
 
 _See code: [@oclif/plugin-update](https://github.com/oclif/plugin-update/blob/v1.3.10/src/commands/update.ts)_
+
 <!-- commandsstop -->
