@@ -1,6 +1,6 @@
 {
   "name": "@fonos/callmanager",
-  "version": "0.0.88",
+  "version": "0.0.89",
   "description": "Call Manager",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,11 +43,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.88",
-    "@fonos/certs": "^0.0.88",
-    "@fonos/core": "^0.0.88",
-    "@fonos/errors": "^0.0.88",
-    "@fonos/logger": "^0.0.88",
+    "@fonos/auth": "^0.0.89",
+    "@fonos/certs": "^0.0.89",
+    "@fonos/core": "^0.0.89",
+    "@fonos/errors": "^0.0.89",
+    "@fonos/logger": "^0.0.89",
     "ari-client": "^2.2.0",
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
