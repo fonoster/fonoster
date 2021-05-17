@@ -85,19 +85,15 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
 
   serverStream.write(`setting destination image to ${request.image}]`);
 
-  serverStream.write(
-    `checking path to func... has function? ${fs.existsSync(
-      request.pathToFunc
-    )}`
-  );
+  logger.verbose(`@fonos/funcs rergistry [is file ${request.pathToFunc} present? ${fs.existsSync(
+    request.pathToFunc
+  )}`)
 
-  let files: string[] = [];
+  const files = await ls(request.pathToFunc);
 
-  if (fs.existsSync(request.pathToFunc)) {
-    serverStream.write(`adding ${request.pathToFunc} into workdir (/home/app)`);
-    files = await ls(request.pathToFunc);
-  }
+  logger.verbose(`@fonos/funcs rergistry [ files = ${files}`)
 
+  serverStream.write("loaded function's files");
   serverStream.write(
     `preparing image for publishing on ${request.registry} registry`
   );

@@ -10,7 +10,6 @@ CONFIG=
 # Warning: A wrong host address will cause NAT isssues
 HOST_ADDR=
 MS_ARI_URL=
-FS_HOST_PUBLIC=              # Warning: The following variables are meant to be temporal
 MC_HOST_PUBLIC=              # Warning: The following variables are meant to be temporal
 
 # Images

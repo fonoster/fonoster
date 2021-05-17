@@ -106,7 +106,7 @@ export const getImageName = (accessKeyId: string, name: string) =>
 export const getBuildDir = (accessKeyId: string, funcName: string) =>
   process.env.NODE_ENV === "dev"
     ? "/tmp/example"
-    : `${process.env.FUNCS_WORKDIR}/${accessKeyId}/${funcName}`;
+    : path.join(process.env.FUNCS_WORKDIR, accessKeyId, funcName);
 
 export const buildFaasDeployParameters = (params: FuncParameters) => {
   const parameters = {
