@@ -1,6 +1,6 @@
 {
   "name": "@fonos/appmanager",
-  "version": "0.0.87",
+  "version": "0.0.88",
   "description": "Applications Manager",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,13 +43,13 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.87",
-    "@fonos/certs": "^0.0.87",
-    "@fonos/core": "^0.0.87",
-    "@fonos/errors": "^0.0.87",
-    "@fonos/events": "^0.0.87",
-    "@fonos/logger": "^0.0.87",
-    "@fonos/storage": "^0.0.87",
+    "@fonos/auth": "^0.0.88",
+    "@fonos/certs": "^0.0.88",
+    "@fonos/core": "^0.0.88",
+    "@fonos/errors": "^0.0.88",
+    "@fonos/events": "^0.0.88",
+    "@fonos/logger": "^0.0.88",
+    "@fonos/storage": "^0.0.88",
     "fs-extra": "^8.1.0",
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
@@ -62,10 +62,10 @@
     "@types/tar": "^4.0.3",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
-    "sinon": "^10.0.0",
-    "sinon-chai": "^3.6.0",
     "dotenv": "^8.2.0",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "sinon": "^10.0.0",
+    "sinon-chai": "^3.6.0"
   },
   "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }
