@@ -51,7 +51,7 @@ export const uploadToFS = async (
 ) =>
   new Promise<void>((resolve, reject) => {
     const splitPath = (p: string) => path.dirname(p).split(path.sep);
-    const dirCount = splitPath(pathToObject).length - 1;
+    const dirCount = splitPath(pathToObject).length;
     const baseDir = splitPath(pathToObject).slice(0, dirCount).join("/");
     const walker = walk.walk(pathToObject);
 
