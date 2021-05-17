@@ -21,6 +21,7 @@ import fs from "fs";
 import logger from "@fonos/logger";
 import {ServerStream} from "./funcs";
 import {FonosError} from "@fonos/errors";
+import walk from "walk";
 
 export interface BuildInfo {
   baseImage: string;
@@ -32,7 +33,7 @@ export interface BuildInfo {
   token?: string;
 }
 
-function getAuth(request) {
+const getAuth = (request: BuildInfo) => {
   logger.verbose(
     `@fonos/funcs image build [constructing auth obj for ${request.registry}]`
   );
@@ -41,6 +42,40 @@ function getAuth(request) {
     password: request.secret,
     serveraddress: "https://index.docker.io/v1"
   };
+}
+
+const ls = (pathToFunc: string): Promise<string[]> => {
+  const walker = walk.walk(pathToFunc);
+  const files = []
+
+  return new Promise((resolve, reject) => {
+    walker.on(
+      "file",
+      (root: string, stats: {name: string}, next: () => void) => {
+        let base = root.substring(pathToFunc.length + 1);
+        base = base.length > 0 ? base + "/" : "";
+        const file = base + stats.name;
+  
+        logger.verbose(
+          `@fonos/storage walk [base = ${base}, name = ${stats.name}]`
+        );
+
+        files.push(file)
+        next();
+      }
+    );
+  
+    walker.on("errors", (e: any) => {
+      reject(e);
+    });
+  
+    walker.on("end", () => {
+      logger.verbose(
+        `@fonos/storage walk [finished walking ${pathToFunc}]`
+      );
+      resolve(files);
+    });
+  })
 }
 
 // Push image function
@@ -58,12 +93,11 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
     )}`
   );
 
-  serverStream.write("obtaining authentication handler");
-  const auth = getAuth(request);
-  const files = ["Dockerfile", "index.js", "package.json"];
+  let files:string[] = []
+
   if (fs.existsSync(request.pathToFunc)) {
     serverStream.write(`adding ${request.pathToFunc} into workdir (/home/app)`);
-    // files.push('')
+    files = await ls(request.pathToFunc)
   }
 
   serverStream.write(
@@ -88,11 +122,15 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
     serverStream.write("build complete");
     const image = docker.getImage(request.image);
 
+    serverStream.write("obtaining authentication handler");
+    const auth = getAuth(request);
+
     const stream2 = await image.push({
       tag: "latest",
-      authconfig: getAuth(request)
+      authconfig: auth
     });
-    stream2.pipe(process.stdout);
+
+    // stream2.pipe(process.stdout);
 
     await new Promise((resolve, reject) => {
       docker.modem.followProgress(stream2, (err, res) =>

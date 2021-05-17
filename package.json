@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=dev nodemon ./run_services",
+    "make": "npm run clean && npm i && npm run bootstrap && npm run build && npm run test",
     "bootstrap": "lerna bootstrap --no-ci",
     "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "integration": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha --timeout 220000 -r ts-node/register mods/**/*.int.test.ts --exit",

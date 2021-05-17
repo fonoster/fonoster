@@ -40,7 +40,7 @@ import axios from "axios";
 import {
   rawFuncToFunc,
   getFuncName,
-  buildFaasCreateParameters,
+  buildFaasDeployParameters,
   getImageName,
   getBuildDir,
   assertValidFuncName
@@ -76,7 +76,7 @@ const publish = async (
   serverStream: ServerStream
 ) => {
   const accessKeyId = getAccessKeyId(call);
-  const parameters = buildFaasCreateParameters({
+  const parameters = buildFaasDeployParameters({
     request: call.request,
     accessKeyId: accessKeyId,
     jwtSignature: ""
