@@ -22,7 +22,7 @@ import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 import {FonosError, ErrorCodes} from "@fonos/errors";
-import cron from 'cron-validate'
+import cron from "cron-validate";
 
 export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
@@ -55,7 +55,7 @@ export const assertValidFuncName = (name: string) => {
 };
 
 export const assertValidSchedule = (schedule: string) => {
-  if (schedule && !cron(schedule).isValid() ) {
+  if (schedule && !cron(schedule).isValid()) {
     throw new FonosError(
       "function schedule is not valid (invalid cron expression)",
       ErrorCodes.INVALID_ARGUMENT
