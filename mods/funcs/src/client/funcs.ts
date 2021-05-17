@@ -31,8 +31,12 @@ import {
   ListFuncsRequest,
   ListFuncsResponse
 } from "../types";
-import {buildDeployFuncRequest, cleanupTmpDir, copyFuncAtTmp} from "../utils/utils";
-import { StreamWrapper } from "./stream_wrapper";
+import {
+  buildDeployFuncRequest,
+  cleanupTmpDir,
+  copyFuncAtTmp
+} from "../utils/utils";
+import {StreamWrapper} from "./stream_wrapper";
 
 /**
  * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,
@@ -106,9 +110,7 @@ export default class Funcs extends FonosService {
    *   stream.onError(e => console.error(e))
    * }).catch(e => console.error(e));   // an error occurred
    */
-  async deployFunc(
-    request: DeployFuncRequest
-  ): Promise<StreamWrapper> {
+  async deployFunc(request: DeployFuncRequest): Promise<StreamWrapper> {
     if (request.path) {
       cleanupTmpDir(request.name);
       await copyFuncAtTmp(request.path, request.name);

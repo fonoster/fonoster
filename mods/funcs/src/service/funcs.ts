@@ -43,7 +43,8 @@ import {
   buildFaasDeployParameters,
   getImageName,
   getBuildDir,
-  assertValidFuncName
+  assertValidFuncName,
+  assertValidSchedule
 } from "../utils/utils";
 import buildAndPublishImage from "./registry";
 import btoa from "btoa";
@@ -75,6 +76,7 @@ const publish = async (
   call: grpc.ServerUnaryCall<DeployFuncRequest>,
   serverStream: ServerStream
 ) => {
+  serverStream.write("finished running predeploy script");
   const accessKeyId = getAccessKeyId(call);
   const parameters = buildFaasDeployParameters({
     request: call.request,
@@ -102,8 +104,9 @@ const publish = async (
     logger.verbose(
       `@fonos/funcs publish [publishing to functions subsystem (try #${attempts[index]})`
     );
+    serverStream.write("wating for image to be ready");
     serverStream.write(
-      `publishing to functions subsystem (try #${attempts[index]})`
+      `publishing to functions subsystem (it might take awhile #${attempts[index]})`
     );
     await sleep(20000);
     try {
@@ -182,8 +185,9 @@ export default class FuncsServer implements IFuncsServer {
   ) {
     try {
       assertValidFuncName(call.request.getName());
+      assertValidSchedule(call.request.getSchedule());
       const serverStream = new ServerStream(call);
-      serverStream.write("starting function deployment");
+      serverStream.write("starting deployment");
       await publish(call, serverStream);
       serverStream.write("deployment complete");
       serverStream.write("your function will be available shortly");

@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import Funcs from "../src/client/funcs";
 import {DeployFuncRequest} from "../src/types";
 import logger from "@fonos/logger";
-import { DeployStream } from "../src/service/protos/funcs_pb";
+import {DeployStream} from "../src/service/protos/funcs_pb";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -48,7 +48,7 @@ describe("@Fonos/funcs/client", () => {
   it("should deploy a function from base image", async () => {
     const request: DeployFuncRequest = {
       name: "myfunc",
-      path: __dirname + "/../etc/example",
+      path: __dirname + "/../etc/example"
     };
     const funcs = new Funcs();
     await funcs.deployFunc(request);
@@ -59,7 +59,7 @@ describe("@Fonos/funcs/client", () => {
     const request: DeployFuncRequest = {
       path: __dirname + "/../etc/example",
       name: "test",
-      schedule: "0 0 *\/1 * *"
+      schedule: "0 0 */1 * *"
     };
 
     const funcs = new Funcs();
@@ -74,8 +74,8 @@ describe("@Fonos/funcs/client", () => {
       });
       stream.onError((e: Error) => {
         reject(e);
-      });  
-    })
+      });
+    });
     // For now test by observation :(
   });
 
@@ -83,23 +83,23 @@ describe("@Fonos/funcs/client", () => {
     const request: DeployFuncRequest = {
       path: __dirname + "/../etc/example",
       name: "test",
-      schedule: "0 0 *\/1 * *"
+      schedule: "0 0 */1 * *"
     };
 
     const funcs = new Funcs();
-    funcs.deployFunc(request).then(stream => {
+    funcs.deployFunc(request).then((stream) => {
       stream.onMessage((msg: string) => {
         logger.info(msg);
       });
       stream.onFinish(() => {
-        logger.verbose("end")
-        done()
+        logger.verbose("end");
+        done();
       });
       stream.onError((e: Error) => {
-        logger.error("end")
-        done(e)
-      });  
-    })
+        logger.error("end");
+        done(e);
+      });
+    });
     // For now test by observation :(
   });
 });

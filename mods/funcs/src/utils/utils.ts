@@ -22,7 +22,7 @@ import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
 import {FonosError, ErrorCodes} from "@fonos/errors";
-import logger from "@fonos/logger";
+import cron from 'cron-validate'
 
 export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
@@ -52,6 +52,15 @@ export const assertValidFuncName = (name: string) => {
       "function name must be a-z0-9_",
       ErrorCodes.INVALID_ARGUMENT
     );
+};
+
+export const assertValidSchedule = (schedule: string) => {
+  if (schedule && !cron(schedule).isValid() ) {
+    throw new FonosError(
+      "function schedule is not valid (invalid cron expression)",
+      ErrorCodes.INVALID_ARGUMENT
+    );
+  }
 };
 
 // @deprecated
@@ -141,7 +150,7 @@ export const buildFaasDeployParameters = (params: FuncParameters) => {
     parameters.annotations = {
       topic: "cron-function",
       schedule: params.request.getSchedule()
-    } 
+    };
   }
   if (limits && limits.getMemory())
     parameters.limits.memory = limits.getMemory();
@@ -161,8 +170,8 @@ export const rawFuncToFunc = (rawFunc: any) => {
   func.setInvocationCount(rawFunc.invocationCount);
   func.setReplicas(rawFunc.replicas);
   func.setAvailableReplicas(rawFunc.availableReplicas);
-  if(rawFunc.annotations && rawFunc.annotations.schedule) {
-    func.setSchedule(rawFunc.annotations.schedule)
+  if (rawFunc.annotations && rawFunc.annotations.schedule) {
+    func.setSchedule(rawFunc.annotations.schedule);
   }
   return func;
 };

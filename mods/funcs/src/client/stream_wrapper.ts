@@ -17,26 +17,26 @@
  * limitations under the License.
  */
 export class StreamWrapper {
-    stream: any;
-    constructor(stream) {
-        this.stream = stream;
-    }
+  stream: any;
+  constructor(stream) {
+    this.stream = stream;
+  }
 
-    onMessage(callback) {
-        this.stream.on("data", (data) => {
-            callback(data.getText())
-        })
-    }
+  onMessage(callback) {
+    this.stream.on("data", (data) => {
+      callback(data.getText());
+    });
+  }
 
-    onFinish(callback) {
-        this.stream.on("end", () => {
-            callback()
-        })
-    }
+  onFinish(callback) {
+    this.stream.on("end", () => {
+      callback();
+    });
+  }
 
-    onError(callback) {
-        this.stream.on("error", (e: Error) => {
-            callback(e)
-        })
-    }
+  onError(callback) {
+    this.stream.on("error", (e: Error) => {
+      callback(e);
+    });
+  }
 }

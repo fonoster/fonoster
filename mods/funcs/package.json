@@ -52,6 +52,7 @@
     "axios": "^0.21.1",
     "btoa": "^1.2.1",
     "container-image-builder": "^3.2.0",
+    "cron-validate": "^1.4.3",
     "cross-spawn": "^7.0.3",
     "dockerode": "^3.3.0",
     "fs-extra": "^8.1.0",

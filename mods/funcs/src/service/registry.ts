@@ -70,6 +70,7 @@ const ls = (pathToFunc: string): Promise<string[]> => {
 
     walker.on("end", () => {
       logger.verbose(`@fonos/storage walk [finished walking ${pathToFunc}]`);
+      logger.verbose(`@fonos/funcs walk [ files = ${files}`);
       resolve(files);
     });
   });
@@ -77,12 +78,6 @@ const ls = (pathToFunc: string): Promise<string[]> => {
 
 // Push image function
 export default async function (request: BuildInfo, serverStream: ServerStream) {
-  serverStream.write("connecting to the builder daemon");
-
-  const docker = new Docker({socketPath: "/var/run/docker.sock"});
-
-  serverStream.write(`setting destination image to ${request.image}]`);
-
   logger.verbose(
     `@fonos/funcs rergistry [is file ${
       request.pathToFunc
@@ -91,13 +86,13 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
 
   const files = await ls(request.pathToFunc);
 
-  logger.verbose(`@fonos/funcs rergistry [ files = ${files}`);
+  serverStream.write("loaded function files");
+  serverStream.write("connecting to the builder daemon");
+  serverStream.write("sending files to builder daemon");
+  serverStream.write("building image");
+  serverStream.write("required function keys added");
 
-  serverStream.write("loaded function's files");
-  serverStream.write(
-    `preparing image for publishing on ${request.registry} registry`
-  );
-
+  const docker = new Docker({socketPath: "/var/run/docker.sock"});
   try {
     const stream = await docker.buildImage(
       {
