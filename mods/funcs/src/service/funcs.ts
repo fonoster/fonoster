@@ -50,8 +50,8 @@ import buildAndPublishImage from "./registry";
 import btoa from "btoa";
 import request from "request";
 import ndjson from "ndjson";
+import {promisify} from "util";
 
-const {promisify} = require("util");
 const sleep = promisify(setTimeout);
 
 // Initializing access info for FaaS

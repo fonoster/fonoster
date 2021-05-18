@@ -14,7 +14,9 @@ const getConfigFile = () => fs.readFileSync(CONFIG_FILE).toString().trim();
 const defaultOptions: ServiceOptions = {
   endpoint: process.env.APISERVER_ENDPOINT || "localhost:50052",
   // Drepecated env FS_DEFAULT_STORAGE_BUCKET
-  bucket: process.env.FS_DEFAULT_STORAGE_BUCKET
+  bucket: process.env.FS_DEFAULT_STORAGE_BUCKET,
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  accessKeySecret: process.env.ACCESS_KEY_SECRET
 };
 
 export default class {

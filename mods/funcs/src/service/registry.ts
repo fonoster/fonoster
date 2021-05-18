@@ -22,6 +22,9 @@ import logger from "@fonos/logger";
 import {ServerStream} from "./funcs";
 import {FonosError} from "@fonos/errors";
 import walk from "walk";
+import {promisify} from "util";
+
+const sleep = promisify(setTimeout);
 
 export interface BuildInfo {
   image: string;
@@ -78,11 +81,27 @@ const ls = (pathToFunc: string): Promise<string[]> => {
 
 // Push image function
 export default async function (request: BuildInfo, serverStream: ServerStream) {
-  logger.verbose(
-    `@fonos/funcs rergistry [is file ${
-      request.pathToFunc
-    } present? ${fs.existsSync(request.pathToFunc)}`
-  );
+  const attempts = [1, 2, 3];
+  let index;
+  for (index in attempts) {
+    // Sometime the image is not inmediatly available so we try a few times
+    logger.verbose(
+      `@fonos/funcs publish [waiting for files to be ready (try #${attempts[index]})`
+    );
+
+    logger.verbose(
+      `@fonos/funcs registry [is file ${
+        request.pathToFunc
+      } present? ${fs.existsSync(request.pathToFunc)}`
+    );
+
+    if (fs.existsSync(request.pathToFunc)) { 
+      break
+    } else {
+      // Wait for 10 seconds for minio to be ready
+      await sleep(10000);
+    }
+  }
 
   const files = await ls(request.pathToFunc);
 
