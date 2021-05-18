@@ -54,7 +54,7 @@ describe("@Fonos/funcs/client", () => {
     // For now test by observation :(
   });
 
-  it.only("should get a function by name", async () => {
+  it("should get a function by name", async () => {
     const request: GetFuncRequest = {
       name: "pruebaz"
     };
@@ -64,7 +64,7 @@ describe("@Fonos/funcs/client", () => {
     // For now test by observation :(
   });
 
-  it("should deploy a function", async () => {
+  it.only("should deploy a function", async () => {
     const request: DeployFuncRequest = {
       path: __dirname + "/../etc/example",
       name: "test",
@@ -112,7 +112,7 @@ describe("@Fonos/funcs/client", () => {
     // For now test by observation :(
   });
 
-  it.only("will retrive a list of logs", (done) => {
+  it("will retrive a list of logs", (done) => {
     const request = {
       name: "fn603693c0afaa1a080000000ctest1",
       tail: 10,
