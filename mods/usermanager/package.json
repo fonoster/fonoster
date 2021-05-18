@@ -1,6 +1,6 @@
 {
   "name": "@fonos/usermanager",
-  "version": "0.0.94",
+  "version": "0.0.95",
   "description": "Users Manager",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,9 +43,9 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.94",
-    "@fonos/certs": "^0.0.94",
-    "@fonos/core": "^0.0.94",
+    "@fonos/auth": "^0.0.95",
+    "@fonos/certs": "^0.0.95",
+    "@fonos/core": "^0.0.95",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "google-protobuf": "^3.17.0",

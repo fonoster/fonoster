@@ -1,6 +1,6 @@
 {
   "name": "@fonos/dispatcher",
-  "version": "0.0.94",
+  "version": "0.0.95",
   "description": "Application Router for Fonos",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -39,11 +39,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.94",
-    "@fonos/marytts": "^0.0.94",
-    "@fonos/numbers": "^0.0.94",
-    "@fonos/storage": "^0.0.94",
-    "@fonos/voice": "^0.0.94",
+    "@fonos/logger": "^0.0.95",
+    "@fonos/marytts": "^0.0.95",
+    "@fonos/numbers": "^0.0.95",
+    "@fonos/storage": "^0.0.95",
+    "@fonos/voice": "^0.0.95",
     "agi-node": "github:psanders/agi-node",
     "dotenv": "^8.2.0",
     "phone": "^2.4.20",
