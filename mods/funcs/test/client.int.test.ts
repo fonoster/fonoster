@@ -21,9 +21,8 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import Funcs from "../src/client/funcs";
-import {DeployFuncRequest} from "../src/types";
+import {DeployFuncRequest, GetFuncRequest} from "../src/types";
 import logger from "@fonos/logger";
-import {DeployStream} from "../src/service/protos/funcs_pb";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -52,6 +51,16 @@ describe("@Fonos/funcs/client", () => {
     };
     const funcs = new Funcs();
     await funcs.deployFunc(request);
+    // For now test by observation :(
+  });
+
+  it.only("should get a function by name", async () => {
+    const request: GetFuncRequest = {
+      name: "pruebaz"
+    };
+    const funcs = new Funcs();
+    const result = await funcs.getFunc(request);
+    expect(result).is.not.null
     // For now test by observation :(
   });
 

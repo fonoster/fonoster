@@ -95,8 +95,8 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
       } present? ${fs.existsSync(request.pathToFunc)}`
     );
 
-    if (fs.existsSync(request.pathToFunc)) { 
-      break
+    if (fs.existsSync(request.pathToFunc)) {
+      break;
     } else {
       // Wait for 10 seconds for minio to be ready
       await sleep(10000);

@@ -146,7 +146,8 @@ export default class Funcs extends FonosService {
     return new Promise((resolve, reject) => {
       const req = new FuncsPB.GetFuncRequest();
       req.setName(request.name);
-      super.getService().getFunc(req, (e, res: FuncsPB.Func) => {
+      super.getService().getFunc(req, super.getMeta(), (e, res: FuncsPB.Func) => {
+
         if (e) reject(e);
 
         resolve({
@@ -182,7 +183,7 @@ export default class Funcs extends FonosService {
     return new Promise((resolve, reject) => {
       const req = new FuncsPB.DeleteFuncRequest();
       req.setName(request.name);
-      super.getService().deleteFunc(req, (e: any) => {
+      super.getService().deleteFunc(req, super.getMeta(), (e: any) => {
         if (e) reject(e);
 
         resolve({
@@ -221,7 +222,7 @@ export default class Funcs extends FonosService {
       req.setView(request.view);
       super
         .getService()
-        .listFuncs(req, (e: any, paginatedList: FuncsPB.ListFuncsResponse) => {
+        .listFuncs(req, super.getMeta(), (e: any, paginatedList: FuncsPB.ListFuncsResponse) => {
           if (e) reject(e);
 
           resolve({
