@@ -24,7 +24,7 @@ import tar from "tar";
 import {FonosError, ErrorCodes} from "@fonos/errors";
 import cron from "cron-validate";
 import createAccessKeySecret from "./auth";
-import { FunctionDefinition } from "openfaas-client";
+import {FunctionDefinition} from "openfaas-client";
 
 export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
@@ -120,7 +120,7 @@ export const getBuildDir = (accessKeyId: string, funcName: string) =>
     ? "/tmp/example"
     : path.join(process.env.FUNCS_WORKDIR, accessKeyId, funcName);
 
-export const buildFaasDeployParameters = async(params: FuncParameters) => {
+export const buildFaasDeployParameters = async (params: FuncParameters) => {
   const parameters: FunctionDefinition = {
     service: getFuncName(params.accessKeyId, params.request.getName()),
     image: getImageName(params.accessKeyId, params.request.getName()),
