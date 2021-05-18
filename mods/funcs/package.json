@@ -59,6 +59,7 @@
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
+    "ndjson": "^2.0.0",
     "openfaas-client": "^0.0.2",
     "tar": "^6.0.1",
     "walk": "^2.3.14"

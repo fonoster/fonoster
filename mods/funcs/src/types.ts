@@ -86,3 +86,11 @@ export interface FuncParameters {
   accessKeyId: string;
   jwtSignature: string;
 }
+
+export interface GetFuncLogsRequest {
+  name: string;
+  since?: string;
+  tail?: number;
+  follow?: boolean;
+}
+

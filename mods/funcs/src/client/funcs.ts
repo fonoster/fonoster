@@ -26,6 +26,7 @@ import {
   DeleteFuncRequest,
   DeleteFuncResponse,
   DeployFuncRequest,
+  GetFuncLogsRequest,
   GetFuncRequest,
   GetFuncResponse,
   ListFuncsRequest,
@@ -36,7 +37,7 @@ import {
   cleanupTmpDir,
   copyFuncAtTmp
 } from "../utils/utils";
-import {StreamWrapper} from "./stream_wrapper";
+import {DeployStream, LogsStream} from "./stream_wrappers";
 
 /**
  * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,
@@ -83,7 +84,7 @@ export default class Funcs extends FonosService {
    * @param {string} request.requests.memory - Optional requested memory allocation for the function
    * @param {string} request.requests.cpu - Optional requested cpu allocation for the function
    * @param {Function(string)} emitter - Optional callback to capture deployment events
-   * @return {Promise<DeployFuncResponse>}
+   * @return {Promise<DeployStream>}
    * @example
    *
    * const Fonos = require("@fonos/sdk");
@@ -110,7 +111,7 @@ export default class Funcs extends FonosService {
    *   stream.onError(e => console.error(e))
    * }).catch(e => console.error(e));   // an error occurred
    */
-  async deployFunc(request: DeployFuncRequest): Promise<StreamWrapper> {
+  async deployFunc(request: DeployFuncRequest): Promise<DeployStream> {
     if (request.path) {
       cleanupTmpDir(request.name);
       await copyFuncAtTmp(request.path, request.name);
@@ -121,7 +122,7 @@ export default class Funcs extends FonosService {
     }
     const req = buildDeployFuncRequest(request);
     const stream = super.getService().deployFunc(req, super.getMeta());
-    return new StreamWrapper(stream);
+    return new DeployStream(stream);
   }
 
   /**
@@ -238,6 +239,45 @@ export default class Funcs extends FonosService {
         });
     });
   }
+
+    /**
+   * Creates or updates a function in the FaaS subsystem.
+   *
+   * @param {GetFuncLogsRequest} request - Request to obtain the logs for a function
+   * @param {string} request.name - Function name
+   * @param {string} request.since - Only return logs after a specific date (RFC3339)
+   * @param {string} request.tail - Sets the maximum number of log messages to return, <=0 means unlimited
+   * @param {string} request.follow - When true, the request will stream logs until the request timeout
+   * @return {Promise<LogsStream>}
+   * @example
+   *
+   * const Fonos = require("@fonos/sdk");
+   * const funcs = new Fonos.Funcs();
+   *
+   * const request = {
+   *   name: "function1",
+   *   tail: 10,
+   *   follow: true,
+   *   since: "2021-05-12T07:20:50.52Z"
+   * };
+   *
+   * funcs.getFuncLogs(request)
+   * .then(stream => {
+   *   stream.onMessage(log => console.log(log))
+   *   stream.onFinish(() => console.log("end"))
+   *   stream.onError(e => console.error(e))
+   * }).catch(e => console.error(e));   // an error occurred
+   */
+  async getFuncLogs(request: GetFuncLogsRequest): Promise<LogsStream> {
+    const req = new FuncsPB.GetFuncLogsRequest();
+    req.setName(request.name);
+    req.setSince(request.since);
+    req.setTail(request.tail);
+    req.setFollow(request.follow);
+    const stream = super.getService().getFuncLogs(req, super.getMeta());
+    return new LogsStream(stream);
+  }
+  
 }
 
 export {FuncsPB, CommonPB, buildDeployFuncRequest};

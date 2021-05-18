@@ -1,3 +1,5 @@
+import { FuncsPB } from "./funcs";
+
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -16,15 +18,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export class StreamWrapper {
+export class DeployStream {
   stream: any;
   constructor(stream) {
     this.stream = stream;
   }
 
   onMessage(callback) {
-    this.stream.on("data", (data) => {
-      callback(data.getText());
+    this.stream.on("data", (data: FuncsPB.DeployStream) => {
+      callback({ text: data.getText() });
+    });
+  }
+
+  onFinish(callback) {
+    this.stream.on("end", () => {
+      callback();
+    });
+  }
+
+  onError(callback) {
+    this.stream.on("error", (e: Error) => {
+      callback(e);
+    });
+  }
+}
+
+export class LogsStream {
+  stream: any;
+  constructor(stream) {
+    this.stream = stream;
+  }
+
+  onMessage(callback) {
+    this.stream.on("data", (data: FuncsPB.FuncLog) => {
+      callback({
+        name: data.getName(),
+        instance: data.getInstance(),
+        timestamp: data.getTimestamp(),
+        text: data.getText()
+      });
     });
   }
 

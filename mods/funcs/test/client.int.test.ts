@@ -66,8 +66,8 @@ describe("@Fonos/funcs/client", () => {
     const stream = await funcs.deployFunc(request);
 
     await new Promise<void>((resolve, reject) => {
-      stream.onMessage((msg: string) => {
-        logger.info(msg);
+      stream.onMessage((msg) => {
+        logger.info(msg.text);
       });
       stream.onFinish(() => {
         resolve();
@@ -79,7 +79,7 @@ describe("@Fonos/funcs/client", () => {
     // For now test by observation :(
   });
 
-  it.only("should deploy a function(then/catch)", (done) => {
+  it("should deploy a function(then/catch)", (done) => {
     const request: DeployFuncRequest = {
       path: __dirname + "/../etc/example",
       name: "test",
@@ -88,8 +88,34 @@ describe("@Fonos/funcs/client", () => {
 
     const funcs = new Funcs();
     funcs.deployFunc(request).then((stream) => {
-      stream.onMessage((msg: string) => {
-        logger.info(msg);
+      stream.onMessage((msg) => {
+        logger.info(msg.text);
+      });
+      stream.onFinish(() => {
+        logger.verbose("end");
+        done();
+      });
+      stream.onError((e: Error) => {
+        logger.error("end");
+        done(e);
+      });
+    });
+    // For now test by observation :(
+  });
+
+  it.only("will retrive a list of logs", (done) => {
+    const request = {
+       name: "fn603693c0afaa1a080000000ctest1",
+       tail: 10,
+       follow: true,
+       since: ""
+    };
+
+    const funcs = new Funcs();
+
+    funcs.getFuncLogs(request).then((stream) => {
+      stream.onMessage((msg) => {
+        logger.info(msg.text);
       });
       stream.onFinish(() => {
         logger.verbose("end");
