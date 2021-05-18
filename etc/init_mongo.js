@@ -52,6 +52,12 @@ const roles = [
     access: access
   },
   {
+    role: "FUNCTION",
+    // Feel free to update for your usecase
+    description: "This role is limited only to calling",
+    access: ["/fonos.callmanager.v1alpha1.CallManager/Call"]
+  },
+  {
     role: "ADMIN",
     description: "Access to everything",
     access: access
