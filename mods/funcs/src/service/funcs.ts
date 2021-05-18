@@ -89,10 +89,9 @@ const publish = async (
 ) => {
   serverStream.write("finished running predeploy script");
   const accessKeyId = getAccessKeyId(call);
-  const parameters = buildFaasDeployParameters({
+  const parameters = await buildFaasDeployParameters({
     request: call.request,
-    accessKeyId: accessKeyId,
-    jwtSignature: ""
+    accessKeyId: accessKeyId
   });
 
   await buildAndPublishImage(

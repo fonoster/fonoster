@@ -84,7 +84,6 @@ export interface ListFuncsResponse {
 export interface FuncParameters {
   request: FuncPB.DeployFuncRequest;
   accessKeyId: string;
-  jwtSignature: string;
 }
 
 export interface GetFuncLogsRequest {
