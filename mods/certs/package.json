@@ -1,6 +1,6 @@
 {
   "name": "@fonos/certs",
-  "version": "0.0.93",
+  "version": "0.0.94",
   "description": "Handles Fonos certificates",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",

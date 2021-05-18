@@ -1,6 +1,6 @@
 {
   "name": "@fonos/googleasr",
-  "version": "0.0.93",
+  "version": "0.0.94",
   "description": "Wrapper for Google ASR",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
