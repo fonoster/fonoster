@@ -60,7 +60,7 @@ describe("@Fonos/funcs/client", () => {
     };
     const funcs = new Funcs();
     const result = await funcs.getFunc(request);
-    expect(result).is.not.null
+    expect(result).is.not.null;
     // For now test by observation :(
   });
 

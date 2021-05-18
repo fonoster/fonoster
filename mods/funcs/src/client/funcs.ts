@@ -146,18 +146,19 @@ export default class Funcs extends FonosService {
     return new Promise((resolve, reject) => {
       const req = new FuncsPB.GetFuncRequest();
       req.setName(request.name);
-      super.getService().getFunc(req, super.getMeta(), (e, res: FuncsPB.Func) => {
+      super
+        .getService()
+        .getFunc(req, super.getMeta(), (e, res: FuncsPB.Func) => {
+          if (e) reject(e);
 
-        if (e) reject(e);
-
-        resolve({
-          name: res.getName(),
-          image: res.getImage(),
-          invocationCount: res.getInvocationCount(),
-          replicas: res.getReplicas(),
-          availableReplicas: res.getAvailableReplicas()
+          resolve({
+            name: res.getName(),
+            image: res.getImage(),
+            invocationCount: res.getInvocationCount(),
+            replicas: res.getReplicas(),
+            availableReplicas: res.getAvailableReplicas()
+          });
         });
-      });
     });
   }
 
@@ -222,22 +223,26 @@ export default class Funcs extends FonosService {
       req.setView(request.view);
       super
         .getService()
-        .listFuncs(req, super.getMeta(), (e: any, paginatedList: FuncsPB.ListFuncsResponse) => {
-          if (e) reject(e);
+        .listFuncs(
+          req,
+          super.getMeta(),
+          (e: any, paginatedList: FuncsPB.ListFuncsResponse) => {
+            if (e) reject(e);
 
-          resolve({
-            nextPageToken: paginatedList.getNextPageToken(),
-            funcs: paginatedList.getFuncsList().map((f: FuncsPB.Func) => {
-              return {
-                name: f.getName(),
-                image: f.getImage(),
-                replicas: f.getReplicas(),
-                invocationCount: f.getInvocationCount(),
-                availableReplicas: f.getAvailableReplicas()
-              };
-            })
-          });
-        });
+            resolve({
+              nextPageToken: paginatedList.getNextPageToken(),
+              funcs: paginatedList.getFuncsList().map((f: FuncsPB.Func) => {
+                return {
+                  name: f.getName(),
+                  image: f.getImage(),
+                  replicas: f.getReplicas(),
+                  invocationCount: f.getInvocationCount(),
+                  availableReplicas: f.getAvailableReplicas()
+                };
+              })
+            });
+          }
+        );
     });
   }
 
