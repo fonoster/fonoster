@@ -105,10 +105,10 @@ describe("@Fonos/funcs/client", () => {
 
   it.only("will retrive a list of logs", (done) => {
     const request = {
-       name: "fn603693c0afaa1a080000000ctest1",
-       tail: 10,
-       follow: true,
-       since: ""
+      name: "fn603693c0afaa1a080000000ctest1",
+      tail: 10,
+      follow: true,
+      since: ""
     };
 
     const funcs = new Funcs();

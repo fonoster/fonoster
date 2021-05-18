@@ -93,4 +93,3 @@ export interface GetFuncLogsRequest {
   tail?: number;
   follow?: boolean;
 }
-

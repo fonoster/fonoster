@@ -240,7 +240,7 @@ export default class Funcs extends FonosService {
     });
   }
 
-    /**
+  /**
    * Creates or updates a function in the FaaS subsystem.
    *
    * @param {GetFuncLogsRequest} request - Request to obtain the logs for a function
@@ -277,7 +277,6 @@ export default class Funcs extends FonosService {
     const stream = super.getService().getFuncLogs(req, super.getMeta());
     return new LogsStream(stream);
   }
-  
 }
 
 export {FuncsPB, CommonPB, buildDeployFuncRequest};

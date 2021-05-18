@@ -1,4 +1,4 @@
-import { FuncsPB } from "./funcs";
+import {FuncsPB} from "./funcs";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
@@ -26,7 +26,7 @@ export class DeployStream {
 
   onMessage(callback) {
     this.stream.on("data", (data: FuncsPB.DeployStream) => {
-      callback({ text: data.getText() });
+      callback({text: data.getText()});
     });
   }
 

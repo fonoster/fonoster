@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc, { ServerWritableStream } from "grpc";
-import { Empty } from "./protos/common_pb";
-import { IFuncsServer } from "./protos/funcs_grpc_pb";
+import grpc, {ServerWritableStream} from "grpc";
+import {Empty} from "./protos/common_pb";
+import {IFuncsServer} from "./protos/funcs_grpc_pb";
 import {
   CreateRegistryTokenRequest,
   CreateRegistryTokenResponse,
@@ -32,10 +32,10 @@ import {
   ListFuncsRequest,
   ListFuncsResponse
 } from "./protos/funcs_pb";
-import { HttpBasicAuth, DefaultApi as FaaS, LogEntry } from "openfaas-client";
+import {HttpBasicAuth, DefaultApi as FaaS, LogEntry} from "openfaas-client";
 import logger from "@fonos/logger";
-import { ErrorCodes, FonosError, FonosSubsysUnavailable } from "@fonos/errors";
-import { getAccessKeyId } from "@fonos/core";
+import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
+import {getAccessKeyId} from "@fonos/core";
 import axios from "axios";
 import {
   rawFuncToFunc,
@@ -48,10 +48,10 @@ import {
 } from "../utils/utils";
 import buildAndPublishImage from "./registry";
 import btoa from "btoa";
-import request from "request"
-import ndjson from 'ndjson'
+import request from "request";
+import ndjson from "ndjson";
 
-const { promisify } = require("util");
+const {promisify} = require("util");
 const sleep = promisify(setTimeout);
 
 // Initializing access info for FaaS
@@ -63,12 +63,12 @@ faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
 
 const binArrayToJson = (binArray) => {
-	var str = "";
-	for (var i = 0; i < binArray.length; i++) {
-		str += String.fromCharCode(parseInt(binArray[i]));
-	}
-	return JSON.parse(str)
-}
+  var str = "";
+  for (var i = 0; i < binArray.length; i++) {
+    str += String.fromCharCode(parseInt(binArray[i]));
+  }
+  return JSON.parse(str);
+};
 
 export class ServerStream {
   call: any;
@@ -130,7 +130,7 @@ const publish = async (
       try {
         await faas.systemFunctionsPut(parameters);
         break;
-      } catch (e) { }
+      } catch (e) {}
     }
   }
 
@@ -231,7 +231,7 @@ export default class FuncsServer implements IFuncsServer {
     const accessKeyId = getAccessKeyId(call);
     const functionName = getFuncName(accessKeyId, call.request.getName());
     try {
-      await faas.systemFunctionsDelete({ functionName });
+      await faas.systemFunctionsDelete({functionName});
       callback(null, new Empty());
     } catch (e) {
       logger.error(`@fonos/funcs delete [${e}]`);
@@ -250,37 +250,43 @@ export default class FuncsServer implements IFuncsServer {
 
   // See client-side for comments
   // TODO: Resign with JWT token
-  async getFuncLogs(
-    call: ServerWritableStream<GetFuncLogsRequest, FuncLog>
-  ) {
+  async getFuncLogs(call: ServerWritableStream<GetFuncLogsRequest, FuncLog>) {
     try {
       const stream = request
-        .get(`${faas.basePath}/system/logs?name=${call.request.getName()}&since=${call.request.getSince()}&tail=${call.request.getTail()}&follow=${call.request.getFollow()}`,{
-          'auth': {
-            'user': process.env.FUNCS_USERNAME,
-            'pass': process.env.FUNCS_SECRET,
-            'sendImmediately': false
+        .get(
+          `${
+            faas.basePath
+          }/system/logs?name=${call.request.getName()}&since=${call.request.getSince()}&tail=${call.request.getTail()}&follow=${call.request.getFollow()}`,
+          {
+            auth: {
+              user: process.env.FUNCS_USERNAME,
+              pass: process.env.FUNCS_SECRET,
+              sendImmediately: false
+            }
           }
-        })
-        .on('response', function (res) {
+        )
+        .on("response", function (res) {
           if (res.statusCode === 200) {
-            stream.pipe(ndjson.parse())
-            .on('data', (data) => {
+            stream.pipe(ndjson.parse()).on("data", (data) => {
               const entry = new FuncLog();
               entry.setName(data.name);
               entry.setTimestamp(data.timestamp);
               entry.setInstance(data.instance);
               entry.setText(data.text);
               call.write(entry);
-            })
+            });
           }
-        }).on('error', (e) => {
-          logger.error(`@fonos/funcs system logs [error while receiving data: ${e}]`);
-          call.end()
-        }).on('end', () => {
-          logger.verbose("@fonos/funcs system logs [done receiving data]");
-          call.end()
         })
+        .on("error", (e) => {
+          logger.error(
+            `@fonos/funcs system logs [error while receiving data: ${e}]`
+          );
+          call.end();
+        })
+        .on("end", () => {
+          logger.verbose("@fonos/funcs system logs [done receiving data]");
+          call.end();
+        });
     } catch (e) {
       logger.error(`@fonos/funcs deploy [${e}]`);
       if (e.response.statusCode === 400) {
@@ -329,7 +335,7 @@ export default class FuncsServer implements IFuncsServer {
       const baseURL = `${endpoint}?service=${service}&scope=repository:${image}:push`;
       const result = await axios
         .create({
-          headers: { Authorization: `Basic ${auth}` }
+          headers: {Authorization: `Basic ${auth}`}
         })
         .get(baseURL);
       const token = result.data.token;
