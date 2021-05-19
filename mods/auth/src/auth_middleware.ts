@@ -2,6 +2,7 @@ import grpc from "grpc";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./role_has_access";
+
 export default class AuthMiddleware {
   secretKeyToken: string;
   constructor(secretKey: string) {
@@ -21,8 +22,10 @@ export default class AuthMiddleware {
         });
       }
 
-      const accessKeyId = ctx.call.metadata._internal_repr.access_key_id.toString();
-      const accessKeySecret = ctx.call.metadata._internal_repr.access_key_secret.toString();
+      const accessKeyId =
+        ctx.call.metadata._internal_repr.access_key_id.toString();
+      const accessKeySecret =
+        ctx.call.metadata._internal_repr.access_key_secret.toString();
       const pathRequest = ctx.service.path;
       jwtHandler
         .validateToken({accessToken: accessKeySecret}, this.secretKeyToken)

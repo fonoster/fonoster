@@ -32,7 +32,12 @@ const access = [
   "/fonos.agents.v1alpha1.Agents/CreateAgent",
   "/fonos.agents.v1alpha1.Agents/GetAgent",
   "/fonos.agents.v1alpha1.Agents/UpdateAgent",
-  "/fonos.agents.v1alpha1.Agents/DeleteAgent"
+  "/fonos.agents.v1alpha1.Agents/DeleteAgent",
+  "/fonos.funcs.v1alpha1.Funcs/ListFuncs",
+  "/fonos.funcs.v1alpha1.Funcs/GetFunc",
+  "/fonos.funcs.v1alpha1.Funcs/DeployFunc",
+  "/fonos.funcs.v1alpha1.Funcs/DeleteFunc",
+  "/fonos.funcs.v1alpha1.Funcs/GetFuncLogs"
 ];
 
 const roles = [
@@ -45,6 +50,12 @@ const roles = [
     role: "USER",
     description: "Access to everything",
     access: access
+  },
+  {
+    role: "FUNCTION",
+    // Feel free to update for your usecase
+    description: "This role is limited only to calling",
+    access: ["/fonos.callmanager.v1alpha1.CallManager/Call"]
   },
   {
     role: "ADMIN",

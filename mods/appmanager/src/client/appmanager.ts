@@ -58,7 +58,6 @@ export default class AppManager extends FonosService {
     super(AppManagerClient, options);
     super.init(grpc);
     this.storage = new Storage(super.getOptions());
-    this.service = super.getService();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
@@ -135,7 +134,7 @@ export default class AppManager extends FonosService {
     await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
     await this.storage.uploadObject({
       filename: `/tmp/${dirName}.tgz`,
-      bucket: "apps" // TODO: Maybe I should place this in the .env
+      bucket: "apps"
     });
 
     // Cleanup after deploy

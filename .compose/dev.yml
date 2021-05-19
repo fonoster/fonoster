@@ -2,6 +2,12 @@ version: '3.7'
 
 services:
 
+  secrets:
+    ports:
+      - "8200:8200"
+  apiserver:
+    ports:
+      - 8080:8080
   datasource:
     ports:
       - ${DS_PORT}:${DS_PORT}

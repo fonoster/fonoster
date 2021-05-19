@@ -6,6 +6,7 @@ import Providers from "@fonos/providers";
 import Numbers from "@fonos/numbers";
 import Domains from "@fonos/domains";
 import Agents from "@fonos/agents";
+import Funcs from "@fonos/funcs";
 import {mute} from "@fonos/logger";
 
 mute();
@@ -18,5 +19,6 @@ export {
   Providers,
   Numbers,
   Domains,
-  Agents
+  Agents,
+  Funcs
 };

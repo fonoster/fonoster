@@ -29,13 +29,13 @@ export default class AuthUtils {
   };
 
   public createTokens = async (
-    accessKeyIdPayload: string,
-    issuePayload: string,
-    rolePayload: string,
+    accessKeyId: string,
+    issuer: string,
+    role: string,
     privateKey: string
   ): Promise<UserToken> => {
     const accessToken = await this.handler.encode(
-      new JwtPayload(issuePayload, rolePayload, accessKeyIdPayload),
+      new JwtPayload(issuer, role, accessKeyId),
       privateKey
     );
 

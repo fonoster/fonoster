@@ -13,16 +13,23 @@ const fluent = new fluentTransport(
   }
 );
 
+const level = process.env.NODE_ENV !== "production" ? "verbose" : "info";
+
 const transports =
-  process.env.NODE_ENV === "dev"
+  process.env.NODE_ENV !== "production"
     ? [new winston.transports.Console()]
     : [fluent];
 
+const format =
+  process.env.NODE_ENV !== "production"
+    ? winston.format.simple()
+    : winston.format.json();
+
 const logger = winston.createLogger({
-  level: "debug",
+  format: winston.format.combine(winston.format.colorize(), format),
   levels: winston.config.npm.levels,
-  format: winston.format.json(),
-  transports
+  transports,
+  level
 });
 
 logger.on("finish", () => {

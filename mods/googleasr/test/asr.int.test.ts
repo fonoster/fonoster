@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === "dev") {
 
 describe("@fonos/googleasr", () => {
   afterEach(() => sandbox.restore());
-  it.only("transcribes file from url", async () => {
+  it("transcribes file from url", async () => {
     const config = {
       projectId: "clever-tube-275321",
       keyFilename:

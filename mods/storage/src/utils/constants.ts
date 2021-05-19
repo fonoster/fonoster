@@ -18,7 +18,8 @@
  */
 export const constants = {
   HIGH_WATER_MARK: 1 * 1024,
-  APP_BUCKET: "apps",
+  APPS_BUCKET: "apps",
+  FUNCS_BUCKET: "funcs",
   RECORDINGS_BUCKET: "recordings",
   PUBLIC_BUCKET: "public"
 };

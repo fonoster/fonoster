@@ -39,23 +39,25 @@ export default function run(
   server.addService(HealthService, grpcHealthCheck);
 
   logger.info(
-    `Starting API runner @ ${ENDPOINT} (API version = ${srvInfList[0].version})`
+    `@fonos/core service runner [starting @ ${ENDPOINT}, api = ${srvInfList[0].version}]`
   );
 
   if (middlewareList) {
     middlewareList.forEach((middleware) => {
-      logger.info(`Adding ${middleware.name} middleware`);
       server.use(middleware.middlewareObj);
+      logger.info(
+        `@fonos/core service runner [added ${middleware.name} middleware]`
+      );
     });
   }
 
   srvInfList.forEach((srvInf: ServiceInf) => {
-    logger.info(`Adding ${srvInf.name} service`);
     server.addService(srvInf.service, srvInf.server);
+    logger.info(`@fonos/core service runner [added ${srvInf.name} service]`);
   });
 
   server.bind(ENDPOINT, getServerCredentials());
   server.start();
 
-  logger.info(`API Runner is online!`);
+  logger.info(`@fonos/core service runner [runner is online]`);
 }

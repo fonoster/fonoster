@@ -10,11 +10,10 @@ CONFIG=
 # Warning: A wrong host address will cause NAT isssues
 HOST_ADDR=
 MS_ARI_URL=
-FS_HOST_PUBLIC=              # Warning: The following variables are meant to be temporal
 MC_HOST_PUBLIC=              # Warning: The following variables are meant to be temporal
 
 # Images
-AS_IMAGE=fonoster/fonos-apiserver:latest
+AS_IMAGE=traefik:v2.4
 MC_IMAGE=fonoster/fonos-nodejsmc:latest
 MS_IMAGE=fonoster/fonos-mediaserver:15.7.4
 EB_IMAGE=bitnami/rabbitmq:latest
@@ -26,17 +25,29 @@ TTS_IMAGE=synesthesiam/marytts:5.2
 LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
 LOGS_MONITOR_IMAGE=kibana:7.9.3
 LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
+SECRETS_IMAGE=vault
 
 # Other variables
 COMPOSE_PROJECT_NAME=fonos
-COMPOSE_PROJECT_VERSION=0.0.47
+COMPOSE_PROJECT_VERSION=0.0.86
 
-APISERVER_PORT=50052
-APISERVER_ENDPOINT_REMOTE=fonos.local
-APISERVER_ENDPOINT=apiserver.fonos
-APISERVER_ACCESS_KEY_ID=fonos
-APISERVER_ACCESS_KEY_ISS=fonos
-APISERVER_ALLOW_INSECURE=true
+# FaaS access information
+FUNCS_URL=https://faas:8080
+FUNCS_USERNAME=admin
+FUNCS_SECRET=changeit
+FUNCS_WORKDIR=/home/fonos/funcs
+
+# Docker private registry information
+DOCKER_REGISTRY_ORG=yourorg
+DOCKER_REGISTRY_USERNAME=yourorg
+DOCKER_REGISTRY_SECRET=changeit
+DOCKER_REGISTRY=docker.io
+DOCKER_REGISTRY_SERVICE=registry.docker.io
+DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
+
+AS_HOST=apiserver.fonos
+AS_PORT=50051
+AS_ALLOW_INSECURE=true
 
 EB_HOST=eventsbroker.fonos
 EB_PORT=5672

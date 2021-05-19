@@ -1,4 +1,3 @@
-import updateBucketPolicy from "@fonos/core/dist/common/fsutils";
 import AppManager from "../src/client/appmanager";
 import chai from "chai";
 import sinon from "sinon";
@@ -19,9 +18,6 @@ describe("AppManager Service", () => {
   let appmanager: AppManager;
 
   before(async () => {
-    // This will create the bucket if it does not exist
-    await updateBucketPolicy("apps");
-
     appmanager = new AppManager({
       endpoint: `${process.env.APISERVER_ENDPOINT}`,
       bucket: "apps"

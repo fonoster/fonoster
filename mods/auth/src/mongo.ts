@@ -5,7 +5,7 @@ const host = process.env.DS_AUTH_HOST || "localhost";
 const port = process.env.DS_AUTH_PORT || 27017;
 const dbname = process.env.DS_AUTH_DB || "fonos_auth";
 
-let credentials =
+const credentials =
   process.env.DS_AUTH_USERNAME && process.env.DS_AUTH_SECRET
     ? `${process.env.DS_AUTH_USERNAME}:${process.env.DS_AUTH_SECRET}@`
     : "";
@@ -21,16 +21,9 @@ export default async function () {
       useCreateIndex: true,
       autoIndex: false
     });
-
-    // Hidding credentials...
-    if (credentials.length > 0) {
-      credentials = `${process.env.DS_AUTH_USERNAME}:*****@`;
-    }
-    logger.info(
-      `Successfully connected to mongodb://${credentials}${host}:${port}/${dbname}`
-    );
-  } catch (error) {
-    logger.error("Error connecting to database: ", error);
+    logger.info(`@fonos/auth mongo [connected to db ${dbname}]`);
+  } catch (e) {
+    logger.error("Error connecting to database: ", e);
     process.exit(1);
   }
 }

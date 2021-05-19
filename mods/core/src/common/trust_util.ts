@@ -38,7 +38,11 @@ const getServerCredentials = () => {
   } catch (e) {
     logger.log(
       "warn",
-      "Unable to load security certificates. Starting server in Insecure mode"
+      "@fonos/core trust util [unable to load security certificates]"
+    );
+    logger.log(
+      "warn",
+      "@fonos/core trust util [starting server in insecure mode]"
     );
     return grpc.ServerCredentials.createInsecure();
   }
@@ -54,7 +58,11 @@ const getClientCredentials = (grpc) => {
   } catch (e) {
     logger.log(
       "warn",
-      "Unable to load security certificates. Starting client in Insecure mode"
+      "@fonos/core trust util [unable to load security certificates]"
+    );
+    logger.log(
+      "warn",
+      "@fonos/core trust util [starting server in insecure mode]"
     );
     return grpc.credentials.createInsecure();
   }

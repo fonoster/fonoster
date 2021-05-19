@@ -1,0 +1,6 @@
+**/*_grpc_pb.d.ts
+**/*_pb.js
+**/*.d.ts
+**/dist
+**/package-lock.json
+**/*.md

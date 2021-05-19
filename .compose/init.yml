@@ -8,6 +8,7 @@ services:
       /bin/sh -c "
       set -e;
       /usr/bin/mc config host add fs http://${FS_HOST}:${FS_PORT} ${FS_USERNAME} ${FS_SECRET};
+      /usr/bin/mc mb fs/funcs;
       /usr/bin/mc mb fs/public;
       /usr/bin/mc mb fs/apps;
       /usr/bin/mc mb fs/recordings;
