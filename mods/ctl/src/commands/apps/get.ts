@@ -22,11 +22,14 @@ export default class GetCommand extends Command {
       cli.action.start(`Getting application ${name}`);
       const app = await appmanager.getApp(name);
 
+      const createTime = new Date(app.createTime.toString());
+      const updateTime = new Date(app.updateTime.toString());
+
       const appJson = {
-        Name: app.getName(),
-        Description: app.getDescription(),
-        Created: moment(app.getCreateTime()).fromNow(),
-        Updated: moment(app.getUpdateTime()).fromNow()
+        Name: app.name,
+        Description: app.description,
+        Created: moment(createTime.toUTCString()).fromNow(),
+        Updated: moment(updateTime.toUTCString()).fromNow()
       };
 
       await cli.wait(1000);
