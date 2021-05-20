@@ -33,7 +33,8 @@ import {
   ListAppRequest,
   ListAppResponse,
   DeleteAppResponse,
-  CreateAppRequest,
+  DeployAppRequest,
+  CreateAppResponse,
   AppRequest
 } from "../types";
 
@@ -82,17 +83,18 @@ export default class AppManager extends FonosService {
   /**
    * Deploys an application to Fonos.
    *
-   * @param {string} appPath - path to the application
-   * @param {string} appRef - optional reference to the application
-   * @return {Promise<App>} The application just created
+   * @param {DeployAppRequest} appData - Data of the application to deploy
+   * @param {string} appData.path - path to the application
+   * @param {string} appData.ref - optional reference to the application
+   * @return {Promise<CreateAppResponse>} The application just created
    * @throws if path to application does not exist or is not a directory
    * @throws the file package.json does not exist inside de application path
    * @throws the file package.json is missing the name or description
    * @example
    *
-   * const path = '/path/to/project'
+   * const appData.path = '/path/to/project'
    *
-   * appManager.deployApp(path)
+   * appManager.deployApp(appData)
    * .then(result => {
    *   console.log(result)            // returns the app object
    * }).catch(e => console.error(e))   // an error occurred
@@ -100,10 +102,9 @@ export default class AppManager extends FonosService {
    * @todo if the file uploading fails the state of the application should
    * change to UNKNOWN.
    */
-
-  async deployApp(appPath: string, appRef?: string): Promise<CreateAppRequest> {
-    const dirName = appRef || nanoid(10);
-    const request = this.verifyPkg(appPath);
+  async deployApp(appData: DeployAppRequest): Promise<CreateAppResponse> {
+    const dirName = appData.ref || nanoid(10);
+    const request = this.verifyPkg(appData.path);
 
     // Cleanup before deploy
     this.cleanup(dirName);
@@ -203,7 +204,7 @@ export default class AppManager extends FonosService {
    *   console.log(result)             // returns the app object
    * }).catch(e => console.error(e))   // an error occurred
    */
-   async getApp(ref: string): Promise<GetAppResponse> {
+  async getApp(ref: string): Promise<GetAppResponse> {
     const request = new AppManagerPB.GetAppRequest();
     request.setRef(ref);
     const response = await super.getService().getApp().sendMessage(request);
@@ -231,7 +232,7 @@ export default class AppManager extends FonosService {
    *   console.log('finished')        // returns an empty object
    * }).catch(e => console.error(e))  // an error occurred
    */
-   async deleteApp(ref: string): Promise<DeleteAppResponse> {
+  async deleteApp(ref: string): Promise<DeleteAppResponse> {
     const request = new AppManagerPB.DeleteAppRequest();
     request.setRef(ref);
     await super.getService().deleteApp().sendMessage(request);
@@ -259,9 +260,7 @@ export default class AppManager extends FonosService {
    *   console.log(result)            // returns a ListAppsResponse
    * }).catch(e => console.error(e))  // an error occurred
    */
-   async listApps(
-    request: ListAppRequest
-  ): Promise<ListAppResponse> {
+  async listApps(request: ListAppRequest): Promise<ListAppResponse> {
     const r = new AppManagerPB.ListAppsRequest();
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);

@@ -24,6 +24,7 @@ import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/core";
 import AppManagerPB from "../src/service/protos/appmanager_pb";
 import {App} from "../src/service/protos/appmanager_pb";
+import {DeployAppRequest} from "../src/types"
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -43,7 +44,7 @@ describe("@Fonos/appmanager", () => {
 
   afterEach(() => sandbox.restore());
 
-  it("should deploy an app", async () => {
+  it.only("should deploy an app", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
@@ -55,23 +56,24 @@ describe("@Fonos/appmanager", () => {
         },
         uploadObject: () => {
           return {
-            sendMessage: () => Promise.resolve({
-              stream: {
-                write() {
-                  0;
-                },
-                end() {
-                  0;
+            sendMessage: () =>
+              Promise.resolve({
+                stream: {
+                  write() {
+                    0;
+                  },
+                  end() {
+                    0;
+                  }
                 }
-             }
-            })
+              })
           };
         },
         createApp: () => {
           return {
             sendMessage: () => Promise.resolve(appObj)
           };
-        },
+        }
       });
     const req = {
       ref: appObj.getRef(),
@@ -83,7 +85,8 @@ describe("@Fonos/appmanager", () => {
     };
 
     const appAPI = new AppManager();
-    const result = await appAPI.deployApp(dirPath, req.ref);
+    const appData: DeployAppRequest = {path: dirPath, ref: req.ref}
+    const result = await appAPI.deployApp(appData);
 
     expect(result).to.have.property("ref").to.be.equal(appObj.getRef());
     expect(result).to.have.property("name").to.be.equal(appObj.getName());
@@ -96,7 +99,7 @@ describe("@Fonos/appmanager", () => {
     expect(serviceStub).to.have.been.called;
   });
 
-  it("should get an app", async () => {
+  it.only("should get an app", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")

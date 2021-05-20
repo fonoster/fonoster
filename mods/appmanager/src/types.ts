@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 export interface App {
-  ref?: string;
+  ref: string;
   name: string;
   description?: string;
   createTime: string;
@@ -26,13 +26,9 @@ export interface App {
   accessKeyId: string;
 }
 
-export interface CreateAppRequest {
+export interface DeployAppRequest {
+  path: string;
   ref?: string;
-  name: string;
-  description?: string;
-  accessKeyId: string;
-  createTime: string;
-  updateTime: string;
 }
 
 export interface CreateAppResponse {
@@ -41,7 +37,6 @@ export interface CreateAppResponse {
   description?: string;
   createTime: string;
   updateTime: string;
-  status: string;
   accessKeyId: string;
 }
 
@@ -57,7 +52,7 @@ export interface GetAppResponse {
 
 export interface UpdateAppRequest {
   ref: string;
-  name?: string;
+  name: string;
   description?: string;
   status?: string;
   accessKeyId: string;
