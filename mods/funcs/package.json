@@ -65,7 +65,9 @@
     "walk": "^2.3.14"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.35",
     "@types/fs-extra": "^9.0.1",
+    "@types/google-protobuf": "^3.15.2",
     "@types/tar": "^4.0.3",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
