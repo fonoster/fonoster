@@ -23,7 +23,6 @@ export interface App {
   createTime: string;
   updateTime: string;
   status: string;
-  accessKeyId: string;
 }
 
 export interface DeployAppRequest {
@@ -37,7 +36,6 @@ export interface CreateAppResponse {
   description?: string;
   createTime: string;
   updateTime: string;
-  accessKeyId: string;
 }
 
 export interface GetAppResponse {
@@ -47,7 +45,6 @@ export interface GetAppResponse {
   createTime: string;
   updateTime: string;
   status: string;
-  accessKeyId: string;
 }
 
 export interface UpdateAppRequest {
@@ -55,7 +52,6 @@ export interface UpdateAppRequest {
   name: string;
   description?: string;
   status?: string;
-  accessKeyId: string;
 }
 
 export interface UpdateAppResponse {

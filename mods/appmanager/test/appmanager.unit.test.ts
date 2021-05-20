@@ -24,7 +24,7 @@ import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/core";
 import AppManagerPB from "../src/service/protos/appmanager_pb";
 import {App} from "../src/service/protos/appmanager_pb";
-import {DeployAppRequest} from "../src/types"
+import {DeployAppRequest} from "../src/types";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -44,7 +44,7 @@ describe("@Fonos/appmanager", () => {
 
   afterEach(() => sandbox.restore());
 
-  it.only("should deploy an app", async () => {
+  it("should deploy an app", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")
@@ -85,8 +85,8 @@ describe("@Fonos/appmanager", () => {
     };
 
     const appAPI = new AppManager();
-    const appData: DeployAppRequest = {path: dirPath, ref: req.ref}
-    const result = await appAPI.deployApp(appData);
+    const request: DeployAppRequest = {path: dirPath, ref: req.ref};
+    const result = await appAPI.deployApp(request);
 
     expect(result).to.have.property("ref").to.be.equal(appObj.getRef());
     expect(result).to.have.property("name").to.be.equal(appObj.getName());
@@ -99,7 +99,7 @@ describe("@Fonos/appmanager", () => {
     expect(serviceStub).to.have.been.called;
   });
 
-  it.only("should get an app", async () => {
+  it("should get an app", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(FonosService.prototype, "getService")

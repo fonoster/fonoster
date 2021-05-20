@@ -83,18 +83,18 @@ export default class AppManager extends FonosService {
   /**
    * Deploys an application to Fonos.
    *
-   * @param {DeployAppRequest} appData - Data of the application to deploy
-   * @param {string} appData.path - path to the application
-   * @param {string} appData.ref - optional reference to the application
+   * @param {DeployAppRequest} request - Data of the application to deploy
+   * @param {string} request.path - path to the application
+   * @param {string} request.ref - optional reference to the application
    * @return {Promise<CreateAppResponse>} The application just created
    * @throws if path to application does not exist or is not a directory
    * @throws the file package.json does not exist inside de application path
    * @throws the file package.json is missing the name or description
    * @example
    *
-   * const appData.path = '/path/to/project'
+   * const request = {path: "/path/to/project"}
    *
-   * appManager.deployApp(appData)
+   * appManager.deployApp(request)
    * .then(result => {
    *   console.log(result)            // returns the app object
    * }).catch(e => console.error(e))   // an error occurred
@@ -102,14 +102,14 @@ export default class AppManager extends FonosService {
    * @todo if the file uploading fails the state of the application should
    * change to UNKNOWN.
    */
-  async deployApp(appData: DeployAppRequest): Promise<CreateAppResponse> {
-    const dirName = appData.ref || nanoid(10);
-    const request = this.verifyPkg(appData.path);
+  async deployApp(request: DeployAppRequest): Promise<CreateAppResponse> {
+    const dirName = request.ref || nanoid(10);
+    const req = this.verifyPkg(request.path);
 
     // Cleanup before deploy
     this.cleanup(dirName);
 
-    await fs.copy(request.dirPath, `/tmp/${dirName}`);
+    await fs.copy(req.dirPath, `/tmp/${dirName}`);
     await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
     await this.storage.uploadObject({
       filename: `/tmp/${dirName}.tgz`,
@@ -121,8 +121,8 @@ export default class AppManager extends FonosService {
 
     const app = new AppManagerPB.App();
     app.setRef(dirName);
-    app.setName(request.app.name);
-    app.setDescription(request.app.description);
+    app.setName(req.app.name);
+    app.setDescription(req.app.description);
 
     const createAppRequest = new AppManagerPB.CreateAppRequest();
     createAppRequest.setApp(app);
@@ -136,7 +136,6 @@ export default class AppManager extends FonosService {
       ref: response.getRef(),
       name: response.getName(),
       description: response.getDescription(),
-      accessKeyId: response.getAccessKeyId(),
       createTime: response.getCreateTime(),
       updateTime: response.getUpdateTime()
     };
@@ -214,8 +213,7 @@ export default class AppManager extends FonosService {
       description: response.getDescription(),
       createTime: response.getCreateTime(),
       updateTime: response.getUpdateTime(),
-      status: response.getStatus(),
-      accessKeyId: response.getAccessKeyId()
+      status: response.getStatus()
     };
   }
 
@@ -276,8 +274,7 @@ export default class AppManager extends FonosService {
           description: a.getDescription(),
           createTime: a.getCreateTime(),
           updateTime: a.getUpdateTime(),
-          status: a.getStatus(),
-          accessKeyId: a.getAccessKeyId()
+          status: a.getStatus()
         };
       })
     };

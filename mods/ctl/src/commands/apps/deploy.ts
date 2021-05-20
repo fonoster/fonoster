@@ -33,7 +33,8 @@ export default class DeployCommand extends Command {
       }
 
       cli.action.start("Deploying application");
-      const app = await appmanager.deployApp(process.cwd(), args.ref);
+      
+      const app = await appmanager.deployApp({path: process.cwd(), ref: args.ref});
       await cli.wait(1000);
       cli.action.stop(app.ref);
     } catch (e) {
