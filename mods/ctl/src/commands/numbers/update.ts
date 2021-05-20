@@ -5,7 +5,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB, AppManagerPB} from "@fonos/numbers";
-import { App } from "@fonos/appmanager/src/types";
+import {App} from "@fonos/appmanager/src/types";
 
 const inquirer = require("inquirer");
 

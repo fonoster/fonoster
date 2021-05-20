@@ -6,7 +6,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB, AppManagerPB} from "@fonos/numbers";
-import { App } from "@fonos/appmanager/src/types";
+import {App} from "@fonos/appmanager/src/types";
 import {Provider} from "@fonos/providers/src/types";
 const phone = require("phone");
 const inquirer = require("inquirer");
@@ -41,16 +41,16 @@ export default class CreateCommand extends Command {
         pageToken: "1"
       });
 
-      interface objProvider{
-        name?: string,
-        value?: string
-      };
+      interface objProvider {
+        name?: string;
+        value?: string;
+      }
 
       const providers = response.providers.map((p: Provider) => {
         const obj: objProvider = {};
-          obj.name = p.name;
-          obj.value = p.ref;
-          return obj;
+        obj.name = p.name;
+        obj.value = p.ref;
+        return obj;
       });
 
       if (providers.length === 0) {
