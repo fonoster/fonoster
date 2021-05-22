@@ -20,7 +20,9 @@ export default class RabbitQConnector {
     this.channelWrapper = connection.createChannel({
       json: true,
       setup: (channel: any) => {
-        logger.info(`@fonos/events rabbitq connector [setting up q => ${this.q}, durable => false]`);
+        logger.info(
+          `@fonos/events rabbitq connector [setting up q => ${this.q}, durable => false]`
+        );
         return channel.assertQueue(this.q, {durable: false});
       }
     });

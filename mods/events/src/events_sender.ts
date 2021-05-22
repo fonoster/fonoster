@@ -8,7 +8,9 @@ export default class EventsSender extends RabbitQConnector {
 
   async sendToQ(payload: any) {
     if (process.env.EVENTS_ENABLED !== "true") {
-      logger.verbose("@fonos/events rabbitq connector [ignoring event: events service is disabled]");
+      logger.verbose(
+        "@fonos/events rabbitq connector [ignoring event: events service is disabled]"
+      );
       return;
     }
     logger.verbose(
