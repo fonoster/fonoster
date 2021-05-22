@@ -61,7 +61,7 @@ services:
     restart: ${RESTART_POLICY}
     environment:
       COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
-      APISERVER_ENDPOINT: ${AS_ENDPOINT}:{AS_PORT}
+      APISERVER_ENDPOINT: ${AS_HOST}:{AS_PORT}
       EVENTS_BROKERS: amqp://${EB_USERNAME}:${EB_SECRET}@${EB_HOST}:${EB_PORT}
       # Warning: Hardcoded value
       EVENTS_QUEUE: apiserver
