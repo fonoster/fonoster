@@ -1,5 +1,5 @@
 {
-  "name": "example-function",
+  "name": "examplefn",
   "version": "0.0.1",
   "description": "Example function",
   "main": "handler.js",
