@@ -12,5 +12,5 @@
     {"path": "../errors"},
     {"path": "../storage"}
   ],
-  "exclude": ["node_modules", "dist", "test"]
+  "exclude": ["node_modules", "dist", "test", "etc"]
 }
