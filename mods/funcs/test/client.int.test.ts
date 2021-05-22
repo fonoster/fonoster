@@ -29,7 +29,6 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-
 describe("@Fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
@@ -45,7 +44,7 @@ describe("@Fonos/funcs/client", () => {
     );
   });
 
-  it.only("should deploy a function and set a schedule", (done) => {
+  it("should deploy a function and set a schedule", (done) => {
     const request: DeployFuncRequest = {
       path: __dirname + "/../etc/example",
       name: "get_intent",
@@ -77,7 +76,7 @@ describe("@Fonos/funcs/client", () => {
     expect(result).to.have.property("name").to.be.equal("get_intent");
   });
 
-  it.only("will retrive a list of logs", (done) => {
+  it("will retrive a list of logs", (done) => {
     const request = {
       name: "get_intent",
       tail: 10,
