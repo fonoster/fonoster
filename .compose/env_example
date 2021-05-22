@@ -49,6 +49,7 @@ AS_HOST=apiserver.fonos
 AS_PORT=50051
 AS_ALLOW_INSECURE=true
 
+EB_ENABLED=false
 EB_HOST=eventsbroker.fonos
 EB_PORT=5672
 EB_USERNAME=fonos

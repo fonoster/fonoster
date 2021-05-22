@@ -1,0 +1,10 @@
+# Enables rest access to Secrets(Vault). 
+# Recommended only for development.
+
+version: '3.7'
+
+services:
+
+  eventsbroker:
+    ports:
+      - ${EB_PORT}:${EB_PORT}

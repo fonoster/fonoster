@@ -2,9 +2,6 @@ version: '3.7'
 
 services:
 
-  secrets:
-    ports:
-      - "8200:8200"
   apiserver:
     ports:
       - 8080:8080
@@ -14,9 +11,6 @@ services:
   datasource_auth:
     ports:
       - 27017:27017
-  eventsbroker:
-    ports:
-      - ${EB_PORT}:${EB_PORT}
   fs:
     ports:
       - ${FS_PORT}:${FS_PORT}
