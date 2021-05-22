@@ -48,6 +48,7 @@ services:
       LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
       LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
       LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
+      NODE_ENV: ${NODE_ENV}
     networks:
       fonos:
     volumes:

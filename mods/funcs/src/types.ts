@@ -26,7 +26,7 @@ enum View {
 
 export interface DeployFuncRequest {
   name: string;
-  path?: string;
+  path: string;
   schedule?: string;
   limits?: {
     memory: undefined | string;

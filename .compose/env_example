@@ -104,3 +104,4 @@ LOG_OPT_TAG_PREFIX=alpha
 # Misc
 RESTART_POLICY=unless-stopped
 CERTS_PATH=/certs
+NODE_ENV=dev
