@@ -12,9 +12,6 @@ services:
   datasource:
     ports:
       - ${DS_PORT}:${DS_PORT}
-  datasource_auth:
-    ports:
-      - 27017:27017
   fs:
     ports:
       - ${FS_PORT}:${FS_PORT}
