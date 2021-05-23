@@ -11,7 +11,11 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=websecure"
       - "traefik.http.routers.auth.rule=PathPrefix(`/fonos.auth.v1alpha1`)"
+      - "traefik.http.routers.auth.tls.domains[0].main=api.fonoster.net"
+      - "traefik.http.routers.auth.tls=true"
+      - "traefik.http.routers.auth.tls.certresolver=le"
       - "traefik.http.services.auth.loadbalancer.server.scheme=h2c"
+      - "traefik.http.services.auth.loadbalancer.server.port=50052"
     volumes:
       - ${CONFIG}/rbac.json:/home/fonos/rbac.json
 
@@ -22,9 +26,13 @@ services:
       service: common
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.agents.entrypoints=websecure"    
+      - "traefik.http.routers.agents.entrypoints=websecure"
       - "traefik.http.routers.agents.rule=PathPrefix(`/fonos.agents.v1alpha1`)"
+      - "traefik.http.routers.agents.tls.domains[0].main=api.fonoster.net"
+      - "traefik.http.routers.agents.tls=true"
+      - "traefik.http.routers.agents.tls.certresolver=le"
       - "traefik.http.services.agents.loadbalancer.server.scheme=h2c"
+      - "traefik.http.services.agents.loadbalancer.server.port=50052"
   
   domains:
     image: fonoster/fonos-domains
