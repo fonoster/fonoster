@@ -49,7 +49,7 @@ DOCKER_REGISTRY_SERVICE=registry.docker.io
 DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
 
 AS_HOST=apiserver.fonos
-AS_PORT=50051
+AS_PORT=443
 AS_ALLOW_INSECURE=true
 
 EB_ENABLED=false

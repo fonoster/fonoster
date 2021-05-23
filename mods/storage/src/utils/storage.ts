@@ -24,13 +24,6 @@ import {join} from "path";
 
 const splitPath = (p: string) => path.dirname(p).split(path.sep);
 
-// WARNING: Is this still needed?
-if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({
-    path: join(__dirname, "..", "..", "..", "..", ".env")
-  });
-}
-
 export const fsInstance = () => {
   const Minio = require("minio");
   return new Minio.Client({
