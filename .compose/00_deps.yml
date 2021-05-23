@@ -45,28 +45,6 @@ services:
       - ${CONFIG}/redis.conf:/etc/redis/redis.conf
       - datasource:/data
 
-  datasource_auth:
-    image: ${DS_AUTH_IMAGE}
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DS_AUTH_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${DS_AUTH_SECRET}
-      MONGO_INITDB_DATABASE: ${DS_AUTH_DB}
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    logging:
-      options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource_auth
-    networks:
-      fonos:
-        aliases: 
-          - ${DS_AUTH_HOST}
-    volumes: 
-      - ${CONFIG}/init_mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
-      - datasource:/data
-
   fs:
     image: ${FS_IMAGE}
     restart: ${RESTART_POLICY}
