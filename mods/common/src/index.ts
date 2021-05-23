@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {getClientCredentials, getServerCredentials} from "./trust_util";
+import healthcheck from "./healthcheck";
 import runServices from "./service_runner";
 
-export {getClientCredentials, getServerCredentials, runServices};
+export {getClientCredentials, getServerCredentials, runServices, healthcheck};

@@ -49,11 +49,15 @@ export default function run(
   const healthCheckStatusMap = {
     "": HealthCheckResponse.ServingStatus.SERVING
   };
-  const server = interceptor.serverProxy(new grpc.Server());
+
+  const grpcServer = new grpc.Server();
 
   // Adding health endpoint
   const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
-  server.addService(HealthService, grpcHealthCheck);
+  grpcServer.addService(HealthService, grpcHealthCheck);
+
+  // Wrapped server
+  const server = interceptor.serverProxy(grpcServer);
 
   logger.info(
     `@fonos/common service runner [starting @ ${ENDPOINT}, api = ${srvInfList[0].version}]`

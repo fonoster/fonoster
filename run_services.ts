@@ -85,7 +85,10 @@ const services = [
   }
 ];
 
-const whitelist = ["/fonos.auth.v1alpha1.Auth/GetRole"];
+const whitelist = [
+  "/fonos.auth.v1alpha1.Auth/GetRole",
+  "/grpc.health.v1.Health/Check"
+];
 
 const middlewares = [
   {
