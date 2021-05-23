@@ -2,9 +2,8 @@ import grpc from "grpc";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./role_has_access";
-const WHITELIST = 
-  process.env.AUTH_ACCESS_WHITELIST 
-  ? process.env.AUTH_ACCESS_WHITELIST.split(",") 
+const WHITELIST = process.env.AUTH_ACCESS_WHITELIST
+  ? process.env.AUTH_ACCESS_WHITELIST.split(",")
   : [];
 
 export default class AuthMiddleware {
@@ -12,7 +11,7 @@ export default class AuthMiddleware {
   whitelist: string[];
   constructor(privateKey: string, whitelist = []) {
     this.privateKey = privateKey;
-    this.whitelist = whitelist || WHITELIST
+    this.whitelist = whitelist || WHITELIST;
   }
 
   middleware = async (ctx: any, next: any, errorCb: any) => {

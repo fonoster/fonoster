@@ -39,7 +39,7 @@ interface ServiceInf {
 interface Middleware {
   name: string;
   description?: string;
-  middlewareObj: any;
+  middlewareObj;
 }
 
 export default function run(

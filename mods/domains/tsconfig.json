@@ -6,7 +6,7 @@
   },
   "references": [
     {"path": "../common"},
-    {"path": "../core"}, 
+    {"path": "../core"},
     {"path": "../logger"}
   ],
   "exclude": ["node_modules", "dist", "test"]

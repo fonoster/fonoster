@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -40,5 +39,5 @@ export default async function (
 
       resolve(res && res.getAccessList().includes(service));
     });
-  }) 
+  });
 }

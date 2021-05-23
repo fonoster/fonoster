@@ -39,7 +39,9 @@ try {
       .readFileSync(path.join(os.homedir(), ".fonos", "config"))
       .toString("utf-8")
   );
-} catch (e) {}
+} catch (e) {
+  logger.verbose("@fonos/common no config found");
+}
 
 const getServerCredentials = () => {
   try {
@@ -54,14 +56,10 @@ const getServerCredentials = () => {
       true
     );
   } catch (e) {
-    logger.log(
-      "warn",
+    logger.warn(
       "@fonos/common trust util [unable to load security certificates]"
     );
-    logger.log(
-      "warn",
-      "@fonos/common trust util [starting server in insecure mode]"
-    );
+    logger.warn("@fonos/common trust util [starting server in insecure mode]");
     return grpc.ServerCredentials.createInsecure();
   }
 };

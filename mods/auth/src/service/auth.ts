@@ -1,23 +1,16 @@
 import grpc from "grpc";
-import {
-  GetRoleRequest, Role
-} from "./protos/auth_pb";
-import {
-  IAuthServer,
-  IAuthService,
-  AuthService
-} from "./protos/auth_grpc_pb";
-import { ErrorCodes, FonosError } from "@fonos/errors";
-const rbac = require(process.env.AUTH_RBAC || "/home/fonos/rbac.json")
+import {GetRoleRequest, Role} from "./protos/auth_pb";
+import {IAuthServer, IAuthService, AuthService} from "./protos/auth_grpc_pb";
+import {ErrorCodes, FonosError} from "@fonos/errors";
+const rbac = require(process.env.AUTH_RBAC || "/home/fonos/rbac.json");
 
 class AuthServer implements IAuthServer {
-
   async getRole(
     call: grpc.ServerUnaryCall<GetRoleRequest>,
     callback: grpc.sendUnaryData<Role>
   ) {
     try {
-      const rawRole = rbac.filter(r => r.name === call.request.getName())[0]
+      const rawRole = rbac.filter((r) => r.name === call.request.getName())[0];
       if (rawRole) {
         const role = new Role();
         role.setAccessList(rawRole.access);
@@ -31,7 +24,6 @@ class AuthServer implements IAuthServer {
       callback(new FonosError(e, ErrorCodes.UNKNOWN), null);
     }
   }
-
 }
 
 export {AuthServer as default, IAuthService, AuthService};
