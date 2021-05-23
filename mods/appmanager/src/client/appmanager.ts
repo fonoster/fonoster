@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import Storage from "@fonos/storage";
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {AppManagerClient} from "../service/protos/appmanager_grpc_pb";

@@ -2,6 +2,17 @@ version: '3.7'
 
 services:
 
+  auth_api:
+    image: fonoster/fonos-auth
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.http.routers.auth_api.rule=PathPrefix(`/fonos.auth.v1alpha1`)"
+      - "traefik.http.services.auth_api.loadbalancer.server.scheme=h2c"
+    volumes:
+      - ${CONFIG}/rbac.json:/home/fonos/rbac.json
+
   funcs_api:
     image: fonoster/fonos-funcs
     extends:
@@ -67,15 +78,6 @@ services:
     labels:
       - "traefik.http.routers.callmanager_api.rule=PathPrefix(`/fonos.callmanager.v1alpha1`)"
       - "traefik.http.services.callmanager_api.loadbalancer.server.scheme=h2c"
-
-  usermanager_api:
-    image: fonoster/fonos-usermanager
-    extends:
-      file: api-common.yml
-      service: common
-    labels:
-      - "traefik.http.routers.usermanager_api.rule=PathPrefix(`/fonos.usermanager.v1alpha1`)"
-      - "traefik.http.services.usermanager_api.loadbalancer.server.scheme=h2c"
 
   appmanager_api:
     image: fonoster/fonos-appmanager

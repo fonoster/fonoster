@@ -37,8 +37,7 @@
     "@fonos/logger": "^0.0.97",
     "@fonos/numbers": "^0.0.97",
     "@fonos/providers": "^0.0.97",
-    "@fonos/storage": "^0.0.97",
-    "@fonos/usermanager": "^0.0.97"
+    "@fonos/storage": "^0.0.97"
   },
   "devDependencies": {
     "rimraf": "^3.0.2"

@@ -29,6 +29,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
+    "@fonos/common": "^0.0.97",
     "@fonos/auth": "^0.0.97",
     "@fonos/certs": "^0.0.97",
     "@fonos/errors": "^0.0.97",

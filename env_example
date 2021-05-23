@@ -7,6 +7,7 @@
 #   DS_AUTH => Data Source for Authentication
 #   FS => Files Server (Minio)
 
+AUTH_RBAC=/full/path/to/rbac.json
 EVENTS_BROKERS=amqp://fonos:changeit@localhost:5672
 FUNCS_URL=http://faas:8080
 FUNCS_USERNAME=admin

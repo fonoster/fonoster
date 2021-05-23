@@ -9,7 +9,17 @@
   "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "build": "tsc -b tsconfig.json",
+    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "../"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "directories": {
     "src": "src",
@@ -29,13 +39,15 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
+    "@fonos/common": "^0.0.97",
     "@fonos/logger": "^0.0.97",
+    "@fonos/errors": "^0.0.97",
     "grpc": "^1.24.7",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.4"
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.0",
+    "nodemon": "^2.0.7",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^8.2.0",

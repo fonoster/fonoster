@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import logger from "@fonos/logger";
 import path from "path";
 import * as os from "os";
@@ -38,11 +56,11 @@ const getServerCredentials = () => {
   } catch (e) {
     logger.log(
       "warn",
-      "@fonos/core trust util [unable to load security certificates]"
+      "@fonos/common trust util [unable to load security certificates]"
     );
     logger.log(
       "warn",
-      "@fonos/core trust util [starting server in insecure mode]"
+      "@fonos/common trust util [starting server in insecure mode]"
     );
     return grpc.ServerCredentials.createInsecure();
   }
@@ -58,11 +76,11 @@ const getClientCredentials = (grpc) => {
   } catch (e) {
     logger.log(
       "warn",
-      "@fonos/core trust util [unable to load security certificates]"
+      "@fonos/common trust util [unable to load security certificates]"
     );
     logger.log(
       "warn",
-      "@fonos/core trust util [starting server in insecure mode]"
+      "@fonos/common trust util [starting server in insecure mode]"
     );
     return grpc.credentials.createInsecure();
   }

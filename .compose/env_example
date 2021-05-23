@@ -31,6 +31,9 @@ SECRETS_IMAGE=vault
 COMPOSE_PROJECT_NAME=fonos
 COMPOSE_PROJECT_VERSION=0.0.86
 
+# Auth service
+AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole
+
 # FaaS access information
 FUNCS_URL=https://faas:8080
 FUNCS_USERNAME=admin
