@@ -77,13 +77,13 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/callmanager
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publish to Docker Hub the UserManager API
+    - name: Publish to Docker Hub the Auth API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-usermanager
+        name: fonoster/fonos-auth
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        workdir: mods/usermanager
+        workdir: mods/auth
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publishing Media Controller Service
       uses: benc-uk/workflow-dispatch@v1
