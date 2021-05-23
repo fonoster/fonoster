@@ -15,6 +15,7 @@ class AuthServer implements IAuthServer {
         const role = new Role();
         role.setAccessList(rawRole.access);
         role.setName(rawRole.name);
+        role.setDescription(rawRole.description);
         callback(null, role);
         return;
       }

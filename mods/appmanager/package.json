@@ -51,6 +51,7 @@
     "@fonos/events": "^0.0.98",
     "@fonos/logger": "^0.0.98",
     "@fonos/storage": "^0.0.98",
+    "amqplib": "^0.8.0",
     "fs-extra": "^8.1.0",
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",

@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import grpc from "grpc";
-import {AuthClient} from "./service/protos/auth_grpc_pb";
 import AuthPB from "./service/protos/auth_pb";
+import {AuthClient} from "./service/protos/auth_grpc_pb";
 import {getClientCredentials} from "@fonos/common";
 
 const svc = new AuthClient(

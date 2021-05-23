@@ -24,6 +24,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       fonos:
+        aliases: 
+          - ${AS_HOST}
 
   datasource:
     image: ${DS_IMAGE} 
