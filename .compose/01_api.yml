@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
 
-  auth_api:
+  auth:
     image: fonoster/fonos-auth
     extends:
       file: api-common.yml
@@ -13,7 +13,7 @@ services:
     volumes:
       - ${CONFIG}/rbac.json:/home/fonos/rbac.json
 
-  agents_api:
+  agents:
     image: fonoster/fonos-agents
     extends:
       file: api-common.yml
@@ -22,7 +22,7 @@ services:
       - "traefik.http.routers.agents_api.rule=PathPrefix(`/fonos.agents.v1alpha1`)"
       - "traefik.http.services.agents_api.loadbalancer.server.scheme=h2c"
   
-  domains_api:
+  domains:
     image: fonoster/fonos-domains
     extends:
       file: api-common.yml
@@ -31,7 +31,7 @@ services:
       - "traefik.http.routers.domains_api.rule=PathPrefix(`/fonos.domains.v1alpha1`)"
       - "traefik.http.services.domains_api.loadbalancer.server.scheme=h2c"
   
-  numbers_api:
+  numbers:
     image: fonoster/fonos-numbers
     extends:
       file: api-common.yml
@@ -40,7 +40,7 @@ services:
       - "traefik.http.routers.numbers_api.rule=PathPrefix(`/fonos.numbers.v1alpha1`)"
       - "traefik.http.services.numbers_api.loadbalancer.server.scheme=h2c"
 
-  providers_api:
+  providers:
     image: fonoster/fonos-providers
     extends:
       file: api-common.yml
@@ -49,7 +49,7 @@ services:
       - "traefik.http.routers.providers_api.rule=PathPrefix(`/fonos.providers.v1alpha1`)"
       - "traefik.http.services.providers_api.loadbalancer.server.scheme=h2c"
 
-  storage_api:
+  storage:
     image: fonoster/fonos-storage
     extends:
       file: api-common.yml
@@ -58,7 +58,7 @@ services:
       - "traefik.http.routers.storage_api.rule=PathPrefix(`/fonos.storage.v1alpha1`)"
       - "traefik.http.services.storage_api.loadbalancer.server.scheme=h2c"
   
-  callmanager_api:
+  callmanager:
     image: fonoster/fonos-callmanager
     extends:
       file: api-common.yml
@@ -67,7 +67,7 @@ services:
       - "traefik.http.routers.callmanager_api.rule=PathPrefix(`/fonos.callmanager.v1alpha1`)"
       - "traefik.http.services.callmanager_api.loadbalancer.server.scheme=h2c"
 
-  appmanager_api:
+  appmanager:
     image: fonoster/fonos-appmanager
     extends:
       file: api-common.yml
