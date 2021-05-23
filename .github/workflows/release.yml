@@ -85,14 +85,14 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/auth
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publishing Media Controller Service
-      uses: benc-uk/workflow-dispatch@v1
+    - name: Publish to Docker Hub the Media Controller
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        workflow: publish to docker hub
-        repo: fonoster/fonos-nodejsmc
-        token: ${{ secrets.GH_PAT }}
-        ref: master
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+        name: fonoster/fonos-nodejsmc
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/dispatcher
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publishing Uploader Helper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
