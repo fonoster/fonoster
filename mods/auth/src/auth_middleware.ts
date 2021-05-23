@@ -2,7 +2,7 @@ import grpc from "grpc";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./role_has_access";
-import logger from "@fonos/logger"
+import logger from "@fonos/logger";
 const WHITELIST = process.env.AUTH_ACCESS_WHITELIST
   ? process.env.AUTH_ACCESS_WHITELIST.split(",")
   : [];
@@ -18,7 +18,7 @@ export default class AuthMiddleware {
   middleware = async (ctx: any, next: any, errorCb: any) => {
     const pathRequest = ctx.service.path;
 
-    logger.verbose(`@fonos/logger middleware [request.path = ${pathRequest}]`)
+    logger.verbose(`@fonos/logger middleware [request.path = ${pathRequest}]`);
 
     if (this.whitelist.includes(pathRequest)) {
       next();
