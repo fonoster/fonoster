@@ -56,6 +56,7 @@ sudo docker-compose --env-file .env \
     -f 01_api.yml \
     -f 02_sipnet.yml \
     -f extras/secrets.yml \
+    -f extras/funcs.yml \    
     -f extras/events.yml \
     -f extras/logging.yml \
     -f extras/tts.yml \
