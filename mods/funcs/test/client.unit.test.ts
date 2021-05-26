@@ -69,7 +69,7 @@ describe("@Fonos/funcs/client", () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
       getFunc: (req, meta, callback) => {
-        callback(null, funcObj)
+        callback(null, funcObj);
       }
     });
 
@@ -83,7 +83,7 @@ describe("@Fonos/funcs/client", () => {
     expect(result)
       .to.have.property("replicas")
       .to.be.equal(funcObj.getReplicas());
-     expect(result)
+    expect(result)
       .to.have.property("schedule")
       .to.be.equal(funcObj.getSchedule());
     expect(result)
@@ -100,7 +100,7 @@ describe("@Fonos/funcs/client", () => {
       .stub(FonosService.prototype, "getService")
       .returns({
         deleteFunc: (req, meta, callback) => {
-          callback(null, response)
+          callback(null, response);
         }
       });
 
