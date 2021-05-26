@@ -13,6 +13,8 @@ services:
       file: api-common.yml
       service: common
     labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.funcs_api.entrypoints=internal,websecure"
       - "traefik.http.routers.funcs_api.rule=PathPrefix(`/fonos.funcs.v1alpha1`)"
       - "traefik.http.services.funcs_api.loadbalancer.server.scheme=h2c"
     volumes:
