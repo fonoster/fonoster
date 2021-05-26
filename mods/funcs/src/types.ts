@@ -52,6 +52,7 @@ export interface GetFuncResponse {
   invocationCount: number;
   replicas: number;
   availableReplicas: number;
+  schedule: string;
 }
 
 export interface DeleteFuncRequest {

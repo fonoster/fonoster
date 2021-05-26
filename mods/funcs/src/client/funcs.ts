@@ -152,6 +152,7 @@ export default class Funcs extends FonosService {
 
           resolve({
             name: res.getName(),
+            schedule: res.getSchedule(),
             image: res.getImage(),
             invocationCount: res.getInvocationCount(),
             replicas: res.getReplicas(),
