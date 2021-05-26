@@ -21,6 +21,14 @@ jobs:
         npm install
         npm run bootstrap
         npm run build
+    - name: Publish to Docker Hub the Secrets API 
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-secrets
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/secrets
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
     - name: Publish to Docker Hub the Agents API 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
