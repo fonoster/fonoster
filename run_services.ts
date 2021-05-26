@@ -9,6 +9,7 @@ if (process.env.NODE_ENV === "dev") {
 import AuthServer from "./mods/auth/src/service/auth";
 import FuncsServer from "./mods/funcs/src/service/funcs";
 import AgentsServer from "./mods/agents/src/service/agents";
+import SecretServer from "./mods/secrets/src/service/secrets";
 import DomainsServer from "./mods/domains/src/service/domains";
 import NumbersServer from "./mods/numbers/src/service/numbers";
 import ProvidersServer from "./mods/providers/src/service/providers";
@@ -18,6 +19,7 @@ import StorageServer from "./mods/storage/src/service/storage";
 import {AuthService} from "./mods/auth/src/service/protos/auth_grpc_pb";
 import {FuncsService} from "./mods/funcs/src/service/protos/funcs_grpc_pb";
 import {AgentsService} from "./mods/agents/src/service/protos/agents_grpc_pb";
+import {SecretsService} from "./mods/secrets/src/service/protos/secrets_grpc_pb";
 import {DomainsService} from "./mods/domains/src/service/protos/domains_grpc_pb";
 import {NumbersService} from "./mods/numbers/src/service/protos/numbers_grpc_pb";
 import {ProvidersService} from "./mods/providers/src/service/protos/providers_grpc_pb";
@@ -82,6 +84,12 @@ const services = [
     version: "v1alpha1",
     service: StorageService,
     server: new StorageServer()
+  },
+  {
+    name: "secret",
+    version: "v1alpha1",
+    service: SecretsService,
+    server: new SecretServer()
   }
 ];
 

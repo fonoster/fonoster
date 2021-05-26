@@ -37,14 +37,17 @@
       "/fonos.funcs.v1alpha1.Funcs/GetFunc",
       "/fonos.funcs.v1alpha1.Funcs/DeployFunc",
       "/fonos.funcs.v1alpha1.Funcs/DeleteFunc",
-      "/fonos.funcs.v1alpha1.Funcs/GetFuncLogs"
+      "/fonos.funcs.v1alpha1.Funcs/GetFuncLogs",
+      "/fonos.secrets.v1alpha1.Secrets/CreateSecret",
+      "fonos.secrets.v1alpha1.Secrets/DeleteSecret"
     ]
   },
   {
     "name": "FUNCTION",
     "description": "This role is limited only to calling",
     "access": [
-      "/fonos.callmanager.v1alpha1.CallManager/Call"
+      "/fonos.callmanager.v1alpha1.CallManager/Call",
+      "/fonos.secrets.v1alpha1.Secrets/GetSecret"
     ]
   }
 ]
