@@ -3,11 +3,11 @@ import SecretServer from "./service/secrets";
 import {SecretsService} from "./service/protos/secrets_grpc_pb";
 import {AuthMiddleware} from "@fonos/auth";
 import {getSalt} from "@fonos/certs";
-import {runServices} from "@fonos/core";
+import {runServices} from "@fonos/common";
 
 const services = [
   {
-    name: "Secrets",
+    name: "secrets",
     version: "v1alpha1",
     service: SecretsService,
     server: new SecretServer()
