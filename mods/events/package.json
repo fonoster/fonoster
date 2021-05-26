@@ -31,6 +31,7 @@
   "dependencies": {
     "@fonos/logger": "^0.0.99",
     "amqp-connection-manager": "^3.2.2",
+    "amqplib": "^0.8.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "sinon": "^10.0.0",
