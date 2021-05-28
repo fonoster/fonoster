@@ -1,0 +1,38 @@
+{
+  "name": "@fonos/common",
+  "version": "0.0.100",
+  "description": "Common artifacts",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonos#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonos/issues"
+  },
+  "dependencies": {
+    "@fonos/logger": "^0.0.100",
+    "@pionerlabs/grpc-interceptors": "^0.2.5",
+    "atob": "^2.1.2",
+    "grpc": "^1.24.7",
+    "grpc-ts-health-check": "^2.0.6"
+  }
+}

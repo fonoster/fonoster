@@ -1,87 +1,95 @@
+# API Services
+
 version: '3.7'
 
 services:
 
-  funcs_api:
-    image: fonoster/fonos-funcs
+  auth:
+    image: fonoster/fonos-auth
     extends:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.http.routers.funcs_api.rule=PathPrefix(`/fonos.funcs.v1alpha1`)"
-      - "traefik.http.services.funcs_api.loadbalancer.server.scheme=h2c"
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.entrypoints=internal,websecure"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/fonos.auth.v1alpha1`)"
+      - "traefik.http.services.auth.loadbalancer.server.scheme=h2c"
     volumes:
-      - data1-1:/home/fonos
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${CONFIG}/rbac.json:/home/fonos/rbac.json
 
-  agents_api:
+  agents:
     image: fonoster/fonos-agents
     extends:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.http.routers.agents_api.rule=PathPrefix(`/fonos.agents.v1alpha1`)"
-      - "traefik.http.services.agents_api.loadbalancer.server.scheme=h2c"
+      - "traefik.enable=true"
+      - "traefik.http.routers.agents.entrypoints=internal,websecure"
+      - "traefik.http.routers.agents.rule=PathPrefix(`/fonos.agents.v1alpha1`)"
+      - "traefik.http.services.agents.loadbalancer.server.scheme=h2c"
   
-  domains_api:
+  domains:
     image: fonoster/fonos-domains
     extends:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.http.routers.domains_api.rule=PathPrefix(`/fonos.domains.v1alpha1`)"
-      - "traefik.http.services.domains_api.loadbalancer.server.scheme=h2c"
+      - "traefik.enable=true"
+      - "traefik.http.routers.domains.entrypoints=internal,websecure"
+      - "traefik.http.routers.domains.rule=PathPrefix(`/fonos.domains.v1alpha1`)"
+      - "traefik.http.services.domains.loadbalancer.server.scheme=h2c"
   
-  numbers_api:
+  numbers:
     image: fonoster/fonos-numbers
     extends:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.http.routers.numbers_api.rule=PathPrefix(`/fonos.numbers.v1alpha1`)"
-      - "traefik.http.services.numbers_api.loadbalancer.server.scheme=h2c"
+      - "traefik.enable=true"
+      - "traefik.http.routers.numbers.entrypoints=internal,websecure" 
+      - "traefik.http.routers.numbers.rule=PathPrefix(`/fonos.numbers.v1alpha1`)"
+      - "traefik.http.services.numbers.loadbalancer.server.scheme=h2c"
 
-  providers_api:
+  providers:
     image: fonoster/fonos-providers
     extends:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.http.routers.providers_api.rule=PathPrefix(`/fonos.providers.v1alpha1`)"
-      - "traefik.http.services.providers_api.loadbalancer.server.scheme=h2c"
+      - "traefik.enable=true"
+      - "traefik.http.routers.providers.entrypoints=internal,websecure"    
+      - "traefik.http.routers.providers.rule=PathPrefix(`/fonos.providers.v1alpha1`)"
+      - "traefik.http.services.providers.loadbalancer.server.scheme=h2c"
 
-  storage_api:
+  storage:
     image: fonoster/fonos-storage
     extends:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.http.routers.storage_api.rule=PathPrefix(`/fonos.storage.v1alpha1`)"
-      - "traefik.http.services.storage_api.loadbalancer.server.scheme=h2c"
+      - "traefik.enable=true"
+      - "traefik.http.routers.storage.entrypoints=internal,websecure"    
+      - "traefik.http.routers.storage.rule=PathPrefix(`/fonos.storage.v1alpha1`)"
+      - "traefik.http.services.storage.loadbalancer.server.scheme=h2c"
   
-  callmanager_api:
+  callmanager:
     image: fonoster/fonos-callmanager
     extends:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.http.routers.callmanager_api.rule=PathPrefix(`/fonos.callmanager.v1alpha1`)"
-      - "traefik.http.services.callmanager_api.loadbalancer.server.scheme=h2c"
+      - "traefik.enable=true"
+      - "traefik.http.routers.callmanager.entrypoints=internal,websecure"    
+      - "traefik.http.routers.callmanager.rule=PathPrefix(`/fonos.callmanager.v1alpha1`)"
+      - "traefik.http.services.callmanager.loadbalancer.server.scheme=h2c"
 
-  usermanager_api:
-    image: fonoster/fonos-usermanager
-    extends:
-      file: api-common.yml
-      service: common
-    labels:
-      - "traefik.http.routers.usermanager_api.rule=PathPrefix(`/fonos.usermanager.v1alpha1`)"
-      - "traefik.http.services.usermanager_api.loadbalancer.server.scheme=h2c"
-
-  appmanager_api:
+  appmanager:
     image: fonoster/fonos-appmanager
     extends:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.http.routers.appmanager_api.rule=PathPrefix(`/fonos.appmanager.v1alpha1`)"
-      - "traefik.http.services.appmanager_api.loadbalancer.server.scheme=h2c"
+      - "traefik.enable=true"
+      - "traefik.http.routers.appmanager.entrypoints=internal,websecure"    
+      - "traefik.http.routers.appmanager.rule=PathPrefix(`/fonos.appmanager.v1alpha1`)"
+      - "traefik.http.services.appmanager.loadbalancer.server.scheme=h2c"

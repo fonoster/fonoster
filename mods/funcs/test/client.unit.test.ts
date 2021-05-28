@@ -68,10 +68,8 @@ describe("@Fonos/funcs/client", () => {
   it("should get a function by name", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
-      getFunc: () => {
-        return {
-          sendMessage: () => Promise.resolve(funcObj)
-        };
+      getFunc: (req, meta, callback) => {
+        callback(null, funcObj);
       }
     });
 
@@ -86,7 +84,7 @@ describe("@Fonos/funcs/client", () => {
       .to.have.property("replicas")
       .to.be.equal(funcObj.getReplicas());
     expect(result)
-      .to.have.property("shedule")
+      .to.have.property("schedule")
       .to.be.equal(funcObj.getSchedule());
     expect(result)
       .to.have.property("availableReplicas")
@@ -101,17 +99,15 @@ describe("@Fonos/funcs/client", () => {
     const stubFunc = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
-        deleteFunc: () => {
-          return {
-            sendMessage: () => Promise.resolve(response)
-          };
+        deleteFunc: (req, meta, callback) => {
+          callback(null, response);
         }
       });
 
     const funcs = new Funcs();
     const result = await funcs.deleteFunc({name: funcObj.getName()});
 
-    expect(stubFunc).to.be.calledThrice;
+    expect(stubFunc).to.be.calledTwice;
     expect(result).to.have.property("name").to.be.equal(response.name);
   });
 
@@ -126,22 +122,19 @@ describe("@Fonos/funcs/client", () => {
     const stubFunc = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
-        listFuncs: () => {
-          return {
-            sendMessage: () =>
-              Promise.resolve({
-                getNextPageToken: () => {
-                  return "1";
-                },
-                getFuncsList: () => [funcObj]
-              })
-          };
+        listFuncs: (req, meta, callback) => {
+          callback(null, {
+            getNextPageToken: () => {
+              return "1";
+            },
+            getFuncsList: () => [funcObj]
+          });
         }
       });
 
     const funcs = new Funcs();
     const result = await funcs.listFuncs(request);
-    expect(stubFunc).to.be.calledThrice;
+    expect(stubFunc).to.be.calledTwice;
     expect(result)
       .to.have.property("nextPageToken")
       .to.be.equal(request.pageToken);

@@ -1,0 +1,38 @@
+# Optional Logging services (Elastic Search, Kibana, Fluent)
+
+version: '3.7'
+
+networks:
+  fonos:
+
+services:
+
+  logsdriver:
+    image: ${LOGS_DRIVER_IMAGE}
+    restart: ${RESTART_POLICY}
+    ports:
+      - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}
+    volumes:
+      - ${CONFIG}/fluent.conf:/fluentd/etc/fluent.conf
+    networks:
+      fonos:
+        aliases: 
+          - ${LOGS_DRIVER_HOST}      
+
+  logsaggregator:
+    image: ${LOGS_AGGREGATOR_IMAGE}
+    restart: ${RESTART_POLICY}
+    environment:
+      - discovery.type=single-node
+    networks: 
+      - fonos
+
+  logsmonitor:
+    image: ${LOGS_MONITOR_IMAGE}
+    restart: ${RESTART_POLICY}
+    environment:
+      ELASTICSEARCH_HOSTS: http://logsaggregator:${LOGS_AGGREGRATOR_PORT}
+    ports:
+      - ${LOGS_MONITOR_PORT}:${LOGS_MONITOR_PORT}
+    networks: 
+      - fonos

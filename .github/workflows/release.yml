@@ -21,6 +21,22 @@ jobs:
         npm install
         npm run bootstrap
         npm run build
+    - name: Publish to Docker Hub the Secrets API 
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-secrets
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/secrets
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
+    - name: Publish to Docker Hub the Funcs API 
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-funcs
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/funcs
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publish to Docker Hub the Agents API 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
@@ -77,7 +93,7 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/callmanager
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publish to Docker Hub the Auth service
+    - name: Publish to Docker Hub the Auth API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: fonoster/fonos-auth
@@ -85,14 +101,14 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/auth
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publishing Media Controller Service
-      uses: benc-uk/workflow-dispatch@v1
+    - name: Publish to Docker Hub the Media Controller
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        workflow: publish to docker hub
-        repo: fonoster/fonos-nodejsmc
-        token: ${{ secrets.GH_PAT }}
-        ref: master
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+        name: fonoster/fonos-nodejsmc
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/dispatcher
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publishing Uploader Helper Service
       uses: benc-uk/workflow-dispatch@v1
       with:

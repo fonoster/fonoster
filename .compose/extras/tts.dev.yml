@@ -1,0 +1,10 @@
+# Enables remote access to the TTS Engine (MaryTTS). 
+# Recommended only for development.
+
+version: '3.7'
+
+services:
+
+  tts:
+    ports:
+      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}

@@ -11,16 +11,16 @@ export default class RabbitQConnector {
   }
 
   connect() {
-    logger.log(
-      "info",
-      "@fonos/events rabbitq connector [connecting to rabbitq]"
-    );
+    if (process.env.EVENTS_ENABLED !== "true") {
+      logger.info("@fonos/events rabbitq connector [disabled]");
+      return;
+    }
+    logger.info("@fonos/events rabbitq connector [connecting to rabbitq]");
     const connection = amqp.connect(this.address);
     this.channelWrapper = connection.createChannel({
       json: true,
       setup: (channel: any) => {
-        logger.log(
-          "info",
+        logger.info(
           `@fonos/events rabbitq connector [setting up q => ${this.q}, durable => false]`
         );
         return channel.assertQueue(this.q, {durable: false});

@@ -1,0 +1,23 @@
+# Optional RabbitMQ service
+
+version: '3.7'
+
+networks:
+  fonos:
+
+services:
+
+  eventsbroker:
+    image: ${EB_IMAGE}
+    restart: ${RESTART_POLICY}
+    environment:
+      RABBITMQ_USERNAME: ${EB_USERNAME}
+      RABBITMQ_PASSWORD: ${EB_SECRET}
+      RABBITMQ_NODE_PORT_NUMBER: ${EB_PORT}
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.eventsbroker
+    networks:
+      fonos:
+        aliases: 
+          - ${EB_HOST}

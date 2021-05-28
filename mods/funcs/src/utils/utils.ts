@@ -97,7 +97,7 @@ export const validateFunc = (pathToFunc: string) => {
   }
 };
 
-export const cleanupTmpDir = (dirName: string) => {
+export const cleanupTmpDirSync = (dirName: string) => {
   if (fs.existsSync(`/tmp/${dirName}`))
     fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
   if (fs.existsSync(`/tmp/${dirName}.tgz`))

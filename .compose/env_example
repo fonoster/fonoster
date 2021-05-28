@@ -31,6 +31,9 @@ SECRETS_IMAGE=vault
 COMPOSE_PROJECT_NAME=fonos
 COMPOSE_PROJECT_VERSION=0.0.86
 
+# Auth service
+AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole
+
 # FaaS access information
 FUNCS_URL=https://faas:8080
 FUNCS_USERNAME=admin
@@ -46,9 +49,10 @@ DOCKER_REGISTRY_SERVICE=registry.docker.io
 DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
 
 AS_HOST=apiserver.fonos
-AS_PORT=50051
+AS_PORT=443
 AS_ALLOW_INSECURE=true
 
+EB_ENABLED=false
 EB_HOST=eventsbroker.fonos
 EB_PORT=5672
 EB_USERNAME=fonos
@@ -70,12 +74,6 @@ MC_AGI_PORT=4573
 DS_HOST=datasource.fonos
 DS_PORT=6379
 DS_SECRET=changeit
-
-DS_AUTH_DB=fonos_auth
-DS_AUTH_USERNAME=fonos
-DS_AUTH_SECRET=changeit
-DS_AUTH_HOST=datasource_auth.fonos
-DS_AUTH_PORT=27017
 
 FS_HOST=fs.fonos
 FS_PORT=9000
@@ -99,8 +97,9 @@ LOGS_DRIVER_HOST=logsdriver.fonos
 LOGS_DRIVER_PORT=24224
 LOGS_AGGREGRATOR_PORT=9200
 LOGS_MONITOR_PORT=5601
-LOG_OPT_TAG_PREFIX=alpha
+LOG_OPT_TAG_PREFIX=early
 
 # Misc
 RESTART_POLICY=unless-stopped
 CERTS_PATH=/certs
+NODE_ENV=dev

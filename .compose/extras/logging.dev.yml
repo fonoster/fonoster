@@ -1,0 +1,13 @@
+# Enables remote access to the logging monitor(Kibana).
+# Recommended only for development.
+
+version: '3.7'
+
+services:
+
+  logsdriver:
+    ports:
+      - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}
+  logsmonitor:
+    ports:
+      - ${LOGS_MONITOR_PORT}:${LOGS_MONITOR_PORT}

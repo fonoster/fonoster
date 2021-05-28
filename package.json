@@ -8,9 +8,9 @@
     "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "integration": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha --timeout 220000 -r ts-node/register mods/**/*.int.test.ts --exit",
     "build": "lerna run build",
-    "clean": "rimraf **/*/tsconfig.tsbuildinfo dist coverage **/*/dist package-lock.json **/*/package-lock.json **/*/node_modules node_modules",
-    "gen-proto": "./etc/gen_code_proto.sh",
-    "gen-docs": "node ./etc/gen_docs.js",
+    "clean": "rimraf .nyc_output **/*/tsconfig.tsbuildinfo dist coverage **/*/dist package-lock.json **/*/package-lock.json **/*/node_modules node_modules",
+    "protos": "./etc/gen_code_proto.sh",
+    "docs": "node ./etc/gen_docs.js",
     "lint": "eslint mods --ext .ts",
     "format": "prettier --write mods",
     "check-types": "tsc --noEmit",
@@ -18,14 +18,13 @@
   },
   "nodemonConfig": {
     "watch": [
-      "../"
+      "./mods"
     ],
     "ext": "ts",
     "exec": "ts-node",
     "ignore": "**/*.d.ts"
   },
   "devDependencies": {
-    "@fonos/auth": "^0.0.87",
     "@types/mocha": "^8.2.0",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",

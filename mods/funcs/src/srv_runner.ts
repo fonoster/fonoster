@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import {AuthMiddleware} from "@fonos/auth";
-import {runServices} from "@fonos/core";
+import {runServices} from "@fonos/common";
 import {getSalt} from "@fonos/certs";
 import {FuncsService} from "./service/protos/funcs_grpc_pb";
 import FuncsServer from "./service/funcs";

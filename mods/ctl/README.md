@@ -21,7 +21,7 @@ $ npm install -g @fonos/ctl
 $ fonos COMMAND
 running command...
 $ fonos (-v|--version|version)
-@fonos/ctl/0.0.95 darwin-x64 node-v14.16.0
+@fonos/ctl/0.0.100 darwin-x64 node-v14.16.0
 $ fonos --help [COMMAND]
 USAGE
   $ fonos COMMAND
@@ -80,7 +80,7 @@ DESCRIPTION
      Creates a new Agent in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/agents/create.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/agents/create.ts)_
+_See code: [dist/commands/agents/create.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/agents/create.ts)_
 
 ## `fonos agents:delete [REF]`
 
@@ -95,7 +95,7 @@ ALIASES
   $ fonos agents:rm
 ```
 
-_See code: [dist/commands/agents/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/agents/delete.ts)_
+_See code: [dist/commands/agents/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/agents/delete.ts)_
 
 ## `fonos agents:get [REF]`
 
@@ -106,7 +106,7 @@ USAGE
   $ fonos agents:get [REF]
 ```
 
-_See code: [dist/commands/agents/get.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/agents/get.ts)_
+_See code: [dist/commands/agents/get.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/agents/get.ts)_
 
 ## `fonos agents:list`
 
@@ -127,7 +127,7 @@ ALIASES
   $ fonos agents:ls
 ```
 
-_See code: [dist/commands/agents/list.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/agents/list.ts)_
+_See code: [dist/commands/agents/list.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/agents/list.ts)_
 
 ## `fonos agents:update [REF]`
 
@@ -142,7 +142,7 @@ DESCRIPTION
      Updates a agent at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/agents/update.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/agents/update.ts)_
+_See code: [dist/commands/agents/update.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/agents/update.ts)_
 
 ## `fonos apps:delete [NAME]`
 
@@ -157,7 +157,7 @@ ALIASES
   $ fonos apps:rm
 ```
 
-_See code: [dist/commands/apps/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/apps/delete.ts)_
+_See code: [dist/commands/apps/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/apps/delete.ts)_
 
 ## `fonos apps:deploy [REF]`
 
@@ -172,7 +172,7 @@ DESCRIPTION
      Run this command from the app root to deploy to Fonos.
 ```
 
-_See code: [dist/commands/apps/deploy.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/apps/deploy.ts)_
+_See code: [dist/commands/apps/deploy.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/apps/deploy.ts)_
 
 ## `fonos apps:get [NAME]`
 
@@ -187,7 +187,7 @@ DESCRIPTION
      Obtain information about an application
 ```
 
-_See code: [dist/commands/apps/get.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/apps/get.ts)_
+_See code: [dist/commands/apps/get.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/apps/get.ts)_
 
 ## `fonos apps:init`
 
@@ -202,7 +202,7 @@ DESCRIPTION
      Extra documentation goes here
 ```
 
-_See code: [dist/commands/apps/init.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/apps/init.ts)_
+_See code: [dist/commands/apps/init.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/apps/init.ts)_
 
 ## `fonos apps:list`
 
@@ -223,7 +223,7 @@ ALIASES
   $ fonos apps:ls
 ```
 
-_See code: [dist/commands/apps/list.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/apps/list.ts)_
+_See code: [dist/commands/apps/list.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/apps/list.ts)_
 
 ## `fonos auth:login`
 
@@ -234,7 +234,7 @@ USAGE
   $ fonos auth:login
 ```
 
-_See code: [dist/commands/auth/login.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/auth/login.ts)_
+_See code: [dist/commands/auth/login.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/auth/login.ts)_
 
 ## `fonos auth:logout`
 
@@ -245,7 +245,7 @@ USAGE
   $ fonos auth:logout
 ```
 
-_See code: [dist/commands/auth/logout.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/auth/logout.ts)_
+_See code: [dist/commands/auth/logout.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/auth/logout.ts)_
 
 ## `fonos domains:create`
 
@@ -260,7 +260,7 @@ DESCRIPTION
      Creates a new Domain in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/domains/create.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/domains/create.ts)_
+_See code: [dist/commands/domains/create.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/domains/create.ts)_
 
 ## `fonos domains:delete [REF]`
 
@@ -275,7 +275,7 @@ ALIASES
   $ fonos domains:rm
 ```
 
-_See code: [dist/commands/domains/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/domains/delete.ts)_
+_See code: [dist/commands/domains/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/domains/delete.ts)_
 
 ## `fonos domains:get [REF]`
 
@@ -286,7 +286,7 @@ USAGE
   $ fonos domains:get [REF]
 ```
 
-_See code: [dist/commands/domains/get.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/domains/get.ts)_
+_See code: [dist/commands/domains/get.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/domains/get.ts)_
 
 ## `fonos domains:list`
 
@@ -307,7 +307,7 @@ ALIASES
   $ fonos domains:ls
 ```
 
-_See code: [dist/commands/domains/list.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/domains/list.ts)_
+_See code: [dist/commands/domains/list.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/domains/list.ts)_
 
 ## `fonos domains:update [REF]`
 
@@ -322,7 +322,7 @@ DESCRIPTION
      Updates a domain at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/domains/update.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/domains/update.ts)_
+_See code: [dist/commands/domains/update.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/domains/update.ts)_
 
 ## `fonos help [COMMAND]`
 
@@ -354,7 +354,7 @@ DESCRIPTION
      Creates a new Number in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/numbers/create.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/numbers/create.ts)_
+_See code: [dist/commands/numbers/create.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/numbers/create.ts)_
 
 ## `fonos numbers:delete [REF]`
 
@@ -369,7 +369,7 @@ ALIASES
   $ fonos numbers:rm
 ```
 
-_See code: [dist/commands/numbers/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/numbers/delete.ts)_
+_See code: [dist/commands/numbers/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/numbers/delete.ts)_
 
 ## `fonos numbers:get [REF]`
 
@@ -380,7 +380,7 @@ USAGE
   $ fonos numbers:get [REF]
 ```
 
-_See code: [dist/commands/numbers/get.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/numbers/get.ts)_
+_See code: [dist/commands/numbers/get.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/numbers/get.ts)_
 
 ## `fonos numbers:list`
 
@@ -401,7 +401,7 @@ ALIASES
   $ fonos numbers:ls
 ```
 
-_See code: [dist/commands/numbers/list.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/numbers/list.ts)_
+_See code: [dist/commands/numbers/list.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/numbers/list.ts)_
 
 ## `fonos numbers:update [REF]`
 
@@ -416,7 +416,7 @@ DESCRIPTION
      Updates a number at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/numbers/update.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/numbers/update.ts)_
+_See code: [dist/commands/numbers/update.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/numbers/update.ts)_
 
 ## `fonos plugins`
 
@@ -569,7 +569,7 @@ DESCRIPTION
      Creates a new Provider in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/providers/create.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/providers/create.ts)_
+_See code: [dist/commands/providers/create.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/providers/create.ts)_
 
 ## `fonos providers:delete [REF]`
 
@@ -584,7 +584,7 @@ ALIASES
   $ fonos providers:rm
 ```
 
-_See code: [dist/commands/providers/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/providers/delete.ts)_
+_See code: [dist/commands/providers/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/providers/delete.ts)_
 
 ## `fonos providers:get [REF]`
 
@@ -595,7 +595,7 @@ USAGE
   $ fonos providers:get [REF]
 ```
 
-_See code: [dist/commands/providers/get.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/providers/get.ts)_
+_See code: [dist/commands/providers/get.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/providers/get.ts)_
 
 ## `fonos providers:list`
 
@@ -616,7 +616,7 @@ ALIASES
   $ fonos providers:ls
 ```
 
-_See code: [dist/commands/providers/list.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/providers/list.ts)_
+_See code: [dist/commands/providers/list.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/providers/list.ts)_
 
 ## `fonos providers:update [REF]`
 
@@ -631,5 +631,5 @@ DESCRIPTION
      Updates a provider at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/providers/update.ts](https://github.com/fonoster/fonos/blob/v0.0.95/dist/commands/providers/update.ts)_
+_See code: [dist/commands/providers/update.ts](https://github.com/fonoster/fonos/blob/v0.0.100/dist/commands/providers/update.ts)_
 <!-- commandsstop -->

@@ -1,4 +1,9 @@
+# Initialization script
+
 version: '3.7'
+
+networks:
+  fonos:
 
 services:
 
@@ -31,6 +36,3 @@ services:
       - ${CONFIG}/bootstrap.yml:/bootstrap.yml
     networks:
       fonos:
-
-networks:
-  fonos:

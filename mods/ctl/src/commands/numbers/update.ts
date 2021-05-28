@@ -5,6 +5,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB, AppManagerPB} from "@fonos/numbers";
+import {App} from "@fonos/appmanager/src/types";
 
 const inquirer = require("inquirer");
 
@@ -27,10 +28,10 @@ export class UpdateCommand extends Command {
       pageToken: "1",
       view
     });
-    const apps = response.getAppsList().map((app: AppManagerPB.App) => {
+    const apps = response.apps.map((app: App) => {
       return {
-        name: app.getName(),
-        value: app.getRef()
+        name: app.name,
+        value: app.ref
       };
     });
 

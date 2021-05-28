@@ -6,6 +6,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB, AppManagerPB} from "@fonos/numbers";
+import {App} from "@fonos/appmanager/src/types";
 import {Provider} from "@fonos/providers/src/types";
 const phone = require("phone");
 const inquirer = require("inquirer");
@@ -28,10 +29,10 @@ export default class CreateCommand extends Command {
         pageToken: "1",
         view
       });
-      const apps = res.getAppsList().map((app: AppManagerPB.App) => {
+      const apps = res.apps.map((app: App) => {
         return {
-          name: app.getName(),
-          value: app.getRef()
+          name: app.name,
+          value: app.ref
         };
       });
 
@@ -39,8 +40,14 @@ export default class CreateCommand extends Command {
         pageSize: 25,
         pageToken: "1"
       });
+
+      interface objProvider {
+        name?: string;
+        value?: string;
+      }
+
       const providers = response.providers.map((p: Provider) => {
-        const obj: any = {};
+        const obj: objProvider = {};
         obj.name = p.name;
         obj.value = p.ref;
         return obj;

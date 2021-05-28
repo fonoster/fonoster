@@ -2,33 +2,49 @@ import grpc from "grpc";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./role_has_access";
+import logger from "@fonos/logger";
+const WHITELIST = process.env.AUTH_ACCESS_WHITELIST
+  ? process.env.AUTH_ACCESS_WHITELIST.split(",")
+  : [];
 
 export default class AuthMiddleware {
-  secretKeyToken: string;
-  constructor(secretKey: string) {
-    this.secretKeyToken = secretKey;
+  privateKey: string;
+  whitelist: string[];
+  constructor(privateKey: string, whitelist = []) {
+    this.privateKey = privateKey;
+    this.whitelist = whitelist || WHITELIST;
   }
 
   middleware = async (ctx: any, next: any, errorCb: any) => {
+    const pathRequest = ctx.service.path;
+
+    logger.verbose(`@fonos/logger middleware [request.path = ${pathRequest}]`);
+
+    if (this.whitelist.includes(pathRequest)) {
+      next();
+      return;
+    }
+
     const jwtHandler = new Auth(new JWT());
     try {
       if (
-        ctx.call.metadata._internal_repr.access_key_id === null ||
-        ctx.call.metadata._internal_repr.access_key_secret === null
+        !ctx.call.metadata._internal_repr.access_key_id ||
+        !ctx.call.metadata._internal_repr.access_key_secret
       ) {
         errorCb({
           code: grpc.status.UNAUTHENTICATED,
           message: "UNAUTHENTICATED"
         });
+        return;
       }
 
       const accessKeyId =
         ctx.call.metadata._internal_repr.access_key_id.toString();
       const accessKeySecret =
         ctx.call.metadata._internal_repr.access_key_secret.toString();
-      const pathRequest = ctx.service.path;
+
       jwtHandler
-        .validateToken({accessToken: accessKeySecret}, this.secretKeyToken)
+        .validateToken({accessToken: accessKeySecret}, this.privateKey)
         .then(async (result) => {
           if (result.isValid) {
             if (result.data.accessKeyId != accessKeyId)
@@ -42,6 +58,7 @@ export default class AuthMiddleware {
               result.data.role,
               pathRequest
             );
+
             if (hasAccess) {
               await next();
             } else {

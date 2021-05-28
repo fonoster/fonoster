@@ -26,7 +26,7 @@ enum View {
 
 export interface DeployFuncRequest {
   name: string;
-  path?: string;
+  path: string;
   schedule?: string;
   limits?: {
     memory: undefined | string;
@@ -52,6 +52,7 @@ export interface GetFuncResponse {
   invocationCount: number;
   replicas: number;
   availableReplicas: number;
+  schedule: string;
 }
 
 export interface DeleteFuncRequest {

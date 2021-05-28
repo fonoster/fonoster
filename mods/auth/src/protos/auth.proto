@@ -1,0 +1,24 @@
+/**
+ * MIT License
+ * Copyright (c) 2021 Fonoster Inc
+ *
+ * The Auth proto contains procedures to obtain authentication
+ * data.
+ */
+syntax = "proto3";
+
+package fonos.auth.v1alpha1;
+
+service Auth {
+  rpc GetRole (GetRoleRequest) returns (Role) {};
+}
+
+message GetRoleRequest {
+  string name = 1;
+}
+
+message Role {
+  string name = 1;
+  string description = 2;
+  repeated string access = 3;
+}

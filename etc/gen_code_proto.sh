@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 DIRNAME="$(cd "$(dirname "$0")"; pwd)"
   
-PROTOS=(agents appmanager callmanager domains usermanager storage numbers providers funcs)
+PROTOS=(agents appmanager callmanager domains storage numbers providers funcs auth secrets)
 
 for proto in "${PROTOS[@]}"
 do
@@ -27,5 +27,6 @@ done
 # The numbers services also requires appmanager stubs
 cp $DIRNAME/../mods/appmanager/src/service/protos/* $DIRNAME/../mods/numbers/src/service/protos
 
-# Cleaning callmanager stubs
+# Cleaning callmanager and auth stubs
 rm $DIRNAME/../mods/callmanager/src/service/protos/common_*
+rm $DIRNAME/../mods/auth/src/service/protos/common_*

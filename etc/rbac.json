@@ -1,0 +1,54 @@
+[
+  {
+    "name": "USER",
+    "description": "Regular access",
+    "access": [
+      "/fonos.auth.v1alpha1.Auth/GetRole",
+      "/fonos.storage.v1alpha1.Storage/UploadObject",
+      "/fonos.storage.v1alpha1.Storage/GetObjectURL",
+      "/fonos.providers.v1alpha1.Providers/ListProviders",
+      "/fonos.providers.v1alpha1.Providers/CreateProvider",
+      "/fonos.providers.v1alpha1.Providers/GetProvider",
+      "/fonos.providers.v1alpha1.Providers/UpdateProvider",
+      "/fonos.providers.v1alpha1.Providers/DeleteProvider",
+      "/fonos.numbers.v1alpha1.Numbers/ListNumbers",
+      "/fonos.numbers.v1alpha1.Numbers/CreateNumber",
+      "/fonos.numbers.v1alpha1.Numbers/GetIngressApp",
+      "/fonos.numbers.v1alpha1.Numbers/GetNumber",
+      "/fonos.numbers.v1alpha1.Numbers/UpdateNumber",
+      "/fonos.numbers.v1alpha1.Numbers/DeleteNumber",
+      "/fonos.domains.v1alpha1.Domains/ListDomains",
+      "/fonos.domains.v1alpha1.Domains/CreateDomain",
+      "/fonos.domains.v1alpha1.Domains/GetDomain",
+      "/fonos.domains.v1alpha1.Domains/UpdateDomain",
+      "/fonos.domains.v1alpha1.Domains/DeleteDomain",
+      "/fonos.callmanager.v1alpha1.CallManager/Call",
+      "/fonos.appmanager.v1alpha1.AppManager/ListApps",
+      "/fonos.appmanager.v1alpha1.AppManager/GetApp",
+      "/fonos.appmanager.v1alpha1.AppManager/CreateApp",
+      "/fonos.appmanager.v1alpha1.AppManager/UpdateApp",
+      "/fonos.appmanager.v1alpha1.AppManager/DeleteApp",
+      "/fonos.agents.v1alpha1.Agents/ListAgents",
+      "/fonos.agents.v1alpha1.Agents/CreateAgent",
+      "/fonos.agents.v1alpha1.Agents/GetAgent",
+      "/fonos.agents.v1alpha1.Agents/UpdateAgent",
+      "/fonos.agents.v1alpha1.Agents/DeleteAgent",
+      "/fonos.funcs.v1alpha1.Funcs/ListFuncs",
+      "/fonos.funcs.v1alpha1.Funcs/GetFunc",
+      "/fonos.funcs.v1alpha1.Funcs/DeployFunc",
+      "/fonos.funcs.v1alpha1.Funcs/DeleteFunc",
+      "/fonos.funcs.v1alpha1.Funcs/GetFuncLogs",
+      "/fonos.secrets.v1alpha1.Secrets/CreateSecret",
+      "/fonos.secrets.v1alpha1.Secrets/ListSecretsId",
+      "/fonos.secrets.v1alpha1.Secrets/DeleteSecret"
+    ]
+  },
+  {
+    "name": "FUNCTION",
+    "description": "This role is limited only to calling",
+    "access": [
+      "/fonos.callmanager.v1alpha1.CallManager/Call",
+      "/fonos.secrets.v1alpha1.Secrets/GetSecret"
+    ]
+  }
+]

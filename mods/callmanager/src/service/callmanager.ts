@@ -1,10 +1,3 @@
-import path from "path";
-
-if (process.env.NODE_ENV === "dev") {
-  const env = path.join(__dirname, "..", "..", "..", ".env");
-  require("dotenv").config({path: env});
-}
-
 import {routr} from "@fonos/core";
 import grpc from "grpc";
 import client from "ari-client";

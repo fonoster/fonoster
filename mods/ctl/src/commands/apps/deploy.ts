@@ -22,8 +22,8 @@ export default class DeployCommand extends Command {
         pageToken: "1",
         view
       });
-      const apps = result.getAppsList();
-      const appsName = apps.map((app: any) => app.getName());
+      const apps = result.apps;
+      const appsName = apps.map((app: any) => app.name);
       const name = require(process.cwd() + "/package.json").name;
 
       if (appsName.includes(name) && !args.ref) {
@@ -33,9 +33,13 @@ export default class DeployCommand extends Command {
       }
 
       cli.action.start("Deploying application");
-      const app = await appmanager.deployApp(process.cwd(), args.ref);
+
+      const app = await appmanager.deployApp({
+        path: process.cwd(),
+        ref: args.ref
+      });
       await cli.wait(1000);
-      cli.action.stop(app.getRef());
+      cli.action.stop(app.ref);
     } catch (e) {
       throw new CLIError(e.message);
     }

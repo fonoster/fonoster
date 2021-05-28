@@ -3,7 +3,7 @@ import ProvidersServer from "./service/providers";
 import {ProvidersService} from "./service/protos/providers_grpc_pb";
 import {AuthMiddleware} from "@fonos/auth";
 import {getSalt} from "@fonos/certs";
-import {runServices} from "@fonos/core";
+import {runServices} from "@fonos/common";
 
 const services = [
   {

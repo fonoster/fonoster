@@ -1,6 +1,6 @@
 {
   "name": "@fonos/auth",
-  "version": "0.0.95",
+  "version": "0.0.100",
   "description": "Authentication Module",
   "author": "Raul Sanchez <rsanchez@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -9,7 +9,21 @@
   "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "build": "tsc -b tsconfig.json",
+    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+  },
+  "bin": {
+    "run": "dist/srv_runner.js",
+    "healthcheck": "dist/healthcheck.js"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "../"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
   },
   "directories": {
     "src": "src",
@@ -29,16 +43,18 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.95",
+    "@fonos/common": "^0.0.100",
+    "@fonos/errors": "^0.0.100",
+    "@fonos/logger": "^0.0.100",
     "grpc": "^1.24.7",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.4"
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^8.2.0",
+    "nodemon": "^2.0.7",
     "rimraf": "^3.0.2",
     "sinon": "^10.0.0",
     "sinon-chai": "^3.6.0"

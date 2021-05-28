@@ -49,7 +49,18 @@ docker-compose -f init.yml up
 4. Launch additional services (Optional)
 
 ```bash
-docker-compose --env-file .env -f extras.yml -up -d
+git clone https://github.com/fonoster/fonos --depth=1
+cd .compose
+sudo docker-compose --env-file .env \
+    -f 00_deps.yml \
+    -f 01_api.yml \
+    -f 02_sipnet.yml \
+    -f extras/secrets.yml \
+    -f extras/funcs.yml \    
+    -f extras/events.yml \
+    -f extras/logging.yml \
+    -f extras/tts.yml \
+    up
 ```
 
-> Append `dev.yml` if you want to open the ports on all the services (Only recommended for development)
+> Append `dev.yml` or `extras\*.dev.yml` if you want to open the ports on all the services (Only recommended for development)

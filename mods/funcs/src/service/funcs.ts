@@ -32,7 +32,7 @@ import {
   ListFuncsRequest,
   ListFuncsResponse
 } from "./protos/funcs_pb";
-import {HttpBasicAuth, DefaultApi as FaaS, LogEntry} from "openfaas-client";
+import {HttpBasicAuth, DefaultApi as FaaS} from "openfaas-client";
 import logger from "@fonos/logger";
 import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
 import {getAccessKeyId} from "@fonos/core";
@@ -61,14 +61,6 @@ auth.username = process.env.FUNCS_USERNAME;
 auth.password = process.env.FUNCS_SECRET;
 faas.setDefaultAuthentication(auth);
 faas.basePath = process.env.FUNCS_URL;
-
-const binArrayToJson = (binArray) => {
-  var str = "";
-  for (var i = 0; i < binArray.length; i++) {
-    str += String.fromCharCode(parseInt(binArray[i]));
-  }
-  return JSON.parse(str);
-};
 
 export class ServerStream {
   call: any;
@@ -202,6 +194,12 @@ export default class FuncsServer implements IFuncsServer {
       call.end();
     } catch (e) {
       logger.error(`@fonos/funcs deploy [${e}]`);
+
+      if (!e.response) {
+        call.emit("error", new FonosError(e, ErrorCodes.UNKNOWN));
+        return;
+      }
+
       if (e.response.statusCode === 400) {
         call.emit(
           "error",
@@ -218,7 +216,6 @@ export default class FuncsServer implements IFuncsServer {
           new FonosError(e.response.body, ErrorCodes.NOT_FOUND)
         );
       }
-      call.emit("error", new FonosError(e, ErrorCodes.NOT_FOUND));
     }
   }
 
@@ -251,11 +248,13 @@ export default class FuncsServer implements IFuncsServer {
   // TODO: Resign with JWT token
   async getFuncLogs(call: ServerWritableStream<GetFuncLogsRequest, FuncLog>) {
     try {
+      const accessKeyId = getAccessKeyId(call);
+      const functionName = getFuncName(accessKeyId, call.request.getName());
       const stream = request
         .get(
           `${
             faas.basePath
-          }/system/logs?name=${call.request.getName()}&since=${call.request.getSince()}&tail=${call.request.getTail()}&follow=${call.request.getFollow()}`,
+          }/system/logs?name=${functionName}&since=${call.request.getSince()}&tail=${call.request.getTail()}&follow=${call.request.getFollow()}`,
           {
             auth: {
               user: process.env.FUNCS_USERNAME,

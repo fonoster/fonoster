@@ -1,16 +1,46 @@
+# Required dependencies
+
 version: '3.7'
+
+networks:
+  fonos:
+
+volumes:
+  datasource:
+    external: true
+  datasource_auth:
+    external: true
+  data1-1:
+    external: true
 
 services:
 
   apiserver:
     image: ${AS_IMAGE}
-    command: --api.insecure=true --providers.docker
+    command:
+      # - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.webchallenge.address=:80"
+      - "--entrypoints.internal.address=:50051"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls.certResolver=le"
+      - "--certificatesresolvers.le.acme.httpchallenge=true"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=webchallenge"
+      # - "--certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.le.acme.email=admin@email.com"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
     ports:
-      - ${AS_PORT}:80
+      - "80:80"
+      - "${AS_PORT}:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - "${CONFIG}/letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       fonos:
+        aliases: 
+          - ${AS_HOST}
 
   datasource:
     image: ${DS_IMAGE} 
@@ -31,43 +61,6 @@ services:
     volumes: 
       - ${CONFIG}/redis.conf:/etc/redis/redis.conf
       - datasource:/data
-
-  datasource_auth:
-    image: ${DS_AUTH_IMAGE}
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${DS_AUTH_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${DS_AUTH_SECRET}
-      MONGO_INITDB_DATABASE: ${DS_AUTH_DB}
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    logging:
-      options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource_auth
-    networks:
-      fonos:
-        aliases: 
-          - ${DS_AUTH_HOST}
-    volumes: 
-      - ${CONFIG}/init_mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
-      - datasource:/data
-
-  eventsbroker:
-    image: ${EB_IMAGE}
-    restart: ${RESTART_POLICY}
-    environment:
-      RABBITMQ_USERNAME: ${EB_USERNAME}
-      RABBITMQ_PASSWORD: ${EB_SECRET}
-      RABBITMQ_NODE_PORT_NUMBER: ${EB_PORT}
-    logging:
-      options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.eventsbroker
-    networks:
-      fonos:
-        aliases: 
-          - ${EB_HOST}
 
   fs:
     image: ${FS_IMAGE}
@@ -90,25 +83,3 @@ services:
       fonos:
         aliases:
           - ${FS_HOST}
-
-  secrets:
-    image: ${SECRETS_IMAGE}
-    # ports:
-      # - "127.0.0.1:8200:8200"
-    volumes:
-      - ${CONFIG}/file:/vault/file:rw
-      - ${CONFIG}/vault.json:/vault/config/vault.json:rw
-    cap_add:
-      - IPC_LOCK
-    entrypoint: vault server -config=/vault/config/vault.json
-
-networks:
-  fonos:
-
-volumes:
-  datasource:
-    external: true
-  datasource_auth:
-    external: true
-  data1-1:
-    external: true

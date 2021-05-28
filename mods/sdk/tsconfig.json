@@ -13,8 +13,7 @@
     {"path": "../providers"},
     {"path": "../numbers"},
     {"path": "../domains"},
-    {"path": "../agents"},
-    {"path": "../usermanager"}
+    {"path": "../agents"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

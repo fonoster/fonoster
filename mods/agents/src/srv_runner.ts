@@ -3,7 +3,7 @@ import AgentsServer from "./service/agents";
 import {AgentsService} from "./service/protos/agents_grpc_pb";
 import {AuthMiddleware} from "@fonos/auth";
 import {getSalt} from "@fonos/certs";
-import {runServices} from "@fonos/core";
+import {runServices} from "@fonos/common";
 
 const services = [
   {

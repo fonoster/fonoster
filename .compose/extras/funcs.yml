@@ -1,0 +1,22 @@
+# Optional Funcs API service
+
+version: '3.7'
+
+networks:
+  fonos:
+
+services:
+
+  funcs_api:
+    image: fonoster/fonos-funcs
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.funcs_api.entrypoints=internal,websecure"
+      - "traefik.http.routers.funcs_api.rule=PathPrefix(`/fonos.funcs.v1alpha1`)"
+      - "traefik.http.services.funcs_api.loadbalancer.server.scheme=h2c"
+    volumes:
+      - data1-1:/home/fonos
+      - /var/run/docker.sock:/var/run/docker.sock

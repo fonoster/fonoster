@@ -1,2 +1,2 @@
 FROM fonoster/node12fn:latest
-COPY . /home/app/
+COPY ./function/* /home/app/function/

@@ -1,6 +1,6 @@
 {
   "name": "@fonos/dispatcher",
-  "version": "0.0.95",
+  "version": "0.0.100",
   "description": "Application Router for Fonos",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -10,7 +10,11 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "start": "cross-env NODE_ENV=dev nodemon src/dispatcher"
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+  },
+  "bin": {
+    "run": "dist/srv_runner.js",
+    "healthcheck": "dist/healthcheck.js"
   },
   "nodemonConfig": {
     "watch": [
@@ -39,11 +43,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.95",
-    "@fonos/marytts": "^0.0.95",
-    "@fonos/numbers": "^0.0.95",
-    "@fonos/storage": "^0.0.95",
-    "@fonos/voice": "^0.0.95",
+    "@fonos/logger": "^0.0.100",
+    "@fonos/marytts": "^0.0.100",
+    "@fonos/numbers": "^0.0.100",
+    "@fonos/storage": "^0.0.100",
+    "@fonos/voice": "^0.0.100",
     "agi-node": "github:psanders/agi-node",
     "dotenv": "^8.2.0",
     "phone": "^2.4.20",

@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-
-console.log("Check...");
+import {healthcheck} from "@fonos/common";
+healthcheck();

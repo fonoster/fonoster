@@ -4,17 +4,11 @@ import MaryTTS from "@fonos/marytts";
 import Verbs from "@fonos/voice";
 import getIngressInfo from "./utils";
 import fs from "fs";
-import path from "path";
 import phone from "phone";
 import {NodeVM} from "vm2";
 const {AGIServer} = require("agi-node");
 const vm = new NodeVM(require("../etc/vm.json"));
 const SERVICE_PORT = process.env.AGI_PORT || 4573;
-
-if (process.env.NODE_ENV === "dev") {
-  const env = path.join(__dirname, "..", "..", "..", ".env");
-  require("dotenv").config({path: env});
-}
 
 function dispatch(channel: any) {
   try {

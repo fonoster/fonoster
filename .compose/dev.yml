@@ -1,22 +1,18 @@
+# Warning: Including this file in your Fonos deployment will
+# open the ports to a number of private services. This is very
+# unsecured. Only recommended for development.
+
 version: '3.7'
 
 services:
 
-  secrets:
-    ports:
-      - "8200:8200"
   apiserver:
     ports:
       - 8080:8080
+      - 50051:50051
   datasource:
     ports:
       - ${DS_PORT}:${DS_PORT}
-  datasource_auth:
-    ports:
-      - 27017:27017
-  eventsbroker:
-    ports:
-      - ${EB_PORT}:${EB_PORT}
   fs:
     ports:
       - ${FS_PORT}:${FS_PORT}

@@ -44,54 +44,10 @@ describe("@Fonos/funcs/client", () => {
     );
   });
 
-  it("should deploy a function from base image", async () => {
-    const request: DeployFuncRequest = {
-      name: "myfunc",
-      path: __dirname + "/../etc/example"
-    };
-    const funcs = new Funcs();
-    await funcs.deployFunc(request);
-    // For now test by observation :(
-  });
-
-  it("should get a function by name", async () => {
-    const request: GetFuncRequest = {
-      name: "pruebaz"
-    };
-    const funcs = new Funcs();
-    const result = await funcs.getFunc(request);
-    expect(result).is.not.null;
-    // For now test by observation :(
-  });
-
-  it.only("should deploy a function", async () => {
+  it("should deploy a function and set a schedule", (done) => {
     const request: DeployFuncRequest = {
       path: __dirname + "/../etc/example",
-      name: "test",
-      schedule: "0 0 */1 * *"
-    };
-
-    const funcs = new Funcs();
-    const stream = await funcs.deployFunc(request);
-
-    await new Promise<void>((resolve, reject) => {
-      stream.onMessage((msg) => {
-        logger.info(msg.text);
-      });
-      stream.onFinish(() => {
-        resolve();
-      });
-      stream.onError((e: Error) => {
-        reject(e);
-      });
-    });
-    // For now test by observation :(
-  });
-
-  it("should deploy a function(then/catch)", (done) => {
-    const request: DeployFuncRequest = {
-      path: __dirname + "/../etc/example",
-      name: "test",
+      name: "get_intent",
       schedule: "0 0 */1 * *"
     };
 
@@ -101,7 +57,7 @@ describe("@Fonos/funcs/client", () => {
         logger.info(msg.text);
       });
       stream.onFinish(() => {
-        logger.verbose("end");
+        logger.info("end");
         done();
       });
       stream.onError((e: Error) => {
@@ -109,12 +65,20 @@ describe("@Fonos/funcs/client", () => {
         done(e);
       });
     });
-    // For now test by observation :(
+  });
+
+  it("should get a function by name", async () => {
+    const request: GetFuncRequest = {
+      name: "get_intent"
+    };
+    const funcs = new Funcs();
+    const result = await funcs.getFunc(request);
+    expect(result).to.have.property("name").to.be.equal("get_intent");
   });
 
   it("will retrive a list of logs", (done) => {
     const request = {
-      name: "fn603693c0afaa1a080000000ctest1",
+      name: "get_intent",
       tail: 10,
       follow: true,
       since: ""
@@ -127,7 +91,7 @@ describe("@Fonos/funcs/client", () => {
         logger.info(msg.text);
       });
       stream.onFinish(() => {
-        logger.verbose("end");
+        logger.info("end");
         done();
       });
       stream.onError((e: Error) => {

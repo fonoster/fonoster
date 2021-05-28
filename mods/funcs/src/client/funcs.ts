@@ -34,7 +34,7 @@ import {
 } from "../types";
 import {
   buildDeployFuncRequest,
-  cleanupTmpDir,
+  cleanupTmpDirSync,
   copyFuncAtTmp
 } from "../utils/utils";
 import {DeployStream, LogsStream} from "./stream_wrappers";
@@ -76,14 +76,13 @@ export default class Funcs extends FonosService {
    * Creates or updates a function in the FaaS subsystem.
    *
    * @param {DeployFuncRequest} request - Request to create or update a function
+   * @param {string} request.path - Path to the function.
    * @param {string} request.name - Unique function name
    * @param {string} request.schedule - Unique function name
-   * @param {string} request.path - Path to the function.
    * @param {string} request.limit.memory - Optional limit for function's memory utilization
    * @param {string} request.limit.cpu - Optional limit for function's cpu utilization
    * @param {string} request.requests.memory - Optional requested memory allocation for the function
    * @param {string} request.requests.cpu - Optional requested cpu allocation for the function
-   * @param {Function(string)} emitter - Optional callback to capture deployment events
    * @return {Promise<DeployStream>}
    * @example
    *
@@ -113,7 +112,7 @@ export default class Funcs extends FonosService {
    */
   async deployFunc(request: DeployFuncRequest): Promise<DeployStream> {
     if (request.path) {
-      cleanupTmpDir(request.name);
+      cleanupTmpDirSync(request.name);
       await copyFuncAtTmp(request.path, request.name);
       await this.storage.uploadObject({
         filename: `/tmp/${request.name}.tgz`,
@@ -153,6 +152,7 @@ export default class Funcs extends FonosService {
 
           resolve({
             name: res.getName(),
+            schedule: res.getSchedule(),
             image: res.getImage(),
             invocationCount: res.getInvocationCount(),
             replicas: res.getReplicas(),
