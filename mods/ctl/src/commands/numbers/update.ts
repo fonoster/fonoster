@@ -41,7 +41,7 @@ export class UpdateCommand extends Command {
         }
       ]);
 
-      answers.ingressInfo = {}
+      answers.ingressInfo = {};
       answers.ingressInfo.webhook = webhookPrompt.webhook;
     }
 

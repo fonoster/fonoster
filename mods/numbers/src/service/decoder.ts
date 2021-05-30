@@ -4,8 +4,8 @@ import NumbersPB from "./protos/numbers_pb";
 export default function (jsonObj: any): NumbersPB.Number {
   const number = new NumbersPB.Number();
   const location = jsonObj.spec.location;
-  const ingressInfo = new NumbersPB.IngressInfo()
-  ingressInfo.setWebhook(jsonObj.metadata.webhook)
+  const ingressInfo = new NumbersPB.IngressInfo();
+  ingressInfo.setWebhook(jsonObj.metadata.webhook);
   number.setRef(jsonObj.metadata.ref);
   number.setProviderRef(jsonObj.metadata.gwRef);
   number.setIngressInfo(ingressInfo);

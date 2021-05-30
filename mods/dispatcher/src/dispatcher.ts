@@ -1,4 +1,3 @@
-
 // I will create a service that will attach to asterisk events emitter
 // For every StatisStart event:
 //    - I will get callers ID
@@ -10,10 +9,9 @@
 //        - session_id (same as the channel id)
 //        - dialback_endpoint (url of the mediaserver)
 export interface CallRequest {
-    accessKeyId: string;
-    accessKeySecret: string;
-    sessionId: string;
-    dialbackEnpoint: string;
-    callerId: string;
+  accessKeyId: string;
+  accessKeySecret: string;
+  sessionId: string;
+  dialbackEnpoint: string;
+  callerId: string;
 }
-

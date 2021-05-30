@@ -27,12 +27,4 @@ import {mute} from "@fonos/logger";
 
 mute();
 
-export {
-  CallManager,
-  Storage,
-  Providers,
-  Numbers,
-  Domains,
-  Agents,
-  Funcs
-};
+export {CallManager, Storage, Providers, Numbers, Domains, Agents, Funcs};

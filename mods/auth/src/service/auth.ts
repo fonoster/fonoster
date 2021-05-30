@@ -1,8 +1,8 @@
 import grpc from "grpc";
 import {
   GetRoleRequest,
-  Role, 
-  ValidateTokenRequest, 
+  Role,
+  ValidateTokenRequest,
   ValidateTokenResponse,
   CreateTokenRequest,
   CreateTokenResponse
@@ -16,13 +16,15 @@ const authenticator = new Auth(new JWT());
 const rbac = require(process.env.AUTH_RBAC || "/home/fonos/rbac.json");
 
 class AuthServer implements IAuthServer {
-
   async validateToken(
     call: grpc.ServerUnaryCall<ValidateTokenRequest>,
     callback: grpc.sendUnaryData<ValidateTokenResponse>
   ) {
-    const result =  await authenticator.validateToken({accessToken: call.request.getToken()}, getSalt())
-    const validateTokenResponse = new ValidateTokenResponse()
+    const result = await authenticator.validateToken(
+      {accessToken: call.request.getToken()},
+      getSalt()
+    );
+    const validateTokenResponse = new ValidateTokenResponse();
     validateTokenResponse.setValid(result.isValid);
     callback(null, validateTokenResponse);
   }
@@ -36,7 +38,8 @@ class AuthServer implements IAuthServer {
       call.request.getAccessKeyId(),
       AUTH_ISS,
       call.request.getRoleName(),
-      getSalt())
+      getSalt()
+    );
     const response = new CreateTokenResponse();
     response.setToken(result.accessToken);
     callback(null, response);

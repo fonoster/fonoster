@@ -11,7 +11,7 @@ import {
   CreateNumberRequest,
   UpdateNumberRequest,
   DeleteNumberRequest,
-  GetIngressInfoRequest,
+  GetIngressInfoRequest
 } from "./protos/numbers_pb";
 import NumberPB from "./protos/numbers_pb";
 import {Empty} from "./protos/common_pb";
@@ -22,7 +22,7 @@ import {
 } from "./protos/numbers_grpc_pb";
 import {Kind, ResourceServer} from "@fonos/core";
 import decoder from "./decoder";
-import { ErrorCodes, FonosError } from "@fonos/errors";
+import {ErrorCodes, FonosError} from "@fonos/errors";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   async listNumbers(
@@ -67,7 +67,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
       if (!result) {
         throw new FonosError("Number not found", ErrorCodes.NOT_FOUND);
       }
-      const number = decoder(result); 
+      const number = decoder(result);
       callback(null, number.getIngressInfo());
     } catch (e) {
       callback(e, null);

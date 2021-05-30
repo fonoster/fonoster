@@ -9,7 +9,7 @@ import {
   getRedisConnection
 } from "@fonos/core";
 import numberDecoder from "./decoder";
-import { assertHasAorLinkOrIngressInfo, assertIsE164 } from "../utils/assertions";
+import {assertHasAorLinkOrIngressInfo, assertIsE164} from "../utils/assertions";
 
 const redis = getRedisConnection();
 

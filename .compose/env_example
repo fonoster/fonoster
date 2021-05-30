@@ -67,8 +67,8 @@ MS_RTP_PORT_END=20000
 MS_TRUNK=routr
 MS_CONTEXT=local-ctx
 MS_EXTENSION=s
-MS_ARI_USERNAME=admin   # Deprecated
-MS_ARI_SECRET=changeit  # Deprecated
+MS_ARI_USERNAME=admin
+MS_ARI_SECRET=changeit
 MS_ARI_AUTHORIZATION=YWRtaW46Y2hhbmdlaXQ=
 MC_HOST=mediacontroller.fonos
 MC_AGI_PORT=4573

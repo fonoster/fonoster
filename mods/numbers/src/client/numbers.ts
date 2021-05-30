@@ -30,7 +30,7 @@ import {
 } from "../types";
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {NumbersClient} from "../service/protos/numbers_grpc_pb";
-import NumbersPB, { IngressInfo } from "../service/protos/numbers_pb";
+import NumbersPB, {IngressInfo} from "../service/protos/numbers_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
@@ -102,7 +102,8 @@ export default class Numbers extends FonosService {
     const number = new NumbersPB.Number();
     const ingressInfo = new NumbersPB.IngressInfo();
     ingressInfo.setWebhook(
-      request.ingressInfo? request.ingressInfo.webhook : null);
+      request.ingressInfo ? request.ingressInfo.webhook : null
+    );
     number.setProviderRef(request.providerRef);
     number.setE164Number(request.e164Number);
     number.setIngressInfo(ingressInfo);
@@ -139,7 +140,7 @@ export default class Numbers extends FonosService {
       aorLink: res.getAorLink(),
       e164Number: res.getE164Number(),
       ingressInfo: {
-        webhook: res.getIngressInfo() ? res.getIngressInfo().getWebhook : null,
+        webhook: res.getIngressInfo() ? res.getIngressInfo().getWebhook : null
       },
       providerRef: res.getProviderRef(),
       ref: res.getRef(),
@@ -195,7 +196,8 @@ export default class Numbers extends FonosService {
       numberFromDB.setAorLink(undefined);
       const ingressInfo = new IngressInfo();
       ingressInfo.setWebhook(
-        request.ingressInfo? request.ingressInfo.webhook : null);
+        request.ingressInfo ? request.ingressInfo.webhook : null
+      );
       numberFromDB.setIngressInfo(ingressInfo);
     }
     const req = new NumbersPB.UpdateNumberRequest();
@@ -244,7 +246,7 @@ export default class Numbers extends FonosService {
           providerRef: n.getProviderRef(),
           e164Number: n.getE164Number(),
           ingressInfo: {
-            webhook: n.getIngressInfo() ? n.getIngressInfo().getWebhook : null,
+            webhook: n.getIngressInfo() ? n.getIngressInfo().getWebhook : null
           },
           aorLink: n.getAorLink(),
           createTime: n.getCreateTime(),
@@ -306,7 +308,7 @@ export default class Numbers extends FonosService {
     const result = await super.getService().getIngressInfo().sendMessage(req);
 
     return {
-      webhook: result.getWebhook(),
+      webhook: result.getWebhook()
     };
   }
 }

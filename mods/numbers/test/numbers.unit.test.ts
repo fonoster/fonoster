@@ -30,7 +30,9 @@ describe("@fonos/number", () => {
     e164Number: numberObj.getE164Number(),
     aorLink: numberObj.getAorLink(),
     metadata: {
-      webhook: numberObj.getIngressInfo() ? numberObj.getIngressInfo().getWebhook() : null,
+      webhook: numberObj.getIngressInfo()
+        ? numberObj.getIngressInfo().getWebhook()
+        : null
     },
     providerRef: numberObj.getProviderRef()
   };
@@ -265,7 +267,9 @@ describe("@fonos/number", () => {
 
     const numbers = new Numbers();
     const result = await numbers.getIngressInfo({e164Number: "16471234567"});
-    expect(result).to.have.property("webhook").to.be.equal(returnIngressInfo.getWebhook());
+    expect(result)
+      .to.have.property("webhook")
+      .to.be.equal(returnIngressInfo.getWebhook());
   });
 
   context("number decoder", () => {

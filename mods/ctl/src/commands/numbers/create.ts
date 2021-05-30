@@ -72,7 +72,7 @@ export default class CreateCommand extends Command {
           }
         ]);
 
-        answers.ingressApp = {}
+        answers.ingressApp = {};
         answers.ingressApp.webhook = webhookPrompt.webhook;
       }
 
