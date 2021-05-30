@@ -13,7 +13,7 @@
       "/fonos.providers.v1alpha1.Providers/DeleteProvider",
       "/fonos.numbers.v1alpha1.Numbers/ListNumbers",
       "/fonos.numbers.v1alpha1.Numbers/CreateNumber",
-      "/fonos.numbers.v1alpha1.Numbers/GetIngressApp",
+      "/fonos.numbers.v1alpha1.Numbers/GetIngressInfo",
       "/fonos.numbers.v1alpha1.Numbers/GetNumber",
       "/fonos.numbers.v1alpha1.Numbers/UpdateNumber",
       "/fonos.numbers.v1alpha1.Numbers/DeleteNumber",
