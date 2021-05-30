@@ -49,7 +49,9 @@ import grpc from "grpc";
  * const request = {
  *   providerRef: "516f1577bcf86cd797439012",
  *   e164Number: "+17853177343",
- *   ingressApp: "hello-monkeys"
+ *   ingressInfo: {
+ *      webhook: "https://webhooks.acme.com/hooks"
+ *   }
  * };
  *
  * numbers.createNumber(request)
@@ -75,12 +77,11 @@ export default class Numbers extends FonosService {
    * @param {CreateNumberRequest} request -  Request for the provision of a new Number
    * @param {string} request.providerRef - Idenfier to the Provider this Number belongs
    * with
-   * @param {string} request.e164_number - A valid number @ Provider
+   * @param {string} request.e164Number - A valid number @ Provider
    * @param {string} request.aorLink - An AOR where ingress calls will be
    * directed to
-   * @param {string} request.ingress_app - An Application where ingress calls
-   * will be directed to
-   * @note You can only provider an aorLink or an ingressApp but no both
+   * @param {string} request.ingressInfo - Webhook to connect call to
+   * @note You can only provider an aorLink or an ingressInfo but no both
    * @return {Promise<CreateNumberResponse>}
    * @example
    *
@@ -100,7 +101,8 @@ export default class Numbers extends FonosService {
   ): Promise<CreateNumberResponse> {
     const number = new NumbersPB.Number();
     const ingressInfo = new NumbersPB.IngressInfo();
-    ingressInfo.setWebhook(request.ingressInfo.webhook);
+    ingressInfo.setWebhook(
+      request.ingressInfo? request.ingressInfo.webhook : null);
     number.setProviderRef(request.providerRef);
     number.setE164Number(request.e164Number);
     number.setIngressInfo(ingressInfo);
@@ -152,8 +154,7 @@ export default class Numbers extends FonosService {
    * @param {UpdateNumberRequest} request - Request for the update of an existing Number
    * @param {string} request.aorLink - An AOR where ingress calls will be
    * directed to
-   * @param {string} request.ingress_app - An Application where ingress calls
-   * will be directed to
+   * @param {string} request.ingressInfo - A webhook to direct the call for flow control
    * @note You can only provider an aorLink or an ingressApp but no both
    * @return {Promise<UpdateNumberResponse>}
    * @example
@@ -189,11 +190,12 @@ export default class Numbers extends FonosService {
 
     if (request.aorLink) {
       numberFromDB.setAorLink(request.aorLink);
-      numberFromDB.setIngressApp(undefined);
+      numberFromDB.setIngressInfo(undefined);
     } else {
       numberFromDB.setAorLink(undefined);
       const ingressInfo = new IngressInfo();
-      ingressInfo.setWebhook(request.ingressInfo.webhook);
+      ingressInfo.setWebhook(
+        request.ingressInfo? request.ingressInfo.webhook : null);
       numberFromDB.setIngressInfo(ingressInfo);
     }
     const req = new NumbersPB.UpdateNumberRequest();

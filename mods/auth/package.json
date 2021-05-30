@@ -43,6 +43,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
+    "@fonos/certs": "^0.0.100",
     "@fonos/common": "^0.0.100",
     "@fonos/errors": "^0.0.100",
     "@fonos/logger": "^0.0.100",

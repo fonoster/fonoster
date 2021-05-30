@@ -3,6 +3,7 @@
 import grpc from "grpc";
 import createNumber from "./create_number";
 import updateNumber from "./update_number";
+import {routr} from "@fonos/core";
 import {
   ListNumbersRequest,
   ListNumbersResponse,
@@ -10,6 +11,7 @@ import {
   CreateNumberRequest,
   UpdateNumberRequest,
   DeleteNumberRequest,
+  GetIngressInfoRequest,
 } from "./protos/numbers_pb";
 import NumberPB from "./protos/numbers_pb";
 import {Empty} from "./protos/common_pb";
@@ -20,7 +22,7 @@ import {
 } from "./protos/numbers_grpc_pb";
 import {Kind, ResourceServer} from "@fonos/core";
 import decoder from "./decoder";
-import { GetIngressInfoRequest } from "../types";
+import { ErrorCodes, FonosError } from "@fonos/errors";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   async listNumbers(
@@ -60,9 +62,13 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     callback: grpc.sendUnaryData<NumberPB.IngressInfo>
   ) {
     try {
-      //const result = await super.getResource(Kind.NUMBER, call);
-      //const numberFromDB = decoder(result)
-      //callback(null, numberFromDB.getIngressInfo());
+      await routr.connect();
+      const result = await routr.getNumber(call.request.getE164Number());
+      if (!result) {
+        throw new FonosError("Number not found", ErrorCodes.NOT_FOUND);
+      }
+      const number = decoder(result); 
+      callback(null, number.getIngressInfo());
     } catch (e) {
       callback(e, null);
     }

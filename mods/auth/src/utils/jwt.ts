@@ -10,7 +10,6 @@ import ITokenManager from "./itoken_manager";
  * expiresIn	— Expiration time after which the token will be invalid.
  * algorithm 	— Encryption algorithm to be used to protect the token.
  */
-
 export default class JWT implements ITokenManager {
   async encode(
     payload: JwtPayload,
@@ -30,12 +29,12 @@ export default class JWT implements ITokenManager {
   async decode(
     token: string,
     privateKey: string,
-    ignorateExpiration = true
+    ignoreExpiration = true
   ): Promise<JwtPayload> {
     try {
       // @ts-ignore
       return (await promisify(verify)(token, privateKey, {
-        ignoreExpiration: ignorateExpiration
+        ignoreExpiration
       })) as JwtPayload;
     } catch (e) {
       logger.log("error", "@fonos/auth [Bad token]");

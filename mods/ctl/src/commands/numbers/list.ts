@@ -57,8 +57,8 @@ export default class ListCommand extends Command {
           t.cell("Ref", number.ref);
           t.cell("Provider Ref", number.providerRef);
           t.cell("E164 Number", number.e164Number);
-          t.cell("AOR Link", number.aorLink || "--");
-          t.cell("Ingress App", number.ingressApp || "--");
+          t.cell("AOR Link", number.aorLink? number.aorLink : "--");
+          t.cell("Webhook", number.ingressInfo? number.ingressInfo.webhook : "--");
           t.newRow();
         });
 

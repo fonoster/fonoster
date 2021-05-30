@@ -32,16 +32,17 @@ services:
   mediaserver:
     image: ${MS_IMAGE}
     restart: ${RESTART_POLICY}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "-u", "${MS_ARI_USERNAME}:${MS_ARI_SECRET}", "http://localhost:8088/ari/asterisk/info"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mediaserver.entrypoints=websecure"
+      - "traefik.http.routers.mediaserver.rule=Path(`/ari/asterisk/ping`)"
+      - "traefik.http.routers.mediaserver.middlewares=basic-auth@docker"
+      - "traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}"
+    expose:
+      - 8088
     environment:
       EXTERN_ADDR: ${HOST_ADDR}
       EXTERN_PORT: ${MS_SIP_PORT}
-      # Warning: Temporal value
-      AGI_URL: agi://${MC_HOST_PUBLIC}:${MC_AGI_PORT}
       SIPPROXY_HOST: ${HOST_ADDR}:${SIPPROXY_SIP_PORT}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
@@ -52,9 +53,8 @@ services:
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
-    # This doesn't work on osx 
-    # see: https://github.com/docker/for-mac/issues/1031
-    network_mode: "host"
+    networks:
+      fonos:
 
   mediacontroller:
     image: ${MC_IMAGE}

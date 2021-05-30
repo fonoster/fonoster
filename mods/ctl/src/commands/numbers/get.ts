@@ -22,8 +22,8 @@ export default class GetCommand extends Command {
         Ref: number.ref,
         "Provider Ref": number.providerRef,
         "E164 Number": number.e164Number,
-        "AOR Link": number.aorLink || "--",
-        "Ingress App": number.ingressApp || "--",
+        "AOR Link": number.aorLink? number.aorLink : "--",
+        "Webhook": number.ingressInfo? number.ingressInfo.webhook : "--",
         Created: moment(number.createTime).fromNow(),
         Updated: moment(number.updateTime).fromNow()
       };

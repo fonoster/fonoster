@@ -1,11 +1,9 @@
 import "../../config";
 import Numbers from "@fonos/numbers";
-import Apps from "@fonos/appmanager";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import {CommonPB, AppManagerPB} from "@fonos/numbers";
-import {App} from "@fonos/appmanager/src/types";
+import {CommonPB} from "@fonos/numbers";
 
 const inquirer = require("inquirer");
 
@@ -21,20 +19,6 @@ export class UpdateCommand extends Command {
     console.log("This utility will help you update an existing Number");
     console.log("Press ^C at any time to quit.");
 
-    // TODO: Consider using the autocomplete plugin
-    const view: CommonPB.View = CommonPB.View.BASIC;
-    const response = await new Apps().listApps({
-      pageSize: 25,
-      pageToken: "1",
-      view
-    });
-    const apps = response.apps.map((app: App) => {
-      return {
-        name: app.name,
-        value: app.ref
-      };
-    });
-
     const {args} = this.parse(UpdateCommand);
     const numbers = new Numbers();
 
@@ -48,16 +32,17 @@ export class UpdateCommand extends Command {
     ]);
 
     if (!answers.aorLink) {
-      const ingressAppPrompt = await inquirer.prompt([
+      const webhookPrompt = await inquirer.prompt([
         {
-          name: "ingressApp",
-          message: "ingress app",
-          type: "list",
-          choices: apps
+          name: "webhook",
+          message: "webhook",
+          type: "input",
+          default: null
         }
       ]);
 
-      answers.ingressApp = ingressAppPrompt.ingressApp;
+      answers.ingressInfo = {}
+      answers.ingressInfo.webhook = webhookPrompt.webhook;
     }
 
     const confirmPrompt = await inquirer.prompt([

@@ -39,7 +39,7 @@ describe("@fonos/authentication", () => {
       accessToken: stubValue
     };
 
-    const token = await authUtils.createTokens(
+    const token = await authUtils.createToken(
       parameter.accessKeyIdPayload,
       parameter.issuePayload,
       parameter.rolePayload,

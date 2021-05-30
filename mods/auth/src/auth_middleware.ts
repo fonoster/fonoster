@@ -26,6 +26,7 @@ export default class AuthMiddleware {
     }
 
     const jwtHandler = new Auth(new JWT());
+
     try {
       if (
         !ctx.call.metadata._internal_repr.access_key_id ||

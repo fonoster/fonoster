@@ -13,9 +13,11 @@ export declare interface TokenResponse {
 
 export default class AuthUtils {
   private handler: ITokenManager;
+
   constructor(handler: ITokenManager) {
     this.handler = handler;
   }
+
   public validateTokenData = (payload: JwtPayload): boolean => {
     if (
       !payload ||
@@ -28,7 +30,7 @@ export default class AuthUtils {
     return true;
   };
 
-  public createTokens = async (
+  public createToken = async (
     accessKeyId: string,
     issuer: string,
     role: string,

@@ -7,7 +7,6 @@
   "references": [
     {"path": "../funcs"},
     {"path": "../storage"},
-    {"path": "../appmanager"},
     {"path": "../callmanager"},
     {"path": "../logger"},
     {"path": "../providers"},
