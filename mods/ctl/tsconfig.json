@@ -6,7 +6,6 @@
   },
   "references": [
     {"path": "../agents"},
-    {"path": "../appmanager"},
     {"path": "../domains"},
     {"path": "../numbers"},
     {"path": "../providers"},

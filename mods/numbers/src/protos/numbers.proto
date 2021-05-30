@@ -10,15 +10,14 @@ syntax = "proto3";
 package fonos.numbers.v1alpha1;
 
 import "common.proto";
-import "appmanager.proto";
 
 service Numbers {
   // Lists Numbers from the SIP Proxy subsystem
   rpc ListNumbers (ListNumbersRequest) returns (ListNumbersResponse) {};
   // Creates a new Number resource.
   rpc CreateNumber (CreateNumberRequest) returns (Number) {};
-  // Get an app for a given e164 number
-  rpc GetIngressApp (GetIngressAppRequest) returns (fonos.appmanager.v1alpha1.App) {};
+  // Gets the ingess information for a given e164 number
+  rpc GetIngressInfo (GetIngressInfoRequest) returns (IngressInfo) {};
   // Gets Number using its reference
   rpc GetNumber (GetNumberRequest) returns (Number) {};
   // Change or update fields in a resource
@@ -60,7 +59,7 @@ message GetNumberRequest {
   string ref = 1;
 }
 
-message GetIngressAppRequest {
+message GetIngressInfoRequest {
   string e164_number = 1;
 }
 
@@ -73,7 +72,11 @@ message Number {
   string provider_ref = 2;
   string e164_number = 3;
   string aor_link = 4;
-  string ingress_app = 5;
+  IngressInfo ingress_info = 5;
   string create_time = 6;
   string update_time = 7;
+}
+
+message IngressInfo {
+  string webhook = 1;
 }

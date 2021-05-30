@@ -3,7 +3,6 @@
 import grpc from "grpc";
 import createNumber from "./create_number";
 import updateNumber from "./update_number";
-import getIngressApp from "./get_ingress_app";
 import {
   ListNumbersRequest,
   ListNumbersResponse,
@@ -11,7 +10,6 @@ import {
   CreateNumberRequest,
   UpdateNumberRequest,
   DeleteNumberRequest,
-  GetIngressAppRequest
 } from "./protos/numbers_pb";
 import NumberPB from "./protos/numbers_pb";
 import {Empty} from "./protos/common_pb";
@@ -20,9 +18,9 @@ import {
   NumbersService,
   INumbersServer
 } from "./protos/numbers_grpc_pb";
-import {App} from "@fonos/appmanager/src/service/protos/appmanager_pb";
 import {Kind, ResourceServer} from "@fonos/core";
 import decoder from "./decoder";
+import { GetIngressInfoRequest } from "../types";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   async listNumbers(
@@ -57,12 +55,14 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     updateNumber(call, callback);
   }
 
-  async getIngressApp(
-    call: grpc.ServerUnaryCall<GetIngressAppRequest>,
-    callback: grpc.sendUnaryData<App>
+  async getIngressInfo(
+    call: grpc.ServerUnaryCall<GetIngressInfoRequest>,
+    callback: grpc.sendUnaryData<NumberPB.IngressInfo>
   ) {
     try {
-      callback(null, await getIngressApp(call.request.getE164Number()));
+      //const result = await super.getResource(Kind.NUMBER, call);
+      //const numberFromDB = decoder(result)
+      //callback(null, numberFromDB.getIngressInfo());
     } catch (e) {
       callback(e, null);
     }

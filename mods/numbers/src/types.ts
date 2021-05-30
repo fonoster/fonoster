@@ -26,7 +26,9 @@ export interface Number {
   ref: string;
   providerRef: string;
   e164Number: string;
-  ingressApp: string;
+  ingressInfo: {
+    webhook: string;
+  };
   aorLink: string;
   createTime: string;
   updateTime: string;
@@ -41,14 +43,18 @@ export interface CreateNumberRequest {
   ref?: string;
   providerRef: string;
   e164Number: string;
-  ingressApp?: string;
+  ingressInfo?: {
+    webhook: string;
+  };
   aorLink?: string;
 }
 
 export interface UpdateNumberRequest {
   ref: string;
   aorLink?: string;
-  ingressApp?: string;
+  ingressInfo?: {
+    webhook: string;
+  };
 }
 
 export interface UpdateNumberResponse {
@@ -67,29 +73,24 @@ export interface DeleteNumberResponse {
 
 export interface CreateNumberResponse {
   ref: string;
-  providerRef: string;
-  e164Number: string;
-  ingressApp: string;
-  aorLink: string;
 }
+
 export interface GetNumberResponse {
   ref: string;
   providerRef: string;
   e164Number: string;
-  ingressApp: string;
+  ingressInfo: {
+    webhook: string;
+  };
   aorLink: string;
   createTime: string;
   updateTime: string;
 }
-export interface GetIngressAppRequest {
+
+export interface GetIngressInfoRequest {
   e164Number: string;
 }
 
-export interface GetIngressAppResponse {
-  ref: string;
-  name: string;
-  description: string;
-  createTime: string;
-  updateTime: string;
-  accessKeyId: string;
+export interface GetIngressInfoResponse {
+  webhook: string;
 }

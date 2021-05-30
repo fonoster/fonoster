@@ -57,10 +57,6 @@ message GetProviderRequest {
   string ref = 1;
 }
 
-message GetIngressAppRequest {
-  string e164_provider = 1;
-}
-
 message DeleteProviderRequest {
   string ref = 1;
 }

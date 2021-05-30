@@ -17,8 +17,6 @@
  * limitations under the License.
  */
 import {
-  GetIngressAppRequest,
-  GetIngressAppResponse,
   ListNumbersRequest,
   UpdateNumberResponse,
   CreateNumberRequest,
@@ -26,15 +24,15 @@ import {
   CreateNumberResponse,
   GetNumberResponse,
   DeleteNumberResponse,
-  ListNumbersResponse
+  ListNumbersResponse,
+  GetIngressInfoRequest,
+  GetIngressInfoResponse
 } from "../types";
 import {FonosService, ServiceOptions} from "@fonos/core";
 import {NumbersClient} from "../service/protos/numbers_grpc_pb";
-import NumbersPB from "../service/protos/numbers_pb";
+import NumbersPB, { IngressInfo } from "../service/protos/numbers_pb";
 import CommonPB from "../service/protos/common_pb";
-import {AppManagerPB} from "@fonos/appmanager";
 import {promisifyAll} from "grpc-promise";
-import sleep from "sync";
 import grpc from "grpc";
 
 /**
@@ -101,9 +99,11 @@ export default class Numbers extends FonosService {
     request: CreateNumberRequest
   ): Promise<CreateNumberResponse> {
     const number = new NumbersPB.Number();
+    const ingressInfo = new NumbersPB.IngressInfo();
+    ingressInfo.setWebhook(request.ingressInfo.webhook);
     number.setProviderRef(request.providerRef);
     number.setE164Number(request.e164Number);
-    number.setIngressApp(request.ingressApp);
+    number.setIngressInfo(ingressInfo);
     number.setAorLink(request.aorLink);
 
     const req = new NumbersPB.CreateNumberRequest();
@@ -112,10 +112,6 @@ export default class Numbers extends FonosService {
     const res = await super.getService().createNumber().sendMessage(req);
 
     return {
-      aorLink: res.getAorLink(),
-      e164Number: res.getE164Number(),
-      ingressApp: res.getIngressApp(),
-      providerRef: res.getProviderRef(),
       ref: res.getRef()
     };
   }
@@ -140,7 +136,9 @@ export default class Numbers extends FonosService {
     return {
       aorLink: res.getAorLink(),
       e164Number: res.getE164Number(),
-      ingressApp: res.getIngressApp(),
+      ingressInfo: {
+        webhook: res.getIngressInfo() ? res.getIngressInfo().getWebhook : null,
+      },
       providerRef: res.getProviderRef(),
       ref: res.getRef(),
       createTime: res.getCreateTime(),
@@ -179,11 +177,11 @@ export default class Numbers extends FonosService {
       .getNumber()
       .sendMessage(getRequest);
 
-    if (request.aorLink && request.ingressApp) {
+    if (request.aorLink && request.ingressInfo) {
       throw new Error(
         "'ingressApp' and 'aorLink' are not compatible parameters"
       );
-    } else if (!request.aorLink && !request.ingressApp) {
+    } else if (!request.aorLink && !request.ingressInfo) {
       throw new Error(
         "You must provider either an 'ingressApp' or and 'aorLink'"
       );
@@ -191,10 +189,12 @@ export default class Numbers extends FonosService {
 
     if (request.aorLink) {
       numberFromDB.setAorLink(request.aorLink);
-      numberFromDB.setIngressApp(void 0);
+      numberFromDB.setIngressApp(undefined);
     } else {
-      numberFromDB.setAorLink(void 0);
-      numberFromDB.setIngressApp(request.ingressApp);
+      numberFromDB.setAorLink(undefined);
+      const ingressInfo = new IngressInfo();
+      ingressInfo.setWebhook(request.ingressInfo.webhook);
+      numberFromDB.setIngressInfo(ingressInfo);
     }
     const req = new NumbersPB.UpdateNumberRequest();
     req.setNumber(numberFromDB);
@@ -241,7 +241,9 @@ export default class Numbers extends FonosService {
           ref: n.getRef(),
           providerRef: n.getProviderRef(),
           e164Number: n.getE164Number(),
-          ingressApp: n.getIngressApp(),
+          ingressInfo: {
+            webhook: n.getIngressInfo() ? n.getIngressInfo().getWebhook : null,
+          },
           aorLink: n.getAorLink(),
           createTime: n.getCreateTime(),
           updateTime: n.getUpdateTime()
@@ -293,56 +295,18 @@ export default class Numbers extends FonosService {
    *   console.log(result)            // returns the Application
    * }).catch(e => console.error(e));  // an error occurred
    */
-  async getIngressApp(
-    request: GetIngressAppRequest
-  ): Promise<GetIngressAppResponse> {
-    const req = new NumbersPB.GetIngressAppRequest();
+  async getIngressInfo(
+    request: GetIngressInfoRequest
+  ): Promise<GetIngressInfoResponse> {
+    const req = new NumbersPB.GetIngressInfoRequest();
     req.setE164Number(request.e164Number);
 
-    const result = await super.getService().getIngressApp().sendMessage(req);
+    const result = await super.getService().getIngressInfo().sendMessage(req);
 
     return {
-      ref: result.getRef(),
-      name: result.getName(),
-      description: result.getDescription(),
-      createTime: result.getCreateTime(),
-      updateTime: result.getUpdateTime(),
-      accessKeyId: result.getAccessKeyId()
+      webhook: result.getWebhook(),
     };
-  }
-
-  /**
-   * Get the Ingress App for a given e164 number.
-   *
-   * @param {GetIngressAppRequest} request
-   * @param {string} request.e164Number - A number in E164 format for
-   * incomming calls
-   * @return {Promise<GetIngressAppResponse>}
-   * @throws if the Number is not register in Fonos
-   * @example
-   *
-   * const request = {
-   *    e164Number: "+17853178071"
-   * };
-   *
-   * numbers.getIngressApp(request)
-   * .then(result => {
-   *   console.log(result)            // returns the Application
-   * }).catch(e => console.error(e));  // an error occurred
-   */
-  getIngressAppSync(request: GetIngressAppRequest): GetIngressAppResponse {
-    let result;
-    let error;
-    this.getIngressApp(request)
-      .then((r) => (result = r))
-      .catch((e) => (error = e));
-
-    while (result === undefined && error === undefined) sleep(100);
-
-    if (error) throw error;
-
-    return result;
   }
 }
 
-export {NumbersPB, AppManagerPB, CommonPB};
+export {NumbersPB, CommonPB};

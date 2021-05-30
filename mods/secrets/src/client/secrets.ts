@@ -21,7 +21,7 @@ import {Secret, CreateSecretRequest} from "../types";
  */
 export default class Secrets extends FonosService {
   /**
-   * Constructs a new AppManager Object.
+   * Constructs a new Secrets Object.
    *
    * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService

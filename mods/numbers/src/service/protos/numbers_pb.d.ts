@@ -6,7 +6,6 @@
 
 import * as jspb from "google-protobuf";
 import * as common_pb from "./common_pb";
-import * as appmanager_pb from "./appmanager_pb";
 
 export class ListNumbersRequest extends jspb.Message { 
     getPageSize(): number;
@@ -125,21 +124,21 @@ export namespace GetNumberRequest {
     }
 }
 
-export class GetIngressAppRequest extends jspb.Message { 
+export class GetIngressInfoRequest extends jspb.Message { 
     getE164Number(): string;
-    setE164Number(value: string): GetIngressAppRequest;
+    setE164Number(value: string): GetIngressInfoRequest;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): GetIngressAppRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: GetIngressAppRequest): GetIngressAppRequest.AsObject;
+    toObject(includeInstance?: boolean): GetIngressInfoRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: GetIngressInfoRequest): GetIngressInfoRequest.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: GetIngressAppRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): GetIngressAppRequest;
-    static deserializeBinaryFromReader(message: GetIngressAppRequest, reader: jspb.BinaryReader): GetIngressAppRequest;
+    static serializeBinaryToWriter(message: GetIngressInfoRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): GetIngressInfoRequest;
+    static deserializeBinaryFromReader(message: GetIngressInfoRequest, reader: jspb.BinaryReader): GetIngressInfoRequest;
 }
 
-export namespace GetIngressAppRequest {
+export namespace GetIngressInfoRequest {
     export type AsObject = {
         e164Number: string,
     }
@@ -174,8 +173,11 @@ export class Number extends jspb.Message {
     setE164Number(value: string): Number;
     getAorLink(): string;
     setAorLink(value: string): Number;
-    getIngressApp(): string;
-    setIngressApp(value: string): Number;
+
+    hasIngressInfo(): boolean;
+    clearIngressInfo(): void;
+    getIngressInfo(): IngressInfo | undefined;
+    setIngressInfo(value?: IngressInfo): Number;
     getCreateTime(): string;
     setCreateTime(value: string): Number;
     getUpdateTime(): string;
@@ -197,8 +199,28 @@ export namespace Number {
         providerRef: string,
         e164Number: string,
         aorLink: string,
-        ingressApp: string,
+        ingressInfo?: IngressInfo.AsObject,
         createTime: string,
         updateTime: string,
+    }
+}
+
+export class IngressInfo extends jspb.Message { 
+    getWebhook(): string;
+    setWebhook(value: string): IngressInfo;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): IngressInfo.AsObject;
+    static toObject(includeInstance: boolean, msg: IngressInfo): IngressInfo.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: IngressInfo, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): IngressInfo;
+    static deserializeBinaryFromReader(message: IngressInfo, reader: jspb.BinaryReader): IngressInfo;
+}
+
+export namespace IngressInfo {
+    export type AsObject = {
+        webhook: string,
     }
 }

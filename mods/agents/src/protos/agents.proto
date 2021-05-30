@@ -57,10 +57,6 @@ message GetAgentRequest {
   string ref = 1;
 }
 
-message GetIngressAppRequest {
-  string e164_agent = 1;
-}
-
 message DeleteAgentRequest {
   string ref = 1;
 }

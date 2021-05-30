@@ -46,9 +46,6 @@
       "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
     },
     "topics": {
-      "apps": {
-        "description": "manage voice applications"
-      },
       "domains": {
         "description": "manage sip domains"
       },
@@ -78,7 +75,6 @@
   },
   "dependencies": {
     "@fonos/agents": "^0.0.100",
-    "@fonos/appmanager": "^0.0.100",
     "@fonos/domains": "^0.0.100",
     "@fonos/logger": "^0.0.100",
     "@fonos/numbers": "^0.0.100",
