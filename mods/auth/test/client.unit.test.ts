@@ -23,8 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import Auth from "../src/client/auth";
 import {FonosService} from "@fonos/common";
 import {AuthPB} from "../src/client/auth";
-import { CreateNumberResponse } from "../../numbers/src/client/types";
-import { CreateTokenResponse, ValidateTokenRequest } from "../src/client/types";
+import {CreateTokenResponse} from "../src/client/types";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -50,11 +49,13 @@ describe("@fonos/auth/client", () => {
 
     const auth = new Auth();
     const result: CreateTokenResponse = await auth.createNoAccessToken({
-      accessKeyId:"603693c0afaa1a080000000e"
+      accessKeyId: "603693c0afaa1a080000000e"
     });
 
     expect(stubAuth).to.be.calledTwice;
-    expect(result).to.have.property("token").to.be.equal(createTokenResponse.getToken());
+    expect(result)
+      .to.have.property("token")
+      .to.be.equal(createTokenResponse.getToken());
   });
 
   it("creates a new access token", async () => {
@@ -71,11 +72,13 @@ describe("@fonos/auth/client", () => {
 
     const auth = new Auth();
     const result: CreateTokenResponse = await auth.createToken({
-      accessKeyId:"603693c0afaa1a080000000e"
+      accessKeyId: "603693c0afaa1a080000000e"
     });
 
     expect(stubAuth).to.be.calledTwice;
-    expect(result).to.have.property("token").to.be.equal(createTokenResponse.getToken());
+    expect(result)
+      .to.have.property("token")
+      .to.be.equal(createTokenResponse.getToken());
   });
 
   it("checks if a token is valid", async () => {
@@ -85,20 +88,21 @@ describe("@fonos/auth/client", () => {
       .returns({
         validateToken: () => {
           return {
-            sendMessage: () => Promise.resolve({
-              getValid: () => true
-            })
+            sendMessage: () =>
+              Promise.resolve({
+                getValid: () => true
+              })
           };
         }
       });
 
     const auth = new Auth();
     const result = await auth.validateToken({
-      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb25vcyIsInJvbGUiOiJVU0VSIiwiYWNjZXNzS2V5SWQiOiI2MDM2OTNjMGFmYWExYTA4MDAwMDAwMGMiLCJpYXQiOjE2MTQxODk1MDQsImV4cCI6MTYxNjc4MTUwNH0.4baHuvasGcJXjgqNfWCfh_qgRshdNf5WsACzE5DGUQ8"
+      token:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb25vcyIsInJvbGUiOiJVU0VSIiwiYWNjZXNzS2V5SWQiOiI2MDM2OTNjMGFmYWExYTA4MDAwMDAwMGMiLCJpYXQiOjE2MTQxODk1MDQsImV4cCI6MTYxNjc4MTUwNH0.4baHuvasGcJXjgqNfWCfh_qgRshdNf5WsACzE5DGUQ8"
     });
 
     expect(stubAuth).to.be.calledTwice;
     expect(result).to.be.equal(true);
   });
-
 });

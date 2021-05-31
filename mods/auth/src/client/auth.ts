@@ -21,7 +21,11 @@ import {AuthClient} from "../service/protos/auth_grpc_pb";
 import AuthPB from "../service/protos/auth_pb";
 import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
-import {CreateTokenRequest, CreateTokenResponse, ValidateTokenRequest} from "./types";
+import {
+  CreateTokenRequest,
+  CreateTokenResponse,
+  ValidateTokenRequest
+} from "./types";
 
 /**
  * @classdesc Use Fonos Auth, a capability of Fonos,
@@ -53,7 +57,7 @@ export default class Agents extends FonosService {
 
   /**
    * Creates a short live token. The client must have role allowed to create
-   * tokens. 
+   * tokens.
    *
    * @param {CreateTokenRequest} request - Request to create a new token
    * @param {string} request.accessKeyId - Path to the function
@@ -86,8 +90,8 @@ export default class Agents extends FonosService {
   /**
    * Creates a short live token meant only to serve as a signature. This token will
    * only be useful to sign a request.
-   * 
-   * @param {CreateTokenRequest} request - Request to create a new signature token 
+   *
+   * @param {CreateTokenRequest} request - Request to create a new signature token
    * @param {string} request.accessKeyId - Path to the function
    * @return {Promise<CreateTokenResponse>}
    * @example
@@ -103,7 +107,9 @@ export default class Agents extends FonosService {
    *  .then(console.log)       // returns an object with the token
    *  .catch(console.error);   // an error occurred
    */
-  async createNoAccessToken(request: CreateTokenRequest): Promise<CreateTokenResponse> {
+  async createNoAccessToken(
+    request: CreateTokenRequest
+  ): Promise<CreateTokenResponse> {
     const req = new AuthPB.CreateTokenRequest();
     req.setAccessKeyId(request.accessKeyId);
     const res = await super.getService().createNoAccessToken().sendMessage(req);
@@ -114,7 +120,7 @@ export default class Agents extends FonosService {
 
   /**
    * Checks if a give token was issue by the system.
-   * 
+   *
    * @param {CreateTokValidateTokenRequestenRequest} request - Request to verify the validity of a token
    * @param {string} request.token - Path to the function.
    * @return {Promise<boolean>}
