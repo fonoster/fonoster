@@ -17,7 +17,7 @@ describe("@fonos/number", () => {
   const numberObj = new NumbersPB.Number();
   const ingressInfo = new NumbersPB.IngressInfo();
   ingressInfo.setWebhook("https://webhooks.acme.com/calls");
-  ingressInfo.setAccessKeyId("603693c0afaa1a080000000c")
+  ingressInfo.setAccessKeyId("603693c0afaa1a080000000c");
   numberObj.setRef("cb8V0CNTfH");
   numberObj.setE164Number("16471234567");
   numberObj.setAorLink("sip:john@sip.local");
