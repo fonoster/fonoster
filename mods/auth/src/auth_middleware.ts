@@ -3,6 +3,7 @@ import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
 import logger from "@fonos/logger";
+
 const WHITELIST = process.env.AUTH_ACCESS_WHITELIST
   ? process.env.AUTH_ACCESS_WHITELIST.split(",")
   : [];
@@ -10,6 +11,7 @@ const WHITELIST = process.env.AUTH_ACCESS_WHITELIST
 export default class AuthMiddleware {
   privateKey: string;
   whitelist: string[];
+
   constructor(privateKey: string, whitelist = []) {
     this.privateKey = privateKey;
     this.whitelist = whitelist || WHITELIST;
