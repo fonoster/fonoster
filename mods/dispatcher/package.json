@@ -42,10 +42,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.100",
     "@fonos/auth": "^0.0.100",
+    "@fonos/logger": "^0.0.100",
     "@fonos/numbers": "^0.0.100",
     "ari-client": "^2.2.0",
+    "axios": "^0.21.1",
     "grpc": "^1.24.7",
     "wait-port": "^0.2.9"
   },

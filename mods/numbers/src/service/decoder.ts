@@ -6,6 +6,7 @@ export default function (jsonObj: any): NumbersPB.Number {
   const location = jsonObj.spec.location;
   const ingressInfo = new NumbersPB.IngressInfo();
   ingressInfo.setWebhook(jsonObj.metadata.webhook);
+  ingressInfo.setAccessKeyId(jsonObj.metadata.accessKeyId);
   number.setRef(jsonObj.metadata.ref);
   number.setProviderRef(jsonObj.metadata.gwRef);
   number.setIngressInfo(ingressInfo);

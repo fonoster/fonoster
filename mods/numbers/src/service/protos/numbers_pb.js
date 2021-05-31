@@ -1647,7 +1647,8 @@ proto.fonos.numbers.v1alpha1.IngressInfo.prototype.toObject = function(opt_inclu
  */
 proto.fonos.numbers.v1alpha1.IngressInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
-    webhook: jspb.Message.getFieldWithDefault(msg, 1, "")
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    webhook: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1686,6 +1687,10 @@ proto.fonos.numbers.v1alpha1.IngressInfo.deserializeBinaryFromReader = function(
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
+      msg.setAccessKeyId(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
       msg.setWebhook(value);
       break;
     default:
@@ -1717,10 +1722,17 @@ proto.fonos.numbers.v1alpha1.IngressInfo.prototype.serializeBinary = function() 
  */
 proto.fonos.numbers.v1alpha1.IngressInfo.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getWebhook();
+  f = message.getAccessKeyId();
   if (f.length > 0) {
     writer.writeString(
       1,
+      f
+    );
+  }
+  f = message.getWebhook();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
       f
     );
   }
@@ -1728,10 +1740,10 @@ proto.fonos.numbers.v1alpha1.IngressInfo.serializeBinaryToWriter = function(mess
 
 
 /**
- * optional string webhook = 1;
+ * optional string access_key_id = 1;
  * @return {string}
  */
-proto.fonos.numbers.v1alpha1.IngressInfo.prototype.getWebhook = function() {
+proto.fonos.numbers.v1alpha1.IngressInfo.prototype.getAccessKeyId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -1740,8 +1752,26 @@ proto.fonos.numbers.v1alpha1.IngressInfo.prototype.getWebhook = function() {
  * @param {string} value
  * @return {!proto.fonos.numbers.v1alpha1.IngressInfo} returns this
  */
-proto.fonos.numbers.v1alpha1.IngressInfo.prototype.setWebhook = function(value) {
+proto.fonos.numbers.v1alpha1.IngressInfo.prototype.setAccessKeyId = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string webhook = 2;
+ * @return {string}
+ */
+proto.fonos.numbers.v1alpha1.IngressInfo.prototype.getWebhook = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.numbers.v1alpha1.IngressInfo} returns this
+ */
+proto.fonos.numbers.v1alpha1.IngressInfo.prototype.setWebhook = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 

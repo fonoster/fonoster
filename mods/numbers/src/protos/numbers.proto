@@ -78,5 +78,6 @@ message Number {
 }
 
 message IngressInfo {
-  string webhook = 1;
+  string access_key_id = 1;
+  string webhook = 2;
 }

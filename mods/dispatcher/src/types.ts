@@ -21,6 +21,7 @@ export interface CallRequest {
   signature: string;
   sessionId: string;
   dialbackEnpoint: string;
+  number: string;
   callerId: string;
   callerNumber: string;
 }

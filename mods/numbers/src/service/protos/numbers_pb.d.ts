@@ -206,6 +206,8 @@ export namespace Number {
 }
 
 export class IngressInfo extends jspb.Message { 
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): IngressInfo;
     getWebhook(): string;
     setWebhook(value: string): IngressInfo;
 
@@ -221,6 +223,7 @@ export class IngressInfo extends jspb.Message {
 
 export namespace IngressInfo {
     export type AsObject = {
+        accessKeyId: string,
         webhook: string,
     }
 }

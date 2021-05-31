@@ -308,7 +308,8 @@ export default class Numbers extends FonosService {
     const result = await super.getService().getIngressInfo().sendMessage(req);
 
     return {
-      webhook: result.getWebhook()
+      webhook: result.getWebhook(),
+      accessKeyId: result.getAccessKeyId()
     };
   }
 }

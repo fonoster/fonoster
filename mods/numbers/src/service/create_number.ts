@@ -33,7 +33,10 @@ export default async function createNumber(
     // TODO: Perhaps I should place this in a ENV
     encoder = encoder
       .withLocation(`tel:${number.getE164Number()}`, process.env.MS_ENDPOINT)
-      .withMetadata({webhook: number.getIngressInfo().getWebhook()});
+      .withMetadata({
+        webhook: number.getIngressInfo().getWebhook(),
+        accessKeyId: getAccessKeyId(call)
+      });
   }
 
   const resource = encoder.build();

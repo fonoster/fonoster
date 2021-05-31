@@ -92,5 +92,6 @@ export interface GetIngressInfoRequest {
 }
 
 export interface GetIngressInfoResponse {
+  accessKeyId: string;
   webhook: string;
 }
