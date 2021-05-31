@@ -25,11 +25,6 @@ describe("@fonos/authentication", () => {
       privateKey: "privatekey"
     };
     const stub = sinon.stub(jwtDependency, "encode").resolves(stubValue);
-
-    const expectedValue = {
-      accessToken: stubValue
-    };
-
     const token = await authUtils.createToken(
       parameter.accessKeyIdPayload,
       parameter.issuePayload,
@@ -88,9 +83,8 @@ describe("@fonos/authentication", () => {
       accessKeyId: "userid"
     };
     const jwtDependency = new Jwt();
-    const token = "";
     jwtDependency.encode(stubValue, "secret").then((result) => {
-      const docode = jwtDependency
+      jwtDependency
         .decode(result, "secret")
         .then((objectJWT) => {
           expect(objectJWT.accessKeyId).to.be.equal(stubValue.accessKeyId);
