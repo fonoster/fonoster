@@ -19,7 +19,9 @@ class CallManagerServer implements ICallManagerServer {
     const domain = await getDomainByNumber(call.request.getFrom());
 
     logger.debug("@core/callmanager call [originating call]");
-    logger.debug(`@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`);
+    logger.debug(
+      `@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`
+    );
     logger.debug(
       `@core/callmanager call [ari username ${process.env.MS_ARI_USERNAME}]`
     );

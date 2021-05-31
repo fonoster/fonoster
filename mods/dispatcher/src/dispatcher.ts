@@ -22,9 +22,9 @@ import logger from "@fonos/logger";
 import events from "./events_handler";
 
 // First try the short env but fallback to the cannonical env
-const ariHost = process.env.ARI_INTERNAL_URL || process.env.MS_ARI_INTERNAL_URL
-const ariUsername = process.env.ARI_USERNAME || process.env.MS_ARI_USERNAME
-const ariSecret = process.env.ARI_SECRET || process.env.MS_ARI_SECRET
+const ariHost = process.env.ARI_INTERNAL_URL || process.env.MS_ARI_INTERNAL_URL;
+const ariUsername = process.env.ARI_USERNAME || process.env.MS_ARI_USERNAME;
+const ariSecret = process.env.ARI_SECRET || process.env.MS_ARI_SECRET;
 
 const connection = {
   host: ariHost.split("//")[1].split(":")[0],
@@ -34,12 +34,7 @@ const connection = {
 wait(connection)
   .then((open) => {
     if (open) {
-      ari.connect(
-        ariHost,
-        ariUsername,
-        ariSecret,
-        events
-      );
+      ari.connect(ariHost, ariUsername, ariSecret, events);
       return;
     }
 
