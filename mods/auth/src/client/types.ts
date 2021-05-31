@@ -21,6 +21,10 @@ export interface CreateTokenRequest {
   roleName?: string;
 }
 
+export interface CreateTokenResponse {
+  token: string;
+}
+
 export interface ValidateTokenRequest {
   token: string;
 }

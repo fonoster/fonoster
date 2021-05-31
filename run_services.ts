@@ -87,6 +87,8 @@ const services = [
 
 const whitelist = [
   "/fonos.auth.v1alpha1.Auth/GetRole",
+  "/fonos.auth.v1alpha1.Auth/CreateToken",
+  "/fonos.auth.v1alpha1.Auth/CreateNoAccessToken",
   "/grpc.health.v1.Health/Check"
 ];
 

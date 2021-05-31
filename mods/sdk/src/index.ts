@@ -23,8 +23,9 @@ import Numbers from "@fonos/numbers";
 import Domains from "@fonos/domains";
 import Agents from "@fonos/agents";
 import Funcs from "@fonos/funcs";
+import Auth from "@fonos/auth";
 import {mute} from "@fonos/logger";
 
 mute();
 
-export {CallManager, Storage, Providers, Numbers, Domains, Agents, Funcs};
+export {Auth, Agents, CallManager, Domains, Funcs, Storage, Numbers, Providers};

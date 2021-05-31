@@ -5,14 +5,15 @@
     "rootDir": "./src"
   },
   "references": [
+    {"path": "../auth"},
+    {"path": "../agents"},
     {"path": "../funcs"},
     {"path": "../storage"},
     {"path": "../callmanager"},
     {"path": "../logger"},
     {"path": "../providers"},
     {"path": "../numbers"},
-    {"path": "../domains"},
-    {"path": "../agents"}
+    {"path": "../domains"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

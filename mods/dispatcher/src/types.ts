@@ -18,7 +18,7 @@
  */
 export interface CallRequest {
   accessKeyId: string;
-  accessKeySecret: string;
+  signature: string;
   sessionId: string;
   dialbackEnpoint: string;
   callerId: string;

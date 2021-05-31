@@ -28,6 +28,7 @@ import {
 import {IAuthServer, IAuthService, AuthService} from "./protos/auth_grpc_pb";
 import {ErrorCodes, FonosError} from "@fonos/errors";
 import {getSalt, AUTH_ISS} from "@fonos/certs";
+import logger from "@fonos/logger";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
 const authenticator = new Auth(new JWT());
@@ -55,6 +56,7 @@ class AuthServer implements IAuthServer {
     // We also need to validate the token and verify
     // it has permissions to create token since the auth module
     // doesnt pas thru the auth middleware.
+    logger.verbose(`@fonos/auth creating token [accessKeyId is ${call.request.getAccessKeyId()}]`)
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
       AUTH_ISS,
@@ -74,6 +76,7 @@ class AuthServer implements IAuthServer {
     // We also need to validate the token and verify
     // it has permissions to create token since the auth module
     // doesnt pas thru the auth middleware.
+    logger.verbose(`@fonos/auth creating no access token [accessKeyId is ${call.request.getAccessKeyId()}]`)
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
       AUTH_ISS,

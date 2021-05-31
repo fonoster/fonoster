@@ -29,6 +29,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
+    "@fonos/auth": "^0.0.100",
     "@fonos/agents": "^0.0.100",
     "@fonos/appmanager": "^0.0.100",
     "@fonos/callmanager": "^0.0.100",
