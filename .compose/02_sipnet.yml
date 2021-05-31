@@ -41,6 +41,9 @@ services:
     expose:
       - 8088
     environment:
+      ARI_EXTERNAL_URL: ${MS_ARI_EXTERNAL_URL}
+      ARI_USERNAME: ${MS_ARI_USERNAME}
+      ARI_SECRET: ${MS_ARI_SECRET}
       EXTERN_ADDR: ${HOST_ADDR}
       EXTERN_PORT: ${MS_SIP_PORT}
       SIPPROXY_HOST: ${HOST_ADDR}:${SIPPROXY_SIP_PORT}
@@ -50,33 +53,9 @@ services:
       LOCALNET: '8.8.8.8'
     volumes:
       - data1-1:/home/fonos
+      - ${CONFIG}/config:/home/fonos/.fonos/config
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
     networks:
       fonos:
-
-  mediacontroller:
-    image: ${MC_IMAGE}
-    restart: ${RESTART_POLICY}
-    environment:
-      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
-      APISERVER_ENDPOINT: ${AS_HOST}:{AS_PORT}
-      EVENTS_BROKERS: amqp://${EB_USERNAME}:${EB_SECRET}@${EB_HOST}:${EB_PORT}
-      # Warning: Hardcoded value
-      EVENTS_QUEUE: apiserver
-      TTS_ENGINE_HOST: ${TTS_ENGINE_HOST}
-      TTS_ENGINE_PORT: ${TTS_ENGINE_PORT}
-      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
-      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
-      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
-    volumes:
-      - ${CONFIG}/config:/home/fonos/.fonos/config
-      - data1-1:/home/fonos
-    logging:
-      options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediacontroller
-    networks:
-      fonos:
-        aliases:
-          - ${MC_HOST}

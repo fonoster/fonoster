@@ -16,31 +16,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Auth from "@fonos/auth";
+import Numbers from "@fonos/numbers";
 import logger from "@fonos/logger";
 import {CallRequest} from "./types";
+import axios from "axios";
+
+const auth = new Auth();
+const numbers = new Numbers();
 
 export default function (err, client) {
   if (err) throw err;
 
-  client.on("StasisStart", (event, channel) => {
-    // Need to find the app owner's accessKeyId
-    // Generate new service token
-    // Get dialback endpoint
+  client.on("StasisStart", async (event, channel) => {
+    const didInfo = await channel.getChannelVar({
+      channelId: channel.id,
+      variable: "DID_INFO"
+    });
+    const ingressInfo = await numbers.getIngressInfo({
+      e164Number: didInfo.value
+    });
+
+    console.log(`@fonos/dispatcher statis start [channelId = ${channel.id}]`);
+    console.log(
+      `@fonos/dispatcher statis start [e164Number = ${didInfo.value}]`
+    );
+    console.log(
+      `@fonos/dispatcher statis start [webhook = ${ingressInfo.webhook}, accessKeyId = ${ingressInfo.accessKeyId}]`
+    );
+
+    const access = await auth.createNoAccessToken({
+      accessKeyId: ingressInfo.accessKeyId
+    });
 
     const request: CallRequest = {
-      accessKeyId: "",
-      accessKeySecret: "",
-      dialbackEnpoint: "string",
+      accessKeyId: ingressInfo.accessKeyId,
+      signature: access.token,
+      // Dialback request must travel thru the reverse proxy first
+      dialbackEnpoint: process.env.MS_ARI_EXTERNAL_URL,
       sessionId: event.channel.id,
+      number: didInfo.value,
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number
     };
 
-    console.log(`request=${JSON.stringify(event)}`);
+    console.log(
+      `@fonos/dispatcher sending request to mediacontroller [request = ${JSON.stringify(
+        request
+      )}]`
+    );
+
+    axios
+      .post(ingressInfo.webhook, request)
+      .then((response) => {
+        console.log(
+          `@fonos/dispatcher mediacontroller [response = ${
+            response.data ? response.data.data : "no response"
+          }]`
+        );
+      })
+      .catch((e) => console.log(e));
   });
 
   client.on("StasisEnd", (event, channel) => {
-    logger.debug(`channel.name=${channel.name}`);
+    logger.debug(`@fonos/dispatcher statis end [channelId ${channel.id}]`);
   });
 
   client.start("mediacontroller");
