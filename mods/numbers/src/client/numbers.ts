@@ -27,7 +27,7 @@ import {
   ListNumbersResponse,
   GetIngressInfoRequest,
   GetIngressInfoResponse
-} from "../types";
+} from "./types";
 import {FonosService, ServiceOptions} from "@fonos/common";
 import {NumbersClient} from "../service/protos/numbers_grpc_pb";
 import NumbersPB, {IngressInfo} from "../service/protos/numbers_pb";

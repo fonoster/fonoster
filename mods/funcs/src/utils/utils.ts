@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import FuncsPB, {Func} from "../service/protos/funcs_pb";
-import {DeployFuncRequest, FuncParameters} from "../types";
+import {DeployFuncRequest, FuncParameters} from "../client/types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";

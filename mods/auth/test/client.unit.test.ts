@@ -20,15 +20,14 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import FuncsService from "../src/service/funcs";
-
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/funcs/service", () => {
+describe("@fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
-  it("needs testing", async () => {});
+  it("creates a new access token", async () => {
+  });
 });

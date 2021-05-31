@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-import CallManagerServer from "./service/callmanager";
-import {CallManagerService} from "./service/protos/callmanager_grpc_pb";
+import StorageServer from "./storage";
+import {StorageService} from "./protos/storage_grpc_pb";
 import {AuthMiddleware} from "@fonos/auth";
 import {getSalt} from "@fonos/certs";
 import {runServices} from "@fonos/common";
 
 const services = [
   {
-    name: "callmanager",
+    name: "storage",
     version: "v1alpha1",
-    service: CallManagerService,
-    server: new CallManagerServer()
+    service: StorageService,
+    server: new StorageServer()
   }
 ];
 

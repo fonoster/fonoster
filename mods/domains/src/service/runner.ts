@@ -1,21 +1,21 @@
 #!/usr/bin/env node
-import SecretServer from "./service/secrets";
-import {SecretsService} from "./service/protos/secrets_grpc_pb";
+import DomainsServer from "./domains";
+import {DomainsService} from "./protos/domains_grpc_pb";
 import {AuthMiddleware} from "@fonos/auth";
 import {getSalt} from "@fonos/certs";
 import {runServices} from "@fonos/common";
 
 const services = [
   {
-    name: "secrets",
+    name: "domains",
     version: "v1alpha1",
-    service: SecretsService,
-    server: new SecretServer()
+    service: DomainsService,
+    server: new DomainsServer()
   }
 ];
 
 const middleware = {
-  name: "Authentication",
+  name: "authentication",
   middlewareObj: new AuthMiddleware(getSalt()).middleware
 };
 

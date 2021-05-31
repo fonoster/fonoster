@@ -31,7 +31,7 @@ import {
   GetFuncResponse,
   ListFuncsRequest,
   ListFuncsResponse
-} from "../types";
+} from "./types";
 import {
   buildDeployFuncRequest,
   cleanupTmpDirSync,

@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import Funcs from "../src/client/funcs";
-import {DeployFuncRequest, GetFuncRequest} from "../src/types";
+import {DeployFuncRequest, GetFuncRequest} from "../src/client/types";
 import logger from "@fonos/logger";
 
 const expect = chai.expect;
@@ -29,7 +29,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@Fonos/funcs/client", () => {
+describe("@fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
   it("should fail because path doesn't exist a function", async () => {

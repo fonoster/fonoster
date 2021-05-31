@@ -5,7 +5,7 @@ import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/common";
 import {NumbersPB} from "../src/client/numbers";
-import {CreateNumberResponse} from "../src/types";
+import {CreateNumberResponse} from "../src/client/types";
 import numberDecoder from "../src/service/decoder";
 
 const expect = chai.expect;

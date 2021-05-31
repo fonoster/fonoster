@@ -1,5 +1,3 @@
-import FuncPB from "./service/protos/funcs_pb";
-
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -18,6 +16,8 @@ import FuncPB from "./service/protos/funcs_pb";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import FuncPB from "../service/protos/funcs_pb";
+
 enum View {
   BASIC = 0,
   STANDARD = 1,

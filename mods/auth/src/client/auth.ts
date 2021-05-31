@@ -38,7 +38,7 @@ export default class Agents extends FonosService {
     return super.getService().createToken().sendMessage(req);
   }
 
-  async createNoToken(request: CreateTokenRequest): Promise<any> {
+  async createNoAccessToken(request: CreateTokenRequest): Promise<any> {
     const req = new AuthPB.CreateTokenRequest();
     req.setAccessKeyId(request.accessKeyId);
     return super.getService().createToken().sendMessage(req);

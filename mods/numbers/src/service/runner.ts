@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import NumbersServer from "./service/numbers";
-import {NumbersService} from "./service/protos/numbers_grpc_pb";
+import NumbersServer from "./numbers";
+import {NumbersService} from "./protos/numbers_grpc_pb";
 import {AuthMiddleware} from "@fonos/auth";
 import {getSalt} from "@fonos/certs";
 import {runServices} from "@fonos/common";
