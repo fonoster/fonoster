@@ -115,6 +115,18 @@ createToken: {
     responseSerialize: serialize_fonos_auth_v1alpha1_CreateTokenResponse,
     responseDeserialize: deserialize_fonos_auth_v1alpha1_CreateTokenResponse,
   },
+  // Creates a special token that has no access but serves a signature
+createNoAccessToken: {
+    path: '/fonos.auth.v1alpha1.Auth/CreateNoAccessToken',
+    requestStream: false,
+    responseStream: false,
+    requestType: auth_pb.CreateTokenRequest,
+    responseType: auth_pb.CreateTokenResponse,
+    requestSerialize: serialize_fonos_auth_v1alpha1_CreateTokenRequest,
+    requestDeserialize: deserialize_fonos_auth_v1alpha1_CreateTokenRequest,
+    responseSerialize: serialize_fonos_auth_v1alpha1_CreateTokenResponse,
+    responseDeserialize: deserialize_fonos_auth_v1alpha1_CreateTokenResponse,
+  },
 };
 
 exports.AuthClient = grpc.makeGenericClientConstructor(AuthService);

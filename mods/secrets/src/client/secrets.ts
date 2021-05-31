@@ -1,4 +1,4 @@
-import {FonosService, ServiceOptions} from "@fonos/core";
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {SecretsClient} from "../service/protos/secrets_grpc_pb";
 import SecretPB from "../service/protos/secrets_pb";
 import CommonPB from "../service/protos/common_pb";

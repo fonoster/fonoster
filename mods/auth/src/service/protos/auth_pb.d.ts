@@ -95,8 +95,6 @@ export namespace ValidateTokenResponse {
 }
 
 export class CreateTokenRequest extends jspb.Message { 
-    getIss(): string;
-    setIss(value: string): CreateTokenRequest;
     getRoleName(): string;
     setRoleName(value: string): CreateTokenRequest;
     getAccessKeyId(): string;
@@ -114,7 +112,6 @@ export class CreateTokenRequest extends jspb.Message {
 
 export namespace CreateTokenRequest {
     export type AsObject = {
-        iss: string,
         roleName: string,
         accessKeyId: string,
     }

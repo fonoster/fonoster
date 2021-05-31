@@ -11,6 +11,7 @@ interface IAuthService extends grpc.ServiceDefinition<grpc.UntypedServiceImpleme
     getRole: IAuthService_IGetRole;
     validateToken: IAuthService_IValidateToken;
     createToken: IAuthService_ICreateToken;
+    createNoAccessToken: IAuthService_ICreateNoAccessToken;
 }
 
 interface IAuthService_IGetRole extends grpc.MethodDefinition<auth_pb.GetRoleRequest, auth_pb.Role> {
@@ -40,6 +41,15 @@ interface IAuthService_ICreateToken extends grpc.MethodDefinition<auth_pb.Create
     responseSerialize: grpc.serialize<auth_pb.CreateTokenResponse>;
     responseDeserialize: grpc.deserialize<auth_pb.CreateTokenResponse>;
 }
+interface IAuthService_ICreateNoAccessToken extends grpc.MethodDefinition<auth_pb.CreateTokenRequest, auth_pb.CreateTokenResponse> {
+    path: "/fonos.auth.v1alpha1.Auth/CreateNoAccessToken";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<auth_pb.CreateTokenRequest>;
+    requestDeserialize: grpc.deserialize<auth_pb.CreateTokenRequest>;
+    responseSerialize: grpc.serialize<auth_pb.CreateTokenResponse>;
+    responseDeserialize: grpc.deserialize<auth_pb.CreateTokenResponse>;
+}
 
 export const AuthService: IAuthService;
 
@@ -47,6 +57,7 @@ export interface IAuthServer {
     getRole: grpc.handleUnaryCall<auth_pb.GetRoleRequest, auth_pb.Role>;
     validateToken: grpc.handleUnaryCall<auth_pb.ValidateTokenRequest, auth_pb.ValidateTokenResponse>;
     createToken: grpc.handleUnaryCall<auth_pb.CreateTokenRequest, auth_pb.CreateTokenResponse>;
+    createNoAccessToken: grpc.handleUnaryCall<auth_pb.CreateTokenRequest, auth_pb.CreateTokenResponse>;
 }
 
 export interface IAuthClient {
@@ -59,6 +70,9 @@ export interface IAuthClient {
     createToken(request: auth_pb.CreateTokenRequest, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
     createToken(request: auth_pb.CreateTokenRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
     createToken(request: auth_pb.CreateTokenRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
+    createNoAccessToken(request: auth_pb.CreateTokenRequest, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
+    createNoAccessToken(request: auth_pb.CreateTokenRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
+    createNoAccessToken(request: auth_pb.CreateTokenRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
 }
 
 export class AuthClient extends grpc.Client implements IAuthClient {
@@ -72,4 +86,7 @@ export class AuthClient extends grpc.Client implements IAuthClient {
     public createToken(request: auth_pb.CreateTokenRequest, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
     public createToken(request: auth_pb.CreateTokenRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
     public createToken(request: auth_pb.CreateTokenRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
+    public createNoAccessToken(request: auth_pb.CreateTokenRequest, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
+    public createNoAccessToken(request: auth_pb.CreateTokenRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
+    public createNoAccessToken(request: auth_pb.CreateTokenRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: auth_pb.CreateTokenResponse) => void): grpc.ClientUnaryCall;
 }

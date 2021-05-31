@@ -48,6 +48,7 @@
     "@fonos/errors": "^0.0.100",
     "@fonos/logger": "^0.0.100",
     "grpc": "^1.24.7",
+    "grpc-promise": "^1.4.0",
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {

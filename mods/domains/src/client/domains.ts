@@ -26,7 +26,7 @@ import {
   GetDomainResponse,
   DeleteDomainResponse
 } from "../types";
-import {FonosService, ServiceOptions} from "@fonos/core";
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {DomainsClient} from "../service/protos/domains_grpc_pb";
 import DomainsPB from "../service/protos/domains_pb";
 import CommonPB from "../service/protos/common_pb";

@@ -782,7 +782,6 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.toObject = function(opt_i
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    iss: jspb.Message.getFieldWithDefault(msg, 1, ""),
     roleName: jspb.Message.getFieldWithDefault(msg, 2, ""),
     accessKeyId: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
@@ -821,10 +820,6 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.deserializeBinaryFromReader = funct
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setIss(value);
-      break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setRoleName(value);
@@ -862,13 +857,6 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.serializeBinary = functio
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getIss();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
   f = message.getRoleName();
   if (f.length > 0) {
     writer.writeString(
@@ -883,24 +871,6 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.serializeBinaryToWriter = function(
       f
     );
   }
-};
-
-
-/**
- * optional string iss = 1;
- * @return {string}
- */
-proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.getIss = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonos.auth.v1alpha1.CreateTokenRequest} returns this
- */
-proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.setIss = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 

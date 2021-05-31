@@ -58,8 +58,18 @@
     "description": "This role is able to obtain ingress information and create short live token",
     "access": [
       "/fonos.numbers.v1alpha1.Numbers/GetIngressInfo",
-      "/fonos.auth.v1alpha1.Auth/CreateToken",
+      "/fonos.auth.v1alpha1.Auth/CreateNoAccessToken",
       "/fonos.auth.v1alpha1.Auth/ValidateToken"
     ]
+  },
+  {
+    "name": "NO_ACCESSS",
+    "description": "Signature token without any access",
+    "access": []
+  },
+  {
+    "name": "ADMIN",
+    "description": "Can perform administrative task",
+    "access": ["/fonos.auth.v1alpha1.Auth/CreateToken"]
   }
 ]

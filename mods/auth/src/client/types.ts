@@ -16,6 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default function (call: any): string {
-  return call.metadata._internal_repr.access_key_id.toString();
+export interface CreateTokenRequest {
+  accessKeyId: string;
+  roleName?: string;
+}
+
+export interface ValidateTokenRequest {
+  token: string;
 }

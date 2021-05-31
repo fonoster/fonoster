@@ -38,7 +38,6 @@
     "atob": "^2.1.2",
     "axios": "^0.21.1",
     "btoa": "^1.2.1",
-    "deepmerge": "^4.2.2",
     "grpc": "^1.24.7",
     "grpc-ts-health-check": "^2.0.6",
     "ioredis": "^4.16.0",

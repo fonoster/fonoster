@@ -16,6 +16,8 @@ service Auth {
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse) {}
   // Verifies if a token was issue by Fonos or the same private key
   rpc CreateToken (CreateTokenRequest) returns (CreateTokenResponse) {}
+  // Creates a special token that has no access but serves a signature
+  rpc CreateNoAccessToken (CreateTokenRequest) returns (CreateTokenResponse) {}
 }
 
 message GetRoleRequest {

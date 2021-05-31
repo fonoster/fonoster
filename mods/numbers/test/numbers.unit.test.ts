@@ -3,7 +3,7 @@ import chai from "chai";
 import sinonChai from "sinon-chai";
 import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/core";
+import {FonosService} from "@fonos/common";
 import {NumbersPB} from "../src/client/numbers";
 import {CreateNumberResponse} from "../src/types";
 import numberDecoder from "../src/service/decoder";

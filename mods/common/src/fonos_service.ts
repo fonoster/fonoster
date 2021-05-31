@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import {configExist} from "@fonos/certs";
-import {getClientCredentials} from "@fonos/common";
-import {ServiceOptions} from "./common/types";
+import {getClientCredentials} from "./trust_util";
+import {ServiceOptions} from "./types";
 import * as fs from "fs";
 import * as path from "path";
 

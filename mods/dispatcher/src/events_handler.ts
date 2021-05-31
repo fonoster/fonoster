@@ -17,27 +17,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import ari from "ari-client";
-import wait from "wait-port";
 import logger from "@fonos/logger";
-import events from "./events_handler";
+import { CallRequest } from "./types";
 
-const connection = {
-  host: process.env.MS_ARI_URL.split("//")[1].split(":")[0],
-  port: parseInt(process.env.MS_ARI_URL.split("//")[1].split(":")[1])
-};
-
-wait(connection)
-.then((open) => {
-  if (open) {
-    ari.connect(
-      process.env.MS_ARI_URL, 
-      process.env.MS_ARI_USERNAME, 
-      process.env.MS_ARI_SECRET, 
-      events);
-    return;
-  }
+export default function (err, client) {
+  if (err) throw err;
   
-  logger.info("The port did not open before the timeout...");
-})
-.catch(console.error);
+  client.on("StasisStart", (event, channel) => {
+    // Need to find the app owner's accessKeyId
+    // Generate new service token
+    // Get dialback endpoint
+
+    const request:CallRequest = {
+      accessKeyId: "",
+      accessKeySecret: "",
+      dialbackEnpoint: "string",
+      sessionId: event.channel.id,
+      callerId: event.channel.caller.name,
+      callerNumber: event.channel.caller.number
+    };
+
+    console.log(`request=${JSON.stringify(event)}`);
+  });
+    
+  client.on("StasisEnd", (event, channel) => {
+    logger.debug(`channel.name=${channel.name}`);
+  });
+
+  client.start("mediacontroller");
+}

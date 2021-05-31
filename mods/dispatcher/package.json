@@ -10,7 +10,10 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+    "start": "cross-env NODE_ENV=dev nodemon src/dispatcher"
+  },
+  "bin": {
+    "run": "dist/dispatcher.js"
   },
   "nodemonConfig": {
     "watch": [
@@ -44,12 +47,11 @@
     "@fonos/numbers": "^0.0.100",
     "@fonos/storage": "^0.0.100",
     "@fonos/voice": "^0.0.100",
-    "dotenv": "^8.2.0",
-    "phone": "^2.4.20",
-    "vm2": "^3.6.10"
+    "ari-client": "^2.2.0",
+    "grpc": "^1.24.7",
+    "wait-port": "^0.2.9"
   },
   "devDependencies": {
-    "@types/phone": "^2.4.0",
     "nodemon": "^2.0.6",
     "rimraf": "^3.0.2"
   },

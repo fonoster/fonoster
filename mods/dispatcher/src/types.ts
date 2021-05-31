@@ -16,6 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default function (call: any): string {
-  return call.metadata._internal_repr.access_key_id.toString();
+export interface CallRequest {
+  accessKeyId: string;
+  accessKeySecret: string;
+  sessionId: string;
+  dialbackEnpoint: string;
+  callerId: string;
+  callerNumber: string;
 }
