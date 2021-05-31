@@ -1,5 +1,5 @@
 import "../../config";
-import Domains, {CommonPB}from "@fonos/domains";
+import Domains, {CommonPB} from "@fonos/domains";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -28,16 +27,17 @@ const connection = {
 };
 
 wait(connection)
-.then((open) => {
-  if (open) {
-    ari.connect(
-      process.env.MS_ARI_URL, 
-      process.env.MS_ARI_USERNAME, 
-      process.env.MS_ARI_SECRET, 
-      events);
-    return;
-  }
-  
-  logger.info("The port did not open before the timeout...");
-})
-.catch(console.error);
+  .then((open) => {
+    if (open) {
+      ari.connect(
+        process.env.MS_ARI_URL,
+        process.env.MS_ARI_USERNAME,
+        process.env.MS_ARI_SECRET,
+        events
+      );
+      return;
+    }
+
+    logger.info("The port did not open before the timeout...");
+  })
+  .catch(console.error);

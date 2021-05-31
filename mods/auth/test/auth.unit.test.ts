@@ -84,11 +84,9 @@ describe("@fonos/authentication", () => {
     };
     const jwtDependency = new Jwt();
     jwtDependency.encode(stubValue, "secret").then((result) => {
-      jwtDependency
-        .decode(result, "secret")
-        .then((objectJWT) => {
-          expect(objectJWT.accessKeyId).to.be.equal(stubValue.accessKeyId);
-        });
+      jwtDependency.decode(result, "secret").then((objectJWT) => {
+        expect(objectJWT.accessKeyId).to.be.equal(stubValue.accessKeyId);
+      });
     });
   });
 });

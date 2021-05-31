@@ -192,7 +192,8 @@ export default class Domains extends FonosService {
   ): Promise<UpdateDomainResponse> {
     const getDomainRequest = new DomainsPB.GetDomainRequest();
     getDomainRequest.setRef(request.ref);
-    const domain = await super.getService()
+    const domain = await super
+      .getService()
       .getDomain()
       .sendMessage(getDomainRequest);
 

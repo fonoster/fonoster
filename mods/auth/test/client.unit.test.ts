@@ -28,6 +28,5 @@ const sandbox = sinon.createSandbox();
 describe("@fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
-  it("creates a new access token", async () => {
-  });
+  it("creates a new access token", async () => {});
 });

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -18,17 +17,17 @@
  * limitations under the License.
  */
 import logger from "@fonos/logger";
-import { CallRequest } from "./types";
+import {CallRequest} from "./types";
 
 export default function (err, client) {
   if (err) throw err;
-  
+
   client.on("StasisStart", (event, channel) => {
     // Need to find the app owner's accessKeyId
     // Generate new service token
     // Get dialback endpoint
 
-    const request:CallRequest = {
+    const request: CallRequest = {
       accessKeyId: "",
       accessKeySecret: "",
       dialbackEnpoint: "string",
@@ -39,7 +38,7 @@ export default function (err, client) {
 
     console.log(`request=${JSON.stringify(event)}`);
   });
-    
+
   client.on("StasisEnd", (event, channel) => {
     logger.debug(`channel.name=${channel.name}`);
   });

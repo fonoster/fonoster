@@ -21,10 +21,9 @@ import {AuthClient} from "../service/protos/auth_grpc_pb";
 import AuthPB from "../service/protos/auth_pb";
 import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
-import { CreateTokenRequest, ValidateTokenRequest } from "./types";
+import {CreateTokenRequest, ValidateTokenRequest} from "./types";
 
 export default class Agents extends FonosService {
-
   constructor(options?: ServiceOptions) {
     super(AuthClient, options);
     super.init(grpc);
@@ -49,7 +48,6 @@ export default class Agents extends FonosService {
     req.setToken(request.token);
     return super.getService().validateToken().sendMessage(req);
   }
-
 }
 
 export {AuthPB};
