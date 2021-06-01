@@ -103,7 +103,6 @@ export default class CreateCommand extends Command {
       }
     } catch (e) {
       cli.action.stop();
-      console.log(e)
       if (e.code === 9) {
         throw new CLIError("This Number already exist");
       } else {

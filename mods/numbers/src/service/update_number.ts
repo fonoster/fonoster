@@ -41,7 +41,9 @@ export default async function updateNumber(call: any, callback: any) {
     encoder = encoder
       .withLocation(`tel:${number.getE164Number()}`, process.env.MS_ENDPOINT)
       .withMetadata({
-        webhook: number.getIngressInfo() ? number.getIngressInfo().getWebhook() : undefined,
+        webhook: number.getIngressInfo()
+          ? number.getIngressInfo().getWebhook()
+          : undefined,
         gwRef: number.getProviderRef(),
         createdOn: number.getCreateTime(),
         modifiedOn: number.getUpdateTime()

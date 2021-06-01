@@ -299,8 +299,9 @@ describe("@fonos/number", () => {
       expect(number.getProviderRef()).to.be.equal(jsonObj.metadata.gwRef);
       expect(number.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
       expect(number.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn);
-      expect(number.getIngressInfo().getWebhook())
-        .to.be.equal(jsonObj.metadata.webhook);
+      expect(number.getIngressInfo().getWebhook()).to.be.equal(
+        jsonObj.metadata.webhook
+      );
       expect(number.getE164Number()).to.be.equal(
         jsonObj.spec.location.telUrl.split(":")[1]
       );
