@@ -154,7 +154,7 @@ describe("@fonos/number", () => {
     expect(result.numbers[0]).to.have.property("updateTime").not.to.be.null;
   });
 
-  it("Should return error with aorLink and ingressApp", async () => {
+  it("Should return error with aorLink and ingressInfo", async () => {
     const request = {
       ref: numberPlain.ref,
       aorLink: numberPlain.aorLink,
@@ -178,7 +178,7 @@ describe("@fonos/number", () => {
     );
   });
 
-  it("Should return error with no aorLink and ingressApp", async () => {
+  it("Should return error with no aorLink and ingressInfo", async () => {
     const request = {
       ref: numberPlain.ref
     };
@@ -283,7 +283,7 @@ describe("@fonos/number", () => {
           gwRef: "1001",
           createdOn: "DATE",
           modifiedOn: "DATE",
-          ingressApp: "hello-monkeys"
+          webhook: "http://localhost:8080/apps/hello-world"
         },
         spec: {
           location: {
@@ -299,8 +299,8 @@ describe("@fonos/number", () => {
       expect(number.getProviderRef()).to.be.equal(jsonObj.metadata.gwRef);
       expect(number.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
       expect(number.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn);
-      //expect(number.getIngressInfo().getWebhook())
-      //  .to.be.equal(jsonObj.metadata.webhook);
+      expect(number.getIngressInfo().getWebhook())
+        .to.be.equal(jsonObj.metadata.webhook);
       expect(number.getE164Number()).to.be.equal(
         jsonObj.spec.location.telUrl.split(":")[1]
       );

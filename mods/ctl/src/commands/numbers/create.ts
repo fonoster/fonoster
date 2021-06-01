@@ -72,8 +72,8 @@ export default class CreateCommand extends Command {
           }
         ]);
 
-        answers.ingressApp = {};
-        answers.ingressApp.webhook = webhookPrompt.webhook;
+        answers.ingressInfo = {};
+        answers.ingressInfo.webhook = webhookPrompt.webhook;
       }
 
       const confirmPrompt = await inquirer.prompt([
@@ -103,6 +103,7 @@ export default class CreateCommand extends Command {
       }
     } catch (e) {
       cli.action.stop();
+      console.log(e)
       if (e.code === 9) {
         throw new CLIError("This Number already exist");
       } else {

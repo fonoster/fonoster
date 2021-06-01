@@ -246,7 +246,7 @@ export default class Numbers extends FonosService {
           providerRef: n.getProviderRef(),
           e164Number: n.getE164Number(),
           ingressInfo: {
-            webhook: n.getIngressInfo() ? n.getIngressInfo().getWebhook : null
+            webhook: n.getIngressInfo() ? n.getIngressInfo().getWebhook() : null
           },
           aorLink: n.getAorLink(),
           createTime: n.getCreateTime(),

@@ -48,7 +48,7 @@ export class UpdateCommand extends Command {
     const confirmPrompt = await inquirer.prompt([
       {
         name: "confirm",
-        message: "are you sure you want to update?",
+        message: "ready?",
         type: "confirm"
       }
     ]);
