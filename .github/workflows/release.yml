@@ -77,14 +77,6 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/storage
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publish to Docker Hub the AppManager API
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: fonoster/fonos-appmanager
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        workdir: mods/appmanager
-        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publish to Docker Hub the CallManager API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
