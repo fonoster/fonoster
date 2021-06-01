@@ -22,13 +22,16 @@ import logger from "@fonos/logger";
 import {CallRequest} from "./types";
 import axios from "axios";
 
-const auth = new Auth();
-const numbers = new Numbers();
+// First try the short env but fallback to the cannonical version
+const dialbackEnpoint = process.env.ARI_EXTERNAL_URL || process.env.MS_ARI_EXTERNAL_URL
 
 export default function (err, client) {
   if (err) throw err;
 
   client.on("StasisStart", async (event, channel) => {
+    const auth = new Auth();
+    const numbers = new Numbers();
+
     const didInfo = await channel.getChannelVar({
       channelId: channel.id,
       variable: "DID_INFO"
@@ -37,11 +40,11 @@ export default function (err, client) {
       e164Number: didInfo.value
     });
 
-    console.log(`@fonos/dispatcher statis start [channelId = ${channel.id}]`);
-    console.log(
+    logger.debug(`@fonos/dispatcher statis start [channelId = ${channel.id}]`);
+    logger.debug(
       `@fonos/dispatcher statis start [e164Number = ${didInfo.value}]`
     );
-    console.log(
+    logger.debug(
       `@fonos/dispatcher statis start [webhook = ${ingressInfo.webhook}, accessKeyId = ${ingressInfo.accessKeyId}]`
     );
 
@@ -53,14 +56,14 @@ export default function (err, client) {
       accessKeyId: ingressInfo.accessKeyId,
       signature: access.token,
       // Dialback request must travel thru the reverse proxy first
-      dialbackEnpoint: process.env.MS_ARI_EXTERNAL_URL,
+      dialbackEnpoint,
       sessionId: event.channel.id,
       number: didInfo.value,
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number
     };
 
-    console.log(
+    logger.verbose(
       `@fonos/dispatcher sending request to mediacontroller [request = ${JSON.stringify(
         request
       )}]`
@@ -69,13 +72,13 @@ export default function (err, client) {
     axios
       .post(ingressInfo.webhook, request)
       .then((response) => {
-        console.log(
+        logger.verbose(
           `@fonos/dispatcher mediacontroller [response = ${
             response.data ? response.data.data : "no response"
           }]`
         );
       })
-      .catch((e) => console.log(e));
+      .catch(logger.error);
   });
 
   client.on("StasisEnd", (event, channel) => {

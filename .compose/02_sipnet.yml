@@ -53,7 +53,8 @@ services:
       LOCALNET: '8.8.8.8'
     volumes:
       - data1-1:/home/fonos
-      - ${CONFIG}/config:/home/fonos/.fonos/config
+      # TODO: Update image to add user fonos
+      - ${CONFIG}/config:/root/.fonos/config
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
