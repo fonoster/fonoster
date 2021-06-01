@@ -23,7 +23,8 @@ import {CallRequest} from "./types";
 import axios from "axios";
 
 // First try the short env but fallback to the cannonical version
-const dialbackEnpoint = process.env.ARI_EXTERNAL_URL || process.env.MS_ARI_EXTERNAL_URL
+const dialbackEnpoint =
+  process.env.ARI_EXTERNAL_URL || process.env.MS_ARI_EXTERNAL_URL;
 
 export default function (err, client) {
   if (err) throw err;
