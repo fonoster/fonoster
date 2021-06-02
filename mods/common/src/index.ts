@@ -16,8 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import FonosService from "./fonos_service";
+import {ServiceOptions} from "./types";
 import {getClientCredentials, getServerCredentials} from "./trust_util";
 import healthcheck from "./healthcheck";
 import runServices from "./service_runner";
 
-export {getClientCredentials, getServerCredentials, runServices, healthcheck};
+export {
+  FonosService,
+  ServiceOptions,
+  getClientCredentials,
+  getServerCredentials,
+  runServices,
+  healthcheck
+};

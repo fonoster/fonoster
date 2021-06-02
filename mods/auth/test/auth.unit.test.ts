@@ -2,24 +2,15 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {join} from "path";
-import AuthUtils, {TokenResponse, UserToken} from "../src/utils/auth_utils";
+import AuthUtils from "../src/utils/auth_utils";
 import Jwt from "../src/utils/jwt";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({path: join(__dirname, "..", "..", "..", ".env")});
-}
-
 describe("@fonos/authentication", () => {
-  let tokenManager;
-
   before(async () => {
-    // This will create the bucket if it does not exist
-    tokenManager = sinon.spy();
     sandbox.stub(Jwt);
   });
 
@@ -34,12 +25,7 @@ describe("@fonos/authentication", () => {
       privateKey: "privatekey"
     };
     const stub = sinon.stub(jwtDependency, "encode").resolves(stubValue);
-
-    const expectedValue = {
-      accessToken: stubValue
-    };
-
-    const token = await authUtils.createTokens(
+    const token = await authUtils.createToken(
       parameter.accessKeyIdPayload,
       parameter.issuePayload,
       parameter.rolePayload,
@@ -97,13 +83,10 @@ describe("@fonos/authentication", () => {
       accessKeyId: "userid"
     };
     const jwtDependency = new Jwt();
-    const token = "";
     jwtDependency.encode(stubValue, "secret").then((result) => {
-      const docode = jwtDependency
-        .decode(result, "secret")
-        .then((objectJWT) => {
-          expect(objectJWT.accessKeyId).to.be.equal(stubValue.accessKeyId);
-        });
+      jwtDependency.decode(result, "secret").then((objectJWT) => {
+        expect(objectJWT.accessKeyId).to.be.equal(stubValue.accessKeyId);
+      });
     });
   });
 });

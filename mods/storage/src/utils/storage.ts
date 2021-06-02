@@ -19,8 +19,7 @@
 import walk from "walk";
 import path from "path";
 import logger from "@fonos/logger";
-import policyForBucket from "../bucket_policy";
-import {join} from "path";
+import policyForBucket from "./bucket_policy";
 
 const splitPath = (p: string) => path.dirname(p).split(path.sep);
 

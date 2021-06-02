@@ -1,10 +1,9 @@
 import "../../config";
-import Domains from "@fonos/domains";
+import Domains, {CommonPB} from "@fonos/domains";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
-import {CommonPB} from "@fonos/domains";
-import {Domain} from "@fonos/domains/src/types";
+import {Domain} from "@fonos/domains/src/client/types";
 
 // Using import will cause: Error: easy_table_1.default is not a constructor
 const Table = require("easy-table");

@@ -1,4 +1,4 @@
-import {FonosService, ServiceOptions} from "@fonos/core";
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {AgentsClient} from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -96,7 +96,7 @@ export default class Agents extends FonosService {
   async getAgent(ref: string): Promise<any> {
     const request = new AgentsPB.GetAgentRequest();
     request.setRef(ref);
-    return this.service.getAgent().sendMessage(request);
+    return super.getService().getAgent().sendMessage(request);
   }
 
   /**
@@ -171,7 +171,7 @@ export default class Agents extends FonosService {
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);
     r.setView(request.view);
-    return this.service.listAgents().sendMessage(r);
+    return super.getService().listAgents().sendMessage(r);
   }
 
   /**
@@ -190,7 +190,6 @@ export default class Agents extends FonosService {
   async deleteAgent(ref: string): Promise<object> {
     const req = new AgentsPB.DeleteAgentRequest();
     req.setRef(ref);
-
     return super.getService().deleteAgent().sendMessage(req);
   }
 }

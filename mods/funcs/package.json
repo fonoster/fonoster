@@ -1,6 +1,6 @@
 {
   "name": "@fonos/funcs",
-  "version": "0.0.100",
+  "version": "0.0.104",
   "description": "Fonoster functions support",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -14,8 +14,8 @@
     "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
   },
   "bin": {
-    "run": "dist/srv_runner.js",
-    "healthcheck": "dist/healthcheck.js"
+    "run": "dist/service/runner.js",
+    "healthcheck": "dist/service/healthcheck.js"
   },
   "nodemonConfig": {
     "watch": [
@@ -43,13 +43,13 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.100",
-    "@fonos/certs": "^0.0.100",
-    "@fonos/common": "^0.0.100",
-    "@fonos/core": "^0.0.100",
-    "@fonos/errors": "^0.0.100",
-    "@fonos/logger": "^0.0.100",
-    "@fonos/storage": "^0.0.100",
+    "@fonos/auth": "^0.0.104",
+    "@fonos/certs": "^0.0.104",
+    "@fonos/common": "^0.0.104",
+    "@fonos/core": "^0.0.104",
+    "@fonos/errors": "^0.0.104",
+    "@fonos/logger": "^0.0.104",
+    "@fonos/storage": "^0.0.104",
     "axios": "^0.21.1",
     "btoa": "^1.2.1",
     "container-image-builder": "^3.2.0",

@@ -3,9 +3,9 @@ import chai from "chai";
 import sinonChai from "sinon-chai";
 import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/core";
-import {NumbersPB, AppManagerPB} from "../src/client/numbers";
-import {CreateNumberResponse} from "../src/types";
+import {FonosService} from "@fonos/common";
+import {NumbersPB} from "../src/client/numbers";
+import {CreateNumberResponse} from "../src/client/types";
 import numberDecoder from "../src/service/decoder";
 
 const expect = chai.expect;
@@ -15,11 +15,14 @@ const sandbox = sinon.createSandbox();
 
 describe("@fonos/number", () => {
   const numberObj = new NumbersPB.Number();
+  const ingressInfo = new NumbersPB.IngressInfo();
+  ingressInfo.setWebhook("https://webhooks.acme.com/calls");
+  ingressInfo.setAccessKeyId("603693c0afaa1a080000000c");
   numberObj.setRef("cb8V0CNTfH");
   numberObj.setE164Number("16471234567");
   numberObj.setAorLink("sip:john@sip.local");
   numberObj.setProviderRef("Nx05y-ldZa");
-  numberObj.setIngressApp("hYTHYCYv_U");
+  numberObj.setIngressInfo(ingressInfo);
   numberObj.setUpdateTime("...");
   numberObj.setCreateTime("...");
 
@@ -27,7 +30,11 @@ describe("@fonos/number", () => {
     ref: numberObj.getRef(),
     e164Number: numberObj.getE164Number(),
     aorLink: numberObj.getAorLink(),
-    ingressApp: numberObj.getIngressApp(),
+    metadata: {
+      webhook: numberObj.getIngressInfo()
+        ? numberObj.getIngressInfo().getWebhook()
+        : null
+    },
     providerRef: numberObj.getProviderRef()
   };
 
@@ -53,13 +60,6 @@ describe("@fonos/number", () => {
 
     expect(stubNumber).to.be.calledTwice;
     expect(result).to.have.property("ref").to.be.equal(numberPlain.ref);
-    expect(result)
-      .to.have.property("e164Number")
-      .to.be.equal(numberPlain.e164Number);
-    expect(result).to.have.property("aorLink").to.be.equal(numberPlain.aorLink);
-    expect(result)
-      .to.have.property("providerRef")
-      .to.be.equal(numberPlain.providerRef);
   });
 
   it("should get a number by ref", async () => {
@@ -154,11 +154,13 @@ describe("@fonos/number", () => {
     expect(result.numbers[0]).to.have.property("updateTime").not.to.be.null;
   });
 
-  it("Should return error with aorLink and ingressApp", async () => {
+  it("Should return error with aorLink and ingressInfo", async () => {
     const request = {
       ref: numberPlain.ref,
       aorLink: numberPlain.aorLink,
-      ingressApp: numberPlain.ingressApp
+      metadata: {
+        webhook: numberPlain.metadata.webhook
+      }
     };
 
     sandbox.stub(FonosService.prototype, "init").returns();
@@ -176,7 +178,7 @@ describe("@fonos/number", () => {
     );
   });
 
-  it("Should return error with no aorLink and ingressApp", async () => {
+  it("Should return error with no aorLink and ingressInfo", async () => {
     const request = {
       ref: numberPlain.ref
     };
@@ -222,10 +224,12 @@ describe("@fonos/number", () => {
     expect(result).to.have.property("ref").to.be.equal(numberPlain.ref);
   });
 
-  it("Should udpdate a number with ingressApp", async () => {
+  it("Should udpdate a number with ingressInfo", async () => {
     const request = {
       ref: numberPlain.ref,
-      ingressApp: numberPlain.ingressApp
+      ingressInfo: {
+        webhook: numberPlain.metadata.webhook
+      }
     };
     const returnNumberDb = new NumbersPB.Number();
     returnNumberDb.setRef(request.ref);
@@ -249,42 +253,24 @@ describe("@fonos/number", () => {
     expect(result).to.have.property("ref").to.be.equal(numberPlain.ref);
   });
 
-  it("Should return an app", async () => {
-    const returnApp = new AppManagerPB.App();
-    returnApp.setRef("Nx05y-ldZa");
-    returnApp.setName("app");
-    returnApp.setAccessKeyId("60368b263e9a7d0800000004");
-    returnApp.setDescription("testApp");
-    returnApp.setUpdateTime("...");
-    returnApp.setCreateTime("...");
-    const returnResult = {
-      accessKeyId: "60368b263e9a7d0800000004",
-      description: "testApp",
-      name: "app",
-      ref: "Nx05y-ldZa"
-    };
+  it("Should return the ingress info for a number", async () => {
+    const returnIngressInfo = new NumbersPB.IngressInfo();
+    returnIngressInfo.setWebhook("https://webhooks.acme.com/calls");
 
     sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
-      getIngressApp: () => {
+      getIngressInfo: () => {
         return {
-          sendMessage: () => Promise.resolve(returnApp)
+          sendMessage: () => Promise.resolve(returnIngressInfo)
         };
       }
     });
 
     const numbers = new Numbers();
-    const result = await numbers.getIngressApp({e164Number: "16471234567"});
-    expect(result).to.have.property("ref").to.be.equal(returnResult.ref);
-    expect(result).to.have.property("name").to.be.equal(returnResult.name);
+    const result = await numbers.getIngressInfo({e164Number: "16471234567"});
     expect(result)
-      .to.have.property("description")
-      .to.be.equal(returnResult.description);
-    expect(result)
-      .to.have.property("accessKeyId")
-      .to.be.equal(returnResult.accessKeyId);
-    expect(result).to.have.property("createTime").not.to.be.null;
-    expect(result).to.have.property("updateTime").not.to.be.null;
+      .to.have.property("webhook")
+      .to.be.equal(returnIngressInfo.getWebhook());
   });
 
   context("number decoder", () => {
@@ -297,7 +283,7 @@ describe("@fonos/number", () => {
           gwRef: "1001",
           createdOn: "DATE",
           modifiedOn: "DATE",
-          ingressApp: "hello-monkeys"
+          webhook: "http://localhost:8080/apps/hello-world"
         },
         spec: {
           location: {
@@ -313,20 +299,22 @@ describe("@fonos/number", () => {
       expect(number.getProviderRef()).to.be.equal(jsonObj.metadata.gwRef);
       expect(number.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
       expect(number.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn);
-      expect(number.getIngressApp()).to.be.equal(jsonObj.metadata.ingressApp);
+      expect(number.getIngressInfo().getWebhook()).to.be.equal(
+        jsonObj.metadata.webhook
+      );
       expect(number.getE164Number()).to.be.equal(
         jsonObj.spec.location.telUrl.split(":")[1]
       );
     });
 
     it("should create a number object from without ingress app", () => {
-      delete jsonObj.metadata.ingressApp;
+      delete jsonObj.metadata.webhook;
       const number = numberDecoder(jsonObj);
       expect(number.getRef()).to.be.equal(jsonObj.metadata.ref);
       expect(number.getProviderRef()).to.be.equal(jsonObj.metadata.gwRef);
       expect(number.getCreateTime()).to.be.equal(jsonObj.metadata.createdOn);
       expect(number.getUpdateTime()).to.be.equal(jsonObj.metadata.modifiedOn);
-      expect(number.getIngressApp()).to.be.a("string").lengthOf(0);
+      //expect(number.getIngressInfo().getWebhook()).to.be.a("string").lengthOf(0);
       expect(number.getE164Number()).to.be.equal(
         jsonObj.spec.location.telUrl.split(":")[1]
       );

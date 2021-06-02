@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/core";
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {StorageClient} from "../service/protos/storage_grpc_pb";
 import StoragePB from "../service/protos/storage_pb";
 import CommonPB from "../service/protos/common_pb";

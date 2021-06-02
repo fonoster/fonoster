@@ -9,32 +9,16 @@ import {
   getRedisConnection
 } from "@fonos/core";
 import numberDecoder from "./decoder";
+import {assertHasAorLinkOrIngressInfo, assertIsE164} from "../utils/assertions";
 
 const redis = getRedisConnection();
-
-const validateNumber = (number: NumbersPB.Number) => {
-  if (!number.getE164Number()) {
-    throw new FonosInvalidArgument(
-      "e164Number field must be a valid e164 value."
-    );
-  }
-
-  if (number.getAorLink() && number.getIngressApp()) {
-    throw new FonosInvalidArgument(
-      "'ingressApp' and 'aorLink' are not compatible parameters"
-    );
-  } else if (!number.getAorLink() && !number.getIngressApp()) {
-    throw new FonosInvalidArgument(
-      "You must provider either an 'ingressApp' or and 'aorLink'"
-    );
-  }
-};
 
 export default async function createNumber(
   number: NumbersPB.Number,
   call: any
 ): Promise<NumbersPB.Number> {
-  validateNumber(number);
+  assertIsE164(number);
+  assertHasAorLinkOrIngressInfo(number);
 
   let encoder = new ResourceBuilder(Kind.NUMBER, number.getE164Number())
     .withGatewayRef(number.getProviderRef())
@@ -49,26 +33,15 @@ export default async function createNumber(
     // TODO: Perhaps I should place this in a ENV
     encoder = encoder
       .withLocation(`tel:${number.getE164Number()}`, process.env.MS_ENDPOINT)
-      .withMetadata({ingressApp: number.getIngressApp()});
+      .withMetadata({
+        webhook: number.getIngressInfo().getWebhook(),
+        accessKeyId: getAccessKeyId(call)
+      });
   }
 
   const resource = encoder.build();
 
   await routr.connect();
-
-  if (number.getIngressApp()) {
-    const app = await redis.get(number.getIngressApp());
-
-    if (!app)
-      throw new FonosFailedPrecondition(
-        `App ${number.getIngressApp()} doesn't exist`
-      );
-
-    await redis.set(
-      `extlink:${number.getE164Number()}`,
-      number.getIngressApp()
-    );
-  }
 
   const ref = await routr.resourceType("numbers").create(resource);
   // We do this to get updated metadata from Routr

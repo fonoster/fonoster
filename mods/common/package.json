@@ -1,6 +1,6 @@
 {
   "name": "@fonos/common",
-  "version": "0.0.100",
+  "version": "0.0.104",
   "description": "Common artifacts",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,9 +29,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.100",
+    "@fonos/certs": "^0.0.104",
+    "@fonos/logger": "^0.0.104",
     "@pionerlabs/grpc-interceptors": "^0.2.5",
     "atob": "^2.1.2",
+    "deepmerge": "^4.2.2",
     "grpc": "^1.24.7",
     "grpc-ts-health-check": "^2.0.6"
   }

@@ -27,7 +27,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@Fonos/funcs/service", () => {
+describe("@fonos/funcs/service", () => {
   afterEach(() => sandbox.restore());
 
   it("needs testing", async () => {});

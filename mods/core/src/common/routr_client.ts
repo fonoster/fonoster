@@ -78,6 +78,19 @@ export default class RoutrClient {
     }
   }
 
+  async getNumber(number: string) {
+    const e164Number = phone(number)[0];
+    const en = e164Number.replace("+", "%2B");
+    try {
+      const url = `${this.apiUrl}/numbers?token=${this.token}&filter=@.spec.location.telUrl=='tel:${en}'`;
+      const response = await axios.get(url);
+      const numberObj = response.data.data[0];
+      return numberObj;
+    } catch (err) {
+      handleError(err);
+    }
+  }
+
   async get(ref: string) {
     const ep = `/${ref}`;
     try {

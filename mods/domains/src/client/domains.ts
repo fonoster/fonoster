@@ -25,8 +25,8 @@ import {
   ListDomainsResponse,
   GetDomainResponse,
   DeleteDomainResponse
-} from "../types";
-import {FonosService, ServiceOptions} from "@fonos/core";
+} from "./types";
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {DomainsClient} from "../service/protos/domains_grpc_pb";
 import DomainsPB from "../service/protos/domains_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -192,7 +192,8 @@ export default class Domains extends FonosService {
   ): Promise<UpdateDomainResponse> {
     const getDomainRequest = new DomainsPB.GetDomainRequest();
     getDomainRequest.setRef(request.ref);
-    const domain = await this.getService()
+    const domain = await super
+      .getService()
       .getDomain()
       .sendMessage(getDomainRequest);
 
@@ -241,7 +242,7 @@ export default class Domains extends FonosService {
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);
     r.setView(request.view);
-    const paginatedList = await this.getService().listDomains().sendMessage(r);
+    const paginatedList = await super.getService().listDomains().sendMessage(r);
 
     return {
       nextPageToken: paginatedList.getNextPageToken(),

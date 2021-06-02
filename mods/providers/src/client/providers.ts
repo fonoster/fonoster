@@ -8,7 +8,7 @@ import {
   GetProviderResponse,
   DeleteProviderResponse
 } from "../types";
-import {FonosService, ServiceOptions} from "@fonos/core";
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {ProvidersClient} from "../service/protos/providers_grpc_pb";
 import ProvidersPB from "../service/protos/providers_pb";
 import CommonPB from "../service/protos/common_pb";

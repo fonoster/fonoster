@@ -19,9 +19,11 @@ services:
   sipproxy:
     ports:
       - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
-  mediacontroller:
-    ports:
-      - ${MC_AGI_PORT}:${MC_AGI_PORT}
   mediaserver:
+    ports:
+      - 6060:6060
+      - 20000-20020:20000-20020/udp
     environment:
       ENABLE_TEST_ACCOUNT: "true"
+      RTP_PORT_START: 20000
+      RTP_PORT_END: 20020

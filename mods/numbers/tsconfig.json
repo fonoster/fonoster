@@ -8,8 +8,7 @@
     {"path": "../common"},
     {"path": "../core"},
     {"path": "../logger"},
-    {"path": "../errors"},
-    {"path": "../appmanager"}
+    {"path": "../errors"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

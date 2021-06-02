@@ -1,6 +1,6 @@
 {
   "name": "@fonos/ctl",
-  "version": "0.0.100",
+  "version": "0.0.104",
   "description": "Command-Line for Fonos",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -46,9 +46,6 @@
       "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
     },
     "topics": {
-      "apps": {
-        "description": "manage voice applications"
-      },
       "domains": {
         "description": "manage sip domains"
       },
@@ -77,12 +74,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/agents": "^0.0.100",
-    "@fonos/appmanager": "^0.0.100",
-    "@fonos/domains": "^0.0.100",
-    "@fonos/logger": "^0.0.100",
-    "@fonos/numbers": "^0.0.100",
-    "@fonos/providers": "^0.0.100",
+    "@fonos/agents": "^0.0.104",
+    "@fonos/domains": "^0.0.104",
+    "@fonos/logger": "^0.0.104",
+    "@fonos/numbers": "^0.0.104",
+    "@fonos/providers": "^0.0.104",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/errors": "^1.3.4",

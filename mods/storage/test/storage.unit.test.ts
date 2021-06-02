@@ -22,7 +22,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import fs, {Stats} from "fs";
-import {FonosService} from "@fonos/core";
+import {FonosService} from "@fonos/common";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);

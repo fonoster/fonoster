@@ -3,9 +3,9 @@
 // Original file comments:
 // *
 // MIT License
-// Copyright (c) 2020 Fonoster Inc
+// Copyright (c) 2021 Fonoster Inc
 //
-// The SecretMananger proto contains the artificats for Secrets administration
+// The SecretMananger proto contains the artificts for Secrets administration
 // such as creation and deployment.
 'use strict';
 var grpc = require('grpc');
@@ -91,7 +91,7 @@ function deserialize_fonos_secrets_v1alpha1_Secret(buffer_arg) {
 
 
 var SecretsService = exports.SecretsService = {
-  // Lists Secret Secretlications
+  // Lists Secret 
 listSecretsId: {
     path: '/fonos.secrets.v1alpha1.Secrets/ListSecretsId',
     requestStream: false,

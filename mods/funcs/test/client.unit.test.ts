@@ -20,9 +20,9 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/core";
+import {FonosService} from "@fonos/common";
 import Funcs, {buildDeployFuncRequest, FuncsPB} from "../src/client/funcs";
-import {DeployFuncRequest} from "../src/types";
+import {DeployFuncRequest} from "../src/client/types";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -37,7 +37,7 @@ funcObj.setReplicas(1);
 funcObj.setInvocationCount(1000);
 funcObj.setSchedule("* * * * *");
 
-describe("@Fonos/funcs/client", () => {
+describe("@fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
   it("returns a function object a DeployFuncRequest", async () => {

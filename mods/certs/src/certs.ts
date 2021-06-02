@@ -9,7 +9,7 @@ const BASE_DIR = join(homedir(), ".fonos");
 const PATH_TO_SALT = join(BASE_DIR, "jwt.salt");
 const PATH_TO_CONFIG = join(BASE_DIR, "config");
 const ACCESS_KEY_ID = process.env.ACCESS_KEY_ID || "fonos";
-const ISS = process.env.ISS || "fonos";
+const AUTH_ISS = process.env.AUTH_ISS || "fonos";
 
 const getContent = (workdir: string, file: string) =>
   btoa(fs.readFileSync(`${workdir}/${file}`).toString("utf-8"));
@@ -26,7 +26,7 @@ async function createAccessFile() {
   }
 
   const salt = getSalt();
-  const claims = {ISS, sub: ACCESS_KEY_ID};
+  const claims = {AUTH_ISS, sub: ACCESS_KEY_ID};
   const config = {
     accessKeyId: ACCESS_KEY_ID,
     accessKeySecret: jwt.sign(claims, salt)
@@ -45,11 +45,9 @@ function createServerConfig(workdir: string) {
   try {
     const pathToConfig = join(workdir, "config");
     const config: any = {};
-
     config.caCertificate = getContent(workdir, "ca.crt");
     config.serverCertificate = getContent(workdir, "server.crt");
     config.serverKey = getContent(workdir, "server.key");
-
     writeConfig(config, pathToConfig, workdir);
   } catch (e) {
     console.error(e);
@@ -60,12 +58,10 @@ function createClientConfig(workdir: string, endpoint: string) {
   try {
     const pathToConfig = join(workdir, "config");
     const config = JSON.parse(fs.readFileSync(pathToConfig).toString("utf-8"));
-
     config.endpoint = endpoint;
     config.caCertificate = getContent(workdir, "ca.crt");
     config.clientCertificate = getContent(workdir, "client.crt");
     config.clientKey = getContent(workdir, "client.key");
-
     writeConfig(config, pathToConfig, workdir);
   } catch (e) {
     console.error(e);
@@ -82,5 +78,5 @@ export {
   PATH_TO_SALT,
   PATH_TO_CONFIG,
   ACCESS_KEY_ID,
-  ISS
+  AUTH_ISS
 };

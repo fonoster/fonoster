@@ -1,4 +1,4 @@
-import {FonosService, ServiceOptions} from "@fonos/core";
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {SecretsClient} from "../service/protos/secrets_grpc_pb";
 import SecretPB from "../service/protos/secrets_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -21,7 +21,7 @@ import {Secret, CreateSecretRequest} from "../types";
  */
 export default class Secrets extends FonosService {
   /**
-   * Constructs a new AppManager Object.
+   * Constructs a new Secrets Object.
    *
    * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
