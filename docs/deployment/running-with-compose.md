@@ -32,7 +32,7 @@ docker volume create --name=data1-1
 
 ## Run PF with docker-compose
 
-To run `PF`, first clone the repo and go to .compose with:
+To run `PF`, first clone the repo and go to the directory `.compose` with:
 
 ```bash
 git clone https://github.com/fonoster/fonos --depth=1
@@ -50,7 +50,7 @@ sudo docker-compose --env-file .env \
     -f 02_sipnet.yml up
 ```
 
-Finally, once all the services all up an running initialize the system with:
+Finally, once all the services are up an running initialize `PF` with:
 
 ```bash
 docker-compose -f init.yml up
