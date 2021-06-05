@@ -16,21 +16,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default class VoiceEvents {
-  observers: any;
-  constructor() {
-    this.observers = [];
+import { Verb } from "../verb";
+import { VoiceRequest } from "../types";
+import VoiceEvents from "../events";
+
+export class PlaybackControl extends Verb {
+  playbackId: string;
+  constructor(request: VoiceRequest, playbackId: string) {
+    super(request, null);
+    this.playbackId = playbackId;
   }
 
-  subscribe(fn) {
-    this.observers.push(fn);
+  private async operation(name: string) {
+    await super.post(`playbacks/${this.playbackId}/control`, `operation=${name}`);
   }
 
-  unsubscribe(fn) {
-    this.observers = this.observers.filter((subscriber) => subscriber !== fn);
+  async restart() {
+    await super.post(`playbacks/${this.playbackId}/control`, `operation=pause`);
   }
 
-  broadcast(data) {
-    this.observers.forEach((subscriber) => subscriber(JSON.parse(data)));
+  async pause() {
+    await this.operation("pause");
+  }
+
+  async unpause() {
+    await this.operation("unpause");
+  }
+
+  async forward() {
+    await this.operation("forward");
   }
 }

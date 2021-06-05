@@ -16,21 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default class VoiceEvents {
-  observers: any;
-  constructor() {
-    this.observers = [];
-  }
+export interface VoiceRequest {
+  accessKeyId: string;
+  signature: string;
+  sessionId: string;
+  dialbackEnpoint: string;
+  number: string;
+  callerId: string;
+  callerNumber: string;
+}
 
-  subscribe(fn) {
-    this.observers.push(fn);
-  }
-
-  unsubscribe(fn) {
-    this.observers = this.observers.filter((subscriber) => subscriber !== fn);
-  }
-
-  broadcast(data) {
-    this.observers.forEach((subscriber) => subscriber(JSON.parse(data)));
-  }
+export interface ServerConfig {
+  bind?: string;
+  port?: number;
+  path?: string;
 }

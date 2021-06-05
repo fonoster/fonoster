@@ -16,21 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default class VoiceEvents {
-  observers: any;
-  constructor() {
-    this.observers = [];
-  }
-
-  subscribe(fn) {
-    this.observers.push(fn);
-  }
-
-  unsubscribe(fn) {
-    this.observers = this.observers.filter((subscriber) => subscriber !== fn);
-  }
-
-  broadcast(data) {
-    this.observers.forEach((subscriber) => subscriber(JSON.parse(data)));
-  }
+export interface PlayOptions {
+  offset?: number;
+  skip?: number;
+  playackId?: string;
 }

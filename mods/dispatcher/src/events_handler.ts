@@ -21,10 +21,13 @@ import Numbers from "@fonos/numbers";
 import logger from "@fonos/logger";
 import {CallRequest} from "./types";
 import axios from "axios";
+import WebSocket from "ws";
 
 // First try the short env but fallback to the cannonical version
 const dialbackEnpoint =
-  process.env.ARI_EXTERNAL_URL || process.env.MS_ARI_EXTERNAL_URL;
+  process.env.ARI_EXTERNAL_URL 
+  || process.env.MS_ARI_EXTERNAL_URL 
+  || "http://localhost:8088";
 
 export default function (err, client) {
   if (err) throw err;
@@ -32,6 +35,7 @@ export default function (err, client) {
   client.on("StasisStart", async (event, channel) => {
     const auth = new Auth();
     const numbers = new Numbers();
+    const sessionId = event.channel.id;
 
     const didInfo = await channel.getChannelVar({
       channelId: channel.id,
@@ -58,7 +62,7 @@ export default function (err, client) {
       signature: access.token,
       // Dialback request must travel thru the reverse proxy first
       dialbackEnpoint,
-      sessionId: event.channel.id,
+      sessionId,
       number: didInfo.value,
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number
@@ -80,6 +84,18 @@ export default function (err, client) {
         );
       })
       .catch(logger.error);
+ 
+    const ws = new WebSocket(ingressInfo.webhook);
+    
+    ws.on('open', function open() {
+      channel.on("DtmfReceived", (event, channel) => {
+        ws.send(JSON.stringify({type: "DtmfReceived", sessionId: channel.id, data: event.digit}))
+      });
+
+      client.on("PlaybackFinished", (event, playback) => {
+        ws.send(JSON.stringify({type: "PlaybackFinished", sessionId, data: playback.id}))
+      });
+    });
   });
 
   client.on("StasisEnd", (event, channel) => {

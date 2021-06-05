@@ -16,21 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default class VoiceEvents {
-  observers: any;
-  constructor() {
-    this.observers = [];
-  }
+import chai from "chai";
+import sinon from "sinon";
+import sinonChai from "sinon-chai";
+import chaiAsPromised from "chai-as-promised";
+import { objectToQString } from "../src/utils";
+const expect = chai.expect;
+chai.use(sinonChai);
+chai.use(chaiAsPromised);
+const sandbox = sinon.createSandbox();
 
-  subscribe(fn) {
-    this.observers.push(fn);
-  }
-
-  unsubscribe(fn) {
-    this.observers = this.observers.filter((subscriber) => subscriber !== fn);
-  }
-
-  broadcast(data) {
-    this.observers.forEach((subscriber) => subscriber(JSON.parse(data)));
-  }
-}
+describe("@fonos/voice/utils", () => {
+  it("will convert an object to a query string", () => {
+    const testObject = {
+      optionA: "A",
+      optionB: "B",
+      optionC: undefined,
+    }
+    expect(objectToQString(testObject)).to.be.equal("optionA=A&optionB=B");
+    expect(objectToQString()).to.be.equal("");
+  });
+});

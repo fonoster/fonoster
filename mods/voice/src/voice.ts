@@ -16,21 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default class VoiceEvents {
-  observers: any;
-  constructor() {
-    this.observers = [];
+import VoiceEvents from "./events";
+import PlayVerb from "./play/play";
+import { PlayOptions } from "./play/types";
+import { VoiceRequest } from "./types";
+
+export default class {
+  request: VoiceRequest;
+  events: VoiceEvents;
+  constructor(request: VoiceRequest, events: VoiceEvents) {
+    this.request = request;
+    this.events = events;
   }
 
-  subscribe(fn) {
-    this.observers.push(fn);
-  }
-
-  unsubscribe(fn) {
-    this.observers = this.observers.filter((subscriber) => subscriber !== fn);
-  }
-
-  broadcast(data) {
-    this.observers.forEach((subscriber) => subscriber(JSON.parse(data)));
+  async play(media: string, options?: PlayOptions) {
+    await new PlayVerb(this.request, this.events).run(media, options);
   }
 }

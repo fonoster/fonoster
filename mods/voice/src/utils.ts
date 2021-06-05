@@ -16,21 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default class VoiceEvents {
-  observers: any;
-  constructor() {
-    this.observers = [];
-  }
 
-  subscribe(fn) {
-    this.observers.push(fn);
-  }
-
-  unsubscribe(fn) {
-    this.observers = this.observers.filter((subscriber) => subscriber !== fn);
-  }
-
-  broadcast(data) {
-    this.observers.forEach((subscriber) => subscriber(JSON.parse(data)));
-  }
-}
+/**
+ * Takes a json object and creates a query formatted string
+ *
+ * @param {object} - a one level json object with the query options
+ * @returns {string} a string in the form of 'key1=value1&key2=value2&...'
+ */
+ export const objectToQString = (obj: any = {}): string =>
+  Object.keys(obj)
+    .filter((key: string) => obj[key])
+    .map((key: string) => `${key}=${obj[key].toString()}`)
+    .join("&");

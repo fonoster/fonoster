@@ -1,16 +1,50 @@
-interface VerbConfig {
-  tts: any;
-  storage: any;
-  bucket: "public";
-  accessKeyId: string;
-}
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import axios from 'axios';
+import VoiceEvents from './events';
+import { VoiceRequest } from './types';
 
-class Verb {
-  channel: any;
-  config: VerbConfig;
-  constructor(channel: any, config?: VerbConfig) {
-    this.channel = channel;
-    this.config = config;
+const auth = process.env.NODE_ENV != "production" 
+  ? {
+      username: "admin",
+      password: "changeit"
+    }
+  : null;
+
+export class Verb {
+  request: VoiceRequest;
+  events: VoiceEvents;
+  constructor(request: VoiceRequest, events: VoiceEvents) {
+    this.request = request;
+    this.events = events
+  }
+
+  getRequest(): VoiceRequest {
+    return this.request;
+  }
+
+  async post(apiPath: string, queryParameters: string) {
+    const url = `${this.getRequest().dialbackEnpoint}/ari/${apiPath}?${queryParameters}`;
+    return await axios({
+      method: "post",
+      url,
+      auth
+    });
   }
 }
-export {Verb as default, VerbConfig};
