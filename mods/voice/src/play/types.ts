@@ -19,5 +19,5 @@
 export interface PlayOptions {
   offset?: number;
   skip?: number;
-  playackId?: string;
+  playbackId?: string;
 }

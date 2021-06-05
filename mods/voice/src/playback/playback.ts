@@ -18,7 +18,7 @@
  */
 import { Verb } from "../verb";
 import { VoiceRequest } from "../types";
-import VoiceEvents from "../events";
+import logger from "@fonos/logger";
 
 export class PlaybackControl extends Verb {
   playbackId: string;
@@ -28,11 +28,12 @@ export class PlaybackControl extends Verb {
   }
 
   private async operation(name: string) {
+    logger.verbose(`@fonos/voice calling [playbacks/${this.playbackId}/control?operation=${name}]`)
     await super.post(`playbacks/${this.playbackId}/control`, `operation=${name}`);
   }
 
   async restart() {
-    await super.post(`playbacks/${this.playbackId}/control`, `operation=pause`);
+    await this.operation("restart");;
   }
 
   async pause() {

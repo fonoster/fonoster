@@ -88,11 +88,13 @@ export default function (err, client) {
     const ws = new WebSocket(ingressInfo.webhook);
     
     ws.on('open', function open() {
-      channel.on("DtmfReceived", (event, channel) => {
+      channel.on("ChannelDtmfReceived", (event, channel) => {
+        logger.verbose(`@fonos/dispatcher sending dtmf event [digit: ${event.digit}]`)
         ws.send(JSON.stringify({type: "DtmfReceived", sessionId: channel.id, data: event.digit}))
       });
 
       client.on("PlaybackFinished", (event, playback) => {
+        logger.verbose(`@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`)
         ws.send(JSON.stringify({type: "PlaybackFinished", sessionId, data: playback.id}))
       });
     });

@@ -31,3 +31,9 @@ export interface ServerConfig {
   port?: number;
   path?: string;
 }
+
+export interface VoiceEventData {
+  type: string;
+  sessionId: string;
+  data: any;
+}

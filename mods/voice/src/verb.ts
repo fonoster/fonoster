@@ -19,6 +19,7 @@
 import axios from 'axios';
 import VoiceEvents from './events';
 import { VoiceRequest } from './types';
+import logger from "@fonos/logger";
 
 const auth = process.env.NODE_ENV != "production" 
   ? {
@@ -41,6 +42,7 @@ export class Verb {
 
   async post(apiPath: string, queryParameters: string) {
     const url = `${this.getRequest().dialbackEnpoint}/ari/${apiPath}?${queryParameters}`;
+    logger.verbose(`@fonos/voice posting [url: ${url}]`);
     return await axios({
       method: "post",
       url,

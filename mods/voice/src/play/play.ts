@@ -22,23 +22,21 @@ import { PlayOptions } from "./types";
 import { objectToQString } from "../utils";
 
 export default class PlayVerb extends Verb {
-  run(media: string, options: PlayOptions = {}): Promise<null> {
-    const playackId = options.playackId? options.playackId : objectid()
+  run(media: string, options: PlayOptions = {}): Promise<void> {
+    const playbackId = options.playbackId? options.playbackId : objectid()
     // Renaming properties to match the API query parameters
     const opts = {
       media,
       offsetms: options.offset,
       skipms: options.skip,
-      playackId
+      playbackId
     };
 
     return new Promise(async(resolve, reject) => {
       try {
         await super.post(`channels/${this.request.sessionId}/play`, objectToQString(opts));
         this.events.subscribe((event) => {
-          event.type === "PlaybackFinished" 
-            ? resolve(event)
-            : reject("Unexpected event: " + event.type);
+          if (event.type === "PlaybackFinished") resolve(event);
         })
       } catch(e) {
         reject(e);
