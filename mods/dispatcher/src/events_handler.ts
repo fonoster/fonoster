@@ -25,9 +25,9 @@ import WebSocket from "ws";
 
 // First try the short env but fallback to the cannonical version
 const dialbackEnpoint =
-  process.env.ARI_EXTERNAL_URL 
-  || process.env.MS_ARI_EXTERNAL_URL 
-  || "http://localhost:8088";
+  process.env.ARI_EXTERNAL_URL ||
+  process.env.MS_ARI_EXTERNAL_URL ||
+  "http://localhost:8088";
 
 export default function (err, client) {
   if (err) throw err;
@@ -84,18 +84,34 @@ export default function (err, client) {
         );
       })
       .catch(logger.error);
- 
+
     const ws = new WebSocket(ingressInfo.webhook);
-    
-    ws.on('open', function open() {
+
+    ws.on("open", function open() {
       channel.on("ChannelDtmfReceived", (event, channel) => {
-        logger.verbose(`@fonos/dispatcher sending dtmf event [digit: ${event.digit}]`)
-        ws.send(JSON.stringify({type: "DtmfReceived", sessionId: channel.id, data: event.digit}))
+        logger.verbose(
+          `@fonos/dispatcher sending dtmf event [digit: ${event.digit}]`
+        );
+        ws.send(
+          JSON.stringify({
+            type: "DtmfReceived",
+            sessionId: channel.id,
+            data: event.digit
+          })
+        );
       });
 
       client.on("PlaybackFinished", (event, playback) => {
-        logger.verbose(`@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`)
-        ws.send(JSON.stringify({type: "PlaybackFinished", sessionId, data: playback.id}))
+        logger.verbose(
+          `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
+        );
+        ws.send(
+          JSON.stringify({
+            type: "PlaybackFinished",
+            sessionId,
+            data: playback.id
+          })
+        );
       });
     });
   });

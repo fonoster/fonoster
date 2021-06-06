@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import VoiceEvents from "./events";
-import GatherVerb, { GatherOptions } from "./gather/gather";
+import GatherVerb, {GatherOptions} from "./gather/gather";
 import PlayVerb from "./play/play";
-import { PlayOptions } from "./play/types";
-import { PlaybackControl } from "./playback/playback";
-import { VoiceEventData, VoiceRequest } from "./types";
+import {PlayOptions} from "./play/types";
+import {PlaybackControl} from "./playback/playback";
+import {VoiceEventData, VoiceRequest} from "./types";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -31,11 +31,11 @@ import { VoiceEventData, VoiceRequest } from "./types";
  * @example
  *
  * import { VoiceServer } from "@fonos/voice";
- * 
+ *
  * async function handler (request, response) {
  *   await response.play("sound:hello-world");
  * }
- * 
+ *
  * const voiceServer = new VoiceServer({path: '/voiceapp'})
  * voiceServer.listen(handler, { port: 3000 })
  */
@@ -45,7 +45,7 @@ export default class {
 
   /**
    * Constructs a new VoiceResponse object.
-   * 
+   *
    * @param {VoiceRequest} request - Options to indicate the objects endpoint
    * @param {VoiceEvents} events - Options to indicate the objects endpoint
    * @see module:core:FonosService
@@ -66,7 +66,7 @@ export default class {
    * @param {string} options.playbackId - playback identifier to use in Playback operations
    * @see Playback
    * @example
-   * 
+   *
    * async function handler (request, response) {
    *   await response.play("https://soundsserver:900/sounds/hello-world.wav");
    * }
@@ -83,13 +83,13 @@ export default class {
    * @param {number} options.timeout - milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
    * @param {string} options.finishOnKey - optional last character to wait to. Defaults to '#'. It will not be included in the returned digits
    * @example
-   * 
+   *
    * async function handler (request, response) {
    *   const digits = await response.gather({numDigits: 3});
    *   console.log("digits: " + digits);
    * }
    */
-   async gather(options: GatherOptions) {
+  async gather(options: GatherOptions) {
     await new GatherVerb(this.request, this.events).run(options);
   }
 
@@ -99,18 +99,18 @@ export default class {
    * @param {string} playbackId - playback identifier to use in Playback operations
    * @see Play
    * @example
-   * 
+   *
    * async function handler (request, response) {
    *   response.onDtmfReceived(async(digit) => {
    *      const control = response.playback("1234")
-   *      digit === "3" 
+   *      digit === "3"
    *        ? await control.restart()
    *        : await control.forward()
    *   })
-   * 
+   *
    *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
    *      playbackId: "1234"
-   *   }); 
+   *   });
    * }
    */
   playback(playbackId: string): PlaybackControl {
@@ -122,26 +122,26 @@ export default class {
    *
    * @param {Function} handler - event handler
    * @example
-   * 
+   *
    * async function handler (request, response) {
    *   response.onDtmfReceived(async(digit) => {
    *      const control = response.playback("1234")
-   *      digit === "3" 
+   *      digit === "3"
    *        ? await control.restart()
    *        : await control.forward()
    *   })
-   * 
+   *
    *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
    *      playbackId: "1234"
-   *   }); 
+   *   });
    * }
    */
   async onDtmfReceived(handler: Function) {
     this.events.subscribe(async (event: VoiceEventData) => {
-      if (event.type === 'DtmfReceived') {
-        await handler(event)
+      if (event.type === "DtmfReceived") {
+        await handler(event);
       }
-    })
+    });
   }
 
   /**
@@ -149,22 +149,22 @@ export default class {
    *
    * @param {Function} handler - event handler
    * @example
-   * 
+   *
    * async function handler (request, response) {
    *   response.onPlaybackFinished(async(event) => {
    *      console.log(event.data)     // Returns playbackId
    *   })
-   * 
+   *
    *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
    *      playbackId: "1234"
-   *   }); 
+   *   });
    * }
    */
   async onPlaybackFinished(handler: Function) {
     this.events.subscribe(async (event: VoiceEventData) => {
-      if (event.type === 'PlaybackFinished') {
-        await handler(event.data)
+      if (event.type === "PlaybackFinished") {
+        await handler(event.data);
       }
-    })
+    });
   }
 }

@@ -20,7 +20,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { objectToQString } from "../src/utils";
+import {objectToQString} from "../src/utils";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -31,8 +31,8 @@ describe("@fonos/voice/utils", () => {
     const testObject = {
       optionA: "A",
       optionB: "B",
-      optionC: undefined,
-    }
+      optionC: undefined
+    };
     expect(objectToQString(testObject)).to.be.equal("optionA=A&optionB=B");
     expect(objectToQString()).to.be.equal("");
   });

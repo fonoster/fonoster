@@ -16,24 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import axios from 'axios';
-import VoiceEvents from './events';
-import { VoiceRequest } from './types';
+import axios from "axios";
+import VoiceEvents from "./events";
+import {VoiceRequest} from "./types";
 import logger from "@fonos/logger";
 
-const auth = process.env.NODE_ENV != "production" 
-  ? {
-      username: "admin",
-      password: "changeit"
-    }
-  : null;
+const auth =
+  process.env.NODE_ENV != "production"
+    ? {
+        username: "admin",
+        password: "changeit"
+      }
+    : null;
 
 export class Verb {
   request: VoiceRequest;
   events: VoiceEvents;
   constructor(request: VoiceRequest, events: VoiceEvents) {
     this.request = request;
-    this.events = events
+    this.events = events;
   }
 
   getRequest(): VoiceRequest {
@@ -41,7 +42,9 @@ export class Verb {
   }
 
   async post(apiPath: string, queryParameters: string) {
-    const url = `${this.getRequest().dialbackEnpoint}/ari/${apiPath}?${queryParameters}`;
+    const url = `${
+      this.getRequest().dialbackEnpoint
+    }/ari/${apiPath}?${queryParameters}`;
     logger.verbose(`@fonos/voice posting [url: ${url}]`);
     return await axios({
       method: "post",

@@ -17,16 +17,16 @@
  * limitations under the License.
  */
 import objectid from "objectid";
-import { Verb } from "../verb";
-import { PlayOptions } from "./types";
-import { objectToQString } from "../utils";
-import { assertValuesArePositive } from "./asserts";
+import {Verb} from "../verb";
+import {PlayOptions} from "./types";
+import {objectToQString} from "../utils";
+import {assertValuesArePositive} from "./asserts";
 
 export default class PlayVerb extends Verb {
   run(media: string, options: PlayOptions = {}): Promise<void> {
     assertValuesArePositive(options);
-    
-    const playbackId = options.playbackId? options.playbackId : objectid()
+
+    const playbackId = options.playbackId ? options.playbackId : objectid();
     // Renaming properties to match the API query parameters
     const opts = {
       media,
@@ -35,17 +35,20 @@ export default class PlayVerb extends Verb {
       playbackId
     };
 
-    return new Promise(async(resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        await super.post(`channels/${this.request.sessionId}/play`, objectToQString(opts));
+        await super.post(
+          `channels/${this.request.sessionId}/play`,
+          objectToQString(opts)
+        );
         this.events.subscribe((event) => {
           if (event.type === "PlaybackFinished") resolve(event);
-        })
-      } catch(e) {
+        });
+      } catch (e) {
         reject(e);
       }
     });
   }
 }
 
-export { PlayOptions }
+export {PlayOptions};

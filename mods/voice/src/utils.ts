@@ -23,7 +23,7 @@
  * @param {object} - a one level json object with the query options
  * @returns {string} a string in the form of 'key1=value1&key2=value2&...'
  */
- export const objectToQString = (obj: any = {}): string =>
+export const objectToQString = (obj: any = {}): string =>
   Object.keys(obj)
     .filter((key: string) => obj[key])
     .map((key: string) => `${key}=${obj[key].toString()}`)

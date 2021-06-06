@@ -17,19 +17,19 @@
  * limitations under the License.
  */
 import merge from "deepmerge";
-import { VoiceEventData } from "../types";
-import { Verb } from "../verb";
+import {VoiceEventData} from "../types";
+import {Verb} from "../verb";
 import {
   assertsFinishOnKeyIsChar,
   assertsHasNumDigitsOrTimeout,
   assertsValuesArePositive
 } from "./asserts";
-import { GatherOptions } from "./types";
+import {GatherOptions} from "./types";
 
-const defaultOptions:GatherOptions = { 
-  timeout: 4000, 
-  finishOnKey: "#" 
-}
+const defaultOptions: GatherOptions = {
+  timeout: 4000,
+  finishOnKey: "#"
+};
 
 export default class GatherVerb extends Verb {
   run(opts: GatherOptions): Promise<string> {
@@ -58,18 +58,20 @@ export default class GatherVerb extends Verb {
               }, options.timeout);
             }
             // We don't need to include finishOnKey
-            if(options.finishOnKey != event.data) {
+            if (options.finishOnKey != event.data) {
               digits += event.data;
             }
           } else {
             reject("Unexpected event: " + event.type);
           }
 
-          if (digits.length >= options.numDigits
-            || event.data === options.finishOnKey) {
+          if (
+            digits.length >= options.numDigits ||
+            event.data === options.finishOnKey
+          ) {
             resolve(digits);
           }
-        })
+        });
       } catch (e) {
         reject(e);
       }
@@ -77,4 +79,4 @@ export default class GatherVerb extends Verb {
   }
 }
 
-export { GatherOptions }
+export {GatherOptions};

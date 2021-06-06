@@ -16,23 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ServerConfig } from "./types";
+import {ServerConfig} from "./types";
 import VoiceResponse from "./voice";
 import VoiceEvents from "./events";
 import logger from "@fonos/logger";
-const express = require('express');
+const express = require("express");
 const merge = require("deepmerge");
 const app = express();
-app.use(express.json())
-require('express-ws')(app);
+app.use(express.json());
+require("express-ws")(app);
 
-const voiceEvents = new VoiceEvents()
-const defaultServerConfig:ServerConfig = { path: "/", port: 3000, bind: "0.0.0.0"}
+const voiceEvents = new VoiceEvents();
+const defaultServerConfig: ServerConfig = {
+  path: "/",
+  port: 3000,
+  bind: "0.0.0.0"
+};
 
 export default class VoiceServer {
   config: any;
   constructor(config: ServerConfig = defaultServerConfig) {
-    this.config = merge(defaultServerConfig, config)
+    this.config = merge(defaultServerConfig, config);
     this.init();
   }
 
@@ -42,15 +46,17 @@ export default class VoiceServer {
       await handler(req.body, response);
       res.end();
     });
-    logger.info(`starting voice server on @ ${this.config.bind}, port=${this.config.port}`);
+    logger.info(
+      `starting voice server on @ ${this.config.bind}, port=${this.config.port}`
+    );
     app.listen(port, this.config.bind);
   }
 
   init() {
     logger.info(`initializing voice server`);
-    app.ws(this.config.path, ws => {
-      ws.on('message', msg =>{
-        voiceEvents.broadcast(msg)
+    app.ws(this.config.path, (ws) => {
+      ws.on("message", (msg) => {
+        voiceEvents.broadcast(msg);
       });
     });
   }

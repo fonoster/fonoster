@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PlayOptions } from "./types";
+import {PlayOptions} from "./types";
 
 export const assertValuesArePositive = (options: PlayOptions) => {
   if (options.skip && options.skip < 0) {
@@ -26,4 +26,4 @@ export const assertValuesArePositive = (options: PlayOptions) => {
   if (options.offset && options.offset < 0) {
     throw new Error("the option 'offet' must be a positive number");
   }
-}
+};
