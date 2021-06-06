@@ -11,7 +11,7 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
-    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+    "start": "cross-env NODE_ENV=dev nodemon src/service/runner"
   },
   "bin": {
     "run": "dist/service/runner.js",
@@ -47,6 +47,7 @@
     "@fonos/common": "^0.0.104",
     "@fonos/errors": "^0.0.104",
     "@fonos/logger": "^0.0.104",
+    "express": "^4.17.1",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
     "jsonwebtoken": "^8.5.1"
