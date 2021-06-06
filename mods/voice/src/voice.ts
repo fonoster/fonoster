@@ -17,13 +17,14 @@
  * limitations under the License.
  */
 import VoiceEvents from "./events";
-import GatherVerb, {GatherOptions} from "./gather/gather";
+import GatherVerb, { GatherOptions } from "./gather/gather";
+import HangupVerb from "./hangup/hangup";
 import MuteVerb from "./mute/mute";
-import {MuteOptions} from "./mute/types";
+import { MuteOptions } from "./mute/types";
 import PlayVerb from "./play/play";
-import {PlayOptions} from "./play/types";
-import {PlaybackControl} from "./playback/playback";
-import {VoiceEventData, VoiceRequest} from "./types";
+import { PlayOptions } from "./play/types";
+import { PlaybackControl } from "./playback/playback";
+import { VoiceEventData, VoiceRequest } from "./types";
 import UnmuteVerb from "./unmute/unmute";
 
 /**
@@ -199,5 +200,18 @@ export default class {
    */
   async unmute(options?: MuteOptions) {
     await new UnmuteVerb(this.request, this.events).run(options);
+  }
+
+  /**
+   * Terminates the communication channel.
+   *
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.hangup();
+   * }
+   */
+  async hangup() {
+    await new HangupVerb(this.request, this.events).run();
   }
 }
