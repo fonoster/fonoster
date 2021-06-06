@@ -45,6 +45,7 @@
     "@fonos/auth": "^0.0.104",
     "@fonos/logger": "^0.0.104",
     "@fonos/numbers": "^0.0.104",
+    "@fonos/storage": "^0.0.104",
     "ari-client": "^2.2.0",
     "axios": "^0.21.1",
     "grpc": "^1.24.7",

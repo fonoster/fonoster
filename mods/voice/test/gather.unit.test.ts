@@ -21,28 +21,16 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import VoiceEvents from "../src/events";
-import GatherVerb, {GatherOptions} from "../src/gather/gather";
+import GatherVerb from "../src/gather/gather";
 import {Verb} from "../src/verb";
-import {VoiceRequest} from "../dist/types";
 import {
-  assertsFinishOnKeyIsChar,
-  assertsHasNumDigitsOrTimeout,
-  assertsValuesArePositive
+  assertsHasNumDigitsOrTimeout
 } from "../src/gather/asserts";
+import { voiceRequest } from "./voice_request";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
-
-const voiceRequest: VoiceRequest = {
-  accessKeyId: "603693c0afaa1a080000000c",
-  signature: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb25vcyIsInJv...",
-  sessionId: "1622916892.122",
-  dialbackEnpoint: "http://localhost:8088",
-  number: "17853178070",
-  callerId: "John Doe",
-  callerNumber: "19103178070"
-};
 
 describe("@fonos/voice/gather", () => {
   afterEach(() => sandbox.restore());
@@ -121,31 +109,6 @@ describe("@fonos/voice/gather", () => {
       expect(() => assertsHasNumDigitsOrTimeout({})).to.throw(
         "you must provide either 'numDigits' or 'timeout' option"
       );
-    });
-
-    it("ensures that numDigits and timeout are both positive numbers", () => {
-      expect(() => assertsValuesArePositive({numDigits: 0})).to.throw(
-        "the option 'numDigits' must be a number greater than zero"
-      );
-      expect(() => assertsValuesArePositive({numDigits: -1})).to.throw(
-        "the option 'numDigits' must be a number greater than zero"
-      );
-      expect(() => assertsValuesArePositive({timeout: 0})).to.not.throw;
-      expect(() => assertsValuesArePositive({timeout: -1})).to.throw(
-        "the option 'timeout' must be a number equal or greater than zero"
-      );
-      expect(() => assertsValuesArePositive({timeout: 0, numDigits: 10})).to.not
-        .throw;
-    });
-
-    it("finish on key is on the keypad", () => {
-      expect(() => assertsFinishOnKeyIsChar({finishOnKey: "-1"})).to.throw(
-        "the option 'finishOnKey' must be a single char [0-9], *, or #"
-      );
-      expect(() => assertsFinishOnKeyIsChar({finishOnKey: "01"})).to.throw(
-        "the option 'finishOnKey' must be a single char [0-9], *, or #"
-      );
-      expect(() => assertsFinishOnKeyIsChar({finishOnKey: "0"})).to.not.throw;
     });
   });
 });

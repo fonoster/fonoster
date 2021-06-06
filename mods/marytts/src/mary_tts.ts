@@ -85,8 +85,8 @@ export default class MaryTTS extends AbstractTTS {
    * @param {string} text - Text that will be synthesized
    * @param {OptionsInterface} options - Options of the marytts, locale and voice
    * @return {Promise<String>}
-   * For more information: http://marytts.phonetik.uni-muenchen.de:59125/documentation.html
-   * Advice: On windows the command "which" that sox library uses is not the same. In windows is "where" instead
+   * For more information check the following link: http://marytts.phonetik.uni-muenchen.de:59125/documentation.html
+   * WARNING: On windows the command "which" that sox library uses is not the same. In windows is "where" instead
    */
   synthesize(
     text: string,

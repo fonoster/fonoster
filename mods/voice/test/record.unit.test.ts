@@ -20,33 +20,33 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import PlayVerb from "../src/play/play";
 import VoiceEvents from "../src/events";
 import {Verb} from "../src/verb";
+import RecordVerb from "../src/record/record";
 import { voiceRequest } from "./voice_request";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/voice/play", () => {
+describe("@fonos/voice/record", () => {
   afterEach(() => sandbox.restore());
 
-  it("play a sound on a remote media server", (done) => {
+  it("records a channel and uploads the file to the storage subsystem", (done) => {
     sandbox.stub(Verb.prototype, "post").returns();
     const voiceEvents = new VoiceEvents();
-    const play = new PlayVerb(voiceRequest, voiceEvents);
-    play
-      .run("sounds:hello-world", {})
+    const record = new RecordVerb(voiceRequest, voiceEvents);
+    record
+      .run()
       .then((event) => {
-        expect(event).to.be.deep.equal({type: "PlaybackFinished", data: "1"});
+        expect(event).to.be.deep.equal({ duration: 30 });
         done();
       })
       .catch((e) => done(e));
 
     setTimeout(() => {
       voiceEvents.broadcast(
-        JSON.stringify({type: "PlaybackFinished", data: "1"})
+        JSON.stringify({type: "RecordingFinished", data: { duration: 30 }})
       );
     }, 500);
   });

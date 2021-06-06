@@ -16,18 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface RecordOptions {
+  maxDuration?: number;
+  maxSilence?: number;
+  beep?: boolean;
+  finishOnKey?: string;
+}
 
-/**
- * Takes a json object and creates a query formatted string
- *
- * @param {object} - a one level json object with the query options
- * @returns {string} a string in the form of 'key1=value1&key2=value2&...'
- */
-export const objectToQString = (obj: any = {}): string =>
-  Object.keys(obj)
-    .filter((key: string) => obj[key])
-    .map((key: string) => {
-      const encodedObj = obj[key] === "#" ? encodeURIComponent('#') : obj[key];
-      return `${key}=${encodedObj}`
-    })
-    .join("&");
+export interface RecordResult {
+  duration: number;
+  format: string;
+  name: string;
+  silenceDuration: number;
+  talkingDuration: number;
+}

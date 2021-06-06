@@ -18,33 +18,36 @@
  */
 import objectid from "objectid";
 import {Verb} from "../verb";
-import {PlayOptions} from "./types";
+import {RecordOptions, RecordResult} from "./types";
 import {objectToQString} from "../utils";
-import { assertsValueIsPositive } from "../asserts";
+import { assertsFinishOnKeyIsChar, assertsValueIsPositive } from "../asserts";
 
-export default class PlayVerb extends Verb {
-  run(media: string, options: PlayOptions = {}): Promise<void> {
+export default class RecordVerb extends Verb {
+  run(options: RecordOptions = {}): Promise<RecordResult> {
 
-    assertsValueIsPositive("offset", options.offset);
-    assertsValueIsPositive("skip", options.skip);
+    assertsFinishOnKeyIsChar(options.finishOnKey);
+    assertsValueIsPositive("maxSilence", options.maxSilence);
+    assertsValueIsPositive("maxDuration", options.maxDuration);
 
-    const playbackId = options.playbackId ? options.playbackId : objectid();
     // Renaming properties to match the API query parameters
     const opts = {
-      media,
-      offsetms: options.offset,
-      skipms: options.skip,
-      playbackId
+      format: "wav",
+      name: objectid(),
+      maxSilenceSeconds: options.maxSilence,
+      maxDurationSeconds: options.maxDuration,
+      beep: options.beep,
+      terminateOn: encodeURIComponent(options.finishOnKey || "#")
     };
 
     return new Promise(async (resolve, reject) => {
       try {
         await super.post(
-          `channels/${this.request.sessionId}/play`,
+          `channels/${this.request.sessionId}/record`,
           objectToQString(opts)
         );
         this.events.subscribe((event) => {
-          if (event.type === "PlaybackFinished") resolve(event);
+          if (event.type === "RecordingFinished") resolve(event.data);
+          if (event.type === "RecordingFailed") reject("recording failed: " + event.cause);
         });
       } catch (e) {
         reject(e);
@@ -53,4 +56,4 @@ export default class PlayVerb extends Verb {
   }
 }
 
-export {PlayOptions};
+export {RecordOptions, RecordResult};

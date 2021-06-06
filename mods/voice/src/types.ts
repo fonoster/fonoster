@@ -18,7 +18,7 @@
  */
 export interface VoiceRequest {
   accessKeyId: string;
-  signature: string;
+  sessionToken: string;
   sessionId: string;
   dialbackEnpoint: string;
   number: string;

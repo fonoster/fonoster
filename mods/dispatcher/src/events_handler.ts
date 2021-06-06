@@ -20,8 +20,7 @@ import Auth from "@fonos/auth";
 import Numbers from "@fonos/numbers";
 import logger from "@fonos/logger";
 import {CallRequest} from "./types";
-import axios from "axios";
-import WebSocket from "ws";
+import { attachToEvents, sendCallRequest } from "./helpers";
 
 // First try the short env but fallback to the cannonical version
 const dialbackEnpoint =
@@ -59,7 +58,7 @@ export default function (err, client) {
 
     const request: CallRequest = {
       accessKeyId: ingressInfo.accessKeyId,
-      signature: access.token,
+      sessionToken: access.token,
       // Dialback request must travel thru the reverse proxy first
       dialbackEnpoint,
       sessionId,
@@ -74,49 +73,17 @@ export default function (err, client) {
       )}]`
     );
 
-    axios
-      .post(ingressInfo.webhook, request)
-      .then((response) => {
-        logger.verbose(
-          `@fonos/dispatcher mediacontroller [response = ${
-            response.data ? response.data.data : "no response"
-          }]`
-        );
-      })
-      .catch(logger.error);
+    attachToEvents({ 
+      url: ingressInfo.webhook,
+      accessKeyId: ingressInfo.accessKeyId,
+      sessionId,
+      client,
+      channel});
 
-    const ws = new WebSocket(ingressInfo.webhook);
-
-    ws.on("open", function open() {
-      channel.on("ChannelDtmfReceived", (event, channel) => {
-        logger.verbose(
-          `@fonos/dispatcher sending dtmf event [digit: ${event.digit}]`
-        );
-        ws.send(
-          JSON.stringify({
-            type: "DtmfReceived",
-            sessionId: channel.id,
-            data: event.digit
-          })
-        );
-      });
-
-      client.on("PlaybackFinished", (event, playback) => {
-        logger.verbose(
-          `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
-        );
-        ws.send(
-          JSON.stringify({
-            type: "PlaybackFinished",
-            sessionId,
-            data: playback.id
-          })
-        );
-      });
-    });
+    await sendCallRequest(ingressInfo.webhook, request)
   });
 
-  client.on("StasisEnd", (event, channel) => {
+  client.on("StasisEnd", (event, channel,) => {
     logger.debug(`@fonos/dispatcher statis end [channelId ${channel.id}]`);
   });
 

@@ -17,14 +17,16 @@
  * limitations under the License.
  */
 import VoiceEvents from "./events";
-import GatherVerb, { GatherOptions } from "./gather/gather";
+import GatherVerb, {GatherOptions} from "./gather/gather";
 import HangupVerb from "./hangup/hangup";
 import MuteVerb from "./mute/mute";
-import { MuteOptions } from "./mute/types";
+import {MuteOptions} from "./mute/types";
 import PlayVerb from "./play/play";
-import { PlayOptions } from "./play/types";
-import { PlaybackControl } from "./playback/playback";
-import { VoiceEventData, VoiceRequest } from "./types";
+import {PlayOptions} from "./play/types";
+import {PlaybackControl} from "./playback/playback";
+import RecordVerb from "./record/record";
+import { RecordOptions, RecordResult } from "./record/types";
+import {VoiceEventData, VoiceRequest} from "./types";
 import UnmuteVerb from "./unmute/unmute";
 
 /**
@@ -50,8 +52,8 @@ export default class {
   /**
    * Constructs a new VoiceResponse object.
    *
-   * @param {VoiceRequest} request - options to indicate the objects endpoint
-   * @param {VoiceEvents} events - events observer
+   * @param {VoiceRequest} request - Options to indicate the objects endpoint
+   * @param {VoiceEvents} events - Events observer
    * @see module:core:FonosService
    */
   constructor(request: VoiceRequest, events: VoiceEvents) {
@@ -62,12 +64,12 @@ export default class {
   /**
    * Plays an audio in the channel.
    *
-   * @param {string} media - sound name or uri with audio file
-   * @param {PlayOptions} options - optional parameters to alter the command's normal
+   * @param {string} media - Sound name or uri with audio file
+   * @param {PlayOptions} options - Optional parameters to alter the command's normal
    * behavior
-   * @param {string} options.offset - milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
-   * @param {string} options.skip - milliseconds to skip for forward/reverse operations
-   * @param {string} options.playbackId - playback identifier to use in Playback operations
+   * @param {string} options.offset - Milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
+   * @param {string} options.skip - Milliseconds to skip for forward/reverse operations
+   * @param {string} options.playbackId - Playback identifier to use in Playback operations
    * @see Playback
    * @example
    *
@@ -82,10 +84,10 @@ export default class {
   /**
    * Waits for data entry from the user's keypad.
    *
-   * @param {GatherOptions} options - options to select the maximum number of digits, final character, and timeout
-   * @param {number} options.numDigits - milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
-   * @param {number} options.timeout - milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
-   * @param {string} options.finishOnKey - optional last character to wait to. Defaults to '#'. It will not be included in the returned digits
+   * @param {GatherOptions} options - Options to select the maximum number of digits, final character, and timeout
+   * @param {number} options.numDigits - Milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
+   * @param {number} options.timeout - Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
+   * @param {string} options.finishOnKey - Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits
    * @example
    *
    * async function handler (request, response) {
@@ -100,7 +102,7 @@ export default class {
   /**
    * Returns a PlaybackControl control object.
    *
-   * @param {string} playbackId - playback identifier to use in Playback operations
+   * @param {string} playbackId - Playback identifier to use in Playback operations
    * @see Play
    * @example
    *
@@ -124,7 +126,7 @@ export default class {
   /**
    * Listens for DtmfReceived events.
    *
-   * @param {Function} handler - event handler
+   * @param {Function} handler - Event handler
    * @example
    *
    * async function handler (request, response) {
@@ -151,7 +153,7 @@ export default class {
   /**
    * Listens for PlaybackFinished events.
    *
-   * @param {Function} handler - event handler
+   * @param {Function} handler - Event handler
    * @example
    *
    * async function handler (request, response) {
@@ -175,8 +177,9 @@ export default class {
   /**
    * Mutes a channel.
    *
-   * @param {MuteOptions} options - indicate which direction of he communication to mute
-   * @param {string} options.direction - possible values are 'in', 'out', and 'both'
+   * @param {MuteOptions} options - Indicate which direction of he communication to mute
+   * @param {string} options.direction - Possible values are 'in', 'out', and 'both'
+   * @see unmute
    * @example
    *
    * async function handler (request, response) {
@@ -190,8 +193,9 @@ export default class {
   /**
    * Unmutes a channel.
    *
-   * @param {MuteOptions} options - indicate which direction of he communication to unmute
-   * @param {string} options.direction - possible values are 'in', 'out', and 'both'
+   * @param {MuteOptions} options - Indicate which direction of he communication to unmute
+   * @param {string} options.direction - Possible values are 'in', 'out', and 'both'
+   * @see mute
    * @example
    *
    * async function handler (request, response) {
@@ -213,5 +217,26 @@ export default class {
    */
   async hangup() {
     await new HangupVerb(this.request, this.events).run();
+  }
+
+  /**
+   * Records the current channel and uploads the file to the storage subsystem.
+   * 
+   * @param {RecordOptions} options - optional parameters to alter the command's normal
+   * behavior
+   * @param {number} options.maxDuration - Maximum duration of the recording, in seconds. Use `0` for no limit
+   * @param {number} options.maxSilence - Maximum duration of silence, in seconds. Use `0` for no limit
+   * @param {boolean} options.beep - Play beep when recording begins
+   * @param {string} options.finishOnKey - DTMF input to terminate recording
+   * @return {Promise<RecordResult>} Returns useful information such as the duration of the recording, etc.
+   * @example
+   *
+   * async function handler (request, response) {
+   *   const result = await response.record({finishOnKey: "#"});
+   *   console.log("recording result: " + JSON.stringify(result))     // recording result: { duration: 30 ...}
+   * }
+   */
+  async record(options:RecordOptions): Promise<RecordResult> {
+    return await new RecordVerb(this.request, this.events).run(options);
   }
 }

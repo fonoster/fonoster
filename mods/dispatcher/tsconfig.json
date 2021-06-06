@@ -7,7 +7,8 @@
   "references": [
     {"path": "../auth"},
     {"path": "../logger"},
-    {"path": "../numbers"}
+    {"path": "../numbers"},
+    {"path": "../storage"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

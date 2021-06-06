@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {PlayOptions} from "./types";
+import { VoiceRequest } from "../src/types";
 
-export const assertValuesArePositive = (options: PlayOptions) => {
-  if (options.skip && options.skip < 0) {
-    throw new Error("the option 'skip' must be a positive number");
-  }
-
-  if (options.offset && options.offset < 0) {
-    throw new Error("the option 'offet' must be a positive number");
-  }
+export const voiceRequest: VoiceRequest = {
+  accessKeyId: "603693c0afaa1a080000000c",
+  sessionToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb25vcyIsInJv...",
+  sessionId: "1622916892.122",
+  dialbackEnpoint: "http://localhost:8088",
+  number: "17853178070",
+  callerId: "John Doe",
+  callerNumber: "19103178070"
 };

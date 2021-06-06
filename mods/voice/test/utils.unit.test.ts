@@ -34,6 +34,7 @@ describe("@fonos/voice/utils", () => {
       optionC: undefined
     };
     expect(objectToQString(testObject)).to.be.equal("optionA=A&optionB=B");
+    expect(objectToQString({sharp: "#", n: "121G"})).to.be.equal("sharp=%23&n=121G");
     expect(objectToQString()).to.be.equal("");
   });
 });
