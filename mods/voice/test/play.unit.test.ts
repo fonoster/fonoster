@@ -43,34 +43,19 @@ describe("@fonos/voice/play", () => {
   
   afterEach(() => sandbox.restore());
 
-  it.only("play a sound on a remote media server", done => {
+  it("play a sound on a remote media server", done => {
     sandbox.stub(Verb.prototype, "post").returns();
     const voiceEvents = new VoiceEvents()
     const play = new PlayVerb(voiceRequest, voiceEvents);
     play.run("sounds:hello-world", {})
     .then(event => {
-      expect(event).to.be.deep.equal({ type: 'PlaybackFinished', data: '1' });
+      expect(event).to.be.deep.equal({ type: "PlaybackFinished", data: "1" });
       done();
     })
     .catch(e => done(e))
 
     setTimeout(()=> {
       voiceEvents.broadcast(JSON.stringify({type: "PlaybackFinished", data: "1"}))
-    }, 500)
-  });
-
-  it.only("fails due tu bad event", done => {
-    sandbox.stub(Verb.prototype, "post").returns();
-    const voiceEvents = new VoiceEvents()
-    const play = new PlayVerb(voiceRequest, voiceEvents);
-    play.run("sounds:hello-world", {})
-      .then(event => {
-        done("Exepect to fail due to bad event");
-      })
-      .catch(e => done())
-
-    setTimeout(()=> {
-      voiceEvents.broadcast(JSON.stringify({type: "DtmfReceived", data: "1"}))
     }, 500)
   });
 });

@@ -39,7 +39,7 @@ const voiceRequest:VoiceRequest = {
   callerNumber: "19103178070"
 };
 
-describe("@fonos/voice/play", () => {
+describe("@fonos/voice/playback", () => {
   
   afterEach(() => sandbox.restore());
 
@@ -56,7 +56,7 @@ describe("@fonos/voice/play", () => {
 
     setTimeout(()=> {
       voiceEvents.broadcast(JSON.stringify({type: "PlaybackFinished", data: "1"}));
-    }, 500)
+    }, 100)
   });
 
   it("fails due tu bad event", done => {
@@ -71,6 +71,6 @@ describe("@fonos/voice/play", () => {
 
     setTimeout(()=> {
       voiceEvents.broadcast(JSON.stringify({type: "DtmfReceived", data: "1"}));
-    }, 500)
+    }, 100)
   });
 });

@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import VoiceEvents from "./events";
+import GatherVerb, { GatherOptions } from "./gather/gather";
 import PlayVerb from "./play/play";
 import { PlayOptions } from "./play/types";
 import { PlaybackControl } from "./playback/playback";
@@ -61,7 +62,7 @@ export default class {
    * @param {PlayOptions} options - Optional parameters to alter the command's normal
    * behavior
    * @param {string} options.offset - milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
-   * @param {string} options.skip - milliseconds to skip for forward/reverse operations. 
+   * @param {string} options.skip - milliseconds to skip for forward/reverse operations
    * @param {string} options.playbackId - playback identifier to use in Playback operations
    * @see Playback
    * @example
@@ -72,6 +73,24 @@ export default class {
    */
   async play(media: string, options?: PlayOptions) {
     await new PlayVerb(this.request, this.events).run(media, options);
+  }
+
+  /**
+   * Waits for data entry from the user's keypad.
+   *
+   * @param {GatherOptions} options - options to select the maximum number of digits, final character, and timeout
+   * @param {number} options.numDigits - milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
+   * @param {number} options.timeout - milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
+   * @param {string} options.finishOnKey - optional last character to wait to. Defaults to '#'. It will not be included in the returned digits
+   * @example
+   * 
+   * async function handler (request, response) {
+   *   const digits = await response.gather({numDigits: 3});
+   *   console.log("digits: " + digits);
+   * }
+   */
+   async gather(options: GatherOptions) {
+    await new GatherVerb(this.request, this.events).run(options);
   }
 
   /**

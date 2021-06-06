@@ -33,7 +33,7 @@ import * as utils from "../src/client/utils";
 
 describe("@fonos/storage", () => {
   const objectUrlReturn = {
-    url: "http://api.fonoster.net:9000/public/60368b263e9a7d0800000004/test.txt"
+    url: "http://api.fonoster.net:9000/recordings/60368b263e9a7d0800000004/test.txt"
   };
   const uploadObjectStubReturn = {
     sendMessage: () =>
