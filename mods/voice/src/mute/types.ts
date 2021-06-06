@@ -17,5 +17,5 @@
  * limitations under the License.
  */
 export interface MuteOptions {
-  direction: "in" | "out" | "both"
+  direction: "in" | "out" | "both";
 }

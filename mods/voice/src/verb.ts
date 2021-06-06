@@ -45,7 +45,7 @@ export class Verb {
     const url = `${
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
-    
+
     logger.verbose(`@fonos/voice posting [url: ${url}]`);
 
     return await axios({

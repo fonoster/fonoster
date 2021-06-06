@@ -17,13 +17,13 @@
  * limitations under the License.
  */
 import VoiceEvents from "./events";
-import GatherVerb, { GatherOptions } from "./gather/gather";
+import GatherVerb, {GatherOptions} from "./gather/gather";
 import MuteVerb from "./mute/mute";
-import { MuteOptions } from "./mute/types";
+import {MuteOptions} from "./mute/types";
 import PlayVerb from "./play/play";
-import { PlayOptions } from "./play/types";
-import { PlaybackControl } from "./playback/playback";
-import { VoiceEventData, VoiceRequest } from "./types";
+import {PlayOptions} from "./play/types";
+import {PlaybackControl} from "./playback/playback";
+import {VoiceEventData, VoiceRequest} from "./types";
 import UnmuteVerb from "./unmute/unmute";
 
 /**
@@ -188,7 +188,7 @@ export default class {
 
   /**
    * Unmutes a channel.
-   * 
+   *
    * @param {MuteOptions} options - indicate which direction of he communication to unmute
    * @param {string} options.direction - possible values are 'in', 'out', and 'both'
    * @example
