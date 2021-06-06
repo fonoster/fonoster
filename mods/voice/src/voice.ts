@@ -17,11 +17,14 @@
  * limitations under the License.
  */
 import VoiceEvents from "./events";
-import GatherVerb, {GatherOptions} from "./gather/gather";
+import GatherVerb, { GatherOptions } from "./gather/gather";
+import MuteVerb from "./mute/mute";
+import { MuteOptions } from "./mute/types";
 import PlayVerb from "./play/play";
-import {PlayOptions} from "./play/types";
-import {PlaybackControl} from "./playback/playback";
-import {VoiceEventData, VoiceRequest} from "./types";
+import { PlayOptions } from "./play/types";
+import { PlaybackControl } from "./playback/playback";
+import { VoiceEventData, VoiceRequest } from "./types";
+import UnmuteVerb from "./unmute/unmute";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -46,8 +49,8 @@ export default class {
   /**
    * Constructs a new VoiceResponse object.
    *
-   * @param {VoiceRequest} request - Options to indicate the objects endpoint
-   * @param {VoiceEvents} events - Options to indicate the objects endpoint
+   * @param {VoiceRequest} request - options to indicate the objects endpoint
+   * @param {VoiceEvents} events - events observer
    * @see module:core:FonosService
    */
   constructor(request: VoiceRequest, events: VoiceEvents) {
@@ -59,7 +62,7 @@ export default class {
    * Plays an audio in the channel.
    *
    * @param {string} media - sound name or uri with audio file
-   * @param {PlayOptions} options - Optional parameters to alter the command's normal
+   * @param {PlayOptions} options - optional parameters to alter the command's normal
    * behavior
    * @param {string} options.offset - milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
    * @param {string} options.skip - milliseconds to skip for forward/reverse operations
@@ -166,5 +169,35 @@ export default class {
         await handler(event.data);
       }
     });
+  }
+
+  /**
+   * Mutes a channel.
+   *
+   * @param {MuteOptions} options - indicate which direction of he communication to mute
+   * @param {string} options.direction - possible values are 'in', 'out', and 'both'
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.mute();       // Will mute both directions
+   * }
+   */
+  async mute(options?: MuteOptions) {
+    await new MuteVerb(this.request, this.events).run(options);
+  }
+
+  /**
+   * Unmutes a channel.
+   * 
+   * @param {MuteOptions} options - indicate which direction of he communication to unmute
+   * @param {string} options.direction - possible values are 'in', 'out', and 'both'
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.unmute({direction: "out"});       // Will unmute only the "out" direction
+   * }
+   */
+  async unmute(options?: MuteOptions) {
+    await new UnmuteVerb(this.request, this.events).run(options);
   }
 }

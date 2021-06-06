@@ -134,7 +134,7 @@ export default class Storage extends FonosService {
    * @param {string} request.bucket - Bucket at the Storage system
    * @param {string} request.dir - Directory on the Storage system where your objec will be uploaded
    * @param {string} request.filename - Path to the object to be uploaded
-   * @return {Promise<UploadObjectResponse>} localy accessible URL to the object
+   * @return {Promise<UploadObjectResponse>} locally accessible URL to the object
    * @throws if the path does not exist or if is a directory
    * @throws if the directory does not exist
    * @example
