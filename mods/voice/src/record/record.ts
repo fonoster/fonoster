@@ -20,11 +20,10 @@ import objectid from "objectid";
 import {Verb} from "../verb";
 import {RecordOptions, RecordResult} from "./types";
 import {objectToQString} from "../utils";
-import { assertsFinishOnKeyIsChar, assertsValueIsPositive } from "../asserts";
+import {assertsFinishOnKeyIsChar, assertsValueIsPositive} from "../asserts";
 
 export default class RecordVerb extends Verb {
   run(options: RecordOptions = {}): Promise<RecordResult> {
-
     assertsFinishOnKeyIsChar(options.finishOnKey);
     assertsValueIsPositive("maxSilence", options.maxSilence);
     assertsValueIsPositive("maxDuration", options.maxDuration);
@@ -47,7 +46,8 @@ export default class RecordVerb extends Verb {
         );
         this.events.subscribe((event) => {
           if (event.type === "RecordingFinished") resolve(event.data);
-          if (event.type === "RecordingFailed") reject("recording failed: " + event.cause);
+          if (event.type === "RecordingFailed")
+            reject("recording failed: " + event.cause);
         });
       } catch (e) {
         reject(e);

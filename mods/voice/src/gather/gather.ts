@@ -17,12 +17,14 @@
  * limitations under the License.
  */
 import merge from "deepmerge";
-import { assertsFinishOnKeyIsChar, assertsValueIsPositive, assertsValuesIsZeroOrGreater } from "../asserts";
+import {
+  assertsFinishOnKeyIsChar,
+  assertsValueIsPositive,
+  assertsValuesIsZeroOrGreater
+} from "../asserts";
 import {VoiceEventData} from "../types";
 import {Verb} from "../verb";
-import {
-  assertsHasNumDigitsOrTimeout,
-} from "./asserts";
+import {assertsHasNumDigitsOrTimeout} from "./asserts";
 import {GatherOptions} from "./types";
 
 const defaultOptions: GatherOptions = {
@@ -33,7 +35,7 @@ const defaultOptions: GatherOptions = {
 export default class GatherVerb extends Verb {
   run(opts: GatherOptions): Promise<string> {
     const options = merge(defaultOptions, opts);
-    
+
     assertsHasNumDigitsOrTimeout(options);
     assertsValuesIsZeroOrGreater("timeout", options.timeout);
     assertsValueIsPositive("numDigits", options.numDigits);

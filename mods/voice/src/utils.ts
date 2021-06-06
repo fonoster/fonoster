@@ -27,7 +27,7 @@ export const objectToQString = (obj: any = {}): string =>
   Object.keys(obj)
     .filter((key: string) => obj[key])
     .map((key: string) => {
-      const encodedObj = obj[key] === "#" ? encodeURIComponent('#') : obj[key];
-      return `${key}=${encodedObj}`
+      const encodedObj = obj[key] === "#" ? encodeURIComponent("#") : obj[key];
+      return `${key}=${encodedObj}`;
     })
     .join("&");

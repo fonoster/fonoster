@@ -18,15 +18,15 @@
  */
 import axios from "axios";
 import VoiceEvents from "./events";
-import { VoiceRequest } from "./types";
+import {VoiceRequest} from "./types";
 import logger from "@fonos/logger";
 
 const auth =
   process.env.NODE_ENV != "production"
     ? {
-      username: "admin",
-      password: "changeit"
-    }
+        username: "admin",
+        password: "changeit"
+      }
     : null;
 
 export class Verb {
@@ -42,8 +42,9 @@ export class Verb {
   }
 
   async post(apiPath: string, queryParameters: string) {
-    const url = `${this.getRequest().dialbackEnpoint
-      }/ari/${apiPath}?${queryParameters}`;
+    const url = `${
+      this.getRequest().dialbackEnpoint
+    }/ari/${apiPath}?${queryParameters}`;
 
     logger.verbose(`@fonos/voice posting [url: ${url}]`);
 
@@ -52,14 +53,15 @@ export class Verb {
       url,
       auth,
       headers: {
-        'X-Session-Token': this.request.sessionToken
+        "X-Session-Token": this.request.sessionToken
       }
     });
   }
 
   async delete(apiPath: string, queryParameters: string) {
-    const url = `${this.getRequest().dialbackEnpoint
-      }/ari/${apiPath}?${queryParameters}`;
+    const url = `${
+      this.getRequest().dialbackEnpoint
+    }/ari/${apiPath}?${queryParameters}`;
 
     logger.verbose(`@fonos/voice posting [url: ${url}]`);
 
@@ -68,7 +70,7 @@ export class Verb {
       url,
       auth,
       headers: {
-        'X-Session-Token': this.request.sessionToken
+        "X-Session-Token": this.request.sessionToken
       }
     });
   }

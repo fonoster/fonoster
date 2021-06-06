@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -19,15 +18,13 @@
  */
 import Auth from "@fonos/auth";
 import Storage from "@fonos/storage";
-import { AttachToEventsRequest, CallRequest } from "./types";
+import {AttachToEventsRequest, CallRequest} from "./types";
 import axios from "axios";
 import logger from "@fonos/logger";
 import WebSocket from "ws";
 
 const attachToDtmfReceived = (ws, channel) => {
-  logger.verbose(
-    `@fonos/dispatcher attaching to dtmf received event`
-  );
+  logger.verbose(`@fonos/dispatcher attaching to dtmf received event`);
   channel.on("ChannelDtmfReceived", (event, channel) => {
     logger.debug(
       `@fonos/dispatcher sending dtmf event [digit: ${event.digit}]`
@@ -40,12 +37,10 @@ const attachToDtmfReceived = (ws, channel) => {
       })
     );
   });
-}
+};
 
 const attachToPlaybackFinished = (ws, client, sessionId) => {
-  logger.verbose(
-    `@fonos/dispatcher attaching to playback finished event`
-  );
+  logger.verbose(`@fonos/dispatcher attaching to playback finished event`);
   client.on("PlaybackFinished", (event, playback) => {
     logger.debug(
       `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
@@ -58,7 +53,7 @@ const attachToPlaybackFinished = (ws, client, sessionId) => {
       })
     );
   });
-}
+};
 
 const uploadRecording = async (accessKeyId, filename) => {
   logger.verbose(
@@ -68,26 +63,24 @@ const uploadRecording = async (accessKeyId, filename) => {
   const access = await auth.createToken({
     accessKeyId: accessKeyId
   });
-  const storage = new Storage({ accessKeyId, accessKeySecret: access.token });
+  const storage = new Storage({accessKeyId, accessKeySecret: access.token});
   logger.verbose(
     `@fonos/dispatcher uploading file to storage subsystem [filename=${filename}]`
   );
 
   if (!process.env.RECORDINGS_PATH) {
-    throw new Error("environment variable 'RECORDINGS_PATH' is not set")
+    throw new Error("environment variable 'RECORDINGS_PATH' is not set");
   }
 
   await storage.uploadObject({
     // WARNING: Hardcoded value
     bucket: "recordings",
     filename: `${process.env.RECORDINGS_PATH}/${filename}`
-  })
-}
+  });
+};
 
 const attachToRecordingFinished = (ws, client, accessKeyId, sessionId) => {
-  logger.verbose(
-    `@fonos/dispatcher attaching to recording finished event`
-  );
+  logger.verbose(`@fonos/dispatcher attaching to recording finished event`);
   client.on("RecordingFinished", async (event) => {
     logger.debug(
       `@fonos/dispatcher sending recording finished event [filename: ${event.recording.name}]`
@@ -108,13 +101,11 @@ const attachToRecordingFinished = (ws, client, accessKeyId, sessionId) => {
 
     await uploadRecording(accessKeyId, event.recording.name);
   });
-}
+};
 
 const attachToRecordingFailed = (ws, client, sessionId) => {
-  logger.verbose(
-    `@fonos/dispatcher attaching to recording failed event `
-  );
-  client.on("RecordingFailed", event => {
+  logger.verbose(`@fonos/dispatcher attaching to recording failed event `);
+  client.on("RecordingFailed", (event) => {
     logger.debug(
       `@fonos/dispatcher sending recording failed event [filename: ${event.recording.name}]`
     );
@@ -128,29 +119,33 @@ const attachToRecordingFailed = (ws, client, sessionId) => {
       })
     );
   });
-}
+};
 
 export const attachToEvents = (request: AttachToEventsRequest) => {
-  logger.verbose(
-    `@fonos/dispatcher connecting websocket @ mediacontroller`
-  );
+  logger.verbose(`@fonos/dispatcher connecting websocket @ mediacontroller`);
   const ws = new WebSocket(request.url);
   ws.on("open", function open() {
     attachToDtmfReceived(ws, request.channel);
     attachToPlaybackFinished(ws, request.client, request.sessionId);
-    attachToRecordingFinished(ws, request.client, request.accessKeyId, request.sessionId);
+    attachToRecordingFinished(
+      ws,
+      request.client,
+      request.accessKeyId,
+      request.sessionId
+    );
     attachToRecordingFailed(ws, request.client, request.sessionId);
   });
-}
+};
 
 export const sendCallRequest = async (url: string, request: CallRequest) => {
   try {
-    const response = await axios.post(url, request)
+    const response = await axios.post(url, request);
     logger.verbose(
-      `@fonos/dispatcher mediacontroller [response = ${response.data ? response.data.data : "no response"
+      `@fonos/dispatcher mediacontroller [response = ${
+        response.data ? response.data.data : "no response"
       }]`
     );
   } catch (e) {
-    logger.error(e)
+    logger.error(e);
   }
-}
+};

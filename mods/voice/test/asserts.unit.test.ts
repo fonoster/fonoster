@@ -19,7 +19,11 @@
 import chai from "chai";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import { assertsFinishOnKeyIsChar, assertsValueIsPositive, assertsValuesIsZeroOrGreater } from "../src/asserts";
+import {
+  assertsFinishOnKeyIsChar,
+  assertsValueIsPositive,
+  assertsValuesIsZeroOrGreater
+} from "../src/asserts";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -32,8 +36,7 @@ describe("@fonos/voice/asserts", () => {
     expect(() => assertsValueIsPositive("numDigits", -1)).to.throw(
       "the option 'numDigits' must be a number greater than zero"
     );
-    expect(() => assertsValueIsPositive("numDigits", 0)).to.not
-    .throw;
+    expect(() => assertsValueIsPositive("numDigits", 0)).to.not.throw;
     expect(() => assertsValuesIsZeroOrGreater("timeout", 0)).to.not.throw;
     expect(() => assertsValuesIsZeroOrGreater("timeout", -1)).to.throw(
       "the option 'timeout' must be a number equal or greater than zero"

@@ -20,7 +20,7 @@ import Auth from "@fonos/auth";
 import Numbers from "@fonos/numbers";
 import logger from "@fonos/logger";
 import {CallRequest} from "./types";
-import { attachToEvents, sendCallRequest } from "./helpers";
+import {attachToEvents, sendCallRequest} from "./helpers";
 
 // First try the short env but fallback to the cannonical version
 const dialbackEnpoint =
@@ -73,17 +73,18 @@ export default function (err, client) {
       )}]`
     );
 
-    attachToEvents({ 
+    attachToEvents({
       url: ingressInfo.webhook,
       accessKeyId: ingressInfo.accessKeyId,
       sessionId,
       client,
-      channel});
+      channel
+    });
 
-    await sendCallRequest(ingressInfo.webhook, request)
+    await sendCallRequest(ingressInfo.webhook, request);
   });
 
-  client.on("StasisEnd", (event, channel,) => {
+  client.on("StasisEnd", (event, channel) => {
     logger.debug(`@fonos/dispatcher statis end [channelId ${channel.id}]`);
   });
 

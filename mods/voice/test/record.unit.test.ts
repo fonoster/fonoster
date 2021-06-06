@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import VoiceEvents from "../src/events";
 import {Verb} from "../src/verb";
 import RecordVerb from "../src/record/record";
-import { voiceRequest } from "./voice_request";
+import {voiceRequest} from "./voice_request";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -39,14 +39,14 @@ describe("@fonos/voice/record", () => {
     record
       .run()
       .then((event) => {
-        expect(event).to.be.deep.equal({ duration: 30 });
+        expect(event).to.be.deep.equal({duration: 30});
         done();
       })
       .catch((e) => done(e));
 
     setTimeout(() => {
       voiceEvents.broadcast(
-        JSON.stringify({type: "RecordingFinished", data: { duration: 30 }})
+        JSON.stringify({type: "RecordingFinished", data: {duration: 30}})
       );
     }, 500);
   });

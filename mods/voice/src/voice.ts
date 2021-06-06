@@ -25,7 +25,7 @@ import PlayVerb from "./play/play";
 import {PlayOptions} from "./play/types";
 import {PlaybackControl} from "./playback/playback";
 import RecordVerb from "./record/record";
-import { RecordOptions, RecordResult } from "./record/types";
+import {RecordOptions, RecordResult} from "./record/types";
 import {VoiceEventData, VoiceRequest} from "./types";
 import UnmuteVerb from "./unmute/unmute";
 
@@ -221,7 +221,7 @@ export default class {
 
   /**
    * Records the current channel and uploads the file to the storage subsystem.
-   * 
+   *
    * @param {RecordOptions} options - optional parameters to alter the command's normal
    * behavior
    * @param {number} options.maxDuration - Maximum duration of the recording, in seconds. Use `0` for no limit
@@ -236,7 +236,7 @@ export default class {
    *   console.log("recording result: " + JSON.stringify(result))     // recording result: { duration: 30 ...}
    * }
    */
-  async record(options:RecordOptions): Promise<RecordResult> {
+  async record(options: RecordOptions): Promise<RecordResult> {
     return await new RecordVerb(this.request, this.events).run(options);
   }
 }

@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import PlayVerb from "../src/play/play";
 import VoiceEvents from "../src/events";
 import {Verb} from "../src/verb";
-import { voiceRequest } from "./voice_request";
+import {voiceRequest} from "./voice_request";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);

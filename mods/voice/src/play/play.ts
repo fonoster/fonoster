@@ -20,11 +20,10 @@ import objectid from "objectid";
 import {Verb} from "../verb";
 import {PlayOptions} from "./types";
 import {objectToQString} from "../utils";
-import { assertsValueIsPositive } from "../asserts";
+import {assertsValueIsPositive} from "../asserts";
 
 export default class PlayVerb extends Verb {
   run(media: string, options: PlayOptions = {}): Promise<void> {
-
     assertsValueIsPositive("offset", options.offset);
     assertsValueIsPositive("skip", options.skip);
 

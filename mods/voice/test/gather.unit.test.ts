@@ -23,10 +23,8 @@ import chaiAsPromised from "chai-as-promised";
 import VoiceEvents from "../src/events";
 import GatherVerb from "../src/gather/gather";
 import {Verb} from "../src/verb";
-import {
-  assertsHasNumDigitsOrTimeout
-} from "../src/gather/asserts";
-import { voiceRequest } from "./voice_request";
+import {assertsHasNumDigitsOrTimeout} from "../src/gather/asserts";
+import {voiceRequest} from "./voice_request";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
