@@ -1,44 +1,11 @@
 # Env for the various service used by Project Fonos
-# MS = Media Server (Asterisk)
-# MC = Media Controller
-# DS = Data Server (Redis)
-# FS = Files Server (Minio)
-# EB = Events Broker (RabbitMQ)
-
-# Point the CONFIG variable to place where store your configuration
 CONFIG=
-# Warning: A wrong host address will cause NAT isssues
+API_INGRESS_URL=
 HOST_ADDR=
-MS_ARI_EXTERNAL_URL=
-MS_ARI_INTERNAL_URL=
-
-# Images
-AS_IMAGE=traefik:v2.4
-MS_IMAGE=fonoster/fonos-mediaserver:latest
-EB_IMAGE=bitnami/rabbitmq:latest
-SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210525.3
-DS_IMAGE=redis:6.0.3-alpine
-DS_AUTH_IMAGE=mongo
-FS_IMAGE=minio/minio:RELEASE.2020-02-27T00-23-05Z
-TTS_IMAGE=synesthesiam/marytts:5.2
-LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
-LOGS_MONITOR_IMAGE=kibana:7.9.3
-LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
-SECRETS_IMAGE=vault
-
-# Other variables
-COMPOSE_PROJECT_NAME=fonos
-COMPOSE_PROJECT_VERSION=0.0.86
 
 # Auth service
 AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole
 AUTH_ISS=fonos
-
-# FaaS access information
-FUNCS_URL=https://faas:8080
-FUNCS_USERNAME=admin
-FUNCS_SECRET=changeit
-FUNCS_WORKDIR=/home/fonos/funcs
 
 # Docker private registry information
 DOCKER_REGISTRY_ORG=yourorg
@@ -48,16 +15,14 @@ DOCKER_REGISTRY=docker.io
 DOCKER_REGISTRY_SERVICE=registry.docker.io
 DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
 
+# API Server
+AS_IMAGE=traefik:v2.4
 AS_HOST=apiserver.fonos
 AS_PORT=443
 AS_ALLOW_INSECURE=true
 
-EB_ENABLED=false
-EB_HOST=eventsbroker.fonos
-EB_PORT=5672
-EB_USERNAME=fonos
-EB_SECRET=changeit
-
+# Asterisk based media server
+MS_IMAGE=fonoster/fonos-mediaserver:latest
 MS_ENDPOINT=sip:ast@node1
 MS_HOST=mediaserver.fonos
 MS_SIP_PORT=6060
@@ -69,21 +34,24 @@ MS_EXTENSION=s
 MS_ARI_USERNAME=admin
 MS_ARI_SECRET=changeit
 MS_ARI_AUTHORIZATION=YWRtaW46Y2hhbmdlaXQ=
+MS_ARI_INTERNAL_URL=http://localhost:8088
 
+# Redis database
+DS_IMAGE=redis:6.0.3-alpine
 DS_HOST=datasource.fonos
 DS_PORT=6379
 DS_SECRET=changeit
 
+# Minio objects storage
+FS_IMAGE=minio/minio:RELEASE.2020-02-27T00-23-05Z
 FS_HOST=fs.fonos
 FS_PORT=9000
 FS_USERNAME=minio
 FS_SECRET=minio123
 FS_DEFAULT_STORAGE_BUCKET=default
 
-TTS_ENGINE_HOST=tts.fonos
-TTS_ENGINE_PORT=59125
-TTS_BASE_URI=/tts
-
+# Routr sip server
+SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210525.3
 SIPPROXY_API_PORT=4567
 SIPPROXY_SIP_PORT=5060
 SIPPROXY_HOST=sipproxy.fonos
@@ -92,13 +60,44 @@ SIPPROXY_SECRET=changeit
 SIPPROXY_API_USERNAME=admin
 SIPPROXY_API_SECRET=changeit
 
+# Optional configuration for MaryTTS (recommended)
+TTS_IMAGE=synesthesiam/marytts:5.2
+TTS_ENGINE_HOST=tts.fonos
+TTS_ENGINE_PORT=59125
+TTS_BASE_URI=/tts
+
+# Optional configuration for integration with FaaS
+FUNCS_URL=https://faas:8080
+FUNCS_USERNAME=admin
+FUNCS_SECRET=changeit
+FUNCS_WORKDIR=/home/fonos/funcs
+
+# Optional configuration for logging
+LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+LOGS_MONITOR_IMAGE=kibana:7.9.3
+LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
 LOGS_DRIVER_HOST=logsdriver.fonos
 LOGS_DRIVER_PORT=24224
 LOGS_AGGREGRATOR_PORT=9200
 LOGS_MONITOR_PORT=5601
 LOG_OPT_TAG_PREFIX=early
 
-# Misc
+# Optional configuration for integration with Vault
+SECRETS_IMAGE=vault
+SECRETS_URL=
+SECRETS_TOKEN=
+
+# Optional configuration for integration with RabbitMQ
+EB_IMAGE=bitnami/rabbitmq:latest
+EB_ENABLED=false
+EB_HOST=eventsbroker.fonos
+EB_PORT=5672
+EB_USERNAME=fonos
+EB_SECRET=changeit
+
+# Miscelaneous configurations
+COMPOSE_PROJECT_NAME=fonos
+COMPOSE_PROJECT_VERSION=0.0.104
 RESTART_POLICY=unless-stopped
 CERTS_PATH=/certs
 NODE_ENV=dev

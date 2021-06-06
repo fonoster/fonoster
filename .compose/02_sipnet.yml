@@ -35,13 +35,14 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mediaserver.entrypoints=websecure"
-      - "traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/asterisk`) || PathPrefix(`/ari/channels`)"
+      - "traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/playbacks`) || PathPrefix(`/ari/channels`)"
       - "traefik.http.services.mediaserver.loadbalancer.server.port=8088"
-      - "traefik.http.routers.mediaserver.middlewares=basic-auth@docker"
+      - "traefik.http.routers.mediaserver.middlewares=basic-auth@docker,session-auth@docker"
+      - "traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth"
       - "traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}"
     environment:
       APISERVER_ENDPOINT: ${AS_HOST}:50051
-      ARI_EXTERNAL_URL: ${MS_ARI_EXTERNAL_URL}
+      ARI_EXTERNAL_URL: ${API_INGRESS_URL}
       ARI_INTERNAL_URL: ${MS_ARI_INTERNAL_URL}
       ARI_USERNAME: ${MS_ARI_USERNAME}
       ARI_SECRET: ${MS_ARI_SECRET}
