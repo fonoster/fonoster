@@ -4,13 +4,13 @@ import {AuthService} from "./protos/auth_grpc_pb";
 import {runServices} from "@fonos/common";
 import logger from "@fonos/logger";
 import express from "express";
-const app = express()
+const app = express();
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
-import { getSalt } from "@fonos/certs";
+import {getSalt} from "@fonos/certs";
 const authenticator = new Auth(new JWT());
 
-app.get('/session_auth', async(req, res) => {
+app.get("/session_auth", async (req, res) => {
   const sessionToken = req.headers["x-session-token"];
   const result = await authenticator.validateToken(
     {accessToken: sessionToken},
@@ -24,8 +24,8 @@ app.get('/session_auth', async(req, res) => {
   }
 
   res.status(200);
-  res.send("Access granted")
-})
+  res.send("Access granted");
+});
 
 // First starting the http 1.1 auth endpoint
 app.listen(3000, () => {
@@ -39,7 +39,6 @@ app.listen(3000, () => {
       server: new AuthServer()
     }
   ];
-  
-  runServices(services, []);
-})
 
+  runServices(services, []);
+});
