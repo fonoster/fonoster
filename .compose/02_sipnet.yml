@@ -51,8 +51,8 @@ services:
       SIPPROXY_HOST: ${HOST_ADDR}:${SIPPROXY_SIP_PORT}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
-      RTP_PORT_START: 10000
-      RTP_PORT_END: 10500
+      RTP_PORT_START: ${MS_RTP_PORT_START}
+      RTP_PORT_END: ${MS_RTP_PORT_END}
       # Give asterisk a fake localnet to force it to always advertise its public address
       LOCALNET: '8.8.8.8'
     volumes:

@@ -57,7 +57,7 @@ const attachToPlaybackFinished = (ws, client, sessionId) => {
 
 const uploadRecording = async (accessKeyId, filename) => {
   logger.verbose(
-    `@fonos/dispatcher create short live token [accessKeyId=${accessKeyId}]`
+    `@fonos/dispatcher creating short-life token [accessKeyId=${accessKeyId}]`
   );
   const auth = new Auth();
   const access = await auth.createToken({

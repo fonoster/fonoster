@@ -29,7 +29,7 @@ import {
 
 /**
  * @classdesc Use Fonos Auth, a capability of Fonos,
- * to validate and create short live tokens.
+ * to validate and create short life tokens.
  *
  * @extends FonosService
  * @example
@@ -56,7 +56,7 @@ export default class Agents extends FonosService {
   }
 
   /**
-   * Creates a short live token. The client must have role allowed to create
+   * Creates a short-life token. The client must have role allowed to create
    * tokens.
    *
    * @param {CreateTokenRequest} request - Request to create a new token
@@ -88,7 +88,7 @@ export default class Agents extends FonosService {
   }
 
   /**
-   * Creates a short live token meant only to serve as a signature. This token will
+   * Creates a short-life token meant only to serve as a signature. This token will
    * only be useful to sign a request.
    *
    * @param {CreateTokenRequest} request - Request to create a new signature token

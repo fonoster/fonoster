@@ -31,7 +31,7 @@
   "dependencies": {
     "@fonos/logger": "^0.0.105",
     "@fonos/tts": "^0.0.105",
-    "@google-cloud/text-to-speech": "^3.0.1",
+    "@google-cloud/text-to-speech": "^3.2.2",
     "deepmerge": "^4.2.2"
   },
   "devDependencies": {
