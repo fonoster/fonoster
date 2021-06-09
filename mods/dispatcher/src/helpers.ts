@@ -170,8 +170,9 @@ export const attachToEvents = (request: AttachToEventsRequest) => {
 
   wsClient.on("error", () => {
     logger.verbose(
-      `@fonos/dispatcher unable to connect to voice app [url = ${request.url}]`
+      `@fonos/dispatcher unable to connect to voice app [url = ${request.url}, hanging up call]`
     );
+    request.channel.hangup();
   });
 };
 
