@@ -13,6 +13,9 @@ describe("@fonos/authentication", () => {
   before(async () => {
     sandbox.stub(Jwt);
   });
+  const expiredToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpc3MiLCJyb2xlIjoicm9sZSIsImFjY2Vzc0tleUlkIjoidXNlcmlkIiwiaWF0IjoxNjIzMjY1NDQxLCJleHAiOjE2MjMyNjU0NDJ9.2o_T4VgEekNCX3ATir6W_J24fduTXaRSks6zjs2-qBk";
+
 
   it("should create a valid token", async () => {
     const stubValue = "tokenfake";
@@ -73,6 +76,13 @@ describe("@fonos/authentication", () => {
     const jwtDependency = new Jwt();
     jwtDependency.encode(stubValue, "").catch((err) => {
       expect(err.message).to.be.equal("Token generation failure");
+    });
+  });
+
+  it("should return an exception with jwt expired", async () => {
+    const jwtDependency = new Jwt();
+    await jwtDependency.decode(expiredToken, "secret").catch((err) => {
+      expect(err.message).to.include("jwt expired");
     });
   });
 
