@@ -125,7 +125,6 @@ export default class Storage extends FonosService {
 
     return {url: result.getUrl()};
   }
-
 }
 
 export {StoragePB, CommonPB};

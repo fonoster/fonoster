@@ -2,7 +2,8 @@ import fs from "fs";
 import util from "util";
 import path from "path";
 import textToSpeech from "@google-cloud/text-to-speech";
-import {AbstractTTS, computeFilename} from "@fonos/tts";
+import {Plugin} from "@fonos/common";
+import {TTSPlugin, computeFilename, SynthResult} from "@fonos/tts";
 import logger from "@fonos/logger";
 import {GoogleTTSConfig, Voice} from "./types";
 
@@ -19,7 +20,7 @@ const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
  *  .then((result) => console.log("path: " + result.pathToFile))
  *  .catch(console.err);
  */
-class GoogleTTS extends AbstractTTS {
+class GoogleTTS extends Plugin implements TTSPlugin {
   config: GoogleTTSConfig;
   /**
    * Constructs a new GoogleTTS object.
@@ -28,6 +29,7 @@ class GoogleTTS extends AbstractTTS {
    */
   constructor(config: GoogleTTSConfig) {
     super("google-tts");
+    super.setType("tts");
     this.config = config;
     this.config.path ? this.config.path : "/tmp";
   }
@@ -35,10 +37,10 @@ class GoogleTTS extends AbstractTTS {
   /**
    * @inherit
    */
-  async synthesize(text: string, options: Voice = {}): Promise<any> {
+  async synthetize(text: string, options: Voice = {}): Promise<SynthResult> {
     const client = new textToSpeech.TextToSpeechClient(this.config as any);
     // TODO: The file extension should be set based on the sample rate
-    // For example, we set the sample rate for 16K, then the extension must be
+    // For example, if we set the sample rate to 16K, then the extension needs to be
     // snl16, for 8K => sln, etc...
     const filename = computeFilename(text, options, "sln24");
     const pathToFile = path.join(this.config.path, filename);

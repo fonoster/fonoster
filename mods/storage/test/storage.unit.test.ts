@@ -198,5 +198,4 @@ describe("@fonos/storage", () => {
 
     expect(result).to.have.property("url").to.be.equal(objectUrlReturn.url);
   });
-
 });

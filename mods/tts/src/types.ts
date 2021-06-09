@@ -16,15 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface GoogleTTSConfig {
-  keyFilename: string;
-  projectId?: string;
-  path?: string;
+export interface TTSPlugin {
+  synthetize(text: string, options: any): Promise<SynthResult>;
 }
 
-export interface Voice {
-  name?: string;
-  ssmlGender?: "MALE" | "FEMALE";
-  naturalSampleRateHertz?: number;
-  languageCodes?: string[];
+export interface SynthResult {
+  filename: string;
+  pathToFile: string;
 }

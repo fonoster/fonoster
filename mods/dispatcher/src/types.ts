@@ -24,6 +24,7 @@ export interface CallRequest {
   number: string;
   callerId: string;
   callerNumber: string;
+  selfEndpoint: string;
 }
 
 export interface AttachToEventsRequest {

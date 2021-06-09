@@ -26,5 +26,6 @@ export const voiceRequest: VoiceRequest = {
   dialbackEnpoint: "http://localhost:8088",
   number: "17853178070",
   callerId: "John Doe",
-  callerNumber: "19103178070"
+  callerNumber: "19103178070",
+  selfEndpoint: "http://localhost:3000/voiceapp"
 };

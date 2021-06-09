@@ -41,3 +41,9 @@ export const assertsFinishOnKeyIsChar = (key: string) => {
     );
   }
 };
+
+export const assertPluginExist = (self, pluginName) => {
+  if (!self.plugins[pluginName]) {
+    throw Error("No available plugin for tts");
+  }
+};

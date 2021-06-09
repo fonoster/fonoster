@@ -21,10 +21,12 @@ import {ServiceOptions} from "./types";
 import {getClientCredentials, getServerCredentials} from "./trust_util";
 import healthcheck from "./healthcheck";
 import runServices from "./service_runner";
+import {Plugin} from "./voice/plugin";
 
 export {
   FonosService,
   ServiceOptions,
+  Plugin,
   getClientCredentials,
   getServerCredentials,
   runServices,

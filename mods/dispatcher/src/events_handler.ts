@@ -64,7 +64,8 @@ export default function (err, client) {
       sessionId,
       number: didInfo.value,
       callerId: event.channel.caller.name,
-      callerNumber: event.channel.caller.number
+      callerNumber: event.channel.caller.number,
+      selfEndpoint: ingressInfo.webhook
     };
 
     logger.verbose(

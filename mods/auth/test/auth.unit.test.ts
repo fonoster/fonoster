@@ -14,8 +14,7 @@ describe("@fonos/authentication", () => {
     sandbox.stub(Jwt);
   });
   const expiredToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpc3MiLCJyb2xlIjoicm9sZSIsImFjY2Vzc0tleUlkIjoidXNlcmlkIiwiaWF0IjoxNjIzMjY1NDQxLCJleHAiOjE2MjMyNjU0NDJ9.2o_T4VgEekNCX3ATir6W_J24fduTXaRSks6zjs2-qBk";
-
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpc3MiLCJyb2xlIjoicm9sZSIsImFjY2Vzc0tleUlkIjoidXNlcmlkIiwiaWF0IjoxNjIzMjY1NDQxLCJleHAiOjE2MjMyNjU0NDJ9.2o_T4VgEekNCX3ATir6W_J24fduTXaRSks6zjs2-qBk";
 
   it("should create a valid token", async () => {
     const stubValue = "tokenfake";

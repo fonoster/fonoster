@@ -16,15 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface GoogleTTSConfig {
-  keyFilename: string;
-  projectId?: string;
-  path?: string;
-}
-
-export interface Voice {
-  name?: string;
-  ssmlGender?: "MALE" | "FEMALE";
-  naturalSampleRateHertz?: number;
-  languageCodes?: string[];
+export interface SayOptions {
+  offset?: number;
+  skip?: number;
+  playbackId?: string;
 }

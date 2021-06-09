@@ -26,10 +26,7 @@ export default class JWT implements ITokenManager {
   /**
    * Returns the decoded payload if the signature is valid even if it is expired
    */
-  async decode(
-    token: string,
-    privateKey: string,
-  ): Promise<JwtPayload> {
+  async decode(token: string, privateKey: string): Promise<JwtPayload> {
     try {
       // @ts-ignore
       return (await promisify(verify)(token, privateKey, {

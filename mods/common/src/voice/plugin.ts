@@ -16,15 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface GoogleTTSConfig {
-  keyFilename: string;
-  projectId?: string;
-  path?: string;
-}
+export abstract class Plugin {
+  type: string;
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
 
-export interface Voice {
-  name?: string;
-  ssmlGender?: "MALE" | "FEMALE";
-  naturalSampleRateHertz?: number;
-  languageCodes?: string[];
+  setType(type: string = "tts" || "asr") {
+    this.type = type;
+  }
+  getType() {
+    return this.type;
+  }
 }
