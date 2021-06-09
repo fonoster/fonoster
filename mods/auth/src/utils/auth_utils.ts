@@ -34,11 +34,13 @@ export default class AuthUtils {
     accessKeyId: string,
     issuer: string,
     role: string,
-    privateKey: string
+    privateKey: string,
+    expiration?: string
   ): Promise<UserToken> => {
     const accessToken = await this.handler.encode(
       new JwtPayload(issuer, role, accessKeyId),
-      privateKey
+      privateKey,
+      expiration
     );
 
     if (!accessToken) throw new Error("Error creating token");

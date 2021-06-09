@@ -52,18 +52,22 @@ class AuthServer implements IAuthServer {
     call: grpc.ServerUnaryCall<CreateTokenRequest>,
     callback: grpc.sendUnaryData<CreateTokenResponse>
   ) {
-    // WARNING: We must add expiration time (perhaps 60mins?)
-    // We also need to validate the token and verify
+    // WARNING:
+    // We need to validate the token and verify
     // it has permissions to create token since the auth module
     // doesnt pas thru the auth middleware.
     logger.verbose(
       `@fonos/auth creating token [accessKeyId is ${call.request.getAccessKeyId()}]`
     );
+    if(!call.request.getExpiration()){
+      call.request.setExpiration("30d")
+    }
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
       AUTH_ISS,
       call.request.getRoleName(),
-      getSalt()
+      getSalt(),
+      call.request.getExpiration()
     );
     const response = new CreateTokenResponse();
     response.setToken(result.accessToken);
@@ -74,8 +78,8 @@ class AuthServer implements IAuthServer {
     call: grpc.ServerUnaryCall<CreateTokenRequest>,
     callback: grpc.sendUnaryData<CreateTokenResponse>
   ) {
-    // WARNING: We must add expiration time (perhaps 60mins?)
-    // We also need to validate the token and verify
+    // WARNING:
+    // We need to validate the token and verify
     // it has permissions to create token since the auth module
     // doesnt pas thru the auth middleware.
     logger.verbose(
@@ -86,7 +90,8 @@ class AuthServer implements IAuthServer {
       AUTH_ISS,
       // WARNING: Harcoded value
       "NO_ACCESS",
-      getSalt()
+      getSalt(),
+      "1d"
     );
     const response = new CreateTokenResponse();
     response.setToken(result.accessToken);

@@ -14,12 +14,12 @@ export default class JWT implements ITokenManager {
   async encode(
     payload: JwtPayload,
     privateKey: string,
-    expiration = "30d"
+    expiresIn = "30d"
   ): Promise<string> {
     if (!privateKey) throw new Error("Token generation failure");
     // @ts-ignore
     return promisify(sign)({...payload}, privateKey, {
-      expiresIn: expiration
+      expiresIn
     });
   }
 
@@ -29,12 +29,11 @@ export default class JWT implements ITokenManager {
   async decode(
     token: string,
     privateKey: string,
-    ignoreExpiration = true
   ): Promise<JwtPayload> {
     try {
       // @ts-ignore
       return (await promisify(verify)(token, privateKey, {
-        ignoreExpiration
+        ignoreExpiration: false
       })) as JwtPayload;
     } catch (e) {
       logger.log("error", "@fonos/auth [Bad token]");
