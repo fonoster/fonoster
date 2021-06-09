@@ -52,22 +52,18 @@ class AuthServer implements IAuthServer {
     call: grpc.ServerUnaryCall<CreateTokenRequest>,
     callback: grpc.sendUnaryData<CreateTokenResponse>
   ) {
-    // WARNING:
-    // We need to validate the token and verify
+    // WARNING: We need to validate the token and verify
     // it has permissions to create token since the auth module
-    // doesnt pas thru the auth middleware.
+    // doesnt pass thru the auth middleware.
     logger.verbose(
       `@fonos/auth creating token [accessKeyId is ${call.request.getAccessKeyId()}]`
     );
-    if(!call.request.getExpiration()){
-      call.request.setExpiration("30d")
-    }
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
       AUTH_ISS,
       call.request.getRoleName(),
       getSalt(),
-      call.request.getExpiration()
+      call.request.getExpiration() || "30d"
     );
     const response = new CreateTokenResponse();
     response.setToken(result.accessToken);
@@ -78,10 +74,9 @@ class AuthServer implements IAuthServer {
     call: grpc.ServerUnaryCall<CreateTokenRequest>,
     callback: grpc.sendUnaryData<CreateTokenResponse>
   ) {
-    // WARNING:
-    // We need to validate the token and verify
+    // WARNING: We need to validate the token and verify
     // it has permissions to create token since the auth module
-    // doesnt pas thru the auth middleware.
+    // doesnt pass thru the auth middleware.
     logger.verbose(
       `@fonos/auth creating no access token [accessKeyId is ${call.request.getAccessKeyId()}]`
     );

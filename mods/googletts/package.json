@@ -29,6 +29,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
+    "@fonos/common": "^0.0.106",
     "@fonos/logger": "^0.0.106",
     "@fonos/tts": "^0.0.106",
     "@google-cloud/text-to-speech": "^3.2.2",

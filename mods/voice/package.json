@@ -31,6 +31,7 @@
   "dependencies": {
     "@fonos/events": "^0.0.106",
     "@fonos/logger": "^0.0.106",
+    "@fonos/common": "^0.0.106",
     "@fonos/tts": "^0.0.106",
     "axios": "^0.21.1",
     "deepmerge": "^4.2.2",
