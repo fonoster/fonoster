@@ -24,30 +24,6 @@ export default abstract class AbstractTTS {
    * settings for the TTS engine
    * @returns {string} The path to the synthesized audio
    */
-  synthesizeSync(text: string, options: any): string {
-    const sleep = require("sync").sleep;
-    let result;
-    let error;
-
-    this.synthesize(text, options)
-      .then((r: string) => (result = r))
-      .catch((e: string) => (error = e));
-
-    while (result === undefined && error === undefined) sleep(100);
-
-    if (error) throw error;
-
-    return result;
-  }
-
-  /**
-   * Converts a text to audio.
-   *
-   * @param {string} text - Text to convert to a audio sound
-   * @param {Object} options - An object pass to the final implementation with
-   * settings for the TTS engine
-   * @returns {string} The path to the synthesized audio
-   */
   abstract synthesize(text: string, options?: any): Promise<string>;
 
   /**

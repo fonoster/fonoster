@@ -58,28 +58,4 @@ const transcode = (fileIn: string, fileOut: string): Promise<string> =>
     sox.on("end", () => resolve(fileOut));
   });
 
-/**
- * Gets the path to a file as input and transcode synchronously to
- * a new format compatible with Asterisk
- *
- * @param {string} fileIn - path to original file which is expected to be .wav
- * @param {string} fileOut - path resulting file in a format understod by asterisk
- * @returns {string} path to the resulting file
- */
-const transcodeSync = (fileIn: string, fileOut: string): string => {
-  const sleep = require("sync").sleep;
-  let result;
-  let error;
-
-  transcode(fileIn, fileOut)
-    .then((r) => (result = r))
-    .catch((e) => (error = e));
-
-  while (result === undefined && error === undefined) sleep(100);
-
-  if (error) throw error;
-
-  return result;
-};
-
-export {computeFilename, transcode, transcodeSync, optionsToQueryString};
+export { computeFilename, transcode, optionsToQueryString };

@@ -29,20 +29,11 @@ import logger from "@fonos/logger";
  * @extends AbstractTTS
  * @example
  *
- * const MaryTTS = require("@fonos/tts/marytts");
- * const Storage = require("@fonos/storage");
- * const { transcodeSync } = require("@fonos/tts/utils");
-
+ * const MaryTTS = require("@fonos/marytts");
  *
- * // This is all done automatically when using the Say verb.
- * module.exports = chan => {
- *    const storage = new Storage();
- *    const tts = new MaryTTS();
- *    const pathToFile = tts.synthesizeSync("Hello World");
- *    const pathToTranscodedFile = transcodeSync(pathToFile);
- *    const url = storage.uploadFileSync("hello-world.wav", pathToTranscodedFile);
- *    chan.play(url);
- * }
+ * new MaryTTS().synthetize("Hello world")
+ *  .then((result) => console.log("path: " + result.pathToFile))
+ *  .catch(console.err);
  */
 export default class MaryTTS extends AbstractTTS {
   serviceUrl: string;
