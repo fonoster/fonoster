@@ -3,11 +3,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import {join} from "path";
-import {
-  computeFilename,
-  optionsToQueryString,
-  transcode
-} from "../src/utils";
+import {computeFilename, optionsToQueryString, transcode} from "../src/utils";
 
 const expect = chai.expect;
 chai.use(sinonChai);

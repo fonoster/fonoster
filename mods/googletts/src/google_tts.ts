@@ -14,7 +14,7 @@ const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
  * @extends AbstractTTS
  * @example
  * const GoogleTTS = require("@fonos/googletts");
- * 
+ *
  * new GoogleTTS().synthetize("Hello world")
  *  .then((result) => console.log("path: " + result.pathToFile))
  *  .catch(console.err);
