@@ -41,7 +41,7 @@ message ValidateTokenResponse {
 message CreateTokenRequest {
   string role_name = 1;
   string access_key_id = 2;
-  int32 expiration = 3;
+  string expiration = 3;
 }
 
 message CreateTokenResponse {

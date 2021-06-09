@@ -784,7 +784,7 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.toObject = function(includeInstance
   var f, obj = {
     roleName: jspb.Message.getFieldWithDefault(msg, 1, ""),
     accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    expiration: jspb.Message.getFieldWithDefault(msg, 3, 0)
+    expiration: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -830,7 +830,7 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.deserializeBinaryFromReader = funct
       msg.setAccessKeyId(value);
       break;
     case 3:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {string} */ (reader.readString());
       msg.setExpiration(value);
       break;
     default:
@@ -877,8 +877,8 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.serializeBinaryToWriter = function(
     );
   }
   f = message.getExpiration();
-  if (f !== 0) {
-    writer.writeInt32(
+  if (f.length > 0) {
+    writer.writeString(
       3,
       f
     );
@@ -923,20 +923,20 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.setAccessKeyId = function
 
 
 /**
- * optional int32 expiration = 3;
- * @return {number}
+ * optional string expiration = 3;
+ * @return {string}
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.getExpiration = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /**
- * @param {number} value
+ * @param {string} value
  * @return {!proto.fonos.auth.v1alpha1.CreateTokenRequest} returns this
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.setExpiration = function(value) {
-  return jspb.Message.setProto3IntField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
