@@ -49,7 +49,7 @@ const attachToDtmfReceived = (ws, channel) => {
 
 const attachToPlaybackFinished = (ws, client, sessionId) => {
   logger.verbose(`@fonos/dispatcher attaching to playback finished event`);
-  client.on("PlaybackFinished",  (event, playback) => {
+  client.on("PlaybackFinished", (event, playback) => {
     logger.verbose(
       `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
     );
@@ -97,7 +97,7 @@ const uploadRecording = async (accessKeyId, filename) => {
 
 const attachToRecordingFinished = (ws, client, accessKeyId, sessionId) => {
   logger.verbose(`@fonos/dispatcher attaching to recording finished event`);
-  client.on("RecordingFinished", async(event) => {
+  client.on("RecordingFinished", async (event) => {
     logger.debug(
       `@fonos/dispatcher sending recording finished event [filename: ${event.recording.name}]`
     );
@@ -160,14 +160,18 @@ export const attachToEvents = (request: AttachToEventsRequest) => {
     );
     attachToRecordingFailed(wsClient, request.client, request.sessionId);
   });
-  
-  wsClient.on('close',  () => {
+
+  wsClient.on("close", () => {
     wsClient.terminate();
-    logger.verbose(`@fonos/dispatcher closing broken connection [sessionId = ${request.sessionId}]`);
+    logger.verbose(
+      `@fonos/dispatcher closing broken connection [sessionId = ${request.sessionId}]`
+    );
   });
 
-  wsClient.on('error', () => {
-    logger.verbose(`@fonos/dispatcher unable to connect to voice app [url = ${request.url}]`);
+  wsClient.on("error", () => {
+    logger.verbose(
+      `@fonos/dispatcher unable to connect to voice app [url = ${request.url}]`
+    );
   });
 };
 
