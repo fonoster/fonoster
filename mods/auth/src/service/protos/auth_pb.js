@@ -782,8 +782,9 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.toObject = function(opt_i
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    roleName: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 3, "")
+    roleName: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    expiration: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -820,13 +821,17 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.deserializeBinaryFromReader = funct
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 2:
+    case 1:
       var value = /** @type {string} */ (reader.readString());
       msg.setRoleName(value);
       break;
-    case 3:
+    case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setAccessKeyId(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setExpiration(value);
       break;
     default:
       reader.skipField();
@@ -860,13 +865,20 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.serializeBinaryToWriter = function(
   f = message.getRoleName();
   if (f.length > 0) {
     writer.writeString(
-      2,
+      1,
       f
     );
   }
   f = message.getAccessKeyId();
   if (f.length > 0) {
     writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getExpiration();
+  if (f !== 0) {
+    writer.writeInt32(
       3,
       f
     );
@@ -875,11 +887,11 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.serializeBinaryToWriter = function(
 
 
 /**
- * optional string role_name = 2;
+ * optional string role_name = 1;
  * @return {string}
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.getRoleName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
@@ -888,16 +900,16 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.getRoleName = function() 
  * @return {!proto.fonos.auth.v1alpha1.CreateTokenRequest} returns this
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.setRoleName = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional string access_key_id = 3;
+ * optional string access_key_id = 2;
  * @return {string}
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.getAccessKeyId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
@@ -906,7 +918,25 @@ proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.getAccessKeyId = function
  * @return {!proto.fonos.auth.v1alpha1.CreateTokenRequest} returns this
  */
 proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.setAccessKeyId = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional int32 expiration = 3;
+ * @return {number}
+ */
+proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.getExpiration = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonos.auth.v1alpha1.CreateTokenRequest} returns this
+ */
+proto.fonos.auth.v1alpha1.CreateTokenRequest.prototype.setExpiration = function(value) {
+  return jspb.Message.setProto3IntField(this, 3, value);
 };
 
 

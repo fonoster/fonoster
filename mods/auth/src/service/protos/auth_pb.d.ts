@@ -99,6 +99,8 @@ export class CreateTokenRequest extends jspb.Message {
     setRoleName(value: string): CreateTokenRequest;
     getAccessKeyId(): string;
     setAccessKeyId(value: string): CreateTokenRequest;
+    getExpiration(): number;
+    setExpiration(value: number): CreateTokenRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CreateTokenRequest.AsObject;
@@ -114,6 +116,7 @@ export namespace CreateTokenRequest {
     export type AsObject = {
         roleName: string,
         accessKeyId: string,
+        expiration: number,
     }
 }
 

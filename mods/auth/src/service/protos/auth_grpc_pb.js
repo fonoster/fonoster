@@ -103,7 +103,7 @@ validateToken: {
     responseSerialize: serialize_fonos_auth_v1alpha1_ValidateTokenResponse,
     responseDeserialize: deserialize_fonos_auth_v1alpha1_ValidateTokenResponse,
   },
-  // Verifies if a token was issue by Fonos or the same private key
+  // Creates a new token for a given accessKeyId
 createToken: {
     path: '/fonos.auth.v1alpha1.Auth/CreateToken',
     requestStream: false,

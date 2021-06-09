@@ -14,7 +14,7 @@ service Auth {
   rpc GetRole (GetRoleRequest) returns (Role) {};
   // Verifies if a token was issue by Fonos or the same private key
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse) {}
-  // Verifies if a token was issue by Fonos or the same private key
+  // Creates a new token for a given accessKeyId
   rpc CreateToken (CreateTokenRequest) returns (CreateTokenResponse) {}
   // Creates a special token that has no access but serves a signature
   rpc CreateNoAccessToken (CreateTokenRequest) returns (CreateTokenResponse) {}
@@ -39,8 +39,9 @@ message ValidateTokenResponse {
 }
 
 message CreateTokenRequest {
-  string role_name = 2;
-  string access_key_id = 3;
+  string role_name = 1;
+  string access_key_id = 2;
+  int32 expiration = 3;
 }
 
 message CreateTokenResponse {
