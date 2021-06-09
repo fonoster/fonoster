@@ -150,5 +150,8 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
     throw new FonosError(
       `Unable to pulish image ${request.image} to registry ${request.registry}`
     );
+  } finally {
+    // Clean all the files
+    fs.rmdirSync(request.pathToFunc, {recursive: true});
   }
 }
