@@ -80,7 +80,6 @@ export default function (err, client) {
       client,
       channel
     });
-
     await sendCallRequest(ingressInfo.webhook, request);
   });
 

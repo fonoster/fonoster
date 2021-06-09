@@ -27,8 +27,16 @@ const attachToDtmfReceived = (ws, channel) => {
   logger.verbose(`@fonos/dispatcher attaching to dtmf received event`);
   channel.on("ChannelDtmfReceived", (event, channel) => {
     logger.debug(
-      `@fonos/dispatcher sending dtmf event [digit: ${event.digit}]`
+      `@fonos/dispatcher sending dtmf event [digit: ${event.digit}, channel=${channel.id}]`
     );
+
+    if (ws.readyState !== WebSocket.OPEN) {
+      logger.warn(
+        `@fonos/dispatcher ignoring socket request on lost connection`
+      );
+      return;
+    }
+
     ws.send(
       JSON.stringify({
         type: "DtmfReceived",
@@ -41,10 +49,18 @@ const attachToDtmfReceived = (ws, channel) => {
 
 const attachToPlaybackFinished = (ws, client, sessionId) => {
   logger.verbose(`@fonos/dispatcher attaching to playback finished event`);
-  client.on("PlaybackFinished", (event, playback) => {
-    logger.debug(
+  client.on("PlaybackFinished",  (event, playback) => {
+    logger.verbose(
       `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
     );
+
+    if (ws.readyState !== WebSocket.OPEN) {
+      logger.warn(
+        `@fonos/dispatcher ignoring socket request on lost connection`
+      );
+      return;
+    }
+
     ws.send(
       JSON.stringify({
         type: "PlaybackFinished",
@@ -81,10 +97,18 @@ const uploadRecording = async (accessKeyId, filename) => {
 
 const attachToRecordingFinished = (ws, client, accessKeyId, sessionId) => {
   logger.verbose(`@fonos/dispatcher attaching to recording finished event`);
-  client.on("RecordingFinished", async (event) => {
+  client.on("RecordingFinished", async(event) => {
     logger.debug(
       `@fonos/dispatcher sending recording finished event [filename: ${event.recording.name}]`
     );
+
+    if (ws.readyState !== WebSocket.OPEN) {
+      logger.warn(
+        `@fonos/dispatcher ignoring socket request on lost connection`
+      );
+      return;
+    }
+
     ws.send(
       JSON.stringify({
         type: "RecordingFinished",
@@ -123,17 +147,27 @@ const attachToRecordingFailed = (ws, client, sessionId) => {
 
 export const attachToEvents = (request: AttachToEventsRequest) => {
   logger.verbose(`@fonos/dispatcher connecting websocket @ mediacontroller`);
-  const ws = new WebSocket(request.url);
-  ws.on("open", function open() {
-    attachToDtmfReceived(ws, request.channel);
-    attachToPlaybackFinished(ws, request.client, request.sessionId);
+  const wsClient = new WebSocket(request.url);
+
+  wsClient.on("open", () => {
+    attachToDtmfReceived(wsClient, request.channel);
+    attachToPlaybackFinished(wsClient, request.client, request.sessionId);
     attachToRecordingFinished(
-      ws,
+      wsClient,
       request.client,
       request.accessKeyId,
       request.sessionId
     );
-    attachToRecordingFailed(ws, request.client, request.sessionId);
+    attachToRecordingFailed(wsClient, request.client, request.sessionId);
+  });
+  
+  wsClient.on('close',  () => {
+    wsClient.terminate();
+    logger.verbose(`@fonos/dispatcher closing broken connection [sessionId = ${request.sessionId}]`);
+  });
+
+  wsClient.on('error', () => {
+    logger.verbose(`@fonos/dispatcher unable to connect to voice app [url = ${request.url}]`);
   });
 };
 
@@ -146,6 +180,6 @@ export const sendCallRequest = async (url: string, request: CallRequest) => {
       }]`
     );
   } catch (e) {
-    logger.error(e);
+    logger.error(`Unable to send request to voice app at [url = ${url}]`);
   }
 };
