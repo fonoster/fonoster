@@ -148,7 +148,7 @@ export default class Funcs extends FonosService {
       super
         .getService()
         .getFunc(req, super.getMeta(), (e, res: FuncsPB.Func) => {
-          if (e) reject(e);
+          if (e) return reject(e);
 
           resolve({
             name: res.getName(),
