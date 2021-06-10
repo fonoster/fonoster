@@ -18,16 +18,23 @@
  */
 
 export interface CreateSecretRequest {
-  secretName: string;
+  name: string;
   secret: string;
 }
 
 export interface CreateSecretResponse {
-  secretName: string;
-  secret: string;
+  name: string;
+}
+
+export interface DeleteSecretRequest {
+  name: string;
+}
+
+export interface DeleteSecretResponse {
+  name: string;
 }
 
 export interface Secret {
-  secretName: string;
+  name: string;
   secret: string;
 }
