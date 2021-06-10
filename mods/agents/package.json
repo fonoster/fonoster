@@ -52,9 +52,5 @@
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.7",
-    "rimraf": "^3.0.2"
-  },
   "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

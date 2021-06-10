@@ -55,14 +55,5 @@
     "grpc-promise": "^1.4.0",
     "phone": "^2.4.21"
   },
-  "devDependencies": {
-    "chai": "^4.3.4",
-    "chai-as-promised": "^7.1.1",
-    "dotenv": "^8.2.0",
-    "nodemon": "^2.0.7",
-    "rimraf": "^3.0.2",
-    "sinon": "^10.0.0",
-    "sinon-chai": "^3.6.0"
-  },
   "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

@@ -47,14 +47,7 @@
   },
   "devDependencies": {
     "@types/btoa": "^1.2.3",
-    "@types/ioredis": "^4.16.5",
-    "@types/node": "^14.14.37",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "rimraf": "^3.0.2",
-    "sinon": "^9.0.1",
-    "sinon-chai": "^3.5.0",
-    "typescript": "^3.9.3"
+    "@types/ioredis": "^4.16.5"
   },
   "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }

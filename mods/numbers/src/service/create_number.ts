@@ -1,5 +1,4 @@
 /* eslint-disable require-jsdoc */
-import {FonosInvalidArgument, FonosFailedPrecondition} from "@fonos/errors";
 import NumbersPB from "./protos/numbers_pb";
 import {
   ResourceBuilder,

@@ -62,19 +62,13 @@
     "grpc-promise": "^1.4.0",
     "ndjson": "^2.0.0",
     "openfaas-client": "^0.0.2",
-    "tar": "^6.0.1",
+    "tar": "^6.1.0",
     "walk": "^2.3.14"
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.35",
     "@types/fs-extra": "^9.0.1",
     "@types/google-protobuf": "^3.15.2",
-    "@types/tar": "^4.0.3",
-    "chai": "^4.3.4",
-    "chai-as-promised": "^7.1.1",
-    "dotenv": "^8.2.0",
-    "rimraf": "^3.0.2",
-    "sinon": "^10.0.0",
-    "sinon-chai": "^3.6.0"
+    "@types/tar": "^4.0.3"
   }
 }

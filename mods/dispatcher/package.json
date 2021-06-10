@@ -52,13 +52,9 @@
     "wait-port": "^0.2.9",
     "ws": "^6.2.2"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.6",
-    "rimraf": "^3.0.2"
-  },
-  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580",
   "optionalDependencies": {
     "bufferutil": "^4.0.3",
     "utf-8-validate": "^5.0.5"
-  }
+  },
+  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
 }
