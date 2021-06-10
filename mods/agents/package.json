@@ -1,6 +1,6 @@
 {
   "name": "@fonos/agents",
-  "version": "0.0.108",
+  "version": "0.0.109",
   "description": "VoIP Agents",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,11 +43,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.108",
-    "@fonos/certs": "^0.0.108",
-    "@fonos/common": "^0.0.108",
-    "@fonos/core": "^0.0.108",
-    "@fonos/logger": "^0.0.108",
+    "@fonos/auth": "^0.0.109",
+    "@fonos/certs": "^0.0.109",
+    "@fonos/common": "^0.0.109",
+    "@fonos/core": "^0.0.109",
+    "@fonos/logger": "^0.0.109",
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0"
