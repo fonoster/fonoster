@@ -36,5 +36,6 @@
     "deepmerge": "^4.2.2",
     "grpc": "^1.24.7",
     "grpc-ts-health-check": "^2.0.6"
-  }
+  },
+  "gitHead": "1e489753273fe8c588304adc8966cccb7942ea80"
 }
