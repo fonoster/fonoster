@@ -6,6 +6,7 @@
   },
   "references": [
     {"path": "../auth"},
+    {"path": "../secrets"},
     {"path": "../agents"},
     {"path": "../funcs"},
     {"path": "../storage"},
