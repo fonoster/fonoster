@@ -49,15 +49,16 @@ class GoogleTTS extends Plugin implements TTSPlugin {
     super("googletts");
     super.setType("tts");
     this.config = config;
-    this.config.path = this.config.path 
-      ? this.config.path 
-      : "/tmp";
+    this.config.path = this.config.path ? this.config.path : "/tmp";
   }
 
   /**
    * @inherit
    */
-  async synthetize(text: string, options: SynthOptions = {}): Promise<SynthResult> {
+  async synthetize(
+    text: string,
+    options: SynthOptions = {}
+  ): Promise<SynthResult> {
     const client = new textToSpeech.TextToSpeechClient(this.config as any);
     // TODO: The file extension should be set based on the sample rate
     // For example, if we set the sample rate to 16K, then the extension needs to be

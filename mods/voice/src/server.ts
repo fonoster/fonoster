@@ -23,7 +23,7 @@ import logger from "@fonos/logger";
 import express from "express";
 import {join} from "path";
 import fs from "fs";
-import { Plugin } from "@fonos/common";
+import {Plugin} from "@fonos/common";
 const merge = require("deepmerge");
 const app = express();
 app.use(express.json());
@@ -48,27 +48,30 @@ export default class VoiceServer {
 
   /**
    * Add tts or asr plugin.
-   * 
-   * @param plugin 
+   *
+   * @param plugin
    */
   use(plugin: Plugin) {
     // Note: We only support registering one plugin per type
     this.plugins[plugin.getType()] = plugin;
   }
-  
+
   listen(handler: Function, port = this.config.port) {
-    app.get(`${this.config.base}/tts/:file`,  (req, res) => {
+    app.get(`${this.config.base}/tts/:file`, (req, res) => {
       // TODO: Update to use a stream instead of fs.readFile
-      fs.readFile(join(this.config.pathToFiles, req.params.file), function (err, data) {
-        if (err) {
-          res.send("unable to find or open file");
-        } else {
-          // TODO: Set this value according to file extension
-          res.setHeader("content-type", "audio/x-wav");
-          res.send(data);
+      fs.readFile(
+        join(this.config.pathToFiles, req.params.file),
+        function (err, data) {
+          if (err) {
+            res.send("unable to find or open file");
+          } else {
+            // TODO: Set this value according to file extension
+            res.setHeader("content-type", "audio/x-wav");
+            res.send(data);
+          }
+          res.end();
         }
-        res.end();
-      });
+      );
     });
 
     app.post(this.config.base, async (req, res) => {

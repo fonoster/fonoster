@@ -65,7 +65,7 @@ export default class {
 
   /**
    * Adds a tts or asr plugin. Only one type of plugin can be attached.
-   * 
+   *
    * @param plugin
    * @see GoogleTTS
    * @see MaryTTS
