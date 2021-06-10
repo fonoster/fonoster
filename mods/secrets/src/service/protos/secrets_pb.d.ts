@@ -7,25 +7,25 @@
 import * as jspb from "google-protobuf";
 import * as common_pb from "./common_pb";
 
-export class ListSecretsIdRequest extends jspb.Message { 
+export class ListSecretIdRequest extends jspb.Message { 
     getPageSize(): number;
-    setPageSize(value: number): ListSecretsIdRequest;
+    setPageSize(value: number): ListSecretIdRequest;
     getPageToken(): string;
-    setPageToken(value: string): ListSecretsIdRequest;
+    setPageToken(value: string): ListSecretIdRequest;
     getView(): common_pb.View;
-    setView(value: common_pb.View): ListSecretsIdRequest;
+    setView(value: common_pb.View): ListSecretIdRequest;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): ListSecretsIdRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: ListSecretsIdRequest): ListSecretsIdRequest.AsObject;
+    toObject(includeInstance?: boolean): ListSecretIdRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ListSecretIdRequest): ListSecretIdRequest.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: ListSecretsIdRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): ListSecretsIdRequest;
-    static deserializeBinaryFromReader(message: ListSecretsIdRequest, reader: jspb.BinaryReader): ListSecretsIdRequest;
+    static serializeBinaryToWriter(message: ListSecretIdRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListSecretIdRequest;
+    static deserializeBinaryFromReader(message: ListSecretIdRequest, reader: jspb.BinaryReader): ListSecretIdRequest;
 }
 
-export namespace ListSecretsIdRequest {
+export namespace ListSecretIdRequest {
     export type AsObject = {
         pageSize: number,
         pageToken: string,
@@ -33,25 +33,25 @@ export namespace ListSecretsIdRequest {
     }
 }
 
-export class ListSecretsIdResponse extends jspb.Message { 
+export class ListSecretIdResponse extends jspb.Message { 
     clearSecretList(): void;
     getSecretList(): Array<Secret>;
-    setSecretList(value: Array<Secret>): ListSecretsIdResponse;
+    setSecretList(value: Array<Secret>): ListSecretIdResponse;
     addSecret(value?: Secret, index?: number): Secret;
     getNextPageToken(): string;
-    setNextPageToken(value: string): ListSecretsIdResponse;
+    setNextPageToken(value: string): ListSecretIdResponse;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): ListSecretsIdResponse.AsObject;
-    static toObject(includeInstance: boolean, msg: ListSecretsIdResponse): ListSecretsIdResponse.AsObject;
+    toObject(includeInstance?: boolean): ListSecretIdResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ListSecretIdResponse): ListSecretIdResponse.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: ListSecretsIdResponse, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): ListSecretsIdResponse;
-    static deserializeBinaryFromReader(message: ListSecretsIdResponse, reader: jspb.BinaryReader): ListSecretsIdResponse;
+    static serializeBinaryToWriter(message: ListSecretIdResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListSecretIdResponse;
+    static deserializeBinaryFromReader(message: ListSecretIdResponse, reader: jspb.BinaryReader): ListSecretIdResponse;
 }
 
-export namespace ListSecretsIdResponse {
+export namespace ListSecretIdResponse {
     export type AsObject = {
         secretList: Array<Secret.AsObject>,
         nextPageToken: string,
@@ -59,8 +59,8 @@ export namespace ListSecretsIdResponse {
 }
 
 export class GetSecretRequest extends jspb.Message { 
-    getSecretName(): string;
-    setSecretName(value: string): GetSecretRequest;
+    getName(): string;
+    setName(value: string): GetSecretRequest;
     getView(): common_pb.View;
     setView(value: common_pb.View): GetSecretRequest;
 
@@ -76,14 +76,14 @@ export class GetSecretRequest extends jspb.Message {
 
 export namespace GetSecretRequest {
     export type AsObject = {
-        secretName: string,
+        name: string,
         view: common_pb.View,
     }
 }
 
 export class GetSecretResponse extends jspb.Message { 
-    getSecretName(): string;
-    setSecretName(value: string): GetSecretResponse;
+    getName(): string;
+    setName(value: string): GetSecretResponse;
     getSecret(): string;
     setSecret(value: string): GetSecretResponse;
 
@@ -99,17 +99,16 @@ export class GetSecretResponse extends jspb.Message {
 
 export namespace GetSecretResponse {
     export type AsObject = {
-        secretName: string,
+        name: string,
         secret: string,
     }
 }
 
 export class CreateSecretRequest extends jspb.Message { 
-
-    hasSecret(): boolean;
-    clearSecret(): void;
-    getSecret(): Secret | undefined;
-    setSecret(value?: Secret): CreateSecretRequest;
+    getName(): string;
+    setName(value: string): CreateSecretRequest;
+    getSecret(): string;
+    setSecret(value: string): CreateSecretRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CreateSecretRequest.AsObject;
@@ -123,16 +122,14 @@ export class CreateSecretRequest extends jspb.Message {
 
 export namespace CreateSecretRequest {
     export type AsObject = {
-        secret?: Secret.AsObject,
+        name: string,
+        secret: string,
     }
 }
 
 export class CreateSecretResponse extends jspb.Message { 
-
-    hasSecret(): boolean;
-    clearSecret(): void;
-    getSecret(): Secret | undefined;
-    setSecret(value?: Secret): CreateSecretResponse;
+    getName(): string;
+    setName(value: string): CreateSecretResponse;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CreateSecretResponse.AsObject;
@@ -146,16 +143,13 @@ export class CreateSecretResponse extends jspb.Message {
 
 export namespace CreateSecretResponse {
     export type AsObject = {
-        secret?: Secret.AsObject,
+        name: string,
     }
 }
 
 export class DeleteSecretRequest extends jspb.Message { 
-
-    hasSecret(): boolean;
-    clearSecret(): void;
-    getSecret(): Secret | undefined;
-    setSecret(value?: Secret): DeleteSecretRequest;
+    getName(): string;
+    setName(value: string): DeleteSecretRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): DeleteSecretRequest.AsObject;
@@ -169,13 +163,13 @@ export class DeleteSecretRequest extends jspb.Message {
 
 export namespace DeleteSecretRequest {
     export type AsObject = {
-        secret?: Secret.AsObject,
+        name: string,
     }
 }
 
 export class Secret extends jspb.Message { 
-    getSecretName(): string;
-    setSecretName(value: string): Secret;
+    getName(): string;
+    setName(value: string): Secret;
     getSecret(): string;
     setSecret(value: string): Secret;
 
@@ -191,7 +185,7 @@ export class Secret extends jspb.Message {
 
 export namespace Secret {
     export type AsObject = {
-        secretName: string,
+        name: string,
         secret: string,
     }
 }

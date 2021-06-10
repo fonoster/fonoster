@@ -34,6 +34,17 @@ function deserialize_fonos_secrets_v1alpha1_CreateSecretRequest(buffer_arg) {
   return secrets_pb.CreateSecretRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonos_secrets_v1alpha1_CreateSecretResponse(arg) {
+  if (!(arg instanceof secrets_pb.CreateSecretResponse)) {
+    throw new Error('Expected argument of type fonos.secrets.v1alpha1.CreateSecretResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonos_secrets_v1alpha1_CreateSecretResponse(buffer_arg) {
+  return secrets_pb.CreateSecretResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonos_secrets_v1alpha1_DeleteSecretRequest(arg) {
   if (!(arg instanceof secrets_pb.DeleteSecretRequest)) {
     throw new Error('Expected argument of type fonos.secrets.v1alpha1.DeleteSecretRequest');
@@ -56,37 +67,37 @@ function deserialize_fonos_secrets_v1alpha1_GetSecretRequest(buffer_arg) {
   return secrets_pb.GetSecretRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_secrets_v1alpha1_ListSecretsIdRequest(arg) {
-  if (!(arg instanceof secrets_pb.ListSecretsIdRequest)) {
-    throw new Error('Expected argument of type fonos.secrets.v1alpha1.ListSecretsIdRequest');
+function serialize_fonos_secrets_v1alpha1_GetSecretResponse(arg) {
+  if (!(arg instanceof secrets_pb.GetSecretResponse)) {
+    throw new Error('Expected argument of type fonos.secrets.v1alpha1.GetSecretResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_secrets_v1alpha1_ListSecretsIdRequest(buffer_arg) {
-  return secrets_pb.ListSecretsIdRequest.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonos_secrets_v1alpha1_GetSecretResponse(buffer_arg) {
+  return secrets_pb.GetSecretResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_secrets_v1alpha1_ListSecretsIdResponse(arg) {
-  if (!(arg instanceof secrets_pb.ListSecretsIdResponse)) {
-    throw new Error('Expected argument of type fonos.secrets.v1alpha1.ListSecretsIdResponse');
+function serialize_fonos_secrets_v1alpha1_ListSecretIdRequest(arg) {
+  if (!(arg instanceof secrets_pb.ListSecretIdRequest)) {
+    throw new Error('Expected argument of type fonos.secrets.v1alpha1.ListSecretIdRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_secrets_v1alpha1_ListSecretsIdResponse(buffer_arg) {
-  return secrets_pb.ListSecretsIdResponse.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonos_secrets_v1alpha1_ListSecretIdRequest(buffer_arg) {
+  return secrets_pb.ListSecretIdRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_secrets_v1alpha1_Secret(arg) {
-  if (!(arg instanceof secrets_pb.Secret)) {
-    throw new Error('Expected argument of type fonos.secrets.v1alpha1.Secret');
+function serialize_fonos_secrets_v1alpha1_ListSecretIdResponse(arg) {
+  if (!(arg instanceof secrets_pb.ListSecretIdResponse)) {
+    throw new Error('Expected argument of type fonos.secrets.v1alpha1.ListSecretIdResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_secrets_v1alpha1_Secret(buffer_arg) {
-  return secrets_pb.Secret.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonos_secrets_v1alpha1_ListSecretIdResponse(buffer_arg) {
+  return secrets_pb.ListSecretIdResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
@@ -96,12 +107,12 @@ listSecretsId: {
     path: '/fonos.secrets.v1alpha1.Secrets/ListSecretsId',
     requestStream: false,
     responseStream: false,
-    requestType: secrets_pb.ListSecretsIdRequest,
-    responseType: secrets_pb.ListSecretsIdResponse,
-    requestSerialize: serialize_fonos_secrets_v1alpha1_ListSecretsIdRequest,
-    requestDeserialize: deserialize_fonos_secrets_v1alpha1_ListSecretsIdRequest,
-    responseSerialize: serialize_fonos_secrets_v1alpha1_ListSecretsIdResponse,
-    responseDeserialize: deserialize_fonos_secrets_v1alpha1_ListSecretsIdResponse,
+    requestType: secrets_pb.ListSecretIdRequest,
+    responseType: secrets_pb.ListSecretIdResponse,
+    requestSerialize: serialize_fonos_secrets_v1alpha1_ListSecretIdRequest,
+    requestDeserialize: deserialize_fonos_secrets_v1alpha1_ListSecretIdRequest,
+    responseSerialize: serialize_fonos_secrets_v1alpha1_ListSecretIdResponse,
+    responseDeserialize: deserialize_fonos_secrets_v1alpha1_ListSecretIdResponse,
   },
   // Gets Secret with the Secret-name
 getSecret: {
@@ -109,22 +120,22 @@ getSecret: {
     requestStream: false,
     responseStream: false,
     requestType: secrets_pb.GetSecretRequest,
-    responseType: secrets_pb.Secret,
+    responseType: secrets_pb.GetSecretResponse,
     requestSerialize: serialize_fonos_secrets_v1alpha1_GetSecretRequest,
     requestDeserialize: deserialize_fonos_secrets_v1alpha1_GetSecretRequest,
-    responseSerialize: serialize_fonos_secrets_v1alpha1_Secret,
-    responseDeserialize: deserialize_fonos_secrets_v1alpha1_Secret,
+    responseSerialize: serialize_fonos_secrets_v1alpha1_GetSecretResponse,
+    responseDeserialize: deserialize_fonos_secrets_v1alpha1_GetSecretResponse,
   },
   createSecret: {
     path: '/fonos.secrets.v1alpha1.Secrets/CreateSecret',
     requestStream: false,
     responseStream: false,
     requestType: secrets_pb.CreateSecretRequest,
-    responseType: secrets_pb.Secret,
+    responseType: secrets_pb.CreateSecretResponse,
     requestSerialize: serialize_fonos_secrets_v1alpha1_CreateSecretRequest,
     requestDeserialize: deserialize_fonos_secrets_v1alpha1_CreateSecretRequest,
-    responseSerialize: serialize_fonos_secrets_v1alpha1_Secret,
-    responseDeserialize: deserialize_fonos_secrets_v1alpha1_Secret,
+    responseSerialize: serialize_fonos_secrets_v1alpha1_CreateSecretResponse,
+    responseDeserialize: deserialize_fonos_secrets_v1alpha1_CreateSecretResponse,
   },
   // Peforms a hard delete of the Secret resource
 deleteSecret: {
