@@ -22,7 +22,7 @@ export interface GoogleTTSConfig {
   path?: string;
 }
 
-export interface Voice {
+export interface SynthOptions {
   name?: string;
   ssmlGender?: "MALE" | "FEMALE";
   naturalSampleRateHertz?: number;

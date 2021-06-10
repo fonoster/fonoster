@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "@fonos/logger": "^0.0.106",
-    "@fonos/tts": "^0.0.106"
+    "@fonos/tts": "^0.0.106",
+    "@fonos/common": "^0.0.106"
   },
   "devDependencies": {
     "chai": "^4.3.4",

@@ -21,7 +21,9 @@ import VoiceResponse from "./voice";
 import VoiceEvents from "./events";
 import logger from "@fonos/logger";
 import express from "express";
+import {join} from "path";
 import fs from "fs";
+import { Plugin } from "@fonos/common";
 const merge = require("deepmerge");
 const app = express();
 app.use(express.json());
@@ -29,22 +31,35 @@ require("express-ws")(app);
 
 const voiceEvents = new VoiceEvents();
 const defaultServerConfig: ServerConfig = {
-  path: "/",
+  base: "/",
   port: 3000,
-  bind: "0.0.0.0"
+  bind: "0.0.0.0",
+  pathToFiles: "/tmp"
 };
 
 export default class VoiceServer {
-  config: any;
+  config: ServerConfig;
+  plugins: {};
   constructor(config: ServerConfig = defaultServerConfig) {
     this.config = merge(defaultServerConfig, config);
     this.init();
+    this.plugins = {};
   }
 
+  /**
+   * Add tts or asr plugin.
+   * 
+   * @param plugin 
+   */
+  use(plugin: Plugin) {
+    // Note: We only support registering one plugin per type
+    this.plugins[plugin.getType()] = plugin;
+  }
+  
   listen(handler: Function, port = this.config.port) {
-    app.get("/tts/:file", function (req, res) {
+    app.get(`${this.config.base}/tts/:file`,  (req, res) => {
       // TODO: Update to use a stream instead of fs.readFile
-      fs.readFile("./.tts/" + req.params.file, function (err, data) {
+      fs.readFile(join(this.config.pathToFiles, req.params.file), function (err, data) {
         if (err) {
           res.send("unable to find or open file");
         } else {
@@ -56,8 +71,9 @@ export default class VoiceServer {
       });
     });
 
-    app.post(this.config.path, async (req, res) => {
+    app.post(this.config.base, async (req, res) => {
       const response = new VoiceResponse(req.body, voiceEvents);
+      response.plugins = this.plugins;
       await handler(req.body, response);
       res.end();
     });
@@ -69,7 +85,7 @@ export default class VoiceServer {
 
   init() {
     logger.info(`initializing voice server`);
-    app.ws(this.config.path, (ws) => {
+    app.ws(this.config.base, (ws) => {
       ws.on("message", (msg) => {
         voiceEvents.broadcast(msg);
       });

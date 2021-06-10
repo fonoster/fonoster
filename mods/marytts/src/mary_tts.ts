@@ -16,17 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import http from "http";
+import https from "https";
 import fs from "fs";
 import path from "path";
-import {AbstractTTS, optionsToQueryString, computeFilename} from "@fonos/tts";
+import {Plugin} from "@fonos/common";
+import {
+  TTSPlugin,
+  optionsToQueryString,
+  computeFilename,
+  SynthResult
+} from "@fonos/tts";
 import {MaryTTSConfig, MarySynthOptions} from "./types";
 import logger from "@fonos/logger";
 
 /**
  * @classdesc The default TTS engine in a Fonos deployment.
  *
- * @extends AbstractTTS
+ * @extends Plugin
  * @example
  *
  * const MaryTTS = require("@fonos/marytts");
@@ -35,17 +41,21 @@ import logger from "@fonos/logger";
  *  .then((result) => console.log("path: " + result.pathToFile))
  *  .catch(console.err);
  */
-export default class MaryTTS extends AbstractTTS {
+export default class MaryTTS extends Plugin implements TTSPlugin {
   serviceUrl: string;
+  config: MaryTTSConfig;
   /**
    * Constructs a new MaryTTS object.
    *
-   * @see module:tts:AbstractTTS
+   * @see module:tts:TTSPlugin
    * @param {DefaultConfig} config - Configuration of the marytts
    */
   constructor(config: MaryTTSConfig) {
-    super("mary-tts");
-    this.init(config);
+    super("marytts");
+    super.setType("tts");
+    this.config = config;
+    this.config.path = this.config.path ? this.config.path : "/tmp";
+    this.init(this.config);
   }
 
   /**
@@ -54,19 +64,13 @@ export default class MaryTTS extends AbstractTTS {
    * @param {DefaultConfig} config - Configuration of the marytts
    */
   init(config: MaryTTSConfig): void {
-    const q = `INPUT_TYPE=TEXT&AUDIO=WAVE_FILE&OUTPUT_TYPE=AUDIO&LOCALE=${config.locale}`;
-    this.serviceUrl = `http://${config.host}:${config.port}/process?${q}`;
+    const q = "INPUT_TYPE=TEXT&AUDIO=WAVE_FILE&OUTPUT_TYPE=AUDIO";
+    this.serviceUrl = `${this.config.url}?${q}`;
 
-    logger.log(
-      "debug",
+    logger.debug(
       `@fonos/tts.MaryTTS.constructor [initializing with config: ${JSON.stringify(
         config
       )}]`
-    );
-
-    logger.log(
-      "verbose",
-      `@fonos/tts.MaryTTS.constructor [serviceUrl: ${this.serviceUrl}]`
     );
   }
 
@@ -79,32 +83,48 @@ export default class MaryTTS extends AbstractTTS {
    * For more information check the following link: http://marytts.phonetik.uni-muenchen.de:59125/documentation.html
    * WARNING: On windows the command "which" that sox library uses is not the same. In windows is "where" instead
    */
-  synthesize(
+  async synthetize(
     text: string,
-    options: MarySynthOptions = {locale: "EN_US", voice: ""}
-  ): Promise<string> {
-    const pathToFile = path.join("/tmp", computeFilename(text, options));
+    options: MarySynthOptions = {locale: "EN_US"}
+  ): Promise<SynthResult> {
+    const filename = computeFilename(text, options, "sln16");
+    const pathToFile = path.join(this.config.path, filename);
 
-    logger.log(
-      "debug",
+    logger.verbose(
       `@fonos/tts.MaryTTS.synthesize [text: ${text}, options: ${JSON.stringify(
         options
       )}]`
     );
 
     return new Promise((resolve, reject) => {
-      const query = optionsToQueryString(options);
-      http.get(
+      const q = optionsToQueryString(options);
+      const query = q ? q.toUpperCase() : "";
+      let headers = null;
+      if (this.config.accessKeyId && this.config.accessKeySecret) {
+        headers = {
+          "X-Session-Token": this.config.accessKeySecret
+        };
+      }
+
+      logger.silly(
+        `@fonos/tts.MaryTTS.synthesize [headers: ${JSON.stringify(headers)}]`
+      );
+      logger.verbose(`@fonos/tts.MaryTTS.synthesize [query: ${query}]`);
+
+      https.get(
         `${this.serviceUrl}&INPUT_TEXT=${encodeURI(text)}&${query}`,
+        {
+          headers
+        },
         (response) => {
           const {statusCode} = response;
 
           if (statusCode !== 200) {
-            reject(new Error(`Request failed status code: ${statusCode}`));
+            reject(new Error(`Request failed with status code: ${statusCode}`));
             return;
           }
           response.pipe(fs.createWriteStream(pathToFile));
-          resolve(pathToFile);
+          resolve({filename, pathToFile});
         }
       );
     });

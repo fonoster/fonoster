@@ -17,17 +17,17 @@
  * limitations under the License.
  */
 import VoiceEvents from "./events";
-import GatherVerb, {GatherOptions} from "./gather/gather";
 import HangupVerb from "./hangup/hangup";
-import MuteVerb from "./mute/mute";
-import {MuteOptions} from "./mute/types";
-import PlayVerb from "./play/play";
-import {PlayOptions} from "./play/types";
-import {PlaybackControl} from "./playback/playback";
-import RecordVerb from "./record/record";
-import {RecordOptions, RecordResult} from "./record/types";
-import {VoiceEventData, VoiceRequest} from "./types";
 import UnmuteVerb from "./unmute/unmute";
+import GatherVerb, {GatherOptions} from "./gather/gather";
+import MuteVerb, {MuteOptions} from "./mute/mute";
+import PlayVerb, {PlayOptions} from "./play/play";
+import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
+import {PlaybackControl} from "./playback/playback";
+import {SayOptions} from "./say/types";
+import {VoiceEventData, VoiceRequest} from "./types";
+import {Plugin} from "@fonos/common";
+import {assertPluginExist} from "./asserts";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -42,12 +42,13 @@ import UnmuteVerb from "./unmute/unmute";
  *   await response.play("sound:hello-world");
  * }
  *
- * const voiceServer = new VoiceServer({path: '/voiceapp'})
+ * const voiceServer = new VoiceServer({base: '/voiceapp'})
  * voiceServer.listen(handler, { port: 3000 })
  */
 export default class {
   request: VoiceRequest;
   events: VoiceEvents;
+  plugins: {};
 
   /**
    * Constructs a new VoiceResponse object.
@@ -59,6 +60,18 @@ export default class {
   constructor(request: VoiceRequest, events: VoiceEvents) {
     this.request = request;
     this.events = events;
+    this.plugins = {};
+  }
+
+  /**
+   * Adds a tts or asr plugin. Only one type of plugin can be attached.
+   * 
+   * @param plugin
+   * @see GoogleTTS
+   * @see MaryTTS
+   */
+  use(plugin: Plugin) {
+    this.plugins[plugin.getType()] = plugin;
   }
 
   /**
@@ -78,6 +91,34 @@ export default class {
    * }
    */
   async play(media: string, options?: PlayOptions) {
+    await new PlayVerb(this.request, this.events).run(media, options);
+  }
+
+  /**
+   * Converts a text into a sound and sends sound to media server. To use this verb, you must
+   * first setup a TTS plugin such as MaryTTS, GoogleTTS, or AWS PollyTTS
+   *
+   * @param {string} text - Converts a text into a sound and sends sound to media server
+   * @param {SayOptions} options - Optional parameters to alter the command's normal
+   * behavior
+   * @param {string} options.offset - Milliseconds to skip before playing
+   * @param {string} options.skip - Milliseconds to skip for forward/reverse operations
+   * @param {string} options.playbackId - Playback identifier to use in Playback operations
+   * @see Play
+   * @see Voice.use
+   * @example
+   *
+   * async function handler (request, response) {
+   *   response.use(new GoogleTTS())
+   *   await response.say("Hello workd");   // Plays the sound using GoogleTTS's default values
+   * }
+   */
+  async say(text: string, options?: SayOptions) {
+    assertPluginExist(this, "tts");
+    const tts = this.plugins["tts"];
+    // It should return the filename and the generated file location
+    const result = await tts.synthetize(text, options);
+    const media = `sound:${this.request.selfEndpoint}/tts/${result.filename}`;
     await new PlayVerb(this.request, this.events).run(media, options);
   }
 

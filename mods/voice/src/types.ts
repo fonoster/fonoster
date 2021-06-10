@@ -30,7 +30,8 @@ export interface VoiceRequest {
 export interface ServerConfig {
   bind?: string;
   port?: number;
-  path?: string;
+  base?: string;
+  pathToFiles?: string;
 }
 
 export interface VoiceEventData {
