@@ -1,37 +1,28 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {FonosService, ServiceOptions} from "@fonos/common";
 import {CallManagerClient} from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
 import {promisifyAll} from "grpc-promise";
+import {CallRequest, CallResponse} from "./types";
 import grpc from "grpc";
-
-/**
- * Call request object
- *
- * @typedef {Object} CallRequest
- * @property {string} from - Point of origination for the call.
- * @property {string} to - Destination number.
- * @property {string} app - Application to handle the call once the destination answers the call
- */
-export interface CallRequest {
-  from: string;
-  to: string;
-  app: string;
-}
-
-/**
- * Call response object
- *
- * @typedef {Object} CallResponse
- * @property {string} from - Point of origination for the call.
- * @property {string} to - Destination number.
- * @property {string} app - Application to handle the call once the destination answers the call
- */
-export interface CallResponse {
-  from: string;
-  to: string;
-  app: string;
-  duration: number;
-}
 
 /**
  * @classdesc Use Fonos CallManager, a capability of Fonos Systems Manager,
@@ -41,13 +32,13 @@ export interface CallResponse {
  * @extends FonosService
  * @example
  *
- * const Fonos = require('@fonos/sdk')
+ * const Fonos = require("@fonos/sdk")
  * const callManager = new Fonos.CallManager()
  *
  * callManager.call({
- *   from: '9102104343',
- *   to: '17853178070'
- *   app: 'default'
+ *   from: "9102104343",
+ *   to: "17853178070"
+ *   app: "default"
  * })
  * .then(result => {
  *   console.log(result)             // successful response
@@ -75,13 +66,13 @@ export default class CallManager extends FonosService {
    * @example
    *
    * callManager.call({
-   *   from: '9102104343',
-   *   to: '17853178070'
-   *   app: 'default'
+   *   from: "9102104343",
+   *   to: "17853178070",
+   *   app: "default"
    * })
    * .then(result => {
-   *   console.log(result)             // successful response
-   * }).catch(e => console.error(e))   // an error occurred
+   *   console.log(result);             // successful response
+   * }).catch(e => console.error(e));   // an error occurred
    *
    */
   async call(request: CallRequest): Promise<CallResponse> {
