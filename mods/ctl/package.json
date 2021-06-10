@@ -101,7 +101,8 @@
   "devDependencies": {
     "@types/dockerode": "^3.2.2",
     "@types/phone": "^2.4.0",
-    "@types/prettyjson": "0.0.29"
+    "@types/prettyjson": "0.0.29",
+    "rimraf": "^3.0.2"
   },
-  "gitHead": "1e489753273fe8c588304adc8966cccb7942ea80"
+  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }
