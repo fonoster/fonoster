@@ -30,13 +30,13 @@ import {mute} from "@fonos/logger";
 mute();
 
 export {
-  Secrets, 
-  Auth, 
-  Agents, 
+  Secrets,
+  Auth,
+  Agents,
   CallManager,
-  Domains, 
-  Funcs, 
-  Storage, 
-  Numbers, 
+  Domains,
+  Funcs,
+  Storage,
+  Numbers,
   Providers
 };
