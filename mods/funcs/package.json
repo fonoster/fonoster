@@ -1,6 +1,6 @@
 {
   "name": "@fonos/funcs",
-  "version": "0.0.109",
+  "version": "0.0.110",
   "description": "Fonoster functions support",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,13 +43,13 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.0.109",
-    "@fonos/certs": "^0.0.109",
-    "@fonos/common": "^0.0.109",
-    "@fonos/core": "^0.0.109",
-    "@fonos/errors": "^0.0.109",
-    "@fonos/logger": "^0.0.109",
-    "@fonos/storage": "^0.0.109",
+    "@fonos/auth": "^0.0.110",
+    "@fonos/certs": "^0.0.110",
+    "@fonos/common": "^0.0.110",
+    "@fonos/core": "^0.0.110",
+    "@fonos/errors": "^0.0.110",
+    "@fonos/logger": "^0.0.110",
+    "@fonos/storage": "^0.0.110",
     "axios": "^0.21.1",
     "btoa": "^1.2.1",
     "container-image-builder": "^3.2.0",
