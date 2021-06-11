@@ -44,7 +44,6 @@ class SecretServer implements ISecretsServer {
     callback: grpc.sendUnaryData<ListSecretIdResponse>
   ) {
     try {
-
       const result = await listSecret(
         parseInt(call.request.getPageToken()),
         call.request.getPageSize(),

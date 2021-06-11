@@ -169,7 +169,9 @@ export default class Secrets extends FonosService {
     const req = new SecretPB.ListSecretIdRequest();
     req.setPageSize(request.pageSize);
     req.setPageToken(request.pageToken);
-    const paginatedList = await this.getService().listSecretsId().sendMessage(req);
+    const paginatedList = await this.getService()
+      .listSecretsId()
+      .sendMessage(req);
 
     return {
       nextPageToken: paginatedList.getNextPageToken(),
@@ -180,7 +182,6 @@ export default class Secrets extends FonosService {
       })
     };
   }
-
 
   /**
    * Retrives a Secret using its reference.
