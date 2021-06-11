@@ -24,7 +24,7 @@ export default class UpdateCommand extends Command {
         name: "name",
         message: "friendly name",
         type: "input",
-        default: agent.getName()
+        default: agent.name
       },
       {
         name: "secret",
@@ -37,7 +37,7 @@ export default class UpdateCommand extends Command {
         message: "privacy",
         type: "list",
         choices: ["None", "Private"],
-        default: agent.getPrivacy()
+        default: agent.privacy
       },
       {
         name: "confirm",

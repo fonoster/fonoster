@@ -20,6 +20,7 @@ import grpc from "grpc";
 import getSecret from "./get_secret";
 import createSecret from "./create_secret";
 import deleteSecret from "./delete_secret";
+import listSecret from "./list_secret";
 import {
   ListSecretIdRequest,
   ListSecretIdResponse,
@@ -42,18 +43,22 @@ class SecretServer implements ISecretsServer {
     call: grpc.ServerUnaryCall<ListSecretIdRequest>,
     callback: grpc.sendUnaryData<ListSecretIdResponse>
   ) {
-    // try {
-    //   const result = await listUsers(
-    //     parseInt(call.request.getPageToken()),
-    //     call.request.getPageSize()
-    //   );
-    //   const response = new ListUsersResponse();
-    //   response.setUsersList(result.users);
-    //   if (result.pageToken) response.setNextPageToken("" + result.pageToken);
-    //   callback(null, response);
-    // } catch (e) {
-    //   callback(e, null);
-    // }
+    try {
+
+      const result = await listSecret(
+        parseInt(call.request.getPageToken()),
+        call.request.getPageSize(),
+        getAccessKeyId(call)
+      );
+
+      const response = new ListSecretIdResponse();
+      response.setNameList(result.secrets);
+
+      if (result.pageToken) response.setNextPageToken("" + result.pageToken);
+      callback(null, response);
+    } catch (e) {
+      callback(e, null);
+    }
   }
 
   async getSecret(

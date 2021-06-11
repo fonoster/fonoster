@@ -25,7 +25,11 @@ import grpc from "grpc";
 import {
   CreateSecretRequest,
   CreateSecretResponse,
-  DeleteSecretRequest
+  GetSecretRequest,
+  GetSecretResponse,
+  DeleteSecretRequest,
+  ListSecretRequest,
+  ListSecretResponse
 } from "./types";
 
 /**
@@ -102,6 +106,81 @@ export default class Secrets extends FonosService {
       name: secretFromVault.getName()
     };
   }
+
+  /**
+   * Get a Secret.
+   *
+   * @param {CreateSecretRequest} request - Request for the provision of
+   * a new Secret
+   * @param {string} request.name - Friendly name for the Secret
+   * @param {string} request.secret - secret to be save
+   * @return {Promise<CreateSecretResponse>}
+   * @example
+   *
+   * const request = {
+   *    secretName: "Jenkins",
+   *    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+   * };
+   *
+   * secrets.createSecret(request)
+   * .then(result => {
+   *   console.log(result) // returns the CreateDomainResponse interface
+   * }).catch(e => console.error(e)); // an error occurred
+   */
+  async getSecret(request: GetSecretRequest): Promise<GetSecretResponse> {
+    const secret = new SecretPB.Secret();
+    secret.setName(request.name);
+
+    const req = new SecretPB.GetSecretRequest();
+    req.setName(secret.getName());
+
+    const secretFromVault = await super
+      .getService()
+      .getSecret()
+      .sendMessage(req);
+
+    return {
+      name: secretFromVault.getName(),
+      secret: secretFromVault.getSecret()
+    };
+  }
+
+  /**
+   * List all user secrets.
+   *
+   * @param {ListSecretRequest} request - Request for the provision of
+   * a new Secret
+   * @param {string} request.name - Friendly name for the Secret
+   * @param {string} request.secret - secret to be save
+   * @return {Promise<ListSecretResponse>}
+   * @example
+   *
+   * const request = {
+   *    pageSize: 1,
+   *    pageToken: 1
+   * };
+   *
+   * secrets.listSecret(request)
+   * .then(result => {
+   *   console.log(result) // returns the CreateDomainResponse interface
+   * }).catch(e => console.error(e)); // an error occurred
+   */
+  async listSecret(request: ListSecretRequest): Promise<ListSecretResponse> {
+    const req = new SecretPB.ListSecretIdRequest();
+    req.setPageSize(request.pageSize);
+    req.setPageToken(request.pageToken);
+    const paginatedList = await this.getService().listSecretsId().sendMessage(req);
+
+    return {
+      nextPageToken: paginatedList.getNextPageToken(),
+      name: paginatedList.getNameList().map((secret: SecretPB.Secret) => {
+        return {
+          name: secret.getName()
+        };
+      })
+    };
+  }
+
 
   /**
    * Retrives a Secret using its reference.

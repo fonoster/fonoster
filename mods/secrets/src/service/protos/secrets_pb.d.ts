@@ -34,10 +34,10 @@ export namespace ListSecretIdRequest {
 }
 
 export class ListSecretIdResponse extends jspb.Message { 
-    clearSecretList(): void;
-    getSecretList(): Array<Secret>;
-    setSecretList(value: Array<Secret>): ListSecretIdResponse;
-    addSecret(value?: Secret, index?: number): Secret;
+    clearNameList(): void;
+    getNameList(): Array<SecretName>;
+    setNameList(value: Array<SecretName>): ListSecretIdResponse;
+    addName(value?: SecretName, index?: number): SecretName;
     getNextPageToken(): string;
     setNextPageToken(value: string): ListSecretIdResponse;
 
@@ -53,7 +53,7 @@ export class ListSecretIdResponse extends jspb.Message {
 
 export namespace ListSecretIdResponse {
     export type AsObject = {
-        secretList: Array<Secret.AsObject>,
+        nameList: Array<SecretName.AsObject>,
         nextPageToken: string,
     }
 }
@@ -187,5 +187,25 @@ export namespace Secret {
     export type AsObject = {
         name: string,
         secret: string,
+    }
+}
+
+export class SecretName extends jspb.Message { 
+    getName(): string;
+    setName(value: string): SecretName;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): SecretName.AsObject;
+    static toObject(includeInstance: boolean, msg: SecretName): SecretName.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: SecretName, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): SecretName;
+    static deserializeBinaryFromReader(message: SecretName, reader: jspb.BinaryReader): SecretName;
+}
+
+export namespace SecretName {
+    export type AsObject = {
+        name: string,
     }
 }
