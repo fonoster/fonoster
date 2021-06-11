@@ -20,13 +20,13 @@ export default class GetCommand extends Command {
       const agent = await agents.getAgent(args.ref);
 
       const jsonObj = {
-        Ref: agent.getRef(),
-        Name: agent.getName(),
-        Username: agent.getUsername(),
+        Ref: agent.ref,
+        Name: agent.name,
+        Username: agent.username,
         // Privacy: agent.getPrivacy(),
         Domains: agent.domains.join(","),
-        Created: moment(agent.getCreateTime()).fromNow(),
-        Updated: moment(agent.getUpdateTime()).fromNow()
+        Created: moment(agent.createTime).fromNow(),
+        Updated: moment(agent.updateTime).fromNow()
       };
 
       await cli.wait(1000);
