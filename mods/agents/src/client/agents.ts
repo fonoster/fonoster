@@ -4,6 +4,16 @@ import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
 import logger from "@fonos/logger";
 import {promisifyAll} from "grpc-promise";
+import {
+  CreateAgentRequest,
+  CreateAgentResponse,
+  DeleteAgentResponse,
+  GetAgentResponse,
+  ListAgentsRequest,
+  ListAgentsResponse,
+  UpdateAgentRequest,
+  UpdateAgentResponse
+} from "./types";
 import grpc from "grpc";
 
 /**
@@ -14,7 +24,7 @@ import grpc from "grpc";
  * @extends FonosService
  * @example
  *
- * const Fonos = require('@fonos/sdk')
+ * const Fonos = require("@fonos/sdk")
  * const agents = new Fonos.Agents()
  *
  * const request = {
@@ -33,6 +43,7 @@ export default class Agents extends FonosService {
   /**
    * Constructs a new Agents object.
    *
+   * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
   constructor(options?: ServiceOptions) {
@@ -44,29 +55,29 @@ export default class Agents extends FonosService {
   /**
    * Creates a new Agent on the SIP Proxy subsystem.
    *
-   * @param {Object} request -  Request for the provision of a new Agent
+   * @param {CreateAgentRequest} request -  Request for the provision of a new Agent
    * @param {string} request.name - Friendly name for the SIP device
    * @param {string} request.username -Agent's credential username
    * @param {string} request.secret - Agent's credential secret
-   * @param {string[]} request.privacy - If set to 'Private' Fonos removes
-   * identifiable information for the requests. Defaults to 'None'
+   * @param {string} request.privacy - If set to "Private" Fonos removes
+   * identifiable information for the requests. Defaults to "None"
    * @param {string[]} request.domains - List of domains this Agent has access to
-   * @return {Promise<Object>} The Agent from the database
+   * @return {Promise<CreateAgentResponse>}
    * @example
    *
    * const request = {
-   *   name: 'John Doe',
-   *   username: 'john',
-   *   secret: '1234',
-   *   domains: ['sip.local']
+   *   name: "John Doe",
+   *   username: "john",
+   *   secret: "1234",
+   *   domains: ["sip.local"]
    * }
    *
    * agents.createAgent(request)
    * .then(result => {
-   *   console.log(result)            // returns the Agent object
+   *   console.log(result)            // returns the CreateAgentResponse interface
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createAgent(request: any): Promise<any> {
+  async createAgent(request: CreateAgentRequest): Promise<CreateAgentResponse> {
     const agent = new AgentsPB.Agent();
     agent.setName(request.name);
     agent.setUsername(request.username);
@@ -74,78 +85,107 @@ export default class Agents extends FonosService {
     agent.setDomainsList(request.domains);
     agent.setPrivacy(request.privacy);
 
-    const req = new AgentsPB.CreateAgentRequest();
-    req.setAgent(agent);
+    const outRequest = new AgentsPB.CreateAgentRequest();
+    outRequest.setAgent(agent);
 
-    return super.getService().createAgent().sendMessage(req);
+    const res = await super.getService().createAgent().sendMessage(outRequest);
+
+    return {
+      ref: res.getRef(),
+      name: res.getName(),
+      username: res.getUsername(),
+      secret: res.getSecret(),
+      domains: res.getDomainsList(),
+      privacy: res.getPrivacy(),
+      createTime: res.getCreateTime(),
+      updateTime: res.getUpdateTime()
+    };
   }
 
   /**
    * Retrives an Agent by reference.
    *
    * @param {string} ref - Reference to Agent
-   * @return {Promise<Object>} The agent
+   * @return {Promise<GetAgentResponse>} The agent
    * @throws if ref is null or Agent does not exist
    * @example
    *
+   * const ref = "507f1f77bcf86cd799439011";
+   *
    * agents.getAgent(ref)
    * .then(result => {
-   *   console.log(result)             // returns the Agent object
+   *   console.log(result)             // returns the GetDomainResponse interface
    * }).catch(e => console.error(e))   // an error occurred
    */
-  async getAgent(ref: string): Promise<any> {
+  async getAgent(ref: string): Promise<GetAgentResponse> {
     const request = new AgentsPB.GetAgentRequest();
     request.setRef(ref);
-    return super.getService().getAgent().sendMessage(request);
+    const res = await super.getService().getAgent().sendMessage(request);
+
+    return {
+      ref: res.getRef(),
+      name: res.getName(),
+      username: res.getUsername(),
+      secret: res.getSecret(),
+      domains: res.getDomainsList(),
+      privacy: res.getPrivacy(),
+      createTime: res.getCreateTime(),
+      updateTime: res.getUpdateTime()
+    };
   }
 
   /**
    * Update an Agent at the SIP Proxy subsystem.
    *
-   * @param {Object} request - Request update of an Agent
+   * @param {UpdateAgentRequest} request - Request update of an Agent
    * @param {string} request.ref - Reference to the Agent
    * @param {string} request.name - Friendly name for the SIP device
    * @param {string} request.secret - Agent's credential secret
-   * @return {Promise<Object>} The Agent from the database
+   * @return {Promise<UpdateAgentResponse>}
    * @example
    *
    * const request = {
-   *   name: 'John Dee',
-   *   secret: '12345'
+   *   name: "John Dee",
+   *   secret: "12345"
    * }
    *
    * agents.updateAgent(request)
    * .then(result => {
-   *   console.log(result)            // returns the Agent from the DB
+   *   console.log(result)            // returns the UpdateAgentResponse interface
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async updateAgent(request: {
-    ref: string;
-    name: any;
-    secret: any;
-    privacy: any;
-  }): Promise<object> {
-    const agentFromDB = await this.getAgent(request.ref);
+  async updateAgent(request: UpdateAgentRequest): Promise<UpdateAgentResponse> {
+    const getAgentRequest = new AgentsPB.GetAgentRequest();
+    getAgentRequest.setRef(request.ref);
+    const agent = await super
+      .getService()
+      .getAgent()
+      .sendMessage(getAgentRequest);
 
-    if (request.name) agentFromDB.setName(request.name);
-    if (request.secret) agentFromDB.setSecret(request.secret);
-    if (request.privacy) agentFromDB.setPrivacy(request.privacy);
+    if (request.name) agent.setName(request.name);
+    if (request.secret) agent.setSecret(request.secret);
+    if (request.privacy) agent.setPrivacy(request.privacy);
 
     const req = new AgentsPB.UpdateAgentRequest();
-    req.setAgent(agentFromDB);
+    req.setAgent(agent);
 
-    return super.getService().updateAgent().sendMessage(req);
+    const res = await super.getService().updateAgent().sendMessage(req);
+
+    return {
+      ref: res.getRef()
+    };
   }
 
   /**
    * List registered Agents in Fonos SIP Proxy subsystem.
    *
-   * @param {Object} request
-   * @param {agent} request.pageSize - Elements per page
+   * @param {ListAgentsRequest} request - Optional parameter with size and
+   * token for the request
+   * @param {number} request.pageSize - Elements per page
    * (defaults to 20)
    * @param {string} request.pageToken - The next_page_token value returned from
    * a previous List request, if any
-   * @return {Promise<ListAgentsResponse>} List of Agents
+   * @return {Promise<ListAgentsResponse>} Paginated List of Agents
    * @example
    *
    * const request = {
@@ -155,14 +195,10 @@ export default class Agents extends FonosService {
    *
    * agents.listAgents(request)
    * .then(() => {
-   *   console.log(result)            // returns a ListAgentsResponse object
+   *   console.log(result)            // returns a ListAgentsResponse interface
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async listAgents(request: {
-    pageSize: any;
-    pageToken: any;
-    view: any;
-  }): Promise<any> {
+  async listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse> {
     logger.log(
       "verbose",
       `@fonos/agents listAgent [request -> ${JSON.stringify(request)}]`
@@ -171,7 +207,23 @@ export default class Agents extends FonosService {
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);
     r.setView(request.view);
-    return super.getService().listAgents().sendMessage(r);
+    const paginatedList = await super.getService().listAgents().sendMessage(r);
+
+    return {
+      nextPageToken: paginatedList.getNextPageToken(),
+      agents: paginatedList.getAgentsList().map((a: AgentsPB.Agent) => {
+        return {
+          ref: a.getRef(),
+          name: a.getName(),
+          username: a.getUsername(),
+          secret: a.getSecret(),
+          domains: a.getDomainsList(),
+          privacy: a.getPrivacy(),
+          createTime: a.getCreateTime(),
+          updateTime: a.getUpdateTime()
+        };
+      })
+    };
   }
 
   /**
@@ -180,17 +232,18 @@ export default class Agents extends FonosService {
    * @param {string} ref - Agent's reference
    * @example
    *
-   * const ref = '507f1f77bcf86cd799439011'
+   * const ref = "507f1f77bcf86cd799439011"
    *
    * agents.deleteAgent(ref)
    * .then(() => {
-   *   console.log('done')            // returns an empty object
+   *   console.log("done")            // returns a reference of the agent
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async deleteAgent(ref: string): Promise<object> {
+  async deleteAgent(ref: string): Promise<DeleteAgentResponse> {
     const req = new AgentsPB.DeleteAgentRequest();
     req.setRef(ref);
-    return super.getService().deleteAgent().sendMessage(req);
+    await super.getService().deleteAgent().sendMessage(req);
+    return {ref};
   }
 }
 
