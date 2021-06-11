@@ -33,7 +33,7 @@ export interface CreateAgentRequest {
   username: string;
   secret: string;
   domains: string[];
-  privacy: string;
+  privacy?: string;
 }
 
 export interface CreateAgentResponse {
