@@ -8,7 +8,10 @@
 #   DS_AUTH => Data Source for Authentication
 #   FS => Files Server (Minio)
 
-AUTH_RBAC=/Users/pedrosanders/Projects/fonos/etc/rbac.json
+VAULT_ADDR=http://localhost:8200
+VAULT_TOKEN=changeit
+SECRETS_POLICY=fonos-policy
+AUTH_RBAC=/Users/quijote/Projects/fonos/etc/rbac.json
 EVENTS_BROKERS=amqp://fonos:changeit@localhost:5672
 FUNCS_URL=http://faasd.fonoster.net:8080
 FUNCS_USERNAME=admin

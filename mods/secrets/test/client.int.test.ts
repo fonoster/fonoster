@@ -65,17 +65,16 @@ describe("@Fonos/funcs/client", () => {
   });
 });
 
-
 it("should list all secret", (done) => {
-   const request = {
-      pageSize: 1,
-      pageToken: "1"
-   };
+  const request = {
+    pageSize: 1,
+    pageToken: "1"
+  };
 
   const secrets = new Secrets();
   secrets
     .listSecret(request)
-    .then(result => {
+    .then((result) => {
       console.log(result);
       done();
     })
@@ -84,22 +83,19 @@ it("should list all secret", (done) => {
     });
 });
 
-
 it("should list a secret", (done) => {
   const request = {
-     name: 'Jenkins'
+    name: "Jenkins"
   };
 
- const secrets = new Secrets();
- secrets
-   .getSecret(request)
-   .then(result => {
-     console.log(result);
-     done();
-   })
-   .catch((err) => {
-     done(err);
-   });
+  const secrets = new Secrets();
+  secrets
+    .getSecret(request)
+    .then((result) => {
+      console.log(result);
+      done();
+    })
+    .catch((err) => {
+      done(err);
+    });
 });
-
-
