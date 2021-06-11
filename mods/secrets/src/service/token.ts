@@ -18,6 +18,10 @@
  */
 export default async function (accessKeyId: string) {
   const vault = require("node-vault")();
+  // TODO: The policy assignment shouldn't be done automatically. 
+  // Instead, it should be done during the user creation.
+  await vault.addApproleRole({ role_name: accessKeyId, policies: process.env.SECRETS_POLICY});
+
   const roleId = (await vault.getApproleRoleId({role_name: accessKeyId})).data
     .role_id;
   const secretId = (await vault.getApproleRoleSecret({role_name: accessKeyId}))
