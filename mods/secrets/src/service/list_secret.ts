@@ -16,24 +16,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GetSecretResponse} from "./protos/secrets_pb";
+// import {userOperation} from "@fonos/auth";
+// import {User} from "./protos/usermanager_pb";
+// import jsonParse from "./json_parser";
+
+import {SecretName} from "./protos/secrets_pb";
 import getUserToken from "./token";
 
 export default async function (
-  name: string,
+  pageToken: number,
+  pageSize: number,
   accessKeyId: string
-): Promise<GetSecretResponse> {
+) {
+  if (!pageToken) return {};
+  pageToken--;
+  pageSize--;
+
+  let upperRange = pageToken + pageSize;
+
   const vault = require("node-vault")();
   const entityId = await getUserToken(accessKeyId);
-  const secretFromVault = await vault.read(`secret/data/${entityId}/` + name);
-  const secretFromVault2 = await vault.list(`secret/data/${entityId}/`);
+  const secretFromVault = await vault.list(`secret/data/${entityId}/`);
 
-  const secretArray = secretFromVault2.data.keys;
-  console.log("this is my array ", secretArray);
+  const secretArray = secretFromVault.data.keys;
+  let secrets: SecretName[] = [];
 
+  for (const idx in secretArray) {
+    const singleSecret = secretArray[idx];
+    const secretName = new SecretName();
+    secretName.setName(singleSecret);
+    secrets.push(secretName);
+  }
 
-  const response = new GetSecretResponse();
-  response.setSecret(secretFromVault.data.data.value);
-  response.setName(name);
-  return response;
+  upperRange++;
+
+  return {
+    secrets,
+    pageToken: upperRange
+  };
 }

@@ -25,12 +25,31 @@ export interface CreateSecretResponse {
   name: string;
 }
 
+export interface GetSecretRequest {
+  name: string;
+}
+
+export interface GetSecretResponse {
+  name: string;
+  secret: string;
+}
+
 export interface DeleteSecretRequest {
   name: string;
 }
 
 export interface DeleteSecretResponse {
   name: string;
+}
+
+export interface ListSecretRequest {
+  pageSize: number;
+  pageToken: string;
+}
+
+export interface ListSecretResponse {
+  name: string;
+  nextPageToken: string;
 }
 
 export interface Secret {
