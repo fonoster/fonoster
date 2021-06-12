@@ -64,7 +64,7 @@ describe("@Fonos/funcs/client", () => {
       pageSize: 1,
       pageToken: "1"
     };
-  
+
     const secrets = new Secrets();
     secrets
       .listSecret(request)
@@ -76,7 +76,7 @@ describe("@Fonos/funcs/client", () => {
         done(err);
       });
   });
-  
+
   it.only("should get a secret by name", (done) => {
     const secrets = new Secrets();
     secrets
