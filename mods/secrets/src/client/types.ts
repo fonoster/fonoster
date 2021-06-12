@@ -25,21 +25,9 @@ export interface CreateSecretResponse {
   name: string;
 }
 
-export interface GetSecretRequest {
-  name: string;
-}
-
 export interface GetSecretResponse {
   name: string;
   secret: string;
-}
-
-export interface DeleteSecretRequest {
-  name: string;
-}
-
-export interface DeleteSecretResponse {
-  name: string;
 }
 
 export interface ListSecretRequest {

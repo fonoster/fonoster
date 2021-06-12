@@ -29,7 +29,7 @@ import {mute} from "@fonos/logger";
 
 mute();
 
-export {
+const Fonos = {
   Secrets,
   Auth,
   Agents,
@@ -39,4 +39,6 @@ export {
   Storage,
   Numbers,
   Providers
-};
+}
+
+export {Fonos as default};

@@ -25,9 +25,7 @@ import grpc from "grpc";
 import {
   CreateSecretRequest,
   CreateSecretResponse,
-  GetSecretRequest,
   GetSecretResponse,
-  DeleteSecretRequest,
   ListSecretRequest,
   ListSecretResponse
 } from "./types";
@@ -127,12 +125,9 @@ export default class Secrets extends FonosService {
    *   console.log(result) // returns the CreateDomainResponse interface
    * }).catch(e => console.error(e)); // an error occurred
    */
-  async getSecret(request: GetSecretRequest): Promise<GetSecretResponse> {
-    const secret = new SecretPB.Secret();
-    secret.setName(request.name);
-
+  async getSecret(name: string): Promise<GetSecretResponse> {
     const req = new SecretPB.GetSecretRequest();
-    req.setName(secret.getName());
+    req.setName(name);
 
     const secretFromVault = await super
       .getService()
@@ -190,18 +185,14 @@ export default class Secrets extends FonosService {
    * @return {Promise<void>} The domain
    * @example
    *
-   * const request = {
-   *   name: "Jenkins"
-   * };
-   *
-   * secrets.deleteSecret(request)
+   * secrets.deleteSecret("jenkins")
    * .then(() => {
    *   console.log("successful")      // returns the CreateGetResponse interface
    * }).catch(e => console.error(e)); // an error occurred
    */
-  async deleteSecret(request: DeleteSecretRequest): Promise<void> {
+  async deleteSecret(name: string): Promise<void> {
     const req = new SecretPB.DeleteSecretRequest();
-    req.setName(request.name.toString());
+    req.setName(name);
     await super.getService().deleteSecret().sendMessage(req);
   }
 }

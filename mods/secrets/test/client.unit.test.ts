@@ -63,7 +63,7 @@ describe("@Fonos/funcs/client", () => {
       });
 
     const secret = new Secrets();
-    const result = await secret.deleteSecret({name: response.getName()});
+    const result = await secret.deleteSecret(response.getName());
 
     expect(stubFunc).to.be.calledTwice;
     expect(result).to.be.an("undefined");

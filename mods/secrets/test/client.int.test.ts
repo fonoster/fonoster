@@ -48,14 +48,9 @@ describe("@Fonos/funcs/client", () => {
   });
 
   it("should delete a secret", (done) => {
-    const request = {
-      name: "Jenkins"
-    };
-
     const secrets = new Secrets();
-
     secrets
-      .deleteSecret(request)
+      .deleteSecret("jenkins")
       .then(() => {
         done();
       })
@@ -84,13 +79,9 @@ it("should list all secret", (done) => {
 });
 
 it("should list a secret", (done) => {
-  const request = {
-    name: "Jenkins"
-  };
-
   const secrets = new Secrets();
   secrets
-    .getSecret(request)
+    .getSecret("jenkins")
     .then((result) => {
       console.log(result);
       done();
