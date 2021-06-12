@@ -29,7 +29,7 @@ const sandbox = sinon.createSandbox();
 describe("@Fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
-  it("should create a new secret", (done) => {
+  it.only("should create a new secret", (done) => {
     const request = {
       name: "Jenkins",
       secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
@@ -47,7 +47,7 @@ describe("@Fonos/funcs/client", () => {
       });
   });
 
-  it("should delete a secret", (done) => {
+  it.only("should delete a secret", (done) => {
     const secrets = new Secrets();
     secrets
       .deleteSecret("jenkins")
@@ -58,35 +58,35 @@ describe("@Fonos/funcs/client", () => {
         done(err);
       });
   });
-});
 
-it("should list all secret", (done) => {
-  const request = {
-    pageSize: 1,
-    pageToken: "1"
-  };
-
-  const secrets = new Secrets();
-  secrets
-    .listSecret(request)
-    .then((result) => {
-      console.log(result);
-      done();
-    })
-    .catch((err) => {
-      done(err);
-    });
-});
-
-it("should list a secret", (done) => {
-  const secrets = new Secrets();
-  secrets
-    .getSecret("jenkins")
-    .then((result) => {
-      console.log(result);
-      done();
-    })
-    .catch((err) => {
-      done(err);
-    });
+  it.only("should list all secret", (done) => {
+    const request = {
+      pageSize: 1,
+      pageToken: "1"
+    };
+  
+    const secrets = new Secrets();
+    secrets
+      .listSecret(request)
+      .then((result) => {
+        console.log(result);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
+  });
+  
+  it.only("should get a secret by name", (done) => {
+    const secrets = new Secrets();
+    secrets
+      .getSecret("jenkins")
+      .then((result) => {
+        console.log(result);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
+  });
 });
