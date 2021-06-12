@@ -138,8 +138,6 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
       authconfig: auth
     });
 
-    // stream2.pipe(process.stdout);
-
     await new Promise((resolve, reject) => {
       docker.modem.followProgress(stream2, (err, res) =>
         err ? reject(err) : resolve(res)
