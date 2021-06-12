@@ -39,6 +39,6 @@ const Fonos = {
   Storage,
   Numbers,
   Providers
-}
+};
 
 export {Fonos as default};
