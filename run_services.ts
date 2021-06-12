@@ -78,7 +78,7 @@ const services = [
     server: new StorageServer()
   },
   {
-    name: "secret",
+    name: "secrets",
     version: "v1alpha1",
     service: SecretsService,
     server: new SecretServer()

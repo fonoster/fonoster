@@ -86,6 +86,7 @@ LOG_OPT_TAG_PREFIX=early
 SECRETS_IMAGE=vault
 SECRETS_URL=
 SECRETS_TOKEN=
+SECRETS_POLICY=fonos-policy
 
 # Optional configuration for integration with RabbitMQ
 EB_IMAGE=bitnami/rabbitmq:latest
