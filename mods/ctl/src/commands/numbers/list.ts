@@ -4,7 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
 import {CommonPB} from "@fonos/numbers";
-import {Number} from "@fonos/numbers/src/types";
+import {Number} from "@fonos/numbers/src/client/types";
 
 // Using import will cause: Error: easy_table_1.default is not a constructor
 const Table = require("easy-table");
@@ -57,8 +57,11 @@ export default class ListCommand extends Command {
           t.cell("Ref", number.ref);
           t.cell("Provider Ref", number.providerRef);
           t.cell("E164 Number", number.e164Number);
-          t.cell("AOR Link", number.aorLink || "--");
-          t.cell("Ingress App", number.ingressApp || "--");
+          t.cell("AOR Link", number.aorLink ? number.aorLink : "--");
+          t.cell(
+            "Webhook",
+            number.ingressInfo ? number.ingressInfo.webhook : "--"
+          );
           t.newRow();
         });
 

@@ -1,25 +1,38 @@
-/* eslint-disable */
-import {Secret} from "./protos/secrets_pb";
-import tokenParser from "./json_parser";
-const vault = require("node-vault")();
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {GetSecretResponse} from "./protos/secrets_pb";
+import getUserToken from "./token";
 
 export default async function (
-  secretName: string,
+  name: string,
   accessKeyId: string
-): Promise<Secret> {
-  await vault.auths();
-  const roleId = (await vault.getApproleRoleId({role_name: accessKeyId})).data
-    .role_id;
-  const secretId = (await vault.getApproleRoleSecret({role_name: accessKeyId}))
-    .data.secret_id;
-  const token = (
-    await vault.approleLogin({role_id: roleId, secret_id: secretId})
-  ).auth.client_token;
+): Promise<GetSecretResponse> {
+  const vault = require("node-vault")();
+  const entityId = await getUserToken(accessKeyId);
+  const secretFromVault = await vault.read(`secret/data/${entityId}/` + name);
+  const secretFromVault2 = await vault.list(`secret/data/${entityId}/`);
 
-  const entityId = (await vault.tokenLookupSelf({token: token})).data.entity_id;
-  const secretFromVault = await vault.read(
-    `secret/data/${entityId}/` + secretName
-  );
+  const secretArray = secretFromVault2.data.keys;
+  console.log("this is my array ", secretArray);
 
-  return tokenParser({secret: secretFromVault.data.data.value});
+  const response = new GetSecretResponse();
+  response.setSecret(secretFromVault.data.data.value);
+  response.setName(name);
+  return response;
 }

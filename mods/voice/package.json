@@ -1,6 +1,6 @@
 {
   "name": "@fonos/voice",
-  "version": "0.0.100",
+  "version": "0.0.116",
   "description": "Voice verbs",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -28,20 +28,17 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonos/issues"
   },
-  "devDependencies": {
-    "chai": "^4.3.4",
-    "chai-as-promised": "^7.1.1",
-    "dotenv": "^8.2.0",
-    "rimraf": "^3.0.2",
-    "sinon": "^10.0.0",
-    "sinon-chai": "^3.6.0"
-  },
   "dependencies": {
-    "@fonos/events": "^0.0.100",
-    "@fonos/logger": "^0.0.100",
-    "@fonos/tts": "^0.0.100",
+    "@fonos/common": "^0.0.116",
+    "@fonos/events": "^0.0.116",
+    "@fonos/logger": "^0.0.116",
+    "@fonos/tts": "^0.0.116",
+    "axios": "^0.21.1",
+    "deepmerge": "^4.2.2",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
     "objectid": "^3.2.1",
     "sync": "^0.2.5"
   },
-  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
+  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }

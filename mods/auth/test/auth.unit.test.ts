@@ -2,26 +2,19 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {join} from "path";
-import AuthUtils, {TokenResponse, UserToken} from "../src/utils/auth_utils";
+import AuthUtils from "../src/utils/auth_utils";
 import Jwt from "../src/utils/jwt";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({path: join(__dirname, "..", "..", "..", ".env")});
-}
-
 describe("@fonos/authentication", () => {
-  let tokenManager;
-
   before(async () => {
-    // This will create the bucket if it does not exist
-    tokenManager = sinon.spy();
     sandbox.stub(Jwt);
   });
+  const expiredToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJpc3MiLCJyb2xlIjoicm9sZSIsImFjY2Vzc0tleUlkIjoidXNlcmlkIiwiaWF0IjoxNjIzMjY1NDQxLCJleHAiOjE2MjMyNjU0NDJ9.2o_T4VgEekNCX3ATir6W_J24fduTXaRSks6zjs2-qBk";
 
   it("should create a valid token", async () => {
     const stubValue = "tokenfake";
@@ -34,12 +27,7 @@ describe("@fonos/authentication", () => {
       privateKey: "privatekey"
     };
     const stub = sinon.stub(jwtDependency, "encode").resolves(stubValue);
-
-    const expectedValue = {
-      accessToken: stubValue
-    };
-
-    const token = await authUtils.createTokens(
+    const token = await authUtils.createToken(
       parameter.accessKeyIdPayload,
       parameter.issuePayload,
       parameter.rolePayload,
@@ -90,6 +78,13 @@ describe("@fonos/authentication", () => {
     });
   });
 
+  it("should return an exception with jwt expired", async () => {
+    const jwtDependency = new Jwt();
+    await jwtDependency.decode(expiredToken, "secret").catch((err) => {
+      expect(err.message).to.include("jwt expired");
+    });
+  });
+
   it("should decode a token", async () => {
     const stubValue = {
       iss: "iss",
@@ -97,13 +92,10 @@ describe("@fonos/authentication", () => {
       accessKeyId: "userid"
     };
     const jwtDependency = new Jwt();
-    const token = "";
     jwtDependency.encode(stubValue, "secret").then((result) => {
-      const docode = jwtDependency
-        .decode(result, "secret")
-        .then((objectJWT) => {
-          expect(objectJWT.accessKeyId).to.be.equal(stubValue.accessKeyId);
-        });
+      jwtDependency.decode(result, "secret").then((objectJWT) => {
+        expect(objectJWT.accessKeyId).to.be.equal(stubValue.accessKeyId);
+      });
     });
   });
 });

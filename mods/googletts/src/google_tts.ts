@@ -1,56 +1,70 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import fs from "fs";
 import util from "util";
 import path from "path";
 import textToSpeech from "@google-cloud/text-to-speech";
-import {AbstractTTS, computeFilename} from "@fonos/tts";
+import {Plugin} from "@fonos/common";
+import {TTSPlugin, computeFilename, SynthResult} from "@fonos/tts";
 import logger from "@fonos/logger";
+import {GoogleTTSConfig, SynthOptions} from "./types";
 
-type Voice = {
-  name?: string;
-  ssmlGender?: "MALE" | "FEMALE";
-  naturalSampleRateHertz?: number;
-  languageCodes?: string[];
-};
+const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
 
 /**
  * @classdesc Optional TTS engine for Fonos.
  *
  * @extends AbstractTTS
  * @example
+ * const GoogleTTS = require("@fonos/googletts");
  *
- * const GoogleTTS = require('@fonos/tts/googletts')
- * const Storage = require('@fonos/storage')
- * const { transcodeSync } = require('@fonos/tts/utils')
-
- *
- * // This is all done automatically when using the Say verb.
- * module.exports = chan => {
- *    const storage = new Storage()
- *    const tts = new GoogleTTS()
- *    const pathToFile = tts.synthesizeSync('Hello World')
- *    const pathToTranscodedFile = transcodeSync(pathToFile)
- *    const url = storage.uploadFileSync('hello-world.wav', pathToTranscodedFile)
- *    chan.play(url)
- * }
+ * new GoogleTTS().synthetize("Hello world")
+ *  .then((result) => console.log("path: " + result.pathToFile))
+ *  .catch(console.err);
  */
-class GoogleTTS extends AbstractTTS {
-  config: {projectId: string; keyFilename: string};
+class GoogleTTS extends Plugin implements TTSPlugin {
+  config: GoogleTTSConfig;
   /**
    * Constructs a new GoogleTTS object.
    *
    * @see module:tts:AbstractTTS
    */
-  constructor(config: {projectId: string; keyFilename: string}) {
-    super("google-tts");
+  constructor(config: GoogleTTSConfig) {
+    super("googletts");
+    super.setType("tts");
     this.config = config;
+    this.config.path = this.config.path ? this.config.path : "/tmp";
   }
 
   /**
    * @inherit
    */
-  async synthesize(text: string, options: Voice = {}): Promise<string> {
-    const client = new textToSpeech.TextToSpeechClient(this.config);
-    const pathToFile = path.join("/tmp", computeFilename(text, options, "mp3"));
+  async synthetize(
+    text: string,
+    options: SynthOptions = {}
+  ): Promise<SynthResult> {
+    const client = new textToSpeech.TextToSpeechClient(this.config as any);
+    // TODO: The file extension should be set based on the sample rate
+    // For example, if we set the sample rate to 16K, then the extension needs to be
+    // snl16, for 8K => sln, etc...
+    const filename = computeFilename(text, options, "sln24");
+    const pathToFile = path.join(this.config.path, filename);
 
     logger.log(
       "debug",
@@ -59,14 +73,13 @@ class GoogleTTS extends AbstractTTS {
       )}]`
     );
 
-    const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
     const merge = require("deepmerge");
     const voice = merge(defaultVoice, options || {});
 
     const request = {
-      input: {text},
       voice,
-      audioConfig: {audioEncoding: "MP3"}
+      input: {text},
+      audioConfig: {audioEncoding: "LINEAR16"}
     };
 
     // Performs the text-to-speech request
@@ -74,7 +87,7 @@ class GoogleTTS extends AbstractTTS {
     // Write the binary audio content to a local file
     const writeFile = util.promisify(fs.writeFile);
     await writeFile(pathToFile, response.audioContent, "binary");
-    return pathToFile;
+    return {filename, pathToFile};
   }
 }
 

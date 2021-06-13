@@ -14,7 +14,6 @@ import DomainsServer from "./mods/domains/src/service/domains";
 import NumbersServer from "./mods/numbers/src/service/numbers";
 import ProvidersServer from "./mods/providers/src/service/providers";
 import CallManagerServer from "./mods/callmanager/src/service/callmanager";
-import AppManagerServer from "./mods/appmanager/src/service/appmanager";
 import StorageServer from "./mods/storage/src/service/storage";
 import {AuthService} from "./mods/auth/src/service/protos/auth_grpc_pb";
 import {FuncsService} from "./mods/funcs/src/service/protos/funcs_grpc_pb";
@@ -24,7 +23,6 @@ import {DomainsService} from "./mods/domains/src/service/protos/domains_grpc_pb"
 import {NumbersService} from "./mods/numbers/src/service/protos/numbers_grpc_pb";
 import {ProvidersService} from "./mods/providers/src/service/protos/providers_grpc_pb";
 import {CallManagerService} from "./mods/callmanager/src/service/protos/callmanager_grpc_pb";
-import {AppManagerService} from "./mods/appmanager/src/service/protos/appmanager_grpc_pb";
 import {StorageService} from "./mods/storage/src/service/protos/storage_grpc_pb";
 import runServices from "./mods/common/src/service_runner";
 import AuthMiddleware from "./mods/auth/src/auth_middleware";
@@ -74,19 +72,13 @@ const services = [
     server: new CallManagerServer()
   },
   {
-    name: "appmanager",
-    version: "v1alpha1",
-    service: AppManagerService,
-    server: new AppManagerServer()
-  },
-  {
     name: "storage",
     version: "v1alpha1",
     service: StorageService,
     server: new StorageServer()
   },
   {
-    name: "secret",
+    name: "secrets",
     version: "v1alpha1",
     service: SecretsService,
     server: new SecretServer()
@@ -95,6 +87,8 @@ const services = [
 
 const whitelist = [
   "/fonos.auth.v1alpha1.Auth/GetRole",
+  "/fonos.auth.v1alpha1.Auth/CreateToken",
+  "/fonos.auth.v1alpha1.Auth/CreateNoAccessToken",
   "/grpc.health.v1.Health/Check"
 ];
 

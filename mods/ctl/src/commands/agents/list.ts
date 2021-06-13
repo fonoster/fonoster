@@ -4,6 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
 import {AgentsPB, CommonPB} from "@fonos/agents";
+import {Agent} from "@fonos/agents/src/client/types";
 
 // Using import will cause: Error: easy_table_1.default is not a constructor
 const Table = require("easy-table");
@@ -33,8 +34,8 @@ export default class ListCommand extends Command {
       while (true) {
         // Get a list
         const result = await agents.listAgents({pageSize, pageToken, view});
-        const list = result.getAgentsList();
-        pageToken = result.getNextPageToken();
+        const list = result.agents;
+        pageToken = result.nextPageToken;
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
@@ -46,12 +47,12 @@ export default class ListCommand extends Command {
 
         const t = new Table();
 
-        list.forEach((agent: AgentsPB.Agent) => {
-          t.cell("Ref", agent.getRef());
-          t.cell("Name", agent.getName());
-          t.cell("Username", agent.getUsername());
+        list.forEach((agent: Agent) => {
+          t.cell("Ref", agent.ref);
+          t.cell("Name", agent.name);
+          t.cell("Username", agent.username);
           //t.cell('Privacy', agent.getPrivacy())
-          t.cell("Domains", agent.getDomainsList().join(","));
+          t.cell("Domains", agent.domains.join(","));
           t.newRow();
         });
 

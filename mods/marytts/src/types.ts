@@ -22,7 +22,9 @@ export interface MarySynthOptions {
 }
 
 export interface MaryTTSConfig {
-  host: string;
-  port: string | number;
-  locale: string;
+  url: string;
+  accessKeyId?: string;
+  accessKeySecret?: string;
+  locale?: string;
+  path?: string;
 }

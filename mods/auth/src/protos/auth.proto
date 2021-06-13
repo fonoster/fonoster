@@ -10,7 +10,14 @@ syntax = "proto3";
 package fonos.auth.v1alpha1;
 
 service Auth {
+  // Gets a role by name
   rpc GetRole (GetRoleRequest) returns (Role) {};
+  // Verifies if a token was issue by Fonos or the same private key
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse) {}
+  // Creates a new token for a given accessKeyId
+  rpc CreateToken (CreateTokenRequest) returns (CreateTokenResponse) {}
+  // Creates a special token that has no access but serves a signature
+  rpc CreateNoAccessToken (CreateTokenRequest) returns (CreateTokenResponse) {}
 }
 
 message GetRoleRequest {
@@ -21,4 +28,22 @@ message Role {
   string name = 1;
   string description = 2;
   repeated string access = 3;
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+}
+
+message CreateTokenRequest {
+  string role_name = 1;
+  string access_key_id = 2;
+  string expiration = 3;
+}
+
+message CreateTokenResponse {
+  string token = 1;
 }

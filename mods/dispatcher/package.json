@@ -1,6 +1,6 @@
 {
   "name": "@fonos/dispatcher",
-  "version": "0.0.100",
+  "version": "0.0.116",
   "description": "Application Router for Fonos",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -10,11 +10,10 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+    "start": "cross-env NODE_ENV=dev nodemon src/dispatcher"
   },
   "bin": {
-    "run": "dist/srv_runner.js",
-    "healthcheck": "dist/healthcheck.js"
+    "run": "dist/dispatcher.js"
   },
   "nodemonConfig": {
     "watch": [
@@ -43,20 +42,19 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.100",
-    "@fonos/marytts": "^0.0.100",
-    "@fonos/numbers": "^0.0.100",
-    "@fonos/storage": "^0.0.100",
-    "@fonos/voice": "^0.0.100",
-    "agi-node": "github:psanders/agi-node",
-    "dotenv": "^8.2.0",
-    "phone": "^2.4.20",
-    "vm2": "^3.6.10"
+    "@fonos/auth": "^0.0.116",
+    "@fonos/logger": "^0.0.116",
+    "@fonos/numbers": "^0.0.116",
+    "@fonos/storage": "^0.0.116",
+    "ari-client": "^2.2.0",
+    "axios": "^0.21.1",
+    "grpc": "^1.24.7",
+    "wait-port": "^0.2.9",
+    "ws": "^6.2.2"
   },
-  "devDependencies": {
-    "@types/phone": "^2.4.0",
-    "nodemon": "^2.0.6",
-    "rimraf": "^3.0.2"
+  "optionalDependencies": {
+    "bufferutil": "^4.0.3",
+    "utf-8-validate": "^5.0.5"
   },
-  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
+  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }

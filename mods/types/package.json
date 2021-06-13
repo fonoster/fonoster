@@ -1,6 +1,6 @@
 {
   "name": "@fonos/types",
-  "version": "0.0.100",
+  "version": "0.0.116",
   "description": "Handles Fonos types",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -28,5 +28,5 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonos/issues"
   },
-  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
+  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }

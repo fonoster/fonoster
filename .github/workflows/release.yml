@@ -77,14 +77,6 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/storage
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publish to Docker Hub the AppManager API
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: fonoster/fonos-appmanager
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        workdir: mods/appmanager
-        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publish to Docker Hub the CallManager API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
@@ -100,14 +92,6 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/auth
-        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publish to Docker Hub the Media Controller
-      uses: elgohr/Publish-Docker-Github-Action@master
-      with:
-        name: fonoster/fonos-nodejsmc
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        workdir: mods/dispatcher
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publishing Uploader Helper Service
       uses: benc-uk/workflow-dispatch@v1

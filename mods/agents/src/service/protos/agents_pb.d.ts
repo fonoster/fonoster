@@ -124,26 +124,6 @@ export namespace GetAgentRequest {
     }
 }
 
-export class GetIngressAppRequest extends jspb.Message { 
-    getE164Agent(): string;
-    setE164Agent(value: string): GetIngressAppRequest;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): GetIngressAppRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: GetIngressAppRequest): GetIngressAppRequest.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: GetIngressAppRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): GetIngressAppRequest;
-    static deserializeBinaryFromReader(message: GetIngressAppRequest, reader: jspb.BinaryReader): GetIngressAppRequest;
-}
-
-export namespace GetIngressAppRequest {
-    export type AsObject = {
-        e164Agent: string,
-    }
-}
-
 export class DeleteAgentRequest extends jspb.Message { 
     getRef(): string;
     setRef(value: string): DeleteAgentRequest;

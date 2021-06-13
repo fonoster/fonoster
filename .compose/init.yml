@@ -15,7 +15,6 @@ services:
       /usr/bin/mc config host add fs http://${FS_HOST}:${FS_PORT} ${FS_USERNAME} ${FS_SECRET};
       /usr/bin/mc mb fs/funcs;
       /usr/bin/mc mb fs/public;
-      /usr/bin/mc mb fs/apps;
       /usr/bin/mc mb fs/recordings;
       /usr/bin/mc policy set download fs/public;
       exit 0;
@@ -34,5 +33,27 @@ services:
       "
     volumes:
       - ${CONFIG}/bootstrap.yml:/bootstrap.yml
+    networks:
+      fonos:
+
+  service_token:
+    image: fonoster/jwt-helper
+    environment:
+      ACCESS_KEY_ID: service
+      PRINT_ACCESS_INFO: "true"
+      ROLE: SERVICE
+    volumes:
+      - ${CONFIG}/bootstrap.yml:/bootstrap.yml
+    networks:
+      fonos:
+
+  admin_token:
+    image: fonoster/jwt-helper
+    environment:
+      ACCESS_KEY_ID: admin
+      ROLE: ADMIN
+      PRINT_ACCESS_INFO: "true"
+    volumes:
+      - ${CONFIG}/private.key:/home/fonos/.fonos/jwt.salt
     networks:
       fonos:

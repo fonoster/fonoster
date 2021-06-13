@@ -16,8 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FonosService from "./fonos_service";
-import {ServiceOptions} from "./common/types";
 import getAccessKeyId from "./common/get_access_key_id";
 import getRedisConnection from "./common/redis";
 import routr from "./common/routr";
@@ -28,8 +26,6 @@ import {Kind, ResourceBuilder} from "./common/resource_builder";
 
 export {
   ResourceServer,
-  ServiceOptions,
-  FonosService,
   Kind,
   ResourceBuilder,
   routr,

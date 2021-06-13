@@ -45,7 +45,7 @@ describe("@fonos/googletts", () => {
     };
 
     const tts = new GoogleTTS(config);
-    await tts.synthesize("Hello Kayla, how are you doing today?", {
+    await tts.synthetize("Hello Kayla, how are you doing today?", {
       ssmlGender: "FEMALE"
     });
     transcode(

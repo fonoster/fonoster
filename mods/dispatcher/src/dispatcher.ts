@@ -1,37 +1,49 @@
+#!/usr/bin/env node
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import ari from "ari-client";
+import wait from "wait-port";
 import logger from "@fonos/logger";
-import Storage from "@fonos/storage";
-import MaryTTS from "@fonos/marytts";
-import Verbs from "@fonos/voice";
-import getIngressInfo from "./utils";
-import fs from "fs";
-import phone from "phone";
-import {NodeVM} from "vm2";
-const {AGIServer} = require("agi-node");
-const vm = new NodeVM(require("../etc/vm.json"));
-const SERVICE_PORT = process.env.AGI_PORT || 4573;
+import events from "./events_handler";
 
-function dispatch(channel: any) {
-  try {
-    const maryTTSConfig = {
-      host: process.env.TTS_ENGINE_HOST,
-      port: process.env.TTS_ENGINE_PORT,
-      locale: "EN_US"
-    };
-    const e164Number = phone(channel.getVariable("DID_INFO"))[0];
-    const ingressInfo = getIngressInfo(e164Number);
-    const contents = fs.readFileSync(ingressInfo.entryPoint, "utf8");
-    const chann = new Verbs(channel, {
-      tts: new MaryTTS(maryTTSConfig),
-      storage: new Storage({}),
-      bucket: "public",
-      accessKeyId: ingressInfo.accessKeyId
-    });
-    vm.run(contents, ingressInfo.entryPoint)(chann);
-  } catch (err) {
-    logger.log("error", err);
-  }
-}
+// First try the short env but fallback to the cannonical env
+const ariHost =
+  process.env.ARI_INTERNAL_URL ||
+  process.env.MS_ARI_INTERNAL_URL ||
+  "http://localhost:8088";
+const ariUsername =
+  process.env.ARI_USERNAME || process.env.MS_ARI_USERNAME || "admin";
+const ariSecret =
+  process.env.ARI_SECRET || process.env.MS_ARI_SECRET || "changeit";
 
-logger.log("info", `Fonos Media Controller is online @ ${SERVICE_PORT}`);
+const connection = {
+  host: ariHost.split("//")[1].split(":")[0],
+  port: parseInt(ariHost.split("//")[1].split(":")[1])
+};
 
-new AGIServer(dispatch, SERVICE_PORT);
+wait(connection)
+  .then((open) => {
+    if (open) {
+      ari.connect(ariHost, ariUsername, ariSecret, events);
+      return;
+    }
+
+    logger.info("The port did not open before the timeout...");
+  })
+  .catch(console.error);

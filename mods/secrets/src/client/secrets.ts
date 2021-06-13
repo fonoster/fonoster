@@ -1,27 +1,59 @@
-import {FonosService, ServiceOptions} from "@fonos/core";
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {SecretsClient} from "../service/protos/secrets_grpc_pb";
 import SecretPB from "../service/protos/secrets_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import grpc from "grpc";
-import {Secret, CreateSecretRequest} from "../types";
+import {
+  CreateSecretRequest,
+  CreateSecretResponse,
+  GetSecretResponse,
+  ListSecretRequest,
+  ListSecretResponse
+} from "./types";
 
 /**
- * @classdesc Use Fonos UserManager, a capability of Fonos Systems Manager,
- * to create and manage users and roles. Fonos UserManager requires of a
+ * @classdesc Use Fonos Secrets, a capability of Fonos Secrets Service,
+ * to create and manage your secrets. Fonos Secrets requires of a
  * running Fonos deployment.
  *
  * @extends FonosService
  * @example
  *
- * const Fonos = require('@fonos/sdk')
- * const users = new Fonos.UserManager()
+ * const Fonos = require("@fonos/sdk")
+ * const secrets = new Fonos.Secrets()
  *
- * TODO: Adde example
+ * const request = {
+ *    secretName: "Jenkins",
+ *    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+ * };
+ *
+ * secrets.createSecret(request)
+ * .then(result => {
+ *   console.log(result) // returns the CreateDomainResponse interface
+ * }).catch(e => console.error(e)); // an error occurred
  */
 export default class Secrets extends FonosService {
   /**
-   * Constructs a new AppManager Object.
+   * Constructs a Secret Object.
    *
    * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
@@ -33,13 +65,13 @@ export default class Secrets extends FonosService {
   }
 
   /**
-   * Creates a new Domain on the SIP Proxy subsystem.
+   * Creates a new Secret.
    *
    * @param {CreateSecretRequest} request - Request for the provision of
    * a new Secret
-   * @param {string} request.secretName - Friendly name for the Secret
+   * @param {string} request.name - Friendly name for the Secret
    * @param {string} request.secret - secret to be save
-   * @return {Promise<Secrets>}
+   * @return {Promise<CreateSecretResponse>}
    * @example
    *
    * const request = {
@@ -52,49 +84,116 @@ export default class Secrets extends FonosService {
    *   console.log(result) // returns the CreateDomainResponse interface
    * }).catch(e => console.error(e)); // an error occurred
    */
-  async createSecret(request: CreateSecretRequest): Promise<Secret> {
+  async createSecret(
+    request: CreateSecretRequest
+  ): Promise<CreateSecretResponse> {
     const secret = new SecretPB.Secret();
-    secret.setSecretName(request.secretName);
+    secret.setName(request.name);
     secret.setSecret(request.secret);
 
     const req = new SecretPB.CreateSecretRequest();
-    req.setSecret(secret);
+    req.setName(secret.getName());
+    req.setSecret(secret.getSecret());
 
-    const secretFromDatabase = await super
+    const secretFromVault = await super
       .getService()
-      .createUser()
+      .createSecret()
       .sendMessage(req);
 
     return {
-      secretName: secretFromDatabase.getSecretName(),
-      secret: secretFromDatabase.getSecret()
+      name: secretFromVault.getName()
     };
   }
 
   /**
-   * Retrives a Secret by its reference.
+   * Get a Secret.
    *
-   * @param {string} secretName - Reference to Secret
-   * @return {Promise<Secrets>} The domain
+   * @param {CreateSecretRequest} request - Request for the provision of
+   * a new Secret
+   * @param {string} request.name - Friendly name for the Secret
+   * @param {string} request.secret - secret to be save
+   * @return {Promise<CreateSecretResponse>}
    * @example
    *
-   * const ref = "Jenkins";
+   * const request = {
+   *    secretName: "Jenkins",
+   *    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+   * };
    *
-   * secrets.getSecret(ref)
+   * secrets.createSecret(request)
    * .then(result => {
-   *   console.log(result) // returns the CreateGetResponse interface
+   *   console.log(result) // returns the CreateDomainResponse interface
    * }).catch(e => console.error(e)); // an error occurred
    */
-  async getSecret(secretName: string): Promise<Secret> {
-    const request = new SecretPB.GetSecretResponse();
-    request.setSecretName(secretName);
+  async getSecret(name: string): Promise<GetSecretResponse> {
+    const req = new SecretPB.GetSecretRequest();
+    req.setName(name);
 
-    const res = await super.getService().getSecret().sendMessage(request);
+    const secretFromVault = await super
+      .getService()
+      .getSecret()
+      .sendMessage(req);
 
     return {
-      secretName: res.getSecretName(),
-      secret: res.getSecret()
+      name: secretFromVault.getName(),
+      secret: secretFromVault.getSecret()
     };
+  }
+
+  /**
+   * List all user secrets.
+   *
+   * @param {ListSecretRequest} request - Request for the provision of
+   * a new Secret
+   * @param {string} request.name - Friendly name for the Secret
+   * @param {string} request.secret - secret to be save
+   * @return {Promise<ListSecretResponse>}
+   * @example
+   *
+   * const request = {
+   *    pageSize: 1,
+   *    pageToken: 1
+   * };
+   *
+   * secrets.listSecret(request)
+   * .then(result => {
+   *   console.log(result) // returns the CreateDomainResponse interface
+   * }).catch(e => console.error(e)); // an error occurred
+   */
+  async listSecret(request: ListSecretRequest): Promise<ListSecretResponse> {
+    const req = new SecretPB.ListSecretIdRequest();
+    req.setPageSize(request.pageSize);
+    req.setPageToken(request.pageToken);
+    const paginatedList = await this.getService()
+      .listSecretsId()
+      .sendMessage(req);
+
+    return {
+      nextPageToken: paginatedList.getNextPageToken(),
+      name: paginatedList.getNameList().map((secret: SecretPB.Secret) => {
+        return {
+          name: secret.getName()
+        };
+      })
+    };
+  }
+
+  /**
+   * Retrives a Secret using its reference.
+   *
+   * @param {string} request - Reference to Secret
+   * @return {Promise<void>} The domain
+   * @example
+   *
+   * secrets.deleteSecret("jenkins")
+   * .then(() => {
+   *   console.log("successful")      // returns the CreateGetResponse interface
+   * }).catch(e => console.error(e)); // an error occurred
+   */
+  async deleteSecret(name: string): Promise<void> {
+    const req = new SecretPB.DeleteSecretRequest();
+    req.setName(name);
+    await super.getService().deleteSecret().sendMessage(req);
   }
 }
 

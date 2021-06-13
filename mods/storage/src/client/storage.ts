@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/core";
+import {FonosService, ServiceOptions} from "@fonos/common";
 import {StorageClient} from "../service/protos/storage_grpc_pb";
 import StoragePB from "../service/protos/storage_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -124,83 +124,6 @@ export default class Storage extends FonosService {
       .sendMessage(getObjectServiceUtils(request));
 
     return {url: result.getUrl()};
-  }
-
-  /**
-   * Upload an object to Fonos Object Storage subsystem with synchronous method.
-   *
-   * @param {UploadObjectRequest} request - Object with information about the origin and
-   * destination of an object
-   * @param {string} request.bucket - Bucket at the Storage system
-   * @param {string} request.dir - Directory on the Storage system where your objec will be uploaded
-   * @param {string} request.filename - Path to the object to be uploaded
-   * @return {Promise<UploadObjectResponse>} localy accessible URL to the object
-   * @throws if the path does not exist or if is a directory
-   * @throws if the directory does not exist
-   * @example
-   *
-   * const request = {
-   *    filename: "/path/to/file",
-   *    bucket: "apps",
-   *    directory: "/"
-   * }
-   *
-   * storage.uploadObject(request)
-   * .then(() => {
-   *   console.log(result)            // returns and empty Object
-   * }).catch(e => console.error(e))  // an error occurred
-   */
-  uploadObjectSync(request: UploadObjectRequest): UploadObjectResponse {
-    const sleep = require("sync").sleep;
-    let result;
-    let error;
-
-    this.uploadObject(request)
-      .then((r) => (result = r))
-      .catch((e) => (error = e));
-
-    while (result === undefined && error === undefined) sleep(100);
-
-    if (error) throw error;
-
-    return result;
-  }
-
-  /**
-   * Get Object URL with synchronous method.
-   *
-   * @param {GetObjectURLRequest} request - Object with information about the location and
-   * and name of the requested object
-   * @param {string} request.filename - The name of the object
-   * save your file.
-   * @param {string} request.accessKeyId - Optional access key id
-   * @return {Promise<getObjectURLResponse>} localy accessible URL to the object
-   * @throws if directory or object doesn't exist
-   * @example
-   *
-   * const request = {
-   *    filename: "object-name",
-   *    bucket: "bucket-name"
-   * }
-   *
-   * storage.getObjectURL(request)
-   * .then(result => {
-   *   console.log(result)
-   * }).catch(e => console.error(e))  // an error occurred
-   */
-  getObjectURLSync(request: GetObjectURLRequest): getObjectURLResponse {
-    const sleep = require("sync").sleep;
-    let result;
-    let error;
-    this.getObjectURL(request)
-      .then((r) => (result = r))
-      .catch((e) => (error = e));
-
-    while (result === undefined && error === undefined) sleep(100);
-
-    if (error) throw error;
-
-    return result;
   }
 }
 

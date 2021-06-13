@@ -1,31 +1,37 @@
-/* eslint-disable */
-process.env.DEBUG = "node-vault"; // switch on debug mode
-process.env.VAULT_ADDR = "http://api.fonoster.net:8200";
-process.env.VAULT_TOKEN = "s.azgXnZcyTMYqG6S0vCGBrAF0";
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+export default async function (accessKeyId: string) {
+  const vault = require("node-vault")();
+  // TODO: The policy assignment shouldn't be done automatically.
+  // Instead, it should be done during the user creation.
+  await vault.addApproleRole({
+    role_name: accessKeyId,
+    policies: process.env.SECRETS_POLICY
+  });
 
-import {Secret} from "./protos/secrets_pb";
-const vault = require("node-vault")();
-require("dotenv").config();
-
-export default async function (accessKeyId: string): Promise<Secret> {
-  try {
-    await vault.auths();
-    await vault.addApproleRole({
-      role_name: accessKeyId,
-      policies: "dev-policy, test-policy"
-    });
-    const rol = await Promise.all([
-      vault.getApproleRoleId({role_name: accessKeyId}),
-      vault.getApproleRoleSecret({role_name: ""})
-    ]);
-    const roleId = rol[0].data.role_id;
-    const secretId = rol[1].data.secret_id;
-    const result = await vault.approleLogin({
-      role_id: roleId,
-      secret_id: secretId
-    });
-    return result.auth.client_token;
-  } catch (err) {
-    console.error(err.message);
-  }
+  const roleId = (await vault.getApproleRoleId({role_name: accessKeyId})).data
+    .role_id;
+  const secretId = (await vault.getApproleRoleSecret({role_name: accessKeyId}))
+    .data.secret_id;
+  const token = (
+    await vault.approleLogin({role_id: roleId, secret_id: secretId})
+  ).auth.client_token;
+  const entityId = (await vault.tokenLookupSelf({token: token})).data.entity_id;
+  return entityId;
 }

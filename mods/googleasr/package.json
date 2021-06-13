@@ -1,6 +1,6 @@
 {
   "name": "@fonos/googleasr",
-  "version": "0.0.100",
+  "version": "0.0.116",
   "description": "Wrapper for Google ASR",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,19 +29,12 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@google-cloud/speech": "^4.5.0",
+    "@fonos/common": "^0.0.116",
+    "@google-cloud/speech": "^4.5.2",
     "axios": "^0.21.1",
+    "node-record-lpcm16": "^1.0.1",
     "objectid": "^3.2.1",
     "sync": "^0.2.5"
   },
-  "devDependencies": {
-    "chai": "^4.3.4",
-    "chai-as-promised": "^7.1.1",
-    "dotenv": "^8.2.0",
-    "rimraf": "^3.0.2",
-    "sinon": "^10.0.0",
-    "sinon-chai": "^3.6.0",
-    "typescript": "^4.1.5"
-  },
-  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
+  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }

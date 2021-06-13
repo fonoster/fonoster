@@ -1,12 +1,10 @@
 import "../../config";
 import Providers from "@fonos/providers";
 import Numbers from "@fonos/numbers";
-import Apps from "@fonos/appmanager";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import {CommonPB, AppManagerPB} from "@fonos/numbers";
-import {App} from "@fonos/appmanager/src/types";
+import {CommonPB} from "@fonos/numbers";
 import {Provider} from "@fonos/providers/src/types";
 const phone = require("phone");
 const inquirer = require("inquirer");
@@ -23,19 +21,6 @@ export default class CreateCommand extends Command {
 
     const view: CommonPB.View = CommonPB.View.BASIC;
     try {
-      // TODO: Consider using the autocomplete plugin
-      const res = await new Apps().listApps({
-        pageSize: 25,
-        pageToken: "1",
-        view
-      });
-      const apps = res.apps.map((app: App) => {
-        return {
-          name: app.name,
-          value: app.ref
-        };
-      });
-
       const response = await new Providers().listProviders({
         pageSize: 25,
         pageToken: "1"
@@ -78,20 +63,17 @@ export default class CreateCommand extends Command {
       ]);
 
       if (!answers.aorLink) {
-        if (apps.length === 0) {
-          throw new Error("Not application or aorLink found");
-        }
-
-        const ingresAppPrompt = await inquirer.prompt([
+        const webhookPrompt = await inquirer.prompt([
           {
-            name: "ingressApp",
-            message: "ingress app",
-            type: "list",
-            choices: apps
+            name: "webhook",
+            message: "webhook",
+            type: "input",
+            default: null
           }
         ]);
 
-        answers.ingressApp = ingresAppPrompt.ingressApp;
+        answers.ingressInfo = {};
+        answers.ingressInfo.webhook = webhookPrompt.webhook;
       }
 
       const confirmPrompt = await inquirer.prompt([

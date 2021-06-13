@@ -7,12 +7,11 @@
 import * as grpc from "grpc";
 import * as numbers_pb from "./numbers_pb";
 import * as common_pb from "./common_pb";
-import * as appmanager_pb from "./appmanager_pb";
 
 interface INumbersService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
     listNumbers: INumbersService_IListNumbers;
     createNumber: INumbersService_ICreateNumber;
-    getIngressApp: INumbersService_IGetIngressApp;
+    getIngressInfo: INumbersService_IGetIngressInfo;
     getNumber: INumbersService_IGetNumber;
     updateNumber: INumbersService_IUpdateNumber;
     deleteNumber: INumbersService_IDeleteNumber;
@@ -36,14 +35,14 @@ interface INumbersService_ICreateNumber extends grpc.MethodDefinition<numbers_pb
     responseSerialize: grpc.serialize<numbers_pb.Number>;
     responseDeserialize: grpc.deserialize<numbers_pb.Number>;
 }
-interface INumbersService_IGetIngressApp extends grpc.MethodDefinition<numbers_pb.GetIngressAppRequest, appmanager_pb.App> {
-    path: "/fonos.numbers.v1alpha1.Numbers/GetIngressApp";
+interface INumbersService_IGetIngressInfo extends grpc.MethodDefinition<numbers_pb.GetIngressInfoRequest, numbers_pb.IngressInfo> {
+    path: "/fonos.numbers.v1alpha1.Numbers/GetIngressInfo";
     requestStream: false;
     responseStream: false;
-    requestSerialize: grpc.serialize<numbers_pb.GetIngressAppRequest>;
-    requestDeserialize: grpc.deserialize<numbers_pb.GetIngressAppRequest>;
-    responseSerialize: grpc.serialize<appmanager_pb.App>;
-    responseDeserialize: grpc.deserialize<appmanager_pb.App>;
+    requestSerialize: grpc.serialize<numbers_pb.GetIngressInfoRequest>;
+    requestDeserialize: grpc.deserialize<numbers_pb.GetIngressInfoRequest>;
+    responseSerialize: grpc.serialize<numbers_pb.IngressInfo>;
+    responseDeserialize: grpc.deserialize<numbers_pb.IngressInfo>;
 }
 interface INumbersService_IGetNumber extends grpc.MethodDefinition<numbers_pb.GetNumberRequest, numbers_pb.Number> {
     path: "/fonos.numbers.v1alpha1.Numbers/GetNumber";
@@ -78,7 +77,7 @@ export const NumbersService: INumbersService;
 export interface INumbersServer {
     listNumbers: grpc.handleUnaryCall<numbers_pb.ListNumbersRequest, numbers_pb.ListNumbersResponse>;
     createNumber: grpc.handleUnaryCall<numbers_pb.CreateNumberRequest, numbers_pb.Number>;
-    getIngressApp: grpc.handleUnaryCall<numbers_pb.GetIngressAppRequest, appmanager_pb.App>;
+    getIngressInfo: grpc.handleUnaryCall<numbers_pb.GetIngressInfoRequest, numbers_pb.IngressInfo>;
     getNumber: grpc.handleUnaryCall<numbers_pb.GetNumberRequest, numbers_pb.Number>;
     updateNumber: grpc.handleUnaryCall<numbers_pb.UpdateNumberRequest, numbers_pb.Number>;
     deleteNumber: grpc.handleUnaryCall<numbers_pb.DeleteNumberRequest, common_pb.Empty>;
@@ -91,9 +90,9 @@ export interface INumbersClient {
     createNumber(request: numbers_pb.CreateNumberRequest, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
     createNumber(request: numbers_pb.CreateNumberRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
     createNumber(request: numbers_pb.CreateNumberRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
-    getIngressApp(request: numbers_pb.GetIngressAppRequest, callback: (error: grpc.ServiceError | null, response: appmanager_pb.App) => void): grpc.ClientUnaryCall;
-    getIngressApp(request: numbers_pb.GetIngressAppRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: appmanager_pb.App) => void): grpc.ClientUnaryCall;
-    getIngressApp(request: numbers_pb.GetIngressAppRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: appmanager_pb.App) => void): grpc.ClientUnaryCall;
+    getIngressInfo(request: numbers_pb.GetIngressInfoRequest, callback: (error: grpc.ServiceError | null, response: numbers_pb.IngressInfo) => void): grpc.ClientUnaryCall;
+    getIngressInfo(request: numbers_pb.GetIngressInfoRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: numbers_pb.IngressInfo) => void): grpc.ClientUnaryCall;
+    getIngressInfo(request: numbers_pb.GetIngressInfoRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: numbers_pb.IngressInfo) => void): grpc.ClientUnaryCall;
     getNumber(request: numbers_pb.GetNumberRequest, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
     getNumber(request: numbers_pb.GetNumberRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
     getNumber(request: numbers_pb.GetNumberRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
@@ -113,9 +112,9 @@ export class NumbersClient extends grpc.Client implements INumbersClient {
     public createNumber(request: numbers_pb.CreateNumberRequest, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
     public createNumber(request: numbers_pb.CreateNumberRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
     public createNumber(request: numbers_pb.CreateNumberRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
-    public getIngressApp(request: numbers_pb.GetIngressAppRequest, callback: (error: grpc.ServiceError | null, response: appmanager_pb.App) => void): grpc.ClientUnaryCall;
-    public getIngressApp(request: numbers_pb.GetIngressAppRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: appmanager_pb.App) => void): grpc.ClientUnaryCall;
-    public getIngressApp(request: numbers_pb.GetIngressAppRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: appmanager_pb.App) => void): grpc.ClientUnaryCall;
+    public getIngressInfo(request: numbers_pb.GetIngressInfoRequest, callback: (error: grpc.ServiceError | null, response: numbers_pb.IngressInfo) => void): grpc.ClientUnaryCall;
+    public getIngressInfo(request: numbers_pb.GetIngressInfoRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: numbers_pb.IngressInfo) => void): grpc.ClientUnaryCall;
+    public getIngressInfo(request: numbers_pb.GetIngressInfoRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: numbers_pb.IngressInfo) => void): grpc.ClientUnaryCall;
     public getNumber(request: numbers_pb.GetNumberRequest, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
     public getNumber(request: numbers_pb.GetNumberRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;
     public getNumber(request: numbers_pb.GetNumberRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: numbers_pb.Number) => void): grpc.ClientUnaryCall;

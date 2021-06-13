@@ -4,6 +4,7 @@ export default class JwtPayload {
   accessKeyId: string;
   constructor(issuer: string, role: string, accessKeyId: string) {
     this.iss = issuer;
-    (this.role = role), (this.accessKeyId = accessKeyId);
+    this.role = role;
+    this.accessKeyId = accessKeyId;
   }
 }

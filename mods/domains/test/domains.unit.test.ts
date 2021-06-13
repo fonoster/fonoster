@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import Domains from "../src/client/domains";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/core";
+import {FonosService} from "@fonos/common";
 import DomainsPB from "../src/service/protos/domains_pb";
 import domainDecoder from "../src/service/decoder";
 

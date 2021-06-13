@@ -3,12 +3,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import {join} from "path";
-import {
-  computeFilename,
-  optionsToQueryString,
-  transcode,
-  transcodeSync
-} from "../src/utils";
+import {computeFilename, optionsToQueryString, transcode} from "../src/utils";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -56,24 +51,6 @@ describe("@fonos/tts/utils", () => {
     expect(run).to.have.been.calledOnce;
     expect(on).to.have.been.calledTwice;
     expect(result).to.contain("/../etc/test_transcoded.wav");
-  });
-
-  it.skip("converts a given audio into an audio works on asterisk sync", () => {
-    const sox = require("sox-audio");
-    sandbox.spy(sox.prototype, "run");
-
-    const on = sandbox.stub(sox.prototype, "on");
-    on.withArgs("end").yields({});
-
-    const Sync = require("sync");
-
-    Sync(() => {
-      const result = transcodeSync(
-        __dirname + "/../etc/test.wav",
-        __dirname + "/../etc/test_transcoded.wav"
-      );
-      expect(result).to.contain("/../etc/test_transcoded.wav");
-    });
   });
 
   it.skip("rejects promise if transcoding fails", () => {

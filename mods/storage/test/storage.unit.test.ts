@@ -22,7 +22,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import fs, {Stats} from "fs";
-import {FonosService} from "@fonos/core";
+import {FonosService} from "@fonos/common";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -33,7 +33,7 @@ import * as utils from "../src/client/utils";
 
 describe("@fonos/storage", () => {
   const objectUrlReturn = {
-    url: "http://api.fonoster.net:9000/public/60368b263e9a7d0800000004/test.txt"
+    url: "http://api.fonoster.net:9000/recordings/60368b263e9a7d0800000004/test.txt"
   };
   const uploadObjectStubReturn = {
     sendMessage: () =>
@@ -197,26 +197,5 @@ describe("@fonos/storage", () => {
     });
 
     expect(result).to.have.property("url").to.be.equal(objectUrlReturn.url);
-  });
-
-  it("should return an URL with Sync method", async () => {
-    const objectUrlReturn = {
-      url: "http://api.fonoster.net:9000/recordings/60368b263e9a7d0800000004/test.txt"
-    };
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
-      getObjectURL: () => {
-        return getUrlObjectStubReturn;
-      }
-    });
-
-    const storage = new Storage();
-    fiber(() => {
-      const result = storage.getObjectURLSync({
-        bucket: "recordings",
-        filename: __dirname + "/../etc/hello-monkeys.tgz"
-      });
-      expect(result).to.have.property("url").to.be.equal(objectUrlReturn.url);
-    }).run();
   });
 });

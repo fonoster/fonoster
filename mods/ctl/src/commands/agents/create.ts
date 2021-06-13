@@ -70,7 +70,7 @@ export default class extends Command {
         const agents = new Agents();
         const agent = await agents.createAgent(answers);
         await cli.wait(1000);
-        cli.action.stop(agent.getRef());
+        cli.action.stop(agent.ref);
       } catch (e) {
         cli.action.stop();
         if (e.code === 9) {

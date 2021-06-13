@@ -1,6 +1,6 @@
 {
   "name": "@fonos/logger",
-  "version": "0.0.100",
+  "version": "0.0.116",
   "description": "Logger module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -35,5 +35,5 @@
   "devDependencies": {
     "rimraf": "^3.0.2"
   },
-  "gitHead": "8efbe2e8601b3a0618e770804a205e8584d49580"
+  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }

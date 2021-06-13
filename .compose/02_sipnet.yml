@@ -32,51 +32,35 @@ services:
   mediaserver:
     image: ${MS_IMAGE}
     restart: ${RESTART_POLICY}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "-u", "${MS_ARI_USERNAME}:${MS_ARI_SECRET}", "http://localhost:8088/ari/asterisk/info"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mediaserver.entrypoints=websecure"
+      - "traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/playbacks`) || PathPrefix(`/ari/channels`)"
+      - "traefik.http.services.mediaserver.loadbalancer.server.port=8088"
+      - "traefik.http.routers.mediaserver.middlewares=basic-auth@docker,session-auth@docker"
+      - "traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth"
+      - "traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}"
     environment:
+      APISERVER_ENDPOINT: ${AS_HOST}:50051
+      ARI_EXTERNAL_URL: ${API_INGRESS_URL}
+      ARI_INTERNAL_URL: ${MS_ARI_INTERNAL_URL}
+      ARI_USERNAME: ${MS_ARI_USERNAME}
+      ARI_SECRET: ${MS_ARI_SECRET}
       EXTERN_ADDR: ${HOST_ADDR}
       EXTERN_PORT: ${MS_SIP_PORT}
-      # Warning: Temporal value
-      AGI_URL: agi://${MC_HOST_PUBLIC}:${MC_AGI_PORT}
       SIPPROXY_HOST: ${HOST_ADDR}:${SIPPROXY_SIP_PORT}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
+      RTP_PORT_START: ${MS_RTP_PORT_START}
+      RTP_PORT_END: ${MS_RTP_PORT_END}
       # Give asterisk a fake localnet to force it to always advertise its public address
       LOCALNET: '8.8.8.8'
     volumes:
       - data1-1:/home/fonos
+      # TODO: Update image to add user fonos
+      - ${CONFIG}/config:/root/.fonos/config
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
-    # This doesn't work on osx 
-    # see: https://github.com/docker/for-mac/issues/1031
-    network_mode: "host"
-
-  mediacontroller:
-    image: ${MC_IMAGE}
-    restart: ${RESTART_POLICY}
-    environment:
-      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
-      APISERVER_ENDPOINT: ${AS_HOST}:{AS_PORT}
-      EVENTS_BROKERS: amqp://${EB_USERNAME}:${EB_SECRET}@${EB_HOST}:${EB_PORT}
-      # Warning: Hardcoded value
-      EVENTS_QUEUE: apiserver
-      TTS_ENGINE_HOST: ${TTS_ENGINE_HOST}
-      TTS_ENGINE_PORT: ${TTS_ENGINE_PORT}
-      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
-      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
-      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
-    volumes:
-      - ${CONFIG}/config:/home/fonos/.fonos/config
-      - data1-1:/home/fonos
-    logging:
-      options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediacontroller
     networks:
       fonos:
-        aliases:
-          - ${MC_HOST}

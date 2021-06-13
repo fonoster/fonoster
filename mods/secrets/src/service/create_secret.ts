@@ -1,25 +1,35 @@
-/* eslint-disable */
-import {Secret} from "./protos/secrets_pb";
-import tokenParser from "./json_parser";
-const vault = require("node-vault")();
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import {CreateSecretResponse} from "./protos/secrets_pb";
+import getUserToken from "./token";
 
 export default async function (
-  secretName: string,
+  name: string,
   secret: string,
   accessKeyId: string
-): Promise<Secret> {
-  await vault.auths();
-  const roleId = (await vault.getApproleRoleId({role_name: accessKeyId})).data
-    .role_id;
-  const secretId = (await vault.getApproleRoleSecret({role_name: accessKeyId}))
-    .data.secret_id;
-  const token = (
-    await vault.approleLogin({role_id: roleId, secret_id: secretId})
-  ).auth.client_token;
-  const entityId = (await vault.tokenLookupSelf({token: token})).data.entity_id;
-  await vault.write(`secret/data/${entityId}/` + secretName, {
+): Promise<CreateSecretResponse> {
+  const vault = require("node-vault")();
+  const entityId = await getUserToken(accessKeyId);
+  await vault.write(`secret/data/${entityId}/${name}`, {
     data: {value: secret}
   });
-  await vault.read(`secret/data/${entityId}/` + secretName);
-  return tokenParser({secretName: secretName});
+  const response = new CreateSecretResponse();
+  response.setName(name);
+  return response;
 }

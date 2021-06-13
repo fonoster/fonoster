@@ -13,7 +13,7 @@
       "/fonos.providers.v1alpha1.Providers/DeleteProvider",
       "/fonos.numbers.v1alpha1.Numbers/ListNumbers",
       "/fonos.numbers.v1alpha1.Numbers/CreateNumber",
-      "/fonos.numbers.v1alpha1.Numbers/GetIngressApp",
+      "/fonos.numbers.v1alpha1.Numbers/GetIngressInfo",
       "/fonos.numbers.v1alpha1.Numbers/GetNumber",
       "/fonos.numbers.v1alpha1.Numbers/UpdateNumber",
       "/fonos.numbers.v1alpha1.Numbers/DeleteNumber",
@@ -40,7 +40,8 @@
       "/fonos.funcs.v1alpha1.Funcs/GetFuncLogs",
       "/fonos.secrets.v1alpha1.Secrets/CreateSecret",
       "/fonos.secrets.v1alpha1.Secrets/ListSecretsId",
-      "/fonos.secrets.v1alpha1.Secrets/DeleteSecret"
+      "/fonos.secrets.v1alpha1.Secrets/DeleteSecret",
+      "/fonos.auth.v1alpha1.Auth/ValidateToken"
     ]
   },
   {
@@ -48,7 +49,28 @@
     "description": "This role is limited only to calling",
     "access": [
       "/fonos.callmanager.v1alpha1.CallManager/Call",
-      "/fonos.secrets.v1alpha1.Secrets/GetSecret"
+      "/fonos.secrets.v1alpha1.Secrets/GetSecret",
+      "/fonos.auth.v1alpha1.Auth/ValidateToken"
     ]
+  },
+  {
+    "name": "SERVICE",
+    "description": "This role is able to obtain ingress information and create short live token",
+    "access": [
+      "/fonos.numbers.v1alpha1.Numbers/GetIngressInfo",
+      "/fonos.auth.v1alpha1.Auth/CreateToken",
+      "/fonos.auth.v1alpha1.Auth/CreateNoAccessToken",
+      "/fonos.auth.v1alpha1.Auth/ValidateToken"
+    ]
+  },
+  {
+    "name": "NO_ACCESSS",
+    "description": "Signature token without any access",
+    "access": []
+  },
+  {
+    "name": "ADMIN",
+    "description": "Can perform administrative task",
+    "access": ["/fonos.auth.v1alpha1.Auth/CreateToken"]
   }
 ]

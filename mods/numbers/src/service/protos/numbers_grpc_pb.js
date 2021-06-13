@@ -11,18 +11,6 @@
 var grpc = require('grpc');
 var numbers_pb = require('./numbers_pb.js');
 var common_pb = require('./common_pb.js');
-var appmanager_pb = require('./appmanager_pb.js');
-
-function serialize_fonos_appmanager_v1alpha1_App(arg) {
-  if (!(arg instanceof appmanager_pb.App)) {
-    throw new Error('Expected argument of type fonos.appmanager.v1alpha1.App');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonos_appmanager_v1alpha1_App(buffer_arg) {
-  return appmanager_pb.App.deserializeBinary(new Uint8Array(buffer_arg));
-}
 
 function serialize_fonos_common_v1alpha1_Empty(arg) {
   if (!(arg instanceof common_pb.Empty)) {
@@ -57,15 +45,15 @@ function deserialize_fonos_numbers_v1alpha1_DeleteNumberRequest(buffer_arg) {
   return numbers_pb.DeleteNumberRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_numbers_v1alpha1_GetIngressAppRequest(arg) {
-  if (!(arg instanceof numbers_pb.GetIngressAppRequest)) {
-    throw new Error('Expected argument of type fonos.numbers.v1alpha1.GetIngressAppRequest');
+function serialize_fonos_numbers_v1alpha1_GetIngressInfoRequest(arg) {
+  if (!(arg instanceof numbers_pb.GetIngressInfoRequest)) {
+    throw new Error('Expected argument of type fonos.numbers.v1alpha1.GetIngressInfoRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_numbers_v1alpha1_GetIngressAppRequest(buffer_arg) {
-  return numbers_pb.GetIngressAppRequest.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonos_numbers_v1alpha1_GetIngressInfoRequest(buffer_arg) {
+  return numbers_pb.GetIngressInfoRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonos_numbers_v1alpha1_GetNumberRequest(arg) {
@@ -77,6 +65,17 @@ function serialize_fonos_numbers_v1alpha1_GetNumberRequest(arg) {
 
 function deserialize_fonos_numbers_v1alpha1_GetNumberRequest(buffer_arg) {
   return numbers_pb.GetNumberRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonos_numbers_v1alpha1_IngressInfo(arg) {
+  if (!(arg instanceof numbers_pb.IngressInfo)) {
+    throw new Error('Expected argument of type fonos.numbers.v1alpha1.IngressInfo');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonos_numbers_v1alpha1_IngressInfo(buffer_arg) {
+  return numbers_pb.IngressInfo.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonos_numbers_v1alpha1_ListNumbersRequest(arg) {
@@ -149,17 +148,17 @@ createNumber: {
     responseSerialize: serialize_fonos_numbers_v1alpha1_Number,
     responseDeserialize: deserialize_fonos_numbers_v1alpha1_Number,
   },
-  // Get an app for a given e164 number
-getIngressApp: {
-    path: '/fonos.numbers.v1alpha1.Numbers/GetIngressApp',
+  // Gets the ingess information for a given e164 number
+getIngressInfo: {
+    path: '/fonos.numbers.v1alpha1.Numbers/GetIngressInfo',
     requestStream: false,
     responseStream: false,
-    requestType: numbers_pb.GetIngressAppRequest,
-    responseType: appmanager_pb.App,
-    requestSerialize: serialize_fonos_numbers_v1alpha1_GetIngressAppRequest,
-    requestDeserialize: deserialize_fonos_numbers_v1alpha1_GetIngressAppRequest,
-    responseSerialize: serialize_fonos_appmanager_v1alpha1_App,
-    responseDeserialize: deserialize_fonos_appmanager_v1alpha1_App,
+    requestType: numbers_pb.GetIngressInfoRequest,
+    responseType: numbers_pb.IngressInfo,
+    requestSerialize: serialize_fonos_numbers_v1alpha1_GetIngressInfoRequest,
+    requestDeserialize: deserialize_fonos_numbers_v1alpha1_GetIngressInfoRequest,
+    responseSerialize: serialize_fonos_numbers_v1alpha1_IngressInfo,
+    responseDeserialize: deserialize_fonos_numbers_v1alpha1_IngressInfo,
   },
   // Gets Number using its reference
 getNumber: {

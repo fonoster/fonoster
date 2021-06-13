@@ -117,7 +117,7 @@ const publish = async (
       await faas.systemFunctionsPost(parameters);
       break;
     } catch (e) {
-      logger.verbose(`@fonos/funcs publish [now trying trying put]`);
+      logger.verbose(`@fonos/funcs publish [now trying put]`);
       try {
         await faas.systemFunctionsPut(parameters);
         break;

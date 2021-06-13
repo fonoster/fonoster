@@ -22,7 +22,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import path from "path";
-import http from "http";
+import https from "https";
 import fs from "fs";
 
 const expect = chai.expect;
@@ -34,24 +34,22 @@ const sandbox = sinon.createSandbox();
 describe("@fonos/marytts", () => {
   afterEach(() => sandbox.restore());
   const defConfig = {
-    host: "localhost",
-    port: 59125,
-    locale: "EN_US"
+    url: "https://localhost:59125"
   };
 
   sandbox.stub(MaryTTS.prototype, "init").returns();
 
-  it("should rejects if the TTS engine response is not 200", async () => {
+  it("should rejects because the server's response is not 200", async () => {
     const join = sandbox.spy(path, "join");
     const createWriteStream = sandbox.spy(fs, "createWriteStream");
     const pipe = sandbox.stub();
-    const get = sandbox.stub(http, "get").yields({statusCode: 201, pipe});
+    const get = sandbox.stub(https, "get").yields({statusCode: 201, pipe});
 
     const tts = new MaryTTS(defConfig);
 
-    await expect(tts.synthesize("hello world", {locale: "en_US"}))
+    await expect(tts.synthetize("hello world", {locale: "en_US"}))
       .to.be.eventually.rejected.and.to.be.an.instanceOf(Error)
-      .to.have.property("message", "Request failed status code: 201");
+      .to.have.property("message", "Request failed with status code: 201");
     expect(pipe).to.not.have.been.calledOnce;
     expect(createWriteStream).to.not.have.been.calledOnce;
     expect(join).to.have.been.calledOnce;
@@ -62,11 +60,12 @@ describe("@fonos/marytts", () => {
     const join = sandbox.spy(path, "join");
     const createWriteStream = sandbox.stub(fs, "createWriteStream").resolves();
     const pipe = sandbox.stub();
-    const get = sandbox.stub(http, "get").yields({statusCode: 200, pipe});
+    const get = sandbox.stub(https, "get").yields({statusCode: 200, pipe});
 
     const tts = new MaryTTS(defConfig);
-    const synth = await tts.synthesize("hello world");
-    expect(synth).to.contain("/tmp");
+    const result = await tts.synthetize("hello world");
+    expect(result).to.have.property("filename").to.not.be.null;
+    expect(result).to.have.property("pathToFile").to.not.be.null;
     expect(pipe).to.have.been.calledOnce;
     expect(join).to.have.been.calledOnce;
     expect(createWriteStream).to.have.been.calledOnce;

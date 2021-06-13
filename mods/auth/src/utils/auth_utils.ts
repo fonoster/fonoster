@@ -13,9 +13,11 @@ export declare interface TokenResponse {
 
 export default class AuthUtils {
   private handler: ITokenManager;
+
   constructor(handler: ITokenManager) {
     this.handler = handler;
   }
+
   public validateTokenData = (payload: JwtPayload): boolean => {
     if (
       !payload ||
@@ -28,15 +30,17 @@ export default class AuthUtils {
     return true;
   };
 
-  public createTokens = async (
+  public createToken = async (
     accessKeyId: string,
     issuer: string,
     role: string,
-    privateKey: string
+    privateKey: string,
+    expiration?: string
   ): Promise<UserToken> => {
     const accessToken = await this.handler.encode(
       new JwtPayload(issuer, role, accessKeyId),
-      privateKey
+      privateKey,
+      expiration
     );
 
     if (!accessToken) throw new Error("Error creating token");

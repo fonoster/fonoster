@@ -10,6 +10,13 @@ services:
   tts:
     image: ${TTS_IMAGE}
     restart: ${RESTART_POLICY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tts.entrypoints=websecure"
+      - "traefik.http.routers.tts.rule=PathPrefix(`/process`)"
+      - "traefik.http.services.tts.loadbalancer.server.port=59125"
+      - "traefik.http.routers.tts.middlewares=session-auth@docker"
+      - "traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${TTS_ENGINE_PORT}"]
       interval: 30s
