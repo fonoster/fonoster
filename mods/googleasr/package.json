@@ -29,8 +29,10 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@google-cloud/speech": "^4.5.0",
+    "@fonos/common": "^0.0.116",
+    "@google-cloud/speech": "^4.5.2",
     "axios": "^0.21.1",
+    "node-record-lpcm16": "^1.0.1",
     "objectid": "^3.2.1",
     "sync": "^0.2.5"
   },

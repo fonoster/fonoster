@@ -14,8 +14,8 @@
     "start": "cross-env NODE_ENV=dev nodemon src/service/runner"
   },
   "bin": {
-    "run": "dist/service/runner.js",
-    "healthcheck": "dist/service/healthcheck.js"
+    "run_auth": "dist/service/runner.js",
+    "healthcheck_auth": "dist/service/healthcheck.js"
   },
   "nodemonConfig": {
     "watch": [
