@@ -26,11 +26,6 @@ export default async function (
   const vault = require("node-vault")();
   const entityId = await getUserToken(accessKeyId);
   const secretFromVault = await vault.read(`secret/data/${entityId}/` + name);
-  const secretFromVault2 = await vault.list(`secret/data/${entityId}/`);
-
-  const secretArray = secretFromVault2.data.keys;
-  console.log("this is my array ", secretArray);
-
   const response = new GetSecretResponse();
   response.setSecret(secretFromVault.data.data.value);
   response.setName(name);
