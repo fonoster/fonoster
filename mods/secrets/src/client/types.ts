@@ -48,11 +48,10 @@ export interface ListSecretRequest {
 }
 
 export interface ListSecretResponse {
-  name: string;
+  name: Secret[];
   nextPageToken: string;
 }
 
 export interface Secret {
   name: string;
-  secret: string;
 }
