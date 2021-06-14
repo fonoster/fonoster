@@ -51,8 +51,7 @@ export default class MaryTTS extends Plugin implements TTSPlugin {
    * @param {DefaultConfig} config - Configuration of the marytts
    */
   constructor(config: MaryTTSConfig) {
-    super("marytts");
-    super.setType("tts");
+    super("tts", "marytts");
     this.config = config;
     this.config.path = this.config.path ? this.config.path : "/tmp";
     this.init(this.config);
