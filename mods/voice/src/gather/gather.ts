@@ -39,7 +39,7 @@ const defaultOptions: GatherOptions = {
 
 export default class GatherVerb extends Verb {
   speechProvider: SpeechProvider;
-  constructor(request: VoiceRequest, speechProvider: SpeechProvider) {
+  constructor(request: VoiceRequest, speechProvider?: SpeechProvider) {
     super(request);
     this.speechProvider = speechProvider;
   }

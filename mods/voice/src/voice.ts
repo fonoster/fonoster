@@ -65,7 +65,7 @@ export default class {
    *
    * @param plugin
    * @see GoogleTTS
-   * @see MaryTTS
+   * @see GoogleASR
    */
   use(plugin: Plugin): void {
     this.plugins[plugin.getType()] = plugin;
@@ -84,7 +84,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav");
+   *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
   async play(media: string, options?: PlayOptions): Promise<void> {
