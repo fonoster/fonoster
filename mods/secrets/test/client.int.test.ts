@@ -26,10 +26,10 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@Fonos/funcs/client", () => {
+describe("@Fonos/secrets/client", () => {
   afterEach(() => sandbox.restore());
 
-  it.only("should create a new secret", (done) => {
+  it("should create a new secret", (done) => {
     const request = {
       name: "Jenkins",
       secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
@@ -47,7 +47,7 @@ describe("@Fonos/funcs/client", () => {
       });
   });
 
-  it.only("should delete a secret", (done) => {
+  it("should delete a secret", (done) => {
     const secrets = new Secrets();
     secrets
       .deleteSecret("jenkins")
@@ -59,7 +59,7 @@ describe("@Fonos/funcs/client", () => {
       });
   });
 
-  it.only("should list all secret", (done) => {
+  it("should list all secret", (done) => {
     const request = {
       pageSize: 1,
       pageToken: "1"
@@ -77,7 +77,7 @@ describe("@Fonos/funcs/client", () => {
       });
   });
 
-  it.only("should get a secret by name", (done) => {
+  it("should get a secret by name", (done) => {
     const secrets = new Secrets();
     secrets
       .getSecret("jenkins")

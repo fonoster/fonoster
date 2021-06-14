@@ -16,21 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export default class VoiceEvents {
-  observers: any;
-  constructor() {
-    this.observers = [];
-  }
+import {Stream} from "stream";
 
-  subscribe(fn) {
-    this.observers.push(fn);
-  }
+export interface SpeechProvider {
+  createSpeechTracker(): SpeechTracker;
+}
 
-  unsubscribe(fn) {
-    this.observers = this.observers.filter((subscriber) => subscriber !== fn);
-  }
+export interface SpeechResult {
+  transcription: string;
+}
 
-  broadcast(data) {
-    this.observers.forEach((subscriber) => subscriber(JSON.parse(data)));
-  }
+export interface SpeechTracker {
+  transcribe(stream: Stream): Promise<SpeechResult>;
 }

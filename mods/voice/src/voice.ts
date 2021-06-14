@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import VoiceEvents from "./events";
 import HangupVerb from "./hangup/hangup";
 import UnmuteVerb from "./unmute/unmute";
 import GatherVerb, {GatherOptions} from "./gather/gather";
@@ -25,9 +24,10 @@ import PlayVerb, {PlayOptions} from "./play/play";
 import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
 import {PlaybackControl} from "./playback/playback";
 import {SayOptions} from "./say/types";
-import {VoiceEventData, VoiceRequest} from "./types";
+import {VoiceRequest} from "./types";
 import {Plugin} from "@fonos/common";
 import {assertPluginExist} from "./asserts";
+import PubSub from 'pubsub-js'
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -47,19 +47,16 @@ import {assertPluginExist} from "./asserts";
  */
 export default class {
   request: VoiceRequest;
-  events: VoiceEvents;
   plugins: {};
 
   /**
    * Constructs a new VoiceResponse object.
    *
    * @param {VoiceRequest} request - Options to indicate the objects endpoint
-   * @param {VoiceEvents} events - Events observer
    * @see module:core:FonosService
    */
-  constructor(request: VoiceRequest, events: VoiceEvents) {
+  constructor(request: VoiceRequest) {
     this.request = request;
-    this.events = events;
     this.plugins = {};
   }
 
@@ -91,7 +88,7 @@ export default class {
    * }
    */
   async play(media: string, options?: PlayOptions) {
-    await new PlayVerb(this.request, this.events).run(media, options);
+    await new PlayVerb(this.request).run(media, options);
   }
 
   /**
@@ -119,7 +116,7 @@ export default class {
     // It should return the filename and the generated file location
     const result = await tts.synthetize(text, options);
     const media = `sound:${this.request.selfEndpoint}/tts/${result.filename}`;
-    await new PlayVerb(this.request, this.events).run(media, options);
+    await new PlayVerb(this.request).run(media, options);
   }
 
   /**
@@ -137,7 +134,7 @@ export default class {
    * }
    */
   async gather(options: GatherOptions) {
-    await new GatherVerb(this.request, this.events).run(options);
+    return await new GatherVerb(this.request).run(options);
   }
 
   /**
@@ -165,7 +162,7 @@ export default class {
   }
 
   /**
-   * Listens for DtmfReceived events.
+   * Listens event publication.
    *
    * @param {Function} handler - Event handler
    * @example
@@ -183,36 +180,10 @@ export default class {
    *   });
    * }
    */
-  async onDtmfReceived(handler: Function) {
-    this.events.subscribe(async (event: VoiceEventData) => {
-      if (event.type === "DtmfReceived") {
-        await handler(event);
-      }
-    });
-  }
-
-  /**
-   * Listens for PlaybackFinished events.
-   *
-   * @param {Function} handler - Event handler
-   * @example
-   *
-   * async function handler (request, response) {
-   *   response.onPlaybackFinished(async(event) => {
-   *      console.log(event.data)     // Returns playbackId
-   *   })
-   *
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
-   *      playbackId: "1234"
-   *   });
-   * }
-   */
-  async onPlaybackFinished(handler: Function) {
-    this.events.subscribe(async (event: VoiceEventData) => {
-      if (event.type === "PlaybackFinished") {
-        await handler(event.data);
-      }
-    });
+  async on(topic: string, handler: Function) {
+    PubSub.subscribe(`${topic}.${this.request.sessionId}`, (type, data) => {
+      handler(data)
+    })
   }
 
   /**
@@ -228,7 +199,7 @@ export default class {
    * }
    */
   async mute(options?: MuteOptions) {
-    await new MuteVerb(this.request, this.events).run(options);
+    await new MuteVerb(this.request).run(options);
   }
 
   /**
@@ -244,7 +215,7 @@ export default class {
    * }
    */
   async unmute(options?: MuteOptions) {
-    await new UnmuteVerb(this.request, this.events).run(options);
+    await new UnmuteVerb(this.request).run(options);
   }
 
   /**
@@ -257,7 +228,7 @@ export default class {
    * }
    */
   async hangup() {
-    await new HangupVerb(this.request, this.events).run();
+    await new HangupVerb(this.request).run();
   }
 
   /**
@@ -278,6 +249,6 @@ export default class {
    * }
    */
   async record(options: RecordOptions): Promise<RecordResult> {
-    return await new RecordVerb(this.request, this.events).run(options);
+    return await new RecordVerb(this.request).run(options);
   }
 }

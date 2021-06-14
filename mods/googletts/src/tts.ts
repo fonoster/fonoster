@@ -46,8 +46,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
    * @see module:tts:AbstractTTS
    */
   constructor(config: GoogleTTSConfig) {
-    super("googletts");
-    super.setType("tts");
+    super("tts", "googletts");
     this.config = config;
     this.config.path = this.config.path ? this.config.path : "/tmp";
   }

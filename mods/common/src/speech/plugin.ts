@@ -16,23 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FonosService from "./fonos_service";
-import {ServiceOptions} from "./types";
-import {getClientCredentials, getServerCredentials} from "./trust_util";
-import healthcheck from "./healthcheck";
-import runServices from "./service_runner";
-import {Plugin} from "./speech/plugin";
-import {SpeechProvider, SpeechTracker, SpeechResult} from "./speech/types";
+export abstract class Plugin {
+  type: string;
+  name: string;
+  constructor(type: string, name: string) {
+    this.name = name;
+    this.type = type;
+  }
 
-export {
-  FonosService,
-  ServiceOptions,
-  Plugin,
-  SpeechTracker,
-  SpeechResult,
-  SpeechProvider,
-  getClientCredentials,
-  getServerCredentials,
-  runServices,
-  healthcheck
-};
+  getType() {
+    return this.type;
+  }
+}

@@ -5,8 +5,8 @@
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/google_asr",
-  "types": "dist/google_asr",
+  "main": "dist/asr",
+  "types": "dist/asr",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json"

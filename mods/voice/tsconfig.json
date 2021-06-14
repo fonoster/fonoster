@@ -8,7 +8,8 @@
     {"path": "../tts"},
     {"path": "../logger"},
     {"path": "../events"},
-    {"path": "../common"}
+    {"path": "../common"},
+    {"path": "../googleasr"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

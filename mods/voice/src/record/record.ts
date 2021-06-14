@@ -21,6 +21,7 @@ import {Verb} from "../verb";
 import {RecordOptions, RecordResult} from "./types";
 import {objectToQString} from "../utils";
 import {assertsFinishOnKeyIsChar, assertsValueIsPositive} from "../asserts";
+import PubSub from "pubsub-js";
 
 export default class RecordVerb extends Verb {
   run(options: RecordOptions = {}): Promise<RecordResult> {
@@ -39,18 +40,29 @@ export default class RecordVerb extends Verb {
     };
 
     return new Promise(async (resolve, reject) => {
+      let tokenFinished = null;
+      let tokenFailed = null;
       try {
         await super.post(
           `channels/${this.request.sessionId}/record`,
           objectToQString(opts)
         );
-        this.events.subscribe((event) => {
-          if (event.type === "RecordingFinished") resolve(event.data);
-          if (event.type === "RecordingFailed")
-            reject("recording failed: " + event.cause);
-        });
+
+        tokenFinished = PubSub.subscribe(`RecordingFinished.${this.request.sessionId}`, (type, data) => {
+          resolve(data.data);
+          PubSub.unsubscribe(tokenFinished);
+          PubSub.unsubscribe(tokenFailed);
+        })
+
+        tokenFailed = PubSub.subscribe(`RecordingFailed.${this.request.sessionId}`, (type, data) => {
+          reject("recording failed: " + data.cause);
+          PubSub.unsubscribe(tokenFinished);
+          PubSub.unsubscribe(tokenFailed);
+        })
       } catch (e) {
         reject(e);
+        PubSub.unsubscribe(tokenFinished);
+        PubSub.unsubscribe(tokenFailed);
       }
     });
   }

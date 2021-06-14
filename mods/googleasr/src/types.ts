@@ -16,17 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export abstract class Plugin {
-  type: string;
-  name: string;
-  constructor(name: string) {
-    this.name = name;
-  }
-
-  setType(type: string = "tts" || "asr") {
-    this.type = type;
-  }
-  getType() {
-    return this.type;
-  }
+export interface GoogleSpeechConfig {
+  config: {
+    encoding: "LINEAR16";
+    sampleRateHertz: 8000 | 16000;
+    languageCode: string;
+  };
+  interimResults: boolean;
 }

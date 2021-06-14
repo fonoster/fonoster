@@ -22,18 +22,20 @@ import {
   assertsValueIsPositive,
   assertsValuesIsZeroOrGreater
 } from "../asserts";
-import {VoiceEventData} from "../types";
-import {Verb} from "../verb";
-import {assertsHasNumDigitsOrTimeout} from "./asserts";
-import {GatherOptions} from "./types";
+import { Verb } from "../verb";
+import { assertsHasNumDigitsOrTimeout } from "./asserts";
+import waitForDtmf from "./source_dtmf";
+import waitForSpeech from "./source_speech";
+import { GatherOptions } from "./types";
 
 const defaultOptions: GatherOptions = {
   timeout: 4000,
-  finishOnKey: "#"
+  finishOnKey: "#",
+  source: "dtmf"
 };
 
 export default class GatherVerb extends Verb {
-  run(opts: GatherOptions): Promise<string> {
+  async run(opts: GatherOptions): Promise<string> {
     const options = merge(defaultOptions, opts);
 
     assertsHasNumDigitsOrTimeout(options);
@@ -42,44 +44,23 @@ export default class GatherVerb extends Verb {
     assertsFinishOnKeyIsChar(options.finishOnKey);
 
     return new Promise(async (resolve, reject) => {
-      try {
-        let timer;
-        let digits = "";
-
-        if (options.timeout) {
-          timer = setTimeout(() => {
-            resolve(digits);
-          }, options.timeout);
-        }
-
-        this.events.subscribe((event: VoiceEventData) => {
-          if (event.type === "DtmfReceived") {
-            if (timer) {
-              clearTimeout(timer);
-              timer = setTimeout(() => {
-                resolve(digits);
-              }, options.timeout);
-            }
-            // We don't need to include finishOnKey
-            if (options.finishOnKey != event.data) {
-              digits += event.data;
-            }
-          } else {
-            reject("Unexpected event: " + event.type);
-          }
-
-          if (
-            digits.length >= options.numDigits ||
-            event.data === options.finishOnKey
-          ) {
-            resolve(digits);
-          }
-        });
-      } catch (e) {
-        reject(e);
+      if (options.source.includes("dtmf")) {
+        waitForDtmf(this.request.sessionId, options).then(text => {
+          resolve(text);
+        }).catch(e => {
+          reject(e);
+        })
       }
-    });
+
+      if (options.source.includes("speech")) {
+        waitForSpeech(this.request.sessionId, options, super.getSelf()).then(text => {
+          resolve(text);
+        }).catch(e => {
+          reject(e);
+        })
+      }
+    })
   }
 }
 
-export {GatherOptions};
+export { GatherOptions };

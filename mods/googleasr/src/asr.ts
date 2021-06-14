@@ -16,23 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FonosService from "./fonos_service";
-import {ServiceOptions} from "./types";
-import {getClientCredentials, getServerCredentials} from "./trust_util";
-import healthcheck from "./healthcheck";
-import runServices from "./service_runner";
-import {Plugin} from "./speech/plugin";
-import {SpeechProvider, SpeechTracker, SpeechResult} from "./speech/types";
+import {GoogleSpeechTracker} from "./tracker";
+import {GoogleSpeechConfig} from "./types";
+import {Plugin, SpeechProvider, SpeechTracker} from "@fonos/common";
 
-export {
-  FonosService,
-  ServiceOptions,
-  Plugin,
-  SpeechTracker,
-  SpeechResult,
-  SpeechProvider,
-  getClientCredentials,
-  getServerCredentials,
-  runServices,
-  healthcheck
-};
+class GoogleASR extends Plugin implements SpeechProvider {
+  config: GoogleSpeechConfig;
+  constructor(config: GoogleSpeechConfig) {
+    super("asr", "googleasr");
+    this.config = config;
+  }
+
+  createSpeechTracker(): SpeechTracker {
+    return new GoogleSpeechTracker(this.config);
+  }
+}
+
+export default GoogleASR;
+export { GoogleSpeechTracker, GoogleSpeechConfig };
