@@ -20,15 +20,19 @@ import {GoogleSpeechTracker} from "./tracker";
 import {GoogleSpeechConfig} from "./types";
 import {Plugin, SpeechProvider, SpeechTracker} from "@fonos/common";
 
+const defaultSpeechConfig: GoogleSpeechConfig = {
+  languageCode: "en-US"
+};
+
 class GoogleASR extends Plugin implements SpeechProvider {
-  config: GoogleSpeechConfig;
-  constructor(config: GoogleSpeechConfig) {
+  constructor() {
     super("asr", "googleasr");
-    this.config = config;
   }
 
-  createSpeechTracker(): SpeechTracker {
-    return new GoogleSpeechTracker(this.config);
+  createSpeechTracker(options: GoogleSpeechConfig): SpeechTracker {
+    const merge = require("deepmerge");
+    const opts = merge(defaultSpeechConfig, options || {});
+    return new GoogleSpeechTracker(opts);
   }
 }
 

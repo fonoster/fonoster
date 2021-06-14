@@ -97,8 +97,8 @@ export default class VoiceServer {
           PubSub.publish(`media.${sessionId}`, mediaData);
         } else {
           const event = JSON.parse(msg);
-          logger.verbose("event:", event)
           PubSub.publish(`${event.type}.${event.sessionId}`, event);
+          logger.verbose("@fonos/voice received event => ", event)
         }
       }).on("error", console.error);
     });

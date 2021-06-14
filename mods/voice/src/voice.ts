@@ -67,7 +67,7 @@ export default class {
    * @see GoogleTTS
    * @see MaryTTS
    */
-  use(plugin: Plugin) {
+  use(plugin: Plugin): void {
     this.plugins[plugin.getType()] = plugin;
   }
 
@@ -87,7 +87,7 @@ export default class {
    *   await response.play("https://soundsserver:900/sounds/hello-world.wav");
    * }
    */
-  async play(media: string, options?: PlayOptions) {
+  async play(media: string, options?: PlayOptions): Promise<void> {
     await new PlayVerb(this.request).run(media, options);
   }
 
@@ -110,7 +110,7 @@ export default class {
    *   await response.say("Hello workd");   // Plays the sound using GoogleTTS's default values
    * }
    */
-  async say(text: string, options?: SayOptions) {
+  async say(text: string, options?: SayOptions): Promise<void> {
     assertPluginExist(this, "tts");
     const tts = this.plugins["tts"];
     // It should return the filename and the generated file location
@@ -120,12 +120,16 @@ export default class {
   }
 
   /**
-   * Waits for data entry from the user's keypad.
+   * Waits for data entry from the user's keypad or from a speech provider.
    *
    * @param {GatherOptions} options - Options to select the maximum number of digits, final character, and timeout
    * @param {number} options.numDigits - Milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
    * @param {number} options.timeout - Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
    * @param {string} options.finishOnKey - Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits
+   * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
+   * when including the `speech` option. You might inclue both with `dtmf,speech`. Defaults to `dtmf`
+   * @note When including `speech` the default timeout is 10000 (10s).
+   * @see SpeechProvider
    * @example
    *
    * async function handler (request, response) {
@@ -133,8 +137,13 @@ export default class {
    *   console.log("digits: " + digits);
    * }
    */
-  async gather(options: GatherOptions) {
-    return await new GatherVerb(this.request).run(options);
+  async gather(options: GatherOptions): Promise<string> {
+    let asr = null
+    if (options.source.includes("speech")) {
+      assertPluginExist(this, "asr");
+      asr = this.plugins["asr"];
+    }
+    return await new GatherVerb(this.request, asr).run(options);
   }
 
   /**
@@ -198,7 +207,7 @@ export default class {
    *   await response.mute();       // Will mute both directions
    * }
    */
-  async mute(options?: MuteOptions) {
+  async mute(options?: MuteOptions): Promise<void> {
     await new MuteVerb(this.request).run(options);
   }
 
@@ -214,7 +223,7 @@ export default class {
    *   await response.unmute({direction: "out"});       // Will unmute only the "out" direction
    * }
    */
-  async unmute(options?: MuteOptions) {
+  async unmute(options?: MuteOptions): Promise<void> {
     await new UnmuteVerb(this.request).run(options);
   }
 
@@ -227,7 +236,7 @@ export default class {
    *   await response.hangup();
    * }
    */
-  async hangup() {
+  async hangup(): Promise<void> {
     await new HangupVerb(this.request).run();
   }
 

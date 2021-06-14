@@ -19,7 +19,7 @@
 import {Stream} from "stream";
 
 export interface SpeechProvider {
-  createSpeechTracker(): SpeechTracker;
+  createSpeechTracker(options: unknown): SpeechTracker;
 }
 
 export interface SpeechResult {

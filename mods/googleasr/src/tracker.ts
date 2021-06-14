@@ -1,14 +1,24 @@
-import { GoogleSpeechConfig } from "./types";
+import { GoogleSpeechConfig, TrackerConfig } from "./types";
 import { SpeechTracker, SpeechResult } from "@fonos/common";
 import speech from "@google-cloud/speech";
 import { Stream } from "stream";
 
+const defaultTrackerConfig = {
+  config: {
+    encoding: "LINEAR16",
+    sampleRateHertz: 16000,
+    languageCode: "en-US"
+  },
+  interimResults: false
+}
+
 export class GoogleSpeechTracker implements SpeechTracker {
   client: any;
-  config: GoogleSpeechConfig;
+  config: TrackerConfig;
   constructor(config: GoogleSpeechConfig) {
     this.client = new speech.SpeechClient();
-    this.config = config;
+    const merge = require("deepmerge");
+    this.config = merge(defaultTrackerConfig, { config } || {});
   }
 
   transcribe(stream: Stream): Promise<SpeechResult> {
