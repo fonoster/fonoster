@@ -1,8 +1,14 @@
 name: release
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
+  push:
+    paths:
+    - 'mods/**'
+    branches:
+    - master
+    - dev
+  #release:
+  #  types: [published]
+  #workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
