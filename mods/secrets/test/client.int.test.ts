@@ -31,7 +31,7 @@ describe("@Fonos/secrets/client", () => {
 
   it.only("should create a new secret", (done) => {
     const request = {
-      name: "withSanders346",
+      name: "test",
       secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
     };
 
@@ -67,7 +67,7 @@ describe("@Fonos/secrets/client", () => {
 
   it.only("should list a secret", (done) => {
     const request = {
-      name: "withSanders346"
+      name: "test"
     };
 
     const secrets = new Secrets();
@@ -84,7 +84,7 @@ describe("@Fonos/secrets/client", () => {
 
   it.only("should delete a secret", (done) => {
     const request = {
-      name: "withSanders346"
+      name: "test"
     };
 
     const secrets = new Secrets();
