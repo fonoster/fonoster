@@ -22,20 +22,16 @@ import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import {FonosService} from "@fonos/common";
 import Secrets from "../src/client/secrets";
-
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
-
 const response = {
   getName: () => "test"
 };
-
-describe("@Fonos/funcs/client", () => {
+describe("@Fonos/secrets/client", () => {
   afterEach(() => sandbox.restore());
-
-  it("should create a function by name", async () => {
+  it("should create a secret", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
       createSecret: () => {
@@ -44,12 +40,37 @@ describe("@Fonos/funcs/client", () => {
         };
       }
     });
-
     const secrets = new Secrets();
     const result = await secrets.createSecret({name: "test", secret: "test"});
     expect(result).to.have.property("name").to.be.equal("test");
   });
-
+  it("should list all secrets", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(FonosService.prototype, "getService").returns({
+      createSecret: () => {
+        return {
+          sendMessage: () => Promise.resolve(response)
+        };
+      }
+    });
+    const secrets = new Secrets();
+    const result = await secrets.createSecret({name: "test", secret: "test"});
+    expect(result).to.have.property("name").to.be.equal("test");
+  });
+  it("should get a secret", async () => {
+    sandbox.stub(FonosService.prototype, "init").returns();
+    const stubFunc = sandbox
+      .stub(FonosService.prototype, "getService")
+      .returns({
+        deleteSecret: () => {
+          return {
+            sendMessage: () => Promise.resolve(response)
+          };
+        }
+      });
+    const secret = new Secrets();
+    const result = await secret.deleteSecret({name: response.getName()});
+  });
   it("should delete a function", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const stubFunc = sandbox
@@ -61,10 +82,8 @@ describe("@Fonos/funcs/client", () => {
           };
         }
       });
-
     const secret = new Secrets();
-    const result = await secret.deleteSecret(response.getName());
-
+    const result = await secret.deleteSecret({name: response.getName()});
     expect(stubFunc).to.be.calledTwice;
     expect(result).to.be.an("undefined");
   });

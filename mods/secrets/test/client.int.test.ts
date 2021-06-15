@@ -31,7 +31,7 @@ describe("@Fonos/secrets/client", () => {
 
   it("should create a new secret", (done) => {
     const request = {
-      name: "Jenkins",
+      name: "jenkins",
       secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
     };
 
