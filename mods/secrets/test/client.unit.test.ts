@@ -26,11 +26,14 @@ const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
+
 const response = {
-  getName: () => "test"
+  getName: () => "my-secret"
 };
+
 describe("@Fonos/secrets/client", () => {
   afterEach(() => sandbox.restore());
+
   it("should create a secret", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
@@ -41,9 +44,10 @@ describe("@Fonos/secrets/client", () => {
       }
     });
     const secrets = new Secrets();
-    const result = await secrets.createSecret({name: "test", secret: "test"});
-    expect(result).to.have.property("name").to.be.equal("test");
+    const result = await secrets.createSecret({name: response.getName(), secret: "test"});
+    expect(result).to.have.property("name").to.be.equal(response.getName());
   });
+
   it("should list all secrets", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     sandbox.stub(FonosService.prototype, "getService").returns({
@@ -54,9 +58,10 @@ describe("@Fonos/secrets/client", () => {
       }
     });
     const secrets = new Secrets();
-    const result = await secrets.createSecret({name: "test", secret: "test"});
-    expect(result).to.have.property("name").to.be.equal("test");
+    const result = await secrets.createSecret({name: response.getName(), secret: "test"});
+    expect(result).to.have.property("name").to.be.equal(response.getName());
   });
+
   it("should get a secret", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const stubFunc = sandbox
@@ -69,8 +74,9 @@ describe("@Fonos/secrets/client", () => {
         }
       });
     const secret = new Secrets();
-    const result = await secret.deleteSecret({name: response.getName()});
+    const result = await secret.deleteSecret(response.getName());
   });
+
   it("should delete a function", async () => {
     sandbox.stub(FonosService.prototype, "init").returns();
     const stubFunc = sandbox
@@ -83,7 +89,7 @@ describe("@Fonos/secrets/client", () => {
         }
       });
     const secret = new Secrets();
-    const result = await secret.deleteSecret({name: response.getName()});
+    const result = await secret.deleteSecret(response.getName());
     expect(stubFunc).to.be.calledTwice;
     expect(result).to.be.an("undefined");
   });
