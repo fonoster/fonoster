@@ -32,23 +32,33 @@ export default function (err, client) {
   if (err) throw err;
 
   client.on("StasisStart", async (event, channel) => {
+    let didInfo;
+
+    try {
+      didInfo = await channel.getChannelVar({
+        channelId: channel.id,
+        variable: "DID_INFO"
+      });
+    } catch(e) {
+      if (e.message && e.message.includes("variable was not found")) {
+        logger.verbose(`@fonos/dispatcher DID_INFO variable not found [ignoring event]`);
+      }
+      return;
+    }
+
     const auth = new Auth();
     const numbers = new Numbers();
     const sessionId = event.channel.id;
 
-    const didInfo = await channel.getChannelVar({
-      channelId: channel.id,
-      variable: "DID_INFO"
-    });
     const ingressInfo = await numbers.getIngressInfo({
       e164Number: didInfo.value
     });
 
-    logger.debug(`@fonos/dispatcher statis start [channelId = ${channel.id}]`);
-    logger.debug(
+    logger.verbose(`@fonos/dispatcher statis start [channelId = ${channel.id}]`);
+    logger.verbose(
       `@fonos/dispatcher statis start [e164Number = ${didInfo.value}]`
     );
-    logger.debug(
+    logger.verbose(
       `@fonos/dispatcher statis start [webhook = ${ingressInfo.webhook}, accessKeyId = ${ingressInfo.accessKeyId}]`
     );
 
