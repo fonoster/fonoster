@@ -39,9 +39,11 @@ export default function (err, client) {
         channelId: channel.id,
         variable: "DID_INFO"
       });
-    } catch(e) {
+    } catch (e) {
       if (e.message && e.message.includes("variable was not found")) {
-        logger.verbose(`@fonos/dispatcher DID_INFO variable not found [ignoring event]`);
+        logger.verbose(
+          `@fonos/dispatcher DID_INFO variable not found [ignoring event]`
+        );
       }
       return;
     }
@@ -54,7 +56,9 @@ export default function (err, client) {
       e164Number: didInfo.value
     });
 
-    logger.verbose(`@fonos/dispatcher statis start [channelId = ${channel.id}]`);
+    logger.verbose(
+      `@fonos/dispatcher statis start [channelId = ${channel.id}]`
+    );
     logger.verbose(
       `@fonos/dispatcher statis start [e164Number = ${didInfo.value}]`
     );

@@ -44,7 +44,10 @@ describe("@Fonos/secrets/client", () => {
       }
     });
     const secrets = new Secrets();
-    const result = await secrets.createSecret({name: response.getName(), secret: "test"});
+    const result = await secrets.createSecret({
+      name: response.getName(),
+      secret: "test"
+    });
     expect(result).to.have.property("name").to.be.equal(response.getName());
   });
 
@@ -58,7 +61,10 @@ describe("@Fonos/secrets/client", () => {
       }
     });
     const secrets = new Secrets();
-    const result = await secrets.createSecret({name: response.getName(), secret: "test"});
+    const result = await secrets.createSecret({
+      name: response.getName(),
+      secret: "test"
+    });
     expect(result).to.have.property("name").to.be.equal(response.getName());
   });
 

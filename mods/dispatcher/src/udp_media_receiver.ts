@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from 'fs';
-import dgram from 'dgram';
-const pipe = require('stream').prototype.pipe;
+import fs from "fs";
+import dgram from "dgram";
+const pipe = require("stream").prototype.pipe;
 
 export default class UDPMediaReceiver {
   server: any;
@@ -27,15 +27,15 @@ export default class UDPMediaReceiver {
   address: string;
   port: number;
   fileStream: fs.WriteStream;
-  constructor(host:string, swap16?: boolean, alsoWritePath?: string) {
-    this.server = dgram.createSocket('udp4');
+  constructor(host: string, swap16?: boolean, alsoWritePath?: string) {
+    this.server = dgram.createSocket("udp4");
     // Add the Stream.pipe() method to the socket
     this.server.pipe = pipe;
 
     this.swap16 = swap16 || false;
     this.alsoWritePath = alsoWritePath;
-    this.address = host.split(':')[0];
-    this.port = parseInt(host.split(':')[1]);
+    this.address = host.split(":")[0];
+    this.port = parseInt(host.split(":")[1]);
 
     if (this.alsoWritePath) {
       this.fileStream = fs.createWriteStream(this.alsoWritePath, {
@@ -43,7 +43,7 @@ export default class UDPMediaReceiver {
       });
     }
 
-    this.server.on('error', (err) => {
+    this.server.on("error", (err) => {
       console.log(`server error:\n${err.stack}`);
       this.server.close();
       if (this.fileStream) {
@@ -51,14 +51,14 @@ export default class UDPMediaReceiver {
       }
     });
 
-    this.server.on('close', (err) => {
+    this.server.on("close", (err) => {
       console.log(`server socket closed`);
       if (this.fileStream) {
         this.fileStream.close();
       }
     });
 
-    this.server.on('message', (msg, rinfo) => {
+    this.server.on("message", (msg, rinfo) => {
       /* Strip the 12 byte RTP header */
       let buf = msg.slice(12);
       if (this.swap16) {
@@ -67,10 +67,10 @@ export default class UDPMediaReceiver {
       if (this.fileStream) {
         this.fileStream.write(buf);
       }
-      this.server.emit('data', buf);
+      this.server.emit("data", buf);
     });
 
-    this.server.on('listening', () => {
+    this.server.on("listening", () => {
       const address = this.server.address();
       console.log(`server listening ${address.address}:${address.port}`);
     });

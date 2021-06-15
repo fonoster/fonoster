@@ -1,6 +1,6 @@
-import { GoogleSpeechConfig, TrackerConfig } from "./types";
-import { SpeechTracker, SpeechResult } from "@fonos/common";
-import { Stream } from "stream";
+import {GoogleSpeechConfig, TrackerConfig} from "./types";
+import {SpeechTracker, SpeechResult} from "@fonos/common";
+import {Stream} from "stream";
 
 const defaultTrackerConfig = {
   config: {
@@ -9,7 +9,7 @@ const defaultTrackerConfig = {
     languageCode: "en-US"
   },
   interimResults: false
-}
+};
 
 export class GoogleSpeechTracker implements SpeechTracker {
   client: any;
@@ -18,15 +18,15 @@ export class GoogleSpeechTracker implements SpeechTracker {
     const speech = require("@google-cloud/speech");
     this.client = new speech.SpeechClient();
     const merge = require("deepmerge");
-    this.config = merge(defaultTrackerConfig, { config } || {});
+    this.config = merge(defaultTrackerConfig, {config} || {});
   }
 
   transcribe(stream: Stream): Promise<SpeechResult> {
     return new Promise((resolve, reject) => {
       const recognizeStream = this.client
         .streamingRecognize(this.config)
-        .on("error", e => reject(e))
-        .on("data", data => {
+        .on("error", (e) => reject(e))
+        .on("data", (data) => {
           if (data.results[0] && data.results[0].alternatives[0]) {
             const result = {
               transcription: data.results[0].alternatives[0].transcript

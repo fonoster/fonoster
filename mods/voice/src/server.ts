@@ -23,7 +23,7 @@ import express from "express";
 import {join} from "path";
 import fs from "fs";
 import {Plugin} from "@fonos/common";
-import PubSub from 'pubsub-js'
+import PubSub from "pubsub-js";
 const merge = require("deepmerge");
 const app = express();
 app.use(express.json());
@@ -91,14 +91,14 @@ export default class VoiceServer {
     logger.info(`initializing voice server`);
     app.ws(this.config.base, (ws) => {
       ws.on("message", (msg) => {
-        if(Buffer.isBuffer(msg)) {
+        if (Buffer.isBuffer(msg)) {
           const sessionId = msg.toString("utf-8", 0, 12);
           const mediaData = msg.slice(12);
           PubSub.publish(`media.${sessionId}`, mediaData);
         } else {
           const event = JSON.parse(msg);
           PubSub.publish(`${event.type}.${event.sessionId}`, event);
-          logger.verbose("@fonos/voice received event => ", event)
+          logger.verbose("@fonos/voice received event => ", event);
         }
       }).on("error", console.error);
     });

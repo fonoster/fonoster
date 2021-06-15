@@ -44,7 +44,10 @@ describe("@fonos/voice/record", () => {
       .catch((e) => done(e));
 
     setTimeout(() => {
-      PubSub.publish("RecordingFinished", {type: "RecordingFinished", data: {duration: 30}});
+      PubSub.publish("RecordingFinished", {
+        type: "RecordingFinished",
+        data: {duration: 30}
+      });
     }, 500);
   });
 });
