@@ -161,7 +161,7 @@ export default class {
    *        : await control.forward()
    *   })
    *
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
+   *   await response.play("https://soundsserver:9000/sounds/hello-world.wav", {
    *      playbackId: "1234"
    *   });
    * }
@@ -177,14 +177,14 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
-   *   response.onDtmfReceived(async(digit) => {
+   *   response.on("DtmfReceived", async(digit) => {
    *      const control = response.playback("1234")
    *      digit === "3"
    *        ? await control.restart()
    *        : await control.forward()
    *   })
    *
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
+   *   await response.play("https://soundsserver:9000/sounds/hello-world.wav", {
    *      playbackId: "1234"
    *   });
    * }
