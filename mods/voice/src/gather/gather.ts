@@ -20,8 +20,7 @@ import { SpeechProvider } from "@fonos/common";
 import merge from "deepmerge";
 import {
   assertsFinishOnKeyIsChar,
-  assertsValueIsPositive,
-  assertsValuesIsZeroOrGreater
+  assertsValueIsPositive
 } from "../asserts";
 import { VoiceRequest } from "../types";
 import { Verb } from "../verb";
