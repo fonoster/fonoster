@@ -2,13 +2,14 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 2020,    // Allows for the parsing of modern ECMAScript features
-    "sourceType": "module"  // Allows for the use of imports
+    "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
+    "sourceType": "module" // Allows for the use of imports
   },
   "plugins": [
     "@typescript-eslint",
     "no-loops",
-    "prettier"
+    "prettier",
+    "notice"
   ],
   "extends": [
     "eslint:recommended",
@@ -18,9 +19,19 @@
     "prettier"
   ],
   "rules": {
-    "quotes": ["error", "double"],
+    "quotes": [
+      "error",
+      "double"
+    ],
+    "notice/notice": [
+      "error",
+      {
+        "mustMatch": "Licensed under the MIT License",
+        "templateFile": "etc/copyright.js"
+      }
+    ],
     "no-loops/no-loops": 2,
-    "no-console": 1,       // Means warning
+    "no-console": 1, // Means warning
     "prettier/prettier": 2 // Means error
   }
 }
