@@ -3,7 +3,7 @@ import Agents from "@fonos/agents";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
-import {AgentsPB, CommonPB} from "@fonos/agents";
+import {CommonPB} from "@fonos/agents";
 import {Agent} from "@fonos/agents/src/client/types";
 
 // Using import will cause: Error: easy_table_1.default is not a constructor

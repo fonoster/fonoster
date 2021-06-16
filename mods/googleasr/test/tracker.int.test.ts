@@ -11,12 +11,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 const speechConfig: GoogleSpeechConfig = {
-  config: {
-    encoding: "LINEAR16",
-    sampleRateHertz: 16000,
-    languageCode: "en-US"
-  },
-  interimResults: false
+  languageCode: "en-US"
 };
 
 describe("@fonos/googleasr", () => {

@@ -18,7 +18,7 @@
  */
 import Auth from "@fonos/auth";
 import Storage from "@fonos/storage";
-import { AttachToEventsRequest, CallRequest } from "./types";
+import {AttachToEventsRequest, CallRequest} from "./types";
 import axios from "axios";
 import logger from "@fonos/logger";
 import WebSocket from "ws";
@@ -72,14 +72,17 @@ const attachToPlaybackFinished = (ws, client, sessionId) => {
   });
 };
 
-const attachToSendExternalMedia = (ws, client, sessionId, udpServer, address) => {
-
+const attachToSendExternalMedia = (
+  ws,
+  client,
+  sessionId,
+  udpServer,
+  address
+) => {
   logger.verbose(`@fonos/dispatcher sending udp to external receiver`);
 
-  client.on("ChannelUserevent", async (event, ) => {
-    logger.debug(
-      `@fonos/dispatcher send external media`
-    );
+  client.on("ChannelUserevent", async (event) => {
+    logger.debug(`@fonos/dispatcher send external media`);
 
     if (ws.readyState !== WebSocket.OPEN) {
       logger.warn(
@@ -89,26 +92,25 @@ const attachToSendExternalMedia = (ws, client, sessionId, udpServer, address) =>
     }
 
     const bridge = client.Bridge();
-   
-    bridge.on('BridgeDestroyed', (event) => {
+
+    bridge.on("BridgeDestroyed", (event) => {
       // Do something with this!
     });
 
-    await bridge.create({ type: "mixing" });
-    bridge.addChannel({ channel: sessionId });
+    await bridge.create({type: "mixing"});
+    bridge.addChannel({channel: sessionId});
 
     const externalChannel = client.Channel();
 
-    externalChannel.on('StasisStart', (event, chan) => {
-      bridge.addChannel({ channel: chan.id });
+    externalChannel.on("StasisStart", (event, chan) => {
+      bridge.addChannel({channel: chan.id});
     });
-    
-    externalChannel.on("StasisEnd", (event, chan) => {
-    });
-  
-    udpServer.getServer().on("data", data => {
+
+    externalChannel.on("StasisEnd", (event, chan) => {});
+
+    udpServer.getServer().on("data", (data) => {
       ws.send(Buffer.concat([Buffer.from(sessionId), data]));
-    })
+    });
 
     await externalChannel.externalMedia({
       app: "mediacontroller",
@@ -126,7 +128,7 @@ const uploadRecording = async (accessKeyId, filename) => {
   const access = await auth.createToken({
     accessKeyId: accessKeyId
   });
-  const storage = new Storage({ accessKeyId, accessKeySecret: access.token });
+  const storage = new Storage({accessKeyId, accessKeySecret: access.token});
   logger.verbose(
     `@fonos/dispatcher uploading file to storage subsystem [filename=${filename}]`
   );
@@ -196,15 +198,21 @@ export const attachToEvents = (request: AttachToEventsRequest) => {
   logger.verbose(`@fonos/dispatcher connecting websocket @ mediacontroller`);
   const wsClient = new WebSocket(request.url);
 
-  const getRandomPort = () => Math.floor(Math.random() * (6000 - 5060) ) + 10000;
+  const getRandomPort = () => Math.floor(Math.random() * (6000 - 5060)) + 10000;
   const address = `192.168.1.149:${getRandomPort()}`;
 
   // WARNING: Harcoded address
-  const udpServer = new UDPMediaReceiver(address, true)
+  const udpServer = new UDPMediaReceiver(address, true);
 
   wsClient.on("open", () => {
     attachToDtmfReceived(wsClient, request.channel);
-    attachToSendExternalMedia(wsClient, request.client, request.sessionId, udpServer, address);
+    attachToSendExternalMedia(
+      wsClient,
+      request.client,
+      request.sessionId,
+      udpServer,
+      address
+    );
     attachToPlaybackFinished(wsClient, request.client, request.sessionId);
     attachToRecordingFinished(
       wsClient,
@@ -234,7 +242,8 @@ export const sendCallRequest = async (url: string, request: CallRequest) => {
   try {
     const response = await axios.post(url, request);
     logger.verbose(
-      `@fonos/dispatcher mediacontroller [response = ${response.data ? response.data.data : "no response"
+      `@fonos/dispatcher mediacontroller [response = ${
+        response.data ? response.data.data : "no response"
       }]`
     );
   } catch (e) {

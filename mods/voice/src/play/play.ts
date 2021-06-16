@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import objectid from "objectid";
-import { Verb } from "../verb";
-import { PlayOptions } from "./types";
-import { objectToQString } from "../utils";
-import { assertsValueIsPositive } from "../asserts";
+import {Verb} from "../verb";
+import {PlayOptions} from "./types";
+import {objectToQString} from "../utils";
+import {assertsValueIsPositive} from "../asserts";
 import PubSub from "pubsub-js";
 
 export default class PlayVerb extends Verb {
@@ -38,17 +38,20 @@ export default class PlayVerb extends Verb {
     };
 
     return new Promise(async (resolve, reject) => {
-      let token
+      let token;
       try {
         await super.post(
           `channels/${this.request.sessionId}/play`,
           objectToQString(opts)
         );
 
-        token = PubSub.subscribe(`PlaybackFinished.${this.request.sessionId}`, (type, data) => {
-          resolve(data);
-          PubSub.unsubscribe(token);
-        })
+        token = PubSub.subscribe(
+          `PlaybackFinished.${this.request.sessionId}`,
+          (type, data) => {
+            resolve(data);
+            PubSub.unsubscribe(token);
+          }
+        );
       } catch (e) {
         reject(e);
         PubSub.unsubscribe(token);
@@ -57,4 +60,4 @@ export default class PlayVerb extends Verb {
   }
 }
 
-export { PlayOptions };
+export {PlayOptions};

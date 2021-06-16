@@ -1,7 +1,13 @@
 name: release
 on:
-  release:
-    types: [published]
+  push:
+    paths:
+    - 'mods/**'
+    branches:
+    - master
+    - dev
+  #release:
+  #  types: [published]
   workflow_dispatch:
 jobs:
   build:

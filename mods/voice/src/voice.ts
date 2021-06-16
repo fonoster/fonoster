@@ -27,7 +27,7 @@ import {SayOptions} from "./say/types";
 import {VoiceRequest} from "./types";
 import {Plugin} from "@fonos/common";
 import {assertPluginExist} from "./asserts";
-import PubSub from 'pubsub-js'
+import PubSub from "pubsub-js";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -138,7 +138,7 @@ export default class {
    * }
    */
   async gather(options: GatherOptions): Promise<string> {
-    let asr = null
+    let asr = null;
     if (options.source.includes("speech")) {
       assertPluginExist(this, "asr");
       asr = this.plugins["asr"];
@@ -161,7 +161,7 @@ export default class {
    *        : await control.forward()
    *   })
    *
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
+   *   await response.play("https://soundsserver:9000/sounds/hello-world.wav", {
    *      playbackId: "1234"
    *   });
    * }
@@ -177,22 +177,22 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
-   *   response.onDtmfReceived(async(digit) => {
+   *   response.on("DtmfReceived", async(digit) => {
    *      const control = response.playback("1234")
    *      digit === "3"
    *        ? await control.restart()
    *        : await control.forward()
    *   })
    *
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
+   *   await response.play("https://soundsserver:9000/sounds/hello-world.wav", {
    *      playbackId: "1234"
    *   });
    * }
    */
   async on(topic: string, handler: Function) {
     PubSub.subscribe(`${topic}.${this.request.sessionId}`, (type, data) => {
-      handler(data)
-    })
+      handler(data);
+    });
   }
 
   /**

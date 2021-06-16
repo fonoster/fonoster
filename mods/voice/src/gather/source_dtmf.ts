@@ -16,34 +16,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GatherOptions } from "./types";
+import {GatherOptions} from "./types";
 import PubSub from "pubsub-js";
 
-const waitForDtmf =
-  async (sessionId: string, options: GatherOptions): Promise<string> =>
-    new Promise(async (resolve, reject) => {
-      let token = null;
-      try {
-        let timer: NodeJS.Timeout;
-        let digits = "";
+const waitForDtmf = async (
+  sessionId: string,
+  options: GatherOptions
+): Promise<string> =>
+  new Promise(async (resolve, reject) => {
+    let token = null;
+    try {
+      let timer: NodeJS.Timeout;
+      let digits = "";
 
-        if (options.timeout > 0) {
-          timer = setTimeout(() => {
-            resolve(digits);
-            PubSub.unsubscribe(token);
-            return;
-          }, options.timeout);
-        }
+      if (options.timeout > 0) {
+        timer = setTimeout(() => {
+          resolve(digits);
+          PubSub.unsubscribe(token);
+          return;
+        }, options.timeout);
+      }
 
-        const token = PubSub.subscribe(`DtmfReceived.${sessionId}`, (type, data) => {
-          const key = data.data
+      const token = PubSub.subscribe(
+        `DtmfReceived.${sessionId}`,
+        (type, data) => {
+          const key = data.data;
 
           if (timer) {
             clearTimeout(timer);
             timer = setTimeout(() => {
               resolve(digits);
               PubSub.unsubscribe(token);
-              return
+              return;
             }, options.timeout);
           }
 
@@ -60,11 +64,12 @@ const waitForDtmf =
             PubSub.unsubscribe(token);
             return;
           }
-        })
-      } catch (e) {
-        reject(e);
-        PubSub.unsubscribe(token);
-      }
-    });
+        }
+      );
+    } catch (e) {
+      reject(e);
+      PubSub.unsubscribe(token);
+    }
+  });
 
 export default waitForDtmf;

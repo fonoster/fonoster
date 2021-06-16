@@ -16,18 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SpeechProvider } from "@fonos/common";
+import {SpeechProvider} from "@fonos/common";
 import merge from "deepmerge";
-import {
-  assertsFinishOnKeyIsChar,
-  assertsValueIsPositive
-} from "../asserts";
-import { VoiceRequest } from "../types";
-import { Verb } from "../verb";
-import { assertsHasNumDigitsOrTimeout } from "./asserts";
+import {assertsFinishOnKeyIsChar, assertsValueIsPositive} from "../asserts";
+import {VoiceRequest} from "../types";
+import {Verb} from "../verb";
+import {assertsHasNumDigitsOrTimeout} from "./asserts";
 import waitForDtmf from "./source_dtmf";
 import waitForSpeech from "./source_speech";
-import { GatherOptions } from "./types";
+import {GatherOptions} from "./types";
 import logger from "@fonos/logger";
 
 const defaultOptions: GatherOptions = {
@@ -56,12 +53,14 @@ export default class GatherVerb extends Verb {
     return new Promise(async (resolve, reject) => {
       if (options.source.includes("dtmf")) {
         logger.verbose("@fonos/voice enabled dtmf source");
-        waitForDtmf(this.request.sessionId, options).then(text => {
-          resolve(text);
-          logger.verbose("@fonos/voice result resolved from dtmf source");
-        }).catch(e => {
-          reject(e);
-        })
+        waitForDtmf(this.request.sessionId, options)
+          .then((text) => {
+            resolve(text);
+            logger.verbose("@fonos/voice result resolved from dtmf source");
+          })
+          .catch((e) => {
+            reject(e);
+          });
       }
 
       // TODO: We should explicitly clean this resources if the other "source"
@@ -73,15 +72,17 @@ export default class GatherVerb extends Verb {
           options,
           super.getSelf(),
           this.speechProvider
-        ).then(text => {
-          resolve(text);
-          logger.verbose("@fonos/voice result resolved from speech source");
-        }).catch(e => {
-          reject(e);
-        })
+        )
+          .then((text) => {
+            resolve(text);
+            logger.verbose("@fonos/voice result resolved from speech source");
+          })
+          .catch((e) => {
+            reject(e);
+          });
       }
-    })
+    });
   }
 }
 
-export { GatherOptions };
+export {GatherOptions};

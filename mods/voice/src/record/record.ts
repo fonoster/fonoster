@@ -48,17 +48,23 @@ export default class RecordVerb extends Verb {
           objectToQString(opts)
         );
 
-        tokenFinished = PubSub.subscribe(`RecordingFinished.${this.request.sessionId}`, (type, data) => {
-          resolve(data.data);
-          PubSub.unsubscribe(tokenFinished);
-          PubSub.unsubscribe(tokenFailed);
-        })
+        tokenFinished = PubSub.subscribe(
+          `RecordingFinished.${this.request.sessionId}`,
+          (type, data) => {
+            resolve(data.data);
+            PubSub.unsubscribe(tokenFinished);
+            PubSub.unsubscribe(tokenFailed);
+          }
+        );
 
-        tokenFailed = PubSub.subscribe(`RecordingFailed.${this.request.sessionId}`, (type, data) => {
-          reject("recording failed: " + data.cause);
-          PubSub.unsubscribe(tokenFinished);
-          PubSub.unsubscribe(tokenFailed);
-        })
+        tokenFailed = PubSub.subscribe(
+          `RecordingFailed.${this.request.sessionId}`,
+          (type, data) => {
+            reject("recording failed: " + data.cause);
+            PubSub.unsubscribe(tokenFinished);
+            PubSub.unsubscribe(tokenFailed);
+          }
+        );
       } catch (e) {
         reject(e);
         PubSub.unsubscribe(tokenFinished);

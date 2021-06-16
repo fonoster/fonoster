@@ -34,7 +34,7 @@ export class Verb {
     this.request = request;
   }
 
-  getSelf(){
+  getSelf() {
     return this;
   }
 

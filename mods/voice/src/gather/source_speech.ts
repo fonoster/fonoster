@@ -18,54 +18,61 @@
  */
 import stream from "stream";
 import PubSub from "pubsub-js";
-import { GatherOptions } from "./types";
-import { objectToQString } from "../utils";
-import { SpeechProvider } from "@fonos/common";
+import {GatherOptions} from "./types";
+import {objectToQString} from "../utils";
+import {SpeechProvider} from "@fonos/common";
 
-const waitForSpeech =
-  async (sessionId: string, options: GatherOptions, verb, speechProvider: SpeechProvider): Promise<string> =>
-    new Promise(async (resolve, reject) => {
-      let timer: NodeJS.Timeout;
-      let token = null;
+const waitForSpeech = async (
+  sessionId: string,
+  options: GatherOptions,
+  verb,
+  speechProvider: SpeechProvider
+): Promise<string> =>
+  new Promise(async (resolve, reject) => {
+    let timer: NodeJS.Timeout;
+    let token = null;
 
-      const speechTracker = speechProvider.createSpeechTracker(options);
-      const readable = new stream.Readable({
-        // The read logic is omitted since the data is pushed to the socket
-        // outside of the script's control. However, the read() function 
-        // must be defined.
-        read() { }
+    const speechTracker = speechProvider.createSpeechTracker(options);
+    const readable = new stream.Readable({
+      // The read logic is omitted since the data is pushed to the socket
+      // outside of the script's control. However, the read() function
+      // must be defined.
+      read() {}
+    });
+
+    token = PubSub.subscribe(`media.${sessionId}`, (type, data) => {
+      readable.push(data);
+    });
+
+    speechTracker
+      .transcribe(readable)
+      .then((result) => {
+        if (timer) clearTimeout(timer);
+        resolve(result.transcription);
+        PubSub.unsubscribe(token);
+        // TODO: Also tell Media Server to stop sending media
+      })
+      .catch((e) => {
+        reject(e);
+        PubSub.unsubscribe(token);
       });
 
-      token = PubSub.subscribe(`media.${sessionId}`, (type, data) => {
-        readable.push(data);
+    await verb.post(
+      `events/user/SendExternalMedia`,
+      objectToQString({
+        // WARNING: Harcoded value
+        application: "mediacontroller"
       })
+    );
 
-      speechTracker.transcribe(readable)
-        .then(result => {
-          if (timer) clearTimeout(timer);
-          resolve(result.transcription);
-          PubSub.unsubscribe(token);
-          // TODO: Also tell Media Server to stop sending media
-        }).catch(e => {
-          reject(e)
-          PubSub.unsubscribe(token);
-        })
-
-      await verb.post(
-        `events/user/SendExternalMedia`,
-        objectToQString({
-          // WARNING: Harcoded value
-          application: "mediacontroller"
-        }))
-
-      if (options.timeout > 0) {
-        timer = setTimeout(() => {
-          // Simply resolve an empty string
-          resolve("");
-          PubSub.unsubscribe(token);
-          return;
-        }, options.timeout);
-      }
-    });
+    if (options.timeout > 0) {
+      timer = setTimeout(() => {
+        // Simply resolve an empty string
+        resolve("");
+        PubSub.unsubscribe(token);
+        return;
+      }, options.timeout);
+    }
+  });
 
 export default waitForSpeech;
