@@ -1,5 +1,5 @@
 import "../config";
-import cli from 'cli-ux'
+import cli from "cli-ux";
 import {Command} from "@oclif/command";
 
 export default class extends Command {
@@ -9,6 +9,8 @@ export default class extends Command {
   `;
 
   async run() {
-    await cli.open("https://github.com/fonoster/fonos/issues/new?assignees=&labels=&template=bug_report.md&title=");
+    await cli.open(
+      "https://github.com/fonoster/fonos/issues/new?assignees=&labels=&template=bug_report.md&title="
+    );
   }
 }
