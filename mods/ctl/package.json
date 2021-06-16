@@ -91,7 +91,6 @@
     "easy-table": "^1.1.1",
     "inquirer": "^7.3.3",
     "moment": "^2.29.1",
-    "node-plop": "^0.26.2",
     "phone": "^2.4.21",
     "prettyjson": "^1.2.1",
     "promise-fs": "^2.1.1",
