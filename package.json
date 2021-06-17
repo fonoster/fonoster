@@ -1,6 +1,7 @@
 {
   "name": "root",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "services": "cross-env NODE_ENV=dev nodemon ./run_services",
     "dispatcher": "cross-env NODE_ENV=dev nodemon ./run_dispatcher",
