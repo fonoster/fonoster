@@ -199,7 +199,7 @@ export const attachToEvents = (request: AttachToEventsRequest) => {
   const wsClient = new WebSocket(request.url);
 
   const getRandomPort = () => Math.floor(Math.random() * (6000 - 5060)) + 10000;
-  const address = `192.168.1.149:${getRandomPort()}`;
+  const address = `0.0.0.0:${getRandomPort()}`;
 
   // WARNING: Harcoded address
   const udpServer = new UDPMediaReceiver(address, true);

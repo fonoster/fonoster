@@ -444,7 +444,7 @@ proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.toObject = function(
  */
 proto.fonos.secrets.v1alpha1.ListSecretIdResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    nameList: jspb.Message.toObjectList(msg.getNameList(),
+    secretsList: jspb.Message.toObjectList(msg.getSecretsList(),
     proto.fonos.secrets.v1alpha1.SecretName.toObject, includeInstance),
     nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
@@ -486,7 +486,7 @@ proto.fonos.secrets.v1alpha1.ListSecretIdResponse.deserializeBinaryFromReader = 
     case 1:
       var value = new proto.fonos.secrets.v1alpha1.SecretName;
       reader.readMessage(value,proto.fonos.secrets.v1alpha1.SecretName.deserializeBinaryFromReader);
-      msg.addName(value);
+      msg.addSecrets(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -521,7 +521,7 @@ proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.serializeBinary = fu
  */
 proto.fonos.secrets.v1alpha1.ListSecretIdResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getNameList();
+  f = message.getSecretsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -540,10 +540,10 @@ proto.fonos.secrets.v1alpha1.ListSecretIdResponse.serializeBinaryToWriter = func
 
 
 /**
- * repeated SecretName name = 1;
+ * repeated SecretName secrets = 1;
  * @return {!Array<!proto.fonos.secrets.v1alpha1.SecretName>}
  */
-proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.getNameList = function() {
+proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.getSecretsList = function() {
   return /** @type{!Array<!proto.fonos.secrets.v1alpha1.SecretName>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.fonos.secrets.v1alpha1.SecretName, 1));
 };
@@ -553,7 +553,7 @@ proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.getNameList = functi
  * @param {!Array<!proto.fonos.secrets.v1alpha1.SecretName>} value
  * @return {!proto.fonos.secrets.v1alpha1.ListSecretIdResponse} returns this
 */
-proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.setNameList = function(value) {
+proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.setSecretsList = function(value) {
   return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 
@@ -563,7 +563,7 @@ proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.setNameList = functi
  * @param {number=} opt_index
  * @return {!proto.fonos.secrets.v1alpha1.SecretName}
  */
-proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.addName = function(opt_value, opt_index) {
+proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.addSecrets = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.fonos.secrets.v1alpha1.SecretName, opt_index);
 };
 
@@ -572,8 +572,8 @@ proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.addName = function(o
  * Clears the list making it empty but non-null.
  * @return {!proto.fonos.secrets.v1alpha1.ListSecretIdResponse} returns this
  */
-proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.clearNameList = function() {
-  return this.setNameList([]);
+proto.fonos.secrets.v1alpha1.ListSecretIdResponse.prototype.clearSecretsList = function() {
+  return this.setSecretsList([]);
 };
 
 
