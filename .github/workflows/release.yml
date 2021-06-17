@@ -121,7 +121,7 @@ jobs:
         workflow: publish to docker hub
         repo: fonoster/chmodhelper
         token: ${{ secrets.GH_PAT }}
-        ref: master
+        ref: main
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing JWTHelper Service
       uses: benc-uk/workflow-dispatch@v1
@@ -129,7 +129,7 @@ jobs:
         workflow: publish to docker hub
         repo: fonoster/jwthelper
         token: ${{ secrets.GH_PAT }}
-        ref: master
+        ref: main
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing MediaServer Service
       uses: benc-uk/workflow-dispatch@v1
@@ -137,5 +137,5 @@ jobs:
         workflow: publish to docker hub
         repo: fonoster/mediaserver
         token: ${{ secrets.GH_PAT }}
-        ref: master
+        ref: main
 
