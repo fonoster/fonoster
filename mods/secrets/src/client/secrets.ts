@@ -170,7 +170,7 @@ export default class Secrets extends FonosService {
 
     return {
       nextPageToken: paginatedList.getNextPageToken(),
-      name: paginatedList.getNameList().map((secret: SecretPB.Secret) => {
+      secrets: paginatedList.getSecretsList().map((secret: SecretPB.Secret) => {
         return {
           name: secret.getName()
         };
