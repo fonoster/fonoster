@@ -16,7 +16,7 @@ export default class CreateCommand extends Command {
   `;
 
   static flags = {
-    "ignore-164-validation": flags.boolean({
+    "ignore-e164-validation": flags.boolean({
       char: "i",
       description: "ignore e164 validation."
     })
@@ -96,7 +96,7 @@ export default class CreateCommand extends Command {
       if (!answers.confirm) {
         console.log("Aborted");
       } else {
-        const number = flags["ignore-164-validation"]
+        const number = flags["ignore-e164-validation"]
           ? answers.e164Number
           : phone(answers.e164Number)[0];
         if (!number)
