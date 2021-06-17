@@ -36,7 +36,7 @@ export interface ListSecretRequest {
 }
 
 export interface ListSecretResponse {
-  name: Secret[];
+  secret: Secret[];
   nextPageToken: string;
 }
 
