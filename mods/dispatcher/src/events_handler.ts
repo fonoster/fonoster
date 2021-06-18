@@ -56,6 +56,18 @@ export default function (err, client) {
       e164Number: didInfo.value
     });
 
+    let webhook = ingressInfo.webhook;
+
+    try {
+      // If this variable exist it then we need overwrite the webhook
+      webhook = await channel.getChannelVar({
+        channelId: channel.id,
+        variable: "WEBHOOK"
+      });
+    } catch (e) {
+      // Nothing further needs to happen
+    }
+
     logger.verbose(
       `@fonos/dispatcher statis start [channelId = ${channel.id}]`
     );
@@ -63,7 +75,7 @@ export default function (err, client) {
       `@fonos/dispatcher statis start [e164Number = ${didInfo.value}]`
     );
     logger.verbose(
-      `@fonos/dispatcher statis start [webhook = ${ingressInfo.webhook}, accessKeyId = ${ingressInfo.accessKeyId}]`
+      `@fonos/dispatcher statis start [webhook = ${webhook}, accessKeyId = ${ingressInfo.accessKeyId}]`
     );
 
     const access = await auth.createNoAccessToken({
@@ -79,7 +91,7 @@ export default function (err, client) {
       number: didInfo.value,
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number,
-      selfEndpoint: ingressInfo.webhook
+      selfEndpoint: webhook
     };
 
     logger.verbose(
@@ -89,13 +101,13 @@ export default function (err, client) {
     );
 
     attachToEvents({
-      url: ingressInfo.webhook,
+      url: webhook,
       accessKeyId: ingressInfo.accessKeyId,
       sessionId,
       client,
       channel
     });
-    await sendCallRequest(ingressInfo.webhook, request);
+    await sendCallRequest(webhook, request);
   });
 
   client.on("StasisEnd", (event, channel) => {
