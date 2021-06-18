@@ -1,6 +1,6 @@
 {
   "name": "@fonos/auth",
-  "version": "0.0.123",
+  "version": "0.0.124",
   "description": "Authentication Module",
   "author": "Raul Sanchez <rsanchez@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,10 +43,10 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/certs": "^0.0.123",
-    "@fonos/common": "^0.0.123",
-    "@fonos/errors": "^0.0.123",
-    "@fonos/logger": "^0.0.123",
+    "@fonos/certs": "^0.0.124",
+    "@fonos/common": "^0.0.124",
+    "@fonos/errors": "^0.0.124",
+    "@fonos/logger": "^0.0.124",
     "express": "^4.17.1",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
