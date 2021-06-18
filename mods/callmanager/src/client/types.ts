@@ -20,13 +20,11 @@
 export interface CallRequest {
   from: string;
   to: string;
-  app: string;
+  webhook?: string;
+  ignoreE164Validation?: boolean;
 }
 
 export interface CallResponse {
-  from: string;
-  to: string;
-  app: string;
   duration: number;
 }
 export interface EndpointInfo {

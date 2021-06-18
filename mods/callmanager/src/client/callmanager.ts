@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {FonosService, ServiceOptions} from "@fonos/common";
 import {CallManagerClient} from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
@@ -40,9 +39,8 @@ import grpc from "grpc";
  *   to: "17853178070"
  *   app: "default"
  * })
- * .then(result => {
- *   console.log(result)             // successful response
- * }).catch(e => console.error(e))   // an error occurred
+ * .then(console.log)        // successful response
+ * .catch(console.error)   // an error occurred
  */
 export default class CallManager extends FonosService {
   /**
@@ -57,36 +55,37 @@ export default class CallManager extends FonosService {
   }
 
   /**
-   * Calls method.
+   * Call method.
    *
-   * @param {CallRequest} request - call options.
-   * @return {Promise<CallResponse>} call results
+   * @param {CallRequest} request - Call request options
+   * @param {string} request.from - Number you are calling from. You must have this Number configured in your account
+   * @param {string} request.to - The callee
+   * @param {string} request.webhook - Url of the application that will handle the call.
+   * If none is provided it will use the webook setup in the Number
+   * @param {string} request.ignoreE164Validation - If enabled it will accept any input in the from and to
+   * @return {Promise<CallResponse>} - call results
    * @throws if the from number doesn't exist
    * @throws if could not connect to the underline services
    * @example
    *
    * callManager.call({
-   *   from: "9102104343",
-   *   to: "17853178070",
-   *   app: "default"
+   *   from: "+19102104343",
+   *   to: "+17853178070",
+   *   webhook: "https://voiceapps.acme.com/myvoiceapp"
    * })
-   * .then(result => {
-   *   console.log(result);             // successful response
-   * }).catch(e => console.error(e));   // an error occurred
-   *
+   * .then(console.log)         // successful response
+   * .catch(console.error);     // an error occurred
    */
   async call(request: CallRequest): Promise<CallResponse> {
     const r = new CallManagerPB.CallRequest();
     r.setFrom(request.from);
     r.setTo(request.to);
-    r.setApp(request.app);
+    r.setWebhook(request.webhook);
+    r.setIgnoreE164Validation(request.ignoreE164Validation);
 
     const p = await super.getService().call().sendMessage(r);
 
     return {
-      from: p.getFrom(),
-      to: p.getTo(),
-      app: p.getApp(),
       duration: p.getDuration()
     };
   }
