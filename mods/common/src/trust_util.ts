@@ -75,9 +75,7 @@ const getClientCredentials = (grpc) => {
     logger.warn(
       "@fonos/common trust util [unable to load security certificates]"
     );
-    logger.warn(
-      "@fonos/common trust util [starting server in insecure mode]"
-    );
+    logger.warn("@fonos/common trust util [starting server in insecure mode]");
     return grpc.credentials.createInsecure();
   }
 };
