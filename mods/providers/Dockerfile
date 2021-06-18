@@ -1,9 +1,9 @@
 FROM fonoster/base
 COPY . /scripts
 RUN ./install.sh
+RUN link /usr/bin/run_providers /usr/bin/run \
+  && link /usr/bin/healthcheck_providers /usr/bin/healthcheck
 USER fonos
-RUN alias run="run_providers" \
-  && alias healthcheck="healthcheck_providers"
 HEALTHCHECK --interval=30s \
   --timeout=30s \
   --start-period=5s \
