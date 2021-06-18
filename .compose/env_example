@@ -24,7 +24,6 @@ AS_ALLOW_INSECURE=true
 # Asterisk based media server
 MS_IMAGE=fonoster/fonos-mediaserver:latest
 MS_ENDPOINT=sip:ast@node1
-MS_HOST=mediaserver.fonos
 MS_SIP_PORT=6060
 MS_RTP_PORT_START=10000
 MS_RTP_PORT_END=20000
@@ -34,7 +33,7 @@ MS_EXTENSION=s
 MS_ARI_USERNAME=admin
 MS_ARI_SECRET=changeit
 MS_ARI_AUTHORIZATION=YWRtaW46Y2hhbmdlaXQ=
-MS_ARI_INTERNAL_URL=http://localhost:8088
+MS_ARI_INTERNAL_URL=http://mediaserver:8088
 
 # Redis database
 DS_IMAGE=redis:6.0.3-alpine
