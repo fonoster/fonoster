@@ -102,7 +102,7 @@ multipass launch --name fonos \
 --mem 4G
 ```
 
-Then, enter to the machine with:
+Then, enter to the virtual machine with:
 
 ```bash
 multipass shell fonos
