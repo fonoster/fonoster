@@ -9,7 +9,7 @@ Project Fonos is open-source telecommunications for the cloud. It helps VoIP int
 <p align="center">
 		<sup>Special Announcement:</sup>
 		<br>
-		<a href="https://fonosterteam.typeform.com/to/CvQqk9">
+		<a href="https://form.typeform.com/to/CvQqk9">
 			<img width="70px" src="https://assets.brandfolder.com/pl546j-7le8zk-afym5u/original/Slack_Mark_Web.png">
 		</a>
 		<br>
