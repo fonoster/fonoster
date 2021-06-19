@@ -134,7 +134,7 @@ sudo docker-compose --env-file .env \
     -f 02_sipnet.yml up
 ```
 
-Finally, once all the services are up an running initialize `PF` with:
+Finally, once all the services are up an running initialize server with:
 
 ```bash
 docker-compose -f init.yml up
