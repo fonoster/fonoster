@@ -66,11 +66,6 @@ Although Project Fonos is expected to be useful for all businesses at all levels
 - Difficulty migrating from one vendor to another
 - Limited to vendor's feature (can't add or remove)
 
-**Privacy Concerns:**
-
-- Government/military unable to benefit (Due to regulations)
-- Health organization have limited access on many countries (Due to regulations)
-
 **Technical Complexity:**
 
 - Learning curve for those without coding knowledge
