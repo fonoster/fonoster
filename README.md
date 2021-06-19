@@ -68,8 +68,8 @@ Although Project Fonos is expected to be useful for all businesses at all levels
 
 **Privacy Concerns:**
 
-- Government/military unable to benefit 
-- Health organization have limited access on many countries
+- Government/military unable to benefit (Due to regulations)
+- Health organization have limited access on many countries (Due to regulations)
 
 **Technical Complexity:**
 
