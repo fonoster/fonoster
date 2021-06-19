@@ -28,7 +28,10 @@
 - [Installing PF in single-host mode](#single-host-mode-installation)
 - [Creating a Voice Application](#creating-a-voice-application)
   - [Publishing a Voice Application with Ngrok](#publishing-a-voice-application-with-ngrok)
-- [Configuring the SIP Network](#configuring-the-sip-network)
+- [Configuring a SIP Network](#configuring-the-sip-network)
+  - [Adding a SIP Service Provider](#adding-a-sip-service-provider)
+  - [Adding a SIP Number](#adding-a-sip-number)
+  - [Adding a SIP Domain](#adding-a-sip-domain)
 - [Initiating a call with the SDK](#initiating-a-call-with-the-sdk)
 - [Creating a Cloud Function](#creating-a-cloud-function)
   - [Managing Secrets](#managing-secrets)
@@ -73,15 +76,256 @@ Although Project Fonos is expected to be useful for all businesses at all levels
 
 ## Getting Started
 
+![Repo banner](https://raw.githubusercontent.com/fonoster/fonos101/master/assets/pf101.png)
+
+The purpose of this guide is to show the basics of Project Fonos. Until the official documentation is released, considerer this as the interim documentation for PF, and be sure to come back for updates.
+
+Here you will find how to create a Voice Application, create a Number, and then use that Number to originate a call. Please follow the guide in sequence, as each step builds on the last one.
+
 ## Single-host mode Installation
 
 ## Creating a Voice Application
 
-## Publishing a Voice Application with Ngrok
+### Prerequirements
 
-## Configuring the SIP Network
+Before you can create a Voice Application, you will need the following:
+
+- NodeJS 14+ (Use nvm if possible)
+- An account for access to a SIP Service Provider
+- Fonos command-line tool (install with `npm install -g @fonos/ctl`)
+- Ngrok (install with `npm install -g ngrok`) (recommended)
+
+You can login to the server with your credentials with:
+
+```bash
+fonos auth:login
+```
+
+And your output will be similar to:
+
+```bash
+Access your Fonos infrastructure
+Press ^C at any time to quit.
+? api endpoint api.fonoster.net:50051
+? access key id psanders
+? access key token *************************...
+? ready? Yes
+Accessing endpoint api.fonoster.net:50051... Done
+```
+
+A Voice Application is a server that takes control of the flow in a call. A Voice Application can use any combination of the following verbs:
+
+- `Play` - Takes an URL or file and streams the sound back to the calling party
+- `Say`  - Takes a text, synthesizes the text into audio, and streams back the result
+- `Gather` - Waits for DTMF events and returns back the result
+- `Record` - It records the voice of the calling party and saves the audio on the Storage sub-system
+- `Mute` - It tells the channel to stop sending media, effectively muting the channel
+- `Unmute` - It tells the channel to allow media flow
+
+Perform the following steps to create a Voice Application.
+
+First, create an empty NodeJS project with:
+
+```bash
+mkdir voiceapp
+cd voiceapp
+npm init # and follow the wizard
+```
+
+For me it looks like this:
+
+```bash
+...
+package name: (voiceapp) 
+version: (1.0.0) 
+description: My voice app
+entry point: (index.js) 
+test command: 
+git repository: 
+keywords: 
+author: Pedro Sanders
+license: MIT 
+About to write to /Users/yourusername/Projects/voiceapp/package.json:
+
+{
+  "name": "voiceapp",
+  "version": "1.0.0",
+  "description": "My voice app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pedro Sanders",
+  "license": "MIT"
+}
+
+Is this OK? (yes) yes
+```
+
+Then, install the Voice module with:
+
+```
+npm i --save @fonos/voice
+```
+
+Next, with your favorite IDE open and edit the file `index.js` with the following content:
+
+```javascript
+const { VoiceServer } = require("@fonos/voice");
+const voiceServer = new VoiceServer({ base: '/voiceapp' });
+
+voiceServer.listen((req, res) => {
+  console.log(req);
+  res.play("sound:hello-world");
+});
+```
+
+Finally, launch the Voice Application with:
+
+```bash
+node index.js
+```
+
+Your output will look like this:
+
+```
+info: initializing voice server
+info: starting voice server on @ 0.0.0.0, port=3000
+```
+
+> Your app will live at `http://127.0.0.1:3000/voiceapp`.
+
+### Publishing a Voice Application with Ngrok
+
+The fastes way to make a Voice Application available on the Internet is Ngrok. For example, with ngrok, you can publish a web server in a single command.
+
+On a new console, run Ngrok with the following command:
+
+```bash
+ngrok http 3000
+```
+
+The output will look like this:
+
+![Ngrok output](https://raw.githubusercontent.com/fonoster/fonos101/master/assets/ngrok_output.png)
+
+> The forwarding URL can later be use as the Webhook for your calls with the SDK.
+
+## Configuring a SIP Network
+
+A SIP Network has all the building blocks needed to establish communication between two SIP endpoints(i.e., softphone, webphone, cellphone, the PSTN, etc.)
+
+### Adding a SIP Service Provider
+
+A SIP Service Provider is an organization that will terminate your calls to the phone network (or PSTN). To complete this section, you will need the `username`, `password`, and `host` you obtained from your SIP Service Provider.
+
+Create a new Provider with:
+
+```bash
+fonos providers:create
+```
+
+The output will look similar to this:
+
+```
+This utility will help you create a new Provider
+Press ^C at any time to quit.
+? friendly name VOIPMS
+? username 215706
+? secret [hidden]
+? host newyork1.voip.ms
+? transport tcp
+? expire 300
+? ready? Yes
+Creating provider YourServiceProvider... Done
+```
+
+### Adding a SIP Number
+
+A Number, often referred to as DID/DOD, refers to a number managed by your SIP Service provider. 
+
+> If your Provider doesn't accept E164, you can append the `--ignore-e164-validation`
+
+```bash
+fonos numbers:create --ignore-e164-validation
+```
+
+Here is an example of the output:
+
+```bash
+This utility will help you create a new Number
+Press ^C at any time to quit.
+? number in E.164 format (e.g. +16471234567) 9842753574    
+? service provider VOIPMS
+? aor link (leave empty)
+? webhook https://5a2d2ea5d84d.ngrok.io/voiceapp # Replace with the value you obtained from Ngrok
+? ready? Yes
+Creating number +17853178071... KyjgGEkasj
+```
+
+> ⚠️ Be sure to replace the information with what was given to you by your Provider.
+
+### Adding a SIP Domain
+
+A SIP Domain is a space within the SIP Network where SIP entities live (usually SIP Agents). To create a SIP Domain, you can use the command-line tool or the SDK.
+
+In this step, you need to select the Number you just created as your `Egreess Number`. Also, make sure to use an "unclaimed" `uri` or you will receive the error: "› Error: This Domain already exists." 
+
+Create a new Domain with:
+
+```bash
+fonos domains:create
+```
+
+Your output will look similar to this:
+
+```bash
+This utility will help you create a new Domain
+Press ^C at any time to quit.
+? friendly name Acme Corp
+? domain uri (e.g acme.com) sip.acme.com
+? egress number none
+? egress rule .*
+? ready? Yes
+Creating domain Acme Corp... Jny9B_qaIh
+```
+> ⚠️ In the demo server, you don't need to own the Domain. Any URI is fair game!
 
 ## Initiating a call with the SDK
+
+To make a call, you are going to need to install the SDK.
+
+Install the SDK, from within the `voiceapp`, with:
+
+```bash
+npm i --save @fonos/sdk 
+```
+
+Next, create the script `call.js` with the following code:
+
+```javascript
+// This will load the SDK and reuse your Fonos credentials
+const Fonos = require("@fonos/sdk").default;
+const callManager = new Fonos.CallManager();
+
+// Few notes:
+//  1. Update the from to look exactly as the Number you added 
+//  2. Use an active phone or mobile
+//  3. Replace the webhook with the one from Ngrok
+callManager.call({
+ from: "9842753574",
+ to: "17853178070",
+ webhook: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
+})
+.then(console.log)
+.catch(console.error);
+```
+
+Finally, run your script with: `node call.js`
+
+If everything goes well, you will start seeing the output in the console you are running your Voice Application. You will also receive a call that will stream a "Hello World."
+
+![Call Request output](https://raw.githubusercontent.com/fonoster/fonos101/master/assets/call_request.png)
 
 ## Creating a Cloud Function
 
