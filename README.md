@@ -21,11 +21,18 @@
 
 ## Table of Contents
 
+### Launch additional services
+
+### Prepare the environment
+
 - [About](#about)
   - [Where are we today?](#where-are-we-today)
   - [Who is Project Fonos for?](#who-is-project-fonos-for)
 - [Getting Started](#getting-started)
-- [Installing PF in single-host mode](#single-host-mode-installation)
+- [Single-host Installation](#single-host-installation)
+  - [Preparation](#preparation)
+  - [Running the Services](#running-the-services)
+  - [Installing optional Components](#installing-optional-components)
 - [Creating a Voice Application](#creating-a-voice-application)
   - [Publishing a Voice Application with Ngrok](#publishing-a-voice-application-with-ngrok)
 - [Configuring a SIP Network](#configuring-the-sip-network)
@@ -80,7 +87,80 @@ The purpose of this guide is to show the basics of Project Fonos. Until the offi
 
 Here you will find how to create a Voice Application, create a Number, and then use that Number to originate a call. Please follow the guide in sequence, as each step builds on the last one.
 
-## Single-host mode Installation
+## Single-host Installation
+
+### Preparation
+
+While using multipass is optional, it will help you keep your environment clean.
+
+To install multipass, simply use the following command:
+
+```bash
+multipass launch --name fonos \
+--disk 8G \
+--cpus 2 \
+--mem 4G
+```
+
+Then, enter to the machine with:
+
+```bash
+multipass shell fonos
+sudo apt update
+sudo apt install docker.io docker-compose
+```
+
+Finally, create two external volumes `datasource` and `data1-1`:
+
+```bash
+docker volume create --name=datasource
+docker volume create --name=data1-1
+```
+
+### Running the Services
+
+To run `PF`, first clone the repo and go to the directory `.compose` with:
+
+```bash
+git clone https://github.com/fonoster/fonos --depth=1
+cd .compose
+```
+
+Then, copy the `env_example` into `.env` and update the variables `CONFIG`, `DOMAIN`, and `HOST_ADDR.`
+
+Next, run the core services with:
+
+```bash
+sudo docker-compose --env-file .env \
+    -f 00_deps.yml \
+    -f 01_api.yml \
+    -f 02_sipnet.yml up
+```
+
+Finally, once all the services are up an running initialize `PF` with:
+
+```bash
+docker-compose -f init.yml up
+```
+
+### Installing optional Components
+
+```bash
+git clone https://github.com/fonoster/fonos --depth=1
+cd .compose
+sudo docker-compose --env-file .env \
+    -f 00_deps.yml \
+    -f 01_api.yml \
+    -f 02_sipnet.yml \
+    -f extras/secrets.yml \
+    -f extras/funcs.yml \    
+    -f extras/events.yml \
+    -f extras/logging.yml \
+    -f extras/tts.yml \
+    up
+```
+
+> Append `dev.yml` or `extras\*.dev.yml` if you want to open the ports on all the services (Only recommended for development)
 
 ## Creating a Voice Application
 
@@ -130,7 +210,7 @@ cd voiceapp
 npm init # and follow the wizard
 ```
 
-For me it looks like this:
+Here is an example of the output:
 
 ```bash
 ...
@@ -166,7 +246,7 @@ Then, install the Voice module with:
 npm i --save @fonos/voice
 ```
 
-Next, with your favorite IDE open and edit the file `index.js` with the following content:
+Next, with your prefer IDE open and edit the file `index.js` with the following content:
 
 ```javascript
 const { VoiceServer } = require("@fonos/voice");
@@ -287,7 +367,6 @@ Press ^C at any time to quit.
 ? ready? Yes
 Creating domain Acme Corp... Jny9B_qaIh
 ```
-> ⚠️ In the demo server, you don't need to own the Domain. Any URI is fair game!
 
 ## Initiating a call with the SDK
 
