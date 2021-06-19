@@ -2,8 +2,6 @@
 
 ![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
-Project Fonos is open-source telecommunications for the cloud. It helps VoIP integrators quickly deploy new networks and benefit from value-added services such as Programmable Voice, Messaging, and Video. This repository assembles the various components needed to deploy a telephony system at scale.
-
 ---
 
 <p align="center">
@@ -22,138 +20,76 @@ Project Fonos is open-source telecommunications for the cloud. It helps VoIP int
 
 ## Table of Contents
 
+- [About](#about)
+  - [Where are we today?](#where-are-we-today)
+  - [Who is Project Fonos for?](#who-is-project-fonos-for)
 - [Getting Started](#getting-started)
-- [Features](#features)
-- [Modules and Components](#modules-and-components)
+- [Installing PF in single-host mode](#single-host-mode-installation)
+- [Creating a Voice Application](#creating-a-voice-application)
+  - [Publishing a Voice Application with Ngrok](#publishing-a-voice-application-with-ngrok)
+- [Configuring the SIP Network](#configuring-the-sip-network)
+- [Initiating a call with the SDK](#initiating-a-call-with-the-sdk)
+- [Creating a Cloud Function](#creating-a-cloud-function)
+  - [Managing Secrets](#managing-secrets)
 - [Bugs and Feedback](#bugs-and-feedback)
 - [Contributing](#contributing)
 - [Authors](#authors)
 - [License](#license)
 
+## About
+
+With Project Fonos, [Fonoster Inc](https://fonoster.com). researches an innovative Programmable Telecommunications Stack that will allow for a completely cloud-based utility for businesses to connect telephony services with the internet.
+
+Project Fonos was conceived of by [Pedro Sanders](https://github.com/psanders). In conducting market research for his newly formed business, Mr. Sanders spoke with CTO’s and market leaders in the industry and found that there was a need for an innovative approach to communications platform-as-a-service (CPaaS.)
+
+Project Fonos aims to be a solution for businesses needing to add voice, video, and messaging features to their websites and applications. Businesses are, in most cases, unable to accomplish this independently due to the complexity and number of telephony services involved in the task. Instead, businesses rely on third-party providers that offer software as a service (SaaS) that allow for communication between telephony devices and internet-based API’s, services, etc. 
+
+The primary innovation of Project Fonos lies in researching and developing the means for creating a highly portable, extensible, full feature, cloud-based Programmable Telecommunications Stack. Using this form of CPaaS, businesses will be able to call up an API to dial, answer a call, establish a video session, send SMS, etc., all with just HTTP requests and without worrying what servers and networks are doing with that information in the background. For Project Fonos to be a viable alternative to existing CPaaS, the system must be portable. Therefore, Project Fonos must take advantage of the various cloud environments such as Kubernetes and AWS ECS to run solutions at scale. Guaranteeing portability for the Project Fonos will also mean ensuring the deployability of the system using a "single-click-install" when possible.
+
+### Where are we today?
+
+As you can imagine this is an enormous task and will need all hands on deck and a lot of resources. Since we are a small team we decided to focus on a few use-cases. Once we are doing those use-cases really well we will move to the next-one.
+
+The first few releases of Project Fonos will focus only on Programmable Voice. We decided to focus on Programmable Voice, because it has the least amount of alternatives to its private CPaaS counterpart. 
+
+### Who is Project Fonos for?
+
+Although Project Fonos is expected to be useful for all businesses at all levels, its initial target group is expected to be made up of entrepreneurial start-ups. Focusing on organizations in this segment allows Project Fonos to address concerns that are directly related to small business which depend on Programmable Telecommunications. Specifically, Project Fonos wants to address the following pain points for start-ups: 
+
+**High Prices:**
+- Top competitors dictate prices with no regulations
+- Low margins for product-makers
+- Costs are difficult to forecast
+
+**Vendor lock:**
+- Difficulty migrating from one vendor to another
+- Limited to vendor's feature (can't add or remove)
+
+**Privacy Concerns:**
+
+- Government/military unable to benefit 
+- Health organization have limited access on many countries
+
+**Technical Complexity:**
+
+- Learning curve for those without coding knowledge
+- Copious documentation required
+
 ## Getting Started
 
-To get started with Fonos Programmable Voice follow the next few steps.
+## Single-host mode Installation
 
-<details><summary>Preparation</summary>
+## Creating a Voice Application
 
-<br />
-The first step with Fonos Programmable Voice is to install all the requirements.
-Refer to websites of the various products in the list bellow for detail on installation and configuration.
-<br /><br />
+## Publishing a Voice Application with Ngrok
 
-Requirements:
+## Configuring the SIP Network
 
-- K8S Cluster
-- Node and NPM
-- A softphone (with support for tcp)
+## Initiating a call with the SDK
 
-</details>
+## Creating a Cloud Function
 
-<details><summary>Running the Infrastructure</summary>
-
-<br />
-To run Fonos in your cluster, please follow the <a href="https://github.com/fonoster/fonos/tree/master/.helm">deployment instructions</a>
-<br /><br />
-
-> Work is on the way to enable Fonos for Docker Swarm
-</details>
-
-<details><summary>Installing the Tools</summary>
- 
-<br />
-The next step is to install the Command-Line Tool. To install the tool run the following command:
-<br /><br />
-
-```
-npm install @fonos/ctl -g
-```
-
-For details on this tool please go to [ctl @ npmjs](https://www.npmjs.com/package/@fonos/ctl).
-</details>
-
-<details><summary>Creating and Deploy an Application</summary>
-
-<br />
-If everything is went to plan, it is now time to generate and deploy
-your first Voice Application.
-<br /><br />
-
-```bash
-mkdir voice-app
-cd voice-app
-fonos apps:init
-fonos apps:deploy
-```
-
-For more examples go the [examples folder](/examples) in this repository.
-
-</details>
-
-<details><summary>Testing</summary>
-<br />
-To interact with your application, point your softphone to Asterisk sub-system. The testing information
-is as follows:
- 
-<br />
-
-<br />
-USENAME = 1001
-<br />
-PASSWORD = 1234
-<br />
-TEST EXTENSION = 1002
-
-</details>
-
-<details><summary>What's Next?</summary>
-<br />
-Congratulations if you made it this far. The next step with Fonos is to get familiar with the <a href="https://www.npmjs.com/package/@fonos/ctl">Command-Line Tool</a> and the <a href="https://github.com/fonoster/fonos/wiki/AppManager">SDK</a>.
-  
-</details>
-
-## Features
-
-Fonos' main features are:
-
-- Programmable Voice
-- Available on Kubernetes environment
-- Typical SIP Server functions; Proxy, Registrar, Location Service
-- Configurable routing strategies; Intra-Domain, Domain Ingress, Domain Egress and Peer Egress
-- Per node Multi-Tenancy/Multi-Domain with Domain level Access Control List
-- Transport: TCP, UDP, TLS, WebSocket
-- Database: Redis
-
-## Modules and Components
-
-The following is a list of modules and other subcomponents of Project Fonos by topic and current status. 
-
-| Name        | Topic | Description | Status
-|-------------|-------|-------------|-------|
-| [core](/mods/core)                       | Core  		                         | Core API                                              | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [events](/mods/events)                   | Core  		                         | Event managment                                       | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [storage](/mods/storage) 	               | Core  		                         | Utility module for storage managment                  | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [ctl](/mods/ctl) 		                      | Tooling  	                       | Controls a Fonos deployment using the API             | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [sdk](/mods/sdk) 		                      | Tooling  	                       | Bundle API for all user facing components             | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [voice](/mods/voice)                     | Programmable Voice               | NodeJS Implementation of Voice API                    | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [appmanager](/mods/appmanager)           | Programmable Voice               | API for deployment and managment of PVAs              | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [dispatcher](/mods/dispatcher)           | Programmable Voice               | Takes a call and passes control to media controller   | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [tts](/mods/tts)                         | Programmable Voice               | Abstracts for TTS features                            | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [marytts](/mods/marytts)                 | Programmable Voice               | Default TTS implementation                            | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [googleasr](/mods/googleasr)             | Programmable Voice               | Google implementation for ASR feature                 | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [googletts](/mods/googletts)             | Programmable Voice               | Google implementation for TTS feature                 | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [mediacontroller](https://github.com/fonoster/fonos-nodejsmc) | Programmable Voice               | NodeJS implementation for Fonos media controller      | ![alpha](https://img.shields.io/badge/alpha-yellow)
-| [mediaserver](https://github.com/fonoster/fonos-mediaserver)         | VoIP Network, Programmable Voice | Asterisk based media server                           | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [agents](/mods/agents)   	               | VoIP Network                     | API to create, update, get and delete `Agents`        | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [domains](/mods/domains)  	              | VoIP Network                     | API to create, update, get and delete `Domains`       | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [providers](/mods/providers)             | VoIP Network                     | API to create, update, get and delete `Providers`     | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [numbers](/mods/numbers)                 | VoIP Network                     | API to create, update, get and delete `Numbers`       | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [sipproxy](https://routr.io)             | VoIP Network                     | SIP proxy subcomponent                                | ![rc](https://img.shields.io/badge/rc-brightgreen)
-| [mediarelay](https://github.com/fonoster/fonos-rtpel7lb)                                 | VoIP Network                     | RTPEngine controller and balancer                     | ![alpha](https://img.shields.io/badge/alpha-yellow)
-| aaa                                      | VoIP Network  		                 | Access Authorization Accounting                       | ![not yet implemented](https://img.shields.io/badge/nyi-red)
-| [logger](/mods/logger)  	                | Misc      	                      | Useful for Programmable Voice Applications (PVAs)     | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [certs](/mods/certs)  	                  | Misc  	                          | Certificate creation and managment                    | ![alpha](https://img.shields.io/badge/alpha-yellow)
-| [errors](/mods/errors)  	                | Misc  		                         | Util module for error managment                       | ![beta](https://img.shields.io/badge/beta-brightgreen)
-| [roles](/mods/auth)           		                       | Misc                             | API Access Control                                    | ![beta](https://img.shields.io/badge/beta-brightgreen)
+### Managing Secrets
 
 ## Bugs and Feedback
 
