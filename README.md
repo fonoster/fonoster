@@ -15,7 +15,7 @@ Project Fonos is open-source telecommunications for the cloud. It helps VoIP int
 		<br>
 		<sub><b>We now have a Slack Channel</b></sub>
 		<br>
-		<sub>There we plan to discuss roadmaps, feature requests and more<br><a href="https://fonosterteam.typeform.com/to/CvQqk9">Join the channel</a></sub>
+		<sub>There we plan to discuss roadmaps, feature requests and more<br><a href="https://form.typeform.com/to/CvQqk9">Join the channel</a></sub>
 </p>
 
 ---
