@@ -2,7 +2,7 @@ import "../../config";
 import Providers from "@fonos/providers";
 import Numbers from "@fonos/numbers";
 import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
+import {Command, flags} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB} from "@fonos/numbers";
 import {Provider} from "@fonos/providers/src/types";
@@ -15,7 +15,14 @@ export default class CreateCommand extends Command {
   Creates a new Number in the SIP Proxy subsystem
   `;
 
+  static flags = {
+    "ignore-e164-validation": flags.boolean({
+      char: "i",
+      description: "ignore e164 validation."
+    })
+  };
   async run() {
+    const {flags} = this.parse(CreateCommand);
     console.log("This utility will help you create a new Number");
     console.log("Press ^C at any time to quit.");
 
@@ -89,11 +96,14 @@ export default class CreateCommand extends Command {
       if (!answers.confirm) {
         console.log("Aborted");
       } else {
-        const number = phone(answers.e164Number)[0];
+        const number = flags["ignore-e164-validation"]
+          ? answers.e164Number
+          : phone(answers.e164Number)[0];
         if (!number)
           throw new Error(
             `number ${answers.e164Number} is not a valid E.164 number`
           );
+
         cli.action.start(`Creating number ${number}`);
         answers.e164Number = number;
         const numbers = new Numbers();

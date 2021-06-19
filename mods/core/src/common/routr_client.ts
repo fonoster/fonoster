@@ -1,7 +1,6 @@
 import axios from "axios";
 import btoa from "btoa";
 import handleError from "./routr_errors";
-import phone from "phone";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 /**
@@ -58,8 +57,7 @@ export default class RoutrClient {
   }
 
   async getDomainUriFromNumber(number: string) {
-    const e164Number = phone(number)[0];
-    const en = e164Number.replace("+", "%2B");
+    const en = number.replace("+", "%2B");
     try {
       const url = `${this.apiUrl}/numbers?token=${this.token}&filter=@.spec.location.telUrl=='tel:${en}'`;
       const response = await axios.get(url);
@@ -79,8 +77,7 @@ export default class RoutrClient {
   }
 
   async getNumber(number: string) {
-    const e164Number = phone(number)[0];
-    const en = e164Number.replace("+", "%2B");
+    const en = number.replace("+", "%2B");
     try {
       const url = `${this.apiUrl}/numbers?token=${this.token}&filter=@.spec.location.telUrl=='tel:${en}'`;
       const response = await axios.get(url);

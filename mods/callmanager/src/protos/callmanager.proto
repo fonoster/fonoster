@@ -1,6 +1,6 @@
 /**
  * MIT License
- * Copyright (c) 2020 Fonoster Inc
+ * Copyright (c) 2021 Fonoster Inc
  *
  * The CallMananger proto contains the artificats for the call mananger
  * such as creation and deployment.
@@ -17,17 +17,14 @@ service CallManager {
 message CallRequest {
   // Origination number
   string from = 1;
-
   // Destination number
   string to = 2;
-
   // Level of detail of the individual entities
-  string app = 3;
+  string webhook = 3;
+  // If enabled it will accept any input in the from and to
+  bool ignore_e164_validation = 4;
 }
 
 message CallResponse {
-  string from = 1;
-  string to = 2;
-  string app = 3;
-  int32 duration = 4;
+  int32 duration = 1;
 }

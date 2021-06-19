@@ -1,5 +1,3 @@
-import {FuncsPB} from "./funcs";
-
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -18,6 +16,8 @@ import {FuncsPB} from "./funcs";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {FuncsPB} from "./funcs";
+
 export class DeployStream {
   stream: any;
   constructor(stream) {

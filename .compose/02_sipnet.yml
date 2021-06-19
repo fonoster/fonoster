@@ -12,6 +12,8 @@ services:
       BIND_ADDR: 0.0.0.0
       RECORD_ROUTE: 'true'
       REGISTRAR_INTF: Internal
+      # Setting this to true is breaking the routing workflow in Routr
+      EX_CONVERT_TEL_TO_E164: 'false'
     ports:
       - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
     healthcheck:

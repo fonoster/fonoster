@@ -1,8 +1,8 @@
 FROM fonoster/base
 COPY . /scripts
 RUN ./install.sh
-RUN alias run="run_funcs" \
-  && alias healthcheck="healthcheck_funcs"
+RUN link /usr/bin/run_funcs /usr/bin/run \
+  && link /usr/bin/healthcheck_funcs /usr/bin/healthcheck
 USER root
 HEALTHCHECK --interval=30s \
   --timeout=30s \

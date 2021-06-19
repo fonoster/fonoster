@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import VoiceEvents from "./events";
 import HangupVerb from "./hangup/hangup";
 import UnmuteVerb from "./unmute/unmute";
 import GatherVerb, {GatherOptions} from "./gather/gather";
@@ -25,9 +24,10 @@ import PlayVerb, {PlayOptions} from "./play/play";
 import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
 import {PlaybackControl} from "./playback/playback";
 import {SayOptions} from "./say/types";
-import {VoiceEventData, VoiceRequest} from "./types";
+import {VoiceRequest} from "./types";
 import {Plugin} from "@fonos/common";
 import {assertPluginExist} from "./asserts";
+import PubSub from "pubsub-js";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -47,19 +47,16 @@ import {assertPluginExist} from "./asserts";
  */
 export default class {
   request: VoiceRequest;
-  events: VoiceEvents;
   plugins: {};
 
   /**
    * Constructs a new VoiceResponse object.
    *
    * @param {VoiceRequest} request - Options to indicate the objects endpoint
-   * @param {VoiceEvents} events - Events observer
    * @see module:core:FonosService
    */
-  constructor(request: VoiceRequest, events: VoiceEvents) {
+  constructor(request: VoiceRequest) {
     this.request = request;
-    this.events = events;
     this.plugins = {};
   }
 
@@ -68,9 +65,9 @@ export default class {
    *
    * @param plugin
    * @see GoogleTTS
-   * @see MaryTTS
+   * @see GoogleASR
    */
-  use(plugin: Plugin) {
+  use(plugin: Plugin): void {
     this.plugins[plugin.getType()] = plugin;
   }
 
@@ -87,11 +84,11 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav");
+   *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
-  async play(media: string, options?: PlayOptions) {
-    await new PlayVerb(this.request, this.events).run(media, options);
+  async play(media: string, options?: PlayOptions): Promise<void> {
+    await new PlayVerb(this.request).run(media, options);
   }
 
   /**
@@ -113,22 +110,26 @@ export default class {
    *   await response.say("Hello workd");   // Plays the sound using GoogleTTS's default values
    * }
    */
-  async say(text: string, options?: SayOptions) {
+  async say(text: string, options?: SayOptions): Promise<void> {
     assertPluginExist(this, "tts");
     const tts = this.plugins["tts"];
     // It should return the filename and the generated file location
     const result = await tts.synthetize(text, options);
     const media = `sound:${this.request.selfEndpoint}/tts/${result.filename}`;
-    await new PlayVerb(this.request, this.events).run(media, options);
+    await new PlayVerb(this.request).run(media, options);
   }
 
   /**
-   * Waits for data entry from the user's keypad.
+   * Waits for data entry from the user's keypad or from a speech provider.
    *
    * @param {GatherOptions} options - Options to select the maximum number of digits, final character, and timeout
    * @param {number} options.numDigits - Milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
    * @param {number} options.timeout - Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
    * @param {string} options.finishOnKey - Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits
+   * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
+   * when including the `speech` option. You might inclue both with `dtmf,speech`. Defaults to `dtmf`
+   * @note When including `speech` the default timeout is 10000 (10s).
+   * @see SpeechProvider
    * @example
    *
    * async function handler (request, response) {
@@ -136,8 +137,13 @@ export default class {
    *   console.log("digits: " + digits);
    * }
    */
-  async gather(options: GatherOptions) {
-    await new GatherVerb(this.request, this.events).run(options);
+  async gather(options: GatherOptions): Promise<string> {
+    let asr = null;
+    if (options.source.includes("speech")) {
+      assertPluginExist(this, "asr");
+      asr = this.plugins["asr"];
+    }
+    return await new GatherVerb(this.request, asr).run(options);
   }
 
   /**
@@ -155,7 +161,7 @@ export default class {
    *        : await control.forward()
    *   })
    *
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
+   *   await response.play("https://soundsserver:9000/sounds/hello-world.wav", {
    *      playbackId: "1234"
    *   });
    * }
@@ -165,53 +171,27 @@ export default class {
   }
 
   /**
-   * Listens for DtmfReceived events.
+   * Listens event publication.
    *
    * @param {Function} handler - Event handler
    * @example
    *
    * async function handler (request, response) {
-   *   response.onDtmfReceived(async(digit) => {
+   *   response.on("DtmfReceived", async(digit) => {
    *      const control = response.playback("1234")
    *      digit === "3"
    *        ? await control.restart()
    *        : await control.forward()
    *   })
    *
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
+   *   await response.play("https://soundsserver:9000/sounds/hello-world.wav", {
    *      playbackId: "1234"
    *   });
    * }
    */
-  async onDtmfReceived(handler: Function) {
-    this.events.subscribe(async (event: VoiceEventData) => {
-      if (event.type === "DtmfReceived") {
-        await handler(event);
-      }
-    });
-  }
-
-  /**
-   * Listens for PlaybackFinished events.
-   *
-   * @param {Function} handler - Event handler
-   * @example
-   *
-   * async function handler (request, response) {
-   *   response.onPlaybackFinished(async(event) => {
-   *      console.log(event.data)     // Returns playbackId
-   *   })
-   *
-   *   await response.play("https://soundsserver:900/sounds/hello-world.wav", {
-   *      playbackId: "1234"
-   *   });
-   * }
-   */
-  async onPlaybackFinished(handler: Function) {
-    this.events.subscribe(async (event: VoiceEventData) => {
-      if (event.type === "PlaybackFinished") {
-        await handler(event.data);
-      }
+  async on(topic: string, handler: Function) {
+    PubSub.subscribe(`${topic}.${this.request.sessionId}`, (type, data) => {
+      handler(data);
     });
   }
 
@@ -227,8 +207,8 @@ export default class {
    *   await response.mute();       // Will mute both directions
    * }
    */
-  async mute(options?: MuteOptions) {
-    await new MuteVerb(this.request, this.events).run(options);
+  async mute(options?: MuteOptions): Promise<void> {
+    await new MuteVerb(this.request).run(options);
   }
 
   /**
@@ -243,8 +223,8 @@ export default class {
    *   await response.unmute({direction: "out"});       // Will unmute only the "out" direction
    * }
    */
-  async unmute(options?: MuteOptions) {
-    await new UnmuteVerb(this.request, this.events).run(options);
+  async unmute(options?: MuteOptions): Promise<void> {
+    await new UnmuteVerb(this.request).run(options);
   }
 
   /**
@@ -256,8 +236,8 @@ export default class {
    *   await response.hangup();
    * }
    */
-  async hangup() {
-    await new HangupVerb(this.request, this.events).run();
+  async hangup(): Promise<void> {
+    await new HangupVerb(this.request).run();
   }
 
   /**
@@ -278,6 +258,6 @@ export default class {
    * }
    */
   async record(options: RecordOptions): Promise<RecordResult> {
-    return await new RecordVerb(this.request, this.events).run(options);
+    return await new RecordVerb(this.request).run(options);
   }
 }

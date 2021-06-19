@@ -16,67 +16,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {SpeechProvider} from "@fonos/common";
 import merge from "deepmerge";
-import {
-  assertsFinishOnKeyIsChar,
-  assertsValueIsPositive,
-  assertsValuesIsZeroOrGreater
-} from "../asserts";
-import {VoiceEventData} from "../types";
+import {assertsFinishOnKeyIsChar, assertsValueIsPositive} from "../asserts";
+import {VoiceRequest} from "../types";
 import {Verb} from "../verb";
 import {assertsHasNumDigitsOrTimeout} from "./asserts";
+import waitForDtmf from "./source_dtmf";
+import waitForSpeech from "./source_speech";
 import {GatherOptions} from "./types";
+import logger from "@fonos/logger";
 
 const defaultOptions: GatherOptions = {
   timeout: 4000,
-  finishOnKey: "#"
+  finishOnKey: "#",
+  source: "dtmf"
 };
 
 export default class GatherVerb extends Verb {
-  run(opts: GatherOptions): Promise<string> {
+  speechProvider: SpeechProvider;
+  constructor(request: VoiceRequest, speechProvider?: SpeechProvider) {
+    super(request);
+    this.speechProvider = speechProvider;
+  }
+
+  async run(opts: GatherOptions): Promise<string> {
     const options = merge(defaultOptions, opts);
 
     assertsHasNumDigitsOrTimeout(options);
-    assertsValuesIsZeroOrGreater("timeout", options.timeout);
+    // assertsValuesIsZeroOrGreater("timeout", options.timeout);
     assertsValueIsPositive("numDigits", options.numDigits);
     assertsFinishOnKeyIsChar(options.finishOnKey);
 
+    if (options.source.includes("speech")) options.timeout = 10000;
+
     return new Promise(async (resolve, reject) => {
-      try {
-        let timer;
-        let digits = "";
+      if (options.source.includes("dtmf")) {
+        logger.verbose("@fonos/voice enabled dtmf source");
+        waitForDtmf(this.request.sessionId, options)
+          .then((text) => {
+            resolve(text);
+            logger.verbose("@fonos/voice result resolved from dtmf source");
+          })
+          .catch((e) => {
+            reject(e);
+          });
+      }
 
-        if (options.timeout) {
-          timer = setTimeout(() => {
-            resolve(digits);
-          }, options.timeout);
-        }
-
-        this.events.subscribe((event: VoiceEventData) => {
-          if (event.type === "DtmfReceived") {
-            if (timer) {
-              clearTimeout(timer);
-              timer = setTimeout(() => {
-                resolve(digits);
-              }, options.timeout);
-            }
-            // We don't need to include finishOnKey
-            if (options.finishOnKey != event.data) {
-              digits += event.data;
-            }
-          } else {
-            reject("Unexpected event: " + event.type);
-          }
-
-          if (
-            digits.length >= options.numDigits ||
-            event.data === options.finishOnKey
-          ) {
-            resolve(digits);
-          }
-        });
-      } catch (e) {
-        reject(e);
+      // TODO: We should explicitly clean this resources if the other "source"
+      // already resolved the request.
+      if (options.source.includes("speech")) {
+        logger.verbose("@fonos/voice enabled speech source");
+        waitForSpeech(
+          this.request.sessionId,
+          options,
+          super.getSelf(),
+          this.speechProvider
+        )
+          .then((text) => {
+            resolve(text);
+            logger.verbose("@fonos/voice result resolved from speech source");
+          })
+          .catch((e) => {
+            reject(e);
+          });
       }
     });
   }

@@ -23,9 +23,9 @@ describe("@fonos/callmanager", () => {
       CallManagerPB.CallRequest.prototype,
       "setTo"
     );
-    const setAppStub = sandbox.stub(
+    const setWebhookStub = sandbox.stub(
       CallManagerPB.CallRequest.prototype,
-      "setApp"
+      "setWebhook"
     );
 
     const initStub = sandbox.stub(FonosService.prototype, "init").returns();
@@ -36,9 +36,6 @@ describe("@fonos/callmanager", () => {
           return {
             sendMessage: () =>
               Promise.resolve({
-                getFrom: () => "9102104343",
-                getTo: () => "17853178070",
-                getApp: () => "default",
                 getDuration: () => 20
               })
           };
@@ -50,19 +47,18 @@ describe("@fonos/callmanager", () => {
     const result = await callManager.call({
       from: "9102104343",
       to: "17853178070",
-      app: "default"
+      webhook: "http://voiceaps.acme.com/myvoiceapp"
     });
 
     expect(setFromStub).to.be.calledOnceWith("9102104343");
     expect(setToStub).to.be.calledOnceWith("17853178070");
-    expect(setAppStub).to.be.calledOnceWith("default");
+    expect(setWebhookStub).to.be.calledOnceWith(
+      "http://voiceaps.acme.com/myvoiceapp"
+    );
     expect(initStub).to.be.calledOnce;
     // Once in the constructor and one in the call function
     expect(serviceStub).to.be.calledTwice;
     expect(callStub).to.be.calledOnce;
-    expect(result).to.have.property("from").to.be.equal("9102104343");
-    expect(result).to.have.property("to").to.be.equal("17853178070");
-    expect(result).to.have.property("app").to.be.equal("default");
     expect(result).to.have.property("duration").not.to.be.null;
   });
   /*

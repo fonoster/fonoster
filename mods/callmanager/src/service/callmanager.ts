@@ -24,6 +24,7 @@ import {EndpointInfo} from "../client/types";
 import originate from "./call";
 import {ICallManagerServer} from "./protos/callmanager_grpc_pb";
 import logger from "@fonos/logger";
+import {FonosError} from "@fonos/errors";
 
 class CallManagerServer implements ICallManagerServer {
   async call(
@@ -37,17 +38,26 @@ class CallManagerServer implements ICallManagerServer {
 
     const domain = await getDomainByNumber(call.request.getFrom());
 
-    logger.debug("@core/callmanager call [originating call]");
-    logger.debug(
+    logger.verbose("@core/callmanager call [originating call]");
+    logger.verbose(
       `@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`
     );
-    logger.debug(
+    logger.verbose(
       `@core/callmanager call [ari username ${process.env.MS_ARI_USERNAME}]`
     );
-    logger.debug(
+    logger.verbose(
       `@core/callmanager call [endpoint ${process.env.MS_TRUNK}/${process.env.MS_CONTEXT}/${process.env.MS_EXTENSION}]`
     );
-    logger.debug(`@core/callmanager call [domain ${domain}]`);
+    logger.verbose(`@core/callmanager call [domain ${domain}]`);
+
+    if (!domain) {
+      callback(
+        new FonosError(
+          `No domain found for ${call.request.getFrom()}. Please make sure the Number is assigned to a Domain.`
+        ),
+        null
+      );
+    }
 
     try {
       const epInfo: EndpointInfo = {

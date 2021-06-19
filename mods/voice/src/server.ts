@@ -18,18 +18,17 @@
  */
 import {ServerConfig} from "./types";
 import VoiceResponse from "./voice";
-import VoiceEvents from "./events";
 import logger from "@fonos/logger";
 import express from "express";
 import {join} from "path";
 import fs from "fs";
 import {Plugin} from "@fonos/common";
+import PubSub from "pubsub-js";
 const merge = require("deepmerge");
 const app = express();
 app.use(express.json());
 require("express-ws")(app);
 
-const voiceEvents = new VoiceEvents();
 const defaultServerConfig: ServerConfig = {
   base: "/",
   port: 3000,
@@ -75,14 +74,16 @@ export default class VoiceServer {
     });
 
     app.post(this.config.base, async (req, res) => {
-      const response = new VoiceResponse(req.body, voiceEvents);
+      const response = new VoiceResponse(req.body);
       response.plugins = this.plugins;
       await handler(req.body, response);
       res.end();
     });
+
     logger.info(
       `starting voice server on @ ${this.config.bind}, port=${this.config.port}`
     );
+
     app.listen(port, this.config.bind);
   }
 
@@ -90,8 +91,16 @@ export default class VoiceServer {
     logger.info(`initializing voice server`);
     app.ws(this.config.base, (ws) => {
       ws.on("message", (msg) => {
-        voiceEvents.broadcast(msg);
-      });
+        if (Buffer.isBuffer(msg)) {
+          const sessionId = msg.toString("utf-8", 0, 12);
+          const mediaData = msg.slice(12);
+          PubSub.publish(`media.${sessionId}`, mediaData);
+        } else {
+          const event = JSON.parse(msg);
+          PubSub.publish(`${event.type}.${event.sessionId}`, event);
+          logger.verbose("@fonos/voice received event => ", event);
+        }
+      }).on("error", console.error);
     });
   }
 }

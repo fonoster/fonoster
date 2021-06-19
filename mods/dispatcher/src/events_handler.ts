@@ -32,24 +32,50 @@ export default function (err, client) {
   if (err) throw err;
 
   client.on("StasisStart", async (event, channel) => {
+    let didInfo;
+
+    try {
+      didInfo = await channel.getChannelVar({
+        channelId: channel.id,
+        variable: "DID_INFO"
+      });
+    } catch (e) {
+      if (e.message && e.message.includes("variable was not found")) {
+        logger.verbose(
+          `@fonos/dispatcher DID_INFO variable not found [ignoring event]`
+        );
+      }
+      return;
+    }
+
     const auth = new Auth();
     const numbers = new Numbers();
     const sessionId = event.channel.id;
 
-    const didInfo = await channel.getChannelVar({
-      channelId: channel.id,
-      variable: "DID_INFO"
-    });
     const ingressInfo = await numbers.getIngressInfo({
       e164Number: didInfo.value
     });
 
-    logger.debug(`@fonos/dispatcher statis start [channelId = ${channel.id}]`);
-    logger.debug(
+    let webhook = ingressInfo.webhook;
+
+    try {
+      // If this variable exist it then we need overwrite the webhook
+      webhook = await channel.getChannelVar({
+        channelId: channel.id,
+        variable: "WEBHOOK"
+      });
+    } catch (e) {
+      // Nothing further needs to happen
+    }
+
+    logger.verbose(
+      `@fonos/dispatcher statis start [channelId = ${channel.id}]`
+    );
+    logger.verbose(
       `@fonos/dispatcher statis start [e164Number = ${didInfo.value}]`
     );
-    logger.debug(
-      `@fonos/dispatcher statis start [webhook = ${ingressInfo.webhook}, accessKeyId = ${ingressInfo.accessKeyId}]`
+    logger.verbose(
+      `@fonos/dispatcher statis start [webhook = ${webhook}, accessKeyId = ${ingressInfo.accessKeyId}]`
     );
 
     const access = await auth.createNoAccessToken({
@@ -65,7 +91,7 @@ export default function (err, client) {
       number: didInfo.value,
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number,
-      selfEndpoint: ingressInfo.webhook
+      selfEndpoint: webhook
     };
 
     logger.verbose(
@@ -75,13 +101,13 @@ export default function (err, client) {
     );
 
     attachToEvents({
-      url: ingressInfo.webhook,
+      url: webhook,
       accessKeyId: ingressInfo.accessKeyId,
       sessionId,
       client,
       channel
     });
-    await sendCallRequest(ingressInfo.webhook, request);
+    await sendCallRequest(webhook, request);
   });
 
   client.on("StasisEnd", (event, channel) => {

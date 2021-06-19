@@ -1,6 +1,7 @@
 {
   "name": "root",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "services": "cross-env NODE_ENV=dev nodemon ./run_services",
     "dispatcher": "cross-env NODE_ENV=dev nodemon ./run_dispatcher",
@@ -12,7 +13,7 @@
     "clean": "rimraf .nyc_output **/*/tsconfig.tsbuildinfo dist coverage **/*/dist **/*/node_modules \"node_modules/!(rimraf|.bin)\"",
     "gen-protos": "./etc/gen_code_proto.sh",
     "gen-docs": "node ./etc/gen_docs.js",
-    "lint": "eslint mods --ext .ts",
+    "lint": "eslint mods --ext .ts --fix",
     "format": "prettier --write mods",
     "check-types": "tsc --noEmit",
     "postinstall": "husky install"
@@ -38,6 +39,7 @@
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-notice": "^0.9.10",
     "eslint-plugin-prettier": "^3.3.1",
     "grpc_tools_node_protoc_ts": "^5.2.2",
     "grpc-tools": "^1.11.1",

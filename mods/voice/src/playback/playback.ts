@@ -23,7 +23,7 @@ import logger from "@fonos/logger";
 export class PlaybackControl extends Verb {
   playbackId: string;
   constructor(request: VoiceRequest, playbackId: string) {
-    super(request, null);
+    super(request);
     this.playbackId = playbackId;
   }
 

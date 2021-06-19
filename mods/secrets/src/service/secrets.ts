@@ -51,7 +51,7 @@ class SecretServer implements ISecretsServer {
       );
 
       const response = new ListSecretIdResponse();
-      response.setNameList(result.secrets);
+      response.setSecretsList(result.secrets);
 
       if (result.pageToken) response.setNextPageToken("" + result.pageToken);
       callback(null, response);

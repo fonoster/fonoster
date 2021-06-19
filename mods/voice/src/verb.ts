@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import axios from "axios";
-import VoiceEvents from "./events";
 import {VoiceRequest} from "./types";
 import logger from "@fonos/logger";
 
@@ -31,10 +30,12 @@ const auth =
 
 export class Verb {
   request: VoiceRequest;
-  events: VoiceEvents;
-  constructor(request: VoiceRequest, events: VoiceEvents) {
+  constructor(request: VoiceRequest) {
     this.request = request;
-    this.events = events;
+  }
+
+  getSelf() {
+    return this;
   }
 
   getRequest(): VoiceRequest {

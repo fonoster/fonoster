@@ -22,6 +22,7 @@ import {AttachToEventsRequest, CallRequest} from "./types";
 import axios from "axios";
 import logger from "@fonos/logger";
 import WebSocket from "ws";
+import UDPMediaReceiver from "./udp_media_receiver";
 
 const attachToDtmfReceived = (ws, channel) => {
   logger.verbose(`@fonos/dispatcher attaching to dtmf received event`);
@@ -68,6 +69,54 @@ const attachToPlaybackFinished = (ws, client, sessionId) => {
         data: playback.id
       })
     );
+  });
+};
+
+const attachToSendExternalMedia = (
+  ws,
+  client,
+  sessionId,
+  udpServer,
+  address
+) => {
+  logger.verbose(`@fonos/dispatcher sending udp to external receiver`);
+
+  client.on("ChannelUserevent", async (event) => {
+    logger.debug(`@fonos/dispatcher send external media`);
+
+    if (ws.readyState !== WebSocket.OPEN) {
+      logger.warn(
+        `@fonos/dispatcher ignoring socket request on lost connection`
+      );
+      return;
+    }
+
+    const bridge = client.Bridge();
+
+    bridge.on("BridgeDestroyed", (event) => {
+      // Do something with this!
+    });
+
+    await bridge.create({type: "mixing"});
+    bridge.addChannel({channel: sessionId});
+
+    const externalChannel = client.Channel();
+
+    externalChannel.on("StasisStart", (event, chan) => {
+      bridge.addChannel({channel: chan.id});
+    });
+
+    externalChannel.on("StasisEnd", (event, chan) => {});
+
+    udpServer.getServer().on("data", (data) => {
+      ws.send(Buffer.concat([Buffer.from(sessionId), data]));
+    });
+
+    await externalChannel.externalMedia({
+      app: "mediacontroller",
+      external_host: address,
+      format: "slin16"
+    });
   });
 };
 
@@ -149,8 +198,21 @@ export const attachToEvents = (request: AttachToEventsRequest) => {
   logger.verbose(`@fonos/dispatcher connecting websocket @ mediacontroller`);
   const wsClient = new WebSocket(request.url);
 
+  const getRandomPort = () => Math.floor(Math.random() * (6000 - 5060)) + 10000;
+  const address = `0.0.0.0:${getRandomPort()}`;
+
+  // WARNING: Harcoded address
+  const udpServer = new UDPMediaReceiver(address, true);
+
   wsClient.on("open", () => {
     attachToDtmfReceived(wsClient, request.channel);
+    attachToSendExternalMedia(
+      wsClient,
+      request.client,
+      request.sessionId,
+      udpServer,
+      address
+    );
     attachToPlaybackFinished(wsClient, request.client, request.sessionId);
     attachToRecordingFinished(
       wsClient,

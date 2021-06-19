@@ -11,8 +11,10 @@ export class CallRequest extends jspb.Message {
     setFrom(value: string): CallRequest;
     getTo(): string;
     setTo(value: string): CallRequest;
-    getApp(): string;
-    setApp(value: string): CallRequest;
+    getWebhook(): string;
+    setWebhook(value: string): CallRequest;
+    getIgnoreE164Validation(): boolean;
+    setIgnoreE164Validation(value: boolean): CallRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CallRequest.AsObject;
@@ -28,17 +30,12 @@ export namespace CallRequest {
     export type AsObject = {
         from: string,
         to: string,
-        app: string,
+        webhook: string,
+        ignoreE164Validation: boolean,
     }
 }
 
 export class CallResponse extends jspb.Message { 
-    getFrom(): string;
-    setFrom(value: string): CallResponse;
-    getTo(): string;
-    setTo(value: string): CallResponse;
-    getApp(): string;
-    setApp(value: string): CallResponse;
     getDuration(): number;
     setDuration(value: number): CallResponse;
 
@@ -54,9 +51,6 @@ export class CallResponse extends jspb.Message {
 
 export namespace CallResponse {
     export type AsObject = {
-        from: string,
-        to: string,
-        app: string,
         duration: number,
     }
 }

@@ -34,10 +34,10 @@ export namespace ListSecretIdRequest {
 }
 
 export class ListSecretIdResponse extends jspb.Message { 
-    clearNameList(): void;
-    getNameList(): Array<SecretName>;
-    setNameList(value: Array<SecretName>): ListSecretIdResponse;
-    addName(value?: SecretName, index?: number): SecretName;
+    clearSecretsList(): void;
+    getSecretsList(): Array<SecretName>;
+    setSecretsList(value: Array<SecretName>): ListSecretIdResponse;
+    addSecrets(value?: SecretName, index?: number): SecretName;
     getNextPageToken(): string;
     setNextPageToken(value: string): ListSecretIdResponse;
 
@@ -53,7 +53,7 @@ export class ListSecretIdResponse extends jspb.Message {
 
 export namespace ListSecretIdResponse {
     export type AsObject = {
-        nameList: Array<SecretName.AsObject>,
+        secretsList: Array<SecretName.AsObject>,
         nextPageToken: string,
     }
 }

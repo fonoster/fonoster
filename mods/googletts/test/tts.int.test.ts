@@ -1,4 +1,4 @@
-import GoogleTTS from "../src/google_tts";
+import GoogleTTS from "../src/tts";
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";

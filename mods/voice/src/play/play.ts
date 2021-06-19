@@ -21,6 +21,7 @@ import {Verb} from "../verb";
 import {PlayOptions} from "./types";
 import {objectToQString} from "../utils";
 import {assertsValueIsPositive} from "../asserts";
+import PubSub from "pubsub-js";
 
 export default class PlayVerb extends Verb {
   run(media: string, options: PlayOptions = {}): Promise<void> {
@@ -37,16 +38,23 @@ export default class PlayVerb extends Verb {
     };
 
     return new Promise(async (resolve, reject) => {
+      let token;
       try {
         await super.post(
           `channels/${this.request.sessionId}/play`,
           objectToQString(opts)
         );
-        this.events.subscribe((event) => {
-          if (event.type === "PlaybackFinished") resolve(event);
-        });
+
+        token = PubSub.subscribe(
+          `PlaybackFinished.${this.request.sessionId}`,
+          (type, data) => {
+            resolve(data);
+            PubSub.unsubscribe(token);
+          }
+        );
       } catch (e) {
         reject(e);
+        PubSub.unsubscribe(token);
       }
     });
   }

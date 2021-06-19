@@ -8,7 +8,7 @@ on:
     - dev
   #release:
   #  types: [published]
-  #workflow_dispatch:
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -131,3 +131,11 @@ jobs:
         token: ${{ secrets.GH_PAT }}
         ref: main
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing MediaServer Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/mediaserver
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+
