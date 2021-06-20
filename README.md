@@ -2,11 +2,11 @@
 
 ![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/master/repo_banner.jpg)
 
-With Project Fonos, [Fonoster Inc](https://fonoster.com). researches an innovative Programmable Telecommunications Stack that will allow for a completely cloud-based utility for businesses to connect telephony services with the internet.
+With Project Fonos, [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-Project Fonos aims to be a solution for businesses needing to add voice, video, and messaging features to their websites and applications. Businesses are, in most cases, unable to accomplish this independently due to the complexity and number of telephony services involved in the task. Instead, businesses rely on third-party providers that offer software as a service (SaaS) that allow for communication between telephony devices and internet-based API’s, services, etc. 
+Project Fonos aims to solve businesses needing to add voice, video, and messaging features to their websites and applications. Companies are, in most cases, unable to accomplish this independently due to the complexity and number of telephony services involved in the task. Instead, businesses rely on third-party providers that offer software as a service (SaaS) that allows for communication between telephony devices and internet-based APIs, services, etc. 
 
-The primary innovation of Project Fonos lies in researching and developing the means for creating a highly portable, extensible, fully feature, cloud-based Programmable Telecommunications Stack. Using this form of CPaaS, businesses will be able to call up an API to dial, answer a call, establish a video session, send SMS, etc., all with just HTTP requests and without worrying what servers and networks are doing with that information in the background. For Project Fonos to be a viable alternative to existing CPaaS, the system must be portable. Therefore, Project Fonos must take advantage of the various cloud environments such as Kubernetes and AWS ECS to run solutions at scale. Guaranteeing portability for Project Fonos will also mean ensuring the deployability of the system using a "single-click-install" when possible.
+The primary innovation of Project Fonos lies in researching and developing the means for creating a highly portable, extensible, cloud-based Programmable Telecommunications Stack. Using this form of CPaaS, businesses will call up an API to dial, answer a call, establish a video session, send SMS, etc., all with just HTTP requests and without worrying what servers and networks are doing with that information in the background. For Project Fonos to be a viable alternative to existing CPaaS, the system must be portable. Therefore, Project Fonos must take advantage of the various cloud environments such as Kubernetes and AWS ECS to run solutions at scale. Guaranteeing portability for Project Fonos will also mean ensuring the deployability of the system using a "single-click-install" when possible.
 
 ---
 
@@ -26,11 +26,11 @@ The primary innovation of Project Fonos lies in researching and developing the m
 
 ## Architecture 
 
-High level overview
+High-level overview
 
 ![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/dev/docs/assets/images/arquitecture.png)
 
-> Conceptual architecture and stack. Will post more details soon.
+> Conceptual architecture and stack. We will post more details soon.
 
 ## Code Examples
 
@@ -59,7 +59,7 @@ voiceServer.listen((req, res) => {
 // ngrok http 3000
 ```
 
-Everything in PF is an API first and initiaing a call is no exception. You can use the SDK to start a call with a few lines of code.
+Everything in PF is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
 
 Example of originating a call with the SDK:
 
@@ -87,7 +87,7 @@ callManager.call({
 
 ## Bugs and Feedback
 
-For bugs, questions, and discussions please use the [Github Issues](https://github.com/fonoster/fonos/issues)
+For bugs, questions, and discussions, please use the [Github Issues](https://github.com/fonoster/fonos/issues)
 
 ## Contributing
 
@@ -96,7 +96,7 @@ For contributing, please see the following links:
  - [Contribution Documents](https://github.com/fonoster/fonos/blob/master/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonos/contributors)
 
-We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors to learn more](https://github.com/sponsors/psanders).
+We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors learn more](https://github.com/sponsors/psanders).
 
 **Platinum Sponsors**
 
