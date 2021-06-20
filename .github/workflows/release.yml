@@ -105,7 +105,7 @@ jobs:
         workflow: publish to docker hub
         repo: fonoster/uploaderhelper
         token: ${{ secrets.GH_PAT }}
-        ref: master
+        ref: main
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing Config Helper Service
       uses: benc-uk/workflow-dispatch@v1

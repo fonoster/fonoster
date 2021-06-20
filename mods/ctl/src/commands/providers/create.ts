@@ -48,6 +48,12 @@ export default class CreateCommand extends Command {
         name: "expires",
         message: "expire",
         type: "input",
+        validate: (answer: number) => {
+          if (isNaN(answer)) {
+            return "please enter a number";
+          }
+          return true;
+        },
         default: 300
       },
       {
