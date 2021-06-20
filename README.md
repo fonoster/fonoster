@@ -61,6 +61,8 @@ voiceServer.listen((req, res) => {
 
 Everything in PF is an API first and initiaing a call is no exception. You can use the SDK to start a call with a few lines of code.
 
+Example of originating a call with the SDK:
+
 ```typescript
 const Fonos = require("@fonos/sdk").default;
 const callManager = new Fonos.CallManager();
