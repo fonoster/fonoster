@@ -1,6 +1,6 @@
 {
   "name": "@fonos/storage",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.1-alpha.0",
   "description": "Fonos Storage Servoce",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,10 +43,10 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.1.0-alpha.0",
+    "@fonos/auth": "^0.1.1-alpha.0",
     "@fonos/certs": "^0.0.124",
     "@fonos/common": "^0.1.0-alpha.0",
-    "@fonos/core": "^0.1.0-alpha.0",
+    "@fonos/core": "^0.1.1-alpha.0",
     "@fonos/errors": "^0.0.124",
     "@fonos/logger": "^0.0.124",
     "google-protobuf": "^3.17.0",
