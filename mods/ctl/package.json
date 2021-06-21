@@ -40,6 +40,7 @@
       "@oclif/plugin-not-found",
       "@oclif/plugin-warn-if-update-available"
     ],
+    "helpClass": "./dist/help",
     "warn-if-update-available": {
       "timeoutInDays": 1,
       "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
