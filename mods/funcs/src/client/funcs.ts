@@ -286,7 +286,9 @@ export default class Funcs extends FonosService {
 }
 
 export {FuncsPB, CommonPB, buildDeployFuncRequest};
-// WARNING:
-// Workaround to support default interop scenario with ES6/common.js 
-module.exports = Funcs;
 
+// WARNING: Workaround to support commonjs clients
+module.exports = Funcs;
+module.exports.FuncsPB = FuncsPB;
+module.exports.CommonPB = CommonPB;
+module.exports.buildDeployFuncRequest = buildDeployFuncRequest;

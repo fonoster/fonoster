@@ -271,7 +271,8 @@ export default class Providers extends FonosService {
 }
 
 export {ProvidersPB, CommonPB};
-// WARNING:
-// Workaround to support default interop scenario with ES6/common.js 
-module.exports = Providers;
 
+// WARNING: Workaround to support commonjs clients
+module.exports = Providers;
+module.exports.ProvidersPB = ProvidersPB;
+module.exports.CommonPB = CommonPB;

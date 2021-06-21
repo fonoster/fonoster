@@ -146,6 +146,7 @@ export default class Auths extends FonosService {
 }
 
 export {AuthPB};
-// WARNING:
-// Workaround to support default interop scenario with ES6/common.js 
+
+// WARNING: Workaround for support to commonjs clients
 module.exports = Auths;
+module.exports.AuthPB = AuthPB;

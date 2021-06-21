@@ -198,6 +198,8 @@ export default class Secrets extends FonosService {
 }
 
 export {SecretPB, CommonPB};
-// WARNING:
-// Workaround to support default interop scenario with ES6/common.js 
+
+// WARNING: Workaround for support to commonjs clients
 module.exports = Secrets;
+module.exports.SecretPB = SecretPB;
+module.exports.CommonPB = CommonPB;

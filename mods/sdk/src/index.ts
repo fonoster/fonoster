@@ -42,6 +42,6 @@ const Fonos = {
 };
 
 export {Fonos as default};
-// WARNING:
-// Workaround to support default interop scenario with ES6/common.js 
+
+// WARNING: Workaround to support commonjs clients
 module.exports = Fonos;

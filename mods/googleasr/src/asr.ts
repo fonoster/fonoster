@@ -37,7 +37,8 @@ class GoogleASR extends Plugin implements SpeechProvider {
 }
 
 export default GoogleASR;
-// WARNING:
-// Workaround to support default interop scenario with ES6/common.js 
-module.exports = GoogleASR;
 export {GoogleSpeechTracker, GoogleSpeechConfig};
+
+// WARNING: Workaround to support commonjs clients
+module.exports = GoogleASR;
+module.exports.GoogleSpeechTracker = GoogleSpeechTracker;
