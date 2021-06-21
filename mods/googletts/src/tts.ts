@@ -91,3 +91,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
 }
 
 export default GoogleTTS;
+// WARNING:
+// Workaround to support default interop scenario with ES6/common.js 
+module.exports = GoogleTTS;
+

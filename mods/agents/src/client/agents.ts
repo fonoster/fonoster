@@ -248,3 +248,6 @@ export default class Agents extends FonosService {
 }
 
 export {AgentsPB, CommonPB};
+// WARNING:
+// Workaround to support default interop scenario with ES6/common.js 
+module.exports = Agents;

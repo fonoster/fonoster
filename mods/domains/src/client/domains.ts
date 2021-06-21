@@ -285,3 +285,6 @@ export default class Domains extends FonosService {
 }
 
 export {DomainsPB, CommonPB};
+// WARNING:
+// Workaround to support default interop scenario with ES6/common.js 
+module.exports = Domains;
