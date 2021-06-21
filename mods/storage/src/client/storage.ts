@@ -131,4 +131,3 @@ export {StoragePB, CommonPB};
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Storage;
-
