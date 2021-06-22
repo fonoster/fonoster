@@ -1,7 +1,7 @@
 # Env for the various service used by Project Fonos
-CONFIG=
-API_INGRESS_URL=
-HOST_ADDR=
+# CONFIG=
+# API_INGRESS_URL=
+# EXTERN_ADDR=
 
 # Auth service
 AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole

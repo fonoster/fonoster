@@ -10,15 +10,11 @@ services:
     ports:
       - 8080:8080
       - 50051:50051
-  datasource:
-    ports:
-      - ${DS_PORT}:${DS_PORT}
-  fs:
-    ports:
-      - ${FS_PORT}:${FS_PORT}
+
   sipproxy:
     ports:
       - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
+
   mediaserver:
     ports:
       - 6060:6060
