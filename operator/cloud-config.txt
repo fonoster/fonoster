@@ -15,24 +15,26 @@ runcmd:
  - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
  - chmod +x /usr/local/bin/docker-compose
  - docker volume create --name=datasource && docker volume create --name=data1-1
- - git clone https://github.com/fonoster/fonos --depth=1
- - mkdir -p /opt/fonos/services
- - cp fonos/.compose/* /opt/fonos/services
- - cp fonos/.compose/env_example /opt/fonos/services/.env
- - echo "\nCONFIG=/opt/fonos/config" >> /opt/fonos/services/.env
- - echo "EXTERN_ADDR=$(netdiscover -field publicv4)" >> /opt/fonos/services/.env
+ - git clone https://github.com/fonoster/fonos --depth=1 -b dev --single-branch
+ - mkdir -p /opt/fonos/operator
+ - cp -a fonos/operator/compose/* /opt/fonos/operator
+ - cp fonos/operator/compose/env_example /opt/fonos/operator/.env
+ - echo "" >> /opt/fonos/operator/.env
+ - echo "CONFIG=/opt/fonos/config" >> /opt/fonos/operator/.env
+ - echo "EXTERN_ADDR=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
 
  # ATTENTION!
- # If you have a domain, you can replace the public ip with it. 
+ # If you have a domain, you can replace the public IP with it. 
  # For example, in our development server we use API_INGRESS_URL=https://api.fonoster.net
+ # Also, you should update ingress URL with a secured one
 
- - echo "API_INGRESS_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/services/.env
+ - echo "API_INGRESS_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/operator/.env
  - mkdir -p /opt/fonos/config
  - cp fonos/etc/{rbac.json,log4j2.yml,redis.conf,bootstrap.yml} /opt/fonos/config
  - rm -rf fonos
- - cd /opt/fonos/services
+ - cd /opt/fonos/operator
  - docker-compose --env-file .env -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml -f extras/datasource.yml -f extras/fs.yml -f dev.yml up -d
- - sleep 60
+ - sleep 60 
  - docker-compose -f init.yml up -d
 
 final_message: "Cloud init is done!"
