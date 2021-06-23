@@ -34,8 +34,7 @@ runcmd:
  - cp fonos/etc/{certs/ca-key.pem} /opt/fonos/config/certs
  - rm -rf fonos
  - cd /opt/fonos/operator
- - docker-compose --env-file .env -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml -f extras/datasource.yml -f extras/fs.yml -f nonencypt.yml up -d
- - sleep 60 
  - docker-compose -f init.yml up -d
+ - docker-compose --env-file .env -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml -f extras/datasource.yml -f extras/fs.yml -f noencypt.yml up -d
 
 final_message: "Cloud init is done!"
