@@ -29,7 +29,7 @@ services:
         aliases:
           - ${SIPPROXY_HOST}
     volumes:
-      - ${CONFIG}/log4j2.yml:/opt/routr/config/log4j2.yml
+      - ${CONFIG}/log4j2.yml:/opt/routr/config/log4j2.yml:ro
 
   mediaserver:
     image: ${MS_IMAGE}

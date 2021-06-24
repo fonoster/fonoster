@@ -54,8 +54,8 @@ services:
     networks:
       fonos:
     volumes:
-      - ${CONFIG}/config:/home/fonos/.fonos/config
-      - ${CONFIG}/private_key:/home/fonos/.fonos/jwt.salt
+      - ${CONFIG}/config:/home/fonos/.fonos/config:ro
+      - ${CONFIG}/private_key:/home/fonos/.fonos/jwt.salt:ro
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.api

@@ -13,7 +13,7 @@ services:
     ports:
       - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}
     volumes:
-      - ${CONFIG}/fluent.conf:/fluentd/etc/fluent.conf
+      - ${CONFIG}/fluent.conf:/fluentd/etc/fluent.conf:ro
     networks:
       fonos:
         aliases: 

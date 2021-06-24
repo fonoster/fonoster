@@ -6,6 +6,7 @@ ssh_authorized_keys:
 package_update: true
 
 packages:
+ - curl
  - git
  - docker.io 
 
@@ -29,11 +30,13 @@ runcmd:
 
  - echo "API_INGRESS_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/operator/.env
  - mkdir -p /opt/fonos/config
- - touch /opt/fonos/config/config && touch /opt/fonos/config/admin_token
+ - touch /opt/fonos/config/{config,admin_token}
  - cp fonos/etc/{private_key,rbac.json,log4j2.yml,redis.conf,bootstrap.yml} /opt/fonos/config
  - rm -rf fonos
  - cd /opt/fonos/operator
  - docker-compose -f init.yml up service_token admin_token
  - docker-compose --env-file .env -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml -f extras/datasource.yml -f extras/fs.yml -f noencrypt.yml up -d
+ - sleep 60
+ - docker-compose -f init.yml up create_buckets bootstrap_sipnet
 
 final_message: "Cloud init is done!"

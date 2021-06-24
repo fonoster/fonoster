@@ -32,7 +32,7 @@ services:
       exit 0;
       "
     volumes:
-      - ${CONFIG}/bootstrap.yml:/bootstrap.yml
+      - ${CONFIG}/bootstrap.yml:/bootstrap.yml:ro
     networks:
       fonos:
 
