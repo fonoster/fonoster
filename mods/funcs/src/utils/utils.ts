@@ -138,7 +138,8 @@ export const buildFaasDeployParameters = async (params: FuncParameters) => {
     },
     envVars: {
       ACCESS_KEY_ID: params.accessKeyId,
-      ACCESS_KEY_SECRET: await createAccessKeySecret(params.accessKeyId)
+      ACCESS_KEY_SECRET: await createAccessKeySecret(params.accessKeyId),
+      APISERVER_ENDPOINT: process.env.APISERVER_ENDPOINT
     },
     annotations: {
       topic: undefined,
