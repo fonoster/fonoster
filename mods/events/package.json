@@ -1,6 +1,6 @@
 {
   "name": "@fonos/events",
-  "version": "0.1.1-alpha.0",
+  "version": "0.1.2-alpha.0",
   "description": "Fonos events managment",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,7 +29,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.1.1-alpha.0",
+    "@fonos/logger": "^0.1.2-alpha.0",
     "amqp-connection-manager": "^3.2.2",
     "amqplib": "^0.8.0"
   },
