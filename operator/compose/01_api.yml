@@ -28,7 +28,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=internal,websecure"
       - "traefik.http.routers.auth.rule=PathPrefix(`/fonos.auth.v1alpha1`)"
-      - "traefik.http.routers.auth.tls.certresolver=le"
       - "traefik.http.services.auth.loadbalancer.server.scheme=h2c"
     volumes:
       - ${CONFIG}/rbac.json:/home/fonos/rbac.json
