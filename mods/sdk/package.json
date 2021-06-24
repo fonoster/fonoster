@@ -34,7 +34,7 @@
     "@fonos/callmanager": "^0.1.1-alpha.0",
     "@fonos/domains": "^0.1.1-alpha.0",
     "@fonos/funcs": "^0.1.1-alpha.0",
-    "@fonos/logger": "^0.0.124",
+    "@fonos/logger": "^0.1.1-alpha.0",
     "@fonos/numbers": "^0.1.1-alpha.0",
     "@fonos/providers": "^0.1.1-alpha.0",
     "@fonos/secrets": "^0.1.1-alpha.0",
