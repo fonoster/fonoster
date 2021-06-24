@@ -37,21 +37,31 @@ services:
       fonos:
 
   service_token:
-    image: fonoster/jwt-helper
+    image: fonoster/jwthelper
     environment:
       ACCESS_KEY_ID: internal
-      PRINT_ACCESS_INFO: "true"
       ROLE: SERVICE
-    networks:
-      fonos:
+      EXPIRATION: 1y
+    volumes:
+      - type: bind
+        source: ${CONFIG}/private_key
+        target: /home/fonos/private_key
+        read_only: true
+      - type: bind
+        source: ${CONFIG}/config
+        target: /home/fonos/config
 
   admin_token:
-    image: fonoster/jwt-helper
+    image: fonoster/jwthelper
     environment:
       ACCESS_KEY_ID: admin
-      PRINT_ACCESS_INFO: "true"
-      ROLE: ADMIN
+      ROLE: USER
+      EXPIRATION: 1y
     volumes:
-      - ${CONFIG}/private.key:/home/fonos/.fonos/jwt.salt
-    networks:
-      fonos:
+      - type: bind
+        source: ${CONFIG}/private_key
+        target: /home/fonos/private_key
+        read_only: true
+      - type: bind
+        source: ${CONFIG}/admin_token
+        target: /home/fonos/config

@@ -28,5 +28,5 @@ services:
         aliases: 
           - ${DS_HOST}
     volumes: 
-      - ${CONFIG}/redis.conf:/etc/redis/redis.conf
+      - ${CONFIG}/redis.conf:/etc/redis/redis.conf:ro
       - datasource:/data
