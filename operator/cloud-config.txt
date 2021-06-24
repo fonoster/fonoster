@@ -29,12 +29,12 @@ runcmd:
  # Also, you should update ingress URL with a secured one
 
  - echo "API_INGRESS_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/operator/.env
- - mkdir -p /opt/fonos/config
- - cp fonos/etc/{rbac.json,log4j2.yml,redis.conf,bootstrap.yml} /opt/fonos/config
+ - mkdir -p /opt/fonos/config/certs
+ - cp fonos/etc/{config,rbac.json,log4j2.yml,redis.conf,bootstrap.yml} /opt/fonos/config
+ - cp fonos/etc/{certs/ca-key.pem} /opt/fonos/config/certs
  - rm -rf fonos
  - cd /opt/fonos/operator
- - docker-compose --env-file .env -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml -f extras/datasource.yml -f extras/fs.yml -f dev.yml up -d
- - sleep 60 
  - docker-compose -f init.yml up -d
+ - docker-compose --env-file .env -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml -f extras/datasource.yml -f extras/fs.yml -f noencypt.yml up -d
 
 final_message: "Cloud init is done!"

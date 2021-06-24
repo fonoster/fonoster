@@ -22,8 +22,6 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    ports:
-      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
     networks:
       fonos:
         aliases: 

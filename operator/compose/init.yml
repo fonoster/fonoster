@@ -39,11 +39,9 @@ services:
   service_token:
     image: fonoster/jwt-helper
     environment:
-      ACCESS_KEY_ID: service
+      ACCESS_KEY_ID: internal
       PRINT_ACCESS_INFO: "true"
       ROLE: SERVICE
-    volumes:
-      - ${CONFIG}/bootstrap.yml:/bootstrap.yml
     networks:
       fonos:
 
@@ -51,8 +49,8 @@ services:
     image: fonoster/jwt-helper
     environment:
       ACCESS_KEY_ID: admin
-      ROLE: ADMIN
       PRINT_ACCESS_INFO: "true"
+      ROLE: ADMIN
     volumes:
       - ${CONFIG}/private.key:/home/fonos/.fonos/jwt.salt
     networks:
