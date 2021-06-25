@@ -25,7 +25,8 @@ runcmd:
  - echo "EXTERN_ADDR=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
 
  # ATTENTION!
- # If you have a domain, you can replace the public IP with it. 
+ # Before going on production you should replace the API_INGRESS_URL to use your domain instead
+ # of the default parameter (which uses your public ip address)
  # For example, in our development server we use API_INGRESS_URL=https://api.fonoster.net
 
  - echo "API_INGRESS_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/operator/.env

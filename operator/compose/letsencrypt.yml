@@ -26,6 +26,6 @@ services:
     image: containous/whoami
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dummy_service.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.dummy_service.rule=Host(`${API_INGRESS_URL}`)"
       - "traefik.http.routers.dummy_service.entrypoints=websecure"
       - "traefik.http.routers.dummy_service.tls.certresolver=le"
