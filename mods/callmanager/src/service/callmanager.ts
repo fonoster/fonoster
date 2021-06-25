@@ -38,10 +38,10 @@ class CallManagerServer implements ICallManagerServer {
     const domain = await getDomainByNumber(call.request.getFrom());
    
     const domainUri : string = domain.spec.context.domainUri;
-    const access_key_id = call.metadata.get("access_key_id")[0];
-    const access_key_id_domain = domain.metadata.accessKeyId;
+    const accessKeyId = call.metadata.get("access_key_id")[0];
+    const accessKeyIdDomain = domain.metadata.accessKeyId;
 
-    if(access_key_id_domain != access_key_id){
+    if(accessKeyIdDomain != accessKeyId){
       callback(
         new FonosError(
           `No Number found`
