@@ -13,9 +13,9 @@ services:
       RECORD_ROUTE: "true"
       REGISTRAR_INTF: Internal
       EX_RTP_ENGINE_ENABLED: "true"
-      EX_RTP_ENGINE_PROTO: https
-      EX_RTP_ENGINE_HOST: api.fonoster.io
-      EX_RTP_ENGINE_PORT: 443
+      EX_RTP_ENGINE_PROTO: http
+      EX_RTP_ENGINE_HOST: ${API_EXTERNAL_HOST}
+      EX_RTP_ENGINE_PORT: 8080
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: 'false'
     ports:
@@ -35,6 +35,25 @@ services:
     volumes:
       - ${CONFIG}/log4j2.yml:/opt/routr/config/log4j2.yml:ro
 
+  # Before you start this in production you should limit the traffic to port 8080 
+  # to only internal to avoid denial of service on RTPEngine.
+  rtpengine:
+    image: psanders/rtpengine:latest
+    restart: ${RESTART_POLICY}  
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rtpengine.entrypoints=internal,websecure"
+      - "traefik.http.routers.rtpengine.rule=PathPrefix(`/ng`)"
+      - "traefik.http.services.rtpengine.loadbalancer.server.port=8080"
+    # Network hostmode seems to only work in Linux systems
+    network_mode: "host"
+    environment:
+      # This will fail if network_mode != host
+      PUBLIC_IP: ${EXTERN_ADDR}
+      PORT_MIN: 20000
+      PORT_MAX: 21000
+      LOG_LEVEL: '6'
+
   mediaserver:
     image: ${MS_IMAGE}
     restart: ${RESTART_POLICY}
@@ -48,7 +67,7 @@ services:
       - "traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}"
     environment:
       APISERVER_ENDPOINT: ${AS_HOST}:50051
-      ARI_EXTERNAL_URL: ${API_INGRESS_URL}
+      ARI_EXTERNAL_URL: ${API_EXTERNAL_PROTO}://${API_EXTERNAL_HOST}:${API_EXTERNAL_PORT}
       ARI_INTERNAL_URL: ${MS_ARI_INTERNAL_URL}
       ARI_USERNAME: ${MS_ARI_USERNAME}
       ARI_SECRET: ${MS_ARI_SECRET}

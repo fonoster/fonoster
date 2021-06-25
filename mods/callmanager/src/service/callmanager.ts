@@ -31,7 +31,8 @@ const getDomainByNumber = async (e164Number: string) => {
   return await routr.getDomainUriFromNumber(e164Number);
 };
 
-const numberNotInList = number => `The number '${number}' is not assigned to one of your domains. Make sure the number exist and is assigned to a Domain`
+const numberNotInList = (number) =>
+  `The number '${number}' is not assigned to one of your domains. Make sure the number exist and is assigned to a Domain`;
 
 class CallManagerServer implements ICallManagerServer {
   async call(
@@ -43,11 +44,8 @@ class CallManagerServer implements ICallManagerServer {
     const domain = await getDomainByNumber(call.request.getFrom());
 
     if (!domain) {
-      callback(
-        new FonosError(numberNotInList(call.request.getFrom())),
-        null
-      );
-      return
+      callback(new FonosError(numberNotInList(call.request.getFrom())), null);
+      return;
     }
 
     logger.verbose(`@core/callmanager call [domain ${JSON.stringify(domain)}]`);
@@ -63,9 +61,11 @@ class CallManagerServer implements ICallManagerServer {
     logger.verbose(
       `@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`
     );
+    
     logger.verbose(
       `@core/callmanager call [ari username ${process.env.MS_ARI_USERNAME}]`
     );
+
     logger.verbose(
       `@core/callmanager call [endpoint ${process.env.MS_TRUNK}/${process.env.MS_CONTEXT}/${process.env.MS_EXTENSION}]`
     );
