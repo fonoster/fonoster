@@ -10,8 +10,12 @@ services:
       DATA_SOURCE_PROVIDER: redis_data_provider
       DATA_SOURCE_PARAMETERS: host=${DS_HOST},port=${DS_PORT},secret=${DS_SECRET}
       BIND_ADDR: 0.0.0.0
-      RECORD_ROUTE: 'true'
+      RECORD_ROUTE: "true"
       REGISTRAR_INTF: Internal
+      EX_RTP_ENGINE_ENABLED: "true"
+      EX_RTP_ENGINE_PROTO: https
+      EX_RTP_ENGINE_HOST: api.fonoster.io
+      EX_RTP_ENGINE_PORT: 443
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: 'false'
     ports:
