@@ -1,8 +1,9 @@
 # Env for the various service used by Project Fonos
 # CONFIG=/opt/fonos/config
-# DOMAIN=api.fonoster.io
-# API_INGRESS_URL=https://api.fonoster.io
 # EXTERN_ADDR=100.32.122.63
+# API_EXTERNAL_HOST=api.fonoster.io
+# API_EXTERNAL_PROTO=http
+API_EXTERNAL_PORT=50051
 
 # Auth service
 AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole

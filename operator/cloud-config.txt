@@ -25,11 +25,12 @@ runcmd:
  - echo "EXTERN_ADDR=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
 
  # ATTENTION!
- # Before going on production you should replace the API_INGRESS_URL to use your domain instead
- # of the default parameter (which uses your public ip address)
- # For example, in our development server we use API_INGRESS_URL=https://api.fonoster.net
+ # Before going on production you should replace the API_EXTERNAL_HOST to use your domain 
+ # and your API_EXTERNAL_PROTO should be "https". For example, in our development server 
+ # we use API_EXTERNAL_HOST=api.fonoster.net and API_EXTERNAL_PROTO=https
 
- - echo "API_INGRESS_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/operator/.env
+ - echo "API_EXTERNAL_HOST=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
+ - echo "API_EXTERNAL_PROTO=http" >> /opt/fonos/operator/.env
  - mkdir -p /opt/fonos/config
  - touch /opt/fonos/config/{config,admin_token}
  - cp fonos/etc/{private_key,rbac.json,log4j2.yml,redis.conf,bootstrap.yml} /opt/fonos/config
