@@ -61,7 +61,7 @@ class CallManagerServer implements ICallManagerServer {
     logger.verbose(
       `@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`
     );
-    
+
     logger.verbose(
       `@core/callmanager call [ari username ${process.env.MS_ARI_USERNAME}]`
     );
