@@ -26,25 +26,40 @@ import {ICallManagerServer} from "./protos/callmanager_grpc_pb";
 import logger from "@fonos/logger";
 import {FonosError} from "@fonos/errors";
 
+const getDomainByNumber = async (e164Number: string) => {
+  await routr.connect();
+  return await routr.getDomainUriFromNumber(e164Number);
+};
+
+const numberNotInList = number => `The number '${number}' is not assigned to one of your domains. Make sure the number exist and is assigned to a Domain`
+
 class CallManagerServer implements ICallManagerServer {
   async call(
     call: grpc.ServerUnaryCall<CallRequest>,
     callback: grpc.sendUnaryData<CallResponse>
   ) {
-    const getDomainByNumber = async (e164Number: string) => {
-      await routr.connect();
-      return await routr.getDomainUriFromNumber(e164Number);
-    };
+    logger.verbose(`@core/callmanager call [from ${call.request.getFrom()}]`);
+
     const domain = await getDomainByNumber(call.request.getFrom());
+
+    if (!domain) {
+      callback(
+        new FonosError(numberNotInList(call.request.getFrom())),
+        null
+      );
+      return
+    }
+
+    logger.verbose(`@core/callmanager call [domain ${JSON.stringify(domain)}]`);
 
     const domainUri: string = domain.spec.context.domainUri;
     const accessKeyId = call.metadata.get("access_key_id")[0];
     const accessKeyIdDomain = domain.metadata.accessKeyId;
 
     if (accessKeyIdDomain != accessKeyId) {
-      callback(new FonosError(`No Number found`), null);
+      callback(new FonosError(numberNotInList(call.request.getFrom())), null);
     }
-    logger.verbose("@core/callmanager call [originating call]");
+
     logger.verbose(
       `@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`
     );
@@ -54,16 +69,6 @@ class CallManagerServer implements ICallManagerServer {
     logger.verbose(
       `@core/callmanager call [endpoint ${process.env.MS_TRUNK}/${process.env.MS_CONTEXT}/${process.env.MS_EXTENSION}]`
     );
-    logger.verbose(`@core/callmanager call [domain ${domainUri}]`);
-
-    if (!domainUri) {
-      callback(
-        new FonosError(
-          `No domain found for ${call.request.getFrom()}. Please make sure the Number is assigned to a Domain.`
-        ),
-        null
-      );
-    }
 
     try {
       const epInfo: EndpointInfo = {
