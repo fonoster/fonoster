@@ -34,10 +34,21 @@ class CallManagerServer implements ICallManagerServer {
     const getDomainByNumber = async (e164Number: string) => {
       await routr.connect();
       return await routr.getDomainUriFromNumber(e164Number);
-    };
-
+    };        
     const domain = await getDomainByNumber(call.request.getFrom());
+   
+    const domainUri : string = domain.spec.context.domainUri;
+    const access_key_id = call.metadata.get("access_key_id")[0];
+    const access_key_id_domain = domain.metadata.accessKeyId;
 
+    if(access_key_id_domain != access_key_id){
+      callback(
+        new FonosError(
+          `No Number found`
+        ),
+        null
+      );
+    }    
     logger.verbose("@core/callmanager call [originating call]");
     logger.verbose(
       `@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`
@@ -48,9 +59,9 @@ class CallManagerServer implements ICallManagerServer {
     logger.verbose(
       `@core/callmanager call [endpoint ${process.env.MS_TRUNK}/${process.env.MS_CONTEXT}/${process.env.MS_EXTENSION}]`
     );
-    logger.verbose(`@core/callmanager call [domain ${domain}]`);
+    logger.verbose(`@core/callmanager call [domain ${domainUri}]`);
 
-    if (!domain) {
+    if (!domainUri) {
       callback(
         new FonosError(
           `No domain found for ${call.request.getFrom()}. Please make sure the Number is assigned to a Domain.`
@@ -61,7 +72,7 @@ class CallManagerServer implements ICallManagerServer {
 
     try {
       const epInfo: EndpointInfo = {
-        domain,
+        domain: domainUri,
         trunk: process.env.MS_TRUNK,
         context: process.env.MS_CONTEXT,
         extension: process.env.MS_EXTENSION
