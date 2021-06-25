@@ -62,13 +62,13 @@ export default class RoutrClient {
       const url = `${this.apiUrl}/numbers?token=${this.token}&filter=@.spec.location.telUrl=='tel:${en}'`;
       const response = await axios.get(url);
       const numberObj = response.data.data[0];
-      if (numberObj) {
+      if (numberObj) {        
         const url = `${this.apiUrl}/domains?token=${this.token}&filter=@.spec.context.egressPolicy.numberRef=='${numberObj.metadata.ref}'`;
         const res = await axios.get(url);
         const domainObj = res.data.data[0];
 
         if (domainObj) {
-          return domainObj.spec.context.domainUri;
+          return domainObj;
         }
       }
     } catch (err) {
