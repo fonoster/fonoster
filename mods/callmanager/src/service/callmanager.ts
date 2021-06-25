@@ -34,21 +34,16 @@ class CallManagerServer implements ICallManagerServer {
     const getDomainByNumber = async (e164Number: string) => {
       await routr.connect();
       return await routr.getDomainUriFromNumber(e164Number);
-    };        
+    };
     const domain = await getDomainByNumber(call.request.getFrom());
-   
-    const domainUri : string = domain.spec.context.domainUri;
+
+    const domainUri: string = domain.spec.context.domainUri;
     const accessKeyId = call.metadata.get("access_key_id")[0];
     const accessKeyIdDomain = domain.metadata.accessKeyId;
 
-    if(accessKeyIdDomain != accessKeyId){
-      callback(
-        new FonosError(
-          `No Number found`
-        ),
-        null
-      );
-    }    
+    if (accessKeyIdDomain != accessKeyId) {
+      callback(new FonosError(`No Number found`), null);
+    }
     logger.verbose("@core/callmanager call [originating call]");
     logger.verbose(
       `@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`
