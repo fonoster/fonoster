@@ -8,8 +8,9 @@ services:
 
   apiserver:
     ports:
+      # Port for Traefik dashboard
       - 8181:8080
-      - 50051:50051
+      - ${HTTP_PORT}:${HTTP_PORT}
 
   sipproxy:
     ports:

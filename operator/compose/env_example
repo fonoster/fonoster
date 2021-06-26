@@ -1,104 +1,213 @@
-# Env for the various service used by Project Fonos
-# CONFIG=/opt/fonos/config
-# EXTERN_ADDR=100.32.122.63
-# API_EXTERNAL_HOST=api.fonoster.io
-# API_EXTERNAL_PROTO=http
-API_EXTERNAL_PORT=50051
+# shellcheck disable=SC2034
 
-# Auth service
+# Security
+#
+# Set these to strong passwords to avoid intruders from impersonating a service account
+# The service(s) won't start unless these are specified
+# Running ./gen-passwords.sh will update .env with strong passwords
+# DO NOT reuse passwords
+#
+
+# Password for Asterisk ARI API
+MS_ARI_SECRET=
+
+# Username and password base64 encoded for external access to ARI API
+MS_ARI_AUTHORIZATION=
+
+# Password for Minio's clients connections 
+# Note that if you have a managed S3 server(recommended) 
+# you will have to set this manually
+FS_SECRET=
+
+# Password for Routr SIP registrations
+SIPPROXY_SECRET=
+
+# Password for Routr restful API
+SIPPROXY_API_SECRET=
+
+# Password for connections to Redis
+# Note that if you have a managed Redis server(recommended) 
+# you will have to set this manually
+DS_SECRET=
+
+
+#
+# Basic configuration options
+#
+
+# External IP or Domain for your Fonos API (required)
+PUBLIC_URL=htts://api.example.com:50051
+
+# Exposed HTTP port
+HTTP_PORT=50051
+
+# Exposed HTTPS port (required)
+HTTPS_PORT=443
+
+# Directory where all configuration will be stored
+CONFIG=/opt/fonos/config
+
+# IP address of the Docker host
+DOCKER_HOST_ADDRESS=192.168.1.1
+
+# Domain for which to generate the certificate
+#LETSENCRYPT_DOMAIN=api.example.com
+
+# E-Mail for receiving important account notifications (mandatory)
+#LETSENCRYPT_EMAIL=alice@acme.com
+
+# Command separated whitelisted services
 AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole
+
+# Issuer for JWT claims
 AUTH_ISS=fonos
 
-# Docker private registry information
-DOCKER_REGISTRY_ORG=yourorg
-DOCKER_REGISTRY_USERNAME=yourorg
-DOCKER_REGISTRY_SECRET=changeit
-DOCKER_REGISTRY=docker.io
-DOCKER_REGISTRY_SERVICE=registry.docker.io
-DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
-
-# API Server
+# Image for the reverse proxy (Traefik)
 AS_IMAGE=traefik:v2.4
+
+# Hostname for reverse proxy
 AS_HOST=apiserver.fonos
-AS_PORT=443
+
+# Allow non-tls connection (this only applies to internal communication)
 AS_ALLOW_INSECURE=true
 
-# Asterisk based media server
+#
+# Media Server integration (Asterisk)
+#
 MS_IMAGE=fonoster/fonos-mediaserver:latest
 MS_ENDPOINT=sip:ast@node1
 MS_SIP_PORT=6060
-MS_RTP_PORT_START=10000
-MS_RTP_PORT_END=20000
+MS_RTP_PORT_START=20000
+MS_RTP_PORT_END=21000
 MS_TRUNK=routr
 MS_CONTEXT=local-ctx
 MS_EXTENSION=s
 MS_ARI_USERNAME=admin
-MS_ARI_SECRET=changeit
-MS_ARI_AUTHORIZATION=YWRtaW46Y2hhbmdlaXQ=
 MS_ARI_INTERNAL_URL=http://mediaserver:8088
 
-# Redis database
-DS_IMAGE=redis:6.0.3-alpine
-DS_HOST=datasource.fonos
-DS_PORT=6379
-DS_SECRET=changeit
+#
+# Integration with media proxy (RTPEngine) 
+# (required)
+#
+RTPE_HOST=192.168.1.1
+RTPE_PORT=8080
+RTPE_RTP_PORT_START=30000
+RTPE_RTP_PORT_END=31000
 
-# Minio objects storage
+#
+# Integration with S3 server (Minio)
+# We run an S3 server instance based on Minio to help you
+# get started. However, we strongly recommend using a managed
+# S3 service with your prefer cloud service provider
+#
 FS_IMAGE=minio/minio:RELEASE.2020-02-27T00-23-05Z
 FS_HOST=fs.fonos
 FS_PORT=9000
 FS_USERNAME=minio
-FS_SECRET=minio123
-FS_DEFAULT_STORAGE_BUCKET=default
 
-# Routr sip server
+#
+# Database integration (with Redis)
+# Redis at the moment is only used by the SIPProxy
+# We run the database service by default to help you
+# get started. However, we strongly recommend using a managed
+# database.
+#
+DS_IMAGE=redis:6.0.3-alpine
+DS_HOST=datasource.fonos
+DS_PORT=6379
+
+#
+# Integration with SIPProxy (Routr)
+#
 SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210525.3
 SIPPROXY_API_PORT=4567
 SIPPROXY_SIP_PORT=5060
 SIPPROXY_HOST=sipproxy.fonos
 SIPPROXY_USERNAME=ast
-SIPPROXY_SECRET=changeit
 SIPPROXY_API_USERNAME=admin
-SIPPROXY_API_SECRET=changeit
 
-# Optional configuration for MaryTTS (recommended)
-TTS_IMAGE=synesthesiam/marytts:5.2
-TTS_ENGINE_HOST=tts.fonos
-TTS_ENGINE_PORT=59125
-TTS_BASE_URI=/tts
+#
+# OpenFaas integration (for Cloud Funcions)
+#
 
-# Optional configuration for integration with FaaS
-FUNCS_URL=https://faas:8080
-FUNCS_USERNAME=admin
-FUNCS_SECRET=changeit
-FUNCS_WORKDIR=/home/fonos/funcs
+# Domain where your functions server lives
+#FUNCS_URL=https://faasd.yourdomain.net:8080
 
-# Optional configuration for logging
-LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
-LOGS_MONITOR_IMAGE=kibana:7.9.3
-LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
-LOGS_DRIVER_HOST=logsdriver.fonos
-LOGS_DRIVER_PORT=24224
-LOGS_AGGREGRATOR_PORT=9200
-LOGS_MONITOR_PORT=5601
-LOG_OPT_TAG_PREFIX=early
+# Temporary folder for new image creation
+#FUNCS_WORKDIR=/home/fonos/funcs
 
-# Optional configuration for integration with Vault
-SECRETS_IMAGE=vault
-SECRETS_URL=
-SECRETS_TOKEN=
-SECRETS_POLICY=fonos-policy
+# Username at functions server
+#FUNCS_USERNAME=admin
 
-# Optional configuration for integration with RabbitMQ
-EB_IMAGE=bitnami/rabbitmq:latest
+# Secrets at functions server
+#FUNCS_SECRET=
+
+#
+# Configuration to logging service (Based on Kibana)
+#
+#LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+#LOGS_MONITOR_IMAGE=kibana:7.9.3
+#LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
+#LOGS_DRIVER_HOST=logsdriver.fonos
+#LOGS_DRIVER_PORT=24224
+#LOGS_AGGREGRATOR_PORT=9200
+#LOGS_MONITOR_PORT=5601
+#LOG_OPT_TAG_PREFIX=early
+
+
+#
+# Integration with secrets server (Vault)
+#
+#SECRETS_IMAGE=vault
+#SECRETS_URL=
+#SECRETS_POLICY=fonos-policy
+#SECRETS_TOKEN=
+
+
+#
+# Integration with events server (RabbitMQ)
+#
+#EB_IMAGE=bitnami/rabbitmq:latest
+#EB_HOST=eventsbroker.fonos
+#EB_PORT=5672
+#EB_USERNAME=fonos
+#EB_SECRET=
+# Enables sending events to RabbitMQ
 EB_ENABLED=false
-EB_HOST=eventsbroker.fonos
-EB_PORT=5672
-EB_USERNAME=fonos
-EB_SECRET=changeit
 
-# Miscelaneous configurations
+
+#
+# Integration with TTS Service (MaryTTS)
+#
+#TTS_IMAGE=synesthesiam/marytts:5.2
+#TTS_ENGINE_HOST=tts.fonos
+#TTS_ENGINE_PORT=59125
+#TTS_BASE_URI=/tts
+
+
+#
+# Docker registry integration (for container creation and upload)
+#
+#DOCKER_REGISTRY_ORG=yourorg
+#DOCKER_REGISTRY_USERNAME=yourorg
+#DOCKER_REGISTRY_SECRET=
+#DOCKER_REGISTRY=docker.io
+#DOCKER_REGISTRY_SERVICE=registry.docker.io
+#DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
+
+
+#
+# Miscelaneous variables
+#
+
+# Name of the overall project
 COMPOSE_PROJECT_NAME=fonos
+
+# Overall version for the project
 COMPOSE_PROJECT_VERSION=0.0.104
+
+# Restart policy for containers
 RESTART_POLICY=unless-stopped
+
+# Node environment variable 
 NODE_ENV=dev
