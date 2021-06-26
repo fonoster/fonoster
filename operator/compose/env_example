@@ -129,6 +129,48 @@ SIPPROXY_HOST=sipproxy.fonos
 SIPPROXY_USERNAME=ast
 SIPPROXY_API_USERNAME=admin
 
+
+#
+# Configuration to logging service (Based on Kibana)
+#
+LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+LOGS_MONITOR_IMAGE=kibana:7.9.3
+LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
+LOGS_DRIVER_HOST=logsdriver.fonos
+LOGS_DRIVER_PORT=24224
+LOGS_AGGREGRATOR_PORT=9200
+LOGS_MONITOR_PORT=5601
+LOG_OPT_TAG_PREFIX=early
+
+
+#
+# Integration with events server (RabbitMQ)
+#
+EB_IMAGE=bitnami/rabbitmq:latest
+EB_HOST=eventsbroker.fonos
+EB_PORT=5672
+EB_USERNAME=fonos
+EB_SECRET=
+# Enables sending events to RabbitMQ
+EB_ENABLED=false
+
+#
+# Integration with secrets server (Vault)
+#
+#SECRETS_IMAGE=vault
+#SECRETS_URL=
+#SECRETS_POLICY=fonos-policy
+#SECRETS_TOKEN=
+
+
+#
+# Integration with TTS Service (MaryTTS)
+#
+#TTS_IMAGE=synesthesiam/marytts:5.2
+#TTS_ENGINE_HOST=tts.fonos
+#TTS_ENGINE_PORT=59125
+#TTS_BASE_URI=/tts
+
 #
 # OpenFaas integration (for Cloud Funcions)
 #
@@ -144,48 +186,6 @@ SIPPROXY_API_USERNAME=admin
 
 # Secrets at functions server
 #FUNCS_SECRET=
-
-#
-# Configuration to logging service (Based on Kibana)
-#
-#LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
-#LOGS_MONITOR_IMAGE=kibana:7.9.3
-#LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
-#LOGS_DRIVER_HOST=logsdriver.fonos
-#LOGS_DRIVER_PORT=24224
-#LOGS_AGGREGRATOR_PORT=9200
-#LOGS_MONITOR_PORT=5601
-#LOG_OPT_TAG_PREFIX=early
-
-
-#
-# Integration with secrets server (Vault)
-#
-#SECRETS_IMAGE=vault
-#SECRETS_URL=
-#SECRETS_POLICY=fonos-policy
-#SECRETS_TOKEN=
-
-
-#
-# Integration with events server (RabbitMQ)
-#
-#EB_IMAGE=bitnami/rabbitmq:latest
-#EB_HOST=eventsbroker.fonos
-#EB_PORT=5672
-#EB_USERNAME=fonos
-#EB_SECRET=
-# Enables sending events to RabbitMQ
-EB_ENABLED=false
-
-
-#
-# Integration with TTS Service (MaryTTS)
-#
-#TTS_IMAGE=synesthesiam/marytts:5.2
-#TTS_ENGINE_HOST=tts.fonos
-#TTS_ENGINE_PORT=59125
-#TTS_BASE_URI=/tts
 
 
 #

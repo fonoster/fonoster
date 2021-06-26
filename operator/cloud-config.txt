@@ -20,6 +20,7 @@ runcmd:
  - mkdir -p /opt/fonos/operator
  - cp -a fonos/operator/compose/* /opt/fonos/operator
  - cp fonos/operator/compose/env_example /opt/fonos/operator/.env
+ - chmod +x /opt/fonos/operator/gen-secrets.sh
  - echo "" >> /opt/fonos/operator/.env
  - echo "PUBLIC_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/operator/.env 
  - echo "DOCKER_HOST_ADDRESS=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
