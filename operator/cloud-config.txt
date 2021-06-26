@@ -21,19 +21,27 @@ runcmd:
  - cp -a fonos/operator/compose/* /opt/fonos/operator
  - cp fonos/operator/compose/env_example /opt/fonos/operator/.env
  - chmod +x /opt/fonos/operator/gen-secrets.sh
+ - chmod +x /opt/fonos/operator/basic-network.sh
  - echo "" >> /opt/fonos/operator/.env
  - echo "PUBLIC_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/operator/.env 
  - echo "DOCKER_HOST_ADDRESS=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
  - echo "RTPE_HOST=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
  - mkdir -p /opt/fonos/config
- - touch /opt/fonos/config/{config,admin_token}
- - cp fonos/etc/{private_key,rbac.json,log4j2.yml,redis.conf,bootstrap.yml} /opt/fonos/config
+ - touch /opt/fonos/config/config
+ - touch /opt/fonos/config/admin_token
+ - cp fonos/etc/private_key /opt/fonos/config
+ - cp fonos/etc/rbac.json /opt/fonos/config
+ - cp fonos/etc/log4j2.yml /opt/fonos/config
+ - cp fonos/etc/bootstrap.yml /opt/fonos/config
+ - cp fonos/etc/redis.conf /opt/fonos/config
  - rm -rf fonos
  - cd /opt/fonos/operator
  - ./gen-secrets.sh
+ - DS_SECRET=$(grep DS_SECRET .env | cut -d '=' -f2)
+ - sed -i.bak -e "s#requirepass .*#requirepass ${DS_SECRET}#g" "./../config/redis.conf"
  - docker-compose -f init.yml up service_token admin_token
- - docker-compose --env-file .env -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml -f extras/datasource.yml -f extras/fs.yml -f noencrypt.yml up -d
- - sleep 60
+ - ./basic-network start
+ - sleep 90
  - docker-compose -f init.yml up create_buckets bootstrap_sipnet
 
 final_message: "Cloud init is done!"
