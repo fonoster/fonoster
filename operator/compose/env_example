@@ -2,10 +2,10 @@
 
 # Security
 #
-# Set these to strong passwords to avoid intruders from impersonating a service account
+# Set these to strong secrets to avoid intruders from impersonating a service account
 # The service(s) won't start unless these are specified
-# Running ./gen-passwords.sh will update .env with strong passwords
-# DO NOT reuse passwords
+# Running ./gen-secrets.sh will update .env with strong passwords
+# DO NOT reuse secrets
 #
 
 # Password for Asterisk ARI API
@@ -36,7 +36,7 @@ DS_SECRET=
 #
 
 # External IP or Domain for your Fonos API (required)
-PUBLIC_URL=htts://api.example.com:50051
+#PUBLIC_URL=htts://api.example.com:50051
 
 # Exposed HTTP port
 HTTP_PORT=50051
@@ -47,8 +47,12 @@ HTTPS_PORT=443
 # Directory where all configuration will be stored
 CONFIG=/opt/fonos/config
 
-# IP address of the Docker host
-DOCKER_HOST_ADDRESS=192.168.1.1
+# IP address of the Docker host (required)
+#DOCKER_HOST_ADDRESS=192.168.1.1
+
+# IP address of the RTPEngine server (required)
+# Tipically it is same as the DOCKER_HOST_ADDRESS
+#RTPE_HOST=192.168.1.1
 
 # Domain for which to generate the certificate
 #LETSENCRYPT_DOMAIN=api.example.com
@@ -89,7 +93,6 @@ MS_ARI_INTERNAL_URL=http://mediaserver:8088
 # Integration with media proxy (RTPEngine) 
 # (required)
 #
-RTPE_HOST=192.168.1.1
 RTPE_PORT=8080
 RTPE_RTP_PORT_START=30000
 RTPE_RTP_PORT_END=31000

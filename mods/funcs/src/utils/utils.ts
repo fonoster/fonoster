@@ -121,9 +121,10 @@ export const getBuildDir = (accessKeyId: string, funcName: string) =>
     : path.join(process.env.FUNCS_WORKDIR, accessKeyId, funcName);
 
 export const buildFaasDeployParameters = async (params: FuncParameters) => {
-  const endpoint = process.env.PUBLIC_URL
-    .replace("http://", "")
-    .replace("https://", "");
+  const endpoint = process.env.PUBLIC_URL.replace("http://", "").replace(
+    "https://",
+    ""
+  );
 
   const parameters: FunctionDefinition = {
     service: getFuncName(params.accessKeyId, params.request.getName()),
