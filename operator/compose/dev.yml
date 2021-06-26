@@ -19,8 +19,8 @@ services:
     ports:
       - 6060:6060
       - 8088:8088
-      - 20000-20020:20000-20020/udp
-    environment:
-      ENABLE_TEST_ACCOUNT: "true"
-      RTP_PORT_START: 20000
-      RTP_PORT_END: 20020
+    #  - 20000-20020:20000-20020/udp
+    #environment:
+    #  ENABLE_TEST_ACCOUNT: "true"
+    #  RTP_PORT_START: 20000
+    #  RTP_PORT_END: 20020
