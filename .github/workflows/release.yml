@@ -99,35 +99,11 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/auth
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publishing Uploader Helper Service
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/uploaderhelper
-        token: ${{ secrets.GH_PAT }}
-        ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing Config Helper Service
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/confighelper
-        token: ${{ secrets.GH_PAT }}
-        ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing Chmod Helper Service
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/chmodhelper
-        token: ${{ secrets.GH_PAT }}
-        ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing JWTHelper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
         workflow: publish to docker hub
-        repo: fonoster/jwthelper
+        repo: fonoster/jwt-helper
         token: ${{ secrets.GH_PAT }}
         ref: main
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
