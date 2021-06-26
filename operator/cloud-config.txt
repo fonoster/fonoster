@@ -40,7 +40,7 @@ runcmd:
  - DS_SECRET=$(grep DS_SECRET .env | cut -d '=' -f2)
  - sed -i.bak -e "s#requirepass .*#requirepass ${DS_SECRET}#g" "./../config/redis.conf"
  - docker-compose -f init.yml up service_token admin_token
- - ./basic-network start
+ - ./basic-network.sh start
  - sleep 90
  - docker-compose -f init.yml up create_buckets bootstrap_sipnet
 
