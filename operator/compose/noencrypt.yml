@@ -1,0 +1,9 @@
+# Warning: Will allow unsecured access to the API
+
+version: '3.7'
+
+services:
+
+  apiserver:
+    ports:
+      - 50051:50051

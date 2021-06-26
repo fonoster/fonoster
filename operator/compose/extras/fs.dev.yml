@@ -1,0 +1,10 @@
+# Enables remote access to FilesServer(Minio)
+# Recommended only for development
+
+version: '3.7'
+
+services:
+
+  fs:
+    ports:
+      - ${FS_PORT}:${FS_PORT}

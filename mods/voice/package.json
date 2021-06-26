@@ -1,6 +1,6 @@
 {
   "name": "@fonos/voice",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.2-alpha.0",
   "description": "Voice verbs",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,11 +29,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/common": "^0.1.0-alpha.0",
-    "@fonos/events": "^0.0.124",
-    "@fonos/googleasr": "^0.1.0-alpha.0",
-    "@fonos/logger": "^0.0.124",
-    "@fonos/tts": "^0.0.124",
+    "@fonos/common": "^0.1.2-alpha.0",
+    "@fonos/events": "^0.1.2-alpha.0",
+    "@fonos/googleasr": "^0.1.2-alpha.0",
+    "@fonos/logger": "^0.1.2-alpha.0",
+    "@fonos/tts": "^0.1.2-alpha.0",
     "axios": "^0.21.1",
     "deepmerge": "^4.2.2",
     "express": "^4.17.1",

@@ -11,6 +11,9 @@ services:
       AUTH_ACCESS_WHITELIST: ${AUTH_ACCESS_WHITELIST}
       AUTH_ISS: ${AUTH_ISS}
       APISERVER_ENDPOINT: ${AS_HOST}:50051
+      API_EXTERNAL_HOST: ${API_EXTERNAL_HOST}
+      API_EXTERNAL_PORT: ${API_EXTERNAL_PORT}
+      API_EXTERNAL_PROTO: ${API_EXTERNAL_PROTO}
       ALLOW_INSECURE: ${AS_ALLOW_INSECURE}
       DS_HOST: ${DS_HOST}
       DS_PORT: ${DS_PORT}
@@ -53,8 +56,8 @@ services:
     networks:
       fonos:
     volumes:
-      - ${CONFIG}/config:/home/fonos/.fonos/config
-      - ${CONFIG}/certs/ca-key.pem:/home/fonos/.fonos/jwt.salt
+      - ${CONFIG}/config:/home/fonos/.fonos/config:ro
+      - ${CONFIG}/private_key:/home/fonos/.fonos/jwt.salt:ro
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.api

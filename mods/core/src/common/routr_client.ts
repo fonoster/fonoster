@@ -68,7 +68,7 @@ export default class RoutrClient {
         const domainObj = res.data.data[0];
 
         if (domainObj) {
-          return domainObj.spec.context.domainUri;
+          return domainObj;
         }
       }
     } catch (err) {

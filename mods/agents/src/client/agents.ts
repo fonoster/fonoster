@@ -248,3 +248,8 @@ export default class Agents extends FonosService {
 }
 
 export {AgentsPB, CommonPB};
+
+// WARNING: Workaround for support to commonjs clients
+module.exports = Agents;
+module.exports.AgentsPB = AgentsPB;
+module.exports.CommonPB = CommonPB;

@@ -315,3 +315,8 @@ export default class Numbers extends FonosService {
 }
 
 export {NumbersPB, CommonPB};
+
+// WARNING: Workaround for support to commonjs clients
+module.exports = Numbers;
+module.exports.NumbersPB = NumbersPB;
+module.exports.CommonPB = CommonPB;

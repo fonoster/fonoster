@@ -1,0 +1,44 @@
+#cloud-config
+ssh_authorized_keys:
+## Note: Replace with your own public key
+  - ssh-rsa ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKcZlvWQphbnVsau7V4Va1itaPvekkTxZGriJO1A9aGzKLrmX3vOsETz96fVS5OphP7PNbGVppjEUSeSqAeOjxJ84+Uko0GCDH2ypZncipF13DJnNgyv9V+WqfA7SHJHMBVxChmY5A/xzgDl94O6Sozb/wd5dzCqCpW0htx4DUcYluJWTsLMmmP2Xw9KeE9HvF8Z3niMjiCgkBzYA0LdldXrHXS8yJnIwIrGslDbpIZG7c7UJSWHhJzKX5v73VLk1qITFqkbYMVKJ3JYOXla5T5aR3brh8zn+i0f84C9vIveHq90vGASsyjzgpjpKpcN/g8K791DeRjHK47PUE2REp pedrosanders@Pedros-MBP
+
+package_update: true
+
+packages:
+ - curl
+ - git
+ - docker.io 
+
+runcmd:
+ - curl -qL -o /usr/bin/netdiscover https://github.com/CyCoreSystems/netdiscover/releases/download/v1.2.5/netdiscover.linux.amd64
+ - chmod +x /usr/bin/netdiscover
+ - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+ - chmod +x /usr/local/bin/docker-compose
+ - docker volume create --name=datasource && docker volume create --name=data1-1
+ - git clone https://github.com/fonoster/fonos --depth=1 -b dev --single-branch
+ - mkdir -p /opt/fonos/operator
+ - cp -a fonos/operator/compose/* /opt/fonos/operator
+ - cp fonos/operator/compose/env_example /opt/fonos/operator/.env
+ - echo "" >> /opt/fonos/operator/.env
+ - echo "CONFIG=/opt/fonos/config" >> /opt/fonos/operator/.env
+ - echo "EXTERN_ADDR=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
+
+ # ATTENTION!
+ # Before going on production you should replace the API_EXTERNAL_HOST to use your domain 
+ # and your API_EXTERNAL_PROTO should be "https". For example, in our development server 
+ # we use API_EXTERNAL_HOST=api.fonoster.net and API_EXTERNAL_PROTO=https
+
+ - echo "API_EXTERNAL_HOST=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
+ - echo "API_EXTERNAL_PROTO=http" >> /opt/fonos/operator/.env
+ - mkdir -p /opt/fonos/config
+ - touch /opt/fonos/config/{config,admin_token}
+ - cp fonos/etc/{private_key,rbac.json,log4j2.yml,redis.conf,bootstrap.yml} /opt/fonos/config
+ - rm -rf fonos
+ - cd /opt/fonos/operator
+ - docker-compose -f init.yml up service_token admin_token
+ - docker-compose --env-file .env -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml -f extras/datasource.yml -f extras/fs.yml -f noencrypt.yml up -d
+ - sleep 60
+ - docker-compose -f init.yml up create_buckets bootstrap_sipnet
+
+final_message: "Cloud init is done!"

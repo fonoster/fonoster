@@ -1,7 +1,9 @@
 # Env for the various service used by Project Fonos
-CONFIG=
-API_INGRESS_URL=
-HOST_ADDR=
+# CONFIG=/opt/fonos/config
+# EXTERN_ADDR=100.32.122.63
+# API_EXTERNAL_HOST=api.fonoster.io
+# API_EXTERNAL_PROTO=http
+API_EXTERNAL_PORT=50051
 
 # Auth service
 AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole
@@ -99,5 +101,4 @@ EB_SECRET=changeit
 COMPOSE_PROJECT_NAME=fonos
 COMPOSE_PROJECT_VERSION=0.0.104
 RESTART_POLICY=unless-stopped
-CERTS_PATH=/certs
 NODE_ENV=dev

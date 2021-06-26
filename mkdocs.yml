@@ -11,29 +11,6 @@ repo_url: https://github.com/fonoster/fonos
 edit_uri: /fonoster/fonos/edit/master/docs/
 
 nav:
-  - Get started with Fonos:
-    - Overview: coming-soon.md
-    - Comparison to Alternatives: coming-soon.md
-    - Community: coming-soon.md
-    - FAQ: coming-soon.md
-    - Glossary: coming-soon.md
-  - Manage your Deployment:
-    - Overview: coming-soon.md
-    - Installing Fonos on K8s with Helm: deployment/installing-on-minikube.md
-    - Deploying your VOIP Network: coming-soon.md
-  - Programmable Voice:
-    - Overview: coming-soon.md
-    - Get Started: coming-soon.md
-    - Log Events: coming-soon.md
-    - Override TTS Engine: coming-soon.md
-    - Using Speech to Text: coming-soon.md
-    - Data Collection and Usage: coming-soon.md
-  - Storage:
-    - Overview: coming-soon.md
-  - Secrets:
-    - Overview: coming-soon.md
-  - Security:
-    - Overview: coming-soon.md
   - Reference:
     - AbstractTTS: reference/AbstractTTS.md
     - Agents: reference/Agents.md

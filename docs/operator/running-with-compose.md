@@ -36,24 +36,27 @@ To run `PF`, first clone the repo and go to the directory `.compose` with:
 
 ```bash
 git clone https://github.com/fonoster/fonos --depth=1
-cd .compose
+cd fonos/operator/compose
 ```
 
-Then, copy the `env_example` into `.env` and update the variables `CONFIG`, `DOMAIN`, and `HOST_ADDR.`
+Then, copy the `env_example` into `.env` and update the variables `CONFIG`, `DOMAIN`, and `EXTERN_ADDR`
 
 Next, run the core services with:
 
 ```bash
 sudo docker-compose --env-file .env \
-    -f 00_deps.yml \
+    -f 00_config.yml \
     -f 01_api.yml \
-    -f 02_sipnet.yml up
+    -f 02_sipnet.yml \
+    -f extras/datasource.yml \
+    -f extras/fs.yml \
+    -f letsencrypt.yml up -d
 ```
 
 Finally, once all the services are up an running initialize `PF` with:
 
 ```bash
-docker-compose -f init.yml up
+docker-compose -f init.yml up create_buckets bootstrap_sipnet
 ```
 
 ## Launch additional services (Optional)
@@ -62,15 +65,18 @@ docker-compose -f init.yml up
 git clone https://github.com/fonoster/fonos --depth=1
 cd .compose
 sudo docker-compose --env-file .env \
-    -f 00_deps.yml \
+    -f 00_config.yml \
     -f 01_api.yml \
     -f 02_sipnet.yml \
+    -f letsencrypt.yml \
+    -f extras/datasource.yml \
+    -f extras/fs.yml \
+    -f extras/funcs.yml \
     -f extras/secrets.yml \
-    -f extras/funcs.yml \    
-    -f extras/events.yml \
-    -f extras/logging.yml \
+    -f extras/secrets.dev.yml \
     -f extras/tts.yml \
-    up
+    -f extras/tts.dev.yml \
+    -f dev.yml up -d
 ```
 
 > Append `dev.yml` or `extras\*.dev.yml` if you want to open the ports on all the services (Only recommended for development)

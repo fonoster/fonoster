@@ -92,3 +92,7 @@ export default class CallManager extends FonosService {
 }
 
 export {CallManagerPB};
+
+// WARNING: Workaround for support to commonjs clients
+module.exports = CallManager;
+module.exports.CallManagerPB = CallManagerPB;

@@ -1,0 +1,31 @@
+# API Services with let's encrpyt
+
+version: '3.7'
+
+services:
+
+  apiserver:
+    command:
+      # - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.internal.address=:50051"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls.certResolver=le"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      # - "--certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.le.acme.email=admin@email.com"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "${AS_PORT}:443"
+    volumes:
+      - "${CONFIG}/letsencrypt:/letsencrypt"
+
+  dummy_service:
+    image: containous/whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dummy_service.rule=Host(`${API_EXTERNAL_HOST}`)"
+      - "traefik.http.routers.dummy_service.entrypoints=websecure"
+      - "traefik.http.routers.dummy_service.tls.certresolver=le"

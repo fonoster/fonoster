@@ -32,28 +32,36 @@ services:
       exit 0;
       "
     volumes:
-      - ${CONFIG}/bootstrap.yml:/bootstrap.yml
+      - ${CONFIG}/bootstrap.yml:/bootstrap.yml:ro
     networks:
       fonos:
 
   service_token:
-    image: fonoster/jwt-helper
+    image: fonoster/jwthelper
     environment:
-      ACCESS_KEY_ID: service
-      PRINT_ACCESS_INFO: "true"
+      ACCESS_KEY_ID: internal
       ROLE: SERVICE
+      EXPIRATION: 1y
     volumes:
-      - ${CONFIG}/bootstrap.yml:/bootstrap.yml
-    networks:
-      fonos:
+      - type: bind
+        source: ${CONFIG}/private_key
+        target: /home/fonos/private_key
+        read_only: true
+      - type: bind
+        source: ${CONFIG}/config
+        target: /home/fonos/config
 
   admin_token:
-    image: fonoster/jwt-helper
+    image: fonoster/jwthelper
     environment:
       ACCESS_KEY_ID: admin
-      ROLE: ADMIN
-      PRINT_ACCESS_INFO: "true"
+      ROLE: USER
+      EXPIRATION: 1y
     volumes:
-      - ${CONFIG}/private.key:/home/fonos/.fonos/jwt.salt
-    networks:
-      fonos:
+      - type: bind
+        source: ${CONFIG}/private_key
+        target: /home/fonos/private_key
+        read_only: true
+      - type: bind
+        source: ${CONFIG}/admin_token
+        target: /home/fonos/config

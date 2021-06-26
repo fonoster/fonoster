@@ -43,7 +43,7 @@ import {
  * .then(console.log)       // returns an object with the token
  * .catch(console.error);   // an error occurred
  */
-export default class Agents extends FonosService {
+export default class Auths extends FonosService {
   /**
    * Constructs a new Auth object.
    * @param {ServiceOptions} options - Options to indicate the objects endpoint
@@ -146,3 +146,7 @@ export default class Agents extends FonosService {
 }
 
 export {AuthPB};
+
+// WARNING: Workaround for support to commonjs clients
+module.exports = Auths;
+module.exports.AuthPB = AuthPB;

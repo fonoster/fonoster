@@ -1,0 +1,10 @@
+# Enables remote access to datasource(Redis)
+# Recommended only for development
+
+version: '3.7'
+
+services:
+
+  datasource:
+    ports:
+      - ${DS_PORT}:${DS_PORT}

@@ -128,3 +128,6 @@ export default class Storage extends FonosService {
 }
 
 export {StoragePB, CommonPB};
+
+// WARNING: Workaround to support commonjs clients
+module.exports = Storage;

@@ -8,23 +8,19 @@ services:
 
   apiserver:
     ports:
-      - 8080:8080
+      - 8181:8080
       - 50051:50051
-  datasource:
-    ports:
-      - ${DS_PORT}:${DS_PORT}
-  fs:
-    ports:
-      - ${FS_PORT}:${FS_PORT}
+
   sipproxy:
     ports:
       - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
+
   mediaserver:
     ports:
       - 6060:6060
       - 8088:8088
-      - 20000-20020:20000-20020/udp
-    environment:
-      ENABLE_TEST_ACCOUNT: "true"
-      RTP_PORT_START: 20000
-      RTP_PORT_END: 20020
+    #  - 20000-20020:20000-20020/udp
+    #environment:
+    #  ENABLE_TEST_ACCOUNT: "true"
+    #  RTP_PORT_START: 20000
+    #  RTP_PORT_END: 20020

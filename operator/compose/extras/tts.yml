@@ -12,7 +12,7 @@ services:
     restart: ${RESTART_POLICY}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tts.entrypoints=websecure"
+      - "traefik.http.routers.tts.entrypoints=internal,websecure"
       - "traefik.http.routers.tts.rule=PathPrefix(`/process`)"
       - "traefik.http.services.tts.loadbalancer.server.port=59125"
       - "traefik.http.routers.tts.middlewares=session-auth@docker"
@@ -22,8 +22,6 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    ports:
-      - ${TTS_ENGINE_PORT}:${TTS_ENGINE_PORT}
     networks:
       fonos:
         aliases: 

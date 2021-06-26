@@ -285,3 +285,8 @@ export default class Domains extends FonosService {
 }
 
 export {DomainsPB, CommonPB};
+
+// WARNING: Workaround for support to commonjs clients
+module.exports = Domains;
+module.exports.DomainsPB = DomainsPB;
+module.exports.CommonPB = CommonPB;

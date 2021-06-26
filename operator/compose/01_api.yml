@@ -4,6 +4,21 @@ version: '3.7'
 
 services:
 
+  apiserver:
+    image: ${AS_IMAGE}
+    command:
+      # - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.internal.address=:50051"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      fonos:
+        aliases: 
+          - ${AS_HOST}
+
   auth:
     image: fonoster/fonos-auth
     extends:
@@ -57,7 +72,7 @@ services:
       service: common
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.providers.entrypoints=internal,websecure"    
+      - "traefik.http.routers.providers.entrypoints=internal,websecure"
       - "traefik.http.routers.providers.rule=PathPrefix(`/fonos.providers.v1alpha1`)"
       - "traefik.http.services.providers.loadbalancer.server.scheme=h2c"
 
@@ -68,7 +83,7 @@ services:
       service: common
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.storage.entrypoints=internal,websecure"    
+      - "traefik.http.routers.storage.entrypoints=internal,websecure"
       - "traefik.http.routers.storage.rule=PathPrefix(`/fonos.storage.v1alpha1`)"
       - "traefik.http.services.storage.loadbalancer.server.scheme=h2c"
   

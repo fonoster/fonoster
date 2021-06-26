@@ -129,3 +129,6 @@ export default class MaryTTS extends Plugin implements TTSPlugin {
     });
   }
 }
+
+// WARNING: Workaround to support commonjs clients
+module.exports = MaryTTS;
