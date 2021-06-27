@@ -1,8 +1,8 @@
 # Deploy to Digital Ocean
 
-The following script will assist you in quickly deploying PF to a Digital Ocean droplet. Notice that this script requires that you have a cloud-config.txt file beside it. You may obtain a copy of the current version of the cloud-config.txt from PF’s main repository.
+The following script will assist you in quickly deploying PF to a Digital Ocean droplet. Notice that this script requires that you have a cloud-config.txt file beside it. You may obtain a copy of the current version of the cloud-config.txt from PF's main repository.
 
-To deploy digital ocean you first need to [signup for an account](https://www.digitalocean.com/?refcode=2962aa9e56a1&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=CopyPaste) at DO. You will also need to download and setup `doctl`, for which we recommend the guide from the [doctl's repo.](https://github.com/digitalocean/doctl/blob/main/README.md#authenticating-with-digitalocean)
+To deploy to Digital Ocean, you first need to [signup for an account](https://www.digitalocean.com/?refcode=2962aa9e56a1&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=CopyPaste). You will also need to download and setup the `doctl`, for which we recommend the guide from the [doctl's repo.](https://github.com/digitalocean/doctl/blob/main/README.md#authenticating-with-digitalocean)
 
 Then, download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) with:
 
@@ -22,21 +22,21 @@ doctl compute droplet create myserver \
   --image debian-10-x64
 ```
 
-You can access your VM and follow the installation process. From within the VM, run the the next command:
+You can access your VM and follow the installation process. From within the VM, run the next command:
 
 ```bash
 tail -f /var/log/cloud-init-output.log
 ```
 
-Once you see "Cloud init is done!" the process is complete. If everything went well you will be able to login to your PF deployment.
+Once you see "Cloud init is done!" the process is complete. If everything went well, you will be able to log in to your PF deployment.
 
-To login for the first time to your deployment, first get your admin credentianls with:
+To log in for the first time to your deployment, first, get your admin credentials with:
 
 ```bash
 cat /opt/fonos/config/admin_credentials
 ```
 
-Your output will look like the one bellow
+Your output will look like the one bellow.
 
 ```bash
 {
@@ -45,8 +45,4 @@ Your output will look like the one bellow
 }
 ```
 
-Finally, obtain your VM's IP from the DO's dashboard. With the `accessKeyId`, `accessKeySecret`, and your VM's IP address you can now login with
-
-```bash
-fonos auth:login
-```
+Finally, obtain your VM's IP from the DO's dashboard. With the `accessKeyId`, `accessKeySecret`, and your VM's IP address, you can now login with the command-line tool or access the deployment with the SDK.
