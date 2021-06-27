@@ -4,16 +4,13 @@ Have you heard about Multipass? Multipass is a Canonical project that offers a l
 
 > This method will not automatically enable TLS for you
 
-Deploy PF to Multipass with the following steps.
-
-Download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) file into a local directory with:
+Deploy PF to Multipass with the following steps. First, download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) file into a local directory with:
 
 ```bash
 curl https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt -o cloud-config.txt
 ```
 
-Since we are running locally, we have to modify the cloud-config to discover the private ipv4 instead of
-the public ipv4. Here is how.
+Since we are running locally, we have to modify the cloud-config to discover the private ipv4 instead of the public ipv4. Here is how.
 
 First, update your cloud config with:
 
@@ -21,7 +18,7 @@ First, update your cloud config with:
 sed -i.bak -e "s#publicv4#privatev4#g" "cloud-config.txt"
 ```
 
-From the same directory, fire up Multipass 
+From the same directory, fire up Multipass
 
 ```bash
 multipass launch --name fonos --disk 10G --cpus 2 --mem 4G --cloud-init cloud-config.txt
