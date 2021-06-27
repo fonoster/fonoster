@@ -80,9 +80,11 @@ callManager.call({
 
 ![command-line tool](https://raw.githubusercontent.com/fonoster/fonos/dev/docs/assets/images/console.png)
 
-- [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
+To get started with PF use the following resources:
+
 - [Deploying Project Fonos to the Cloud](./docs/operator/deploy-your-server.md)
 - [An introduction to Programmable Voice Applications](https://github.com/fonoster/fonos101)
+- [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
 
 ## Bugs and Feedback
 
