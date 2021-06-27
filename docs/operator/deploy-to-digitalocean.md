@@ -1,14 +1,16 @@
 # Deploy to Digital Ocean
 
-The following script will assist you in quickly deploying PF to a Digital Ocean droplet. Notice that this script requires that you have a cloud-config.txt file beside it. You may obtain a copy of the current version of the cloud-config.txt from PF's main repository.
+This quick guide will assist you in rapidly deploying PF to a Digital Ocean droplet.
 
-To deploy to Digital Ocean, you first need to [signup for an account](https://www.digitalocean.com/?refcode=2962aa9e56a1&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=CopyPaste). You will also need to download and setup the `doctl`, for which we recommend the guide from the [doctl's repo.](https://github.com/digitalocean/doctl/blob/main/README.md#authenticating-with-digitalocean)
+To deploy to Digital Ocean, you first need to [signup for an account](https://www.digitalocean.com/?refcode=2962aa9e56a1&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=CopyPaste). You will also need to download and setup the `doctl`, using the guide from the [doctl's repo.](https://github.com/digitalocean/doctl/blob/main/README.md#authenticating-with-digitalocean)
 
 Then, download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) with:
 
 ```bash
 curl https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt -o cloud-config.txt
 ```
+
+>  You must replace the public key with your own public keys from `~/.ssh/id_rsa.pub`, in the cloud-config.txt
 
 Next, export your DO token and deploy your droplet with the following command:
 

@@ -12,6 +12,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.internal.address=:${HTTP_PORT}"
+      - "--entrypoints.websecure.address=:${HTTPS_PORT}"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:

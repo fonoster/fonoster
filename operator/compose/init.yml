@@ -55,7 +55,7 @@ services:
     image: fonoster/jwthelper
     environment:
       ACCESS_KEY_ID: admin
-      ROLE: USER
+      ROLE: ADMIN
       EXPIRATION: 1y
     volumes:
       - type: bind
