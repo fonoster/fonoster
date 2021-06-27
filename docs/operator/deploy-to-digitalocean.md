@@ -1,40 +1,23 @@
-# Deploy your server
+# Deploy to Digital Ocean
 
-With this guide you will learn how to install Project Fonos(PF), wheather on a self-hosted environment or in the cloud. You will learn about the available installation options, and which one is the best for current journey with PF.
+The following script will assist you in quickly deploying PF to a Digital Ocean droplet. Notice that this script requires that you have a cloud-config.txt file beside it. You may obtain a copy of the current version of the cloud-config.txt from PF’s main repository.
 
-## Self-hosted or Cloud
+To deploy digital ocean you first need to [signup for an account](https://www.digitalocean.com/?refcode=2962aa9e56a1&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=CopyPaste) at DO. You will also need to download and setup `doctl`, for which we recommend DO's [offitial guide.](https://github.com/digitalocean/doctl/blob/main/README.md#authenticating-with-digitalocean).
 
-They are several considerantion to decide which deployment method to use. The main factors you should consider are costs and availability. Running the server in a cloud environment will likely be more stable than a home Internet connection. The cloud also gives you the advantange of not having to worry about phisical servers, electricity, etc.
-
-However, if you have a stable Internet with good bandwith, running a local server might be a good option specially while you are exploring PF.
-
-## Using Multipass for a rapid deployment
-
-Have you heard about Multipass? Multipass is a Canonical project that offers a lightweight VM manager for Linux, Windows and macOS. With Multiplass you can deploy Project Fonos in a local environment in a single-command. This deployment menthod is by far the fasted way to get started with PF.
-
-> This is a good way to started with `PF`, but keep in mind that it will not configure TLS for you
-
-Deploy PF to Multipass with the following steps.
-
-Download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) file into a local directory
+Next, download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) with:
 
 ```bash
 curl https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt -o cloud-config.txt
 ```
 
-From the same directory fire up Multipass 
+Next export your DO token and deploy your droplet with the following command:
 
 ```bash
-multipass launch --name fonos --disk 10G --cpus 2 --mem 4G --cloud-init cloud-config.txt
+DOTOKEN=e8cfa2f5ac6186a86532...
+doctl compute droplet create myserver \
+  --region nyc3 \
+  --access-token $DOTOKEN \
+  --size s-2vcpu-4gb \
+  --user-data-file cloud-config.txt \
+  --image debian-10-x64
 ```
-
-It is possible that you will see a "timed out waiting for initialization to complete", specially in a slow Internet connection.
-Don't worry about it. It's ok. 
-
-You can access your VM and follow the installation process
-
-```
-multipass shell fonos
-tail -f /var/log/cloud-init-output.log
-```
-
