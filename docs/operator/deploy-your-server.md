@@ -10,6 +10,6 @@ However, if you have a stable Internet with good bandwith, running a local serve
 
 Get started with the following guides:
 
-- [Deploy with Multipass](./deploy-with-multipass.md)
+- [Deploy to Multipass](./deploy-to-multipass.md)
 - [Deploy to Digital Ocean](./deploy-to-digitalocean.md)
 - [Deploy server Manually](./deploy-server-manually.md)
