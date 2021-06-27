@@ -121,6 +121,11 @@ export const getBuildDir = (accessKeyId: string, funcName: string) =>
     : path.join(process.env.FUNCS_WORKDIR, accessKeyId, funcName);
 
 export const buildFaasDeployParameters = async (params: FuncParameters) => {
+  const endpoint = process.env.PUBLIC_URL.replace("http://", "").replace(
+    "https://",
+    ""
+  );
+
   const parameters: FunctionDefinition = {
     service: getFuncName(params.accessKeyId, params.request.getName()),
     image: getImageName(params.accessKeyId, params.request.getName()),
@@ -139,7 +144,7 @@ export const buildFaasDeployParameters = async (params: FuncParameters) => {
     envVars: {
       ACCESS_KEY_ID: params.accessKeyId,
       ACCESS_KEY_SECRET: await createAccessKeySecret(params.accessKeyId),
-      APISERVER_ENDPOINT: `${process.env.API_EXTERNAL_HOST}:${process.env.API_EXTERNAL_PORT}`
+      APISERVER_ENDPOINT: endpoint
     },
     annotations: {
       topic: undefined,

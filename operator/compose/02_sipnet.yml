@@ -6,16 +6,17 @@ services:
     image: ${SIPPROXY_IMAGE}
     restart: ${RESTART_POLICY}
     environment:
-      EXTERN_ADDR: ${EXTERN_ADDR}
+      EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       DATA_SOURCE_PROVIDER: redis_data_provider
+      INITIAL_API_SECRET: ${SIPPROXY_API_SECRET}
       DATA_SOURCE_PARAMETERS: host=${DS_HOST},port=${DS_PORT},secret=${DS_SECRET}
       BIND_ADDR: 0.0.0.0
       RECORD_ROUTE: "true"
       REGISTRAR_INTF: Internal
       EX_RTP_ENGINE_ENABLED: "true"
       EX_RTP_ENGINE_PROTO: http
-      EX_RTP_ENGINE_HOST: ${API_EXTERNAL_HOST}
-      EX_RTP_ENGINE_PORT: 8080
+      EX_RTP_ENGINE_HOST: ${RTPE_HOST}
+      EX_RTP_ENGINE_PORT: ${RTPE_PORT}
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: 'false'
     ports:
@@ -49,9 +50,9 @@ services:
     network_mode: "host"
     environment:
       # This will fail if network_mode != host
-      PUBLIC_IP: ${EXTERN_ADDR}
-      PORT_MIN: 20000
-      PORT_MAX: 21000
+      PUBLIC_IP: ${DOCKER_HOST_ADDRESS}
+      PORT_MIN: ${RTPE_RTP_PORT_START}
+      PORT_MAX: ${RTPE_RTP_PORT_END}
       LOG_LEVEL: '6'
 
   mediaserver:
@@ -66,14 +67,14 @@ services:
       - "traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth"
       - "traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}"
     environment:
-      APISERVER_ENDPOINT: ${AS_HOST}:50051
-      ARI_EXTERNAL_URL: ${API_EXTERNAL_PROTO}://${API_EXTERNAL_HOST}:${API_EXTERNAL_PORT}
+      APISERVER_ENDPOINT: ${AS_HOST}:{HTTP_PORT}
+      ARI_EXTERNAL_URL: ${PUBLIC_URL}
       ARI_INTERNAL_URL: ${MS_ARI_INTERNAL_URL}
       ARI_USERNAME: ${MS_ARI_USERNAME}
       ARI_SECRET: ${MS_ARI_SECRET}
-      EXTERN_ADDR: ${EXTERN_ADDR}
+      EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       EXTERN_PORT: ${MS_SIP_PORT}
-      SIPPROXY_HOST: ${EXTERN_ADDR}:${SIPPROXY_SIP_PORT}
+      SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}:${SIPPROXY_SIP_PORT}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
       RTP_PORT_START: ${MS_RTP_PORT_START}

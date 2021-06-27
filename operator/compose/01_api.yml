@@ -11,7 +11,7 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.internal.address=:50051"
+      - "--entrypoints.internal.address=:${HTTP_PORT}"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
