@@ -29,7 +29,7 @@ runcmd:
  - mkdir -p /opt/fonos/config
  - touch /opt/fonos/config/config
  - touch /opt/fonos/config/admin_token
- - cp fonos/etc/private_key /opt/fonos/config
+ - echo $(openssl rand -hex 16) > /opt/fonos/config/private_key
  - cp fonos/etc/rbac.json /opt/fonos/config
  - cp fonos/etc/log4j2.yml /opt/fonos/config
  - cp fonos/etc/bootstrap.yml /opt/fonos/config
