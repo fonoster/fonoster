@@ -16,7 +16,7 @@ runcmd:
  - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
  - chmod +x /usr/local/bin/docker-compose
  - docker volume create --name=datasource && docker volume create --name=data1-1
- - git clone https://github.com/fonoster/fonos --depth=1 -b dev --single-branch
+ - git clone https://github.com/fonoster/fonos --depth=1 -b main --single-branch
  - mkdir -p /opt/fonos/operator
  - cp -a fonos/operator/compose/* /opt/fonos/operator
  - cp fonos/operator/compose/env_example /opt/fonos/operator/.env

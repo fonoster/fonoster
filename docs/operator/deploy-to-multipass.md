@@ -1,14 +1,4 @@
-# Deploy your server
-
-With this guide you will learn how to install Project Fonos(PF), wheather on a self-hosted environment or in the cloud. You will learn about the available installation options, and which one is the best for current journey with PF.
-
-## Self-hosted or Cloud
-
-They are several considerantion to decide which deployment method to use. The main factors you should consider are costs and availability. Running the server in a cloud environment will likely be more stable than a home Internet connection. The cloud also gives you the advantange of not having to worry about phisical servers, electricity, etc.
-
-However, if you have a stable Internet with good bandwith, running a local server might be a good option specially while you are exploring PF.
-
-## Using Multipass for a rapid deployment
+# Deploy to Multipass
 
 Have you heard about Multipass? Multipass is a Canonical project that offers a lightweight VM manager for Linux, Windows and macOS. With Multiplass you can deploy Project Fonos in a local environment in a single-command. This deployment menthod is by far the fasted way to get started with PF.
 
@@ -19,7 +9,7 @@ Deploy PF to Multipass with the following steps.
 Download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) file into a local directory
 
 ```bash
-curl https://raw.githubusercontent.com/fonoster/fonos/dev/operator/cloud-config.txt -o cloud-config.txt
+curl https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt -o cloud-config.txt
 ```
 
 Since we are running locally we have to modify the cloud-config to discover the private ipv4 instead of
@@ -44,4 +34,42 @@ multipass shell fonos
 tail -f /var/log/cloud-init-output.log
 ```
 
-Once you see "Cloud init is done!" the process is complete. Its time to inspect the deployment.
+Once you see "Cloud init is done!" the process is complete. If everything went well you will be able to login to your PF deployment.
+
+To login for the first time to your deployment, first get your admin credentianls with:
+
+```bash
+cat /opt/fonos/config/config
+```
+
+Your output will look like the one bellow
+
+```bash
+{
+   "accessKeyId":"internal",
+   "accessKeySecret":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+Next, obtain your VM's IP with:
+
+```bash
+multipass info fonos
+```
+
+Look for the entry starting with IPv4
+
+```bash
+Name:           fonos
+State:          Running
+IPv4:           192.168.64.39
+                172.17.0.1
+                172.24.0.1
+...
+```
+
+With the `accessKeyId`, `accessKeySecret`, and your VM's IP address you can now login with
+
+```bash
+fonos auth:login
+```
