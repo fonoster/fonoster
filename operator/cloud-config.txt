@@ -40,7 +40,7 @@ runcmd:
  - DS_SECRET=$(grep DS_SECRET .env | cut -d '=' -f2)
  - SIPPROXY_SECRET=$(grep SIPPROXY_SECRET .env | cut -d '=' -f2)
  - sed -i.bak -e "s#requirepass .*#requirepass ${DS_SECRET}#g" "./../config/redis.conf"
- - sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/redis.conf"
+ - sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/bootstrap.yml"
  - docker-compose -f init.yml up service_token admin_token
  - ./basic-network.sh start
  - sleep 90

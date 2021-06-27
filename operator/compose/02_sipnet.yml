@@ -8,6 +8,7 @@ services:
     environment:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       DATA_SOURCE_PROVIDER: redis_data_provider
+      INITIAL_API_SECRET: ${SIPPROXY_API_SECRET}
       DATA_SOURCE_PARAMETERS: host=${DS_HOST},port=${DS_PORT},secret=${DS_SECRET}
       BIND_ADDR: 0.0.0.0
       RECORD_ROUTE: "true"

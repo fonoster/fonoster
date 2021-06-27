@@ -122,7 +122,7 @@ DS_PORT=6379
 #
 # Integration with SIPProxy (Routr)
 #
-SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210525.3
+SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210626.2
 SIPPROXY_API_PORT=4567
 SIPPROXY_SIP_PORT=5060
 SIPPROXY_HOST=sipproxy.fonos
