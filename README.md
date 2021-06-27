@@ -80,9 +80,8 @@ callManager.call({
 
 ![command-line tool](https://raw.githubusercontent.com/fonoster/fonos/dev/docs/assets/images/console.png)
 
-> We are working to bring a lot more resource a near future (within a few weeks)
-
 - [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
+- [Deploying Project Fonos to the Cloud](./docs/operator/deploy-your-server.md)
 - [An introduction to Programmable Voice Applications](https://github.com/fonoster/fonos101)
 
 ## Bugs and Feedback
