@@ -83,7 +83,7 @@ callManager.call({
 To get started with PF use the following resources:
 
 - [Deploying Project Fonos to the Cloud](./docs/operator/deploy-your-server.md)
-- [An introduction to Programmable Voice Applications](https://github.com/fonoster/fonos101)
+- [An introduction to Programmable Voice Applications](https://github.com/fonoster/blog/blob/main/2021/002/post.md)
 - [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
 
 ## Bugs and Feedback
