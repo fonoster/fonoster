@@ -4,12 +4,13 @@ function generateSecrets() {
     openssl rand -hex 16
 }
 
+MS_ARI_USERNAME=$(grep MS_ARI_USERNAME .env | cut -d '=' -f2)
 MS_ARI_SECRET=$(generateSecrets)
 FS_SECRET=$(generateSecrets)
 SIPPROXY_SECRET=$(generateSecrets)
 SIPPROXY_API_SECRET=$(generateSecrets)
 DS_SECRET=$(generateSecrets)
-MS_ARI_AUTHORIZATION=$(echo ari:${MS_ARI_SECRET} | base64)
+MS_ARI_AUTHORIZATION=$(printf ${MS_ARI_USERNAME}:${MS_ARI_SECRET} | base64)
 
 sed -i.bak \
     -e "s#MS_ARI_SECRET=.*#MS_ARI_SECRET=${MS_ARI_SECRET}#g" \
