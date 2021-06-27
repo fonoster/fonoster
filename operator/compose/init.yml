@@ -36,7 +36,7 @@ services:
     networks:
       fonos:
 
-  service_token:
+  service_creds:
     image: fonoster/jwthelper
     environment:
       ACCESS_KEY_ID: internal
@@ -51,7 +51,7 @@ services:
         source: ${CONFIG}/config
         target: /home/fonos/config
 
-  admin_token:
+  admin_creds:
     image: fonoster/jwthelper
     environment:
       ACCESS_KEY_ID: admin
@@ -63,5 +63,5 @@ services:
         target: /home/fonos/private_key
         read_only: true
       - type: bind
-        source: ${CONFIG}/admin_token
+        source: ${CONFIG}/admin_credentials
         target: /home/fonos/config
