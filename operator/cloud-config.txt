@@ -16,7 +16,7 @@ runcmd:
  - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
  - chmod +x /usr/local/bin/docker-compose
  - docker volume create --name=datasource && docker volume create --name=data1-1
- - git clone https://github.com/fonoster/fonos --depth=1 -b dev --single-branch
+ - git clone https://github.com/fonoster/fonos --depth=1 -b main --single-branch
  - mkdir -p /opt/fonos/operator
  - cp -a fonos/operator/compose/* /opt/fonos/operator
  - cp fonos/operator/compose/env_example /opt/fonos/operator/.env
@@ -28,7 +28,7 @@ runcmd:
  - echo "RTPE_HOST=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
  - mkdir -p /opt/fonos/config
  - touch /opt/fonos/config/config
- - touch /opt/fonos/config/admin_token
+ - touch /opt/fonos/config/admin_credentials
  - echo $(openssl rand -hex 16) > /opt/fonos/config/private_key
  - cp fonos/etc/rbac.json /opt/fonos/config
  - cp fonos/etc/log4j2.yml /opt/fonos/config
@@ -41,7 +41,7 @@ runcmd:
  - SIPPROXY_SECRET=$(grep SIPPROXY_SECRET .env | cut -d '=' -f2)
  - sed -i.bak -e "s#requirepass .*#requirepass ${DS_SECRET}#g" "./../config/redis.conf"
  - sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/bootstrap.yml"
- - docker-compose -f init.yml up service_token admin_token
+ - docker-compose -f init.yml up service_creds admin_creds
  - ./basic-network.sh start
  - sleep 90
  - docker-compose -f init.yml up create_buckets bootstrap_sipnet
