@@ -6,7 +6,7 @@ Have you heard about Multipass? Multipass is a Canonical project that offers a l
 
 Deploy PF to Multipass with the following steps.
 
-Download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) file into a local directory
+Download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) file into a local directory with:
 
 ```bash
 curl https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt -o cloud-config.txt
@@ -39,14 +39,14 @@ Once you see "Cloud init is done!" the process is complete. If everything went w
 To login for the first time to your deployment, first get your admin credentianls with:
 
 ```bash
-cat /opt/fonos/config/config
+cat /opt/fonos/config/admin_credentials
 ```
 
 Your output will look like the one bellow
 
 ```bash
 {
-   "accessKeyId":"internal",
+   "accessKeyId":"admin",
    "accessKeySecret":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
