@@ -10,32 +10,26 @@ Deploy PF to Multipass with the following steps. First, download the [cloud-conf
 curl https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt -o cloud-config.txt
 ```
 
-Since we are running locally, we have to modify the cloud-config to discover the private ipv4 instead of the public ipv4. Here is how.
-
-First, update your cloud config with:
+Since we are running locally, we have to modify the cloud-config to discover the private ipv4 instead of the public ipv4. First, update your cloud config with:
 
 ```bash
 sed -i.bak -e "s#publicv4#privatev4#g" "cloud-config.txt"
 ```
 
-From the same directory, fire up Multipass
+Then, from the same directory, fire up Multipass
 
 ```bash
 multipass launch --name fonos --disk 10G --cpus 2 --mem 4G --cloud-init cloud-config.txt
 ```
 
-You might see a "timed out waiting for initialization to complete", especially in a slow Internet connection. Don't worry. The process will continue in the background. 
-
-You can access your VM and continue following the installation process with:
+You might see a "timed out waiting for initialization to complete", especially in a slow Internet connection. Don't worry. The process will continue in the background. You can access your VM and continue following the installation process with:
 
 ```bash
 multipass shell fonos
 tail -f /var/log/cloud-init-output.log
 ```
 
-Once you see "Cloud init is done!" the process is complete. If everything went well, you will be able to log in to your PF deployment.
-
-To log in for the first time to your deployment, first, get your admin credentials with:
+Once you see "Cloud init is done!" the process is complete. If everything went well, you will be able to log in to your PF deployment. To log in for the first time to your deployment, first, get your admin credentials with:
 
 ```bash
 cat /opt/fonos/config/admin_credentials
