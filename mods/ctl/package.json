@@ -76,7 +76,7 @@
   "dependencies": {
     "@fonos/agents": "^0.1.5-alpha.0",
     "@fonos/domains": "^0.1.5-alpha.0",
-    "@fonos/logger": "^0.1.2-alpha.0",
+    "@fonos/logger": "^0.1.5-alpha.0",
     "@fonos/numbers": "^0.1.5-alpha.0",
     "@fonos/providers": "^0.1.5-alpha.0",
     "@oclif/command": "^1.8.0",

@@ -43,10 +43,10 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/certs": "^0.1.2-alpha.0",
-    "@fonos/common": "^0.1.4-alpha.0",
-    "@fonos/errors": "^0.1.2-alpha.0",
-    "@fonos/logger": "^0.1.2-alpha.0",
+    "@fonos/certs": "^0.1.5-alpha.0",
+    "@fonos/common": "^0.1.5-alpha.0",
+    "@fonos/errors": "^0.1.5-alpha.0",
+    "@fonos/logger": "^0.1.5-alpha.0",
     "express": "^4.17.1",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",

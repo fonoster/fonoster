@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@fonos/auth": "^0.1.5-alpha.0",
-    "@fonos/logger": "^0.1.2-alpha.0",
+    "@fonos/logger": "^0.1.5-alpha.0",
     "@fonos/numbers": "^0.1.5-alpha.0",
     "@fonos/storage": "^0.1.5-alpha.0",
     "ari-client": "^2.2.0",
