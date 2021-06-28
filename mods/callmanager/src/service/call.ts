@@ -41,7 +41,7 @@ export default async function (
   const from = request.getFrom().replace("+", "");
   const to = request.getTo().replace("+", "");
 
-  const variables = request.getWebhook()
+  const variables = !request.getWebhook()
     ? {DID_INFO: from}
     : {DID_INFO: from, WEBHOOK: request.getWebhook()};
 

@@ -36,7 +36,9 @@ DS_SECRET=
 #
 
 # External IP or Domain for your Fonos API (required)
-#PUBLIC_URL=htts://api.example.com:50051
+# Before going on production you must replace this with the
+# TLS protected URL
+#PUBLIC_URL=http://api.example.com:50051
 
 # Exposed HTTP port
 HTTP_PORT=50051
@@ -60,7 +62,7 @@ CONFIG=/opt/fonos/config
 # E-Mail for receiving important account notifications (mandatory)
 #LETSENCRYPT_EMAIL=alice@acme.com
 
-# Command separated whitelisted services
+# Whitelisted services (comma separated)
 AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole
 
 # Issuer for JWT claims
@@ -86,7 +88,7 @@ MS_RTP_PORT_END=21000
 MS_TRUNK=routr
 MS_CONTEXT=local-ctx
 MS_EXTENSION=s
-MS_ARI_USERNAME=admin
+MS_ARI_USERNAME=ari
 MS_ARI_INTERNAL_URL=http://mediaserver:8088
 
 #
@@ -158,7 +160,7 @@ EB_ENABLED=false
 # Integration with secrets server (Vault)
 #
 #SECRETS_IMAGE=vault
-#SECRETS_URL=
+#SECRETS_URL=http://secrets:8200
 #SECRETS_POLICY=fonos-policy
 #SECRETS_TOKEN=
 
@@ -213,4 +215,4 @@ COMPOSE_PROJECT_VERSION=0.0.104
 RESTART_POLICY=unless-stopped
 
 # Node environment variable 
-NODE_ENV=dev
+NODE_ENV=staging

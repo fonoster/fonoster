@@ -1,9 +1,12 @@
 import "../../config";
 import Domains from "@fonos/domains";
+import {CommonPB} from "@fonos/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
+import Numbers from "@fonos/numbers";
 const inquirer = require("inquirer");
+const view: CommonPB.View = CommonPB.View.BASIC;
 
 export default class UpdateCommand extends Command {
   static args = [{name: "ref"}];
@@ -19,6 +22,23 @@ export default class UpdateCommand extends Command {
     const {args} = this.parse(UpdateCommand);
     const domains = new Domains();
     const domain = await domains.getDomain(args.ref);
+    const numbers = new Numbers();
+
+    const result = await numbers.listNumbers({
+      pageSize: 20,
+      pageToken: "1",
+      view
+    });
+    const nums = result.numbers.map((n: any) => {
+      return {
+        value: n.ref,
+        name: n.e164Number
+      };
+    });
+    nums.unshift({
+      value: "none",
+      name: "none"
+    });
 
     const answers: any = await inquirer.prompt([
       {
@@ -35,10 +55,12 @@ export default class UpdateCommand extends Command {
       },
       {
         name: "egressNumberRef",
-        message: "number reference",
-        type: "input",
-        default: domain.egressNumberRef
+        message: "egress number",
+        type: "list",
+        choices: nums,
+        default: "none"
       },
+      /*
       {
         name: "accessDeny",
         message: "access deny list",
@@ -51,6 +73,7 @@ export default class UpdateCommand extends Command {
         type: "input",
         default: domain.accessAllow.join(",")
       },
+      */
       {
         name: "confirm",
         message: "ready?",

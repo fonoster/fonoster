@@ -23,6 +23,10 @@ export default class extends Command {
     });
     const domains = response.domains.map((app: any) => app.domainUri);
 
+    if (domains.length === 0) {
+      throw new Error("you must create a domain before adding an agent");
+    }
+
     const answers: any = await inquirer.prompt([
       {
         name: "name",

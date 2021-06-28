@@ -105,7 +105,9 @@ export const cleanupTmpDirSync = (dirName: string) => {
 };
 
 export const copyFuncAtTmp = async (funcPath: string, dirName: string) => {
-  await fs.copy(funcPath, `/tmp/${dirName}`);
+  await fs.copy(funcPath, `/tmp/${dirName}`, {
+    filter: (currentPath) => !currentPath.includes("node_modules")
+  });
   await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
 };
 
