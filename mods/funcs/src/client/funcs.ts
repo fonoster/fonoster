@@ -119,6 +119,7 @@ export default class Funcs extends FonosService {
         bucket: "funcs"
       });
     }
+    cleanupTmpDirSync(request.name);
     const req = buildDeployFuncRequest(request);
     const stream = super.getService().deployFunc(req, super.getMeta());
     return new DeployStream(stream);

@@ -8,6 +8,7 @@ const app = express();
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
 import {getSalt} from "@fonos/certs";
+import { AuthMiddleware } from "..";
 const authenticator = new Auth(new JWT());
 
 app.get("/session_auth", async (req, res) => {
@@ -40,5 +41,12 @@ app.listen(3000, () => {
     }
   ];
 
-  runServices(services, []);
+  const middlewares = [
+    {
+      name: "authentication",
+      middlewareObj: new AuthMiddleware(getSalt()).middleware
+    }
+  ];
+  
+  runServices(services, middlewares);
 });
