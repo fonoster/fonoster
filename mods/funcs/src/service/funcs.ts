@@ -192,7 +192,6 @@ export default class FuncsServer implements IFuncsServer {
       await publish(call, serverStream);
       serverStream.write("deployment complete");
       serverStream.write("your function will be available shortly");
-      cleanupTmpDirSync(call.request.getName());
       call.end();
     } catch (e) {
       logger.error(`@fonos/funcs deploy [${e}]`);
