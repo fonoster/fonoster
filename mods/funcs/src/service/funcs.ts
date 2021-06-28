@@ -45,7 +45,6 @@ import {
   getBuildDir,
   assertValidFuncName,
   assertValidSchedule,
-  cleanupTmpDirSync
 } from "../utils/utils";
 import buildAndPublishImage from "./registry";
 import btoa from "btoa";
