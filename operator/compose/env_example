@@ -200,6 +200,13 @@ EB_ENABLED=false
 #DOCKER_REGISTRY_SERVICE=registry.docker.io
 #DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
 
+#
+# Integration with Github Oauth2
+#
+#GH_OAUTH2_CLIENT_ID=
+#GH_OAUTH2_CLIENT_SECRET=
+#GH_OAUTH2_CALLBACK_URL=
+#GH_OAUTH2_ENDPOINT=http://api.example.com:50051
 
 #
 # Miscelaneous variables
