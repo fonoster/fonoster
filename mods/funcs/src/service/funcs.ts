@@ -44,7 +44,7 @@ import {
   getImageName,
   getBuildDir,
   assertValidFuncName,
-  assertValidSchedule,
+  assertValidSchedule
 } from "../utils/utils";
 import buildAndPublishImage from "./registry";
 import btoa from "btoa";
