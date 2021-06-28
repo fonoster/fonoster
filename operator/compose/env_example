@@ -62,7 +62,7 @@ CONFIG=/opt/fonos/config
 # E-Mail for receiving important account notifications (mandatory)
 #LETSENCRYPT_EMAIL=alice@acme.com
 
-# Command separated whitelisted services
+# Whitelisted services (comma separated)
 AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole
 
 # Issuer for JWT claims
@@ -160,7 +160,7 @@ EB_ENABLED=false
 # Integration with secrets server (Vault)
 #
 #SECRETS_IMAGE=vault
-#SECRETS_URL=
+#SECRETS_URL=http://secrets:8200
 #SECRETS_POLICY=fonos-policy
 #SECRETS_TOKEN=
 
@@ -215,4 +215,4 @@ COMPOSE_PROJECT_VERSION=0.0.104
 RESTART_POLICY=unless-stopped
 
 # Node environment variable 
-NODE_ENV=dev
+NODE_ENV=staging
