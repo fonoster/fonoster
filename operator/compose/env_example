@@ -207,6 +207,12 @@ EB_ENABLED=false
 #GH_OAUTH2_CLIENT_SECRET=
 #GH_OAUTH2_CALLBACK_URL=
 #GH_OAUTH2_ENDPOINT=http://api.example.com:50051
+#GH_OAUTH2_PAGE_TITLE=PF Access Information
+#GH_OAUTH2_PAGE_MESSAGE=PF Access Information
+
+# Comma separated list of Github users. Uncomment only if 
+# you want to restrict access to a list if Github users. 
+#GH_OAUTH2_ACCESS_LIST=
 
 #
 # Miscelaneous variables
@@ -216,7 +222,9 @@ EB_ENABLED=false
 COMPOSE_PROJECT_NAME=fonos
 
 # Overall version for the project
-COMPOSE_PROJECT_VERSION=0.0.104
+# This variable will determine which docker
+# image is downloaded for PF services
+COMPOSE_PROJECT_VERSION=0.1.6-alpha.0
 
 # Restart policy for containers
 RESTART_POLICY=unless-stopped

@@ -66,3 +66,30 @@ services:
       - type: bind
         source: ${CONFIG}/admin_credentials
         target: /home/fonos/config
+
+  server_certs:
+    image: fonoster/certshelper
+    environment: 
+      SUBJECT: localhost
+      CERT_NAME: server
+    volumes:
+      - ${CONFIG}/certs:/certs
+
+  client_certs:
+    image: fonoster/certshelper
+    environment: 
+      SUBJECT: localhost
+      CERT_NAME: client
+    volumes:
+      - ${CONFIG}/certs:/certs
+
+  apply_server_certs:
+    image: fonoster/confighelper
+    volumes:
+      - ${CONFIG}/certs:/config
+
+  apply_client_certs:
+    image: fonoster/confighelper
+    entrypoint: /bin/sh -c "config-client"
+    volumes:
+      - ${CONFIG}/certs:/config

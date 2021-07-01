@@ -238,7 +238,8 @@ export default class Funcs extends FonosService {
                   image: f.getImage(),
                   replicas: f.getReplicas(),
                   invocationCount: f.getInvocationCount(),
-                  availableReplicas: f.getAvailableReplicas()
+                  availableReplicas: f.getAvailableReplicas(),
+                  schedule: f.getSchedule()
                 };
               })
             });

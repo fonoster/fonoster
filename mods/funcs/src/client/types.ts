@@ -69,6 +69,7 @@ export interface Func {
   invocationCount: number;
   replicas: number;
   availableReplicas: number;
+  schedule?: string;
 }
 
 export interface ListFuncsRequest {

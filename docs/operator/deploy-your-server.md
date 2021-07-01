@@ -1,6 +1,6 @@
 ![Deploy Server Banner](https://raw.githubusercontent.com/fonoster/fonos/main/docs/assets/images/deploy_banner.png)
 
-This guide will teach you how to install Project Fonos(PF) in a self-hosted environment or the cloud. You will learn about the available installation options and which one is the best for your current journey with PF.
+This document will guide guide through installationg process of Project Fonos(PF) in a self-hosted environment or the cloud. You will learn about the available installation options and which one is the best for your current journey with PF.
 
 ## Self-hosted or Cloud
 
@@ -13,3 +13,5 @@ To get started check the following guides:
 - [Deploy to Multipass](./deploy-to-multipass.md)
 - [Deploy to Digital Ocean](./deploy-to-digitalocean.md)
 - [Deploy server Manually](./deploy-server-manually.md)
+- [Adding support for Cloud Functions (Experimental)](./adding_support_for_functions.md)
+- [Adding support for Secrets (Experimental)](./adding_support_for_secrets.md)

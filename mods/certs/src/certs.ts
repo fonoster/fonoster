@@ -44,7 +44,7 @@ const writeConfig = (config: string, pathToConfig: string, workdir: string) => {
 function createServerConfig(workdir: string) {
   try {
     const pathToConfig = join(workdir, "config");
-    const config: any = {};
+    const config = JSON.parse(fs.readFileSync(pathToConfig).toString("utf-8"));
     config.caCertificate = getContent(workdir, "ca.crt");
     config.serverCertificate = getContent(workdir, "server.crt");
     config.serverKey = getContent(workdir, "server.key");
@@ -54,11 +54,10 @@ function createServerConfig(workdir: string) {
   }
 }
 
-function createClientConfig(workdir: string, endpoint: string) {
+function createClientConfig(workdir: string) {
   try {
     const pathToConfig = join(workdir, "config");
     const config = JSON.parse(fs.readFileSync(pathToConfig).toString("utf-8"));
-    config.endpoint = endpoint;
     config.caCertificate = getContent(workdir, "ca.crt");
     config.clientCertificate = getContent(workdir, "client.crt");
     config.clientKey = getContent(workdir, "client.key");
