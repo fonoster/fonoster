@@ -41,12 +41,5 @@ app.listen(3000, () => {
     }
   ];
 
-  const middlewares = [
-    {
-      name: "authentication",
-      middlewareObj: new AuthMiddleware(getSalt()).middleware
-    }
-  ];
-
-  runServices(services, [middlewares]);
+  runServices(services, []);
 });
