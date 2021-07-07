@@ -48,5 +48,5 @@ app.listen(3000, () => {
     }
   ];
 
-  runServices(services, middlewares);
+  runServices(services, [middlewares]);
 });
