@@ -39,7 +39,7 @@ services:
   service_creds:
     image: fonoster/jwthelper
     environment:
-      ENDPOINT: ${PUBLIC_URL}
+      ENDPOINT: ${AS_HOST}:{HTTP_PORT}
       ACCESS_KEY_ID: internal
       ROLE: SERVICE
       EXPIRATION: 1y

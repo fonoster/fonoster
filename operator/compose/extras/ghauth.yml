@@ -12,7 +12,8 @@ services:
       - "traefik.http.routers.ghauth.entrypoints=websecure"
       - "traefik.http.services.ghauth.loadbalancer.server.port=3000"
       - "traefik.http.routers.ghauth.rule=PathPrefix(`/auth/github/callback`)"
-    environment: 
+    environment:
+      ALLOW_INSECURE: ${AS_ALLOW_INSECURE}
       CLIENT_ID: ${GH_OAUTH2_CLIENT_ID}
       CLIENT_SECRET: ${GH_OAUTH2_CLIENT_SECRET}
       CALLBACK_URL: ${GH_OAUTH2_CALLBACK_URL}
