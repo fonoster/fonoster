@@ -65,19 +65,9 @@ const getServerCredentials = () => {
 };
 
 const getClientCredentials = (grpc) => {
-  try {
-    return grpc.credentials.createSsl(
-      prepCert(config.caCertificate),
-      prepCert(config.clientKey),
-      prepCert(config.clientCertificate)
-    );
-  } catch (e) {
-    logger.warn(
-      "@fonos/common trust util [unable to load security certificates]"
-    );
-    logger.warn("@fonos/common trust util [starting server in insecure mode]");
-    return grpc.credentials.createInsecure();
-  }
+  return process.env.ALLOW_INSECURE === "true"
+      ? grpc.credentials.createInsecure()
+      : grpc.credentials.createSsl();
 };
 
 export {getClientCredentials, getServerCredentials};
