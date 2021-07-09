@@ -64,10 +64,9 @@ const getServerCredentials = () => {
   }
 };
 
-const getClientCredentials = (grpc) => {
-  return process.env.ALLOW_INSECURE === "true"
+const getClientCredentials = (grpc) =>
+  process.env.ALLOW_INSECURE === "true"
     ? grpc.credentials.createInsecure()
     : grpc.credentials.createSsl();
-};
 
 export {getClientCredentials, getServerCredentials};
