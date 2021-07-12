@@ -28,7 +28,7 @@ services:
       retries: 3
     logging:
       options:
-        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.apiserver
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.sipproxy
     networks:
       fonos:
         aliases:
@@ -68,6 +68,7 @@ services:
       - "traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}"
     environment:
       APISERVER_ENDPOINT: ${AS_HOST}:{HTTP_PORT}
+      ALLOW_INSECURE: ${AS_ALLOW_INSECURE}
       ARI_EXTERNAL_URL: ${PUBLIC_URL}
       ARI_INTERNAL_URL: ${MS_ARI_INTERNAL_URL}
       ARI_USERNAME: ${MS_ARI_USERNAME}

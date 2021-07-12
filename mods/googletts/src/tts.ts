@@ -36,7 +36,7 @@ const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
  *
  * new GoogleTTS().synthetize("Hello world")
  *  .then((result) => console.log("path: " + result.pathToFile))
- *  .catch(console.err);
+ *  .catch(console.error);
  */
 class GoogleTTS extends Plugin implements TTSPlugin {
   config: GoogleTTSConfig;

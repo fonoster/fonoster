@@ -19,6 +19,7 @@
 export interface GoogleTTSConfig {
   keyFilename: string;
   projectId?: string;
+  // Location of resulting sound
   path?: string;
 }
 
