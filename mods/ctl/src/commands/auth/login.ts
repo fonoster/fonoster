@@ -23,7 +23,7 @@ export default class extends Command {
         name: "endpoint",
         message: "api endpoint",
         type: "input",
-        default: "api.fonoster.io:50051"
+        default: "api.fonoster.io"
       },
       {
         name: "accessKeyId",
