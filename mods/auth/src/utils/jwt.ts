@@ -33,6 +33,8 @@ export default class JWT implements ITokenManager {
         ignoreExpiration: false
       })) as JwtPayload;
     } catch (e) {
+      console.log(e);
+      
       logger.log("error", "@fonos/auth [Bad token]");
       throw new Error(e);
     }

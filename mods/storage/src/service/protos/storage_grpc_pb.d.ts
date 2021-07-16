@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as storage_pb from "./storage_pb";
 
 interface IStorageService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {

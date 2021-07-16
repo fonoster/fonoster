@@ -19,7 +19,9 @@
  * limitations under the License.
  */
 import logger from "@fonos/logger";
-import grpc from "grpc";
+const grpc = require('@grpc/grpc-js');
+
+//import grpc from "@grpc/grpc-js";
 import {getServerCredentials} from "./trust_util";
 import interceptor from "@pionerlabs/grpc-interceptors";
 import {
@@ -50,14 +52,14 @@ export default function run(
     "": HealthCheckResponse.ServingStatus.SERVING
   };
 
+  
   const grpcServer = new grpc.Server();
-
   // Adding health endpoint
   const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
   grpcServer.addService(HealthService, grpcHealthCheck);
 
   // Wrapped server
-  const server = interceptor.serverProxy(grpcServer);
+  const server = interceptor.serverProxy(grpcServer)
 
   logger.info(
     `@fonos/common service runner [starting @ ${ENDPOINT}, api = ${srvInfList[0].version}]`
@@ -77,8 +79,10 @@ export default function run(
     logger.info(`@fonos/common service runner [added ${srvInf.name} service]`);
   });
 
-  server.bind(ENDPOINT, getServerCredentials());
-  server.start();
+  server.bindAsync(ENDPOINT, getServerCredentials(),() =>{
+    server.start();
+  });
+ 
 
   logger.info("@fonos/common service runner [runner is online]");
 }

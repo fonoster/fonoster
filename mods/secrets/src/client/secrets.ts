@@ -21,7 +21,7 @@ import {SecretsClient} from "../service/protos/secrets_grpc_pb";
 import SecretPB from "../service/protos/secrets_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
-import grpc from "grpc";
+const grpc = require("@grpc/grpc-js");
 import {
   CreateSecretRequest,
   CreateSecretResponse,

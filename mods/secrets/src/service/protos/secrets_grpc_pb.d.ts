@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as secrets_pb from "./secrets_pb";
 import * as common_pb from "./common_pb";
 

@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as callmanager_pb from "./callmanager_pb";
 
 interface ICallManagerService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {

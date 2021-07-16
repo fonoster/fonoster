@@ -1,4 +1,4 @@
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {
   Agent,
   ListAgentsRequest,
@@ -25,7 +25,7 @@ import decoder from "./decoder";
 
 class AgentsServer extends ResourceServer implements IAgentsServer {
   async listAgents(
-    call: grpc.ServerUnaryCall<ListAgentsRequest>,
+    call: grpc.ServerUnaryCall<ListAgentsRequest,ListAgentsResponse>,
     callback: grpc.sendUnaryData<ListAgentsResponse>
   ) {
     const result = await super.listResources(Kind.AGENT, call);
@@ -39,7 +39,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   }
 
   async createAgent(
-    call: grpc.ServerUnaryCall<CreateAgentRequest>,
+    call: grpc.ServerUnaryCall<CreateAgentRequest,Agent>,
     callback: grpc.sendUnaryData<Agent>
   ) {
     const agent = call.request.getAgent();
@@ -59,7 +59,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   }
 
   async updateAgent(
-    call: grpc.ServerUnaryCall<UpdateAgentRequest>,
+    call: grpc.ServerUnaryCall<UpdateAgentRequest,Agent>,
     callback: grpc.sendUnaryData<Agent>
   ) {
     const agent = call.request.getAgent();
@@ -89,7 +89,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   }
 
   async getAgent(
-    call: grpc.ServerUnaryCall<GetAgentRequest>,
+    call: grpc.ServerUnaryCall<GetAgentRequest,Agent>,
     callback: grpc.sendUnaryData<Agent>
   ) {
     try {
@@ -101,7 +101,7 @@ class AgentsServer extends ResourceServer implements IAgentsServer {
   }
 
   async deleteAgent(
-    call: grpc.ServerUnaryCall<DeleteAgentRequest>,
+    call: grpc.ServerUnaryCall<DeleteAgentRequest,Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {

@@ -14,7 +14,7 @@ import {
   UpdateAgentRequest,
   UpdateAgentResponse
 } from "./types";
-import grpc from "grpc";
+const grpc = require("@grpc/grpc-js");
 
 /**
  * @classdesc Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,

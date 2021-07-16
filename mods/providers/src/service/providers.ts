@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable require-jsdoc */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {
   Provider,
   ListProvidersRequest,
@@ -27,7 +27,7 @@ import decoder from "./decoder";
 
 class ProvidersServer extends ResourceServer implements IProvidersServer {
   async listProviders(
-    call: grpc.ServerUnaryCall<ListProvidersRequest>,
+    call: grpc.ServerUnaryCall<ListProvidersRequest,ListProvidersResponse>,
     callback: grpc.sendUnaryData<ListProvidersResponse>
   ) {
     const result = await super.listResources(Kind.GATEWAY, call);
@@ -41,7 +41,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 
   async createProvider(
-    call: grpc.ServerUnaryCall<CreateProviderRequest>,
+    call: grpc.ServerUnaryCall<CreateProviderRequest,Provider>,
     callback: grpc.sendUnaryData<Provider>
   ) {
     const provider = call.request.getProvider();
@@ -67,7 +67,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 
   async updateProvider(
-    call: grpc.ServerUnaryCall<UpdateProviderRequest>,
+    call: grpc.ServerUnaryCall<UpdateProviderRequest,Provider>,
     callback: grpc.sendUnaryData<Provider>
   ) {
     const provider = call.request.getProvider();
@@ -100,7 +100,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 
   async getProvider(
-    call: grpc.ServerUnaryCall<GetProviderRequest>,
+    call: grpc.ServerUnaryCall<GetProviderRequest,Provider>,
     callback: grpc.sendUnaryData<Provider>
   ) {
     try {
@@ -112,7 +112,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 
   async deleteProvider(
-    call: grpc.ServerUnaryCall<DeleteProviderRequest>,
+    call: grpc.ServerUnaryCall<DeleteProviderRequest,Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {

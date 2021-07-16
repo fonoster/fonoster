@@ -21,7 +21,6 @@ import {FonosService, ServiceOptions} from "@fonos/common";
 import {FuncsClient} from "../service/protos/funcs_grpc_pb";
 import FuncsPB from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
-import grpc from "grpc";
 import {
   DeleteFuncRequest,
   DeleteFuncResponse,
@@ -38,6 +37,7 @@ import {
   copyFuncAtTmp
 } from "../utils/utils";
 import {DeployStream, LogsStream} from "./stream_wrappers";
+const grpc = require("@grpc/grpc-js");
 
 /**
  * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,

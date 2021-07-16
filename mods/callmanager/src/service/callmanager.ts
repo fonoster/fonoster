@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {routr} from "@fonos/core";
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import client from "ari-client";
 import {CallRequest, CallResponse} from "./protos/callmanager_pb";
 import {EndpointInfo} from "../client/types";
@@ -36,7 +36,7 @@ const numberNotInList = (number) =>
 
 class CallManagerServer implements ICallManagerServer {
   async call(
-    call: grpc.ServerUnaryCall<CallRequest>,
+    call: grpc.ServerUnaryCall<CallRequest,CallResponse>,
     callback: grpc.sendUnaryData<CallResponse>
   ) {
     logger.verbose(`@core/callmanager call [from ${call.request.getFrom()}]`);

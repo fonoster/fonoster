@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable require-jsdoc */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {
   Domain,
   ListDomainsRequest,
@@ -29,7 +29,7 @@ import decoder from "./decoder";
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
   async listDomains(
-    call: grpc.ServerUnaryCall<ListDomainsRequest>,
+    call: grpc.ServerUnaryCall<ListDomainsRequest,ListDomainsResponse>,
     callback: grpc.sendUnaryData<ListDomainsResponse>
   ) {
     const result = await super.listResources(Kind.DOMAIN, call);
@@ -43,7 +43,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 
   async createDomain(
-    call: grpc.ServerUnaryCall<CreateDomainRequest>,
+    call: grpc.ServerUnaryCall<CreateDomainRequest,Domain>,
     callback: grpc.sendUnaryData<Domain>
   ) {
     const domain = call.request.getDomain();
@@ -67,7 +67,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 
   async updateDomain(
-    call: grpc.ServerUnaryCall<UpdateDomainRequest>,
+    call: grpc.ServerUnaryCall<UpdateDomainRequest,Domain>,
     callback: grpc.sendUnaryData<Domain>
   ) {
     const domain = call.request.getDomain();
@@ -99,7 +99,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 
   async getDomain(
-    call: grpc.ServerUnaryCall<GetDomainRequest>,
+    call: grpc.ServerUnaryCall<GetDomainRequest,Domain>,
     callback: grpc.sendUnaryData<Domain>
   ) {
     try {
@@ -111,7 +111,7 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 
   async deleteDomain(
-    call: grpc.ServerUnaryCall<DeleteDomainRequest>,
+    call: grpc.ServerUnaryCall<DeleteDomainRequest,Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {

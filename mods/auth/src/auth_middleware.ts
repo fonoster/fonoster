@@ -1,4 +1,4 @@
-import grpc from "grpc";
+const grpc = require("@grpc/grpc-js");
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
@@ -18,10 +18,15 @@ export default class AuthMiddleware {
   }
 
   middleware = async (ctx: any, next: any, errorCb: any) => {
+    console.log();
+    
     const pathRequest = ctx.service.path;
 
     logger.verbose(`@fonos/logger middleware [request.path = ${pathRequest}]`);
 
+    console.log(pathRequest);
+    
+    
     if (this.whitelist.includes(pathRequest)) {
       next();
       return;
@@ -31,8 +36,8 @@ export default class AuthMiddleware {
 
     try {
       if (
-        !ctx.call.metadata._internal_repr.access_key_id ||
-        !ctx.call.metadata._internal_repr.access_key_secret
+        !ctx.call.metadata.get("access_key_id").toString() ||
+        !ctx.call.metadata.get("access_key_secret").toString()
       ) {
         errorCb({
           code: grpc.status.UNAUTHENTICATED,
@@ -42,9 +47,9 @@ export default class AuthMiddleware {
       }
 
       const accessKeyId =
-        ctx.call.metadata._internal_repr.access_key_id.toString();
+        ctx.call.metadata.get("access_key_id").toString();
       const accessKeySecret =
-        ctx.call.metadata._internal_repr.access_key_secret.toString();
+        ctx.call.metadata.get("access_key_secret").toString();
 
       jwtHandler
         .validateToken({accessToken: accessKeySecret}, this.privateKey)
@@ -80,6 +85,8 @@ export default class AuthMiddleware {
           }
         });
     } catch (e) {
+      console.log(e);
+      
       errorCb({
         code: grpc.status.INTERNAL,
         message: e

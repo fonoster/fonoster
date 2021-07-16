@@ -27,7 +27,7 @@ import {
   UploadObjectResponse
 } from "./types";
 import {promisifyAll} from "grpc-promise";
-import grpc from "grpc";
+const grpc = require("@grpc/grpc-js");
 import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
 
 /**

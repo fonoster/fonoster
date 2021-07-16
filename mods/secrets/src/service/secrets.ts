@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import getSecret from "./get_secret";
 import createSecret from "./create_secret";
 import deleteSecret from "./delete_secret";
@@ -40,7 +40,7 @@ import {
 
 class SecretServer implements ISecretsServer {
   async listSecretsId(
-    call: grpc.ServerUnaryCall<ListSecretIdRequest>,
+    call: grpc.ServerUnaryCall<ListSecretIdRequest,ListSecretIdResponse>,
     callback: grpc.sendUnaryData<ListSecretIdResponse>
   ) {
     try {
@@ -61,7 +61,7 @@ class SecretServer implements ISecretsServer {
   }
 
   async getSecret(
-    call: grpc.ServerUnaryCall<GetSecretRequest>,
+    call: grpc.ServerUnaryCall<GetSecretRequest,GetSecretResponse>,
     callback: grpc.sendUnaryData<GetSecretResponse>
   ) {
     try {
@@ -75,7 +75,7 @@ class SecretServer implements ISecretsServer {
   }
 
   async createSecret(
-    call: grpc.ServerUnaryCall<CreateSecretRequest>,
+    call: grpc.ServerUnaryCall<CreateSecretRequest,CreateSecretResponse>,
     callback: grpc.sendUnaryData<CreateSecretResponse>
   ) {
     try {
@@ -90,7 +90,7 @@ class SecretServer implements ISecretsServer {
   }
 
   async deleteSecret(
-    call: grpc.ServerUnaryCall<DeleteSecretRequest>,
+    call: grpc.ServerUnaryCall<DeleteSecretRequest,Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
