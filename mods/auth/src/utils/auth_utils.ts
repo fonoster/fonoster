@@ -56,15 +56,10 @@ export default class AuthUtils {
   ): Promise<TokenResponse> => {
     let result = false;
     try {
-      console.log(token);
-      console.log(privateKey);
-
       const accessTokenData = await this.handler.decode(
         token.accessToken,
         privateKey
-      );
-      console.log(accessTokenData);
-      
+      );      
       if (accessTokenData) {
         result = true;
       }

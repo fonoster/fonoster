@@ -18,14 +18,10 @@ export default class AuthMiddleware {
   }
 
   middleware = async (ctx: any, next: any, errorCb: any) => {
-    console.log();
-    
+
     const pathRequest = ctx.service.path;
 
-    logger.verbose(`@fonos/logger middleware [request.path = ${pathRequest}]`);
-
-    console.log(pathRequest);
-    
+    logger.verbose(`@fonos/logger middleware [request.path = ${pathRequest}]`);    
     
     if (this.whitelist.includes(pathRequest)) {
       next();
@@ -85,8 +81,6 @@ export default class AuthMiddleware {
           }
         });
     } catch (e) {
-      console.log(e);
-      
       errorCb({
         code: grpc.status.INTERNAL,
         message: e
