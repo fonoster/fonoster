@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as funcs_pb from "./funcs_pb";
 import * as common_pb from "./common_pb";
 
@@ -74,7 +74,7 @@ interface IFuncsService_ICreateRegistryToken extends grpc.MethodDefinition<funcs
 
 export const FuncsService: IFuncsService;
 
-export interface IFuncsServer {
+export interface IFuncsServer extends grpc.UntypedServiceImplementation {
     listFuncs: grpc.handleUnaryCall<funcs_pb.ListFuncsRequest, funcs_pb.ListFuncsResponse>;
     getFunc: grpc.handleUnaryCall<funcs_pb.GetFuncRequest, funcs_pb.Func>;
     deployFunc: grpc.handleServerStreamingCall<funcs_pb.DeployFuncRequest, funcs_pb.DeployStream>;
@@ -103,7 +103,7 @@ export interface IFuncsClient {
 }
 
 export class FuncsClient extends grpc.Client implements IFuncsClient {
-    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
     public listFuncs(request: funcs_pb.ListFuncsRequest, callback: (error: grpc.ServiceError | null, response: funcs_pb.ListFuncsResponse) => void): grpc.ClientUnaryCall;
     public listFuncs(request: funcs_pb.ListFuncsRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: funcs_pb.ListFuncsResponse) => void): grpc.ClientUnaryCall;
     public listFuncs(request: funcs_pb.ListFuncsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: funcs_pb.ListFuncsResponse) => void): grpc.ClientUnaryCall;

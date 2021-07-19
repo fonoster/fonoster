@@ -8,7 +8,7 @@
 // The Agents proto contains the artificats for the administration
 // of Agents.
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var agents_pb = require('./agents_pb.js');
 var common_pb = require('./common_pb.js');
 

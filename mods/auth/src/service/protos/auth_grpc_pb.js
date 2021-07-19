@@ -8,7 +8,7 @@
 // The Auth proto contains procedures to obtain authentication
 // data.
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var auth_pb = require('./auth_pb.js');
 
 function serialize_fonos_auth_v1alpha1_CreateTokenRequest(arg) {

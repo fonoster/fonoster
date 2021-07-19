@@ -8,7 +8,7 @@
 // The CallMananger proto contains the artificats for the call mananger
 // such as creation and deployment.
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var callmanager_pb = require('./callmanager_pb.js');
 
 function serialize_fonos_callmanager_v1alpha1_CallRequest(arg) {

@@ -8,7 +8,7 @@
 // The Numbers proto contains the artificats for the administration
 // of Numbers.
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var numbers_pb = require('./numbers_pb.js');
 var common_pb = require('./common_pb.js');
 
