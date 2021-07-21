@@ -10,7 +10,7 @@ do
     --proto_path=$DIRNAME/../mods/core/src/protos \
     --proto_path=$DIRNAME/../mods/${proto}/src/protos \
     --js_out=import_style=commonjs,binary:$DIRNAME/../mods/${proto}/src/service/protos \
-    --grpc_out=grpc_js:$DIRNAME/../mods/${proto}/src/service/protos \
+    --grpc_out=$DIRNAME/../mods/${proto}/src/service/protos \
     --plugin=protoc-gen-grpc=`which grpc_tools_node_protoc_plugin`
 
   # generate d.ts codes
@@ -19,7 +19,7 @@ do
     --proto_path=$DIRNAME/../mods/core/src/protos \
     --proto_path=$DIRNAME/../mods/${proto}/src/protos \
     --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts \
-    --ts_out=grpc_js:$DIRNAME/../mods/${proto}/src/service/protos
+    --ts_out=$DIRNAME/../mods/${proto}/src/service/protos
 done
 
 # Cleaning callmanager and auth stubs
