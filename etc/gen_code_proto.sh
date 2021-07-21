@@ -25,3 +25,5 @@ done
 # Cleaning callmanager and auth stubs
 rm $DIRNAME/../mods/callmanager/src/service/protos/common_*
 rm $DIRNAME/../mods/auth/src/service/protos/common_*
+
+#Last changes reversed
