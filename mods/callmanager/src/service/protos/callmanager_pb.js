@@ -311,7 +311,7 @@ proto.fonos.callmanager.v1alpha1.CallResponse.prototype.toObject = function(opt_
  */
 proto.fonos.callmanager.v1alpha1.CallResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    duration: jspb.Message.getFieldWithDefault(msg, 1, 0)
+    ref: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -349,8 +349,8 @@ proto.fonos.callmanager.v1alpha1.CallResponse.deserializeBinaryFromReader = func
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readInt32());
-      msg.setDuration(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRef(value);
       break;
     default:
       reader.skipField();
@@ -381,9 +381,9 @@ proto.fonos.callmanager.v1alpha1.CallResponse.prototype.serializeBinary = functi
  */
 proto.fonos.callmanager.v1alpha1.CallResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getDuration();
-  if (f !== 0) {
-    writer.writeInt32(
+  f = message.getRef();
+  if (f.length > 0) {
+    writer.writeString(
       1,
       f
     );
@@ -392,20 +392,20 @@ proto.fonos.callmanager.v1alpha1.CallResponse.serializeBinaryToWriter = function
 
 
 /**
- * optional int32 duration = 1;
- * @return {number}
+ * optional string ref = 1;
+ * @return {string}
  */
-proto.fonos.callmanager.v1alpha1.CallResponse.prototype.getDuration = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+proto.fonos.callmanager.v1alpha1.CallResponse.prototype.getRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {number} value
+ * @param {string} value
  * @return {!proto.fonos.callmanager.v1alpha1.CallResponse} returns this
  */
-proto.fonos.callmanager.v1alpha1.CallResponse.prototype.setDuration = function(value) {
-  return jspb.Message.setProto3IntField(this, 1, value);
+proto.fonos.callmanager.v1alpha1.CallResponse.prototype.setRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 

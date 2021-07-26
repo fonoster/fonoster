@@ -86,7 +86,7 @@ export default class CallManager extends FonosService {
     const p = await super.getService().call().sendMessage(r);
 
     return {
-      duration: p.getDuration()
+      ref: p.getRef()
     };
   }
 }

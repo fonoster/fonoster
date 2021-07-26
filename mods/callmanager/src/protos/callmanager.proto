@@ -26,5 +26,5 @@ message CallRequest {
 }
 
 message CallResponse {
-  int32 duration = 1;
+  string ref = 1;
 }
