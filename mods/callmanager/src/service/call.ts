@@ -43,7 +43,7 @@ export default async function (
   const to = request.getTo().replace("+", "");
 
   const variables = !request.getWebhook()
-    ? {DID_INFO: from}
+    ? {DID_INFO: from, REF: response.getRef()}
     : {DID_INFO: from, WEBHOOK: request.getWebhook(), REF: response.getRef()};
 
   await channel.originate({
