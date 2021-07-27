@@ -44,7 +44,12 @@ export default async function (
 
   const variables = !request.getWebhook()
     ? {DID_INFO: from, REF: response.getRef(), METADATA: request.getMetadata()}
-    : {DID_INFO: from, WEBHOOK: request.getWebhook(), REF: response.getRef(), METADATA: request.getMetadata()};
+    : {
+        DID_INFO: from,
+        WEBHOOK: request.getWebhook(),
+        REF: response.getRef(),
+        METADATA: request.getMetadata()
+      };
 
   await channel.originate({
     context: endpointInfo.context,

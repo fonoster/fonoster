@@ -64,9 +64,9 @@ export default function (err, client) {
         channelId: channel.id,
         variable: "WEBHOOK"
       });
-      
-      if(w){
-        webhook = w.value
+
+      if (w) {
+        webhook = w.value;
       }
     } catch (e) {
       // Nothing further needs to happen
@@ -79,9 +79,13 @@ export default function (err, client) {
         channelId: channel.id,
         variable: "METADATA"
       });
-      if(m){
-        metadata = JSON.parse(m.value)
-        logger.verbose(`@fonos/dispatcher statis start [metadata = ${JSON.stringify(metadata)}]`)
+      if (m) {
+        metadata = JSON.parse(m.value);
+        logger.verbose(
+          `@fonos/dispatcher statis start [metadata = ${JSON.stringify(
+            metadata
+          )}]`
+        );
       }
     } catch (e) {
       // Nothing further needs to happen
