@@ -72,6 +72,21 @@ export default function (err, client) {
       // Nothing further needs to happen
     }
 
+    let metadata;
+
+    try {
+      const m = await channel.getChannelVar({
+        channelId: channel.id,
+        variable: "METADATA"
+      });
+      if(m){
+        metadata = JSON.parse(m.value)
+        logger.verbose(`@fonos/dispatcher statis start [metadata = ${JSON.stringify(metadata)}]`)
+      }
+    } catch (e) {
+      // Nothing further needs to happen
+    }
+
     logger.verbose(
       `@fonos/dispatcher statis start [channelId = ${channel.id}]`
     );
@@ -95,7 +110,8 @@ export default function (err, client) {
       number: didInfo.value,
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number,
-      selfEndpoint: webhook
+      selfEndpoint: webhook,
+      metadata: metadata
     };
 
     logger.verbose(
