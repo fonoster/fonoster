@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {CallRequest, CallResponse} from "./protos/callmanager_pb";
+import {nanoid} from "nanoid";
 import {FonosError} from "@fonos/errors";
 import phone from "phone";
 import {EndpointInfo} from "../client/types";
@@ -35,15 +36,15 @@ export default async function (
     throw new FonosError("invalid e164 number");
 
   const response = new CallResponse();
-  response.setDuration(0);
+  response.setRef(nanoid());
 
   // Removing the "+" sign
   const from = request.getFrom().replace("+", "");
   const to = request.getTo().replace("+", "");
 
   const variables = !request.getWebhook()
-    ? {DID_INFO: from}
-    : {DID_INFO: from, WEBHOOK: request.getWebhook()};
+    ? {DID_INFO: from, REF: response.getRef()}
+    : {DID_INFO: from, WEBHOOK: request.getWebhook(), REF: response.getRef()};
 
   await channel.originate({
     context: endpointInfo.context,

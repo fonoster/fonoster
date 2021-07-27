@@ -60,10 +60,14 @@ export default function (err, client) {
 
     try {
       // If this variable exist it then we need overwrite the webhook
-      webhook = await channel.getChannelVar({
+      const w = await channel.getChannelVar({
         channelId: channel.id,
         variable: "WEBHOOK"
       });
+      
+      if(w){
+        webhook = w.value
+      }
     } catch (e) {
       // Nothing further needs to happen
     }

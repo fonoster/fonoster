@@ -36,8 +36,8 @@ export namespace CallRequest {
 }
 
 export class CallResponse extends jspb.Message { 
-    getDuration(): number;
-    setDuration(value: number): CallResponse;
+    getRef(): string;
+    setRef(value: string): CallResponse;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CallResponse.AsObject;
@@ -51,6 +51,6 @@ export class CallResponse extends jspb.Message {
 
 export namespace CallResponse {
     export type AsObject = {
-        duration: number,
+        ref: string,
     }
 }

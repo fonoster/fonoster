@@ -25,7 +25,7 @@ export interface CallRequest {
 }
 
 export interface CallResponse {
-  duration: number;
+  ref: string;
 }
 export interface EndpointInfo {
   domain: string;
