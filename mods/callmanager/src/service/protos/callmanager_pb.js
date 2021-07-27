@@ -94,7 +94,8 @@ proto.fonos.callmanager.v1alpha1.CallRequest.toObject = function(includeInstance
     from: jspb.Message.getFieldWithDefault(msg, 1, ""),
     to: jspb.Message.getFieldWithDefault(msg, 2, ""),
     webhook: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    ignoreE164Validation: jspb.Message.getBooleanFieldWithDefault(msg, 4, false)
+    ignoreE164Validation: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
+    metadata: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -146,6 +147,10 @@ proto.fonos.callmanager.v1alpha1.CallRequest.deserializeBinaryFromReader = funct
     case 4:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setIgnoreE164Validation(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setMetadata(value);
       break;
     default:
       reader.skipField();
@@ -201,6 +206,13 @@ proto.fonos.callmanager.v1alpha1.CallRequest.serializeBinaryToWriter = function(
   if (f) {
     writer.writeBool(
       4,
+      f
+    );
+  }
+  f = message.getMetadata();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -276,6 +288,24 @@ proto.fonos.callmanager.v1alpha1.CallRequest.prototype.getIgnoreE164Validation =
  */
 proto.fonos.callmanager.v1alpha1.CallRequest.prototype.setIgnoreE164Validation = function(value) {
   return jspb.Message.setProto3BooleanField(this, 4, value);
+};
+
+
+/**
+ * optional string metadata = 5;
+ * @return {string}
+ */
+proto.fonos.callmanager.v1alpha1.CallRequest.prototype.getMetadata = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.callmanager.v1alpha1.CallRequest} returns this
+ */
+proto.fonos.callmanager.v1alpha1.CallRequest.prototype.setMetadata = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
