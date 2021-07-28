@@ -24,6 +24,8 @@ doctl compute droplet create myserver \
   --image debian-10-x64
 ```
 
+> 💡 TIP: You could also add the `--ssh-keys` to ease future access your droplet
+
 You can access your VM and follow the installation process. From within the VM, run the next command:
 
 ```bash

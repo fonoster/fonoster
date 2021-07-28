@@ -32,6 +32,25 @@ High-level overview
 
 > Conceptual architecture and stack. We will post more details soon.
 
+## Features
+
+The most notable features on PF 0.1 are:
+
+- [x] Cloud initialization with Cloud-Init
+- [x] Multitenancy
+- [x] Easy deployment of PBXs functionalities
+- [x] Programmable Voice Applications
+- [x] NodeJS SDK
+- [x] Support for Amazon Simple Storage Service (S3)
+- [x] Secure API endpoints with Let's Encrypt
+- [x] Authentication with OAuth2
+- [X] Authentication with JWT 
+- [x] Role-Based Access Control (RBAC)
+- [x] Plugins-based Command-line Tool
+- [x] Support for Google Speech API
+- [x] Experimental support for Cloud Functions
+- [x] Experimental support for Secret management
+
 ## Code Examples
 
 A Voice Application is a server that takes control of the flow in a call. A Voice Application can use any combination of the following verbs:
@@ -83,7 +102,7 @@ callManager.call({
 To get started with PF use the following resources:
 
 - [Deploying Project Fonos to the Cloud](./docs/operator/deploy-your-server.md)
-- [An introduction to Programmable Voice Applications](https://github.com/fonoster/fonos101)
+- [An introduction to Programmable Voice Applications](https://github.com/fonoster/blog/blob/main/2021/002/post.md)
 - [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
 
 ## Bugs and Feedback

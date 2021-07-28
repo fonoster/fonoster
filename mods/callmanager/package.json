@@ -53,6 +53,7 @@
     "google-protobuf": "^3.17.0",
     "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
+    "nanoid": "^3.1.23",
     "phone": "^2.4.21"
   },
   "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"

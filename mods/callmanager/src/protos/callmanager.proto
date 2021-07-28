@@ -23,8 +23,10 @@ message CallRequest {
   string webhook = 3;
   // If enabled it will accept any input in the from and to
   bool ignore_e164_validation = 4;
+  // Metadata from the user
+  string metadata = 5;
 }
 
 message CallResponse {
-  int32 duration = 1;
+  string ref = 1;
 }
