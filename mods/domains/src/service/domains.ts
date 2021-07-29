@@ -47,6 +47,10 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     callback: grpc.sendUnaryData<Domain>
   ) {
     const domain = call.request.getDomain();
+    if(!domain.getEgressRule){
+      callback(new Error("Egress Rule can't be null"), null);
+      return;
+    }
     try {
       const resource = new ResourceBuilder(
         Kind.DOMAIN,
@@ -71,7 +75,10 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     callback: grpc.sendUnaryData<Domain>
   ) {
     const domain = call.request.getDomain();
-
+    if(!domain.getEgressRule){
+      callback(new Error("Egress Rule can't be null"), null);
+      return;
+    }
     try {
       const resource = new ResourceBuilder(
         Kind.DOMAIN,
