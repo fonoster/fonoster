@@ -1,5 +1,5 @@
-const {VoiceServer} = require("@fonos/voice");
-const {tts} = require("./config");
+const { VoiceServer } = require("@fonos/voice");
+const { tts } = require("./config");
 
 const config = {
   finishOnKey: "*",
@@ -12,19 +12,20 @@ const voiceServerConfig = {
   base: ""
 };
 const candidates = {
-  1: {name: "Donald Trump"},
-  2: {name: "Hillary Clinton"},
-  3: {name: "Beny Sanders"}
+  1: { name: "Donald Trump" },
+  2: { name: "Hillary Clinton" },
+  3: { name: "Beny Sanders" }
 };
 
 /**
  * This example shows the using of most all Fonos verbs.
  */
 const voiceServer = new VoiceServer(voiceServerConfig);
+
+//You can use another TTS plugin as MaryTTS
 voiceServer.use(tts);
+
 voiceServer.listen(async (req, res) => {
-  console.log(req);
-  console.log(res);
   await res.say(
     "Hello, this is a presidential poll from the Georgia Statistics Center."
   );
@@ -70,7 +71,6 @@ async function runMenu(res) {
     }
 
     res.say(`You selected option ${key}, ${candidates[key].name}`);
-    // Store the result as part of the cdr
 
     break;
   }
