@@ -5,5 +5,9 @@
   "description": "Presidential Poll Example",
   "main": "index.js",
   "author": "Pedro Sanders",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@fonos/googletts": "^0.1.9-alpha.0",
+    "@fonos/voice": "^0.1.9-alpha.0"
+  }
 }
