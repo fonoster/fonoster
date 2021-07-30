@@ -29,7 +29,7 @@ describe("@fonos/googletts", () => {
     await expect(tts.synthetize("hello world")).to.be.eventually.rejectedWith(
       "Could not load the default credentials."
     );
-    expect(join).to.have.been.calledTwice;
+    expect(join).to.have.been.called;
     expect(writeFile).to.not.have.been.called;
     expect(synthesizeSpeech).to.not.have.been.called;
   });
