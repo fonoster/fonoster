@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as providers_pb from "./providers_pb";
 import * as common_pb from "./common_pb";
 
@@ -64,7 +64,7 @@ interface IProvidersService_IDeleteProvider extends grpc.MethodDefinition<provid
 
 export const ProvidersService: IProvidersService;
 
-export interface IProvidersServer {
+export interface IProvidersServer extends grpc.UntypedServiceImplementation {
     listProviders: grpc.handleUnaryCall<providers_pb.ListProvidersRequest, providers_pb.ListProvidersResponse>;
     createProvider: grpc.handleUnaryCall<providers_pb.CreateProviderRequest, providers_pb.Provider>;
     getProvider: grpc.handleUnaryCall<providers_pb.GetProviderRequest, providers_pb.Provider>;
@@ -91,7 +91,7 @@ export interface IProvidersClient {
 }
 
 export class ProvidersClient extends grpc.Client implements IProvidersClient {
-    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
     public listProviders(request: providers_pb.ListProvidersRequest, callback: (error: grpc.ServiceError | null, response: providers_pb.ListProvidersResponse) => void): grpc.ClientUnaryCall;
     public listProviders(request: providers_pb.ListProvidersRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: providers_pb.ListProvidersResponse) => void): grpc.ClientUnaryCall;
     public listProviders(request: providers_pb.ListProvidersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: providers_pb.ListProvidersResponse) => void): grpc.ClientUnaryCall;

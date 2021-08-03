@@ -8,7 +8,7 @@
 // The Storage proto contains the artificats for bucket and objects
 // management.
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var storage_pb = require('./storage_pb.js');
 
 function serialize_fonos_storage_v1alpha1_GetObjectURLRequest(arg) {
