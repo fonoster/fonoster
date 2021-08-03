@@ -46,7 +46,7 @@
     "@fonos/auth": "^0.1.10-alpha.0",
     "@fonos/certs": "^0.1.9-alpha.0",
     "@fonos/common": "^0.1.9-alpha.0",
-    "@fonos/core": "https://gitpkg.now.sh/speedymonster/fonos/mods/core?dev",
+    "@fonos/core": "https://gitpkg.now.sh/fonoster/fonos/mods/core?temp-dev",
     "@grpc/grpc-js": "^1.3.6",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0"
