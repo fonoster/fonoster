@@ -8,7 +8,7 @@
 // The Funcs proto contains the artificats for function administration
 // such as creation and deployment.
 'use strict';
-var grpc = require('@grpc/grpc-js');
+var grpc = require('grpc');
 var funcs_pb = require('./funcs_pb.js');
 var common_pb = require('./common_pb.js');
 
