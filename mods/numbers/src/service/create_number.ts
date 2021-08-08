@@ -8,7 +8,11 @@ import {
   getRedisConnection
 } from "@fonos/core";
 import numberDecoder from "./decoder";
-import {assertHasAorLinkOrIngressInfo, assertIsE164} from "../utils/assertions";
+import {
+  assertHasAorLinkOrIngressInfo,
+  assertIsE164,
+  assertValidE164
+} from "../utils/assertions";
 
 const redis = getRedisConnection();
 
@@ -18,6 +22,7 @@ export default async function createNumber(
 ): Promise<NumbersPB.Number> {
   assertIsE164(number);
   assertHasAorLinkOrIngressInfo(number);
+  if (process.env.IGNORE_E164_VALIDATION == "false") assertValidE164(number);
 
   let encoder = new ResourceBuilder(Kind.NUMBER, number.getE164Number())
     .withGatewayRef(number.getProviderRef())
