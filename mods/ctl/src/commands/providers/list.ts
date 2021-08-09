@@ -4,10 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import inquirer from "inquirer";
 import {CommonPB} from "@fonos/providers";
-import {Provider} from "@fonos/providers/src/types";
-
-// Using import will cause: Error: easy_table_1.default is not a constructor
-const Table = require("easy-table");
+import {cli} from "cli-ux";
 
 export default class ListCommand extends Command {
   static description = `list registered providers
@@ -50,19 +47,20 @@ export default class ListCommand extends Command {
           if (!answer.q) break;
         }
 
-        const t = new Table();
+        if (list.length < 1) break;
 
-        list.forEach((provider: Provider) => {
-          t.cell("Ref", provider.ref);
-          t.cell("Name", provider.name);
-          t.cell("Username", provider.username || "(static)");
-          t.cell("Host", provider.host);
-          t.cell("Transport", provider.transport);
-          t.cell("Expires", provider.expires);
-          t.newRow();
+        cli.table(list, {
+          ref: {minWidth: 13},
+          name: {header: "Name", minWidth: 13},
+          username: {
+            header: "Username",
+            minWidth: 13,
+            get: (row) => row.username || "(static)"
+          },
+          host: {header: "Host", minWidth: 18},
+          transport: {header: "Transport", minWidth: 13},
+          expires: {header: "Expires", minWidth: 13}
         });
-
-        if (list.length > 0) console.log(t.toString());
 
         firstBatch = false;
         if (!pageToken) break;
