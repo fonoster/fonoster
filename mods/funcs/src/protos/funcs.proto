@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.funcs.v1alpha1;
+package fonos.funcs.v1beta1;
 
 import "common.proto";
 
@@ -19,7 +19,7 @@ service Funcs {
   // Orders the functions subsystem to download and deploy a function
   rpc DeployFunc (DeployFuncRequest) returns (stream DeployStream) {};
   // Peforms a hard delete of the function
-  rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1alpha1.Empty) {};
+  rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1beta1.Empty) {};
   // Peforms a hard delete of the function
   rpc GetFuncLogs (GetFuncLogsRequest) returns (stream FuncLog) {};
   // Creates a one time scoped token for access to the registry 
@@ -34,7 +34,7 @@ message ListFuncsRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  fonos.common.v1alpha1.View view = 3;
+  fonos.common.v1beta1.View view = 3;
 }
 
 message ListFuncsResponse {
@@ -58,7 +58,7 @@ message GetFuncLogsRequest {
 message GetFuncRequest {
   string name = 1;
   // Requested level of detail
-  fonos.common.v1alpha1.View view = 2;
+  fonos.common.v1beta1.View view = 2;
 }
 
 message DeployFuncRequest {
