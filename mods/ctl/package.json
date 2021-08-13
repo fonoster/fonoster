@@ -88,7 +88,6 @@
     "@oclif/plugin-warn-if-update-available": "^1.7.0",
     "cli-ux": "^5.5.1",
     "dockerode": "^3.3.0",
-    "easy-table": "^1.1.1",
     "figlet": "^1.5.0",
     "inquirer": "^7.3.3",
     "moment": "^2.29.1",
