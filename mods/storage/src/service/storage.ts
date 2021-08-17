@@ -41,9 +41,9 @@ const getBucketName = (bucket: GetObjectURLRequest.Bucket) => {
 
 class StorageServer implements IStorageServer {
   [name: string]: grpc.UntypedHandleCall;
-  
+
   async uploadObject(
-    call: grpc.ServerReadableStream<UploadObjectRequest,UploadObjectResponse>,
+    call: grpc.ServerReadableStream<UploadObjectRequest, UploadObjectResponse>,
     callback: grpc.sendUnaryData<UploadObjectResponse>
   ): Promise<void> {
     try {
@@ -54,7 +54,7 @@ class StorageServer implements IStorageServer {
   }
 
   async getObjectURL(
-    call: grpc.ServerUnaryCall<GetObjectURLRequest,GetObjectURLResponse>,
+    call: grpc.ServerUnaryCall<GetObjectURLRequest, GetObjectURLResponse>,
     callback: grpc.sendUnaryData<GetObjectURLResponse>
   ): Promise<void> {
     const bucket = getBucketName(call.request.getBucket());

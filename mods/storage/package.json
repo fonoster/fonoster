@@ -50,7 +50,6 @@
     "@fonos/errors": "^0.1.9-alpha.0",
     "@fonos/logger": "^0.1.9-alpha.0",
     "google-protobuf": "^3.17.0",
-    "grpc": "^1.24.7",
     "grpc-promise": "^1.4.0",
     "minio": "^7.0.18",
     "objectid": "^3.2.1",

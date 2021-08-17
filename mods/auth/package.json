@@ -48,7 +48,7 @@
     "@fonos/errors": "^0.1.9-alpha.0",
     "@fonos/logger": "^0.1.9-alpha.0",
     "express": "^4.17.1",
-    "grpc": "^1.24.7",
+    "@grpc/grpc-js":"^1.3.6",
     "grpc-promise": "^1.4.0",
     "jsonwebtoken": "^8.5.1"
   },

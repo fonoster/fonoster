@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as domains_pb from "./domains_pb";
 import * as common_pb from "./common_pb";
 
@@ -64,7 +64,7 @@ interface IDomainsService_IDeleteDomain extends grpc.MethodDefinition<domains_pb
 
 export const DomainsService: IDomainsService;
 
-export interface IDomainsServer {
+export interface IDomainsServer extends grpc.UntypedServiceImplementation {
     listDomains: grpc.handleUnaryCall<domains_pb.ListDomainsRequest, domains_pb.ListDomainsResponse>;
     createDomain: grpc.handleUnaryCall<domains_pb.CreateDomainRequest, domains_pb.Domain>;
     getDomain: grpc.handleUnaryCall<domains_pb.GetDomainRequest, domains_pb.Domain>;
@@ -91,7 +91,7 @@ export interface IDomainsClient {
 }
 
 export class DomainsClient extends grpc.Client implements IDomainsClient {
-    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
     public listDomains(request: domains_pb.ListDomainsRequest, callback: (error: grpc.ServiceError | null, response: domains_pb.ListDomainsResponse) => void): grpc.ClientUnaryCall;
     public listDomains(request: domains_pb.ListDomainsRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: domains_pb.ListDomainsResponse) => void): grpc.ClientUnaryCall;
     public listDomains(request: domains_pb.ListDomainsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: domains_pb.ListDomainsResponse) => void): grpc.ClientUnaryCall;
