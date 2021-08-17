@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.numbers.v1alpha1;
+package fonos.numbers.v1beta1;
 
 import "common.proto";
 
@@ -23,7 +23,7 @@ service Numbers {
   // Change or update fields in a resource
   rpc UpdateNumber (UpdateNumberRequest) returns (Number) {};
   // Hard delete of a Number resource
-  rpc DeleteNumber (DeleteNumberRequest) returns (fonos.common.v1alpha1.Empty) {};
+  rpc DeleteNumber (DeleteNumberRequest) returns (fonos.common.v1beta1.Empty) {};
 }
 
 message ListNumbersRequest {
@@ -34,7 +34,7 @@ message ListNumbersRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  fonos.common.v1alpha1.View view = 3;
+  fonos.common.v1beta1.View view = 3;
 }
 
 message ListNumbersResponse {

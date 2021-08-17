@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.agents.v1alpha1;
+package fonos.agents.v1beta1;
 
 import "common.proto";
 
@@ -21,7 +21,7 @@ service Agents {
   // Change or update fields in a resource
   rpc UpdateAgent (UpdateAgentRequest) returns (Agent) {};
   // Hard delete of a Agent resource
-  rpc DeleteAgent (DeleteAgentRequest) returns (fonos.common.v1alpha1.Empty) {};
+  rpc DeleteAgent (DeleteAgentRequest) returns (fonos.common.v1beta1.Empty) {};
 }
 
 message ListAgentsRequest {
@@ -32,7 +32,7 @@ message ListAgentsRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  fonos.common.v1alpha1.View view = 3;
+  fonos.common.v1beta1.View view = 3;
 }
 
 message ListAgentsResponse {
