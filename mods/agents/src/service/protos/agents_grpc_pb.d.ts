@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as agents_pb from "./agents_pb";
 import * as common_pb from "./common_pb";
 
@@ -64,7 +64,7 @@ interface IAgentsService_IDeleteAgent extends grpc.MethodDefinition<agents_pb.De
 
 export const AgentsService: IAgentsService;
 
-export interface IAgentsServer {
+export interface IAgentsServer extends grpc.UntypedServiceImplementation {
     listAgents: grpc.handleUnaryCall<agents_pb.ListAgentsRequest, agents_pb.ListAgentsResponse>;
     createAgent: grpc.handleUnaryCall<agents_pb.CreateAgentRequest, agents_pb.Agent>;
     getAgent: grpc.handleUnaryCall<agents_pb.GetAgentRequest, agents_pb.Agent>;
@@ -91,7 +91,7 @@ export interface IAgentsClient {
 }
 
 export class AgentsClient extends grpc.Client implements IAgentsClient {
-    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
     public listAgents(request: agents_pb.ListAgentsRequest, callback: (error: grpc.ServiceError | null, response: agents_pb.ListAgentsResponse) => void): grpc.ClientUnaryCall;
     public listAgents(request: agents_pb.ListAgentsRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: agents_pb.ListAgentsResponse) => void): grpc.ClientUnaryCall;
     public listAgents(request: agents_pb.ListAgentsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: agents_pb.ListAgentsResponse) => void): grpc.ClientUnaryCall;

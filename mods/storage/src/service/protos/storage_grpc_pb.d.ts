@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as storage_pb from "./storage_pb";
 
 interface IStorageService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
@@ -33,7 +33,7 @@ interface IStorageService_IGetObjectURL extends grpc.MethodDefinition<storage_pb
 
 export const StorageService: IStorageService;
 
-export interface IStorageServer {
+export interface IStorageServer extends grpc.UntypedServiceImplementation {
     uploadObject: grpc.handleClientStreamingCall<storage_pb.UploadObjectRequest, storage_pb.UploadObjectResponse>;
     getObjectURL: grpc.handleUnaryCall<storage_pb.GetObjectURLRequest, storage_pb.GetObjectURLResponse>;
 }
@@ -49,7 +49,7 @@ export interface IStorageClient {
 }
 
 export class StorageClient extends grpc.Client implements IStorageClient {
-    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
     public uploadObject(callback: (error: grpc.ServiceError | null, response: storage_pb.UploadObjectResponse) => void): grpc.ClientWritableStream<storage_pb.UploadObjectRequest>;
     public uploadObject(metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: storage_pb.UploadObjectResponse) => void): grpc.ClientWritableStream<storage_pb.UploadObjectRequest>;
     public uploadObject(options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: storage_pb.UploadObjectResponse) => void): grpc.ClientWritableStream<storage_pb.UploadObjectRequest>;

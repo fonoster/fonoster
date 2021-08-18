@@ -1,4 +1,22 @@
-import grpc from "grpc";
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+const grpc = require("@grpc/grpc-js");
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
@@ -28,11 +46,12 @@ export default class AuthMiddleware {
     }
 
     const jwtHandler = new Auth(new JWT());
+    console.log(ctx.call.metadata.get("access_key_id").toString());
 
     try {
       if (
-        !ctx.call.metadata._internal_repr.access_key_id ||
-        !ctx.call.metadata._internal_repr.access_key_secret
+        !ctx.call.metadata.get("access_key_id").toString() ||
+        !ctx.call.metadata.get("access_key_secret").toString()
       ) {
         errorCb({
           code: grpc.status.UNAUTHENTICATED,
@@ -41,10 +60,10 @@ export default class AuthMiddleware {
         return;
       }
 
-      const accessKeyId =
-        ctx.call.metadata._internal_repr.access_key_id.toString();
-      const accessKeySecret =
-        ctx.call.metadata._internal_repr.access_key_secret.toString();
+      const accessKeyId = ctx.call.metadata.get("access_key_id").toString();
+      const accessKeySecret = ctx.call.metadata
+        .get("access_key_secret")
+        .toString();
 
       jwtHandler
         .validateToken({accessToken: accessKeySecret}, this.privateKey)

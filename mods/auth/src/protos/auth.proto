@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.auth.v1beta1;
+package fonos.auth.v1alpha1;
 
 service Auth {
   // Gets a role by name

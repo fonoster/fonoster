@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import getObjectURL from "./get_object_url";
 import uploadObject from "./upload_object";
 import {
@@ -40,8 +40,10 @@ const getBucketName = (bucket: GetObjectURLRequest.Bucket) => {
 };
 
 class StorageServer implements IStorageServer {
+  [name: string]: grpc.UntypedHandleCall;
+
   async uploadObject(
-    call: grpc.ServerReadableStream<UploadObjectRequest>,
+    call: grpc.ServerReadableStream<UploadObjectRequest, UploadObjectResponse>,
     callback: grpc.sendUnaryData<UploadObjectResponse>
   ): Promise<void> {
     try {
@@ -52,7 +54,7 @@ class StorageServer implements IStorageServer {
   }
 
   async getObjectURL(
-    call: grpc.ServerUnaryCall<GetObjectURLRequest>,
+    call: grpc.ServerUnaryCall<GetObjectURLRequest, GetObjectURLResponse>,
     callback: grpc.sendUnaryData<GetObjectURLResponse>
   ): Promise<void> {
     const bucket = getBucketName(call.request.getBucket());
