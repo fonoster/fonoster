@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as secrets_pb from "./secrets_pb";
 import * as common_pb from "./common_pb";
 
@@ -54,7 +54,7 @@ interface ISecretsService_IDeleteSecret extends grpc.MethodDefinition<secrets_pb
 
 export const SecretsService: ISecretsService;
 
-export interface ISecretsServer {
+export interface ISecretsServer extends grpc.UntypedServiceImplementation {
     listSecretsId: grpc.handleUnaryCall<secrets_pb.ListSecretIdRequest, secrets_pb.ListSecretIdResponse>;
     getSecret: grpc.handleUnaryCall<secrets_pb.GetSecretRequest, secrets_pb.GetSecretResponse>;
     createSecret: grpc.handleUnaryCall<secrets_pb.CreateSecretRequest, secrets_pb.CreateSecretResponse>;
@@ -77,7 +77,7 @@ export interface ISecretsClient {
 }
 
 export class SecretsClient extends grpc.Client implements ISecretsClient {
-    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
     public listSecretsId(request: secrets_pb.ListSecretIdRequest, callback: (error: grpc.ServiceError | null, response: secrets_pb.ListSecretIdResponse) => void): grpc.ClientUnaryCall;
     public listSecretsId(request: secrets_pb.ListSecretIdRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: secrets_pb.ListSecretIdResponse) => void): grpc.ClientUnaryCall;
     public listSecretsId(request: secrets_pb.ListSecretIdRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: secrets_pb.ListSecretIdResponse) => void): grpc.ClientUnaryCall;

@@ -6,7 +6,7 @@
  */
 syntax = "proto3";
 
-package fonos.common.v1beta1;
+package fonos.common.v1alpha1;
 
 message Error {}
 

@@ -7,7 +7,7 @@
 //
 // The Domains proto contains the artificats for domains administration
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var domains_pb = require('./domains_pb.js');
 var common_pb = require('./common_pb.js');
 
