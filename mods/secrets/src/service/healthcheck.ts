@@ -4,7 +4,7 @@ import axios from "axios";
 import logger from "@fonos/logger";
 
 // First checks the grpc health
-healthcheck();
+//healthcheck();
 
 // Next, ensure vault is up
 axios
