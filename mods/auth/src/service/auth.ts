@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {
   GetRoleRequest,
   Role,
@@ -35,8 +35,9 @@ const authenticator = new Auth(new JWT());
 const rbac = require(process.env.AUTH_RBAC || "/home/fonos/rbac.json");
 
 class AuthServer implements IAuthServer {
+  [name: string]: grpc.UntypedHandleCall;
   async validateToken(
-    call: grpc.ServerUnaryCall<ValidateTokenRequest>,
+    call: grpc.ServerUnaryCall<ValidateTokenRequest, ValidateTokenResponse>,
     callback: grpc.sendUnaryData<ValidateTokenResponse>
   ) {
     const result = await authenticator.validateToken(
@@ -49,7 +50,7 @@ class AuthServer implements IAuthServer {
   }
 
   async createToken(
-    call: grpc.ServerUnaryCall<CreateTokenRequest>,
+    call: grpc.ServerUnaryCall<CreateTokenRequest, CreateTokenResponse>,
     callback: grpc.sendUnaryData<CreateTokenResponse>
   ) {
     // WARNING: We need to validate the token and verify
@@ -71,7 +72,7 @@ class AuthServer implements IAuthServer {
   }
 
   async createNoAccessToken(
-    call: grpc.ServerUnaryCall<CreateTokenRequest>,
+    call: grpc.ServerUnaryCall<CreateTokenRequest, CreateTokenResponse>,
     callback: grpc.sendUnaryData<CreateTokenResponse>
   ) {
     // WARNING: We need to validate the token and verify
@@ -94,7 +95,7 @@ class AuthServer implements IAuthServer {
   }
 
   async getRole(
-    call: grpc.ServerUnaryCall<GetRoleRequest>,
+    call: grpc.ServerUnaryCall<GetRoleRequest, Role>,
     callback: grpc.sendUnaryData<Role>
   ) {
     try {

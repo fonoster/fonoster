@@ -39,7 +39,7 @@ export default async function (
   const secretFromVault = await vault.list(`secret/data/${entityId}/`);
 
   const secretArray = secretFromVault.data.keys;
-  let secrets: SecretName[] = [];
+  const secrets: SecretName[] = [];
 
   for (const idx in secretArray) {
     const singleSecret = secretArray[idx];

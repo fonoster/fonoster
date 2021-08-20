@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as numbers_pb from "./numbers_pb";
 import * as common_pb from "./common_pb";
 
@@ -74,7 +74,7 @@ interface INumbersService_IDeleteNumber extends grpc.MethodDefinition<numbers_pb
 
 export const NumbersService: INumbersService;
 
-export interface INumbersServer {
+export interface INumbersServer extends grpc.UntypedServiceImplementation {
     listNumbers: grpc.handleUnaryCall<numbers_pb.ListNumbersRequest, numbers_pb.ListNumbersResponse>;
     createNumber: grpc.handleUnaryCall<numbers_pb.CreateNumberRequest, numbers_pb.Number>;
     getIngressInfo: grpc.handleUnaryCall<numbers_pb.GetIngressInfoRequest, numbers_pb.IngressInfo>;
@@ -105,7 +105,7 @@ export interface INumbersClient {
 }
 
 export class NumbersClient extends grpc.Client implements INumbersClient {
-    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
     public listNumbers(request: numbers_pb.ListNumbersRequest, callback: (error: grpc.ServiceError | null, response: numbers_pb.ListNumbersResponse) => void): grpc.ClientUnaryCall;
     public listNumbers(request: numbers_pb.ListNumbersRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: numbers_pb.ListNumbersResponse) => void): grpc.ClientUnaryCall;
     public listNumbers(request: numbers_pb.ListNumbersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: numbers_pb.ListNumbersResponse) => void): grpc.ClientUnaryCall;

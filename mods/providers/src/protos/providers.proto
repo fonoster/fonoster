@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.providers.v1beta1;
+package fonos.providers.v1alpha1;
 
 import "common.proto";
 
@@ -21,7 +21,7 @@ service Providers {
   // Change or update fields in a resource
   rpc UpdateProvider (UpdateProviderRequest) returns (Provider) {};
   // Hard delete of a Provider resource
-  rpc DeleteProvider (DeleteProviderRequest) returns (fonos.common.v1beta1.Empty) {};
+  rpc DeleteProvider (DeleteProviderRequest) returns (fonos.common.v1alpha1.Empty) {};
 }
 
 message ListProvidersRequest {
@@ -32,7 +32,7 @@ message ListProvidersRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  fonos.common.v1beta1.View view = 3;
+  fonos.common.v1alpha1.View view = 3;
 }
 
 message ListProvidersResponse {

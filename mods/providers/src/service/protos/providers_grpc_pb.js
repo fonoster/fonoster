@@ -8,7 +8,7 @@
 // The Providers proto contains the artificats for the administration
 // of Providers.
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var providers_pb = require('./providers_pb.js');
 var common_pb = require('./common_pb.js');
 

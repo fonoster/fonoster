@@ -20,7 +20,7 @@ import {FonosService, ServiceOptions} from "@fonos/common";
 import {AuthClient} from "../service/protos/auth_grpc_pb";
 import AuthPB from "../service/protos/auth_pb";
 import {promisifyAll} from "grpc-promise";
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {
   CreateTokenRequest,
   CreateTokenResponse,

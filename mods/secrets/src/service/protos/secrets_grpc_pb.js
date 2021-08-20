@@ -8,7 +8,7 @@
 // The SecretMananger proto contains the artificts for Secrets administration
 // such as creation and deployment.
 'use strict';
-var grpc = require('grpc');
+var grpc = require('@grpc/grpc-js');
 var secrets_pb = require('./secrets_pb.js');
 var common_pb = require('./common_pb.js');
 

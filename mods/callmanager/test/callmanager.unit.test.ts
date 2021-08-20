@@ -36,7 +36,7 @@ describe("@fonos/callmanager", () => {
           return {
             sendMessage: () =>
               Promise.resolve({
-                getRef: () => 'ramdonref'
+                getRef: () => "ramdonref"
               })
           };
         }

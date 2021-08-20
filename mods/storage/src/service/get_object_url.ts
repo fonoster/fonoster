@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import logger from "@fonos/logger";
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {FonosError} from "@fonos/errors";
 import {fsInstance} from "../utils/storage";
 
