@@ -6,7 +6,7 @@ export default function (jsonObj: any) {
   const context = jsonObj.spec.context;
   domain.setRef(jsonObj.metadata.ref);
   domain.setName(jsonObj.metadata.name);
-  domain.setDomainUri(context.domainUri);
+  domain.setDomainUri(`${context.domainUri}.${process.env.GLOBAL_SIP_DOMAIN}`);
   domain.setCreateTime(jsonObj.metadata.createdOn);
   domain.setUpdateTime(jsonObj.metadata.modifiedOn);
   if (context.egressPolicy) {

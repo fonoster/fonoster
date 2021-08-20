@@ -26,6 +26,7 @@ import {
 } from "@fonos/core";
 import unmarshalDomain from "./decoder";
 import decoder from "./decoder";
+import isValidDomain from "is-valid-domain";
 
 class DomainsServer extends ResourceServer implements IDomainsServer {
   async listDomains(
@@ -47,6 +48,12 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
     callback: grpc.sendUnaryData<Domain>
   ) {
     const domain = call.request.getDomain();
+
+    if (isValidDomain(domain.getDomainUri())==false){
+      callback(new Error("Domain Uri is not a valid domain"), null);
+      return;
+    }
+
     if(!domain.getEgressRule){
       callback(new Error("Egress Rule can't be null"), null);
       return;
