@@ -31,7 +31,6 @@ import {DomainsClient} from "../service/protos/domains_grpc_pb";
 import DomainsPB from "../service/protos/domains_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
-import grpc from "@grpc/grpc-js";
 
 /**
  * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
@@ -58,7 +57,7 @@ export default class Domains extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(DomainsClient, options);
-    super.init(grpc);
+    super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

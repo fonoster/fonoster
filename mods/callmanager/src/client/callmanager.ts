@@ -21,7 +21,6 @@ import {CallManagerClient} from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
 import {promisifyAll} from "grpc-promise";
 import {CallRequest, CallResponse} from "./types";
-import grpc from "@grpc/grpc-js";
 
 /**
  * @classdesc Use Fonos CallManager, a capability of Fonos Systems Manager,
@@ -50,7 +49,7 @@ export default class CallManager extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(CallManagerClient, options);
-    super.init(grpc);
+    super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

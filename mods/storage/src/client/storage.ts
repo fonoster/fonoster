@@ -27,7 +27,6 @@ import {
   UploadObjectResponse
 } from "./types";
 import {promisifyAll} from "grpc-promise";
-import grpc from "@grpc/grpc-js";
 import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
 
 /**
@@ -53,7 +52,7 @@ export default class Storage extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(StorageClient, options);
-    super.init(grpc);
+    super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

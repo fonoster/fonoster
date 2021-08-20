@@ -21,6 +21,7 @@ import {getClientCredentials} from "./trust_util";
 import {ServiceOptions} from "./types";
 import * as fs from "fs";
 import * as path from "path";
+import { Metadata } from "@grpc/grpc-js";
 
 // The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
 const merge = require("deepmerge");
@@ -61,7 +62,7 @@ export default class {
     this.options = merge(defaultOptions, options);
   }
 
-  init(grpc: {Metadata: new () => any}): void {
+  init(): void {
     try {
       if (configExist()) {
         this.options = merge(this.options, JSON.parse(getConfigFile()));
@@ -74,13 +75,13 @@ export default class {
       throw new Error("Not valid credentials found");
     }
 
-    this.metadata = new grpc.Metadata();
+    this.metadata = new Metadata();
     this.metadata.add("access_key_id", this.options.accessKeyId);
     this.metadata.add("access_key_secret", this.options.accessKeySecret);
 
     this.service = new this.ServiceClient(
       this.options.endpoint,
-      getClientCredentials(grpc)
+      getClientCredentials()
     );
   }
 

@@ -32,7 +32,6 @@ import {
   UpdateAgentRequest,
   UpdateAgentResponse
 } from "./types";
-import grpc from "@grpc/grpc-js";
 
 /**
  * @classdesc Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
@@ -66,7 +65,7 @@ export default class Agents extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(AgentsClient, options);
-    super.init(grpc);
+    super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

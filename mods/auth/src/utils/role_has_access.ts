@@ -23,7 +23,7 @@ import {getClientCredentials} from "@fonos/common";
 
 const svc = new AuthClient(
   process.env.APISERVER_ENDPOINT || "localhost:50052",
-  getClientCredentials(grpc)
+  getClientCredentials()
 );
 
 export default async function (
