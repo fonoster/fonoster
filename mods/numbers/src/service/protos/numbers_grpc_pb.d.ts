@@ -1,4 +1,4 @@
-// package: fonos.numbers.v1alpha1
+// package: fonos.numbers.v1beta1
 // file: numbers.proto
 
 /* tslint:disable */
@@ -18,7 +18,7 @@ interface INumbersService extends grpc.ServiceDefinition<grpc.UntypedServiceImpl
 }
 
 interface INumbersService_IListNumbers extends grpc.MethodDefinition<numbers_pb.ListNumbersRequest, numbers_pb.ListNumbersResponse> {
-    path: "/fonos.numbers.v1alpha1.Numbers/ListNumbers";
+    path: "/fonos.numbers.v1beta1.Numbers/ListNumbers";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<numbers_pb.ListNumbersRequest>;
@@ -27,7 +27,7 @@ interface INumbersService_IListNumbers extends grpc.MethodDefinition<numbers_pb.
     responseDeserialize: grpc.deserialize<numbers_pb.ListNumbersResponse>;
 }
 interface INumbersService_ICreateNumber extends grpc.MethodDefinition<numbers_pb.CreateNumberRequest, numbers_pb.Number> {
-    path: "/fonos.numbers.v1alpha1.Numbers/CreateNumber";
+    path: "/fonos.numbers.v1beta1.Numbers/CreateNumber";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<numbers_pb.CreateNumberRequest>;
@@ -36,7 +36,7 @@ interface INumbersService_ICreateNumber extends grpc.MethodDefinition<numbers_pb
     responseDeserialize: grpc.deserialize<numbers_pb.Number>;
 }
 interface INumbersService_IGetIngressInfo extends grpc.MethodDefinition<numbers_pb.GetIngressInfoRequest, numbers_pb.IngressInfo> {
-    path: "/fonos.numbers.v1alpha1.Numbers/GetIngressInfo";
+    path: "/fonos.numbers.v1beta1.Numbers/GetIngressInfo";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<numbers_pb.GetIngressInfoRequest>;
@@ -45,7 +45,7 @@ interface INumbersService_IGetIngressInfo extends grpc.MethodDefinition<numbers_
     responseDeserialize: grpc.deserialize<numbers_pb.IngressInfo>;
 }
 interface INumbersService_IGetNumber extends grpc.MethodDefinition<numbers_pb.GetNumberRequest, numbers_pb.Number> {
-    path: "/fonos.numbers.v1alpha1.Numbers/GetNumber";
+    path: "/fonos.numbers.v1beta1.Numbers/GetNumber";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<numbers_pb.GetNumberRequest>;
@@ -54,7 +54,7 @@ interface INumbersService_IGetNumber extends grpc.MethodDefinition<numbers_pb.Ge
     responseDeserialize: grpc.deserialize<numbers_pb.Number>;
 }
 interface INumbersService_IUpdateNumber extends grpc.MethodDefinition<numbers_pb.UpdateNumberRequest, numbers_pb.Number> {
-    path: "/fonos.numbers.v1alpha1.Numbers/UpdateNumber";
+    path: "/fonos.numbers.v1beta1.Numbers/UpdateNumber";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<numbers_pb.UpdateNumberRequest>;
@@ -63,7 +63,7 @@ interface INumbersService_IUpdateNumber extends grpc.MethodDefinition<numbers_pb
     responseDeserialize: grpc.deserialize<numbers_pb.Number>;
 }
 interface INumbersService_IDeleteNumber extends grpc.MethodDefinition<numbers_pb.DeleteNumberRequest, common_pb.Empty> {
-    path: "/fonos.numbers.v1alpha1.Numbers/DeleteNumber";
+    path: "/fonos.numbers.v1beta1.Numbers/DeleteNumber";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<numbers_pb.DeleteNumberRequest>;

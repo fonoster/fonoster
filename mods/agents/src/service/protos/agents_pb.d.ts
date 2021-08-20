@@ -1,4 +1,4 @@
-// package: fonos.agents.v1alpha1
+// package: fonos.agents.v1beta1
 // file: agents.proto
 
 /* tslint:disable */

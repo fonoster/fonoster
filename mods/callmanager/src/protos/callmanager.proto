@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.callmanager.v1alpha1;
+package fonos.callmanager.v1beta1;
 
 service CallManager {
   // Originates a call and pass channel to an application

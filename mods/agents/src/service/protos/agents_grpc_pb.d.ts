@@ -1,4 +1,4 @@
-// package: fonos.agents.v1alpha1
+// package: fonos.agents.v1beta1
 // file: agents.proto
 
 /* tslint:disable */
@@ -17,7 +17,7 @@ interface IAgentsService extends grpc.ServiceDefinition<grpc.UntypedServiceImple
 }
 
 interface IAgentsService_IListAgents extends grpc.MethodDefinition<agents_pb.ListAgentsRequest, agents_pb.ListAgentsResponse> {
-    path: "/fonos.agents.v1alpha1.Agents/ListAgents";
+    path: "/fonos.agents.v1beta1.Agents/ListAgents";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<agents_pb.ListAgentsRequest>;
@@ -26,7 +26,7 @@ interface IAgentsService_IListAgents extends grpc.MethodDefinition<agents_pb.Lis
     responseDeserialize: grpc.deserialize<agents_pb.ListAgentsResponse>;
 }
 interface IAgentsService_ICreateAgent extends grpc.MethodDefinition<agents_pb.CreateAgentRequest, agents_pb.Agent> {
-    path: "/fonos.agents.v1alpha1.Agents/CreateAgent";
+    path: "/fonos.agents.v1beta1.Agents/CreateAgent";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<agents_pb.CreateAgentRequest>;
@@ -35,7 +35,7 @@ interface IAgentsService_ICreateAgent extends grpc.MethodDefinition<agents_pb.Cr
     responseDeserialize: grpc.deserialize<agents_pb.Agent>;
 }
 interface IAgentsService_IGetAgent extends grpc.MethodDefinition<agents_pb.GetAgentRequest, agents_pb.Agent> {
-    path: "/fonos.agents.v1alpha1.Agents/GetAgent";
+    path: "/fonos.agents.v1beta1.Agents/GetAgent";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<agents_pb.GetAgentRequest>;
@@ -44,7 +44,7 @@ interface IAgentsService_IGetAgent extends grpc.MethodDefinition<agents_pb.GetAg
     responseDeserialize: grpc.deserialize<agents_pb.Agent>;
 }
 interface IAgentsService_IUpdateAgent extends grpc.MethodDefinition<agents_pb.UpdateAgentRequest, agents_pb.Agent> {
-    path: "/fonos.agents.v1alpha1.Agents/UpdateAgent";
+    path: "/fonos.agents.v1beta1.Agents/UpdateAgent";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<agents_pb.UpdateAgentRequest>;
@@ -53,7 +53,7 @@ interface IAgentsService_IUpdateAgent extends grpc.MethodDefinition<agents_pb.Up
     responseDeserialize: grpc.deserialize<agents_pb.Agent>;
 }
 interface IAgentsService_IDeleteAgent extends grpc.MethodDefinition<agents_pb.DeleteAgentRequest, common_pb.Empty> {
-    path: "/fonos.agents.v1alpha1.Agents/DeleteAgent";
+    path: "/fonos.agents.v1beta1.Agents/DeleteAgent";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<agents_pb.DeleteAgentRequest>;

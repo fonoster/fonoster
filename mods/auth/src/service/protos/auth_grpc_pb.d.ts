@@ -1,4 +1,4 @@
-// package: fonos.auth.v1alpha1
+// package: fonos.auth.v1beta1
 // file: auth.proto
 
 /* tslint:disable */
@@ -15,7 +15,7 @@ interface IAuthService extends grpc.ServiceDefinition<grpc.UntypedServiceImpleme
 }
 
 interface IAuthService_IGetRole extends grpc.MethodDefinition<auth_pb.GetRoleRequest, auth_pb.Role> {
-    path: "/fonos.auth.v1alpha1.Auth/GetRole";
+    path: "/fonos.auth.v1beta1.Auth/GetRole";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<auth_pb.GetRoleRequest>;
@@ -24,7 +24,7 @@ interface IAuthService_IGetRole extends grpc.MethodDefinition<auth_pb.GetRoleReq
     responseDeserialize: grpc.deserialize<auth_pb.Role>;
 }
 interface IAuthService_IValidateToken extends grpc.MethodDefinition<auth_pb.ValidateTokenRequest, auth_pb.ValidateTokenResponse> {
-    path: "/fonos.auth.v1alpha1.Auth/ValidateToken";
+    path: "/fonos.auth.v1beta1.Auth/ValidateToken";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<auth_pb.ValidateTokenRequest>;
@@ -33,7 +33,7 @@ interface IAuthService_IValidateToken extends grpc.MethodDefinition<auth_pb.Vali
     responseDeserialize: grpc.deserialize<auth_pb.ValidateTokenResponse>;
 }
 interface IAuthService_ICreateToken extends grpc.MethodDefinition<auth_pb.CreateTokenRequest, auth_pb.CreateTokenResponse> {
-    path: "/fonos.auth.v1alpha1.Auth/CreateToken";
+    path: "/fonos.auth.v1beta1.Auth/CreateToken";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<auth_pb.CreateTokenRequest>;
@@ -42,7 +42,7 @@ interface IAuthService_ICreateToken extends grpc.MethodDefinition<auth_pb.Create
     responseDeserialize: grpc.deserialize<auth_pb.CreateTokenResponse>;
 }
 interface IAuthService_ICreateNoAccessToken extends grpc.MethodDefinition<auth_pb.CreateTokenRequest, auth_pb.CreateTokenResponse> {
-    path: "/fonos.auth.v1alpha1.Auth/CreateNoAccessToken";
+    path: "/fonos.auth.v1beta1.Auth/CreateNoAccessToken";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<auth_pb.CreateTokenRequest>;

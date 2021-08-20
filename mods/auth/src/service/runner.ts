@@ -35,7 +35,7 @@ app.listen(3000, () => {
   const services = [
     {
       name: "auth",
-      version: "v1alpha1",
+      version: "v1beta1",
       service: AuthService,
       server: new AuthServer()
     }

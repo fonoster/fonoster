@@ -8,7 +8,7 @@ import {runServices} from "@fonos/common";
 const services = [
   {
     name: "storage",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: StorageService,
     server: new StorageServer()
   }

@@ -1,4 +1,4 @@
-// package: fonos.storage.v1alpha1
+// package: fonos.storage.v1beta1
 // file: storage.proto
 
 /* tslint:disable */
@@ -13,7 +13,7 @@ interface IStorageService extends grpc.ServiceDefinition<grpc.UntypedServiceImpl
 }
 
 interface IStorageService_IUploadObject extends grpc.MethodDefinition<storage_pb.UploadObjectRequest, storage_pb.UploadObjectResponse> {
-    path: "/fonos.storage.v1alpha1.Storage/UploadObject";
+    path: "/fonos.storage.v1beta1.Storage/UploadObject";
     requestStream: true;
     responseStream: false;
     requestSerialize: grpc.serialize<storage_pb.UploadObjectRequest>;
@@ -22,7 +22,7 @@ interface IStorageService_IUploadObject extends grpc.MethodDefinition<storage_pb
     responseDeserialize: grpc.deserialize<storage_pb.UploadObjectResponse>;
 }
 interface IStorageService_IGetObjectURL extends grpc.MethodDefinition<storage_pb.GetObjectURLRequest, storage_pb.GetObjectURLResponse> {
-    path: "/fonos.storage.v1alpha1.Storage/GetObjectURL";
+    path: "/fonos.storage.v1beta1.Storage/GetObjectURL";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<storage_pb.GetObjectURLRequest>;
