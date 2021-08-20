@@ -72,7 +72,7 @@ class DomainsServer implements IDomainsServer {
       callback(new Error("Domain Uri is not a valid domain"), null);
       return;
     }
-      
+
     if (!domain.getEgressRule) {
       callback(new Error("Egress Rule can't be null"), null);
       return;
