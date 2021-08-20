@@ -22,12 +22,6 @@ import logger from "@fonos/logger";
 const grpc = require("@grpc/grpc-js");
 import {getServerCredentials} from "./trust_util";
 const interceptor = require("@speedymonster/grpc-interceptors");
-
-import {
-  GrpcHealthCheck,
-  HealthCheckResponse,
-  HealthService
-} from "grpc-ts-health-check";
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
 
 interface ServiceInf {
@@ -47,18 +41,7 @@ export default function run(
   srvInfList: ServiceInf[],
   middlewareList?: Middleware[]
 ) {
-  const healthCheckStatusMap = {
-    "": HealthCheckResponse.ServingStatus.SERVING
-  };
-
   const grpcServer = new grpc.Server();
-
-  // TODO: Add healthcheck service
-
-  // Adding health endpoint
-  // const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
-  // grpcServer.addService(HealthService, grpcHealthCheck);
-
   // Wrapped server
   const server = interceptor.serverProxy(grpcServer);
 

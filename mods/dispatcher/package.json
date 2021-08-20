@@ -48,7 +48,6 @@
     "@fonos/storage": "^0.1.11-alpha.2",
     "ari-client": "^2.2.0",
     "axios": "^0.21.1",
-    "grpc": "^1.24.7",
     "wait-port": "^0.2.9",
     "ws": "^6.2.2"
   },

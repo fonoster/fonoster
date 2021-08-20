@@ -19,7 +19,7 @@ import {UploadObjectRequest} from "../service/protos/storage_pb";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {constants} from "./constants";
 import {StoragePB} from "../client/storage";
 

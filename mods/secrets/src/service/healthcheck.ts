@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {healthcheck} from "@fonos/common";
+//import {healthcheck} from "@fonos/common";
 import axios from "axios";
 import logger from "@fonos/logger";
 
