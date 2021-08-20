@@ -21,7 +21,7 @@ import {getClientCredentials} from "./trust_util";
 import {ServiceOptions} from "./types";
 import * as fs from "fs";
 import * as path from "path";
-import { Metadata } from "@grpc/grpc-js";
+import {Metadata} from "@grpc/grpc-js";
 
 // The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
 const merge = require("deepmerge");
