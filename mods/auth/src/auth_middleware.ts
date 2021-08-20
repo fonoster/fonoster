@@ -46,7 +46,6 @@ export default class AuthMiddleware {
     }
 
     const jwtHandler = new Auth(new JWT());
-    console.log(ctx.call.metadata.get("access_key_id").toString());
 
     try {
       if (
