@@ -21,7 +21,7 @@ import {FonosService, ServiceOptions} from "@fonos/common";
 import {FuncsClient} from "../service/protos/funcs_grpc_pb";
 import FuncsPB from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {
   DeleteFuncRequest,
   DeleteFuncResponse,

@@ -1,4 +1,4 @@
-// package: fonos.callmanager.v1alpha1
+// package: fonos.callmanager.v1beta1
 // file: callmanager.proto
 
 /* tslint:disable */
@@ -12,7 +12,7 @@ interface ICallManagerService extends grpc.ServiceDefinition<grpc.UntypedService
 }
 
 interface ICallManagerService_ICall extends grpc.MethodDefinition<callmanager_pb.CallRequest, callmanager_pb.CallResponse> {
-    path: "/fonos.callmanager.v1alpha1.CallManager/Call";
+    path: "/fonos.callmanager.v1beta1.CallManager/Call";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<callmanager_pb.CallRequest>;

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc, {ServerWritableStream} from "grpc";
+import grpc, {ServerWritableStream} from "@grpc/grpc-js";
 import {Empty} from "./protos/common_pb";
 import {IFuncsServer} from "./protos/funcs_grpc_pb";
 import {
@@ -76,7 +76,7 @@ export class ServerStream {
 }
 
 const publish = async (
-  call: grpc.ServerUnaryCall<DeployFuncRequest>,
+  call: grpc.ServerUnaryCall<DeployFuncRequest, any>,
   serverStream: ServerStream
 ) => {
   serverStream.write("finished running predeploy script");
@@ -113,11 +113,11 @@ const publish = async (
     await sleep(20000);
     try {
       // If the function already exist this will fail
-      logger.verbose(`@fonos/funcs publish [first trying post]`);
+      logger.verbose("@fonos/funcs publish [first trying post]");
       await faas.systemFunctionsPost(parameters);
       break;
     } catch (e) {
-      logger.verbose(`@fonos/funcs publish [now trying put]`);
+      logger.verbose("@fonos/funcs publish [now trying put]");
       try {
         await faas.systemFunctionsPut(parameters);
         break;
@@ -129,9 +129,10 @@ const publish = async (
 };
 
 export default class FuncsServer implements IFuncsServer {
+  [name: string]: grpc.UntypedHandleCall;
   // See client-side for comments
   async listFuncs(
-    call: grpc.ServerUnaryCall<ListFuncsRequest>,
+    call: grpc.ServerUnaryCall<ListFuncsRequest, ListFuncsResponse>,
     callback: grpc.sendUnaryData<ListFuncsResponse>
   ) {
     try {
@@ -155,7 +156,7 @@ export default class FuncsServer implements IFuncsServer {
 
   // See client-side for comments
   async getFunc(
-    call: grpc.ServerUnaryCall<GetFuncRequest>,
+    call: grpc.ServerUnaryCall<GetFuncRequest, Func>,
     callback: grpc.sendUnaryData<Func>
   ) {
     try {
@@ -221,7 +222,7 @@ export default class FuncsServer implements IFuncsServer {
 
   // See client-side for comments
   async deleteFunc(
-    call: grpc.ServerUnaryCall<DeleteFuncRequest>,
+    call: grpc.ServerUnaryCall<DeleteFuncRequest, Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     const accessKeyId = getAccessKeyId(call);
@@ -314,7 +315,10 @@ export default class FuncsServer implements IFuncsServer {
    * to a private Docker registry.
    */
   async createRegistryToken(
-    call: grpc.ServerUnaryCall<CreateRegistryTokenRequest>,
+    call: grpc.ServerUnaryCall<
+      CreateRegistryTokenRequest,
+      CreateRegistryTokenResponse
+    >,
     callback: grpc.sendUnaryData<CreateRegistryTokenResponse>
   ) {
     try {
