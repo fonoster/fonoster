@@ -29,22 +29,20 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
+    "@grpc/grpc-js":"^1.3.6",
     "@fonos/auth": "^0.1.10-alpha.0",
     "@fonos/certs": "^0.1.9-alpha.0",
     "@fonos/common": "^0.1.9-alpha.0",
     "@fonos/errors": "^0.1.9-alpha.0",
     "@fonos/logger": "^0.1.9-alpha.0",
-    "@pionerlabs/grpc-interceptors": "^0.2.5",
     "atob": "^2.1.2",
     "axios": "^0.21.1",
     "btoa": "^1.2.1",
     "deepmerge": "^4.2.2",
-    "grpc": "^1.24.7",
     "grpc-ts-health-check": "^2.0.6",
     "ioredis": "^4.16.0",
     "nanoid": "^3.1.23",
-    "phone": "^2.4.21",
-    "@grpc/grpc-js":"^1.3.6"
+    "phone": "^2.4.21"
   },
   "devDependencies": {
     "@types/btoa": "^1.2.3",
