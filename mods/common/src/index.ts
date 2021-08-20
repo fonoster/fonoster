@@ -33,6 +33,6 @@ export {
   SpeechProvider,
   getClientCredentials,
   getServerCredentials,
-  runServices,
+  runServices
   //healthcheck
 };
