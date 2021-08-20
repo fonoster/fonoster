@@ -31,64 +31,64 @@ import {getSalt} from "./mods/certs/src/certs";
 const services = [
   {
     name: "auth",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: AuthService,
     server: new AuthServer()
   },
   {
     name: "funcs",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: FuncsService,
     server: new FuncsServer()
   },
   {
     name: "agents",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: AgentsService,
     server: new AgentsServer()
   },
   {
     name: "domains",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: DomainsService,
     server: new DomainsServer()
   },
   {
     name: "numbers",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: NumbersService,
     server: new NumbersServer()
   },
   {
     name: "providers",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: ProvidersService,
     server: new ProvidersServer()
   },
   {
     name: "callmanager",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: CallManagerService,
     server: new CallManagerServer()
   },
   {
     name: "storage",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: StorageService,
     server: new StorageServer()
   },
   {
     name: "secrets",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: SecretsService,
     server: new SecretServer()
   }
 ];
 
 const whitelist = [
-  "/fonos.auth.v1alpha1.Auth/GetRole",
-  "/fonos.auth.v1alpha1.Auth/CreateToken",
-  "/fonos.auth.v1alpha1.Auth/CreateNoAccessToken",
+  "/fonos.auth.v1beta1.Auth/GetRole",
+  "/fonos.auth.v1beta1.Auth/CreateToken",
+  "/fonos.auth.v1beta1.Auth/CreateNoAccessToken",
   "/grpc.health.v1.Health/Check"
 ];
 
