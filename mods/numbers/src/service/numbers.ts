@@ -27,7 +27,7 @@ import {ErrorCodes, FonosError} from "@fonos/errors";
 class NumbersServer extends ResourceServer implements INumbersServer {
   [name: string]: grpc.UntypedHandleCall;
   async listNumbers(
-    call: grpc.ServerUnaryCall<ListNumbersRequest,ListNumbersResponse>,
+    call: grpc.ServerUnaryCall<ListNumbersRequest, ListNumbersResponse>,
     callback: grpc.sendUnaryData<ListNumbersResponse>
   ) {
     const result = await ResourceServer.listResources(Kind.NUMBER, call);
@@ -41,7 +41,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 
   async createNumber(
-    call: grpc.ServerUnaryCall<CreateNumberRequest,NumberPB.Number>,
+    call: grpc.ServerUnaryCall<CreateNumberRequest, NumberPB.Number>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     try {
@@ -52,14 +52,14 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 
   async updateNumber(
-    call: grpc.ServerUnaryCall<UpdateNumberRequest,NumberPB.Number>,
+    call: grpc.ServerUnaryCall<UpdateNumberRequest, NumberPB.Number>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     updateNumber(call, callback);
   }
 
   async getIngressInfo(
-    call: grpc.ServerUnaryCall<GetIngressInfoRequest,NumberPB.IngressInfo>,
+    call: grpc.ServerUnaryCall<GetIngressInfoRequest, NumberPB.IngressInfo>,
     callback: grpc.sendUnaryData<NumberPB.IngressInfo>
   ) {
     try {
@@ -76,7 +76,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 
   async getNumber(
-    call: grpc.ServerUnaryCall<GetNumberRequest,NumberPB.Number>,
+    call: grpc.ServerUnaryCall<GetNumberRequest, NumberPB.Number>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     try {
@@ -88,7 +88,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 
   async deleteNumber(
-    call: grpc.ServerUnaryCall<DeleteNumberRequest,Empty>,
+    call: grpc.ServerUnaryCall<DeleteNumberRequest, Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {

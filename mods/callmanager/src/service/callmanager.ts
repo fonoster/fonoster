@@ -37,7 +37,7 @@ const numberNotInList = (number) =>
 class CallManagerServer implements ICallManagerServer {
   [name: string]: grpc.UntypedHandleCall;
   async call(
-    call: grpc.ServerUnaryCall<CallRequest,CallResponse>,
+    call: grpc.ServerUnaryCall<CallRequest, CallResponse>,
     callback: grpc.sendUnaryData<CallResponse>
   ) {
     logger.verbose(`@core/callmanager call [from ${call.request.getFrom()}]`);
