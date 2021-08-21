@@ -1,6 +1,6 @@
 {
   "name": "@fonos/core",
-  "version": "0.1.11-alpha.5",
+  "version": "0.1.11-alpha.6",
   "description": "Core artifacts",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,7 +29,7 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.1.11-alpha.5",
+    "@fonos/auth": "^0.1.11-alpha.6",
     "@fonos/certs": "^0.1.11-alpha.3",
     "@fonos/common": "^0.1.11-alpha.4",
     "@fonos/errors": "^0.1.11-alpha.3",

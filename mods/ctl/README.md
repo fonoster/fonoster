@@ -21,7 +21,7 @@ $ npm install -g @fonos/ctl
 $ fonos COMMAND
 running command...
 $ fonos (-v|--version|version)
-@fonos/ctl/0.1.11-alpha.5 darwin-x64 node-v14.16.0
+@fonos/ctl/0.1.11-alpha.6 darwin-x64 node-v14.16.0
 $ fonos --help [COMMAND]
 USAGE
   $ fonos COMMAND
@@ -77,7 +77,7 @@ DESCRIPTION
      Creates a new Agent in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/agents/create.js)_
+_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/agents/create.js)_
 
 ## `fonos agents:delete [REF]`
 
@@ -92,7 +92,7 @@ ALIASES
   $ fonos agents:rm
 ```
 
-_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/agents/delete.js)_
+_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/agents/delete.js)_
 
 ## `fonos agents:get [REF]`
 
@@ -103,7 +103,7 @@ USAGE
   $ fonos agents:get [REF]
 ```
 
-_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/agents/get.js)_
+_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/agents/get.js)_
 
 ## `fonos agents:list`
 
@@ -124,7 +124,7 @@ ALIASES
   $ fonos agents:ls
 ```
 
-_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/agents/list.js)_
+_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/agents/list.js)_
 
 ## `fonos agents:update [REF]`
 
@@ -139,7 +139,7 @@ DESCRIPTION
      Updates a agent at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/agents/update.js)_
+_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/agents/update.js)_
 
 ## `fonos auth:login`
 
@@ -150,7 +150,7 @@ USAGE
   $ fonos auth:login
 ```
 
-_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/auth/login.js)_
+_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/auth/login.js)_
 
 ## `fonos auth:logout`
 
@@ -161,7 +161,7 @@ USAGE
   $ fonos auth:logout
 ```
 
-_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/auth/logout.js)_
+_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/auth/logout.js)_
 
 ## `fonos bug`
 
@@ -176,7 +176,7 @@ DESCRIPTION
      Opens github issues with a predefine bug template
 ```
 
-_See code: [dist/commands/bug.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/bug.js)_
+_See code: [dist/commands/bug.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/bug.js)_
 
 ## `fonos domains:create`
 
@@ -191,7 +191,7 @@ DESCRIPTION
      Creates a new Domain in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/domains/create.js)_
+_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/domains/create.js)_
 
 ## `fonos domains:delete [REF]`
 
@@ -206,7 +206,7 @@ ALIASES
   $ fonos domains:rm
 ```
 
-_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/domains/delete.js)_
+_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/domains/delete.js)_
 
 ## `fonos domains:get [REF]`
 
@@ -217,7 +217,7 @@ USAGE
   $ fonos domains:get [REF]
 ```
 
-_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/domains/get.js)_
+_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/domains/get.js)_
 
 ## `fonos domains:list`
 
@@ -238,7 +238,7 @@ ALIASES
   $ fonos domains:ls
 ```
 
-_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/domains/list.js)_
+_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/domains/list.js)_
 
 ## `fonos domains:update [REF]`
 
@@ -253,7 +253,7 @@ DESCRIPTION
      Updates a domain at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/domains/update.js)_
+_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/domains/update.js)_
 
 ## `fonos feedback`
 
@@ -268,7 +268,7 @@ DESCRIPTION
      Help us improve by providing some feedback
 ```
 
-_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/feedback.js)_
+_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/feedback.js)_
 
 ## `fonos help [COMMAND]`
 
@@ -300,7 +300,7 @@ DESCRIPTION
      Creates a new Number in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/numbers/create.js)_
+_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/numbers/create.js)_
 
 ## `fonos numbers:delete [REF]`
 
@@ -315,7 +315,7 @@ ALIASES
   $ fonos numbers:rm
 ```
 
-_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/numbers/delete.js)_
+_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/numbers/delete.js)_
 
 ## `fonos numbers:get [REF]`
 
@@ -326,7 +326,7 @@ USAGE
   $ fonos numbers:get [REF]
 ```
 
-_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/numbers/get.js)_
+_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/numbers/get.js)_
 
 ## `fonos numbers:list`
 
@@ -347,7 +347,7 @@ ALIASES
   $ fonos numbers:ls
 ```
 
-_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/numbers/list.js)_
+_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/numbers/list.js)_
 
 ## `fonos numbers:update [REF]`
 
@@ -362,7 +362,7 @@ DESCRIPTION
      Updates a number at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/numbers/update.js)_
+_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/numbers/update.js)_
 
 ## `fonos plugins`
 
@@ -515,7 +515,7 @@ DESCRIPTION
      Creates a new Provider in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/providers/create.js)_
+_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/providers/create.js)_
 
 ## `fonos providers:delete [REF]`
 
@@ -530,7 +530,7 @@ ALIASES
   $ fonos providers:rm
 ```
 
-_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/providers/delete.js)_
+_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/providers/delete.js)_
 
 ## `fonos providers:get [REF]`
 
@@ -541,7 +541,7 @@ USAGE
   $ fonos providers:get [REF]
 ```
 
-_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/providers/get.js)_
+_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/providers/get.js)_
 
 ## `fonos providers:list`
 
@@ -562,7 +562,7 @@ ALIASES
   $ fonos providers:ls
 ```
 
-_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/providers/list.js)_
+_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/providers/list.js)_
 
 ## `fonos providers:update [REF]`
 
@@ -577,5 +577,5 @@ DESCRIPTION
      Updates a provider at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.5/dist/commands/providers/update.js)_
+_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonos/blob/v0.1.11-alpha.6/dist/commands/providers/update.js)_
 <!-- commandsstop -->
