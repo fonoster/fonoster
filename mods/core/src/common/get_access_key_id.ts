@@ -17,5 +17,5 @@
  * limitations under the License.
  */
 export default function (call: any): string {
-  return call.metadata.internalRepr.get("access_key_id");
+  return call.metadata.internalRepr.get("access_key_id").toString();
 }
