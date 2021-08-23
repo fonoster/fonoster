@@ -19,6 +19,7 @@
  * limitations under the License.
  */
 import logger from "@fonos/logger";
+import assertEnvIsSet from "./env_is_set";
 const grpc = require("@grpc/grpc-js");
 import {getServerCredentials} from "./trust_util";
 const interceptor = require("@speedymonster/grpc-interceptors");
@@ -59,6 +60,7 @@ export default function run(
   }
 
   srvInfList.forEach((srvInf: ServiceInf) => {
+    assertEnvIsSet(srvInf.name)
     server.addService(srvInf.service, srvInf.server);
     logger.info(`@fonos/common service runner [added ${srvInf.name} service]`);
   });
