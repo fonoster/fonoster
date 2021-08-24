@@ -1,0 +1,75 @@
+[
+    {
+      "module": "agents",
+      "env": [
+        "SIPPROXY_HOST",
+        "SIPPROXY_API_PORT",
+        "SIPPROXY_API_USERNAME",
+        "SIPPROXY_API_SECRET"
+      ]
+    },
+    {
+      "module": "providers",
+      "env": [
+        "SIPPROXY_HOST",
+        "SIPPROXY_API_PORT",
+        "SIPPROXY_API_USERNAME",
+        "SIPPROXY_API_SECRET"
+      ]
+    },
+    {
+      "module": "callmanager",
+      "env": [
+        "MS_TRUNK",
+        "MS_CONTEXT",
+        "MS_EXTENSION",
+        "MS_ARI_INTERNAL_URL",
+        "MS_ARI_USERNAME",
+        "MS_ARI_SECRET",
+        "SIPPROXY_HOST",
+        "SIPPROXY_API_PORT",
+        "SIPPROXY_API_USERNAME",
+        "SIPPROXY_API_SECRET"
+      ]
+    },
+    {
+      "module": "dispatcher",
+      "env": [
+        "MS_ARI_INTERNAL_URL",
+        "MS_ARI_USERNAME",
+        "MS_ARI_SECRET",
+        "RECORDINGS_PATH"
+      ]
+    },
+    {
+      "module": "domains",
+      "env": [
+        "SIPPROXY_HOST",
+        "SIPPROXY_API_PORT",
+        "SIPPROXY_API_USERNAME",
+        "SIPPROXY_API_SECRET"
+      ]
+    },
+    {
+      "module": "numbers",
+      "env": [
+        "SIPPROXY_HOST",
+        "SIPPROXY_API_PORT",
+        "SIPPROXY_API_USERNAME",
+        "SIPPROXY_API_SECRET"
+      ]
+    },
+    {
+      "module": "secrets",
+      "env": ["VAULT_ADDR", "SECRETS_POLICY"]
+    },
+    {
+      "module": "storage",
+      "env": ["FS_HOST", "FS_PORT", "FS_USERNAME", "FS_SECRET"]
+    },
+    {
+      "module": "voice",
+      "env": []
+    }
+  ]
+  
