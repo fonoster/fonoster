@@ -86,7 +86,7 @@
     "@oclif/plugin-not-found": "1.2.4",
     "@oclif/plugin-plugins": "^1.10.0",
     "@oclif/plugin-warn-if-update-available": "^1.7.0",
-    "cli-ux": "^5.5.1",
+    "cli-ux": "5.5.1",
     "dockerode": "^3.3.0",
     "figlet": "^1.5.0",
     "inquirer": "^7.3.3",
