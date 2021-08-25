@@ -8,7 +8,7 @@ networks:
 services:
 
   funcs_api:
-    image: fonoster/fonos-funcs
+    image: fonoster/fonos-funcs:${COMPOSE_PROJECT_VERSION}
     environment:
       FUNCS_WORKDIR: ${FUNCS_WORKDIR}
       FUNCS_URL: ${FUNCS_URL}
