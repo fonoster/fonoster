@@ -2,9 +2,9 @@ import "../../config";
 import Numbers from "@fonos/numbers";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import inquirer from "inquirer";
 import {CommonPB} from "@fonos/numbers";
 import {cli} from "cli-ux";
+const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
   static description = `list registered numbers
@@ -50,23 +50,30 @@ export default class ListCommand extends Command {
 
         if (list.length < 1) break;
 
-        cli.table(list, {
-          ref: {minWidth: 15},
-          providerRef: {header: "Provider Ref", minWidth: 15},
-          e164Number: {header: "E164 Number", minWidth: 15},
-          aorLink: {
-            header: "AOR Link",
-            minWidth: 15,
-            get: (row) => (row["aorLink"] ? row["aorLink"] : "--")
-          },
-          ingressInfo: {
-            header: "Webhook",
-            minWidth: 15,
-            get: (row) =>
-              row["ingressInfo"] ? row["ingressInfo"].webhook : "--"
-          }
-        });
-
+        const showTable = (showHeader: boolean, data) => {
+          cli.table(
+            data,
+            {
+              ref: {minWidth: 15},
+              providerRef: {header: "Provider Ref", minWidth: 15},
+              e164Number: {header: "E164 Number", minWidth: 15},
+              aorLink: {
+                header: "AOR Link",
+                minWidth: 15,
+                get: (row) => (row["aorLink"] ? row["aorLink"] : "--")
+              },
+              ingressInfo: {
+                header: "Webhook",
+                minWidth: 15,
+                get: (row) =>
+                  row["ingressInfo"] ? row["ingressInfo"].webhook : "--"
+              }
+            },
+            {"no-header": !showHeader}
+          );
+        };
+        showTable(firstBatch, list);
+        
         firstBatch = false;
         if (!pageToken) break;
       }

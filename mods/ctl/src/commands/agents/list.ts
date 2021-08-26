@@ -2,9 +2,9 @@ import "../../config";
 import Agents from "@fonos/agents";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import inquirer from "inquirer";
 import {CommonPB} from "@fonos/agents";
 import {cli} from "cli-ux";
+const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
   static description = `list registered agents
@@ -44,17 +44,24 @@ export default class ListCommand extends Command {
 
         if (list.length < 1) break;
 
-        cli.table(list, {
-          ref: {minWidth: 12},
-          name: {header: "Name", minWidth: 12},
-          username: {header: "Username", minWidth: 12},
-          privacy: {header: "Privacy", minWidth: 12, extended: true},
-          domains: {
-            header: "Domains",
-            minWidth: 12,
-            get: (row) => `${row.domains.join(",")}`
-          }
-        });
+        const showTable = (showHeader: boolean, data) => {
+          cli.table(
+            data,
+            {
+              ref: {minWidth: 12},
+              name: {header: "Name", minWidth: 12},
+              username: {header: "Username", minWidth: 12},
+              privacy: {header: "Privacy", minWidth: 12, extended: true},
+              domains: {
+                header: "Domains",
+                minWidth: 12,
+                get: (row) => `${row.domains.join(",")}`
+              }
+            },
+            {"no-header": !showHeader}
+          );
+        };
+        showTable(firstBatch, list);
 
         firstBatch = false;
         if (!pageToken) break;

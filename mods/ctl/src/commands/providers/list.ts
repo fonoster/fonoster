@@ -2,9 +2,9 @@ import "../../config";
 import Providers from "@fonos/providers";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import inquirer from "inquirer";
 import {CommonPB} from "@fonos/providers";
 import {cli} from "cli-ux";
+const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
   static description = `list registered providers
@@ -48,19 +48,26 @@ export default class ListCommand extends Command {
         }
 
         if (list.length < 1) break;
-
-        cli.table(list, {
-          ref: {minWidth: 13},
-          name: {header: "Name", minWidth: 13},
-          username: {
-            header: "Username",
-            minWidth: 13,
-            get: (row) => row.username || "(static)"
-          },
-          host: {header: "Host", minWidth: 18},
-          transport: {header: "Transport", minWidth: 13},
-          expires: {header: "Expires", minWidth: 13}
-        });
+        
+        const showTable = (showHeader: boolean, data) => {
+          cli.table(
+            data,
+            {
+              ref: {minWidth: 13},
+              name: {header: "Name", minWidth: 13},
+              username: {
+                header: "Username",
+                minWidth: 13,
+                get: (row) => row.username || "(static)"
+              },
+              host: {header: "Host", minWidth: 18},
+              transport: {header: "Transport", minWidth: 13},
+              expires: {header: "Expires", minWidth: 13}
+            },
+            {"no-header": !showHeader}
+          );
+        };
+        showTable(firstBatch, list);
 
         firstBatch = false;
         if (!pageToken) break;
