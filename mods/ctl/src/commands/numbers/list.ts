@@ -4,6 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {CommonPB} from "@fonos/numbers";
 import {cli} from "cli-ux";
+import {Number} from "@fonos/numbers/src/client/types";
 const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
@@ -50,7 +51,7 @@ export default class ListCommand extends Command {
 
         if (list.length < 1) break;
 
-        const showTable = (showHeader: boolean, data) => {
+        const showTable = (showHeader: boolean, data: Number[]) => {
           cli.table(
             data,
             {
@@ -73,7 +74,7 @@ export default class ListCommand extends Command {
           );
         };
         showTable(firstBatch, list);
-        
+
         firstBatch = false;
         if (!pageToken) break;
       }

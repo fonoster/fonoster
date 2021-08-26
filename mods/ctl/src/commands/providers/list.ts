@@ -4,6 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {CommonPB} from "@fonos/providers";
 import {cli} from "cli-ux";
+import {Provider} from "@fonos/providers/src/types";
 const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
@@ -48,8 +49,8 @@ export default class ListCommand extends Command {
         }
 
         if (list.length < 1) break;
-        
-        const showTable = (showHeader: boolean, data) => {
+
+        const showTable = (showHeader: boolean, data: Provider[]) => {
           cli.table(
             data,
             {
