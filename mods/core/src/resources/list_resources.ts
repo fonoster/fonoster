@@ -8,17 +8,15 @@ export default async function (
   await routr.connect();
   const result = await routr
     .resourceType(`${request.kind.toLowerCase()}s`)
-    .list({
-      page: request.page,
-      itemsPerPage: request.itemsPerPage
-    });
+    .list(
+      {
+        page: request.page,
+        itemsPerPage: request.itemsPerPage
+      },
+      request.accessKeyId
+    );
 
-  const resources = [];
-  for (const i in result.data) {
-    if (result.data[i].metadata.accessKeyId === request.accessKeyId) {
-      resources.push(result.data[i]);
-    }
-  }
+  const resources = result.data;
 
   return {
     nextPageToken: resources.length > 0 ? request.page + 1 : null,

@@ -54,7 +54,7 @@ class DomainsServer implements IDomainsServer {
   ) {
     const result = await ResourceServer.listResources(Kind.DOMAIN, call);
     const response = new ListDomainsResponse();
-    if (result.resources) {
+    if (result && result.resources) {
       const domains = result.resources.map((resource) => decoder(resource));
       response.setNextPageToken(result.nextPageToken + "");
       response.setDomainsList(domains);
