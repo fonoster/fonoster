@@ -58,7 +58,7 @@ export default class GatherVerb extends Verb {
           .catch(reject);
       }
 
-      // TODO: We should explicitly clean this resources if the 
+      // TODO: We should explicitly clean this resources if the
       // other "source" already resolved the request.
       if (options.source.includes("speech")) {
         logger.verbose("@fonos/voice enabled speech source");

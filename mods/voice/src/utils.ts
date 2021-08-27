@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-import { Verb } from "./verb";
+import {Verb} from "./verb";
 
 /**
  * Takes a json object and creates a query formatted string
@@ -34,7 +34,11 @@ export const objectToQString = (obj: any = {}): string =>
     })
     .join("&");
 
-async function sendMediaTransferEvent(verb:Verb, sessionId: string, event: string) {
+async function sendMediaTransferEvent(
+  verb: Verb,
+  sessionId: string,
+  event: string
+) {
   await verb.post(
     `events/user/${event}`,
     objectToQString({
