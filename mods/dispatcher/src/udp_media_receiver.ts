@@ -18,6 +18,7 @@
  */
 import fs from "fs";
 import dgram from "dgram";
+import logger from "@fonos/logger";
 const pipe = require("stream").prototype.pipe;
 
 export default class UDPMediaReceiver {
@@ -44,7 +45,7 @@ export default class UDPMediaReceiver {
     }
 
     this.server.on("error", (err) => {
-      console.log(`server error:\n${err.stack}`);
+      logger.error(`@fonos/dispatcher udpServer [server error:\n${err.stack}]`);
       this.server.close();
       if (this.fileStream) {
         this.fileStream.close();
@@ -52,7 +53,7 @@ export default class UDPMediaReceiver {
     });
 
     this.server.on("close", (err) => {
-      console.log(`server socket closed`);
+      logger.verbose(`@fonos/dispatcher udpServer [server socket closed]`);
       if (this.fileStream) {
         this.fileStream.close();
       }
@@ -72,14 +73,18 @@ export default class UDPMediaReceiver {
 
     this.server.on("listening", () => {
       const address = this.server.address();
-      console.log(`server listening ${address.address}:${address.port}`);
+      logger.verbose(`@fonos/dispatcher udpServer [address = ${address.address}:${address.port}]`);
     });
 
     this.server.bind(this.port, this.address);
-    //return this.server;
   }
 
   getServer() {
     return this.server;
+  }
+
+  close() {
+    logger.verbose(`@fonos/dispatcher udpServer[closing server]`);
+    this.server.close();
   }
 }

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -17,11 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import dotenv from "dotenv";
-import {join} from "path";
+import logger from "@fonos/logger";
+import WebSocket from "ws";
 
-if (process.env.NODE_ENV === "dev") {
-  dotenv.config({path: join(__dirname, ".env")});
-}
+export const dtmfReceivedHandler = (ws: WebSocket, event: any, channel: any) => {
+  logger.verbose(
+    `@fonos/dispatcher sending dtmf event [digit: ${event.digit}, channel=${channel.id}]`
+  );
 
-import "./mods/dispatcher/src/dispatcher";
+  if (ws.readyState !== WebSocket.OPEN) {
+    logger.warn(
+      `@fonos/dispatcher ignoring socket request on lost connection`
+    );
+    return;
+  }
+
+  ws.send(
+    JSON.stringify({
+      type: "DtmfReceived",
+      sessionId: channel.id,
+      data: event.digit
+    })
+  );
+};

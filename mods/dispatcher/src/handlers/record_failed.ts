@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -17,11 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import dotenv from "dotenv";
-import {join} from "path";
+import WebSocket from "ws";
+import logger from "@fonos/logger";
 
-if (process.env.NODE_ENV === "dev") {
-  dotenv.config({path: join(__dirname, ".env")});
-}
+export const recordFailedHandler = (ws: WebSocket, event: any) => {
+  logger.verbose(
+    `@fonos/dispatcher sending recording failed event [filename: ${event.recording.name}]`
+  );
 
-import "./mods/dispatcher/src/dispatcher";
+  ws.send(
+    JSON.stringify({
+      type: "RecordingFailed",
+      data: {
+        cause: event.recording.cause
+      }
+    })
+  );
+};

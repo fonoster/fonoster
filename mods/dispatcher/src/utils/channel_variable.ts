@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -17,11 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import dotenv from "dotenv";
-import {join} from "path";
+import logger from "@fonos/logger";
 
-if (process.env.NODE_ENV === "dev") {
-  dotenv.config({path: join(__dirname, ".env")});
+export async function getChannelVar(channel: any, variable: string): Promise<string> {
+  logger.verbose(`@fonos/dispatcher get var [variable "${variable}" @ session "${channel.id}"]`);
+  try {
+    const channelVar = await channel.getChannelVar({
+      channelId: channel.id,
+      variable
+    });
+    // If it gets here is because the variable was set
+    return channelVar.value;
+  } catch (e) { /* we need to do nothing */ }
+
+  return null;
 }
 
-import "./mods/dispatcher/src/dispatcher";
+export async function getChannelVarAsJson(channel: any, variable: string): Promise<Record<string, unknown>> {
+  const v = await getChannelVar(channel, variable);
+  return v ? JSON.parse(v) : null;
+}

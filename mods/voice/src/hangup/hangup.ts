@@ -22,7 +22,7 @@ import {Verb} from "../verb";
 export default class HangupVerb extends Verb {
   async run(): Promise<void> {
     await super.delete(
-      `channels/${this.request.sessionId}/hangup`,
+      `channels/${this.request.sessionId}`,
       objectToQString({reason: "normal"})
     );
   }

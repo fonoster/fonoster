@@ -46,4 +46,4 @@ wait(connection)
 
     logger.info("The port did not open before the timeout...");
   })
-  .catch(console.error);
+  .catch(logger.error);

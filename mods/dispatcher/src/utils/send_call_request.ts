@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -17,11 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import dotenv from "dotenv";
-import {join} from "path";
+import logger from "@fonos/logger";
+import axios from "axios";
+import { CallRequest } from "../types";
 
-if (process.env.NODE_ENV === "dev") {
-  dotenv.config({path: join(__dirname, ".env")});
-}
-
-import "./mods/dispatcher/src/dispatcher";
+export const sendCallRequest = async (url: string, request: CallRequest) => {
+  try {
+    const response = await axios.post(url, request);
+    logger.verbose(
+      `@fonos/dispatcher mediacontroller [response = ${response.data ? response.data.data : "no response"
+      }]`
+    );
+  } catch (e) {
+    logger.error(`Unable to send request to voice app at [url = ${url}]`);
+  }
+};

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -17,11 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import dotenv from "dotenv";
-import {join} from "path";
+import WebSocket from "ws";
+import logger from "@fonos/logger";
 
-if (process.env.NODE_ENV === "dev") {
-  dotenv.config({path: join(__dirname, ".env")});
-}
+export const playbackFinishedHandler = (ws: WebSocket, event: any, playback: any) => {
+  logger.verbose(
+    `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
+  );
 
-import "./mods/dispatcher/src/dispatcher";
+  if (ws.readyState !== WebSocket.OPEN) {
+    logger.warn(
+      `@fonos/dispatcher ignoring socket request on lost connection`
+    );
+    return;
+  }
+
+  ws.send(
+    JSON.stringify({
+      type: "PlaybackFinished",
+      data: {
+        playbackId: playback.id
+      }
+    })
+  );
+};
