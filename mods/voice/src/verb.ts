@@ -42,7 +42,11 @@ export class Verb {
     return this.request;
   }
 
-  async post(apiPath: string, queryParameters: string, data?: Record<string, unknown>) {
+  async post(
+    apiPath: string,
+    queryParameters: string,
+    data?: Record<string, unknown>
+  ) {
     const url = `${
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
@@ -55,7 +59,7 @@ export class Verb {
       auth,
       headers: {
         "X-Session-Token": this.request.sessionToken,
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
       },
       data
     });

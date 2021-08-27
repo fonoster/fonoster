@@ -19,15 +19,17 @@
 import logger from "@fonos/logger";
 import WebSocket from "ws";
 
-export const dtmfReceivedHandler = (ws: WebSocket, event: any, channel: any) => {
+export const dtmfReceivedHandler = (
+  ws: WebSocket,
+  event: any,
+  channel: any
+) => {
   logger.verbose(
     `@fonos/dispatcher sending dtmf event [digit: ${event.digit}, channel=${channel.id}]`
   );
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonos/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
     return;
   }
 

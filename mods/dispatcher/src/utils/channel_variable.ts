@@ -18,8 +18,13 @@
  */
 import logger from "@fonos/logger";
 
-export async function getChannelVar(channel: any, variable: string): Promise<string> {
-  logger.verbose(`@fonos/dispatcher get var [variable "${variable}" @ session "${channel.id}"]`);
+export async function getChannelVar(
+  channel: any,
+  variable: string
+): Promise<string> {
+  logger.verbose(
+    `@fonos/dispatcher get var [variable "${variable}" @ session "${channel.id}"]`
+  );
   try {
     const channelVar = await channel.getChannelVar({
       channelId: channel.id,
@@ -27,12 +32,17 @@ export async function getChannelVar(channel: any, variable: string): Promise<str
     });
     // If it gets here is because the variable was set
     return channelVar.value;
-  } catch (e) { /* we need to do nothing */ }
+  } catch (e) {
+    /* we need to do nothing */
+  }
 
   return null;
 }
 
-export async function getChannelVarAsJson(channel: any, variable: string): Promise<Record<string, unknown>> {
+export async function getChannelVarAsJson(
+  channel: any,
+  variable: string
+): Promise<Record<string, unknown>> {
   const v = await getChannelVar(channel, variable);
   return v ? JSON.parse(v) : null;
 }

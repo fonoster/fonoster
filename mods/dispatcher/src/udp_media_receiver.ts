@@ -73,7 +73,9 @@ export default class UDPMediaReceiver {
 
     this.server.on("listening", () => {
       const address = this.server.address();
-      logger.verbose(`@fonos/dispatcher udpServer [address = ${address.address}:${address.port}]`);
+      logger.verbose(
+        `@fonos/dispatcher udpServer [address = ${address.address}:${address.port}]`
+      );
     });
 
     this.server.bind(this.port, this.address);

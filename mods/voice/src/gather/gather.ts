@@ -53,11 +53,13 @@ export default class GatherVerb extends Verb {
     return new Promise(async (resolve, reject) => {
       if (options.source.includes("dtmf")) {
         logger.verbose("@fonos/voice enabled dtmf source");
-        waitForDtmf(this.request.sessionId, options).then(resolve).catch(reject);
+        waitForDtmf(this.request.sessionId, options)
+          .then(resolve)
+          .catch(reject);
       }
 
-      // TODO: We should explicitly clean this resources if the other "source"
-      // already resolved the request.
+      // TODO: We should explicitly clean this resources if the 
+      // other "source" already resolved the request.
       if (options.source.includes("speech")) {
         logger.verbose("@fonos/voice enabled speech source");
         waitForSpeech(
@@ -66,8 +68,8 @@ export default class GatherVerb extends Verb {
           super.getSelf(),
           this.speechProvider
         )
-        .then(resolve)
-        .catch(reject);
+          .then(resolve)
+          .catch(reject);
       }
     });
   }

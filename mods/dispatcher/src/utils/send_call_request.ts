@@ -18,13 +18,14 @@
  */
 import logger from "@fonos/logger";
 import axios from "axios";
-import { CallRequest } from "../types";
+import {CallRequest} from "../types";
 
 export const sendCallRequest = async (url: string, request: CallRequest) => {
   try {
     const response = await axios.post(url, request);
     logger.verbose(
-      `@fonos/dispatcher mediacontroller [response = ${response.data ? response.data.data : "no response"
+      `@fonos/dispatcher mediacontroller [response = ${
+        response.data ? response.data.data : "no response"
       }]`
     );
   } catch (e) {

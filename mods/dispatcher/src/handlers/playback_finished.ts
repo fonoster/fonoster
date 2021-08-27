@@ -19,15 +19,17 @@
 import WebSocket from "ws";
 import logger from "@fonos/logger";
 
-export const playbackFinishedHandler = (ws: WebSocket, event: any, playback: any) => {
+export const playbackFinishedHandler = (
+  ws: WebSocket,
+  event: any,
+  playback: any
+) => {
   logger.verbose(
     `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
   );
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonos/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
     return;
   }
 

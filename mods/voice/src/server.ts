@@ -100,12 +100,16 @@ export default class VoiceServer {
 
           if (event.type === "PlaybackFinished") {
             PubSub.publish(`${event.type}.${event.data.playbackId}`, event);
-          } if (event.type === "RecordingFinished" || event.type === "RecordingFailed") {
+          }
+          if (
+            event.type === "RecordingFinished" ||
+            event.type === "RecordingFailed"
+          ) {
             PubSub.publish(`${event.type}.${event.data.name}`, event);
           } else {
             PubSub.publish(`${event.type}.${event.sessionId}`, event);
           }
-      
+
           logger.verbose("@fonos/voice received event =>", event);
         }
       }).on("error", console.error);

@@ -19,17 +19,13 @@
 import WebSocket from "ws";
 import logger from "@fonos/logger";
 
-export const recordFinishHandler = (
-  ws: WebSocket,
-  event: any) => {
+export const recordFinishHandler = (ws: WebSocket, event: any) => {
   logger.verbose(
     `@fonos/dispatcher sending recording finished event [filename: ${event.recording.name}]`
   );
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonos/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
     return;
   }
 

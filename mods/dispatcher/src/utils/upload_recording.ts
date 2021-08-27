@@ -20,13 +20,16 @@ import Auth from "@fonos/auth";
 import Storage from "@fonos/storage";
 import logger from "@fonos/logger";
 
-export const uploadRecording = async (accessKeyId: string, filename: string) => {
+export const uploadRecording = async (
+  accessKeyId: string,
+  filename: string
+) => {
   logger.verbose(
     `@fonos/dispatcher creating short-life token [accessKeyId = ${accessKeyId}]`
   );
   const auth = new Auth();
-  const access = await auth.createToken({ accessKeyId });
-  const storage = new Storage({ accessKeyId, accessKeySecret: access.token });
+  const access = await auth.createToken({accessKeyId});
+  const storage = new Storage({accessKeyId, accessKeySecret: access.token});
 
   logger.verbose(
     `@fonos/dispatcher uploading file to storage subsystem [filename = ${filename}]`
