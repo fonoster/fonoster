@@ -51,7 +51,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.verbose(`@fonos/voice posting [url: ${url}]`);
+    logger.silly(`@fonos/voice posting [url: ${url}]`);
 
     return await axios({
       method: "post",
@@ -70,7 +70,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.verbose(`@fonos/voice posting [url: ${url}]`);
+    logger.silly(`@fonos/voice posting [url: ${url}]`);
 
     return await axios({
       method: "delete",

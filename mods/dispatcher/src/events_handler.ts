@@ -38,10 +38,10 @@ const dialbackEnpoint =
   process.env.MS_ARI_EXTERNAL_URL ||
   "http://localhost:8088";
 
-export default function (err, ari) {
+export default function (err: any, ari: any) {
   if (err) throw err;
 
-  ari.on("StasisStart", async (event, channel) => {
+  ari.on("StasisStart", async (event: any, channel: any) => {
     const didInfo = await getChannelVar(channel, "DID_INFO");
 
     if (!didInfo) {
@@ -100,21 +100,18 @@ export default function (err, ari) {
       )}]`
     );
 
-    if (!wsConnections.get(sessionId)) {
-      logger.verbose(
-        `@fonos/dispatcher creating ws client for [session ${sessionId}]`
-      );
-      try {
-        wsConnections.set(sessionId, new WebSocket(webhook));
-      } catch (e) {
-        logger.error(
-          `@fonos/dispatcher unable to connect to ws server [webhook = ${webhook}]`
-        );
-        return;
-      }
-    }
+    const ws = wsConnections.get(sessionId) || new WebSocket(webhook);
 
-    await sendCallRequest(webhook, request);
+    ws.on("open", async() => {
+      wsConnections.set(sessionId, ws);
+      await sendCallRequest(webhook, request);
+    })
+
+    ws.on("error", async(e: Error) => {
+      logger.error(`@fonos/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`)
+      logger.silly(e);
+      await channel.hangup();
+    });
   });
 
   ari.on("StasisEnd", (event, channel) => {
@@ -122,6 +119,7 @@ export default function (err, ari) {
   });
 
   ari.on("ChannelUserevent", async (event: any) => {
+    logger.verbose("XXXXXXX TT01");
     const wsClient = wsConnections.get(event.userevent.sessionId);
     if (!wsClient) {
       logger.verbose(
@@ -147,6 +145,7 @@ export default function (err, ari) {
   });
 
   ari.on("ChannelDtmfReceived", async (event: any, channel: any) => {
+    logger.verbose("XXXXXXX TT02");
     const wsClient = wsConnections.get(channel.id);
     if (!wsClient) {
       logger.verbose(
@@ -158,6 +157,7 @@ export default function (err, ari) {
   });
 
   ari.on("PlaybackFinished", async (event: any, playback: any) => {
+    logger.verbose("XXXXXXX TT03");
     // WARNING: Here we are using an undocumented property which could
     // disapear in future Asterisk's version.
     const sessionId = event.playback.target_uri.split(":")[1];
@@ -172,6 +172,7 @@ export default function (err, ari) {
   });
 
   ari.on("RecordingFinished", (event: any) => {
+    logger.verbose("XXXXXXX TT05");
     const sessionId = event.recording.target_uri.split(":")[1];
     const wsClient = wsConnections.get(sessionId);
     if (!wsClient) {
@@ -184,6 +185,7 @@ export default function (err, ari) {
   });
 
   ari.on("RecordingFailed", (event: any) => {
+    logger.verbose("XXXXXXX TT06");
     const sessionId = event.recording.target_uri.split(":")[1];
     const wsClient = wsConnections.get(sessionId);
     if (!wsClient) {
@@ -194,6 +196,10 @@ export default function (err, ari) {
     }
     recordFailedHandler(wsClient, event);
   });
+
+  ari.on("error", e => {
+    logger.error(e);
+  })
 
   ari.start("mediacontroller");
 }
