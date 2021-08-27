@@ -53,13 +53,17 @@ class SecretServer implements ISecretsServer {
 
       const response = new ListSecretIdResponse();
       response.setSecretsList(result.secrets);
-  
+
       if (result.pageToken) response.setNextPageToken("" + result.pageToken);
       callback(null, response);
     } catch (e) {
-      const response = new ListSecretIdResponse();
-      response.setSecretsList([]);
-      callback(null, response);
+      if (e.response.statusCode == 404) {
+        const response = new ListSecretIdResponse();
+        response.setSecretsList([]);
+        callback(null, response);
+      } else {
+        callback(e, null);
+      }
     }
   }
 
