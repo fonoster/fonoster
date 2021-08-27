@@ -19,13 +19,14 @@
 import stream from "stream";
 import PubSub from "pubsub-js";
 import {GatherOptions} from "./types";
-import {objectToQString} from "../utils";
+import {startMediaTransfer, stopMediaTransfer} from "../utils";
 import {SpeechProvider} from "@fonos/common";
+import {Verb} from "../verb";
 
 const waitForSpeech = async (
   sessionId: string,
   options: GatherOptions,
-  verb,
+  verb: Verb,
   speechProvider: SpeechProvider
 ): Promise<string> =>
   new Promise(async (resolve, reject) => {
@@ -49,27 +50,21 @@ const waitForSpeech = async (
       .then((result) => {
         if (timer) clearTimeout(timer);
         resolve(result.transcription);
-        PubSub.unsubscribe(token);
-        // TODO: Also tell Media Server to stop sending media
       })
-      .catch((e) => {
-        reject(e);
+      .catch(reject)
+      .finally(async () => {
         PubSub.unsubscribe(token);
+        await stopMediaTransfer(verb, sessionId);
       });
 
-    await verb.post(
-      `events/user/SendExternalMedia`,
-      objectToQString({
-        // WARNING: Harcoded value
-        application: "mediacontroller"
-      })
-    );
+    await startMediaTransfer(verb, sessionId);
 
     if (options.timeout > 0) {
-      timer = setTimeout(() => {
+      timer = setTimeout(async () => {
         // Simply resolve an empty string
         resolve("");
         PubSub.unsubscribe(token);
+        await stopMediaTransfer(verb, sessionId);
         return;
       }, options.timeout);
     }
