@@ -43,12 +43,14 @@ export default class RoutrClient {
     }
   }
 
-  async list(params: object | {}) {
+  async list(params: object | {}, accessKeyId: string) {
     const queryParams = (p: any) => Object.keys(p).map((k) => `${k}=${p[k]}`);
     try {
       const url = `${this.apiUrl}/${this.resource}?token=${
         this.token
-      }&filter=*&${queryParams(params).join("&")}`;
+      }&filter=@.metadata.accessKeyId=='${accessKeyId}'&${queryParams(
+        params
+      ).join("&")}`;
       const response = await axios.get(url);
       return response.data;
     } catch (err) {

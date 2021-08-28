@@ -51,7 +51,7 @@ class ProvidersServer implements IProvidersServer {
   ) {
     const result = await ResourceServer.listResources(Kind.GATEWAY, call);
     const response = new ListProvidersResponse();
-    if (result.resources) {
+    if (result && result.resources) {
       const providers = result.resources.map((resource) => decoder(resource));
       response.setNextPageToken(result.nextPageToken + "");
       response.setProvidersList(providers);
