@@ -29,6 +29,7 @@ import {recordFinishHandler} from "./handlers/record_finished";
 import {uploadRecording} from "./utils/upload_recording";
 import {recordFailedHandler} from "./handlers/record_failed";
 import WebSocket from "ws";
+import { hangup } from "./utils/destroy_channel";
 
 const wsConnections = new Map();
 
@@ -102,13 +103,15 @@ export default function (err: any, ari: any) {
 
     const ws = wsConnections.get(sessionId) || new WebSocket(webhook);
 
-    ws.on("open", async() => {
+    ws.on("open", async () => {
       wsConnections.set(sessionId, ws);
       await sendCallRequest(webhook, request);
-    })
+    });
 
-    ws.on("error", async(e: Error) => {
-      logger.error(`@fonos/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`)
+    ws.on("error", async (e: Error) => {
+      logger.error(
+        `@fonos/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`
+      );
       logger.silly(e);
       await channel.hangup();
     });
@@ -119,7 +122,6 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("ChannelUserevent", async (event: any) => {
-    logger.verbose("XXXXXXX TT01");
     const wsClient = wsConnections.get(event.userevent.sessionId);
     if (!wsClient) {
       logger.verbose(
@@ -137,6 +139,12 @@ export default function (err: any, ari: any) {
         event.userevent.accessKeyId,
         event.userevent.filename
       );
+    } else if (event.eventname === "Hangup") {
+      await hangup(
+        ari,
+        event.userevent.sessionId,
+        false
+      );
     } else {
       logger.error(
         `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`
@@ -145,7 +153,6 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("ChannelDtmfReceived", async (event: any, channel: any) => {
-    logger.verbose("XXXXXXX TT02");
     const wsClient = wsConnections.get(channel.id);
     if (!wsClient) {
       logger.verbose(
@@ -157,7 +164,6 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("PlaybackFinished", async (event: any, playback: any) => {
-    logger.verbose("XXXXXXX TT03");
     // WARNING: Here we are using an undocumented property which could
     // disapear in future Asterisk's version.
     const sessionId = event.playback.target_uri.split(":")[1];
@@ -172,7 +178,6 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("RecordingFinished", (event: any) => {
-    logger.verbose("XXXXXXX TT05");
     const sessionId = event.recording.target_uri.split(":")[1];
     const wsClient = wsConnections.get(sessionId);
     if (!wsClient) {
@@ -185,7 +190,6 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("RecordingFailed", (event: any) => {
-    logger.verbose("XXXXXXX TT06");
     const sessionId = event.recording.target_uri.split(":")[1];
     const wsClient = wsConnections.get(sessionId);
     if (!wsClient) {
@@ -196,10 +200,6 @@ export default function (err: any, ari: any) {
     }
     recordFailedHandler(wsClient, event);
   });
-
-  ari.on("error", e => {
-    logger.error(e);
-  })
 
   ari.start("mediacontroller");
 }

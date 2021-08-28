@@ -92,8 +92,11 @@ export default class VoiceServer {
     app.ws(this.config.base, (ws) => {
       ws.on("message", (msg) => {
         if (Buffer.isBuffer(msg)) {
-          const sessionId = msg.toString("utf-8", 0, 12);
-          const mediaData = msg.slice(12);
+          // Session ids will always be 12 or 13 digits long)
+          const numDigits = 2;
+          const idLength = parseInt(msg.toString("utf-8", 0, numDigits));
+          const sessionId = msg.toString("utf-8", 2, idLength + numDigits);
+          const mediaData = msg.slice(idLength + numDigits);
           PubSub.publish(`media.${sessionId}`, mediaData);
         } else {
           const event = JSON.parse(msg);
@@ -110,7 +113,7 @@ export default class VoiceServer {
             PubSub.publish(`${event.type}.${event.sessionId}`, event);
           }
 
-          logger.verbose("@fonos/voice received event =>", event);
+          logger.verbose(`@fonos/voice received event [${JSON.stringify(event, null, " ")}]`);
         }
       }).on("error", console.error);
     });
