@@ -48,7 +48,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
   constructor(config: GoogleTTSConfig) {
     super("tts", "googletts");
     this.config = config;
-    this.config.path = this.config.path ? this.config.path : "/tmp";
+    this.config.path = config.path ? config.path : "/tmp";
   }
 
   /**
@@ -65,8 +65,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
     const filename = computeFilename(text, options, "sln24");
     const pathToFile = path.join(this.config.path, filename);
 
-    logger.log(
-      "debug",
+    logger.verbose(
       `@fonos/tts.GoogleTTS.synthesize [text: ${text}, options: ${JSON.stringify(
         options
       )}]`

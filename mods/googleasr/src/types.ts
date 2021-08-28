@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 export interface GoogleSpeechConfig {
+  keyFilename?: string;
   languageCode: string;
 }
 
@@ -25,6 +26,7 @@ export interface TrackerConfig {
     encoding: "LINEAR16";
     sampleRateHertz: 16000;
     languageCode: string;
+    keyFilename?: string;
   };
   interimResults: boolean;
 }

@@ -29,7 +29,7 @@ import {recordFinishHandler} from "./handlers/record_finished";
 import {uploadRecording} from "./utils/upload_recording";
 import {recordFailedHandler} from "./handlers/record_failed";
 import WebSocket from "ws";
-import { hangup } from "./utils/destroy_channel";
+import {hangup} from "./utils/destroy_channel";
 
 const wsConnections = new Map();
 
@@ -140,11 +140,7 @@ export default function (err: any, ari: any) {
         event.userevent.filename
       );
     } else if (event.eventname === "Hangup") {
-      await hangup(
-        ari,
-        event.userevent.sessionId,
-        false
-      );
+      await hangup(ari, event.userevent.sessionId, false);
     } else {
       logger.error(
         `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`

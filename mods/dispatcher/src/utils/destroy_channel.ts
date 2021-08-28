@@ -1,5 +1,5 @@
 import logger from "@fonos/logger";
-import { getChannelVar } from "./channel_variable";
+import {getChannelVar} from "./channel_variable";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
@@ -19,39 +19,47 @@ import { getChannelVar } from "./channel_variable";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export async function hangup(ari: any, sessionId: string, destroyBridge = false) {
+export async function hangup(
+  ari: any,
+  sessionId: string,
+  destroyBridge = false
+) {
   try {
-    const channel = await ari.channels.get({ channelId: sessionId });
+    const channel = await ari.channels.get({channelId: sessionId});
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
     logger.verbose(
       `@fonos/dispatcher hangup and destroy bridge [session = ${sessionId}, bridge = ${bridgeId}]`
     );
 
     if (bridgeId && destroyBridge) {
-      await ari.bridges.removeChannel({ bridgeId, channel: sessionId });
-      await ari.bridges.destroy({ bridgeId });
+      await ari.bridges.removeChannel({bridgeId, channel: sessionId});
+      await ari.bridges.destroy({bridgeId});
     }
 
     await channel.destroy();
-  } catch (e) { /** We can only try because the channel might be already closed */ }
+  } catch (e) {
+    /** We can only try because the channel might be already closed */
+  }
 }
 
 export async function destroyBridge(ari: any, sessionId: string) {
   try {
-    const channel = await ari.channels.get({ channelId: sessionId });
+    const channel = await ari.channels.get({channelId: sessionId});
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
     logger.verbose(
       `@fonos/dispatcher remove channel and destroy bridge [session = ${sessionId}, bridge = ${bridgeId}]`
     );
 
     if (bridgeId) {
-      await ari.bridges.removeChannel({ bridgeId, channel: sessionId });
-      await ari.bridges.destroy({ bridgeId });
-      return
+      await ari.bridges.removeChannel({bridgeId, channel: sessionId});
+      await ari.bridges.destroy({bridgeId});
+      return;
     }
 
     logger.warning(
       `@fonos/dispatcher no bridge found [sessionId = ${sessionId}]`
     );
-  } catch (e) { /** We can only try because the channel might be already closed */ }
+  } catch (e) {
+    /** We can only try because the channel might be already closed */
+  }
 }

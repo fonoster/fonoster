@@ -19,10 +19,9 @@
 import WebSocket from "ws";
 import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonos/logger";
-import { destroyBridge } from "../utils/destroy_channel";
+import {destroyBridge} from "../utils/destroy_channel";
 
-const getRandomPort = () =>
-  Math.floor(Math.random() * (6000 - 5060)) + 10000;
+const getRandomPort = () => Math.floor(Math.random() * (6000 - 5060)) + 10000;
 
 export const externalMediaHandler = async (
   ws: WebSocket,
@@ -34,9 +33,7 @@ export const externalMediaHandler = async (
   );
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonos/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
     return;
   }
 
@@ -51,9 +48,9 @@ export const externalMediaHandler = async (
     const udpServer = new UDPMediaReceiver(address, true);
     const bridge = ari.Bridge();
 
-    const channel = await ari.channels.get({ channelId: sessionId });
-    await bridge.create({ type: "mixing" });
-    bridge.addChannel({ channel: sessionId });
+    const channel = await ari.channels.get({channelId: sessionId});
+    await bridge.create({type: "mixing"});
+    bridge.addChannel({channel: sessionId});
 
     ari.channels.setChannelVar({
       channelId: sessionId,
@@ -64,11 +61,17 @@ export const externalMediaHandler = async (
     const externalChannel = ari.Channel();
 
     externalChannel.on("StasisStart", (event, chan) => {
-      bridge.addChannel({ channel: chan.id });
+      bridge.addChannel({channel: chan.id});
     });
 
     udpServer.getServer().on("data", (data: Buffer) => {
-      ws.send(Buffer.concat([Buffer.from("" + sessionId.length), Buffer.from(sessionId), data]));
+      ws.send(
+        Buffer.concat([
+          Buffer.from("" + sessionId.length),
+          Buffer.from(sessionId),
+          data
+        ])
+      );
     });
 
     await externalChannel.externalMedia({

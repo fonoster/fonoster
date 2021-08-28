@@ -51,7 +51,9 @@ export default class GatherVerb extends Verb {
     if (options.source.includes("speech")) options.timeout = 10000;
 
     return new Promise(async (resolve, reject) => {
-      logger.verbose(`@fonos/voice started gather [sources = ${options.source}]`);
+      logger.verbose(
+        `@fonos/voice started gather [sources = ${options.source}]`
+      );
       if (options.source.includes("dtmf")) {
         waitForDtmf(this.request.sessionId, options)
           .then(resolve)
