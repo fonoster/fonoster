@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GoogleSpeechConfig, TrackerConfig } from "./types";
-import { SpeechTracker, SpeechResult } from "@fonos/common";
-import { Stream } from "stream";
+import {GoogleSpeechConfig, TrackerConfig} from "./types";
+import {SpeechTracker, SpeechResult} from "@fonos/common";
+import {Stream} from "stream";
 import speech from "@google-cloud/speech";
 
 const defaultTrackerConfig = {
@@ -35,7 +35,7 @@ export class GoogleSpeechTracker implements SpeechTracker {
   config: TrackerConfig;
   constructor(config: GoogleSpeechConfig) {
     const merge = require("deepmerge");
-    this.config = merge(defaultTrackerConfig, { config } || {});
+    this.config = merge(defaultTrackerConfig, {config} || {});
     this.client = new speech.SpeechClient(this.config.config);
   }
 
