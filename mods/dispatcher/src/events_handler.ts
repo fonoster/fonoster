@@ -30,7 +30,7 @@ import {uploadRecording} from "./utils/upload_recording";
 import {recordFailedHandler} from "./handlers/record_failed";
 import WebSocket from "ws";
 import {hangup} from "./utils/destroy_channel";
-import { channelTalkingHandler } from "./handlers/channel_talking";
+import {channelTalkingHandler} from "./handlers/channel_talking";
 
 const wsConnections = new Map();
 
@@ -115,7 +115,7 @@ export default function (err: any, ari: any) {
       );
       logger.silly(e);
       await channel.hangup();
-    });  
+    });
 
     channel.on("ChannelTalkingStarted", async (event: any, channel: any) => {
       const wsClient = wsConnections.get(channel.id);
@@ -126,8 +126,8 @@ export default function (err: any, ari: any) {
         return;
       }
       channelTalkingHandler(wsClient, channel.id, true);
-    })
-  
+    });
+
     channel.on("ChannelTalkingFinished", async (event: any, channel: any) => {
       const wsClient = wsConnections.get(channel.id);
       if (!wsClient) {
@@ -137,7 +137,7 @@ export default function (err: any, ari: any) {
         return;
       }
       channelTalkingHandler(wsClient, channel.id, false);
-    })
+    });
   });
 
   ari.on("StasisEnd", (event, channel) => {

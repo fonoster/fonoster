@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import stream from "stream";
+import Stream from "stream";
 import PubSub from "pubsub-js";
 import {GatherOptions} from "./types";
 import {startMediaTransfer, stopMediaTransfer} from "../utils";
@@ -34,7 +34,7 @@ const waitForSpeech = async (
     let token = null;
 
     const speechTracker = speechProvider.createSpeechTracker(options);
-    const readable = new stream.Readable({
+    const readable = new Stream.Readable({
       // The read logic is omitted since the data is pushed to the socket
       // outside of the script's control. However, the read() function
       // must be defined.

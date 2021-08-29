@@ -113,6 +113,9 @@ export default class VoiceServer {
           }
 
           logger.verbose(
+            `@fonos/voice received event [eventName = ${event.type}, sessionId = ${event.sessionId}]`
+          );
+          logger.silly(
             `@fonos/voice received event [${JSON.stringify(event, null, " ")}]`
           );
         }

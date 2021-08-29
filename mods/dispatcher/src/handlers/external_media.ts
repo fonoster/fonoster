@@ -73,7 +73,9 @@ export const externalMediaHandler = async (
             data
           ])
         );
-      } catch(e) { /** Must catch to prevent app from crashing if channel closed */}
+      } catch (e) {
+        /** Must catch to prevent app from crashing if channel closed */
+      }
     });
 
     await externalChannel.externalMedia({

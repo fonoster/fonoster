@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest } from "./types";
+import {VoiceRequest} from "./types";
 import VoiceServer from "./server";
 import VoiceResponse from "./voice";
 export {VoiceResponse, VoiceRequest, VoiceServer};

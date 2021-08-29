@@ -24,9 +24,7 @@ export const channelTalkingHandler = (
   sessionId: string,
   onOff: boolean
 ) => {
-  logger.verbose(
-    `@fonos/dispatcher channel talking [on = ${onOff}]`
-  );
+  logger.verbose(`@fonos/dispatcher channel talking [on = ${onOff}]`);
 
   if (ws.readyState !== WebSocket.OPEN) {
     logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);

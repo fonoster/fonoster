@@ -28,8 +28,8 @@ import {VoiceRequest} from "./types";
 import {Plugin} from "@fonos/common";
 import {assertPluginExist} from "./asserts";
 import PubSub from "pubsub-js";
-import { Verb } from "./verb";
-import { startMediaTransfer, stopMediaTransfer } from "./utils";
+import {Verb} from "./verb";
+import {startMediaTransfer, stopMediaTransfer} from "./utils";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
