@@ -65,13 +65,15 @@ export const externalMediaHandler = async (
     });
 
     udpServer.getServer().on("data", (data: Buffer) => {
-      ws.send(
-        Buffer.concat([
-          Buffer.from("" + sessionId.length),
-          Buffer.from(sessionId),
-          data
-        ])
-      );
+      try {
+        ws.send(
+          Buffer.concat([
+            Buffer.from("" + sessionId.length),
+            Buffer.from(sessionId),
+            data
+          ])
+        );
+      } catch(e) { /** Must catch to prevent app from crashing if channel closed */}
     });
 
     await externalChannel.externalMedia({

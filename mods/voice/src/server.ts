@@ -97,14 +97,13 @@ export default class VoiceServer {
           const idLength = parseInt(msg.toString("utf-8", 0, numDigits));
           const sessionId = msg.toString("utf-8", 2, idLength + numDigits);
           const mediaData = msg.slice(idLength + numDigits);
-          PubSub.publish(`media.${sessionId}`, mediaData);
+          PubSub.publish(`ReceivingMedia.${sessionId}`, mediaData);
         } else {
           const event = JSON.parse(msg);
 
           if (event.type === "PlaybackFinished") {
             PubSub.publish(`${event.type}.${event.data.playbackId}`, event);
-          }
-          if (
+          } else if (
             event.type === "RecordingFinished" ||
             event.type === "RecordingFailed"
           ) {

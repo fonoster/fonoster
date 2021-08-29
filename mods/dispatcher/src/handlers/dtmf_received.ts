@@ -21,7 +21,7 @@ import WebSocket from "ws";
 
 export const dtmfReceivedHandler = (
   ws: WebSocket,
-  event: any,
+  event: Record<string, unknown>,
   channel: any
 ) => {
   logger.verbose(

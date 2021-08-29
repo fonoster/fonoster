@@ -41,7 +41,7 @@ const waitForSpeech = async (
       read() {}
     });
 
-    token = PubSub.subscribe(`media.${sessionId}`, (type, data) => {
+    token = PubSub.subscribe(`ReceivingMedia.${sessionId}`, (type, data) => {
       readable.push(data);
     });
 

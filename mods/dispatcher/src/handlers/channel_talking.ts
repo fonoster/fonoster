@@ -16,7 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest } from "./types";
-import VoiceServer from "./server";
-import VoiceResponse from "./voice";
-export {VoiceResponse, VoiceRequest, VoiceServer};
+import logger from "@fonos/logger";
+import WebSocket from "ws";
+
+export const channelTalkingHandler = (
+  ws: WebSocket,
+  sessionId: string,
+  onOff: boolean
+) => {
+  logger.verbose(
+    `@fonos/dispatcher channel talking [on = ${onOff}]`
+  );
+
+  if (ws.readyState !== WebSocket.OPEN) {
+    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
+    return;
+  }
+
+  ws.send(
+    JSON.stringify({
+      type: "ChannelTalking",
+      sessionId,
+      data: {
+        on: onOff
+      }
+    })
+  );
+};

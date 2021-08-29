@@ -28,6 +28,8 @@ import {VoiceRequest} from "./types";
 import {Plugin} from "@fonos/common";
 import {assertPluginExist} from "./asserts";
 import PubSub from "pubsub-js";
+import { Verb } from "./verb";
+import { startMediaTransfer, stopMediaTransfer } from "./utils";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -259,5 +261,17 @@ export default class {
    */
   async record(options: RecordOptions): Promise<RecordResult> {
     return await new RecordVerb(this.request).run(options);
+  }
+
+  // Requests media from Media server
+  async openMediaPipe() {
+    const genericVerb = new Verb(this.request);
+    await startMediaTransfer(genericVerb, this.request.sessionId);
+  }
+
+  // Requests media stop from Media server
+  async closeMediaPipe() {
+    const genericVerb = new Verb(this.request);
+    await stopMediaTransfer(genericVerb, this.request.sessionId);
   }
 }
