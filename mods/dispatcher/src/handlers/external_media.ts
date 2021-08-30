@@ -43,12 +43,9 @@ export const externalMediaHandler = async (
     // WARNING: We should check if the port was taken
     const port = getRandomPort();
     const address = `0.0.0.0:${port}`;
-    // WARNING: Harcoded value
-    const remoteAddress = `172.220.238.54:${port}`;
     const udpServer = new UDPMediaReceiver(address, true);
     const bridge = ari.Bridge();
 
-    const channel = await ari.channels.get({channelId: sessionId});
     await bridge.create({type: "mixing"});
     bridge.addChannel({channel: sessionId});
 
@@ -80,7 +77,7 @@ export const externalMediaHandler = async (
 
     await externalChannel.externalMedia({
       app: "mediacontroller",
-      external_host: remoteAddress,
+      external_host: address,
       format: "slin16"
     });
   } else if (event.eventname === "StopExternalMedia") {
