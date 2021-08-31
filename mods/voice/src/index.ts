@@ -19,6 +19,12 @@
 import {VoiceRequest} from "./types";
 import VoiceServer from "./server";
 import VoiceResponse from "./voice";
-import { SGatherStream } from "./sgather/types";
-import { PlaybackControl } from "./playback/playback";
-export {VoiceResponse, VoiceRequest, VoiceServer, PlaybackControl, SGatherStream};
+import {SGatherStream} from "./sgather/types";
+import {PlaybackControl} from "./playback/playback";
+export {
+  VoiceResponse,
+  VoiceRequest,
+  VoiceServer,
+  PlaybackControl,
+  SGatherStream
+};

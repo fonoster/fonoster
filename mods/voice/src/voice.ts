@@ -141,7 +141,7 @@ export default class {
    *   console.log("digits: " + digits);
    * }
    */
-  async gather(options: { source : "speech,dtmf"}): Promise<string> {
+  async gather(options: {source: "speech,dtmf"}): Promise<string> {
     let asr = null;
     if (options.source.includes("speech")) {
       assertPluginExist(this, "asr");
@@ -175,7 +175,9 @@ export default class {
    *   })
    * }
    */
-  async sgather(options: SGatherOptions = { source : "speech,dtmf"}): Promise<SGatherStream> {
+  async sgather(
+    options: SGatherOptions = {source: "speech,dtmf"}
+  ): Promise<SGatherStream> {
     let asr = null;
     if (options.source.includes("speech")) {
       assertPluginExist(this, "asr");
