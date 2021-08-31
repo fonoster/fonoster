@@ -18,12 +18,12 @@
  */
 import Stream from "stream";
 import PubSub from "pubsub-js";
-import { SGatherOptions } from "./types";
-import { startMediaTransfer, stopMediaTransfer } from "../utils";
-import { Verb } from "../verb";
-import { SpeechProvider } from "@fonos/common/src/speech/types";
+import {SGatherOptions} from "./types";
+import {startMediaTransfer, stopMediaTransfer} from "../utils";
+import {Verb} from "../verb";
+import {SpeechProvider} from "@fonos/common/src/speech/types";
 
-export default async function startSpeechSource (
+export default async function startSpeechSource(
   sessionId: string,
   options: SGatherOptions,
   verb: Verb,
@@ -34,13 +34,15 @@ export default async function startSpeechSource (
     // The read logic is omitted since the data is pushed to the socket
     // outside of the script's control. However, the read() function
     // must be defined.
-    read() { }
+    read() {}
   });
   await startMediaTransfer(verb, sessionId);
-  const token = PubSub.subscribe(`ReceivingMedia.${sessionId}`, (type, data) => {
-    readable.push(data);
-  });
+  const token = PubSub.subscribe(
+    `ReceivingMedia.${sessionId}`,
+    (type, data) => {
+      readable.push(data);
+    }
+  );
   const speechStream = speechTracker.streamTranscribe(readable);
-  return {speechStream, token}
-};
-
+  return {speechStream, token};
+}

@@ -1,5 +1,5 @@
 import {Stream} from "stream";
-import { SGatherStream } from "./types";
+import {SGatherStream} from "./types";
 
 export default class StreamData implements SGatherStream {
   stream: Stream;
@@ -16,7 +16,7 @@ export default class StreamData implements SGatherStream {
     if (this.speechSubscribeToken) {
       PubSub.unsubscribe(this.speechSubscribeToken);
     }
-  
+
     this.stream.removeAllListeners();
   }
 
@@ -28,7 +28,7 @@ export default class StreamData implements SGatherStream {
     }
 
     if (event === "dtmf") {
-      this.stream.on("dtmf", (key:string) => {
+      this.stream.on("dtmf", (key: string) => {
         callback(key);
       });
     }
@@ -40,7 +40,7 @@ export default class StreamData implements SGatherStream {
     }
   }
 
-  emit(event:string, data: any) {
+  emit(event: string, data: any) {
     this.stream.emit(event, data);
   }
 

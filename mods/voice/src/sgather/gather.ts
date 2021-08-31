@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SpeechProvider } from "@fonos/common";
-import { VoiceRequest } from "../types";
-import { Verb } from "../verb";
-import { SGatherOptions, SGatherStream } from "./types";
+import {SpeechProvider} from "@fonos/common";
+import {VoiceRequest} from "../types";
+import {Verb} from "../verb";
+import {SGatherOptions, SGatherStream} from "./types";
 import PubSub from "pubsub-js";
 import logger from "@fonos/logger";
 import merge from "deepmerge";
@@ -56,14 +56,20 @@ export default class SGatherVerb extends Verb {
     }
 
     if (options.source.includes("speech")) {
-      const { speechStream, token } = 
-        await startSpeechSource(this.request.sessionId, opts, super.getSelf(), this.speechProvider);
+      const {speechStream, token} = await startSpeechSource(
+        this.request.sessionId,
+        opts,
+        super.getSelf(),
+        this.speechProvider
+      );
       streamData.setDtmfSubscribeToken(token);
-      speechStream.on("transcript", (data) => streamData.emit("transcript", data));
+      speechStream.on("transcript", (data) =>
+        streamData.emit("transcript", data)
+      );
     }
 
     return streamData;
   }
 }
 
-export { SGatherOptions };
+export {SGatherOptions};
