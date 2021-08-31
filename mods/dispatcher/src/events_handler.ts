@@ -19,19 +19,18 @@
 import Auth from "@fonos/auth";
 import Numbers from "@fonos/numbers";
 import logger from "@fonos/logger";
-import {CallRequest} from "./types";
-import {sendCallRequest} from "./utils/send_call_request";
-import {getChannelVar, getChannelVarAsJson} from "./utils/channel_variable";
-import {externalMediaHandler} from "./handlers/external_media";
-import {dtmfReceivedHandler} from "./handlers/dtmf_received";
-import {playbackFinishedHandler} from "./handlers/playback_finished";
-import {recordFinishHandler} from "./handlers/record_finished";
-import {uploadRecording} from "./utils/upload_recording";
-import {recordFailedHandler} from "./handlers/record_failed";
+import { CallRequest } from "./types";
+import { sendCallRequest } from "./utils/send_call_request";
+import { getChannelVar, getChannelVarAsJson } from "./utils/channel_variable";
+import { externalMediaHandler } from "./handlers/external_media";
+import { dtmfReceivedHandler } from "./handlers/dtmf_received";
+import { playbackFinishedHandler } from "./handlers/playback_finished";
+import { recordFinishHandler } from "./handlers/record_finished";
+import { uploadRecording } from "./utils/upload_recording";
+import { recordFailedHandler } from "./handlers/record_failed";
+import { destroyBridge, hangup } from "./utils/destroy_channel";
+import { channelTalkingHandler } from "./handlers/channel_talking";
 import WebSocket from "ws";
-import {hangup} from "./utils/destroy_channel";
-import {channelTalkingHandler} from "./handlers/channel_talking";
-
 const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
@@ -118,106 +117,83 @@ export default function (err: any, ari: any) {
     });
 
     channel.on("ChannelTalkingStarted", async (event: any, channel: any) => {
-      const wsClient = wsConnections.get(channel.id);
-      if (!wsClient) {
-        logger.verbose(
-          `@fonos/dispatcher ws client not found [session ${channel.id}]`
-        );
-        return;
-      }
-      channelTalkingHandler(wsClient, channel.id, true);
+      channelTalkingHandler(
+        wsConnections.get(channel.id),
+        channel.id,
+        true
+      );
     });
 
     channel.on("ChannelTalkingFinished", async (event: any, channel: any) => {
-      const wsClient = wsConnections.get(channel.id);
-      if (!wsClient) {
-        logger.verbose(
-          `@fonos/dispatcher ws client not found [session ${channel.id}]`
-        );
-        return;
-      }
-      channelTalkingHandler(wsClient, channel.id, false);
+      channelTalkingHandler(
+        wsConnections.get(channel.id),
+        channel.id,
+        false
+      );
     });
   });
 
-  ari.on("StasisEnd", (event, channel) => {
-    logger.verbose(`@fonos/dispatcher stasis end [sessionId = ${channel.id}]`);
-  });
-
   ari.on("ChannelUserevent", async (event: any) => {
+    logger.verbose(
+      `@fonos/dispatcher [got user event = ${JSON.stringify(event, null, " ")}]`
+    );  
     const wsClient = wsConnections.get(event.userevent.sessionId);
-    if (!wsClient) {
-      logger.verbose(
-        `@fonos/dispatcher ws client not found [session ${event.userevent.sessionId}]`
-      );
-      return;
-    }
-    if (
-      event.eventname === "SendExternalMedia" ||
-      event.eventname === "StopExternalMedia"
-    ) {
-      await externalMediaHandler(wsClient, ari, event);
-    } else if (event.eventname === "UploadRecording") {
-      await uploadRecording(
-        event.userevent.accessKeyId,
-        event.userevent.filename
-      );
-    } else if (event.eventname === "Hangup") {
-      await hangup(ari, event.userevent.sessionId, false);
-    } else {
-      logger.error(
-        `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`
-      );
+
+    switch (event.eventname) {
+      case "SendExternalMedia":
+        await externalMediaHandler(wsClient, ari, event);
+        break;
+      case "StopExternalMedia":
+        destroyBridge(ari, event.userevent.sessionId);
+        break;
+      case "UploadRecording":
+        await uploadRecording(
+          event.userevent.accessKeyId,
+          event.userevent.filename
+        );
+        break;
+      case "Hangup":
+        await hangup(ari, event.userevent.sessionId, false);
+        break;
+      default:
+        logger.error(
+          `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`
+        );
     }
   });
 
   ari.on("ChannelDtmfReceived", async (event: any, channel: any) => {
-    const wsClient = wsConnections.get(channel.id);
-    if (!wsClient) {
-      logger.verbose(
-        `@fonos/dispatcher ws client not found [session ${channel.id}]`
-      );
-      return;
-    }
-    dtmfReceivedHandler(wsClient, event, channel);
+    dtmfReceivedHandler(
+      wsConnections.get(channel.id),
+      event,
+      channel
+    );
   });
 
   ari.on("PlaybackFinished", async (event: any, playback: any) => {
-    // WARNING: Here we are using an undocumented property which could
-    // disapear in future Asterisk's version.
-    const sessionId = event.playback.target_uri.split(":")[1];
-    const wsClient = wsConnections.get(sessionId);
-    if (!wsClient) {
-      logger.verbose(
-        `@fonos/dispatcher ws client not found [session ${sessionId}]`
-      );
-      return;
-    }
-    playbackFinishedHandler(wsClient, event, playback);
+    playbackFinishedHandler(
+      wsConnections.get(event.playback.target_uri.split(":")[1]),
+      event,
+      playback
+    );
   });
 
   ari.on("RecordingFinished", (event: any) => {
-    const sessionId = event.recording.target_uri.split(":")[1];
-    const wsClient = wsConnections.get(sessionId);
-    if (!wsClient) {
-      logger.verbose(
-        `@fonos/dispatcher ws client not found [session ${sessionId}]`
-      );
-      return;
-    }
-    recordFinishHandler(wsClient, event);
+    recordFinishHandler(
+      wsConnections.get(event.recording.target_uri.split(":")[1]),
+      event
+    );
   });
 
   ari.on("RecordingFailed", (event: any) => {
-    const sessionId = event.recording.target_uri.split(":")[1];
-    const wsClient = wsConnections.get(sessionId);
-    if (!wsClient) {
-      logger.verbose(
-        `@fonos/dispatcher ws client not found [session ${sessionId}]`
-      );
-      return;
-    }
-    recordFailedHandler(wsClient, event);
+    recordFailedHandler(
+      wsConnections.get(event.recording.target_uri.split(":")[1]),
+      event
+    );
+  });
+
+  ari.on("StasisEnd", (event: any, channel: any) => {
+    logger.verbose(`@fonos/dispatcher stasis end [sessionId = ${channel.id}]`);
   });
 
   ari.start("mediacontroller");

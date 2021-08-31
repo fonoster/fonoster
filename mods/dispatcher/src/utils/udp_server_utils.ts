@@ -16,28 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonos/logger";
 import WebSocket from "ws";
 
-export const dtmfReceivedHandler = (
-  ws: WebSocket,
-  event: Record<string, unknown>,
-  channel: any
-) => {
-  logger.verbose(
-    `@fonos/dispatcher sending dtmf event [digit: ${event.digit}, channel=${channel.id}]`
-  );
+export const getRandomPort = () => Math.floor(Math.random() * (6000 - 5060)) + 10000;
 
-  if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
-    return;
+export function sendData(ws: WebSocket, data: Buffer, sessionId: string) {
+  try {
+    ws.send(
+      Buffer.concat([
+        Buffer.from("" + sessionId.length),
+        Buffer.from(sessionId),
+        data
+      ])
+    );
+  } catch (e) {
+    /** Must catch to prevent app from crashing if channel closed */
   }
+}
 
-  ws.send(
-    JSON.stringify({
-      type: "DtmfReceived",
-      sessionId: channel.id,
-      data: event.digit
-    })
-  );
-};
+export function streamConfig(address: string) {
+  return {
+    app: "mediacontroller",
+    external_host: address,
+    ormat: "slin16"
+  }
+}

@@ -19,68 +19,42 @@
 import WebSocket from "ws";
 import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonos/logger";
-import {destroyBridge} from "../utils/destroy_channel";
-
-const getRandomPort = () => Math.floor(Math.random() * (6000 - 5060)) + 10000;
+import { getRandomPort, sendData, streamConfig } from "../utils/udp_server_utils";
 
 export const externalMediaHandler = async (
   ws: WebSocket,
   ari: any,
   event: any
 ) => {
-  logger.verbose(
-    `@fonos/dispatcher [got user event = ${JSON.stringify(event, null, " ")}]`
-  );
-
-  if (ws.readyState !== WebSocket.OPEN) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
     logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
     return;
   }
-
+  // WARNING: We should check if the port was taken
+  const address = `0.0.0.0:${getRandomPort()}`;
+  const udpServer = new UDPMediaReceiver(address, true);
+  const bridge = ari.Bridge();
+  const externalChannel = ari.Channel();
   const sessionId = event.userevent.sessionId;
 
-  if (event.eventname === "SendExternalMedia") {
-    // WARNING: We should check if the port was taken
-    const port = getRandomPort();
-    const address = `0.0.0.0:${port}`;
-    const udpServer = new UDPMediaReceiver(address, true);
-    const bridge = ari.Bridge();
+  // Creating a room to receive the audio and then forward 
+  // the audio to via ws
+  await bridge.create({ type: "mixing" });
+  bridge.addChannel({ channel: sessionId });
+  externalChannel.on("StasisStart", (event: any, channel: any) =>
+    bridge.addChannel({ channel: channel.id })
+  );
 
-    await bridge.create({type: "mixing"});
-    bridge.addChannel({channel: sessionId});
+  // We save the bridge id as channel bar and later use the info
+  // to destroy the bridge
+  ari.channels.setChannelVar({
+    channelId: sessionId,
+    variable: "CURRENT_BRIDGE",
+    value: bridge.id
+  });
 
-    ari.channels.setChannelVar({
-      channelId: sessionId,
-      variable: "CURRENT_BRIDGE",
-      value: bridge.id
-    });
-
-    const externalChannel = ari.Channel();
-
-    externalChannel.on("StasisStart", (event, chan) => {
-      bridge.addChannel({channel: chan.id});
-    });
-
-    udpServer.getServer().on("data", (data: Buffer) => {
-      try {
-        ws.send(
-          Buffer.concat([
-            Buffer.from("" + sessionId.length),
-            Buffer.from(sessionId),
-            data
-          ])
-        );
-      } catch (e) {
-        /** Must catch to prevent app from crashing if channel closed */
-      }
-    });
-
-    await externalChannel.externalMedia({
-      app: "mediacontroller",
-      external_host: address,
-      format: "slin16"
-    });
-  } else if (event.eventname === "StopExternalMedia") {
-    destroyBridge(ari, sessionId);
-  }
+  // Collecting and forwarding media
+  udpServer.getServer().on("data", (data: Buffer) => sendData(ws, data, sessionId));
+  await externalChannel.externalMedia(streamConfig(address));
 };
+

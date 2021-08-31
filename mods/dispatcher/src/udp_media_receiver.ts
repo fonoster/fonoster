@@ -86,7 +86,7 @@ export default class UDPMediaReceiver {
   }
 
   close() {
-    logger.verbose(`@fonos/dispatcher udpServer[closing server]`);
+    logger.verbose(`@fonos/dispatcher udpServer [closing server]`);
     this.server.close();
   }
 }
