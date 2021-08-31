@@ -16,12 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {SpeechProvider} from "@fonos/common";
-import {VoiceRequest} from "../types";
-import {Verb} from "../verb";
-import {SGatherOptions, SGatherStream} from "./types";
+import { SpeechProvider } from "@fonos/common";
+import { VoiceRequest } from "../types";
+import { Verb } from "../verb";
+import { SGatherOptions, SGatherStream } from "./types";
+import PubSub from "pubsub-js";
 import logger from "@fonos/logger";
 import merge from "deepmerge";
+import StreamData from "./stream_data";
+import startSpeechSource from "./source_speech";
 
 const defaultOptions: SGatherOptions = {
   source: "speech,dtmf"
@@ -36,20 +39,31 @@ export default class SGatherVerb extends Verb {
 
   async run(opts: SGatherOptions): Promise<SGatherStream> {
     const options = merge(defaultOptions, opts);
-
-    return new Promise(async (resolve, reject) => {
-      logger.verbose(
-        `@fonos/voice started sgather [sources = ${options.source}]`
+    const streamData = new StreamData();
+    logger.verbose(
+      `@fonos/voice started sgather [sources = ${options.source}]`
+    );
+    if (options.source.includes("dtmf")) {
+      // TODO: Subscribe to dtmf events
+      const token = PubSub.subscribe(
+        `DtmfReceived.${this.request.sessionId}`,
+        (type, data) => {
+          const key = data.data;
+          streamData.emit("dtmf", key);
+        }
       );
-      if (options.source.includes("dtmf")) {
-        // TODO: Subscribe to dtmf events
-      }
+      streamData.setDtmfSubscribeToken(token);
+    }
 
-      if (options.source.includes("speech")) {
-        // TODO: Listen to speech and convert to text
-      }
-    });
+    if (options.source.includes("speech")) {
+      const { speechStream, token } = 
+        await startSpeechSource(this.request.sessionId, opts, super.getSelf(), this.speechProvider);
+      streamData.setDtmfSubscribeToken(token);
+      speechStream.on("transcript", (data) => streamData.emit("transcript", data));
+    }
+
+    return streamData;
   }
 }
 
-export {SGatherOptions};
+export { SGatherOptions };

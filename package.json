@@ -16,7 +16,8 @@
     "lint": "eslint mods --ext .ts --fix",
     "format": "prettier --write mods",
     "check-types": "tsc --noEmit",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "version:force": "lerna exec -- touch .lerna-changed-buster-$RANDOM"
   },
   "nodemonConfig": {
     "watch": [

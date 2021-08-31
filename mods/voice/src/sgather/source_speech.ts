@@ -18,38 +18,29 @@
  */
 import Stream from "stream";
 import PubSub from "pubsub-js";
-import {SGatherOptions} from "./types";
-import {startMediaTransfer, stopMediaTransfer} from "../utils";
-import {Verb} from "../verb";
-import {SpeechProvider} from "@fonos/common/src/speech/types";
+import { SGatherOptions } from "./types";
+import { startMediaTransfer, stopMediaTransfer } from "../utils";
+import { Verb } from "../verb";
+import { SpeechProvider } from "@fonos/common/src/speech/types";
 
-const waitForSpeech = async (
+export default async function startSpeechSource (
   sessionId: string,
   options: SGatherOptions,
   verb: Verb,
   speechProvider: SpeechProvider
-): Promise<string> =>
-  new Promise(async (resolve, reject) => {
-    let timer: NodeJS.Timeout;
-    let token = null;
-
-    const speechTracker = speechProvider.createSpeechTracker(options);
-    const readable = new Stream.Readable({
-      // The read logic is omitted since the data is pushed to the socket
-      // outside of the script's control. However, the read() function
-      // must be defined.
-      read() {}
-    });
-
-    token = PubSub.subscribe(`ReceivingMedia.${sessionId}`, (type, data) => {
-      readable.push(data);
-    });
-
-    const stream = speechTracker.streamTranscribe(readable);
-    stream.on("transcript", (data) => resolve(data));
-    stream.on("error", (error: Error) => reject(error));
-
-    await startMediaTransfer(verb, sessionId);
+) {
+  const speechTracker = speechProvider.createSpeechTracker(options);
+  const readable = new Stream.Readable({
+    // The read logic is omitted since the data is pushed to the socket
+    // outside of the script's control. However, the read() function
+    // must be defined.
+    read() { }
   });
+  await startMediaTransfer(verb, sessionId);
+  const token = PubSub.subscribe(`ReceivingMedia.${sessionId}`, (type, data) => {
+    readable.push(data);
+  });
+  const speechStream = speechTracker.streamTranscribe(readable);
+  return {speechStream, token}
+};
 
-export default waitForSpeech;
