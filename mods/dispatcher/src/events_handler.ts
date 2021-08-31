@@ -19,17 +19,17 @@
 import Auth from "@fonos/auth";
 import Numbers from "@fonos/numbers";
 import logger from "@fonos/logger";
-import { CallRequest } from "./types";
-import { sendCallRequest } from "./utils/send_call_request";
-import { getChannelVar, getChannelVarAsJson } from "./utils/channel_variable";
-import { externalMediaHandler } from "./handlers/external_media";
-import { dtmfReceivedHandler } from "./handlers/dtmf_received";
-import { playbackFinishedHandler } from "./handlers/playback_finished";
-import { recordFinishHandler } from "./handlers/record_finished";
-import { uploadRecording } from "./utils/upload_recording";
-import { recordFailedHandler } from "./handlers/record_failed";
-import { destroyBridge, hangup } from "./utils/destroy_channel";
-import { channelTalkingHandler } from "./handlers/channel_talking";
+import {CallRequest} from "./types";
+import {sendCallRequest} from "./utils/send_call_request";
+import {getChannelVar, getChannelVarAsJson} from "./utils/channel_variable";
+import {externalMediaHandler} from "./handlers/external_media";
+import {dtmfReceivedHandler} from "./handlers/dtmf_received";
+import {playbackFinishedHandler} from "./handlers/playback_finished";
+import {recordFinishHandler} from "./handlers/record_finished";
+import {uploadRecording} from "./utils/upload_recording";
+import {recordFailedHandler} from "./handlers/record_failed";
+import {destroyBridge, hangup} from "./utils/destroy_channel";
+import {channelTalkingHandler} from "./handlers/channel_talking";
 import WebSocket from "ws";
 const wsConnections = new Map();
 
@@ -117,26 +117,18 @@ export default function (err: any, ari: any) {
     });
 
     channel.on("ChannelTalkingStarted", async (event: any, channel: any) => {
-      channelTalkingHandler(
-        wsConnections.get(channel.id),
-        channel.id,
-        true
-      );
+      channelTalkingHandler(wsConnections.get(channel.id), channel.id, true);
     });
 
     channel.on("ChannelTalkingFinished", async (event: any, channel: any) => {
-      channelTalkingHandler(
-        wsConnections.get(channel.id),
-        channel.id,
-        false
-      );
+      channelTalkingHandler(wsConnections.get(channel.id), channel.id, false);
     });
   });
 
   ari.on("ChannelUserevent", async (event: any) => {
     logger.verbose(
       `@fonos/dispatcher [got user event = ${JSON.stringify(event, null, " ")}]`
-    );  
+    );
     const wsClient = wsConnections.get(event.userevent.sessionId);
 
     switch (event.eventname) {
@@ -163,11 +155,7 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("ChannelDtmfReceived", async (event: any, channel: any) => {
-    dtmfReceivedHandler(
-      wsConnections.get(channel.id),
-      event,
-      channel
-    );
+    dtmfReceivedHandler(wsConnections.get(channel.id), event, channel);
   });
 
   ari.on("PlaybackFinished", async (event: any, playback: any) => {

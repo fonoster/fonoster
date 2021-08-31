@@ -18,7 +18,8 @@
  */
 import WebSocket from "ws";
 
-export const getRandomPort = () => Math.floor(Math.random() * (6000 - 5060)) + 10000;
+export const getRandomPort = () =>
+  Math.floor(Math.random() * (6000 - 5060)) + 10000;
 
 export function sendData(ws: WebSocket, data: Buffer, sessionId: string) {
   try {
@@ -39,5 +40,5 @@ export function streamConfig(address: string) {
     app: "mediacontroller",
     external_host: address,
     ormat: "slin16"
-  }
+  };
 }

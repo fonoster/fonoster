@@ -19,7 +19,7 @@
 import WebSocket from "ws";
 import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonos/logger";
-import { getRandomPort, sendData, streamConfig } from "../utils/udp_server_utils";
+import {getRandomPort, sendData, streamConfig} from "../utils/udp_server_utils";
 
 export const externalMediaHandler = async (
   ws: WebSocket,
@@ -37,12 +37,12 @@ export const externalMediaHandler = async (
   const externalChannel = ari.Channel();
   const sessionId = event.userevent.sessionId;
 
-  // Creating a room to receive the audio and then forward 
+  // Creating a room to receive the audio and then forward
   // the audio to via ws
-  await bridge.create({ type: "mixing" });
-  bridge.addChannel({ channel: sessionId });
+  await bridge.create({type: "mixing"});
+  bridge.addChannel({channel: sessionId});
   externalChannel.on("StasisStart", (event: any, channel: any) =>
-    bridge.addChannel({ channel: channel.id })
+    bridge.addChannel({channel: channel.id})
   );
 
   // We save the bridge id as channel bar and later use the info
@@ -54,7 +54,8 @@ export const externalMediaHandler = async (
   });
 
   // Collecting and forwarding media
-  udpServer.getServer().on("data", (data: Buffer) => sendData(ws, data, sessionId));
+  udpServer
+    .getServer()
+    .on("data", (data: Buffer) => sendData(ws, data, sessionId));
   await externalChannel.externalMedia(streamConfig(address));
 };
-
