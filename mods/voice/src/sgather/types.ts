@@ -16,29 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FonosService from "./fonos_service";
-import {ServiceOptions} from "./types";
-import {getClientCredentials, getServerCredentials} from "./trust_util";
-//import healthcheck from "./healthcheck";
-import runServices from "./service_runner";
-import {Plugin} from "./speech/plugin";
-import {
-  SpeechProvider, 
-  SpeechTracker, 
-  SpeechResult, 
-  StreamSpeechResult,
-} from "./speech/types";
+export interface SGatherOptions {
+  source?: "dtmf" | "speech" | "dtmf,speech" | "speech,dtmf";
+}
 
-export {
-  FonosService,
-  ServiceOptions,
-  Plugin,
-  SpeechTracker,
-  SpeechResult,
-  SpeechProvider,
-  StreamSpeechResult,
-  getClientCredentials,
-  getServerCredentials,
-  runServices
-  //healthcheck
-};
+export interface SGatherStream {
+  on(event: string, callback:Function): void;
+  close: Function;
+}

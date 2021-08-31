@@ -16,29 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FonosService from "./fonos_service";
-import {ServiceOptions} from "./types";
-import {getClientCredentials, getServerCredentials} from "./trust_util";
-//import healthcheck from "./healthcheck";
-import runServices from "./service_runner";
-import {Plugin} from "./speech/plugin";
-import {
-  SpeechProvider, 
-  SpeechTracker, 
-  SpeechResult, 
-  StreamSpeechResult,
-} from "./speech/types";
+import {SGatherOptions} from "./types";
+import PubSub from "pubsub-js";
 
-export {
-  FonosService,
-  ServiceOptions,
-  Plugin,
-  SpeechTracker,
-  SpeechResult,
-  SpeechProvider,
-  StreamSpeechResult,
-  getClientCredentials,
-  getServerCredentials,
-  runServices
-  //healthcheck
-};
+const waitForDtmf = async (
+  sessionId: string,
+  options: SGatherOptions
+): Promise<string> =>
+  new Promise(async (resolve, reject) => {
+    let token = null;
+    try {
+      const token = PubSub.subscribe(
+        `DtmfReceived.${sessionId}`,
+        (type, data) => {
+          const key = data.data;
+          resolve(key);   
+        }
+      );
+    } catch (e) {
+      reject(e);
+      PubSub.unsubscribe(token);
+    }
+  });
+
+export default waitForDtmf;

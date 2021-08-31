@@ -17,9 +17,11 @@
  * limitations under the License.
  */
 import {GoogleSpeechConfig, TrackerConfig} from "./types";
-import {SpeechTracker, SpeechResult} from "@fonos/common";
+import {SpeechTracker, SpeechResult, StreamSpeechResult} from "@fonos/common";
 import {Stream} from "stream";
 import speech from "@google-cloud/speech";
+import StreamRecognize from "./stream_recognize";
+import StreamSpeechImpl from "./stream_speech_result";
 
 const defaultTrackerConfig = {
   config: {
@@ -39,6 +41,20 @@ export class GoogleSpeechTracker implements SpeechTracker {
     this.client = new speech.SpeechClient(this.config.config);
   }
 
+  streamTranscribe(stream: Stream): StreamSpeechResult {
+    let s = new StreamSpeechImpl();
+    new StreamRecognize(this.config.config, stream,
+      async (transcript: string, isFinal: boolean) => {
+        s.emit({transcript, isFinal});
+      },
+      (result) => {
+        // We are not yet doing diarization
+      },
+    );
+
+    return s
+  }
+
   transcribe(stream: Stream): Promise<SpeechResult> {
     return new Promise((resolve, reject) => {
       const recognizeStream = this.client
@@ -47,7 +63,8 @@ export class GoogleSpeechTracker implements SpeechTracker {
         .on("data", (data: Record<string, unknown>) => {
           if (data.results[0] && data.results[0].alternatives[0]) {
             const result = {
-              transcription: data.results[0].alternatives[0].transcript
+              transcript: data.results[0].alternatives[0].transcript,
+              isFinal: true
             };
             resolve(result);
             return;

@@ -18,14 +18,14 @@
  */
 import Stream from "stream";
 import PubSub from "pubsub-js";
-import {GatherOptions} from "./types";
+import {SGatherOptions} from "./types";
 import {startMediaTransfer, stopMediaTransfer} from "../utils";
-import {SpeechProvider} from "@fonos/common";
 import {Verb} from "../verb";
+import { SpeechProvider } from "@fonos/common/src/speech/types";
 
 const waitForSpeech = async (
   sessionId: string,
-  options: GatherOptions,
+  options: SGatherOptions,
   verb: Verb,
   speechProvider: SpeechProvider
 ): Promise<string> =>
@@ -45,29 +45,11 @@ const waitForSpeech = async (
       readable.push(data);
     });
 
-    speechTracker
-      .transcribe(readable)
-      .then((result) => {
-        if (timer) clearTimeout(timer);
-        resolve(result.transcript);
-      })
-      .catch(reject)
-      .finally(async () => {
-        PubSub.unsubscribe(token);
-        await stopMediaTransfer(verb, sessionId);
-      });
+    const stream = speechTracker.streamTranscribe(readable);
+    stream.on("transcript", data => resolve(data));
+    stream.on("error", (error: Error) => reject(error));
 
     await startMediaTransfer(verb, sessionId);
-
-    if (options.timeout > 0) {
-      timer = setTimeout(async () => {
-        // Simply resolve an empty string
-        resolve("");
-        PubSub.unsubscribe(token);
-        await stopMediaTransfer(verb, sessionId);
-        return;
-      }, options.timeout);
-    }
   });
 
 export default waitForSpeech;
