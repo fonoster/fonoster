@@ -151,7 +151,7 @@ export default class {
   }
 
   /**
-   * Waits for data entry from the user's keypad or from a stream speech provider. This command is different than `gather`
+   * Waits for data entry from the user's keypad or from a stream speech provider. This command is different from `gather`
    * in that it returns a stream of results instead of a single result. You can think of it as active listening.
    *
    * @param {SGatherOptions} options - Options to select the
