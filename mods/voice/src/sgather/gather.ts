@@ -35,6 +35,7 @@ export default class SGatherVerb extends Verb {
   constructor(request: VoiceRequest, speechProvider?: SpeechProvider) {
     super(request);
     this.speechProvider = speechProvider;
+    // Assert speech provider is available if source includes speech
   }
 
   async run(opts: SGatherOptions): Promise<SGatherStream> {

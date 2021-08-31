@@ -91,7 +91,7 @@ export default class {
    *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
-  async play(media: string, options?: PlayOptions): Promise<void> {
+  async play(media: string, options: PlayOptions = {}): Promise<void> {
     await new PlayVerb(this.request).run(media, options);
   }
 
@@ -114,7 +114,7 @@ export default class {
    *   await response.say("Hello workd");   // Plays the sound using GoogleTTS's default values
    * }
    */
-  async say(text: string, options?: SayOptions): Promise<void> {
+  async say(text: string, options: SayOptions = {}): Promise<void> {
     assertPluginExist(this, "tts");
     const tts = this.plugins["tts"];
     // It should return the filename and the generated file location
@@ -141,7 +141,7 @@ export default class {
    *   console.log("digits: " + digits);
    * }
    */
-  async gather(options: GatherOptions): Promise<string> {
+  async gather(options: { source : "speech,dtmf"}): Promise<string> {
     let asr = null;
     if (options.source.includes("speech")) {
       assertPluginExist(this, "asr");
@@ -175,7 +175,7 @@ export default class {
    *   })
    * }
    */
-  async sgather(options: SGatherOptions): Promise<SGatherStream> {
+  async sgather(options: SGatherOptions = { source : "speech,dtmf"}): Promise<SGatherStream> {
     let asr = null;
     if (options.source.includes("speech")) {
       assertPluginExist(this, "asr");
