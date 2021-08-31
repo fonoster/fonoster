@@ -42,7 +42,7 @@ export default class SGatherVerb extends Verb {
         `@fonos/voice started sgather [sources = ${options.source}]`
       );
       if (options.source.includes("dtmf")) {
-        // TODO: Subscribe to dtmf events 
+        // TODO: Subscribe to dtmf events
       }
 
       if (options.source.includes("speech")) {

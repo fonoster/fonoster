@@ -18,20 +18,20 @@
  */
 import HangupVerb from "./hangup/hangup";
 import UnmuteVerb from "./unmute/unmute";
-import GatherVerb, { GatherOptions } from "./gather/gather";
-import MuteVerb, { MuteOptions } from "./mute/mute";
-import PlayVerb, { PlayOptions } from "./play/play";
-import RecordVerb, { RecordOptions, RecordResult } from "./record/record";
-import { PlaybackControl } from "./playback/playback";
-import { SayOptions } from "./say/types";
-import { VoiceRequest } from "./types";
-import { Plugin } from "@fonos/common";
-import { assertPluginExist } from "./asserts";
+import GatherVerb, {GatherOptions} from "./gather/gather";
+import MuteVerb, {MuteOptions} from "./mute/mute";
+import PlayVerb, {PlayOptions} from "./play/play";
+import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
+import {PlaybackControl} from "./playback/playback";
+import {SayOptions} from "./say/types";
+import {VoiceRequest} from "./types";
+import {Plugin} from "@fonos/common";
+import {assertPluginExist} from "./asserts";
 import PubSub from "pubsub-js";
-import { Verb } from "./verb";
-import { startMediaTransfer, stopMediaTransfer } from "./utils";
-import SGatherVerb, { SGatherOptions } from "./sgather/gather";
-import { SGatherStream } from "./sgather/types";
+import {Verb} from "./verb";
+import {startMediaTransfer, stopMediaTransfer} from "./utils";
+import SGatherVerb, {SGatherOptions} from "./sgather/gather";
+import {SGatherStream} from "./sgather/types";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -152,23 +152,23 @@ export default class {
 
   /**
    * Waits for data entry from the user's keypad or from a stream speech provider. This command is different than `gather`
-   * in that it returns a stream of results instead of a single result. You can think of it as active listening. 
+   * in that it returns a stream of results instead of a single result. You can think of it as active listening.
    *
-   * @param {SGatherOptions} options - Options to select the 
+   * @param {SGatherOptions} options - Options to select the
    * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
    * when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `speech,dtmf`
    * @return {SGatherStream} The SGatherStream fires events via am `on` method for `transcription`, `dtmf`, and `error`. And the stream can be close
-   * with the `close` function. 
+   * with the `close` function.
    * @see StreamSpeechProvider
    * @example
    *
    * async function handler (request, response) {
    *   const stream = await response.sgather({source: "dtmf,speech"});
-   * 
+   *
    *   stream.on("transcript", (text, isFinal) => {
    *      console.log("transcript: %s", text);
    *   })
-   *   
+   *
    *   stream.on("dtmf", digit => {
    *      console.log("digit: " + digit);
    *      if (digit === "#") stream.close();

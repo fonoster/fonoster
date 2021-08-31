@@ -43,16 +43,18 @@ export class GoogleSpeechTracker implements SpeechTracker {
 
   streamTranscribe(stream: Stream): StreamSpeechResult {
     let s = new StreamSpeechImpl();
-    new StreamRecognize(this.config.config, stream,
+    new StreamRecognize(
+      this.config.config,
+      stream,
       async (transcript: string, isFinal: boolean) => {
         s.emit({transcript, isFinal});
       },
       (result) => {
         // We are not yet doing diarization
-      },
+      }
     );
 
-    return s
+    return s;
   }
 
   transcribe(stream: Stream): Promise<SpeechResult> {

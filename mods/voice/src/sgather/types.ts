@@ -21,6 +21,6 @@ export interface SGatherOptions {
 }
 
 export interface SGatherStream {
-  on(event: string, callback:Function): void;
+  on(event: string, callback: Function): void;
   close: Function;
 }

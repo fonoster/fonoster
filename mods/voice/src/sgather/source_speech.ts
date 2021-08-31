@@ -21,7 +21,7 @@ import PubSub from "pubsub-js";
 import {SGatherOptions} from "./types";
 import {startMediaTransfer, stopMediaTransfer} from "../utils";
 import {Verb} from "../verb";
-import { SpeechProvider } from "@fonos/common/src/speech/types";
+import {SpeechProvider} from "@fonos/common/src/speech/types";
 
 const waitForSpeech = async (
   sessionId: string,
@@ -46,7 +46,7 @@ const waitForSpeech = async (
     });
 
     const stream = speechTracker.streamTranscribe(readable);
-    stream.on("transcript", data => resolve(data));
+    stream.on("transcript", (data) => resolve(data));
     stream.on("error", (error: Error) => reject(error));
 
     await startMediaTransfer(verb, sessionId);

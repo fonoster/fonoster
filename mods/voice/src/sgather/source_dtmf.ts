@@ -30,7 +30,7 @@ const waitForDtmf = async (
         `DtmfReceived.${sessionId}`,
         (type, data) => {
           const key = data.data;
-          resolve(key);   
+          resolve(key);
         }
       );
     } catch (e) {

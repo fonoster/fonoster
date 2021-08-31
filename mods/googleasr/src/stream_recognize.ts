@@ -1,10 +1,10 @@
-import { Transform } from "stream";
+import {Transform} from "stream";
 import logger from "@fonos/logger";
-const speech = require('@google-cloud/speech').v1p1beta1;
+const speech = require("@google-cloud/speech").v1p1beta1;
 
 export default class StreamRecognize {
   speechClient: any;
-  request: { config: any; interimResults: boolean; };
+  request: {config: any; interimResults: boolean};
   recognizeStream: any;
   restartCounter: number;
   audioInput: any[];
@@ -25,7 +25,7 @@ export default class StreamRecognize {
     this.speechClient = new speech.SpeechClient();
     this.request = {
       config,
-      interimResults: false,
+      interimResults: false
     };
     this.recognizeStream = null;
     this.restartCounter = 0;
@@ -61,8 +61,10 @@ export default class StreamRecognize {
     this.cb = (stream) => {
       let results = this.speechCallback(stream);
       if (this.transcriptCallback && results[0] && results[0].alternatives[0]) {
-        this.transcriptCallback(results[0].alternatives[0].transcript,
-          results[0].isFinal);
+        this.transcriptCallback(
+          results[0].alternatives[0].transcript,
+          results[0].isFinal
+        );
       }
       if (this.resultsCallback) {
         this.resultsCallback(results);
@@ -72,14 +74,14 @@ export default class StreamRecognize {
     // Initiate (Reinitiate) a recognize stream
     this.recognizeStream = this.speechClient
       .streamingRecognize(this.request)
-      .on('error', err => {
+      .on("error", (err) => {
         if (err.code === 11) {
           // this.restartStream();
         } else {
-          logger.error('API request error ' + err);
+          logger.error("API request error " + err);
         }
       })
-      .on('data', this.cb);
+      .on("data", this.cb);
 
     // Restart stream when streamingLimit expires
     setTimeout(() => {
@@ -140,7 +142,7 @@ export default class StreamRecognize {
 
   restartStream() {
     if (this.recognizeStream) {
-      this.recognizeStream.removeListener('data', this.cb);
+      this.recognizeStream.removeListener("data", this.cb);
       this.recognizeStream = null;
     }
 
@@ -153,7 +155,9 @@ export default class StreamRecognize {
 
     this.restartCounter++;
 
-    logger.silly(`${this.streamingLimit * this.restartCounter}: RESTARTING REQUEST\n`)
+    logger.silly(
+      `${this.streamingLimit * this.restartCounter}: RESTARTING REQUEST\n`
+    );
 
     this.newStream = true;
     this.startStream();

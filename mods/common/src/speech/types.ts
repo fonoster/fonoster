@@ -33,6 +33,6 @@ export interface SpeechResult {
 }
 
 export interface StreamSpeechResult {
-  on (events: string, callback: Function): void;
+  on(events: string, callback: Function): void;
   close: Function;
 }

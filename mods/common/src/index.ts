@@ -23,10 +23,10 @@ import {getClientCredentials, getServerCredentials} from "./trust_util";
 import runServices from "./service_runner";
 import {Plugin} from "./speech/plugin";
 import {
-  SpeechProvider, 
-  SpeechTracker, 
-  SpeechResult, 
-  StreamSpeechResult,
+  SpeechProvider,
+  SpeechTracker,
+  SpeechResult,
+  StreamSpeechResult
 } from "./speech/types";
 
 export {

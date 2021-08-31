@@ -30,7 +30,8 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 const speechConfig: GoogleSpeechConfig = {
-  keyFilename: "/Users/pedrosanders/Projects/uglyroxanne/google_credentials.json",
+  keyFilename:
+    "/Users/pedrosanders/Projects/uglyroxanne/google_credentials.json",
   languageCode: "en-US"
 };
 
@@ -50,11 +51,13 @@ describe("@fonos/googleasr", () => {
       .stream();
 
     const result = await speechTracker.transcribe(recorderStream);
-    logger.info(`The transcript result is: ${JSON.stringify(result.transcript)}`);
+    logger.info(
+      `The transcript result is: ${JSON.stringify(result.transcript)}`
+    );
     expect(result).to.have.property("transcription").not.to.be.null;
   });
 
-  it.only("returns a speech result for a given stream", done => {
+  it.only("returns a speech result for a given stream", (done) => {
     logger.info("Begin to talk now");
     const speechTracker = new GoogleSpeechTracker(speechConfig);
     const recorderStream = recorder
@@ -69,13 +72,15 @@ describe("@fonos/googleasr", () => {
 
     const stream = speechTracker.streamTranscribe(recorderStream);
 
-    stream.on("transcript", result => {
-      logger.verbose(`The transcript result is: ${JSON.stringify(result.transcript)}`);
+    stream.on("transcript", (result) => {
+      logger.verbose(
+        `The transcript result is: ${JSON.stringify(result.transcript)}`
+      );
       expect(result).to.have.property("transcript").not.to.be.null;
       if (result.text === "close") {
         stream.close();
         done();
       }
-    })
+    });
   });
 });
