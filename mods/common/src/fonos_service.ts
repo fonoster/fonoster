@@ -23,15 +23,13 @@ import * as fs from "fs";
 import * as path from "path";
 import {Metadata} from "@grpc/grpc-js";
 
-// The ESM entry point was dropped due to a Webpack bug (https://github.com/webpack/webpack/issues/6584).
-const merge = require("deepmerge");
 const CONFIG_FILE =
   process.env.API_CONFIG_FILE ||
   path.join(require("os").homedir(), ".fonos", "config");
 const getConfigFile = () => fs.readFileSync(CONFIG_FILE).toString().trim();
 
 const defaultOptions: ServiceOptions = {
-  endpoint: process.env.APISERVER_ENDPOINT || "localhost:50052",
+  endpoint: process.env.APISERVER_ENDPOINT || "api.fonoster.io",
   accessKeyId: process.env.ACCESS_KEY_ID,
   accessKeySecret: process.env.ACCESS_KEY_SECRET
 };
@@ -57,18 +55,22 @@ export default class {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  constructor(ServiceClient: any, options: ServiceOptions = {}) {
+  constructor(ServiceClient: any, options: ServiceOptions) {
     this.ServiceClient = ServiceClient;
-    this.options = merge(defaultOptions, options);
+    this.options = options;
   }
 
   init(): void {
     try {
-      if (configExist()) {
-        this.options = merge(this.options, JSON.parse(getConfigFile()));
+      if (!this.options && configExist()) {
+        this.options = JSON.parse(getConfigFile());
       }
     } catch (err) {
       throw new Error(`Malformed config file found at: ${CONFIG_FILE}`);
+    }
+
+    if (!this.options) {
+      this.options = defaultOptions;
     }
 
     if (!this.options.accessKeyId || !this.options.accessKeySecret) {
@@ -80,7 +82,7 @@ export default class {
     this.metadata.add("access_key_secret", this.options.accessKeySecret);
 
     this.service = new this.ServiceClient(
-      this.options.endpoint,
+      this.options.endpoint || defaultOptions.endpoint,
       getClientCredentials()
     );
   }
