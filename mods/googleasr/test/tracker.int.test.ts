@@ -30,8 +30,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 const speechConfig: GoogleSpeechConfig = {
-  keyFilename:
-    "/Users/pedrosanders/Projects/voice/google.json",
+  keyFilename: "/Users/pedrosanders/Projects/voice/google.json",
   languageCode: "en-US"
 };
 

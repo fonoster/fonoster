@@ -18,7 +18,7 @@
  */
 import {Transform} from "stream";
 import logger from "@fonos/logger";
-import { GoogleSpeechConfig } from "./types";
+import {GoogleSpeechConfig} from "./types";
 const speech = require("@google-cloud/speech").v1p1beta1;
 
 export default class StreamRecognize {
@@ -40,7 +40,12 @@ export default class StreamRecognize {
   resultsCallback: any;
   socket: any;
   cb: (stream: any) => void;
-  constructor(config: GoogleSpeechConfig, socket, transcriptCallback, resultsCallback) {
+  constructor(
+    config: GoogleSpeechConfig,
+    socket,
+    transcriptCallback,
+    resultsCallback
+  ) {
     this.speechClient = new speech.SpeechClient(config);
     this.request = {
       config,
@@ -77,10 +82,7 @@ export default class StreamRecognize {
     this.audioInput = [];
 
     this.cb = (stream) => {
-      if (this.newStream) {
-        console.log("It will fail")
-      }
-      let results = this.speechCallback(stream);
+      const results = this.speechCallback(stream);
       if (this.transcriptCallback && results[0] && results[0].alternatives[0]) {
         this.transcriptCallback(
           results[0].alternatives[0].transcript.trimStart(),
