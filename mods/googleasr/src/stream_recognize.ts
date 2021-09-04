@@ -1,10 +1,29 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import {Transform} from "stream";
 import logger from "@fonos/logger";
+import { GoogleSpeechConfig } from "./types";
 const speech = require("@google-cloud/speech").v1p1beta1;
 
 export default class StreamRecognize {
   speechClient: any;
-  request: {config: any; interimResults: boolean};
+  request: {config: GoogleSpeechConfig; interimResults: boolean};
   recognizeStream: any;
   restartCounter: number;
   audioInput: any[];
@@ -21,8 +40,8 @@ export default class StreamRecognize {
   resultsCallback: any;
   socket: any;
   cb: (stream: any) => void;
-  constructor(config, socket, transcriptCallback, resultsCallback) {
-    this.speechClient = new speech.SpeechClient();
+  constructor(config: GoogleSpeechConfig, socket, transcriptCallback, resultsCallback) {
+    this.speechClient = new speech.SpeechClient(config);
     this.request = {
       config,
       interimResults: false
@@ -37,7 +56,7 @@ export default class StreamRecognize {
     this.newStream = true;
     this.bridgingOffset = 0;
     this.lastTranscriptWasFinal = false;
-    this.streamingLimit = 25000;
+    this.streamingLimit = 60000;
 
     this.audioInputStreamTransform = new Transform({
       transform: (chunk, encoding, callback) => {
@@ -57,15 +76,18 @@ export default class StreamRecognize {
     // Clear current audioInput
     this.audioInput = [];
 
-    // This callback sends the transcript back to the ari-transcriber
     this.cb = (stream) => {
+      if (this.newStream) {
+        console.log("It will fail")
+      }
       let results = this.speechCallback(stream);
       if (this.transcriptCallback && results[0] && results[0].alternatives[0]) {
         this.transcriptCallback(
-          results[0].alternatives[0].transcript,
+          results[0].alternatives[0].transcript.trimStart(),
           results[0].isFinal
         );
       }
+
       if (this.resultsCallback) {
         this.resultsCallback(results);
       }

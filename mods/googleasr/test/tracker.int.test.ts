@@ -31,7 +31,7 @@ const sandbox = sinon.createSandbox();
 
 const speechConfig: GoogleSpeechConfig = {
   keyFilename:
-    "/Users/pedrosanders/Projects/uglyroxanne/google_credentials.json",
+    "/Users/pedrosanders/Projects/voice/google.json",
   languageCode: "en-US"
 };
 
