@@ -19,9 +19,9 @@
 import Stream from "stream";
 import PubSub from "pubsub-js";
 import {SGatherOptions} from "./types";
-import {startMediaTransfer, stopMediaTransfer} from "../utils";
+import {startMediaTransfer} from "../utils";
 import {Verb} from "../verb";
-import {SpeechProvider} from "@fonos/common/src/speech/types";
+import {SpeechProvider} from "@fonos/common";
 
 export default async function startSpeechSource(
   sessionId: string,
