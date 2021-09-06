@@ -4,9 +4,10 @@ import {Domain} from "./protos/domains_pb";
 export default function (jsonObj: any) {
   const domain = new Domain();
   const context = jsonObj.spec.context;
+
   domain.setRef(jsonObj.metadata.ref);
   domain.setName(jsonObj.metadata.name);
-  domain.setDomainUri(`${context.domainUri}.${process.env.GLOBAL_SIP_DOMAIN}`);
+  domain.setDomainUri(context.domainUri);
   domain.setCreateTime(jsonObj.metadata.createdOn);
   domain.setUpdateTime(jsonObj.metadata.modifiedOn);
   if (context.egressPolicy) {
