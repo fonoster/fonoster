@@ -68,8 +68,15 @@ class DomainsServer implements IDomainsServer {
   ) {
     const domain = call.request.getDomain();
 
-    if (isValidDomain(domain.getDomainUri()) == false) {
-      callback(new Error("Domain Uri is not a valid domain"), null);
+    const domainUri = process.env.GLOBAL_SIP_DOMAIN
+      ? `${domain.getDomainUri()}.${process.env.GLOBAL_SIP_DOMAIN}`
+      : domain.getDomainUri();
+
+    if (isValidDomain(domainUri) == false) {
+      callback(
+        new Error(`Domain URI '${domainUri}' is not a valid domain`),
+        null
+      );
       return;
     }
 

@@ -131,6 +131,8 @@ SIPPROXY_HOST=sipproxy.fonos
 SIPPROXY_USERNAME=ast
 SIPPROXY_API_USERNAME=admin
 
+# If set, any new domain will be a subdomain under this global domain
+# GLOBAL_SIP_DOMAIN=fonoster.io
 
 #
 # Configuration to logging service (Based on Kibana)
