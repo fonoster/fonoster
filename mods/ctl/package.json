@@ -1,6 +1,6 @@
 {
   "name": "@fonos/ctl",
-  "version": "0.1.17-alpha.0",
+  "version": "0.1.19-alpha.0",
   "description": "Command-Line for Fonos",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -75,9 +75,9 @@
   },
   "dependencies": {
     "@fonos/agents": "^0.1.17-alpha.0",
-    "@fonos/domains": "^0.1.17-alpha.0",
+    "@fonos/domains": "^0.1.19-alpha.0",
     "@fonos/logger": "^0.1.16-alpha.1",
-    "@fonos/numbers": "^0.1.17-alpha.0",
+    "@fonos/numbers": "^0.1.19-alpha.0",
     "@fonos/providers": "^0.1.17-alpha.0",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",

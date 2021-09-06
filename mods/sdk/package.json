@@ -1,6 +1,6 @@
 {
   "name": "@fonos/sdk",
-  "version": "0.1.17-alpha.0",
+  "version": "0.1.19-alpha.0",
   "description": "Fonos SDK module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -32,10 +32,10 @@
     "@fonos/agents": "^0.1.17-alpha.0",
     "@fonos/auth": "^0.1.17-alpha.0",
     "@fonos/callmanager": "^0.1.17-alpha.0",
-    "@fonos/domains": "^0.1.17-alpha.0",
+    "@fonos/domains": "^0.1.19-alpha.0",
     "@fonos/funcs": "^0.1.17-alpha.0",
     "@fonos/logger": "^0.1.16-alpha.1",
-    "@fonos/numbers": "^0.1.17-alpha.0",
+    "@fonos/numbers": "^0.1.19-alpha.0",
     "@fonos/providers": "^0.1.17-alpha.0",
     "@fonos/secrets": "^0.1.17-alpha.0",
     "@fonos/storage": "^0.1.17-alpha.0"
