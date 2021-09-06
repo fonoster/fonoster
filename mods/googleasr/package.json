@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@fonos/common": "^0.1.20-alpha.0",
-    "@fonos/logger": "*",
+    "@fonos/logger": "^0.1.20-alpha.0",
     "@google-cloud/speech": "^4.0.0",
     "axios": "^0.21.1",
     "node-record-lpcm16": "^1.0.1",
