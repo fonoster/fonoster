@@ -1,6 +1,6 @@
 {
   "name": "@fonos/types",
-  "version": "0.1.16-alpha.1",
+  "version": "0.1.20-alpha.0",
   "description": "Handles Fonos types",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
