@@ -90,7 +90,7 @@ class DomainsServer implements IDomainsServer {
         domain.getName(),
         domain.getRef()
       )
-        .withDomainUri(domain.getDomainUri())
+        .withDomainUri(domainUri)
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
         .withMetadata({accessKeyId: getAccessKeyId(call)})
