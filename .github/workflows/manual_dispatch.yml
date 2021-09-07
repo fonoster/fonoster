@@ -1,0 +1,14 @@
+name: manual dispatch
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: run media server
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: publish to docker hub
+          repo: fonoster/mediaserver
+          token: ${{ secrets.GH_PAT }}
+          ref: main

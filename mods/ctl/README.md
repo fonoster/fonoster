@@ -1,5 +1,4 @@
-ctl
-===
+# ctl
 
 Command-Line for for Fonos
 
@@ -9,48 +8,56 @@ Command-Line for for Fonos
 [![License](https://img.shields.io/npm/l/ctl.svg)](https://github.com/fonoster/fonos/blob/master/package.json)
 
 <!-- toc -->
+* [ctl](#ctl)
 * [Usage](#usage)
 * [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
 ```sh-session
 $ npm install -g @fonos/ctl
 $ fonos COMMAND
 running command...
 $ fonos (-v|--version|version)
-@fonos/ctl/0.0.78 darwin-x64 node-v12.18.3
+@fonos/ctl/0.1.20-alpha.0 darwin-x64 node-v14.16.0
 $ fonos --help [COMMAND]
 USAGE
   $ fonos COMMAND
 ...
 ```
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
 * [`fonos agents:create`](#fonos-agentscreate)
 * [`fonos agents:delete [REF]`](#fonos-agentsdelete-ref)
 * [`fonos agents:get [REF]`](#fonos-agentsget-ref)
 * [`fonos agents:list`](#fonos-agentslist)
 * [`fonos agents:update [REF]`](#fonos-agentsupdate-ref)
-* [`fonos apps:delete [NAME]`](#fonos-appsdelete-name)
-* [`fonos apps:deploy [REF]`](#fonos-appsdeploy-ref)
-* [`fonos apps:get [NAME]`](#fonos-appsget-name)
-* [`fonos apps:init`](#fonos-appsinit)
-* [`fonos apps:list`](#fonos-appslist)
 * [`fonos auth:login`](#fonos-authlogin)
 * [`fonos auth:logout`](#fonos-authlogout)
+* [`fonos bug`](#fonos-bug)
 * [`fonos domains:create`](#fonos-domainscreate)
 * [`fonos domains:delete [REF]`](#fonos-domainsdelete-ref)
 * [`fonos domains:get [REF]`](#fonos-domainsget-ref)
 * [`fonos domains:list`](#fonos-domainslist)
 * [`fonos domains:update [REF]`](#fonos-domainsupdate-ref)
+* [`fonos feedback`](#fonos-feedback)
 * [`fonos help [COMMAND]`](#fonos-help-command)
 * [`fonos numbers:create`](#fonos-numberscreate)
 * [`fonos numbers:delete [REF]`](#fonos-numbersdelete-ref)
 * [`fonos numbers:get [REF]`](#fonos-numbersget-ref)
 * [`fonos numbers:list`](#fonos-numberslist)
 * [`fonos numbers:update [REF]`](#fonos-numbersupdate-ref)
+* [`fonos plugins`](#fonos-plugins)
+* [`fonos plugins:inspect PLUGIN...`](#fonos-pluginsinspect-plugin)
+* [`fonos plugins:install PLUGIN...`](#fonos-pluginsinstall-plugin)
+* [`fonos plugins:link PLUGIN`](#fonos-pluginslink-plugin)
+* [`fonos plugins:uninstall PLUGIN...`](#fonos-pluginsuninstall-plugin)
+* [`fonos plugins:update`](#fonos-pluginsupdate)
 * [`fonos providers:create`](#fonos-providerscreate)
 * [`fonos providers:delete [REF]`](#fonos-providersdelete-ref)
 * [`fonos providers:get [REF]`](#fonos-providersget-ref)
@@ -70,7 +77,7 @@ DESCRIPTION
      Creates a new Agent in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/agents/create.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/agents/create.ts)_
+_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/agents/create.js)_
 
 ## `fonos agents:delete [REF]`
 
@@ -85,7 +92,7 @@ ALIASES
   $ fonos agents:rm
 ```
 
-_See code: [dist/commands/agents/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/agents/delete.ts)_
+_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/agents/delete.js)_
 
 ## `fonos agents:get [REF]`
 
@@ -96,7 +103,7 @@ USAGE
   $ fonos agents:get [REF]
 ```
 
-_See code: [dist/commands/agents/get.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/agents/get.ts)_
+_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/agents/get.js)_
 
 ## `fonos agents:list`
 
@@ -117,7 +124,7 @@ ALIASES
   $ fonos agents:ls
 ```
 
-_See code: [dist/commands/agents/list.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/agents/list.ts)_
+_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/agents/list.js)_
 
 ## `fonos agents:update [REF]`
 
@@ -132,88 +139,7 @@ DESCRIPTION
      Updates a agent at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/agents/update.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/agents/update.ts)_
-
-## `fonos apps:delete [NAME]`
-
-removes application
-
-```
-USAGE
-  $ fonos apps:delete [NAME]
-
-ALIASES
-  $ fonos apps:del
-  $ fonos apps:rm
-```
-
-_See code: [dist/commands/apps/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/apps/delete.ts)_
-
-## `fonos apps:deploy [REF]`
-
-deploys application to a Fonos instance
-
-```
-USAGE
-  $ fonos apps:deploy [REF]
-
-DESCRIPTION
-  ...
-     Run this command from the app root to deploy to Fonos.
-```
-
-_See code: [dist/commands/apps/deploy.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/apps/deploy.ts)_
-
-## `fonos apps:get [NAME]`
-
-get information about an existing application
-
-```
-USAGE
-  $ fonos apps:get [NAME]
-
-DESCRIPTION
-  ...
-     Obtain information about an application
-```
-
-_See code: [dist/commands/apps/get.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/apps/get.ts)_
-
-## `fonos apps:init`
-
-creates a new empty application
-
-```
-USAGE
-  $ fonos apps:init
-
-DESCRIPTION
-  ...
-     Extra documentation goes here
-```
-
-_See code: [dist/commands/apps/init.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/apps/init.ts)_
-
-## `fonos apps:list`
-
-list registered applications
-
-```
-USAGE
-  $ fonos apps:list
-
-OPTIONS
-  -s, --size=size  [default: 25] number of result per page
-
-DESCRIPTION
-  ...
-     List the registered applications
-
-ALIASES
-  $ fonos apps:ls
-```
-
-_See code: [dist/commands/apps/list.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/apps/list.ts)_
+_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/agents/update.js)_
 
 ## `fonos auth:login`
 
@@ -224,7 +150,7 @@ USAGE
   $ fonos auth:login
 ```
 
-_See code: [dist/commands/auth/login.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/auth/login.ts)_
+_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/auth/login.js)_
 
 ## `fonos auth:logout`
 
@@ -235,7 +161,22 @@ USAGE
   $ fonos auth:logout
 ```
 
-_See code: [dist/commands/auth/logout.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/auth/logout.ts)_
+_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/auth/logout.js)_
+
+## `fonos bug`
+
+start a bug report 🐞
+
+```
+USAGE
+  $ fonos bug
+
+DESCRIPTION
+  ...
+     Opens github issues with a predefine bug template
+```
+
+_See code: [dist/commands/bug.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/bug.js)_
 
 ## `fonos domains:create`
 
@@ -250,7 +191,7 @@ DESCRIPTION
      Creates a new Domain in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/domains/create.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/domains/create.ts)_
+_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/domains/create.js)_
 
 ## `fonos domains:delete [REF]`
 
@@ -265,7 +206,7 @@ ALIASES
   $ fonos domains:rm
 ```
 
-_See code: [dist/commands/domains/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/domains/delete.ts)_
+_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/domains/delete.js)_
 
 ## `fonos domains:get [REF]`
 
@@ -276,7 +217,7 @@ USAGE
   $ fonos domains:get [REF]
 ```
 
-_See code: [dist/commands/domains/get.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/domains/get.ts)_
+_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/domains/get.js)_
 
 ## `fonos domains:list`
 
@@ -297,7 +238,7 @@ ALIASES
   $ fonos domains:ls
 ```
 
-_See code: [dist/commands/domains/list.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/domains/list.ts)_
+_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/domains/list.js)_
 
 ## `fonos domains:update [REF]`
 
@@ -312,7 +253,22 @@ DESCRIPTION
      Updates a domain at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/domains/update.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/domains/update.ts)_
+_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/domains/update.js)_
+
+## `fonos feedback`
+
+let'us know how we're doing
+
+```
+USAGE
+  $ fonos feedback
+
+DESCRIPTION
+  ...
+     Help us improve by providing some feedback
+```
+
+_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/feedback.js)_
 
 ## `fonos help [COMMAND]`
 
@@ -329,7 +285,7 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.2/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.3/src/commands/help.ts)_
 
 ## `fonos numbers:create`
 
@@ -344,7 +300,7 @@ DESCRIPTION
      Creates a new Number in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/numbers/create.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/numbers/create.ts)_
+_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/numbers/create.js)_
 
 ## `fonos numbers:delete [REF]`
 
@@ -359,7 +315,7 @@ ALIASES
   $ fonos numbers:rm
 ```
 
-_See code: [dist/commands/numbers/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/numbers/delete.ts)_
+_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/numbers/delete.js)_
 
 ## `fonos numbers:get [REF]`
 
@@ -370,7 +326,7 @@ USAGE
   $ fonos numbers:get [REF]
 ```
 
-_See code: [dist/commands/numbers/get.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/numbers/get.ts)_
+_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/numbers/get.js)_
 
 ## `fonos numbers:list`
 
@@ -391,7 +347,7 @@ ALIASES
   $ fonos numbers:ls
 ```
 
-_See code: [dist/commands/numbers/list.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/numbers/list.ts)_
+_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/numbers/list.js)_
 
 ## `fonos numbers:update [REF]`
 
@@ -406,7 +362,145 @@ DESCRIPTION
      Updates a number at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/numbers/update.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/numbers/update.ts)_
+_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/numbers/update.js)_
+
+## `fonos plugins`
+
+list installed plugins
+
+```
+USAGE
+  $ fonos plugins
+
+OPTIONS
+  --core  show core plugins
+
+EXAMPLE
+  $ fonos plugins
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.10.1/src/commands/plugins/index.ts)_
+
+## `fonos plugins:inspect PLUGIN...`
+
+displays installation properties of a plugin
+
+```
+USAGE
+  $ fonos plugins:inspect PLUGIN...
+
+ARGUMENTS
+  PLUGIN  [default: .] plugin to inspect
+
+OPTIONS
+  -h, --help     show CLI help
+  -v, --verbose
+
+EXAMPLE
+  $ fonos plugins:inspect myplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.10.1/src/commands/plugins/inspect.ts)_
+
+## `fonos plugins:install PLUGIN...`
+
+installs a plugin into the CLI
+
+```
+USAGE
+  $ fonos plugins:install PLUGIN...
+
+ARGUMENTS
+  PLUGIN  plugin to install
+
+OPTIONS
+  -f, --force    yarn install with force flag
+  -h, --help     show CLI help
+  -v, --verbose
+
+DESCRIPTION
+  Can be installed from npm or a git url.
+
+  Installation of a user-installed plugin will override a core plugin.
+
+  e.g. If you have a core plugin that has a 'hello' command, installing a user-installed plugin with a 'hello' command 
+  will override the core plugin implementation. This is useful if a user needs to update core plugin functionality in 
+  the CLI without the need to patch and update the whole CLI.
+
+ALIASES
+  $ fonos plugins:add
+
+EXAMPLES
+  $ fonos plugins:install myplugin 
+  $ fonos plugins:install https://github.com/someuser/someplugin
+  $ fonos plugins:install someuser/someplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.10.1/src/commands/plugins/install.ts)_
+
+## `fonos plugins:link PLUGIN`
+
+links a plugin into the CLI for development
+
+```
+USAGE
+  $ fonos plugins:link PLUGIN
+
+ARGUMENTS
+  PATH  [default: .] path to plugin
+
+OPTIONS
+  -h, --help     show CLI help
+  -v, --verbose
+
+DESCRIPTION
+  Installation of a linked plugin will override a user-installed or core plugin.
+
+  e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello' 
+  command will override the user-installed or core plugin implementation. This is useful for development work.
+
+EXAMPLE
+  $ fonos plugins:link myplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.10.1/src/commands/plugins/link.ts)_
+
+## `fonos plugins:uninstall PLUGIN...`
+
+removes a plugin from the CLI
+
+```
+USAGE
+  $ fonos plugins:uninstall PLUGIN...
+
+ARGUMENTS
+  PLUGIN  plugin to uninstall
+
+OPTIONS
+  -h, --help     show CLI help
+  -v, --verbose
+
+ALIASES
+  $ fonos plugins:unlink
+  $ fonos plugins:remove
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.10.1/src/commands/plugins/uninstall.ts)_
+
+## `fonos plugins:update`
+
+update installed plugins
+
+```
+USAGE
+  $ fonos plugins:update
+
+OPTIONS
+  -h, --help     show CLI help
+  -v, --verbose
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.10.1/src/commands/plugins/update.ts)_
 
 ## `fonos providers:create`
 
@@ -421,7 +515,7 @@ DESCRIPTION
      Creates a new Provider in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/providers/create.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/providers/create.ts)_
+_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/providers/create.js)_
 
 ## `fonos providers:delete [REF]`
 
@@ -436,7 +530,7 @@ ALIASES
   $ fonos providers:rm
 ```
 
-_See code: [dist/commands/providers/delete.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/providers/delete.ts)_
+_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/providers/delete.js)_
 
 ## `fonos providers:get [REF]`
 
@@ -447,7 +541,7 @@ USAGE
   $ fonos providers:get [REF]
 ```
 
-_See code: [dist/commands/providers/get.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/providers/get.ts)_
+_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/providers/get.js)_
 
 ## `fonos providers:list`
 
@@ -468,7 +562,7 @@ ALIASES
   $ fonos providers:ls
 ```
 
-_See code: [dist/commands/providers/list.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/providers/list.ts)_
+_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/providers/list.js)_
 
 ## `fonos providers:update [REF]`
 
@@ -483,5 +577,5 @@ DESCRIPTION
      Updates a provider at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/providers/update.ts](https://github.com/fonoster/fonos/blob/v0.0.78/dist/commands/providers/update.ts)_
+_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonos/blob/v0.1.20-alpha.0/dist/commands/providers/update.js)_
 <!-- commandsstop -->

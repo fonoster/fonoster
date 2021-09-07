@@ -5,11 +5,12 @@
     "rootDir": "./src"
   },
   "references": [
-    { "path":  "../logger" }
-  ], 
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test"
-  ]
+    {
+      "path": "../logger"
+    },
+    {
+      "path": "../common"
+    }
+  ],
+  "exclude": ["node_modules", "dist", "test"]
 }

@@ -1,0 +1,9 @@
+# Warning: Using this configuration will allow unsecured access to the API
+
+version: '3.7'
+
+services:
+
+  apiserver:
+    ports:
+      - ${HTTP_PORT}:${HTTP_PORT}

@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+
+  common:
+    restart: ${RESTART_POLICY}
+    expose:
+      - 50052
+    environment:
+      PUBLIC_URL: ${PUBLIC_URL}
+      APISERVER_ENDPOINT: ${AS_HOST}:${HTTP_PORT}
+      ALLOW_INSECURE: ${AS_ALLOW_INSECURE}
+      DS_HOST: ${DS_HOST}
+      DS_PORT: ${DS_PORT}
+      DS_SECRET: ${DS_SECRET}
+      FS_HOST: ${FS_HOST}
+      FS_PORT: ${FS_PORT}
+      FS_USERNAME: ${FS_USERNAME}
+      FS_SECRET: ${FS_SECRET}
+      EVENTS_BROKERS: amqp://${EB_USERNAME}:${EB_SECRET}@${EB_HOST}:${EB_PORT}
+      EVENTS_ENABLED: ${EB_ENABLED}
+      SIPPROXY_HOST: ${SIPPROXY_HOST}
+      SIPPROXY_API_PORT: ${SIPPROXY_API_PORT}
+      SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
+      SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
+      GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN}
+      MS_ARI_INTERNAL_URL: ${MS_ARI_INTERNAL_URL}
+      MS_ENDPOINT: ${MS_ENDPOINT}
+      MS_TRUNK: ${MS_TRUNK}
+      MS_CONTEXT: ${MS_CONTEXT}
+      MS_EXTENSION: ${MS_EXTENSION}
+      MS_ARI_USERNAME: ${MS_ARI_USERNAME}
+      MS_ARI_SECRET: ${MS_ARI_SECRET}
+      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
+      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+      COMPOSE_PROJECT_VERSION: ${COMPOSE_PROJECT_VERSION}
+      AUTH_ACCESS_WHITELIST: ${AUTH_ACCESS_WHITELIST}
+      AUTH_ISS: ${AUTH_ISS}
+      NODE_ENV: ${NODE_ENV}
+    networks:
+      fonos:
+    volumes:
+      - ${CONFIG}/config:/home/fonos/.fonos/config:ro
+      - ${CONFIG}/private_key:/home/fonos/.fonos/jwt.salt:ro
+      - ${CONFIG}/service_envs.json:/home/fonos/service_envs.json:ro
+    logging:
+      options:
+        tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.api
+
+  

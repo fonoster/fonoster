@@ -1,0 +1,235 @@
+# shellcheck disable=SC2034
+
+# Security
+#
+# Set these to strong secrets to avoid intruders from impersonating a service account
+# The service(s) won't start unless these are specified
+# Running ./gen-secrets.sh will update .env with strong passwords
+# DO NOT reuse secrets
+#
+
+# Password for Asterisk ARI API
+MS_ARI_SECRET=
+
+# Username and password base64 encoded for external access to ARI API
+MS_ARI_AUTHORIZATION=
+
+# Password for Minio's clients connections 
+# Note that if you have a managed S3 server(recommended) 
+# you will have to set this manually
+FS_SECRET=
+
+# Password for Routr SIP registrations
+SIPPROXY_SECRET=
+
+# Password for Routr restful API
+SIPPROXY_API_SECRET=
+
+# Password for connections to Redis
+# Note that if you have a managed Redis server(recommended) 
+# you will have to set this manually
+DS_SECRET=
+
+
+#
+# Basic configuration options
+#
+
+# External IP or Domain for your Fonos API (required)
+# Before going on production you must replace this with the
+# TLS protected URL
+#PUBLIC_URL=http://api.example.com:50051
+
+# Exposed HTTP port
+HTTP_PORT=50051
+
+# Exposed HTTPS port (required)
+HTTPS_PORT=443
+
+# Directory where all configuration will be stored
+CONFIG=/opt/fonos/config
+
+# IP address of the Docker host (required)
+#DOCKER_HOST_ADDRESS=192.168.1.1
+
+# IP address of the RTPEngine server (required)
+# Tipically it is same as the DOCKER_HOST_ADDRESS
+#RTPE_HOST=192.168.1.1
+
+# Domain for which to generate the certificate
+#LETSENCRYPT_DOMAIN=api.example.com
+
+# E-Mail for receiving important account notifications (mandatory)
+#LETSENCRYPT_EMAIL=alice@acme.com
+
+# Whitelisted services (comma separated)
+AUTH_ACCESS_WHITELIST=/fonos.auth.v1beta1.Auth/GetRole
+
+# Issuer for JWT claims
+AUTH_ISS=fonos
+
+# Image for the reverse proxy (Traefik)
+AS_IMAGE=traefik:v2.4
+
+# Hostname for reverse proxy
+AS_HOST=apiserver.fonos
+
+# Allow non-tls connection (this only applies to internal communication)
+AS_ALLOW_INSECURE=true
+
+#
+# Media Server integration (Asterisk)
+#
+MS_IMAGE=fonoster/fonos-mediaserver:latest
+MS_ENDPOINT=sip:ast@node1
+MS_SIP_PORT=6060
+MS_RTP_PORT_START=20000
+MS_RTP_PORT_END=21000
+MS_TRUNK=routr
+MS_CONTEXT=local-ctx
+MS_EXTENSION=s
+MS_ARI_USERNAME=ari
+MS_ARI_INTERNAL_URL=http://mediaserver:8088
+
+#
+# Integration with media proxy (RTPEngine) 
+# (required)
+#
+RTPE_PORT=8080
+RTPE_RTP_PORT_START=30000
+RTPE_RTP_PORT_END=31000
+
+#
+# Integration with S3 server (Minio)
+# We run an S3 server instance based on Minio to help you
+# get started. However, we strongly recommend using a managed
+# S3 service with your prefer cloud service provider
+#
+FS_IMAGE=minio/minio:RELEASE.2020-02-27T00-23-05Z
+FS_HOST=fs.fonos
+FS_PORT=9000
+FS_USERNAME=minio
+
+#
+# Database integration (with Redis)
+# Redis at the moment is only used by the SIPProxy
+# We run the database service by default to help you
+# get started. However, we strongly recommend using a managed
+# database.
+#
+DS_IMAGE=redis:6.0.3-alpine
+DS_HOST=datasource.fonos
+DS_PORT=6379
+
+#
+# Integration with SIPProxy (Routr)
+#
+SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210626.2
+SIPPROXY_API_PORT=4567
+SIPPROXY_SIP_PORT=5060
+SIPPROXY_HOST=sipproxy.fonos
+SIPPROXY_USERNAME=ast
+SIPPROXY_API_USERNAME=admin
+
+# If set, any new domain will be a subdomain under this global domain
+# GLOBAL_SIP_DOMAIN=fonoster.io
+
+#
+# Configuration to logging service (Based on Kibana)
+#
+LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+LOGS_MONITOR_IMAGE=kibana:7.9.3
+LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
+LOGS_DRIVER_HOST=logsdriver.fonos
+LOGS_DRIVER_PORT=24224
+LOGS_AGGREGRATOR_PORT=9200
+LOGS_MONITOR_PORT=5601
+LOG_OPT_TAG_PREFIX=early
+
+
+#
+# Integration with events server (RabbitMQ)
+#
+EB_IMAGE=bitnami/rabbitmq:latest
+EB_HOST=eventsbroker.fonos
+EB_PORT=5672
+EB_USERNAME=fonos
+EB_SECRET=
+# Enables sending events to RabbitMQ
+EB_ENABLED=false
+
+#
+# Integration with secrets server (Vault)
+#
+#SECRETS_IMAGE=vault
+#SECRETS_URL=http://secrets:8200
+#SECRETS_POLICY=fonos-policy
+#SECRETS_TOKEN=
+
+
+#
+# Integration with TTS Service (MaryTTS)
+#
+#TTS_IMAGE=synesthesiam/marytts:5.2
+#TTS_ENGINE_HOST=tts.fonos
+#TTS_ENGINE_PORT=59125
+#TTS_BASE_URI=/tts
+
+#
+# OpenFaas integration (for Cloud Funcions)
+#
+
+# Domain where your functions server lives
+#FUNCS_URL=https://faasd.yourdomain.net:8080
+
+# Temporary folder for new image creation
+#FUNCS_WORKDIR=/home/fonos/funcs
+
+# Username at functions server
+#FUNCS_USERNAME=admin
+
+# Secrets at functions server
+#FUNCS_SECRET=
+
+
+#
+# Docker registry integration (for container creation and upload)
+#
+#DOCKER_REGISTRY_ORG=yourorg
+#DOCKER_REGISTRY_USERNAME=yourorg
+#DOCKER_REGISTRY_SECRET=
+#DOCKER_REGISTRY=docker.io
+#DOCKER_REGISTRY_SERVICE=registry.docker.io
+#DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
+
+#
+# Integration with Github Oauth2
+#
+#GH_OAUTH2_CLIENT_ID=
+#GH_OAUTH2_CLIENT_SECRET=
+#GH_OAUTH2_CALLBACK_URL=
+#GH_OAUTH2_ENDPOINT=http://api.example.com:50051
+#GH_OAUTH2_PAGE_TITLE=PF Access Information
+#GH_OAUTH2_PAGE_MESSAGE=PF Access Information
+
+# Comma separated list of Github users. Uncomment only if 
+# you want to restrict access to a list if Github users. 
+#GH_OAUTH2_ACCESS_LIST=
+
+#
+# Miscelaneous variables
+#
+
+# Name of the overall project
+COMPOSE_PROJECT_NAME=fonos
+
+# Overall version for the project
+# This variable will determine which docker
+# image is downloaded for PF services
+COMPOSE_PROJECT_VERSION=0.1.6-alpha.0
+
+# Restart policy for containers
+RESTART_POLICY=unless-stopped
+
+# Node environment variable 
+NODE_ENV=staging

@@ -5,17 +5,10 @@
     "rootDir": "./src"
   },
   "references": [
-    { "path":  "../core" },
-    { "path":  "../voice" },
-    { "path":  "../tts" },
-    { "path":  "../marytts" },
-    { "path":  "../logger" },
-    { "path":  "../numbers" },
-    { "path":  "../appmanager" }
+    {"path": "../auth"},
+    {"path": "../logger"},
+    {"path": "../numbers"},
+    {"path": "../storage"}
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "test"
-  ]
+  "exclude": ["node_modules", "dist", "test"]
 }

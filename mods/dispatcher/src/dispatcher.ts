@@ -1,38 +1,49 @@
-import logger from '@fonos/logger'
-import Storage from '@fonos/storage'
-import MaryTTS from '@fonos/marytts'
-import Verbs from '@fonos/voice'
-import getIngressInfo from './utils'
-import fs from 'fs'
-import path from 'path'
-import phone from 'phone'
-import { NodeVM } from 'vm2'
-const { AGIServer } = require('agi-node')
-const vm = new NodeVM(require('../etc/vm.json'))
-const SERVICE_PORT = process.env.AGI_PORT || 4573
+#!/usr/bin/env node
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import ari from "ari-client";
+import wait from "wait-port";
+import logger from "@fonos/logger";
+import events from "./events_handler";
 
-if (process.env.NODE_ENV === 'dev') {
-  const env = path.join(__dirname, '..', '..', '..', '.env')
-  require('dotenv').config({ path: env })
-}
+// First try the short env but fallback to the cannonical env
+const ariHost =
+  process.env.ARI_INTERNAL_URL ||
+  process.env.MS_ARI_INTERNAL_URL ||
+  "http://localhost:8088";
+const ariUsername =
+  process.env.ARI_USERNAME || process.env.MS_ARI_USERNAME || "admin";
+const ariSecret =
+  process.env.ARI_SECRET || process.env.MS_ARI_SECRET || "changeit";
 
-function dispatch (channel: any) {
-  try {
-    const e164Number = phone(channel.getVariable('DID_INFO'))[0]
-    const ingressInfo = getIngressInfo(e164Number)
-    const contents = fs.readFileSync(ingressInfo.entryPoint, 'utf8')
-    const chann = new Verbs(channel, {
-      tts: new MaryTTS(),
-      storage: new Storage({}),
-      bucket: 'public',
-      accessKeyId: ingressInfo.accessKeyId
-    })
-    vm.run(contents, ingressInfo.entryPoint)(chann)
-  } catch (err) {
-    logger.log('error', err)
-  }
-}
+const connection = {
+  host: ariHost.split("//")[1].split(":")[0],
+  port: parseInt(ariHost.split("//")[1].split(":")[1])
+};
 
-logger.log('info', `Fonos Media Controller is online @ ${SERVICE_PORT}`)
+wait(connection)
+  .then((open) => {
+    if (open) {
+      ari.connect(ariHost, ariUsername, ariSecret, events);
+      return;
+    }
 
-new AGIServer(dispatch, SERVICE_PORT)
+    logger.info("The port did not open before the timeout...");
+  })
+  .catch(logger.error);

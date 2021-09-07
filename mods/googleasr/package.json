@@ -1,12 +1,12 @@
 {
   "name": "@fonos/googleasr",
-  "version": "0.0.78",
+  "version": "0.1.20-alpha.0",
   "description": "Wrapper for Google ASR",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "dist/asr",
+  "types": "dist/asr",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json"
@@ -29,15 +29,13 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/logger": "^0.0.78",
-    "@google-cloud/speech": "^4.2.0",
+    "@fonos/common": "^0.1.20-alpha.0",
+    "@fonos/logger": "^0.1.20-alpha.0",
+    "@google-cloud/speech": "^4.0.0",
     "axios": "^0.21.1",
-    "deepmerge": "^4.2.2",
-    "objectid": "^3.2.1"
+    "node-record-lpcm16": "^1.0.1",
+    "objectid": "^3.2.1",
+    "sync": "^0.2.5"
   },
-  "devDependencies": {
-    "dotenv": "^8.2.0",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.1.5"
-  }
+  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }

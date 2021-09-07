@@ -1,39 +1,36 @@
-import FonosService from './common/fonos_service'
-import StorageService from './server/protos/storage_grpc_pb'
-import StoragePB from './server/protos/storage_pb'
-import AppManagerService from './server/protos/appmanager_grpc_pb'
-import AppManagerPB from './server/protos/appmanager_pb'
-import CallManagerService from './server/protos/callmanager_grpc_pb'
-import CallManagerPB from './server/protos/callmanager_pb'
-import ProvidersService from './server/protos/providers_grpc_pb'
-import ProvidersPB from './server/protos/providers_pb'
-import NumbersService from './server/protos/numbers_grpc_pb'
-import NumbersPB from './server/protos/numbers_pb'
-import DomainsService from './server/protos/domains_grpc_pb'
-import DomainsPB from './server/protos/domains_pb'
-import AgentsService from './server/protos/agents_grpc_pb'
-import AgentsPB from './server/protos/agents_pb'
-import CommonPB from './server/protos/common_pb'
-import UserManagerService from './server/protos/usermanager_grpc_pb'
-import UserManagerPB from './server/protos/usermanager_pb'
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import getAccessKeyId from "./common/get_access_key_id";
+import getRedisConnection from "./common/redis";
+import routr from "./common/routr";
+import ResourceServer from "./resources/resource_server";
+import createResource from "./resources/create_resource";
+import updateResource from "./resources/update_resource";
+import {Kind, ResourceBuilder} from "./common/resource_builder";
 
 export {
-  FonosService,
-  StorageService,
-  AppManagerService,
-  AppManagerPB,
-  CallManagerService,
-  CallManagerPB,
-  StoragePB,
-  ProvidersService,
-  ProvidersPB,
-  NumbersService,
-  NumbersPB,
-  DomainsService,
-  DomainsPB,
-  AgentsService,
-  AgentsPB,
-  CommonPB,
-  UserManagerService,
-  UserManagerPB
-}
+  ResourceServer,
+  Kind,
+  ResourceBuilder,
+  routr,
+  getRedisConnection,
+  getAccessKeyId,
+  createResource,
+  updateResource
+};

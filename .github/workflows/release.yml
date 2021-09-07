@@ -1,65 +1,117 @@
 name: release
 on:
-  release:
-    types: [published]
+  push:
+    paths:
+    - 'mods/**'
+    branches:
+    - main
+    - dev
+  #release:
+  #  types: [published]
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v1 
+      uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: '12'   
+        node-version: '14.x'
     - name: Get the version
       id: get_version
-      run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)") 
-    - name: Publishing APIServer Service
-      uses: benc-uk/workflow-dispatch@v1
+      run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)")
+    - run: |
+        npm config set unsafe-perm true
+        npm install lerna -g
+        npm install
+        npm run bootstrap
+        npm run build
+    - name: Publish to Docker Hub the Secrets API 
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        workflow: publish to docker hub
-        repo: fonoster/fonos-apiserver
-        token: ${{ secrets.GH_PAT }}
-        ref: master
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing Media Controller Service
-      uses: benc-uk/workflow-dispatch@v1
+        name: fonoster/fonos-secrets
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/secrets
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
+    - name: Publish to Docker Hub the Funcs API 
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        workflow: publish to docker hub
-        repo: fonoster/fonos-nodejsmc
-        token: ${{ secrets.GH_PAT }}
-        ref: master
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing Uploader Helper Service
-      uses: benc-uk/workflow-dispatch@v1
+        name: fonoster/fonos-funcs
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/funcs
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Agents API 
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        workflow: publish to docker hub
-        repo: fonoster/uploaderhelper
-        token: ${{ secrets.GH_PAT }}
-        ref: master
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing Config Helper Service
-      uses: benc-uk/workflow-dispatch@v1
+        name: fonoster/fonos-agents
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/agents
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Domains API 
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        workflow: publish to docker hub
-        repo: fonoster/confighelper
-        token: ${{ secrets.GH_PAT }}
-        ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing Chmod Helper Service
-      uses: benc-uk/workflow-dispatch@v1
+        name: fonoster/fonos-domains
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/domains
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Numbers API
+      uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        workflow: publish to docker hub
-        repo: fonoster/chmodhelper
-        token: ${{ secrets.GH_PAT }}
-        ref: master
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+        name: fonoster/fonos-numbers
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/numbers
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Providers API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-providers
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/providers
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Storage API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-storage
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/storage
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the CallManager API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-callmanager
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/callmanager
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Auth API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-auth
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/auth
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
     - name: Publishing JWTHelper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
         workflow: publish to docker hub
-        repo: fonoster/jwthelper
+        repo: fonoster/jwt-helper
         token: ${{ secrets.GH_PAT }}
-        ref: master
+        ref: main
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing MediaServer Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/mediaserver
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+

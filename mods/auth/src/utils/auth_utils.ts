@@ -1,21 +1,41 @@
-import JwtPayload from './jwt_payload'
-import ITokenManager from './itoken_manager'
-import logger from '@fonos/logger'
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import JwtPayload from "./jwt_payload";
+import ITokenManager from "./itoken_manager";
+import logger from "@fonos/logger";
 
 export declare interface UserToken {
-  accessToken: string
+  accessToken: string;
 }
 
 export declare interface TokenResponse {
-  isValid: Boolean
-  data: JwtPayload
+  isValid: boolean;
+  data: JwtPayload;
 }
 
 export default class AuthUtils {
-  private handler: ITokenManager
-  constructor (handler: ITokenManager) {
-    this.handler = handler
+  private handler: ITokenManager;
+
+  constructor(handler: ITokenManager) {
+    this.handler = handler;
   }
+
   public validateTokenData = (payload: JwtPayload): boolean => {
     if (
       !payload ||
@@ -24,45 +44,53 @@ export default class AuthUtils {
       !payload.iss ||
       !payload.role
     )
-      throw new Error('Invalid Access Token')
-    return true
-  }
+      throw new Error("Invalid Access Token");
+    return true;
+  };
 
-  public createTokens = async (
-    accessKeyIdPayload: string,
-    issuePayload: string,
-    rolePayload: string,
-    privateKey: string
+  public createToken = async (
+    accessKeyId: string,
+    issuer: string,
+    role: string,
+    privateKey: string,
+    expiration?: string
   ): Promise<UserToken> => {
     const accessToken = await this.handler.encode(
-      new JwtPayload(issuePayload, rolePayload, accessKeyIdPayload),
-      privateKey
-    )
+      new JwtPayload(issuer, role, accessKeyId),
+      privateKey,
+      expiration
+    );
 
-    if (!accessToken) throw new Error('Error creating token')
+    if (!accessToken) throw new Error("Error creating token");
 
     return {
       accessToken: accessToken
-    } as UserToken
-  }
+    } as UserToken;
+  };
 
   public validateToken = async (
     token: UserToken,
     privateKey: string
   ): Promise<TokenResponse> => {
-    let result = false
-    let accessTokenData: JwtPayload
+    let result = false;
     try {
-      accessTokenData = await this.handler.decode(token.accessToken, privateKey)
+      const accessTokenData = await this.handler.decode(
+        token.accessToken,
+        privateKey
+      );
       if (accessTokenData) {
-        result = true
+        result = true;
       }
+
+      return {
+        data: accessTokenData,
+        isValid: result
+      } as TokenResponse;
     } catch (e) {
-      logger.log('error', '@fonos/auth [Error decoding token]')
+      logger.log("error", "@fonos/auth [Error decoding token]");
     }
     return {
-      data: accessTokenData,
       isValid: result
-    } as TokenResponse
-  }
+    } as TokenResponse;
+  };
 }

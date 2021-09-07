@@ -1,8 +1,8 @@
 {
   "name": "@fonos/logger",
-  "version": "0.0.78",
+  "version": "0.1.20-alpha.0",
   "description": "Logger module",
-  "author": "Pedro Sanders <sanderspedro@gmail.com>",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
   "license": "MIT",
   "main": "dist/index",
@@ -33,8 +33,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "dotenv": "^8.2.0",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.1.5"
-  }
+    "rimraf": "^3.0.2"
+  },
+  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }

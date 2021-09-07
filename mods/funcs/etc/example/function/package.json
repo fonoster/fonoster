@@ -1,0 +1,12 @@
+{
+  "name": "examplefn",
+  "version": "0.0.1",
+  "description": "Example function",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "keywords": [],
+  "author": "Fonoster Team",
+  "license": "MIT"
+}

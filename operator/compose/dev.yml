@@ -1,0 +1,27 @@
+# Warning: Including this file in your Fonos deployment will
+# open the ports to a number of private services. This is very
+# unsecured. Only recommended for development.
+
+version: '3.7'
+
+services:
+
+  apiserver:
+    ports:
+      # Port for Traefik dashboard
+      - 8181:8080
+      - ${HTTP_PORT}:${HTTP_PORT}
+
+  sipproxy:
+    ports:
+      - ${SIPPROXY_API_PORT}:${SIPPROXY_API_PORT}
+
+  mediaserver:
+    ports:
+      - 6060:6060
+      - 8088:8088
+    #  - 20000-20020:20000-20020/udp
+    #environment:
+    #  ENABLE_TEST_ACCOUNT: "true"
+    #  RTP_PORT_START: 20000
+    #  RTP_PORT_END: 20020

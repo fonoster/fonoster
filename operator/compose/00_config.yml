@@ -1,0 +1,8 @@
+version: '3.7'
+
+networks:
+  fonos:
+
+volumes:
+  data1-1:
+    external: true

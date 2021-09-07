@@ -1,0 +1,50 @@
+/**
+ * MIT License
+ * Copyright (c) 2020 Fonoster Inc
+ *
+ * The Storage proto contains the artificats for bucket and objects
+ * management.
+ */
+syntax = "proto3";
+
+package fonos.storage.v1beta1;
+
+service Storage {
+    rpc UploadObject (stream UploadObjectRequest) returns (UploadObjectResponse) {};
+    rpc GetObjectURL (GetObjectURLRequest) returns (GetObjectURLResponse) {};
+}
+
+message UploadObjectRequest {
+    enum Bucket {
+        APPS = 0;
+        RECORDINGS = 1;
+        PUBLIC = 2;
+        FUNCS = 3;
+    }    
+    Bucket bucket = 1;
+    string filename = 2;
+    bytes chunks = 3;
+    string access_key_id = 4;
+    map <string, string> metadata = 5;
+}
+
+message UploadObjectResponse {
+    // File size in bytes
+    int32 size = 1;
+}
+
+message GetObjectURLRequest {
+    enum Bucket {
+        APPS = 0;
+        RECORDINGS = 1;
+        PUBLIC = 2;
+        FUNCS = 3;
+    }    
+    Bucket bucket = 1;
+    string filename = 2;
+    string access_key_id = 3;
+}
+
+message GetObjectURLResponse {
+    string url = 1;
+}

@@ -1,71 +1,80 @@
-import '../../config'
-import Providers from '@fonos/providers'
-import { CLIError } from '@oclif/errors'
-import { Command, flags as oclifFlags } from '@oclif/command'
-import inquirer from 'inquirer'
-import { CommonPB, ProvidersPB } from '@fonos/core'
-const Table = require('easy-table')
+import "../../config";
+import Providers from "@fonos/providers";
+import {CLIError} from "@oclif/errors";
+import {Command, flags as oclifFlags} from "@oclif/command";
+import {CommonPB} from "@fonos/providers";
+import {cli} from "cli-ux";
+import {Provider} from "@fonos/providers/src/types";
+const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
   static description = `list registered providers
   ...
   List the registered providers
-  `
+  `;
   static flags = {
     size: oclifFlags.integer({
-      char: 's',
+      char: "s",
       default: 25,
-      description: 'provider of result per page'
+      description: "provider of result per page"
     })
-  }
+  };
 
-  static aliases = ['providers:ls']
+  static aliases = ["providers:ls"];
 
-  async run () {
-    const { flags } = this.parse(ListCommand)
+  async run() {
+    const {flags} = this.parse(ListCommand);
     try {
-      const providers = new Providers()
-      let firstBatch = true
-      let pageToken = '1'
-      const pageSize = flags.size
-      const view: CommonPB.View = CommonPB.View.BASIC
+      const providers = new Providers();
+      let firstBatch = true;
+      let pageToken = "1";
+      const pageSize = flags.size;
+      const view: CommonPB.View = CommonPB.View.BASIC;
       while (true) {
         // Get a list
         const result = await providers.listProviders({
           pageSize,
           pageToken,
           view
-        })
-        const list = result.getProvidersList()
-        pageToken = result.getNextPageToken()
+        });
+        const list = result.providers;
+        pageToken = result.nextPageToken;
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
           const answer: any = await inquirer.prompt([
-            { name: 'q', message: 'More', type: 'confirm' }
-          ])
-          if (!answer.q) break
+            {name: "q", message: "More", type: "confirm"}
+          ]);
+          if (!answer.q) break;
         }
 
-        const t = new Table()
+        if (list.length < 1) break;
 
-        list.forEach((provider: ProvidersPB.Provider) => {
-          t.cell('Ref', provider.getRef())
-          t.cell('Name', provider.getName())
-          t.cell('Username', provider.getUsername() || '(static)')
-          t.cell('Host', provider.getHost())
-          t.cell('Transport', provider.getTransport())
-          t.cell('Expires', provider.getExpires())
-          t.newRow()
-        })
+        const showTable = (showHeader: boolean, data: Provider[]) => {
+          cli.table(
+            data,
+            {
+              ref: {minWidth: 13},
+              name: {header: "Name", minWidth: 13},
+              username: {
+                header: "Username",
+                minWidth: 13,
+                get: (row) => row.username || "(static)"
+              },
+              host: {header: "Host", minWidth: 18},
+              transport: {header: "Transport", minWidth: 13},
+              expires: {header: "Expires", minWidth: 13}
+            },
+            {"no-header": !showHeader}
+          );
+        };
+        showTable(firstBatch, list);
 
-        if (list.length > 0) console.log(t.toString())
-
-        firstBatch = false
-        if (!pageToken) break
+        firstBatch = false;
+        if (!pageToken) break;
       }
     } catch (e) {
-      throw new CLIError(e.message)
+      throw new CLIError(e.message);
     }
   }
 }

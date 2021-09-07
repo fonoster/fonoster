@@ -21,7 +21,10 @@ config/*.yml
 mod/vendor
 jre
 site
-.env
+.env*
+lerna-debug.log
+mods/**/src/protos/common.proto
+!mods/core/src/protos/common.proto
 
 # User-specific stuff:
 .idea/workspace.xml
