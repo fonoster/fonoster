@@ -34,6 +34,7 @@ runcmd:
  - cp fonos/etc/log4j2.yml /opt/fonos/config
  - cp fonos/etc/bootstrap.yml /opt/fonos/config
  - cp fonos/etc/redis.conf /opt/fonos/config
+ - cp fonos/etc/service_envs.json /opt/fonos/config
  - rm -rf fonos
  - cd /opt/fonos/operator
  - ./gen-secrets.sh
