@@ -29,17 +29,17 @@ multipass shell fonos
 tail -f /var/log/cloud-init-output.log
 ```
 
-Once you see "Cloud init is done!" the process is complete. If everything went well, you will be able to log in to your PF deployment. To log in for the first time to your deployment, first, get your admin credentials with:
+Once you see "Cloud init is done!" the process is complete. If everything went well, you will be able to log in to your PF deployment. To log in for the first time to your deployment, first, get your user credentials with:
 
 ```bash
-cat /opt/fonos/config/admin_credentials
+cat /opt/fonos/config/user_credentials
 ```
 
 Your output will look like the one bellow.
 
 ```bash
 {
-   "accessKeyId":"admin",
+   "accessKeyId":"fonos",
    "accessKeySecret":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
