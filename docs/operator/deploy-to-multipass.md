@@ -22,7 +22,7 @@ Then, from the same directory, fire up Multipass
 multipass launch --name fonos --disk 10G --cpus 2 --mem 4G --cloud-init cloud-config.txt
 ```
 
-You might see a "timed out waiting for initialization to complete", especially in a slow Internet connection. Don't worry. The process will continue in the background. You can access your VM and continue following the installation process with:
+You might see a "timed out waiting for initialization to complete", especially in a slow Internet connection. Don't worry. The process will continue in the background. You can access your VM and continue to follow the installation process with:
 
 ```bash
 multipass shell fonos
