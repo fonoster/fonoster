@@ -61,7 +61,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mediaserver.entrypoints=internal,websecure"
-      - "traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/playbacks`) || PathPrefix(`/ari/channels` || PathPrefix(`/ari/events`)"
+      - "traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/playbacks`) || PathPrefix(`/ari/channels`) || PathPrefix(`/ari/events`)"
       - "traefik.http.services.mediaserver.loadbalancer.server.port=8088"
       - "traefik.http.routers.mediaserver.middlewares=basic-auth@docker,session-auth@docker"
       - "traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth"
