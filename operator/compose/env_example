@@ -226,7 +226,7 @@ COMPOSE_PROJECT_NAME=fonos
 # Overall version for the project
 # This variable will determine which docker
 # image is downloaded for PF services
-COMPOSE_PROJECT_VERSION=0.1.6-alpha.0
+COMPOSE_PROJECT_VERSION=0.1.20-alpha.0
 
 # Restart policy for containers
 RESTART_POLICY=unless-stopped
