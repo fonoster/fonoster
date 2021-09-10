@@ -20,7 +20,7 @@ services:
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: 'false'
     ports:
-      - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
+      - ${SIPPROXY_SIP_PORTS}:${SIPPROXY_SIP_PORTS}
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
       interval: 30s
@@ -75,7 +75,8 @@ services:
       ARI_SECRET: ${MS_ARI_SECRET}
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       EXTERN_PORT: ${MS_SIP_PORT}
-      SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}:${SIPPROXY_SIP_PORT}
+      SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
+      SIPPROXY_PORT: ${SIPPROXY_SIP_PORT}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
       RTP_PORT_START: ${MS_RTP_PORT_START}

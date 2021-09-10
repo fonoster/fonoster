@@ -125,11 +125,14 @@ DS_PORT=6379
 # Integration with SIPProxy (Routr)
 #
 SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210626.2
-SIPPROXY_API_PORT=4567
-SIPPROXY_SIP_PORT=5060
-SIPPROXY_HOST=sipproxy.fonos
 SIPPROXY_USERNAME=ast
+SIPPROXY_HOST=sipproxy.fonos
+SIPPROXY_API_PORT=4567
 SIPPROXY_API_USERNAME=admin
+SIPPROXY_SIP_PORTS=5060-5053
+
+# Single port for connection from Peers (Such as the Media Server)
+SIPPROXY_SIP_PORT=5060
 
 # If set, any new domain will be a subdomain under this global domain
 # GLOBAL_SIP_DOMAIN=fonoster.io
