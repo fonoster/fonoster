@@ -81,7 +81,7 @@ export default class VoiceServer {
     });
 
     logger.info(
-      `starting voice server @ ${this.config.bind}, port=${this.config.port}, path=${this.config.base}`, 
+      `starting voice server @ ${this.config.bind}, port=${this.config.port}, path=${this.config.base}`
     );
 
     app.listen(port, this.config.bind);
