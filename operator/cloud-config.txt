@@ -28,7 +28,7 @@ runcmd:
  - echo "RTPE_HOST=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
  - mkdir -p /opt/fonos/config
  - touch /opt/fonos/config/config
- - touch /opt/fonos/config/admin_credentials
+ - touch /opt/fonos/config/user_credentials
  - echo $(openssl rand -hex 16) > /opt/fonos/config/private_key
  - cp fonos/etc/rbac.json /opt/fonos/config
  - cp fonos/etc/log4j2.yml /opt/fonos/config
@@ -41,7 +41,7 @@ runcmd:
  - SIPPROXY_SECRET=$(grep SIPPROXY_SECRET .env | cut -d '=' -f2)
  - sed -i.bak -e "s#requirepass .*#requirepass ${DS_SECRET}#g" "./../config/redis.conf"
  - sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/bootstrap.yml"
- - docker-compose -f init.yml up service_creds admin_creds
+ - docker-compose -f init.yml up service_creds user_creds
  - ./basic-network.sh start
  - sleep 90
  - docker-compose -f init.yml up create_buckets bootstrap_sipnet

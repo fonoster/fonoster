@@ -39,7 +39,7 @@ services:
   service_creds:
     image: fonoster/jwthelper
     environment:
-      ENDPOINT: ${AS_HOST}:{HTTP_PORT}
+      ENDPOINT: ${AS_HOST}:${HTTP_PORT}
       ACCESS_KEY_ID: internal
       ROLE: SERVICE
       EXPIRATION: 1y
@@ -52,11 +52,11 @@ services:
         source: ${CONFIG}/config
         target: /home/fonos/config
 
-  admin_creds:
+  user_creds:
     image: fonoster/jwthelper
     environment:
-      ACCESS_KEY_ID: admin
-      ROLE: ADMIN
+      ACCESS_KEY_ID: fonos
+      ROLE: USER
       EXPIRATION: 1y
     volumes:
       - type: bind
@@ -64,7 +64,7 @@ services:
         target: /home/fonos/private_key
         read_only: true
       - type: bind
-        source: ${CONFIG}/admin_credentials
+        source: ${CONFIG}/user_credentials
         target: /home/fonos/config
 
   server_certs:
