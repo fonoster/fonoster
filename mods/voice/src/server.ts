@@ -112,9 +112,7 @@ export default class VoiceServer {
             PubSub.publish(`${event.type}.${event.sessionId}`, event);
           }
 
-          logger.verbose(
-            `@fonos/voice received event [type = ${event.type}]`
-          );
+          logger.verbose(`@fonos/voice received event [type = ${event.type}]`);
           logger.silly(
             `@fonos/voice received event [${JSON.stringify(event, null, " ")}]`
           );
