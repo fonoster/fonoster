@@ -16,11 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import logger from "@fonos/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
 
 export default class HangupVerb extends Verb {
   async run(): Promise<void> {
+    logger.verbose(
+      `@fonos/voice sending hangup request [sessionId = ${this.request.sessionId}]`
+    );
     await super.post(
       `events/user/Hangup`,
       objectToQString({
