@@ -134,8 +134,6 @@ SIPPROXY_SIP_PORTS=5060-5053
 # Single port for connection from Peers (Such as the Media Server)
 SIPPROXY_SIP_PORT=5060
 
-SIPPROXY_SIP_PORT=5060
-
 # If set, any new domain will be a subdomain under this global domain
 # GLOBAL_SIP_DOMAIN=fonoster.io
 
