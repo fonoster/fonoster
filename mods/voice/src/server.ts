@@ -56,7 +56,7 @@ export default class VoiceServer {
   }
 
   listen(handler: Function, port = this.config.port) {
-    app.get(`${this.config.base}/tts/:file`, (req, res) => {
+    app.get(join(this.config.base, "/tts/:file"), (req, res) => {
       // TODO: Update to use a stream instead of fs.readFile
       fs.readFile(
         join(this.config.pathToFiles, req.params.file),
@@ -73,7 +73,7 @@ export default class VoiceServer {
       );
     });
 
-    app.post(this.config.base, async (req, res) => {
+    app.post(join(this.config.base), async (req, res) => {
       const response = new VoiceResponse(req.body);
       response.plugins = this.plugins;
       await handler(req.body, response);
@@ -81,7 +81,7 @@ export default class VoiceServer {
     });
 
     logger.info(
-      `starting voice server on @ ${this.config.bind}, port=${this.config.port}`
+      `starting voice server @ ${this.config.bind}, port=${this.config.port}, path=${this.config.base}`
     );
 
     app.listen(port, this.config.bind);

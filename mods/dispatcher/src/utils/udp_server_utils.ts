@@ -39,6 +39,6 @@ export function streamConfig(address: string) {
   return {
     app: "mediacontroller",
     external_host: address,
-    ormat: "slin16"
+    format: "slin16"
   };
 }
