@@ -30,7 +30,7 @@ app.use(express.json());
 require("express-ws")(app);
 
 const defaultServerConfig: ServerConfig = {
-  base: "",
+  base: "/",
   port: 3000,
   bind: "0.0.0.0",
   pathToFiles: "/tmp"
@@ -56,7 +56,7 @@ export default class VoiceServer {
   }
 
   listen(handler: Function, port = this.config.port) {
-    app.get(`${this.config.base}/tts/:file`, (req, res) => {
+    app.get(join(this.config.base, "/tts/:file"), (req, res) => {
       // TODO: Update to use a stream instead of fs.readFile
       fs.readFile(
         join(this.config.pathToFiles, req.params.file),
@@ -73,7 +73,7 @@ export default class VoiceServer {
       );
     });
 
-    app.post(this.config.base || "/", async (req, res) => {
+    app.post(join(this.config.base), async (req, res) => {
       const response = new VoiceResponse(req.body);
       response.plugins = this.plugins;
       await handler(req.body, response);
