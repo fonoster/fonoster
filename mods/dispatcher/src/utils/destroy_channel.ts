@@ -36,7 +36,7 @@ export async function hangup(
       await ari.bridges.destroy({bridgeId});
     }
 
-    await channel.destroy();
+    await channel.hangup();
   } catch (e) {
     /** We can only try because the channel might be already closed */
   }
