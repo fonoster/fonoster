@@ -19,29 +19,25 @@ running Fonos deployment.
     * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;UpdateNumberResponse&gt;</code>
     * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
     * [.deleteNumber(ref)](#Numbers+deleteNumber)
-    * [.getIngressApp(request)](#Numbers+getIngressApp) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
-    * [.getIngressAppSync(request)](#Numbers+getIngressAppSync) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
+    * [.getIngressInfo(request)](#Numbers+getIngressInfo) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
     * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;CreateNumberResponse&gt;</code>
     * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;GetNumberResponse&gt;</code>
     * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;UpdateNumberResponse&gt;</code>
     * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
     * [.deleteNumber(ref)](#Numbers+deleteNumber)
-    * [.getIngressApp(request)](#Numbers+getIngressApp) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
-    * [.getIngressAppSync(request)](#Numbers+getIngressAppSync) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
+    * [.getIngressInfo(request)](#Numbers+getIngressInfo) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
     * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;CreateNumberResponse&gt;</code>
     * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;GetNumberResponse&gt;</code>
     * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;UpdateNumberResponse&gt;</code>
     * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
     * [.deleteNumber(ref)](#Numbers+deleteNumber)
-    * [.getIngressApp(request)](#Numbers+getIngressApp) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
-    * [.getIngressAppSync(request)](#Numbers+getIngressAppSync) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
+    * [.getIngressInfo(request)](#Numbers+getIngressInfo) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
     * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;CreateNumberResponse&gt;</code>
     * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;GetNumberResponse&gt;</code>
     * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;UpdateNumberResponse&gt;</code>
     * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
     * [.deleteNumber(ref)](#Numbers+deleteNumber)
-    * [.getIngressApp(request)](#Numbers+getIngressApp) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
-    * [.getIngressAppSync(request)](#Numbers+getIngressAppSync) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
+    * [.getIngressInfo(request)](#Numbers+getIngressInfo) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
 
 <a name="new_Numbers_new"></a>
 
@@ -61,7 +57,9 @@ const numbers = new Fonos.Numbers();
 const request = {
   providerRef: "516f1577bcf86cd797439012",
   e164Number: "+17853177343",
-  ingressApp: "hello-monkeys"
+  ingressInfo: {
+     webhook: "https://webhooks.acme.com/hooks"
+  }
 };
 
 numbers.createNumber(request)
@@ -87,7 +85,9 @@ const numbers = new Fonos.Numbers();
 const request = {
   providerRef: "516f1577bcf86cd797439012",
   e164Number: "+17853177343",
-  ingressApp: "hello-monkeys"
+  ingressInfo: {
+     webhook: "https://webhooks.acme.com/hooks"
+  }
 };
 
 numbers.createNumber(request)
@@ -113,7 +113,9 @@ const numbers = new Fonos.Numbers();
 const request = {
   providerRef: "516f1577bcf86cd797439012",
   e164Number: "+17853177343",
-  ingressApp: "hello-monkeys"
+  ingressInfo: {
+     webhook: "https://webhooks.acme.com/hooks"
+  }
 };
 
 numbers.createNumber(request)
@@ -139,7 +141,9 @@ const numbers = new Fonos.Numbers();
 const request = {
   providerRef: "516f1577bcf86cd797439012",
   e164Number: "+17853177343",
-  ingressApp: "hello-monkeys"
+  ingressInfo: {
+     webhook: "https://webhooks.acme.com/hooks"
+  }
 };
 
 numbers.createNumber(request)
@@ -153,15 +157,15 @@ numbers.createNumber(request)
 Creates a new Number on the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Note**: You can only provider an aorLink or an ingressApp but no both  
+**Note**: You can only provider an aorLink or an ingressInfo but no both  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>CreateNumberRequest</code> | Request for the provision of a new Number |
 | request.providerRef | <code>string</code> | Idenfier to the Provider this Number belongs with |
-| request.e164_number | <code>string</code> | A valid number @ Provider |
+| request.e164Number | <code>string</code> | A valid number @ Provider |
 | request.aorLink | <code>string</code> | An AOR where ingress calls will be directed to |
-| request.ingress_app | <code>string</code> | An Application where ingress calls will be directed to |
+| request.ingressInfo | <code>string</code> | Webhook to connect call to |
 
 **Example**  
 ```js
@@ -211,7 +215,7 @@ Update a Number at the SIP Proxy subsystem.
 | --- | --- | --- |
 | request | <code>UpdateNumberRequest</code> | Request for the update of an existing Number |
 | request.aorLink | <code>string</code> | An AOR where ingress calls will be directed to |
-| request.ingress_app | <code>string</code> | An Application where ingress calls will be directed to |
+| request.ingressInfo | <code>string</code> | A webhook to direct the call for flow control |
 
 **Example**  
 ```js
@@ -271,36 +275,9 @@ numbers.deleteNumber(ref)
   console.log("done")            // returns an empty object
 }).catch(e => console.error(e))  // an error occurred
 ```
-<a name="Numbers+getIngressApp"></a>
+<a name="Numbers+getIngressInfo"></a>
 
-### numbers.getIngressApp(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
-Get the Ingress App for a given e164 number.
-
-**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Throws**:
-
-- if the Number is not register in Fonos
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| request | <code>GetIngressAppRequest</code> |  |
-| request.e164Number | <code>string</code> | A number in E164 format for incomming calls |
-
-**Example**  
-```js
-const request = {
-   e164Number: "+17853178071"
-};
-
-numbers.getIngressApp(request)
-.then(result => {
-  console.log(result)            // returns the Application
-}).catch(e => console.error(e));  // an error occurred
-```
-<a name="Numbers+getIngressAppSync"></a>
-
-### numbers.getIngressAppSync(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
+### numbers.getIngressInfo(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
 Get the Ingress App for a given e164 number.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
@@ -331,15 +308,15 @@ numbers.getIngressApp(request)
 Creates a new Number on the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Note**: You can only provider an aorLink or an ingressApp but no both  
+**Note**: You can only provider an aorLink or an ingressInfo but no both  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>CreateNumberRequest</code> | Request for the provision of a new Number |
 | request.providerRef | <code>string</code> | Idenfier to the Provider this Number belongs with |
-| request.e164_number | <code>string</code> | A valid number @ Provider |
+| request.e164Number | <code>string</code> | A valid number @ Provider |
 | request.aorLink | <code>string</code> | An AOR where ingress calls will be directed to |
-| request.ingress_app | <code>string</code> | An Application where ingress calls will be directed to |
+| request.ingressInfo | <code>string</code> | Webhook to connect call to |
 
 **Example**  
 ```js
@@ -389,7 +366,7 @@ Update a Number at the SIP Proxy subsystem.
 | --- | --- | --- |
 | request | <code>UpdateNumberRequest</code> | Request for the update of an existing Number |
 | request.aorLink | <code>string</code> | An AOR where ingress calls will be directed to |
-| request.ingress_app | <code>string</code> | An Application where ingress calls will be directed to |
+| request.ingressInfo | <code>string</code> | A webhook to direct the call for flow control |
 
 **Example**  
 ```js
@@ -449,36 +426,9 @@ numbers.deleteNumber(ref)
   console.log("done")            // returns an empty object
 }).catch(e => console.error(e))  // an error occurred
 ```
-<a name="Numbers+getIngressApp"></a>
+<a name="Numbers+getIngressInfo"></a>
 
-### numbers.getIngressApp(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
-Get the Ingress App for a given e164 number.
-
-**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Throws**:
-
-- if the Number is not register in Fonos
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| request | <code>GetIngressAppRequest</code> |  |
-| request.e164Number | <code>string</code> | A number in E164 format for incomming calls |
-
-**Example**  
-```js
-const request = {
-   e164Number: "+17853178071"
-};
-
-numbers.getIngressApp(request)
-.then(result => {
-  console.log(result)            // returns the Application
-}).catch(e => console.error(e));  // an error occurred
-```
-<a name="Numbers+getIngressAppSync"></a>
-
-### numbers.getIngressAppSync(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
+### numbers.getIngressInfo(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
 Get the Ingress App for a given e164 number.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
@@ -509,15 +459,15 @@ numbers.getIngressApp(request)
 Creates a new Number on the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Note**: You can only provider an aorLink or an ingressApp but no both  
+**Note**: You can only provider an aorLink or an ingressInfo but no both  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>CreateNumberRequest</code> | Request for the provision of a new Number |
 | request.providerRef | <code>string</code> | Idenfier to the Provider this Number belongs with |
-| request.e164_number | <code>string</code> | A valid number @ Provider |
+| request.e164Number | <code>string</code> | A valid number @ Provider |
 | request.aorLink | <code>string</code> | An AOR where ingress calls will be directed to |
-| request.ingress_app | <code>string</code> | An Application where ingress calls will be directed to |
+| request.ingressInfo | <code>string</code> | Webhook to connect call to |
 
 **Example**  
 ```js
@@ -567,7 +517,7 @@ Update a Number at the SIP Proxy subsystem.
 | --- | --- | --- |
 | request | <code>UpdateNumberRequest</code> | Request for the update of an existing Number |
 | request.aorLink | <code>string</code> | An AOR where ingress calls will be directed to |
-| request.ingress_app | <code>string</code> | An Application where ingress calls will be directed to |
+| request.ingressInfo | <code>string</code> | A webhook to direct the call for flow control |
 
 **Example**  
 ```js
@@ -627,36 +577,9 @@ numbers.deleteNumber(ref)
   console.log("done")            // returns an empty object
 }).catch(e => console.error(e))  // an error occurred
 ```
-<a name="Numbers+getIngressApp"></a>
+<a name="Numbers+getIngressInfo"></a>
 
-### numbers.getIngressApp(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
-Get the Ingress App for a given e164 number.
-
-**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Throws**:
-
-- if the Number is not register in Fonos
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| request | <code>GetIngressAppRequest</code> |  |
-| request.e164Number | <code>string</code> | A number in E164 format for incomming calls |
-
-**Example**  
-```js
-const request = {
-   e164Number: "+17853178071"
-};
-
-numbers.getIngressApp(request)
-.then(result => {
-  console.log(result)            // returns the Application
-}).catch(e => console.error(e));  // an error occurred
-```
-<a name="Numbers+getIngressAppSync"></a>
-
-### numbers.getIngressAppSync(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
+### numbers.getIngressInfo(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
 Get the Ingress App for a given e164 number.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
@@ -687,15 +610,15 @@ numbers.getIngressApp(request)
 Creates a new Number on the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Note**: You can only provider an aorLink or an ingressApp but no both  
+**Note**: You can only provider an aorLink or an ingressInfo but no both  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>CreateNumberRequest</code> | Request for the provision of a new Number |
 | request.providerRef | <code>string</code> | Idenfier to the Provider this Number belongs with |
-| request.e164_number | <code>string</code> | A valid number @ Provider |
+| request.e164Number | <code>string</code> | A valid number @ Provider |
 | request.aorLink | <code>string</code> | An AOR where ingress calls will be directed to |
-| request.ingress_app | <code>string</code> | An Application where ingress calls will be directed to |
+| request.ingressInfo | <code>string</code> | Webhook to connect call to |
 
 **Example**  
 ```js
@@ -745,7 +668,7 @@ Update a Number at the SIP Proxy subsystem.
 | --- | --- | --- |
 | request | <code>UpdateNumberRequest</code> | Request for the update of an existing Number |
 | request.aorLink | <code>string</code> | An AOR where ingress calls will be directed to |
-| request.ingress_app | <code>string</code> | An Application where ingress calls will be directed to |
+| request.ingressInfo | <code>string</code> | A webhook to direct the call for flow control |
 
 **Example**  
 ```js
@@ -805,36 +728,9 @@ numbers.deleteNumber(ref)
   console.log("done")            // returns an empty object
 }).catch(e => console.error(e))  // an error occurred
 ```
-<a name="Numbers+getIngressApp"></a>
+<a name="Numbers+getIngressInfo"></a>
 
-### numbers.getIngressApp(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
-Get the Ingress App for a given e164 number.
-
-**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Throws**:
-
-- if the Number is not register in Fonos
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| request | <code>GetIngressAppRequest</code> |  |
-| request.e164Number | <code>string</code> | A number in E164 format for incomming calls |
-
-**Example**  
-```js
-const request = {
-   e164Number: "+17853178071"
-};
-
-numbers.getIngressApp(request)
-.then(result => {
-  console.log(result)            // returns the Application
-}).catch(e => console.error(e));  // an error occurred
-```
-<a name="Numbers+getIngressAppSync"></a>
-
-### numbers.getIngressAppSync(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
+### numbers.getIngressInfo(request) ⇒ <code>Promise.&lt;GetIngressAppResponse&gt;</code>
 Get the Ingress App for a given e164 number.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  

@@ -12,12 +12,12 @@ running Fonos deployment and FaaS.
 * [Funcs](#Funcs) ⇐ <code>FonosService</code>
     * [new Funcs(options)](#new_Funcs_new)
     * [new Funcs(options)](#new_Funcs_new)
-    * [.deployFunc(request, emitter)](#Funcs+deployFunc) ⇒ <code>Promise.&lt;DeployStream&gt;</code>
+    * [.deployFunc(request)](#Funcs+deployFunc) ⇒ <code>Promise.&lt;DeployStream&gt;</code>
     * [.getFunc(request)](#Funcs+getFunc) ⇒ <code>Promise.&lt;GetFuncResponse&gt;</code>
     * [.deleteFunc(request)](#Funcs+deleteFunc) ⇒ <code>Promise.&lt;GetFuncResponse&gt;</code>
     * [.listFuncs(request)](#Funcs+listFuncs) ⇒ <code>Promise.&lt;ListFuncsResponse&gt;</code>
     * [.getFuncLogs(request)](#Funcs+getFuncLogs) ⇒ <code>Promise.&lt;LogsStream&gt;</code>
-    * [.deployFunc(request, emitter)](#Funcs+deployFunc) ⇒ <code>Promise.&lt;DeployStream&gt;</code>
+    * [.deployFunc(request)](#Funcs+deployFunc) ⇒ <code>Promise.&lt;DeployStream&gt;</code>
     * [.getFunc(request)](#Funcs+getFunc) ⇒ <code>Promise.&lt;GetFuncResponse&gt;</code>
     * [.deleteFunc(request)](#Funcs+deleteFunc) ⇒ <code>Promise.&lt;GetFuncResponse&gt;</code>
     * [.listFuncs(request)](#Funcs+listFuncs) ⇒ <code>Promise.&lt;ListFuncsResponse&gt;</code>
@@ -73,7 +73,7 @@ funcs.deployFunc(request)
 ```
 <a name="Funcs+deployFunc"></a>
 
-### funcs.deployFunc(request, emitter) ⇒ <code>Promise.&lt;DeployStream&gt;</code>
+### funcs.deployFunc(request) ⇒ <code>Promise.&lt;DeployStream&gt;</code>
 Creates or updates a function in the FaaS subsystem.
 
 **Kind**: instance method of [<code>Funcs</code>](#Funcs)  
@@ -81,14 +81,13 @@ Creates or updates a function in the FaaS subsystem.
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>DeployFuncRequest</code> | Request to create or update a function |
+| request.path | <code>string</code> | Path to the function. |
 | request.name | <code>string</code> | Unique function name |
 | request.schedule | <code>string</code> | Unique function name |
-| request.path | <code>string</code> | Path to the function. |
 | request.limit.memory | <code>string</code> | Optional limit for function's memory utilization |
 | request.limit.cpu | <code>string</code> | Optional limit for function's cpu utilization |
 | request.requests.memory | <code>string</code> | Optional requested memory allocation for the function |
 | request.requests.cpu | <code>string</code> | Optional requested cpu allocation for the function |
-| emitter | <code>function</code> | Optional callback to capture deployment events |
 
 **Example**  
 ```js
@@ -225,7 +224,7 @@ funcs.getFuncLogs(request)
 ```
 <a name="Funcs+deployFunc"></a>
 
-### funcs.deployFunc(request, emitter) ⇒ <code>Promise.&lt;DeployStream&gt;</code>
+### funcs.deployFunc(request) ⇒ <code>Promise.&lt;DeployStream&gt;</code>
 Creates or updates a function in the FaaS subsystem.
 
 **Kind**: instance method of [<code>Funcs</code>](#Funcs)  
@@ -233,14 +232,13 @@ Creates or updates a function in the FaaS subsystem.
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>DeployFuncRequest</code> | Request to create or update a function |
+| request.path | <code>string</code> | Path to the function. |
 | request.name | <code>string</code> | Unique function name |
 | request.schedule | <code>string</code> | Unique function name |
-| request.path | <code>string</code> | Path to the function. |
 | request.limit.memory | <code>string</code> | Optional limit for function's memory utilization |
 | request.limit.cpu | <code>string</code> | Optional limit for function's cpu utilization |
 | request.requests.memory | <code>string</code> | Optional requested memory allocation for the function |
 | request.requests.cpu | <code>string</code> | Optional requested cpu allocation for the function |
-| emitter | <code>function</code> | Optional callback to capture deployment events |
 
 **Example**  
 ```js
