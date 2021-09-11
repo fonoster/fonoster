@@ -51,35 +51,26 @@ export default class GatherVerb extends Verb {
     if (options.source.includes("speech")) options.timeout = 10000;
 
     return new Promise(async (resolve, reject) => {
+      logger.verbose(
+        `@fonos/voice started gather [sources = ${options.source}]`
+      );
       if (options.source.includes("dtmf")) {
-        logger.verbose("@fonos/voice enabled dtmf source");
         waitForDtmf(this.request.sessionId, options)
-          .then((text) => {
-            resolve(text);
-            logger.verbose("@fonos/voice result resolved from dtmf source");
-          })
-          .catch((e) => {
-            reject(e);
-          });
+          .then(resolve)
+          .catch(reject);
       }
 
-      // TODO: We should explicitly clean this resources if the other "source"
-      // already resolved the request.
+      // TODO: We should explicitly clean this resources if the
+      // other "source" already resolved the request.
       if (options.source.includes("speech")) {
-        logger.verbose("@fonos/voice enabled speech source");
         waitForSpeech(
           this.request.sessionId,
           options,
           super.getSelf(),
           this.speechProvider
         )
-          .then((text) => {
-            resolve(text);
-            logger.verbose("@fonos/voice result resolved from speech source");
-          })
-          .catch((e) => {
-            reject(e);
-          });
+          .then(resolve)
+          .catch(reject);
       }
     });
   }

@@ -21,11 +21,12 @@ export interface CallRequest {
   from: string;
   to: string;
   webhook?: string;
+  metadata?: Record<string, unknown>;
   ignoreE164Validation?: boolean;
 }
 
 export interface CallResponse {
-  duration: number;
+  ref: string;
 }
 export interface EndpointInfo {
   domain: string;

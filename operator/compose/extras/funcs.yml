@@ -8,7 +8,7 @@ networks:
 services:
 
   funcs_api:
-    image: fonoster/fonos-funcs
+    image: fonoster/fonos-funcs:${COMPOSE_PROJECT_VERSION}
     environment:
       FUNCS_WORKDIR: ${FUNCS_WORKDIR}
       FUNCS_URL: ${FUNCS_URL}
@@ -26,7 +26,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.funcs_api.entrypoints=internal,websecure"
-      - "traefik.http.routers.funcs_api.rule=PathPrefix(`/fonos.funcs.v1alpha1`)"
+      - "traefik.http.routers.funcs_api.rule=PathPrefix(`/fonos.funcs.v1beta1`)"
       - "traefik.http.services.funcs_api.loadbalancer.server.scheme=h2c"
     volumes:
       - data1-1:/home/fonos

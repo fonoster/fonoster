@@ -5,5 +5,8 @@
   "description": "Hello Monkeys Example",
   "author": "Pedro Sanders",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@fonos/voice": "^0.1.9-alpha.0"
+  }
 }

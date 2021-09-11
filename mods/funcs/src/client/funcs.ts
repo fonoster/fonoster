@@ -21,7 +21,6 @@ import {FonosService, ServiceOptions} from "@fonos/common";
 import {FuncsClient} from "../service/protos/funcs_grpc_pb";
 import FuncsPB from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
-import grpc from "grpc";
 import {
   DeleteFuncRequest,
   DeleteFuncResponse,
@@ -68,7 +67,7 @@ export default class Funcs extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(FuncsClient, options);
-    super.init(grpc);
+    super.init();
     this.storage = new Storage(super.getOptions());
   }
 

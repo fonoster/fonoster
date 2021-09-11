@@ -22,10 +22,17 @@ export interface SpeechProvider {
   createSpeechTracker(options: unknown): SpeechTracker;
 }
 
-export interface SpeechResult {
-  transcription: string;
-}
-
 export interface SpeechTracker {
   transcribe(stream: Stream): Promise<SpeechResult>;
+  streamTranscribe(stream: Stream): StreamSpeechResult;
+}
+
+export interface SpeechResult {
+  transcript: string;
+  isFinal: boolean;
+}
+
+export interface StreamSpeechResult {
+  on(events: string, callback: Function): void;
+  close: Function;
 }

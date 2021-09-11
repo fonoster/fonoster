@@ -28,6 +28,10 @@ import {VoiceRequest} from "./types";
 import {Plugin} from "@fonos/common";
 import {assertPluginExist} from "./asserts";
 import PubSub from "pubsub-js";
+import {Verb} from "./verb";
+import {startMediaTransfer, stopMediaTransfer} from "./utils";
+import SGatherVerb, {SGatherOptions} from "./sgather/gather";
+import {SGatherStream} from "./sgather/types";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -87,7 +91,7 @@ export default class {
    *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
-  async play(media: string, options?: PlayOptions): Promise<void> {
+  async play(media: string, options: PlayOptions = {}): Promise<void> {
     await new PlayVerb(this.request).run(media, options);
   }
 
@@ -110,7 +114,7 @@ export default class {
    *   await response.say("Hello workd");   // Plays the sound using GoogleTTS's default values
    * }
    */
-  async say(text: string, options?: SayOptions): Promise<void> {
+  async say(text: string, options: SayOptions = {}): Promise<void> {
     assertPluginExist(this, "tts");
     const tts = this.plugins["tts"];
     // It should return the filename and the generated file location
@@ -127,7 +131,7 @@ export default class {
    * @param {number} options.timeout - Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
    * @param {string} options.finishOnKey - Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits
    * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
-   * when including the `speech` option. You might inclue both with `dtmf,speech`. Defaults to `dtmf`
+   * when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `dtmf`
    * @note When including `speech` the default timeout is 10000 (10s).
    * @see SpeechProvider
    * @example
@@ -137,13 +141,49 @@ export default class {
    *   console.log("digits: " + digits);
    * }
    */
-  async gather(options: GatherOptions): Promise<string> {
+  async gather(options: {source: "speech,dtmf"}): Promise<string> {
     let asr = null;
     if (options.source.includes("speech")) {
       assertPluginExist(this, "asr");
       asr = this.plugins["asr"];
     }
     return await new GatherVerb(this.request, asr).run(options);
+  }
+
+  /**
+   * Waits for data entry from the user's keypad or from a stream speech provider. This command is different from `gather`
+   * in that it returns a stream of results instead of a single result. You can think of it as active listening.
+   *
+   * @param {SGatherOptions} options - Options to select the
+   * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
+   * when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `speech,dtmf`
+   * @return {SGatherStream} The SGatherStream fires events via am `on` method for `transcription`, `dtmf`, and `error`. And the stream can be close
+   * with the `close` function.
+   * @see StreamSpeechProvider
+   * @example
+   *
+   * async function handler (request, response) {
+   *   const stream = await response.sgather({source: "dtmf,speech"});
+   *
+   *   stream.on("transcript", (text, isFinal) => {
+   *      console.log("transcript: %s", text);
+   *   })
+   *
+   *   stream.on("dtmf", digit => {
+   *      console.log("digit: " + digit);
+   *      if (digit === "#") stream.close();
+   *   })
+   * }
+   */
+  async sgather(
+    options: SGatherOptions = {source: "speech,dtmf"}
+  ): Promise<SGatherStream> {
+    let asr = null;
+    if (options.source.includes("speech")) {
+      assertPluginExist(this, "asr");
+      asr = this.plugins["asr"];
+    }
+    return await new SGatherVerb(this.request, asr).run(options);
   }
 
   /**
@@ -259,5 +299,17 @@ export default class {
    */
   async record(options: RecordOptions): Promise<RecordResult> {
     return await new RecordVerb(this.request).run(options);
+  }
+
+  // Requests media from Media server
+  async openMediaPipe() {
+    const genericVerb = new Verb(this.request);
+    await startMediaTransfer(genericVerb, this.request.sessionId);
+  }
+
+  // Requests media stop from Media server
+  async closeMediaPipe() {
+    const genericVerb = new Verb(this.request);
+    await stopMediaTransfer(genericVerb, this.request.sessionId);
   }
 }

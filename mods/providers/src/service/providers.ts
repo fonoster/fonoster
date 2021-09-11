@@ -1,6 +1,24 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable require-jsdoc */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {
   Provider,
   ListProvidersRequest,
@@ -25,14 +43,15 @@ import {
 } from "@fonos/core";
 import decoder from "./decoder";
 
-class ProvidersServer extends ResourceServer implements IProvidersServer {
+class ProvidersServer implements IProvidersServer {
+  [name: string]: grpc.UntypedHandleCall;
   async listProviders(
-    call: grpc.ServerUnaryCall<ListProvidersRequest>,
+    call: grpc.ServerUnaryCall<ListProvidersRequest, ListProvidersResponse>,
     callback: grpc.sendUnaryData<ListProvidersResponse>
   ) {
-    const result = await super.listResources(Kind.GATEWAY, call);
+    const result = await ResourceServer.listResources(Kind.GATEWAY, call);
     const response = new ListProvidersResponse();
-    if (result.resources) {
+    if (result && result.resources) {
       const providers = result.resources.map((resource) => decoder(resource));
       response.setNextPageToken(result.nextPageToken + "");
       response.setProvidersList(providers);
@@ -41,7 +60,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 
   async createProvider(
-    call: grpc.ServerUnaryCall<CreateProviderRequest>,
+    call: grpc.ServerUnaryCall<CreateProviderRequest, Provider>,
     callback: grpc.sendUnaryData<Provider>
   ) {
     const provider = call.request.getProvider();
@@ -67,7 +86,7 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 
   async updateProvider(
-    call: grpc.ServerUnaryCall<UpdateProviderRequest>,
+    call: grpc.ServerUnaryCall<UpdateProviderRequest, Provider>,
     callback: grpc.sendUnaryData<Provider>
   ) {
     const provider = call.request.getProvider();
@@ -100,11 +119,11 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 
   async getProvider(
-    call: grpc.ServerUnaryCall<GetProviderRequest>,
+    call: grpc.ServerUnaryCall<GetProviderRequest, Provider>,
     callback: grpc.sendUnaryData<Provider>
   ) {
     try {
-      const result = await super.getResource(Kind.GATEWAY, call);
+      const result = await ResourceServer.getResource(Kind.GATEWAY, call);
       callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
@@ -112,11 +131,11 @@ class ProvidersServer extends ResourceServer implements IProvidersServer {
   }
 
   async deleteProvider(
-    call: grpc.ServerUnaryCall<DeleteProviderRequest>,
+    call: grpc.ServerUnaryCall<DeleteProviderRequest, Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      await super.deleteResource(Kind.GATEWAY, call);
+      await ResourceServer.deleteResource(Kind.GATEWAY, call);
       callback(null, new Empty());
     } catch (e) {
       callback(e, null);

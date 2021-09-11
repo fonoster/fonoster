@@ -19,21 +19,17 @@
  * limitations under the License.
  */
 import logger from "@fonos/logger";
-import grpc from "grpc";
+import assertEnvIsSet from "./env_is_set";
+const grpc = require("@grpc/grpc-js");
 import {getServerCredentials} from "./trust_util";
-import interceptor from "@pionerlabs/grpc-interceptors";
-import {
-  GrpcHealthCheck,
-  HealthCheckResponse,
-  HealthService
-} from "grpc-ts-health-check";
+const interceptor = require("@speedymonster/grpc-interceptors");
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
 
 interface ServiceInf {
   name: string;
   version: string;
-  service: unknown;
-  server: unknown;
+  service: any;
+  server: any;
 }
 
 interface Middleware {
@@ -46,16 +42,7 @@ export default function run(
   srvInfList: ServiceInf[],
   middlewareList?: Middleware[]
 ) {
-  const healthCheckStatusMap = {
-    "": HealthCheckResponse.ServingStatus.SERVING
-  };
-
   const grpcServer = new grpc.Server();
-
-  // Adding health endpoint
-  const grpcHealthCheck = new GrpcHealthCheck(healthCheckStatusMap);
-  grpcServer.addService(HealthService, grpcHealthCheck);
-
   // Wrapped server
   const server = interceptor.serverProxy(grpcServer);
 
@@ -73,12 +60,13 @@ export default function run(
   }
 
   srvInfList.forEach((srvInf: ServiceInf) => {
+    assertEnvIsSet(srvInf.name);
     server.addService(srvInf.service, srvInf.server);
     logger.info(`@fonos/common service runner [added ${srvInf.name} service]`);
   });
 
-  server.bind(ENDPOINT, getServerCredentials());
-  server.start();
-
+  server.bindAsync(ENDPOINT, getServerCredentials(), () => {
+    server.start();
+  });
   logger.info("@fonos/common service runner [runner is online]");
 }

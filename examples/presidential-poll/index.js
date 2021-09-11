@@ -1,50 +1,66 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+const {VoiceServer} = require("@fonos/voice");
+const {tts} = require("./config");
+
 const config = {
   finishOnKey: "*",
   timeout: 2000,
-  numDigits: 1
+  numDigits: 1,
+  source: "dtmf"
 };
 
+const voiceServerConfig = {
+  base: ""
+};
 const candidates = {
-  1: { name: "Donald Trump" },
-  2: { name: "Hillary Clinton" },
-  3: { name: "Beny Sanders" }
+  1: {name: "Donald Trump"},
+  2: {name: "Hillary Clinton"},
+  3: {name: "Beny Sanders"}
 };
 
 /**
  * This example shows the using of most all Fonos verbs.
  */
-module.exports = (chan) => {
-  console.log(
-    "Handler got call %s -> %s",
-    chan.callDetailRecord.ref,
-    chan.callDetailRecord.to
-  );
+const voiceServer = new VoiceServer(voiceServerConfig);
 
-  // This will run faster the second time because file is place in a cache
-  chan.say(
+// You can use another TTS plugin as MaryTTS
+voiceServer.use(tts);
+
+voiceServer.listen(async (req, res) => {
+  await res.say(
     "Hello, this is a presidential poll from the Georgia Statistics Center."
   );
 
-  const key = chan.gather(
-    chan.say("If you would like to be remove from our list, press 7", {
-      finishOnKey: "7"
-    }),
-    { timeout: 2, numDigits: 1 }
-  );
-
+  const key = await res.gather(config);
   console.log(`Remove from list? ${key}`);
 
-  if (key === 7) removeFromList();
+  if (key === 7) removeFromList(res);
 
-  runMenu(chan);
+  await runMenu(res);
 
-  chan.say(
+  res.say(
     "Thank you for participating. Review the results at www.georgia.gov. Goodbye!"
   );
-  console.log(`Call ${chan.callDetailRecord.ref} ${Date.now()} ended`);
-};
+});
 
-function removeFromList(chan) {
+function removeFromList(res) {
   // This address does not exist, it its only for ilustration
   http
     .post("https://georgia.gov/removeFromList")
@@ -52,30 +68,27 @@ function removeFromList(chan) {
     .basicAuth("username", "password")
     .then((result) => {
       if (result.body === "OK") {
-        chan.say("You have been remove from our list");
+        res.say("You have been remove from our list");
       } else {
         // Do nothing for now
       }
     });
 }
 
-function runMenu(chan) {
+async function runMenu(res) {
   while (true) {
-    const key = chan.gather(
-      chan.say("For Trump Press one. For Hillary, press two and for Sanders 3"),
-      config
-    );
+    res.say("For Trump Press one. For Hillary, press two and for Sanders 3");
+
+    const key = await res.gather(config);
 
     if (!["1", "2", "3"].includes(key)) {
-      chan.say("I could not register your selection. Lets try again.");
+      res.say("I could not register your selection. Lets try again.");
       // You can use Play to stream a pre-recorded audio
-      chan.play("beep");
+      res.play("sound:beep");
       continue;
     }
 
-    chan.say(`You selected option ${key}, ${candidates[key].name}`);
-    // Store the result as part of the cdr
-    chan.stash("candidate", key);
+    res.say(`You selected option ${key}, ${candidates[key].name}`);
 
     break;
   }

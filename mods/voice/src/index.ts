@@ -16,6 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {VoiceRequest} from "./types";
 import VoiceServer from "./server";
 import VoiceResponse from "./voice";
-export {VoiceResponse, VoiceServer};
+import {SGatherStream} from "./sgather/types";
+import {PlaybackControl} from "./playback/playback";
+export {
+  VoiceResponse,
+  VoiceRequest,
+  VoiceServer,
+  PlaybackControl,
+  SGatherStream
+};

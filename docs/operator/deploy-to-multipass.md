@@ -2,7 +2,7 @@
 
 Have you heard about Multipass? Multipass is a Canonical project that offers a lightweight VM manager for Linux, Windows, and macOS. With Multipass, you can deploy Project Fonos in a local environment in a single command. This deployment method is by far the fasted way to get started with PF.
 
-> This method will not automatically enable TLS for you
+> This method will not automatically enable TLS for you. You will also need to deactivate TLS on the client-side by setting the environment variable `ALLOW_INSECURE` to true. 
 
 Deploy PF to Multipass with the following steps. First, download the [cloud-config.txt](https://raw.githubusercontent.com/fonoster/fonos/main/operator/cloud-config.txt) file into a local directory with:
 
@@ -22,24 +22,24 @@ Then, from the same directory, fire up Multipass
 multipass launch --name fonos --disk 10G --cpus 2 --mem 4G --cloud-init cloud-config.txt
 ```
 
-You might see a "timed out waiting for initialization to complete", especially in a slow Internet connection. Don't worry. The process will continue in the background. You can access your VM and continue following the installation process with:
+You might see a "timed out waiting for initialization to complete", especially in a slow Internet connection. Don't worry. The process will continue in the background. You can access your VM and continue to follow the installation process with:
 
 ```bash
 multipass shell fonos
 tail -f /var/log/cloud-init-output.log
 ```
 
-Once you see "Cloud init is done!" the process is complete. If everything went well, you will be able to log in to your PF deployment. To log in for the first time to your deployment, first, get your admin credentials with:
+Once you see "Cloud init is done!" the process is complete. If everything went well, you will be able to log in to your PF deployment. To log in for the first time to your deployment, first, get your user credentials with:
 
 ```bash
-cat /opt/fonos/config/admin_credentials
+cat /opt/fonos/config/user_credentials
 ```
 
 Your output will look like the one bellow.
 
 ```bash
 {
-   "accessKeyId":"admin",
+   "accessKeyId":"fonos",
    "accessKeySecret":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```

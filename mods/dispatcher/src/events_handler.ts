@@ -20,7 +20,18 @@ import Auth from "@fonos/auth";
 import Numbers from "@fonos/numbers";
 import logger from "@fonos/logger";
 import {CallRequest} from "./types";
-import {attachToEvents, sendCallRequest} from "./helpers";
+import {sendCallRequest} from "./utils/send_call_request";
+import {getChannelVar, getChannelVarAsJson} from "./utils/channel_variable";
+import {externalMediaHandler} from "./handlers/external_media";
+import {dtmfReceivedHandler} from "./handlers/dtmf_received";
+import {playbackFinishedHandler} from "./handlers/playback_finished";
+import {recordFinishHandler} from "./handlers/record_finished";
+import {uploadRecording} from "./utils/upload_recording";
+import {recordFailedHandler} from "./handlers/record_failed";
+import {destroyBridge, hangup} from "./utils/destroy_channel";
+import {channelTalkingHandler} from "./handlers/channel_talking";
+import WebSocket from "ws";
+const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
 const dialbackEnpoint =
@@ -28,54 +39,41 @@ const dialbackEnpoint =
   process.env.MS_ARI_EXTERNAL_URL ||
   "http://localhost:8088";
 
-export default function (err, client) {
+export default function (err: any, ari: any) {
   if (err) throw err;
 
-  client.on("StasisStart", async (event, channel) => {
-    let didInfo;
+  ari.on("StasisStart", async (event: any, channel: any) => {
+    const didInfo = await getChannelVar(channel, "DID_INFO");
 
-    try {
-      didInfo = await channel.getChannelVar({
-        channelId: channel.id,
-        variable: "DID_INFO"
-      });
-    } catch (e) {
-      if (e.message && e.message.includes("variable was not found")) {
-        logger.verbose(
-          `@fonos/dispatcher DID_INFO variable not found [ignoring event]`
-        );
-      }
+    if (!didInfo) {
+      // If DID_INFO is not set we need to ignore the event
+      logger.silly(
+        `@fonos/dispatcher DID_INFO variable not found [ignoring event]`
+      );
       return;
     }
 
     const auth = new Auth();
     const numbers = new Numbers();
+    // Renaming variable to keep consistency across the module
     const sessionId = event.channel.id;
-
     const ingressInfo = await numbers.getIngressInfo({
-      e164Number: didInfo.value
+      e164Number: didInfo
     });
 
-    let webhook = ingressInfo.webhook;
+    logger.verbose(`ingressInfo: ${JSON.stringify(ingressInfo, null, " ")}`);
 
-    try {
-      // If this variable exist it then we need overwrite the webhook
-      webhook = await channel.getChannelVar({
-        channelId: channel.id,
-        variable: "WEBHOOK"
-      });
-    } catch (e) {
-      // Nothing further needs to happen
-    }
+    const webhook =
+      (await getChannelVar(channel, "WEBHOOK")) || ingressInfo.webhook;
+    const metadata = await getChannelVarAsJson(channel, "METADATA");
 
     logger.verbose(
-      `@fonos/dispatcher statis start [channelId = ${channel.id}]`
-    );
-    logger.verbose(
-      `@fonos/dispatcher statis start [e164Number = ${didInfo.value}]`
-    );
-    logger.verbose(
-      `@fonos/dispatcher statis start [webhook = ${webhook}, accessKeyId = ${ingressInfo.accessKeyId}]`
+      `@fonos/dispatcher stasis start [
+      \r sessionId   = ${channel.id}
+      \r e164Number  = ${didInfo}
+      \r webhook     = ${webhook}
+      \r accessKeyId = ${ingressInfo.accessKeyId}
+      \r]`
     );
 
     const access = await auth.createNoAccessToken({
@@ -88,31 +86,103 @@ export default function (err, client) {
       // Dialback request must travel thru the reverse proxy first
       dialbackEnpoint,
       sessionId,
-      number: didInfo.value,
+      number: didInfo,
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number,
-      selfEndpoint: webhook
+      selfEndpoint: webhook,
+      metadata: metadata
     };
 
     logger.verbose(
       `@fonos/dispatcher sending request to mediacontroller [request = ${JSON.stringify(
-        request
+        request,
+        null,
+        " "
       )}]`
     );
 
-    attachToEvents({
-      url: webhook,
-      accessKeyId: ingressInfo.accessKeyId,
-      sessionId,
-      client,
-      channel
+    const ws = wsConnections.get(sessionId) || new WebSocket(webhook);
+
+    ws.on("open", async () => {
+      wsConnections.set(sessionId, ws);
+      await sendCallRequest(webhook, request);
     });
-    await sendCallRequest(webhook, request);
+
+    ws.on("error", async (e: Error) => {
+      logger.error(
+        `@fonos/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`
+      );
+      logger.silly(e);
+      await channel.hangup();
+    });
+
+    channel.on("ChannelTalkingStarted", async (event: any, channel: any) => {
+      channelTalkingHandler(wsConnections.get(channel.id), channel.id, true);
+    });
+
+    channel.on("ChannelTalkingFinished", async (event: any, channel: any) => {
+      channelTalkingHandler(wsConnections.get(channel.id), channel.id, false);
+    });
   });
 
-  client.on("StasisEnd", (event, channel) => {
-    logger.debug(`@fonos/dispatcher statis end [channelId ${channel.id}]`);
+  ari.on("ChannelUserevent", async (event: any) => {
+    logger.verbose(
+      `@fonos/dispatcher [got user event = ${JSON.stringify(event, null, " ")}]`
+    );
+    const wsClient = wsConnections.get(event.userevent.sessionId);
+
+    switch (event.eventname) {
+      case "SendExternalMedia":
+        await externalMediaHandler(wsClient, ari, event);
+        break;
+      case "StopExternalMedia":
+        destroyBridge(ari, event.userevent.sessionId);
+        break;
+      case "UploadRecording":
+        await uploadRecording(
+          event.userevent.accessKeyId,
+          event.userevent.filename
+        );
+        break;
+      case "Hangup":
+        await hangup(ari, event.userevent.sessionId, false);
+        break;
+      default:
+        logger.error(
+          `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`
+        );
+    }
   });
 
-  client.start("mediacontroller");
+  ari.on("ChannelDtmfReceived", async (event: any, channel: any) => {
+    dtmfReceivedHandler(wsConnections.get(channel.id), event, channel);
+  });
+
+  ari.on("PlaybackFinished", async (event: any, playback: any) => {
+    playbackFinishedHandler(
+      wsConnections.get(event.playback.target_uri.split(":")[1]),
+      event,
+      playback
+    );
+  });
+
+  ari.on("RecordingFinished", (event: any) => {
+    recordFinishHandler(
+      wsConnections.get(event.recording.target_uri.split(":")[1]),
+      event
+    );
+  });
+
+  ari.on("RecordingFailed", (event: any) => {
+    recordFailedHandler(
+      wsConnections.get(event.recording.target_uri.split(":")[1]),
+      event
+    );
+  });
+
+  ari.on("StasisEnd", (event: any, channel: any) => {
+    logger.verbose(`@fonos/dispatcher stasis end [sessionId = ${channel.id}]`);
+  });
+
+  ari.start("mediacontroller");
 }

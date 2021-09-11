@@ -14,7 +14,7 @@ if (!process.env.PUBLIC_URL) {
 const services = [
   {
     name: "Funcs",
-    version: "v1alpha1",
+    version: "v1beta1",
     service: FuncsService,
     server: new FuncsServer()
   }

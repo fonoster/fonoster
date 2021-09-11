@@ -4,6 +4,7 @@ import {Domain} from "./protos/domains_pb";
 export default function (jsonObj: any) {
   const domain = new Domain();
   const context = jsonObj.spec.context;
+
   domain.setRef(jsonObj.metadata.ref);
   domain.setName(jsonObj.metadata.name);
   domain.setDomainUri(context.domainUri);

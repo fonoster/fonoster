@@ -2,11 +2,9 @@ import "../../config";
 import Domains, {CommonPB} from "@fonos/domains";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import inquirer from "inquirer";
+import {cli} from "cli-ux";
 import {Domain} from "@fonos/domains/src/client/types";
-
-// Using import will cause: Error: easy_table_1.default is not a constructor
-const Table = require("easy-table");
+const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
   static description = `list registered domains
@@ -44,19 +42,29 @@ export default class ListCommand extends Command {
           if (!answer.q) break;
         }
 
-        const t = new Table();
+        if (list.length < 1) break;
 
-        list.forEach((domain: Domain) => {
-          const egressRule = domain.egressNumberRef ? domain.egressRule : "na";
-          t.cell("Ref", domain.ref);
-          t.cell("Name", domain.name);
-          t.cell("Domain URI", domain.domainUri);
-          t.cell("Egress Rule", egressRule);
-          t.cell("Egress Number Ref", domain.egressNumberRef);
-          t.newRow();
-        });
-
-        if (list.length > 0) console.log(t.toString());
+        const showTable = (showHeader: boolean, data: Domain[]) => {
+          cli.table(
+            data,
+            {
+              ref: {minWidth: 15},
+              name: {header: "Name", minWidth: 15},
+              domainUri: {header: "Domain URI", minWidth: 15},
+              egressRule: {
+                header: "Egress Rule",
+                minWidth: 15,
+                get: (row) => (row.egressNumberRef ? row.egressRule : "na")
+              },
+              egressNumberRef: {
+                header: "Egress Number Ref",
+                minWidth: 15
+              }
+            },
+            {"no-header": !showHeader}
+          );
+        };
+        showTable(firstBatch, list);
 
         firstBatch = false;
         if (!pageToken) break;

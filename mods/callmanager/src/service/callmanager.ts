@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {routr} from "@fonos/core";
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import client from "ari-client";
 import {CallRequest, CallResponse} from "./protos/callmanager_pb";
 import {EndpointInfo} from "../client/types";
@@ -35,8 +35,9 @@ const numberNotInList = (number) =>
   `The number '${number}' is not assigned to one of your domains. Make sure the number exist and is assigned to a Domain`;
 
 class CallManagerServer implements ICallManagerServer {
+  [name: string]: grpc.UntypedHandleCall;
   async call(
-    call: grpc.ServerUnaryCall<CallRequest>,
+    call: grpc.ServerUnaryCall<CallRequest, CallResponse>,
     callback: grpc.sendUnaryData<CallResponse>
   ) {
     logger.verbose(`@core/callmanager call [from ${call.request.getFrom()}]`);

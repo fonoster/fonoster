@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import getSecret from "./get_secret";
 import createSecret from "./create_secret";
 import deleteSecret from "./delete_secret";
@@ -39,8 +39,9 @@ import {
 } from "./protos/secrets_grpc_pb";
 
 class SecretServer implements ISecretsServer {
+  [name: string]: grpc.UntypedHandleCall;
   async listSecretsId(
-    call: grpc.ServerUnaryCall<ListSecretIdRequest>,
+    call: grpc.ServerUnaryCall<ListSecretIdRequest, ListSecretIdResponse>,
     callback: grpc.sendUnaryData<ListSecretIdResponse>
   ) {
     try {
@@ -56,12 +57,18 @@ class SecretServer implements ISecretsServer {
       if (result.pageToken) response.setNextPageToken("" + result.pageToken);
       callback(null, response);
     } catch (e) {
-      callback(e, null);
+      if (e.response.statusCode == 404) {
+        const response = new ListSecretIdResponse();
+        response.setSecretsList([]);
+        callback(null, response);
+      } else {
+        callback(e, null);
+      }
     }
   }
 
   async getSecret(
-    call: grpc.ServerUnaryCall<GetSecretRequest>,
+    call: grpc.ServerUnaryCall<GetSecretRequest, GetSecretResponse>,
     callback: grpc.sendUnaryData<GetSecretResponse>
   ) {
     try {
@@ -75,7 +82,7 @@ class SecretServer implements ISecretsServer {
   }
 
   async createSecret(
-    call: grpc.ServerUnaryCall<CreateSecretRequest>,
+    call: grpc.ServerUnaryCall<CreateSecretRequest, CreateSecretResponse>,
     callback: grpc.sendUnaryData<CreateSecretResponse>
   ) {
     try {
@@ -90,7 +97,7 @@ class SecretServer implements ISecretsServer {
   }
 
   async deleteSecret(
-    call: grpc.ServerUnaryCall<DeleteSecretRequest>,
+    call: grpc.ServerUnaryCall<DeleteSecretRequest, Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {

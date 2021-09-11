@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import createNumber from "./create_number";
 import updateNumber from "./update_number";
 import {routr} from "@fonos/core";
@@ -25,11 +25,12 @@ import decoder from "./decoder";
 import {ErrorCodes, FonosError} from "@fonos/errors";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
+  [name: string]: grpc.UntypedHandleCall;
   async listNumbers(
-    call: grpc.ServerUnaryCall<ListNumbersRequest>,
+    call: grpc.ServerUnaryCall<ListNumbersRequest, ListNumbersResponse>,
     callback: grpc.sendUnaryData<ListNumbersResponse>
   ) {
-    const result = await super.listResources(Kind.NUMBER, call);
+    const result = await ResourceServer.listResources(Kind.NUMBER, call);
     const response = new ListNumbersResponse();
     if (result && result.resources) {
       const domains = result.resources.map((resource) => decoder(resource));
@@ -40,7 +41,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 
   async createNumber(
-    call: grpc.ServerUnaryCall<CreateNumberRequest>,
+    call: grpc.ServerUnaryCall<CreateNumberRequest, NumberPB.Number>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     try {
@@ -51,14 +52,14 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 
   async updateNumber(
-    call: grpc.ServerUnaryCall<UpdateNumberRequest>,
+    call: grpc.ServerUnaryCall<UpdateNumberRequest, NumberPB.Number>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     updateNumber(call, callback);
   }
 
   async getIngressInfo(
-    call: grpc.ServerUnaryCall<GetIngressInfoRequest>,
+    call: grpc.ServerUnaryCall<GetIngressInfoRequest, NumberPB.IngressInfo>,
     callback: grpc.sendUnaryData<NumberPB.IngressInfo>
   ) {
     try {
@@ -75,11 +76,11 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 
   async getNumber(
-    call: grpc.ServerUnaryCall<GetNumberRequest>,
+    call: grpc.ServerUnaryCall<GetNumberRequest, NumberPB.Number>,
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     try {
-      const result = await super.getResource(Kind.NUMBER, call);
+      const result = await ResourceServer.getResource(Kind.NUMBER, call);
       callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
@@ -87,11 +88,11 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 
   async deleteNumber(
-    call: grpc.ServerUnaryCall<DeleteNumberRequest>,
+    call: grpc.ServerUnaryCall<DeleteNumberRequest, Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      await super.deleteResource(Kind.NUMBER, call);
+      await ResourceServer.deleteResource(Kind.NUMBER, call);
       callback(null, new Empty());
     } catch (e) {
       callback(e, null);

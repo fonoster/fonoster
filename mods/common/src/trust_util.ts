@@ -21,7 +21,7 @@ import path from "path";
 import * as os from "os";
 import * as fs from "fs";
 import atob from "atob";
-import grpc from "grpc";
+const grpc = require("@grpc/grpc-js");
 
 const prepCert = (cert: string) => Buffer.from(atob(cert), "utf-8");
 
@@ -64,7 +64,7 @@ const getServerCredentials = () => {
   }
 };
 
-const getClientCredentials = (grpc) =>
+const getClientCredentials = () =>
   process.env.ALLOW_INSECURE === "true"
     ? grpc.credentials.createInsecure()
     : grpc.credentials.createSsl();

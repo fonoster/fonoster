@@ -20,7 +20,7 @@ services:
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: 'false'
     ports:
-      - ${SIPPROXY_SIP_PORT}:${SIPPROXY_SIP_PORT}
+      - ${SIPPROXY_SIP_PORTS}:${SIPPROXY_SIP_PORTS}
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
       interval: 30s
@@ -61,7 +61,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mediaserver.entrypoints=internal,websecure"
-      - "traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/playbacks`) || PathPrefix(`/ari/channels`)"
+      - "traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/playbacks`) || PathPrefix(`/ari/channels`) || PathPrefix(`/ari/events`)"
       - "traefik.http.services.mediaserver.loadbalancer.server.port=8088"
       - "traefik.http.routers.mediaserver.middlewares=basic-auth@docker,session-auth@docker"
       - "traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth"
@@ -75,13 +75,15 @@ services:
       ARI_SECRET: ${MS_ARI_SECRET}
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       EXTERN_PORT: ${MS_SIP_PORT}
-      SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}:${SIPPROXY_SIP_PORT}
+      SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
+      SIPPROXY_PORT: ${SIPPROXY_SIP_PORT}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
       RTP_PORT_START: ${MS_RTP_PORT_START}
       RTP_PORT_END: ${MS_RTP_PORT_END}
       # Give asterisk a fake localnet to force it to always advertise its public address
-      LOCALNET: '8.8.8.8'
+      # Deprecated
+      # LOCALNET: '8.8.8.8'
     volumes:
       - data1-1:/home/fonos
       # TODO: Update image to add user fonos

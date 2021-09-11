@@ -20,7 +20,6 @@ import {FonosService, ServiceOptions} from "@fonos/common";
 import {AuthClient} from "../service/protos/auth_grpc_pb";
 import AuthPB from "../service/protos/auth_pb";
 import {promisifyAll} from "grpc-promise";
-import grpc from "grpc";
 import {
   CreateTokenRequest,
   CreateTokenResponse,
@@ -51,7 +50,7 @@ export default class Auths extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(AuthClient, options);
-    super.init(grpc);
+    super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

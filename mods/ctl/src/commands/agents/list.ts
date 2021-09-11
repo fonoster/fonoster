@@ -2,12 +2,10 @@ import "../../config";
 import Agents from "@fonos/agents";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import inquirer from "inquirer";
 import {CommonPB} from "@fonos/agents";
+import {cli} from "cli-ux";
 import {Agent} from "@fonos/agents/src/client/types";
-
-// Using import will cause: Error: easy_table_1.default is not a constructor
-const Table = require("easy-table");
+const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
   static description = `list registered agents
@@ -45,18 +43,26 @@ export default class ListCommand extends Command {
           if (!answer.q) break;
         }
 
-        const t = new Table();
+        if (list.length < 1) break;
 
-        list.forEach((agent: Agent) => {
-          t.cell("Ref", agent.ref);
-          t.cell("Name", agent.name);
-          t.cell("Username", agent.username);
-          //t.cell('Privacy', agent.getPrivacy())
-          t.cell("Domains", agent.domains.join(","));
-          t.newRow();
-        });
-
-        if (list.length > 0) console.log(t.toString());
+        const showTable = (showHeader: boolean, data: Agent[]) => {
+          cli.table(
+            data,
+            {
+              ref: {minWidth: 12},
+              name: {header: "Name", minWidth: 12},
+              username: {header: "Username", minWidth: 12},
+              privacy: {header: "Privacy", minWidth: 12, extended: true},
+              domains: {
+                header: "Domains",
+                minWidth: 12,
+                get: (row) => `${row.domains.join(",")}`
+              }
+            },
+            {"no-header": !showHeader}
+          );
+        };
+        showTable(firstBatch, list);
 
         firstBatch = false;
         if (!pageToken) break;

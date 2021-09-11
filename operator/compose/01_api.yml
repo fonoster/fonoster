@@ -28,7 +28,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=internal,websecure"
-      - "traefik.http.routers.auth.rule=PathPrefix(`/fonos.auth.v1alpha1`)"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/fonos.auth.v1beta1`)"
       - "traefik.http.services.auth.loadbalancer.server.scheme=h2c"
     volumes:
       - ${CONFIG}/rbac.json:/home/fonos/rbac.json
@@ -41,7 +41,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.agents.entrypoints=internal,websecure"
-      - "traefik.http.routers.agents.rule=PathPrefix(`/fonos.agents.v1alpha1`)"
+      - "traefik.http.routers.agents.rule=PathPrefix(`/fonos.agents.v1beta1`)"
       - "traefik.http.services.agents.loadbalancer.server.scheme=h2c"
   
   domains:
@@ -52,7 +52,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.domains.entrypoints=internal,websecure"
-      - "traefik.http.routers.domains.rule=PathPrefix(`/fonos.domains.v1alpha1`)"
+      - "traefik.http.routers.domains.rule=PathPrefix(`/fonos.domains.v1beta1`)"
       - "traefik.http.services.domains.loadbalancer.server.scheme=h2c"
   
   numbers:
@@ -63,7 +63,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.numbers.entrypoints=internal,websecure" 
-      - "traefik.http.routers.numbers.rule=PathPrefix(`/fonos.numbers.v1alpha1`)"
+      - "traefik.http.routers.numbers.rule=PathPrefix(`/fonos.numbers.v1beta1`)"
       - "traefik.http.services.numbers.loadbalancer.server.scheme=h2c"
 
   providers:
@@ -74,7 +74,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.providers.entrypoints=internal,websecure"
-      - "traefik.http.routers.providers.rule=PathPrefix(`/fonos.providers.v1alpha1`)"
+      - "traefik.http.routers.providers.rule=PathPrefix(`/fonos.providers.v1beta1`)"
       - "traefik.http.services.providers.loadbalancer.server.scheme=h2c"
 
   storage:
@@ -85,7 +85,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.storage.entrypoints=internal,websecure"
-      - "traefik.http.routers.storage.rule=PathPrefix(`/fonos.storage.v1alpha1`)"
+      - "traefik.http.routers.storage.rule=PathPrefix(`/fonos.storage.v1beta1`)"
       - "traefik.http.services.storage.loadbalancer.server.scheme=h2c"
   
   callmanager:
@@ -96,5 +96,5 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.callmanager.entrypoints=internal,websecure"    
-      - "traefik.http.routers.callmanager.rule=PathPrefix(`/fonos.callmanager.v1alpha1`)"
+      - "traefik.http.routers.callmanager.rule=PathPrefix(`/fonos.callmanager.v1beta1`)"
       - "traefik.http.services.callmanager.loadbalancer.server.scheme=h2c"

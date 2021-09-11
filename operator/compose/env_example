@@ -63,7 +63,7 @@ CONFIG=/opt/fonos/config
 #LETSENCRYPT_EMAIL=alice@acme.com
 
 # Whitelisted services (comma separated)
-AUTH_ACCESS_WHITELIST=/fonos.auth.v1alpha1.Auth/GetRole
+AUTH_ACCESS_WHITELIST=/fonos.auth.v1beta1.Auth/GetRole
 
 # Issuer for JWT claims
 AUTH_ISS=fonos
@@ -125,12 +125,17 @@ DS_PORT=6379
 # Integration with SIPProxy (Routr)
 #
 SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210626.2
-SIPPROXY_API_PORT=4567
-SIPPROXY_SIP_PORT=5060
-SIPPROXY_HOST=sipproxy.fonos
 SIPPROXY_USERNAME=ast
+SIPPROXY_HOST=sipproxy.fonos
+SIPPROXY_API_PORT=4567
 SIPPROXY_API_USERNAME=admin
+SIPPROXY_SIP_PORTS=5060-5063
 
+# Single port for connection from Peers (Such as the Media Server)
+SIPPROXY_SIP_PORT=5060
+
+# If set, any new domain will be a subdomain under this global domain
+# GLOBAL_SIP_DOMAIN=fonoster.io
 
 #
 # Configuration to logging service (Based on Kibana)
@@ -224,7 +229,7 @@ COMPOSE_PROJECT_NAME=fonos
 # Overall version for the project
 # This variable will determine which docker
 # image is downloaded for PF services
-COMPOSE_PROJECT_VERSION=0.1.6-alpha.0
+COMPOSE_PROJECT_VERSION=0.1.20-alpha.0
 
 # Restart policy for containers
 RESTART_POLICY=unless-stopped

@@ -16,16 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import stream from "stream";
+import Stream from "stream";
 import PubSub from "pubsub-js";
 import {GatherOptions} from "./types";
-import {objectToQString} from "../utils";
+import {startMediaTransfer, stopMediaTransfer} from "../utils";
 import {SpeechProvider} from "@fonos/common";
+import {Verb} from "../verb";
 
 const waitForSpeech = async (
   sessionId: string,
   options: GatherOptions,
-  verb,
+  verb: Verb,
   speechProvider: SpeechProvider
 ): Promise<string> =>
   new Promise(async (resolve, reject) => {
@@ -33,14 +34,14 @@ const waitForSpeech = async (
     let token = null;
 
     const speechTracker = speechProvider.createSpeechTracker(options);
-    const readable = new stream.Readable({
+    const readable = new Stream.Readable({
       // The read logic is omitted since the data is pushed to the socket
       // outside of the script's control. However, the read() function
       // must be defined.
       read() {}
     });
 
-    token = PubSub.subscribe(`media.${sessionId}`, (type, data) => {
+    token = PubSub.subscribe(`ReceivingMedia.${sessionId}`, (type, data) => {
       readable.push(data);
     });
 
@@ -48,28 +49,22 @@ const waitForSpeech = async (
       .transcribe(readable)
       .then((result) => {
         if (timer) clearTimeout(timer);
-        resolve(result.transcription);
-        PubSub.unsubscribe(token);
-        // TODO: Also tell Media Server to stop sending media
+        resolve(result.transcript);
       })
-      .catch((e) => {
-        reject(e);
+      .catch(reject)
+      .finally(async () => {
         PubSub.unsubscribe(token);
+        await stopMediaTransfer(verb, sessionId);
       });
 
-    await verb.post(
-      `events/user/SendExternalMedia`,
-      objectToQString({
-        // WARNING: Harcoded value
-        application: "mediacontroller"
-      })
-    );
+    await startMediaTransfer(verb, sessionId);
 
     if (options.timeout > 0) {
-      timer = setTimeout(() => {
+      timer = setTimeout(async () => {
         // Simply resolve an empty string
         resolve("");
         PubSub.unsubscribe(token);
+        await stopMediaTransfer(verb, sessionId);
         return;
       }, options.timeout);
     }

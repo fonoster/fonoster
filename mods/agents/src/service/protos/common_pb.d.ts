@@ -1,4 +1,4 @@
-// package: fonos.common.v1alpha1
+// package: fonos.common.v1beta1
 // file: common.proto
 
 /* tslint:disable */

@@ -1,10 +1,10 @@
-// package: fonos.providers.v1alpha1
+// package: fonos.providers.v1beta1
 // file: providers.proto
 
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "grpc";
+import * as grpc from "@grpc/grpc-js";
 import * as providers_pb from "./providers_pb";
 import * as common_pb from "./common_pb";
 
@@ -17,7 +17,7 @@ interface IProvidersService extends grpc.ServiceDefinition<grpc.UntypedServiceIm
 }
 
 interface IProvidersService_IListProviders extends grpc.MethodDefinition<providers_pb.ListProvidersRequest, providers_pb.ListProvidersResponse> {
-    path: "/fonos.providers.v1alpha1.Providers/ListProviders";
+    path: "/fonos.providers.v1beta1.Providers/ListProviders";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<providers_pb.ListProvidersRequest>;
@@ -26,7 +26,7 @@ interface IProvidersService_IListProviders extends grpc.MethodDefinition<provide
     responseDeserialize: grpc.deserialize<providers_pb.ListProvidersResponse>;
 }
 interface IProvidersService_ICreateProvider extends grpc.MethodDefinition<providers_pb.CreateProviderRequest, providers_pb.Provider> {
-    path: "/fonos.providers.v1alpha1.Providers/CreateProvider";
+    path: "/fonos.providers.v1beta1.Providers/CreateProvider";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<providers_pb.CreateProviderRequest>;
@@ -35,7 +35,7 @@ interface IProvidersService_ICreateProvider extends grpc.MethodDefinition<provid
     responseDeserialize: grpc.deserialize<providers_pb.Provider>;
 }
 interface IProvidersService_IGetProvider extends grpc.MethodDefinition<providers_pb.GetProviderRequest, providers_pb.Provider> {
-    path: "/fonos.providers.v1alpha1.Providers/GetProvider";
+    path: "/fonos.providers.v1beta1.Providers/GetProvider";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<providers_pb.GetProviderRequest>;
@@ -44,7 +44,7 @@ interface IProvidersService_IGetProvider extends grpc.MethodDefinition<providers
     responseDeserialize: grpc.deserialize<providers_pb.Provider>;
 }
 interface IProvidersService_IUpdateProvider extends grpc.MethodDefinition<providers_pb.UpdateProviderRequest, providers_pb.Provider> {
-    path: "/fonos.providers.v1alpha1.Providers/UpdateProvider";
+    path: "/fonos.providers.v1beta1.Providers/UpdateProvider";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<providers_pb.UpdateProviderRequest>;
@@ -53,7 +53,7 @@ interface IProvidersService_IUpdateProvider extends grpc.MethodDefinition<provid
     responseDeserialize: grpc.deserialize<providers_pb.Provider>;
 }
 interface IProvidersService_IDeleteProvider extends grpc.MethodDefinition<providers_pb.DeleteProviderRequest, common_pb.Empty> {
-    path: "/fonos.providers.v1alpha1.Providers/DeleteProvider";
+    path: "/fonos.providers.v1beta1.Providers/DeleteProvider";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<providers_pb.DeleteProviderRequest>;
@@ -64,7 +64,7 @@ interface IProvidersService_IDeleteProvider extends grpc.MethodDefinition<provid
 
 export const ProvidersService: IProvidersService;
 
-export interface IProvidersServer {
+export interface IProvidersServer extends grpc.UntypedServiceImplementation {
     listProviders: grpc.handleUnaryCall<providers_pb.ListProvidersRequest, providers_pb.ListProvidersResponse>;
     createProvider: grpc.handleUnaryCall<providers_pb.CreateProviderRequest, providers_pb.Provider>;
     getProvider: grpc.handleUnaryCall<providers_pb.GetProviderRequest, providers_pb.Provider>;
@@ -91,7 +91,7 @@ export interface IProvidersClient {
 }
 
 export class ProvidersClient extends grpc.Client implements IProvidersClient {
-    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
     public listProviders(request: providers_pb.ListProvidersRequest, callback: (error: grpc.ServiceError | null, response: providers_pb.ListProvidersResponse) => void): grpc.ClientUnaryCall;
     public listProviders(request: providers_pb.ListProvidersRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: providers_pb.ListProvidersResponse) => void): grpc.ClientUnaryCall;
     public listProviders(request: providers_pb.ListProvidersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: providers_pb.ListProvidersResponse) => void): grpc.ClientUnaryCall;

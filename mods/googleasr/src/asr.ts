@@ -25,14 +25,18 @@ const defaultSpeechConfig: GoogleSpeechConfig = {
 };
 
 class GoogleASR extends Plugin implements SpeechProvider {
-  constructor() {
+  opts: GoogleSpeechConfig;
+  constructor(options: GoogleSpeechConfig) {
     super("asr", "googleasr");
+    const merge = require("deepmerge");
+    this.opts = merge(defaultSpeechConfig, options || {});
   }
 
-  createSpeechTracker(options: GoogleSpeechConfig): SpeechTracker {
+  // This allows to change the speech behavior at the tracker level
+  createSpeechTracker(options?: GoogleSpeechConfig): SpeechTracker {
     const merge = require("deepmerge");
-    const opts = merge(defaultSpeechConfig, options || {});
-    return new GoogleSpeechTracker(opts);
+    const opt = merge(this.opts, options || {});
+    return new GoogleSpeechTracker(opt);
   }
 }
 

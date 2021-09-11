@@ -4,7 +4,7 @@ import {
   FonosFailedPrecondition,
   FonosInvalidArgument
 } from "@fonos/errors";
-import {status as Status} from "grpc";
+import {status as Status} from "@grpc/grpc-js";
 
 export default function (error: any) {
   if (!error.response) throw new FonosError(error);

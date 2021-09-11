@@ -2,12 +2,10 @@ import "../../config";
 import Numbers from "@fonos/numbers";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import inquirer from "inquirer";
 import {CommonPB} from "@fonos/numbers";
+import {cli} from "cli-ux";
 import {Number} from "@fonos/numbers/src/client/types";
-
-// Using import will cause: Error: easy_table_1.default is not a constructor
-const Table = require("easy-table");
+const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
   static description = `list registered numbers
@@ -51,21 +49,31 @@ export default class ListCommand extends Command {
           if (!answer.q) break;
         }
 
-        const t = new Table();
+        if (list.length < 1) break;
 
-        list.forEach((number: Number) => {
-          t.cell("Ref", number.ref);
-          t.cell("Provider Ref", number.providerRef);
-          t.cell("E164 Number", number.e164Number);
-          t.cell("AOR Link", number.aorLink ? number.aorLink : "--");
-          t.cell(
-            "Webhook",
-            number.ingressInfo ? number.ingressInfo.webhook : "--"
+        const showTable = (showHeader: boolean, data: Number[]) => {
+          cli.table(
+            data,
+            {
+              ref: {minWidth: 15},
+              providerRef: {header: "Provider Ref", minWidth: 15},
+              e164Number: {header: "E164 Number", minWidth: 15},
+              aorLink: {
+                header: "AOR Link",
+                minWidth: 15,
+                get: (row) => (row["aorLink"] ? row["aorLink"] : "--")
+              },
+              ingressInfo: {
+                header: "Webhook",
+                minWidth: 15,
+                get: (row) =>
+                  row["ingressInfo"] ? row["ingressInfo"].webhook : "--"
+              }
+            },
+            {"no-header": !showHeader}
           );
-          t.newRow();
-        });
-
-        if (list.length > 0) console.log(t.toString());
+        };
+        showTable(firstBatch, list);
 
         firstBatch = false;
         if (!pageToken) break;

@@ -56,7 +56,7 @@ export default class VoiceServer {
   }
 
   listen(handler: Function, port = this.config.port) {
-    app.get(`${this.config.base}/tts/:file`, (req, res) => {
+    app.get(join(this.config.base, "/tts/:file"), (req, res) => {
       // TODO: Update to use a stream instead of fs.readFile
       fs.readFile(
         join(this.config.pathToFiles, req.params.file),
@@ -73,7 +73,7 @@ export default class VoiceServer {
       );
     });
 
-    app.post(this.config.base, async (req, res) => {
+    app.post(join(this.config.base), async (req, res) => {
       const response = new VoiceResponse(req.body);
       response.plugins = this.plugins;
       await handler(req.body, response);
@@ -81,7 +81,7 @@ export default class VoiceServer {
     });
 
     logger.info(
-      `starting voice server on @ ${this.config.bind}, port=${this.config.port}`
+      `starting voice server @ ${this.config.bind}, port=${this.config.port}, path=${this.config.base}`
     );
 
     app.listen(port, this.config.bind);
@@ -92,13 +92,30 @@ export default class VoiceServer {
     app.ws(this.config.base, (ws) => {
       ws.on("message", (msg) => {
         if (Buffer.isBuffer(msg)) {
-          const sessionId = msg.toString("utf-8", 0, 12);
-          const mediaData = msg.slice(12);
-          PubSub.publish(`media.${sessionId}`, mediaData);
+          // Session ids will always be 12 or 13 digits long)
+          const numDigits = 2;
+          const idLength = parseInt(msg.toString("utf-8", 0, numDigits));
+          const sessionId = msg.toString("utf-8", 2, idLength + numDigits);
+          const mediaData = msg.slice(idLength + numDigits);
+          PubSub.publish(`ReceivingMedia.${sessionId}`, mediaData);
         } else {
           const event = JSON.parse(msg);
-          PubSub.publish(`${event.type}.${event.sessionId}`, event);
-          logger.verbose("@fonos/voice received event => ", event);
+
+          if (event.type === "PlaybackFinished") {
+            PubSub.publish(`${event.type}.${event.data.playbackId}`, event);
+          } else if (
+            event.type === "RecordingFinished" ||
+            event.type === "RecordingFailed"
+          ) {
+            PubSub.publish(`${event.type}.${event.data.name}`, event);
+          } else {
+            PubSub.publish(`${event.type}.${event.sessionId}`, event);
+          }
+
+          logger.verbose(`@fonos/voice received event [type = ${event.type}]`);
+          logger.silly(
+            `@fonos/voice received event [${JSON.stringify(event, null, " ")}]`
+          );
         }
       }).on("error", console.error);
     });

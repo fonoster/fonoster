@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 
+import {Verb} from "./verb";
+
 /**
  * Takes a json object and creates a query formatted string
  *
@@ -31,3 +33,30 @@ export const objectToQString = (obj: any = {}): string =>
       return `${key}=${encodedObj}`;
     })
     .join("&");
+
+async function sendMediaTransferEvent(
+  verb: Verb,
+  sessionId: string,
+  event: string
+) {
+  await verb.post(
+    `events/user/${event}`,
+    objectToQString({
+      // WARNING: Harcoded value
+      application: "mediacontroller"
+    }),
+    {
+      variables: {
+        sessionId
+      }
+    }
+  );
+}
+
+export async function startMediaTransfer(verb: Verb, sessionId: string) {
+  await sendMediaTransferEvent(verb, sessionId, "SendExternalMedia");
+}
+
+export async function stopMediaTransfer(verb: Verb, sessionId: string) {
+  await sendMediaTransferEvent(verb, sessionId, "StopExternalMedia");
+}

@@ -21,7 +21,6 @@ import {CallManagerClient} from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
 import {promisifyAll} from "grpc-promise";
 import {CallRequest, CallResponse} from "./types";
-import grpc from "grpc";
 
 /**
  * @classdesc Use Fonos CallManager, a capability of Fonos Systems Manager,
@@ -50,7 +49,7 @@ export default class CallManager extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(CallManagerClient, options);
-    super.init(grpc);
+    super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
@@ -71,22 +70,25 @@ export default class CallManager extends FonosService {
    * callManager.call({
    *   from: "+19102104343",
    *   to: "+17853178070",
-   *   webhook: "https://voiceapps.acme.com/myvoiceapp"
+   *   webhook: "https://voiceapps.acme.com/myvoiceapp",
+   *   metadata?: {}
    * })
    * .then(console.log)         // successful response
    * .catch(console.error);     // an error occurred
    */
   async call(request: CallRequest): Promise<CallResponse> {
     const r = new CallManagerPB.CallRequest();
+    const metadata = JSON.stringify(request.metadata);
     r.setFrom(request.from);
     r.setTo(request.to);
     r.setWebhook(request.webhook);
     r.setIgnoreE164Validation(request.ignoreE164Validation);
+    r.setMetadata(metadata);
 
     const p = await super.getService().call().sendMessage(r);
 
     return {
-      duration: p.getDuration()
+      ref: p.getRef()
     };
   }
 }

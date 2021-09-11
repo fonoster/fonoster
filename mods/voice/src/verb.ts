@@ -42,20 +42,26 @@ export class Verb {
     return this.request;
   }
 
-  async post(apiPath: string, queryParameters: string) {
+  async post(
+    apiPath: string,
+    queryParameters: string,
+    data?: Record<string, unknown>
+  ) {
     const url = `${
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.verbose(`@fonos/voice posting [url: ${url}]`);
+    logger.silly(`@fonos/voice posting [url: ${url}]`);
 
     return await axios({
       method: "post",
       url,
       auth,
       headers: {
-        "X-Session-Token": this.request.sessionToken
-      }
+        "X-Session-Token": this.request.sessionToken,
+        "Content-Type": "application/json"
+      },
+      data
     });
   }
 
@@ -64,7 +70,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.verbose(`@fonos/voice posting [url: ${url}]`);
+    logger.silly(`@fonos/voice posting [url: ${url}]`);
 
     return await axios({
       method: "delete",

@@ -6,7 +6,7 @@
  */
 syntax = "proto3";
 
-package fonos.domains.v1alpha1;
+package fonos.domains.v1beta1;
 
 import "common.proto";
 
@@ -20,7 +20,7 @@ service Domains {
   // Change or update fields in a resource
   rpc UpdateDomain (UpdateDomainRequest) returns (Domain) {};
   // Hard delete of a domain resource
-  rpc DeleteDomain (DeleteDomainRequest) returns (fonos.common.v1alpha1.Empty) {};
+  rpc DeleteDomain (DeleteDomainRequest) returns (fonos.common.v1beta1.Empty) {};
 }
 
 message ListDomainsRequest {
@@ -31,7 +31,7 @@ message ListDomainsRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  fonos.common.v1alpha1.View view = 3;
+  fonos.common.v1beta1.View view = 3;
 }
 
 message ListDomainsResponse {

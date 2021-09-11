@@ -36,7 +36,7 @@ describe("@fonos/callmanager", () => {
           return {
             sendMessage: () =>
               Promise.resolve({
-                getDuration: () => 20
+                getRef: () => "ramdonref"
               })
           };
         }
@@ -59,7 +59,7 @@ describe("@fonos/callmanager", () => {
     // Once in the constructor and one in the call function
     expect(serviceStub).to.be.calledTwice;
     expect(callStub).to.be.calledOnce;
-    expect(result).to.have.property("duration").not.to.be.null;
+    expect(result).to.have.property("ref").not.to.be.null;
   });
   /*
 

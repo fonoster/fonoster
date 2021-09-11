@@ -25,6 +25,7 @@ export interface CallRequest {
   callerId: string;
   callerNumber: string;
   selfEndpoint: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AttachToEventsRequest {

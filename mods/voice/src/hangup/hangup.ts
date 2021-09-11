@@ -16,14 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import logger from "@fonos/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
 
 export default class HangupVerb extends Verb {
   async run(): Promise<void> {
-    await super.delete(
-      `channels/${this.request.sessionId}/hangup`,
-      objectToQString({reason: "normal"})
+    logger.verbose(
+      `@fonos/voice sending hangup request [sessionId = ${this.request.sessionId}]`
+    );
+    await super.post(
+      `events/user/Hangup`,
+      objectToQString({
+        // WARNING: Harcoded value
+        application: "mediacontroller"
+      }),
+      {
+        variables: {
+          sessionId: this.request.sessionId
+        }
+      }
     );
   }
 }

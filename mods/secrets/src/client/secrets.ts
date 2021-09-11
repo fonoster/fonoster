@@ -21,7 +21,6 @@ import {SecretsClient} from "../service/protos/secrets_grpc_pb";
 import SecretPB from "../service/protos/secrets_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
-import grpc from "grpc";
 import {
   CreateSecretRequest,
   CreateSecretResponse,
@@ -60,7 +59,7 @@ export default class Secrets extends FonosService {
    */
   constructor(options?: ServiceOptions) {
     super(SecretsClient, options);
-    super.init(grpc);
+    super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

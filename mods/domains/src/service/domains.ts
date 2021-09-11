@@ -1,6 +1,24 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable require-jsdoc */
-import grpc from "grpc";
+import grpc from "@grpc/grpc-js";
 import {
   Domain,
   ListDomainsRequest,
@@ -26,15 +44,17 @@ import {
 } from "@fonos/core";
 import unmarshalDomain from "./decoder";
 import decoder from "./decoder";
+import isValidDomain from "is-valid-domain";
 
-class DomainsServer extends ResourceServer implements IDomainsServer {
+class DomainsServer implements IDomainsServer {
+  [name: string]: grpc.UntypedHandleCall;
   async listDomains(
-    call: grpc.ServerUnaryCall<ListDomainsRequest>,
+    call: grpc.ServerUnaryCall<ListDomainsRequest, ListDomainsResponse>,
     callback: grpc.sendUnaryData<ListDomainsResponse>
   ) {
-    const result = await super.listResources(Kind.DOMAIN, call);
+    const result = await ResourceServer.listResources(Kind.DOMAIN, call);
     const response = new ListDomainsResponse();
-    if (result.resources) {
+    if (result && result.resources) {
       const domains = result.resources.map((resource) => decoder(resource));
       response.setNextPageToken(result.nextPageToken + "");
       response.setDomainsList(domains);
@@ -43,17 +63,34 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 
   async createDomain(
-    call: grpc.ServerUnaryCall<CreateDomainRequest>,
+    call: grpc.ServerUnaryCall<CreateDomainRequest, Domain>,
     callback: grpc.sendUnaryData<Domain>
   ) {
     const domain = call.request.getDomain();
+
+    const domainUri = process.env.GLOBAL_SIP_DOMAIN
+      ? `${domain.getDomainUri()}.${process.env.GLOBAL_SIP_DOMAIN}`
+      : domain.getDomainUri();
+
+    if (isValidDomain(domainUri) == false) {
+      callback(
+        new Error(`Domain URI '${domainUri}' is not a valid domain`),
+        null
+      );
+      return;
+    }
+
+    if (!domain.getEgressRule) {
+      callback(new Error("Egress Rule can't be null"), null);
+      return;
+    }
     try {
       const resource = new ResourceBuilder(
         Kind.DOMAIN,
         domain.getName(),
         domain.getRef()
       )
-        .withDomainUri(domain.getDomainUri())
+        .withDomainUri(domainUri)
         .withEgressPolicy(domain.getEgressRule(), domain.getEgressNumberRef())
         .withACL(domain.getAccessAllowList(), domain.getAccessDenyList())
         .withMetadata({accessKeyId: getAccessKeyId(call)})
@@ -67,11 +104,14 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 
   async updateDomain(
-    call: grpc.ServerUnaryCall<UpdateDomainRequest>,
+    call: grpc.ServerUnaryCall<UpdateDomainRequest, Domain>,
     callback: grpc.sendUnaryData<Domain>
   ) {
     const domain = call.request.getDomain();
-
+    if (!domain.getEgressRule) {
+      callback(new Error("Egress Rule can't be null"), null);
+      return;
+    }
     try {
       const resource = new ResourceBuilder(
         Kind.DOMAIN,
@@ -99,11 +139,11 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 
   async getDomain(
-    call: grpc.ServerUnaryCall<GetDomainRequest>,
+    call: grpc.ServerUnaryCall<GetDomainRequest, Domain>,
     callback: grpc.sendUnaryData<Domain>
   ) {
     try {
-      const result = await super.getResource(Kind.DOMAIN, call);
+      const result = await ResourceServer.getResource(Kind.DOMAIN, call);
       callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
@@ -111,11 +151,11 @@ class DomainsServer extends ResourceServer implements IDomainsServer {
   }
 
   async deleteDomain(
-    call: grpc.ServerUnaryCall<DeleteDomainRequest>,
+    call: grpc.ServerUnaryCall<DeleteDomainRequest, Empty>,
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      await super.deleteResource(Kind.DOMAIN, call);
+      await ResourceServer.deleteResource(Kind.DOMAIN, call);
       callback(null, new Empty());
     } catch (e) {
       callback(e, null);

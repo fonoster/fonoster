@@ -33,7 +33,6 @@ import {NumbersClient} from "../service/protos/numbers_grpc_pb";
 import NumbersPB, {IngressInfo} from "../service/protos/numbers_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
-import grpc from "grpc";
 
 /**
  * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
@@ -65,9 +64,9 @@ export default class Numbers extends FonosService {
    * @param {ServiceOptions} options - Options to indicate the objects endpoint
    * @see module:core:FonosService
    */
-  constructor(options: ServiceOptions = {}) {
+  constructor(options?: ServiceOptions) {
     super(NumbersClient, options);
-    super.init(grpc);
+    super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 

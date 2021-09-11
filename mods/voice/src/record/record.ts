@@ -28,11 +28,12 @@ export default class RecordVerb extends Verb {
     assertsFinishOnKeyIsChar(options.finishOnKey);
     assertsValueIsPositive("maxSilence", options.maxSilence);
     assertsValueIsPositive("maxDuration", options.maxDuration);
+    const name = objectid();
 
     // Renaming properties to match the API query parameters
     const opts = {
       format: "wav",
-      name: objectid(),
+      name,
       maxSilenceSeconds: options.maxSilence,
       maxDurationSeconds: options.maxDuration,
       beep: options.beep,
@@ -49,7 +50,7 @@ export default class RecordVerb extends Verb {
         );
 
         tokenFinished = PubSub.subscribe(
-          `RecordingFinished.${this.request.sessionId}`,
+          `RecordingFinished.${name}`,
           (type, data) => {
             resolve(data.data);
             PubSub.unsubscribe(tokenFinished);
@@ -58,7 +59,7 @@ export default class RecordVerb extends Verb {
         );
 
         tokenFailed = PubSub.subscribe(
-          `RecordingFailed.${this.request.sessionId}`,
+          `RecordingFailed.${name}`,
           (type, data) => {
             reject("recording failed: " + data.cause);
             PubSub.unsubscribe(tokenFinished);
