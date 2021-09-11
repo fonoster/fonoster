@@ -16,16 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getClientCredentials } from "./trust_util";
-import { ServiceOptions } from "./types";
+import {getClientCredentials} from "./trust_util";
+import {ServiceOptions} from "./types";
 import * as fs from "fs";
 import * as path from "path";
-import { Metadata } from "@grpc/grpc-js";
+import {Metadata} from "@grpc/grpc-js";
 
 const CONFIG_FILE =
   process.env.API_CONFIG_FILE ||
   path.join(require("os").homedir(), ".fonos", "config");
-const configFileExit = () => fs.existsSync(CONFIG_FILE)
+const configFileExit = () => fs.existsSync(CONFIG_FILE);
 const getConfigFile = () => JSON.parse(fs.readFileSync(CONFIG_FILE).toString());
 
 const defaultOptions: ServiceOptions = {
