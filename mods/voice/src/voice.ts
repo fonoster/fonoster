@@ -32,6 +32,8 @@ import {Verb} from "./verb";
 import {startMediaTransfer, stopMediaTransfer} from "./utils";
 import SGatherVerb, {SGatherOptions} from "./sgather/gather";
 import {SGatherStream} from "./sgather/types";
+import {DtmfOptions} from "./dtmf/types";
+import DtmfVerb from "./dtmf/dtmf";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -154,7 +156,7 @@ export default class {
    * Waits for data entry from the user's keypad or from a stream speech provider. This command is different from `gather`
    * in that it returns a stream of results instead of a single result. You can think of it as active listening.
    *
-   * @param {SGatherOptions} options - Options to select the
+   * @param {SGatherOptions} options - Options object for the SGather verb
    * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
    * when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `speech,dtmf`
    * @return {SGatherStream} The SGatherStream fires events via am `on` method for `transcription`, `dtmf`, and `error`. And the stream can be close
@@ -184,6 +186,22 @@ export default class {
       asr = this.plugins["asr"];
     }
     return await new SGatherVerb(this.request, asr).run(options);
+  }
+
+  /**
+   * Sends dtmf tones to the current session.
+   *
+   * @param {DtmfOptions} options - Options object for the Dtmf verb
+   * @param {string} options.dtmf - A string of the dtmf tones
+   * @example
+   *
+   * async function handler (request, response) {
+   *    await response.play("sound:hello-world");
+   *    await response.dtmf({dtmf: "1234"});
+   * }
+   */
+  async dtmf(options: DtmfOptions): Promise<void> {
+    return await new DtmfVerb(this.request).run(options);
   }
 
   /**

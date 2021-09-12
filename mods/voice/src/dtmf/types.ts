@@ -16,25 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import WebSocket from "ws";
-import logger from "@fonos/logger";
-
-export const playbackFinishedHandler = (ws: WebSocket, playback: any) => {
-  logger.verbose(
-    `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
-  );
-
-  if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
-    return;
-  }
-
-  ws.send(
-    JSON.stringify({
-      type: "PlaybackFinished",
-      data: {
-        playbackId: playback.id
-      }
-    })
-  );
-};
+export interface DtmfOptions {
+  dtmf: string;
+}

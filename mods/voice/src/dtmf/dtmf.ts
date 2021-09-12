@@ -16,22 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import PubSub from "pubsub-js";
 import logger from "@fonos/logger";
+import PubSub from "pubsub-js";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
+import {assertsHasDtmf} from "./asserts";
+import {DtmfOptions} from "./types";
 
-export default class HangupVerb extends Verb {
-  async run(): Promise<void> {
+export default class DtmfVerb extends Verb {
+  async run(opts: DtmfOptions): Promise<void> {
     logger.verbose(
-      `@fonos/voice sending hangup request [sessionId = ${this.request.sessionId}]`
+      `@fonos/voice sending dtmf request [sessionId = ${
+        this.request.sessionId
+      }, opts = ${JSON.stringify(opts)}]`
     );
+
+    assertsHasDtmf(opts);
 
     return new Promise(async (resolve, reject) => {
       let token;
       try {
         token = PubSub.subscribe(
-          `SessionClosed.${this.request.sessionId}`,
+          `SendDtmfFinished.${this.request.sessionId}`,
           (type, data) => {
             resolve();
             PubSub.unsubscribe(token);
@@ -39,14 +45,15 @@ export default class HangupVerb extends Verb {
         );
 
         await super.post(
-          `events/user/Hangup`,
+          `events/user/SendDtmf`,
           objectToQString({
             // WARNING: Harcoded value
             application: "mediacontroller"
           }),
           {
             variables: {
-              sessionId: this.request.sessionId
+              sessionId: this.request.sessionId,
+              dtmf: opts.dtmf
             }
           }
         );

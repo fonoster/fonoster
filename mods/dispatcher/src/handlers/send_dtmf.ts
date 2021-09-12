@@ -19,22 +19,28 @@
 import WebSocket from "ws";
 import logger from "@fonos/logger";
 
-export const playbackFinishedHandler = (ws: WebSocket, playback: any) => {
+export const sendDtmf = async (ws: WebSocket, ari, event: any) => {
   logger.verbose(
-    `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
+    `@fonos/dispatcher sending dtmf tones [sesionId: ${event.userevent.sessionId}, tones: ${event.userevent.dtmf}]`
   );
+
+  const channel = await ari.channels.get({
+    channelId: event.userevent.sessionId
+  });
 
   if (ws.readyState !== WebSocket.OPEN) {
     logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
     return;
   }
 
+  await channel.sendDTMF({
+    dtmf: event.userevent.dtmf
+  });
+
   ws.send(
     JSON.stringify({
-      type: "PlaybackFinished",
-      data: {
-        playbackId: playback.id
-      }
+      type: "SendDtmfFinished",
+      sessionId: event.userevent.sessionId
     })
   );
 };

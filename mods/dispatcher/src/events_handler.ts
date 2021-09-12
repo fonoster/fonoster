@@ -31,6 +31,7 @@ import {recordFailedHandler} from "./handlers/record_failed";
 import {destroyBridge, hangup} from "./utils/destroy_channel";
 import {channelTalkingHandler} from "./handlers/channel_talking";
 import WebSocket from "ws";
+import {sendDtmf} from "./handlers/send_dtmf";
 const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
@@ -144,8 +145,11 @@ export default function (err: any, ari: any) {
           event.userevent.filename
         );
         break;
+      case "SendDtmf":
+        await sendDtmf(wsClient, ari, event);
+        break;
       case "Hangup":
-        await hangup(ari, event.userevent.sessionId, false);
+        await hangup(wsClient, ari, event.userevent.sessionId, false);
         break;
       default:
         logger.error(
@@ -161,7 +165,6 @@ export default function (err: any, ari: any) {
   ari.on("PlaybackFinished", async (event: any, playback: any) => {
     playbackFinishedHandler(
       wsConnections.get(event.playback.target_uri.split(":")[1]),
-      event,
       playback
     );
   });
