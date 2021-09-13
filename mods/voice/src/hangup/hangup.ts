@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import PubSub from "pubsub-js";
 import logger from "@fonos/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
@@ -25,17 +26,34 @@ export default class HangupVerb extends Verb {
     logger.verbose(
       `@fonos/voice sending hangup request [sessionId = ${this.request.sessionId}]`
     );
-    await super.post(
-      `events/user/Hangup`,
-      objectToQString({
-        // WARNING: Harcoded value
-        application: "mediacontroller"
-      }),
-      {
-        variables: {
-          sessionId: this.request.sessionId
-        }
+
+    return new Promise(async (resolve, reject) => {
+      let token;
+      try {
+        token = PubSub.subscribe(
+          `SessionClosed.${this.request.sessionId}`,
+          (type, data) => {
+            resolve();
+            PubSub.unsubscribe(token);
+          }
+        );
+
+        await super.post(
+          `events/user/Hangup`,
+          objectToQString({
+            // WARNING: Harcoded value
+            application: "mediacontroller"
+          }),
+          {
+            variables: {
+              sessionId: this.request.sessionId
+            }
+          }
+        );
+      } catch (e) {
+        reject(e);
+        PubSub.unsubscribe(token);
       }
-    );
+    });
   }
 }

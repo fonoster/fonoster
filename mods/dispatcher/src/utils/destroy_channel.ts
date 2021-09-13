@@ -1,4 +1,5 @@
 import logger from "@fonos/logger";
+import WebSocket from "ws";
 import {getChannelVar} from "./channel_variable";
 
 /*
@@ -20,6 +21,7 @@ import {getChannelVar} from "./channel_variable";
  * limitations under the License.
  */
 export async function hangup(
+  ws: WebSocket,
   ari: any,
   sessionId: string,
   destroyBridge = false
@@ -37,6 +39,13 @@ export async function hangup(
     }
 
     await channel.hangup();
+
+    ws.send(
+      JSON.stringify({
+        type: "SessionClosed",
+        sessionId
+      })
+    );
   } catch (e) {
     /** We can only try because the channel might be already closed */
   }

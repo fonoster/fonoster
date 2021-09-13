@@ -19,11 +19,7 @@
 import WebSocket from "ws";
 import logger from "@fonos/logger";
 
-export const playbackFinishedHandler = (
-  ws: WebSocket,
-  event: any,
-  playback: any
-) => {
+export const playbackFinishedHandler = (ws: WebSocket, playback: any) => {
   logger.verbose(
     `@fonos/dispatcher sending playback finished event [playbackId: ${playback.id}]`
   );
