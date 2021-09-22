@@ -73,6 +73,10 @@ export default class VoiceServer {
       );
     });
 
+    app.get("/ping", (req, res) => {
+      res.send("pong");
+    });
+
     app.post(join(this.config.base), async (req, res) => {
       const response = new VoiceResponse(req.body);
       response.plugins = this.plugins;

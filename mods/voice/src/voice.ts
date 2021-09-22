@@ -18,7 +18,7 @@
  */
 import HangupVerb from "./hangup/hangup";
 import UnmuteVerb from "./unmute/unmute";
-import GatherVerb, {GatherOptions} from "./gather/gather";
+import GatherVerb from "./gather/gather";
 import MuteVerb, {MuteOptions} from "./mute/mute";
 import PlayVerb, {PlayOptions} from "./play/play";
 import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
