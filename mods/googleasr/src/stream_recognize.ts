@@ -109,9 +109,9 @@ export default class StreamRecognize {
           // this.restartStream();
         } else {
           logger.error(err);
-          clearTimeout(this.currentTimer)
-          this.stop()
-          this.speechClient.close()
+          clearTimeout(this.currentTimer);
+          this.stop();
+          this.speechClient.close();
         }
       })
       .on("data", this.cb);
