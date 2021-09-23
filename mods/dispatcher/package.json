@@ -46,6 +46,7 @@
     "@fonos/logger": "^0.1.23",
     "@fonos/numbers": "^0.1.23",
     "@fonos/storage": "^0.1.23",
+    "@fonos/core": "^0.1.23",
     "ari-client": "^2.2.0",
     "axios": "^0.21.1",
     "pick-port": "^1.0.0",

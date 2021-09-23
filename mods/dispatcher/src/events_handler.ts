@@ -33,6 +33,7 @@ import {channelTalkingHandler} from "./handlers/channel_talking";
 import WebSocket from "ws";
 import {sendDtmf} from "./handlers/send_dtmf";
 import {answer} from "./utils/answer_channel";
+import { transfer } from "./handlers/transfer";
 const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
@@ -45,9 +46,17 @@ export default function (err: any, ari: any) {
   if (err) throw err;
 
   ari.on("StasisStart", async (event: any, channel: any) => {
+    const transferBridgeId = await getChannelVar(channel, "TRANSFER_BRIDGE_ID");
     const didInfo = await getChannelVar(channel, "DID_INFO");
 
-    if (!didInfo) {
+    // If set we need to create bridge and merge the dialed channel
+    if (transferBridgeId) {
+      const originalChannelId = await getChannelVar(channel, "SESSION_ID");
+      const dialedChannelId = await getChannelVar(channel, "DIALED_CHANNEL_ID");
+      const bridge = await ari.bridges.get({ bridgeId: transferBridgeId });
+      await bridge.addChannel({ channel: [originalChannelId, dialedChannelId]});
+      return;
+    } else if (!didInfo) {
       // If DID_INFO is not set we need to ignore the event
       logger.silly(
         `@fonos/dispatcher DID_INFO variable not found [ignoring event]`
@@ -92,7 +101,7 @@ export default function (err: any, ari: any) {
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number,
       selfEndpoint: webhook,
-      metadata: metadata
+      metadata: metadata || {}
     };
 
     logger.verbose(
@@ -155,6 +164,9 @@ export default function (err: any, ari: any) {
       case "Answer":
         await answer(wsClient, ari, event.userevent.sessionId);
         break;
+      case "Transfer":
+        await transfer(wsClient, ari, event);
+        break;  
       default:
         logger.error(
           `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`

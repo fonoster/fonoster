@@ -35,6 +35,8 @@ import SGatherVerb, {SGatherOptions} from "./sgather/gather";
 import {SGatherStream} from "./sgather/types";
 import {DtmfOptions} from "./dtmf/types";
 import DtmfVerb from "./dtmf/dtmf";
+import TransferVerb from "./transfer/transfer";
+import { TransferOptions } from "./transfer/types";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -209,6 +211,24 @@ export default class {
    */
   async dtmf(options: DtmfOptions): Promise<void> {
     return await new DtmfVerb(this.request).run(options);
+  }
+
+  /**
+   * Transfer the call to a Number or an Agent.
+   *
+   * @param {string} destination - Number or Agent to transfer the call to
+   * @param {TransferOptions} options - Options object for the Transfer verb
+   * @param {timeout} options.timeout - Transfer timeout
+   * @example
+   *
+   * async function handler (request, response) {
+   *    await response.answer();
+   *    await response.say("transfering call");
+   *    await response.transfer("17853178070");
+   * }
+   */
+   async transfer(destination: string, options?: TransferOptions): Promise<void> {
+    return await new TransferVerb(this.request).run(destination, options);
   }
 
   /**

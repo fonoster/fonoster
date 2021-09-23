@@ -19,7 +19,7 @@
 import WebSocket from "ws";
 import logger from "@fonos/logger";
 
-export const sendDtmf = async (ws: WebSocket, ari, event: any) => {
+export const sendDtmf = async (ws: WebSocket, ari: any, event: any) => {
   logger.verbose(
     `@fonos/dispatcher sending dtmf tones [sesionId: ${event.userevent.sessionId}, tones: ${event.userevent.dtmf}]`
   );
