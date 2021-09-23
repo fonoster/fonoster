@@ -154,7 +154,7 @@ export default function (err: any, ari: any) {
         break;
       case "Answer":
         await answer(wsClient, ari, event.userevent.sessionId);
-        break;        
+        break;
       default:
         logger.error(
           `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`
@@ -193,5 +193,3 @@ export default function (err: any, ari: any) {
 
   ari.start("mediacontroller");
 }
-
-

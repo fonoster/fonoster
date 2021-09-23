@@ -20,11 +20,7 @@ import {getChannelVar} from "./channel_variable";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export async function answer(
-  ws: WebSocket,
-  ari: any,
-  sessionId: string,
-) {
+export async function answer(ws: WebSocket, ari: any, sessionId: string) {
   try {
     logger.verbose(
       `@fonos/dispatcher acepting call request [session = ${sessionId}]`
@@ -39,6 +35,6 @@ export async function answer(
       })
     );
   } catch (e) {
-    logger.error(e)
+    logger.error(e);
   }
 }
