@@ -28,6 +28,7 @@ export async function hangup(
 ) {
   try {
     const channel = await ari.channels.get({channelId: sessionId});
+    const externalChannelId = await getChannelVar(channel, "EXTERNAL_CHANNEL");
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
     logger.verbose(
       `@fonos/dispatcher hangup and destroy bridge [session = ${sessionId}, bridge = ${bridgeId}]`
@@ -35,6 +36,7 @@ export async function hangup(
 
     if (bridgeId && destroyBridge) {
       await ari.bridges.removeChannel({bridgeId, channel: sessionId});
+      await ari.bridges.removeChannel({bridgeId, channel: externalChannelId});
       await ari.bridges.destroy({bridgeId});
     }
 

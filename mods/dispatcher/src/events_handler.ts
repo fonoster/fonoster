@@ -149,7 +149,7 @@ export default function (err: any, ari: any) {
         await sendDtmf(wsClient, ari, event);
         break;
       case "Hangup":
-        await hangup(wsClient, ari, event.userevent.sessionId, false);
+        await hangup(wsClient, ari, event.userevent.sessionId, true);
         break;
       default:
         logger.error(
