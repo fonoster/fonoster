@@ -33,7 +33,7 @@ import {channelTalkingHandler} from "./handlers/channel_talking";
 import WebSocket from "ws";
 import {sendDtmf} from "./handlers/send_dtmf";
 import {answer} from "./utils/answer_channel";
-import { transfer } from "./handlers/transfer";
+import {transfer} from "./handlers/transfer";
 const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
@@ -53,8 +53,8 @@ export default function (err: any, ari: any) {
     if (transferBridgeId) {
       const originalChannelId = await getChannelVar(channel, "SESSION_ID");
       const dialedChannelId = await getChannelVar(channel, "DIALED_CHANNEL_ID");
-      const bridge = await ari.bridges.get({ bridgeId: transferBridgeId });
-      await bridge.addChannel({ channel: [originalChannelId, dialedChannelId]});
+      const bridge = await ari.bridges.get({bridgeId: transferBridgeId});
+      await bridge.addChannel({channel: [originalChannelId, dialedChannelId]});
       return;
     } else if (!didInfo) {
       // If DID_INFO is not set we need to ignore the event
@@ -166,7 +166,7 @@ export default function (err: any, ari: any) {
         break;
       case "Transfer":
         await transfer(wsClient, ari, event);
-        break;  
+        break;
       default:
         logger.error(
           `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`

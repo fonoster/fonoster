@@ -40,7 +40,7 @@ export const transfer = async (ws: WebSocket, ari: any, event: any) => {
 
   // Which Domain has this number assigned to for outbound
   const domain = await getDomainByNumber(event.userevent.number);
-  const domainUri = domain.spec.context.domainUri
+  const domainUri = domain.spec.context.domainUri;
 
   if (!domain) {
     ws.send(
@@ -53,7 +53,9 @@ export const transfer = async (ws: WebSocket, ari: any, event: any) => {
     return;
   }
 
-  logger.verbose(`@fonos/dispatcher dialing [sip:${event.userevent.destination}@${domainUri}]`);
+  logger.verbose(
+    `@fonos/dispatcher dialing [sip:${event.userevent.destination}@${domainUri}]`
+  );
 
   const transferBridge = await ari.bridges.create({
     type: "mixing"
@@ -66,7 +68,7 @@ export const transfer = async (ws: WebSocket, ari: any, event: any) => {
   await dialed.originate({
     app: "mediacontroller",
     endpoint: `PJSIP/routr/sip:${event.userevent.destination}@${domainUri}`,
-    variables: { 
+    variables: {
       SESSION_ID: event.userevent.sessionId,
       DIALED_CHANNEL_ID: dialed.id,
       TRANSFER_BRIDGE_ID: transferBridge.id
@@ -81,4 +83,3 @@ export const transfer = async (ws: WebSocket, ari: any, event: any) => {
     })
   );
 };
-

@@ -20,10 +20,10 @@ import PubSub from "pubsub-js";
 import logger from "@fonos/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
-import { TransferOptions } from "./types";
+import {TransferOptions} from "./types";
 
 export default class TransferVerb extends Verb {
-  async run(destination:string, options: TransferOptions = {}): Promise<void> {
+  async run(destination: string, options: TransferOptions = {}): Promise<void> {
     logger.verbose(
       `@fonos/voice transfering call [sessionId = ${this.request.sessionId}, number = ${this.request.number}]`
     );

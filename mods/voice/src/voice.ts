@@ -36,7 +36,7 @@ import {SGatherStream} from "./sgather/types";
 import {DtmfOptions} from "./dtmf/types";
 import DtmfVerb from "./dtmf/dtmf";
 import TransferVerb from "./transfer/transfer";
-import { TransferOptions } from "./transfer/types";
+import {TransferOptions} from "./transfer/types";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -227,7 +227,10 @@ export default class {
    *    await response.transfer("17853178070");
    * }
    */
-   async transfer(destination: string, options?: TransferOptions): Promise<void> {
+  async transfer(
+    destination: string,
+    options?: TransferOptions
+  ): Promise<void> {
     return await new TransferVerb(this.request).run(destination, options);
   }
 
