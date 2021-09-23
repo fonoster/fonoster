@@ -19,7 +19,7 @@
 import WebSocket from "ws";
 import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonos/logger";
-import { sendData, streamConfig } from "../utils/udp_server_utils";
+import {sendData, streamConfig} from "../utils/udp_server_utils";
 import pickPort from "pick-port";
 
 export const externalMediaHandler = async (
@@ -31,7 +31,7 @@ export const externalMediaHandler = async (
     logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
     return;
   }
-  const port = await pickPort()
+  const port = await pickPort();
   const address = `0.0.0.0:${port}`;
   const udpServer = new UDPMediaReceiver(address, true);
   const bridge = ari.Bridge();
@@ -40,10 +40,10 @@ export const externalMediaHandler = async (
 
   // Creating a room to receive the audio and then forward
   // the audio to via ws
-  await bridge.create({ type: "mixing" });
-  bridge.addChannel({ channel: sessionId });
+  await bridge.create({type: "mixing"});
+  bridge.addChannel({channel: sessionId});
   externalChannel.on("StasisStart", (event: any, channel: any) =>
-    bridge.addChannel({ channel: channel.id })
+    bridge.addChannel({channel: channel.id})
   );
 
   externalChannel.on("StasisEnd", (event: any, channel: any) => {
