@@ -81,16 +81,13 @@ export default class UDPMediaReceiver {
     });
 
     this.server.on("listening", () => {
-      logger.verbose("DBG003");
       const address = this.server.address();
       logger.verbose(
         `@fonos/dispatcher udpServer [address = ${address.address}:${address.port}]`
       );
     });
 
-    logger.verbose("DBG004");
     this.server.bind(this.port, this.address);
-    logger.verbose("DBG005");
   }
 
   getServer() {
