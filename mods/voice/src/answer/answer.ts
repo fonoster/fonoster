@@ -21,17 +21,17 @@ import logger from "@fonos/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
 
-export default class HangupVerb extends Verb {
+export default class AnswerVerb extends Verb {
   async run(): Promise<void> {
     logger.verbose(
-      `@fonos/voice sending hangup request [sessionId = ${this.request.sessionId}]`
+      `@fonos/voice sending answer request [sessionId = ${this.request.sessionId}]`
     );
 
     return new Promise(async (resolve, reject) => {
       let token: string;
       try {
         token = PubSub.subscribe(
-          `SessionClosed.${this.request.sessionId}`,
+          `SessionOpen.${this.request.sessionId}`,
           (type, data) => {
             resolve();
             PubSub.unsubscribe(token);
@@ -39,7 +39,7 @@ export default class HangupVerb extends Verb {
         );
 
         await super.post(
-          `events/user/Hangup`,
+          `events/user/Answer`,
           objectToQString({
             // WARNING: Harcoded value
             application: "mediacontroller"

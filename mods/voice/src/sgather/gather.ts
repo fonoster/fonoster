@@ -42,7 +42,7 @@ export default class SGatherVerb extends Verb {
     const options = merge(defaultOptions, opts);
     const streamData = new StreamData();
     logger.verbose(
-      `@fonos/voice started sgather [sources = ${options.source}]`
+      `@fonos/voice started sgather [source = ${options.source}]`
     );
     if (options.source.includes("dtmf")) {
       // TODO: Subscribe to dtmf events

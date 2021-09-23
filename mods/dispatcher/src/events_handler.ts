@@ -32,6 +32,7 @@ import {destroyBridge, hangup} from "./utils/destroy_channel";
 import {channelTalkingHandler} from "./handlers/channel_talking";
 import WebSocket from "ws";
 import {sendDtmf} from "./handlers/send_dtmf";
+import {answer} from "./utils/answer_channel";
 const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
@@ -151,6 +152,9 @@ export default function (err: any, ari: any) {
       case "Hangup":
         await hangup(wsClient, ari, event.userevent.sessionId, true);
         break;
+      case "Answer":
+        await answer(wsClient, ari, event.userevent.sessionId);
+        break;        
       default:
         logger.error(
           `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`
@@ -189,3 +193,5 @@ export default function (err: any, ari: any) {
 
   ari.start("mediacontroller");
 }
+
+
