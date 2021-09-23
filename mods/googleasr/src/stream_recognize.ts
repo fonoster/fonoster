@@ -40,6 +40,7 @@ export default class StreamRecognize {
   resultsCallback: any;
   socket: any;
   cb: (stream: any) => void;
+  currentTimer: NodeJS.Timeout;
   constructor(
     config: GoogleSpeechConfig,
     socket,
@@ -95,6 +96,11 @@ export default class StreamRecognize {
       }
     };
 
+    // Restart stream when streamingLimit expires
+    this.currentTimer = setTimeout(() => {
+      this.restartStream();
+    }, this.streamingLimit);
+
     // Initiate (Reinitiate) a recognize stream
     this.recognizeStream = this.speechClient
       .streamingRecognize(this.request)
@@ -102,15 +108,13 @@ export default class StreamRecognize {
         if (err.code === 11) {
           // this.restartStream();
         } else {
-          logger.error("API request error " + err);
+          logger.error(err);
+          clearTimeout(this.currentTimer);
+          this.stop();
+          this.speechClient.close();
         }
       })
       .on("data", this.cb);
-
-    // Restart stream when streamingLimit expires
-    setTimeout(() => {
-      this.restartStream();
-    }, this.streamingLimit);
   }
 
   speechCallback(stream) {
@@ -165,10 +169,7 @@ export default class StreamRecognize {
   }
 
   restartStream() {
-    if (this.recognizeStream) {
-      this.recognizeStream.removeListener("data", this.cb);
-      this.recognizeStream = null;
-    }
+    this.stop();
 
     if (this.resultEndTime > 0) {
       this.finalRequestEndTime = this.isFinalEndTime;
@@ -185,5 +186,14 @@ export default class StreamRecognize {
 
     this.newStream = true;
     this.startStream();
+  }
+
+  stop() {
+    logger.silly("destroying stream recognize");
+    if (this.recognizeStream) {
+      this.recognizeStream.end();
+      this.recognizeStream.removeListener("data", this.cb);
+      this.recognizeStream = null;
+    }
   }
 }

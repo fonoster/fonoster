@@ -29,6 +29,9 @@ export default class UDPMediaReceiver {
   port: number;
   fileStream: fs.WriteStream;
   constructor(host: string, swap16?: boolean, alsoWritePath?: string) {
+    let timer = setTimeout(() => {
+      this.close();
+    }, 30000);
     this.server = dgram.createSocket("udp4");
     // Add the Stream.pipe() method to the socket
     this.server.pipe = pipe;
@@ -69,6 +72,12 @@ export default class UDPMediaReceiver {
         this.fileStream.write(buf);
       }
       this.server.emit("data", buf);
+
+      // WARNING: Hack to automatically close the port
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        this.close();
+      }, 30000);
     });
 
     this.server.on("listening", () => {
@@ -86,7 +95,7 @@ export default class UDPMediaReceiver {
   }
 
   close() {
-    logger.verbose(`@fonos/dispatcher udpServer [closing server]`);
+    logger.verbose(`@fonos/dispatcher udpServer [closing server socket]`);
     this.server.close();
   }
 }

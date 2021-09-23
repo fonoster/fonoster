@@ -19,7 +19,8 @@
 import WebSocket from "ws";
 import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonos/logger";
-import {getRandomPort, sendData, streamConfig} from "../utils/udp_server_utils";
+import {sendData, streamConfig} from "../utils/udp_server_utils";
+import pickPort from "pick-port";
 
 export const externalMediaHandler = async (
   ws: WebSocket,
@@ -30,8 +31,8 @@ export const externalMediaHandler = async (
     logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
     return;
   }
-  // WARNING: We should check if the port was taken
-  const address = `0.0.0.0:${getRandomPort()}`;
+  const port = await pickPort();
+  const address = `0.0.0.0:${port}`;
   const udpServer = new UDPMediaReceiver(address, true);
   const bridge = ari.Bridge();
   const externalChannel = ari.Channel();
@@ -45,12 +46,24 @@ export const externalMediaHandler = async (
     bridge.addChannel({channel: channel.id})
   );
 
+  externalChannel.on("StasisEnd", (event: any, channel: any) => {
+    udpServer.close();
+  });
+
   // We save the bridge id as channel bar and later use the info
   // to destroy the bridge
   ari.channels.setChannelVar({
     channelId: sessionId,
     variable: "CURRENT_BRIDGE",
     value: bridge.id
+  });
+
+  // We save the bridge id as channel bar and later use the info
+  // to destroy the bridge
+  ari.channels.setChannelVar({
+    channelId: sessionId,
+    variable: "EXTERNAL_CHANNEL",
+    value: externalChannel.id
   });
 
   // Collecting and forwarding media

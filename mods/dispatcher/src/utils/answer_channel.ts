@@ -1,3 +1,7 @@
+import logger from "@fonos/logger";
+import WebSocket from "ws";
+import {getChannelVar} from "./channel_variable";
+
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -16,10 +20,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * The simplest Voice Application you can build in Fonos
- */
-const {VoiceServer} = require("@fonos/voice");
-voiceServer.listen((req, res) => {
-  res.play("sound:tt-monkeys");
-});
+export async function answer(ws: WebSocket, ari: any, sessionId: string) {
+  try {
+    logger.verbose(
+      `@fonos/dispatcher acepting call request [session = ${sessionId}]`
+    );
+
+    await ari.channels.answer({channelId: sessionId});
+
+    ws.send(
+      JSON.stringify({
+        type: "SessionOpen",
+        sessionId
+      })
+    );
+  } catch (e) {
+    logger.error(e);
+  }
+}

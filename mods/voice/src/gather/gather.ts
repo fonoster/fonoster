@@ -52,7 +52,7 @@ export default class GatherVerb extends Verb {
 
     return new Promise(async (resolve, reject) => {
       logger.verbose(
-        `@fonos/voice started gather [sources = ${options.source}]`
+        `@fonos/voice started gather [source = ${options.source}]`
       );
       if (options.source.includes("dtmf")) {
         waitForDtmf(this.request.sessionId, options)

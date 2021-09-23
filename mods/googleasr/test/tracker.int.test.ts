@@ -53,7 +53,7 @@ describe("@fonos/googleasr", () => {
     logger.info(
       `The transcript result is: ${JSON.stringify(result.transcript)}`
     );
-    expect(result).to.have.property("transcription").not.to.be.null;
+    expect(result).to.have.property("transcript").not.to.be.null;
   });
 
   it.only("returns a speech result for a given stream", (done) => {

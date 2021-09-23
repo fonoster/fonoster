@@ -16,9 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import AnswerVerb from "./answer/answer";
 import HangupVerb from "./hangup/hangup";
 import UnmuteVerb from "./unmute/unmute";
-import GatherVerb, {GatherOptions} from "./gather/gather";
+import GatherVerb from "./gather/gather";
 import MuteVerb, {MuteOptions} from "./mute/mute";
 import PlayVerb, {PlayOptions} from "./play/play";
 import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
@@ -45,6 +46,7 @@ import DtmfVerb from "./dtmf/dtmf";
  * import { VoiceServer } from "@fonos/voice";
  *
  * async function handler (request, response) {
+ *   await response.answer();
  *   await response.play("sound:hello-world");
  * }
  *
@@ -90,6 +92,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   await response.answer();
    *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
@@ -112,6 +115,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   await response.answer();
    *   response.use(new GoogleTTS())
    *   await response.say("Hello workd");   // Plays the sound using GoogleTTS's default values
    * }
@@ -139,6 +143,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   await response.answer();
    *   const digits = await response.gather({numDigits: 3});
    *   console.log("digits: " + digits);
    * }
@@ -165,6 +170,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   await response.answer();
    *   const stream = await response.sgather({source: "dtmf,speech"});
    *
    *   stream.on("transcript", (text, isFinal) => {
@@ -196,6 +202,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *    await response.answer();
    *    await response.play("sound:hello-world");
    *    await response.dtmf({dtmf: "1234"});
    * }
@@ -212,6 +219,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   await response.answer();
    *   response.onDtmfReceived(async(digit) => {
    *      const control = response.playback("1234")
    *      digit === "3"
@@ -235,6 +243,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   await response.answer();
    *   response.on("DtmfReceived", async(digit) => {
    *      const control = response.playback("1234")
    *      digit === "3"
@@ -262,6 +271,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   await response.answer();
    *   await response.mute();       // Will mute both directions
    * }
    */
@@ -278,6 +288,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   ...
    *   await response.unmute({direction: "out"});       // Will unmute only the "out" direction
    * }
    */
@@ -286,11 +297,27 @@ export default class {
   }
 
   /**
+   * Answer the communication channel. Before running any other verb you
+   * must run the anwer command.
+   *
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.answer();
+   *   ...
+   * }
+   */
+  async answer(): Promise<void> {
+    await new AnswerVerb(this.request).run();
+  }
+
+  /**
    * Terminates the communication channel.
    *
    * @example
    *
    * async function handler (request, response) {
+   *   ...
    *   await response.hangup();
    * }
    */
@@ -311,6 +338,7 @@ export default class {
    * @example
    *
    * async function handler (request, response) {
+   *   await response.answer();;
    *   const result = await response.record({finishOnKey: "#"});
    *   console.log("recording result: " + JSON.stringify(result))     // recording result: { duration: 30 ...}
    * }
