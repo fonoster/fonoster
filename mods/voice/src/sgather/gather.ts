@@ -41,9 +41,7 @@ export default class SGatherVerb extends Verb {
   async run(opts: SGatherOptions): Promise<SGatherStream> {
     const options = merge(defaultOptions, opts);
     const streamData = new StreamData();
-    logger.verbose(
-      `@fonos/voice started sgather [source = ${options.source}]`
-    );
+    logger.verbose(`@fonos/voice started sgather [source = ${options.source}]`);
     if (options.source.includes("dtmf")) {
       // TODO: Subscribe to dtmf events
       const token = PubSub.subscribe(

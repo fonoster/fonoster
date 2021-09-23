@@ -297,7 +297,7 @@ export default class {
   }
 
   /**
-   * Answer the communication channel. Before running any other verb you 
+   * Answer the communication channel. Before running any other verb you
    * must run the anwer command.
    *
    * @example
@@ -307,7 +307,7 @@ export default class {
    *   ...
    * }
    */
-   async answer(): Promise<void> {
+  async answer(): Promise<void> {
     await new AnswerVerb(this.request).run();
   }
 
