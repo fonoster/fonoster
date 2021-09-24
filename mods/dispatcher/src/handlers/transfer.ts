@@ -29,17 +29,20 @@ const getDomainByNumber = async (e164Number: string) => {
 const numberNotInList = (number) =>
   `the number '${number}' is not assigned to one of your domains. Make sure the number exist and is assigned to a Domain`;
 
-export const transfer = async (ws: WebSocket, ari: any, event: any, accessKeyId: string) => {
-  const {
-    number, 
-    destination, 
-    timeout,
-    record,
-    sessionId
-  } = event.userevent
+export const transfer = async (
+  ws: WebSocket,
+  ari: any,
+  event: any,
+  accessKeyId: string
+) => {
+  const {number, destination, timeout, record, sessionId} = event.userevent;
 
   logger.verbose(
-    `@fonos/dispatcher transfering call [request: ${JSON.stringify(event.userevent, null, ' ')}`
+    `@fonos/dispatcher transfering call [request: ${JSON.stringify(
+      event.userevent,
+      null,
+      " "
+    )}`
   );
 
   if (ws.readyState !== WebSocket.OPEN) {
@@ -82,7 +85,7 @@ export const transfer = async (ws: WebSocket, ari: any, event: any, accessKeyId:
 
   dialed.on("StasisStart", async (event: any, channel: any) => {
     try {
-      await bridge.addChannel({channel: [sessionId, dialed.id]})
+      await bridge.addChannel({channel: [sessionId, dialed.id]});
       if (record) {
         // The name of the recordings is allways set to the sessionId
         // We can later use this to map a CDR to a particular recording
@@ -90,28 +93,28 @@ export const transfer = async (ws: WebSocket, ari: any, event: any, accessKeyId:
           name: sessionId,
           format: "wav",
           ifExists: "append"
-        })
+        });
       }
-    } catch(e) {
-      logger.warn(e)
+    } catch (e) {
+      logger.warn(e);
       // It is possible that the originating side was already closed
-      await dialed.hangup()
+      await dialed.hangup();
     }
   });
 
   dialed.on("StasisEnd", async (event: any, channel: any) => {
-    const bridgeId = bridge.id
+    const bridgeId = bridge.id;
     try {
       await ari.bridges.removeChannel({bridgeId, channel: sessionId});
       const channel = await ari.channels.get({channelId: sessionId});
       await channel.hangup();
-    } catch(e) {
+    } catch (e) {
       /** We can only try because the originating channel might be already closed */
-      logger.warn(e)
+      logger.warn(e);
     } finally {
       if (record) {
-        await uploadRecording(accessKeyId, sessionId)
-      }      
+        await uploadRecording(accessKeyId, sessionId);
+      }
       await ari.bridges.destroy({bridgeId});
     }
   });

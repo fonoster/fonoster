@@ -46,7 +46,6 @@ export default function (err: any, ari: any) {
   if (err) throw err;
 
   ari.on("StasisStart", async (event: any, channel: any) => {
-
     const didInfo = await getChannelVar(channel, "DID_INFO");
 
     if (!didInfo) {
@@ -179,10 +178,7 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("RecordingFinished", (event: any) => {
-    recordFinishHandler(
-      wsConnections.get(event.recording.name),
-      event
-    );
+    recordFinishHandler(wsConnections.get(event.recording.name), event);
   });
 
   ari.on("RecordingFailed", (event: any) => {
