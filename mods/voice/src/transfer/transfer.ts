@@ -59,11 +59,13 @@ export default class TransferVerb extends Verb {
           }),
           {
             variables: {
+              accessKeyId: this.request.accessKeyId,
               sessionId: this.request.sessionId,
               // Could be a Number or an Agent
               destination,
               number: this.request.number,
-              timeout: options.timeout || -1
+              timeout: options.timeout || -1,
+              record: options.record
             }
           }
         );

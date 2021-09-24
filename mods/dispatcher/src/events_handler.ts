@@ -46,17 +46,10 @@ export default function (err: any, ari: any) {
   if (err) throw err;
 
   ari.on("StasisStart", async (event: any, channel: any) => {
-    const transferBridgeId = await getChannelVar(channel, "TRANSFER_BRIDGE_ID");
+
     const didInfo = await getChannelVar(channel, "DID_INFO");
 
-    // If set we need to create bridge and merge the dialed channel
-    if (transferBridgeId) {
-      const originalChannelId = await getChannelVar(channel, "SESSION_ID");
-      const dialedChannelId = await getChannelVar(channel, "DIALED_CHANNEL_ID");
-      const bridge = await ari.bridges.get({bridgeId: transferBridgeId});
-      await bridge.addChannel({channel: [originalChannelId, dialedChannelId]});
-      return;
-    } else if (!didInfo) {
+    if (!didInfo) {
       // If DID_INFO is not set we need to ignore the event
       logger.silly(
         `@fonos/dispatcher DID_INFO variable not found [ignoring event]`
@@ -165,7 +158,7 @@ export default function (err: any, ari: any) {
         await answer(wsClient, ari, event.userevent.sessionId);
         break;
       case "Transfer":
-        await transfer(wsClient, ari, event);
+        await transfer(wsClient, ari, event, event.userevent.accessKeyId);
         break;
       default:
         logger.error(
@@ -187,7 +180,7 @@ export default function (err: any, ari: any) {
 
   ari.on("RecordingFinished", (event: any) => {
     recordFinishHandler(
-      wsConnections.get(event.recording.target_uri.split(":")[1]),
+      wsConnections.get(event.recording.name),
       event
     );
   });
@@ -201,6 +194,7 @@ export default function (err: any, ari: any) {
 
   ari.on("StasisEnd", (event: any, channel: any) => {
     logger.verbose(`@fonos/dispatcher stasis end [sessionId = ${channel.id}]`);
+    wsConnections.delete(channel.id);
   });
 
   ari.start("mediacontroller");

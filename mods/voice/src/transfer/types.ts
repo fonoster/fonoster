@@ -18,4 +18,5 @@
  */
 export interface TransferOptions {
   timeout?: number;
+  record?: boolean;
 }
