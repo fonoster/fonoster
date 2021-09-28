@@ -65,7 +65,7 @@ export class Verb {
     });
   }
 
-  async delete(apiPath: string, queryParameters: string) {
+  async delete(apiPath: string, queryParameters?: string) {
     const url = `${
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
