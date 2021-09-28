@@ -31,10 +31,18 @@ export class PlaybackControl extends Verb {
     logger.verbose(
       `@fonos/voice calling [playbacks/${this.playbackId}/control?operation=${name}]`
     );
-    await super.post(
-      `playbacks/${this.playbackId}/control`,
-      `operation=${name}`
-    );
+
+    switch (name) {
+      case "stop":
+        super.delete(`playbacks/${this.playbackId}`);
+        break;
+      default:
+        super.post(`playbacks/${this.playbackId}/control`, `operation=${name}`);
+    }
+  }
+
+  async stop() {
+    await this.operation("stop");
   }
 
   async restart() {
