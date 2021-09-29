@@ -108,7 +108,7 @@ export default function (err: any, ari: any) {
 
     ws.on("open", async () => {
       wsConnections.set(sessionId, ws);
-      await sendCallRequest(webhook, request);
+      sendCallRequest(webhook, request);
     });
 
     ws.on("error", async (e: Error) => {
@@ -116,7 +116,7 @@ export default function (err: any, ari: any) {
         `@fonos/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`
       );
       logger.silly(e);
-      await channel.hangup();
+      channel.hangup();
     });
 
     channel.on("ChannelTalkingStarted", async (event: any, channel: any) => {
@@ -136,7 +136,7 @@ export default function (err: any, ari: any) {
 
     switch (event.eventname) {
       case "SendExternalMedia":
-        await externalMediaHandler(wsClient, ari, event);
+        externalMediaHandler(wsClient, ari, event);
         break;
       case "StopExternalMedia":
         destroyBridge(ari, event.userevent.sessionId);
@@ -148,16 +148,16 @@ export default function (err: any, ari: any) {
         );
         break;
       case "SendDtmf":
-        await sendDtmf(wsClient, ari, event);
+        sendDtmf(wsClient, ari, event);
         break;
       case "Hangup":
-        await hangup(wsClient, ari, event.userevent.sessionId, true);
+        hangup(wsClient, ari, event.userevent.sessionId, true);
         break;
       case "Answer":
-        await answer(wsClient, ari, event.userevent.sessionId);
+        answer(wsClient, ari, event.userevent.sessionId);
         break;
       case "Transfer":
-        await transfer(wsClient, ari, event, event.userevent.accessKeyId);
+        transfer(wsClient, ari, event, event.userevent.accessKeyId);
         break;
       default:
         logger.error(

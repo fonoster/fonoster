@@ -28,10 +28,12 @@ export default class UDPMediaReceiver {
   address: string;
   port: number;
   fileStream: fs.WriteStream;
+  // Timeout to close the udp receiver. It feels hacky, but it works
+  timeToAutoClose: number = 120000;
   constructor(host: string, swap16?: boolean, alsoWritePath?: string) {
     let timer = setTimeout(() => {
       this.close();
-    }, 30000);
+    }, this.timeToAutoClose);
     this.server = dgram.createSocket("udp4");
     // Add the Stream.pipe() method to the socket
     this.server.pipe = pipe;
@@ -77,7 +79,7 @@ export default class UDPMediaReceiver {
       clearTimeout(timer);
       timer = setTimeout(() => {
         this.close();
-      }, 30000);
+      }, this.timeToAutoClose);
     });
 
     this.server.on("listening", () => {

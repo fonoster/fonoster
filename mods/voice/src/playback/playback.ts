@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Verb} from "../verb";
-import {VoiceRequest} from "../types";
+import { Verb } from "../verb";
+import { VoiceRequest } from "../types";
 import logger from "@fonos/logger";
 
 export class PlaybackControl extends Verb {
@@ -28,16 +28,18 @@ export class PlaybackControl extends Verb {
   }
 
   private async operation(name: string) {
-    logger.verbose(
-      `@fonos/voice calling [playbacks/${this.playbackId}/control?operation=${name}]`
-    );
+    logger.verbose(`@fonos/voice playback control [operation = ${name}, playbackId = ${this.playbackId}]`);
 
-    switch (name) {
-      case "stop":
-        super.delete(`playbacks/${this.playbackId}`);
-        break;
-      default:
-        super.post(`playbacks/${this.playbackId}/control`, `operation=${name}`);
+    try {
+      switch (name) {
+        case "stop":
+          super.delete(`playbacks/${this.playbackId}`);
+          break;
+        default:
+          super.post(`playbacks/${this.playbackId}/control`, `operation=${name}`);
+      }
+    } catch(e) {
+      // TODO: We should print anything non 404 errors
     }
   }
 
