@@ -136,10 +136,10 @@ export default function (err: any, ari: any) {
 
     switch (event.eventname) {
       case "SendExternalMedia":
-        externalMediaHandler(wsClient, ari, event);
+        await externalMediaHandler(wsClient, ari, event);
         break;
       case "StopExternalMedia":
-        destroyBridge(ari, event.userevent.sessionId);
+        await destroyBridge(ari, event.userevent.sessionId);
         break;
       case "UploadRecording":
         await uploadRecording(
@@ -148,16 +148,16 @@ export default function (err: any, ari: any) {
         );
         break;
       case "SendDtmf":
-        sendDtmf(wsClient, ari, event);
+        await sendDtmf(wsClient, ari, event);
         break;
       case "Hangup":
-        hangup(wsClient, ari, event.userevent.sessionId, true);
+        await hangup(wsClient, ari, event.userevent.sessionId, true);
         break;
       case "Answer":
-        answer(wsClient, ari, event.userevent.sessionId);
+        await answer(wsClient, ari, event.userevent.sessionId);
         break;
       case "Transfer":
-        transfer(wsClient, ari, event, event.userevent.accessKeyId);
+        await transfer(wsClient, ari, event, event.userevent.accessKeyId);
         break;
       default:
         logger.error(
