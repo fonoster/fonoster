@@ -21,11 +21,11 @@ import logger from "@fonos/logger";
 import {GoogleSpeechConfig} from "./types";
 const speech = require("@google-cloud/speech").v1p1beta1;
 
-// Sending a dummy package with a different size breaks the 
+// Sending a dummy package with a different size breaks the
 // Google Speech.
 //
 // WARNING: This is the package size comming from asterisk, but
-// keep in mind that length (640) might be different for other encoding 
+// keep in mind that length (640) might be different for other encoding
 // types.
 const emptyBuffer = Buffer.alloc(640, 0);
 
@@ -90,7 +90,7 @@ export default class StreamRecognize {
       if (this.recognizeStream) {
         this.recognizeStream.write(emptyBuffer);
       }
-    }, 5000)
+    }, 5000);
   }
 
   startStream() {
@@ -124,7 +124,7 @@ export default class StreamRecognize {
           // this.restartStream();
         } else {
           // If we get any errors we restart the stream.
-          // This will tipically happen if no audio is sent for 
+          // This will tipically happen if no audio is sent for
           // a period if 10 seconds.
           this.restartStream();
           logger.silly(err);
