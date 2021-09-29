@@ -45,7 +45,7 @@ export class PlaybackControl extends Verb {
       }
     } catch (e) {
       if (!e.response || e.response.status !== 404) {
-        logger.error(e)
+        logger.error(e);
       }
     }
   }
