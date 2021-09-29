@@ -35,16 +35,18 @@ export class PlaybackControl extends Verb {
     try {
       switch (name) {
         case "stop":
-          super.delete(`playbacks/${this.playbackId}`);
+          await super.delete(`playbacks/${this.playbackId}`);
           break;
         default:
-          super.post(
+          await super.post(
             `playbacks/${this.playbackId}/control`,
             `operation=${name}`
           );
       }
     } catch (e) {
-      // TODO: We should print anything non 404 errors
+      if (!e.response || e.response.status !== 404) {
+        logger.error(e)
+      }
     }
   }
 
