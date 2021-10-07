@@ -51,7 +51,7 @@ export default class extends Command {
 
         try {
           if (fs.existsSync(BASE_DIR)) {
-            fs.rmSync(BASE_DIR, { recursive: true });
+            fs.rmSync(BASE_DIR, {recursive: true});
           }
 
           const agents = new Agents(answers);
