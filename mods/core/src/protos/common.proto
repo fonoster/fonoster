@@ -8,7 +8,6 @@ syntax = "proto3";
 
 package fonos.common.v1beta1;
 
-option go_package = "github.com/grpc-ecosystem/grpc-gateway/v2/examples/internal/proto/examplepb";
 option go_package = "github.com/fonoster/fonos/gen/go/core/common/v1beta1";
 
 import "google/api/annotations.proto";
