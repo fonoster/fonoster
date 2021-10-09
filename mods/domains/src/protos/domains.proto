@@ -8,7 +8,7 @@
 
  package fonos.domains.v1beta1;
  
- option go_package = "github.com/fonoster/fonos/mods/agents/fonos/services/protos/agents";
+ option go_package = "github.com/fonoster/fonos/mods/domains/fonos/services/protos/domains";
 
  import "google/api/annotations.proto";
  import "common.proto";
