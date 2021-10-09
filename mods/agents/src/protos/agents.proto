@@ -9,19 +9,45 @@ syntax = "proto3";
 
 package fonos.agents.v1beta1;
 
+option go_package = "github.com/fonoster/fonos/mods/agents/fonos/services/protos/agents";
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "common.proto";
 
+// Define HTTP mapping.
+// Client example (Assuming your service is hosted at the given 'DOMAIN_NAME'):
 service Agents {
   // Lists Agents from the SIP Proxy subsystem
-  rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse) {};
+  rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse) {
+    // Client example - list all the agents:
+    //   curl -X GET http://DOMAIN_NAME/v1beta1/agents
+    option (google.api.http) = { get: "/v1beta1/agents" };
+  };
   // Creates a new Agent resource.
-  rpc CreateAgent (CreateAgentRequest) returns (Agent) {};
+  rpc CreateAgent (CreateAgentRequest) returns (Agent) {
+    option (google.api.http) = { 
+      post: "/v1beta1/agents"
+      body: "agent"
+    };
+  };
   // Gets Agent using its reference
-  rpc GetAgent (GetAgentRequest) returns (Agent) {};
+  rpc GetAgent (GetAgentRequest) returns (Agent) {
+    option (google.api.http) = { get: "/v1beta1/agents/{ref}" };
+  };
   // Change or update fields in a resource
-  rpc UpdateAgent (UpdateAgentRequest) returns (Agent) {};
+  rpc UpdateAgent (UpdateAgentRequest) returns (Agent) {
+    option (google.api.http) = { 
+      put: "/v1beta1/agents"
+      body: "agent" 
+    };
+  };
   // Hard delete of a Agent resource
-  rpc DeleteAgent (DeleteAgentRequest) returns (fonos.common.v1beta1.Empty) {};
+  rpc DeleteAgent (DeleteAgentRequest) returns (fonos.common.v1beta1.Empty) {
+    option (google.api.http) = { 
+      delete: "/v1beta1/agents/{ref}"
+    };
+  };
 }
 
 message ListAgentsRequest {
@@ -63,11 +89,11 @@ message DeleteAgentRequest {
 
 message Agent {
   string ref = 1;
-  string name = 2;
-  string username = 3;
-  string secret = 4;
-  repeated string domains = 5;
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string username = 3 [(google.api.field_behavior) = REQUIRED];
+  string secret = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated string domains = 5 [(google.api.field_behavior) = REQUIRED];
   string privacy = 6;
-  string create_time = 7;
-  string update_time = 8;
+  string create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
