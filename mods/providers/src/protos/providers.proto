@@ -9,6 +9,11 @@ syntax = "proto3";
 
 package fonos.providers.v1beta1;
 
+option go_package = "github.com/fonoster/fonos/mods/providers/fonos/services/protos/providers";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "common.proto";
 
 service Providers {

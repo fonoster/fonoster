@@ -9,6 +9,13 @@ syntax = "proto3";
 
 package fonos.auth.v1beta1;
 
+option go_package = "github.com/fonoster/fonos/mods/auth/fonos/services/protos/auth";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "common.proto";
+
 service Auth {
   // Gets a role by name
   rpc GetRole (GetRoleRequest) returns (Role) {};
