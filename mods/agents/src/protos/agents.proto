@@ -5,31 +5,33 @@
  * The Agents proto contains the artificats for the administration
  * of Agents.
  */
-syntax = "proto3";
+ syntax = "proto3";
 
-package fonos.agents.v1beta1;
-
-option go_package = "github.com/fonoster/fonos/mods/agents/fonos/services/protos/agents";
-
-import "google/api/annotations.proto";
-import "google/api/field_behavior.proto";
-import "common.proto";
-
-// Define HTTP mapping.
-// Client example (Assuming your service is hosted at the given 'DOMAIN_NAME'):
+ package fonos.agents.v1beta1;
+ 
+ option go_package = "github.com/fonoster/fonos/mods/agents/fonos/services/protos/agents";
+ 
+ import "protoc-gen-openapiv2/options/annotations.proto";
+ import "google/api/annotations.proto";
+ import "google/api/field_behavior.proto";
+ import "common.proto";
+ 
+ // Define HTTP mapping.
+ // Client example (Assuming your service is hosted at the given 'DOMAIN_NAME'):
 service Agents {
   // Lists Agents from the SIP Proxy subsystem
   rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse) {
-    // Client example - list all the agents:
-    //   curl -X GET http://DOMAIN_NAME/v1beta1/agents
     option (google.api.http) = { get: "/v1beta1/agents" };
   };
   // Creates a new Agent resource.
   rpc CreateAgent (CreateAgentRequest) returns (Agent) {
     option (google.api.http) = { 
       post: "/v1beta1/agents"
-      body: "agent"
+      body: "*"
     };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+    produces: "application/json"
+  };
   };
   // Gets Agent using its reference
   rpc GetAgent (GetAgentRequest) returns (Agent) {
@@ -39,7 +41,7 @@ service Agents {
   rpc UpdateAgent (UpdateAgentRequest) returns (Agent) {
     option (google.api.http) = { 
       put: "/v1beta1/agents"
-      body: "agent" 
+      body: "*" 
     };
   };
   // Hard delete of a Agent resource
@@ -49,7 +51,7 @@ service Agents {
     };
   };
 }
-
+ 
 message ListAgentsRequest {
   // The maximum agent of items to return.
   int32 page_size = 1;
@@ -57,7 +59,7 @@ message ListAgentsRequest {
   // The next_page_token value returned from a previous List request, if any.
   string page_token = 2;
 
-  // Level of detail of the individual entities
+  // Level of detail of the individual entities (reserved)
   fonos.common.v1beta1.View view = 3;
 }
 
@@ -72,14 +74,23 @@ message ListAgentsResponse {
 }
 
 message CreateAgentRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"John Doe\", \"secret\": \"1234\"}"
+  };
   Agent agent = 1;
 }
 
 message UpdateAgentRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"John Doe\", \"secret\": \"1234\"}"
+  };
   Agent agent = 1;
 }
 
 message GetAgentRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"abcd\"}"
+  };
   string ref = 1;
 }
 
@@ -88,6 +99,9 @@ message DeleteAgentRequest {
 }
 
 message Agent {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"abcd\", \"name\": \"John Doe\", \"secret\": \"1234\"}"
+  };
   string ref = 1;
   string name = 2 [(google.api.field_behavior) = REQUIRED];
   string username = 3 [(google.api.field_behavior) = REQUIRED];
