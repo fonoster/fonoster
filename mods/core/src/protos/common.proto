@@ -30,6 +30,7 @@ message Error {
 }
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  base_path: "/api";
 	info: {
 		title: "Project Fonos";
 		version: "0.1";
