@@ -5,19 +5,17 @@
  * The Agents proto contains the artificats for the administration
  * of Agents.
  */
- syntax = "proto3";
+syntax = "proto3";
 
- package fonos.agents.v1beta1;
- 
- option go_package = "github.com/fonoster/fonos/mods/agents/fonos/services/protos/agents";
- 
- import "protoc-gen-openapiv2/options/annotations.proto";
- import "google/api/annotations.proto";
- import "google/api/field_behavior.proto";
- import "common.proto";
- 
- // Define HTTP mapping.
- // Client example (Assuming your service is hosted at the given 'DOMAIN_NAME'):
+package fonos.agents.v1beta1;
+
+option go_package = "github.com/fonoster/fonos/mods/agents/fonos/services/protos/agents";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "common.proto";
+
 service Agents {
   // Lists Agents from the SIP Proxy subsystem
   rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse) {
@@ -33,7 +31,7 @@ service Agents {
     produces: "application/json"
   };
   };
-  // Gets Agent using its reference
+  // Gets Agent by reference
   rpc GetAgent (GetAgentRequest) returns (Agent) {
     option (google.api.http) = { get: "/v1beta1/agents/{ref}" };
   };
@@ -44,7 +42,7 @@ service Agents {
       body: "*" 
     };
   };
-  // Hard delete of a Agent resource
+  // Hard delete of an Agent resource
   rpc DeleteAgent (DeleteAgentRequest) returns (fonos.common.v1beta1.Empty) {
     option (google.api.http) = { 
       delete: "/v1beta1/agents/{ref}"
@@ -53,10 +51,10 @@ service Agents {
 }
  
 message ListAgentsRequest {
-  // The maximum agent of items to return.
+  // The maximum number of items in the list.
   int32 page_size = 1;
 
-  // The next_page_token value returned from a previous List request, if any.
+  // The next_page_token value returned from the previous request, if any.
   string page_token = 2;
 
   // Level of detail of the individual entities (reserved)
@@ -64,33 +62,28 @@ message ListAgentsRequest {
 }
 
 message ListAgentsResponse {
-  // There will be a maximum agent of items returned based on the page_size field
-  // in the request.
+  // List of Agents
   repeated Agent agents = 1;
 
-  // Token to retrieve the next page of results, or empty if there are no
-  // more results in the list.
+  // Token to retrieve the next page of results, or empty if there are no more results in the list.
   string next_page_token = 2;
 }
 
 message CreateAgentRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"name\": \"John Doe\", \"secret\": \"1234\"}"
+    example: "{\"name\": \"John Doe\", \"username\": \"1001\", \"secret\": \"1234\", \"domains\": \"['sip.fonoster.com']\"}"
   };
   Agent agent = 1;
 }
 
 message UpdateAgentRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"name\": \"John Doe\", \"secret\": \"1234\"}"
+    example: "{\"ref\": \"aynB1z0tzd\", \"name\": \"John Doe\", \"secret\": \"1234\"}"
   };
   Agent agent = 1;
 }
 
 message GetAgentRequest {
-  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"abcd\"}"
-  };
   string ref = 1;
 }
 
@@ -100,7 +93,7 @@ message DeleteAgentRequest {
 
 message Agent {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"abcd\", \"name\": \"John Doe\", \"secret\": \"1234\"}"
+    example: "{\"ref\": \"aynB1z0tzd\", \"name\": \"John Doe\", \"username\": \"1001\", \"secret\": \"1234\", \"domains\": \"['sip.fonoster.com']\", \"privacy\": \"none\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
   };
   string ref = 1;
   string name = 2 [(google.api.field_behavior) = REQUIRED];

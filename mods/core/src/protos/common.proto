@@ -10,7 +10,6 @@ package fonos.common.v1beta1;
 
 option go_package = "github.com/fonoster/fonos/gen/go/core/common/v1beta1";
 
-import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 message Empty {}
@@ -82,9 +81,9 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     }
   }
   responses: {
-    key: "40X,50X";
+    key: "4xx,5xx";
     value: {
-      description: "Returns 40X or 50X errors.";
+      description: "Returns 4xx or 5xx errors.";
       schema: {
         json_schema: {
           ref: ".fonos.common.v1beta1.Error";
