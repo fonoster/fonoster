@@ -21,15 +21,12 @@ service Agents {
   rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse) {
     option (google.api.http) = { get: "/v1beta1/agents" };
   };
-  // Creates a new Agent resource.
+  // Creates a new Agent resource
   rpc CreateAgent (CreateAgentRequest) returns (Agent) {
     option (google.api.http) = { 
       post: "/v1beta1/agents"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-    produces: "application/json"
-  };
   };
   // Gets Agent by reference
   rpc GetAgent (GetAgentRequest) returns (Agent) {
@@ -51,10 +48,10 @@ service Agents {
 }
  
 message ListAgentsRequest {
-  // The maximum number of items in the list.
+  // The maximum number of items in the list
   int32 page_size = 1;
 
-  // The next_page_token value returned from the previous request, if any.
+  // The next_page_token value returned from the previous request, if any
   string page_token = 2;
 
   // Level of detail of the individual entities (reserved)
@@ -65,7 +62,7 @@ message ListAgentsResponse {
   // List of Agents
   repeated Agent agents = 1;
 
-  // Token to retrieve the next page of results, or empty if there are no more results in the list.
+  // Token to retrieve the next page of results, or empty if there are no more results in the list
   string next_page_token = 2;
 }
 

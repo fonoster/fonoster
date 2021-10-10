@@ -22,7 +22,7 @@ enum View {
 
 message Error {
 	option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-		example: "{\"status\": 400, \"message\": \"Bad request\"}"
+		example: "{\"status\": 404, \"message\": \"Not found\"}"
 	};
 
 	int32 status = 1;

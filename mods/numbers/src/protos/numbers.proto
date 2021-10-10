@@ -1,6 +1,6 @@
 /**
  * MIT License
- * Copyright (c) 2020 Fonoster Inc
+ * Copyright (c) 2021 Fonoster Inc
  *
  * The Numbers proto contains the artificats for the administration
  * of Numbers.
@@ -18,45 +18,67 @@ import "common.proto";
 
 service Numbers {
   // Lists Numbers from the SIP Proxy subsystem
-  rpc ListNumbers (ListNumbersRequest) returns (ListNumbersResponse) {};
-  // Creates a new Number resource.
-  rpc CreateNumber (CreateNumberRequest) returns (Number) {};
+  rpc ListNumbers (ListNumbersRequest) returns (ListNumbersResponse) {
+    option (google.api.http) = { get: "/v1beta1/numbers" };
+  };
+  // Creates a new Number resource
+  rpc CreateNumber (CreateNumberRequest) returns (Number) {
+    option (google.api.http) = { 
+      post: "/v1beta1/numbers"
+      body: "*"
+    };
+  };
   // Gets the ingess information for a given e164 number
   rpc GetIngressInfo (GetIngressInfoRequest) returns (IngressInfo) {};
   // Gets Number using its reference
-  rpc GetNumber (GetNumberRequest) returns (Number) {};
+  rpc GetNumber (GetNumberRequest) returns (Number) {
+    option (google.api.http) = { get: "/v1beta1/numbers/{ref}" };
+  };
   // Change or update fields in a resource
-  rpc UpdateNumber (UpdateNumberRequest) returns (Number) {};
+  rpc UpdateNumber (UpdateNumberRequest) returns (Number) {
+    option (google.api.http) = { 
+      put: "/v1beta1/numbers"
+      body: "*" 
+    };
+  };
   // Hard delete of a Number resource
-  rpc DeleteNumber (DeleteNumberRequest) returns (fonos.common.v1beta1.Empty) {};
+  rpc DeleteNumber (DeleteNumberRequest) returns (fonos.common.v1beta1.Empty) {
+    option (google.api.http) = { 
+      delete: "/v1beta1/numbers/{ref}"
+    };
+  };
 }
 
 message ListNumbersRequest {
-  // The maximum number of items to return.
+   // The maximum number of items in the list
   int32 page_size = 1;
 
-  // The next_page_token value returned from a previous List request, if any.
+  // The next_page_token value returned from the previous request, if any.
   string page_token = 2;
 
-  // Level of detail of the individual entities
+  // Level of detail of the individual entities (reserved)
   fonos.common.v1beta1.View view = 3;
 }
 
 message ListNumbersResponse {
-  // There will be a maximum number of items returned based on the page_size field
-  // in the request.
+  // List of Numbers
   repeated Number numbers = 1;
 
-  // Token to retrieve the next page of results, or empty if there are no
-  // more results in the list.
+  // Token to retrieve the next page of results, or empty if there are no more results in the list.
   string next_page_token = 2;
 }
 
 message CreateNumberRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"providerRef\": \"aynB1z0tzd\", \"e164Number\": \"+17853178070\", \"ingressInfo\": { \"webhook\": \"https://c5b6-172-220-243-215.ngrok.io\"}}"
+  };  
   Number number = 1;
 }
 
 message UpdateNumberRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"aiuY1z0tzd\", \"ingressInfo\": { \"webhook\": \"https://c5b6-172-220-243-215.ngrok.io\"}}"
+  };  
   Number number = 1;
 }
 
@@ -73,13 +95,16 @@ message DeleteNumberRequest {
 }
 
 message Number {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"aiuY1z0tzd\", \"providerRef\": \"aynB1z0tzd\", \"e164Number\": \"+17853178070\", \"ingressInfo\": { \"webhook\": \"https://c5b6-172-220-243-215.ngrok.io\"}, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+  };  
   string ref = 1;
-  string provider_ref = 2;
-  string e164_number = 3;
+  string provider_ref = 2 [(google.api.field_behavior) = REQUIRED];
+  string e164_number = 3 [(google.api.field_behavior) = REQUIRED];
   string aor_link = 4;
   IngressInfo ingress_info = 5;
-  string create_time = 6;
-  string update_time = 7;
+  string create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message IngressInfo {

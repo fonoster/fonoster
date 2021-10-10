@@ -18,11 +18,20 @@ import "common.proto";
 
 service Auth {
   // Gets a role by name
-  rpc GetRole (GetRoleRequest) returns (Role) {};
+  rpc GetRole (GetRoleRequest) returns (Role) {
+    option (google.api.http) = { get: "/v1beta1/auth/role/{name}" };
+  };
   // Verifies if a token was issue by Fonos or the same private key
-  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse) {}
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse) {
+    option (google.api.http) = { get: "/v1beta1/auth/token/{token}" };
+  }
   // Creates a new token for a given accessKeyId
-  rpc CreateToken (CreateTokenRequest) returns (CreateTokenResponse) {}
+  rpc CreateToken (CreateTokenRequest) returns (CreateTokenResponse) {
+    option (google.api.http) = { 
+      put: "/v1beta1/auth/token"
+      body: "*" 
+    };
+  }
   // Creates a special token that has no access but serves a signature
   rpc CreateNoAccessToken (CreateTokenRequest) returns (CreateTokenResponse) {}
 }
@@ -46,8 +55,11 @@ message ValidateTokenResponse {
 }
 
 message CreateTokenRequest {
-  string role_name = 1;
-  string access_key_id = 2;
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"roleName\": \"USER\", \"accessKeyId\": \"4e9f2cdf4387\"}"
+  };
+  string role_name = 1 [(google.api.field_behavior) = REQUIRED];
+  string access_key_id = 2 [(google.api.field_behavior) = REQUIRED];
   string expiration = 3;
 }
 
