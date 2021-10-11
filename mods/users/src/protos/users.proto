@@ -1,0 +1,103 @@
+/**
+ * MIT License
+ * Copyright (c) 2021 Fonoster Inc
+ *
+ * The Users proto contains the artificats for the administration
+ * of Users.
+ */
+syntax = "proto3";
+
+package fonos.users.v1beta1;
+
+option go_package = "github.com/fonoster/fonos/mods/users/fonos/services/protos/users";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "common.proto";
+
+service Users {
+  // Lists Users from the SIP Proxy subsystem
+  rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = { get: "/v1beta1/users" };
+  };
+  // Creates a new User resource
+  rpc CreateUser (CreateUserRequest) returns (User) {
+    option (google.api.http) = { 
+      post: "/v1beta1/users"
+      body: "*"
+    };
+  };
+  // Gets User by reference
+  rpc GetUser (GetUserRequest) returns (User) {
+    option (google.api.http) = { get: "/v1beta1/users/{ref}" };
+  };
+  // Change or update fields in a resource
+  rpc UpdateUser (UpdateUserRequest) returns (User) {
+    option (google.api.http) = { 
+      put: "/v1beta1/users"
+      body: "*" 
+    };
+  };
+  // Hard delete of an User resource
+  rpc DeleteUser (DeleteUserRequest) returns (fonos.common.v1beta1.Empty) {
+    option (google.api.http) = { 
+      delete: "/v1beta1/Users/{ref}"
+    };
+  };
+}
+ 
+message ListUsersRequest {
+  // The maximum number of items in the list
+  int32 page_size = 1;
+
+  // The next_page_token value returned from the previous request, if any
+  string page_token = 2;
+
+  // Level of detail of the individual entities (reserved)
+  fonos.common.v1beta1.View view = 3;
+}
+
+message ListUsersResponse {
+  // List of Users
+  repeated User Users = 1;
+
+  // Token to retrieve the next page of results, or empty if there are no more results in the list
+  string next_page_token = 2;
+}
+
+message CreateUserRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"John Doe\", \"username\": \"1001\", \"secret\": \"1234\", \"domains\": \"['sip.fonoster.com']\"}"
+  };
+  User User = 1;
+}
+
+message UpdateUserRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"aynB1z0tzd\", \"name\": \"John Doe\", \"secret\": \"1234\"}"
+  };
+  User User = 1;
+}
+
+message GetUserRequest {
+  string ref = 1;
+}
+
+message DeleteUserRequest {
+  string ref = 1;
+}
+
+message User {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"aynB1z0tzd\", \"name\": \"John Doe\", \"username\": \"1001\", \"secret\": \"1234\", \"domains\": \"['sip.fonoster.com']\", \"privacy\": \"none\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+  };
+  string ref = 1;
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string username = 3 [(google.api.field_behavior) = REQUIRED];
+  string secret = 4 [(google.api.field_behavior) = REQUIRED];
+  repeated string domains = 5 [(google.api.field_behavior) = REQUIRED];
+  string privacy = 6;
+  string create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
