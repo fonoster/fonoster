@@ -14,7 +14,7 @@ basic_network() {
       eval $COMPOSE_CMD" -f noencrypt.yml down"
       ;;
     *)
-      echo -n "Usage: ./basic_network start|stop"
+      echo -n "Usage: ./basic_network start|start-unsecure|stop"
       echo ""
       ;;
   esac

@@ -2,7 +2,7 @@
 
 set -e
 
-echo "installing"
+echo "installing fonos"
 cd /work
 
 echo "generating private key"
@@ -52,12 +52,22 @@ sed -i.bak -e "s#HTTPS_PORT=50051#HTTPS_PORT=$HTTPS_PORT#g" ".env"
 
 cp -a /work/* /out
 
-docker volume create --name=datasource 
+echo "creating volumes for minio(s3 buckets) and redis"
+
+docker volume create --name=datasource
 docker volume create --name=data1-1
+
+echo "creating service and user credentials"
 docker-compose -f init.yml up service_creds user_creds
-./basic-network.sh start
+
+if [ "$ENABLE_TLS" = "true" ]; then
+  ./basic-network.sh start
+else
+  ./basic-network.sh start-unsecure
+fi
 
 echo "please wait..."
-
 sleep 30
+
+echo "bootstraping sipproxy and creating initial buckets"
 docker-compose -f init.yml up create_buckets bootstrap_sipnet
