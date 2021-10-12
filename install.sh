@@ -49,6 +49,7 @@ sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/bootstrap.yml"
 sed -i.bak -e "s#CONFIG=/opt/fonos/config#CONFIG=$CONFIG_PATH#g" ".env"
 sed -i.bak -e "s#HTTP_PORT=50051#HTTP_PORT=$HTTP_PORT#g" ".env"
 sed -i.bak -e "s#HTTPS_PORT=50051#HTTPS_PORT=$HTTPS_PORT#g" ".env"
+sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$FONOS_VERSION#g" ".env"
 
 cp -a /work/* /out
 
