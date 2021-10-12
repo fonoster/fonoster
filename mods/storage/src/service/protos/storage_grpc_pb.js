@@ -10,6 +10,7 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var storage_pb = require('./storage_pb.js');
+var google_api_annotations_pb = require('./google/api/annotations_pb.js');
 
 function serialize_fonos_storage_v1beta1_GetObjectURLRequest(arg) {
   if (!(arg instanceof storage_pb.GetObjectURLRequest)) {

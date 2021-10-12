@@ -10,6 +10,9 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var agents_pb = require('./agents_pb.js');
+var protoc$gen$openapiv2_options_annotations_pb = require('./protoc-gen-openapiv2/options/annotations_pb.js');
+var google_api_annotations_pb = require('./google/api/annotations_pb.js');
+var google_api_field_behavior_pb = require('./google/api/field_behavior_pb.js');
 var common_pb = require('./common_pb.js');
 
 function serialize_fonos_agents_v1beta1_Agent(arg) {
@@ -114,7 +117,7 @@ listAgents: {
     responseSerialize: serialize_fonos_agents_v1beta1_ListAgentsResponse,
     responseDeserialize: deserialize_fonos_agents_v1beta1_ListAgentsResponse,
   },
-  // Creates a new Agent resource.
+  // Creates a new Agent resource
 createAgent: {
     path: '/fonos.agents.v1beta1.Agents/CreateAgent',
     requestStream: false,
@@ -126,7 +129,7 @@ createAgent: {
     responseSerialize: serialize_fonos_agents_v1beta1_Agent,
     responseDeserialize: deserialize_fonos_agents_v1beta1_Agent,
   },
-  // Gets Agent using its reference
+  // Gets Agent by reference
 getAgent: {
     path: '/fonos.agents.v1beta1.Agents/GetAgent',
     requestStream: false,
@@ -150,7 +153,7 @@ updateAgent: {
     responseSerialize: serialize_fonos_agents_v1beta1_Agent,
     responseDeserialize: deserialize_fonos_agents_v1beta1_Agent,
   },
-  // Hard delete of a Agent resource
+  // Hard delete of an Agent resource
 deleteAgent: {
     path: '/fonos.agents.v1beta1.Agents/DeleteAgent',
     requestStream: false,

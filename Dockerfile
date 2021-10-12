@@ -1,7 +1,17 @@
 FROM fonoster/base
 LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 
-ENV BRANCH=dev
+# Build example: 
+# docker build --no-cache \
+#   --build-arg BRANCH=dev \
+#   --build-arg FONOS_VERSION=0.1.24 \
+#   --tag fonos:0.1.24 .
+
+ARG FONOS_VERSION=0.1.23 
+ARG BRANCH=main
+ENV FONOS_VERSION=$FONOS_VERSION
+ENV BRANCH=$BRANCH
+
 WORKDIR /work
 
 RUN apk add --no-cache --update git curl docker docker-compose openssl bash\

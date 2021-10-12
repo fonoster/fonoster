@@ -3,12 +3,15 @@
 // Original file comments:
 // *
 // MIT License
-// Copyright (c) 2020 Fonoster Inc
+// Copyright (c) 2021 Fonoster Inc
 //
 // The Domains proto contains the artificats for domains administration
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var domains_pb = require('./domains_pb.js');
+var protoc$gen$openapiv2_options_annotations_pb = require('./protoc-gen-openapiv2/options/annotations_pb.js');
+var google_api_annotations_pb = require('./google/api/annotations_pb.js');
+var google_api_field_behavior_pb = require('./google/api/field_behavior_pb.js');
 var common_pb = require('./common_pb.js');
 
 function serialize_fonos_common_v1beta1_Empty(arg) {
@@ -113,7 +116,7 @@ listDomains: {
     responseSerialize: serialize_fonos_domains_v1beta1_ListDomainsResponse,
     responseDeserialize: deserialize_fonos_domains_v1beta1_ListDomainsResponse,
   },
-  // Creates a new Domain resource.
+  // Creates a new Domain resource
 createDomain: {
     path: '/fonos.domains.v1beta1.Domains/CreateDomain',
     requestStream: false,
@@ -125,7 +128,7 @@ createDomain: {
     responseSerialize: serialize_fonos_domains_v1beta1_Domain,
     responseDeserialize: deserialize_fonos_domains_v1beta1_Domain,
   },
-  // Gets Domain using its reference
+  // Gets a Domain by reference
 getDomain: {
     path: '/fonos.domains.v1beta1.Domains/GetDomain',
     requestStream: false,

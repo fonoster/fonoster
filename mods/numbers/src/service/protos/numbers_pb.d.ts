@@ -5,6 +5,8 @@
 /* eslint-disable */
 
 import * as jspb from "google-protobuf";
+import * as protoc_gen_openapiv2_options_annotations_pb from "./protoc-gen-openapiv2/options/annotations_pb";
+import * as google_api_field_behavior_pb from "./google/api/field_behavior_pb";
 import * as common_pb from "./common_pb";
 
 export class ListNumbersRequest extends jspb.Message { 

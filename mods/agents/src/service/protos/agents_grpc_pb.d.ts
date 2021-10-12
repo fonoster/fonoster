@@ -6,6 +6,8 @@
 
 import * as grpc from "@grpc/grpc-js";
 import * as agents_pb from "./agents_pb";
+import * as protoc_gen_openapiv2_options_annotations_pb from "./protoc-gen-openapiv2/options/annotations_pb";
+import * as google_api_field_behavior_pb from "./google/api/field_behavior_pb";
 import * as common_pb from "./common_pb";
 
 interface IAgentsService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {

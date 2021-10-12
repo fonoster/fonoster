@@ -15,6 +15,7 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 import "projects.proto";
+import "common.proto";
 
 service Users {
   // Creates a new User resource

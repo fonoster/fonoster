@@ -3,13 +3,16 @@
 // Original file comments:
 // *
 // MIT License
-// Copyright (c) 2020 Fonoster Inc
+// Copyright (c) 2021 Fonoster Inc
 //
 // The Numbers proto contains the artificats for the administration
 // of Numbers.
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var numbers_pb = require('./numbers_pb.js');
+var protoc$gen$openapiv2_options_annotations_pb = require('./protoc-gen-openapiv2/options/annotations_pb.js');
+var google_api_annotations_pb = require('./google/api/annotations_pb.js');
+var google_api_field_behavior_pb = require('./google/api/field_behavior_pb.js');
 var common_pb = require('./common_pb.js');
 
 function serialize_fonos_common_v1beta1_Empty(arg) {
@@ -136,7 +139,7 @@ listNumbers: {
     responseSerialize: serialize_fonos_numbers_v1beta1_ListNumbersResponse,
     responseDeserialize: deserialize_fonos_numbers_v1beta1_ListNumbersResponse,
   },
-  // Creates a new Number resource.
+  // Creates a new Number resource
 createNumber: {
     path: '/fonos.numbers.v1beta1.Numbers/CreateNumber',
     requestStream: false,
