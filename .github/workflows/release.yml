@@ -5,7 +5,6 @@ on:
     - 'mods/**'
     branches:
     - main
-    - dev
   #release:
   #  types: [published]
   workflow_dispatch:
@@ -31,7 +30,7 @@ jobs:
       uses: elgohr/Publish-Docker-Github-Action@master
       env:
         FONOS_VERSION: ${{ steps.get_version.outputs.VERSION }}
-        BRANCH: dev
+        BRANCH: main
       with:
         name: fonoster/fonos
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
