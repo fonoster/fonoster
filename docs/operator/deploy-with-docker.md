@@ -15,7 +15,7 @@ docker run -it --rm \
 
 ## Windows
 
-** CMD **
+**CMD**
 
 ```bash
 docker run -it --rm ^
@@ -26,7 +26,7 @@ docker run -it --rm ^
   fonoster/fonos:0.1.27
 ```
 
-** PowerShell **
+**PowerShell**
 
 ```bash
 docker run -it --rm ,
