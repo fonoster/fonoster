@@ -34,7 +34,7 @@ docker run -it --rm ,
   --volume /var/run/docker.sock:/var/run/docker.sock ,
   --volume ${pwd}/fonos:/out:rw ,
   --entrypoint="/install.sh" ,
-    fonoster/fonos:0.1.27
+  fonoster/fonos:0.1.27
 ```
 
 ## Environment Variables
