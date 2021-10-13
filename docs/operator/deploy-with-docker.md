@@ -1,6 +1,6 @@
 # Deploy with Docker
 
-Fonos backend server is designed to run in a container environment. Running your server is as easy as running one command from your terminal. The easiest way to start running your Fonos server is by running our docker-compose file. Before running the installation command make sure you have [Docker](https://www.docker.com/products/docker-desktop) installed on your machine:
+Fonos backend server is designed to run in a container environment. Running your server is as easy as running one command from your terminal. The easiest way to start running your Fonos server is our docker-in-docker (dind) installer. Before running the installation command, make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed on your machine:
 
 ## Unix
 
@@ -39,10 +39,10 @@ docker run -it --rm ,
 
 ## Environment Variables
 
-- `DOCKER_HOST_IP` - 
-- `ENABLE_TLS` -
-- `DOMAIN` -
-- `HTTP_PORT` -
-- `HTTPS_PORT` -
-- `LETSENCRYPT_EMAIL` -
-- `GLOBAL_SIP_DOMAIN` -
+- `DOCKER_HOST_IP` - If you run on a cloud, such as Digital Ocean, the installer will use your public IP. For a local environment, you must set the value of your host's IP (it won't be automatic.)
+- `DOMAIN` - The Domain for your API endpoint
+- `ENABLE_TLS` - Set to `true` if you want to generate and use a set of Let's Encrypt certificates. The value of `DOMAIN` must be publically routable. Defaults to `false`
+- `HTTP_PORT` - Unsecure port for HTTP connections. Defaults to `50051`
+- `HTTPS_PORT` - Secure port for HTTP connections. Defaults to `443`
+- `LETSENCRYPT_EMAIL` - We recommend setting this value to get important communication from Let's Encrypt. Defaults to `admin@$DOMAIN`
+- `GLOBAL_SIP_DOMAIN` - The main SIP Domain. New Domains will be under this one
