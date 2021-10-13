@@ -5,9 +5,9 @@ LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 # docker build --no-cache \
 #   --build-arg BRANCH=dev \
 #   --build-arg FONOS_VERSION=0.1.24 \
-#   --tag fonoster/fonos:0.1.24 .
+#   --tag fonoster/fonos:0.1.27 .
 
-ARG FONOS_VERSION=0.1.23 
+ARG FONOS_VERSION=0.1.27
 ARG BRANCH=main
 ENV FONOS_VERSION=$FONOS_VERSION
 ENV BRANCH=$BRANCH
