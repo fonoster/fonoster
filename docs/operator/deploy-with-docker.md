@@ -40,7 +40,7 @@ docker run -it --rm ,
 ## Environment Variables
 
 - `DOCKER_HOST_IP` - If you run on a cloud, such as Digital Ocean, the installer will use your public IP. For a local environment, you must set the value of your host's IP (it won't be automatic.)
-- `DOMAIN` - The Domain for your API endpoint
+- `DOMAIN` - The Domain for your API endpoint. Is is required for TLS support and it t must point to your Docker Host.
 - `ENABLE_TLS` - Set to `true` if you want to generate and use a set of Let's Encrypt certificates. The value of `DOMAIN` must be publically routable. Defaults to `false`
 - `HTTP_PORT` - Unsecure port for HTTP connections. Defaults to `50051`
 - `HTTPS_PORT` - Secure port for HTTP connections. Defaults to `443`
