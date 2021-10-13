@@ -1,6 +1,6 @@
 # Deploy with Docker
 
-Fonos backend server is designed to run in a container environment. Running your server is as easy as running one command from your terminal. The easiest way to start running your Fonos server is our docker-in-docker (dind) installer. Before running the installation command, make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed on your machine:
+The easiest way to start running your Fonos server is with our docker-in-docker (dind) installer. Before running the installation command, make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed on your machine:
 
 ## Unix
 
@@ -40,7 +40,7 @@ docker run -it --rm ,
 ## Environment Variables
 
 - `DOCKER_HOST_IP` - If you run on a cloud, such as Digital Ocean, the installer will use your public IP. For a local environment, you must set the value of your host's IP (it won't be automatic.)
-- `DOMAIN` - The Domain for your API endpoint
+- `DOMAIN` - The Domain for your API endpoint. This is required for TLS support. The DNS entry must point to the public IP of your Docker Host
 - `ENABLE_TLS` - Set to `true` if you want to generate and use a set of Let's Encrypt certificates. The value of `DOMAIN` must be publically routable. Defaults to `false`
 - `HTTP_PORT` - Unsecure port for HTTP connections. Defaults to `50051`
 - `HTTPS_PORT` - Secure port for HTTP connections. Defaults to `443`
