@@ -37,7 +37,7 @@ Once you see "Cloud init is done!" the process is complete. If everything went w
 To log in for the first time to your deployment, first, get your user credentials with:
 
 ```bash
-cat /opt/fonos/config/user_credentials
+cat /fonos/config/user_credentials
 ```
 
 Your output will look like the one bellow.
