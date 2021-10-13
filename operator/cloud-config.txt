@@ -3,47 +3,47 @@ ssh_authorized_keys:
 ## Note: Replace with your own public key
   - ssh-rsa ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKcZlvWQphbnVsau7V4Va1itaPvekkTxZGriJO1A9aGzKLrmX3vOsETz96fVS5OphP7PNbGVppjEUSeSqAeOjxJ84+Uko0GCDH2ypZncipF13DJnNgyv9V+WqfA7SHJHMBVxChmY5A/xzgDl94O6Sozb/wd5dzCqCpW0htx4DUcYluJWTsLMmmP2Xw9KeE9HvF8Z3niMjiCgkBzYA0LdldXrHXS8yJnIwIrGslDbpIZG7c7UJSWHhJzKX5v73VLk1qITFqkbYMVKJ3JYOXla5T5aR3brh8zn+i0f84C9vIveHq90vGASsyjzgpjpKpcN/g8K791DeRjHK47PUE2REp pedrosanders@Pedros-MBP
 
+write_files:
+  - path: /config
+    content: |
+      # Uncomment and replace with the IP of your Docker Host,
+      # unless you are running on a cloud environment like 
+      # DO or AWS.
+      #DOCKER_HOST_IP=192.168.1.149
+      
+      # Uncomment if you want automatic TLS support. You must also set the 
+      # environment variable DOMAIN 
+      #ENABLE_TLS=true
+
+      # This is required for TLS support. The DNS entry must point to
+      # the public IP of your Docker Host
+      #DOMAIN=api.yourdomain.com
+
+      # We recommend using a working email
+      #LETSENCRYPT_EMAIL=admin@yourdomain.com
+
+      FONOS_VERSION=0.1.27
+
+runcmd:
+  - |
+    export $(grep -v '^#' /config | xargs)
+    docker run -i --rm \
+      -e DOCKER_HOST_IP=$DOCKER_HOST_IP \
+      -e DOMAIN=$DOMAIN \
+      -e ENABLE_TLS=$ENABLE_TLS \
+      -e HTTP_PORT=$HTTP_PORT \
+      -e HTTPS_PORT=$HTTPS_PORT \
+      -e LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL \
+      -e GLOBAL_SIP_DOMAIN=$GLOBAL_SIP_DOMAIN \
+      -e CONFIG_PATH=$(pwd)/fonos/config \
+      --volume /var/run/docker.sock:/var/run/docker.sock \
+      --volume $(pwd)/fonos:/out:rw \
+      --entrypoint="/install.sh" \
+      fonoster/fonos:$FONOS_VERSION
+
 package_update: true
 
 packages:
- - curl
- - git
- - docker.io 
-
-runcmd:
- - curl -qL -o /usr/bin/netdiscover https://github.com/CyCoreSystems/netdiscover/releases/download/v1.2.5/netdiscover.linux.amd64
- - chmod +x /usr/bin/netdiscover
- - curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
- - chmod +x /usr/local/bin/docker-compose
- - docker volume create --name=datasource && docker volume create --name=data1-1
- - git clone https://github.com/fonoster/fonos --depth=1 -b main --single-branch
- - mkdir -p /opt/fonos/operator
- - cp -a fonos/operator/compose/* /opt/fonos/operator
- - cp fonos/operator/compose/env_example /opt/fonos/operator/.env
- - chmod +x /opt/fonos/operator/gen-secrets.sh
- - chmod +x /opt/fonos/operator/basic-network.sh
- - echo "" >> /opt/fonos/operator/.env
- - echo "PUBLIC_URL=http://$(netdiscover -field publicv4):50051" >> /opt/fonos/operator/.env 
- - echo "DOCKER_HOST_ADDRESS=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
- - echo "RTPE_HOST=$(netdiscover -field publicv4)" >> /opt/fonos/operator/.env
- - mkdir -p /opt/fonos/config
- - touch /opt/fonos/config/config
- - touch /opt/fonos/config/user_credentials
- - echo $(openssl rand -hex 16) > /opt/fonos/config/private_key
- - cp fonos/etc/rbac.json /opt/fonos/config
- - cp fonos/etc/log4j2.yml /opt/fonos/config
- - cp fonos/etc/bootstrap.yml /opt/fonos/config
- - cp fonos/etc/redis.conf /opt/fonos/config
- - rm -rf fonos
- - cd /opt/fonos/operator
- - ./gen-secrets.sh
- - DS_SECRET=$(grep DS_SECRET .env | cut -d '=' -f2)
- - SIPPROXY_SECRET=$(grep SIPPROXY_SECRET .env | cut -d '=' -f2)
- - sed -i.bak -e "s#requirepass .*#requirepass ${DS_SECRET}#g" "./../config/redis.conf"
- - sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/bootstrap.yml"
- - docker-compose -f init.yml up service_creds user_creds
- - ./basic-network.sh start
- - sleep 90
- - docker-compose -f init.yml up create_buckets bootstrap_sipnet
+  - docker.io
 
 final_message: "Cloud init is done!"
