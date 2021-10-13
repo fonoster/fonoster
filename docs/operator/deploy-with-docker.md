@@ -1,6 +1,6 @@
 # Deploy with Docker
 
-Fonos backend server is designed to run in a container environment. Running your server is as easy as running one command from your terminal. The easiest way to start running your Fonos server is our docker-in-docker (dind) installer. Before running the installation command, make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed on your machine:
+The easiest way to start running your Fonos server is with our docker-in-docker (dind) installer. Before running the installation command, make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed on your machine:
 
 ## Unix
 
