@@ -33,7 +33,7 @@ docker run -it --rm ,
   -e CONFIG_PATH=${pwd}/fonos/config ,
   --volume /var/run/docker.sock:/var/run/docker.sock ,
   --volume ${pwd}/fonos:/out:rw ,
-  --entrypoint="install" ,
+  --entrypoint="/install.sh" ,
     fonoster/fonos:0.1.27
 ```
 
