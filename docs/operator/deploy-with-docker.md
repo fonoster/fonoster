@@ -17,7 +17,7 @@ docker run -it --rm \
 
 **CMD**
 
-```bash
+```cmd
 docker run -it --rm ^
   -e CONFIG_PATH="%cd%"/fonos/config ^
   --volume //var/run/docker.sock:/var/run/docker.sock ^
@@ -28,7 +28,7 @@ docker run -it --rm ^
 
 **PowerShell**
 
-```bash
+```powershell
 docker run -it --rm ,
   -e CONFIG_PATH=${pwd}/fonos/config ,
   --volume /var/run/docker.sock:/var/run/docker.sock ,
