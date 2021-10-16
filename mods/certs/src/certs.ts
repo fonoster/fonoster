@@ -6,7 +6,7 @@ import {homedir} from "os";
 import btoa from "btoa";
 
 const BASE_DIR = join(homedir(), ".fonos");
-const PATH_TO_SALT = join(BASE_DIR, "jwt.salt");
+const PATH_TO_SALT = join(BASE_DIR, "private_key");
 const PATH_TO_CONFIG = join(BASE_DIR, "config");
 const ACCESS_KEY_ID = process.env.ACCESS_KEY_ID || "fonos";
 const AUTH_ISS = process.env.AUTH_ISS || "fonos";

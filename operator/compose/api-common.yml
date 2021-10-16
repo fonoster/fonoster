@@ -43,7 +43,7 @@ services:
       fonos:
     volumes:
       - ${CONFIG}/config:/home/fonos/.fonos/config:ro
-      - ${CONFIG}/private_key:/home/fonos/.fonos/jwt.salt:ro
+      - ${CONFIG}/private_key:/home/fonos/.fonos/private_key:ro
       - ${CONFIG}/service_envs.json:/home/fonos/service_envs.json:ro
     logging:
       options:
