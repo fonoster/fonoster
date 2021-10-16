@@ -2,11 +2,14 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {missingRequire} reports error on implicit type usages.
  * @suppress {messageConventions} JS Compiler reports an error if a variable or
  *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
+/* eslint-disable */
+// @ts-nocheck
 
 var jspb = require('google-protobuf');
 var goog = jspb;
@@ -477,8 +480,10 @@ proto.grpc.gateway.protoc_gen_openapiv2.options.Swagger.deserializeBinaryFromRea
       msg.setBasePath(value);
       break;
     case 5:
-      var value = /** @type {!Array<!proto.grpc.gateway.protoc_gen_openapiv2.options.Scheme>} */ (reader.readPackedEnum());
-      msg.setSchemesList(value);
+      var values = /** @type {!Array<!proto.grpc.gateway.protoc_gen_openapiv2.options.Scheme>} */ (reader.isDelimited() ? reader.readPackedEnum() : [reader.readEnum()]);
+      for (var i = 0; i < values.length; i++) {
+        msg.addSchemes(values[i]);
+      }
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
@@ -1111,8 +1116,10 @@ proto.grpc.gateway.protoc_gen_openapiv2.options.Operation.deserializeBinaryFromR
          });
       break;
     case 10:
-      var value = /** @type {!Array<!proto.grpc.gateway.protoc_gen_openapiv2.options.Scheme>} */ (reader.readPackedEnum());
-      msg.setSchemesList(value);
+      var values = /** @type {!Array<!proto.grpc.gateway.protoc_gen_openapiv2.options.Scheme>} */ (reader.isDelimited() ? reader.readPackedEnum() : [reader.readEnum()]);
+      for (var i = 0; i < values.length; i++) {
+        msg.addSchemes(values[i]);
+      }
       break;
     case 11:
       var value = /** @type {boolean} */ (reader.readBool());
@@ -3451,8 +3458,10 @@ proto.grpc.gateway.protoc_gen_openapiv2.options.JSONSchema.deserializeBinaryFrom
       msg.addArray(value);
       break;
     case 35:
-      var value = /** @type {!Array<!proto.grpc.gateway.protoc_gen_openapiv2.options.JSONSchema.JSONSchemaSimpleTypes>} */ (reader.readPackedEnum());
-      msg.setTypeList(value);
+      var values = /** @type {!Array<!proto.grpc.gateway.protoc_gen_openapiv2.options.JSONSchema.JSONSchemaSimpleTypes>} */ (reader.isDelimited() ? reader.readPackedEnum() : [reader.readEnum()]);
+      for (var i = 0; i < values.length; i++) {
+        msg.addType(values[i]);
+      }
       break;
     case 36:
       var value = /** @type {string} */ (reader.readString());

@@ -7,59 +7,7 @@
 import * as jspb from "google-protobuf";
 import * as protoc_gen_openapiv2_options_annotations_pb from "./protoc-gen-openapiv2/options/annotations_pb";
 import * as google_api_field_behavior_pb from "./google/api/field_behavior_pb";
-import * as projects_pb from "./projects_pb";
 import * as common_pb from "./common_pb";
-
-export class ListUsersRequest extends jspb.Message { 
-    getPageSize(): number;
-    setPageSize(value: number): ListUsersRequest;
-    getPageToken(): string;
-    setPageToken(value: string): ListUsersRequest;
-    getView(): common_pb.View;
-    setView(value: common_pb.View): ListUsersRequest;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): ListUsersRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: ListUsersRequest): ListUsersRequest.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: ListUsersRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): ListUsersRequest;
-    static deserializeBinaryFromReader(message: ListUsersRequest, reader: jspb.BinaryReader): ListUsersRequest;
-}
-
-export namespace ListUsersRequest {
-    export type AsObject = {
-        pageSize: number,
-        pageToken: string,
-        view: common_pb.View,
-    }
-}
-
-export class ListUsersResponse extends jspb.Message { 
-    clearUsersList(): void;
-    getUsersList(): Array<User>;
-    setUsersList(value: Array<User>): ListUsersResponse;
-    addUsers(value?: User, index?: number): User;
-    getNextPageToken(): string;
-    setNextPageToken(value: string): ListUsersResponse;
-
-    serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): ListUsersResponse.AsObject;
-    static toObject(includeInstance: boolean, msg: ListUsersResponse): ListUsersResponse.AsObject;
-    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: ListUsersResponse, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): ListUsersResponse;
-    static deserializeBinaryFromReader(message: ListUsersResponse, reader: jspb.BinaryReader): ListUsersResponse;
-}
-
-export namespace ListUsersResponse {
-    export type AsObject = {
-        usersList: Array<User.AsObject>,
-        nextPageToken: string,
-    }
-}
 
 export class CreateUserRequest extends jspb.Message { 
     getEmail(): string;
@@ -91,8 +39,6 @@ export namespace CreateUserRequest {
 }
 
 export class UpdateUserRequest extends jspb.Message { 
-    getEmail(): string;
-    setEmail(value: string): UpdateUserRequest;
     getName(): string;
     setName(value: string): UpdateUserRequest;
     getSecret(): string;
@@ -112,7 +58,6 @@ export class UpdateUserRequest extends jspb.Message {
 
 export namespace UpdateUserRequest {
     export type AsObject = {
-        email: string,
         name: string,
         secret: string,
         avatar: string,
@@ -120,8 +65,8 @@ export namespace UpdateUserRequest {
 }
 
 export class GetUserRequest extends jspb.Message { 
-    getEmail(): string;
-    setEmail(value: string): GetUserRequest;
+    getRef(): string;
+    setRef(value: string): GetUserRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GetUserRequest.AsObject;
@@ -135,13 +80,13 @@ export class GetUserRequest extends jspb.Message {
 
 export namespace GetUserRequest {
     export type AsObject = {
-        email: string,
+        ref: string,
     }
 }
 
 export class DeleteUserRequest extends jspb.Message { 
-    getEmail(): string;
-    setEmail(value: string): DeleteUserRequest;
+    getRef(): string;
+    setRef(value: string): DeleteUserRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): DeleteUserRequest.AsObject;
@@ -155,11 +100,15 @@ export class DeleteUserRequest extends jspb.Message {
 
 export namespace DeleteUserRequest {
     export type AsObject = {
-        email: string,
+        ref: string,
     }
 }
 
 export class User extends jspb.Message { 
+    getRef(): string;
+    setRef(value: string): User;
+    getAccesskeyid(): string;
+    setAccesskeyid(value: string): User;
     getEmail(): string;
     setEmail(value: string): User;
     getName(): string;
@@ -168,10 +117,6 @@ export class User extends jspb.Message {
     setSecret(value: string): User;
     getAvatar(): string;
     setAvatar(value: string): User;
-    clearProjectsList(): void;
-    getProjectsList(): Array<projects_pb.Project>;
-    setProjectsList(value: Array<projects_pb.Project>): User;
-    addProjects(value?: projects_pb.Project, index?: number): projects_pb.Project;
     getCreateTime(): string;
     setCreateTime(value: string): User;
     getUpdateTime(): string;
@@ -189,11 +134,12 @@ export class User extends jspb.Message {
 
 export namespace User {
     export type AsObject = {
+        ref: string,
+        accesskeyid: string,
         email: string,
         name: string,
         secret: string,
         avatar: string,
-        projectsList: Array<projects_pb.Project.AsObject>,
         createTime: string,
         updateTime: string,
     }

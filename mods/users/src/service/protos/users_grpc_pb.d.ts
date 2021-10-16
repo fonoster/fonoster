@@ -5,10 +5,10 @@
 /* eslint-disable */
 
 import * as grpc from "@grpc/grpc-js";
+import {handleClientStreamingCall} from "@grpc/grpc-js/build/src/server-call";
 import * as users_pb from "./users_pb";
 import * as protoc_gen_openapiv2_options_annotations_pb from "./protoc-gen-openapiv2/options/annotations_pb";
 import * as google_api_field_behavior_pb from "./google/api/field_behavior_pb";
-import * as projects_pb from "./projects_pb";
 import * as common_pb from "./common_pb";
 
 interface IUsersService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
