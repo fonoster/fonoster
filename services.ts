@@ -1,4 +1,22 @@
 #!/usr/bin/env node
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import dotenv from "dotenv";
 import {join} from "path";
 
@@ -6,6 +24,7 @@ if (process.env.NODE_ENV === "dev") {
   dotenv.config({path: join(__dirname, ".env")});
 }
 
+import UsersServer from "./mods/users/src/service/users";
 import AuthServer from "./mods/auth/src/service/auth";
 import FuncsServer from "./mods/funcs/src/service/funcs";
 import AgentsServer from "./mods/agents/src/service/agents";
@@ -15,6 +34,7 @@ import NumbersServer from "./mods/numbers/src/service/numbers";
 import ProvidersServer from "./mods/providers/src/service/providers";
 import CallManagerServer from "./mods/callmanager/src/service/callmanager";
 import StorageServer from "./mods/storage/src/service/storage";
+import {UsersService} from "./mods/users/src/service/protos/users_grpc_pb";
 import {AuthService} from "./mods/auth/src/service/protos/auth_grpc_pb";
 import {FuncsService} from "./mods/funcs/src/service/protos/funcs_grpc_pb";
 import {AgentsService} from "./mods/agents/src/service/protos/agents_grpc_pb";
@@ -29,6 +49,12 @@ import AuthMiddleware from "./mods/auth/src/auth_middleware";
 import {getSalt} from "./mods/certs/src/certs";
 
 const services = [
+  {
+    name: "users",
+    version: "v1beta1",
+    service: UsersService,
+    server: new UsersServer()
+  },
   {
     name: "auth",
     version: "v1beta1",

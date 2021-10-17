@@ -3,6 +3,10 @@
     "name": "USER",
     "description": "Regular access",
     "access": [
+      "/fonos.users.v1beta1.Users/CreateUser",
+      "/fonos.users.v1beta1.Users/GetUser",
+      "/fonos.users.v1beta1.Users/UpdateUser",
+      "/fonos.users.v1beta1.Users/DeleteUser",
       "/fonos.auth.v1beta1.Auth/GetRole",
       "/fonos.storage.v1beta1.Storage/UploadObject",
       "/fonos.storage.v1beta1.Storage/GetObjectURL",
