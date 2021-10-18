@@ -18,17 +18,16 @@
  */
 import {User} from "./protos/users_pb";
 
-export default (raw: string): User => {
-  console.log("raw -> " + raw);
-  const userJSON = JSON.parse(raw);
-  const user = new User();
-  user.setRef(userJSON.ref);
-  user.setAccessKeyId(userJSON.accessKeyId);
-  user.setEmail(userJSON.email);
-  user.setName(userJSON.name);
-  user.setAvatar(userJSON.avatar);
-  user.setCreateTime(userJSON.createTime);
-  user.setUpdateTime(userJSON.updateTime);
-  // user.setSecret(userJSON.secret);
-  return user;
+export default (user: User): string => {
+  const userJSON = {
+    ref: user.getRef(),
+    accessKeyId: user.getAccessKeyId(),
+    email: user.getEmail(),
+    name: user.getName(),
+    secret: user.getSecret(),
+    avatar: user.getAvatar(),
+    createTime: user.getCreateTime(),
+    updateTime: user.getUpdateTime()
+  };
+  return JSON.stringify(userJSON);
 };

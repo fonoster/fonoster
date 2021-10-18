@@ -39,6 +39,24 @@ service Users {
   rpc DeleteUser (DeleteUserRequest) returns (fonos.common.v1beta1.Empty) {
     option (google.api.http) = { delete: "/v1beta1/users/{ref}" };
   };
+  // Creates
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = { 
+      get: "/v1beta1/users/{ref}/authentication"
+      body: "*"
+    };
+  };
+}
+
+message LoginRequest {
+  string email = 1; 
+  string secret = 2;
+  string expiration = 3;
+}
+
+message LoginResponse {
+  string access_key_id = 1;
+  string access_key_secret = 2;
 }
 
 message CreateUserRequest {
@@ -71,10 +89,10 @@ message DeleteUserRequest {
 
 message User {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"407f1679010c19729de860rp\", \"accessKeyId\": \"407f1679010c19729de860rp\", \"email\": \"john.doe@acme.com\", \"name\": \"John Doe\", \"secret\": \"$U@tl0125\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+    example: "{\"ref\": \"407f1679010c19729de860rp\", \"accessKeyId\": \"407f1679010c19729de860rp\", \"email\": \"john.doe@acme.com\", \"name\": \"John Doe\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
   };
   string ref = 1 [(google.api.field_behavior) = REQUIRED];
-  string accessKeyId = 2 [(google.api.field_behavior) = REQUIRED];
+  string access_key_id = 2 [(google.api.field_behavior) = REQUIRED];
   string email = 3 [(google.api.field_behavior) = REQUIRED];
   string name = 4 [(google.api.field_behavior) = REQUIRED];
   string secret = 5 [(google.api.field_behavior) = REQUIRED];

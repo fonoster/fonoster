@@ -23,7 +23,9 @@ import {
   CreateUserRequest,
   UpdateUserRequest,
   GetUserRequest,
-  DeleteUserRequest
+  DeleteUserRequest,
+  LoginRequest,
+  LoginResponse
 } from "./protos/users_pb";
 import UserPB from "./protos/users_pb";
 import {Empty} from "./protos/common_pb";
@@ -32,16 +34,60 @@ import {
   UsersService,
   IUsersServer
 } from "./protos/users_grpc_pb";
+import {assertNotEmpty, assertValidEmail, assertValidURL} from "./assertions";
+import {getRedisConnection, getAccessKeyId} from "@fonos/core";
+import objectid from "objectid";
+import encoder from "./encoder";
+import decoder from "./decoder";
+import {FonosError} from "@fonos/errors";
+import {ALREADY_EXISTS, PERMISSION_DENIED} from "@fonos/errors/src/codes";
+import Auth from "@fonos/auth/dist/utils/auth_utils";
+import JWT from "@fonos/auth/src/utils/jwt";
+import {AUTH_ISS, getSalt} from "@fonos/certs";
+import logger from "@fonos/logger";
+import bcrypt from "bcrypt";
+
+const authenticator = new Auth(new JWT());
+const redis = getRedisConnection();
 
 class UsersServer implements IUsersServer {
   [name: string]: grpc.UntypedHandleCall;
+
   async createUser(
     call: grpc.ServerUnaryCall<CreateUserRequest, UserPB.User>,
     callback: grpc.sendUnaryData<UserPB.User>
   ) {
     try {
-      console.log("req: " + JSON.stringify(call.request));
-      callback(null, null);
+      assertNotEmpty("name", call.request.getName());
+      assertNotEmpty("secret", call.request.getSecret());
+      assertValidEmail(call.request.getEmail());
+      assertValidURL(call.request.getAvatar());
+
+      const emailExist = await redis.get(call.request.getEmail());
+
+      if (emailExist) {
+        throw new FonosError("user already exist", ALREADY_EXISTS);
+      }
+
+      const ref = objectid() + "";
+      const user = new UserPB.User();
+
+      user.setRef(ref);
+      user.setAccessKeyId(ref);
+      user.setName(call.request.getName());
+      user.setEmail(call.request.getEmail());
+      user.setAvatar(call.request.getAvatar());
+      user.setUpdateTime(new Date().toISOString());
+      user.setCreateTime(new Date().toISOString());
+
+      const hash = await bcrypt.hash(call.request.getSecret(), 10);
+      user.setSecret(hash);
+
+      redis.set(ref, encoder(user));
+      redis.set(call.request.getEmail(), ref);
+
+      user.setSecret(null);
+      callback(null, user);
     } catch (e) {
       callback(e, null);
     }
@@ -51,8 +97,25 @@ class UsersServer implements IUsersServer {
     call: grpc.ServerUnaryCall<UpdateUserRequest, UserPB.User>,
     callback: grpc.sendUnaryData<UserPB.User>
   ) {
-    // Update user
-    callback(null, null);
+    try {
+      const ref = getAccessKeyId(call);
+      const raw = (await redis.get(ref)).toString();
+      const user = decoder(raw);
+
+      if (call.request.getName()) user.setName(call.request.getName());
+      if (call.request.getSecret()) user.setSecret(call.request.getSecret());
+      if (call.request.getAvatar()) {
+        assertValidURL(call.request.getAvatar());
+        user.setAvatar(call.request.getAvatar());
+      }
+
+      user.setUpdateTime(new Date().toISOString());
+      redis.set(ref, encoder(user));
+      user.setSecret(null);
+      callback(null, user);
+    } catch (e) {
+      callback(e, null);
+    }
   }
 
   async getUser(
@@ -60,8 +123,16 @@ class UsersServer implements IUsersServer {
     callback: grpc.sendUnaryData<UserPB.User>
   ) {
     try {
+      const accessKeyId = getAccessKeyId(call);
+
+      if (accessKeyId !== call.request.getRef()) {
+        throw new FonosError("permission denied", PERMISSION_DENIED);
+      }
+
       // Get result here
-      callback(null, null);
+      const raw = (await redis.get(call.request.getRef())).toString();
+      const user = decoder(raw);
+      callback(null, user);
     } catch (e) {
       callback(e, null);
     }
@@ -72,8 +143,51 @@ class UsersServer implements IUsersServer {
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      // Delete here
+      const raw = (await redis.get(call.request.getRef())).toString();
+      const user = decoder(raw);
+      await redis.del(user.getRef());
+      await redis.del(user.getEmail());
+      // TODO: Also unlink all of the User's projects
       callback(null, new Empty());
+    } catch (e) {
+      callback(e, null);
+    }
+  }
+
+  async login(
+    call: grpc.ServerUnaryCall<LoginRequest, LoginResponse>,
+    callback: grpc.sendUnaryData<LoginResponse>
+  ) {
+    try {
+      logger.verbose(
+        `@fonos/auth creating token [email is ${call.request.getEmail()}]`
+      );
+      const ref = await redis.get(call.request.getEmail());
+
+      // Compare the value send with the value stored
+      if (!ref) {
+        throw new FonosError("invalid credentials", PERMISSION_DENIED);
+      }
+
+      const raw = (await redis.get(ref)).toString();
+      const user = JSON.parse(raw);
+
+      if (!bcrypt.compareSync(call.request.getSecret(), user.secret)) {
+        throw new FonosError("invalid credentials", PERMISSION_DENIED);
+      }
+
+      const result = await authenticator.createToken(
+        user.accessKeyId,
+        AUTH_ISS,
+        "USER",
+        getSalt(),
+        call.request.getExpiration() || "30d"
+      );
+
+      const response = new LoginResponse();
+      response.setAccessKeyId(user.accessKeyId);
+      response.setAccessKeySecret(result.accessToken);
+      callback(null, response);
     } catch (e) {
       callback(e, null);
     }

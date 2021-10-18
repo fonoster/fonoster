@@ -53,7 +53,7 @@ class AuthServer implements IAuthServer {
     call: grpc.ServerUnaryCall<CreateTokenRequest, CreateTokenResponse>,
     callback: grpc.sendUnaryData<CreateTokenResponse>
   ) {
-    // WARNING: We need to validate the token and verify
+    // TODO: We need to validate the token and verify
     // it has permissions to create token since the auth module
     // doesnt pass thru the auth middleware.
     logger.verbose(
@@ -75,7 +75,7 @@ class AuthServer implements IAuthServer {
     call: grpc.ServerUnaryCall<CreateTokenRequest, CreateTokenResponse>,
     callback: grpc.sendUnaryData<CreateTokenResponse>
   ) {
-    // WARNING: We need to validate the token and verify
+    // TODO: We need to validate the token and verify
     // it has permissions to create token since the auth module
     // doesnt pass thru the auth middleware.
     logger.verbose(
@@ -84,7 +84,6 @@ class AuthServer implements IAuthServer {
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
       AUTH_ISS,
-      // WARNING: Harcoded value
       "NO_ACCESS",
       getSalt(),
       "1d"

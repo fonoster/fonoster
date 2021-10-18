@@ -4,13 +4,10 @@ import {
   ResourceBuilder,
   Kind,
   routr,
-  getAccessKeyId,
-  getRedisConnection
+  getAccessKeyId
 } from "@fonos/core";
 import numberDecoder from "./decoder";
 import {assertHasAorLinkOrIngressInfo, assertIsE164} from "../utils/assertions";
-
-const redis = getRedisConnection();
 
 export default async function createNumber(
   number: NumbersPB.Number,
@@ -29,7 +26,6 @@ export default async function createNumber(
       number.getAorLink()
     );
   } else {
-    // TODO: Perhaps I should place this in a ENV
     encoder = encoder
       .withLocation(`tel:${number.getE164Number()}`, process.env.MS_ENDPOINT)
       .withMetadata({

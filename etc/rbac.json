@@ -1,13 +1,23 @@
 [
   {
     "name": "USER",
-    "description": "Regular access",
+    "description": "Access to User and Project endpoints",
     "access": [
-      "/fonos.users.v1beta1.Users/CreateUser",
       "/fonos.users.v1beta1.Users/GetUser",
       "/fonos.users.v1beta1.Users/UpdateUser",
-      "/fonos.users.v1beta1.Users/DeleteUser",
-      "/fonos.auth.v1beta1.Auth/GetRole",
+      "/fonos.users.v1beta1.Users/Login",
+      "/fonos.projects.v1beta1.Projects/ListProjects",
+      "/fonos.projects.v1beta1.Projects/CreateProject",
+      "/fonos.projects.v1beta1.Projects/UpdateProject",
+      "/fonos.projects.v1beta1.Projects/GetProject",
+      "/fonos.projects.v1beta1.Projects/DeleteProject",
+      "/fonos.projects.v1beta1.Projects/RenewAccessKeySecret"
+    ]
+  },  
+  {
+    "name": "PROJECT",
+    "description": "Access to Project resources",
+    "access": [
       "/fonos.storage.v1beta1.Storage/UploadObject",
       "/fonos.storage.v1beta1.Storage/GetObjectURL",
       "/fonos.providers.v1beta1.Providers/ListProviders",
@@ -44,8 +54,7 @@
       "/fonos.funcs.v1beta1.Funcs/GetFuncLogs",
       "/fonos.secrets.v1beta1.Secrets/CreateSecret",
       "/fonos.secrets.v1beta1.Secrets/ListSecretsId",
-      "/fonos.secrets.v1beta1.Secrets/DeleteSecret",
-      "/fonos.auth.v1beta1.Auth/ValidateToken"
+      "/fonos.secrets.v1beta1.Secrets/DeleteSecret"
     ]
   },
   {
@@ -75,6 +84,10 @@
   {
     "name": "ADMIN",
     "description": "Can perform administrative task",
-    "access": ["/fonos.auth.v1beta1.Auth/CreateToken"]
+    "access": [
+      "/fonos.auth.v1beta1.Auth/CreateToken",
+      "/fonos.users.v1beta1.Users/CreateUser",
+      "/fonos.users.v1beta1.Users/DeleteUser"
+    ]
   }
 ]

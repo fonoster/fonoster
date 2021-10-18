@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.users.v1beta1;
+package fonos.projects.v1beta1;
 
 option go_package = "github.com/fonoster/fonos/mods/users/fonos/services/protos/users";
 
@@ -45,7 +45,7 @@ service Projects {
   };
   // Replace the old key
   rpc RenewAccessKeySecret (RenewAccessKeySecretRequest) returns (RenewAccessKeySecretResponse) {
-    option (google.api.http) = { put: "/v1beta1/projects/{ref}" };
+    option (google.api.http) = { get: "/v1beta1/projects/{ref}" };
   };
 }
 

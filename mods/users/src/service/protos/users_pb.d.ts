@@ -9,6 +9,55 @@ import * as protoc_gen_openapiv2_options_annotations_pb from "./protoc-gen-opena
 import * as google_api_field_behavior_pb from "./google/api/field_behavior_pb";
 import * as common_pb from "./common_pb";
 
+export class LoginRequest extends jspb.Message { 
+    getEmail(): string;
+    setEmail(value: string): LoginRequest;
+    getSecret(): string;
+    setSecret(value: string): LoginRequest;
+    getExpiration(): string;
+    setExpiration(value: string): LoginRequest;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): LoginRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: LoginRequest): LoginRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: LoginRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): LoginRequest;
+    static deserializeBinaryFromReader(message: LoginRequest, reader: jspb.BinaryReader): LoginRequest;
+}
+
+export namespace LoginRequest {
+    export type AsObject = {
+        email: string,
+        secret: string,
+        expiration: string,
+    }
+}
+
+export class LoginResponse extends jspb.Message { 
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): LoginResponse;
+    getAccessKeySecret(): string;
+    setAccessKeySecret(value: string): LoginResponse;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): LoginResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: LoginResponse): LoginResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: LoginResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): LoginResponse;
+    static deserializeBinaryFromReader(message: LoginResponse, reader: jspb.BinaryReader): LoginResponse;
+}
+
+export namespace LoginResponse {
+    export type AsObject = {
+        accessKeyId: string,
+        accessKeySecret: string,
+    }
+}
+
 export class CreateUserRequest extends jspb.Message { 
     getEmail(): string;
     setEmail(value: string): CreateUserRequest;
@@ -107,8 +156,8 @@ export namespace DeleteUserRequest {
 export class User extends jspb.Message { 
     getRef(): string;
     setRef(value: string): User;
-    getAccesskeyid(): string;
-    setAccesskeyid(value: string): User;
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): User;
     getEmail(): string;
     setEmail(value: string): User;
     getName(): string;
@@ -135,7 +184,7 @@ export class User extends jspb.Message {
 export namespace User {
     export type AsObject = {
         ref: string,
-        accesskeyid: string,
+        accessKeyId: string,
         email: string,
         name: string,
         secret: string,
