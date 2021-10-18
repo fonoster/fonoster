@@ -94,7 +94,7 @@ getRole: {
     responseSerialize: serialize_fonos_auth_v1beta1_Role,
     responseDeserialize: deserialize_fonos_auth_v1beta1_Role,
   },
-  // Verifies if a token was issue by Fonos or the same private key
+  // Verifies if a token was issue by Fonos
 validateToken: {
     path: '/fonos.auth.v1beta1.Auth/ValidateToken',
     requestStream: false,

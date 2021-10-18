@@ -5,6 +5,7 @@
 /* eslint-disable */
 
 import * as grpc from "@grpc/grpc-js";
+import {handleClientStreamingCall} from "@grpc/grpc-js/build/src/server-call";
 import * as storage_pb from "./storage_pb";
 
 interface IStorageService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
@@ -34,7 +35,7 @@ interface IStorageService_IGetObjectURL extends grpc.MethodDefinition<storage_pb
 export const StorageService: IStorageService;
 
 export interface IStorageServer extends grpc.UntypedServiceImplementation {
-    uploadObject: grpc.handleClientStreamingCall<storage_pb.UploadObjectRequest, storage_pb.UploadObjectResponse>;
+    uploadObject: handleClientStreamingCall<storage_pb.UploadObjectRequest, storage_pb.UploadObjectResponse>;
     getObjectURL: grpc.handleUnaryCall<storage_pb.GetObjectURLRequest, storage_pb.GetObjectURLResponse>;
 }
 

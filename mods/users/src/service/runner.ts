@@ -17,3 +17,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import UsersServer from "./users";
+import {UsersService} from "./protos/users_grpc_pb";
+import {AuthMiddleware} from "@fonos/auth";
+import {getSalt} from "@fonos/certs";
+import {runServices} from "@fonos/common";
+
+const services = [
+  {
+    name: "users",
+    version: "v1beta1",
+    service: UsersService,
+    server: new UsersServer()
+  }
+];
+
+const middleware = {
+  name: "authentication",
+  middlewareObj: new AuthMiddleware(getSalt()).middleware
+};
+
+runServices(services, [middleware]);

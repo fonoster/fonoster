@@ -52,9 +52,10 @@ export const transfer = async (
 
   // Which Domain has this number assigned to for outbound
   const domain = await getDomainByNumber(number);
-  const domainUri = domain.spec.context.domainUri;
 
-  if (!domain) {
+  const domainUri = "anonymous.fonoster.io";
+
+  /* if (!domain) {
     ws.send(
       JSON.stringify({
         type: "CallTransferFailed",
@@ -63,7 +64,9 @@ export const transfer = async (
       })
     );
     return;
-  }
+  }*/
+
+  // const domainUri = domain.spec.context.domainUri;
 
   logger.verbose(
     `@fonos/dispatcher dialing [endpoint = sip:${destination}@${domainUri}]`
@@ -75,8 +78,6 @@ export const transfer = async (
 
   const dialed = ari.Channel();
 
-  // TODO: Get the domain from the number
-  // WARNING: Harcoded values
   await dialed.originate({
     app: "mediacontroller",
     endpoint: `PJSIP/routr/sip:${destination}@${domainUri}`,
@@ -86,6 +87,39 @@ export const transfer = async (
   dialed.on("StasisStart", async (event: any, channel: any) => {
     try {
       await bridge.addChannel({channel: [sessionId, dialed.id]});
+
+      ari.channels
+        .snoopChannel({
+          app: "mediacontroller",
+          channelId: sessionId,
+          spy: "in"
+        })
+        .then(async (channel) => {
+          await ari.channels.record({
+            channelId: channel.id,
+            format: "wav",
+            name: "test001_in",
+            ifExists: "overwrite"
+          });
+        })
+        .catch(logger.error);
+
+      ari.channels
+        .snoopChannel({
+          app: "mediacontroller",
+          channelId: dialed.id,
+          spy: "in"
+        })
+        .then(async (channel) => {
+          await ari.channels.record({
+            channelId: channel.id,
+            format: "wav",
+            name: "test001_out",
+            ifExists: "overwrite"
+          });
+        })
+        .catch(logger.error);
+
       if (record) {
         // The name of the recordings is allways set to the sessionId
         // We can later use this to map a CDR to a particular recording

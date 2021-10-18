@@ -20,14 +20,14 @@ service Auth {
   rpc GetRole (GetRoleRequest) returns (Role) {
     option (google.api.http) = { get: "/v1beta1/auth/role/{name}" };
   };
-  // Verifies if a token was issue by Fonos or the same private key
+  // Verifies if a token was issue by Fonos
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse) {
     option (google.api.http) = { get: "/v1beta1/auth/token/{token}" };
   }
   // Creates a new token for a given accessKeyId
   rpc CreateToken (CreateTokenRequest) returns (CreateTokenResponse) {
     option (google.api.http) = { 
-      put: "/v1beta1/auth/token"
+      get: "/v1beta1/auth/token"
       body: "*" 
     };
   }

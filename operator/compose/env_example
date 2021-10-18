@@ -63,7 +63,7 @@ CONFIG=/opt/fonos/config
 #LETSENCRYPT_EMAIL=alice@acme.com
 
 # Whitelisted services (comma separated)
-AUTH_ACCESS_WHITELIST=/fonos.auth.v1beta1.Auth/GetRole
+AUTH_ACCESS_WHITELIST=/fonos.auth.v1beta1.Auth/GetRole,/fonos.users.v1beta1.Users/CreateUser,/fonos.users.v1beta1.Users/Login
 
 # Issuer for JWT claims
 AUTH_ISS=fonos

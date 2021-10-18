@@ -16,3 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {User} from "./protos/users_pb";
+
+export default (raw: string): User => {
+  const userJSON = JSON.parse(raw);
+  const user = new User();
+  user.setRef(userJSON.ref);
+  user.setAccessKeyId(userJSON.accessKeyId);
+  user.setEmail(userJSON.email);
+  user.setName(userJSON.name);
+  user.setAvatar(userJSON.avatar);
+  user.setCreateTime(userJSON.createTime);
+  user.setUpdateTime(userJSON.updateTime);
+  return user;
+};
