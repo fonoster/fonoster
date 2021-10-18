@@ -19,7 +19,6 @@
 import {User} from "./protos/users_pb";
 
 export default (raw: string): User => {
-  console.log("raw -> " + raw);
   const userJSON = JSON.parse(raw);
   const user = new User();
   user.setRef(userJSON.ref);
@@ -29,6 +28,5 @@ export default (raw: string): User => {
   user.setAvatar(userJSON.avatar);
   user.setCreateTime(userJSON.createTime);
   user.setUpdateTime(userJSON.updateTime);
-  // user.setSecret(userJSON.secret);
   return user;
 };

@@ -18,16 +18,16 @@
  */
 import {User} from "./protos/users_pb";
 
-export default (user: User): string => {
+export default (user: User, secretHash: string): string => {
   const userJSON = {
     ref: user.getRef(),
     accessKeyId: user.getAccessKeyId(),
     email: user.getEmail(),
     name: user.getName(),
-    secret: user.getSecret(),
     avatar: user.getAvatar(),
     createTime: user.getCreateTime(),
-    updateTime: user.getUpdateTime()
+    updateTime: user.getUpdateTime(),
+    secretHash
   };
   return JSON.stringify(userJSON);
 };

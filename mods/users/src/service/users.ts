@@ -40,7 +40,7 @@ import objectid from "objectid";
 import encoder from "./encoder";
 import decoder from "./decoder";
 import {FonosError} from "@fonos/errors";
-import {ALREADY_EXISTS, PERMISSION_DENIED} from "@fonos/errors/src/codes";
+import {ErrorCodes} from "@fonos/errors";
 import Auth from "@fonos/auth/dist/utils/auth_utils";
 import JWT from "@fonos/auth/src/utils/jwt";
 import {AUTH_ISS, getSalt} from "@fonos/certs";
@@ -66,7 +66,7 @@ class UsersServer implements IUsersServer {
       const emailExist = await redis.get(call.request.getEmail());
 
       if (emailExist) {
-        throw new FonosError("user already exist", ALREADY_EXISTS);
+        throw new FonosError("user already exist", ErrorCodes.ALREADY_EXISTS);
       }
 
       const ref = objectid() + "";
@@ -79,11 +79,10 @@ class UsersServer implements IUsersServer {
       user.setAvatar(call.request.getAvatar());
       user.setUpdateTime(new Date().toISOString());
       user.setCreateTime(new Date().toISOString());
+      // TODO: Apply strong cypher
+      const secretHash = await bcrypt.hash(call.request.getSecret(), 10);
 
-      const hash = await bcrypt.hash(call.request.getSecret(), 10);
-      user.setSecret(hash);
-
-      redis.set(ref, encoder(user));
+      redis.set(ref, encoder(user, secretHash));
       redis.set(call.request.getEmail(), ref);
 
       user.setSecret(null);
@@ -100,18 +99,20 @@ class UsersServer implements IUsersServer {
     try {
       const ref = getAccessKeyId(call);
       const raw = (await redis.get(ref)).toString();
+      let secretHash = JSON.parse(raw).secretHash;
       const user = decoder(raw);
 
       if (call.request.getName()) user.setName(call.request.getName());
-      if (call.request.getSecret()) user.setSecret(call.request.getSecret());
+      if (call.request.getSecret()) {
+        secretHash = await bcrypt.hash(call.request.getSecret(), 10);
+      }
       if (call.request.getAvatar()) {
         assertValidURL(call.request.getAvatar());
         user.setAvatar(call.request.getAvatar());
       }
 
       user.setUpdateTime(new Date().toISOString());
-      redis.set(ref, encoder(user));
-      user.setSecret(null);
+      redis.set(ref, encoder(user, secretHash));
       callback(null, user);
     } catch (e) {
       callback(e, null);
@@ -126,7 +127,7 @@ class UsersServer implements IUsersServer {
       const accessKeyId = getAccessKeyId(call);
 
       if (accessKeyId !== call.request.getRef()) {
-        throw new FonosError("permission denied", PERMISSION_DENIED);
+        throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
       }
 
       // Get result here
@@ -166,14 +167,20 @@ class UsersServer implements IUsersServer {
 
       // Compare the value send with the value stored
       if (!ref) {
-        throw new FonosError("invalid credentials", PERMISSION_DENIED);
+        throw new FonosError(
+          "invalid credentials",
+          ErrorCodes.PERMISSION_DENIED
+        );
       }
 
       const raw = (await redis.get(ref)).toString();
       const user = JSON.parse(raw);
 
       if (!bcrypt.compareSync(call.request.getSecret(), user.secret)) {
-        throw new FonosError("invalid credentials", PERMISSION_DENIED);
+        throw new FonosError(
+          "invalid credentials",
+          ErrorCodes.PERMISSION_DENIED
+        );
       }
 
       const result = await authenticator.createToken(
