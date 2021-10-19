@@ -38,7 +38,7 @@ export const dial = async (
   const {number, destination, timeout, record, sessionId} = event.userevent;
 
   logger.verbose(
-    `@fonos/dispatcher transfering call [request: ${JSON.stringify(
+    `@fonos/dispatcher dialing [request: ${JSON.stringify(
       event.userevent,
       null,
       " "
