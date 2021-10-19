@@ -33,6 +33,7 @@ import {channelTalkingHandler} from "./handlers/channel_talking";
 import WebSocket from "ws";
 import {sendDtmf} from "./handlers/send_dtmf";
 import {answer} from "./utils/answer_channel";
+import {dial} from "./handlers/dial";
 const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
@@ -92,7 +93,7 @@ export default function (err: any, ari: any) {
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number,
       selfEndpoint: webhook,
-      metadata: metadata
+      metadata: metadata || {}
     };
 
     logger.verbose(
@@ -107,7 +108,7 @@ export default function (err: any, ari: any) {
 
     ws.on("open", async () => {
       wsConnections.set(sessionId, ws);
-      await sendCallRequest(webhook, request);
+      sendCallRequest(webhook, request);
     });
 
     ws.on("error", async (e: Error) => {
@@ -115,7 +116,7 @@ export default function (err: any, ari: any) {
         `@fonos/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`
       );
       logger.silly(e);
-      await channel.hangup();
+      channel.hangup();
     });
 
     channel.on("ChannelTalkingStarted", async (event: any, channel: any) => {
@@ -138,7 +139,7 @@ export default function (err: any, ari: any) {
         await externalMediaHandler(wsClient, ari, event);
         break;
       case "StopExternalMedia":
-        destroyBridge(ari, event.userevent.sessionId);
+        await destroyBridge(ari, event.userevent.sessionId);
         break;
       case "UploadRecording":
         await uploadRecording(
@@ -154,6 +155,9 @@ export default function (err: any, ari: any) {
         break;
       case "Answer":
         await answer(wsClient, ari, event.userevent.sessionId);
+        break;
+      case "Dial":
+        await dial(wsClient, ari, event, event.userevent.accessKeyId);
         break;
       default:
         logger.error(
@@ -174,10 +178,9 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("RecordingFinished", (event: any) => {
-    recordFinishHandler(
-      wsConnections.get(event.recording.target_uri.split(":")[1]),
-      event
-    );
+    const conn = wsConnections.get(event.recording.name);
+    // Connection could be null if recording a dialed channel
+    conn && recordFinishHandler(conn, event);
   });
 
   ari.on("RecordingFailed", (event: any) => {
@@ -189,6 +192,7 @@ export default function (err: any, ari: any) {
 
   ari.on("StasisEnd", (event: any, channel: any) => {
     logger.verbose(`@fonos/dispatcher stasis end [sessionId = ${channel.id}]`);
+    wsConnections.delete(channel.id);
   });
 
   ari.start("mediacontroller");

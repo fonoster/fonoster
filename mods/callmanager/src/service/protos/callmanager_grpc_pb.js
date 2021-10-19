@@ -10,6 +10,8 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var callmanager_pb = require('./callmanager_pb.js');
+var protoc$gen$openapiv2_options_annotations_pb = require('./protoc-gen-openapiv2/options/annotations_pb.js');
+var google_api_annotations_pb = require('./google/api/annotations_pb.js');
 
 function serialize_fonos_callmanager_v1beta1_CallRequest(arg) {
   if (!(arg instanceof callmanager_pb.CallRequest)) {

@@ -1,0 +1,101 @@
+/**
+ * MIT License
+ * Copyright (c) 2021 Fonoster Inc
+ *
+ * The Users proto contains the artificats for the administration
+ * of Users.
+ */
+syntax = "proto3";
+
+package fonos.projects.v1beta1;
+
+option go_package = "github.com/fonoster/fonos/mods/users/fonos/services/protos/users";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "common.proto";
+
+service Projects {
+  // Lists all the Projects for a given User
+  rpc ListProjects (ListProjectsRequest) returns (ListProjectsResponse) {
+    option (google.api.http) = { get: "/v1beta1/projects" };
+  };  
+  // Creates a new Project resource
+  rpc CreateProject (CreateProjectRequest) returns (Project) {
+    option (google.api.http) = { 
+      post: "/v1beta1/projects"
+      body: "*"
+    };
+  };
+  // Updates a given Project
+  rpc UpdateProject (UpdateProjectRequest) returns (Project) {
+    option (google.api.http) = { 
+      post: "/v1beta1/projects/{ref}"
+      body: "*"
+    };
+  };
+  // Gets a Project by AccessKeyId
+  rpc GetProject (GetProjectRequest) returns (Project) {
+    option (google.api.http) = { get: "/v1beta1/projects/{ref}" };
+  };
+  // WARNING: Hard delete of a Project will remove all related resources 
+  rpc DeleteProject (DeleteProjectRequest) returns (fonos.common.v1beta1.Empty) {
+    option (google.api.http) = { delete: "/v1beta1/projects/{ref}" };
+  };
+  // Replace the old key
+  rpc RenewAccessKeySecret (RenewAccessKeySecretRequest) returns (RenewAccessKeySecretResponse) {
+    option (google.api.http) = { get: "/v1beta1/projects/{ref}" };
+  };
+}
+
+message ListProjectsRequest {
+}
+
+message ListProjectsResponse {
+  repeated Project projects = 1;
+}
+
+message CreateProjectRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"Acme Corp\"}"
+  };
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message UpdateProjectRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"Acme Corp 2\", \"allowExperiments\": true,}"
+  };
+  string name = 2;
+  bool allow_experiments = 3;
+}
+
+message GetProjectRequest {
+  string ref = 1;
+}
+
+message DeleteProjectRequest {
+  string ref = 1;
+}
+
+message RenewAccessKeySecretRequest {
+  string ref = 1;
+}
+
+message RenewAccessKeySecretResponse {
+  string accessKeySecret = 1;
+}
+
+message Project {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"507f191e810c19729de860ea\", \"name\": \"Acme Main\", \"accessKeyId\": \"507f191e810c19729de860ea\", \"accessKeySecret\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\", \"allowExperiments\": false, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+  };
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  string ref = 2 [(google.api.field_behavior) = REQUIRED];
+  string access_key_id = 3 [(google.api.field_behavior) = REQUIRED];
+  string access_key_secret = 4 [(google.api.field_behavior) = REQUIRED];
+  bool allow_experiments = 5;
+  string create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

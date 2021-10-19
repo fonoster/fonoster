@@ -21,6 +21,14 @@ import logger from "@fonos/logger";
 import {GoogleSpeechConfig} from "./types";
 const speech = require("@google-cloud/speech").v1p1beta1;
 
+// Sending a dummy package with a different size breaks the
+// Google Speech.
+//
+// WARNING: This is the package size comming from asterisk, but
+// keep in mind that length (640) might be different for other encoding
+// types.
+const emptyBuffer = Buffer.alloc(640, 0);
+
 export default class StreamRecognize {
   speechClient: any;
   request: {config: GoogleSpeechConfig; interimResults: boolean};
@@ -62,7 +70,7 @@ export default class StreamRecognize {
     this.newStream = true;
     this.bridgingOffset = 0;
     this.lastTranscriptWasFinal = false;
-    this.streamingLimit = 60000;
+    this.streamingLimit = 290000; // 4.8 minutes
 
     this.audioInputStreamTransform = new Transform({
       transform: (chunk, encoding, callback) => {
@@ -76,6 +84,13 @@ export default class StreamRecognize {
     this.socket = socket;
     // This connects the socket to the Stream Transform
     socket.pipe(this.audioInputStreamTransform);
+
+    // TODO: We should clear this interval once we finish using the class
+    setInterval(() => {
+      if (this.recognizeStream) {
+        this.recognizeStream.write(emptyBuffer);
+      }
+    }, 5000);
   }
 
   startStream() {
@@ -108,10 +123,11 @@ export default class StreamRecognize {
         if (err.code === 11) {
           // this.restartStream();
         } else {
-          logger.error(err);
-          clearTimeout(this.currentTimer);
-          this.stop();
-          this.speechClient.close();
+          // If we get any errors we restart the stream.
+          // This will tipically happen if no audio is sent for
+          // a period if 10 seconds.
+          this.restartStream();
+          logger.silly(err);
         }
       })
       .on("data", this.cb);
@@ -137,7 +153,10 @@ export default class StreamRecognize {
    * when we restart the stream.
    */
   transformer(chunk, encoding, callback) {
-    if (this.newStream && this.lastAudioInput.length !== 0) {
+    // WARNING: This synchronization logic is causing the class
+    // to send repeated streams inmediatly after restarting the
+    // recognition.
+    /*if (this.newStream && this.lastAudioInput.length !== 0) {
       // Approximate math to calculate time of chunks
       const chunkTime = this.streamingLimit / this.lastAudioInput.length;
       if (chunkTime !== 0) {
@@ -159,7 +178,7 @@ export default class StreamRecognize {
       }
       this.newStream = false;
     }
-    this.audioInput.push(chunk);
+    this.audioInput.push(chunk);*/
 
     if (this.recognizeStream) {
       this.recognizeStream.write(chunk);

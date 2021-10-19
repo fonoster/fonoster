@@ -8,7 +8,9 @@ syntax = "proto3";
 
 package fonos.common.v1beta1;
 
-message Error {}
+option go_package = "github.com/fonoster/fonos/gen/go/core/common/v1beta1";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 message Empty {}
 
@@ -17,3 +19,77 @@ enum View {
   STANDARD = 1;
   FULL = 2;
 }
+
+message Error {
+	option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+		example: "{\"status\": 404, \"message\": \"Not found\"}"
+	};
+
+	int32 status = 1;
+	string message = 2;
+}
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  base_path: "/api";
+	info: {
+		title: "Project Fonos";
+		version: "0.1";
+		contact: {
+		name: "Fonoster OSS";
+		url: "https://fonoster.com";
+		email: "psanders@fonoster.com";
+		};
+		license: {
+		name: "MIT License";
+		url: "https://raw.githubusercontent.com/fonoster/fonos/main/LICENSE";
+		};
+	};
+  // Overwriting host entry breaks tests, so this is not done here.
+  external_docs: {
+    url: "https://github.com/fonoster/fonos";
+    description: "Github Repo";
+  }
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  produces: "application/json";
+  security_definitions: {
+    security: {
+      key: "AccessKeyId";
+      value: {
+        type: TYPE_API_KEY;
+        in: IN_HEADER;
+        name: "access_key_id";
+      }
+    }
+    security: {
+      key: "AccessKeySecret";
+      value: {
+        type: TYPE_API_KEY;
+        in: IN_HEADER;
+        name: "access_key_secret";
+      }
+    }
+  }
+  security: {
+    security_requirement: {
+      key: "AccessKeyId";
+      value: {};
+    }
+    security_requirement: {
+      key: "AccessKeySecret";
+      value: {};
+    }
+  }
+  responses: {
+    key: "4xx,5xx";
+    value: {
+      description: "Returns 4xx or 5xx errors.";
+      schema: {
+        json_schema: {
+          ref: ".fonos.common.v1beta1.Error";
+        }
+      }
+    }
+  }
+};

@@ -9,47 +9,74 @@ syntax = "proto3";
 
 package fonos.providers.v1beta1;
 
+option go_package = "github.com/fonoster/fonos/mods/providers/fonos/services/protos/providers";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 import "common.proto";
 
 service Providers {
   // Lists Providers from the SIP Proxy subsystem
-  rpc ListProviders (ListProvidersRequest) returns (ListProvidersResponse) {};
+  rpc ListProviders (ListProvidersRequest) returns (ListProvidersResponse) {
+    option (google.api.http) = { get: "/v1beta1/providers" };
+  };
   // Creates a new Provider resource.
-  rpc CreateProvider (CreateProviderRequest) returns (Provider) {};
+  rpc CreateProvider (CreateProviderRequest) returns (Provider) {
+    option (google.api.http) = { 
+      post: "/v1beta1/providers"
+      body: "*"
+    };
+  };
   // Gets Provider using its reference
-  rpc GetProvider (GetProviderRequest) returns (Provider) {};
+  rpc GetProvider (GetProviderRequest) returns (Provider) {
+    option (google.api.http) = { get: "/v1beta1/providers/{ref}" };
+  };
   // Change or update fields in a resource
-  rpc UpdateProvider (UpdateProviderRequest) returns (Provider) {};
+  rpc UpdateProvider (UpdateProviderRequest) returns (Provider) {
+    option (google.api.http) = { 
+      put: "/v1beta1/providers"
+      body: "*" 
+    };
+  };
   // Hard delete of a Provider resource
-  rpc DeleteProvider (DeleteProviderRequest) returns (fonos.common.v1beta1.Empty) {};
+  rpc DeleteProvider (DeleteProviderRequest) returns (fonos.common.v1beta1.Empty) {
+    option (google.api.http) = { 
+      delete: "/v1beta1/providers/{ref}"
+    };
+  };
 }
 
 message ListProvidersRequest {
-  // The maximum provider of items to return.
+  // The maximum number of items in the list
   int32 page_size = 1;
 
-  // The next_page_token value returned from a previous List request, if any.
+  // The next_page_token value returned from the previous request, if any
   string page_token = 2;
 
-  // Level of detail of the individual entities
+  // Level of detail of the individual entities (reserved)
   fonos.common.v1beta1.View view = 3;
 }
 
 message ListProvidersResponse {
-  // There will be a maximum provider of items returned based on the page_size field
-  // in the request.
+  // List of Providers
   repeated Provider providers = 1;
 
-  // Token to retrieve the next page of results, or empty if there are no
-  // more results in the list.
+  // Token to retrieve the next page of results, or empty if there are no more results in the list
   string next_page_token = 2;
 }
 
 message CreateProviderRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"VoIP.ms\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\", \"host\": \"newyork1.voip.ms\", \"transport\": \"tcp\", \"expires\": 300}"
+  };  
   Provider provider = 1;
 }
 
 message UpdateProviderRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"ghnH1z0tzd\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\"}"
+  };  
   Provider provider = 1;
 }
 
@@ -62,13 +89,16 @@ message DeleteProviderRequest {
 }
 
 message Provider {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"ghnH1z0tzd\", \"name\": \"VoIP.ms\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\", \"host\": \"newyork1.voip.ms\", \"transport\": \"tcp\", \"expires\": 300, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+  };  
   string ref = 1;
-  string name = 2;
-  string username = 3;
-  string secret = 4;
-  string host = 5;
-  string transport = 6;
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string username = 3 [(google.api.field_behavior) = REQUIRED];
+  string secret = 4 [(google.api.field_behavior) = REQUIRED];
+  string host = 5 [(google.api.field_behavior) = REQUIRED];
+  string transport = 6 [(google.api.field_behavior) = REQUIRED];
   int32 expires = 7;
-  string create_time = 8;
-  string update_time = 9;
+  string create_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string update_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
 }

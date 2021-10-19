@@ -20,7 +20,7 @@ import {ServerConfig} from "./types";
 import VoiceResponse from "./voice";
 import logger from "@fonos/logger";
 import express from "express";
-import {join} from "path";
+import {join, posix} from "path";
 import fs from "fs";
 import {Plugin} from "@fonos/common";
 import PubSub from "pubsub-js";
@@ -56,7 +56,7 @@ export default class VoiceServer {
   }
 
   listen(handler: Function, port = this.config.port) {
-    app.get(join(this.config.base, "/tts/:file"), (req, res) => {
+    app.get(posix.join(this.config.base, "/tts/:file"), (req, res) => {
       // TODO: Update to use a stream instead of fs.readFile
       fs.readFile(
         join(this.config.pathToFiles, req.params.file),
@@ -77,10 +77,10 @@ export default class VoiceServer {
       res.send("pong");
     });
 
-    app.post(join(this.config.base), async (req, res) => {
+    app.post(posix.join(this.config.base), async (req, res) => {
       const response = new VoiceResponse(req.body);
       response.plugins = this.plugins;
-      await handler(req.body, response);
+      handler(req.body, response);
       res.end();
     });
 

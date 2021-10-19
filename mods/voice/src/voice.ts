@@ -35,6 +35,9 @@ import SGatherVerb, {SGatherOptions} from "./sgather/gather";
 import {SGatherStream} from "./sgather/types";
 import {DtmfOptions} from "./dtmf/types";
 import DtmfVerb from "./dtmf/dtmf";
+import DialVerb from "./dial/dial";
+import {DialOptions} from "./dial/types";
+import StreamStatus from "./dial/status_stream";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -164,7 +167,7 @@ export default class {
    * @param {SGatherOptions} options - Options object for the SGather verb
    * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
    * when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `speech,dtmf`
-   * @return {SGatherStream} The SGatherStream fires events via am `on` method for `transcription`, `dtmf`, and `error`. And the stream can be close
+   * @return {SGatherStream} The SGatherStream fires events via the `on` method for `transcription`, `dtmf`, and `error`. And the stream can be close
    * with the `close` function.
    * @see StreamSpeechProvider
    * @example
@@ -209,6 +212,32 @@ export default class {
    */
   async dtmf(options: DtmfOptions): Promise<void> {
     return await new DtmfVerb(this.request).run(options);
+  }
+
+  /**
+   * Forwards the call to an Agent or the PSTN.
+   *
+   * @param {string} destination - Number or Agent to forward the call to
+   * @param {DialOptions} options - Options object for the Dial verb
+   * @param {timeout} options.timeout - Dial timeout
+   * @return {StatusStream} The StatusStream fires events via the `on` method for `progress`, `answer`, `noanswer`, and `busy`. And the stream can be close
+   * with the `close` function.
+   * @example
+   *
+   * async function handler (request, response) {
+   *    await response.answer();
+   *    await response.say("dialing number");
+   *    const stream = await response.dial("17853178070");
+   *    stream.on("progress", console.log)
+   *    stream.on("answer", console.log)
+   *    stream.on("busy", console.log)
+   * }
+   */
+  async dial(
+    destination: string,
+    options?: DialOptions
+  ): Promise<StreamStatus> {
+    return await new DialVerb(this.request).run(destination, options);
   }
 
   /**

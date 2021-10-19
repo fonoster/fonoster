@@ -15,6 +15,12 @@ var jspb = require('google-protobuf');
 var goog = jspb;
 var global = Function('return this')();
 
+var protoc$gen$openapiv2_options_annotations_pb = require('./protoc-gen-openapiv2/options/annotations_pb.js');
+goog.object.extend(proto, protoc$gen$openapiv2_options_annotations_pb);
+var google_api_annotations_pb = require('./google/api/annotations_pb.js');
+goog.object.extend(proto, google_api_annotations_pb);
+var google_api_field_behavior_pb = require('./google/api/field_behavior_pb.js');
+goog.object.extend(proto, google_api_field_behavior_pb);
 goog.exportSymbol('proto.fonos.auth.v1beta1.CreateTokenRequest', null, global);
 goog.exportSymbol('proto.fonos.auth.v1beta1.CreateTokenResponse', null, global);
 goog.exportSymbol('proto.fonos.auth.v1beta1.GetRoleRequest', null, global);

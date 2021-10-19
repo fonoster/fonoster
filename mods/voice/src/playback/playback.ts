@@ -29,12 +29,29 @@ export class PlaybackControl extends Verb {
 
   private async operation(name: string) {
     logger.verbose(
-      `@fonos/voice calling [playbacks/${this.playbackId}/control?operation=${name}]`
+      `@fonos/voice playback control [operation = ${name}, playbackId = ${this.playbackId}]`
     );
-    await super.post(
-      `playbacks/${this.playbackId}/control`,
-      `operation=${name}`
-    );
+
+    try {
+      switch (name) {
+        case "stop":
+          await super.delete(`playbacks/${this.playbackId}`);
+          break;
+        default:
+          await super.post(
+            `playbacks/${this.playbackId}/control`,
+            `operation=${name}`
+          );
+      }
+    } catch (e) {
+      if (!e.response || e.response.status !== 404) {
+        logger.error(e);
+      }
+    }
+  }
+
+  async stop() {
+    await this.operation("stop");
   }
 
   async restart() {

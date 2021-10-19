@@ -7,7 +7,7 @@ import {runServices} from "@fonos/common";
 
 const services = [
   {
-    name: "sumbers",
+    name: "numbers",
     version: "v1beta1",
     service: NumbersService,
     server: new NumbersServer()

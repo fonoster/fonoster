@@ -50,7 +50,9 @@ export default class extends Command {
         cli.action.start(`Accessing endpoint ${answers.endpoint}`);
 
         try {
-          fs.rmSync(BASE_DIR, {recursive: true});
+          if (fs.existsSync(BASE_DIR)) {
+            fs.rmSync(BASE_DIR, {recursive: true});
+          }
 
           const agents = new Agents(answers);
           await agents.listAgents({pageSize: 20, pageToken: "1", view: 0});

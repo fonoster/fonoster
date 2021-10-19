@@ -32,7 +32,7 @@ const getDomainByNumber = async (e164Number: string) => {
 };
 
 const numberNotInList = (number) =>
-  `The number '${number}' is not assigned to one of your domains. Make sure the number exist and is assigned to a Domain`;
+  `the number '${number}' is not assigned to one of your domains. Make sure the number exist and is assigned to a Domain`;
 
 class CallManagerServer implements ICallManagerServer {
   [name: string]: grpc.UntypedHandleCall;

@@ -10,8 +10,8 @@ However, running a local server might be a good option, especially while explori
 
 To get started check the following guides:
 
+- [Deploy with Docker](./deploy-with-docker.md)
 - [Deploy to Multipass](./deploy-to-multipass.md)
 - [Deploy to Digital Ocean](./deploy-to-digitalocean.md)
-- [Deploy server Manually](./deploy-server-manually.md)
 - [Adding support for Cloud Functions (Experimental)](./adding_support_for_functions.md)
 - [Adding support for Secrets (Experimental)](./adding_support_for_secrets.md)

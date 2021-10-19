@@ -43,7 +43,6 @@ export default class SGatherVerb extends Verb {
     const streamData = new StreamData();
     logger.verbose(`@fonos/voice started sgather [source = ${options.source}]`);
     if (options.source.includes("dtmf")) {
-      // TODO: Subscribe to dtmf events
       const token = PubSub.subscribe(
         `DtmfReceived.${this.request.sessionId}`,
         (type, data) => {
@@ -61,7 +60,7 @@ export default class SGatherVerb extends Verb {
         super.getSelf(),
         this.speechProvider
       );
-      streamData.setDtmfSubscribeToken(token);
+      streamData.setSpeechSubscribeToken(token);
       speechStream.on("transcript", (data) =>
         streamData.emit("transcript", data)
       );

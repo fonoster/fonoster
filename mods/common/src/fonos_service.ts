@@ -35,9 +35,9 @@ const defaultOptions: ServiceOptions = {
 };
 
 export default class {
+  options: ServiceOptions;
+  metadata: Metadata;
   ServiceClient: any;
-  options: any;
-  metadata: any;
   service: any;
 
   /**
@@ -87,7 +87,7 @@ export default class {
     );
   }
 
-  getOptions(): any {
+  getOptions(): ServiceOptions {
     return this.options;
   }
 
@@ -95,7 +95,7 @@ export default class {
     return this.service;
   }
 
-  getMeta(): any {
+  getMeta(): Metadata {
     return this.metadata;
   }
 }

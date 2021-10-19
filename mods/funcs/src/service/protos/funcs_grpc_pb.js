@@ -10,6 +10,8 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var funcs_pb = require('./funcs_pb.js');
+var protoc$gen$openapiv2_options_annotations_pb = require('./protoc-gen-openapiv2/options/annotations_pb.js');
+var google_api_annotations_pb = require('./google/api/annotations_pb.js');
 var common_pb = require('./common_pb.js');
 
 function serialize_fonos_common_v1beta1_Empty(arg) {

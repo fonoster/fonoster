@@ -72,7 +72,7 @@ export default class AuthMiddleware {
               errorCb({
                 code: grpc.status.UNAUTHENTICATED,
                 // TODO: Improve error message
-                message: "UNAUTHENTICATED"
+                message: "invalid authentication"
               });
 
             const hasAccess = await roleHasAccess(
@@ -86,14 +86,14 @@ export default class AuthMiddleware {
               errorCb({
                 code: grpc.status.PERMISSION_DENIED,
                 // TODO: Improve error message
-                message: "PERMISSION_DENIED"
+                message: "permission denied"
               });
             }
           } else {
             errorCb({
               code: grpc.status.UNAUTHENTICATED,
               // TODO: Improve error message
-              message: "UNAUTHENTICATED"
+              message: "invalid authentication"
             });
           }
         });

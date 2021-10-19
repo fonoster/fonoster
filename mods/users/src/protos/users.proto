@@ -1,0 +1,101 @@
+/**
+ * MIT License
+ * Copyright (c) 2021 Fonoster Inc
+ *
+ * The Users proto contains the artificats for the administration
+ * of Users.
+ */
+syntax = "proto3";
+
+package fonos.users.v1beta1;
+
+option go_package = "github.com/fonoster/fonos/mods/users/fonos/services/protos/users";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "common.proto";
+
+service Users {
+  // Creates a new User resource
+  rpc CreateUser (CreateUserRequest) returns (User) {
+    option (google.api.http) = { 
+      post: "/v1beta1/users"
+      body: "*"
+    };
+  };
+  // Gets User by reference
+  rpc GetUser (GetUserRequest) returns (User) {
+    option (google.api.http) = { get: "/v1beta1/users/{ref}" };
+  };
+  // Change or update fields in a resource
+  rpc UpdateUser (UpdateUserRequest) returns (User) {
+    option (google.api.http) = { 
+      put: "/v1beta1/users/{ref}"
+      body: "*"
+    };
+  };
+  // WARNING: Hard delete of an User will remove all related projects and its resources. 
+  rpc DeleteUser (DeleteUserRequest) returns (fonos.common.v1beta1.Empty) {
+    option (google.api.http) = { delete: "/v1beta1/users/{ref}" };
+  };
+  // Creates
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = { 
+      get: "/v1beta1/users/{ref}/authentication"
+      body: "*"
+    };
+  };
+}
+
+message LoginRequest {
+  string email = 1; 
+  string secret = 2;
+  string expiration = 3;
+}
+
+message LoginResponse {
+  string access_key_id = 1;
+  string access_key_secret = 2;
+}
+
+message CreateUserRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"email\": \"john.doe@fonoster.io\", \"name\": \"John Doe\", \"secret\": \"$U@tl0125\", \"avatar\": \"https://avatar.net/0121323/image.jpg\"}"
+  };
+  string email = 1 [(google.api.field_behavior) = REQUIRED];
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string secret = 3 [(google.api.field_behavior) = REQUIRED];
+  // Url to the User's avatar
+  string avatar = 4;
+}
+
+message UpdateUserRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"John Doe\", \"avatar\": \"https://avatar.net/0121323/image.jpg\"}"
+  };
+  string name = 1;
+  string secret = 2;
+  string avatar = 3;
+}
+
+message GetUserRequest {
+  string ref = 1;
+}
+
+message DeleteUserRequest {
+  string ref = 1;
+}
+
+message User {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"407f1679010c19729de860rp\", \"accessKeyId\": \"407f1679010c19729de860rp\", \"email\": \"john.doe@acme.com\", \"name\": \"John Doe\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+  };
+  string ref = 1 [(google.api.field_behavior) = REQUIRED];
+  string access_key_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string email = 3 [(google.api.field_behavior) = REQUIRED];
+  string name = 4 [(google.api.field_behavior) = REQUIRED];
+  string avatar = 5;
+  string create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+}

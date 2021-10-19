@@ -67,7 +67,7 @@ services:
       - "traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth"
       - "traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}"
     environment:
-      APISERVER_ENDPOINT: ${AS_HOST}:{HTTP_PORT}
+      APISERVER_ENDPOINT: ${AS_HOST}:${HTTP_PORT}
       ALLOW_INSECURE: ${AS_ALLOW_INSECURE}
       ARI_EXTERNAL_URL: ${PUBLIC_URL}
       ARI_INTERNAL_URL: ${MS_ARI_INTERNAL_URL}

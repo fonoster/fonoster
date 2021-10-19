@@ -9,28 +9,42 @@ syntax = "proto3";
 
 package fonos.funcs.v1beta1;
 
+option go_package = "github.com/fonoster/fonos/mods/funcs/fonos/services/protos/funcs";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
 import "common.proto";
 
 service Funcs {
   // Shows a list of user functions
-  rpc ListFuncs (ListFuncsRequest) returns (ListFuncsResponse) {};
+  rpc ListFuncs (ListFuncsRequest) returns (ListFuncsResponse) {
+    option (google.api.http) = { get: "/v1beta1/funcs" };
+  };
   // Gets a function by namem
-  rpc GetFunc (GetFuncRequest) returns (Func) {};
+  rpc GetFunc (GetFuncRequest) returns (Func) {
+    option (google.api.http) = { get: "/v1beta1/funcs/{name}" };
+  };
   // Orders the functions subsystem to download and deploy a function
   rpc DeployFunc (DeployFuncRequest) returns (stream DeployStream) {};
   // Peforms a hard delete of the function
-  rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1beta1.Empty) {};
+  rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1beta1.Empty) {
+    option (google.api.http) = { 
+      delete: "/v1beta1/funcs/{name}"
+    };
+  };
   // Peforms a hard delete of the function
-  rpc GetFuncLogs (GetFuncLogsRequest) returns (stream FuncLog) {};
+  rpc GetFuncLogs (GetFuncLogsRequest) returns (stream FuncLog) {
+    option (google.api.http) = { get: "/v1beta1/funcs/{name}/logs" };
+  };
   // Creates a one time scoped token for access to the registry 
   rpc CreateRegistryToken (CreateRegistryTokenRequest) returns (CreateRegistryTokenResponse);
 }
 
 message ListFuncsRequest {
-  // The maximum number of items to return.
+  // The maximum number of items in the list
   int32 page_size = 1;
 
-  // The next_page_token value returned from a previous List request, if any.
+  // The next_page_token value returned from the previous request, if any
   string page_token = 2;
 
   // Level of detail of the individual entities
@@ -38,12 +52,9 @@ message ListFuncsRequest {
 }
 
 message ListFuncsResponse {
-  // There will be a maximum number of items returned based on the page_size field
-  // in the request.
+  // List of Functions
   repeated Func funcs = 1;
-
-  // Token to retrieve the next page of results, or empty if there are no
-  // more results in the list.
+  // Token to retrieve the next page of results, or empty if there are no more results in the list
   string next_page_token = 2;
 }
 
@@ -82,6 +93,9 @@ message CreateRegistryTokenResponse {
 }
 
 message Func {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"testfunc\", \"image\": \"functions/nodeinfo:latest\", \"invocationCount\": 20, \"replicas\": 1, \"availableReplicas\": 1, \"limit\": { \"memory\": \"128M\", \"cpu\": \"0.01\" }, \"requests\": { \"memory\": \"128M\", \"cpu\": \"0.01\" }}"
+  };
   string name = 1;
   string image = 2;
   int32 invocation_count = 3;

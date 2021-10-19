@@ -36,8 +36,6 @@ export interface CreateProviderRequest {
   host: string;
   transport: string;
   expires: number;
-  createTime?: string;
-  updateTime?: string;
 }
 
 export interface CreateProviderResponse {
@@ -72,8 +70,6 @@ export interface UpdateProviderRequest {
   host?: string;
   transport?: string;
   expires?: number;
-  createTime?: string;
-  updateTime?: string;
 }
 
 export interface UpdateProviderResponse {
