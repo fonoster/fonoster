@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface TransferOptions {
+export interface DialOptions {
   timeout?: number;
-  record?: boolean;
+  record?: {
+    direction?: "in" | "out" | "both"
+  };
 }

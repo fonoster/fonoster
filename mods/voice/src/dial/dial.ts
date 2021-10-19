@@ -20,39 +20,44 @@ import PubSub from "pubsub-js";
 import logger from "@fonos/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
-import {TransferOptions} from "./types";
+import {DialOptions} from "./types";
+import StreamStatus from "./stream_status";
+import { Stream } from "stream";
 
-export default class TransferVerb extends Verb {
-  async run(destination: string, options: TransferOptions = {}): Promise<void> {
+export default class DialVerb extends Verb {
+  async run(destination: string, options: DialOptions = {}): Promise<StreamStatus> {
+    const streamStatus = new StreamStatus();
     logger.verbose(
-      `@fonos/voice transfering call [sessionId = ${this.request.sessionId}, number = ${this.request.number}]`
+      `@fonos/voice dialing [sessionId = ${this.request.sessionId}, number = ${this.request.number}]`
     );
 
-    // We should reject if CallTransferFailed
+    // We should reject if DialFailed
     return new Promise(async (resolve, reject) => {
-      let callTransferingToken: string;
-      let callTFailedToken: string;
+      let dialFailedToken: string;
+      let statusChangeToken: string;
       try {
-        callTransferingToken = PubSub.subscribe(
-          `CallTransfering.${this.request.sessionId}`,
-          (type, data) => {
-            resolve();
-            PubSub.unsubscribe(callTransferingToken);
-            PubSub.unsubscribe(callTFailedToken);
+        statusChangeToken = PubSub.subscribe(
+          `DialStatusChanged.${this.request.sessionId}`,
+          (type, d) => {
+            if (d.data.status === "trying") {
+              resolve(streamStatus);
+            } else {
+              streamStatus.emit(d.data.status, d.data);
+            }
           }
         );
 
-        callTransferingToken = PubSub.subscribe(
-          `CallTransferFailed.${this.request.sessionId}`,
+        dialFailedToken = PubSub.subscribe(
+          `DialFailed.${this.request.sessionId}`,
           (type, data) => {
             reject(data.error);
-            PubSub.unsubscribe(callTransferingToken);
-            PubSub.unsubscribe(callTFailedToken);
+            PubSub.unsubscribe(dialFailedToken);
+            PubSub.unsubscribe(statusChangeToken);
           }
         );
 
         await super.post(
-          `events/user/Transfer`,
+          `events/user/Dial`,
           objectToQString({
             // WARNING: Harcoded value
             application: "mediacontroller"
@@ -71,8 +76,7 @@ export default class TransferVerb extends Verb {
         );
       } catch (e) {
         reject(e);
-        PubSub.unsubscribe(callTransferingToken);
-        PubSub.unsubscribe(callTFailedToken);
+        PubSub.unsubscribe(dialFailedToken);
       }
     });
   }

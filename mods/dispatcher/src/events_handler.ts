@@ -33,7 +33,7 @@ import {channelTalkingHandler} from "./handlers/channel_talking";
 import WebSocket from "ws";
 import {sendDtmf} from "./handlers/send_dtmf";
 import {answer} from "./utils/answer_channel";
-import {transfer} from "./handlers/transfer";
+import {dial} from "./handlers/dial";
 const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
@@ -156,8 +156,8 @@ export default function (err: any, ari: any) {
       case "Answer":
         await answer(wsClient, ari, event.userevent.sessionId);
         break;
-      case "Transfer":
-        await transfer(wsClient, ari, event, event.userevent.accessKeyId);
+      case "Dial":
+        await dial(wsClient, ari, event, event.userevent.accessKeyId);
         break;
       default:
         logger.error(
@@ -178,7 +178,9 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("RecordingFinished", (event: any) => {
-    recordFinishHandler(wsConnections.get(event.recording.name), event);
+    const conn = wsConnections.get(event.recording.name)
+    // Connection could be null if recording a dialed channel
+    conn && recordFinishHandler(conn, event);
   });
 
   ari.on("RecordingFailed", (event: any) => {

@@ -29,7 +29,7 @@ const getDomainByNumber = async (e164Number: string) => {
 const numberNotInList = (number) =>
   `the number '${number}' is not assigned to one of your domains. Make sure the number exist and is assigned to a Domain`;
 
-export const transfer = async (
+export const dial = async (
   ws: WebSocket,
   ari: any,
   event: any,
@@ -53,20 +53,18 @@ export const transfer = async (
   // Which Domain has this number assigned to for outbound
   const domain = await getDomainByNumber(number);
 
-  const domainUri = "anonymous.fonoster.io";
-
-  /* if (!domain) {
+  if (!domain) {
     ws.send(
       JSON.stringify({
-        type: "CallTransferFailed",
+        type: "DialFailed",
         sessionId,
         error: numberNotInList(number)
       })
     );
     return;
-  }*/
+  }
 
-  // const domainUri = domain.spec.context.domainUri;
+  const domainUri = domain.spec.context.domainUri;
 
   logger.verbose(
     `@fonos/dispatcher dialing [endpoint = sip:${destination}@${domainUri}]`
@@ -88,46 +86,34 @@ export const transfer = async (
     try {
       await bridge.addChannel({channel: [sessionId, dialed.id]});
 
-      ari.channels
-        .snoopChannel({
-          app: "mediacontroller",
-          channelId: sessionId,
-          spy: "in"
-        })
-        .then(async (channel) => {
-          await ari.channels.record({
-            channelId: channel.id,
-            format: "wav",
-            name: "test001_in",
-            ifExists: "overwrite"
-          });
-        })
-        .catch(logger.error);
-
-      ari.channels
-        .snoopChannel({
-          app: "mediacontroller",
-          channelId: dialed.id,
-          spy: "in"
-        })
-        .then(async (channel) => {
-          await ari.channels.record({
-            channelId: channel.id,
-            format: "wav",
-            name: "test001_out",
-            ifExists: "overwrite"
-          });
-        })
-        .catch(logger.error);
-
       if (record) {
-        // The name of the recordings is allways set to the sessionId
-        // We can later use this to map a CDR to a particular recording
-        await bridge.record({
-          name: sessionId,
-          format: "wav",
-          ifExists: "append"
-        });
+        if (record.direction === "in" || record.direction === "both") {
+          const channel = await ari.channels.snoopChannel({
+            app: "mediacontroller",
+            channelId: sessionId,
+            spy: "in"
+          })
+          await ari.channels.record({
+            channelId: channel.id,
+            format: "wav",
+            name: `${sessionId}_in`,
+            ifExists: "overwrite"
+          });
+        }
+
+        if (record.direction === "out" || record.direction === "both") {
+          const channel = await ari.channels.snoopChannel({
+            app: "mediacontroller",
+            channelId: dialed.id,
+            spy: "in"
+          })
+          await ari.channels.record({
+            channelId: channel.id,
+            format: "wav",
+            name: `${sessionId}_out`,
+            ifExists: "overwrite"
+          });
+        }
       }
     } catch (e) {
       logger.warn(e);
@@ -147,16 +133,46 @@ export const transfer = async (
       logger.warn(e);
     } finally {
       if (record) {
-        await uploadRecording(accessKeyId, sessionId);
+        if (record.direction === "in" || record.direction === "both") {
+          await uploadRecording(accessKeyId, `${sessionId}_in.wav`);
+        }
+
+        if (record.direction === "out" || record.direction === "both") {
+          await uploadRecording(accessKeyId, `${sessionId}_out.wav`);
+        }
       }
       await ari.bridges.destroy({bridgeId});
     }
   });
 
+  // TODO: Make all the values into variables
+  dialed.on("Dial", async (event: any, channel: any) => {
+    let status = event.dialstatus.toLowerCase()
+    if (!["cancel", "answer", "busy", "progress", "noanswer"].includes(status)) {
+      return
+    } else if (status === "chanunavail" || status=== "congestion") {
+      status = "failed"
+    }
+
+    ws.send(
+      JSON.stringify({
+        type: "DialStatusChanged",
+        sessionId,
+        data: {
+          status
+        }
+      })
+    );
+  });
+
   ws.send(
     JSON.stringify({
-      type: "CallTransfering",
-      sessionId
+      type: "DialStatusChanged",
+      sessionId,
+      data: {
+        status: "trying",
+        destination
+      }
     })
   );
 };

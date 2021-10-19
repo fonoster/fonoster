@@ -40,7 +40,7 @@ export const uploadRecording = async (
   }
 
   await storage.uploadObject({
-    // WARNING: Hardcoded value
+    // TODO: Place bucket name on a constant
     bucket: "recordings",
     filename: `${process.env.RECORDINGS_PATH}/${filename}`
   });
