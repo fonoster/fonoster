@@ -61,7 +61,7 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 - `Say` - Takes a text, synthesizes the text into audio, and streams back the result
 - `Gather` - Waits for DTMF or speech events and returns back the result
 - `SGather` - Returns a stream for future DTMF and speech results
-- `Transfer` - Passes the call to an Agent or a Number at the PSTN
+- `Dial` - Passes the call to an Agent or a Number at the PSTN
 - `Record` - It records the voice of the calling party and saves the audio on the Storage sub-system
 - `Mute` - It tells the channel to stop sending media, effectively muting the channel
 - `Unmute` - It tells the channel to allow media flow
