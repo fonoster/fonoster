@@ -130,5 +130,13 @@ jobs:
         repo: fonoster/oauth2
         token: ${{ secrets.GH_PAT }}
         ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'        
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing GRPC Gateway
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/grpc-gateway
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'          
 
