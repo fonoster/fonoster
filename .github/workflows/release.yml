@@ -109,6 +109,14 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/auth
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publishing MediaServer Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/mediaserver
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'        
     - name: Publishing JWTHelper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -117,10 +125,4 @@ jobs:
         token: ${{ secrets.GH_PAT }}
         ref: main
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing MediaServer Service
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/mediaserver
-        token: ${{ secrets.GH_PAT }}
-        ref: main
+
