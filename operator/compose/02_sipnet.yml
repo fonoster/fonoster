@@ -69,6 +69,7 @@ services:
     environment:
       APISERVER_ENDPOINT: ${AS_HOST}:${HTTP_PORT}
       ALLOW_INSECURE: ${AS_ALLOW_INSECURE}
+      RECORDINGS_PATH: /var/spool/asterisk/recording
       ARI_EXTERNAL_URL: ${PUBLIC_URL}
       ARI_INTERNAL_URL: ${MS_ARI_INTERNAL_URL}
       ARI_USERNAME: ${MS_ARI_USERNAME}
