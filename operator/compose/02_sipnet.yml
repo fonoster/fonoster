@@ -56,7 +56,7 @@ services:
       LOG_LEVEL: '6'
 
   mediaserver:
-    image: ${MS_IMAGE}
+    image: ${MS_IMAGE}:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     labels:
       - "traefik.enable=true"
@@ -78,7 +78,7 @@ services:
       SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
       SIPPROXY_PORT: ${SIPPROXY_SIP_PORT}
       SIPPROXY_USERNAME: ${SIPPROXY_USERNAME}
-      SIPPROXY_API_HOST: localhost
+      SIPPROXY_API_HOST: ${SIPPROXY_API_HOST}
       SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
       SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
