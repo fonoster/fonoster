@@ -4,10 +4,6 @@
 
 With Project Fonos, [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-Project Fonos aims to solve businesses needing to add voice, video, and messaging features to their websites and applications. Companies are, in most cases, unable to accomplish this independently due to the complexity and number of telephony services involved in the task. Instead, businesses rely on third-party providers that offer software as a service (SaaS) that allows for communication between telephony devices and internet-based APIs, services, etc. 
-
-The primary innovation of Project Fonos lies in researching and developing the means for creating a highly portable, extensible, cloud-based Programmable Telecommunications Stack. Using this form of CPaaS, businesses will call up an API to dial, answer a call, establish a video session, send SMS, etc., all with just HTTP requests and without worrying what servers and networks are doing with that information in the background. For Project Fonos to be a viable alternative to existing CPaaS, the system must be portable. Therefore, Project Fonos must take advantage of the various cloud environments such as Kubernetes and AWS ECS to run solutions at scale. Guaranteeing portability for Project Fonos will also mean ensuring the deployability of the system using a "single-click-install" when possible.
-
 ---
 
 <p align="center">
