@@ -19,7 +19,8 @@
 export interface CreateTokenRequest {
   accessKeyId: string;
   roleName?: string;
-  expiration?: "1s" | "1m" | "1d" | "30d" | "1y";
+  // Examples: 40s, 10m, 1d, 30d, 1y
+  expiration?: string;
 }
 
 export interface CreateTokenResponse {

@@ -35,7 +35,7 @@ import {
  *
  * const request = {
  *   accessKeyId: "603693c0afaa1a080000000e",
- *   roleName: "ROLE",
+ *   roleName: "ROLE"
  * };
  *
  * auth.createToken(request)
@@ -60,7 +60,8 @@ export default class Auths extends FonosService {
    *
    * @param {CreateTokenRequest} request - Request to create a new token
    * @param {string} request.accessKeyId - Path to the function
-   * @param {string} request.roleName - Unique function name
+   * @param {string} request.expiration - Longevity of the token
+   * @param {string} request.roleName - Role assigned to the token
    * @return {Promise<CreateTokenResponse>}
    * @example
    *
@@ -69,7 +70,8 @@ export default class Auths extends FonosService {
    *
    * const request = {
    *   accessKeyId: "603693c0afaa1a080000000e",
-   *   roleName: "ROLE",
+   *   roleName: "SERVICE",
+   *   expirantion: '10m'
    * };
    *
    * auth.createToken(request)
@@ -78,8 +80,10 @@ export default class Auths extends FonosService {
    */
   async createToken(request: CreateTokenRequest): Promise<CreateTokenResponse> {
     const req = new AuthPB.CreateTokenRequest();
+
     req.setAccessKeyId(request.accessKeyId);
     req.setRoleName(request.roleName);
+    req.setExpiration(request.expiration);
     const res = await super.getService().createToken().sendMessage(req);
     return {
       token: res.getToken()
