@@ -42,7 +42,7 @@ service Users {
   // Creates
   rpc Login (LoginRequest) returns (LoginResponse) {
     option (google.api.http) = { 
-      post: "/v1beta1/users/{ref}/authentication"
+      post: "/v1beta1/users/authentication"
       body: "*"
     };
   };
