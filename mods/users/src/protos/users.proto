@@ -39,10 +39,10 @@ service Users {
   rpc DeleteUser (DeleteUserRequest) returns (fonos.common.v1beta1.Empty) {
     option (google.api.http) = { delete: "/v1beta1/users/{ref}" };
   };
-  // Creates
+  // Creates a set of credentials
   rpc Login (LoginRequest) returns (LoginResponse) {
     option (google.api.http) = { 
-      post: "/v1beta1/users/authentication"
+      post: "/v1beta1/users/auth"
       body: "*"
     };
   };
@@ -55,6 +55,9 @@ message LoginRequest {
 }
 
 message LoginResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"accessKeyId\": \"407f1679010c19729de860rp\", \"name\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"}"
+  };
   string access_key_id = 1;
   string access_key_secret = 2;
 }

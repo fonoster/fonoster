@@ -17,7 +17,7 @@
     "start:dispatcher": "cross-env NODE_ENV=dev nodemon dispatcher",
     "gen:protos": "./.scripts/gen_code_proto.sh",
     "gen:docs": "node ./.scripts/gen_docs.js",
-    "version:force": "lerna exec -- touch .lerna-changed-buster-$RANDOM"
+    "version:force": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM"
   },
   "nodemonConfig": {
     "watch": [
