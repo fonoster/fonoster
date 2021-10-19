@@ -29,7 +29,11 @@ export const uploadRecording = async (
   );
   const auth = new Auth();
   // Creates a PROJECT level token with 10 minutes expiration
-  const access = await auth.createToken({accessKeyId, expiration: '10m', roleName: "PROJECT"});
+  const access = await auth.createToken({
+    accessKeyId,
+    expiration: "10m",
+    roleName: "PROJECT"
+  });
   const storage = new Storage({accessKeyId, accessKeySecret: access.token});
 
   logger.verbose(

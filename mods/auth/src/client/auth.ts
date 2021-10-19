@@ -35,7 +35,7 @@ import {
  *
  * const request = {
  *   accessKeyId: "603693c0afaa1a080000000e",
- *   roleName: "ROLE",
+ *   roleName: "ROLE"
  * };
  *
  * auth.createToken(request)
@@ -80,7 +80,7 @@ export default class Auths extends FonosService {
    */
   async createToken(request: CreateTokenRequest): Promise<CreateTokenResponse> {
     const req = new AuthPB.CreateTokenRequest();
-    
+
     req.setAccessKeyId(request.accessKeyId);
     req.setRoleName(request.roleName);
     req.setExpiration(request.expiration);
