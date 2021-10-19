@@ -92,7 +92,7 @@ export const dial = async (
             app: "mediacontroller",
             channelId: sessionId,
             spy: "in"
-          })
+          });
           await ari.channels.record({
             channelId: channel.id,
             format: "wav",
@@ -106,7 +106,7 @@ export const dial = async (
             app: "mediacontroller",
             channelId: dialed.id,
             spy: "in"
-          })
+          });
           await ari.channels.record({
             channelId: channel.id,
             format: "wav",
@@ -147,11 +147,13 @@ export const dial = async (
 
   // TODO: Make all the values into variables
   dialed.on("Dial", async (event: any, channel: any) => {
-    let status = event.dialstatus.toLowerCase()
-    if (!["cancel", "answer", "busy", "progress", "noanswer"].includes(status)) {
-      return
-    } else if (status === "chanunavail" || status=== "congestion") {
-      status = "failed"
+    let status = event.dialstatus.toLowerCase();
+    if (
+      !["cancel", "answer", "busy", "progress", "noanswer"].includes(status)
+    ) {
+      return;
+    } else if (status === "chanunavail" || status === "congestion") {
+      status = "failed";
     }
 
     ws.send(

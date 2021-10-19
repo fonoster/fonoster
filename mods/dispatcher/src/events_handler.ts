@@ -178,7 +178,7 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("RecordingFinished", (event: any) => {
-    const conn = wsConnections.get(event.recording.name)
+    const conn = wsConnections.get(event.recording.name);
     // Connection could be null if recording a dialed channel
     conn && recordFinishHandler(conn, event);
   });

@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Stream } from "stream";
+import {Stream} from "stream";
 
-export default class StreamStatus {
+export default class StatusStream {
   stream: Stream;
   constructor() {
     this.stream = new Stream();

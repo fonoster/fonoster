@@ -19,6 +19,6 @@
 export interface DialOptions {
   timeout?: number;
   record?: {
-    direction?: "in" | "out" | "both"
+    direction?: "in" | "out" | "both";
   };
 }

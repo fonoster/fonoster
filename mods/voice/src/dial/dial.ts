@@ -21,12 +21,15 @@ import logger from "@fonos/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
 import {DialOptions} from "./types";
-import StreamStatus from "./stream_status";
-import { Stream } from "stream";
+import StatusStream from "./status_stream";
+import {Stream} from "stream";
 
 export default class DialVerb extends Verb {
-  async run(destination: string, options: DialOptions = {}): Promise<StreamStatus> {
-    const streamStatus = new StreamStatus();
+  async run(
+    destination: string,
+    options: DialOptions = {}
+  ): Promise<StatusStream> {
+    const streamStatus = new StatusStream();
     logger.verbose(
       `@fonos/voice dialing [sessionId = ${this.request.sessionId}, number = ${this.request.number}]`
     );
