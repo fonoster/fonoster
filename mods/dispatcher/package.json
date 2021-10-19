@@ -1,6 +1,6 @@
 {
   "name": "@fonos/dispatcher",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Application Router for Fonos",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -42,11 +42,11 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.2.0",
-    "@fonos/core": "^0.2.0",
-    "@fonos/logger": "^0.2.0",
-    "@fonos/numbers": "^0.2.0",
-    "@fonos/storage": "^0.2.0",
+    "@fonos/auth": "^0.2.1",
+    "@fonos/core": "^0.2.1",
+    "@fonos/logger": "^0.2.1",
+    "@fonos/numbers": "^0.2.1",
+    "@fonos/storage": "^0.2.1",
     "ari-client": "^2.2.0",
     "axios": "^0.21.1",
     "pick-port": "^1.0.0",
