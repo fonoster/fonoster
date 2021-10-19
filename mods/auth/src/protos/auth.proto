@@ -27,7 +27,7 @@ service Auth {
   // Creates a new token for a given accessKeyId
   rpc CreateToken (CreateTokenRequest) returns (CreateTokenResponse) {
     option (google.api.http) = { 
-      get: "/v1beta1/auth/token"
+      post: "/v1beta1/auth/token"
       body: "*" 
     };
   }
