@@ -161,7 +161,7 @@ export default function (err: any, ari: any) {
         break;
       default:
         logger.error(
-          `@fonos/dispatcher unknown user ever [name = ${event.eventname}]`
+          `@fonos/dispatcher unknown user event [name = ${event.eventname}]`
         );
     }
   });
