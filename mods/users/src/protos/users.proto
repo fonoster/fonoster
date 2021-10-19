@@ -72,11 +72,12 @@ message CreateUserRequest {
 
 message UpdateUserRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"name\": \"John Doe\", \"avatar\": \"https://avatar.net/0121323/image.jpg\"}"
+    example: "{\"ref\": \"407f1679010c19729de860rp\", \"name\": \"John Doe\", \"avatar\": \"https://avatar.net/0121323/image.jpg\"}"
   };
-  string name = 1;
-  string secret = 2;
-  string avatar = 3;
+  string ref = 1;
+  string name = 2;
+  string secret = 3;
+  string avatar = 4;
 }
 
 message GetUserRequest {
