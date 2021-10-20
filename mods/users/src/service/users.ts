@@ -84,8 +84,6 @@ class UsersServer implements IUsersServer {
 
       redis.set(ref, encoder(user, secretHash));
       redis.set(call.request.getEmail(), ref);
-
-      user.setSecret(null);
       callback(null, user);
     } catch (e) {
       callback(e, null);
@@ -155,7 +153,7 @@ class UsersServer implements IUsersServer {
     }
   }
 
-  async login(
+  async loginUser(
     call: grpc.ServerUnaryCall<LoginRequest, LoginResponse>,
     callback: grpc.sendUnaryData<LoginResponse>
   ) {

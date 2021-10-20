@@ -1,4 +1,4 @@
-// package: fonos.users.v1beta1
+// package: fonos.projects.v1beta1
 // file: projects.proto
 
 /* tslint:disable */
@@ -176,10 +176,10 @@ export class Project extends jspb.Message {
     setName(value: string): Project;
     getRef(): string;
     setRef(value: string): Project;
-    getAccesskeyid(): string;
-    setAccesskeyid(value: string): Project;
-    getAccesskeysecret(): string;
-    setAccesskeysecret(value: string): Project;
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): Project;
+    getAccessKeySecret(): string;
+    setAccessKeySecret(value: string): Project;
     getAllowExperiments(): boolean;
     setAllowExperiments(value: boolean): Project;
     getCreateTime(): string;
@@ -201,8 +201,8 @@ export namespace Project {
     export type AsObject = {
         name: string,
         ref: string,
-        accesskeyid: string,
-        accesskeysecret: string,
+        accessKeyId: string,
+        accessKeySecret: string,
         allowExperiments: boolean,
         createTime: string,
         updateTime: string,

@@ -88,6 +88,8 @@ export namespace CreateUserRequest {
 }
 
 export class UpdateUserRequest extends jspb.Message { 
+    getRef(): string;
+    setRef(value: string): UpdateUserRequest;
     getName(): string;
     setName(value: string): UpdateUserRequest;
     getSecret(): string;
@@ -107,6 +109,7 @@ export class UpdateUserRequest extends jspb.Message {
 
 export namespace UpdateUserRequest {
     export type AsObject = {
+        ref: string,
         name: string,
         secret: string,
         avatar: string,
@@ -162,8 +165,6 @@ export class User extends jspb.Message {
     setEmail(value: string): User;
     getName(): string;
     setName(value: string): User;
-    getSecret(): string;
-    setSecret(value: string): User;
     getAvatar(): string;
     setAvatar(value: string): User;
     getCreateTime(): string;
@@ -187,7 +188,6 @@ export namespace User {
         accessKeyId: string,
         email: string,
         name: string,
-        secret: string,
         avatar: string,
         createTime: string,
         updateTime: string,

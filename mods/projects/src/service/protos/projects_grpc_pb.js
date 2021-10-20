@@ -26,102 +26,102 @@ function deserialize_fonos_common_v1beta1_Empty(buffer_arg) {
   return common_pb.Empty.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_CreateProjectRequest(arg) {
+function serialize_fonos_projects_v1beta1_CreateProjectRequest(arg) {
   if (!(arg instanceof projects_pb.CreateProjectRequest)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.CreateProjectRequest');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.CreateProjectRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_CreateProjectRequest(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_CreateProjectRequest(buffer_arg) {
   return projects_pb.CreateProjectRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_DeleteProjectRequest(arg) {
+function serialize_fonos_projects_v1beta1_DeleteProjectRequest(arg) {
   if (!(arg instanceof projects_pb.DeleteProjectRequest)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.DeleteProjectRequest');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.DeleteProjectRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_DeleteProjectRequest(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_DeleteProjectRequest(buffer_arg) {
   return projects_pb.DeleteProjectRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_GetProjectRequest(arg) {
+function serialize_fonos_projects_v1beta1_GetProjectRequest(arg) {
   if (!(arg instanceof projects_pb.GetProjectRequest)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.GetProjectRequest');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.GetProjectRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_GetProjectRequest(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_GetProjectRequest(buffer_arg) {
   return projects_pb.GetProjectRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_ListProjectsRequest(arg) {
+function serialize_fonos_projects_v1beta1_ListProjectsRequest(arg) {
   if (!(arg instanceof projects_pb.ListProjectsRequest)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.ListProjectsRequest');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.ListProjectsRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_ListProjectsRequest(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_ListProjectsRequest(buffer_arg) {
   return projects_pb.ListProjectsRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_ListProjectsResponse(arg) {
+function serialize_fonos_projects_v1beta1_ListProjectsResponse(arg) {
   if (!(arg instanceof projects_pb.ListProjectsResponse)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.ListProjectsResponse');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.ListProjectsResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_ListProjectsResponse(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_ListProjectsResponse(buffer_arg) {
   return projects_pb.ListProjectsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_Project(arg) {
+function serialize_fonos_projects_v1beta1_Project(arg) {
   if (!(arg instanceof projects_pb.Project)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.Project');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.Project');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_Project(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_Project(buffer_arg) {
   return projects_pb.Project.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_RenewAccessKeySecretRequest(arg) {
+function serialize_fonos_projects_v1beta1_RenewAccessKeySecretRequest(arg) {
   if (!(arg instanceof projects_pb.RenewAccessKeySecretRequest)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.RenewAccessKeySecretRequest');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.RenewAccessKeySecretRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_RenewAccessKeySecretRequest(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_RenewAccessKeySecretRequest(buffer_arg) {
   return projects_pb.RenewAccessKeySecretRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_RenewAccessKeySecretResponse(arg) {
+function serialize_fonos_projects_v1beta1_RenewAccessKeySecretResponse(arg) {
   if (!(arg instanceof projects_pb.RenewAccessKeySecretResponse)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.RenewAccessKeySecretResponse');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.RenewAccessKeySecretResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_RenewAccessKeySecretResponse(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_RenewAccessKeySecretResponse(buffer_arg) {
   return projects_pb.RenewAccessKeySecretResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_users_v1beta1_UpdateProjectRequest(arg) {
+function serialize_fonos_projects_v1beta1_UpdateProjectRequest(arg) {
   if (!(arg instanceof projects_pb.UpdateProjectRequest)) {
-    throw new Error('Expected argument of type fonos.users.v1beta1.UpdateProjectRequest');
+    throw new Error('Expected argument of type fonos.projects.v1beta1.UpdateProjectRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_users_v1beta1_UpdateProjectRequest(buffer_arg) {
+function deserialize_fonos_projects_v1beta1_UpdateProjectRequest(buffer_arg) {
   return projects_pb.UpdateProjectRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
@@ -129,75 +129,75 @@ function deserialize_fonos_users_v1beta1_UpdateProjectRequest(buffer_arg) {
 var ProjectsService = exports.ProjectsService = {
   // Lists all the Projects for a given User
 listProjects: {
-    path: '/fonos.users.v1beta1.Projects/ListProjects',
+    path: '/fonos.projects.v1beta1.Projects/ListProjects',
     requestStream: false,
     responseStream: false,
     requestType: projects_pb.ListProjectsRequest,
     responseType: projects_pb.ListProjectsResponse,
-    requestSerialize: serialize_fonos_users_v1beta1_ListProjectsRequest,
-    requestDeserialize: deserialize_fonos_users_v1beta1_ListProjectsRequest,
-    responseSerialize: serialize_fonos_users_v1beta1_ListProjectsResponse,
-    responseDeserialize: deserialize_fonos_users_v1beta1_ListProjectsResponse,
+    requestSerialize: serialize_fonos_projects_v1beta1_ListProjectsRequest,
+    requestDeserialize: deserialize_fonos_projects_v1beta1_ListProjectsRequest,
+    responseSerialize: serialize_fonos_projects_v1beta1_ListProjectsResponse,
+    responseDeserialize: deserialize_fonos_projects_v1beta1_ListProjectsResponse,
   },
   // Creates a new Project resource
 createProject: {
-    path: '/fonos.users.v1beta1.Projects/CreateProject',
+    path: '/fonos.projects.v1beta1.Projects/CreateProject',
     requestStream: false,
     responseStream: false,
     requestType: projects_pb.CreateProjectRequest,
     responseType: projects_pb.Project,
-    requestSerialize: serialize_fonos_users_v1beta1_CreateProjectRequest,
-    requestDeserialize: deserialize_fonos_users_v1beta1_CreateProjectRequest,
-    responseSerialize: serialize_fonos_users_v1beta1_Project,
-    responseDeserialize: deserialize_fonos_users_v1beta1_Project,
+    requestSerialize: serialize_fonos_projects_v1beta1_CreateProjectRequest,
+    requestDeserialize: deserialize_fonos_projects_v1beta1_CreateProjectRequest,
+    responseSerialize: serialize_fonos_projects_v1beta1_Project,
+    responseDeserialize: deserialize_fonos_projects_v1beta1_Project,
   },
   // Updates a given Project
 updateProject: {
-    path: '/fonos.users.v1beta1.Projects/UpdateProject',
+    path: '/fonos.projects.v1beta1.Projects/UpdateProject',
     requestStream: false,
     responseStream: false,
     requestType: projects_pb.UpdateProjectRequest,
     responseType: projects_pb.Project,
-    requestSerialize: serialize_fonos_users_v1beta1_UpdateProjectRequest,
-    requestDeserialize: deserialize_fonos_users_v1beta1_UpdateProjectRequest,
-    responseSerialize: serialize_fonos_users_v1beta1_Project,
-    responseDeserialize: deserialize_fonos_users_v1beta1_Project,
+    requestSerialize: serialize_fonos_projects_v1beta1_UpdateProjectRequest,
+    requestDeserialize: deserialize_fonos_projects_v1beta1_UpdateProjectRequest,
+    responseSerialize: serialize_fonos_projects_v1beta1_Project,
+    responseDeserialize: deserialize_fonos_projects_v1beta1_Project,
   },
   // Gets a Project by AccessKeyId
 getProject: {
-    path: '/fonos.users.v1beta1.Projects/GetProject',
+    path: '/fonos.projects.v1beta1.Projects/GetProject',
     requestStream: false,
     responseStream: false,
     requestType: projects_pb.GetProjectRequest,
     responseType: projects_pb.Project,
-    requestSerialize: serialize_fonos_users_v1beta1_GetProjectRequest,
-    requestDeserialize: deserialize_fonos_users_v1beta1_GetProjectRequest,
-    responseSerialize: serialize_fonos_users_v1beta1_Project,
-    responseDeserialize: deserialize_fonos_users_v1beta1_Project,
+    requestSerialize: serialize_fonos_projects_v1beta1_GetProjectRequest,
+    requestDeserialize: deserialize_fonos_projects_v1beta1_GetProjectRequest,
+    responseSerialize: serialize_fonos_projects_v1beta1_Project,
+    responseDeserialize: deserialize_fonos_projects_v1beta1_Project,
   },
   // WARNING: Hard delete of a Project will remove all related resources 
 deleteProject: {
-    path: '/fonos.users.v1beta1.Projects/DeleteProject',
+    path: '/fonos.projects.v1beta1.Projects/DeleteProject',
     requestStream: false,
     responseStream: false,
     requestType: projects_pb.DeleteProjectRequest,
     responseType: common_pb.Empty,
-    requestSerialize: serialize_fonos_users_v1beta1_DeleteProjectRequest,
-    requestDeserialize: deserialize_fonos_users_v1beta1_DeleteProjectRequest,
+    requestSerialize: serialize_fonos_projects_v1beta1_DeleteProjectRequest,
+    requestDeserialize: deserialize_fonos_projects_v1beta1_DeleteProjectRequest,
     responseSerialize: serialize_fonos_common_v1beta1_Empty,
     responseDeserialize: deserialize_fonos_common_v1beta1_Empty,
   },
   // Replace the old key
 renewAccessKeySecret: {
-    path: '/fonos.users.v1beta1.Projects/RenewAccessKeySecret',
+    path: '/fonos.projects.v1beta1.Projects/RenewAccessKeySecret',
     requestStream: false,
     responseStream: false,
     requestType: projects_pb.RenewAccessKeySecretRequest,
     responseType: projects_pb.RenewAccessKeySecretResponse,
-    requestSerialize: serialize_fonos_users_v1beta1_RenewAccessKeySecretRequest,
-    requestDeserialize: deserialize_fonos_users_v1beta1_RenewAccessKeySecretRequest,
-    responseSerialize: serialize_fonos_users_v1beta1_RenewAccessKeySecretResponse,
-    responseDeserialize: deserialize_fonos_users_v1beta1_RenewAccessKeySecretResponse,
+    requestSerialize: serialize_fonos_projects_v1beta1_RenewAccessKeySecretRequest,
+    requestDeserialize: deserialize_fonos_projects_v1beta1_RenewAccessKeySecretRequest,
+    responseSerialize: serialize_fonos_projects_v1beta1_RenewAccessKeySecretResponse,
+    responseDeserialize: deserialize_fonos_projects_v1beta1_RenewAccessKeySecretResponse,
   },
 };
 

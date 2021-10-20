@@ -779,9 +779,10 @@ proto.fonos.users.v1beta1.UpdateUserRequest.prototype.toObject = function(opt_in
  */
 proto.fonos.users.v1beta1.UpdateUserRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    secret: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    avatar: jspb.Message.getFieldWithDefault(msg, 5, "")
+    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    secret: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    avatar: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -818,15 +819,19 @@ proto.fonos.users.v1beta1.UpdateUserRequest.deserializeBinaryFromReader = functi
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 3:
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRef(value);
+      break;
+    case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setName(value);
       break;
-    case 4:
+    case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setSecret(value);
       break;
-    case 5:
+    case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setAvatar(value);
       break;
@@ -859,24 +864,31 @@ proto.fonos.users.v1beta1.UpdateUserRequest.prototype.serializeBinary = function
  */
 proto.fonos.users.v1beta1.UpdateUserRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = message.getRef();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
   f = message.getName();
   if (f.length > 0) {
     writer.writeString(
-      3,
+      2,
       f
     );
   }
   f = message.getSecret();
   if (f.length > 0) {
     writer.writeString(
-      4,
+      3,
       f
     );
   }
   f = message.getAvatar();
   if (f.length > 0) {
     writer.writeString(
-      5,
+      4,
       f
     );
   }
@@ -884,11 +896,29 @@ proto.fonos.users.v1beta1.UpdateUserRequest.serializeBinaryToWriter = function(m
 
 
 /**
- * optional string name = 3;
+ * optional string ref = 1;
+ * @return {string}
+ */
+proto.fonos.users.v1beta1.UpdateUserRequest.prototype.getRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.users.v1beta1.UpdateUserRequest} returns this
+ */
+proto.fonos.users.v1beta1.UpdateUserRequest.prototype.setRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string name = 2;
  * @return {string}
  */
 proto.fonos.users.v1beta1.UpdateUserRequest.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
@@ -897,16 +927,16 @@ proto.fonos.users.v1beta1.UpdateUserRequest.prototype.getName = function() {
  * @return {!proto.fonos.users.v1beta1.UpdateUserRequest} returns this
  */
 proto.fonos.users.v1beta1.UpdateUserRequest.prototype.setName = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional string secret = 4;
+ * optional string secret = 3;
  * @return {string}
  */
 proto.fonos.users.v1beta1.UpdateUserRequest.prototype.getSecret = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
@@ -915,16 +945,16 @@ proto.fonos.users.v1beta1.UpdateUserRequest.prototype.getSecret = function() {
  * @return {!proto.fonos.users.v1beta1.UpdateUserRequest} returns this
  */
 proto.fonos.users.v1beta1.UpdateUserRequest.prototype.setSecret = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string avatar = 5;
+ * optional string avatar = 4;
  * @return {string}
  */
 proto.fonos.users.v1beta1.UpdateUserRequest.prototype.getAvatar = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
 
@@ -933,7 +963,7 @@ proto.fonos.users.v1beta1.UpdateUserRequest.prototype.getAvatar = function() {
  * @return {!proto.fonos.users.v1beta1.UpdateUserRequest} returns this
  */
 proto.fonos.users.v1beta1.UpdateUserRequest.prototype.setAvatar = function(value) {
-  return jspb.Message.setProto3StringField(this, 5, value);
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
@@ -1233,10 +1263,9 @@ proto.fonos.users.v1beta1.User.toObject = function(includeInstance, msg) {
     accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
     email: jspb.Message.getFieldWithDefault(msg, 3, ""),
     name: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    secret: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    avatar: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    createTime: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    updateTime: jspb.Message.getFieldWithDefault(msg, 8, "")
+    avatar: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    createTime: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    updateTime: jspb.Message.getFieldWithDefault(msg, 7, "")
   };
 
   if (includeInstance) {
@@ -1291,17 +1320,13 @@ proto.fonos.users.v1beta1.User.deserializeBinaryFromReader = function(msg, reade
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.setSecret(value);
+      msg.setAvatar(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAvatar(value);
-      break;
-    case 7:
-      var value = /** @type {string} */ (reader.readString());
       msg.setCreateTime(value);
       break;
-    case 8:
+    case 7:
       var value = /** @type {string} */ (reader.readString());
       msg.setUpdateTime(value);
       break;
@@ -1362,31 +1387,24 @@ proto.fonos.users.v1beta1.User.serializeBinaryToWriter = function(message, write
       f
     );
   }
-  f = message.getSecret();
+  f = message.getAvatar();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getAvatar();
+  f = message.getCreateTime();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = message.getCreateTime();
-  if (f.length > 0) {
-    writer.writeString(
-      7,
-      f
-    );
-  }
   f = message.getUpdateTime();
   if (f.length > 0) {
     writer.writeString(
-      8,
+      7,
       f
     );
   }
@@ -1466,10 +1484,10 @@ proto.fonos.users.v1beta1.User.prototype.setName = function(value) {
 
 
 /**
- * optional string secret = 5;
+ * optional string avatar = 5;
  * @return {string}
  */
-proto.fonos.users.v1beta1.User.prototype.getSecret = function() {
+proto.fonos.users.v1beta1.User.prototype.getAvatar = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
@@ -1478,16 +1496,16 @@ proto.fonos.users.v1beta1.User.prototype.getSecret = function() {
  * @param {string} value
  * @return {!proto.fonos.users.v1beta1.User} returns this
  */
-proto.fonos.users.v1beta1.User.prototype.setSecret = function(value) {
+proto.fonos.users.v1beta1.User.prototype.setAvatar = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * optional string avatar = 6;
+ * optional string create_time = 6;
  * @return {string}
  */
-proto.fonos.users.v1beta1.User.prototype.getAvatar = function() {
+proto.fonos.users.v1beta1.User.prototype.getCreateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
@@ -1496,16 +1514,16 @@ proto.fonos.users.v1beta1.User.prototype.getAvatar = function() {
  * @param {string} value
  * @return {!proto.fonos.users.v1beta1.User} returns this
  */
-proto.fonos.users.v1beta1.User.prototype.setAvatar = function(value) {
+proto.fonos.users.v1beta1.User.prototype.setCreateTime = function(value) {
   return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
 /**
- * optional string create_time = 7;
+ * optional string update_time = 7;
  * @return {string}
  */
-proto.fonos.users.v1beta1.User.prototype.getCreateTime = function() {
+proto.fonos.users.v1beta1.User.prototype.getUpdateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
@@ -1514,26 +1532,8 @@ proto.fonos.users.v1beta1.User.prototype.getCreateTime = function() {
  * @param {string} value
  * @return {!proto.fonos.users.v1beta1.User} returns this
  */
-proto.fonos.users.v1beta1.User.prototype.setCreateTime = function(value) {
-  return jspb.Message.setProto3StringField(this, 7, value);
-};
-
-
-/**
- * optional string update_time = 8;
- * @return {string}
- */
-proto.fonos.users.v1beta1.User.prototype.getUpdateTime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonos.users.v1beta1.User} returns this
- */
 proto.fonos.users.v1beta1.User.prototype.setUpdateTime = function(value) {
-  return jspb.Message.setProto3StringField(this, 8, value);
+  return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 

@@ -30,7 +30,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@Fonos/domains", () => {
+describe("@fonos/domains", () => {
   const domainObj = new DomainsPB.Domain();
   domainObj.setRef("Nx05y-ldZa");
   domainObj.setName("Acme Corp");

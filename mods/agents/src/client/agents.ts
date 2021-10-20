@@ -131,7 +131,7 @@ export default class Agents extends FonosService {
    *
    * agents.getAgent(ref)
    * .then(result => {
-   *   console.log(result)             // returns the GetDomainResponse interface
+   *   console.log(result)             // returns the GetAgentResponse interface
    * }).catch(e => console.error(e))   // an error occurred
    */
   async getAgent(ref: string): Promise<GetAgentResponse> {
