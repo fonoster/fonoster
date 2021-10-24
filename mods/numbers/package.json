@@ -1,6 +1,6 @@
 {
   "name": "@fonos/numbers",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "VoIP Numbers",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,12 +43,12 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.2.4",
-    "@fonos/certs": "^0.2.4",
-    "@fonos/common": "^0.2.4",
-    "@fonos/core": "^0.2.4",
-    "@fonos/errors": "^0.2.4",
-    "@fonos/logger": "^0.2.4",
+    "@fonos/auth": "^0.2.5",
+    "@fonos/certs": "^0.2.5",
+    "@fonos/common": "^0.2.5",
+    "@fonos/core": "^0.2.5",
+    "@fonos/errors": "^0.2.5",
+    "@fonos/logger": "^0.2.5",
     "@grpc/grpc-js": "^1.3.6",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0"

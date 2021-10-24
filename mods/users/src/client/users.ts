@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import {FonosService, ServiceOptions} from "@fonos/common";
-import {UsersClient} from "../service/protos/Users_grpc_pb";
-import UsersPB from "../service/protos/Users_pb";
+import {UsersClient} from "../service/protos/users_grpc_pb";
+import UsersPB from "../service/protos/users_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import {
