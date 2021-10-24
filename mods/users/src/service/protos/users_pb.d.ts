@@ -9,25 +9,25 @@ import * as protoc_gen_openapiv2_options_annotations_pb from "./protoc-gen-opena
 import * as google_api_field_behavior_pb from "./google/api/field_behavior_pb";
 import * as common_pb from "./common_pb";
 
-export class LoginRequest extends jspb.Message { 
+export class CreateUserCredentialsRequest extends jspb.Message { 
     getEmail(): string;
-    setEmail(value: string): LoginRequest;
+    setEmail(value: string): CreateUserCredentialsRequest;
     getSecret(): string;
-    setSecret(value: string): LoginRequest;
+    setSecret(value: string): CreateUserCredentialsRequest;
     getExpiration(): string;
-    setExpiration(value: string): LoginRequest;
+    setExpiration(value: string): CreateUserCredentialsRequest;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): LoginRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: LoginRequest): LoginRequest.AsObject;
+    toObject(includeInstance?: boolean): CreateUserCredentialsRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: CreateUserCredentialsRequest): CreateUserCredentialsRequest.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: LoginRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): LoginRequest;
-    static deserializeBinaryFromReader(message: LoginRequest, reader: jspb.BinaryReader): LoginRequest;
+    static serializeBinaryToWriter(message: CreateUserCredentialsRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): CreateUserCredentialsRequest;
+    static deserializeBinaryFromReader(message: CreateUserCredentialsRequest, reader: jspb.BinaryReader): CreateUserCredentialsRequest;
 }
 
-export namespace LoginRequest {
+export namespace CreateUserCredentialsRequest {
     export type AsObject = {
         email: string,
         secret: string,
@@ -35,23 +35,23 @@ export namespace LoginRequest {
     }
 }
 
-export class LoginResponse extends jspb.Message { 
+export class CreateUserCredentialsResponse extends jspb.Message { 
     getAccessKeyId(): string;
-    setAccessKeyId(value: string): LoginResponse;
+    setAccessKeyId(value: string): CreateUserCredentialsResponse;
     getAccessKeySecret(): string;
-    setAccessKeySecret(value: string): LoginResponse;
+    setAccessKeySecret(value: string): CreateUserCredentialsResponse;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): LoginResponse.AsObject;
-    static toObject(includeInstance: boolean, msg: LoginResponse): LoginResponse.AsObject;
+    toObject(includeInstance?: boolean): CreateUserCredentialsResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: CreateUserCredentialsResponse): CreateUserCredentialsResponse.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: LoginResponse, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): LoginResponse;
-    static deserializeBinaryFromReader(message: LoginResponse, reader: jspb.BinaryReader): LoginResponse;
+    static serializeBinaryToWriter(message: CreateUserCredentialsResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): CreateUserCredentialsResponse;
+    static deserializeBinaryFromReader(message: CreateUserCredentialsResponse, reader: jspb.BinaryReader): CreateUserCredentialsResponse;
 }
 
-export namespace LoginResponse {
+export namespace CreateUserCredentialsResponse {
     export type AsObject = {
         accessKeyId: string,
         accessKeySecret: string,

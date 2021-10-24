@@ -26,13 +26,13 @@ export interface User {
   updateTime: string;
 }
 
-export interface LoginRequest {
+export interface CreateUserCredentialsRequest {
   email: string;
   secret: string;
   expiration?: string;
 }
 
-export interface LoginResponse {
+export interface CreateUserCredentialsResponse {
   accessKeyId: string;
   accessKeySecret: string;
 }
