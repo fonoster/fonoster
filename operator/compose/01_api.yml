@@ -33,6 +33,28 @@ services:
     volumes:
       - ${CONFIG}/rbac.json:/home/fonos/rbac.json
 
+  users:
+    image: fonoster/fonos-users:${COMPOSE_PROJECT_VERSION}
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.users.entrypoints=internal,websecure"
+      - "traefik.http.routers.users.rule=PathPrefix(`/fonos.users.v1beta1`)"
+      - "traefik.http.services.users.loadbalancer.server.scheme=h2c"
+
+  projects:
+    image: fonoster/fonos-projects:${COMPOSE_PROJECT_VERSION}
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.projects.entrypoints=internal,websecure"
+      - "traefik.http.routers.projects.rule=PathPrefix(`/fonos.projects.v1beta1`)"
+      - "traefik.http.services.projects.loadbalancer.server.scheme=h2c"
+
   agents:
     image: fonoster/fonos-agents:${COMPOSE_PROJECT_VERSION}
     extends:

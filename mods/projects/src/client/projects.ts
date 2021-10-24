@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import {FonosService, ServiceOptions} from "@fonos/common";
-import {ProjectsClient} from "../service/protos/Projects_grpc_pb";
-import ProjectsPB from "../service/protos/Projects_pb";
+import {ProjectsClient} from "../service/protos/projects_grpc_pb";
+import ProjectsPB from "../service/protos/projects_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import {
@@ -217,7 +217,10 @@ export default class Projects extends FonosService {
     const req = new ProjectsPB.RenewAccessKeySecretRequest();
     req.setRef(request.ref);
 
-    const res = await super.getService().renewAccessKeySecret().sendMessage(req);
+    const res = await super
+      .getService()
+      .renewAccessKeySecret()
+      .sendMessage(req);
 
     return {
       accessKeySecret: res.getAccessKeySecret()
