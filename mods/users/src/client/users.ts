@@ -216,14 +216,19 @@ export default class Users extends FonosService {
    *   console.log(result)            // returns an accessKeyId and accessKeySecret
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async createUserCredentials(request: CreateUserCredentialsRequest): Promise<CreateUserCredentialsResponse> {
+  async createUserCredentials(
+    request: CreateUserCredentialsRequest
+  ): Promise<CreateUserCredentialsResponse> {
     const req = new UsersPB.CreateUserCredentialsRequest();
     req.setEmail(request.email);
     req.setSecret(request.secret);
 
     if (request.expiration) req.setExpiration(request.expiration);
 
-    const res = await super.getService().createUserCredentials().sendMessage(req);
+    const res = await super
+      .getService()
+      .createUserCredentials()
+      .sendMessage(req);
 
     return {
       accessKeyId: res.getAccessKeyId(),

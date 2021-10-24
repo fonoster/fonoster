@@ -158,7 +158,10 @@ class UsersServer implements IUsersServer {
   }
 
   async createUserCredentials(
-    call: grpc.ServerUnaryCall<CreateUserCredentialsRequest, CreateUserCredentialsResponse>,
+    call: grpc.ServerUnaryCall<
+      CreateUserCredentialsRequest,
+      CreateUserCredentialsResponse
+    >,
     callback: grpc.sendUnaryData<CreateUserCredentialsResponse>
   ) {
     try {
