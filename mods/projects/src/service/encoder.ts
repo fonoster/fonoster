@@ -16,3 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Project} from "./protos/projects_pb";
+
+export default (project: Project): string => {
+  const projectJSON = {
+    ref: project.getRef(),
+    userRef: project.getUserRef(),
+    accessKeyId: project.getAccessKeyId(),
+    accessKeySecret: project.getAccessKeySecret(),
+    name: project.getName(),
+    allowExperiments: project.getAllowExperiments(),
+    createTime: project.getCreateTime(),
+    updateTime: project.getUpdateTime()
+  };
+  return JSON.stringify(projectJSON);
+};

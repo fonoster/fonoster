@@ -16,3 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Project} from "./protos/projects_pb";
+
+export default (raw: string): Project => {
+  const projectJSON = JSON.parse(raw);
+  const project = new Project();
+  project.setRef(projectJSON.ref);
+  project.setUserRef(projectJSON.userRef);
+  project.setAccessKeyId(projectJSON.accessKeyId);
+  project.setAccessKeySecret(projectJSON.accessKeySecret);
+  project.setName(projectJSON.name);
+  project.setAllowExperiments(projectJSON.allowExperiments);
+  project.setCreateTime(projectJSON.createTime);
+  project.setUpdateTime(projectJSON.updateTime);
+  return project;
+};

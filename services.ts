@@ -25,6 +25,7 @@ if (process.env.NODE_ENV === "dev") {
 }
 
 import UsersServer from "./mods/users/src/service/users";
+import ProjectsServer from "./mods/projects/src/service/projects";
 import AuthServer from "./mods/auth/src/service/auth";
 import FuncsServer from "./mods/funcs/src/service/funcs";
 import AgentsServer from "./mods/agents/src/service/agents";
@@ -34,6 +35,7 @@ import NumbersServer from "./mods/numbers/src/service/numbers";
 import ProvidersServer from "./mods/providers/src/service/providers";
 import CallManagerServer from "./mods/callmanager/src/service/callmanager";
 import StorageServer from "./mods/storage/src/service/storage";
+import {ProjectsService} from "./mods/projects/src/service/protos/projects_grpc_pb";
 import {UsersService} from "./mods/users/src/service/protos/users_grpc_pb";
 import {AuthService} from "./mods/auth/src/service/protos/auth_grpc_pb";
 import {FuncsService} from "./mods/funcs/src/service/protos/funcs_grpc_pb";
@@ -54,6 +56,12 @@ const services = [
     version: "v1beta1",
     service: UsersService,
     server: new UsersServer()
+  },
+  {
+    name: "projects",
+    version: "v1beta1",
+    service: ProjectsService,
+    server: new ProjectsServer()
   },
   {
     name: "auth",

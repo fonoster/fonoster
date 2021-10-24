@@ -514,7 +514,8 @@ proto.fonos.projects.v1beta1.CreateProjectRequest.prototype.toObject = function(
  */
 proto.fonos.projects.v1beta1.CreateProjectRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    name: jspb.Message.getFieldWithDefault(msg, 2, "")
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    allowExperiments: jspb.Message.getBooleanFieldWithDefault(msg, 2, false)
   };
 
   if (includeInstance) {
@@ -551,9 +552,13 @@ proto.fonos.projects.v1beta1.CreateProjectRequest.deserializeBinaryFromReader = 
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 2:
+    case 1:
       var value = /** @type {string} */ (reader.readString());
       msg.setName(value);
+      break;
+    case 2:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setAllowExperiments(value);
       break;
     default:
       reader.skipField();
@@ -587,6 +592,13 @@ proto.fonos.projects.v1beta1.CreateProjectRequest.serializeBinaryToWriter = func
   f = message.getName();
   if (f.length > 0) {
     writer.writeString(
+      1,
+      f
+    );
+  }
+  f = message.getAllowExperiments();
+  if (f) {
+    writer.writeBool(
       2,
       f
     );
@@ -595,11 +607,11 @@ proto.fonos.projects.v1beta1.CreateProjectRequest.serializeBinaryToWriter = func
 
 
 /**
- * optional string name = 2;
+ * optional string name = 1;
  * @return {string}
  */
 proto.fonos.projects.v1beta1.CreateProjectRequest.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
@@ -608,7 +620,25 @@ proto.fonos.projects.v1beta1.CreateProjectRequest.prototype.getName = function()
  * @return {!proto.fonos.projects.v1beta1.CreateProjectRequest} returns this
  */
 proto.fonos.projects.v1beta1.CreateProjectRequest.prototype.setName = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional bool allow_experiments = 2;
+ * @return {boolean}
+ */
+proto.fonos.projects.v1beta1.CreateProjectRequest.prototype.getAllowExperiments = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 2, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.fonos.projects.v1beta1.CreateProjectRequest} returns this
+ */
+proto.fonos.projects.v1beta1.CreateProjectRequest.prototype.setAllowExperiments = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
@@ -644,6 +674,7 @@ proto.fonos.projects.v1beta1.UpdateProjectRequest.prototype.toObject = function(
  */
 proto.fonos.projects.v1beta1.UpdateProjectRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
+    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     allowExperiments: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
   };
@@ -682,6 +713,10 @@ proto.fonos.projects.v1beta1.UpdateProjectRequest.deserializeBinaryFromReader = 
     }
     var field = reader.getFieldNumber();
     switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRef(value);
+      break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setName(value);
@@ -719,6 +754,13 @@ proto.fonos.projects.v1beta1.UpdateProjectRequest.prototype.serializeBinary = fu
  */
 proto.fonos.projects.v1beta1.UpdateProjectRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = message.getRef();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
   f = message.getName();
   if (f.length > 0) {
     writer.writeString(
@@ -733,6 +775,24 @@ proto.fonos.projects.v1beta1.UpdateProjectRequest.serializeBinaryToWriter = func
       f
     );
   }
+};
+
+
+/**
+ * optional string ref = 1;
+ * @return {string}
+ */
+proto.fonos.projects.v1beta1.UpdateProjectRequest.prototype.getRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.projects.v1beta1.UpdateProjectRequest} returns this
+ */
+proto.fonos.projects.v1beta1.UpdateProjectRequest.prototype.setRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -1326,11 +1386,12 @@ proto.fonos.projects.v1beta1.Project.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
     ref: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    accessKeyId: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    accessKeySecret: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    allowExperiments: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
-    createTime: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    updateTime: jspb.Message.getFieldWithDefault(msg, 7, "")
+    userRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    accessKeySecret: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    allowExperiments: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
+    createTime: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    updateTime: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -1377,21 +1438,25 @@ proto.fonos.projects.v1beta1.Project.deserializeBinaryFromReader = function(msg,
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAccessKeyId(value);
+      msg.setUserRef(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAccessKeySecret(value);
+      msg.setAccessKeyId(value);
       break;
     case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAccessKeySecret(value);
+      break;
+    case 6:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setAllowExperiments(value);
       break;
-    case 6:
+    case 7:
       var value = /** @type {string} */ (reader.readString());
       msg.setCreateTime(value);
       break;
-    case 7:
+    case 8:
       var value = /** @type {string} */ (reader.readString());
       msg.setUpdateTime(value);
       break;
@@ -1438,38 +1503,45 @@ proto.fonos.projects.v1beta1.Project.serializeBinaryToWriter = function(message,
       f
     );
   }
-  f = message.getAccessKeyId();
+  f = message.getUserRef();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getAccessKeySecret();
+  f = message.getAccessKeyId();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
+  f = message.getAccessKeySecret();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
   f = message.getAllowExperiments();
   if (f) {
     writer.writeBool(
-      5,
+      6,
       f
     );
   }
   f = message.getCreateTime();
   if (f.length > 0) {
     writer.writeString(
-      6,
+      7,
       f
     );
   }
   f = message.getUpdateTime();
   if (f.length > 0) {
     writer.writeString(
-      7,
+      8,
       f
     );
   }
@@ -1513,10 +1585,10 @@ proto.fonos.projects.v1beta1.Project.prototype.setRef = function(value) {
 
 
 /**
- * optional string access_key_id = 3;
+ * optional string user_ref = 3;
  * @return {string}
  */
-proto.fonos.projects.v1beta1.Project.prototype.getAccessKeyId = function() {
+proto.fonos.projects.v1beta1.Project.prototype.getUserRef = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -1525,16 +1597,16 @@ proto.fonos.projects.v1beta1.Project.prototype.getAccessKeyId = function() {
  * @param {string} value
  * @return {!proto.fonos.projects.v1beta1.Project} returns this
  */
-proto.fonos.projects.v1beta1.Project.prototype.setAccessKeyId = function(value) {
+proto.fonos.projects.v1beta1.Project.prototype.setUserRef = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string access_key_secret = 4;
+ * optional string access_key_id = 4;
  * @return {string}
  */
-proto.fonos.projects.v1beta1.Project.prototype.getAccessKeySecret = function() {
+proto.fonos.projects.v1beta1.Project.prototype.getAccessKeyId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
@@ -1543,17 +1615,35 @@ proto.fonos.projects.v1beta1.Project.prototype.getAccessKeySecret = function() {
  * @param {string} value
  * @return {!proto.fonos.projects.v1beta1.Project} returns this
  */
-proto.fonos.projects.v1beta1.Project.prototype.setAccessKeySecret = function(value) {
+proto.fonos.projects.v1beta1.Project.prototype.setAccessKeyId = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional bool allow_experiments = 5;
+ * optional string access_key_secret = 5;
+ * @return {string}
+ */
+proto.fonos.projects.v1beta1.Project.prototype.getAccessKeySecret = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.projects.v1beta1.Project} returns this
+ */
+proto.fonos.projects.v1beta1.Project.prototype.setAccessKeySecret = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional bool allow_experiments = 6;
  * @return {boolean}
  */
 proto.fonos.projects.v1beta1.Project.prototype.getAllowExperiments = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 5, false));
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 6, false));
 };
 
 
@@ -1562,33 +1652,15 @@ proto.fonos.projects.v1beta1.Project.prototype.getAllowExperiments = function() 
  * @return {!proto.fonos.projects.v1beta1.Project} returns this
  */
 proto.fonos.projects.v1beta1.Project.prototype.setAllowExperiments = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 5, value);
+  return jspb.Message.setProto3BooleanField(this, 6, value);
 };
 
 
 /**
- * optional string create_time = 6;
+ * optional string create_time = 7;
  * @return {string}
  */
 proto.fonos.projects.v1beta1.Project.prototype.getCreateTime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonos.projects.v1beta1.Project} returns this
- */
-proto.fonos.projects.v1beta1.Project.prototype.setCreateTime = function(value) {
-  return jspb.Message.setProto3StringField(this, 6, value);
-};
-
-
-/**
- * optional string update_time = 7;
- * @return {string}
- */
-proto.fonos.projects.v1beta1.Project.prototype.getUpdateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
@@ -1597,8 +1669,26 @@ proto.fonos.projects.v1beta1.Project.prototype.getUpdateTime = function() {
  * @param {string} value
  * @return {!proto.fonos.projects.v1beta1.Project} returns this
  */
-proto.fonos.projects.v1beta1.Project.prototype.setUpdateTime = function(value) {
+proto.fonos.projects.v1beta1.Project.prototype.setCreateTime = function(value) {
   return jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
+/**
+ * optional string update_time = 8;
+ * @return {string}
+ */
+proto.fonos.projects.v1beta1.Project.prototype.getUpdateTime = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.projects.v1beta1.Project} returns this
+ */
+proto.fonos.projects.v1beta1.Project.prototype.setUpdateTime = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
 };
 
 

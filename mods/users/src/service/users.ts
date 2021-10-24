@@ -19,7 +19,7 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import grpc from "@grpc/grpc-js";
-import {
+import UserPB, {
   CreateUserRequest,
   UpdateUserRequest,
   GetUserRequest,
@@ -27,7 +27,6 @@ import {
   LoginRequest,
   LoginResponse
 } from "./protos/users_pb";
-import UserPB from "./protos/users_pb";
 import {Empty} from "./protos/common_pb";
 import {
   IUsersService,
