@@ -40,7 +40,7 @@ import {getRedisConnection, getAccessKeyId} from "@fonos/core";
 import objectid from "objectid";
 import encoder from "./encoder";
 import {assertNotEmpty} from "./assertions";
-import JWT from "@fonos/auth/src/utils/jwt";
+import JWT from "@fonos/auth/dist/utils/jwt";
 import {AUTH_ISS, getSalt} from "@fonos/certs";
 import Auth from "@fonos/auth/dist/utils/auth_utils";
 import decoder from "./decoder";

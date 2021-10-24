@@ -41,7 +41,7 @@ import decoder from "./decoder";
 import {FonosError} from "@fonos/errors";
 import {ErrorCodes} from "@fonos/errors";
 import Auth from "@fonos/auth/dist/utils/auth_utils";
-import JWT from "@fonos/auth/src/utils/jwt";
+import JWT from "@fonos/auth/dist/utils/jwt";
 import {AUTH_ISS, getSalt} from "@fonos/certs";
 import logger from "@fonos/logger";
 import bcrypt from "bcrypt";
