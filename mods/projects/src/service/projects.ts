@@ -92,8 +92,10 @@ class ProjectsServer implements IProjectsServer {
   ) {
     try {
       const ref = call.request.getRef();
-      const raw = (await redis.get(ref)).toString();
-      const project = decoder(raw);
+      const raw = await redis.get(ref);
+      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+
+      const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
         throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
@@ -116,8 +118,11 @@ class ProjectsServer implements IProjectsServer {
     callback: grpc.sendUnaryData<ProjectsPB.Project>
   ) {
     try {
-      const raw = (await redis.get(call.request.getRef())).toString();
-      const project = decoder(raw);
+      const ref = call.request.getRef();
+      const raw = await redis.get(ref);
+      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+
+      const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
         throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
@@ -134,8 +139,11 @@ class ProjectsServer implements IProjectsServer {
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      const raw = (await redis.get(call.request.getRef())).toString();
-      const project = decoder(raw);
+      const ref = call.request.getRef();
+      const raw = await redis.get(ref);
+      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+
+      const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
         throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
@@ -180,8 +188,11 @@ class ProjectsServer implements IProjectsServer {
     callback: grpc.sendUnaryData<RenewAccessKeySecretResponse>
   ) {
     try {
-      const raw = (await redis.get(call.request.getRef())).toString();
-      const project = decoder(raw);
+      const ref = call.request.getRef();
+      const raw = await redis.get(ref);
+      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+
+      const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
         throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);

@@ -1,10 +1,10 @@
 /**
- * MIT License
- * Copyright (c) 2021 Fonoster Inc
- *
- * The Users proto contains the artificats for the administration
- * of Users.
- */
+* MIT License
+* Copyright (c) 2021 Fonoster Inc
+*
+* The Users proto contains the artificats for the administration
+* of Users.
+*/
 syntax = "proto3";
 
 package fonos.projects.v1beta1;
@@ -31,7 +31,7 @@ service Projects {
   // Updates a given Project
   rpc UpdateProject (UpdateProjectRequest) returns (Project) {
     option (google.api.http) = { 
-      post: "/v1beta1/projects/{ref}"
+      put: "/v1beta1/projects/{ref}"
       body: "*"
     };
   };
@@ -43,9 +43,9 @@ service Projects {
   rpc DeleteProject (DeleteProjectRequest) returns (fonos.common.v1beta1.Empty) {
     option (google.api.http) = { delete: "/v1beta1/projects/{ref}" };
   };
-  // Replace the old key
+  // Regenerates the accessKeySecret
   rpc RenewAccessKeySecret (RenewAccessKeySecretRequest) returns (RenewAccessKeySecretResponse) {
-    option (google.api.http) = { get: "/v1beta1/projects/{ref}" };
+    option (google.api.http) = { get: "/v1beta1/projects/{ref}/credentials" };
   };
 }
 
@@ -66,7 +66,7 @@ message CreateProjectRequest {
 
 message UpdateProjectRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"name\": \"Acme Corp 2\", \"allowExperiments\": \"true\"}"
+    example: "{\"name\": \"Acme Corp 2\", \"allowExperiments\": true}"
   };
   string ref = 1;
   string name = 2;
@@ -91,7 +91,7 @@ message RenewAccessKeySecretResponse {
 
 message Project {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"507f191e810c19729de860ea\", \"userRef\": \"057d191e810c19563de45767\", \"name\": \"Acme Main\", \"accessKeyId\": \"507f191e810c19729de860ea\", \"accessKeySecret\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\", \"allowExperiments\": \"false\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+    example: "{\"ref\": \"507f191e810c19729de860ea\", \"userRef\": \"057d191e810c19563de45767\", \"name\": \"Acme Main\", \"accessKeyId\": \"507f191e810c19729de860ea\", \"accessKeySecret\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\", \"allowExperiments\": false, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
   };
   string name = 1 [(google.api.field_behavior) = REQUIRED];
   string ref = 2 [(google.api.field_behavior) = REQUIRED];
