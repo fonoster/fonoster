@@ -153,9 +153,9 @@ deleteUser: {
     responseSerialize: serialize_fonos_common_v1beta1_Empty,
     responseDeserialize: deserialize_fonos_common_v1beta1_Empty,
   },
-  // Creates
-login: {
-    path: '/fonos.users.v1beta1.Users/Login',
+  // Creates a set of credentials
+loginUser: {
+    path: '/fonos.users.v1beta1.Users/LoginUser',
     requestStream: false,
     responseStream: false,
     requestType: users_pb.LoginRequest,

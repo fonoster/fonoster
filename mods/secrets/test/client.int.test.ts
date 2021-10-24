@@ -26,7 +26,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@Fonos/secrets/client", () => {
+describe("@fonos/secrets/client", () => {
   afterEach(() => sandbox.restore());
 
   it("should create a new secret", (done) => {

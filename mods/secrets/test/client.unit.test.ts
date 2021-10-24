@@ -31,7 +31,7 @@ const response = {
   getName: () => "my-secret"
 };
 
-describe("@Fonos/secrets/client", () => {
+describe("@fonos/secrets/client", () => {
   afterEach(() => sandbox.restore());
 
   it("should create a secret", async () => {

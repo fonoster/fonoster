@@ -29,7 +29,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@Fonos/providers", () => {
+describe("@fonos/providers", () => {
   const providerObj = new ProvidersPB.Provider();
   providerObj.setRef("Nx05y-ldZa");
   providerObj.setName("Fake Provider");

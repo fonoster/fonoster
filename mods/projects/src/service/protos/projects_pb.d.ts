@@ -1,4 +1,4 @@
-// package: fonos.users.v1beta1
+// package: fonos.projects.v1beta1
 // file: projects.proto
 
 /* tslint:disable */
@@ -51,6 +51,8 @@ export namespace ListProjectsResponse {
 export class CreateProjectRequest extends jspb.Message { 
     getName(): string;
     setName(value: string): CreateProjectRequest;
+    getAllowExperiments(): boolean;
+    setAllowExperiments(value: boolean): CreateProjectRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CreateProjectRequest.AsObject;
@@ -65,10 +67,13 @@ export class CreateProjectRequest extends jspb.Message {
 export namespace CreateProjectRequest {
     export type AsObject = {
         name: string,
+        allowExperiments: boolean,
     }
 }
 
 export class UpdateProjectRequest extends jspb.Message { 
+    getRef(): string;
+    setRef(value: string): UpdateProjectRequest;
     getName(): string;
     setName(value: string): UpdateProjectRequest;
     getAllowExperiments(): boolean;
@@ -86,6 +91,7 @@ export class UpdateProjectRequest extends jspb.Message {
 
 export namespace UpdateProjectRequest {
     export type AsObject = {
+        ref: string,
         name: string,
         allowExperiments: boolean,
     }
@@ -176,10 +182,12 @@ export class Project extends jspb.Message {
     setName(value: string): Project;
     getRef(): string;
     setRef(value: string): Project;
-    getAccesskeyid(): string;
-    setAccesskeyid(value: string): Project;
-    getAccesskeysecret(): string;
-    setAccesskeysecret(value: string): Project;
+    getUserRef(): string;
+    setUserRef(value: string): Project;
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): Project;
+    getAccessKeySecret(): string;
+    setAccessKeySecret(value: string): Project;
     getAllowExperiments(): boolean;
     setAllowExperiments(value: boolean): Project;
     getCreateTime(): string;
@@ -201,8 +209,9 @@ export namespace Project {
     export type AsObject = {
         name: string,
         ref: string,
-        accesskeyid: string,
-        accesskeysecret: string,
+        userRef: string,
+        accessKeyId: string,
+        accessKeySecret: string,
         allowExperiments: boolean,
         createTime: string,
         updateTime: string,

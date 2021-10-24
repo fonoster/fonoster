@@ -16,3 +16,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface User {
+  ref: string;
+  accessKeyId: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  secret: string;
+  expiration?: string;
+}
+
+export interface LoginResponse {
+  accessKeyId: string;
+  accessKeySecret: string;
+}
+
+export interface CreateUserRequest {
+  email: string;
+  name: string;
+  secret: string;
+  avatar?: string;
+}
+
+export interface CreateUserResponse {
+  ref: string;
+  accessKeyId: string;
+  email: string;
+  name: string;
+  avatar?: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface UpdateUserRequest {
+  ref: string;
+  email?: string;
+  name?: string;
+  secret?: string;
+  avatar?: string;
+}
+
+export interface UpdateUserResponse {
+  ref: string;
+}
+
+export interface GetUserRequest {
+  ref: string;
+}
+
+export interface GetUserResponse {
+  ref: string;
+  accessKeyId: string;
+  email: string;
+  name: string;
+  avatar: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface DeleteUserRequest {
+  ref: string;
+}
+
+export interface DeleteUserResponse {
+  ref: string;
+}

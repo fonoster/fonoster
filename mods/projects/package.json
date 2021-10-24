@@ -44,7 +44,9 @@
   },
   "dependencies": {
     "@fonos/auth": "^0.2.3",
+    "@fonos/certs": "^0.2.2",
     "@fonos/common": "^0.2.2",
+    "@fonos/errors": "^0.2.2",
     "@fonos/core": "^0.2.3",
     "@fonos/logger": "^0.2.2",
     "@grpc/grpc-js": "^1.3.6",

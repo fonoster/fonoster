@@ -1,4 +1,4 @@
-// package: fonos.users.v1beta1
+// package: fonos.projects.v1beta1
 // file: projects.proto
 
 /* tslint:disable */
@@ -21,7 +21,7 @@ interface IProjectsService extends grpc.ServiceDefinition<grpc.UntypedServiceImp
 }
 
 interface IProjectsService_IListProjects extends grpc.MethodDefinition<projects_pb.ListProjectsRequest, projects_pb.ListProjectsResponse> {
-    path: "/fonos.users.v1beta1.Projects/ListProjects";
+    path: "/fonos.projects.v1beta1.Projects/ListProjects";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<projects_pb.ListProjectsRequest>;
@@ -30,7 +30,7 @@ interface IProjectsService_IListProjects extends grpc.MethodDefinition<projects_
     responseDeserialize: grpc.deserialize<projects_pb.ListProjectsResponse>;
 }
 interface IProjectsService_ICreateProject extends grpc.MethodDefinition<projects_pb.CreateProjectRequest, projects_pb.Project> {
-    path: "/fonos.users.v1beta1.Projects/CreateProject";
+    path: "/fonos.projects.v1beta1.Projects/CreateProject";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<projects_pb.CreateProjectRequest>;
@@ -39,7 +39,7 @@ interface IProjectsService_ICreateProject extends grpc.MethodDefinition<projects
     responseDeserialize: grpc.deserialize<projects_pb.Project>;
 }
 interface IProjectsService_IUpdateProject extends grpc.MethodDefinition<projects_pb.UpdateProjectRequest, projects_pb.Project> {
-    path: "/fonos.users.v1beta1.Projects/UpdateProject";
+    path: "/fonos.projects.v1beta1.Projects/UpdateProject";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<projects_pb.UpdateProjectRequest>;
@@ -48,7 +48,7 @@ interface IProjectsService_IUpdateProject extends grpc.MethodDefinition<projects
     responseDeserialize: grpc.deserialize<projects_pb.Project>;
 }
 interface IProjectsService_IGetProject extends grpc.MethodDefinition<projects_pb.GetProjectRequest, projects_pb.Project> {
-    path: "/fonos.users.v1beta1.Projects/GetProject";
+    path: "/fonos.projects.v1beta1.Projects/GetProject";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<projects_pb.GetProjectRequest>;
@@ -57,7 +57,7 @@ interface IProjectsService_IGetProject extends grpc.MethodDefinition<projects_pb
     responseDeserialize: grpc.deserialize<projects_pb.Project>;
 }
 interface IProjectsService_IDeleteProject extends grpc.MethodDefinition<projects_pb.DeleteProjectRequest, common_pb.Empty> {
-    path: "/fonos.users.v1beta1.Projects/DeleteProject";
+    path: "/fonos.projects.v1beta1.Projects/DeleteProject";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<projects_pb.DeleteProjectRequest>;
@@ -66,7 +66,7 @@ interface IProjectsService_IDeleteProject extends grpc.MethodDefinition<projects
     responseDeserialize: grpc.deserialize<common_pb.Empty>;
 }
 interface IProjectsService_IRenewAccessKeySecret extends grpc.MethodDefinition<projects_pb.RenewAccessKeySecretRequest, projects_pb.RenewAccessKeySecretResponse> {
-    path: "/fonos.users.v1beta1.Projects/RenewAccessKeySecret";
+    path: "/fonos.projects.v1beta1.Projects/RenewAccessKeySecret";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<projects_pb.RenewAccessKeySecretRequest>;

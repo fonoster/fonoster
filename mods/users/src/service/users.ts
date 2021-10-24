@@ -19,7 +19,7 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import grpc from "@grpc/grpc-js";
-import {
+import UserPB, {
   CreateUserRequest,
   UpdateUserRequest,
   GetUserRequest,
@@ -27,7 +27,6 @@ import {
   LoginRequest,
   LoginResponse
 } from "./protos/users_pb";
-import UserPB from "./protos/users_pb";
 import {Empty} from "./protos/common_pb";
 import {
   IUsersService,
@@ -84,8 +83,6 @@ class UsersServer implements IUsersServer {
 
       redis.set(ref, encoder(user, secretHash));
       redis.set(call.request.getEmail(), ref);
-
-      user.setSecret(null);
       callback(null, user);
     } catch (e) {
       callback(e, null);
@@ -155,7 +152,7 @@ class UsersServer implements IUsersServer {
     }
   }
 
-  async login(
+  async loginUser(
     call: grpc.ServerUnaryCall<LoginRequest, LoginResponse>,
     callback: grpc.sendUnaryData<LoginResponse>
   ) {

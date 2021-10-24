@@ -16,3 +16,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface Project {
+  ref: string;
+  name: string;
+  userRef: string;
+  accessKeyId: string;
+  accessKeySecret: string;
+  allowExperiments: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface CreateProjectRequest {
+  name: string;
+  allowExperiments: boolean;
+}
+
+export interface CreateProjectResponse {
+  ref: string;
+  name: string;
+  userRef: string;
+  accessKeyId: string;
+  accessKeySecret: string;
+  allowExperiments: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface UpdateProjectRequest {
+  ref: string;
+  name?: string;
+  allowExperiments: boolean;
+}
+
+export interface UpdateProjectResponse {
+  ref: string;
+}
+
+export interface GetProjectRequest {
+  ref: string;
+}
+
+export interface GetProjectResponse {
+  ref: string;
+  name: string;
+  userRef: string;
+  accessKeyId: string;
+  accessKeySecret: string;
+  allowExperiments: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface DeleteProjectRequest {
+  ref: string;
+}
+
+export interface DeleteProjectResponse {
+  ref: string;
+}
+
+export interface RenewAccessKeySecretRequest {
+  ref: string;
+}
+
+export interface RenewAccessKeySecretResponse {
+  accessKeySecret: string;
+}

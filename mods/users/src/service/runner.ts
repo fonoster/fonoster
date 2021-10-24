@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import UsersServer from "./users";
 import {UsersService} from "./protos/users_grpc_pb";
 import {AuthMiddleware} from "@fonos/auth";
