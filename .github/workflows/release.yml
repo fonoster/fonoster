@@ -5,8 +5,6 @@ on:
     - 'mods/**'
     branches:
     - main
-  #release:
-  #  types: [published]
   workflow_dispatch:
 jobs:
   build:
@@ -37,6 +35,22 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
         buildargs: FONOS_VERSION,BRANCH
+    - name: Publish to Docker Hub the Projects API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-projects
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/projects
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Users API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/fonos-users
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/users
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
     - name: Publish to Docker Hub the Secrets API 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
@@ -109,6 +123,14 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/auth
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publishing MediaServer Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/mediaserver
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'        
     - name: Publishing JWTHelper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -117,10 +139,20 @@ jobs:
         token: ${{ secrets.GH_PAT }}
         ref: main
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing MediaServer Service
+    - name: Publishing OAuth2 Service
       uses: benc-uk/workflow-dispatch@v1
       with:
         workflow: publish to docker hub
-        repo: fonoster/mediaserver
+        repo: fonoster/oauth2
         token: ${{ secrets.GH_PAT }}
         ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing GRPC Gateway
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/grpc-gateway
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'          
+
