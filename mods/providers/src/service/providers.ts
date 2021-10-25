@@ -64,10 +64,7 @@ class ProvidersServer implements IProvidersServer {
     callback: grpc.sendUnaryData<Provider>
   ) {
     try {
-      const resource = new ResourceBuilder(
-        Kind.GATEWAY,
-        call.request.getName()
-      )
+      const resource = new ResourceBuilder(Kind.GATEWAY, call.request.getName())
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withHost(call.request.getHost())
         .withTransport(call.request.getTransport())
@@ -87,7 +84,10 @@ class ProvidersServer implements IProvidersServer {
     callback: grpc.sendUnaryData<Provider>
   ) {
     try {
-      const provider = await ResourceServer.getResource(Kind.DOMAIN, call) as any;
+      const provider = (await ResourceServer.getResource(
+        Kind.DOMAIN,
+        call
+      )) as any;
 
       const resource = new ResourceBuilder(
         Kind.GATEWAY,

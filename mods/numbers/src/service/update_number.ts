@@ -3,10 +3,10 @@
 import {FonosInvalidArgument} from "@fonos/errors";
 import {ResourceBuilder, Kind, routr, ResourceServer} from "@fonos/core";
 import numberDecoder from "./decoder";
-import { UpdateNumberRequest } from "./protos/numbers_pb";
+import {UpdateNumberRequest} from "./protos/numbers_pb";
 
 export default async function updateNumber(call: any, callback: any) {
-  const request = call.request
+  const request = call.request;
   if (request.getAorLink() && request.getIngressInfo()) {
     callback(
       new FonosInvalidArgument(
@@ -23,12 +23,9 @@ export default async function updateNumber(call: any, callback: any) {
     return;
   }
 
-  let encoder = new ResourceBuilder(
-    Kind.NUMBER,
-    request.getRef()
-  );
+  let encoder = new ResourceBuilder(Kind.NUMBER, request.getRef());
 
-  const number = await ResourceServer.getResource(Kind.NUMBER, call) as any;
+  const number = (await ResourceServer.getResource(Kind.NUMBER, call)) as any;
 
   if (request.getAorLink()) {
     encoder = encoder

@@ -85,11 +85,7 @@ class DomainsServer implements IDomainsServer {
       return;
     }
     try {
-      const resource = new ResourceBuilder(
-        Kind.DOMAIN,
-        request.getName(),
-        null
-      )
+      const resource = new ResourceBuilder(Kind.DOMAIN, request.getName(), null)
         .withDomainUri(domainUri)
         .withEgressPolicy(request.getEgressRule(), request.getEgressNumberRef())
         .withACL(request.getAccessAllowList(), request.getAccessDenyList())
@@ -113,7 +109,10 @@ class DomainsServer implements IDomainsServer {
       return;
     }
     try {
-      const domain = await ResourceServer.getResource(Kind.DOMAIN, call) as any;
+      const domain = (await ResourceServer.getResource(
+        Kind.DOMAIN,
+        call
+      )) as any;
 
       const resource = new ResourceBuilder(
         Kind.DOMAIN,

@@ -9,7 +9,9 @@ export const assertIsE164 = (number: string) => {
   }
 };
 
-export const assertHasAorLinkOrIngressInfo = (number: NumbersPB.CreateNumberRequest) => {
+export const assertHasAorLinkOrIngressInfo = (
+  number: NumbersPB.CreateNumberRequest
+) => {
   if (number.getAorLink() && number.getIngressInfo()) {
     throw new FonosInvalidArgument(
       "'webhook' and 'aorLink' are not compatible parameters"

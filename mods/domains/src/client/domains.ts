@@ -188,7 +188,7 @@ export default class Domains extends FonosService {
   ): Promise<UpdateDomainResponse> {
     const outRequest = new DomainsPB.UpdateDomainRequest();
     outRequest.setRef(request.ref);
-    
+
     if (request.name) outRequest.setName(request.name);
     if (request.egressRule) outRequest.setEgressRule(request.egressRule);
     if (request.egressNumberRef) {
