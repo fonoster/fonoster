@@ -208,7 +208,7 @@ describe("@fonos/providers", () => {
     const providerAPI = new Providers();
     const result = await providerAPI.updateProvider(request);
     expect(result).to.have.property("ref").to.be.equal(returnProvider.ref);
-    expect(updateProviderStub).to.be.calledThrice;
+    expect(updateProviderStub).to.be.calledTwice;
   });
 
   context("provider decoder", () => {

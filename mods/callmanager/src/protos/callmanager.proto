@@ -41,5 +41,6 @@ message CallRequest {
 }
 
 message CallResponse {
+  // Call's reference
   string ref = 1;
 }

@@ -61,11 +61,10 @@ class AgentsServer implements IAgentsServer {
     call: grpc.ServerUnaryCall<CreateAgentRequest, Agent>,
     callback: grpc.sendUnaryData<Agent>
   ) {
-    const agent = call.request.getAgent();
     try {
-      const resource = new ResourceBuilder(Kind.AGENT, agent.getName())
-        .withCredentials(agent.getUsername(), agent.getSecret())
-        .withDomains(agent.getDomainsList())
+      const resource = new ResourceBuilder(Kind.AGENT, call.request.getName())
+        .withCredentials(call.request.getUsername(), call.request.getSecret())
+        .withDomains(call.request.getDomainsList())
         .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
@@ -81,18 +80,19 @@ class AgentsServer implements IAgentsServer {
     call: grpc.ServerUnaryCall<UpdateAgentRequest, Agent>,
     callback: grpc.sendUnaryData<Agent>
   ) {
-    const agent = call.request.getAgent();
     try {
+      const agent = await ResourceServer.getResource(Kind.DOMAIN, call) as any;
+
       const resource = new ResourceBuilder(
         Kind.AGENT,
-        agent.getName(),
-        agent.getRef()
+        call.request.getName(),
+        call.request.getRef()
       )
-        .withCredentials(agent.getUsername(), agent.getSecret())
-        .withDomains(agent.getDomainsList())
+        .withCredentials(call.request.getUsername(), call.request.getSecret())
+        .withDomains(call.request.getDomainsList())
         .withMetadata({
-          createdOn: agent.getCreateTime(),
-          modifiedOn: agent.getUpdateTime()
+          createdOn: agent.metadata.createdOn,
+          modifiedOn: new Date().toISOString()
         })
         .build();
 

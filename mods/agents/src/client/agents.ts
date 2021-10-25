@@ -95,15 +95,12 @@ export default class Agents extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async createAgent(request: CreateAgentRequest): Promise<CreateAgentResponse> {
-    const agent = new AgentsPB.Agent();
-    agent.setName(request.name);
-    agent.setUsername(request.username);
-    agent.setSecret(request.secret);
-    agent.setDomainsList(request.domains);
-    agent.setPrivacy(request.privacy);
-
     const outRequest = new AgentsPB.CreateAgentRequest();
-    outRequest.setAgent(agent);
+    outRequest.setName(request.name);
+    outRequest.setUsername(request.username);
+    outRequest.setSecret(request.secret);
+    outRequest.setDomainsList(request.domains);
+    outRequest.setPrivacy(request.privacy);
 
     const res = await super.getService().createAgent().sendMessage(outRequest);
 
@@ -172,19 +169,12 @@ export default class Agents extends FonosService {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async updateAgent(request: UpdateAgentRequest): Promise<UpdateAgentResponse> {
-    const getAgentRequest = new AgentsPB.GetAgentRequest();
-    getAgentRequest.setRef(request.ref);
-    const agent = await super
-      .getService()
-      .getAgent()
-      .sendMessage(getAgentRequest);
-
-    if (request.name) agent.setName(request.name);
-    if (request.secret) agent.setSecret(request.secret);
-    if (request.privacy) agent.setPrivacy(request.privacy);
-
     const req = new AgentsPB.UpdateAgentRequest();
-    req.setAgent(agent);
+    req.setRef(request.ref);
+
+    if (request.name) req.setName(request.name);
+    if (request.secret) req.setSecret(request.secret);
+    if (request.privacy) req.setPrivacy(request.privacy);
 
     const res = await super.getService().updateAgent().sendMessage(req);
 

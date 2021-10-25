@@ -68,20 +68,24 @@ message UpdateProjectRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"name\": \"Acme Corp 2\", \"allowExperiments\": true}"
   };
+  // Project's reference
   string ref = 1;
   string name = 2;
   bool allow_experiments = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
 message GetProjectRequest {
+  // Project's reference
   string ref = 1;
 }
 
 message DeleteProjectRequest {
+  // Project's reference
   string ref = 1;
 }
 
 message RenewAccessKeySecretRequest {
+  // Project's reference
   string ref = 1;
 }
 
@@ -94,6 +98,7 @@ message Project {
     example: "{\"ref\": \"507f191e810c19729de860ea\", \"userRef\": \"057d191e810c19563de45767\", \"name\": \"Acme Main\", \"accessKeyId\": \"507f191e810c19729de860ea\", \"accessKeySecret\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\", \"allowExperiments\": false, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
   };
   string name = 1 [(google.api.field_behavior) = REQUIRED];
+  // Project's reference
   string ref = 2 [(google.api.field_behavior) = REQUIRED];
   string user_ref = 3 [(google.api.field_behavior) = REQUIRED];
   string access_key_id = 4 [(google.api.field_behavior) = REQUIRED];

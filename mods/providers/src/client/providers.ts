@@ -100,16 +100,13 @@ export default class Providers extends FonosService {
   async createProvider(
     request: CreateProviderRequest
   ): Promise<CreateProviderResponse> {
-    const provider = new ProvidersPB.Provider();
-    provider.setName(request.name);
-    provider.setUsername(request.username);
-    provider.setSecret(request.secret);
-    provider.setHost(request.host);
-    provider.setTransport(request.transport || "tcp");
-    provider.setExpires(request.expires || 3600);
-
     const req = new ProvidersPB.CreateProviderRequest();
-    req.setProvider(provider);
+    req.setName(request.name);
+    req.setUsername(request.username);
+    req.setSecret(request.secret);
+    req.setHost(request.host);
+    req.setTransport(request.transport || "tcp");
+    req.setExpires(request.expires || 3600);
 
     const res = await super.getService().createProvider().sendMessage(req);
 
@@ -189,21 +186,13 @@ export default class Providers extends FonosService {
   async updateProvider(
     request: UpdateProviderRequest
   ): Promise<UpdateProviderResponse> {
-    const getProviderRequest = new ProvidersPB.GetProviderRequest();
-    getProviderRequest.setRef(request.ref);
-    const provider = await this.getService()
-      .getProvider()
-      .sendMessage(getProviderRequest);
-
-    if (request.name) provider.setName(request.name);
-    if (request.username) provider.setUsername(request.username);
-    if (request.secret) provider.setSecret(request.secret);
-    if (request.host) provider.setHost(request.host);
-    if (request.transport) provider.setTransport(request.transport);
-    if (request.expires) provider.setExpires(request.expires);
-
     const req = new ProvidersPB.UpdateProviderRequest();
-    req.setProvider(provider);
+    if (request.name) req.setName(request.name);
+    if (request.username) req.setUsername(request.username);
+    if (request.secret) req.setSecret(request.secret);
+    if (request.host) req.setHost(request.host);
+    if (request.transport) req.setTransport(request.transport);
+    if (request.expires) req.setExpires(request.expires);
 
     const res = await super.getService().updateProvider().sendMessage(req);
 

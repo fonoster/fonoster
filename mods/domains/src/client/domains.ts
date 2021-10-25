@@ -96,16 +96,13 @@ export default class Domains extends FonosService {
   async createDomain(
     request: CreateDomainRequest
   ): Promise<CreateDomainResponse> {
-    const domain = new DomainsPB.Domain();
-    domain.setName(request.name);
-    domain.setDomainUri(request.domainUri);
-    domain.setEgressRule(request.egressRule);
-    domain.setEgressNumberRef(request.egressNumberRef);
-    domain.setAccessDenyList(request.accessDeny);
-    domain.setAccessAllowList(request.accessAllow);
-
     const outRequest = new DomainsPB.CreateDomainRequest();
-    outRequest.setDomain(domain);
+    outRequest.setName(request.name);
+    outRequest.setDomainUri(request.domainUri);
+    outRequest.setEgressRule(request.egressRule);
+    outRequest.setEgressNumberRef(request.egressNumberRef);
+    outRequest.setAccessDenyList(request.accessDeny);
+    outRequest.setAccessAllowList(request.accessAllow);
 
     const res = await super.getService().createDomain().sendMessage(outRequest);
 
@@ -189,25 +186,18 @@ export default class Domains extends FonosService {
   async updateDomain(
     request: UpdateDomainRequest
   ): Promise<UpdateDomainResponse> {
-    const getDomainRequest = new DomainsPB.GetDomainRequest();
-    getDomainRequest.setRef(request.ref);
-    const domain = await super
-      .getService()
-      .getDomain()
-      .sendMessage(getDomainRequest);
-
-    if (request.name) domain.setName(request.name);
-    if (request.egressRule) domain.setEgressRule(request.egressRule);
+    const outRequest = new DomainsPB.UpdateDomainRequest();
+    outRequest.setRef(request.ref);
+    
+    if (request.name) outRequest.setName(request.name);
+    if (request.egressRule) outRequest.setEgressRule(request.egressRule);
     if (request.egressNumberRef) {
-      domain.setEgressNumberRef(request.egressNumberRef);
+      outRequest.setEgressNumberRef(request.egressNumberRef);
     }
-    if (request.accessDeny) domain.setAccessDenyList(request.accessDeny);
-    if (request.accessAllow) domain.setAccessAllowList(request.accessAllow);
+    if (request.accessDeny) outRequest.setAccessDenyList(request.accessDeny);
+    if (request.accessAllow) outRequest.setAccessAllowList(request.accessAllow);
 
-    const req = new DomainsPB.UpdateDomainRequest();
-    req.setDomain(domain);
-
-    const res = await super.getService().updateDomain().sendMessage(req);
+    const res = await super.getService().updateDomain().sendMessage(outRequest);
 
     return {
       ref: res.getRef()

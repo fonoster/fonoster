@@ -633,7 +633,10 @@ proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.toObject = function(op
  */
 proto.fonos.numbers.v1beta1.CreateNumberRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    number: (f = msg.getNumber()) && proto.fonos.numbers.v1beta1.Number.toObject(includeInstance, f)
+    providerRef: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    e164Number: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    aorLink: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    ingressInfo: (f = msg.getIngressInfo()) && proto.fonos.numbers.v1beta1.IngressInfo.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -671,9 +674,21 @@ proto.fonos.numbers.v1beta1.CreateNumberRequest.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.fonos.numbers.v1beta1.Number;
-      reader.readMessage(value,proto.fonos.numbers.v1beta1.Number.deserializeBinaryFromReader);
-      msg.setNumber(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setProviderRef(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setE164Number(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAorLink(value);
+      break;
+    case 4:
+      var value = new proto.fonos.numbers.v1beta1.IngressInfo;
+      reader.readMessage(value,proto.fonos.numbers.v1beta1.IngressInfo.deserializeBinaryFromReader);
+      msg.setIngressInfo(value);
       break;
     default:
       reader.skipField();
@@ -704,33 +719,108 @@ proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.serializeBinary = func
  */
 proto.fonos.numbers.v1beta1.CreateNumberRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getNumber();
+  f = message.getProviderRef();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = message.getE164Number();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getAorLink();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getIngressInfo();
   if (f != null) {
     writer.writeMessage(
-      1,
+      4,
       f,
-      proto.fonos.numbers.v1beta1.Number.serializeBinaryToWriter
+      proto.fonos.numbers.v1beta1.IngressInfo.serializeBinaryToWriter
     );
   }
 };
 
 
 /**
- * optional Number number = 1;
- * @return {?proto.fonos.numbers.v1beta1.Number}
+ * optional string provider_ref = 1;
+ * @return {string}
  */
-proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.getNumber = function() {
-  return /** @type{?proto.fonos.numbers.v1beta1.Number} */ (
-    jspb.Message.getWrapperField(this, proto.fonos.numbers.v1beta1.Number, 1));
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.getProviderRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {?proto.fonos.numbers.v1beta1.Number|undefined} value
+ * @param {string} value
+ * @return {!proto.fonos.numbers.v1beta1.CreateNumberRequest} returns this
+ */
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.setProviderRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string e164_number = 2;
+ * @return {string}
+ */
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.getE164Number = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.numbers.v1beta1.CreateNumberRequest} returns this
+ */
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.setE164Number = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string aor_link = 3;
+ * @return {string}
+ */
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.getAorLink = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.numbers.v1beta1.CreateNumberRequest} returns this
+ */
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.setAorLink = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional IngressInfo ingress_info = 4;
+ * @return {?proto.fonos.numbers.v1beta1.IngressInfo}
+ */
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.getIngressInfo = function() {
+  return /** @type{?proto.fonos.numbers.v1beta1.IngressInfo} */ (
+    jspb.Message.getWrapperField(this, proto.fonos.numbers.v1beta1.IngressInfo, 4));
+};
+
+
+/**
+ * @param {?proto.fonos.numbers.v1beta1.IngressInfo|undefined} value
  * @return {!proto.fonos.numbers.v1beta1.CreateNumberRequest} returns this
 */
-proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.setNumber = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.setIngressInfo = function(value) {
+  return jspb.Message.setWrapperField(this, 4, value);
 };
 
 
@@ -738,8 +828,8 @@ proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.setNumber = function(v
  * Clears the message field making it undefined.
  * @return {!proto.fonos.numbers.v1beta1.CreateNumberRequest} returns this
  */
-proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.clearNumber = function() {
-  return this.setNumber(undefined);
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.clearIngressInfo = function() {
+  return this.setIngressInfo(undefined);
 };
 
 
@@ -747,8 +837,8 @@ proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.clearNumber = function
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.hasNumber = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.fonos.numbers.v1beta1.CreateNumberRequest.prototype.hasIngressInfo = function() {
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
@@ -784,7 +874,9 @@ proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.toObject = function(op
  */
 proto.fonos.numbers.v1beta1.UpdateNumberRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    number: (f = msg.getNumber()) && proto.fonos.numbers.v1beta1.Number.toObject(includeInstance, f)
+    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    aorLink: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    ingressInfo: (f = msg.getIngressInfo()) && proto.fonos.numbers.v1beta1.IngressInfo.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -822,9 +914,17 @@ proto.fonos.numbers.v1beta1.UpdateNumberRequest.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.fonos.numbers.v1beta1.Number;
-      reader.readMessage(value,proto.fonos.numbers.v1beta1.Number.deserializeBinaryFromReader);
-      msg.setNumber(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRef(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAorLink(value);
+      break;
+    case 3:
+      var value = new proto.fonos.numbers.v1beta1.IngressInfo;
+      reader.readMessage(value,proto.fonos.numbers.v1beta1.IngressInfo.deserializeBinaryFromReader);
+      msg.setIngressInfo(value);
       break;
     default:
       reader.skipField();
@@ -855,33 +955,83 @@ proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.serializeBinary = func
  */
 proto.fonos.numbers.v1beta1.UpdateNumberRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getNumber();
+  f = message.getRef();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = message.getAorLink();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getIngressInfo();
   if (f != null) {
     writer.writeMessage(
-      1,
+      3,
       f,
-      proto.fonos.numbers.v1beta1.Number.serializeBinaryToWriter
+      proto.fonos.numbers.v1beta1.IngressInfo.serializeBinaryToWriter
     );
   }
 };
 
 
 /**
- * optional Number number = 1;
- * @return {?proto.fonos.numbers.v1beta1.Number}
+ * optional string ref = 1;
+ * @return {string}
  */
-proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.getNumber = function() {
-  return /** @type{?proto.fonos.numbers.v1beta1.Number} */ (
-    jspb.Message.getWrapperField(this, proto.fonos.numbers.v1beta1.Number, 1));
+proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.getRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {?proto.fonos.numbers.v1beta1.Number|undefined} value
+ * @param {string} value
+ * @return {!proto.fonos.numbers.v1beta1.UpdateNumberRequest} returns this
+ */
+proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.setRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional string aor_link = 2;
+ * @return {string}
+ */
+proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.getAorLink = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.numbers.v1beta1.UpdateNumberRequest} returns this
+ */
+proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.setAorLink = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional IngressInfo ingress_info = 3;
+ * @return {?proto.fonos.numbers.v1beta1.IngressInfo}
+ */
+proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.getIngressInfo = function() {
+  return /** @type{?proto.fonos.numbers.v1beta1.IngressInfo} */ (
+    jspb.Message.getWrapperField(this, proto.fonos.numbers.v1beta1.IngressInfo, 3));
+};
+
+
+/**
+ * @param {?proto.fonos.numbers.v1beta1.IngressInfo|undefined} value
  * @return {!proto.fonos.numbers.v1beta1.UpdateNumberRequest} returns this
 */
-proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.setNumber = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
+proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.setIngressInfo = function(value) {
+  return jspb.Message.setWrapperField(this, 3, value);
 };
 
 
@@ -889,8 +1039,8 @@ proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.setNumber = function(v
  * Clears the message field making it undefined.
  * @return {!proto.fonos.numbers.v1beta1.UpdateNumberRequest} returns this
  */
-proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.clearNumber = function() {
-  return this.setNumber(undefined);
+proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.clearIngressInfo = function() {
+  return this.setIngressInfo(undefined);
 };
 
 
@@ -898,8 +1048,8 @@ proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.clearNumber = function
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.hasNumber = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.fonos.numbers.v1beta1.UpdateNumberRequest.prototype.hasIngressInfo = function() {
+  return jspb.Message.getField(this, 3) != null;
 };
 
 

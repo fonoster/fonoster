@@ -63,18 +63,15 @@ class ProvidersServer implements IProvidersServer {
     call: grpc.ServerUnaryCall<CreateProviderRequest, Provider>,
     callback: grpc.sendUnaryData<Provider>
   ) {
-    const provider = call.request.getProvider();
-
     try {
       const resource = new ResourceBuilder(
         Kind.GATEWAY,
-        provider.getName(),
-        provider.getRef()
+        call.request.getName()
       )
-        .withCredentials(provider.getUsername(), provider.getSecret())
-        .withHost(provider.getHost())
-        .withTransport(provider.getTransport())
-        .withExpires(provider.getExpires())
+        .withCredentials(call.request.getUsername(), call.request.getSecret())
+        .withHost(call.request.getHost())
+        .withTransport(call.request.getTransport())
+        .withExpires(call.request.getExpires())
         .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
@@ -89,22 +86,22 @@ class ProvidersServer implements IProvidersServer {
     call: grpc.ServerUnaryCall<UpdateProviderRequest, Provider>,
     callback: grpc.sendUnaryData<Provider>
   ) {
-    const provider = call.request.getProvider();
-
     try {
+      const provider = await ResourceServer.getResource(Kind.DOMAIN, call) as any;
+
       const resource = new ResourceBuilder(
         Kind.GATEWAY,
-        provider.getName(),
+        call.request.getName(),
         provider.getRef()
       )
         .withMetadata({
-          createdOn: provider.getCreateTime(),
-          modifiedOn: provider.getUpdateTime()
+          createdOn: provider.metadata.createdOn,
+          modifiedOn: new Date().toISOString()
         })
-        .withCredentials(provider.getUsername(), provider.getSecret())
-        .withHost(provider.getHost())
-        .withTransport(provider.getTransport())
-        .withExpires(provider.getExpires())
+        .withCredentials(call.request.getUsername(), call.request.getSecret())
+        .withHost(call.request.getHost())
+        .withTransport(call.request.getTransport())
+        .withExpires(call.request.getExpires())
         .build();
 
       const result = await updateResource({

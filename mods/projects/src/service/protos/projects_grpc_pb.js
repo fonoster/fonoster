@@ -187,7 +187,7 @@ deleteProject: {
     responseSerialize: serialize_fonos_common_v1beta1_Empty,
     responseDeserialize: deserialize_fonos_common_v1beta1_Empty,
   },
-  // Replace the old key
+  // Regenerates the accessKeySecret
 renewAccessKeySecret: {
     path: '/fonos.projects.v1beta1.Projects/RenewAccessKeySecret',
     requestStream: false,

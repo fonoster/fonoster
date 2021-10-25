@@ -37,7 +37,7 @@ service Numbers {
   // Change or update fields in a resource
   rpc UpdateNumber (UpdateNumberRequest) returns (Number) {
     option (google.api.http) = { 
-      put: "/v1beta1/numbers"
+      put: "/v1beta1/numbers/{ref}"
       body: "*" 
     };
   };
@@ -71,18 +71,25 @@ message ListNumbersResponse {
 message CreateNumberRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"providerRef\": \"aynB1z0tzd\", \"e164Number\": \"+17853178070\", \"ingressInfo\": { \"webhook\": \"https://c5b6-172-220-243-215.ngrok.io\"}}"
-  };  
-  Number number = 1;
+  }; 
+  string provider_ref = 1 [(google.api.field_behavior) = REQUIRED];
+  string e164_number = 2 [(google.api.field_behavior) = REQUIRED];
+  string aor_link = 3;
+  IngressInfo ingress_info = 4;
 }
 
 message UpdateNumberRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"aiuY1z0tzd\", \"ingressInfo\": { \"webhook\": \"https://c5b6-172-220-243-215.ngrok.io\"}}"
+    example: "{\"ingressInfo\": { \"webhook\": \"https://c5b6-172-220-243-215.ngrok.io\"}}"
   };  
-  Number number = 1;
+  // Number's reference  
+  string ref = 1;
+  string aor_link = 2;
+  IngressInfo ingress_info = 3;
 }
 
 message GetNumberRequest {
+  // Number's reference  
   string ref = 1;
 }
 
@@ -91,13 +98,15 @@ message GetIngressInfoRequest {
 }
 
 message DeleteNumberRequest {
+  // Number's reference  
   string ref = 1;
 }
 
 message Number {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"ref\": \"aiuY1z0tzd\", \"providerRef\": \"aynB1z0tzd\", \"e164Number\": \"+17853178070\", \"ingressInfo\": { \"webhook\": \"https://c5b6-172-220-243-215.ngrok.io\"}, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
-  };  
+  };
+  // Number's reference
   string ref = 1;
   string provider_ref = 2 [(google.api.field_behavior) = REQUIRED];
   string e164_number = 3 [(google.api.field_behavior) = REQUIRED];

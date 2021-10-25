@@ -1,20 +1,20 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import {FonosInvalidArgument} from "@fonos/errors";
-import {ResourceBuilder, Kind, routr} from "@fonos/core";
+import {ResourceBuilder, Kind, routr, ResourceServer} from "@fonos/core";
 import numberDecoder from "./decoder";
+import { UpdateNumberRequest } from "./protos/numbers_pb";
 
 export default async function updateNumber(call: any, callback: any) {
-  const number = call.request.getNumber();
-
-  if (number.getAorLink() && number.getIngressInfo()) {
+  const request = call.request
+  if (request.getAorLink() && request.getIngressInfo()) {
     callback(
       new FonosInvalidArgument(
         "'ingressInfo' and 'aorLink' are not compatible parameters"
       )
     );
     return;
-  } else if (!number.getAorLink() && !number.getIngressInfo()) {
+  } else if (!request.getAorLink() && !request.getIngressInfo()) {
     callback(
       new FonosInvalidArgument(
         "You must provider either an 'ingressInfo' or and 'aorLink'"
@@ -25,17 +25,18 @@ export default async function updateNumber(call: any, callback: any) {
 
   let encoder = new ResourceBuilder(
     Kind.NUMBER,
-    number.getE164Number(),
-    number.getRef()
+    request.getRef()
   );
 
-  if (number.getAorLink()) {
+  const number = await ResourceServer.getResource(Kind.NUMBER, call) as any;
+
+  if (request.getAorLink()) {
     encoder = encoder
-      .withLocation(`tel:${number.getE164Number()}`, number.getAorLink())
+      .withLocation(`tel:${number.getE164Number()}`, request.getAorLink())
       .withMetadata({
-        gwRef: number.getProviderRef(),
-        createdOn: number.getCreateTime(),
-        modifiedOn: number.getUpdateTime()
+        gwRef: request.getProviderRef(),
+        createdOn: number.metadata.createdOn,
+        modifiedOn: new Date().toISOString()
       });
   } else {
     encoder = encoder

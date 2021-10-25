@@ -80,7 +80,7 @@ message UpdateUserRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"ref\": \"407f1679010c19729de860rp\", \"name\": \"John Doe\", \"avatar\": \"https://avatar.net/0121323/image.jpg\"}"
   };
-  // User reference
+  // User's reference
   string ref = 1;
   string name = 2;
   string secret = 3;
@@ -88,12 +88,12 @@ message UpdateUserRequest {
 }
 
 message GetUserRequest {
-  // User reference
+  // User's reference
   string ref = 1;
 }
 
 message DeleteUserRequest {
-  // User reference
+  // User's reference
   string ref = 1;
 }
 
@@ -101,6 +101,7 @@ message User {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"ref\": \"407f1679010c19729de860rp\", \"accessKeyId\": \"407f1679010c19729de860rp\", \"email\": \"john.doe@acme.com\", \"name\": \"John Doe\", \"avatar\": \"https://avatar.net/0121323/image.jpg\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
   };
+  // User's reference  
   string ref = 1 [(google.api.field_behavior) = REQUIRED];
   string access_key_id = 2 [(google.api.field_behavior) = REQUIRED];
   string email = 3 [(google.api.field_behavior) = REQUIRED];

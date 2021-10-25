@@ -589,7 +589,12 @@ proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.toObject = functio
  */
 proto.fonos.providers.v1beta1.CreateProviderRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    provider: (f = msg.getProvider()) && proto.fonos.providers.v1beta1.Provider.toObject(includeInstance, f)
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    username: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    secret: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    host: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    transport: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    expires: jspb.Message.getFieldWithDefault(msg, 7, 0)
   };
 
   if (includeInstance) {
@@ -626,10 +631,29 @@ proto.fonos.providers.v1beta1.CreateProviderRequest.deserializeBinaryFromReader 
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = new proto.fonos.providers.v1beta1.Provider;
-      reader.readMessage(value,proto.fonos.providers.v1beta1.Provider.deserializeBinaryFromReader);
-      msg.setProvider(value);
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUsername(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSecret(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHost(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTransport(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setExpires(value);
       break;
     default:
       reader.skipField();
@@ -660,51 +684,156 @@ proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.serializeBinary = 
  */
 proto.fonos.providers.v1beta1.CreateProviderRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getProvider();
-  if (f != null) {
-    writer.writeMessage(
-      1,
-      f,
-      proto.fonos.providers.v1beta1.Provider.serializeBinaryToWriter
+  f = message.getName();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getUsername();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getSecret();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getHost();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getTransport();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
+  f = message.getExpires();
+  if (f !== 0) {
+    writer.writeInt32(
+      7,
+      f
     );
   }
 };
 
 
 /**
- * optional Provider provider = 1;
- * @return {?proto.fonos.providers.v1beta1.Provider}
+ * optional string name = 2;
+ * @return {string}
  */
-proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.getProvider = function() {
-  return /** @type{?proto.fonos.providers.v1beta1.Provider} */ (
-    jspb.Message.getWrapperField(this, proto.fonos.providers.v1beta1.Provider, 1));
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /**
- * @param {?proto.fonos.providers.v1beta1.Provider|undefined} value
- * @return {!proto.fonos.providers.v1beta1.CreateProviderRequest} returns this
-*/
-proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.setProvider = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
+ * @param {string} value
  * @return {!proto.fonos.providers.v1beta1.CreateProviderRequest} returns this
  */
-proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.clearProvider = function() {
-  return this.setProvider(undefined);
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.setName = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * Returns whether this field is set.
- * @return {boolean}
+ * optional string username = 3;
+ * @return {string}
  */
-proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.hasProvider = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.CreateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.setUsername = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string secret = 4;
+ * @return {string}
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.getSecret = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.CreateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.setSecret = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string host = 5;
+ * @return {string}
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.getHost = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.CreateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.setHost = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string transport = 6;
+ * @return {string}
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.getTransport = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.CreateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.setTransport = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional int32 expires = 7;
+ * @return {number}
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.getExpires = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonos.providers.v1beta1.CreateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.CreateProviderRequest.prototype.setExpires = function(value) {
+  return jspb.Message.setProto3IntField(this, 7, value);
 };
 
 
@@ -740,7 +869,13 @@ proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.toObject = functio
  */
 proto.fonos.providers.v1beta1.UpdateProviderRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    provider: (f = msg.getProvider()) && proto.fonos.providers.v1beta1.Provider.toObject(includeInstance, f)
+    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    username: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    secret: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    host: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    transport: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    expires: jspb.Message.getFieldWithDefault(msg, 7, 0)
   };
 
   if (includeInstance) {
@@ -778,9 +913,32 @@ proto.fonos.providers.v1beta1.UpdateProviderRequest.deserializeBinaryFromReader 
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.fonos.providers.v1beta1.Provider;
-      reader.readMessage(value,proto.fonos.providers.v1beta1.Provider.deserializeBinaryFromReader);
-      msg.setProvider(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRef(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUsername(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSecret(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setHost(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTransport(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setExpires(value);
       break;
     default:
       reader.skipField();
@@ -811,51 +969,181 @@ proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.serializeBinary = 
  */
 proto.fonos.providers.v1beta1.UpdateProviderRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getProvider();
-  if (f != null) {
-    writer.writeMessage(
+  f = message.getRef();
+  if (f.length > 0) {
+    writer.writeString(
       1,
-      f,
-      proto.fonos.providers.v1beta1.Provider.serializeBinaryToWriter
+      f
+    );
+  }
+  f = message.getName();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getUsername();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getSecret();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getHost();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getTransport();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
+  f = message.getExpires();
+  if (f !== 0) {
+    writer.writeInt32(
+      7,
+      f
     );
   }
 };
 
 
 /**
- * optional Provider provider = 1;
- * @return {?proto.fonos.providers.v1beta1.Provider}
+ * optional string ref = 1;
+ * @return {string}
  */
-proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.getProvider = function() {
-  return /** @type{?proto.fonos.providers.v1beta1.Provider} */ (
-    jspb.Message.getWrapperField(this, proto.fonos.providers.v1beta1.Provider, 1));
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.getRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {?proto.fonos.providers.v1beta1.Provider|undefined} value
- * @return {!proto.fonos.providers.v1beta1.UpdateProviderRequest} returns this
-*/
-proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.setProvider = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
+ * @param {string} value
  * @return {!proto.fonos.providers.v1beta1.UpdateProviderRequest} returns this
  */
-proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.clearProvider = function() {
-  return this.setProvider(undefined);
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.setRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * Returns whether this field is set.
- * @return {boolean}
+ * optional string name = 2;
+ * @return {string}
  */
-proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.hasProvider = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.UpdateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.setName = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string username = 3;
+ * @return {string}
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.UpdateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.setUsername = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string secret = 4;
+ * @return {string}
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.getSecret = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.UpdateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.setSecret = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string host = 5;
+ * @return {string}
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.getHost = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.UpdateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.setHost = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string transport = 6;
+ * @return {string}
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.getTransport = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.providers.v1beta1.UpdateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.setTransport = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional int32 expires = 7;
+ * @return {number}
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.getExpires = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonos.providers.v1beta1.UpdateProviderRequest} returns this
+ */
+proto.fonos.providers.v1beta1.UpdateProviderRequest.prototype.setExpires = function(value) {
+  return jspb.Message.setProto3IntField(this, 7, value);
 };
 
 

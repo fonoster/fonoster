@@ -61,11 +61,22 @@ export namespace ListDomainsResponse {
 }
 
 export class CreateDomainRequest extends jspb.Message { 
-
-    hasDomain(): boolean;
-    clearDomain(): void;
-    getDomain(): Domain | undefined;
-    setDomain(value?: Domain): CreateDomainRequest;
+    getName(): string;
+    setName(value: string): CreateDomainRequest;
+    getDomainUri(): string;
+    setDomainUri(value: string): CreateDomainRequest;
+    getEgressRule(): string;
+    setEgressRule(value: string): CreateDomainRequest;
+    getEgressNumberRef(): string;
+    setEgressNumberRef(value: string): CreateDomainRequest;
+    clearAccessDenyList(): void;
+    getAccessDenyList(): Array<string>;
+    setAccessDenyList(value: Array<string>): CreateDomainRequest;
+    addAccessDeny(value: string, index?: number): string;
+    clearAccessAllowList(): void;
+    getAccessAllowList(): Array<string>;
+    setAccessAllowList(value: Array<string>): CreateDomainRequest;
+    addAccessAllow(value: string, index?: number): string;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CreateDomainRequest.AsObject;
@@ -79,16 +90,32 @@ export class CreateDomainRequest extends jspb.Message {
 
 export namespace CreateDomainRequest {
     export type AsObject = {
-        domain?: Domain.AsObject,
+        name: string,
+        domainUri: string,
+        egressRule: string,
+        egressNumberRef: string,
+        accessDenyList: Array<string>,
+        accessAllowList: Array<string>,
     }
 }
 
 export class UpdateDomainRequest extends jspb.Message { 
-
-    hasDomain(): boolean;
-    clearDomain(): void;
-    getDomain(): Domain | undefined;
-    setDomain(value?: Domain): UpdateDomainRequest;
+    getRef(): string;
+    setRef(value: string): UpdateDomainRequest;
+    getName(): string;
+    setName(value: string): UpdateDomainRequest;
+    getEgressRule(): string;
+    setEgressRule(value: string): UpdateDomainRequest;
+    getEgressNumberRef(): string;
+    setEgressNumberRef(value: string): UpdateDomainRequest;
+    clearAccessDenyList(): void;
+    getAccessDenyList(): Array<string>;
+    setAccessDenyList(value: Array<string>): UpdateDomainRequest;
+    addAccessDeny(value: string, index?: number): string;
+    clearAccessAllowList(): void;
+    getAccessAllowList(): Array<string>;
+    setAccessAllowList(value: Array<string>): UpdateDomainRequest;
+    addAccessAllow(value: string, index?: number): string;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): UpdateDomainRequest.AsObject;
@@ -102,7 +129,12 @@ export class UpdateDomainRequest extends jspb.Message {
 
 export namespace UpdateDomainRequest {
     export type AsObject = {
-        domain?: Domain.AsObject,
+        ref: string,
+        name: string,
+        egressRule: string,
+        egressNumberRef: string,
+        accessDenyList: Array<string>,
+        accessAllowList: Array<string>,
     }
 }
 
