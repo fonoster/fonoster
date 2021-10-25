@@ -20,7 +20,7 @@ service Funcs {
   rpc ListFuncs (ListFuncsRequest) returns (ListFuncsResponse) {
     option (google.api.http) = { get: "/v1beta1/funcs" };
   };
-  // Gets a function by namem
+  // Gets a function by name
   rpc GetFunc (GetFuncRequest) returns (Func) {
     option (google.api.http) = { get: "/v1beta1/funcs/{name}" };
   };
