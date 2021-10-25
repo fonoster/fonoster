@@ -22,9 +22,8 @@ enum View {
 
 message Error {
 	option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-		example: "{\"status\": 404, \"message\": \"Not found\"}"
+		example: "{\"status\": 0, \"message\": \"string\"}"
 	};
-
 	int32 status = 1;
 	string message = 2;
 }
@@ -33,7 +32,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   base_path: "/api";
 	info: {
 		title: "Project Fonos";
-		version: "0.1";
+		version: "v1beta1";
 		contact: {
 		name: "Fonoster OSS";
 		url: "https://fonoster.com";
@@ -82,9 +81,9 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     }
   }
   responses: {
-    key: "4xx,5xx";
+    key: "error";
     value: {
-      description: "Returns 4xx or 5xx errors.";
+      description: "User or system error.";
       schema: {
         json_schema: {
           ref: ".fonos.common.v1beta1.Error";

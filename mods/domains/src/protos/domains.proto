@@ -32,7 +32,7 @@ service Domains {
   // Change or update fields in a resource
   rpc UpdateDomain (UpdateDomainRequest) returns (Domain) {
     option (google.api.http) = { 
-      put: "/v1beta1/domains"
+      put: "/v1beta1/domains/{ref}"
       body: "*" 
     };
   };
@@ -77,7 +77,7 @@ message CreateDomainRequest {
 
 message UpdateDomainRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"tyyB1z0tgj\", \"egressNumberRef\": \"1yyB170ozd\"}"
+    example: "{\"egressNumberRef\": \"1yyB170ozd\"}"
   };
   // Domain's reference
   string ref = 1 [(google.api.field_behavior) = REQUIRED];
