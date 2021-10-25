@@ -35,7 +35,7 @@ service Providers {
   // Change or update fields in a resource
   rpc UpdateProvider (UpdateProviderRequest) returns (Provider) {
     option (google.api.http) = { 
-      put: "/v1beta1/providers"
+      put: "/v1beta1/providers/{ref}"
       body: "*" 
     };
   };
@@ -70,28 +70,43 @@ message CreateProviderRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"name\": \"VoIP.ms\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\", \"host\": \"newyork1.voip.ms\", \"transport\": \"tcp\", \"expires\": 300}"
   };  
-  Provider provider = 1;
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string username = 3 [(google.api.field_behavior) = REQUIRED];
+  string secret = 4 [(google.api.field_behavior) = REQUIRED];
+  string host = 5 [(google.api.field_behavior) = REQUIRED];
+  string transport = 6 [(google.api.field_behavior) = REQUIRED];
+  int32 expires = 7;
 }
 
 message UpdateProviderRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"ghnH1z0tzd\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\"}"
+    example: "{\"username\": \"200122\", \"secret\": \"TerD$$sd01\"}"
   };  
-  Provider provider = 1;
+  // Provider's reference  
+  string ref = 1;
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string username = 3 [(google.api.field_behavior) = REQUIRED];
+  string secret = 4 [(google.api.field_behavior) = REQUIRED];
+  string host = 5 [(google.api.field_behavior) = REQUIRED];
+  string transport = 6 [(google.api.field_behavior) = REQUIRED];
+  int32 expires = 7;
 }
 
 message GetProviderRequest {
+  // Provider's reference
   string ref = 1;
 }
 
 message DeleteProviderRequest {
+  // Provider's reference
   string ref = 1;
 }
 
 message Provider {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"ref\": \"ghnH1z0tzd\", \"name\": \"VoIP.ms\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\", \"host\": \"newyork1.voip.ms\", \"transport\": \"tcp\", \"expires\": 300, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
-  };  
+  };
+  // Provider's reference
   string ref = 1;
   string name = 2 [(google.api.field_behavior) = REQUIRED];
   string username = 3 [(google.api.field_behavior) = REQUIRED];

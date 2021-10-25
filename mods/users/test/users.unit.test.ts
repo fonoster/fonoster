@@ -147,7 +147,7 @@ describe("@fonos/users", () => {
     const loginUserStub = sandbox
       .stub(FonosService.prototype, "getService")
       .returns({
-        loginUser: () => {
+        createUserCredentials: () => {
           return {
             sendMessage: () =>
               Promise.resolve({
@@ -164,7 +164,7 @@ describe("@fonos/users", () => {
     };
 
     const usersAPI = new Users();
-    const result = await usersAPI.loginUser(request);
+    const result = await usersAPI.createUserCredentials(request);
     expect(result)
       .to.have.property("accessKeyId")
       .to.be.equal(userObj.getAccessKeyId());

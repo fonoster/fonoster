@@ -16,7 +16,7 @@ interface IUsersService extends grpc.ServiceDefinition<grpc.UntypedServiceImplem
     getUser: IUsersService_IGetUser;
     updateUser: IUsersService_IUpdateUser;
     deleteUser: IUsersService_IDeleteUser;
-    loginUser: IUsersService_ILoginUser;
+    createUserCredentials: IUsersService_ICreateUserCredentials;
 }
 
 interface IUsersService_ICreateUser extends grpc.MethodDefinition<users_pb.CreateUserRequest, users_pb.User> {
@@ -55,14 +55,14 @@ interface IUsersService_IDeleteUser extends grpc.MethodDefinition<users_pb.Delet
     responseSerialize: grpc.serialize<common_pb.Empty>;
     responseDeserialize: grpc.deserialize<common_pb.Empty>;
 }
-interface IUsersService_ILoginUser extends grpc.MethodDefinition<users_pb.LoginRequest, users_pb.LoginResponse> {
-    path: "/fonos.users.v1beta1.Users/LoginUser";
+interface IUsersService_ICreateUserCredentials extends grpc.MethodDefinition<users_pb.CreateUserCredentialsRequest, users_pb.CreateUserCredentialsResponse> {
+    path: "/fonos.users.v1beta1.Users/CreateUserCredentials";
     requestStream: false;
     responseStream: false;
-    requestSerialize: grpc.serialize<users_pb.LoginRequest>;
-    requestDeserialize: grpc.deserialize<users_pb.LoginRequest>;
-    responseSerialize: grpc.serialize<users_pb.LoginResponse>;
-    responseDeserialize: grpc.deserialize<users_pb.LoginResponse>;
+    requestSerialize: grpc.serialize<users_pb.CreateUserCredentialsRequest>;
+    requestDeserialize: grpc.deserialize<users_pb.CreateUserCredentialsRequest>;
+    responseSerialize: grpc.serialize<users_pb.CreateUserCredentialsResponse>;
+    responseDeserialize: grpc.deserialize<users_pb.CreateUserCredentialsResponse>;
 }
 
 export const UsersService: IUsersService;
@@ -72,7 +72,7 @@ export interface IUsersServer extends grpc.UntypedServiceImplementation {
     getUser: grpc.handleUnaryCall<users_pb.GetUserRequest, users_pb.User>;
     updateUser: grpc.handleUnaryCall<users_pb.UpdateUserRequest, users_pb.User>;
     deleteUser: grpc.handleUnaryCall<users_pb.DeleteUserRequest, common_pb.Empty>;
-    loginUser: grpc.handleUnaryCall<users_pb.LoginRequest, users_pb.LoginResponse>;
+    createUserCredentials: grpc.handleUnaryCall<users_pb.CreateUserCredentialsRequest, users_pb.CreateUserCredentialsResponse>;
 }
 
 export interface IUsersClient {
@@ -88,9 +88,9 @@ export interface IUsersClient {
     deleteUser(request: users_pb.DeleteUserRequest, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
     deleteUser(request: users_pb.DeleteUserRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
     deleteUser(request: users_pb.DeleteUserRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
-    loginUser(request: users_pb.LoginRequest, callback: (error: grpc.ServiceError | null, response: users_pb.LoginResponse) => void): grpc.ClientUnaryCall;
-    loginUser(request: users_pb.LoginRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: users_pb.LoginResponse) => void): grpc.ClientUnaryCall;
-    loginUser(request: users_pb.LoginRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: users_pb.LoginResponse) => void): grpc.ClientUnaryCall;
+    createUserCredentials(request: users_pb.CreateUserCredentialsRequest, callback: (error: grpc.ServiceError | null, response: users_pb.CreateUserCredentialsResponse) => void): grpc.ClientUnaryCall;
+    createUserCredentials(request: users_pb.CreateUserCredentialsRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: users_pb.CreateUserCredentialsResponse) => void): grpc.ClientUnaryCall;
+    createUserCredentials(request: users_pb.CreateUserCredentialsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: users_pb.CreateUserCredentialsResponse) => void): grpc.ClientUnaryCall;
 }
 
 export class UsersClient extends grpc.Client implements IUsersClient {
@@ -107,7 +107,7 @@ export class UsersClient extends grpc.Client implements IUsersClient {
     public deleteUser(request: users_pb.DeleteUserRequest, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
     public deleteUser(request: users_pb.DeleteUserRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
     public deleteUser(request: users_pb.DeleteUserRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: common_pb.Empty) => void): grpc.ClientUnaryCall;
-    public loginUser(request: users_pb.LoginRequest, callback: (error: grpc.ServiceError | null, response: users_pb.LoginResponse) => void): grpc.ClientUnaryCall;
-    public loginUser(request: users_pb.LoginRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: users_pb.LoginResponse) => void): grpc.ClientUnaryCall;
-    public loginUser(request: users_pb.LoginRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: users_pb.LoginResponse) => void): grpc.ClientUnaryCall;
+    public createUserCredentials(request: users_pb.CreateUserCredentialsRequest, callback: (error: grpc.ServiceError | null, response: users_pb.CreateUserCredentialsResponse) => void): grpc.ClientUnaryCall;
+    public createUserCredentials(request: users_pb.CreateUserCredentialsRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: users_pb.CreateUserCredentialsResponse) => void): grpc.ClientUnaryCall;
+    public createUserCredentials(request: users_pb.CreateUserCredentialsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: users_pb.CreateUserCredentialsResponse) => void): grpc.ClientUnaryCall;
 }

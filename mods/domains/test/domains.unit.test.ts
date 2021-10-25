@@ -210,7 +210,7 @@ describe("@fonos/domains", () => {
     const domainsAPI = new Domains();
     const result = await domainsAPI.updateDomain(request);
     expect(result).to.have.property("ref").to.be.equal(domainObj.getRef());
-    expect(updateDomainStub).to.be.calledThrice;
+    expect(updateDomainStub).to.be.calledTwice;
   });
 
   context("domain decoder", () => {

@@ -24,8 +24,8 @@ import UserPB, {
   UpdateUserRequest,
   GetUserRequest,
   DeleteUserRequest,
-  LoginRequest,
-  LoginResponse
+  CreateUserCredentialsRequest,
+  CreateUserCredentialsResponse
 } from "./protos/users_pb";
 import {Empty} from "./protos/common_pb";
 import {
@@ -41,7 +41,7 @@ import decoder from "./decoder";
 import {FonosError} from "@fonos/errors";
 import {ErrorCodes} from "@fonos/errors";
 import Auth from "@fonos/auth/dist/utils/auth_utils";
-import JWT from "@fonos/auth/src/utils/jwt";
+import JWT from "@fonos/auth/dist/utils/jwt";
 import {AUTH_ISS, getSalt} from "@fonos/certs";
 import logger from "@fonos/logger";
 import bcrypt from "bcrypt";
@@ -95,8 +95,9 @@ class UsersServer implements IUsersServer {
   ) {
     try {
       const ref = getAccessKeyId(call);
-      const raw = (await redis.get(ref)).toString();
-      let secretHash = JSON.parse(raw).secretHash;
+      const raw = await redis.get(ref);
+      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      let secretHash = JSON.parse(raw.toString()).secretHash;
       const user = decoder(raw);
 
       if (call.request.getName()) user.setName(call.request.getName());
@@ -128,8 +129,11 @@ class UsersServer implements IUsersServer {
       }
 
       // Get result here
-      const raw = (await redis.get(call.request.getRef())).toString();
-      const user = decoder(raw);
+      const raw = await redis.get(call.request.getRef());
+
+      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+
+      const user = decoder(raw.toString());
       callback(null, user);
     } catch (e) {
       callback(e, null);
@@ -141,8 +145,9 @@ class UsersServer implements IUsersServer {
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
-      const raw = (await redis.get(call.request.getRef())).toString();
-      const user = decoder(raw);
+      const raw = await redis.get(call.request.getRef());
+      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      const user = decoder(raw.toString());
       await redis.del(user.getRef());
       await redis.del(user.getEmail());
       // TODO: Also unlink all of the User's projects
@@ -152,9 +157,12 @@ class UsersServer implements IUsersServer {
     }
   }
 
-  async loginUser(
-    call: grpc.ServerUnaryCall<LoginRequest, LoginResponse>,
-    callback: grpc.sendUnaryData<LoginResponse>
+  async createUserCredentials(
+    call: grpc.ServerUnaryCall<
+      CreateUserCredentialsRequest,
+      CreateUserCredentialsResponse
+    >,
+    callback: grpc.sendUnaryData<CreateUserCredentialsResponse>
   ) {
     try {
       logger.verbose(
@@ -170,10 +178,13 @@ class UsersServer implements IUsersServer {
         );
       }
 
-      const raw = (await redis.get(ref)).toString();
-      const user = JSON.parse(raw);
+      const raw = await redis.get(ref);
 
-      if (!bcrypt.compareSync(call.request.getSecret(), user.secret)) {
+      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+
+      const user = JSON.parse(raw.toString());
+
+      if (!bcrypt.compareSync(call.request.getSecret(), user.secretHash)) {
         throw new FonosError(
           "invalid credentials",
           ErrorCodes.PERMISSION_DENIED
@@ -188,7 +199,7 @@ class UsersServer implements IUsersServer {
         call.request.getExpiration() || "30d"
       );
 
-      const response = new LoginResponse();
+      const response = new CreateUserCredentialsResponse();
       response.setAccessKeyId(user.accessKeyId);
       response.setAccessKeySecret(result.accessToken);
       callback(null, response);

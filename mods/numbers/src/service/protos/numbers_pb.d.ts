@@ -61,11 +61,17 @@ export namespace ListNumbersResponse {
 }
 
 export class CreateNumberRequest extends jspb.Message { 
+    getProviderRef(): string;
+    setProviderRef(value: string): CreateNumberRequest;
+    getE164Number(): string;
+    setE164Number(value: string): CreateNumberRequest;
+    getAorLink(): string;
+    setAorLink(value: string): CreateNumberRequest;
 
-    hasNumber(): boolean;
-    clearNumber(): void;
-    getNumber(): Number | undefined;
-    setNumber(value?: Number): CreateNumberRequest;
+    hasIngressInfo(): boolean;
+    clearIngressInfo(): void;
+    getIngressInfo(): IngressInfo | undefined;
+    setIngressInfo(value?: IngressInfo): CreateNumberRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CreateNumberRequest.AsObject;
@@ -79,16 +85,23 @@ export class CreateNumberRequest extends jspb.Message {
 
 export namespace CreateNumberRequest {
     export type AsObject = {
-        number?: Number.AsObject,
+        providerRef: string,
+        e164Number: string,
+        aorLink: string,
+        ingressInfo?: IngressInfo.AsObject,
     }
 }
 
 export class UpdateNumberRequest extends jspb.Message { 
+    getRef(): string;
+    setRef(value: string): UpdateNumberRequest;
+    getAorLink(): string;
+    setAorLink(value: string): UpdateNumberRequest;
 
-    hasNumber(): boolean;
-    clearNumber(): void;
-    getNumber(): Number | undefined;
-    setNumber(value?: Number): UpdateNumberRequest;
+    hasIngressInfo(): boolean;
+    clearIngressInfo(): void;
+    getIngressInfo(): IngressInfo | undefined;
+    setIngressInfo(value?: IngressInfo): UpdateNumberRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): UpdateNumberRequest.AsObject;
@@ -102,7 +115,9 @@ export class UpdateNumberRequest extends jspb.Message {
 
 export namespace UpdateNumberRequest {
     export type AsObject = {
-        number?: Number.AsObject,
+        ref: string,
+        aorLink: string,
+        ingressInfo?: IngressInfo.AsObject,
     }
 }
 

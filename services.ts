@@ -121,7 +121,8 @@ const services = [
 
 const whitelist = [
   "/fonos.users.v1beta1.Users/CreateUser",
-  "/fonos.users.v1beta1.Users/Login",
+  "/fonos.users.v1beta1.Users/DeleteUser",
+  "/fonos.users.v1beta1.Users/LoginUser",
   "/fonos.auth.v1beta1.Auth/GetRole",
   "/fonos.auth.v1beta1.Auth/CreateToken",
   "/fonos.auth.v1beta1.Auth/CreateNoAccessToken",

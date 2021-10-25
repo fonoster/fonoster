@@ -1,15 +1,17 @@
 import {FonosInvalidArgument} from "@fonos/errors";
 import {NumbersPB} from "../client/numbers";
 
-export const assertIsE164 = (number: NumbersPB.Number) => {
-  if (!number.getE164Number()) {
+export const assertIsE164 = (number: string) => {
+  if (!number) {
     throw new FonosInvalidArgument(
       "e164Number field must be a valid e164 value."
     );
   }
 };
 
-export const assertHasAorLinkOrIngressInfo = (number: NumbersPB.Number) => {
+export const assertHasAorLinkOrIngressInfo = (
+  number: NumbersPB.CreateNumberRequest
+) => {
   if (number.getAorLink() && number.getIngressInfo()) {
     throw new FonosInvalidArgument(
       "'webhook' and 'aorLink' are not compatible parameters"

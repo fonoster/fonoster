@@ -98,18 +98,15 @@ export default class Numbers extends FonosService {
   async createNumber(
     request: CreateNumberRequest
   ): Promise<CreateNumberResponse> {
-    const number = new NumbersPB.Number();
     const ingressInfo = new NumbersPB.IngressInfo();
     ingressInfo.setWebhook(
       request.ingressInfo ? request.ingressInfo.webhook : null
     );
-    number.setProviderRef(request.providerRef);
-    number.setE164Number(request.e164Number);
-    number.setIngressInfo(ingressInfo);
-    number.setAorLink(request.aorLink);
-
     const req = new NumbersPB.CreateNumberRequest();
-    req.setNumber(number);
+    req.setProviderRef(request.providerRef);
+    req.setE164Number(request.e164Number);
+    req.setIngressInfo(ingressInfo);
+    req.setAorLink(request.aorLink);
 
     const res = await super.getService().createNumber().sendMessage(req);
 
@@ -172,12 +169,6 @@ export default class Numbers extends FonosService {
   async updateNumber(
     request: UpdateNumberRequest
   ): Promise<UpdateNumberResponse> {
-    const getRequest = new NumbersPB.GetNumberRequest();
-    getRequest.setRef(request.ref);
-    const numberFromDB = await this.getService()
-      .getNumber()
-      .sendMessage(getRequest);
-
     if (request.aorLink && request.ingressInfo) {
       throw new Error(
         "'ingressApp' and 'aorLink' are not compatible parameters"
@@ -188,19 +179,19 @@ export default class Numbers extends FonosService {
       );
     }
 
+    const req = new NumbersPB.UpdateNumberRequest();
+
     if (request.aorLink) {
-      numberFromDB.setAorLink(request.aorLink);
-      numberFromDB.setIngressInfo(undefined);
+      req.setAorLink(request.aorLink);
+      req.setIngressInfo(undefined);
     } else {
-      numberFromDB.setAorLink(undefined);
+      req.setAorLink(undefined);
       const ingressInfo = new IngressInfo();
       ingressInfo.setWebhook(
         request.ingressInfo ? request.ingressInfo.webhook : null
       );
-      numberFromDB.setIngressInfo(ingressInfo);
+      req.setIngressInfo(ingressInfo);
     }
-    const req = new NumbersPB.UpdateNumberRequest();
-    req.setNumber(numberFromDB);
 
     const result = await super.getService().updateNumber().sendMessage(req);
 

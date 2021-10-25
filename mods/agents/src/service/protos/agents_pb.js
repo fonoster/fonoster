@@ -83,7 +83,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.fonos.agents.v1beta1.CreateAgentRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.fonos.agents.v1beta1.CreateAgentRequest.repeatedFields_, null);
 };
 goog.inherits(proto.fonos.agents.v1beta1.CreateAgentRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -104,7 +104,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.fonos.agents.v1beta1.UpdateAgentRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.fonos.agents.v1beta1.UpdateAgentRequest.repeatedFields_, null);
 };
 goog.inherits(proto.fonos.agents.v1beta1.UpdateAgentRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -558,6 +558,13 @@ proto.fonos.agents.v1beta1.ListAgentsResponse.prototype.setNextPageToken = funct
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.repeatedFields_ = [4];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -589,7 +596,11 @@ proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.toObject = function(opt_
  */
 proto.fonos.agents.v1beta1.CreateAgentRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    agent: (f = msg.getAgent()) && proto.fonos.agents.v1beta1.Agent.toObject(includeInstance, f)
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    username: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    secret: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    domainsList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f,
+    privacy: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -627,9 +638,24 @@ proto.fonos.agents.v1beta1.CreateAgentRequest.deserializeBinaryFromReader = func
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.fonos.agents.v1beta1.Agent;
-      reader.readMessage(value,proto.fonos.agents.v1beta1.Agent.deserializeBinaryFromReader);
-      msg.setAgent(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUsername(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSecret(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addDomains(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPrivacy(value);
       break;
     default:
       reader.skipField();
@@ -660,54 +686,160 @@ proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.serializeBinary = functi
  */
 proto.fonos.agents.v1beta1.CreateAgentRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getAgent();
-  if (f != null) {
-    writer.writeMessage(
+  f = message.getName();
+  if (f.length > 0) {
+    writer.writeString(
       1,
-      f,
-      proto.fonos.agents.v1beta1.Agent.serializeBinaryToWriter
+      f
+    );
+  }
+  f = message.getUsername();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getSecret();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getDomainsList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      4,
+      f
+    );
+  }
+  f = message.getPrivacy();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
     );
   }
 };
 
 
 /**
- * optional Agent agent = 1;
- * @return {?proto.fonos.agents.v1beta1.Agent}
+ * optional string name = 1;
+ * @return {string}
  */
-proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.getAgent = function() {
-  return /** @type{?proto.fonos.agents.v1beta1.Agent} */ (
-    jspb.Message.getWrapperField(this, proto.fonos.agents.v1beta1.Agent, 1));
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {?proto.fonos.agents.v1beta1.Agent|undefined} value
- * @return {!proto.fonos.agents.v1beta1.CreateAgentRequest} returns this
-*/
-proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.setAgent = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
+ * @param {string} value
  * @return {!proto.fonos.agents.v1beta1.CreateAgentRequest} returns this
  */
-proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.clearAgent = function() {
-  return this.setAgent(undefined);
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.setName = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * Returns whether this field is set.
- * @return {boolean}
+ * optional string username = 2;
+ * @return {string}
  */
-proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.hasAgent = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
+/**
+ * @param {string} value
+ * @return {!proto.fonos.agents.v1beta1.CreateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.setUsername = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string secret = 3;
+ * @return {string}
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.getSecret = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.agents.v1beta1.CreateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.setSecret = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * repeated string domains = 4;
+ * @return {!Array<string>}
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.getDomainsList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonos.agents.v1beta1.CreateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.setDomainsList = function(value) {
+  return jspb.Message.setField(this, 4, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonos.agents.v1beta1.CreateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.addDomains = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 4, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonos.agents.v1beta1.CreateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.clearDomainsList = function() {
+  return this.setDomainsList([]);
+};
+
+
+/**
+ * optional string privacy = 5;
+ * @return {string}
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.getPrivacy = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.agents.v1beta1.CreateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.CreateAgentRequest.prototype.setPrivacy = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.repeatedFields_ = [5];
 
 
 
@@ -740,7 +872,12 @@ proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.toObject = function(opt_
  */
 proto.fonos.agents.v1beta1.UpdateAgentRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    agent: (f = msg.getAgent()) && proto.fonos.agents.v1beta1.Agent.toObject(includeInstance, f)
+    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    username: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    secret: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    domainsList: (f = jspb.Message.getRepeatedField(msg, 5)) == null ? undefined : f,
+    privacy: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -778,9 +915,28 @@ proto.fonos.agents.v1beta1.UpdateAgentRequest.deserializeBinaryFromReader = func
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.fonos.agents.v1beta1.Agent;
-      reader.readMessage(value,proto.fonos.agents.v1beta1.Agent.deserializeBinaryFromReader);
-      msg.setAgent(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRef(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUsername(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSecret(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addDomains(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPrivacy(value);
       break;
     default:
       reader.skipField();
@@ -811,51 +967,175 @@ proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.serializeBinary = functi
  */
 proto.fonos.agents.v1beta1.UpdateAgentRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getAgent();
-  if (f != null) {
-    writer.writeMessage(
+  f = message.getRef();
+  if (f.length > 0) {
+    writer.writeString(
       1,
-      f,
-      proto.fonos.agents.v1beta1.Agent.serializeBinaryToWriter
+      f
+    );
+  }
+  f = message.getName();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getUsername();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getSecret();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getDomainsList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      5,
+      f
+    );
+  }
+  f = message.getPrivacy();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
     );
   }
 };
 
 
 /**
- * optional Agent agent = 1;
- * @return {?proto.fonos.agents.v1beta1.Agent}
+ * optional string ref = 1;
+ * @return {string}
  */
-proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.getAgent = function() {
-  return /** @type{?proto.fonos.agents.v1beta1.Agent} */ (
-    jspb.Message.getWrapperField(this, proto.fonos.agents.v1beta1.Agent, 1));
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.getRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {?proto.fonos.agents.v1beta1.Agent|undefined} value
- * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
-*/
-proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.setAgent = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
+ * @param {string} value
  * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
  */
-proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.clearAgent = function() {
-  return this.setAgent(undefined);
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.setRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * Returns whether this field is set.
- * @return {boolean}
+ * optional string name = 2;
+ * @return {string}
  */
-proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.hasAgent = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.setName = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string username = 3;
+ * @return {string}
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.setUsername = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string secret = 4;
+ * @return {string}
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.getSecret = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.setSecret = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * repeated string domains = 5;
+ * @return {!Array<string>}
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.getDomainsList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.setDomainsList = function(value) {
+  return jspb.Message.setField(this, 5, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.addDomains = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 5, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.clearDomainsList = function() {
+  return this.setDomainsList([]);
+};
+
+
+/**
+ * optional string privacy = 6;
+ * @return {string}
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.getPrivacy = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.agents.v1beta1.UpdateAgentRequest} returns this
+ */
+proto.fonos.agents.v1beta1.UpdateAgentRequest.prototype.setPrivacy = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 

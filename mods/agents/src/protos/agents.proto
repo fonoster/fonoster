@@ -35,7 +35,7 @@ service Agents {
   // Change or update fields in a resource
   rpc UpdateAgent (UpdateAgentRequest) returns (Agent) {
     option (google.api.http) = { 
-      put: "/v1beta1/agents"
+      put: "/v1beta1/agents/{ref}"
       body: "*" 
     };
   };
@@ -68,23 +68,35 @@ message ListAgentsResponse {
 
 message CreateAgentRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"name\": \"John Doe\", \"username\": \"1001\", \"secret\": \"1234\", \"domains\": \"['sip.fonoster.com']\"}"
+    example: "{\"name\": \"John Doe\", \"username\": \"1001\", \"secret\": \"1234\", \"domains\": \"['sip.fonoster.com']\", \"privacy\": \"none\"}"
   };
-  Agent agent = 1;
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  string username = 2 [(google.api.field_behavior) = REQUIRED];
+  string secret = 3 [(google.api.field_behavior) = REQUIRED];
+  repeated string domains = 4 [(google.api.field_behavior) = REQUIRED];
+  string privacy = 5;
 }
 
 message UpdateAgentRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"aynB1z0tzd\", \"name\": \"John Doe\", \"secret\": \"1234\"}"
+    example: "{\"name\": \"John Doe\", \"secret\": \"1234\"}"
   };
-  Agent agent = 1;
+  // Agent's reference
+  string ref = 1;
+  string name = 2;
+  string username = 3;
+  string secret = 4;
+  repeated string domains = 5;
+  string privacy = 6;
 }
 
 message GetAgentRequest {
+  // Agent's reference
   string ref = 1;
 }
 
 message DeleteAgentRequest {
+  // Agent's reference
   string ref = 1;
 }
 
@@ -92,6 +104,7 @@ message Agent {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"ref\": \"aynB1z0tzd\", \"name\": \"John Doe\", \"username\": \"1001\", \"secret\": \"1234\", \"domains\": \"['sip.fonoster.com']\", \"privacy\": \"none\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
   };
+  // Agent's reference
   string ref = 1;
   string name = 2 [(google.api.field_behavior) = REQUIRED];
   string username = 3 [(google.api.field_behavior) = REQUIRED];

@@ -67,32 +67,46 @@ message CreateDomainRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"name\": \"Acme Corp\", \"domainUri\": \"sip.acme.com\", \"egressRule\": \".*\", \"egressNumberRef\": \"1yyB170ozd\"}"
   };
-  Domain domain = 1;
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  string domain_uri = 2 [(google.api.field_behavior) = REQUIRED];
+  string egress_rule = 3;
+  string egress_number_ref = 4;
+  repeated string access_deny = 5;
+  repeated string access_allow = 6;
 }
 
 message UpdateDomainRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"ref\": \"tyyB1z0tgj\", \"egressNumberRef\": \"1yyB170ozd\"}"
-  };  
-  Domain domain = 1;
+  };
+  // Domain's reference
+  string ref = 1 [(google.api.field_behavior) = REQUIRED];
+  string name = 2;
+  string egress_rule = 3;
+  string egress_number_ref = 4;
+  repeated string access_deny = 5;
+  repeated string access_allow = 6;
 }
 
 message GetDomainRequest {
+  // Domain's reference
   string ref = 1;
 }
 
 message DeleteDomainRequest {
+  // Domain's reference
   string ref = 1;
 }
 
 message Domain {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"ref\": \"tyyB1z0tgj\", \"name\": \"Acme Corp\", \"domainUri\": \"sip.acme.com\", \"egressRule\": \".*\", \"egressNumberRef\": \"1yyB170ozd\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
-  };  
+  };
+  // Domain's reference
   string ref = 1;
   string name = 2 [(google.api.field_behavior) = REQUIRED];
   string domain_uri = 3 [(google.api.field_behavior) = REQUIRED];
-  string egress_rule = 4 [(google.api.field_behavior) = REQUIRED];
+  string egress_rule = 4 ;
   string egress_number_ref = 5;
   repeated string access_deny = 6;
   repeated string access_allow = 7;

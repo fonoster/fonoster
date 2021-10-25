@@ -26,10 +26,10 @@ import {
   CreateUserResponse,
   DeleteUserResponse,
   GetUserResponse,
-  LoginRequest,
-  LoginResponse,
+  CreateUserCredentialsRequest,
   UpdateUserRequest,
-  UpdateUserResponse
+  UpdateUserResponse,
+  CreateUserCredentialsResponse
 } from "./types";
 
 /**
@@ -200,7 +200,7 @@ export default class Users extends FonosService {
   /**
    * Login using email and a password.
    *
-   * @param {LoginRequest} request - Request update of an User
+   * @param {createUserCredentials} request - Request update of an User
    * @param {string} request.email - Login username
    * @param {string} request.secret - Login password
    * @example
@@ -211,19 +211,24 @@ export default class Users extends FonosService {
    *  expiration: "30d"
    * }
    *
-   * Users.loginUser(request)
+   * Users.createUserCredentials(request)
    * .then(result => {
    *   console.log(result)            // returns an accessKeyId and accessKeySecret
    * }).catch(e => console.error(e))  // an error occurred
    */
-  async loginUser(request: LoginRequest): Promise<LoginResponse> {
-    const req = new UsersPB.LoginRequest();
+  async createUserCredentials(
+    request: CreateUserCredentialsRequest
+  ): Promise<CreateUserCredentialsResponse> {
+    const req = new UsersPB.CreateUserCredentialsRequest();
     req.setEmail(request.email);
     req.setSecret(request.secret);
 
     if (request.expiration) req.setExpiration(request.expiration);
 
-    const res = await super.getService().loginUser().sendMessage(req);
+    const res = await super
+      .getService()
+      .createUserCredentials()
+      .sendMessage(req);
 
     return {
       accessKeyId: res.getAccessKeyId(),

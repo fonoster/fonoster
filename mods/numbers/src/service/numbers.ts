@@ -45,7 +45,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
     callback: grpc.sendUnaryData<NumberPB.Number>
   ) {
     try {
-      callback(null, await createNumber(call.request.getNumber(), call));
+      callback(null, await createNumber(call.request, call));
     } catch (e) {
       callback(e, null);
     }

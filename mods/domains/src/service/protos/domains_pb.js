@@ -83,7 +83,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.fonos.domains.v1beta1.CreateDomainRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.fonos.domains.v1beta1.CreateDomainRequest.repeatedFields_, null);
 };
 goog.inherits(proto.fonos.domains.v1beta1.CreateDomainRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -104,7 +104,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.fonos.domains.v1beta1.UpdateDomainRequest = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.fonos.domains.v1beta1.UpdateDomainRequest.repeatedFields_, null);
 };
 goog.inherits(proto.fonos.domains.v1beta1.UpdateDomainRequest, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -558,6 +558,13 @@ proto.fonos.domains.v1beta1.ListDomainsResponse.prototype.setNextPageToken = fun
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.repeatedFields_ = [5,6];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -589,7 +596,12 @@ proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.toObject = function(op
  */
 proto.fonos.domains.v1beta1.CreateDomainRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    domain: (f = msg.getDomain()) && proto.fonos.domains.v1beta1.Domain.toObject(includeInstance, f)
+    name: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    domainUri: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    egressRule: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    egressNumberRef: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    accessDenyList: (f = jspb.Message.getRepeatedField(msg, 5)) == null ? undefined : f,
+    accessAllowList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -627,9 +639,28 @@ proto.fonos.domains.v1beta1.CreateDomainRequest.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.fonos.domains.v1beta1.Domain;
-      reader.readMessage(value,proto.fonos.domains.v1beta1.Domain.deserializeBinaryFromReader);
-      msg.setDomain(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setDomainUri(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEgressRule(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEgressNumberRef(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addAccessDeny(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addAccessAllow(value);
       break;
     default:
       reader.skipField();
@@ -660,54 +691,204 @@ proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.serializeBinary = func
  */
 proto.fonos.domains.v1beta1.CreateDomainRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getDomain();
-  if (f != null) {
-    writer.writeMessage(
+  f = message.getName();
+  if (f.length > 0) {
+    writer.writeString(
       1,
-      f,
-      proto.fonos.domains.v1beta1.Domain.serializeBinaryToWriter
+      f
+    );
+  }
+  f = message.getDomainUri();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getEgressRule();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getEgressNumberRef();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getAccessDenyList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      5,
+      f
+    );
+  }
+  f = message.getAccessAllowList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      6,
+      f
     );
   }
 };
 
 
 /**
- * optional Domain domain = 1;
- * @return {?proto.fonos.domains.v1beta1.Domain}
+ * optional string name = 1;
+ * @return {string}
  */
-proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.getDomain = function() {
-  return /** @type{?proto.fonos.domains.v1beta1.Domain} */ (
-    jspb.Message.getWrapperField(this, proto.fonos.domains.v1beta1.Domain, 1));
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {?proto.fonos.domains.v1beta1.Domain|undefined} value
- * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
-*/
-proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.setDomain = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
+ * @param {string} value
  * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
  */
-proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.clearDomain = function() {
-  return this.setDomain(undefined);
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.setName = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * Returns whether this field is set.
- * @return {boolean}
+ * optional string domain_uri = 2;
+ * @return {string}
  */
-proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.hasDomain = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.getDomainUri = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
+/**
+ * @param {string} value
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.setDomainUri = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string egress_rule = 3;
+ * @return {string}
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.getEgressRule = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.setEgressRule = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string egress_number_ref = 4;
+ * @return {string}
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.getEgressNumberRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.setEgressNumberRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * repeated string access_deny = 5;
+ * @return {!Array<string>}
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.getAccessDenyList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.setAccessDenyList = function(value) {
+  return jspb.Message.setField(this, 5, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.addAccessDeny = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 5, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.clearAccessDenyList = function() {
+  return this.setAccessDenyList([]);
+};
+
+
+/**
+ * repeated string access_allow = 6;
+ * @return {!Array<string>}
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.getAccessAllowList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 6));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.setAccessAllowList = function(value) {
+  return jspb.Message.setField(this, 6, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.addAccessAllow = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 6, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonos.domains.v1beta1.CreateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.CreateDomainRequest.prototype.clearAccessAllowList = function() {
+  return this.setAccessAllowList([]);
+};
+
+
+
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.repeatedFields_ = [5,6];
 
 
 
@@ -740,7 +921,12 @@ proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.toObject = function(op
  */
 proto.fonos.domains.v1beta1.UpdateDomainRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    domain: (f = msg.getDomain()) && proto.fonos.domains.v1beta1.Domain.toObject(includeInstance, f)
+    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    egressRule: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    egressNumberRef: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    accessDenyList: (f = jspb.Message.getRepeatedField(msg, 5)) == null ? undefined : f,
+    accessAllowList: (f = jspb.Message.getRepeatedField(msg, 6)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -778,9 +964,28 @@ proto.fonos.domains.v1beta1.UpdateDomainRequest.deserializeBinaryFromReader = fu
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = new proto.fonos.domains.v1beta1.Domain;
-      reader.readMessage(value,proto.fonos.domains.v1beta1.Domain.deserializeBinaryFromReader);
-      msg.setDomain(value);
+      var value = /** @type {string} */ (reader.readString());
+      msg.setRef(value);
+      break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEgressRule(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEgressNumberRef(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addAccessDeny(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.addAccessAllow(value);
       break;
     default:
       reader.skipField();
@@ -811,51 +1016,194 @@ proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.serializeBinary = func
  */
 proto.fonos.domains.v1beta1.UpdateDomainRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getDomain();
-  if (f != null) {
-    writer.writeMessage(
+  f = message.getRef();
+  if (f.length > 0) {
+    writer.writeString(
       1,
-      f,
-      proto.fonos.domains.v1beta1.Domain.serializeBinaryToWriter
+      f
+    );
+  }
+  f = message.getName();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
+    );
+  }
+  f = message.getEgressRule();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getEgressNumberRef();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
+  f = message.getAccessDenyList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      5,
+      f
+    );
+  }
+  f = message.getAccessAllowList();
+  if (f.length > 0) {
+    writer.writeRepeatedString(
+      6,
+      f
     );
   }
 };
 
 
 /**
- * optional Domain domain = 1;
- * @return {?proto.fonos.domains.v1beta1.Domain}
+ * optional string ref = 1;
+ * @return {string}
  */
-proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.getDomain = function() {
-  return /** @type{?proto.fonos.domains.v1beta1.Domain} */ (
-    jspb.Message.getWrapperField(this, proto.fonos.domains.v1beta1.Domain, 1));
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.getRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
 /**
- * @param {?proto.fonos.domains.v1beta1.Domain|undefined} value
- * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
-*/
-proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.setDomain = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
+ * @param {string} value
  * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
  */
-proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.clearDomain = function() {
-  return this.setDomain(undefined);
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.setRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * Returns whether this field is set.
- * @return {boolean}
+ * optional string name = 2;
+ * @return {string}
  */
-proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.hasDomain = function() {
-  return jspb.Message.getField(this, 1) != null;
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.setName = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string egress_rule = 3;
+ * @return {string}
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.getEgressRule = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.setEgressRule = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string egress_number_ref = 4;
+ * @return {string}
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.getEgressNumberRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.setEgressNumberRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * repeated string access_deny = 5;
+ * @return {!Array<string>}
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.getAccessDenyList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.setAccessDenyList = function(value) {
+  return jspb.Message.setField(this, 5, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.addAccessDeny = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 5, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.clearAccessDenyList = function() {
+  return this.setAccessDenyList([]);
+};
+
+
+/**
+ * repeated string access_allow = 6;
+ * @return {!Array<string>}
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.getAccessAllowList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 6));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.setAccessAllowList = function(value) {
+  return jspb.Message.setField(this, 6, value || []);
+};
+
+
+/**
+ * @param {string} value
+ * @param {number=} opt_index
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.addAccessAllow = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 6, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.fonos.domains.v1beta1.UpdateDomainRequest} returns this
+ */
+proto.fonos.domains.v1beta1.UpdateDomainRequest.prototype.clearAccessAllowList = function() {
+  return this.setAccessAllowList([]);
 };
 
 

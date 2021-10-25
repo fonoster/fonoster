@@ -29,7 +29,6 @@ export interface Domain {
 }
 
 export interface CreateDomainRequest {
-  ref?: string;
   name: string;
   domainUri: string;
   egressRule?: string;

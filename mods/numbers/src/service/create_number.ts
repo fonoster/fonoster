@@ -2,29 +2,29 @@
 import NumbersPB from "./protos/numbers_pb";
 import {ResourceBuilder, Kind, routr, getAccessKeyId} from "@fonos/core";
 import numberDecoder from "./decoder";
-import {assertHasAorLinkOrIngressInfo, assertIsE164} from "../utils/assertions";
+import {assertHasAorLinkOrIngressInfo, assertIsE164} from "./assertions";
 
 export default async function createNumber(
-  number: NumbersPB.Number,
+  request: NumbersPB.CreateNumberRequest,
   call: any
 ): Promise<NumbersPB.Number> {
-  assertIsE164(number);
-  assertHasAorLinkOrIngressInfo(number);
+  assertIsE164(request.getE164Number());
+  assertHasAorLinkOrIngressInfo(request);
 
-  let encoder = new ResourceBuilder(Kind.NUMBER, number.getE164Number())
-    .withGatewayRef(number.getProviderRef())
+  let encoder = new ResourceBuilder(Kind.NUMBER, request.getE164Number())
+    .withGatewayRef(request.getProviderRef())
     .withMetadata({accessKeyId: getAccessKeyId(call)});
 
-  if (number.getAorLink()) {
+  if (request.getAorLink()) {
     encoder = encoder.withLocation(
-      `tel:${number.getE164Number()}`,
-      number.getAorLink()
+      `tel:${request.getE164Number()}`,
+      request.getAorLink()
     );
   } else {
     encoder = encoder
-      .withLocation(`tel:${number.getE164Number()}`, process.env.MS_ENDPOINT)
+      .withLocation(`tel:${request.getE164Number()}`, process.env.MS_ENDPOINT)
       .withMetadata({
-        webhook: number.getIngressInfo().getWebhook().trim(),
+        webhook: request.getIngressInfo().getWebhook().trim(),
         accessKeyId: getAccessKeyId(call)
       });
   }
