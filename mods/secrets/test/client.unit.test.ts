@@ -20,7 +20,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 import Secrets from "../src/client/secrets";
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -35,8 +35,8 @@ describe("@fonos/secrets/client", () => {
   afterEach(() => sandbox.restore());
 
   it("should create a secret", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "getService").returns({
       createSecret: () => {
         return {
           sendMessage: () => Promise.resolve(response)
@@ -52,8 +52,8 @@ describe("@fonos/secrets/client", () => {
   });
 
   it("should list all secrets", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "getService").returns({
       createSecret: () => {
         return {
           sendMessage: () => Promise.resolve(response)
@@ -69,9 +69,9 @@ describe("@fonos/secrets/client", () => {
   });
 
   it("should get a secret", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const stubFunc = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         deleteSecret: () => {
           return {
@@ -84,9 +84,9 @@ describe("@fonos/secrets/client", () => {
   });
 
   it("should delete a function", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const stubFunc = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         deleteSecret: () => {
           return {

@@ -16,6 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface IUsersClient {
+  createUser(request: CreateUserRequest): Promise<CreateUserResponse>;
+  getUser(ref: string): Promise<GetUserResponse>;
+  updateUser(request: UpdateUserRequest): Promise<UpdateUserResponse>;
+  deleteUser(ref: string): Promise<DeleteUserResponse>;
+  createUserCredentials(
+    request: CreateUserCredentialsRequest
+  ): Promise<CreateUserCredentialsResponse>;
+}
+
 export interface User {
   ref: string;
   accessKeyId: string;

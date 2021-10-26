@@ -16,6 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface IAuthClient {
+  createToken(request: CreateTokenRequest): Promise<CreateTokenResponse>
+  createNoAccessToken(request: CreateTokenRequest): Promise<CreateTokenResponse>;
+  validateToken(request: ValidateTokenRequest): Promise<boolean>;
+}
+
 export interface CreateTokenRequest {
   accessKeyId: string;
   roleName?: string;

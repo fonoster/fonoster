@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {getClientCredentials} from "./trust_util";
-import {ServiceOptions} from "./types";
+import {ClientOptions} from "./types";
 import * as fs from "fs";
 import * as path from "path";
 import {Metadata} from "@grpc/grpc-js";
@@ -28,21 +28,21 @@ const CONFIG_FILE =
 const configFileExit = () => fs.existsSync(CONFIG_FILE);
 const getConfigFile = () => JSON.parse(fs.readFileSync(CONFIG_FILE).toString());
 
-const defaultOptions: ServiceOptions = {
+const defaultOptions: ClientOptions = {
   endpoint: process.env.APISERVER_ENDPOINT || "api.fonoster.io",
   accessKeyId: process.env.ACCESS_KEY_ID,
   accessKeySecret: process.env.ACCESS_KEY_SECRET
 };
 
 export default class {
-  options: ServiceOptions;
+  options: ClientOptions;
   metadata: Metadata;
   ServiceClient: any;
   service: any;
 
   /**
    * Use the Options object to overwrite the service default configuration.
-   * @typedef {Object} Options
+   * @typedef {ClientOptions} Options
    * @property {string} endpoint - The endpoint URI to send requests to.
    * The endpoint should be a string like '{serviceHost}:{servicePort}'.
    * @property {string} accessKeyId - your Fonos access key ID.
@@ -55,7 +55,7 @@ export default class {
    *
    * @param {Options} options - Overwrite for the service's defaults configuration.
    */
-  constructor(ServiceClient: any, options: ServiceOptions) {
+  constructor(ServiceClient: any, options: ClientOptions) {
     this.ServiceClient = ServiceClient;
     this.options = options;
   }
@@ -87,7 +87,7 @@ export default class {
     );
   }
 
-  getOptions(): ServiceOptions {
+  getOptions(): ClientOptions {
     return this.options;
   }
 

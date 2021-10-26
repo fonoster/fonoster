@@ -16,6 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface IDomainsClient {
+  createDomain(request: CreateDomainRequest): Promise<CreateDomainResponse>;
+  getDomain(ref: string): Promise<GetDomainResponse>;
+  updateDomain(request: UpdateDomainRequest): Promise<UpdateDomainResponse>;
+  listDomains(request: ListDomainsRequest): Promise<ListDomainsResponse>
+  deleteDomain(ref: string): Promise<DeleteDomainResponse> 
+}
+
 export interface Domain {
   ref: string;
   name: string;

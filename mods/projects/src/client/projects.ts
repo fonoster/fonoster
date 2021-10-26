@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonos
@@ -16,9 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {ProjectsClient} from "../service/protos/projects_grpc_pb";
-import ProjectsPB from "../service/protos/projects_pb";
+import ProjectsPB, {
+  ListProjectsRequest,
+  ListProjectsResponse
+} from "../service/protos/projects_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import {
@@ -29,7 +33,8 @@ import {
   UpdateProjectRequest,
   UpdateProjectResponse,
   RenewAccessKeySecretRequest,
-  RenewAccessKeySecretResponse
+  RenewAccessKeySecretResponse,
+  IProjectsClient
 } from "./types";
 
 /**
@@ -37,7 +42,7 @@ import {
  * to create, update, get and delete Projects. Projects requires of a
  * running Fonos deployment.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const Fonos = require("@fonos/sdk")
@@ -53,17 +58,22 @@ import {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-export default class Projects extends FonosService {
+export default class Projects extends APIClient implements IProjectsClient {
   /**
    * Constructs a new Projects object.
    *
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(ProjectsClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  listProjects(request: ListProjectsRequest): Promise<ListProjectsResponse> {
+    throw new Error("Method not implemented.");
   }
 
   /**
@@ -228,7 +238,7 @@ export default class Projects extends FonosService {
   }
 }
 
-export {ProjectsPB, CommonPB};
+export {ProjectsPB, CommonPB, IProjectsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Projects;

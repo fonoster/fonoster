@@ -16,6 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface ICallManagerClient {
+  call(request: CallRequest): Promise<CallResponse>
+}
 
 export interface CallRequest {
   from: string;

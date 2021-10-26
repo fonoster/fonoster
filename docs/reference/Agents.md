@@ -162,7 +162,7 @@ const ref = "507f1f77bcf86cd799439011";
 
 agents.getAgent(ref)
 .then(result => {
-  console.log(result)             // returns the GetDomainResponse interface
+  console.log(result)             // returns the GetAgentResponse interface
 }).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Agents+updateAgent"></a>
@@ -289,7 +289,7 @@ const ref = "507f1f77bcf86cd799439011";
 
 agents.getAgent(ref)
 .then(result => {
-  console.log(result)             // returns the GetDomainResponse interface
+  console.log(result)             // returns the GetAgentResponse interface
 }).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Agents+updateAgent"></a>
@@ -416,7 +416,7 @@ const ref = "507f1f77bcf86cd799439011";
 
 agents.getAgent(ref)
 .then(result => {
-  console.log(result)             // returns the GetDomainResponse interface
+  console.log(result)             // returns the GetAgentResponse interface
 }).catch(e => console.error(e))   // an error occurred
 ```
 <a name="Agents+updateAgent"></a>

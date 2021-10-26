@@ -16,18 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {CallManagerClient} from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
 import {promisifyAll} from "grpc-promise";
-import {CallRequest, CallResponse} from "./types";
+import {CallRequest, CallResponse, ICallManagerClient} from "./types";
 
 /**
  * @classdesc Use Fonos CallManager, a capability of Fonos Systems Manager,
  * to initiate and monitor automated calls. Fonos CallManager requires of a
  * running Fonos deployment.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const Fonos = require("@fonos/sdk")
@@ -41,13 +41,13 @@ import {CallRequest, CallResponse} from "./types";
  * .then(console.log)        // successful response
  * .catch(console.error)   // an error occurred
  */
-export default class CallManager extends FonosService {
+export default class CallManager extends APIClient implements ICallManagerClient {
   /**
    * Constructs a new CallManager Object.
    *
-   * @see module:core:FonosService
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(CallManagerClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
@@ -93,7 +93,7 @@ export default class CallManager extends FonosService {
   }
 }
 
-export {CallManagerPB};
+export {CallManagerPB, ICallManagerClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = CallManager;

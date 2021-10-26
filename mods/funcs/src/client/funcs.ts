@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import Storage from "@fonos/storage";
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {FuncsClient} from "../service/protos/funcs_grpc_pb";
 import FuncsPB from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -28,6 +28,7 @@ import {
   GetFuncLogsRequest,
   GetFuncRequest,
   GetFuncResponse,
+  IFuncsClient,
   ListFuncsRequest,
   ListFuncsResponse
 } from "./types";
@@ -43,7 +44,7 @@ import {DeployStream, LogsStream} from "./stream_wrappers";
  * to deploy, update, get and delete functions. Fonos Funcs requires of a
  * running Fonos deployment and FaaS.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const request = {
@@ -58,14 +59,14 @@ import {DeployStream, LogsStream} from "./stream_wrappers";
  *   stream.onError(e => console.error(e))
  * }).catch(e => console.error(e));   // an error occurred
  */
-export default class Funcs extends FonosService {
+export default class Funcs extends APIClient implements IFuncsClient{
   storage: any;
   /**
    * Constructs a new Funcs object.
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(FuncsClient, options);
     super.init();
     this.storage = new Storage(super.getOptions());
@@ -286,7 +287,7 @@ export default class Funcs extends FonosService {
   }
 }
 
-export {FuncsPB, CommonPB, buildDeployFuncRequest};
+export {FuncsPB, CommonPB, buildDeployFuncRequest, IFuncsClient};
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Funcs;

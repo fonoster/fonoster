@@ -3,7 +3,7 @@ import chai from "chai";
 import sinonChai from "sinon-chai";
 import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 import {NumbersPB} from "../src/client/numbers";
 import {CreateNumberResponse} from "../src/client/types";
 import numberDecoder from "../src/service/decoder";
@@ -41,9 +41,9 @@ describe("@fonos/number", () => {
   afterEach(() => sandbox.restore());
 
   it("should create a number", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const stubNumber = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         createNumber: () => {
           return {
@@ -63,8 +63,8 @@ describe("@fonos/number", () => {
   });
 
   it("should get a number by ref", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "getService").returns({
       getNumber: () => {
         return {
           sendMessage: () => Promise.resolve(numberObj)
@@ -90,9 +90,9 @@ describe("@fonos/number", () => {
     const refReturn = {
       ref: numberPlain.ref
     };
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const stubNumber = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         deleteNumber: () => {
           return {
@@ -115,9 +115,9 @@ describe("@fonos/number", () => {
       view: 0
     };
 
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const stubNumber = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         listNumbers: () => {
           return {
@@ -163,8 +163,8 @@ describe("@fonos/number", () => {
       }
     };
 
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "getService").returns({
       getNumber: () => {
         return {
           sendMessage: () => Promise.resolve(numberObj)
@@ -182,8 +182,8 @@ describe("@fonos/number", () => {
     const request = {
       ref: numberPlain.ref
     };
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "getService").returns({
       getNumber: () => {
         return {
           sendMessage: () => Promise.resolve(numberObj)
@@ -202,10 +202,10 @@ describe("@fonos/number", () => {
       ref: numberPlain.ref,
       aorLink: numberPlain.aorLink
     };
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const returnNumberDb = new NumbersPB.Number();
     returnNumberDb.setRef(request.ref);
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "getService").returns({
       updateNumber: () => {
         return {
           sendMessage: () => Promise.resolve(returnNumberDb)
@@ -234,8 +234,8 @@ describe("@fonos/number", () => {
     const returnNumberDb = new NumbersPB.Number();
     returnNumberDb.setRef(request.ref);
 
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "getService").returns({
       updateNumber: () => {
         return {
           sendMessage: () => Promise.resolve(returnNumberDb)
@@ -257,8 +257,8 @@ describe("@fonos/number", () => {
     const returnIngressInfo = new NumbersPB.IngressInfo();
     returnIngressInfo.setWebhook("https://webhooks.acme.com/calls");
 
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "getService").returns({
       getIngressInfo: () => {
         return {
           sendMessage: () => Promise.resolve(returnIngressInfo)

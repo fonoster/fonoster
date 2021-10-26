@@ -64,7 +64,7 @@ export default class {
    * Constructs a new VoiceResponse object.
    *
    * @param {VoiceRequest} request - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @see module:core:APIClient
    */
   constructor(request: VoiceRequest) {
     this.request = request;

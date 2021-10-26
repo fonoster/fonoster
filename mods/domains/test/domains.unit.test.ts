@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import Domains from "../src/client/domains";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 import DomainsPB from "../src/service/protos/domains_pb";
 import domainDecoder from "../src/service/decoder";
 
@@ -45,9 +45,9 @@ describe("@fonos/domains", () => {
   afterEach(() => sandbox.restore());
 
   it("should create a domain", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         createDomain: () => {
           return {
@@ -86,9 +86,9 @@ describe("@fonos/domains", () => {
   });
 
   it("should get a domain", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         getDomain: () => {
           return {
@@ -121,9 +121,9 @@ describe("@fonos/domains", () => {
   });
 
   it("should delete a Domain", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         deleteDomain: () => {
           return {
@@ -140,9 +140,9 @@ describe("@fonos/domains", () => {
   });
 
   it("should list domains", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         listDomains: () => {
           return {
@@ -190,9 +190,9 @@ describe("@fonos/domains", () => {
       name: domainObj.getName()
     };
 
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const updateDomainStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         updateDomain: () => {
           return {

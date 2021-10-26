@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "declaration": true,
+    "outDir": "dist"
+  },
+  "exclude": ["dist"],
+  "references": [
+    {"path": "../auth"},
+    {"path": "../secrets"},
+    {"path": "../agents"},
+    {"path": "../funcs"},
+    {"path": "../storage"},
+    {"path": "../callmanager"},
+    {"path": "../logger"},
+    {"path": "../providers"},
+    {"path": "../numbers"},
+    {"path": "../domains"},
+    {"path": "../projects"},
+    {"path": "../users"},
+    {"path": "../common"},
+    {"path": "../core"},
+    {"path": "../logger"}
+  ],
+}

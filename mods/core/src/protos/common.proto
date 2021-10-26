@@ -20,7 +20,7 @@ enum View {
   FULL = 2;
 }
 
-message Error {
+message ErrorResponse {
 	option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
 		example: "{\"status\": 0, \"message\": \"string\"}"
 	};
@@ -81,7 +81,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
     }
   }
   responses: {
-    key: "error";
+    key: "default";
     value: {
       description: "User or system error.";
       schema: {

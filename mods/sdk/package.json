@@ -38,7 +38,9 @@
     "@fonos/numbers": "^0.2.6",
     "@fonos/providers": "^0.2.6",
     "@fonos/secrets": "^0.2.6",
-    "@fonos/storage": "^0.2.6"
+    "@fonos/storage": "^0.2.6",
+    "@fonos/projects": "^0.2.6",
+    "@fonos/users": "^0.2.6"
   },
   "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }

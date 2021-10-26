@@ -26,9 +26,10 @@ import {
   DeleteNumberResponse,
   ListNumbersResponse,
   GetIngressInfoRequest,
-  GetIngressInfoResponse
+  GetIngressInfoResponse,
+  INumbersClient
 } from "./types";
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {NumbersClient} from "../service/protos/numbers_grpc_pb";
 import NumbersPB, {IngressInfo} from "../service/protos/numbers_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -39,7 +40,7 @@ import {promisifyAll} from "grpc-promise";
  * to create, update, get and delete numbers. Fonos Numbers requires of a
  * running Fonos deployment.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const Fonos = require("@fonos/sdk");
@@ -58,13 +59,13 @@ import {promisifyAll} from "grpc-promise";
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e));   // an error occurred
  */
-export default class Numbers extends FonosService {
+export default class Numbers extends APIClient implements INumbersClient {
   /**
    * Constructs a new Numbers object.
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(NumbersClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
@@ -304,7 +305,7 @@ export default class Numbers extends FonosService {
   }
 }
 
-export {NumbersPB, CommonPB};
+export {NumbersPB, CommonPB, INumbersClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Numbers;

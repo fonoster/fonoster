@@ -25,6 +25,8 @@ site
 lerna-debug.log
 mods/**/src/protos/common.proto
 !mods/core/src/protos/common.proto
+generated
+swagger.json
 
 # User-specific stuff:
 .idea/workspace.xml

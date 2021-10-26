@@ -20,7 +20,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 import Funcs, {buildDeployFuncRequest, FuncsPB} from "../src/client/funcs";
 import {DeployFuncRequest} from "../src/client/types";
 
@@ -41,7 +41,7 @@ describe("@fonos/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
   it("returns a function object a DeployFuncRequest", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const request: DeployFuncRequest = {
       name: "function1",
       path: "...",
@@ -66,8 +66,8 @@ describe("@fonos/funcs/client", () => {
   });
 
   it("should get a function by name", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
-    sandbox.stub(FonosService.prototype, "getService").returns({
+    sandbox.stub(APIClient.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "getService").returns({
       getFunc: (req, meta, callback) => {
         callback(null, funcObj);
       }
@@ -95,9 +95,9 @@ describe("@fonos/funcs/client", () => {
     const response = {
       name: funcObj.getName()
     };
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const stubFunc = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         deleteFunc: (req, meta, callback) => {
           callback(null, response);
@@ -118,9 +118,9 @@ describe("@fonos/funcs/client", () => {
       view: 0
     };
 
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const stubFunc = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         listFuncs: (req, meta, callback) => {
           callback(null, {
