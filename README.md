@@ -37,6 +37,7 @@ The most notable features on PF 0.1 are:
 - [x] Easy deployment of PBXs functionalities
 - [x] Programmable Voice Applications
 - [x] NodeJS SDK
+- [x] Web SDK
 - [x] Support for Amazon Simple Storage Service (S3)
 - [x] Secure API endpoints with Let's Encrypt
 - [x] Authentication with OAuth2
