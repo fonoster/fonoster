@@ -25,5 +25,5 @@
     {"path": "../common"},
     {"path": "../core"},
     {"path": "../logger"}
-  ],
+  ]
 }

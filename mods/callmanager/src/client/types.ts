@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 export interface ICallManagerClient {
-  call(request: CallRequest): Promise<CallResponse>
+  call(request: CallRequest): Promise<CallResponse>;
 }
 
 export interface CallRequest {

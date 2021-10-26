@@ -17,9 +17,13 @@
  * limitations under the License.
  */
 export interface IProvidersClient {
-  createProvider(request: CreateProviderRequest): Promise<CreateProviderResponse>;
+  createProvider(
+    request: CreateProviderRequest
+  ): Promise<CreateProviderResponse>;
   getProvider(ref: string): Promise<GetProviderResponse>;
-  updateProvider(request: UpdateProviderRequest): Promise<UpdateProviderResponse>;
+  updateProvider(
+    request: UpdateProviderRequest
+  ): Promise<UpdateProviderResponse>;
   listProviders(request: ListProvidersRequest): Promise<ListProvidersResponse>;
   deleteProvider(ref: string): Promise<DeleteProviderResponse>;
 }

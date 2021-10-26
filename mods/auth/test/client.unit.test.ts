@@ -37,15 +37,13 @@ describe("@fonos/auth/client", () => {
 
   it("creates a new no access token", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubAuth = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        createNoAccessToken: () => {
-          return {
-            sendMessage: () => Promise.resolve(createTokenResponse)
-          };
-        }
-      });
+    const stubAuth = sandbox.stub(APIClient.prototype, "getService").returns({
+      createNoAccessToken: () => {
+        return {
+          sendMessage: () => Promise.resolve(createTokenResponse)
+        };
+      }
+    });
 
     const auth = new Auth();
     const result: CreateTokenResponse = await auth.createNoAccessToken({
@@ -60,15 +58,13 @@ describe("@fonos/auth/client", () => {
 
   it("creates a new access token", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubAuth = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        createToken: () => {
-          return {
-            sendMessage: () => Promise.resolve(createTokenResponse)
-          };
-        }
-      });
+    const stubAuth = sandbox.stub(APIClient.prototype, "getService").returns({
+      createToken: () => {
+        return {
+          sendMessage: () => Promise.resolve(createTokenResponse)
+        };
+      }
+    });
 
     const auth = new Auth();
     const result: CreateTokenResponse = await auth.createToken({
@@ -83,18 +79,16 @@ describe("@fonos/auth/client", () => {
 
   it("checks if a token is valid", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubAuth = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        validateToken: () => {
-          return {
-            sendMessage: () =>
-              Promise.resolve({
-                getValid: () => true
-              })
-          };
-        }
-      });
+    const stubAuth = sandbox.stub(APIClient.prototype, "getService").returns({
+      validateToken: () => {
+        return {
+          sendMessage: () =>
+            Promise.resolve({
+              getValid: () => true
+            })
+        };
+      }
+    });
 
     const auth = new Auth();
     const result = await auth.validateToken({

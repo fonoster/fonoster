@@ -17,8 +17,10 @@
  * limitations under the License.
  */
 export interface IAuthClient {
-  createToken(request: CreateTokenRequest): Promise<CreateTokenResponse>
-  createNoAccessToken(request: CreateTokenRequest): Promise<CreateTokenResponse>;
+  createToken(request: CreateTokenRequest): Promise<CreateTokenResponse>;
+  createNoAccessToken(
+    request: CreateTokenRequest
+  ): Promise<CreateTokenResponse>;
   validateToken(request: ValidateTokenRequest): Promise<boolean>;
 }
 

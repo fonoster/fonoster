@@ -22,7 +22,9 @@ export interface INumbersClient {
   updateNumber(request: UpdateNumberRequest): Promise<UpdateNumberResponse>;
   listNumbers(request: ListNumbersRequest): Promise<ListNumbersResponse>;
   deleteNumber(ref: string): Promise<DeleteNumberResponse>;
-  getIngressInfo(request: GetIngressInfoRequest): Promise<GetIngressInfoResponse>;
+  getIngressInfo(
+    request: GetIngressInfoRequest
+  ): Promise<GetIngressInfoResponse>;
 }
 
 enum View {

@@ -70,30 +70,26 @@ describe("@fonos/secrets/client", () => {
 
   it("should get a secret", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubFunc = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        deleteSecret: () => {
-          return {
-            sendMessage: () => Promise.resolve(response)
-          };
-        }
-      });
+    const stubFunc = sandbox.stub(APIClient.prototype, "getService").returns({
+      deleteSecret: () => {
+        return {
+          sendMessage: () => Promise.resolve(response)
+        };
+      }
+    });
     const secret = new Secrets();
     const result = await secret.deleteSecret(response.getName());
   });
 
   it("should delete a function", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubFunc = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        deleteSecret: () => {
-          return {
-            sendMessage: () => Promise.resolve({})
-          };
-        }
-      });
+    const stubFunc = sandbox.stub(APIClient.prototype, "getService").returns({
+      deleteSecret: () => {
+        return {
+          sendMessage: () => Promise.resolve({})
+        };
+      }
+    });
     const secret = new Secrets();
     const result = await secret.deleteSecret(response.getName());
     expect(stubFunc).to.be.calledTwice;

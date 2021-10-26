@@ -42,15 +42,13 @@ describe("@fonos/number", () => {
 
   it("should create a number", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubNumber = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        createNumber: () => {
-          return {
-            sendMessage: () => Promise.resolve(numberObj)
-          };
-        }
-      });
+    const stubNumber = sandbox.stub(APIClient.prototype, "getService").returns({
+      createNumber: () => {
+        return {
+          sendMessage: () => Promise.resolve(numberObj)
+        };
+      }
+    });
 
     const numbers = new Numbers();
     const result: CreateNumberResponse = await numbers.createNumber({
@@ -91,15 +89,13 @@ describe("@fonos/number", () => {
       ref: numberPlain.ref
     };
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubNumber = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        deleteNumber: () => {
-          return {
-            sendMessage: () => Promise.resolve(refReturn)
-          };
-        }
-      });
+    const stubNumber = sandbox.stub(APIClient.prototype, "getService").returns({
+      deleteNumber: () => {
+        return {
+          sendMessage: () => Promise.resolve(refReturn)
+        };
+      }
+    });
 
     const numbers = new Numbers();
     const result = await numbers.deleteNumber(numberPlain.ref);
@@ -116,21 +112,19 @@ describe("@fonos/number", () => {
     };
 
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubNumber = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        listNumbers: () => {
-          return {
-            sendMessage: () =>
-              Promise.resolve({
-                getNextPageToken: () => {
-                  return "1";
-                },
-                getNumbersList: () => [numberObj]
-              })
-          };
-        }
-      });
+    const stubNumber = sandbox.stub(APIClient.prototype, "getService").returns({
+      listNumbers: () => {
+        return {
+          sendMessage: () =>
+            Promise.resolve({
+              getNextPageToken: () => {
+                return "1";
+              },
+              getNumbersList: () => [numberObj]
+            })
+        };
+      }
+    });
 
     const numbers = new Numbers();
     const result = await numbers.listNumbers(request);

@@ -96,13 +96,11 @@ describe("@fonos/funcs/client", () => {
       name: funcObj.getName()
     };
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubFunc = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        deleteFunc: (req, meta, callback) => {
-          callback(null, response);
-        }
-      });
+    const stubFunc = sandbox.stub(APIClient.prototype, "getService").returns({
+      deleteFunc: (req, meta, callback) => {
+        callback(null, response);
+      }
+    });
 
     const funcs = new Funcs();
     const result = await funcs.deleteFunc({name: funcObj.getName()});
@@ -119,18 +117,16 @@ describe("@fonos/funcs/client", () => {
     };
 
     sandbox.stub(APIClient.prototype, "init").returns();
-    const stubFunc = sandbox
-      .stub(APIClient.prototype, "getService")
-      .returns({
-        listFuncs: (req, meta, callback) => {
-          callback(null, {
-            getNextPageToken: () => {
-              return "1";
-            },
-            getFuncsList: () => [funcObj]
-          });
-        }
-      });
+    const stubFunc = sandbox.stub(APIClient.prototype, "getService").returns({
+      listFuncs: (req, meta, callback) => {
+        callback(null, {
+          getNextPageToken: () => {
+            return "1";
+          },
+          getFuncsList: () => [funcObj]
+        });
+      }
+    });
 
     const funcs = new Funcs();
     const result = await funcs.listFuncs(request);

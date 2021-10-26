@@ -59,7 +59,7 @@ import {DeployStream, LogsStream} from "./stream_wrappers";
  *   stream.onError(e => console.error(e))
  * }).catch(e => console.error(e));   // an error occurred
  */
-export default class Funcs extends APIClient implements IFuncsClient{
+export default class Funcs extends APIClient implements IFuncsClient {
   storage: any;
   /**
    * Constructs a new Funcs object.

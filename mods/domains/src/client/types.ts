@@ -20,8 +20,8 @@ export interface IDomainsClient {
   createDomain(request: CreateDomainRequest): Promise<CreateDomainResponse>;
   getDomain(ref: string): Promise<GetDomainResponse>;
   updateDomain(request: UpdateDomainRequest): Promise<UpdateDomainResponse>;
-  listDomains(request: ListDomainsRequest): Promise<ListDomainsResponse>
-  deleteDomain(ref: string): Promise<DeleteDomainResponse> 
+  listDomains(request: ListDomainsRequest): Promise<ListDomainsResponse>;
+  deleteDomain(ref: string): Promise<DeleteDomainResponse>;
 }
 
 export interface Domain {

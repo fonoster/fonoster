@@ -41,7 +41,10 @@ import {CallRequest, CallResponse, ICallManagerClient} from "./types";
  * .then(console.log)        // successful response
  * .catch(console.error)   // an error occurred
  */
-export default class CallManager extends APIClient implements ICallManagerClient {
+export default class CallManager
+  extends APIClient
+  implements ICallManagerClient
+{
   /**
    * Constructs a new CallManager Object.
    *
