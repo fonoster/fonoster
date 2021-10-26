@@ -26,11 +26,8 @@ import Projects from "./projects";
 import Storage from "./storage";
 import Users from "./users";
 import Providers from "./providers";
-/* 
-import Funcs from "./funcs";
-*/
 
-const Fonos = {
+export {
   Agents,
   Auth,
   Secrets,
@@ -41,13 +38,4 @@ const Fonos = {
   Storage,
   Users,
   Providers
-  /* ,
-  Funcs,
-
-  */
-};
-
-export {Fonos as default};
-
-// WARNING: Workaround to support commonjs clients
-module.exports = Fonos;
+}

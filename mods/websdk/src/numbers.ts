@@ -33,7 +33,7 @@ import {
   GetIngressInfoRequest,
   GetIngressInfoResponse
 } from "@fonos/Numbers/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Numbers extends WebAPIClient implements INumbersClient {
   constructor(options: WebClientOptions) {

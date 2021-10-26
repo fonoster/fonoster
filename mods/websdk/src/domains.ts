@@ -31,7 +31,7 @@ import {
   UpdateDomainRequest,
   UpdateDomainResponse
 } from "@fonos/domains/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Domains extends WebAPIClient implements IDomainsClient {
   constructor(options: WebClientOptions) {

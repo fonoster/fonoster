@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="utf-8" />
-    <title>WebSDK test</title>
-  </head>
-  <body>
-    <p>Check the logs!</p>
+<title>WebSDK Test</title>
+<script src="./dist/websdk.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  console.log(Fonos)
+  const agent = new Fonos.Agents({
+    endpoint: "",
+    accessKeyId: "",
+    accessKeySecret: ""
+  });
 
-    <audio style="display: none" id="remoteAudio" controls>
-      <p>Your browser doesn't support HTML5 audio.</p>
-    </audio>
+  agent.createAgent({})
+    .then(console.log)
+    .catch(console.error)
 
-    <script
-      src="/dist/websdk.js?ref=80"
-      onerror="alert('To run this demo you must first build the library and demo source! See the README.')"
-    ></script>
-  </body>
-</html>
+  const code = document.createElement("code");
+  code.textContent = "ceborex";
+  document.body.appendChild(code);
+});
+</script>

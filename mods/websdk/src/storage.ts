@@ -27,7 +27,7 @@ import {
   GetObjectURLRequest,
   GetObjectURLResponse
 } from "@fonos/storage/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Storage extends WebAPIClient implements IStorageClient {
   constructor(options: WebClientOptions) {

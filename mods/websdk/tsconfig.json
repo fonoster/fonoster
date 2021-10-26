@@ -1,29 +1,80 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "src",
+    "declaration": false,
     "esModuleInterop": true,
-    "target": "es6",
+    "inlineSourceMap": false,
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "listEmittedFiles": false,
+    "listFiles": false,
     "moduleResolution": "node",
-    "sourceMap": true,
-    "declaration": true,
+    "noFallthroughCasesInSwitch": true,
+    "pretty": true,
+    "rootDir": "src",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext",
+    "traceResolution": false,
     "outDir": "dist"
   },
-  "exclude": ["dist"],
+  "compileOnSave": false,
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "include": [
+    "src"
+  ],
   "references": [
-    {"path": "../auth"},
-    {"path": "../secrets"},
-    {"path": "../agents"},
-    {"path": "../funcs"},
-    {"path": "../storage"},
-    {"path": "../callmanager"},
-    {"path": "../logger"},
-    {"path": "../providers"},
-    {"path": "../numbers"},
-    {"path": "../domains"},
-    {"path": "../projects"},
-    {"path": "../users"},
-    {"path": "../common"},
-    {"path": "../core"},
-    {"path": "../logger"}
+    {
+      "path": "../auth"
+    },
+    {
+      "path": "../secrets"
+    },
+    {
+      "path": "../agents"
+    },
+    {
+      "path": "../funcs"
+    },
+    {
+      "path": "../storage"
+    },
+    {
+      "path": "../callmanager"
+    },
+    {
+      "path": "../logger"
+    },
+    {
+      "path": "../providers"
+    },
+    {
+      "path": "../numbers"
+    },
+    {
+      "path": "../domains"
+    },
+    {
+      "path": "../projects"
+    },
+    {
+      "path": "../users"
+    },
+    {
+      "path": "../common"
+    },
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../logger"
+    }
   ]
 }

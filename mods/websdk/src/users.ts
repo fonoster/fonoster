@@ -31,7 +31,7 @@ import {
   CreateUserCredentialsRequest,
   CreateUserCredentialsResponse
 } from "@fonos/users/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Users extends WebAPIClient implements IUsersClient {
   constructor(options: WebClientOptions) {

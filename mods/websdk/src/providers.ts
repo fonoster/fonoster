@@ -31,7 +31,7 @@ import {
   UpdateProviderRequest,
   UpdateProviderResponse
 } from "@fonos/providers/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Providers
   extends WebAPIClient

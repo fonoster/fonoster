@@ -1,20 +1,27 @@
+/*
+ * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonos
+ *
+ * This file is part of Project Fonos
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 const path = require("path");
-require("dotenv").config();
 
 module.exports = {
+  target: "web",
   entry: {
-    websdk: "./dist/src/index.js",
-    agents: "./dist/src/agents.js",
-    auth: "./dist/src/auth.js",
-    callmanager: "./dist/src/callmanager.js",
-    domains: "./dist/src/domains.js",
-    funcs: "./dist/src/funcs.js",
-    numbers: "./dist/src/numbers.js",
-    projects: "./dist/src/projects.js",
-    providers: "./dist/src/providers.js",
-    secrets: "./dist/src/secrets.js",
-    storage: "./dist/src/storage.js",
-    users: "./dist/src/users.js"
+    websdk: "./dist/index.js"
   },
   devtool: "inline-source-map",
   mode: "development",
@@ -24,6 +31,17 @@ module.exports = {
         test: /\.tsx?$/,
         use: "ts-loader",
         exclude: /node_modules/
+      },
+      {
+        test: /\.js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
+            plugins: ["@babel/plugin-transform-runtime"]
+          }
+        }
       }
     ]
   },
@@ -32,6 +50,8 @@ module.exports = {
   },
   output: {
     filename: "[name].js",
-    path: path.resolve(__dirname, "dist")
+    path: path.resolve(__dirname, "dist"),
+    iife: true,
+    library: "Fonos"
   }
 };

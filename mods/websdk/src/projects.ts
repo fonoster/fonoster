@@ -31,7 +31,7 @@ import {
   UpdateProjectRequest,
   UpdateProjectResponse
 } from "@fonos/projects/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Projects extends WebAPIClient implements IProjectsClient {
   constructor(options: WebClientOptions) {

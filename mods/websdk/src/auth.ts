@@ -26,7 +26,7 @@ import {
   CreateTokenResponse,
   ValidateTokenRequest
 } from "@fonos/auth/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Auth extends WebAPIClient implements IAuthClient {
   constructor(options: WebClientOptions) {

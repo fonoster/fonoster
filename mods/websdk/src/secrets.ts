@@ -28,7 +28,7 @@ import {
   ListSecretsRequest,
   ListSecretsResponse
 } from "@fonos/secrets/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Secrets extends WebAPIClient implements ISecretsClient {
   constructor(options: WebClientOptions) {

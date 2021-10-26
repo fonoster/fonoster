@@ -35,7 +35,7 @@ import {
   DeployStream,
   LogsStream
 } from "@fonos/funcs/src/client/stream_wrappers";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Agents extends WebAPIClient implements IFuncsClient {
   constructor(options: WebClientOptions) {

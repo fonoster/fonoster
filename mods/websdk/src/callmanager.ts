@@ -22,7 +22,7 @@ import WebAPIClient from "@fonos/common/dist/web_client";
 import {WebClientOptions} from "@fonos/common/dist/types";
 import {ICallManagerClient} from "@fonos/callmanager";
 import {CallRequest, CallResponse} from "@fonos/callmanager/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class CallManager
   extends WebAPIClient

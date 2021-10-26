@@ -31,7 +31,7 @@ import {
   UpdateAgentRequest,
   UpdateAgentResponse
 } from "@fonos/agents/src/client/types";
-import * as c from "../generated/api";
+import * as c from "./generated/api";
 
 export default class Agents extends WebAPIClient implements IAgentsClient {
   constructor(options: WebClientOptions) {
