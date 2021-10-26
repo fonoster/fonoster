@@ -1,6 +1,6 @@
 {
   "name": "@fonos/websdk",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Fonos WebSDK module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
