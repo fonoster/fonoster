@@ -130,7 +130,15 @@ jobs:
         repo: fonoster/mediaserver
         token: ${{ secrets.GH_PAT }}
         ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'        
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing RTPEngine Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/rtpengine
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Publishing JWTHelper Service
       uses: benc-uk/workflow-dispatch@v1
       with:
