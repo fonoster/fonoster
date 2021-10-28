@@ -114,7 +114,7 @@ class DomainsServer implements IDomainsServer {
         call
       )) as any;
 
-      console.log("test-> " + domain)
+      console.log("test-> " + domain);
 
       const resource = new ResourceBuilder(
         Kind.DOMAIN,

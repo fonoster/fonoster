@@ -23,8 +23,14 @@ export default async function updateNumber(call: any, callback: any) {
     return;
   }
 
-  const objectFromDB = decoder(await ResourceServer.getResource(Kind.NUMBER, call));
-  let encoder = new ResourceBuilder(Kind.NUMBER, objectFromDB.getE164Number(), objectFromDB.getRef());
+  const objectFromDB = decoder(
+    await ResourceServer.getResource(Kind.NUMBER, call)
+  );
+  let encoder = new ResourceBuilder(
+    Kind.NUMBER,
+    objectFromDB.getE164Number(),
+    objectFromDB.getRef()
+  );
 
   if (request.getAorLink()) {
     encoder = encoder
@@ -35,7 +41,10 @@ export default async function updateNumber(call: any, callback: any) {
       });
   } else {
     encoder = encoder
-      .withLocation(`tel:${objectFromDB.getE164Number()}`, process.env.MS_ENDPOINT)
+      .withLocation(
+        `tel:${objectFromDB.getE164Number()}`,
+        process.env.MS_ENDPOINT
+      )
       .withMetadata({
         webhook: request.getIngressInfo()
           ? request.getIngressInfo().getWebhook().trim()

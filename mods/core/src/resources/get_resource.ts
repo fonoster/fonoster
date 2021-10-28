@@ -4,7 +4,7 @@ import {GetResourceRequest} from "./types";
 export default async function getResource(
   request: GetResourceRequest
 ): Promise<unknown> {
-  console.log("DBG001")
+  console.log("DBG001");
   await routr.connect();
   const jsonObj = await routr
     .resourceType(`${request.kind.toLowerCase()}s`)
