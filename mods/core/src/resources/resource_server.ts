@@ -46,12 +46,15 @@ export default class ResourceServer {
     call: grpc.ServerUnaryCall<any, unknown>
   ): Promise<unknown> {
     try {
+      console.log("call.request.getRef() =>" + call.request)
+      console.log("call.request.getRef() =>" + call.request.getRef())
       return await getResourceHere({
         ref: call.request.getRef(),
         kind,
         accessKeyId: getAccessKeyId(call)
       });
     } catch (e) {
+      console.log("call.request.getRef() =>" + call.request)
       return null;
     }
   }

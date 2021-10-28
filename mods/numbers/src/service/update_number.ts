@@ -3,7 +3,7 @@
 import {FonosInvalidArgument} from "@fonos/errors";
 import {ResourceBuilder, Kind, routr, ResourceServer} from "@fonos/core";
 import numberDecoder from "./decoder";
-import {UpdateNumberRequest} from "./protos/numbers_pb";
+import decoder from "./decoder";
 
 export default async function updateNumber(call: any, callback: any) {
   const request = call.request;
@@ -23,36 +23,31 @@ export default async function updateNumber(call: any, callback: any) {
     return;
   }
 
-  let encoder = new ResourceBuilder(Kind.NUMBER, request.getRef());
-
-  const number = (await ResourceServer.getResource(Kind.NUMBER, call)) as any;
+  const objectFromDB = decoder(await ResourceServer.getResource(Kind.NUMBER, call));
+  let encoder = new ResourceBuilder(Kind.NUMBER, objectFromDB.getE164Number(), objectFromDB.getRef());
 
   if (request.getAorLink()) {
     encoder = encoder
-      .withLocation(`tel:${number.getE164Number()}`, request.getAorLink())
+      .withLocation(`tel:${objectFromDB.getE164Number()}`, request.getAorLink())
       .withMetadata({
         gwRef: request.getProviderRef(),
-        createdOn: number.metadata.createdOn,
-        modifiedOn: new Date().toISOString()
+        createdOn: objectFromDB.getCreateTime()
       });
   } else {
     encoder = encoder
-      .withLocation(`tel:${number.getE164Number()}`, process.env.MS_ENDPOINT)
+      .withLocation(`tel:${objectFromDB.getE164Number()}`, process.env.MS_ENDPOINT)
       .withMetadata({
-        webhook: number.getIngressInfo()
-          ? number.getIngressInfo().getWebhook().trim()
+        webhook: request.getIngressInfo()
+          ? request.getIngressInfo().getWebhook().trim()
           : undefined,
-        gwRef: number.getProviderRef(),
-        createdOn: number.getCreateTime(),
-        modifiedOn: number.getUpdateTime()
+        gwRef: objectFromDB.getProviderRef(),
+        createdOn: objectFromDB.getCreateTime()
       });
   }
 
-  const resource = encoder.build();
-
   try {
     await routr.connect();
-    const ref = await routr.resourceType("numbers").update(resource);
+    const ref = await routr.resourceType("numbers").update(encoder.build());
 
     // We do this to get updated metadata from Routr
     const jsonObj = await routr.resourceType("numbers").get(ref);
