@@ -1,6 +1,6 @@
 {
   "name": "@fonos/users",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "System wide Users",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -43,12 +43,12 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/auth": "^0.2.9",
-    "@fonos/certs": "^0.2.9",
-    "@fonos/common": "^0.2.9",
-    "@fonos/core": "^0.2.9",
-    "@fonos/errors": "^0.2.9",
-    "@fonos/logger": "^0.2.9",
+    "@fonos/auth": "^0.2.10",
+    "@fonos/certs": "^0.2.10",
+    "@fonos/common": "^0.2.10",
+    "@fonos/core": "^0.2.10",
+    "@fonos/errors": "^0.2.10",
+    "@fonos/logger": "^0.2.10",
     "@grpc/grpc-js": "^1.3.6",
     "bcrypt": "^5.0.1",
     "google-protobuf": "^3.17.0",
