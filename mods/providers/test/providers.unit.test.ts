@@ -20,7 +20,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 import Providers, {ProvidersPB} from "../src/client/providers";
 import providerDecoder from "../src/service/decoder";
 
@@ -44,9 +44,9 @@ describe("@fonos/providers", () => {
   afterEach(() => sandbox.restore());
 
   it("should create a provider", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         createProvider: () => {
           return {
@@ -82,9 +82,9 @@ describe("@fonos/providers", () => {
   });
 
   it("should get a provider", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         getProvider: () => {
           return {
@@ -110,9 +110,9 @@ describe("@fonos/providers", () => {
   });
 
   it("should delete a Provider", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         deleteProvider: () => {
           return {
@@ -128,9 +128,9 @@ describe("@fonos/providers", () => {
   });
 
   it("should list providers", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         listProviders: () => {
           return {
@@ -188,9 +188,9 @@ describe("@fonos/providers", () => {
       updateTime: providerObj.getUpdateTime()
     };
 
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const updateProviderStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         updateProvider: () => {
           return {

@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import Projects, {ProjectsPB} from "../src/client/projects";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -42,9 +42,9 @@ describe("@fonos/projects", () => {
   afterEach(() => sandbox.restore());
 
   it("should create a project", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         createProject: () => {
           return {
@@ -81,9 +81,9 @@ describe("@fonos/projects", () => {
   });
 
   it("should get a project", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         getProject: () => {
           return {
@@ -116,9 +116,9 @@ describe("@fonos/projects", () => {
   });
 
   it("should delete a project", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         deleteProject: () => {
           return {
@@ -141,9 +141,9 @@ describe("@fonos/projects", () => {
       allowExperiments: projectObj.getAllowExperiments()
     };
 
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const updateProjectStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         updateProject: () => {
           return {
@@ -160,9 +160,9 @@ describe("@fonos/projects", () => {
   });
 
   it("should renew a project's token", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const loginProjectStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         renewAccessKeySecret: () => {
           return {

@@ -25,6 +25,8 @@ import Domains from "@fonos/domains";
 import Agents from "@fonos/agents";
 import Funcs from "@fonos/funcs";
 import Auth from "@fonos/auth";
+import Projects from "@fonos/projects";
+import Users from "@fonos/users";
 import {mute} from "@fonos/logger";
 
 mute();
@@ -38,7 +40,9 @@ const Fonos = {
   Funcs,
   Storage,
   Numbers,
-  Providers
+  Providers,
+  Projects,
+  Users
 };
 
 export {Fonos as default};

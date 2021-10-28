@@ -16,6 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface IProjectsClient {
+  createProject(request: CreateProjectRequest): Promise<CreateProjectResponse>;
+  getProject(ref: string): Promise<GetProjectResponse>;
+  updateProject(request: UpdateProjectRequest): Promise<UpdateProjectResponse>;
+  listProjects(request: ListProjectsRequest): Promise<ListProjectsResponse>;
+  deleteProject(ref: string): Promise<DeleteProjectResponse>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ListProjectsRequest {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ListProjectsResponse {}
+
 export interface Project {
   ref: string;
   name: string;

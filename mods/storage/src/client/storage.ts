@@ -16,15 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {StorageClient} from "../service/protos/storage_grpc_pb";
 import StoragePB from "../service/protos/storage_pb";
 import CommonPB from "../service/protos/common_pb";
 import {
   GetObjectURLRequest,
   UploadObjectRequest,
-  getObjectURLResponse,
-  UploadObjectResponse
+  GetObjectURLResponse,
+  UploadObjectResponse,
+  IStorageClient
 } from "./types";
 import {promisifyAll} from "grpc-promise";
 import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
@@ -33,7 +34,7 @@ import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
  * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
  * to upload, download, and delete objects.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const Fonos = require("@fonos/sdk")
@@ -44,13 +45,13 @@ import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
  *    console.log(result)            // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-export default class Storage extends FonosService {
+export default class Storage extends APIClient implements IStorageClient {
   /**
    * Constructs a new Storage object.
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(StorageClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
@@ -117,7 +118,7 @@ export default class Storage extends FonosService {
    */
   async getObjectURL(
     request: GetObjectURLRequest
-  ): Promise<getObjectURLResponse> {
+  ): Promise<GetObjectURLResponse> {
     const result = await this.getService()
       .getObjectURL()
       .sendMessage(getObjectServiceUtils(request));
@@ -126,7 +127,7 @@ export default class Storage extends FonosService {
   }
 }
 
-export {StoragePB, CommonPB};
+export {StoragePB, CommonPB, IStorageClient};
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Storage;

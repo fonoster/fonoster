@@ -2,7 +2,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 import CallManager from "../src/client/callmanager";
 import CallManagerPB from "../src/service/protos/callmanager_pb";
 
@@ -28,9 +28,9 @@ describe("@fonos/callmanager", () => {
       "setWebhook"
     );
 
-    const initStub = sandbox.stub(FonosService.prototype, "init").returns();
+    const initStub = sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         call: () => {
           return {

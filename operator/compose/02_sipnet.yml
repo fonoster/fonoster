@@ -39,7 +39,7 @@ services:
   # Before you start this in production you should limit the traffic to port 8080 
   # to only internal to avoid denial of service on RTPEngine.
   rtpengine:
-    image: psanders/rtpengine:latest
+    image: fonoster/rtpengine:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}  
     labels:
       - "traefik.enable=true"

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {SecretsClient} from "../service/protos/secrets_grpc_pb";
 import SecretPB from "../service/protos/secrets_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -25,8 +25,9 @@ import {
   CreateSecretRequest,
   CreateSecretResponse,
   GetSecretResponse,
-  ListSecretRequest,
-  ListSecretResponse
+  ISecretsClient,
+  ListSecretsRequest,
+  ListSecretsResponse
 } from "./types";
 
 /**
@@ -34,7 +35,7 @@ import {
  * to create and manage your secrets. Fonos Secrets requires of a
  * running Fonos deployment.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const Fonos = require("@fonos/sdk")
@@ -50,17 +51,21 @@ import {
  *   console.log(result) // returns the CreateDomainResponse interface
  * }).catch(e => console.error(e)); // an error occurred
  */
-export default class Secrets extends FonosService {
+export default class Secrets extends APIClient implements ISecretsClient {
   /**
    * Constructs a Secret Object.
    *
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(SecretsClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
+  }
+
+  listSecrets(request: ListSecretsRequest): Promise<ListSecretsResponse> {
+    throw new Error("Method not implemented.");
   }
 
   /**
@@ -159,7 +164,7 @@ export default class Secrets extends FonosService {
    *   console.log(result) // returns the CreateDomainResponse interface
    * }).catch(e => console.error(e)); // an error occurred
    */
-  async listSecret(request: ListSecretRequest): Promise<ListSecretResponse> {
+  async listSecret(request: ListSecretsRequest): Promise<ListSecretsResponse> {
     const req = new SecretPB.ListSecretIdRequest();
     req.setPageSize(request.pageSize);
     req.setPageToken(request.pageToken);
@@ -196,7 +201,7 @@ export default class Secrets extends FonosService {
   }
 }
 
-export {SecretPB, CommonPB};
+export {SecretPB, CommonPB, ISecretsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Secrets;

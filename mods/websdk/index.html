@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<title>WebSDK Test</title>
+<script src="./dist/websdk.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log(Fonos);
+    const agent = new Fonos.Agents({
+      endpoint: "",
+      accessKeyId: "",
+      accessKeySecret: ""
+    });
+
+    agent.createAgent({}).then(console.log).catch(console.error);
+
+    const code = document.createElement("code");
+    code.textContent = "ceborex";
+    document.body.appendChild(code);
+  });
+</script>

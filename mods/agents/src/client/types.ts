@@ -16,6 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface IAgentsClient {
+  createAgent(request: CreateAgentRequest): Promise<CreateAgentResponse>;
+  getAgent(ref: string): Promise<GetAgentResponse>;
+  updateAgent(request: UpdateAgentRequest): Promise<UpdateAgentResponse>;
+  listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse>;
+  deleteAgent(ref: string): Promise<DeleteAgentResponse>;
+}
 
 export interface Agent {
   ref: string;

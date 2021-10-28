@@ -1,7 +1,7 @@
 /*
 const logger = require('../dist/common/logger')
 logger.transports.forEach(t => (t.silent = true))
-const FonosService = require('../dist/common/fonos_service')
+const APIClient = require('../dist/common/fonos_service')
 const chai = require('chai')
 const sinon = require('sinon')
 const sinonChai = require('sinon-chai')
@@ -10,7 +10,7 @@ const expect = chai.expect
 var sandbox = sinon.createSandbox()
 
 describe('@fonos/core/service', () => {
-  context('FonosService constructor', () => {
+  context('APIClient constructor', () => {
     sinon.stub(require('path'), 'join').returns('/users/quijote/.fonos/access')
 
     it('should only have the default options', () => {
@@ -20,7 +20,7 @@ describe('@fonos/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      const service = new FonosService()
+      const service = new APIClient()
       expect(service.getOptions())
         .to.have.property('endpoint')
         .to.be.equal('localhost:50052')
@@ -39,7 +39,7 @@ describe('@fonos/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      const service = new FonosService()
+      const service = new APIClient()
       expect(service.getOptions())
         .to.have.property('endpoint')
         .to.be.equal('localhost:50051')
@@ -53,7 +53,7 @@ describe('@fonos/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      const service = new FonosService(void 0, { endpoint: 'apiserver:50051' })
+      const service = new APIClient(void 0, { endpoint: 'apiserver:50051' })
       expect(service.getOptions())
         .to.have.property('endpoint')
         .to.be.equal('apiserver:50051')
@@ -68,7 +68,7 @@ describe('@fonos/core/service', () => {
         })
       )
       process.env.FONOS_ENDPOINT = 'apiserver:50053'
-      const service = new FonosService()
+      const service = new APIClient()
       expect(service.getOptions())
         .to.have.property('endpoint')
         .to.be.equal('apiserver:50053')
@@ -78,7 +78,7 @@ describe('@fonos/core/service', () => {
     it('should merge throw and error inf no credentials are found', done => {
       const fs = sinon.stub(require('fs'), 'readFileSync').returns('{}')
       try {
-        new FonosService()
+        new APIClient()
         done('not good')
       } catch (err) {
         expect(err.message).to.be.equal('Not valid credentials found')
@@ -90,7 +90,7 @@ describe('@fonos/core/service', () => {
     it('should fail if the access file is malformed', done => {
       sinon.stub(require('fs'), 'readFileSync').returns('{')
       try {
-        new FonosService()
+        new APIClient()
         done('not good')
       } catch (err) {
         expect(err.message).to.be.equal(

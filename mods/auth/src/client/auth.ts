@@ -16,13 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {AuthClient} from "../service/protos/auth_grpc_pb";
 import AuthPB from "../service/protos/auth_pb";
 import {promisifyAll} from "grpc-promise";
 import {
   CreateTokenRequest,
   CreateTokenResponse,
+  IAuthClient,
   ValidateTokenRequest
 } from "./types";
 
@@ -30,7 +31,7 @@ import {
  * @classdesc Use Fonos Auth, a capability of Fonos,
  * to validate and create short life tokens.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const request = {
@@ -42,13 +43,13 @@ import {
  * .then(console.log)       // returns an object with the token
  * .catch(console.error);   // an error occurred
  */
-export default class Auths extends FonosService {
+export default class Auths extends APIClient implements IAuthClient {
   /**
    * Constructs a new Auth object.
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(AuthClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
@@ -148,7 +149,7 @@ export default class Auths extends FonosService {
   }
 }
 
-export {AuthPB};
+export {AuthPB, IAuthClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Auths;

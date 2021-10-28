@@ -4,7 +4,7 @@ import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {CommonPB} from "@fonos/providers";
 import {cli} from "cli-ux";
-import {Provider} from "@fonos/providers/src/types";
+import {Provider} from "@fonos/providers/src/client/types";
 const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {

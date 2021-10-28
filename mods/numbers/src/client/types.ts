@@ -16,6 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface INumbersClient {
+  createNumber(request: CreateNumberRequest): Promise<CreateNumberResponse>;
+  getNumber(ref: string): Promise<GetNumberResponse>;
+  updateNumber(request: UpdateNumberRequest): Promise<UpdateNumberResponse>;
+  listNumbers(request: ListNumbersRequest): Promise<ListNumbersResponse>;
+  deleteNumber(ref: string): Promise<DeleteNumberResponse>;
+  getIngressInfo(
+    request: GetIngressInfoRequest
+  ): Promise<GetIngressInfoResponse>;
+}
+
 enum View {
   BASIC = 0,
   STANDARD = 1,

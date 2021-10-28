@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {UsersClient} from "../service/protos/users_grpc_pb";
 import UsersPB from "../service/protos/users_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -29,7 +29,8 @@ import {
   CreateUserCredentialsRequest,
   UpdateUserRequest,
   UpdateUserResponse,
-  CreateUserCredentialsResponse
+  CreateUserCredentialsResponse,
+  IUsersClient
 } from "./types";
 
 /**
@@ -37,7 +38,7 @@ import {
  * to create, update, get and delete Users. Users requires of a
  * running Fonos deployment.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const Fonos = require("@fonos/sdk")
@@ -55,14 +56,14 @@ import {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-export default class Users extends FonosService {
+export default class Users extends APIClient implements IUsersClient {
   /**
    * Constructs a new Users object.
    *
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(UsersClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
@@ -237,7 +238,7 @@ export default class Users extends FonosService {
   }
 }
 
-export {UsersPB, CommonPB};
+export {UsersPB, CommonPB, IUsersClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Users;

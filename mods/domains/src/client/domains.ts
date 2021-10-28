@@ -24,9 +24,10 @@ import {
   ListDomainsRequest,
   ListDomainsResponse,
   GetDomainResponse,
-  DeleteDomainResponse
+  DeleteDomainResponse,
+  IDomainsClient
 } from "./types";
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {DomainsClient} from "../service/protos/domains_grpc_pb";
 import DomainsPB from "../service/protos/domains_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -37,7 +38,7 @@ import {promisifyAll} from "grpc-promise";
  * to create, update, get and delete Domains. The API requires of a running
  * Fonos deployment.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const Fonos = require("@fonos/sdk");
@@ -48,14 +49,14 @@ import {promisifyAll} from "grpc-promise";
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e));   // an error occurred
  */
-export default class Domains extends FonosService {
+export default class Domains extends APIClient implements IDomainsClient {
   /**
    * Constructs a new Domains object.
    *
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(DomainsClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
@@ -273,7 +274,7 @@ export default class Domains extends FonosService {
   }
 }
 
-export {DomainsPB, CommonPB};
+export {DomainsPB, CommonPB, IDomainsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Domains;

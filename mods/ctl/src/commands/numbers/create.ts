@@ -5,7 +5,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB} from "@fonos/numbers";
-import {Provider} from "@fonos/providers/src/types";
+import {Provider} from "@fonos/providers/src/client/types";
 const inquirer = require("inquirer");
 
 export default class CreateCommand extends Command {

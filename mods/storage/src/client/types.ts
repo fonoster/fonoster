@@ -16,6 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export interface IStorageClient {
+  uploadObject(request: UploadObjectRequest): Promise<UploadObjectResponse>;
+  getObjectURL(request: GetObjectURLRequest): Promise<GetObjectURLResponse>;
+}
+
 export interface UploadObjectRequest {
   bucket: string;
   filename: string;
@@ -29,7 +34,7 @@ export interface GetObjectURLRequest {
   accessKeyId?: string;
 }
 
-export interface getObjectURLResponse {
+export interface GetObjectURLResponse {
   url: string;
 }
 

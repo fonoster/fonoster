@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import Users, {UsersPB} from "../src/client/users";
 import chaiAsPromised from "chai-as-promised";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -38,9 +38,9 @@ describe("@fonos/users", () => {
   afterEach(() => sandbox.restore());
 
   it("should create a user", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         createUser: () => {
           return {
@@ -72,9 +72,9 @@ describe("@fonos/users", () => {
   });
 
   it("should get a user", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         getUser: () => {
           return {
@@ -100,9 +100,9 @@ describe("@fonos/users", () => {
   });
 
   it("should delete a user", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         deleteUser: () => {
           return {
@@ -125,9 +125,9 @@ describe("@fonos/users", () => {
       avatar: userObj.getAvatar()
     };
 
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const updateUserStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         updateUser: () => {
           return {
@@ -143,9 +143,9 @@ describe("@fonos/users", () => {
   });
 
   it("should login a user", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
+    sandbox.stub(APIClient.prototype, "init").returns();
     const loginUserStub = sandbox
-      .stub(FonosService.prototype, "getService")
+      .stub(APIClient.prototype, "getService")
       .returns({
         createUserCredentials: () => {
           return {

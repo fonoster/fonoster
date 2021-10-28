@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import Auth from "../src/client/auth";
-import {FonosService} from "@fonos/common";
+import {APIClient} from "@fonos/common";
 import {AuthPB} from "../src/client/auth";
 import {CreateTokenResponse} from "../src/client/types";
 const expect = chai.expect;
@@ -36,16 +36,14 @@ describe("@fonos/auth/client", () => {
   afterEach(() => sandbox.restore());
 
   it("creates a new no access token", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
-    const stubAuth = sandbox
-      .stub(FonosService.prototype, "getService")
-      .returns({
-        createNoAccessToken: () => {
-          return {
-            sendMessage: () => Promise.resolve(createTokenResponse)
-          };
-        }
-      });
+    sandbox.stub(APIClient.prototype, "init").returns();
+    const stubAuth = sandbox.stub(APIClient.prototype, "getService").returns({
+      createNoAccessToken: () => {
+        return {
+          sendMessage: () => Promise.resolve(createTokenResponse)
+        };
+      }
+    });
 
     const auth = new Auth();
     const result: CreateTokenResponse = await auth.createNoAccessToken({
@@ -59,16 +57,14 @@ describe("@fonos/auth/client", () => {
   });
 
   it("creates a new access token", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
-    const stubAuth = sandbox
-      .stub(FonosService.prototype, "getService")
-      .returns({
-        createToken: () => {
-          return {
-            sendMessage: () => Promise.resolve(createTokenResponse)
-          };
-        }
-      });
+    sandbox.stub(APIClient.prototype, "init").returns();
+    const stubAuth = sandbox.stub(APIClient.prototype, "getService").returns({
+      createToken: () => {
+        return {
+          sendMessage: () => Promise.resolve(createTokenResponse)
+        };
+      }
+    });
 
     const auth = new Auth();
     const result: CreateTokenResponse = await auth.createToken({
@@ -82,19 +78,17 @@ describe("@fonos/auth/client", () => {
   });
 
   it("checks if a token is valid", async () => {
-    sandbox.stub(FonosService.prototype, "init").returns();
-    const stubAuth = sandbox
-      .stub(FonosService.prototype, "getService")
-      .returns({
-        validateToken: () => {
-          return {
-            sendMessage: () =>
-              Promise.resolve({
-                getValid: () => true
-              })
-          };
-        }
-      });
+    sandbox.stub(APIClient.prototype, "init").returns();
+    const stubAuth = sandbox.stub(APIClient.prototype, "getService").returns({
+      validateToken: () => {
+        return {
+          sendMessage: () =>
+            Promise.resolve({
+              getValid: () => true
+            })
+        };
+      }
+    });
 
     const auth = new Auth();
     const result = await auth.validateToken({

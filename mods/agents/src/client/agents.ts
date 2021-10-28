@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosService, ServiceOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonos/common";
 import {AgentsClient} from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -27,6 +27,7 @@ import {
   CreateAgentResponse,
   DeleteAgentResponse,
   GetAgentResponse,
+  IAgentsClient,
   ListAgentsRequest,
   ListAgentsResponse,
   UpdateAgentRequest,
@@ -38,7 +39,7 @@ import {
  * to create, update, get and delete Agents. Agents requires of a
  * running Fonos deployment.
  *
- * @extends FonosService
+ * @extends APIClient
  * @example
  *
  * const Fonos = require("@fonos/sdk")
@@ -56,14 +57,14 @@ import {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
  */
-export default class Agents extends FonosService {
+export default class Agents extends APIClient implements IAgentsClient {
   /**
    * Constructs a new Agents object.
    *
-   * @param {ServiceOptions} options - Options to indicate the objects endpoint
-   * @see module:core:FonosService
+   * @param {ClientOptions} options - Options to indicate the objects endpoint
+   * @see module:core:APIClient
    */
-  constructor(options?: ServiceOptions) {
+  constructor(options?: ClientOptions) {
     super(AgentsClient, options);
     super.init();
     promisifyAll(super.getService(), {metadata: super.getMeta()});
@@ -254,7 +255,7 @@ export default class Agents extends FonosService {
   }
 }
 
-export {AgentsPB, CommonPB};
+export {AgentsPB, CommonPB, IAgentsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Agents;

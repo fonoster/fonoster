@@ -16,9 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface ServiceOptions {
+export interface ClientOptions {
   endpoint?: string;
   bucket?: string;
   accessKeyId?: string;
   accessKeySecret?: string;
+}
+
+export interface WebClientOptions {
+  endpoint?: string;
+  bucket?: string;
+  accessKeyId: string;
+  accessKeySecret: string;
 }
