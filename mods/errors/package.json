@@ -1,6 +1,6 @@
 {
   "name": "@fonos/errors",
-  "version": "0.2.7",
+  "version": "0.2.9",
   "description": "Handles Fonos errors",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",

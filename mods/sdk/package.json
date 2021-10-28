@@ -1,6 +1,6 @@
 {
   "name": "@fonos/sdk",
-  "version": "0.2.7",
+  "version": "0.2.9",
   "description": "Fonos SDK module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -29,18 +29,18 @@
     "url": "https://github.com/fonoster/fonos/issues"
   },
   "dependencies": {
-    "@fonos/agents": "^0.2.7",
-    "@fonos/auth": "^0.2.7",
-    "@fonos/callmanager": "^0.2.7",
-    "@fonos/domains": "^0.2.7",
-    "@fonos/funcs": "^0.2.7",
-    "@fonos/logger": "^0.2.7",
-    "@fonos/numbers": "^0.2.7",
-    "@fonos/projects": "^0.2.7",
-    "@fonos/providers": "^0.2.7",
-    "@fonos/secrets": "^0.2.7",
-    "@fonos/storage": "^0.2.7",
-    "@fonos/users": "^0.2.7"
+    "@fonos/agents": "^0.2.9",
+    "@fonos/auth": "^0.2.9",
+    "@fonos/callmanager": "^0.2.9",
+    "@fonos/domains": "^0.2.9",
+    "@fonos/funcs": "^0.2.9",
+    "@fonos/logger": "^0.2.9",
+    "@fonos/numbers": "^0.2.9",
+    "@fonos/projects": "^0.2.9",
+    "@fonos/providers": "^0.2.9",
+    "@fonos/secrets": "^0.2.9",
+    "@fonos/storage": "^0.2.9",
+    "@fonos/users": "^0.2.9"
   },
   "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
 }
