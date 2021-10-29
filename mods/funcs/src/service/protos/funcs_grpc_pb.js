@@ -160,7 +160,7 @@ listFuncs: {
     responseSerialize: serialize_fonos_funcs_v1beta1_ListFuncsResponse,
     responseDeserialize: deserialize_fonos_funcs_v1beta1_ListFuncsResponse,
   },
-  // Gets a function by namem
+  // Gets a function by name
 getFunc: {
     path: '/fonos.funcs.v1beta1.Funcs/GetFunc',
     requestStream: false,
@@ -196,7 +196,7 @@ deleteFunc: {
     responseSerialize: serialize_fonos_common_v1beta1_Empty,
     responseDeserialize: deserialize_fonos_common_v1beta1_Empty,
   },
-  // Peforms a hard delete of the function
+  // Gets a stream of logs
 getFuncLogs: {
     path: '/fonos.funcs.v1beta1.Funcs/GetFuncLogs',
     requestStream: false,

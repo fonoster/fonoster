@@ -114,14 +114,15 @@ class DomainsServer implements IDomainsServer {
         call
       )) as any;
 
+      console.log("test-> " + domain);
+
       const resource = new ResourceBuilder(
         Kind.DOMAIN,
         request.getName(),
         request.getRef()
       )
         .withMetadata({
-          createdOn: domain.metadata.createdOn,
-          modifiedOn: new Date().toISOString()
+          createdOn: domain.metadata.createdOn
         })
         .withEgressPolicy(request.getEgressRule(), request.getEgressNumberRef())
         .withACL(request.getAccessAllowList(), request.getAccessDenyList())

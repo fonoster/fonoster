@@ -24,23 +24,23 @@ export namespace Empty {
     }
 }
 
-export class Error extends jspb.Message { 
+export class ErrorResponse extends jspb.Message { 
     getStatus(): number;
-    setStatus(value: number): Error;
+    setStatus(value: number): ErrorResponse;
     getMessage(): string;
-    setMessage(value: string): Error;
+    setMessage(value: string): ErrorResponse;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): Error.AsObject;
-    static toObject(includeInstance: boolean, msg: Error): Error.AsObject;
+    toObject(includeInstance?: boolean): ErrorResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ErrorResponse): ErrorResponse.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: Error, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): Error;
-    static deserializeBinaryFromReader(message: Error, reader: jspb.BinaryReader): Error;
+    static serializeBinaryToWriter(message: ErrorResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ErrorResponse;
+    static deserializeBinaryFromReader(message: ErrorResponse, reader: jspb.BinaryReader): ErrorResponse;
 }
 
-export namespace Error {
+export namespace ErrorResponse {
     export type AsObject = {
         status: number,
         message: string,

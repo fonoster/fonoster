@@ -80,7 +80,6 @@ AS_ALLOW_INSECURE=true
 #
 # Media Server integration (Asterisk)
 #
-MS_IMAGE=fonoster/fonos-mediaserver
 MS_ENDPOINT=sip:ast@node1
 MS_SIP_PORT=6060
 MS_RTP_PORT_START=20000

@@ -94,8 +94,7 @@ class AgentsServer implements IAgentsServer {
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withDomains(call.request.getDomainsList())
         .withMetadata({
-          createdOn: agent.metadata.createdOn,
-          modifiedOn: new Date().toISOString()
+          createdOn: agent.metadata.createdOn
         })
         .build();
 

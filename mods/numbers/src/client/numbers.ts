@@ -181,6 +181,7 @@ export default class Numbers extends APIClient implements INumbersClient {
     }
 
     const req = new NumbersPB.UpdateNumberRequest();
+    req.setRef(request.ref);
 
     if (request.aorLink) {
       req.setAorLink(request.aorLink);

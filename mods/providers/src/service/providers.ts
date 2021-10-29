@@ -95,8 +95,7 @@ class ProvidersServer implements IProvidersServer {
         provider.getRef()
       )
         .withMetadata({
-          createdOn: provider.metadata.createdOn,
-          modifiedOn: new Date().toISOString()
+          createdOn: provider.metadata.createdOn
         })
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withHost(call.request.getHost())
