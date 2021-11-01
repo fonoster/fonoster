@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.numbers.v1beta1;
+package fonoster.numbers.v1beta1;
 
 option go_package = "github.com/fonoster/fonoster/mods/numbers/fonoster/services/protos/numbers";
 
@@ -42,7 +42,7 @@ service Numbers {
     };
   };
   // Hard delete of a Number resource
-  rpc DeleteNumber (DeleteNumberRequest) returns (fonos.common.v1beta1.Empty) {
+  rpc DeleteNumber (DeleteNumberRequest) returns (fonoster.common.v1beta1.Empty) {
     option (google.api.http) = { 
       delete: "/v1beta1/numbers/{ref}"
     };
@@ -57,7 +57,7 @@ message ListNumbersRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities (reserved)
-  fonos.common.v1beta1.View view = 3;
+  fonoster.common.v1beta1.View view = 3;
 }
 
 message ListNumbersResponse {

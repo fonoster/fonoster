@@ -45,8 +45,8 @@ export default class {
    * @typedef {ClientOptions} Options
    * @property {string} endpoint - The endpoint URI to send requests to.
    * The endpoint should be a string like '{serviceHost}:{servicePort}'.
-   * @property {string} accessKeyId - your Fonos access key ID.
-   * @property {string} accessKeySecret - your Fonos secret access key.
+   * @property {string} accessKeyId - your Fonoster access key ID.
+   * @property {string} accessKeySecret - your Fonoster secret access key.
    * @property {string} bucket - The bucket to upload apps and media files.
    */
 

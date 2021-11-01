@@ -3,7 +3,7 @@ import Numbers from "@fonoster/numbers";
 import {CLIError} from "@oclif/errors";
 
 export default class DeleteCommand extends Command {
-  static description = "remove a number from a Fonos deployment";
+  static description = "remove a number from a Fonoster deployment";
   static args = [{name: "ref"}];
   static aliases = ["numbers:del", "numbers:rm"];
 

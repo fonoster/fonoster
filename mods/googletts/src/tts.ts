@@ -28,7 +28,7 @@ import {GoogleTTSConfig, SynthOptions} from "./types";
 const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
 
 /**
- * @classdesc Optional TTS engine for Fonos.
+ * @classdesc Optional TTS engine for Fonoster.
  *
  * @extends AbstractTTS
  * @example

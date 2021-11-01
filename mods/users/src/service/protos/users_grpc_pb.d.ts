@@ -1,4 +1,4 @@
-// package: fonos.users.v1beta1
+// package: fonoster.users.v1beta1
 // file: users.proto
 
 /* tslint:disable */

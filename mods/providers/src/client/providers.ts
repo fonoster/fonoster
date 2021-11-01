@@ -34,15 +34,15 @@ import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 
 /**
- * @classdesc Use Fonos Providers, a capability of Fonos SIP Proxy subsystem,
- * to create, update, get and delete providers. Fonos Providers requires of a
- * running Fonos deployment.
+ * @classdesc Use Fonoster Providers, a capability of Fonoster SIP Proxy subsystem,
+ * to create, update, get and delete providers. Fonoster Providers requires of a
+ * running Fonosterdeployment.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk");
- * const providers = new Fonos.Providers();
+ * const Fonoster = require("@fonoster/sdk");
+ * const providers = new Fonoster.Providers();
  *
  * const request = {
  *   name: "SIP Provider",
@@ -80,9 +80,9 @@ export default class Providers extends APIClient implements IProvidersClient {
    * static IP authentication
    * @param {string} request.host - Hostname or IP of the Provider
    * @param {string} request.transport - The transport for the Provider.
-   * Fonos will use TCP if none is provided
+   *Fonoster will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
-   * Fonos will use 3600 if non is provided
+   *Fonoster will use 3600 if non is provided
    * @return {Promise<Object>}
    * @example
    *
@@ -168,9 +168,9 @@ export default class Providers extends APIClient implements IProvidersClient {
    * static IP authentication
    * @param {string} request.host - Hostname or IP of the Provider
    * @param {string} request.transport - The transport for the Provider.
-   * Fonos will use TCP if none is provided
+   *Fonoster will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
-   * Fonos will use 3600 if non is provided
+   *Fonoster will use 3600 if non is provided
    * @return {Promise<Object>}
    * @example
    *
@@ -203,7 +203,7 @@ export default class Providers extends APIClient implements IProvidersClient {
   }
 
   /**
-   * List the Providers registered in Fonos SIP Proxy subsystem.
+   * List the Providers registered in Fonoster SIP Proxy subsystem.
    *
    * @param {Object} request
    * @param {provider} request.pageSize - Provider of element per page

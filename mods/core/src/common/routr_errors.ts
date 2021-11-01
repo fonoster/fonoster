@@ -1,28 +1,28 @@
-import {FonosError} from "@fonoster/errors";
+import {FonosterError} from "@fonoster/errors";
 import {
-  FonosAuthError,
-  FonosFailedPrecondition,
-  FonosInvalidArgument
+  FonosterAuthError,
+  FonosterFailedPrecondition,
+  FonosterInvalidArgument
 } from "@fonoster/errors";
 import {status as Status} from "@grpc/grpc-js";
 
 export default function (error: any) {
-  if (!error.response) throw new FonosError(error);
+  if (!error.response) throw new FonosterError(error);
 
   const message = error.response.data.message;
 
   switch (error.response.status) {
     case 409:
-      throw new FonosFailedPrecondition(message);
+      throw new FonosterFailedPrecondition(message);
     case 401:
-      throw new FonosAuthError(message);
+      throw new FonosterAuthError(message);
     case 422:
-      throw new FonosFailedPrecondition(message);
+      throw new FonosterFailedPrecondition(message);
     case 404:
-      throw new FonosError(message, Status.NOT_FOUND);
+      throw new FonosterError(message, Status.NOT_FOUND);
     case 400:
-      throw new FonosInvalidArgument(message);
+      throw new FonosterInvalidArgument(message);
     default:
-      throw new FonosError(message);
+      throw new FonosterError(message);
   }
 }

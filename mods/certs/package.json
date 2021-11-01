@@ -1,9 +1,9 @@
 {
   "name": "@fonoster/certs",
   "version": "0.2.12",
-  "description": "Handles Fonos certificates",
+  "description": "Handles Fonoster certificates",
   "author": "Pedro Sanders <psanders@fonoster.com>",
-  "homepage": "https://github.com/fonoster/fonos#readme",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
   "main": "dist/certs",
   "types": "dist/certs",
@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/fonostergit"
+    "url": "git+https://github.com/fonoster/fonoster.git"
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"

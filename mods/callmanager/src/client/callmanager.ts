@@ -23,15 +23,15 @@ import {promisifyAll} from "grpc-promise";
 import {CallRequest, CallResponse, ICallManagerClient} from "./types";
 
 /**
- * @classdesc Use Fonos CallManager, a capability of Fonos Systems Manager,
- * to initiate and monitor automated calls. Fonos CallManager requires of a
- * running Fonos deployment.
+ * @classdesc Use Fonoster CallManager, a capability of Fonoster CallManager,
+ * to initiate and monitor automated calls. Fonoster CallManager requires of a
+ * running Fonoster deployment.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk")
- * const callManager = new Fonos.CallManager()
+ * const Fonoster = require("@fonoster/sdk")
+ * const callManager = new Fonoster.CallManager()
  *
  * callManager.call({
  *   from: "9102104343",

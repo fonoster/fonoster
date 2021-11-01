@@ -84,8 +84,8 @@ Everything in PF is an API first, and initiating a call is no exception. You can
 Example of originating a call with the SDK:
 
 ```typescript
-const Fonos = require("@fonoster/sdk");
-const callManager = new Fonos.CallManager();
+const Fonoster = require("@fonoster/sdk");
+const callManager = new Fonoster.CallManager();
 
 callManager.call({
  from: "9842753574",

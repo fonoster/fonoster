@@ -3,7 +3,7 @@ import Providers from "@fonoster/providers";
 import {CLIError} from "@oclif/errors";
 
 export default class DeleteCommand extends Command {
-  static description = "removes a provider from a Fonos deployment";
+  static description = "removes a provider from a Fonoster deployment";
   static args = [{name: "ref"}];
   static aliases = ["providers:del", "providers:rm"];
 

@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import {FonosInvalidArgument} from "@fonoster/errors";
+import {FonosterInvalidArgument} from "@fonoster/errors";
 import {ResourceBuilder, Kind, routr, ResourceServer} from "@fonoster/core";
 import numberDecoder from "./decoder";
 import decoder from "./decoder";
@@ -9,14 +9,14 @@ export default async function updateNumber(call: any, callback: any) {
   const request = call.request;
   if (request.getAorLink() && request.getIngressInfo()) {
     callback(
-      new FonosInvalidArgument(
+      new FonosterInvalidArgument(
         "'ingressInfo' and 'aorLink' are not compatible parameters"
       )
     );
     return;
   } else if (!request.getAorLink() && !request.getIngressInfo()) {
     callback(
-      new FonosInvalidArgument(
+      new FonosterInvalidArgument(
         "You must provider either an 'ingressInfo' or and 'aorLink'"
       )
     );

@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.funcs.v1beta1;
+package fonoster.funcs.v1beta1;
 
 option go_package = "github.com/fonoster/fonoster/mods/funcs/fonoster/services/protos/funcs";
 
@@ -27,7 +27,7 @@ service Funcs {
   // Orders the functions subsystem to download and deploy a function
   rpc DeployFunc (DeployFuncRequest) returns (stream DeployStream) {};
   // Peforms a hard delete of the function
-  rpc DeleteFunc (DeleteFuncRequest) returns (fonos.common.v1beta1.Empty) {
+  rpc DeleteFunc (DeleteFuncRequest) returns (fonoster.common.v1beta1.Empty) {
     option (google.api.http) = { 
       delete: "/v1beta1/funcs/{name}"
     };
@@ -61,7 +61,7 @@ message ListFuncsRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities
-  fonos.common.v1beta1.View view = 3;
+  fonoster.common.v1beta1.View view = 3;
 }
 
 message ListFuncsResponse {
@@ -82,7 +82,7 @@ message GetFuncLogsRequest {
 message GetFuncRequest {
   string name = 1;
   // Requested level of detail
-  fonos.common.v1beta1.View view = 2;
+  fonoster.common.v1beta1.View view = 2;
 }
 
 message DeployFuncRequest {

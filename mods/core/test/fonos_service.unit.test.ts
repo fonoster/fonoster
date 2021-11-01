@@ -1,7 +1,7 @@
 /*
 const logger = require('../dist/common/logger')
 logger.transports.forEach(t => (t.silent = true))
-const APIClient = require('../dist/common/fonos_service')
+const APIClient = require('../dist/common/fonoster_service')
 const chai = require('chai')
 const sinon = require('sinon')
 const sinonChai = require('sinon-chai')

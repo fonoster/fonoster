@@ -18,7 +18,7 @@
  */
 import logger from "@fonoster/logger";
 import grpc from "@grpc/grpc-js";
-import {FonosError} from "@fonoster/errors";
+import {FonosterError} from "@fonoster/errors";
 import {fsInstance} from "../utils/storage";
 
 export default async function (
@@ -38,7 +38,7 @@ export default async function (
       (err: {message: string}) => {
         if (err) {
           reject(
-            new FonosError(
+            new FonosterError(
               `${err.message}: filename ${accessKeyId}/${filename} in bucket '${bucket}'`,
               grpc.status.NOT_FOUND
             )

@@ -44,7 +44,7 @@ import JWT from "@fonoster/auth/dist/utils/jwt";
 import {AUTH_ISS, getSalt} from "@fonoster/certs";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import decoder from "./decoder";
-import {ErrorCodes, FonosError} from "@fonoster/errors";
+import {ErrorCodes, FonosterError} from "@fonoster/errors";
 const authenticator = new Auth(new JWT());
 const redis = getRedisConnection();
 
@@ -93,12 +93,12 @@ class ProjectsServer implements IProjectsServer {
     try {
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
-      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
 
       const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
-        throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
       }
 
       if (call.request.getName()) project.setName(call.request.getName());
@@ -120,12 +120,12 @@ class ProjectsServer implements IProjectsServer {
     try {
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
-      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
 
       const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
-        throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
       }
 
       callback(null, project);
@@ -141,12 +141,12 @@ class ProjectsServer implements IProjectsServer {
     try {
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
-      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
 
       const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
-        throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
       }
 
       redis.del(project.getRef());
@@ -190,12 +190,12 @@ class ProjectsServer implements IProjectsServer {
     try {
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
-      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
 
       const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
-        throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
       }
 
       const result = await authenticator.createToken(

@@ -1,4 +1,4 @@
-import {FonosError, FonosFailedPrecondition} from "@fonoster/errors";
+import {FonosterError, FonosterFailedPrecondition} from "@fonoster/errors";
 import {UploadObjectRequest} from "../service/protos/storage_pb";
 
 /*
@@ -45,11 +45,11 @@ export const handleError = (
 ) => {
   switch (err.code) {
     case "NoSuchBucket":
-      return new FonosFailedPrecondition(`${err.message} -> bucket: ${bucket}`);
+      return new FonosterFailedPrecondition(`${err.message} -> bucket: ${bucket}`);
     case "TAR_BAD_ARCHIVE":
-      return new FonosError(err.message, grpc.status.DATA_LOSS);
+      return new FonosterError(err.message, grpc.status.DATA_LOSS);
     default:
-      return new FonosError(err.message, grpc.status.UNKNOWN);
+      return new FonosterError(err.message, grpc.status.UNKNOWN);
   }
 };
 
@@ -77,6 +77,6 @@ export const getBucketAsPB = (bucket: string): UploadObjectRequest.Bucket => {
     case constants.PUBLIC_BUCKET:
       return StoragePB.GetObjectURLRequest.Bucket.PUBLIC;
     default:
-      throw new FonosError(`Bucket ${bucket} is not a valid one`);
+      throw new FonosterError(`Bucket ${bucket} is not a valid one`);
   }
 };

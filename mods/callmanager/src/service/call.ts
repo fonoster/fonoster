@@ -18,7 +18,7 @@
  */
 import {CallRequest, CallResponse} from "./protos/callmanager_pb";
 import {nanoid} from "nanoid";
-import {FonosError} from "@fonoster/errors";
+import {FonosterError} from "@fonoster/errors";
 import phone from "phone";
 import {EndpointInfo} from "../client/types";
 
@@ -31,9 +31,9 @@ export default async function (
     !request.getIgnoreE164Validation() &&
     phone(request.getFrom()).length === 0
   )
-    throw new FonosError("invalid e164 number");
+    throw new FonosterError("invalid e164 number");
   if (!request.getIgnoreE164Validation() && phone(request.getTo()).length === 0)
-    throw new FonosError("invalid e164 number");
+    throw new FonosterError("invalid e164 number");
 
   const response = new CallResponse();
   response.setRef(nanoid());

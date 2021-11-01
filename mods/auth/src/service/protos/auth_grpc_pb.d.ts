@@ -1,4 +1,4 @@
-// package: fonos.auth.v1beta1
+// package: fonoster.auth.v1beta1
 // file: auth.proto
 
 /* tslint:disable */

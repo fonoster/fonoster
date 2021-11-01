@@ -1,4 +1,4 @@
-// package: fonos.secrets.v1beta1
+// package: fonoster.secrets.v1beta1
 // file: secrets.proto
 
 /* tslint:disable */

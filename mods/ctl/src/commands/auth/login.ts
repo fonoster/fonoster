@@ -12,10 +12,10 @@ const inquirer = require("inquirer");
 const fs = require("fs");
 
 export default class extends Command {
-  static description = `log in to a fonoster deployment`;
+  static description = `log in to a Fonoster deployment`;
 
   async run() {
-    console.log("Access your Fonos infrastructure");
+    console.log("Access your Fonoster infrastructure");
     console.log("Press ^C at any time to quit.");
 
     const answers: any = await inquirer.prompt([

@@ -24,7 +24,7 @@ jobs:
         npm install
         npm run bootstrap
         npm run build
-    - name: Publish to Docker Hub the Fonos installer
+    - name: Publish to Docker Hub the Fonoster installer
       uses: elgohr/Publish-Docker-Github-Action@master
       env:
         FONOSTER_VERSION: ${{ steps.get_version.outputs.VERSION }}

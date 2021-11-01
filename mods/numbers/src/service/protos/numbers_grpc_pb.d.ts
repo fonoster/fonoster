@@ -1,4 +1,4 @@
-// package: fonos.numbers.v1beta1
+// package: fonoster.numbers.v1beta1
 // file: numbers.proto
 
 /* tslint:disable */

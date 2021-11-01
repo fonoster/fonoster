@@ -3,7 +3,7 @@ import Domains from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 
 export default class DeleteCommand extends Command {
-  static description = "remove a domain from a Fonos deployment";
+  static description = "remove a domain from a Fonoster deployment";
   static args = [{name: "ref"}];
   static aliases = ["domains:del", "domains:rm"];
 

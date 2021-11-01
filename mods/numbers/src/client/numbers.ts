@@ -36,15 +36,15 @@ import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 
 /**
- * @classdesc Use Fonos Numbers, a capability of Fonos SIP Proxy subsystem,
- * to create, update, get and delete numbers. Fonos Numbers requires of a
- * running Fonos deployment.
+ * @classdesc Use Fonoster Numbers, a capability of Fonoster SIP Proxy subsystem,
+ * to create, update, get and delete numbers. Fonoster Numbers requires of a
+ * running Fonoster deployment.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk");
- * const numbers = new Fonos.Numbers();
+ * const Fonoster = require("@fonoster/sdk");
+ * const numbers = new Fonoster.Numbers();
  *
  * const request = {
  *   providerRef: "516f1577bcf86cd797439012",
@@ -204,7 +204,7 @@ export default class Numbers extends APIClient implements INumbersClient {
   }
 
   /**
-   * List the Numbers registered in Fonos SIP Proxy subsystem.
+   * List the Numbers registered in Fonoster SIP Proxy subsystem.
    *
    * @param {ListNumbersRequest} request
    * @param {number} request.pageSize - Number of element per page
@@ -279,7 +279,7 @@ export default class Numbers extends APIClient implements INumbersClient {
    * @param {string} request.e164Number - A number in E164 format for
    * incomming calls
    * @return {Promise<GetIngressAppResponse>}
-   * @throws if the Number is not register in Fonos
+   * @throws if the Number is not register in Fonoster
    * @example
    *
    * const request = {

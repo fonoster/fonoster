@@ -28,7 +28,7 @@ import {
 } from "./types";
 
 /**
- * @classdesc Use Fonos Auth, a capability of Fonos,
+ * @classdesc Use Fonoster Auth, a capability of Fonoster,
  * to validate and create short life tokens.
  *
  * @extends APIClient
@@ -66,8 +66,8 @@ export default class Auths extends APIClient implements IAuthClient {
    * @return {Promise<CreateTokenResponse>}
    * @example
    *
-   * const Fonos = require("@fonoster/sdk");
-   * const auth = new Fonos.Auth();
+   * const Fonoster = require("@fonoster/sdk");
+   * const auth = new Fonoster.Auth();
    *
    * const request = {
    *   accessKeyId: "603693c0afaa1a080000000e",
@@ -100,8 +100,8 @@ export default class Auths extends APIClient implements IAuthClient {
    * @return {Promise<CreateTokenResponse>}
    * @example
    *
-   * const Fonos = require("@fonoster/sdk");
-   * const auth = new Fonos.Auth();
+   * const Fonoster = require("@fonoster/sdk");
+   * const auth = new Fonoster.Auth();
    *
    * const request = {
    *   accessKeyId: "603693c0afaa1a080000000e",
@@ -130,8 +130,8 @@ export default class Auths extends APIClient implements IAuthClient {
    * @return {Promise<boolean>}
    * @example
    *
-   * const Fonos = require("@fonoster/sdk");
-   * const auth = new Fonos.Auth();
+   * const Fonoster = require("@fonoster/sdk");
+   * const auth = new Fonoster.Auth();
    *
    * const request = {
    *   token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",

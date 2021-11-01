@@ -1,4 +1,4 @@
-// package: fonos.callmanager.v1beta1
+// package: fonoster.callmanager.v1beta1
 // file: callmanager.proto
 
 /* tslint:disable */

@@ -40,9 +40,9 @@ import {
 import {DeployStream, LogsStream} from "./stream_wrappers";
 
 /**
- * @classdesc Use Fonos Funcs, a capability of FaaS subsystem,
- * to deploy, update, get and delete functions. Fonos Funcs requires of a
- * running Fonos deployment and FaaS.
+ * @classdesc Use Fonoster Funcs, a capability of FaaS subsystem,
+ * to deploy, update, get and delete functions. Fonoster Funcs requires of a
+ * running Fonoster deployment and FaaS.
  *
  * @extends APIClient
  * @example
@@ -86,8 +86,8 @@ export default class Funcs extends APIClient implements IFuncsClient {
    * @return {Promise<DeployStream>}
    * @example
    *
-   * const Fonos = require("@fonoster/sdk");
-   * const funcs = new Fonos.Funcs();
+   * const Fonoster = require("@fonoster/sdk");
+   * const funcs = new Fonoster.Funcs();
    *
    * const request = {
    *   name: "function1",
@@ -259,8 +259,8 @@ export default class Funcs extends APIClient implements IFuncsClient {
    * @return {Promise<LogsStream>}
    * @example
    *
-   * const Fonos = require("@fonoster/sdk");
-   * const funcs = new Fonos.Funcs();
+   * const Fonoster = require("@fonoster/sdk");
+   * const funcs = new Fonoster.Funcs();
    *
    * const request = {
    *   name: "function1",

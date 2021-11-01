@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosError, ErrorCodes} from "@fonoster/errors";
+import {FonosterError, ErrorCodes} from "@fonoster/errors";
 
 export const assertValidEmail = (email: string): void => {
   if (/\S+@\S+\.\S+/.test(email) == false)
-    throw new FonosError(
+    throw new FonosterError(
       `invalid email: ${email}`,
       ErrorCodes.INVALID_ARGUMENT
     );
@@ -29,7 +29,7 @@ export const assertValidEmail = (email: string): void => {
 // TODO: Move to @fonoster/common
 export const assertNotEmpty = (name: string, value: string): void => {
   if (value.length == 0)
-    throw new FonosError(
+    throw new FonosterError(
       `the parameter '${name}' is required but was not found`,
       ErrorCodes.INVALID_ARGUMENT
     );
@@ -42,6 +42,6 @@ export const assertValidURL = (url: string): void => {
       url
     ) == false
   ) {
-    throw new FonosError(`invalid url: ${url}`, ErrorCodes.INVALID_ARGUMENT);
+    throw new FonosterError(`invalid url: ${url}`, ErrorCodes.INVALID_ARGUMENT);
   }
 };

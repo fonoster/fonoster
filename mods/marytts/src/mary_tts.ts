@@ -30,7 +30,7 @@ import {MaryTTSConfig, MarySynthOptions} from "./types";
 import logger from "@fonoster/logger";
 
 /**
- * @classdesc The default TTS engine in a Fonos deployment.
+ * @classdesc The default TTS engine in a Fonoster deployment.
  *
  * @extends Plugin
  * @example

@@ -1,4 +1,4 @@
-// package: fonos.storage.v1beta1
+// package: fonoster.storage.v1beta1
 // file: storage.proto
 
 /* tslint:disable */

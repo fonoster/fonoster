@@ -7,7 +7,7 @@
 */
 syntax = "proto3";
 
-package fonos.projects.v1beta1;
+package fonoster.projects.v1beta1;
 
 option go_package = "github.com/fonoster/fonoster/mods/users/fonoster/services/protos/users";
 
@@ -40,7 +40,7 @@ service Projects {
     option (google.api.http) = { get: "/v1beta1/projects/{ref}" };
   };
   // WARNING: Hard delete of a Project will remove all related resources 
-  rpc DeleteProject (DeleteProjectRequest) returns (fonos.common.v1beta1.Empty) {
+  rpc DeleteProject (DeleteProjectRequest) returns (fonoster.common.v1beta1.Empty) {
     option (google.api.http) = { delete: "/v1beta1/projects/{ref}" };
   };
   // Regenerates the accessKeySecret

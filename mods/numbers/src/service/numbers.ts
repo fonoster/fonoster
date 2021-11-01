@@ -22,7 +22,7 @@ import {
 } from "./protos/numbers_grpc_pb";
 import {Kind, ResourceServer} from "@fonoster/core";
 import decoder from "./decoder";
-import {ErrorCodes, FonosError} from "@fonoster/errors";
+import {ErrorCodes, FonosterError} from "@fonoster/errors";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -66,7 +66,7 @@ class NumbersServer extends ResourceServer implements INumbersServer {
       await routr.connect();
       const result = await routr.getNumber(call.request.getE164Number());
       if (!result) {
-        throw new FonosError("Number not found", ErrorCodes.NOT_FOUND);
+        throw new FonosterError("Number not found", ErrorCodes.NOT_FOUND);
       }
       const number = decoder(result);
       callback(null, number.getIngressInfo());

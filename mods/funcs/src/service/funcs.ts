@@ -34,7 +34,7 @@ import {
 } from "./protos/funcs_pb";
 import {HttpBasicAuth, DefaultApi as FaaS} from "openfaas-client";
 import logger from "@fonoster/logger";
-import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonoster/errors";
+import {ErrorCodes, FonosterError, FonosterSubsysUnavailable} from "@fonoster/errors";
 import {getAccessKeyId} from "@fonoster/core";
 import axios from "axios";
 import {
@@ -167,7 +167,7 @@ export default class FuncsServer implements IFuncsServer {
       )[0];
 
       if (!rawFunction)
-        throw new FonosError(
+        throw new FonosterError(
           `function name "${call.request.getName()}" doesn't exist`,
           ErrorCodes.NOT_FOUND
         );
@@ -197,24 +197,24 @@ export default class FuncsServer implements IFuncsServer {
       logger.error(`@fonoster/funcs deploy [${e}]`);
 
       if (!e.response) {
-        call.emit("error", new FonosError(e, ErrorCodes.UNKNOWN));
+        call.emit("error", new FonosterError(e, ErrorCodes.UNKNOWN));
         return;
       }
 
       if (e.response.statusCode === 400) {
         call.emit(
           "error",
-          new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT)
+          new FonosterError(e.response.body, ErrorCodes.INVALID_ARGUMENT)
         );
       } else if (e.response.statusCode === 401) {
         call.emit(
           "error",
-          new FonosSubsysUnavailable("Functions subsystem unavailable")
+          new FonosterSubsysUnavailable("Functions subsystem unavailable")
         );
       } else if (e.response.statusCode === 404) {
         call.emit(
           "error",
-          new FonosError(e.response.body, ErrorCodes.NOT_FOUND)
+          new FonosterError(e.response.body, ErrorCodes.NOT_FOUND)
         );
       }
     }
@@ -234,7 +234,7 @@ export default class FuncsServer implements IFuncsServer {
       logger.error(`@fonoster/funcs delete [${e}]`);
       if (e.response.statusCode === 404) {
         callback(
-          new FonosError(
+          new FonosterError(
             `Function name "${call.request.getName()}" doesn't exist`,
             ErrorCodes.NOT_FOUND
           ),
@@ -291,20 +291,20 @@ export default class FuncsServer implements IFuncsServer {
       if (e.response.statusCode === 400) {
         call.emit(
           "error",
-          new FonosError(e.response.body, ErrorCodes.INVALID_ARGUMENT)
+          new FonosterError(e.response.body, ErrorCodes.INVALID_ARGUMENT)
         );
       } else if (e.response.statusCode === 401) {
         call.emit(
           "error",
-          new FonosSubsysUnavailable("Functions subsystem unavailable")
+          new FonosterSubsysUnavailable("Functions subsystem unavailable")
         );
       } else if (e.response.statusCode === 404) {
         call.emit(
           "error",
-          new FonosError(e.response.body, ErrorCodes.NOT_FOUND)
+          new FonosterError(e.response.body, ErrorCodes.NOT_FOUND)
         );
       }
-      call.emit("error", new FonosError(e, ErrorCodes.NOT_FOUND));
+      call.emit("error", new FonosterError(e, ErrorCodes.NOT_FOUND));
     }
   }
 
@@ -323,7 +323,7 @@ export default class FuncsServer implements IFuncsServer {
   ) {
     try {
       if (!call.request.getFuncName())
-        throw new FonosError(
+        throw new FonosterError(
           "Missing function name",
           ErrorCodes.INVALID_ARGUMENT
         );
@@ -346,7 +346,7 @@ export default class FuncsServer implements IFuncsServer {
       res.setImage(image);
       callback(null, res);
     } catch (e) {
-      callback(new FonosError(e), null);
+      callback(new FonosterError(e), null);
     }
   }
 }

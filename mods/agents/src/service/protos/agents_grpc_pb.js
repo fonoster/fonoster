@@ -15,91 +15,91 @@ var google_api_annotations_pb = require('./google/api/annotations_pb.js');
 var google_api_field_behavior_pb = require('./google/api/field_behavior_pb.js');
 var common_pb = require('./common_pb.js');
 
-function serialize_fonos_agents_v1beta1_Agent(arg) {
+function serialize_fonoster_agents_v1beta1_Agent(arg) {
   if (!(arg instanceof agents_pb.Agent)) {
-    throw new Error('Expected argument of type fonos.agents.v1beta1.Agent');
+    throw new Error('Expected argument of type fonoster.agents.v1beta1.Agent');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_agents_v1beta1_Agent(buffer_arg) {
+function deserialize_fonoster_agents_v1beta1_Agent(buffer_arg) {
   return agents_pb.Agent.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_agents_v1beta1_CreateAgentRequest(arg) {
+function serialize_fonoster_agents_v1beta1_CreateAgentRequest(arg) {
   if (!(arg instanceof agents_pb.CreateAgentRequest)) {
-    throw new Error('Expected argument of type fonos.agents.v1beta1.CreateAgentRequest');
+    throw new Error('Expected argument of type fonoster.agents.v1beta1.CreateAgentRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_agents_v1beta1_CreateAgentRequest(buffer_arg) {
+function deserialize_fonoster_agents_v1beta1_CreateAgentRequest(buffer_arg) {
   return agents_pb.CreateAgentRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_agents_v1beta1_DeleteAgentRequest(arg) {
+function serialize_fonoster_agents_v1beta1_DeleteAgentRequest(arg) {
   if (!(arg instanceof agents_pb.DeleteAgentRequest)) {
-    throw new Error('Expected argument of type fonos.agents.v1beta1.DeleteAgentRequest');
+    throw new Error('Expected argument of type fonoster.agents.v1beta1.DeleteAgentRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_agents_v1beta1_DeleteAgentRequest(buffer_arg) {
+function deserialize_fonoster_agents_v1beta1_DeleteAgentRequest(buffer_arg) {
   return agents_pb.DeleteAgentRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_agents_v1beta1_GetAgentRequest(arg) {
+function serialize_fonoster_agents_v1beta1_GetAgentRequest(arg) {
   if (!(arg instanceof agents_pb.GetAgentRequest)) {
-    throw new Error('Expected argument of type fonos.agents.v1beta1.GetAgentRequest');
+    throw new Error('Expected argument of type fonoster.agents.v1beta1.GetAgentRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_agents_v1beta1_GetAgentRequest(buffer_arg) {
+function deserialize_fonoster_agents_v1beta1_GetAgentRequest(buffer_arg) {
   return agents_pb.GetAgentRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_agents_v1beta1_ListAgentsRequest(arg) {
+function serialize_fonoster_agents_v1beta1_ListAgentsRequest(arg) {
   if (!(arg instanceof agents_pb.ListAgentsRequest)) {
-    throw new Error('Expected argument of type fonos.agents.v1beta1.ListAgentsRequest');
+    throw new Error('Expected argument of type fonoster.agents.v1beta1.ListAgentsRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_agents_v1beta1_ListAgentsRequest(buffer_arg) {
+function deserialize_fonoster_agents_v1beta1_ListAgentsRequest(buffer_arg) {
   return agents_pb.ListAgentsRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_agents_v1beta1_ListAgentsResponse(arg) {
+function serialize_fonoster_agents_v1beta1_ListAgentsResponse(arg) {
   if (!(arg instanceof agents_pb.ListAgentsResponse)) {
-    throw new Error('Expected argument of type fonos.agents.v1beta1.ListAgentsResponse');
+    throw new Error('Expected argument of type fonoster.agents.v1beta1.ListAgentsResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_agents_v1beta1_ListAgentsResponse(buffer_arg) {
+function deserialize_fonoster_agents_v1beta1_ListAgentsResponse(buffer_arg) {
   return agents_pb.ListAgentsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_agents_v1beta1_UpdateAgentRequest(arg) {
+function serialize_fonoster_agents_v1beta1_UpdateAgentRequest(arg) {
   if (!(arg instanceof agents_pb.UpdateAgentRequest)) {
-    throw new Error('Expected argument of type fonos.agents.v1beta1.UpdateAgentRequest');
+    throw new Error('Expected argument of type fonoster.agents.v1beta1.UpdateAgentRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_agents_v1beta1_UpdateAgentRequest(buffer_arg) {
+function deserialize_fonoster_agents_v1beta1_UpdateAgentRequest(buffer_arg) {
   return agents_pb.UpdateAgentRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonos_common_v1beta1_Empty(arg) {
+function serialize_fonoster_common_v1beta1_Empty(arg) {
   if (!(arg instanceof common_pb.Empty)) {
-    throw new Error('Expected argument of type fonos.common.v1beta1.Empty');
+    throw new Error('Expected argument of type fonoster.common.v1beta1.Empty');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonos_common_v1beta1_Empty(buffer_arg) {
+function deserialize_fonoster_common_v1beta1_Empty(buffer_arg) {
   return common_pb.Empty.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
@@ -107,63 +107,63 @@ function deserialize_fonos_common_v1beta1_Empty(buffer_arg) {
 var AgentsService = exports.AgentsService = {
   // Lists Agents from the SIP Proxy subsystem
 listAgents: {
-    path: '/fonos.agents.v1beta1.Agents/ListAgents',
+    path: '/fonoster.agents.v1beta1.Agents/ListAgents',
     requestStream: false,
     responseStream: false,
     requestType: agents_pb.ListAgentsRequest,
     responseType: agents_pb.ListAgentsResponse,
-    requestSerialize: serialize_fonos_agents_v1beta1_ListAgentsRequest,
-    requestDeserialize: deserialize_fonos_agents_v1beta1_ListAgentsRequest,
-    responseSerialize: serialize_fonos_agents_v1beta1_ListAgentsResponse,
-    responseDeserialize: deserialize_fonos_agents_v1beta1_ListAgentsResponse,
+    requestSerialize: serialize_fonoster_agents_v1beta1_ListAgentsRequest,
+    requestDeserialize: deserialize_fonoster_agents_v1beta1_ListAgentsRequest,
+    responseSerialize: serialize_fonoster_agents_v1beta1_ListAgentsResponse,
+    responseDeserialize: deserialize_fonoster_agents_v1beta1_ListAgentsResponse,
   },
   // Creates a new Agent resource
 createAgent: {
-    path: '/fonos.agents.v1beta1.Agents/CreateAgent',
+    path: '/fonoster.agents.v1beta1.Agents/CreateAgent',
     requestStream: false,
     responseStream: false,
     requestType: agents_pb.CreateAgentRequest,
     responseType: agents_pb.Agent,
-    requestSerialize: serialize_fonos_agents_v1beta1_CreateAgentRequest,
-    requestDeserialize: deserialize_fonos_agents_v1beta1_CreateAgentRequest,
-    responseSerialize: serialize_fonos_agents_v1beta1_Agent,
-    responseDeserialize: deserialize_fonos_agents_v1beta1_Agent,
+    requestSerialize: serialize_fonoster_agents_v1beta1_CreateAgentRequest,
+    requestDeserialize: deserialize_fonoster_agents_v1beta1_CreateAgentRequest,
+    responseSerialize: serialize_fonoster_agents_v1beta1_Agent,
+    responseDeserialize: deserialize_fonoster_agents_v1beta1_Agent,
   },
   // Gets Agent by reference
 getAgent: {
-    path: '/fonos.agents.v1beta1.Agents/GetAgent',
+    path: '/fonoster.agents.v1beta1.Agents/GetAgent',
     requestStream: false,
     responseStream: false,
     requestType: agents_pb.GetAgentRequest,
     responseType: agents_pb.Agent,
-    requestSerialize: serialize_fonos_agents_v1beta1_GetAgentRequest,
-    requestDeserialize: deserialize_fonos_agents_v1beta1_GetAgentRequest,
-    responseSerialize: serialize_fonos_agents_v1beta1_Agent,
-    responseDeserialize: deserialize_fonos_agents_v1beta1_Agent,
+    requestSerialize: serialize_fonoster_agents_v1beta1_GetAgentRequest,
+    requestDeserialize: deserialize_fonoster_agents_v1beta1_GetAgentRequest,
+    responseSerialize: serialize_fonoster_agents_v1beta1_Agent,
+    responseDeserialize: deserialize_fonoster_agents_v1beta1_Agent,
   },
   // Change or update fields in a resource
 updateAgent: {
-    path: '/fonos.agents.v1beta1.Agents/UpdateAgent',
+    path: '/fonoster.agents.v1beta1.Agents/UpdateAgent',
     requestStream: false,
     responseStream: false,
     requestType: agents_pb.UpdateAgentRequest,
     responseType: agents_pb.Agent,
-    requestSerialize: serialize_fonos_agents_v1beta1_UpdateAgentRequest,
-    requestDeserialize: deserialize_fonos_agents_v1beta1_UpdateAgentRequest,
-    responseSerialize: serialize_fonos_agents_v1beta1_Agent,
-    responseDeserialize: deserialize_fonos_agents_v1beta1_Agent,
+    requestSerialize: serialize_fonoster_agents_v1beta1_UpdateAgentRequest,
+    requestDeserialize: deserialize_fonoster_agents_v1beta1_UpdateAgentRequest,
+    responseSerialize: serialize_fonoster_agents_v1beta1_Agent,
+    responseDeserialize: deserialize_fonoster_agents_v1beta1_Agent,
   },
   // Hard delete of an Agent resource
 deleteAgent: {
-    path: '/fonos.agents.v1beta1.Agents/DeleteAgent',
+    path: '/fonoster.agents.v1beta1.Agents/DeleteAgent',
     requestStream: false,
     responseStream: false,
     requestType: agents_pb.DeleteAgentRequest,
     responseType: common_pb.Empty,
-    requestSerialize: serialize_fonos_agents_v1beta1_DeleteAgentRequest,
-    requestDeserialize: deserialize_fonos_agents_v1beta1_DeleteAgentRequest,
-    responseSerialize: serialize_fonos_common_v1beta1_Empty,
-    responseDeserialize: deserialize_fonos_common_v1beta1_Empty,
+    requestSerialize: serialize_fonoster_agents_v1beta1_DeleteAgentRequest,
+    requestDeserialize: deserialize_fonoster_agents_v1beta1_DeleteAgentRequest,
+    responseSerialize: serialize_fonoster_common_v1beta1_Empty,
+    responseDeserialize: deserialize_fonoster_common_v1beta1_Empty,
   },
 };
 

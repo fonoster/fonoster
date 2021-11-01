@@ -38,15 +38,15 @@ import {
 } from "./types";
 
 /**
- * @classdesc Use Fonos Projects, a capability of Fonos,
+ * @classdesc Use Fonoster Projects, a capability of Fonoster,
  * to create, update, get and delete Projects. Projects requires of a
- * running Fonos deployment.
+ * running Fonoster deployment.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk")
- * const Projects = new Fonos.Projects()
+ * const Fonoster = require("@fonoster/sdk")
+ * const Projects = new Fonoster.Projects()
  *
  * const request = {
  *   name: "project002",
@@ -77,7 +77,7 @@ export default class Projects extends APIClient implements IProjectsClient {
   }
 
   /**
-   * Creates a new Project on Fonos.
+   * Creates a new Project on Fonoster
    *
    * @param {CreateProjectRequest} request -  Request to create a new Project
    * @param {string} request.name - Project's name

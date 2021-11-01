@@ -31,7 +31,7 @@ import {mute} from "@fonoster/logger";
 
 mute();
 
-const Fonos = {
+const Fonoster = {
   Secrets,
   Auth,
   Agents,
@@ -45,7 +45,7 @@ const Fonos = {
   Users
 };
 
-export {Fonos as default};
+export {Fonoster as default};
 
 // WARNING: Workaround to support commonjs clients
-module.exports = Fonos;
+module.exports = Fonoster;

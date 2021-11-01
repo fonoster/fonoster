@@ -26,7 +26,7 @@ import {
   CreateTokenResponse
 } from "./protos/auth_pb";
 import {IAuthServer, IAuthService, AuthService} from "./protos/auth_grpc_pb";
-import {ErrorCodes, FonosError} from "@fonoster/errors";
+import {ErrorCodes, FonosterError} from "@fonoster/errors";
 import {getSalt, AUTH_ISS} from "@fonoster/certs";
 import logger from "@fonoster/logger";
 import Auth from "../utils/auth_utils";
@@ -108,9 +108,9 @@ class AuthServer implements IAuthServer {
         return;
       }
 
-      callback(new FonosError("Role not found", ErrorCodes.NOT_FOUND), null);
+      callback(new FonosterError("Role not found", ErrorCodes.NOT_FOUND), null);
     } catch (e) {
-      callback(new FonosError(e, ErrorCodes.UNKNOWN), null);
+      callback(new FonosterError(e, ErrorCodes.UNKNOWN), null);
     }
   }
 }
