@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,7 +18,7 @@
  */
 import JwtPayload from "./jwt_payload";
 import ITokenManager from "./itoken_manager";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 export declare interface UserToken {
   accessToken: string;
@@ -87,7 +87,7 @@ export default class AuthUtils {
         isValid: result
       } as TokenResponse;
     } catch (e) {
-      logger.log("error", "@fonos/auth [Error decoding token]");
+      logger.log("error", "@fonoster/auth [Error decoding token]");
     }
     return {
       isValid: result

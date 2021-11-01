@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -26,13 +26,13 @@ import {
   CreateTokenResponse
 } from "./protos/auth_pb";
 import {IAuthServer, IAuthService, AuthService} from "./protos/auth_grpc_pb";
-import {ErrorCodes, FonosError} from "@fonos/errors";
-import {getSalt, AUTH_ISS} from "@fonos/certs";
-import logger from "@fonos/logger";
+import {ErrorCodes, FonosError} from "@fonoster/errors";
+import {getSalt, AUTH_ISS} from "@fonoster/certs";
+import logger from "@fonoster/logger";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
 const authenticator = new Auth(new JWT());
-const rbac = require(process.env.AUTH_RBAC || "/home/fonos/rbac.json");
+const rbac = require(process.env.AUTH_RBAC || "/home/fonoster/rbac.json");
 
 class AuthServer implements IAuthServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -57,7 +57,7 @@ class AuthServer implements IAuthServer {
     // it has permissions to create token since the auth module
     // doesnt pass thru the auth middleware.
     logger.verbose(
-      `@fonos/auth creating token [accessKeyId is ${call.request.getAccessKeyId()}]`
+      `@fonoster/auth creating token [accessKeyId is ${call.request.getAccessKeyId()}]`
     );
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
@@ -79,7 +79,7 @@ class AuthServer implements IAuthServer {
     // it has permissions to create token since the auth module
     // doesnt pass thru the auth middleware.
     logger.verbose(
-      `@fonos/auth creating no access token [accessKeyId is ${call.request.getAccessKeyId()}]`
+      `@fonoster/auth creating no access token [accessKeyId is ${call.request.getAccessKeyId()}]`
     );
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),

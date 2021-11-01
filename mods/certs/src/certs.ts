@@ -5,11 +5,11 @@ import {join} from "path";
 import {homedir} from "os";
 import btoa from "btoa";
 
-const BASE_DIR = join(homedir(), ".fonos");
+const BASE_DIR = join(homedir(), ".fonoster");
 const PATH_TO_SALT = join(BASE_DIR, "private_key");
 const PATH_TO_CONFIG = join(BASE_DIR, "config");
-const ACCESS_KEY_ID = process.env.ACCESS_KEY_ID || "fonos";
-const AUTH_ISS = process.env.AUTH_ISS || "fonos";
+const ACCESS_KEY_ID = process.env.ACCESS_KEY_ID || "fonoster";
+const AUTH_ISS = process.env.AUTH_ISS || "fonoster";
 
 const getContent = (workdir: string, file: string) =>
   btoa(fs.readFileSync(`${workdir}/${file}`).toString("utf-8"));

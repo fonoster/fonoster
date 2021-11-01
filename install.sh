@@ -2,7 +2,7 @@
 
 set -e
 
-echo "installing fonos"
+echo "installing fonoster"
 cd /work
 
 echo "generating private key"
@@ -46,10 +46,10 @@ DS_SECRET=$(grep DS_SECRET .env | cut -d '=' -f2)
 SIPPROXY_SECRET=$(grep SIPPROXY_SECRET .env | cut -d '=' -f2)
 sed -i.bak -e "s#requirepass .*#requirepass ${DS_SECRET}#g" "./../config/redis.conf"
 sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/bootstrap.yml"
-sed -i.bak -e "s#CONFIG=/opt/fonos/config#CONFIG=$CONFIG_PATH#g" ".env"
+sed -i.bak -e "s#CONFIG=/opt/fonoster/config#CONFIG=$CONFIG_PATH#g" ".env"
 sed -i.bak -e "s#HTTP_PORT=50051#HTTP_PORT=$HTTP_PORT#g" ".env"
 sed -i.bak -e "s#HTTPS_PORT=50051#HTTPS_PORT=$HTTPS_PORT#g" ".env"
-sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$FONOS_VERSION#g" ".env"
+sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$FONOSTER_VERSION#g" ".env"
 
 cp -a /work/* /out
 

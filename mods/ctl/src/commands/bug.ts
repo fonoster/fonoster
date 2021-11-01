@@ -10,7 +10,7 @@ export default class extends Command {
 
   async run() {
     await cli.open(
-      "https://github.com/fonoster/fonos/issues/new?assignees=&labels=&template=bug_report.md&title="
+      "https://github.com/fonoster/fonoster/issues/new?assignees=&labels=&template=bug_report.md&title="
     );
   }
 }

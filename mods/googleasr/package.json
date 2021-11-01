@@ -1,5 +1,5 @@
 {
-  "name": "@fonos/googleasr",
+  "name": "@fonoster/googleasr",
   "version": "0.2.11",
   "description": "Wrapper for Google ASR",
   "author": "Pedro Sanders <psanders@fonoster.com>",
@@ -23,14 +23,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/fonos.git"
+    "url": "git+https://github.com/fonoster/fonostergit"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/fonos/issues"
+    "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonos/common": "^0.2.11",
-    "@fonos/logger": "^0.2.11",
+    "@fonoster/common": "^0.2.11",
+    "@fonoster/logger": "^0.2.11",
     "@google-cloud/speech": "^4.0.0",
     "axios": "^0.21.1",
     "node-record-lpcm16": "^1.0.1",

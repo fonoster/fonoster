@@ -3,7 +3,7 @@
 version: '3.7'
 
 networks:
-  fonos:
+  fonoster:
 
 services:
 
@@ -20,7 +20,7 @@ services:
       exit 0;
       "
     networks:
-      fonos:
+      fonoster:
 
   bootstrap_sipnet:
     image: fonoster/routr-ctl
@@ -34,7 +34,7 @@ services:
     volumes:
       - ${CONFIG}/bootstrap.yml:/bootstrap.yml:ro
     networks:
-      fonos:
+      fonoster:
 
   service_creds:
     image: fonoster/jwthelper
@@ -46,11 +46,11 @@ services:
     volumes:
       - type: bind
         source: ${CONFIG}/private_key
-        target: /home/fonos/private_key
+        target: /home/fonoster/private_key
         read_only: true
       - type: bind
         source: ${CONFIG}/config
-        target: /home/fonos/config
+        target: /home/fonoster/config
 
   user_creds:
     image: fonoster/jwthelper
@@ -61,11 +61,11 @@ services:
     volumes:
       - type: bind
         source: ${CONFIG}/private_key
-        target: /home/fonos/private_key
+        target: /home/fonoster/private_key
         read_only: true
       - type: bind
         source: ${CONFIG}/user_credentials
-        target: /home/fonos/config
+        target: /home/fonoster/config
 
   server_certs:
     image: fonoster/certshelper

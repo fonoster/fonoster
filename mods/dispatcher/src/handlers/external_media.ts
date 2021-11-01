@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,7 +18,7 @@
  */
 import WebSocket from "ws";
 import UDPMediaReceiver from "../udp_media_receiver";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import {sendData, streamConfig} from "../utils/udp_server_utils";
 import pickPort from "pick-port";
 
@@ -28,7 +28,7 @@ export const externalMediaHandler = async (
   event: any
 ) => {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
+    logger.warn(`@fonoster/dispatcher ignoring socket request on lost connection`);
     return;
   }
   const port = await pickPort();

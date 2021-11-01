@@ -1,4 +1,4 @@
-/* import updateBucketPolicy from '@fonos/core/dist/common/fsutils'
+/* import updateBucketPolicy from '@fonoster/core/dist/common/fsutils'
 import Storage from '../src/storage'
 import chai from 'chai'
 import sinon from 'sinon'

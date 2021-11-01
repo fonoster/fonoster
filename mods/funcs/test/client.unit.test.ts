@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -20,7 +20,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonos/common";
+import {APIClient} from "@fonoster/common";
 import Funcs, {buildDeployFuncRequest, FuncsPB} from "../src/client/funcs";
 import {DeployFuncRequest} from "../src/client/types";
 
@@ -37,7 +37,7 @@ funcObj.setReplicas(1);
 funcObj.setInvocationCount(1000);
 funcObj.setSchedule("* * * * *");
 
-describe("@fonos/funcs/client", () => {
+describe("@fonoster/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
   it("returns a function object a DeployFuncRequest", async () => {

@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonoster/common";
 import {AuthClient} from "../service/protos/auth_grpc_pb";
 import AuthPB from "../service/protos/auth_pb";
 import {promisifyAll} from "grpc-promise";
@@ -66,7 +66,7 @@ export default class Auths extends APIClient implements IAuthClient {
    * @return {Promise<CreateTokenResponse>}
    * @example
    *
-   * const Fonos = require("@fonos/sdk");
+   * const Fonos = require("@fonoster/sdk");
    * const auth = new Fonos.Auth();
    *
    * const request = {
@@ -100,7 +100,7 @@ export default class Auths extends APIClient implements IAuthClient {
    * @return {Promise<CreateTokenResponse>}
    * @example
    *
-   * const Fonos = require("@fonos/sdk");
+   * const Fonos = require("@fonoster/sdk");
    * const auth = new Fonos.Auth();
    *
    * const request = {
@@ -130,7 +130,7 @@ export default class Auths extends APIClient implements IAuthClient {
    * @return {Promise<boolean>}
    * @example
    *
-   * const Fonos = require("@fonos/sdk");
+   * const Fonos = require("@fonoster/sdk");
    * const auth = new Fonos.Auth();
    *
    * const request = {

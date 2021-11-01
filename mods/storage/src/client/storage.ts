@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonoster/common";
 import {StorageClient} from "../service/protos/storage_grpc_pb";
 import StoragePB from "../service/protos/storage_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -37,7 +37,7 @@ import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonos/sdk")
+ * const Fonos = require("@fonoster/sdk")
  * const storage = new Fonos.Storage()
  *
  * storage.uploadObject()

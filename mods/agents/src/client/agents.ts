@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonoster/common";
 import {AgentsClient} from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import {promisifyAll} from "grpc-promise";
 import {
   CreateAgentRequest,
@@ -42,7 +42,7 @@ import {
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonos/sdk")
+ * const Fonos = require("@fonoster/sdk")
  * const agents = new Fonos.Agents()
  *
  * const request = {
@@ -209,7 +209,7 @@ export default class Agents extends APIClient implements IAgentsClient {
   async listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse> {
     logger.log(
       "verbose",
-      `@fonos/agents listAgent [request -> ${JSON.stringify(request)}]`
+      `@fonoster/agents listAgent [request -> ${JSON.stringify(request)}]`
     );
     const r = new AgentsPB.ListAgentsRequest();
     r.setPageSize(request.pageSize);

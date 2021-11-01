@@ -20,7 +20,7 @@ interface IFuncsService extends grpc.ServiceDefinition<grpc.UntypedServiceImplem
 }
 
 interface IFuncsService_IListFuncs extends grpc.MethodDefinition<funcs_pb.ListFuncsRequest, funcs_pb.ListFuncsResponse> {
-    path: "/fonos.funcs.v1beta1.Funcs/ListFuncs";
+    path: "/fonoster.funcs.v1beta1.Funcs/ListFuncs";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<funcs_pb.ListFuncsRequest>;
@@ -29,7 +29,7 @@ interface IFuncsService_IListFuncs extends grpc.MethodDefinition<funcs_pb.ListFu
     responseDeserialize: grpc.deserialize<funcs_pb.ListFuncsResponse>;
 }
 interface IFuncsService_IGetFunc extends grpc.MethodDefinition<funcs_pb.GetFuncRequest, funcs_pb.Func> {
-    path: "/fonos.funcs.v1beta1.Funcs/GetFunc";
+    path: "/fonoster.funcs.v1beta1.Funcs/GetFunc";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<funcs_pb.GetFuncRequest>;
@@ -38,7 +38,7 @@ interface IFuncsService_IGetFunc extends grpc.MethodDefinition<funcs_pb.GetFuncR
     responseDeserialize: grpc.deserialize<funcs_pb.Func>;
 }
 interface IFuncsService_IDeployFunc extends grpc.MethodDefinition<funcs_pb.DeployFuncRequest, funcs_pb.DeployStream> {
-    path: "/fonos.funcs.v1beta1.Funcs/DeployFunc";
+    path: "/fonoster.funcs.v1beta1.Funcs/DeployFunc";
     requestStream: false;
     responseStream: true;
     requestSerialize: grpc.serialize<funcs_pb.DeployFuncRequest>;
@@ -47,7 +47,7 @@ interface IFuncsService_IDeployFunc extends grpc.MethodDefinition<funcs_pb.Deplo
     responseDeserialize: grpc.deserialize<funcs_pb.DeployStream>;
 }
 interface IFuncsService_IDeleteFunc extends grpc.MethodDefinition<funcs_pb.DeleteFuncRequest, common_pb.Empty> {
-    path: "/fonos.funcs.v1beta1.Funcs/DeleteFunc";
+    path: "/fonoster.funcs.v1beta1.Funcs/DeleteFunc";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<funcs_pb.DeleteFuncRequest>;
@@ -56,7 +56,7 @@ interface IFuncsService_IDeleteFunc extends grpc.MethodDefinition<funcs_pb.Delet
     responseDeserialize: grpc.deserialize<common_pb.Empty>;
 }
 interface IFuncsService_IGetFuncLogs extends grpc.MethodDefinition<funcs_pb.GetFuncLogsRequest, funcs_pb.FuncLog> {
-    path: "/fonos.funcs.v1beta1.Funcs/GetFuncLogs";
+    path: "/fonoster.funcs.v1beta1.Funcs/GetFuncLogs";
     requestStream: false;
     responseStream: true;
     requestSerialize: grpc.serialize<funcs_pb.GetFuncLogsRequest>;
@@ -65,7 +65,7 @@ interface IFuncsService_IGetFuncLogs extends grpc.MethodDefinition<funcs_pb.GetF
     responseDeserialize: grpc.deserialize<funcs_pb.FuncLog>;
 }
 interface IFuncsService_ICreateRegistryToken extends grpc.MethodDefinition<funcs_pb.CreateRegistryTokenRequest, funcs_pb.CreateRegistryTokenResponse> {
-    path: "/fonos.funcs.v1beta1.Funcs/CreateRegistryToken";
+    path: "/fonoster.funcs.v1beta1.Funcs/CreateRegistryToken";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<funcs_pb.CreateRegistryTokenRequest>;

@@ -12,7 +12,7 @@ export default class MyHelpClass extends Help {
     ) {
       console.log("\x1b[33m");
       console.log(
-        figlet.textSync("Project Fonos", {
+        figlet.textSync("Fonoster", {
           horizontalLayout: "default",
           verticalLayout: "default",
           width: 60,

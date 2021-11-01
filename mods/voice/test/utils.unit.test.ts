@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -26,7 +26,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/voice/utils", () => {
+describe("@fonoster/voice/utils", () => {
   it("will convert an object to a query string", () => {
     const testObject = {
       optionA: "A",

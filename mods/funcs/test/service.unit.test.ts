@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -27,7 +27,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/funcs/service", () => {
+describe("@fonoster/funcs/service", () => {
   afterEach(() => sandbox.restore());
 
   it("needs testing", async () => {});

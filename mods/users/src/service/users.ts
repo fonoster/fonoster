@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -34,16 +34,16 @@ import {
   IUsersServer
 } from "./protos/users_grpc_pb";
 import {assertNotEmpty, assertValidEmail, assertValidURL} from "./assertions";
-import {getRedisConnection, getAccessKeyId} from "@fonos/core";
+import {getRedisConnection, getAccessKeyId} from "@fonoster/core";
 import objectid from "objectid";
 import encoder from "./encoder";
 import decoder from "./decoder";
-import {FonosError} from "@fonos/errors";
-import {ErrorCodes} from "@fonos/errors";
-import Auth from "@fonos/auth/dist/utils/auth_utils";
-import JWT from "@fonos/auth/dist/utils/jwt";
-import {AUTH_ISS, getSalt} from "@fonos/certs";
-import logger from "@fonos/logger";
+import {FonosError} from "@fonoster/errors";
+import {ErrorCodes} from "@fonoster/errors";
+import Auth from "@fonoster/auth/dist/utils/auth_utils";
+import JWT from "@fonoster/auth/dist/utils/jwt";
+import {AUTH_ISS, getSalt} from "@fonoster/certs";
+import logger from "@fonoster/logger";
 import bcrypt from "bcrypt";
 
 const authenticator = new Auth(new JWT());
@@ -166,7 +166,7 @@ class UsersServer implements IUsersServer {
   ) {
     try {
       logger.verbose(
-        `@fonos/auth creating token [email is ${call.request.getEmail()}]`
+        `@fonoster/auth creating token [email is ${call.request.getEmail()}]`
       );
       const ref = await redis.get(call.request.getEmail());
 

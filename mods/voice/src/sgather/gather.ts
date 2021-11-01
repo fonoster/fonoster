@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {SpeechProvider} from "@fonos/common";
+import {SpeechProvider} from "@fonoster/common";
 import {VoiceRequest} from "../types";
 import {Verb} from "../verb";
 import {SGatherOptions, SGatherStream} from "./types";
 import PubSub from "pubsub-js";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import merge from "deepmerge";
 import StreamData from "./stream_data";
 import startSpeechSource from "./source_speech";
@@ -41,7 +41,7 @@ export default class SGatherVerb extends Verb {
   async run(opts: SGatherOptions): Promise<SGatherStream> {
     const options = merge(defaultOptions, opts);
     const streamData = new StreamData();
-    logger.verbose(`@fonos/voice started sgather [source = ${options.source}]`);
+    logger.verbose(`@fonoster/voice started sgather [source = ${options.source}]`);
     if (options.source.includes("dtmf")) {
       const token = PubSub.subscribe(
         `DtmfReceived.${this.request.sessionId}`,

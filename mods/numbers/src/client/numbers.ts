@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -29,7 +29,7 @@ import {
   GetIngressInfoResponse,
   INumbersClient
 } from "./types";
-import {APIClient, ClientOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonoster/common";
 import {NumbersClient} from "../service/protos/numbers_grpc_pb";
 import NumbersPB, {IngressInfo} from "../service/protos/numbers_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -43,7 +43,7 @@ import {promisifyAll} from "grpc-promise";
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonos/sdk");
+ * const Fonos = require("@fonoster/sdk");
  * const numbers = new Fonos.Numbers();
  *
  * const request = {

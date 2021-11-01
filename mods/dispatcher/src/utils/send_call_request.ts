@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import axios from "axios";
 import {CallRequest} from "../types";
 
@@ -24,7 +24,7 @@ export const sendCallRequest = async (url: string, request: CallRequest) => {
   try {
     const response = await axios.post(url, request);
     logger.verbose(
-      `@fonos/dispatcher mediacontroller [response = ${
+      `@fonoster/dispatcher mediacontroller [response = ${
         response.data ? response.data.data : "no response"
       }]`
     );

@@ -24,7 +24,7 @@ vault
     console.log("Vault unsealed");
 
     // TODO: Adding initial policy
-    // vault policy write fonos-policy vault_policy.hcl
+    // vault policy write fonoster-policy vault_policy.hcl
 
     // TODO: Enable secret engine
     // vault secrets enable -path=secret kv

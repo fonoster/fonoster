@@ -1,5 +1,5 @@
 import "../../config";
-import Domains from "@fonos/domains";
+import Domains from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";

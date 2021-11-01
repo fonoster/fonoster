@@ -18,7 +18,7 @@ interface ISecretsService extends grpc.ServiceDefinition<grpc.UntypedServiceImpl
 }
 
 interface ISecretsService_IListSecretsId extends grpc.MethodDefinition<secrets_pb.ListSecretIdRequest, secrets_pb.ListSecretIdResponse> {
-    path: "/fonos.secrets.v1beta1.Secrets/ListSecretsId";
+    path: "/fonoster.secrets.v1beta1.Secrets/ListSecretsId";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<secrets_pb.ListSecretIdRequest>;
@@ -27,7 +27,7 @@ interface ISecretsService_IListSecretsId extends grpc.MethodDefinition<secrets_p
     responseDeserialize: grpc.deserialize<secrets_pb.ListSecretIdResponse>;
 }
 interface ISecretsService_IGetSecret extends grpc.MethodDefinition<secrets_pb.GetSecretRequest, secrets_pb.GetSecretResponse> {
-    path: "/fonos.secrets.v1beta1.Secrets/GetSecret";
+    path: "/fonoster.secrets.v1beta1.Secrets/GetSecret";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<secrets_pb.GetSecretRequest>;
@@ -36,7 +36,7 @@ interface ISecretsService_IGetSecret extends grpc.MethodDefinition<secrets_pb.Ge
     responseDeserialize: grpc.deserialize<secrets_pb.GetSecretResponse>;
 }
 interface ISecretsService_ICreateSecret extends grpc.MethodDefinition<secrets_pb.CreateSecretRequest, secrets_pb.CreateSecretResponse> {
-    path: "/fonos.secrets.v1beta1.Secrets/CreateSecret";
+    path: "/fonoster.secrets.v1beta1.Secrets/CreateSecret";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<secrets_pb.CreateSecretRequest>;
@@ -45,7 +45,7 @@ interface ISecretsService_ICreateSecret extends grpc.MethodDefinition<secrets_pb
     responseDeserialize: grpc.deserialize<secrets_pb.CreateSecretResponse>;
 }
 interface ISecretsService_IDeleteSecret extends grpc.MethodDefinition<secrets_pb.DeleteSecretRequest, common_pb.Empty> {
-    path: "/fonos.secrets.v1beta1.Secrets/DeleteSecret";
+    path: "/fonoster.secrets.v1beta1.Secrets/DeleteSecret";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<secrets_pb.DeleteSecretRequest>;

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import AuthServer from "./auth";
 import {AuthService} from "./protos/auth_grpc_pb";
-import {runServices} from "@fonos/common";
-import logger from "@fonos/logger";
+import {runServices} from "@fonoster/common";
+import logger from "@fonoster/logger";
 import express from "express";
 const app = express();
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
-import {getSalt} from "@fonos/certs";
+import {getSalt} from "@fonoster/certs";
 import AuthMiddleware from "../auth_middleware";
 const authenticator = new Auth(new JWT());
 

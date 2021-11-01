@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,9 +18,9 @@
  */
 import Docker from "dockerode";
 import fs from "fs";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import {ServerStream} from "./funcs";
-import {FonosError} from "@fonos/errors";
+import {FonosError} from "@fonoster/errors";
 import walk from "walk";
 import {promisify} from "util";
 
@@ -37,7 +37,7 @@ export interface BuildInfo {
 
 const getAuth = (request: BuildInfo) => {
   logger.verbose(
-    `@fonos/funcs image build [constructing auth obj for ${request.registry}]`
+    `@fonoster/funcs image build [constructing auth obj for ${request.registry}]`
   );
   return {
     username: request.username,
@@ -59,7 +59,7 @@ const ls = (pathToFunc: string): Promise<string[]> => {
         const file = base + stats.name;
 
         logger.verbose(
-          `@fonos/storage walk [base = ${base}, name = ${stats.name}]`
+          `@fonoster/storage walk [base = ${base}, name = ${stats.name}]`
         );
 
         files.push(file);
@@ -72,8 +72,8 @@ const ls = (pathToFunc: string): Promise<string[]> => {
     });
 
     walker.on("end", () => {
-      logger.verbose(`@fonos/storage walk [finished walking ${pathToFunc}]`);
-      logger.verbose(`@fonos/funcs walk [ files = ${files}`);
+      logger.verbose(`@fonoster/storage walk [finished walking ${pathToFunc}]`);
+      logger.verbose(`@fonoster/funcs walk [ files = ${files}`);
       resolve(files);
     });
   });
@@ -86,11 +86,11 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
   for (index in attempts) {
     // Sometime the image is not inmediatly available so we try a few times
     logger.verbose(
-      `@fonos/funcs publish [waiting for files to be ready (try #${attempts[index]})`
+      `@fonoster/funcs publish [waiting for files to be ready (try #${attempts[index]})`
     );
 
     logger.verbose(
-      `@fonos/funcs registry [is file ${
+      `@fonoster/funcs registry [is file ${
         request.pathToFunc
       } present? ${fs.existsSync(request.pathToFunc)}`
     );

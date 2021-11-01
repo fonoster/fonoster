@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import PubSub from "pubsub-js";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
 import {DialOptions} from "./types";
@@ -31,7 +31,7 @@ export default class DialVerb extends Verb {
   ): Promise<StatusStream> {
     const streamStatus = new StatusStream();
     logger.verbose(
-      `@fonos/voice dialing [sessionId = ${this.request.sessionId}, number = ${this.request.number}]`
+      `@fonoster/voice dialing [sessionId = ${this.request.sessionId}, number = ${this.request.number}]`
     );
 
     // We should reject if DialFailed

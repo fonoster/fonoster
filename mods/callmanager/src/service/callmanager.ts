@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {routr} from "@fonos/core";
+import {routr} from "@fonoster/core";
 import grpc from "@grpc/grpc-js";
 import client from "ari-client";
 import {CallRequest, CallResponse} from "./protos/callmanager_pb";
 import {EndpointInfo} from "../client/types";
 import originate from "./call";
 import {ICallManagerServer} from "./protos/callmanager_grpc_pb";
-import logger from "@fonos/logger";
-import {FonosError} from "@fonos/errors";
+import logger from "@fonoster/logger";
+import {FonosError} from "@fonoster/errors";
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();

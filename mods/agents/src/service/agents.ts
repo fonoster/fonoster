@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -32,13 +32,13 @@ import {
   IAgentsService,
   AgentsService
 } from "./protos/agents_grpc_pb";
-import {Kind, ResourceBuilder} from "@fonos/core";
+import {Kind, ResourceBuilder} from "@fonoster/core";
 import {
   updateResource,
   createResource,
   ResourceServer,
   getAccessKeyId
-} from "@fonos/core";
+} from "@fonoster/core";
 import decoder from "./decoder";
 
 class AgentsServer implements IAgentsServer {

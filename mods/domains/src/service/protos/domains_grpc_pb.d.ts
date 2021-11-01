@@ -20,7 +20,7 @@ interface IDomainsService extends grpc.ServiceDefinition<grpc.UntypedServiceImpl
 }
 
 interface IDomainsService_IListDomains extends grpc.MethodDefinition<domains_pb.ListDomainsRequest, domains_pb.ListDomainsResponse> {
-    path: "/fonos.domains.v1beta1.Domains/ListDomains";
+    path: "/fonoster.domains.v1beta1.Domains/ListDomains";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<domains_pb.ListDomainsRequest>;
@@ -29,7 +29,7 @@ interface IDomainsService_IListDomains extends grpc.MethodDefinition<domains_pb.
     responseDeserialize: grpc.deserialize<domains_pb.ListDomainsResponse>;
 }
 interface IDomainsService_ICreateDomain extends grpc.MethodDefinition<domains_pb.CreateDomainRequest, domains_pb.Domain> {
-    path: "/fonos.domains.v1beta1.Domains/CreateDomain";
+    path: "/fonoster.domains.v1beta1.Domains/CreateDomain";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<domains_pb.CreateDomainRequest>;
@@ -38,7 +38,7 @@ interface IDomainsService_ICreateDomain extends grpc.MethodDefinition<domains_pb
     responseDeserialize: grpc.deserialize<domains_pb.Domain>;
 }
 interface IDomainsService_IGetDomain extends grpc.MethodDefinition<domains_pb.GetDomainRequest, domains_pb.Domain> {
-    path: "/fonos.domains.v1beta1.Domains/GetDomain";
+    path: "/fonoster.domains.v1beta1.Domains/GetDomain";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<domains_pb.GetDomainRequest>;
@@ -47,7 +47,7 @@ interface IDomainsService_IGetDomain extends grpc.MethodDefinition<domains_pb.Ge
     responseDeserialize: grpc.deserialize<domains_pb.Domain>;
 }
 interface IDomainsService_IUpdateDomain extends grpc.MethodDefinition<domains_pb.UpdateDomainRequest, domains_pb.Domain> {
-    path: "/fonos.domains.v1beta1.Domains/UpdateDomain";
+    path: "/fonoster.domains.v1beta1.Domains/UpdateDomain";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<domains_pb.UpdateDomainRequest>;
@@ -56,7 +56,7 @@ interface IDomainsService_IUpdateDomain extends grpc.MethodDefinition<domains_pb
     responseDeserialize: grpc.deserialize<domains_pb.Domain>;
 }
 interface IDomainsService_IDeleteDomain extends grpc.MethodDefinition<domains_pb.DeleteDomainRequest, common_pb.Empty> {
-    path: "/fonos.domains.v1beta1.Domains/DeleteDomain";
+    path: "/fonoster.domains.v1beta1.Domains/DeleteDomain";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<domains_pb.DeleteDomainRequest>;

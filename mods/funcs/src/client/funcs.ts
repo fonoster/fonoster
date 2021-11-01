@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Storage from "@fonos/storage";
-import {APIClient, ClientOptions} from "@fonos/common";
+import Storage from "@fonoster/storage";
+import {APIClient, ClientOptions} from "@fonoster/common";
 import {FuncsClient} from "../service/protos/funcs_grpc_pb";
 import FuncsPB from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -86,7 +86,7 @@ export default class Funcs extends APIClient implements IFuncsClient {
    * @return {Promise<DeployStream>}
    * @example
    *
-   * const Fonos = require("@fonos/sdk");
+   * const Fonos = require("@fonoster/sdk");
    * const funcs = new Fonos.Funcs();
    *
    * const request = {
@@ -259,7 +259,7 @@ export default class Funcs extends APIClient implements IFuncsClient {
    * @return {Promise<LogsStream>}
    * @example
    *
-   * const Fonos = require("@fonos/sdk");
+   * const Fonos = require("@fonoster/sdk");
    * const funcs = new Fonos.Funcs();
    *
    * const request = {

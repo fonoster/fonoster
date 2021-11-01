@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === "dev") {
   require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
 }
 
-describe("@fonos/tts/utils", () => {
+describe("@fonoster/tts/utils", () => {
   afterEach(() => sandbox.restore());
 
   it("converts a json object into a query string", () => {

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-//import {healthcheck} from "@fonos/common";
+//import {healthcheck} from "@fonoster/common";
 import axios from "axios";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 // First checks the grpc health
 //healthcheck();

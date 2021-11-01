@@ -2,9 +2,9 @@
 /* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,16 +18,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import WebAPIClient from "@fonos/common/dist/web_client";
-import {WebClientOptions} from "@fonos/common/dist/types";
-import {ISecretsClient} from "@fonos/secrets";
+import WebAPIClient from "@fonoster/common/dist/web_client";
+import {WebClientOptions} from "@fonoster/common/dist/types";
+import {ISecretsClient} from "@fonoster/secrets";
 import {
   CreateSecretRequest,
   CreateSecretResponse,
   GetSecretResponse,
   ListSecretsRequest,
   ListSecretsResponse
-} from "@fonos/secrets/src/client/types";
+} from "@fonoster/secrets/src/client/types";
 import * as c from "./generated/api";
 
 export default class Secrets extends WebAPIClient implements ISecretsClient {

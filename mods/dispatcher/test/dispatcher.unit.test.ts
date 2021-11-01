@@ -1,4 +1,4 @@
 // No much to test here
-describe("@fonos/dispatcher", () => {
+describe("@fonoster/dispatcher", () => {
   it("needs tests");
 });

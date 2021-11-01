@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -36,15 +36,15 @@ import {
   ProjectsService,
   IProjectsServer
 } from "./protos/projects_grpc_pb";
-import {getRedisConnection, getAccessKeyId} from "@fonos/core";
+import {getRedisConnection, getAccessKeyId} from "@fonoster/core";
 import objectid from "objectid";
 import encoder from "./encoder";
 import {assertNotEmpty} from "./assertions";
-import JWT from "@fonos/auth/dist/utils/jwt";
-import {AUTH_ISS, getSalt} from "@fonos/certs";
-import Auth from "@fonos/auth/dist/utils/auth_utils";
+import JWT from "@fonoster/auth/dist/utils/jwt";
+import {AUTH_ISS, getSalt} from "@fonoster/certs";
+import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import decoder from "./decoder";
-import {ErrorCodes, FonosError} from "@fonos/errors";
+import {ErrorCodes, FonosError} from "@fonoster/errors";
 const authenticator = new Auth(new JWT());
 const redis = getRedisConnection();
 

@@ -2,7 +2,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonos/common";
+import {APIClient} from "@fonoster/common";
 import CallManager from "../src/client/callmanager";
 import CallManagerPB from "../src/service/protos/callmanager_pb";
 
@@ -11,7 +11,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/callmanager", () => {
+describe("@fonoster/callmanager", () => {
   afterEach(() => sandbox.restore());
 
   it("checks the requests parameters", async () => {

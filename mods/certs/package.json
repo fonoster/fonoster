@@ -1,5 +1,5 @@
 {
-  "name": "@fonos/certs",
+  "name": "@fonoster/certs",
   "version": "0.2.11",
   "description": "Handles Fonos certificates",
   "author": "Pedro Sanders <psanders@fonoster.com>",
@@ -23,10 +23,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/fonos.git"
+    "url": "git+https://github.com/fonoster/fonostergit"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/fonos/issues"
+    "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^8.5.0",

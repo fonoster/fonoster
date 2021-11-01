@@ -9,7 +9,7 @@ syntax = "proto3";
 
 package fonos.callmanager.v1beta1;
 
-option go_package = "github.com/fonoster/fonos/mods/callmanager/fonos/services/protos/callmanager";
+option go_package = "github.com/fonoster/fonoster/mods/callmanager/fonoster/services/protos/callmanager";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";

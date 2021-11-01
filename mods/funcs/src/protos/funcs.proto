@@ -9,7 +9,7 @@ syntax = "proto3";
 
 package fonos.funcs.v1beta1;
 
-option go_package = "github.com/fonoster/fonos/mods/funcs/fonos/services/protos/funcs";
+option go_package = "github.com/fonoster/fonoster/mods/funcs/fonoster/services/protos/funcs";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";

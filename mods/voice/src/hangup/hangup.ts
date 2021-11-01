@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 import PubSub from "pubsub-js";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import {objectToQString} from "../utils";
 import {Verb} from "../verb";
 
 export default class HangupVerb extends Verb {
   async run(): Promise<void> {
     logger.verbose(
-      `@fonos/voice sending hangup request [sessionId = ${this.request.sessionId}]`
+      `@fonoster/voice sending hangup request [sessionId = ${this.request.sessionId}]`
     );
 
     return new Promise(async (resolve, reject) => {

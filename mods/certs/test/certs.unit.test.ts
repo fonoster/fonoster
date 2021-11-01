@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === "dev") {
   require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
 }
 
-describe("@fonos/certs", () => {
+describe("@fonoster/certs", () => {
   afterEach(() => sandbox.restore());
 
   it("creates an salt if it does not exist", async () => {
@@ -28,7 +28,7 @@ describe("@fonos/certs", () => {
     const sign = sandbox.spy(jwt, "sign");
     const result = await createConfigFile();
 
-    expect(result).to.have.property("accessKeyId").to.be.equal("fonos");
+    expect(result).to.have.property("accessKeyId").to.be.equal("fonoster");
     expect(result).to.have.property("accessKeySecret").to.be.not.null;
     expect(existsSync).to.have.been.calledOnce;
     expect(sign).to.have.been.calledOnce;

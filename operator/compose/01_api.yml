@@ -16,107 +16,107 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
-      fonos:
+      fonoster:
         aliases: 
           - ${AS_HOST}
 
   auth:
-    image: fonoster/fonos-auth:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-auth:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=internal,websecure"
-      - "traefik.http.routers.auth.rule=PathPrefix(`/fonos.auth.v1beta1`)"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/fonoster.auth.v1beta1`)"
       - "traefik.http.services.auth.loadbalancer.server.scheme=h2c"
     volumes:
-      - ${CONFIG}/rbac.json:/home/fonos/rbac.json
+      - ${CONFIG}/rbac.json:/home/fonoster/rbac.json
 
   users:
-    image: fonoster/fonos-users:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-users:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.users.entrypoints=internal,websecure"
-      - "traefik.http.routers.users.rule=PathPrefix(`/fonos.users.v1beta1`)"
+      - "traefik.http.routers.users.rule=PathPrefix(`/fonoster.users.v1beta1`)"
       - "traefik.http.services.users.loadbalancer.server.scheme=h2c"
 
   projects:
-    image: fonoster/fonos-projects:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-projects:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.projects.entrypoints=internal,websecure"
-      - "traefik.http.routers.projects.rule=PathPrefix(`/fonos.projects.v1beta1`)"
+      - "traefik.http.routers.projects.rule=PathPrefix(`/fonoster.projects.v1beta1`)"
       - "traefik.http.services.projects.loadbalancer.server.scheme=h2c"
 
   agents:
-    image: fonoster/fonos-agents:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-agents:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.agents.entrypoints=internal,websecure"
-      - "traefik.http.routers.agents.rule=PathPrefix(`/fonos.agents.v1beta1`)"
+      - "traefik.http.routers.agents.rule=PathPrefix(`/fonoster.agents.v1beta1`)"
       - "traefik.http.services.agents.loadbalancer.server.scheme=h2c"
   
   domains:
-    image: fonoster/fonos-domains:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-domains:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.domains.entrypoints=internal,websecure"
-      - "traefik.http.routers.domains.rule=PathPrefix(`/fonos.domains.v1beta1`)"
+      - "traefik.http.routers.domains.rule=PathPrefix(`/fonoster.domains.v1beta1`)"
       - "traefik.http.services.domains.loadbalancer.server.scheme=h2c"
   
   numbers:
-    image: fonoster/fonos-numbers:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-numbers:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.numbers.entrypoints=internal,websecure" 
-      - "traefik.http.routers.numbers.rule=PathPrefix(`/fonos.numbers.v1beta1`)"
+      - "traefik.http.routers.numbers.rule=PathPrefix(`/fonoster.numbers.v1beta1`)"
       - "traefik.http.services.numbers.loadbalancer.server.scheme=h2c"
 
   providers:
-    image: fonoster/fonos-providers:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-providers:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.providers.entrypoints=internal,websecure"
-      - "traefik.http.routers.providers.rule=PathPrefix(`/fonos.providers.v1beta1`)"
+      - "traefik.http.routers.providers.rule=PathPrefix(`/fonoster.providers.v1beta1`)"
       - "traefik.http.services.providers.loadbalancer.server.scheme=h2c"
 
   storage:
-    image: fonoster/fonos-storage:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-storage:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.storage.entrypoints=internal,websecure"
-      - "traefik.http.routers.storage.rule=PathPrefix(`/fonos.storage.v1beta1`)"
+      - "traefik.http.routers.storage.rule=PathPrefix(`/fonoster.storage.v1beta1`)"
       - "traefik.http.services.storage.loadbalancer.server.scheme=h2c"
   
   callmanager:
-    image: fonoster/fonos-callmanager:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fonoster-callmanager:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.callmanager.entrypoints=internal,websecure"    
-      - "traefik.http.routers.callmanager.rule=PathPrefix(`/fonos.callmanager.v1beta1`)"
+      - "traefik.http.routers.callmanager.rule=PathPrefix(`/fonoster.callmanager.v1beta1`)"
       - "traefik.http.services.callmanager.loadbalancer.server.scheme=h2c"

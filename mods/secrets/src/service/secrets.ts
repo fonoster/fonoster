@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -31,7 +31,7 @@ import {
   GetSecretResponse
 } from "./protos/secrets_pb";
 import {Empty} from "./protos/common_pb";
-import {getAccessKeyId} from "@fonos/core";
+import {getAccessKeyId} from "@fonoster/core";
 import {
   ISecretsService,
   SecretsService,

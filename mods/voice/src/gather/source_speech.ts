@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -20,7 +20,7 @@ import Stream from "stream";
 import PubSub from "pubsub-js";
 import {GatherOptions} from "./types";
 import {startMediaTransfer, stopMediaTransfer} from "../utils";
-import {SpeechProvider} from "@fonos/common";
+import {SpeechProvider} from "@fonoster/common";
 import {Verb} from "../verb";
 
 const waitForSpeech = async (

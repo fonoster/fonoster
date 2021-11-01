@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -21,7 +21,7 @@ import {DeployFuncRequest, FuncParameters} from "../client/types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
-import {FonosError, ErrorCodes} from "@fonos/errors";
+import {FonosError, ErrorCodes} from "@fonoster/errors";
 import cron from "cron-validate";
 import createAccessKeySecret from "./auth";
 import {FunctionDefinition} from "openfaas-client";

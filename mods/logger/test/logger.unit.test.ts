@@ -1,4 +1,4 @@
 // No need for test here
-describe("@fonos/logger", () => {
+describe("@fonoster/logger", () => {
   it("no need for test", () => {});
 });

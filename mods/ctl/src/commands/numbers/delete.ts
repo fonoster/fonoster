@@ -1,5 +1,5 @@
 import Command from "../../base/delete";
-import Numbers from "@fonos/numbers";
+import Numbers from "@fonoster/numbers";
 import {CLIError} from "@oclif/errors";
 
 export default class DeleteCommand extends Command {

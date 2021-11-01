@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -22,14 +22,14 @@ import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import Funcs from "../src/client/funcs";
 import {DeployFuncRequest, GetFuncRequest} from "../src/client/types";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/funcs/client", () => {
+describe("@fonoster/funcs/client", () => {
   afterEach(() => sandbox.restore());
 
   it("should fail because path doesn't exist a function", async () => {

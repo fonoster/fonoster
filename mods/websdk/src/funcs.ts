@@ -2,9 +2,9 @@
 /* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,8 +18,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import WebAPIClient from "@fonos/common/dist/web_client";
-import {WebClientOptions} from "@fonos/common/dist/types";
+import WebAPIClient from "@fonoster/common/dist/web_client";
+import {WebClientOptions} from "@fonoster/common/dist/types";
 import {
   IFuncsClient,
   DeployFuncRequest,
@@ -30,11 +30,11 @@ import {
   ListFuncsRequest,
   ListFuncsResponse,
   GetFuncLogsRequest
-} from "@fonos/funcs/src/client/types";
+} from "@fonoster/funcs/src/client/types";
 import {
   DeployStream,
   LogsStream
-} from "@fonos/funcs/src/client/stream_wrappers";
+} from "@fonoster/funcs/src/client/stream_wrappers";
 import * as c from "./generated/api";
 
 export default class Agents extends WebAPIClient implements IFuncsClient {

@@ -3,7 +3,7 @@
 version: '3.7'
 
 networks:
-  fonos:
+  fonoster:
 
 services:
 
@@ -15,7 +15,7 @@ services:
     volumes:
       - ${CONFIG}/fluent.conf:/fluentd/etc/fluent.conf:ro
     networks:
-      fonos:
+      fonoster:
         aliases: 
           - ${LOGS_DRIVER_HOST}      
 

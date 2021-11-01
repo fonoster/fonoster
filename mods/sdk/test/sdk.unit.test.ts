@@ -1,4 +1,4 @@
 // No much to test here
-describe("@fonos/sdk", () => {
+describe("@fonoster/sdk", () => {
   it("needs tests");
 });

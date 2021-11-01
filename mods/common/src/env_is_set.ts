@@ -1,8 +1,8 @@
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 export default function assertEnvIsSet(name: string) {
   const register = require(process.env.SERVICES_ENVS ||
-    "/home/fonos/service_envs.json");
+    "/home/fonoster/service_envs.json");
   const services = register.filter((service: any) => service.module === name);
   for (let value of services) {
     value.env.forEach(function (variable: string) {

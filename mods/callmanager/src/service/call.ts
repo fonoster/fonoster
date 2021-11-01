@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,7 +18,7 @@
  */
 import {CallRequest, CallResponse} from "./protos/callmanager_pb";
 import {nanoid} from "nanoid";
-import {FonosError} from "@fonos/errors";
+import {FonosError} from "@fonoster/errors";
 import phone from "phone";
 import {EndpointInfo} from "../client/types";
 

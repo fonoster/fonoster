@@ -1,5 +1,5 @@
 {
-  "name": "@fonos/tts",
+  "name": "@fonoster/tts",
   "version": "0.2.11",
   "description": "Fonos TTS module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
@@ -23,10 +23,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/fonos.git"
+    "url": "git+https://github.com/fonoster/fonostergit"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/fonos/issues"
+    "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
     "flat": "^5.0.2",

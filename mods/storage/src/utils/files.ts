@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,8 +18,8 @@
  */
 import fs from "fs";
 import tar from "tar";
-import logger from "@fonos/logger";
-import {FonosError} from "@fonos/errors";
+import logger from "@fonoster/logger";
+import {FonosError} from "@fonoster/errors";
 
 export const extract = (source: string, target: string) =>
   tar.extract({file: source, cwd: target});

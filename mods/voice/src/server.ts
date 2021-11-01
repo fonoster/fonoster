@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,11 +18,11 @@
  */
 import {ServerConfig} from "./types";
 import VoiceResponse from "./voice";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import express from "express";
 import {join, posix} from "path";
 import fs from "fs";
-import {Plugin} from "@fonos/common";
+import {Plugin} from "@fonoster/common";
 import PubSub from "pubsub-js";
 const merge = require("deepmerge");
 const app = express();
@@ -117,7 +117,7 @@ export default class VoiceServer {
           }
 
           logger.verbose(
-            `@fonos/voice received event [${JSON.stringify(event, null, " ")}]`
+            `@fonoster/voice received event [${JSON.stringify(event, null, " ")}]`
           );
         }
       }).on("error", console.error);

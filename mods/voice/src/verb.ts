@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,7 +18,7 @@
  */
 import axios from "axios";
 import {VoiceRequest} from "./types";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 const auth =
   process.env.NODE_ENV != "production"
@@ -51,7 +51,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.silly(`@fonos/voice posting [url: ${url}]`);
+    logger.silly(`@fonoster/voice posting [url: ${url}]`);
 
     return await axios({
       method: "post",
@@ -70,7 +70,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.silly(`@fonos/voice posting [url: ${url}]`);
+    logger.silly(`@fonoster/voice posting [url: ${url}]`);
 
     return await axios({
       method: "delete",

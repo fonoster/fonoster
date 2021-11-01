@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Auth from "@fonos/auth";
-import Numbers from "@fonos/numbers";
-import logger from "@fonos/logger";
+import Auth from "@fonoster/auth";
+import Numbers from "@fonoster/numbers";
+import logger from "@fonoster/logger";
 import {CallRequest} from "./types";
 import {sendCallRequest} from "./utils/send_call_request";
 import {getChannelVar, getChannelVarAsJson} from "./utils/channel_variable";
@@ -51,7 +51,7 @@ export default function (err: any, ari: any) {
     if (!didInfo) {
       // If DID_INFO is not set we need to ignore the event
       logger.silly(
-        `@fonos/dispatcher DID_INFO variable not found [ignoring event]`
+        `@fonoster/dispatcher DID_INFO variable not found [ignoring event]`
       );
       return;
     }
@@ -71,7 +71,7 @@ export default function (err: any, ari: any) {
     const metadata = await getChannelVarAsJson(channel, "METADATA");
 
     logger.verbose(
-      `@fonos/dispatcher stasis start [
+      `@fonoster/dispatcher stasis start [
       \r sessionId   = ${channel.id}
       \r e164Number  = ${didInfo}
       \r webhook     = ${webhook}
@@ -97,7 +97,7 @@ export default function (err: any, ari: any) {
     };
 
     logger.verbose(
-      `@fonos/dispatcher sending request to mediacontroller [request = ${JSON.stringify(
+      `@fonoster/dispatcher sending request to mediacontroller [request = ${JSON.stringify(
         request,
         null,
         " "
@@ -113,7 +113,7 @@ export default function (err: any, ari: any) {
 
     ws.on("error", async (e: Error) => {
       logger.error(
-        `@fonos/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`
+        `@fonoster/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`
       );
       logger.silly(e);
       channel.hangup();
@@ -130,7 +130,7 @@ export default function (err: any, ari: any) {
 
   ari.on("ChannelUserevent", async (event: any) => {
     logger.verbose(
-      `@fonos/dispatcher [got user event = ${JSON.stringify(event, null, " ")}]`
+      `@fonoster/dispatcher [got user event = ${JSON.stringify(event, null, " ")}]`
     );
     const wsClient = wsConnections.get(event.userevent.sessionId);
 
@@ -161,7 +161,7 @@ export default function (err: any, ari: any) {
         break;
       default:
         logger.error(
-          `@fonos/dispatcher unknown user event [name = ${event.eventname}]`
+          `@fonoster/dispatcher unknown user event [name = ${event.eventname}]`
         );
     }
   });
@@ -191,7 +191,7 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("StasisEnd", (event: any, channel: any) => {
-    logger.verbose(`@fonos/dispatcher stasis end [sessionId = ${channel.id}]`);
+    logger.verbose(`@fonoster/dispatcher stasis end [sessionId = ${channel.id}]`);
     wsConnections.delete(channel.id);
   });
 

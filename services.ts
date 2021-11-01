@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -120,12 +120,12 @@ const services = [
 ];
 
 const whitelist = [
-  "/fonos.users.v1beta1.Users/CreateUser",
-  "/fonos.users.v1beta1.Users/DeleteUser",
-  "/fonos.users.v1beta1.Users/LoginUser",
-  "/fonos.auth.v1beta1.Auth/GetRole",
-  "/fonos.auth.v1beta1.Auth/CreateToken",
-  "/fonos.auth.v1beta1.Auth/CreateNoAccessToken",
+  "/fonoster.users.v1beta1.Users/CreateUser",
+  "/fonoster.users.v1beta1.Users/DeleteUser",
+  "/fonoster.users.v1beta1.Users/LoginUser",
+  "/fonoster.auth.v1beta1.Auth/GetRole",
+  "/fonoster.auth.v1beta1.Auth/CreateToken",
+  "/fonoster.auth.v1beta1.Auth/CreateNoAccessToken",
   "/grpc.health.v1.Health/Check"
 ];
 
