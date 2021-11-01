@@ -10,7 +10,7 @@ export default class MyHelpClass extends Help {
       (args.length === 1 &&
         (args[0].includes("help") || args[0].includes("-h")))
     ) {
-      console.log("\x1b[33m");
+      console.log("\x1b[32m");
       console.log(
         figlet.textSync("Fonoster", {
           horizontalLayout: "default",
