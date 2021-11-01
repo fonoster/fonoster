@@ -28,7 +28,7 @@ High-level overview
 
 ## Features
 
-The most notable features on PF 0.1 are:
+The most notable features on FN 0.1 are:
 
 - [x] Cloud initialization with Cloud-Init
 - [x] Multitenancy
