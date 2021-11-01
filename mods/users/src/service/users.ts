@@ -65,7 +65,10 @@ class UsersServer implements IUsersServer {
       const emailExist = await redis.get(call.request.getEmail());
 
       if (emailExist) {
-        throw new FonosterError("user already exist", ErrorCodes.ALREADY_EXISTS);
+        throw new FonosterError(
+          "user already exist",
+          ErrorCodes.ALREADY_EXISTS
+        );
       }
 
       const ref = objectid() + "";
@@ -125,7 +128,10 @@ class UsersServer implements IUsersServer {
       const accessKeyId = getAccessKeyId(call);
 
       if (accessKeyId !== call.request.getRef()) {
-        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError(
+          "permission denied",
+          ErrorCodes.PERMISSION_DENIED
+        );
       }
 
       // Get result here

@@ -34,7 +34,11 @@ import {
 } from "./protos/funcs_pb";
 import {HttpBasicAuth, DefaultApi as FaaS} from "openfaas-client";
 import logger from "@fonoster/logger";
-import {ErrorCodes, FonosterError, FonosterSubsysUnavailable} from "@fonoster/errors";
+import {
+  ErrorCodes,
+  FonosterError,
+  FonosterSubsysUnavailable
+} from "@fonoster/errors";
 import {getAccessKeyId} from "@fonoster/core";
 import axios from "axios";
 import {

@@ -45,7 +45,10 @@ class CallManagerServer implements ICallManagerServer {
     const domain = await getDomainByNumber(call.request.getFrom());
 
     if (!domain) {
-      callback(new FonosterError(numberNotInList(call.request.getFrom())), null);
+      callback(
+        new FonosterError(numberNotInList(call.request.getFrom())),
+        null
+      );
       return;
     }
 
@@ -56,7 +59,10 @@ class CallManagerServer implements ICallManagerServer {
     const accessKeyIdDomain = domain.metadata.accessKeyId;
 
     if (accessKeyIdDomain != accessKeyId) {
-      callback(new FonosterError(numberNotInList(call.request.getFrom())), null);
+      callback(
+        new FonosterError(numberNotInList(call.request.getFrom())),
+        null
+      );
     }
 
     logger.verbose(

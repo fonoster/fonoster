@@ -45,7 +45,9 @@ export const handleError = (
 ) => {
   switch (err.code) {
     case "NoSuchBucket":
-      return new FonosterFailedPrecondition(`${err.message} -> bucket: ${bucket}`);
+      return new FonosterFailedPrecondition(
+        `${err.message} -> bucket: ${bucket}`
+      );
     case "TAR_BAD_ARCHIVE":
       return new FonosterError(err.message, grpc.status.DATA_LOSS);
     default:

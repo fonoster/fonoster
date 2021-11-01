@@ -98,7 +98,10 @@ class ProjectsServer implements IProjectsServer {
       const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
-        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError(
+          "permission denied",
+          ErrorCodes.PERMISSION_DENIED
+        );
       }
 
       if (call.request.getName()) project.setName(call.request.getName());
@@ -125,7 +128,10 @@ class ProjectsServer implements IProjectsServer {
       const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
-        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError(
+          "permission denied",
+          ErrorCodes.PERMISSION_DENIED
+        );
       }
 
       callback(null, project);
@@ -146,7 +152,10 @@ class ProjectsServer implements IProjectsServer {
       const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
-        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError(
+          "permission denied",
+          ErrorCodes.PERMISSION_DENIED
+        );
       }
 
       redis.del(project.getRef());
@@ -195,7 +204,10 @@ class ProjectsServer implements IProjectsServer {
       const project = decoder(raw.toString());
 
       if (getAccessKeyId(call) !== project.getUserRef()) {
-        throw new FonosterError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError(
+          "permission denied",
+          ErrorCodes.PERMISSION_DENIED
+        );
       }
 
       const result = await authenticator.createToken(
