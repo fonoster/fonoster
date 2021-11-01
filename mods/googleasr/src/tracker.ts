@@ -17,7 +17,11 @@
  * limitations under the License.
  */
 import {GoogleSpeechConfig, TrackerConfig} from "./types";
-import {SpeechTracker, SpeechResult, StreamSpeechResult} from "@fonoster/common";
+import {
+  SpeechTracker,
+  SpeechResult,
+  StreamSpeechResult
+} from "@fonoster/common";
 import {Stream} from "stream";
 import speech from "@google-cloud/speech";
 import StreamRecognize from "./stream_recognize";

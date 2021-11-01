@@ -50,7 +50,9 @@ export default class UDPMediaReceiver {
     }
 
     this.server.on("error", (err) => {
-      logger.error(`@fonoster/dispatcher udpServer [server error:\n${err.stack}]`);
+      logger.error(
+        `@fonoster/dispatcher udpServer [server error:\n${err.stack}]`
+      );
       this.server.close();
       if (this.fileStream) {
         this.fileStream.close();

@@ -59,7 +59,9 @@ const getServerCredentials = () => {
     logger.warn(
       "@fonoster/common trust util [unable to load security certificates]"
     );
-    logger.warn("@fonoster/common trust util [starting server in insecure mode]");
+    logger.warn(
+      "@fonoster/common trust util [starting server in insecure mode]"
+    );
     return grpc.ServerCredentials.createInsecure();
   }
 };

@@ -38,7 +38,9 @@ export default class AuthMiddleware {
   middleware = async (ctx: any, next: any, errorCb: any) => {
     const pathRequest = ctx.service.path;
 
-    logger.verbose(`@fonoster/logger middleware [request.path = ${pathRequest}]`);
+    logger.verbose(
+      `@fonoster/logger middleware [request.path = ${pathRequest}]`
+    );
 
     if (this.whitelist.includes(pathRequest)) {
       next();

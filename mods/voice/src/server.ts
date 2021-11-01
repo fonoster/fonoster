@@ -117,7 +117,11 @@ export default class VoiceServer {
           }
 
           logger.verbose(
-            `@fonoster/voice received event [${JSON.stringify(event, null, " ")}]`
+            `@fonoster/voice received event [${JSON.stringify(
+              event,
+              null,
+              " "
+            )}]`
           );
         }
       }).on("error", console.error);

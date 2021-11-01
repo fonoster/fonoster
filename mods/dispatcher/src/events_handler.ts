@@ -130,7 +130,11 @@ export default function (err: any, ari: any) {
 
   ari.on("ChannelUserevent", async (event: any) => {
     logger.verbose(
-      `@fonoster/dispatcher [got user event = ${JSON.stringify(event, null, " ")}]`
+      `@fonoster/dispatcher [got user event = ${JSON.stringify(
+        event,
+        null,
+        " "
+      )}]`
     );
     const wsClient = wsConnections.get(event.userevent.sessionId);
 
@@ -191,7 +195,9 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("StasisEnd", (event: any, channel: any) => {
-    logger.verbose(`@fonoster/dispatcher stasis end [sessionId = ${channel.id}]`);
+    logger.verbose(
+      `@fonoster/dispatcher stasis end [sessionId = ${channel.id}]`
+    );
     wsConnections.delete(channel.id);
   });
 

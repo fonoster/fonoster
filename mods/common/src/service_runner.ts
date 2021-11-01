@@ -62,7 +62,9 @@ export default function run(
   srvInfList.forEach((srvInf: ServiceInf) => {
     assertEnvIsSet(srvInf.name);
     server.addService(srvInf.service, srvInf.server);
-    logger.info(`@fonoster/common service runner [added ${srvInf.name} service]`);
+    logger.info(
+      `@fonoster/common service runner [added ${srvInf.name} service]`
+    );
   });
 
   server.bindAsync(ENDPOINT, getServerCredentials(), () => {

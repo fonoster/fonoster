@@ -29,7 +29,9 @@ export const sendDtmf = async (ws: WebSocket, ari: any, event: any) => {
   });
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonoster/dispatcher ignoring socket request on lost connection`);
+    logger.warn(
+      `@fonoster/dispatcher ignoring socket request on lost connection`
+    );
     return;
   }
 

@@ -46,7 +46,9 @@ export const dial = async (
   );
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonoster/dispatcher ignoring socket request on lost connection`);
+    logger.warn(
+      `@fonoster/dispatcher ignoring socket request on lost connection`
+    );
     return;
   }
 
