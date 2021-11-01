@@ -6,7 +6,6 @@ echo "installing fonoster"
 cd /work
 
 echo "generating private key"
-
 echo $(openssl rand -hex 16) > config/private_key
 echo "" >> operator/.env
 
