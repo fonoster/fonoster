@@ -8,7 +8,7 @@ import {join} from "path";
 //import fs from 'fs'
 //import path from 'path'
 //import textToSpeech from '@google-cloud/text-to-speech'
-const {transcode} = require("@fonos/tts");
+const {transcode} = require("@fonoster/tts");
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === "dev") {
   require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
 }
 
-describe("@fonos/googletts", () => {
+describe("@fonoster/googletts", () => {
   afterEach(() => sandbox.restore());
 
   /*it('rejects if the TTS because could not find default credentials', () => {
@@ -41,7 +41,7 @@ describe("@fonos/googletts", () => {
   it("synthesizes text and returns path to file", async () => {
     const config = {
       projectId: "clever-tube-275321",
-      keyFilename: "/Users/pedrosanders/Projects/fonos/credentials.json"
+      keyFilename: "/Users/pedrosanders/Projects/fonoster/credentials.json"
     };
 
     const tts = new GoogleTTS(config);

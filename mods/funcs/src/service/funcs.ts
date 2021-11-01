@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -33,9 +33,9 @@ import {
   ListFuncsResponse
 } from "./protos/funcs_pb";
 import {HttpBasicAuth, DefaultApi as FaaS} from "openfaas-client";
-import logger from "@fonos/logger";
-import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonos/errors";
-import {getAccessKeyId} from "@fonos/core";
+import logger from "@fonoster/logger";
+import {ErrorCodes, FonosError, FonosSubsysUnavailable} from "@fonoster/errors";
+import {getAccessKeyId} from "@fonoster/core";
 import axios from "axios";
 import {
   rawFuncToFunc,
@@ -97,14 +97,14 @@ const publish = async (
     serverStream
   );
 
-  logger.verbose("@fonos/funcs publish [publishing to funcs subsystem]");
+  logger.verbose("@fonoster/funcs publish [publishing to funcs subsystem]");
 
   const attempts = [1, 2, 3];
   let index;
   for (index in attempts) {
     // Sometime the image is not inmediatly available so we try a few times
     logger.verbose(
-      `@fonos/funcs publish [publishing to functions subsystem (try #${attempts[index]})`
+      `@fonoster/funcs publish [publishing to functions subsystem (try #${attempts[index]})`
     );
     serverStream.write("wating for image to be ready");
     serverStream.write(
@@ -113,11 +113,11 @@ const publish = async (
     await sleep(20000);
     try {
       // If the function already exist this will fail
-      logger.verbose("@fonos/funcs publish [first trying post]");
+      logger.verbose("@fonoster/funcs publish [first trying post]");
       await faas.systemFunctionsPost(parameters);
       break;
     } catch (e) {
-      logger.verbose("@fonos/funcs publish [now trying put]");
+      logger.verbose("@fonoster/funcs publish [now trying put]");
       try {
         await faas.systemFunctionsPut(parameters);
         break;
@@ -150,7 +150,7 @@ export default class FuncsServer implements IFuncsServer {
       // response.setNextPageToken()
       callback(null, response);
     } catch (e) {
-      logger.error(`@fonos/funcs list [${e}]`);
+      logger.error(`@fonoster/funcs list [${e}]`);
     }
   }
 
@@ -174,7 +174,7 @@ export default class FuncsServer implements IFuncsServer {
 
       callback(null, rawFuncToFunc(rawFunction));
     } catch (e) {
-      logger.error(`@fonos/funcs get [${e}]`);
+      logger.error(`@fonoster/funcs get [${e}]`);
       callback(e, null);
     }
   }
@@ -194,7 +194,7 @@ export default class FuncsServer implements IFuncsServer {
       serverStream.write("your function will be available shortly");
       call.end();
     } catch (e) {
-      logger.error(`@fonos/funcs deploy [${e}]`);
+      logger.error(`@fonoster/funcs deploy [${e}]`);
 
       if (!e.response) {
         call.emit("error", new FonosError(e, ErrorCodes.UNKNOWN));
@@ -231,7 +231,7 @@ export default class FuncsServer implements IFuncsServer {
       await faas.systemFunctionsDelete({functionName});
       callback(null, new Empty());
     } catch (e) {
-      logger.error(`@fonos/funcs delete [${e}]`);
+      logger.error(`@fonoster/funcs delete [${e}]`);
       if (e.response.statusCode === 404) {
         callback(
           new FonosError(
@@ -278,16 +278,16 @@ export default class FuncsServer implements IFuncsServer {
         })
         .on("error", (e) => {
           logger.error(
-            `@fonos/funcs system logs [error while receiving data: ${e}]`
+            `@fonoster/funcs system logs [error while receiving data: ${e}]`
           );
           call.end();
         })
         .on("end", () => {
-          logger.verbose("@fonos/funcs system logs [done receiving data]");
+          logger.verbose("@fonoster/funcs system logs [done receiving data]");
           call.end();
         });
     } catch (e) {
-      logger.error(`@fonos/funcs deploy [${e}]`);
+      logger.error(`@fonoster/funcs deploy [${e}]`);
       if (e.response.statusCode === 400) {
         call.emit(
           "error",

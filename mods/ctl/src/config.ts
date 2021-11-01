@@ -1,2 +1,2 @@
-import {mute} from "@fonos/logger";
+import {mute} from "@fonoster/logger";
 mute();

@@ -1,4 +1,4 @@
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import chai from "chai";
 import sinon from "sinon";
 chai.use(require("sinon-chai"));
@@ -9,7 +9,7 @@ var sandbox = sinon.createSandbox();
 logger.transports.forEach((t) => (t.silent = true));
 
 /*
-describe('@fonos/core/fsutils', () => {
+describe('@fonoster/core/fsutils', () => {
   context('create new bucket', () => {
     let makeBucketWasCalled, setBucketPolicyCalled, createNewBucket
     var fsInstance = sinon

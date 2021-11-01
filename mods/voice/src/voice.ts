@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -26,7 +26,7 @@ import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
 import {PlaybackControl} from "./playback/playback";
 import {SayOptions} from "./say/types";
 import {VoiceRequest} from "./types";
-import {Plugin} from "@fonos/common";
+import {Plugin} from "@fonoster/common";
 import {assertPluginExist} from "./asserts";
 import PubSub from "pubsub-js";
 import {Verb} from "./verb";
@@ -46,7 +46,7 @@ import StreamStatus from "./dial/status_stream";
  * @extends Verb
  * @example
  *
- * import { VoiceServer } from "@fonos/voice";
+ * import { VoiceServer } from "@fonoster/voice";
  *
  * async function handler (request, response) {
  *   await response.answer();

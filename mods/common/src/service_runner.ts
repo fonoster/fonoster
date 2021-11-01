@@ -2,9 +2,9 @@
 /* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,7 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import assertEnvIsSet from "./env_is_set";
 const grpc = require("@grpc/grpc-js");
 import {getServerCredentials} from "./trust_util";
@@ -47,14 +47,14 @@ export default function run(
   const server = interceptor.serverProxy(grpcServer);
 
   logger.info(
-    `@fonos/common service runner [starting @ ${ENDPOINT}, api = ${srvInfList[0].version}]`
+    `@fonoster/common service runner [starting @ ${ENDPOINT}, api = ${srvInfList[0].version}]`
   );
 
   if (middlewareList) {
     middlewareList.forEach((middleware) => {
       server.use(middleware.middlewareObj);
       logger.info(
-        `@fonos/common service runner [added ${middleware.name} middleware]`
+        `@fonoster/common service runner [added ${middleware.name} middleware]`
       );
     });
   }
@@ -62,11 +62,13 @@ export default function run(
   srvInfList.forEach((srvInf: ServiceInf) => {
     assertEnvIsSet(srvInf.name);
     server.addService(srvInf.service, srvInf.server);
-    logger.info(`@fonos/common service runner [added ${srvInf.name} service]`);
+    logger.info(
+      `@fonoster/common service runner [added ${srvInf.name} service]`
+    );
   });
 
   server.bindAsync(ENDPOINT, getServerCredentials(), () => {
     server.start();
   });
-  logger.info("@fonos/common service runner [runner is online]");
+  logger.info("@fonoster/common service runner [runner is online]");
 }

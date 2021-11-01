@@ -4,7 +4,7 @@ ssh_authorized_keys:
   - ssh-rsa ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKcZlvWQphbnVsau7V4Va1itaPvekkTxZGriJO1A9aGzKLrmX3vOsETz96fVS5OphP7PNbGVppjEUSeSqAeOjxJ84+Uko0GCDH2ypZncipF13DJnNgyv9V+WqfA7SHJHMBVxChmY5A/xzgDl94O6Sozb/wd5dzCqCpW0htx4DUcYluJWTsLMmmP2Xw9KeE9HvF8Z3niMjiCgkBzYA0LdldXrHXS8yJnIwIrGslDbpIZG7c7UJSWHhJzKX5v73VLk1qITFqkbYMVKJ3JYOXla5T5aR3brh8zn+i0f84C9vIveHq90vGASsyjzgpjpKpcN/g8K791DeRjHK47PUE2REp pedrosanders@Pedros-MBP
 
 write_files:
-  - path: /opt/fonos/user_opts
+  - path: /opt/fonoster/user_opts
     content: |
       # Uncomment and replace with the IP of your Docker Host,
       # unless you are running on a cloud environment like 
@@ -22,12 +22,12 @@ write_files:
       # We recommend using a working email
       #LETSENCRYPT_EMAIL=admin@yourdomain.com
 
-      FONOS_VERSION=0.2.10
+      FONOSTER_VERSION=0.2.10
 
 runcmd:
   - |
     cd /opt
-    export $(grep -v '^#' /opt/fonos/user_opts | xargs)
+    export $(grep -v '^#' /opt/fonoster/user_opts | xargs)
     docker run -i --rm \
       -e DOCKER_HOST_IP=$DOCKER_HOST_IP \
       -e DOMAIN=$DOMAIN \
@@ -36,12 +36,12 @@ runcmd:
       -e HTTPS_PORT=$HTTPS_PORT \
       -e LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL \
       -e GLOBAL_SIP_DOMAIN=$GLOBAL_SIP_DOMAIN \
-      -e CONFIG_PATH=$(pwd)/fonos/config \
+      -e CONFIG_PATH=$(pwd)/fonoster/config \
       --volume /var/run/docker.sock:/var/run/docker.sock \
-      --volume $(pwd)/fonos:/out:rw \
+      --volume $(pwd)/fonoster:/out:rw \
       --entrypoint="/install.sh" \
-      fonoster/fonos:$FONOS_VERSION
-    rm /opt/fonos/user_opts
+      fonoster/fonoster:$FONOSTER_VERSION
+    rm /opt/fonoster/user_opts
 
 package_update: true
 

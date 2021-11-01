@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import fs from "fs";
 import {UploadObjectRequest} from "./protos/storage_pb";
-import {getAccessKeyId} from "@fonos/core";
+import {getAccessKeyId} from "@fonoster/core";
 import {getFilesizeInBytes, isCompressFile} from "../utils/files";
 import {handleCompressUpload, handleUncompressUpload} from "../utils/helper";
 import {getBucketAsString, handleError} from "../utils/utils";
@@ -35,7 +35,7 @@ export default async function (call: any, callback: any) {
   call.on("error", (err: any) => {
     logger.log(
       "error",
-      `@fonos/storage upload [an error ocurred while uploading object ${object} to bucket '${bucket}']`
+      `@fonoster/storage upload [an error ocurred while uploading object ${object} to bucket '${bucket}']`
     );
     logger.log("error", err);
   });
@@ -59,13 +59,13 @@ export default async function (call: any, callback: any) {
         accessKeyId = request.getAccessKeyId();
       }
       logger.debug(
-        `@fonos/storage upload [started uploading object ${object} into "${bucket}" bucket]`
+        `@fonoster/storage upload [started uploading object ${object} into "${bucket}" bucket]`
       );
     }
 
     logger.log(
       "verbose",
-      `@fonos/storage upload [received chunk(${chunk.length}) for ${object}]`
+      `@fonoster/storage upload [received chunk(${chunk.length}) for ${object}]`
     );
   });
 
@@ -75,11 +75,11 @@ export default async function (call: any, callback: any) {
       fs.renameSync(`/tmp/${tmpName}`, `/tmp/${object}`);
 
       logger.verbose(
-        `@fonos/storage upload [moved ${tmpName} into ${object} (final name)]`
+        `@fonoster/storage upload [moved ${tmpName} into ${object} (final name)]`
       );
 
       logger.verbose(
-        `@fonos/storage upload [uploading file to storage backend (s3)]`
+        `@fonoster/storage upload [uploading file to storage backend (s3)]`
       );
 
       const response = isCompressFile(object)
@@ -87,12 +87,12 @@ export default async function (call: any, callback: any) {
         : await handleUncompressUpload(accessKeyId, object, bucket, fileSize);
 
       logger.verbose(
-        `@fonos/storage upload [removing tmp file /tmp/${object}]`
+        `@fonoster/storage upload [removing tmp file /tmp/${object}]`
       );
 
       fs.unlink(`/tmp/${object}`, () => callback(null, response));
     } catch (e) {
-      logger.log("error", `@fonos/storage upload [${e}]`);
+      logger.log("error", `@fonoster/storage upload [${e}]`);
       callback(handleError(e, bucket));
     }
   });

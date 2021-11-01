@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -19,7 +19,7 @@
 const grpc = require("@grpc/grpc-js");
 import AuthPB from "../service/protos/auth_pb";
 import {AuthClient} from "../service/protos/auth_grpc_pb";
-import {getClientCredentials} from "@fonos/common";
+import {getClientCredentials} from "@fonoster/common";
 
 const svc = new AuthClient(
   process.env.APISERVER_ENDPOINT || "localhost:50052",

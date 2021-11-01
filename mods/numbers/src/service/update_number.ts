@@ -1,7 +1,7 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import {FonosInvalidArgument} from "@fonos/errors";
-import {ResourceBuilder, Kind, routr, ResourceServer} from "@fonos/core";
+import {FonosInvalidArgument} from "@fonoster/errors";
+import {ResourceBuilder, Kind, routr, ResourceServer} from "@fonoster/core";
 import numberDecoder from "./decoder";
 import decoder from "./decoder";
 

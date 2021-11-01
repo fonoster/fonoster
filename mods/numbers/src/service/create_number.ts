@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 import NumbersPB from "./protos/numbers_pb";
-import {ResourceBuilder, Kind, routr, getAccessKeyId} from "@fonos/core";
+import {ResourceBuilder, Kind, routr, getAccessKeyId} from "@fonoster/core";
 import numberDecoder from "./decoder";
 import {assertHasAorLinkOrIngressInfo, assertIsE164} from "./assertions";
 

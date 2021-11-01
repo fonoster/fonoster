@@ -1,11 +1,11 @@
 import "../../config";
-import Providers from "@fonos/providers";
-import Numbers from "@fonos/numbers";
+import Providers from "@fonoster/providers";
+import Numbers from "@fonoster/numbers";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import {CommonPB} from "@fonos/numbers";
-import {Provider} from "@fonos/providers/src/client/types";
+import {CommonPB} from "@fonoster/numbers";
+import {Provider} from "@fonoster/providers/src/client/types";
 const inquirer = require("inquirer");
 
 export default class CreateCommand extends Command {

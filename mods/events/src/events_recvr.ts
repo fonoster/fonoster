@@ -1,5 +1,5 @@
 import RabbitQConnector from "./rabbitq_connector";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 export default class EventsRecvr extends RabbitQConnector {
   constructor(address: string[], q: string) {

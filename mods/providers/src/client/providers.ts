@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -27,7 +27,7 @@ import {
   DeleteProviderResponse,
   IProvidersClient
 } from "./types";
-import {APIClient, ClientOptions} from "@fonos/common";
+import {APIClient, ClientOptions} from "@fonoster/common";
 import {ProvidersClient} from "../service/protos/providers_grpc_pb";
 import ProvidersPB from "../service/protos/providers_pb";
 import CommonPB from "../service/protos/common_pb";
@@ -41,7 +41,7 @@ import {promisifyAll} from "grpc-promise";
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonos/sdk");
+ * const Fonos = require("@fonoster/sdk");
  * const providers = new Fonos.Providers();
  *
  * const request = {

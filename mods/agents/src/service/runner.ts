@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import AgentsServer from "./agents";
 import {AgentsService} from "./protos/agents_grpc_pb";
-import {AuthMiddleware} from "@fonos/auth";
-import {getSalt} from "@fonos/certs";
-import {runServices} from "@fonos/common";
+import {AuthMiddleware} from "@fonoster/auth";
+import {getSalt} from "@fonoster/certs";
+import {runServices} from "@fonoster/common";
 
 const services = [
   {

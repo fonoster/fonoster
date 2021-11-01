@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import {GoogleSpeechTracker} from "../src/tracker";
 import {GoogleSpeechConfig} from "../src/types";
 import recorder from "node-record-lpcm16";
-import logger from "../../dispatcher/node_modules/@fonos/logger/src";
+import logger from "../../dispatcher/node_modules/@fonoster/logger/src";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -34,7 +34,7 @@ const speechConfig: GoogleSpeechConfig = {
   languageCode: "en-US"
 };
 
-describe("@fonos/googleasr", () => {
+describe("@fonoster/googleasr", () => {
   afterEach(() => sandbox.restore());
   it("returns a speech result for a given stream", async () => {
     logger.info("Begin to talk now");

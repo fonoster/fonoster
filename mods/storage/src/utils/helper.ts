@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -19,7 +19,7 @@
 import {UploadObjectResponse} from "../service/protos/storage_pb";
 import {extract, removeDirSync} from "./files";
 import {uploadToFS} from "./storage";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 export const handleCompressUpload = async (
   accessKeyId: string,
@@ -30,13 +30,13 @@ export const handleCompressUpload = async (
   const response = new UploadObjectResponse();
   const nameWithoutExt = object.split(".")[0];
   response.setSize(fileSize);
-  logger.verbose(`@fonos/storage helper [extrating ${object} into /tmp]`);
+  logger.verbose(`@fonoster/storage helper [extrating ${object} into /tmp]`);
   await extract(`/tmp/${object}`, "/tmp");
   logger.verbose(
-    `@fonos/storage helper [uploading ${nameWithoutExt} to bucket ${bucket}]`
+    `@fonoster/storage helper [uploading ${nameWithoutExt} to bucket ${bucket}]`
   );
   await uploadToFS(accessKeyId, bucket, `/tmp/${nameWithoutExt}`);
-  logger.verbose(`@fonos/storage helper [removing /tmp/${nameWithoutExt}]`);
+  logger.verbose(`@fonoster/storage helper [removing /tmp/${nameWithoutExt}]`);
   removeDirSync(`/tmp/${nameWithoutExt}`);
   return response;
 };

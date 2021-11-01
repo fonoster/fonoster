@@ -1,4 +1,4 @@
-import {FonosInvalidArgument} from "@fonos/errors";
+import {FonosInvalidArgument} from "@fonoster/errors";
 import {NumbersPB} from "../client/numbers";
 
 export const assertIsE164 = (number: string) => {

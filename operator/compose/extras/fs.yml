@@ -3,7 +3,7 @@
 version: '3.7'
 
 networks:
-  fonos:
+  fonoster:
 
 volumes:
   data1-1:
@@ -29,6 +29,6 @@ services:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.fs
     networks:
-      fonos:
+      fonoster:
         aliases:
           - ${FS_HOST}

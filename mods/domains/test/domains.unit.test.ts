@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import Domains from "../src/client/domains";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonos/common";
+import {APIClient} from "@fonoster/common";
 import DomainsPB from "../src/service/protos/domains_pb";
 import domainDecoder from "../src/service/decoder";
 
@@ -30,7 +30,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/domains", () => {
+describe("@fonoster/domains", () => {
   const domainObj = new DomainsPB.Domain();
   domainObj.setRef("Nx05y-ldZa");
   domainObj.setName("Acme Corp");

@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import WebSocket from "ws";
-import logger from "@fonos/logger";
-import {routr} from "@fonos/core";
+import logger from "@fonoster/logger";
+import {routr} from "@fonoster/core";
 import {uploadRecording} from "../utils/upload_recording";
 
 const getDomainByNumber = async (e164Number: string) => {
@@ -38,7 +38,7 @@ export const dial = async (
   const {number, destination, timeout, record, sessionId} = event.userevent;
 
   logger.verbose(
-    `@fonos/dispatcher dialing [request: ${JSON.stringify(
+    `@fonoster/dispatcher dialing [request: ${JSON.stringify(
       event.userevent,
       null,
       " "
@@ -46,7 +46,9 @@ export const dial = async (
   );
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
+    logger.warn(
+      `@fonoster/dispatcher ignoring socket request on lost connection`
+    );
     return;
   }
 
@@ -67,7 +69,7 @@ export const dial = async (
   const domainUri = domain.spec.context.domainUri;
 
   logger.verbose(
-    `@fonos/dispatcher dialing [endpoint = sip:${destination}@${domainUri}]`
+    `@fonoster/dispatcher dialing [endpoint = sip:${destination}@${domainUri}]`
   );
 
   const bridge = await ari.bridges.create({

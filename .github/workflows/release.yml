@@ -27,18 +27,18 @@ jobs:
     - name: Publish to Docker Hub the Fonos installer
       uses: elgohr/Publish-Docker-Github-Action@master
       env:
-        FONOS_VERSION: ${{ steps.get_version.outputs.VERSION }}
+        FONOSTER_VERSION: ${{ steps.get_version.outputs.VERSION }}
         BRANCH: main
       with:
         name: fonoster/fonos
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-        buildargs: FONOS_VERSION,BRANCH
+        buildargs: FONOSTER_VERSION,BRANCH
     - name: Publish to Docker Hub the Projects API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-projects
+        name: fonoster/projects
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/projects
@@ -46,7 +46,7 @@ jobs:
     - name: Publish to Docker Hub the Users API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-users
+        name: fonoster/users
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/users
@@ -54,7 +54,7 @@ jobs:
     - name: Publish to Docker Hub the Secrets API 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-secrets
+        name: fonoster/secrets
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/secrets
@@ -62,7 +62,7 @@ jobs:
     - name: Publish to Docker Hub the Funcs API 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-funcs
+        name: fonoster/funcs
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/funcs
@@ -70,7 +70,7 @@ jobs:
     - name: Publish to Docker Hub the Agents API 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-agents
+        name: fonoster/agents
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/agents
@@ -78,7 +78,7 @@ jobs:
     - name: Publish to Docker Hub the Domains API 
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-domains
+        name: fonoster/domains
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/domains
@@ -86,7 +86,7 @@ jobs:
     - name: Publish to Docker Hub the Numbers API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-numbers
+        name: fonoster/numbers
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/numbers
@@ -94,7 +94,7 @@ jobs:
     - name: Publish to Docker Hub the Providers API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-providers
+        name: fonoster/providers
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/providers
@@ -102,7 +102,7 @@ jobs:
     - name: Publish to Docker Hub the Storage API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-storage
+        name: fonoster/storage
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/storage
@@ -110,7 +110,7 @@ jobs:
     - name: Publish to Docker Hub the CallManager API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-callmanager
+        name: fonoster/callmanager
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/callmanager
@@ -118,7 +118,7 @@ jobs:
     - name: Publish to Docker Hub the Auth API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: fonoster/fonos-auth
+        name: fonoster/auth
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/auth

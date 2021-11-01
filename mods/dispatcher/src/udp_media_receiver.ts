@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,7 +18,7 @@
  */
 import fs from "fs";
 import dgram from "dgram";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 const pipe = require("stream").prototype.pipe;
 
 export default class UDPMediaReceiver {
@@ -50,7 +50,9 @@ export default class UDPMediaReceiver {
     }
 
     this.server.on("error", (err) => {
-      logger.error(`@fonos/dispatcher udpServer [server error:\n${err.stack}]`);
+      logger.error(
+        `@fonoster/dispatcher udpServer [server error:\n${err.stack}]`
+      );
       this.server.close();
       if (this.fileStream) {
         this.fileStream.close();
@@ -58,7 +60,7 @@ export default class UDPMediaReceiver {
     });
 
     this.server.on("close", (err) => {
-      logger.verbose(`@fonos/dispatcher udpServer [server socket closed]`);
+      logger.verbose(`@fonoster/dispatcher udpServer [server socket closed]`);
       if (this.fileStream) {
         this.fileStream.close();
       }
@@ -85,7 +87,7 @@ export default class UDPMediaReceiver {
     this.server.on("listening", () => {
       const address = this.server.address();
       logger.verbose(
-        `@fonos/dispatcher udpServer [address = ${address.address}:${address.port}]`
+        `@fonoster/dispatcher udpServer [address = ${address.address}:${address.port}]`
       );
     });
 
@@ -97,7 +99,7 @@ export default class UDPMediaReceiver {
   }
 
   close() {
-    logger.verbose(`@fonos/dispatcher udpServer [closing server socket]`);
+    logger.verbose(`@fonoster/dispatcher udpServer [closing server socket]`);
     this.server.close();
   }
 }

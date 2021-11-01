@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import {AuthMiddleware} from "@fonos/auth";
-import {runServices} from "@fonos/common";
-import {getSalt} from "@fonos/certs";
+import {AuthMiddleware} from "@fonoster/auth";
+import {runServices} from "@fonoster/common";
+import {getSalt} from "@fonoster/certs";
 import {FuncsService} from "./protos/funcs_grpc_pb";
 import FuncsServer from "./funcs";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 if (!process.env.PUBLIC_URL) {
   logger.error("Didn't find environment variable PUBLIC_URL while is required");

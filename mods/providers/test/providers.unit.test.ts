@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -20,7 +20,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonos/common";
+import {APIClient} from "@fonoster/common";
 import Providers, {ProvidersPB} from "../src/client/providers";
 import providerDecoder from "../src/service/decoder";
 
@@ -29,7 +29,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/providers", () => {
+describe("@fonoster/providers", () => {
   const providerObj = new ProvidersPB.Provider();
   providerObj.setRef("Nx05y-ldZa");
   providerObj.setName("Fake Provider");

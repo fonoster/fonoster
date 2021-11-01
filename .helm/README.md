@@ -1,18 +1,18 @@
-# Project Fonos
+# Fonoster
 
-Project Fonos assembles the components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
+Fonoster assembles the components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
-Project Fonos: https://github.com/fonoster/fonos
+Fonoster: https://github.com/fonoster/fonos
 
 ## Introduction
 
-This chart bootstraps Project Fonos for deployment on a [Kubernetes](https://kubernetes.io/) cluster using the [Helm](https://helm.sh/) package manager.
+This chart bootstraps Fonoster for deployment on a [Kubernetes](https://kubernetes.io/) cluster using the [Helm](https://helm.sh/) package manager.
 
 ## Prerequisites
 
 - Kubernetes 1.18+
 - Helm 3.0-beta3+
-- [Fonos CTL](https://www.npmjs.com/package/@fonos/ctl)
+- [Fonos CTL](https://www.npmjs.com/package/@fonoster/ctl)
 - PV provisioner support in the underlying infrastructure
 - Nginx ingress Controller
 
@@ -38,10 +38,10 @@ To install the chart with the release name my-release:
 
 ```bash
 kubectl create namespace fonos
-helm install my-release fonoster/fonos --namespace fonos
+helm install my-release fonoster/fonoster --namespace fonos
 ```
 
-The command deploys Project Fonos in the `fonos` namespace on the Kubernetes cluster in the default configuration.
+The command deploys Fonoster in the `fonos` namespace on the Kubernetes cluster in the default configuration.
 
 > We recommend using a namespace for easy upgrades.
 
@@ -57,7 +57,7 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Changelog
 
-The [CHANGELOG](https://github.com/fonoster/fonos/tree/gh-pages/charts/CHANGELOG.md) provides notable changes on the chart.
+The [CHANGELOG](https://github.com/fonoster/fonoster/tree/gh-pages/charts/CHANGELOG.md) provides notable changes on the chart.
 
 ## Parameters
 
@@ -93,7 +93,7 @@ redis:
 Specify each parameter using the --set key=value[,key=value] argument to helm install. For example,
 
 ```bash
-helm upgrade --wait my-release fonoster/fonos  
+helm upgrade --wait my-release fonoster/fonoster  
 ```
 
 Alternatively, you can provide a YAML file that specifies the above parameters' values while installing the chart. For example:

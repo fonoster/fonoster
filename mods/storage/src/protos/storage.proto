@@ -9,7 +9,7 @@ syntax = "proto3";
 
 package fonos.storage.v1beta1;
 
-option go_package = "github.com/fonoster/fonos/mods/storage/fonos/services/protos/storage";
+option go_package = "github.com/fonoster/fonoster/mods/storage/fonoster/services/protos/storage";
 
 import "google/api/annotations.proto";
 

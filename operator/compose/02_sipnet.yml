@@ -30,7 +30,7 @@ services:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.sipproxy
     networks:
-      fonos:
+      fonoster:
         aliases:
           - ${SIPPROXY_HOST}
     volumes:
@@ -90,9 +90,9 @@ services:
     volumes:
       - data1-1:/home/fonos
       # TODO: Update image to add user fonos
-      - ${CONFIG}/config:/root/.fonos/config:ro
+      - ${CONFIG}/config:/root/.fonoster/config:ro
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.mediaserver
     networks:
-      fonos:
+      fonoster:

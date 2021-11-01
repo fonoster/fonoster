@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,7 +18,7 @@
  */
 import {promisify} from "util";
 import {sign, verify} from "jsonwebtoken";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import JwtPayload from "./jwt_payload";
 import ITokenManager from "./itoken_manager";
 /*
@@ -51,7 +51,7 @@ export default class JWT implements ITokenManager {
         ignoreExpiration: false
       })) as JwtPayload;
     } catch (e) {
-      logger.log("error", "@fonos/auth [Bad token]");
+      logger.log("error", "@fonoster/auth [Bad token]");
       throw new Error(e);
     }
   }

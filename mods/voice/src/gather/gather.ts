@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {SpeechProvider} from "@fonos/common";
+import {SpeechProvider} from "@fonoster/common";
 import merge from "deepmerge";
 import {assertsFinishOnKeyIsChar, assertsValueIsPositive} from "../asserts";
 import {VoiceRequest} from "../types";
@@ -25,7 +25,7 @@ import {assertsHasNumDigitsOrTimeout} from "./asserts";
 import waitForDtmf from "./source_dtmf";
 import waitForSpeech from "./source_speech";
 import {GatherOptions} from "./types";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 const defaultOptions: GatherOptions = {
   timeout: 4000,
@@ -52,7 +52,7 @@ export default class GatherVerb extends Verb {
 
     return new Promise(async (resolve, reject) => {
       logger.verbose(
-        `@fonos/voice started gather [source = ${options.source}]`
+        `@fonoster/voice started gather [source = ${options.source}]`
       );
       if (options.source.includes("dtmf")) {
         waitForDtmf(this.request.sessionId, options)

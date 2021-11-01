@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import Auth from "../src/client/auth";
-import {APIClient} from "@fonos/common";
+import {APIClient} from "@fonoster/common";
 import {AuthPB} from "../src/client/auth";
 import {CreateTokenResponse} from "../src/client/types";
 const expect = chai.expect;
@@ -32,7 +32,7 @@ const sandbox = sinon.createSandbox();
 const createTokenResponse = new AuthPB.CreateTokenResponse();
 createTokenResponse.setToken("...");
 
-describe("@fonos/auth/client", () => {
+describe("@fonoster/auth/client", () => {
   afterEach(() => sandbox.restore());
 
   it("creates a new no access token", async () => {

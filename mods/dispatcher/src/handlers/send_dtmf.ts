@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import WebSocket from "ws";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 export const sendDtmf = async (ws: WebSocket, ari: any, event: any) => {
   logger.verbose(
-    `@fonos/dispatcher sending dtmf tones [sesionId: ${event.userevent.sessionId}, tones: ${event.userevent.dtmf}]`
+    `@fonoster/dispatcher sending dtmf tones [sesionId: ${event.userevent.sessionId}, tones: ${event.userevent.dtmf}]`
   );
 
   const channel = await ari.channels.get({
@@ -29,7 +29,9 @@ export const sendDtmf = async (ws: WebSocket, ari: any, event: any) => {
   });
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
+    logger.warn(
+      `@fonoster/dispatcher ignoring socket request on lost connection`
+    );
     return;
   }
 

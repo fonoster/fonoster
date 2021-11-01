@@ -1,3 +1,3 @@
 #!/usr/bin/env node
-//import {healthcheck} from "@fonos/common";
+//import {healthcheck} from "@fonoster/common";
 //healthcheck();

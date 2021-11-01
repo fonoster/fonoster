@@ -9,7 +9,7 @@ syntax = "proto3";
 
 package fonos.numbers.v1beta1;
 
-option go_package = "github.com/fonoster/fonos/mods/numbers/fonos/services/protos/numbers";
+option go_package = "github.com/fonoster/fonoster/mods/numbers/fonoster/services/protos/numbers";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "google/api/annotations.proto";

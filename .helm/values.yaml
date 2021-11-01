@@ -74,7 +74,7 @@ mediaserver:
     # registry is the MediaServer's image registry
     registry: docker.io
     # registry is the MediaServer's image repository
-    repository: fonoster/fonos-mediaserver
+    repository: fonoster/mediaserver
     # tag is the MediaServer's image tag
     tag: latest
     # pullPolicy is the MediaServer's image pull policy

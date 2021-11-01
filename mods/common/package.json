@@ -1,6 +1,6 @@
 {
-  "name": "@fonos/common",
-  "version": "0.2.11",
+  "name": "@fonoster/common",
+  "version": "0.2.12",
   "description": "Common artifacts",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -23,14 +23,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/fonos.git"
+    "url": "git+https://github.com/fonoster/fonostergit"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/fonos/issues"
+    "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonos/certs": "^0.2.11",
-    "@fonos/logger": "^0.2.11",
+    "@fonoster/certs": "^0.2.12",
+    "@fonoster/logger": "^0.2.12",
     "@grpc/grpc-js": "^1.3.6",
     "@speedymonster/grpc-interceptors": "^0.2.5",
     "atob": "^2.1.2",

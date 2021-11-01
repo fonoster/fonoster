@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import WebSocket from "ws";
 
 export const channelTalkingHandler = (
@@ -24,10 +24,12 @@ export const channelTalkingHandler = (
   sessionId: string,
   onOff: boolean
 ) => {
-  logger.verbose(`@fonos/dispatcher channel talking [on = ${onOff}]`);
+  logger.verbose(`@fonoster/dispatcher channel talking [on = ${onOff}]`);
 
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
+    logger.warn(
+      `@fonoster/dispatcher ignoring socket request on lost connection`
+    );
     return;
   }
 

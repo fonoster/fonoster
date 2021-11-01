@@ -1,11 +1,11 @@
-import {FonosError, FonosFailedPrecondition} from "@fonos/errors";
+import {FonosError, FonosFailedPrecondition} from "@fonoster/errors";
 import {UploadObjectRequest} from "../service/protos/storage_pb";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with

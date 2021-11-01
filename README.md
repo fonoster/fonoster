@@ -1,6 +1,6 @@
-![build](https://github.com/fonoster/fonos/workflows/unit%20tests/badge.svg) <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
+![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
-With Project Fonos, [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
+[Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
 ---
 
@@ -22,7 +22,7 @@ With Project Fonos, [Fonoster Inc](https://fonoster.com) researches an innovativ
 
 High-level overview
 
-![Repo Banner](https://raw.githubusercontent.com/fonoster/fonos/dev/docs/assets/images/arquitecture.png)
+![Repo Banner](https://raw.githubusercontent.com/fonoster/fonoster/dev/docs/assets/images/arquitecture.png)
 
 > Conceptual architecture and stack. We will post more details soon.
 
@@ -64,7 +64,7 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 Voice Application Example:
 
 ```typescript
-const { VoiceServer } = require("@fonos/voice");
+const { VoiceServer } = require("@fonoster/voice");
 const voiceServer = new VoiceServer({ base: '/voiceapp' });
 
 voiceServer.listen((req, res) => {
@@ -82,7 +82,7 @@ Everything in PF is an API first, and initiating a call is no exception. You can
 Example of originating a call with the SDK:
 
 ```typescript
-const Fonos = require("@fonos/sdk");
+const Fonos = require("@fonoster/sdk");
 const callManager = new Fonos.CallManager();
 
 callManager.call({
@@ -96,24 +96,24 @@ callManager.call({
 
 ## Getting Started
 
-![command-line tool](https://raw.githubusercontent.com/fonoster/fonos/dev/docs/assets/images/console.png)
+![command-line tool](https://raw.githubusercontent.com/fonoster/fonoster/dev/docs/assets/images/console.png)
 
 To get started with PF use the following resources:
 
-- [Deploying Project Fonos to the Cloud](./docs/operator/deploy-your-server.md)
+- [Deploying Fonoster to the Cloud](./docs/operator/deploy-your-server.md)
 - [An introduction to Programmable Voice Applications](https://github.com/fonoster/blog/blob/main/2021/002/post.md)
 - [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
 
 ## Bugs and Feedback
 
-For bugs, questions, and discussions, please use the [Github Issues](https://github.com/fonoster/fonos/issues)
+For bugs, questions, and discussions, please use the [Github Issues](https://github.com/fonoster/fonoster/issues)
 
 ## Contributing
 
 For contributing, please see the following links:
 
- - [Contribution Documents](https://github.com/fonoster/fonos/blob/master/CONTRIBUTING.md)
- - [Contributors](https://github.com/fonoster/fonos/contributors)
+ - [Contribution Documents](https://github.com/fonoster/fonoster/blob/master/CONTRIBUTING.md)
+ - [Contributors](https://github.com/fonoster/fonoster/contributors)
 
 We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors learn more](https://github.com/sponsors/psanders).
 
@@ -131,5 +131,5 @@ Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
  - [Pedro Sanders](https://github.com/psanders)
 
 ## License
-Copyright (C) 2021 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonos/blob/master/LICENSE) for details).
+Copyright (C) 2021 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/master/LICENSE) for details).
 

@@ -9,9 +9,9 @@ chai.use(sinonChai)
 const expect = chai.expect
 var sandbox = sinon.createSandbox()
 
-describe('@fonos/core/service', () => {
+describe('@fonoster/core/service', () => {
   context('APIClient constructor', () => {
-    sinon.stub(require('path'), 'join').returns('/users/quijote/.fonos/access')
+    sinon.stub(require('path'), 'join').returns('/users/quijote/.fonoster/access')
 
     it('should only have the default options', () => {
       const fs = sinon.stub(require('fs'), 'readFileSync').returns(
@@ -67,7 +67,7 @@ describe('@fonos/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      process.env.FONOS_ENDPOINT = 'apiserver:50053'
+      process.env.FONOSTER_ENDPOINT = 'apiserver:50053'
       const service = new APIClient()
       expect(service.getOptions())
         .to.have.property('endpoint')
@@ -94,7 +94,7 @@ describe('@fonos/core/service', () => {
         done('not good')
       } catch (err) {
         expect(err.message).to.be.equal(
-          'Malformed access file found at: /users/quijote/.fonos/access'
+          'Malformed access file found at: /users/quijote/.fonoster/access'
         )
         done()
       }

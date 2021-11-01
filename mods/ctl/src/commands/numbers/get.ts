@@ -1,5 +1,5 @@
 import "../../config";
-import Numbers from "@fonos/numbers";
+import Numbers from "@fonoster/numbers";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";

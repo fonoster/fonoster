@@ -8,7 +8,7 @@ google_analytics: ['UA-71722942-3', 'fonos.io']
 # Repository
 repo_name: fonoster/fonos
 repo_url: https://github.com/fonoster/fonos
-edit_uri: /fonoster/fonos/edit/master/docs/
+edit_uri: /fonoster/fonoster/edit/master/docs/
 
 nav:
   - Reference:

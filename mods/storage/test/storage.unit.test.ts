@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -22,7 +22,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import fs, {Stats} from "fs";
-import {APIClient} from "@fonos/common";
+import {APIClient} from "@fonoster/common";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -31,7 +31,7 @@ import path from "path";
 import fiber from "fibers";
 import * as utils from "../src/client/utils";
 
-describe("@fonos/storage", () => {
+describe("@fonoster/storage", () => {
   const objectUrlReturn = {
     url: "http://api.fonoster.net:9000/recordings/60368b263e9a7d0800000004/test.txt"
   };

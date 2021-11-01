@@ -3,7 +3,7 @@
 version: '3.7'
 
 networks:
-  fonos:
+  fonoster:
 
 volumes:
   datasource:
@@ -24,7 +24,7 @@ services:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.datasource
     networks:
-      fonos:
+      fonoster:
         aliases: 
           - ${DS_HOST}
     volumes: 

@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === "dev") {
   require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
 }
 
-describe("@fonos/errors", () => {
+describe("@fonoster/errors", () => {
   afterEach(() => sandbox.restore());
 
   it("has correct constructor name and message", () => {

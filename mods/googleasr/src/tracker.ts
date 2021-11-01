@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -17,7 +17,11 @@
  * limitations under the License.
  */
 import {GoogleSpeechConfig, TrackerConfig} from "./types";
-import {SpeechTracker, SpeechResult, StreamSpeechResult} from "@fonos/common";
+import {
+  SpeechTracker,
+  SpeechResult,
+  StreamSpeechResult
+} from "@fonoster/common";
 import {Stream} from "stream";
 import speech from "@google-cloud/speech";
 import StreamRecognize from "./stream_recognize";

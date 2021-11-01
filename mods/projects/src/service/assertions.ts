@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosError, ErrorCodes} from "@fonos/errors";
+import {FonosError, ErrorCodes} from "@fonoster/errors";
 
-// TODO: Move to @fonos/common
+// TODO: Move to @fonoster/common
 export const assertNotEmpty = (name: string, value: string): void => {
   if (value.length == 0)
     throw new FonosError(

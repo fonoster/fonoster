@@ -1,10 +1,10 @@
 import "../../config";
-import Providers from "@fonos/providers";
+import Providers from "@fonoster/providers";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import {CommonPB} from "@fonos/providers";
+import {CommonPB} from "@fonoster/providers";
 import {cli} from "cli-ux";
-import {Provider} from "@fonos/providers/src/client/types";
+import {Provider} from "@fonoster/providers/src/client/types";
 const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {

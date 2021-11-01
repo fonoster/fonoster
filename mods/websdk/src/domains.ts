@@ -2,9 +2,9 @@
 /* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,9 +18,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import WebAPIClient from "@fonos/common/dist/web_client";
-import {WebClientOptions} from "@fonos/common/dist/types";
-import {IDomainsClient} from "@fonos/domains";
+import WebAPIClient from "@fonoster/common/dist/web_client";
+import {WebClientOptions} from "@fonoster/common/dist/types";
+import {IDomainsClient} from "@fonoster/domains";
 import {
   CreateDomainRequest,
   CreateDomainResponse,
@@ -30,7 +30,7 @@ import {
   ListDomainsResponse,
   UpdateDomainRequest,
   UpdateDomainResponse
-} from "@fonos/domains/src/client/types";
+} from "@fonoster/domains/src/client/types";
 import * as c from "./generated/api";
 
 export default class Domains extends WebAPIClient implements IDomainsClient {

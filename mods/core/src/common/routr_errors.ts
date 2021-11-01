@@ -1,9 +1,9 @@
-import {FonosError} from "@fonos/errors";
+import {FonosError} from "@fonoster/errors";
 import {
   FonosAuthError,
   FonosFailedPrecondition,
   FonosInvalidArgument
-} from "@fonos/errors";
+} from "@fonoster/errors";
 import {status as Status} from "@grpc/grpc-js";
 
 export default function (error: any) {

@@ -20,7 +20,7 @@ interface IUsersService extends grpc.ServiceDefinition<grpc.UntypedServiceImplem
 }
 
 interface IUsersService_ICreateUser extends grpc.MethodDefinition<users_pb.CreateUserRequest, users_pb.User> {
-    path: "/fonos.users.v1beta1.Users/CreateUser";
+    path: "/fonoster.users.v1beta1.Users/CreateUser";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<users_pb.CreateUserRequest>;
@@ -29,7 +29,7 @@ interface IUsersService_ICreateUser extends grpc.MethodDefinition<users_pb.Creat
     responseDeserialize: grpc.deserialize<users_pb.User>;
 }
 interface IUsersService_IGetUser extends grpc.MethodDefinition<users_pb.GetUserRequest, users_pb.User> {
-    path: "/fonos.users.v1beta1.Users/GetUser";
+    path: "/fonoster.users.v1beta1.Users/GetUser";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<users_pb.GetUserRequest>;
@@ -38,7 +38,7 @@ interface IUsersService_IGetUser extends grpc.MethodDefinition<users_pb.GetUserR
     responseDeserialize: grpc.deserialize<users_pb.User>;
 }
 interface IUsersService_IUpdateUser extends grpc.MethodDefinition<users_pb.UpdateUserRequest, users_pb.User> {
-    path: "/fonos.users.v1beta1.Users/UpdateUser";
+    path: "/fonoster.users.v1beta1.Users/UpdateUser";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<users_pb.UpdateUserRequest>;
@@ -47,7 +47,7 @@ interface IUsersService_IUpdateUser extends grpc.MethodDefinition<users_pb.Updat
     responseDeserialize: grpc.deserialize<users_pb.User>;
 }
 interface IUsersService_IDeleteUser extends grpc.MethodDefinition<users_pb.DeleteUserRequest, common_pb.Empty> {
-    path: "/fonos.users.v1beta1.Users/DeleteUser";
+    path: "/fonoster.users.v1beta1.Users/DeleteUser";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<users_pb.DeleteUserRequest>;
@@ -56,7 +56,7 @@ interface IUsersService_IDeleteUser extends grpc.MethodDefinition<users_pb.Delet
     responseDeserialize: grpc.deserialize<common_pb.Empty>;
 }
 interface IUsersService_ICreateUserCredentials extends grpc.MethodDefinition<users_pb.CreateUserCredentialsRequest, users_pb.CreateUserCredentialsResponse> {
-    path: "/fonos.users.v1beta1.Users/CreateUserCredentials";
+    path: "/fonoster.users.v1beta1.Users/CreateUserCredentials";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<users_pb.CreateUserCredentialsRequest>;

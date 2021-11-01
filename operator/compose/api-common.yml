@@ -40,11 +40,11 @@ services:
       AUTH_ISS: ${AUTH_ISS}
       NODE_ENV: ${NODE_ENV}
     networks:
-      fonos:
+      fonoster:
     volumes:
-      - ${CONFIG}/config:/home/fonos/.fonos/config:ro
-      - ${CONFIG}/private_key:/home/fonos/.fonos/private_key:ro
-      - ${CONFIG}/service_envs.json:/home/fonos/service_envs.json:ro
+      - ${CONFIG}/config:/home/fonoster/.fonoster/config:ro
+      - ${CONFIG}/private_key:/home/fonoster/.fonoster/private_key:ro
+      - ${CONFIG}/service_envs.json:/home/fonoster/service_envs.json:ro
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.api

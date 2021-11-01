@@ -2,13 +2,13 @@
  * MIT License
  * Copyright (c) 2021 Fonoster Inc
  *
- * This proto stores common messages for the fonos platform.
+ * This proto stores common messages for the fonoster platform.
  */
 syntax = "proto3";
 
 package fonos.common.v1beta1;
 
-option go_package = "github.com/fonoster/fonos/gen/go/core/common/v1beta1";
+option go_package = "github.com/fonoster/fonoster/gen/go/core/common/v1beta1";
 
 import "protoc-gen-openapiv2/options/annotations.proto";
 
@@ -31,7 +31,7 @@ message ErrorResponse {
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   base_path: "/api";
 	info: {
-		title: "Project Fonos";
+		title: "Fonoster";
 		version: "v1beta1";
 		contact: {
 		name: "Fonoster OSS";
@@ -40,7 +40,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 		};
 		license: {
 		name: "MIT License";
-		url: "https://raw.githubusercontent.com/fonoster/fonos/main/LICENSE";
+		url: "https://raw.githubusercontent.com/fonoster/fonoster/main/LICENSE";
 		};
 	};
   // Overwriting host entry breaks tests, so this is not done here.

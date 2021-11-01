@@ -1,9 +1,9 @@
 import "../../config";
-import Domains, {CommonPB} from "@fonos/domains";
+import Domains, {CommonPB} from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {cli} from "cli-ux";
-import {Domain} from "@fonos/domains/src/client/types";
+import {Domain} from "@fonoster/domains/src/client/types";
 const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {

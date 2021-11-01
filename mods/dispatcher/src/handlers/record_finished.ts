@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -17,15 +17,17 @@
  * limitations under the License.
  */
 import WebSocket from "ws";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 export const recordFinishHandler = (ws: WebSocket, event: any) => {
   logger.verbose(
-    `@fonos/dispatcher sending recording finished event [filename: ${event.recording.name}]`
+    `@fonoster/dispatcher sending recording finished event [filename: ${event.recording.name}]`
   );
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(`@fonos/dispatcher ignoring socket request on lost connection`);
+    logger.warn(
+      `@fonoster/dispatcher ignoring socket request on lost connection`
+    );
     return;
   }
 

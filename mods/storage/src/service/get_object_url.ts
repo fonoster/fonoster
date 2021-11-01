@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import grpc from "@grpc/grpc-js";
-import {FonosError} from "@fonos/errors";
+import {FonosError} from "@fonoster/errors";
 import {fsInstance} from "../utils/storage";
 
 export default async function (
@@ -28,7 +28,7 @@ export default async function (
 ): Promise<string> {
   logger.log(
     "debug",
-    `@fonos/core getObjectURL [bucket: ${bucket}, filename: ${filename}, accessKeId: ${accessKeyId}}]`
+    `@fonoster/core getObjectURL [bucket: ${bucket}, filename: ${filename}, accessKeId: ${accessKeyId}}]`
   );
 
   return new Promise((resolve, reject) => {

@@ -3,7 +3,7 @@ import chai from "chai";
 import sinonChai from "sinon-chai";
 import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonos/common";
+import {APIClient} from "@fonoster/common";
 import {NumbersPB} from "../src/client/numbers";
 import {CreateNumberResponse} from "../src/client/types";
 import numberDecoder from "../src/service/decoder";
@@ -13,7 +13,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/number", () => {
+describe("@fonoster/number", () => {
   const numberObj = new NumbersPB.Number();
   const ingressInfo = new NumbersPB.IngressInfo();
   ingressInfo.setWebhook("https://webhooks.acme.com/calls");

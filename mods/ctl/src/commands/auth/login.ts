@@ -1,18 +1,18 @@
 import "../../config";
-import Agents from "@fonos/agents";
+import Agents from "@fonoster/agents";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {join} from "path";
 import {homedir} from "os";
 
-const BASE_DIR = join(homedir(), ".fonos");
+const BASE_DIR = join(homedir(), ".fonoster");
 const PATH_TO_CONFIG = join(BASE_DIR, "config");
 const inquirer = require("inquirer");
 const fs = require("fs");
 
 export default class extends Command {
-  static description = `log in to a fonos deployment`;
+  static description = `log in to a fonoster deployment`;
 
   async run() {
     console.log("Access your Fonos infrastructure");

@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import path from "path";
 import * as os from "os";
 import * as fs from "fs";
@@ -36,11 +36,11 @@ let config: {
 try {
   config = JSON.parse(
     fs
-      .readFileSync(path.join(os.homedir(), ".fonos", "config"))
+      .readFileSync(path.join(os.homedir(), ".fonoster", "config"))
       .toString("utf-8")
   );
 } catch (e) {
-  logger.verbose("@fonos/common no config found");
+  logger.verbose("@fonoster/common no config found");
 }
 
 const getServerCredentials = () => {
@@ -57,9 +57,11 @@ const getServerCredentials = () => {
     );
   } catch (e) {
     logger.warn(
-      "@fonos/common trust util [unable to load security certificates]"
+      "@fonoster/common trust util [unable to load security certificates]"
     );
-    logger.warn("@fonos/common trust util [starting server in insecure mode]");
+    logger.warn(
+      "@fonoster/common trust util [starting server in insecure mode]"
+    );
     return grpc.ServerCredentials.createInsecure();
   }
 };

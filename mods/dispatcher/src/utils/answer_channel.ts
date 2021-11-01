@@ -1,12 +1,12 @@
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import WebSocket from "ws";
 import {getChannelVar} from "./channel_variable";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -23,7 +23,7 @@ import {getChannelVar} from "./channel_variable";
 export async function answer(ws: WebSocket, ari: any, sessionId: string) {
   try {
     logger.verbose(
-      `@fonos/dispatcher acepting call request [session = ${sessionId}]`
+      `@fonoster/dispatcher acepting call request [session = ${sessionId}]`
     );
 
     await ari.channels.answer({channelId: sessionId});

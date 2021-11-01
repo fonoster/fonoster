@@ -72,15 +72,15 @@ spec:
         - name: EVENTS_BROKERS
           value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ printf "%s-%s" .Release.Name .Values.rabbitmq.nameOverride }}:5672           
         volumeMounts:
-        - mountPath: /root/.fonos
-          name: fonos-config
+        - mountPath: /root/.fonoster
+          name: fonoster-config
           readOnly: true              
         - mountPath: /data
           name: recordings
           readOnly: false
       volumes:
-      - name: fonos-config
+      - name: fonoster-config
         secret:
-          secretName: fonos-config        
+          secretName: fonoster-config        
       - name: recordings
         emptyDir: {}

@@ -1,5 +1,5 @@
 import Command from "../../base/delete";
-import Agents from "@fonos/agents";
+import Agents from "@fonoster/agents";
 
 export default class extends Command {
   static description = "remove agent from a Fonos deployment";

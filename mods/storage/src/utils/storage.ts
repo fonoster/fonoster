@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -18,7 +18,7 @@
  */
 import walk from "walk";
 import path from "path";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 import policyForBucket from "./bucket_policy";
 
 const splitPath = (p: string) => path.dirname(p).split(path.sep);
@@ -55,16 +55,16 @@ export const uploadToFS = async (
           `${accessKeyId}/` + destFilePath.substring(baseDir.length + 1);
 
         logger.verbose(
-          `@fonos/storage upload fs [uploading ${stats.name} file to ${bucket}]`
+          `@fonoster/storage upload fs [uploading ${stats.name} file to ${bucket}]`
         );
 
         fsInstance().fPutObject(bucket, dest, filePath, metadata, (e: any) => {
           if (e) {
-            logger.error(`@fonos/storage upload fs [${e}]`);
+            logger.error(`@fonoster/storage upload fs [${e}]`);
             reject(e);
           } else {
             logger.verbose(
-              `@fonos/storage upload fs [finished uploading ${stats.name} file]`
+              `@fonoster/storage upload fs [finished uploading ${stats.name} file]`
             );
             next();
           }
@@ -78,7 +78,7 @@ export const uploadToFS = async (
 
     walker.on("end", () => {
       logger.verbose(
-        `@fonos/storage upload fs [finished uploading ${pathToObject}]`
+        `@fonoster/storage upload fs [finished uploading ${pathToObject}]`
       );
       resolve();
     });
@@ -91,7 +91,7 @@ export default async function (bucket: string) {
   if (!exists) {
     logger.log(
       "verbose",
-      `@fonos/core fsutils [Creating storage and setting policy bucket: ${bucket}]`
+      `@fonoster/core fsutils [Creating storage and setting policy bucket: ${bucket}]`
     );
     await fsConn.makeBucket(bucket, "us-west-1");
     await fsConn.setBucketPolicy(bucket, policyForBucket(bucket));

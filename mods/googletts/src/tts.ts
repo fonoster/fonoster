@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -20,9 +20,9 @@ import fs from "fs";
 import util from "util";
 import path from "path";
 import textToSpeech from "@google-cloud/text-to-speech";
-import {Plugin} from "@fonos/common";
-import {TTSPlugin, computeFilename, SynthResult} from "@fonos/tts";
-import logger from "@fonos/logger";
+import {Plugin} from "@fonoster/common";
+import {TTSPlugin, computeFilename, SynthResult} from "@fonoster/tts";
+import logger from "@fonoster/logger";
 import {GoogleTTSConfig, SynthOptions} from "./types";
 
 const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
@@ -32,7 +32,7 @@ const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
  *
  * @extends AbstractTTS
  * @example
- * const GoogleTTS = require("@fonos/googletts");
+ * const GoogleTTS = require("@fonoster/googletts");
  *
  * new GoogleTTS().synthetize("Hello world")
  *  .then((result) => console.log("path: " + result.pathToFile))
@@ -66,7 +66,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
     const pathToFile = path.join(this.config.path, filename);
 
     logger.verbose(
-      `@fonos/tts.GoogleTTS.synthesize [text: ${text}, options: ${JSON.stringify(
+      `@fonoster/tts.GoogleTTS.synthesize [text: ${text}, options: ${JSON.stringify(
         options
       )}]`
     );

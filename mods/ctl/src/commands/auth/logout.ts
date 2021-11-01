@@ -5,11 +5,11 @@ import {cli} from "cli-ux";
 import {join} from "path";
 import {homedir} from "os";
 
-const BASE_DIR = join(homedir(), ".fonos");
+const BASE_DIR = join(homedir(), ".fonoster");
 const fs = require("fs");
 
 export default class extends Command {
-  static description = `log out from a fonos deployment`;
+  static description = `log out from a fonoster deployment`;
 
   async run() {
     cli.action.start(`Login out`);

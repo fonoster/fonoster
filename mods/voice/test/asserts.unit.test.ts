@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -28,7 +28,7 @@ const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
-describe("@fonos/voice/asserts", () => {
+describe("@fonoster/voice/asserts", () => {
   it("ensures that numDigits and timeout are both positive numbers", () => {
     expect(() => assertsValueIsPositive("numDigits", 0)).to.throw(
       "the option 'numDigits' must be a number greater than zero"

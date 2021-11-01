@@ -9,7 +9,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/authentication", () => {
+describe("@fonoster/authentication", () => {
   before(async () => {
     sandbox.stub(Jwt);
   });

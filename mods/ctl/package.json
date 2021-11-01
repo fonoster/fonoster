@@ -1,6 +1,6 @@
 {
-  "name": "@fonos/ctl",
-  "version": "0.2.11",
+  "name": "@fonoster/ctl",
+  "version": "0.2.12",
   "description": "Command-Line for Fonos",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonos#readme",
@@ -8,7 +8,7 @@
   "main": "dist/index.js",
   "types": "dist/index.js",
   "bin": {
-    "fonos": "./bin/run"
+    "fonoster": "./bin/run"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -33,7 +33,7 @@
   ],
   "oclif": {
     "commands": "./dist/commands",
-    "bin": "fonos",
+    "bin": "fonoster",
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
@@ -59,7 +59,7 @@
         "description": "manage sip providers"
       },
       "auth": {
-        "description": "manage fonos credentials"
+        "description": "manage fonoster credentials"
       }
     }
   },
@@ -68,17 +68,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/fonos.git"
+    "url": "git+https://github.com/fonoster/fonostergit"
   },
   "bugs": {
-    "url": "https://github.com/fonoster/fonos/issues"
+    "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonos/agents": "^0.2.11",
-    "@fonos/domains": "^0.2.11",
-    "@fonos/logger": "^0.2.11",
-    "@fonos/numbers": "^0.2.11",
-    "@fonos/providers": "^0.2.11",
+    "@fonoster/agents": "^0.2.12",
+    "@fonoster/domains": "^0.2.12",
+    "@fonoster/logger": "^0.2.12",
+    "@fonoster/numbers": "^0.2.12",
+    "@fonoster/providers": "^0.2.12",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/errors": "^1.3.4",

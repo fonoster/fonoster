@@ -3,7 +3,7 @@
 version: '3.7'
 
 networks:
-  fonos:
+  fonoster:
 
 services:
 
@@ -18,6 +18,6 @@ services:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.eventsbroker
     networks:
-      fonos:
+      fonoster:
         aliases: 
           - ${EB_HOST}

@@ -1,10 +1,10 @@
 import "../../config";
-import Domains from "@fonos/domains";
-import {CommonPB} from "@fonos/domains";
+import Domains from "@fonoster/domains";
+import {CommonPB} from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import Numbers from "@fonos/numbers";
+import Numbers from "@fonoster/numbers";
 const inquirer = require("inquirer");
 const view: CommonPB.View = CommonPB.View.BASIC;
 

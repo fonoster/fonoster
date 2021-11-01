@@ -15,7 +15,7 @@ metadata:
 spec:
   tls:
     - hosts: [{{ .Values.apiserver.ingress.host }} ]
-      secretName: fonos-certs
+      secretName: fonoster-certs
   rules:
   - host: {{ .Values.apiserver.ingress.host }}
     http:

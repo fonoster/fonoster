@@ -23,7 +23,7 @@ spec:
     spec:         
       containers:       
       - name: fonos
-        image: fonoster/fonos-apiserver:latest
+        image: fonoster/apiserver:latest
         imagePullPolicy: Always
         env:
         - name: SIPPROXY_HOST
@@ -53,13 +53,13 @@ spec:
         - name: EVENTS_BROKERS
           value: amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ printf "%s-%s" .Release.Name .Values.rabbitmq.nameOverride }}:5672  
         volumeMounts:
-        - mountPath: /root/.fonos
-          name: fonos-config
+        - mountPath: /root/.fonoster
+          name: fonoster-config
           readOnly: true
         ports:
         - name: grpc
           containerPort: 50052
       volumes:
-      - name: fonos-config
+      - name: fonoster-config
         secret:
-          secretName: fonos-config
+          secretName: fonoster-config

@@ -35,7 +35,7 @@ DS_SECRET=
 # Basic configuration options
 #
 
-# External IP or Domain for your Fonos API (required)
+# External IP or Domain for your Fonoster API (required)
 # Before going on production you must replace this with the
 # TLS protected URL
 #PUBLIC_URL=http://api.example.com:50051
@@ -47,7 +47,7 @@ HTTP_PORT=50051
 HTTPS_PORT=443
 
 # Directory where all configuration will be stored
-CONFIG=/opt/fonos/config
+CONFIG=/opt/fonoster/config
 
 # IP address of the Docker host (required)
 #DOCKER_HOST_ADDRESS=192.168.1.1
@@ -63,16 +63,16 @@ CONFIG=/opt/fonos/config
 #LETSENCRYPT_EMAIL=alice@acme.com
 
 # Whitelisted services (comma separated)
-AUTH_ACCESS_WHITELIST=/fonos.auth.v1beta1.Auth/GetRole,/fonos.users.v1beta1.Users/CreateUser,/fonos.users.v1beta1.Users/Login
+AUTH_ACCESS_WHITELIST=/fonoster.auth.v1beta1.Auth/GetRole,/fonoster.users.v1beta1.Users/CreateUser,/fonoster.users.v1beta1.Users/Login
 
 # Issuer for JWT claims
-AUTH_ISS=fonos
+AUTH_ISS=fonoster
 
 # Image for the reverse proxy (Traefik)
 AS_IMAGE=traefik:v2.4
 
 # Hostname for reverse proxy
-AS_HOST=apiserver.fonos
+AS_HOST=apiserver.fonoster
 
 # Allow non-tls connection (this only applies to internal communication)
 AS_ALLOW_INSECURE=true
@@ -105,7 +105,7 @@ RTPE_RTP_PORT_END=31000
 # S3 service with your prefer cloud service provider
 #
 FS_IMAGE=minio/minio:RELEASE.2020-02-27T00-23-05Z
-FS_HOST=fs.fonos
+FS_HOST=fs.fonoster
 FS_PORT=9000
 FS_USERNAME=minio
 
@@ -117,7 +117,7 @@ FS_USERNAME=minio
 # database.
 #
 DS_IMAGE=redis:6.0.3-alpine
-DS_HOST=datasource.fonos
+DS_HOST=datasource.fonoster
 DS_PORT=6379
 
 #
@@ -125,8 +125,8 @@ DS_PORT=6379
 #
 SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210626.2
 SIPPROXY_USERNAME=ast
-SIPPROXY_API_HOST=sipproxy.fonos
-SIPPROXY_HOST=sipproxy.fonos
+SIPPROXY_API_HOST=sipproxy.fonoster
+SIPPROXY_HOST=sipproxy.fonoster
 SIPPROXY_API_PORT=4567
 SIPPROXY_API_USERNAME=admin
 SIPPROXY_SIP_PORTS=5060-5063
@@ -143,7 +143,7 @@ SIPPROXY_SIP_PORT=5060
 LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
 LOGS_MONITOR_IMAGE=kibana:7.9.3
 LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
-LOGS_DRIVER_HOST=logsdriver.fonos
+LOGS_DRIVER_HOST=logsdriver.fonoster
 LOGS_DRIVER_PORT=24224
 LOGS_AGGREGRATOR_PORT=9200
 LOGS_MONITOR_PORT=5601
@@ -156,7 +156,7 @@ LOG_OPT_TAG_PREFIX=early
 EB_IMAGE=bitnami/rabbitmq:latest
 EB_HOST=eventsbroker.fonos
 EB_PORT=5672
-EB_USERNAME=fonos
+EB_USERNAME=fonoster
 EB_SECRET=
 # Enables sending events to RabbitMQ
 EB_ENABLED=false
@@ -166,7 +166,7 @@ EB_ENABLED=false
 #
 #SECRETS_IMAGE=vault
 #SECRETS_URL=http://secrets:8200
-#SECRETS_POLICY=fonos-policy
+#SECRETS_POLICY=fonoster-policy
 #SECRETS_TOKEN=
 
 
@@ -174,7 +174,7 @@ EB_ENABLED=false
 # Integration with TTS Service (MaryTTS)
 #
 #TTS_IMAGE=synesthesiam/marytts:5.2
-#TTS_ENGINE_HOST=tts.fonos
+#TTS_ENGINE_HOST=tts.fonoster
 #TTS_ENGINE_PORT=59125
 #TTS_BASE_URI=/tts
 
@@ -186,7 +186,7 @@ EB_ENABLED=false
 #FUNCS_URL=https://faasd.yourdomain.net:8080
 
 # Temporary folder for new image creation
-#FUNCS_WORKDIR=/home/fonos/funcs
+#FUNCS_WORKDIR=/home/fonoster/funcs
 
 # Username at functions server
 #FUNCS_USERNAME=admin

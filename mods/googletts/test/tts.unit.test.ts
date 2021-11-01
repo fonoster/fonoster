@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -31,7 +31,7 @@ chai.use(chaiAsPromised);
 chai.should();
 const sandbox = sinon.createSandbox();
 
-describe("@fonos/googletts", () => {
+describe("@fonoster/googletts", () => {
   afterEach(() => sandbox.restore());
 
   it.skip("rejects if the TTS because could not find any credentials", async () => {

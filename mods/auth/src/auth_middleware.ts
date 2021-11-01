@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/fonos
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Project Fonos
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
@@ -20,7 +20,7 @@ const grpc = require("@grpc/grpc-js");
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
-import logger from "@fonos/logger";
+import logger from "@fonoster/logger";
 
 const WHITELIST = process.env.AUTH_ACCESS_WHITELIST
   ? process.env.AUTH_ACCESS_WHITELIST.split(",")
@@ -38,7 +38,9 @@ export default class AuthMiddleware {
   middleware = async (ctx: any, next: any, errorCb: any) => {
     const pathRequest = ctx.service.path;
 
-    logger.verbose(`@fonos/logger middleware [request.path = ${pathRequest}]`);
+    logger.verbose(
+      `@fonoster/logger middleware [request.path = ${pathRequest}]`
+    );
 
     if (this.whitelist.includes(pathRequest)) {
       next();

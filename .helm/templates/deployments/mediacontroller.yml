@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: mediacontroller
-        image: fonoster/fonos-nodejsmc:latest
+        image: fonoster/nodejsmc:latest
         imagePullPolicy: Always
         env:
         - name: APISERVER_ENDPOINT
@@ -37,10 +37,10 @@ spec:
         - name: EVENTS_QUEUE
           value: apiserver
         volumeMounts:
-          - mountPath: /root/.fonos
-            name: fonos-config
+          - mountPath: /root/.fonoster
+            name: fonoster-config
             readOnly: true
-          - mountPath: /fonos
+          - mountPath: /fonoster
             name: shared-files
             readOnly: false
         ports:
@@ -57,9 +57,9 @@ spec:
             name: shared-files
             readOnly: false
       volumes:
-        - name: fonos-config
+        - name: fonoster-config
           secret:
-            secretName: fonos-config
+            secretName: fonoster-config
         - name: shared-files
           persistentVolumeClaim:
             claimName: {{ printf "%s-%s" .Release.Name .Values.minio.nameOverride }}
