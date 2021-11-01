@@ -28,7 +28,7 @@ High-level overview
 
 ## Features
 
-The most notable features on PF 0.1 are:
+The most notable features on FN 0.1 are:
 
 - [x] Cloud initialization with Cloud-Init
 - [x] Multitenancy
@@ -82,8 +82,8 @@ Everything in PF is an API first, and initiating a call is no exception. You can
 Example of originating a call with the SDK:
 
 ```typescript
-const Fonos = require("@fonoster/sdk");
-const callManager = new Fonos.CallManager();
+const Fonoster = require("@fonoster/sdk");
+const callManager = new Fonoster.CallManager();
 
 callManager.call({
  from: "9842753574",

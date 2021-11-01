@@ -20,7 +20,7 @@ import Docker from "dockerode";
 import fs from "fs";
 import logger from "@fonoster/logger";
 import {ServerStream} from "./funcs";
-import {FonosError} from "@fonoster/errors";
+import {FonosterError} from "@fonoster/errors";
 import walk from "walk";
 import {promisify} from "util";
 
@@ -145,7 +145,7 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
     });
   } catch (e) {
     logger.error(JSON.stringify(e));
-    throw new FonosError(
+    throw new FonosterError(
       `Unable to pulish image ${request.image} to registry ${request.registry}`
     );
   } finally {

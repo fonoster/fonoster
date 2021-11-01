@@ -34,15 +34,15 @@ import {
 } from "./types";
 
 /**
- * @classdesc Use Fonos Users, a capability of Fonos,
+ * @classdesc Use Fonoster Users, a capability of Fonoster,
  * to create, update, get and delete Users. Users requires of a
- * running Fonos deployment.
+ * running Fonoster deployment.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk")
- * const Users = new Fonos.Users()
+ * const Fonoster = require("@fonoster/sdk")
+ * const Users = new Fonoster.Users()
  *
  * const request = {
  *   email: "john.doe@email.com",
@@ -70,7 +70,7 @@ export default class Users extends APIClient implements IUsersClient {
   }
 
   /**
-   * Creates a new User on Fonos.
+   * Creates a new User on Fonoster.
    *
    * @param {CreateUserRequest} request -  Request for the provision of a new User
    * @param {string} request.email - User's email

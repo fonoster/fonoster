@@ -56,7 +56,7 @@ services:
       LOG_LEVEL: '6'
 
   mediaserver:
-    image: ${MS_IMAGE}:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/mediaserver:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     labels:
       - "traefik.enable=true"
@@ -88,8 +88,8 @@ services:
       # Deprecated
       # LOCALNET: '8.8.8.8'
     volumes:
-      - data1-1:/home/fonos
-      # TODO: Update image to add user fonos
+      - data1-1:/home/fonoster
+      # TODO: Update image to add user fonoster
       - ${CONFIG}/config:/root/.fonoster/config:ro
     logging:
       options:

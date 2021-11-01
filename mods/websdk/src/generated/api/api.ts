@@ -1870,7 +1870,7 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
         },
         /**
          * 
-         * @summary Verifies if a token was issue by Fonos
+         * @summary Verifies if a token was issue by Fonoster
          * @param {string} token 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1942,7 +1942,7 @@ export const AuthApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Verifies if a token was issue by Fonos
+         * @summary Verifies if a token was issue by Fonoster
          * @param {string} token 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1983,7 +1983,7 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
         },
         /**
          * 
-         * @summary Verifies if a token was issue by Fonos
+         * @summary Verifies if a token was issue by Fonoster
          * @param {string} token 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2027,7 +2027,7 @@ export class AuthApi extends BaseAPI {
 
     /**
      * 
-     * @summary Verifies if a token was issue by Fonos
+     * @summary Verifies if a token was issue by Fonoster
      * @param {string} token 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

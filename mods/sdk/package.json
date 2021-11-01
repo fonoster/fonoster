@@ -1,9 +1,9 @@
 {
   "name": "@fonoster/sdk",
   "version": "0.2.12",
-  "description": "Fonos SDK module",
+  "description": "Fonoster SDK module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
-  "homepage": "https://github.com/fonoster/fonos#readme",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",
@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fonoster/fonostergit"
+    "url": "git+https://github.com/fonoster/fonoster.git"
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"

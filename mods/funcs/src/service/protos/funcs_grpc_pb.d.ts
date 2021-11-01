@@ -1,4 +1,4 @@
-// package: fonos.funcs.v1beta1
+// package: fonoster.funcs.v1beta1
 // file: funcs.proto
 
 /* tslint:disable */

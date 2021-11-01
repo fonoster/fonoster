@@ -35,15 +35,15 @@ import {
 } from "./types";
 
 /**
- * @classdesc Use Fonos Agents, a capability of Fonos SIP Proxy subsystem,
+ * @classdesc Use Fonoster Agents, a capability ofFonosterSIP Proxy subsystem,
  * to create, update, get and delete Agents. Agents requires of a
- * running Fonos deployment.
+ * runningFonosterdeployment.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk")
- * const agents = new Fonos.Agents()
+ * const Fonoster = require("@fonoster/sdk")
+ * const agents = new Fonoster.Agents()
  *
  * const request = {
  *   name: "John Doe",
@@ -77,7 +77,7 @@ export default class Agents extends APIClient implements IAgentsClient {
    * @param {string} request.name - Friendly name for the SIP device
    * @param {string} request.username -Agent's credential username
    * @param {string} request.secret - Agent's credential secret
-   * @param {string} request.privacy - If set to "Private" Fonos removes
+   * @param {string} request.privacy - If set to "Private" Fonoster removes
    * identifiable information for the requests. Defaults to "None"
    * @param {string[]} request.domains - List of domains this Agent has access to
    * @return {Promise<CreateAgentResponse>}
@@ -185,7 +185,7 @@ export default class Agents extends APIClient implements IAgentsClient {
   }
 
   /**
-   * List registered Agents in Fonos SIP Proxy subsystem.
+   * List registered Agents in Fonoster SIP Proxy subsystem.
    *
    * @param {ListAgentsRequest} request - Optional parameter with size and
    * token for the request

@@ -8,7 +8,7 @@ KEY3=ARwmV6h/m4nyCdXdOvlNR8yzlb4M2u/lVZKHIEQ7H8vI
 KEYS=(${KEY1} ${KEY2} ${KEY3})
 
 # Find the container name for vault instance
-CONTAINER_NAME=fonos_secrets_1
+CONTAINER_NAME=fonoster_secrets_1
 
 CONTAINER_ID=$(docker ps --no-trunc -aqf name=${CONTAINER_NAME})
 

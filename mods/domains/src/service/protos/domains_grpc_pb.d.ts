@@ -1,4 +1,4 @@
-// package: fonos.domains.v1beta1
+// package: fonoster.domains.v1beta1
 // file: domains.proto
 
 /* tslint:disable */

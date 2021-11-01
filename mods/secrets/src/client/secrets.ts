@@ -31,15 +31,15 @@ import {
 } from "./types";
 
 /**
- * @classdesc Use Fonos Secrets, a capability of Fonos Secrets Service,
- * to create and manage your secrets. Fonos Secrets requires of a
- * running Fonos deployment.
+ * @classdesc Use Fonoster Secrets, a capability of Fonoster Secrets Service,
+ * to create and manage your secrets.FonosterSecrets requires of a
+ * running Fonoster deployment.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk")
- * const secrets = new Fonos.Secrets()
+ * const Fonoster = require("@fonoster/sdk")
+ * const secrets = new Fonoster.Secrets()
  *
  * const request = {
  *    secretName: "Jenkins",

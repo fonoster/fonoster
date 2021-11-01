@@ -21,7 +21,7 @@ services:
           - ${AS_HOST}
 
   auth:
-    image: fonoster/fonoster-auth:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/auth:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
@@ -34,7 +34,7 @@ services:
       - ${CONFIG}/rbac.json:/home/fonoster/rbac.json
 
   users:
-    image: fonoster/fonoster-users:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/users:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
@@ -45,7 +45,7 @@ services:
       - "traefik.http.services.users.loadbalancer.server.scheme=h2c"
 
   projects:
-    image: fonoster/fonoster-projects:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/projects:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
@@ -56,7 +56,7 @@ services:
       - "traefik.http.services.projects.loadbalancer.server.scheme=h2c"
 
   agents:
-    image: fonoster/fonoster-agents:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/agents:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
@@ -67,7 +67,7 @@ services:
       - "traefik.http.services.agents.loadbalancer.server.scheme=h2c"
   
   domains:
-    image: fonoster/fonoster-domains:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/domains:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
@@ -78,7 +78,7 @@ services:
       - "traefik.http.services.domains.loadbalancer.server.scheme=h2c"
   
   numbers:
-    image: fonoster/fonoster-numbers:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/numbers:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
@@ -89,7 +89,7 @@ services:
       - "traefik.http.services.numbers.loadbalancer.server.scheme=h2c"
 
   providers:
-    image: fonoster/fonoster-providers:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/providers:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
@@ -100,7 +100,7 @@ services:
       - "traefik.http.services.providers.loadbalancer.server.scheme=h2c"
 
   storage:
-    image: fonoster/fonoster-storage:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/storage:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
@@ -111,7 +111,7 @@ services:
       - "traefik.http.services.storage.loadbalancer.server.scheme=h2c"
   
   callmanager:
-    image: fonoster/fonoster-callmanager:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/callmanager:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common

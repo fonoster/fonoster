@@ -1,6 +1,6 @@
 # ctl
 
-Command-Line for for Fonos
+Command-Line for for Fonoster
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/ctl.svg)](https://npmjs.org/package/ctl)
@@ -77,11 +77,11 @@ DESCRIPTION
      Creates a new Agent in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/agents/create.js)_
+_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/agents/create.js)_
 
 ## `fonoster agents:delete [REF]`
 
-remove agent from a Fonos deployment
+remove agent from aFonosterdeployment
 
 ```
 USAGE
@@ -92,7 +92,7 @@ ALIASES
   $ fonoster agents:rm
 ```
 
-_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/agents/delete.js)_
+_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/agents/delete.js)_
 
 ## `fonoster agents:get [REF]`
 
@@ -103,7 +103,7 @@ USAGE
   $ fonoster agents:get [REF]
 ```
 
-_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/agents/get.js)_
+_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/agents/get.js)_
 
 ## `fonoster agents:list`
 
@@ -124,7 +124,7 @@ ALIASES
   $ fonoster agents:ls
 ```
 
-_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/agents/list.js)_
+_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/agents/list.js)_
 
 ## `fonoster agents:update [REF]`
 
@@ -139,7 +139,7 @@ DESCRIPTION
      Updates a agent at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/agents/update.js)_
+_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/agents/update.js)_
 
 ## `fonoster auth:login`
 
@@ -150,7 +150,7 @@ USAGE
   $ fonoster auth:login
 ```
 
-_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/auth/login.js)_
+_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/auth/login.js)_
 
 ## `fonoster auth:logout`
 
@@ -161,7 +161,7 @@ USAGE
   $ fonoster auth:logout
 ```
 
-_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/auth/logout.js)_
+_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/auth/logout.js)_
 
 ## `fonoster bug`
 
@@ -176,7 +176,7 @@ DESCRIPTION
      Opens github issues with a predefine bug template
 ```
 
-_See code: [dist/commands/bug.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/bug.js)_
+_See code: [dist/commands/bug.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/bug.js)_
 
 ## `fonoster domains:create`
 
@@ -191,11 +191,11 @@ DESCRIPTION
      Creates a new Domain in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/domains/create.js)_
+_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/domains/create.js)_
 
 ## `fonoster domains:delete [REF]`
 
-remove a domain from a Fonos deployment
+remove a domain from aFonosterdeployment
 
 ```
 USAGE
@@ -206,7 +206,7 @@ ALIASES
   $ fonoster domains:rm
 ```
 
-_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/domains/delete.js)_
+_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/domains/delete.js)_
 
 ## `fonoster domains:get [REF]`
 
@@ -217,7 +217,7 @@ USAGE
   $ fonoster domains:get [REF]
 ```
 
-_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/domains/get.js)_
+_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/domains/get.js)_
 
 ## `fonoster domains:list`
 
@@ -238,7 +238,7 @@ ALIASES
   $ fonoster domains:ls
 ```
 
-_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/domains/list.js)_
+_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/domains/list.js)_
 
 ## `fonoster domains:update [REF]`
 
@@ -253,7 +253,7 @@ DESCRIPTION
      Updates a domain at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/domains/update.js)_
+_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/domains/update.js)_
 
 ## `fonoster feedback`
 
@@ -268,7 +268,7 @@ DESCRIPTION
      Help us improve by providing some feedback
 ```
 
-_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/feedback.js)_
+_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/feedback.js)_
 
 ## `fonoster help [COMMAND]`
 
@@ -300,11 +300,11 @@ DESCRIPTION
      Creates a new Number in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/numbers/create.js)_
+_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/numbers/create.js)_
 
 ## `fonoster numbers:delete [REF]`
 
-remove a number from a Fonos deployment
+remove a number from aFonosterdeployment
 
 ```
 USAGE
@@ -315,7 +315,7 @@ ALIASES
   $ fonoster numbers:rm
 ```
 
-_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/numbers/delete.js)_
+_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/numbers/delete.js)_
 
 ## `fonoster numbers:get [REF]`
 
@@ -326,7 +326,7 @@ USAGE
   $ fonoster numbers:get [REF]
 ```
 
-_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/numbers/get.js)_
+_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/numbers/get.js)_
 
 ## `fonoster numbers:list`
 
@@ -347,7 +347,7 @@ ALIASES
   $ fonoster numbers:ls
 ```
 
-_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/numbers/list.js)_
+_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/numbers/list.js)_
 
 ## `fonoster numbers:update [REF]`
 
@@ -362,7 +362,7 @@ DESCRIPTION
      Updates a number at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/numbers/update.js)_
+_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/numbers/update.js)_
 
 ## `fonoster plugins`
 
@@ -515,11 +515,11 @@ DESCRIPTION
      Creates a new Provider in the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/providers/create.js)_
+_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/providers/create.js)_
 
 ## `fonoster providers:delete [REF]`
 
-removes a provider from a Fonos deployment
+removes a provider from aFonosterdeployment
 
 ```
 USAGE
@@ -530,7 +530,7 @@ ALIASES
   $ fonoster providers:rm
 ```
 
-_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/providers/delete.js)_
+_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/providers/delete.js)_
 
 ## `fonoster providers:get [REF]`
 
@@ -541,7 +541,7 @@ USAGE
   $ fonoster providers:get [REF]
 ```
 
-_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/providers/get.js)_
+_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/providers/get.js)_
 
 ## `fonoster providers:list`
 
@@ -562,7 +562,7 @@ ALIASES
   $ fonoster providers:ls
 ```
 
-_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/providers/list.js)_
+_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/providers/list.js)_
 
 ## `fonoster providers:update [REF]`
 
@@ -577,5 +577,5 @@ DESCRIPTION
      Updates a provider at the SIP Proxy subsystem
 ```
 
-_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonostergit/blob/v0.2.12/dist/commands/providers/update.js)_
+_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonoster.git/blob/v0.2.12/dist/commands/providers/update.js)_
 <!-- commandsstop -->

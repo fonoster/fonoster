@@ -12,7 +12,7 @@ This chart bootstraps Fonoster for deployment on a [Kubernetes](https://kubernet
 
 - Kubernetes 1.18+
 - Helm 3.0-beta3+
-- [Fonos CTL](https://www.npmjs.com/package/@fonoster/ctl)
+- [Fonoster CTL](https://www.npmjs.com/package/@fonoster/ctl)
 - PV provisioner support in the underlying infrastructure
 - Nginx ingress Controller
 

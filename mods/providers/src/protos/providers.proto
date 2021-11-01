@@ -1,13 +1,13 @@
 /**
  * MIT License
- * Copyright (c) 2020 Fonoster Inc
+ * Copyright (c) 2021 Fonoster Inc
  *
  * The Providers proto contains the artificats for the administration
  * of Providers.
  */
 syntax = "proto3";
 
-package fonos.providers.v1beta1;
+package fonoster.providers.v1beta1;
 
 option go_package = "github.com/fonoster/fonoster/mods/providers/fonoster/services/protos/providers";
 
@@ -40,7 +40,7 @@ service Providers {
     };
   };
   // Hard delete of a Provider resource
-  rpc DeleteProvider (DeleteProviderRequest) returns (fonos.common.v1beta1.Empty) {
+  rpc DeleteProvider (DeleteProviderRequest) returns (fonoster.common.v1beta1.Empty) {
     option (google.api.http) = { 
       delete: "/v1beta1/providers/{ref}"
     };
@@ -55,7 +55,7 @@ message ListProvidersRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities (reserved)
-  fonos.common.v1beta1.View view = 3;
+  fonoster.common.v1beta1.View view = 3;
 }
 
 message ListProvidersResponse {

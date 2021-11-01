@@ -7,7 +7,7 @@
 */
 syntax = "proto3";
 
-package fonos.users.v1beta1;
+package fonoster.users.v1beta1;
 
 option go_package = "github.com/fonoster/fonoster/mods/users/fonoster/services/protos/users";
 
@@ -36,7 +36,7 @@ service Users {
     };
   };
   // WARNING: Hard delete of an User will remove all related projects and its resources. 
-  rpc DeleteUser (DeleteUserRequest) returns (fonos.common.v1beta1.Empty) {
+  rpc DeleteUser (DeleteUserRequest) returns (fonoster.common.v1beta1.Empty) {
     option (google.api.http) = { delete: "/v1beta1/users/{ref}" };
   };
   // Creates a set of credentials

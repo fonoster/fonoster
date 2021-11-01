@@ -1,13 +1,13 @@
 /**
  * MIT License
- * Copyright (c) 2020 Fonoster Inc
+ * Copyright (c) 2021 Fonoster Inc
  *
  * The Storage proto contains the artificats for bucket and objects
  * management.
  */
 syntax = "proto3";
 
-package fonos.storage.v1beta1;
+package fonoster.storage.v1beta1;
 
 option go_package = "github.com/fonoster/fonoster/mods/storage/fonoster/services/protos/storage";
 

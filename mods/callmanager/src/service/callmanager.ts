@@ -24,7 +24,7 @@ import {EndpointInfo} from "../client/types";
 import originate from "./call";
 import {ICallManagerServer} from "./protos/callmanager_grpc_pb";
 import logger from "@fonoster/logger";
-import {FonosError} from "@fonoster/errors";
+import {FonosterError} from "@fonoster/errors";
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();
@@ -45,7 +45,10 @@ class CallManagerServer implements ICallManagerServer {
     const domain = await getDomainByNumber(call.request.getFrom());
 
     if (!domain) {
-      callback(new FonosError(numberNotInList(call.request.getFrom())), null);
+      callback(
+        new FonosterError(numberNotInList(call.request.getFrom())),
+        null
+      );
       return;
     }
 
@@ -56,7 +59,10 @@ class CallManagerServer implements ICallManagerServer {
     const accessKeyIdDomain = domain.metadata.accessKeyId;
 
     if (accessKeyIdDomain != accessKeyId) {
-      callback(new FonosError(numberNotInList(call.request.getFrom())), null);
+      callback(
+        new FonosterError(numberNotInList(call.request.getFrom())),
+        null
+      );
     }
 
     logger.verbose(

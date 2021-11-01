@@ -6,7 +6,7 @@
  */
 syntax = "proto3";
 
-package fonos.domains.v1beta1;
+package fonoster.domains.v1beta1;
 
 option go_package = "github.com/fonoster/fonoster/mods/domains/fonoster/services/protos/domains";
 
@@ -37,7 +37,7 @@ service Domains {
     };
   };
   // Hard delete of a domain resource
-  rpc DeleteDomain (DeleteDomainRequest) returns (fonos.common.v1beta1.Empty) {
+  rpc DeleteDomain (DeleteDomainRequest) returns (fonoster.common.v1beta1.Empty) {
     option (google.api.http) = { 
       delete: "/v1beta1/domains/{ref}"
     };
@@ -52,7 +52,7 @@ message ListDomainsRequest {
   string page_token = 2;
 
   // Level of detail of the individual entities (reserved)
-  fonos.common.v1beta1.View view = 3;
+  fonoster.common.v1beta1.View view = 3;
 }
 
 message ListDomainsResponse {

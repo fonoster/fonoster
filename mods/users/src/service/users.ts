@@ -38,7 +38,7 @@ import {getRedisConnection, getAccessKeyId} from "@fonoster/core";
 import objectid from "objectid";
 import encoder from "./encoder";
 import decoder from "./decoder";
-import {FonosError} from "@fonoster/errors";
+import {FonosterError} from "@fonoster/errors";
 import {ErrorCodes} from "@fonoster/errors";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import JWT from "@fonoster/auth/dist/utils/jwt";
@@ -65,7 +65,10 @@ class UsersServer implements IUsersServer {
       const emailExist = await redis.get(call.request.getEmail());
 
       if (emailExist) {
-        throw new FonosError("user already exist", ErrorCodes.ALREADY_EXISTS);
+        throw new FonosterError(
+          "user already exist",
+          ErrorCodes.ALREADY_EXISTS
+        );
       }
 
       const ref = objectid() + "";
@@ -96,7 +99,7 @@ class UsersServer implements IUsersServer {
     try {
       const ref = getAccessKeyId(call);
       const raw = await redis.get(ref);
-      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
       let secretHash = JSON.parse(raw.toString()).secretHash;
       const user = decoder(raw);
 
@@ -125,13 +128,16 @@ class UsersServer implements IUsersServer {
       const accessKeyId = getAccessKeyId(call);
 
       if (accessKeyId !== call.request.getRef()) {
-        throw new FonosError("permission denied", ErrorCodes.PERMISSION_DENIED);
+        throw new FonosterError(
+          "permission denied",
+          ErrorCodes.PERMISSION_DENIED
+        );
       }
 
       // Get result here
       const raw = await redis.get(call.request.getRef());
 
-      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
 
       const user = decoder(raw.toString());
       callback(null, user);
@@ -146,7 +152,7 @@ class UsersServer implements IUsersServer {
   ) {
     try {
       const raw = await redis.get(call.request.getRef());
-      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
       const user = decoder(raw.toString());
       await redis.del(user.getRef());
       await redis.del(user.getEmail());
@@ -172,7 +178,7 @@ class UsersServer implements IUsersServer {
 
       // Compare the value send with the value stored
       if (!ref) {
-        throw new FonosError(
+        throw new FonosterError(
           "invalid credentials",
           ErrorCodes.PERMISSION_DENIED
         );
@@ -180,12 +186,12 @@ class UsersServer implements IUsersServer {
 
       const raw = await redis.get(ref);
 
-      if (!raw) throw new FonosError("not found", ErrorCodes.NOT_FOUND);
+      if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
 
       const user = JSON.parse(raw.toString());
 
       if (!bcrypt.compareSync(call.request.getSecret(), user.secretHash)) {
-        throw new FonosError(
+        throw new FonosterError(
           "invalid credentials",
           ErrorCodes.PERMISSION_DENIED
         );

@@ -34,15 +34,15 @@ import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 
 /**
- * @classdesc Use Fonos Domains, a capability of Fonos SIP Proxy Subsystem,
+ * @classdesc Use Fonoster Domains, a capability of Fonoster SIP Proxy Subsystem,
  * to create, update, get and delete Domains. The API requires of a running
- * Fonos deployment.
+ *Fonoster deployment.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk");
- * const domains = new Fonos.Domains();
+ * const Fonoster = require("@fonoster/sdk");
+ * const domains = new Fonoster.Domains();
  *
  * domains.createDomain({name: "Local Domain", domainUri: "sip.local"...})
  * .then(result => {
@@ -206,7 +206,7 @@ export default class Domains extends APIClient implements IDomainsClient {
   }
 
   /**
-   * List the Domains registered in Fonos SIP Proxy subsystem.
+   * List the Domains registered in Fonoster SIP Proxy subsystem.
    *
    * @param {ListDomainsRequest} request - Optional parameter with size and
    * token for the request

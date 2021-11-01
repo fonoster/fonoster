@@ -1,4 +1,4 @@
-// package: fonos.providers.v1beta1
+// package: fonoster.providers.v1beta1
 // file: providers.proto
 
 /* tslint:disable */

@@ -3,7 +3,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import {join} from "path";
-import FonosError from "../src/error";
+import FonosterError from "../src/error";
 import FonosInvalidArgument from "../src/invalid_argument";
 import {INVALID_ARGUMENT} from "../src/codes";
 
@@ -20,11 +20,11 @@ describe("@fonoster/errors", () => {
   afterEach(() => sandbox.restore());
 
   it("has correct constructor name and message", () => {
-    expect(new FonosError("test"))
+    expect(new FonosterError("test"))
       .to.have.property("name")
-      .to.be.equal("FonosError");
+      .to.be.equal("FonosterError");
     expect(() => {
-      throw new FonosError("my message");
+      throw new FonosterError("my message");
     }).to.throw("my message");
   });
 

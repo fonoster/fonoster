@@ -7,7 +7,7 @@
  */
 syntax = "proto3";
 
-package fonos.auth.v1beta1;
+package fonoster.auth.v1beta1;
 
 option go_package = "github.com/fonoster/fonoster/mods/auth/fonoster/services/protos/auth";
 
@@ -20,7 +20,7 @@ service Auth {
   rpc GetRole (GetRoleRequest) returns (Role) {
     option (google.api.http) = { get: "/v1beta1/auth/role/{name}" };
   };
-  // Verifies if a token was issue by Fonos
+  // Verifies if a token was issue by Fonoster
   rpc ValidateToken (ValidateTokenRequest) returns (ValidateTokenResponse) {
     option (google.api.http) = { get: "/v1beta1/auth/token/{token}" };
   }

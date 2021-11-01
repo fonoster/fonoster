@@ -21,7 +21,7 @@ import {DeployFuncRequest, FuncParameters} from "../client/types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
-import {FonosError, ErrorCodes} from "@fonoster/errors";
+import {FonosterError, ErrorCodes} from "@fonoster/errors";
 import cron from "cron-validate";
 import createAccessKeySecret from "./auth";
 import {FunctionDefinition} from "openfaas-client";
@@ -50,7 +50,7 @@ export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
 
 export const assertValidFuncName = (name: string) => {
   if (/[^a-z0-9_]/.test(name))
-    throw new FonosError(
+    throw new FonosterError(
       "function name must be a-z0-9_",
       ErrorCodes.INVALID_ARGUMENT
     );
@@ -58,7 +58,7 @@ export const assertValidFuncName = (name: string) => {
 
 export const assertValidSchedule = (schedule: string) => {
   if (schedule && !cron(schedule).isValid()) {
-    throw new FonosError(
+    throw new FonosterError(
       "function schedule is not valid (invalid cron expression)",
       ErrorCodes.INVALID_ARGUMENT
     );

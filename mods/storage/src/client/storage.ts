@@ -31,14 +31,14 @@ import {promisifyAll} from "grpc-promise";
 import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
 
 /**
- * @classdesc Use Fonos Storage, a capability of Fonos Object Storage subsystem,
+ * @classdesc Use Fonoster Storage, a capability of Fonoster Object Storage subsystem,
  * to upload, download, and delete objects.
  *
  * @extends APIClient
  * @example
  *
- * const Fonos = require("@fonoster/sdk")
- * const storage = new Fonos.Storage()
+ * const Fonoster = require("@fonoster/sdk")
+ * const storage = new Fonoster.Storage()
  *
  * storage.uploadObject()
  * .then(result => {
@@ -58,7 +58,7 @@ export default class Storage extends APIClient implements IStorageClient {
   }
 
   /**
-   * Upload an object to Fonos Object Storage subsystem.
+   * Upload an object toFonosterObject Storage subsystem.
    *
    * @param {UploadObjectRequest} request - Object with information about the origin and
    * destination of an object
