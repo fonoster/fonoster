@@ -30,7 +30,7 @@ jobs:
         FONOSTER_VERSION: ${{ steps.get_version.outputs.VERSION }}
         BRANCH: main
       with:
-        name: fonoster/fonos
+        name: fonoster/fonoster
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
