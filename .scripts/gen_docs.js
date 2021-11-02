@@ -32,5 +32,15 @@ function generate(inputFile) {
   }
 }
 
-generate(path.join(__dirname, "../mods/**/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/agents/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/domains/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/auth/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/callmanager/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/funcs/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/numbers/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/projects/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/providers/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/storage/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/users/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/secrets/dist/client/*.js"))
 generate(path.join(__dirname, "../mods/voice/dist/*.js"))
