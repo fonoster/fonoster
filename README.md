@@ -17,15 +17,6 @@
 </p>
 
 ---
-
-## Architecture 
-
-High-level overview
-
-![Repo Banner](https://raw.githubusercontent.com/fonoster/fonoster/dev/docs/assets/images/arquitecture.png)
-
-> Conceptual architecture and stack. We will post more details soon.
-
 ## Features
 
 The most notable features on FN 0.1 are:
