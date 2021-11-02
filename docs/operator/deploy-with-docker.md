@@ -1,16 +1,16 @@
 # Deploy with Docker
 
-The easiest way to start running your Fonos server is with our docker-in-docker (dind) installer. Before running the installation command, make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed on your machine:
+The easiest way to start running your Fonoster server is with our docker-in-docker (dind) installer. Before running the installation command, make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed on your machine:
 
 ## Unix
 
 ```bash
 docker run -it --rm \
-  -e CONFIG_PATH=$(pwd)/fonos/config \
+  -e CONFIG_PATH=$(pwd)/fonoster/config \
   --volume /var/run/docker.sock:/var/run/docker.sock \
-  --volume $(pwd)/fonos:/out:rw \
+  --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonos:0.1.27
+  fonoster/fonoster:0.2.14
 ```
 
 ## Windows
@@ -19,22 +19,22 @@ docker run -it --rm \
 
 ```cmd
 docker run -it --rm ^
-  -e CONFIG_PATH="%cd%"/fonos/config ^
+  -e CONFIG_PATH="%cd%"/fonoster/config ^
   --volume //var/run/docker.sock:/var/run/docker.sock ^
-  --volume "%cd%"/fonos:/out:rw ^
+  --volume "%cd%"/fonoster:/out:rw ^
   --entrypoint="/install.sh" ^
-  fonoster/fonos:0.1.27
+  fonoster/fonoster:0.2.14
 ```
 
 **PowerShell**
 
 ```powershell
 docker run -it --rm ,
-  -e CONFIG_PATH=${pwd}/fonos/config ,
+  -e CONFIG_PATH=${pwd}/fonoster/config ,
   --volume /var/run/docker.sock:/var/run/docker.sock ,
-  --volume ${pwd}/fonos:/out:rw ,
+  --volume ${pwd}/fonoster:/out:rw ,
   --entrypoint="/install.sh" ,
-  fonoster/fonos:0.1.27
+  fonoster/fonoster:0.2.14
 ```
 
 ## Environment Variables
