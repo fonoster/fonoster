@@ -37,7 +37,7 @@ services:
       fonoster:
 
   service_creds:
-    image: fonoster/jwthelper
+    image: fonoster/jwthelper:${COMPOSE_PROJECT_VERSION}
     environment:
       ENDPOINT: ${AS_HOST}:${HTTP_PORT}
       ACCESS_KEY_ID: internal
@@ -53,9 +53,9 @@ services:
         target: /home/fonoster/config
 
   user_creds:
-    image: fonoster/jwthelper
+    image: fonoster/jwthelper:${COMPOSE_PROJECT_VERSION}
     environment:
-      ACCESS_KEY_ID: fonos
+      ACCESS_KEY_ID: fonoster
       ROLE: USER
       EXPIRATION: 1y
     volumes:
