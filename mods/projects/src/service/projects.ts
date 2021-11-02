@@ -223,7 +223,7 @@ class ProjectsServer implements IProjectsServer {
       redis.set(project.getRef(), encoder(project));
 
       const response = new RenewAccessKeySecretResponse();
-      response.setAccesskeysecret(result.accessToken);
+      response.setAccessKeySecret(result.accessToken);
       callback(null, response);
     } catch (e) {
       callback(e, null);

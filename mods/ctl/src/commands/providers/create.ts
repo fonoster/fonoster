@@ -1,18 +1,23 @@
 import "../../config";
-import Providers from "@fonoster/providers";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+
+const Providers = require("@fonoster/providers");
 const inquirer = require("inquirer");
 
 export default class CreateCommand extends Command {
-  static description = `creates a new provider resource
+  static description = `create a new Fonoster Provider (trunk)
   ...
-  Creates a new Provider in the SIP Proxy subsystem
+  Create a new Fonoster Provider
   `;
 
   async run() {
-    console.log("This utility will help you create a new Provider");
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
+    console.log("This utility will help you create a new Fonoster Provider");
     console.log("Press ^C at any time to quit.");
 
     const answers = await inquirer.prompt([
@@ -67,9 +72,9 @@ export default class CreateCommand extends Command {
       console.log("Aborted");
     } else {
       try {
-        cli.action.start(`Creating provider ${answers.name}`);
+        cli.action.start(`Creating Provider ${answers.name}`);
 
-        const providers = new Providers();
+        const providers = new Providers(getProjectConfig());
         const provider = await providers.createProvider(answers);
         await cli.wait(1000);
 

@@ -1,22 +1,25 @@
 import "../../config";
-import Agents from "@fonoster/agents";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {render} from "prettyjson";
-
+import {getProjectConfig, hasProjectConfig} from "../../config";
+const Agents = require("@fonoster/agents");
 const moment = require("moment");
 
 export default class GetCommand extends Command {
-  static description = `get information about an existing agent`;
+  static description = `get a Fonoster Agent`;
   static args = [{name: "ref"}];
 
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     const {args} = this.parse(GetCommand);
 
     try {
-      const agents = new Agents();
-      cli.action.start(`Getting agent ${args.ref}`);
+      const agents = new Agents(getProjectConfig());
+      cli.action.start(`Getting Agent ${args.ref}`);
       const agent = await agents.getAgent(args.ref);
 
       const jsonObj = {

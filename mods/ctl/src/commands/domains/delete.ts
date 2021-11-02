@@ -1,19 +1,27 @@
 import Command from "../../base/delete";
-import Domains from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+
+const Domains = require("@fonoster/domains");
 
 export default class DeleteCommand extends Command {
-  static description = "remove a domain from a Fonoster deployment";
+  static description = "delete a Fonoster Domain";
   static args = [{name: "ref"}];
   static aliases = ["domains:del", "domains:rm"];
 
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     try {
-      await super.deleteResource(new Domains(), "deleteDomain");
+      await super.deleteResource(
+        new Domains(getProjectConfig()),
+        "deleteDomain"
+      );
     } catch (e) {
       if (e.code === 9) {
         throw new CLIError(
-          "Unable to remove! First ensure there are no Agents under this Domain"
+          "unable to delete: first ensure there are no Agents under this Fonoster Domain"
         );
       } else {
         throw new CLIError(e.message);

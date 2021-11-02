@@ -56,7 +56,7 @@ import StreamStatus from "./dial/status_stream";
  * const voiceServer = new VoiceServer({base: '/voiceapp'})
  * voiceServer.listen(handler, { port: 3000 })
  */
-export default class {
+export default class VoiceResponse {
   request: VoiceRequest;
   plugins: {};
 
@@ -83,7 +83,7 @@ export default class {
   }
 
   /**
-   * Plays an audio in the channel.
+   * Play an audio in the channel.
    *
    * @param {string} media - Sound name or uri with audio file
    * @param {PlayOptions} options - Optional parameters to alter the command's normal

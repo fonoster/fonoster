@@ -27,7 +27,9 @@ export interface IProjectsClient {
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ListProjectsRequest {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ListProjectsResponse {}
+export interface ListProjectsResponse {
+  projects: Project[];
+}
 
 export interface Project {
   ref: string;

@@ -1,26 +1,31 @@
 import "../../config";
-import Numbers from "@fonoster/numbers";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import {CommonPB} from "@fonoster/numbers";
+import {getProjectConfig, hasProjectConfig} from "../../config";
 
+const Numbers = require("@fonoster/numbers");
 const inquirer = require("inquirer");
 
 export class UpdateCommand extends Command {
-  static description = `updates a number at the SIP Proxy subsystem
+  static description = `update a Fonoster Number
   ...
-  Updates a number at the SIP Proxy subsystem
+  Update a Fonoster Number
   `;
 
   static args = [{name: "ref"}];
 
   async run() {
-    console.log("This utility will help you update an existing Number");
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
+    console.log(
+      "This utility will help you update an existing Fonoster Number"
+    );
     console.log("Press ^C at any time to quit.");
 
     const {args} = this.parse(UpdateCommand);
-    const numbers = new Numbers();
+    const numbers = new Numbers(getProjectConfig());
 
     const answers = await inquirer.prompt([
       {

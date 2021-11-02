@@ -1,22 +1,26 @@
 import "../../config";
-import Agents from "@fonoster/agents";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+const Agents = require("@fonoster/agents");
 const inquirer = require("inquirer");
 
 export default class UpdateCommand extends Command {
   static args = [{name: "ref"}];
-  static description = `updates a agent at the SIP Proxy subsystem
+  static description = `update a Fonoster Agent
   ...
-  Updates a agent at the SIP Proxy subsystem
+  Update a Fonoster Agent
   `;
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     console.log("This utility will help you update an existing Agent");
     console.log("Press ^C at any time to quit.");
 
     const {args} = this.parse(UpdateCommand);
-    const agents = new Agents();
+    const agents = new Agents(getProjectConfig());
     const agent = await agents.getAgent(args.ref);
 
     const answers = await inquirer.prompt([

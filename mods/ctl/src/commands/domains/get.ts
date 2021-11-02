@@ -1,20 +1,25 @@
 import "../../config";
-import Domains from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {render} from "prettyjson";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+
+const Domains = require("@fonoster/domains");
 const moment = require("moment");
 
 export default class GetCommand extends Command {
-  static description = "get information about an existing domain";
+  static description = `get a Fonoster Domain`;
   static args = [{name: "ref"}];
 
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     const {args} = this.parse(GetCommand);
 
     try {
-      const domains = new Domains();
+      const domains = new Domains(getProjectConfig());
       cli.action.start(`Getting domain ${args.ref}`);
       const domain = await domains.getDomain(args.ref);
       console.log("geting domain: ");

@@ -21,7 +21,7 @@ $ npm install -g @fonoster/ctl
 $ fonoster COMMAND
 running command...
 $ fonoster (-v|--version|version)
-@fonoster/ctl/0.2.13 darwin-x64 node-v14.16.0
+@fonoster/ctl/0.2.14 darwin-x64 node-v14.16.0
 $ fonoster --help [COMMAND]
 USAGE
   $ fonoster COMMAND
@@ -58,6 +58,12 @@ USAGE
 * [`fonoster plugins:link PLUGIN`](#fonoster-pluginslink-plugin)
 * [`fonoster plugins:uninstall PLUGIN...`](#fonoster-pluginsuninstall-plugin)
 * [`fonoster plugins:update`](#fonoster-pluginsupdate)
+* [`fonoster projects:create`](#fonoster-projectscreate)
+* [`fonoster projects:delete [REF]`](#fonoster-projectsdelete-ref)
+* [`fonoster projects:get [REF]`](#fonoster-projectsget-ref)
+* [`fonoster projects:list`](#fonoster-projectslist)
+* [`fonoster projects:renew [REF]`](#fonoster-projectsrenew-ref)
+* [`fonoster projects:use [REF]`](#fonoster-projectsuse-ref)
 * [`fonoster providers:create`](#fonoster-providerscreate)
 * [`fonoster providers:delete [REF]`](#fonoster-providersdelete-ref)
 * [`fonoster providers:get [REF]`](#fonoster-providersget-ref)
@@ -66,7 +72,7 @@ USAGE
 
 ## `fonoster agents:create`
 
-creates a new agent resource
+create a new Fonoster Agent
 
 ```
 USAGE
@@ -74,14 +80,14 @@ USAGE
 
 DESCRIPTION
   ...
-     Creates a new Agent in the SIP Proxy subsystem
+     Create a new Fonoster Agent
 ```
 
-_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/agents/create.js)_
+_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/create.js)_
 
 ## `fonoster agents:delete [REF]`
 
-removes agent from a Fonoster deployment
+delete a Fonoster Agent
 
 ```
 USAGE
@@ -92,22 +98,22 @@ ALIASES
   $ fonoster agents:rm
 ```
 
-_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/agents/delete.js)_
+_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/delete.js)_
 
 ## `fonoster agents:get [REF]`
 
-get information about an existing agent
+get a Fonoster Agent
 
 ```
 USAGE
   $ fonoster agents:get [REF]
 ```
 
-_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/agents/get.js)_
+_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/get.js)_
 
 ## `fonoster agents:list`
 
-list registered agents
+list all Fonoster Agents you have access to
 
 ```
 USAGE
@@ -118,17 +124,17 @@ OPTIONS
 
 DESCRIPTION
   ...
-     List the registered agents
+     List all Fonoster Agents you have access to
 
 ALIASES
   $ fonoster agents:ls
 ```
 
-_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/agents/list.js)_
+_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/list.js)_
 
 ## `fonoster agents:update [REF]`
 
-updates a agent at the SIP Proxy subsystem
+update a Fonoster Agent
 
 ```
 USAGE
@@ -136,10 +142,10 @@ USAGE
 
 DESCRIPTION
   ...
-     Updates a agent at the SIP Proxy subsystem
+     Update a Fonoster Agent
 ```
 
-_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/agents/update.js)_
+_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/update.js)_
 
 ## `fonoster auth:login`
 
@@ -150,7 +156,7 @@ USAGE
   $ fonoster auth:login
 ```
 
-_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/auth/login.js)_
+_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/auth/login.js)_
 
 ## `fonoster auth:logout`
 
@@ -161,7 +167,7 @@ USAGE
   $ fonoster auth:logout
 ```
 
-_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/auth/logout.js)_
+_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/auth/logout.js)_
 
 ## `fonoster bug`
 
@@ -176,11 +182,11 @@ DESCRIPTION
      Opens github issues with a predefine bug template
 ```
 
-_See code: [dist/commands/bug.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/bug.js)_
+_See code: [dist/commands/bug.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/bug.js)_
 
 ## `fonoster domains:create`
 
-creates a new domain resource
+create a new Fonoster Domain
 
 ```
 USAGE
@@ -188,14 +194,14 @@ USAGE
 
 DESCRIPTION
   ...
-     Creates a new Domain in the SIP Proxy subsystem
+     Create a new Fonoster Domain
 ```
 
-_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/domains/create.js)_
+_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/create.js)_
 
 ## `fonoster domains:delete [REF]`
 
-remove a domain from a Fonoster deployment
+delete a Fonoster Domain
 
 ```
 USAGE
@@ -206,22 +212,22 @@ ALIASES
   $ fonoster domains:rm
 ```
 
-_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/domains/delete.js)_
+_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/delete.js)_
 
 ## `fonoster domains:get [REF]`
 
-get information about an existing domain
+get a Fonoster Domain
 
 ```
 USAGE
   $ fonoster domains:get [REF]
 ```
 
-_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/domains/get.js)_
+_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/get.js)_
 
 ## `fonoster domains:list`
 
-list registered domains
+list all Fonoster Domains you have access to
 
 ```
 USAGE
@@ -232,17 +238,17 @@ OPTIONS
 
 DESCRIPTION
   ...
-     List the registered domains
+     List all Fonoster Domains you have access to
 
 ALIASES
   $ fonoster domains:ls
 ```
 
-_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/domains/list.js)_
+_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/list.js)_
 
 ## `fonoster domains:update [REF]`
 
-updates a domain at the SIP Proxy subsystem
+update a Fonoster Domain
 
 ```
 USAGE
@@ -250,14 +256,14 @@ USAGE
 
 DESCRIPTION
   ...
-     Updates a domain at the SIP Proxy subsystem
+     Update a Fonoster Domain
 ```
 
-_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/domains/update.js)_
+_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/update.js)_
 
 ## `fonoster feedback`
 
-let'us know how we're doing
+let us know how we're doing
 
 ```
 USAGE
@@ -268,7 +274,7 @@ DESCRIPTION
      Help us improve by providing some feedback
 ```
 
-_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/feedback.js)_
+_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/feedback.js)_
 
 ## `fonoster help [COMMAND]`
 
@@ -289,7 +295,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.3
 
 ## `fonoster numbers:create`
 
-creates a new number resource
+create a new Fonoster Number
 
 ```
 USAGE
@@ -297,14 +303,14 @@ USAGE
 
 DESCRIPTION
   ...
-     Creates a new Number in the SIP Proxy subsystem
+     Create a new Fonoster Number
 ```
 
-_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/numbers/create.js)_
+_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/create.js)_
 
 ## `fonoster numbers:delete [REF]`
 
-remove a number from a Fonoster deployment
+delete a Fonoster Number
 
 ```
 USAGE
@@ -315,22 +321,22 @@ ALIASES
   $ fonoster numbers:rm
 ```
 
-_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/numbers/delete.js)_
+_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/delete.js)_
 
 ## `fonoster numbers:get [REF]`
 
-get information about an existing number
+get a Fonoster Number
 
 ```
 USAGE
   $ fonoster numbers:get [REF]
 ```
 
-_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/numbers/get.js)_
+_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/get.js)_
 
 ## `fonoster numbers:list`
 
-list registered numbers
+list all Fonoster Numbers you have access to
 
 ```
 USAGE
@@ -341,17 +347,17 @@ OPTIONS
 
 DESCRIPTION
   ...
-     List the registered numbers
+     List all Fonoster Numbers you have access to
 
 ALIASES
   $ fonoster numbers:ls
 ```
 
-_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/numbers/list.js)_
+_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/list.js)_
 
 ## `fonoster numbers:update [REF]`
 
-updates a number at the SIP Proxy subsystem
+update a Fonoster Number
 
 ```
 USAGE
@@ -359,10 +365,10 @@ USAGE
 
 DESCRIPTION
   ...
-     Updates a number at the SIP Proxy subsystem
+     Update a Fonoster Number
 ```
 
-_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/numbers/update.js)_
+_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/update.js)_
 
 ## `fonoster plugins`
 
@@ -502,9 +508,98 @@ OPTIONS
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.10.1/src/commands/plugins/update.ts)_
 
+## `fonoster projects:create`
+
+create a new Fonoster Project
+
+```
+USAGE
+  $ fonoster projects:create
+
+DESCRIPTION
+  ...
+     Create a new Fonoster Project
+```
+
+_See code: [dist/commands/projects/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/create.js)_
+
+## `fonoster projects:delete [REF]`
+
+delete a Fonoster Project
+
+```
+USAGE
+  $ fonoster projects:delete [REF]
+
+ALIASES
+  $ fonoster projects:del
+  $ fonoster projects:rm
+```
+
+_See code: [dist/commands/projects/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/delete.js)_
+
+## `fonoster projects:get [REF]`
+
+get a Fonoster Project
+
+```
+USAGE
+  $ fonoster projects:get [REF]
+```
+
+_See code: [dist/commands/projects/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/get.js)_
+
+## `fonoster projects:list`
+
+list all Fonoster Projects you have access to
+
+```
+USAGE
+  $ fonoster projects:list
+
+DESCRIPTION
+  ...
+     List all Fonoster Projects you have access to
+
+ALIASES
+  $ fonoster projects:ls
+```
+
+_See code: [dist/commands/projects/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/list.js)_
+
+## `fonoster projects:renew [REF]`
+
+renew the credentials of a Fonoster Project
+
+```
+USAGE
+  $ fonoster projects:renew [REF]
+
+DESCRIPTION
+  ...
+     Renew the credentials of a Fonoster Project
+```
+
+_See code: [dist/commands/projects/renew.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/renew.js)_
+
+## `fonoster projects:use [REF]`
+
+set a default Fonoster Project
+
+```
+USAGE
+  $ fonoster projects:use [REF]
+
+DESCRIPTION
+  ...
+     Set a default Fonoster Project
+```
+
+_See code: [dist/commands/projects/use.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/use.js)_
+
 ## `fonoster providers:create`
 
-creates a new provider resource
+create a new Fonoster Provider (trunk)
 
 ```
 USAGE
@@ -512,14 +607,14 @@ USAGE
 
 DESCRIPTION
   ...
-     Creates a new Provider in the SIP Proxy subsystem
+     Create a new Fonoster Provider
 ```
 
-_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/providers/create.js)_
+_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/create.js)_
 
 ## `fonoster providers:delete [REF]`
 
-removes a provider from a Fonoster deployment
+delete a Fonoster Provider
 
 ```
 USAGE
@@ -530,22 +625,22 @@ ALIASES
   $ fonoster providers:rm
 ```
 
-_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/providers/delete.js)_
+_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/delete.js)_
 
 ## `fonoster providers:get [REF]`
 
-get information about an existing provider
+get a Fonoster Provider
 
 ```
 USAGE
   $ fonoster providers:get [REF]
 ```
 
-_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/providers/get.js)_
+_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/get.js)_
 
 ## `fonoster providers:list`
 
-list registered providers
+list all Fonoster Providers you have access to
 
 ```
 USAGE
@@ -556,17 +651,17 @@ OPTIONS
 
 DESCRIPTION
   ...
-     List the registered providers
+     List all Fonoster Providers you have access to
 
 ALIASES
   $ fonoster providers:ls
 ```
 
-_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/providers/list.js)_
+_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/list.js)_
 
 ## `fonoster providers:update [REF]`
 
-updates a provider at the SIP Proxy subsystem
+update a Fonoster Provider
 
 ```
 USAGE
@@ -574,8 +669,8 @@ USAGE
 
 DESCRIPTION
   ...
-     Updates a provider at the SIP Proxy subsystem
+     Update a Fonoster Provider
 ```
 
-_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonoster/blob/v0.2.13/dist/commands/providers/update.js)_
+_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/update.js)_
 <!-- commandsstop -->

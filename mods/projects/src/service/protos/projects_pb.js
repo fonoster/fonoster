@@ -1254,7 +1254,7 @@ proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.prototype.toObject 
  */
 proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    accesskeysecret: jspb.Message.getFieldWithDefault(msg, 1, "")
+    accessKeySecret: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1293,7 +1293,7 @@ proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.deserializeBinaryFr
     switch (field) {
     case 1:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAccesskeysecret(value);
+      msg.setAccessKeySecret(value);
       break;
     default:
       reader.skipField();
@@ -1324,7 +1324,7 @@ proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.prototype.serialize
  */
 proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getAccesskeysecret();
+  f = message.getAccessKeySecret();
   if (f.length > 0) {
     writer.writeString(
       1,
@@ -1335,10 +1335,10 @@ proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.serializeBinaryToWr
 
 
 /**
- * optional string accessKeySecret = 1;
+ * optional string access_key_secret = 1;
  * @return {string}
  */
-proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.prototype.getAccesskeysecret = function() {
+proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.prototype.getAccessKeySecret = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
@@ -1347,7 +1347,7 @@ proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.prototype.getAccess
  * @param {string} value
  * @return {!proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse} returns this
  */
-proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.prototype.setAccesskeysecret = function(value) {
+proto.fonoster.projects.v1beta1.RenewAccessKeySecretResponse.prototype.setAccessKeySecret = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
 };
 

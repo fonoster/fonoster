@@ -1,15 +1,18 @@
 import "../../config";
-import Domains, {CommonPB} from "@fonoster/domains";
+import {CommonPB} from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {cli} from "cli-ux";
 import {Domain} from "@fonoster/domains/src/client/types";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+
+const Domains = require("@fonoster/domains");
 const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
-  static description = `list registered domains
+  static description = `list all Fonoster Domains you have access to
   ...
-  List the registered domains
+  List all Fonoster Domains you have access to
   `;
   static flags = {
     size: oclifFlags.integer({
@@ -21,9 +24,12 @@ export default class ListCommand extends Command {
   static aliases = ["domains:ls"];
 
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     const {flags} = this.parse(ListCommand);
     try {
-      const domains = new Domains();
+      const domains = new Domains(getProjectConfig());
       let firstBatch = true;
       let pageToken = "1";
       const pageSize = flags.size;

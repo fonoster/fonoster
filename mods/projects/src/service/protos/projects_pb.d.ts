@@ -158,8 +158,8 @@ export namespace RenewAccessKeySecretRequest {
 }
 
 export class RenewAccessKeySecretResponse extends jspb.Message { 
-    getAccesskeysecret(): string;
-    setAccesskeysecret(value: string): RenewAccessKeySecretResponse;
+    getAccessKeySecret(): string;
+    setAccessKeySecret(value: string): RenewAccessKeySecretResponse;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): RenewAccessKeySecretResponse.AsObject;
@@ -173,7 +173,7 @@ export class RenewAccessKeySecretResponse extends jspb.Message {
 
 export namespace RenewAccessKeySecretResponse {
     export type AsObject = {
-        accesskeysecret: string,
+        accessKeySecret: string,
     }
 }
 

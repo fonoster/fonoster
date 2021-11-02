@@ -3,7 +3,7 @@ import cli from "cli-ux";
 import {Command} from "@oclif/command";
 
 export default class extends Command {
-  static description = `let'us know how we're doing
+  static description = `let us know how we're doing
   ...
   Help us improve by providing some feedback
   `;
