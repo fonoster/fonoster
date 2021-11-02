@@ -68,7 +68,7 @@ voiceServer.listen((req, res) => {
 // ngrok http 3000
 ```
 
-Everything in PF is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
+Everything in FN is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
 
 Example of originating a call with the SDK:
 
@@ -87,7 +87,7 @@ callManager.call({
 
 ## Getting Started
 
-To get started with PF use the following resources:
+To get started with FN use the following resources:
 
 - [Deploying Fonoster to the Cloud](./docs/operator/deploy-your-server.md)
 - [An introduction to Programmable Voice Applications](https://github.com/fonoster/blog/blob/main/2021/002/post.md)

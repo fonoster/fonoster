@@ -42,7 +42,7 @@ import {
  * @example
  *
  * const Fonoster = require("@fonoster/sdk")
- * const Users = new Fonoster.Users()
+ * const users = new Fonoster.Users()
  *
  * const request = {
  *   email: "john.doe@email.com",
@@ -51,7 +51,7 @@ import {
  *   avatar: "https://avatar.com/avt?userId=2124252"
  * }
  *
- * Users.createUser(request)
+ * users.createUser(request)
  * .then(result => {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
@@ -87,7 +87,7 @@ export default class Users extends APIClient implements IUsersClient {
    *   avatar: "https://avatar.com/avt?userId=2124252"
    * }
    *
-   * Users.createUser(request)
+   * users.createUser(request)
    * .then(result => {
    *   console.log(result)             // successful response
    * }).catch(e => console.error(e))   // an error occurred
@@ -122,7 +122,7 @@ export default class Users extends APIClient implements IUsersClient {
    *
    * const ref = "507f1f77bcf86cd799439011";
    *
-   * Users.getUser(ref)
+   * users.getUser(ref)
    * .then(result => {
    *   console.log(result)             // returns the User payload
    * }).catch(e => console.error(e))   // an error occurred
@@ -144,7 +144,7 @@ export default class Users extends APIClient implements IUsersClient {
   }
 
   /**
-   * Updates an User.
+   * Update a Fonoster User.
    *
    * @param {UpdateUserRequest} request - Request update of an User
    * @param {string} request.ref - Required reference to the User
@@ -159,7 +159,7 @@ export default class Users extends APIClient implements IUsersClient {
    *   secret: "s3cur3pass"
    * }
    *
-   * Users.updateUser(request)
+   * users.updateUser(request)
    * .then(result => {
    *   console.log(result)            // returns the UpdateUserResponse payload
    * }).catch(e => console.error(e))  // an error occurred
@@ -179,14 +179,14 @@ export default class Users extends APIClient implements IUsersClient {
   }
 
   /**
-   * Deletes an User.
+   * Delete an Fonoster User.
    *
    * @param {string} ref - User's reference
    * @example
    *
    * const ref = "507f1f77bcf86cd799439011"
    *
-   * Users.deleteUser(ref)
+   * users.deleteUser(ref)
    * .then(() => {
    *   console.log("done")            // returns a reference of the User
    * }).catch(e => console.error(e))  // an error occurred
@@ -212,7 +212,7 @@ export default class Users extends APIClient implements IUsersClient {
    *  expiration: "30d"
    * }
    *
-   * Users.createUserCredentials(request)
+   * users.createUserCredentials(request)
    * .then(result => {
    *   console.log(result)            // returns an accessKeyId and accessKeySecret
    * }).catch(e => console.error(e))  // an error occurred
