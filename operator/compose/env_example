@@ -123,7 +123,7 @@ DS_PORT=6379
 #
 # Integration with SIPProxy (Routr)
 #
-SIPPROXY_IMAGE=fonoster/routr:1.0.0-edge-20210626.2
+SIPPROXY_IMAGE=fonoster/routr:1.0.0-rc6
 SIPPROXY_USERNAME=ast
 SIPPROXY_API_HOST=sipproxy.fonoster
 SIPPROXY_HOST=sipproxy.fonoster
@@ -229,7 +229,7 @@ COMPOSE_PROJECT_NAME=fonos
 # Overall version for the project
 # This variable will determine which docker
 # image is downloaded for PF services
-COMPOSE_PROJECT_VERSION=0.2.10
+COMPOSE_PROJECT_VERSION=0.2.14
 
 # Restart policy for containers
 RESTART_POLICY=unless-stopped
