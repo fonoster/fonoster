@@ -30,7 +30,7 @@ Constructs a new Users object.
 **Example**  
 ```js
 const Fonoster = require("@fonoster/sdk")
-const Users = new Fonoster.Users()
+const users = new Fonoster.Users()
 
 const request = {
   email: "john.doe@email.com",
@@ -39,7 +39,7 @@ const request = {
   avatar: "https://avatar.com/avt?userId=2124252"
 }
 
-Users.createUser(request)
+users.createUser(request)
 .then(result => {
   console.log(result)             // successful response
 }).catch(e => console.error(e))   // an error occurred
@@ -68,7 +68,7 @@ const request = {
   avatar: "https://avatar.com/avt?userId=2124252"
 }
 
-Users.createUser(request)
+users.createUser(request)
 .then(result => {
   console.log(result)             // successful response
 }).catch(e => console.error(e))   // an error occurred
@@ -93,7 +93,7 @@ Retrives an User by reference.
 ```js
 const ref = "507f1f77bcf86cd799439011";
 
-Users.getUser(ref)
+users.getUser(ref)
 .then(result => {
   console.log(result)             // returns the User payload
 }).catch(e => console.error(e))   // an error occurred
@@ -101,7 +101,7 @@ Users.getUser(ref)
 <a name="Users+updateUser"></a>
 
 ### users.updateUser(request) ⇒ <code>Promise.&lt;UpdateUserResponse&gt;</code>
-Updates an User.
+Update a Fonoster User.
 
 **Kind**: instance method of [<code>Users</code>](#Users)  
 
@@ -120,7 +120,7 @@ const request = {
   secret: "s3cur3pass"
 }
 
-Users.updateUser(request)
+users.updateUser(request)
 .then(result => {
   console.log(result)            // returns the UpdateUserResponse payload
 }).catch(e => console.error(e))  // an error occurred
@@ -128,7 +128,7 @@ Users.updateUser(request)
 <a name="Users+deleteUser"></a>
 
 ### users.deleteUser(ref)
-Deletes an User.
+Delete an Fonoster User.
 
 **Kind**: instance method of [<code>Users</code>](#Users)  
 
@@ -140,7 +140,7 @@ Deletes an User.
 ```js
 const ref = "507f1f77bcf86cd799439011"
 
-Users.deleteUser(ref)
+users.deleteUser(ref)
 .then(() => {
   console.log("done")            // returns a reference of the User
 }).catch(e => console.error(e))  // an error occurred
@@ -166,7 +166,7 @@ const request = {
  expiration: "30d"
 }
 
-Users.createUserCredentials(request)
+users.createUserCredentials(request)
 .then(result => {
   console.log(result)            // returns an accessKeyId and accessKeySecret
 }).catch(e => console.error(e))  // an error occurred
