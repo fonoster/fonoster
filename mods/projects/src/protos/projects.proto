@@ -90,7 +90,7 @@ message RenewAccessKeySecretRequest {
 }
 
 message RenewAccessKeySecretResponse {
-  string accessKeySecret = 1;
+  string access_key_secret = 1;
 }
 
 message Project {

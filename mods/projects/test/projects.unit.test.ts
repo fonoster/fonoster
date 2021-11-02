@@ -134,6 +134,51 @@ describe("@fonoster/projects", () => {
     expect(res).to.have.property("ref").to.be.equal(projectObj.getRef());
   });
 
+  it("should list projects", async () => {
+    sandbox.stub(APIClient.prototype, "init").returns();
+    const serviceStub = sandbox
+      .stub(APIClient.prototype, "getService")
+      .returns({
+        listProjects: () => {
+          return {
+            sendMessage: () =>
+              Promise.resolve({
+                getProjectsList: () => [projectObj]
+              })
+          };
+        }
+      });
+
+    const projectsAPI = new Projects();
+    const result = await projectsAPI.listProjects({});
+
+    expect(serviceStub).to.be.calledTwice;
+    expect(result.projects[0])
+      .to.have.property("ref")
+      .to.be.equal(projectObj.getRef());
+    expect(result.projects[0])
+      .to.have.property("name")
+      .to.be.equal(projectObj.getName());
+    expect(result.projects[0])
+      .to.have.property("userRef")
+      .to.be.equal(projectObj.getUserRef());
+    expect(result.projects[0])
+      .to.have.property("accessKeyId")
+      .to.be.equal(projectObj.getAccessKeyId());
+    expect(result.projects[0])
+      .to.have.property("accessKeySecret")
+      .to.be.equal(projectObj.getAccessKeySecret());
+    expect(result.projects[0])
+      .to.have.property("allowExperiments")
+      .to.be.equal(projectObj.getAllowExperiments());
+    expect(result.projects[0])
+      .to.have.property("createTime")
+      .to.be.equal(projectObj.getCreateTime());
+    expect(result.projects[0])
+      .to.have.property("updateTime")
+      .to.be.equal(projectObj.getUpdateTime());
+  });
+
   it("should update a project", async () => {
     const request = {
       ref: projectObj.getRef(),

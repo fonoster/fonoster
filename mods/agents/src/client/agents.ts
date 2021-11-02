@@ -35,7 +35,7 @@ import {
 } from "./types";
 
 /**
- * @classdesc Use Fonoster Agents, a capability ofFonosterSIP Proxy subsystem,
+ * @classdesc Use Fonoster Agents, a capability of Fonoster SIP Proxy subsystem,
  * to create, update, get and delete Agents. Agents requires of a
  * runningFonosterdeployment.
  *
@@ -207,10 +207,6 @@ export default class Agents extends APIClient implements IAgentsClient {
    * }).catch(e => console.error(e))  // an error occurred
    */
   async listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse> {
-    logger.log(
-      "verbose",
-      `@fonoster/agents listAgent [request -> ${JSON.stringify(request)}]`
-    );
     const r = new AgentsPB.ListAgentsRequest();
     r.setPageSize(request.pageSize);
     r.setPageToken(request.pageToken);

@@ -1,4 +1,3 @@
-/* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -19,10 +18,7 @@
  */
 import {APIClient, ClientOptions} from "@fonoster/common";
 import {ProjectsClient} from "../service/protos/projects_grpc_pb";
-import ProjectsPB, {
-  ListProjectsRequest,
-  ListProjectsResponse
-} from "../service/protos/projects_pb";
+import ProjectsPB from "../service/protos/projects_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import {
@@ -34,7 +30,9 @@ import {
   UpdateProjectResponse,
   RenewAccessKeySecretRequest,
   RenewAccessKeySecretResponse,
-  IProjectsClient
+  IProjectsClient,
+  ListProjectsRequest,
+  ListProjectsResponse
 } from "./types";
 
 /**
@@ -53,7 +51,7 @@ import {
  *   allowExperiments: false
  * }
  *
- * Projects.createProject(request)
+ * projects.createProject(request)
  * .then(result => {
  *   console.log(result)             // successful response
  * }).catch(e => console.error(e))   // an error occurred
@@ -71,13 +69,46 @@ export default class Projects extends APIClient implements IProjectsClient {
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  listProjects(request: ListProjectsRequest): Promise<ListProjectsResponse> {
-    throw new Error("Method not implemented.");
+  /**
+   * Returns a list of Projects
+   *
+   * @param {ListProjectsRequest} request - Reserved for future filters
+   * @return {Promise<ListProjectsResponse>}
+   * @example
+   *
+   * projects.listProjects({})
+   * .then(result => {
+   *   console.log(result)             // successful response
+   * }).catch(e => console.error(e))   // an error occurred
+   */
+  async listProjects(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    request?: ListProjectsRequest
+  ): Promise<ListProjectsResponse> {
+    const res = new ProjectsPB.ListProjectsRequest();
+    const paginatedList = await super
+      .getService()
+      .listProjects()
+      .sendMessage(res);
+
+    return {
+      projects: paginatedList.getProjectsList().map((p: ProjectsPB.Project) => {
+        return {
+          ref: p.getRef(),
+          name: p.getName(),
+          userRef: p.getUserRef(),
+          accessKeyId: p.getAccessKeyId(),
+          accessKeySecret: p.getAccessKeySecret(),
+          allowExperiments: p.getAllowExperiments(),
+          createTime: p.getCreateTime(),
+          updateTime: p.getUpdateTime()
+        };
+      })
+    };
   }
 
   /**
-   * Creates a new Project on Fonoster
+   * Creates a new Project.
    *
    * @param {CreateProjectRequest} request -  Request to create a new Project
    * @param {string} request.name - Project's name
@@ -90,7 +121,7 @@ export default class Projects extends APIClient implements IProjectsClient {
    *   allowExperiments: true
    * }
    *
-   * Projects.createProject(request)
+   * projects.createProject(request)
    * .then(result => {
    *   console.log(result)             // successful response
    * }).catch(e => console.error(e))   // an error occurred
@@ -117,7 +148,7 @@ export default class Projects extends APIClient implements IProjectsClient {
   }
 
   /**
-   * Retrives an Project by reference.
+   * Get a Project by reference.
    *
    * @param {string} ref - Reference to Project
    * @return {Promise<GetProjectResponse>} The Project
@@ -126,7 +157,7 @@ export default class Projects extends APIClient implements IProjectsClient {
    *
    * const ref = "507f1f77bcf86cd799439011";
    *
-   * Projects.getProject(ref)
+   * projects.getProject(ref)
    * .then(result => {
    *   console.log(result)             // returns the Project payload
    * }).catch(e => console.error(e))   // an error occurred
@@ -149,7 +180,7 @@ export default class Projects extends APIClient implements IProjectsClient {
   }
 
   /**
-   * Updates an Project.
+   * Update a Project.
    *
    * @param {UpdateProjectRequest} request - Request update of an Project
    * @param {string} request.ref - Required reference to the Project
@@ -163,7 +194,7 @@ export default class Projects extends APIClient implements IProjectsClient {
    *   ref: "507f1f77bcf86cd799439011"
    * }
    *
-   * Projects.updateProject(request)
+   * projects.updateProject(request)
    * .then(result => {
    *   console.log(result)            // returns the UpdateProjectResponse payload
    * }).catch(e => console.error(e))  // an error occurred
@@ -185,14 +216,14 @@ export default class Projects extends APIClient implements IProjectsClient {
   }
 
   /**
-   * Deletes a Project.
+   * Delete a Project.
    *
    * @param {string} ref - Project's reference
    * @example
    *
    * const ref = "507f1f77bcf86cd799439011"
    *
-   * Projects.deleteProject(ref)
+   * projects.deleteProject(ref)
    * .then(() => {
    *   console.log("done")            // returns a reference of the Project
    * }).catch(e => console.error(e))  // an error occurred
@@ -205,18 +236,17 @@ export default class Projects extends APIClient implements IProjectsClient {
   }
 
   /**
-   * Generates a new accessKeySecret. Be sure to update your applications with the new value.
+   * Generate a new accessKeySecret. Be sure to update your applications with the new value.
    *
    * @param {LoginRequest} request - Request update of an Project
-   * @param {string} request.email - Login projectname
-   * @param {string} request.secret - Login password
+   * @param {string} request.ref - Project's reference
    * @example
    *
    * const request = {
    *  ref: "507f1f77bcf86cd799439011"
    * }
    *
-   * Projects.loginProject(request)
+   * projects.renewAccessKeySecret(request)
    * .then(result => {
    *   console.log(result)            // returns the new accessKeySecret
    * }).catch(e => console.error(e))  // an error occurred
