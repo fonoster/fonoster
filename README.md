@@ -87,8 +87,6 @@ callManager.call({
 
 ## Getting Started
 
-![command-line tool](https://raw.githubusercontent.com/fonoster/fonoster/dev/docs/assets/images/console.png)
-
 To get started with FN use the following resources:
 
 - [Deploying Fonoster to the Cloud](./docs/operator/deploy-your-server.md)
