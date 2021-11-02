@@ -1,28 +1,36 @@
 import "../../config";
-import Domains from "@fonoster/domains";
 import {CommonPB} from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import Numbers from "@fonoster/numbers";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+
+const Numbers = require("@fonoster/numbers");
+const Domains = require("@fonoster/domains");
 const inquirer = require("inquirer");
 const view: CommonPB.View = CommonPB.View.BASIC;
 
 export default class UpdateCommand extends Command {
   static args = [{name: "ref"}];
-  static description = `updates a domain at the SIP Proxy subsystem
+  static description = `update a Fonoster Domain
   ...
-  Updates a domain at the SIP Proxy subsystem
+  Update a Fonoster Domain
   `;
 
   async run() {
-    console.log("This utility will help you create a basic voice application");
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
+    console.log(
+      "This utility will help you update an existing Fonoster Domain"
+    );
     console.log("to help you get start quickly. Press ^C at any time to quit.");
 
     const {args} = this.parse(UpdateCommand);
-    const domains = new Domains();
+    const domains = new Domains(getProjectConfig());
+    const numbers = new Numbers(getProjectConfig());
+
     const domain = await domains.getDomain(args.ref);
-    const numbers = new Numbers();
 
     const result = await numbers.listNumbers({
       pageSize: 20,

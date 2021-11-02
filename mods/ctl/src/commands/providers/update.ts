@@ -1,26 +1,34 @@
 import "../../config";
-import Providers from "@fonoster/providers";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+
+const Providers = require("@fonoster/providers");
 const inquirer = require("inquirer");
 
 export default class UpdateCommand extends Command {
   static args = [{name: "ref"}];
-  static description = `updates a provider at the SIP Proxy subsystem
+  static description = `update a Fonoster Provider
   ...
-  Updates a provider at the SIP Proxy subsystem
+  Update a Fonoster Provider
   `;
 
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     const {args} = this.parse(UpdateCommand);
 
-    if (!args.ref) throw new Error("Please provide reference number");
+    if (!args.ref)
+      throw new Error("please provide the reference of your Fonoster Number");
 
-    console.log("This utility will help you update an existing Provider");
+    console.log(
+      "This utility will help you update an existing Fonoster Provider"
+    );
     console.log("Press ^C at any time to quit.");
 
-    const providers = new Providers();
+    const providers = new Providers(getProjectConfig());
     const provider = await providers.getProvider(args.ref);
 
     const answers: any = await inquirer.prompt([
@@ -74,7 +82,7 @@ export default class UpdateCommand extends Command {
       console.log("Aborted");
     } else {
       try {
-        cli.action.start(`Updating provider ${answers.name}`);
+        cli.action.start(`Updating Provider ${answers.name}`);
 
         await providers.updateProvider(answers);
         await cli.wait(1000);

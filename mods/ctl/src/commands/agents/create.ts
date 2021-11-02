@@ -1,23 +1,27 @@
 import "../../config";
-import Agents from "@fonoster/agents";
-import Domains from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+const Agents = require("@fonoster/agents");
+const Domains = require("@fonoster/domains");
 const inquirer = require("inquirer");
 
 export default class extends Command {
-  static description = `creates a new agent resource
+  static description = `create a new Fonoster Agent
   ...
-  Creates a new Agent in the SIP Proxy subsystem
+  Create a new Fonoster Agent
   `;
 
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     console.log("This utility will help you create a new Agent");
     console.log("Press ^C at any time to quit.");
 
     // TODO: Consider using the autocomplete plugin
-    const response = await new Domains().listDomains({
+    const response = await Domains(getProjectConfig()).listDomains({
       pageSize: 25,
       pageToken: "1"
     });
@@ -71,7 +75,7 @@ export default class extends Command {
     } else {
       try {
         cli.action.start(`Creating agent ${answers.name}`);
-        const agents = new Agents();
+        const agents = new Agents(getProjectConfig());
         const agent = await agents.createAgent(answers);
         await cli.wait(1000);
         cli.action.stop(agent.ref);

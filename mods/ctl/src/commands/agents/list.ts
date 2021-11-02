@@ -1,16 +1,17 @@
 import "../../config";
-import Agents from "@fonoster/agents";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {CommonPB} from "@fonoster/agents";
 import {cli} from "cli-ux";
 import {Agent} from "@fonoster/agents/src/client/types";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+const Agents = require("@fonoster/agents");
 const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
-  static description = `list registered agents
+  static description = `list all Fonoster Agents you have access to
   ...
-  List the registered agents
+  List all Fonoster Agents you have access to
   `;
   static flags = {
     size: oclifFlags.integer({
@@ -22,9 +23,12 @@ export default class ListCommand extends Command {
   static aliases = ["agents:ls"];
 
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     const {flags} = this.parse(ListCommand);
     try {
-      const agents = new Agents();
+      const agents = new Agents(getProjectConfig());
       let firstBatch = true;
       let pageToken = "1";
       const pageSize = flags.size;

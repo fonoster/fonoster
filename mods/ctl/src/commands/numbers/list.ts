@@ -1,18 +1,19 @@
 import "../../config";
-import Numbers from "@fonoster/numbers";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {CommonPB} from "@fonoster/numbers";
 import {cli} from "cli-ux";
 import {Number} from "@fonoster/numbers/src/client/types";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+
+const Numbers = require("@fonoster/numbers");
 const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
-  static description = `list registered numbers
+  static description = `list all Fonoster Numbers you have access to
   ...
-  List the registered numbers
+  List all Fonoster Numbers you have access to
   `;
-
   static flags = {
     size: oclifFlags.integer({
       char: "s",
@@ -24,9 +25,12 @@ export default class ListCommand extends Command {
   static aliases = ["numbers:ls"];
 
   async run() {
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
     const {flags} = this.parse(ListCommand);
     try {
-      const numbers = new Numbers();
+      const numbers = new Numbers(getProjectConfig());
       let firstBatch = true;
       let pageToken = "1";
       const pageSize = flags.size;

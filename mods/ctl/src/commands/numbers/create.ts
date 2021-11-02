@@ -1,26 +1,31 @@
 import "../../config";
-import Providers from "@fonoster/providers";
-import Numbers from "@fonoster/numbers";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB} from "@fonoster/numbers";
 import {Provider} from "@fonoster/providers/src/client/types";
+import {getProjectConfig, hasProjectConfig} from "../../config";
+
+const Providers = require("@fonoster/providers");
+const Numbers = require("@fonoster/numbers");
 const inquirer = require("inquirer");
 
 export default class CreateCommand extends Command {
-  static description = `creates a new number resource
+  static description = `create a new Fonoster Number
   ...
-  Creates a new Number in the SIP Proxy subsystem
+  Create a new Fonoster Number
   `;
 
   async run() {
-    console.log("This utility will help you create a new Number");
+    if (!hasProjectConfig()) {
+      throw new CLIError("you must set a default project");
+    }
+    console.log("This utility will help you create a new Fonoster Number");
     console.log("Press ^C at any time to quit.");
 
     const view: CommonPB.View = CommonPB.View.BASIC;
     try {
-      const response = await new Providers().listProviders({
+      const response = await Providers(getProjectConfig()).listProviders({
         pageSize: 25,
         pageToken: "1"
       });
@@ -38,7 +43,9 @@ export default class CreateCommand extends Command {
       });
 
       if (providers.length === 0) {
-        throw new Error("you must create a provider before adding a number");
+        throw new Error(
+          "before adding a Number you must create a Provider (trunk)"
+        );
       }
 
       const answers: any = await inquirer.prompt([
@@ -88,8 +95,8 @@ export default class CreateCommand extends Command {
       if (!answers.confirm) {
         console.log("Aborted");
       } else {
-        cli.action.start(`Creating number ${answers.e164Number}`);
-        const numbers = new Numbers();
+        cli.action.start(`Creating Number ${answers.e164Number}`);
+        const numbers = new Numbers(getProjectConfig());
         const result = await numbers.createNumber(answers);
         await cli.wait(1000);
         cli.action.stop(result.ref);
