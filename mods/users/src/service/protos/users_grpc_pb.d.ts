@@ -12,6 +12,7 @@ import * as google_api_field_behavior_pb from "./google/api/field_behavior_pb";
 import * as common_pb from "./common_pb";
 
 interface IUsersService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+    listUsers: IUsersService_IListUsers;
     createUser: IUsersService_ICreateUser;
     getUser: IUsersService_IGetUser;
     updateUser: IUsersService_IUpdateUser;
@@ -19,6 +20,15 @@ interface IUsersService extends grpc.ServiceDefinition<grpc.UntypedServiceImplem
     createUserCredentials: IUsersService_ICreateUserCredentials;
 }
 
+interface IUsersService_IListUsers extends grpc.MethodDefinition<users_pb.ListUsersRequest, users_pb.ListUsersResponse> {
+    path: "/fonoster.users.v1beta1.Users/ListUsers";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<users_pb.ListUsersRequest>;
+    requestDeserialize: grpc.deserialize<users_pb.ListUsersRequest>;
+    responseSerialize: grpc.serialize<users_pb.ListUsersResponse>;
+    responseDeserialize: grpc.deserialize<users_pb.ListUsersResponse>;
+}
 interface IUsersService_ICreateUser extends grpc.MethodDefinition<users_pb.CreateUserRequest, users_pb.User> {
     path: "/fonoster.users.v1beta1.Users/CreateUser";
     requestStream: false;
@@ -68,6 +78,7 @@ interface IUsersService_ICreateUserCredentials extends grpc.MethodDefinition<use
 export const UsersService: IUsersService;
 
 export interface IUsersServer extends grpc.UntypedServiceImplementation {
+    listUsers: grpc.handleUnaryCall<users_pb.ListUsersRequest, users_pb.ListUsersResponse>;
     createUser: grpc.handleUnaryCall<users_pb.CreateUserRequest, users_pb.User>;
     getUser: grpc.handleUnaryCall<users_pb.GetUserRequest, users_pb.User>;
     updateUser: grpc.handleUnaryCall<users_pb.UpdateUserRequest, users_pb.User>;
@@ -76,6 +87,9 @@ export interface IUsersServer extends grpc.UntypedServiceImplementation {
 }
 
 export interface IUsersClient {
+    listUsers(request: users_pb.ListUsersRequest, callback: (error: grpc.ServiceError | null, response: users_pb.ListUsersResponse) => void): grpc.ClientUnaryCall;
+    listUsers(request: users_pb.ListUsersRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: users_pb.ListUsersResponse) => void): grpc.ClientUnaryCall;
+    listUsers(request: users_pb.ListUsersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: users_pb.ListUsersResponse) => void): grpc.ClientUnaryCall;
     createUser(request: users_pb.CreateUserRequest, callback: (error: grpc.ServiceError | null, response: users_pb.User) => void): grpc.ClientUnaryCall;
     createUser(request: users_pb.CreateUserRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: users_pb.User) => void): grpc.ClientUnaryCall;
     createUser(request: users_pb.CreateUserRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: users_pb.User) => void): grpc.ClientUnaryCall;
@@ -95,6 +109,9 @@ export interface IUsersClient {
 
 export class UsersClient extends grpc.Client implements IUsersClient {
     constructor(address: string, credentials: grpc.ChannelCredentials, options?: Partial<grpc.ClientOptions>);
+    public listUsers(request: users_pb.ListUsersRequest, callback: (error: grpc.ServiceError | null, response: users_pb.ListUsersResponse) => void): grpc.ClientUnaryCall;
+    public listUsers(request: users_pb.ListUsersRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: users_pb.ListUsersResponse) => void): grpc.ClientUnaryCall;
+    public listUsers(request: users_pb.ListUsersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: users_pb.ListUsersResponse) => void): grpc.ClientUnaryCall;
     public createUser(request: users_pb.CreateUserRequest, callback: (error: grpc.ServiceError | null, response: users_pb.User) => void): grpc.ClientUnaryCall;
     public createUser(request: users_pb.CreateUserRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: users_pb.User) => void): grpc.ClientUnaryCall;
     public createUser(request: users_pb.CreateUserRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: users_pb.User) => void): grpc.ClientUnaryCall;

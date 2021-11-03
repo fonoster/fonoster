@@ -121,6 +121,7 @@ const services = [
 ];
 
 const whitelist = [
+  "/fonoster.users.v1beta1.Users/ListUsers",
   "/fonoster.users.v1beta1.Users/CreateUser",
   "/fonoster.users.v1beta1.Users/DeleteUser",
   "/fonoster.users.v1beta1.Users/LoginUser",

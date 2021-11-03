@@ -25,7 +25,10 @@ import UserPB, {
   GetUserRequest,
   DeleteUserRequest,
   CreateUserCredentialsRequest,
-  CreateUserCredentialsResponse
+  CreateUserCredentialsResponse,
+  ListUsersRequest,
+  ListUsersResponse,
+  User
 } from "./protos/users_pb";
 import {Empty} from "./protos/common_pb";
 import {
@@ -34,7 +37,11 @@ import {
   IUsersServer
 } from "./protos/users_grpc_pb";
 import {assertNotEmpty, assertValidEmail, assertValidURL} from "./assertions";
-import {getRedisConnection, getAccessKeyId} from "@fonoster/core";
+import {
+  getRedisConnection,
+  getAccessKeyId,
+  getAccessKeySecret
+} from "@fonoster/core";
 import objectid from "objectid";
 import encoder from "./encoder";
 import decoder from "./decoder";
@@ -49,8 +56,54 @@ import bcrypt from "bcrypt";
 const authenticator = new Auth(new JWT());
 const redis = getRedisConnection();
 
+// TODO: Move to commons or core
+async function getTokenRole(token: string): Promise<string> {
+  try {
+    const jwt = new JWT();
+    const payload = (await jwt.decode(token, getSalt())) as any;
+    return payload.role;
+  } catch (e) {
+    return null;
+  }
+}
+
 class UsersServer implements IUsersServer {
   [name: string]: grpc.UntypedHandleCall;
+
+  async listUsers(
+    call: grpc.ServerUnaryCall<ListUsersRequest, ListUsersResponse>,
+    callback: grpc.sendUnaryData<ListUsersResponse>
+  ) {
+    try {
+      const role = await getTokenRole(getAccessKeySecret(call));
+      const accessKeyId = getAccessKeyId(call);
+      const list = await redis.smembers("fn_users");
+      const emailFilter = call.request.getFiltersMap().get("email");
+      const users: User[] = await Promise.all(
+        list.map(async (ref) => {
+          const raw = (await redis.get(ref)).toString();
+          const asObj = decoder(raw);
+          if (emailFilter && emailFilter !== asObj.getEmail()) {
+            return;
+          }
+
+          if (
+            accessKeyId === asObj.getAccessKeyId() ||
+            role === "SERVICE" ||
+            role === "ADMIN"
+          ) {
+            return asObj;
+          }
+        })
+      );
+
+      const response = new ListUsersResponse();
+      response.setUsersList(users[0] ? users : []);
+      callback(null, response);
+    } catch (e) {
+      callback(e, null);
+    }
+  }
 
   async createUser(
     call: grpc.ServerUnaryCall<CreateUserRequest, UserPB.User>,
@@ -86,6 +139,7 @@ class UsersServer implements IUsersServer {
 
       redis.set(ref, encoder(user, secretHash));
       redis.set(call.request.getEmail(), ref);
+      redis.sadd("fn_users", ref);
       callback(null, user);
     } catch (e) {
       callback(e, null);

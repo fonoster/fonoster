@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 export interface IUsersClient {
+  listUsers(request: ListUsersRequest): Promise<ListUsersResponse>;
   createUser(request: CreateUserRequest): Promise<CreateUserResponse>;
   getUser(ref: string): Promise<GetUserResponse>;
   updateUser(request: UpdateUserRequest): Promise<UpdateUserResponse>;
@@ -24,6 +25,13 @@ export interface IUsersClient {
   createUserCredentials(
     request: CreateUserCredentialsRequest
   ): Promise<CreateUserCredentialsResponse>;
+}
+
+export interface ListUsersRequest {
+  email?: string;
+}
+export interface ListUsersResponse {
+  users: User[];
 }
 
 export interface User {

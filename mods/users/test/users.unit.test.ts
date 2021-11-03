@@ -37,6 +37,48 @@ describe("@fonoster/users", () => {
 
   afterEach(() => sandbox.restore());
 
+  it.only("should list users", async () => {
+    sandbox.stub(APIClient.prototype, "init").returns();
+    const serviceStub = sandbox
+      .stub(APIClient.prototype, "getService")
+      .returns({
+        listUsers: () => {
+          return {
+            sendMessage: () =>
+              Promise.resolve({
+                getUsersList: () => [userObj]
+              })
+          };
+        }
+      });
+
+    const usersAPI = new Users();
+    const result = await usersAPI.listUsers({});
+
+    expect(serviceStub).to.be.calledTwice;
+    expect(result.users[0])
+      .to.have.property("ref")
+      .to.be.equal(userObj.getRef());
+    expect(result.users[0])
+      .to.have.property("name")
+      .to.be.equal(userObj.getName());
+    expect(result.users[0])
+      .to.have.property("email")
+      .to.be.equal(userObj.getEmail());
+    expect(result.users[0])
+      .to.have.property("accessKeyId")
+      .to.be.equal(userObj.getAccessKeyId());
+    expect(result.users[0])
+      .to.have.property("avatar")
+      .to.be.equal(userObj.getAvatar());
+    expect(result.users[0])
+      .to.have.property("createTime")
+      .to.be.equal(userObj.getCreateTime());
+    expect(result.users[0])
+      .to.have.property("updateTime")
+      .to.be.equal(userObj.getUpdateTime());
+  });
+
   it("should create a user", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox

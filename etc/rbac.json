@@ -3,6 +3,7 @@
     "name": "USER",
     "description": "Access to User and Project endpoints",
     "access": [
+      "/fonoster.users.v1beta1.Users/ListUsers",
       "/fonoster.users.v1beta1.Users/GetUser",
       "/fonoster.users.v1beta1.Users/UpdateUser",
       "/fonoster.users.v1beta1.Users/Login",
@@ -68,7 +69,8 @@
       "/fonoster.numbers.v1beta1.Numbers/GetIngressInfo",
       "/fonoster.auth.v1beta1.Auth/CreateToken",
       "/fonoster.auth.v1beta1.Auth/CreateNoAccessToken",
-      "/fonoster.auth.v1beta1.Auth/ValidateToken"
+      "/fonoster.auth.v1beta1.Auth/ValidateToken",
+      "/fonoster.users.v1beta1.Users/ListUsers"
     ]
   },
   {
@@ -82,7 +84,8 @@
     "access": [
       "/fonoster.auth.v1beta1.Auth/CreateToken",
       "/fonoster.users.v1beta1.Users/CreateUser",
-      "/fonoster.users.v1beta1.Users/DeleteUser"
+      "/fonoster.users.v1beta1.Users/DeleteUser",
+      "/fonoster.users.v1beta1.Users/ListUsers"
     ]
   }
 ]
