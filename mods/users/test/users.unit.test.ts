@@ -37,7 +37,7 @@ describe("@fonoster/users", () => {
 
   afterEach(() => sandbox.restore());
 
-  it.only("should list users", async () => {
+  it("should list users", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
     const serviceStub = sandbox
       .stub(APIClient.prototype, "getService")
