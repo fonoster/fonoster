@@ -17,6 +17,10 @@ import "google/api/field_behavior.proto";
 import "common.proto";
 
 service Users {
+  // Lists all the Users you have access to
+  rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = { get: "/v1beta1/users" };
+  };    
   // Creates a new User resource
   rpc CreateUser (CreateUserRequest) returns (User) {
     option (google.api.http) = { 
@@ -46,6 +50,14 @@ service Users {
       body: "*"
     };
   };
+}
+
+message ListUsersRequest {
+  map <string, string> filters = 1;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
 }
 
 message CreateUserCredentialsRequest {

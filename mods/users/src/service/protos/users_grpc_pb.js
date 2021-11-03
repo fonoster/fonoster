@@ -81,6 +81,28 @@ function deserialize_fonoster_users_v1beta1_GetUserRequest(buffer_arg) {
   return users_pb.GetUserRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_users_v1beta1_ListUsersRequest(arg) {
+  if (!(arg instanceof users_pb.ListUsersRequest)) {
+    throw new Error('Expected argument of type fonoster.users.v1beta1.ListUsersRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_users_v1beta1_ListUsersRequest(buffer_arg) {
+  return users_pb.ListUsersRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_users_v1beta1_ListUsersResponse(arg) {
+  if (!(arg instanceof users_pb.ListUsersResponse)) {
+    throw new Error('Expected argument of type fonoster.users.v1beta1.ListUsersResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_users_v1beta1_ListUsersResponse(buffer_arg) {
+  return users_pb.ListUsersResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_users_v1beta1_UpdateUserRequest(arg) {
   if (!(arg instanceof users_pb.UpdateUserRequest)) {
     throw new Error('Expected argument of type fonoster.users.v1beta1.UpdateUserRequest');
@@ -105,6 +127,18 @@ function deserialize_fonoster_users_v1beta1_User(buffer_arg) {
 
 
 var UsersService = exports.UsersService = {
+  // Lists all the Users you have access to
+listUsers: {
+    path: '/fonoster.users.v1beta1.Users/ListUsers',
+    requestStream: false,
+    responseStream: false,
+    requestType: users_pb.ListUsersRequest,
+    responseType: users_pb.ListUsersResponse,
+    requestSerialize: serialize_fonoster_users_v1beta1_ListUsersRequest,
+    requestDeserialize: deserialize_fonoster_users_v1beta1_ListUsersRequest,
+    responseSerialize: serialize_fonoster_users_v1beta1_ListUsersResponse,
+    responseDeserialize: deserialize_fonoster_users_v1beta1_ListUsersResponse,
+  },
   // Creates a new User resource
 createUser: {
     path: '/fonoster.users.v1beta1.Users/CreateUser',

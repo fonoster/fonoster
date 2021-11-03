@@ -29,13 +29,19 @@ import {
   UpdateUserRequest,
   UpdateUserResponse,
   CreateUserCredentialsRequest,
-  CreateUserCredentialsResponse
+  CreateUserCredentialsResponse,
+  ListUsersRequest,
+  ListUsersResponse
 } from "@fonoster/users/src/client/types";
 import * as c from "./generated/api";
 
 export default class Users extends WebAPIClient implements IUsersClient {
   constructor(options: WebClientOptions) {
     super(c, "UsersApi", options);
+  }
+
+  async listUsers(request: ListUsersRequest): Promise<ListUsersResponse> {
+    return (await super.run("listUsers", request)) as any;
   }
 
   async createUser(request: CreateUserRequest): Promise<CreateUserResponse> {

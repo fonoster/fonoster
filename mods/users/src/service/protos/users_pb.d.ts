@@ -9,6 +9,50 @@ import * as protoc_gen_openapiv2_options_annotations_pb from "./protoc-gen-opena
 import * as google_api_field_behavior_pb from "./google/api/field_behavior_pb";
 import * as common_pb from "./common_pb";
 
+export class ListUsersRequest extends jspb.Message { 
+
+    getFiltersMap(): jspb.Map<string, string>;
+    clearFiltersMap(): void;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListUsersRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ListUsersRequest): ListUsersRequest.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListUsersRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListUsersRequest;
+    static deserializeBinaryFromReader(message: ListUsersRequest, reader: jspb.BinaryReader): ListUsersRequest;
+}
+
+export namespace ListUsersRequest {
+    export type AsObject = {
+
+        filtersMap: Array<[string, string]>,
+    }
+}
+
+export class ListUsersResponse extends jspb.Message { 
+    clearUsersList(): void;
+    getUsersList(): Array<User>;
+    setUsersList(value: Array<User>): ListUsersResponse;
+    addUsers(value?: User, index?: number): User;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ListUsersResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ListUsersResponse): ListUsersResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ListUsersResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ListUsersResponse;
+    static deserializeBinaryFromReader(message: ListUsersResponse, reader: jspb.BinaryReader): ListUsersResponse;
+}
+
+export namespace ListUsersResponse {
+    export type AsObject = {
+        usersList: Array<User.AsObject>,
+    }
+}
+
 export class CreateUserCredentialsRequest extends jspb.Message { 
     getEmail(): string;
     setEmail(value: string): CreateUserCredentialsRequest;

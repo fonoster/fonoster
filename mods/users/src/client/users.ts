@@ -30,7 +30,9 @@ import {
   UpdateUserRequest,
   UpdateUserResponse,
   CreateUserCredentialsResponse,
-  IUsersClient
+  IUsersClient,
+  ListUsersRequest,
+  ListUsersResponse
 } from "./types";
 
 /**
@@ -70,7 +72,41 @@ export default class Users extends APIClient implements IUsersClient {
   }
 
   /**
-   * Creates a new User on Fonoster.
+   * Return a list of Users
+   *
+   * @param {ListProjectsRequest} request - Request filters
+   * @param {string} request.email - Optional email filter
+   * @return {Promise<ListProjectsResponse>}
+   * @example
+   *
+   * projects.listProjects({ email: "john.doe@email.com" })
+   * .then(result => {
+   *   console.log(result)             // successful response
+   * }).catch(e => console.error(e))   // an error occurred
+   */
+  async listUsers(request?: ListUsersRequest): Promise<ListUsersResponse> {
+    const res = new UsersPB.ListUsersRequest();
+    res.getFiltersMap().set("email", request.email);
+
+    const paginatedList = await super.getService().listUsers().sendMessage(res);
+
+    return {
+      users: paginatedList.getUsersList().map((p: UsersPB.User) => {
+        return {
+          ref: p.getRef(),
+          accessKeyId: p.getAccessKeyId(),
+          email: p.getEmail(),
+          name: p.getName(),
+          avatar: p.getAvatar(),
+          createTime: p.getCreateTime(),
+          updateTime: p.getUpdateTime()
+        };
+      })
+    };
+  }
+
+  /**
+   * Create a new Fonoster User.
    *
    * @param {CreateUserRequest} request -  Request for the provision of a new User
    * @param {string} request.email - User's email
