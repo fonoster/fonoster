@@ -1016,6 +1016,19 @@ export interface ListSecretIdResponse {
 /**
  * 
  * @export
+ * @interface ListUsersResponse
+ */
+export interface ListUsersResponse {
+    /**
+     * 
+     * @type {Array<User>}
+     * @memberof ListUsersResponse
+     */
+    'users'?: Array<User>;
+}
+/**
+ * 
+ * @export
  * @interface Number
  */
 export interface Number {
@@ -2586,7 +2599,7 @@ export const FuncsApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary Peforms a hard delete of the function
+         * @summary Gets a stream of logs
          * @param {string} name 
          * @param {string} [since] Only return logs after a specific date (RFC3339).
          * @param {number} [tail] 
@@ -2725,7 +2738,7 @@ export const FuncsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Peforms a hard delete of the function
+         * @summary Gets a stream of logs
          * @param {string} name 
          * @param {string} [since] Only return logs after a specific date (RFC3339).
          * @param {number} [tail] 
@@ -2783,7 +2796,7 @@ export const FuncsApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
-         * @summary Peforms a hard delete of the function
+         * @summary Gets a stream of logs
          * @param {string} name 
          * @param {string} [since] Only return logs after a specific date (RFC3339).
          * @param {number} [tail] 
@@ -2843,7 +2856,7 @@ export class FuncsApi extends BaseAPI {
 
     /**
      * 
-     * @summary Peforms a hard delete of the function
+     * @summary Gets a stream of logs
      * @param {string} name 
      * @param {string} [since] Only return logs after a specific date (RFC3339).
      * @param {number} [tail] 
@@ -4861,6 +4874,42 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @summary Lists all the Users you have access to
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUsers: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/v1beta1/users`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication AccessKeyId required
+            await setApiKeyToObject(localVarHeaderParameter, "access_key_id", configuration)
+
+            // authentication AccessKeySecret required
+            await setApiKeyToObject(localVarHeaderParameter, "access_key_secret", configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Change or update fields in a resource
          * @param {string} ref User\&#39;s reference
          * @param {InlineObject5} body 
@@ -4961,6 +5010,16 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Lists all the Users you have access to
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listUsers(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListUsersResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listUsers(options);
+            return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
+        },
+        /**
+         * 
          * @summary Change or update fields in a resource
          * @param {string} ref User\&#39;s reference
          * @param {InlineObject5} body 
@@ -5020,6 +5079,15 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          */
         getUser(ref: string, options?: any): AxiosPromise<User> {
             return localVarFp.getUser(ref, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Lists all the Users you have access to
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listUsers(options?: any): AxiosPromise<ListUsersResponse> {
+            return localVarFp.listUsers(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5088,6 +5156,17 @@ export class UsersApi extends BaseAPI {
      */
     public getUser(ref: string, options?: AxiosRequestConfig) {
         return UsersApiFp(this.configuration).getUser(ref, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Lists all the Users you have access to
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UsersApi
+     */
+    public listUsers(options?: AxiosRequestConfig) {
+        return UsersApiFp(this.configuration).listUsers(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

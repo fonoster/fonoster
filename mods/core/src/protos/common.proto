@@ -86,7 +86,7 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
       description: "User or system error.";
       schema: {
         json_schema: {
-          ref: ".fonoster.common.v1beta1.Error";
+          ref: ".fonoster.common.v1beta1.ErrorResponse";
         }
       }
     }

@@ -21,7 +21,7 @@ $ npm install -g @fonoster/ctl
 $ fonoster COMMAND
 running command...
 $ fonoster (-v|--version|version)
-@fonoster/ctl/0.2.14 darwin-x64 node-v14.16.0
+@fonoster/ctl/0.2.16 darwin-x64 node-v14.16.0
 $ fonoster --help [COMMAND]
 USAGE
   $ fonoster COMMAND
@@ -83,7 +83,7 @@ DESCRIPTION
      Create a new Fonoster Agent
 ```
 
-_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/create.js)_
+_See code: [dist/commands/agents/create.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/agents/create.js)_
 
 ## `fonoster agents:delete [REF]`
 
@@ -98,7 +98,7 @@ ALIASES
   $ fonoster agents:rm
 ```
 
-_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/delete.js)_
+_See code: [dist/commands/agents/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/agents/delete.js)_
 
 ## `fonoster agents:get [REF]`
 
@@ -109,7 +109,7 @@ USAGE
   $ fonoster agents:get [REF]
 ```
 
-_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/get.js)_
+_See code: [dist/commands/agents/get.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/agents/get.js)_
 
 ## `fonoster agents:list`
 
@@ -130,7 +130,7 @@ ALIASES
   $ fonoster agents:ls
 ```
 
-_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/list.js)_
+_See code: [dist/commands/agents/list.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/agents/list.js)_
 
 ## `fonoster agents:update [REF]`
 
@@ -145,7 +145,7 @@ DESCRIPTION
      Update a Fonoster Agent
 ```
 
-_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/agents/update.js)_
+_See code: [dist/commands/agents/update.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/agents/update.js)_
 
 ## `fonoster auth:login`
 
@@ -156,7 +156,7 @@ USAGE
   $ fonoster auth:login
 ```
 
-_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/auth/login.js)_
+_See code: [dist/commands/auth/login.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/auth/login.js)_
 
 ## `fonoster auth:logout`
 
@@ -167,7 +167,7 @@ USAGE
   $ fonoster auth:logout
 ```
 
-_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/auth/logout.js)_
+_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/auth/logout.js)_
 
 ## `fonoster bug`
 
@@ -182,7 +182,7 @@ DESCRIPTION
      Opens github issues with a predefine bug template
 ```
 
-_See code: [dist/commands/bug.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/bug.js)_
+_See code: [dist/commands/bug.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/bug.js)_
 
 ## `fonoster domains:create`
 
@@ -197,7 +197,7 @@ DESCRIPTION
      Create a new Fonoster Domain
 ```
 
-_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/create.js)_
+_See code: [dist/commands/domains/create.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/domains/create.js)_
 
 ## `fonoster domains:delete [REF]`
 
@@ -212,7 +212,7 @@ ALIASES
   $ fonoster domains:rm
 ```
 
-_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/delete.js)_
+_See code: [dist/commands/domains/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/domains/delete.js)_
 
 ## `fonoster domains:get [REF]`
 
@@ -223,7 +223,7 @@ USAGE
   $ fonoster domains:get [REF]
 ```
 
-_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/get.js)_
+_See code: [dist/commands/domains/get.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/domains/get.js)_
 
 ## `fonoster domains:list`
 
@@ -244,7 +244,7 @@ ALIASES
   $ fonoster domains:ls
 ```
 
-_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/list.js)_
+_See code: [dist/commands/domains/list.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/domains/list.js)_
 
 ## `fonoster domains:update [REF]`
 
@@ -259,7 +259,7 @@ DESCRIPTION
      Update a Fonoster Domain
 ```
 
-_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/domains/update.js)_
+_See code: [dist/commands/domains/update.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/domains/update.js)_
 
 ## `fonoster feedback`
 
@@ -274,7 +274,7 @@ DESCRIPTION
      Help us improve by providing some feedback
 ```
 
-_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/feedback.js)_
+_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/feedback.js)_
 
 ## `fonoster help [COMMAND]`
 
@@ -306,7 +306,7 @@ DESCRIPTION
      Create a new Fonoster Number
 ```
 
-_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/create.js)_
+_See code: [dist/commands/numbers/create.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/numbers/create.js)_
 
 ## `fonoster numbers:delete [REF]`
 
@@ -321,7 +321,7 @@ ALIASES
   $ fonoster numbers:rm
 ```
 
-_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/delete.js)_
+_See code: [dist/commands/numbers/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/numbers/delete.js)_
 
 ## `fonoster numbers:get [REF]`
 
@@ -332,7 +332,7 @@ USAGE
   $ fonoster numbers:get [REF]
 ```
 
-_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/get.js)_
+_See code: [dist/commands/numbers/get.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/numbers/get.js)_
 
 ## `fonoster numbers:list`
 
@@ -353,7 +353,7 @@ ALIASES
   $ fonoster numbers:ls
 ```
 
-_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/list.js)_
+_See code: [dist/commands/numbers/list.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/numbers/list.js)_
 
 ## `fonoster numbers:update [REF]`
 
@@ -368,7 +368,7 @@ DESCRIPTION
      Update a Fonoster Number
 ```
 
-_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/numbers/update.js)_
+_See code: [dist/commands/numbers/update.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/numbers/update.js)_
 
 ## `fonoster plugins`
 
@@ -521,7 +521,7 @@ DESCRIPTION
      Create a new Fonoster Project
 ```
 
-_See code: [dist/commands/projects/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/create.js)_
+_See code: [dist/commands/projects/create.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/projects/create.js)_
 
 ## `fonoster projects:delete [REF]`
 
@@ -536,7 +536,7 @@ ALIASES
   $ fonoster projects:rm
 ```
 
-_See code: [dist/commands/projects/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/delete.js)_
+_See code: [dist/commands/projects/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/projects/delete.js)_
 
 ## `fonoster projects:get [REF]`
 
@@ -547,7 +547,7 @@ USAGE
   $ fonoster projects:get [REF]
 ```
 
-_See code: [dist/commands/projects/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/get.js)_
+_See code: [dist/commands/projects/get.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/projects/get.js)_
 
 ## `fonoster projects:list`
 
@@ -565,7 +565,7 @@ ALIASES
   $ fonoster projects:ls
 ```
 
-_See code: [dist/commands/projects/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/list.js)_
+_See code: [dist/commands/projects/list.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/projects/list.js)_
 
 ## `fonoster projects:renew [REF]`
 
@@ -580,7 +580,7 @@ DESCRIPTION
      Renew the credentials of a Fonoster Project
 ```
 
-_See code: [dist/commands/projects/renew.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/renew.js)_
+_See code: [dist/commands/projects/renew.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/projects/renew.js)_
 
 ## `fonoster projects:use [REF]`
 
@@ -595,7 +595,7 @@ DESCRIPTION
      Set a default Fonoster Project
 ```
 
-_See code: [dist/commands/projects/use.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/projects/use.js)_
+_See code: [dist/commands/projects/use.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/projects/use.js)_
 
 ## `fonoster providers:create`
 
@@ -610,7 +610,7 @@ DESCRIPTION
      Create a new Fonoster Provider
 ```
 
-_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/create.js)_
+_See code: [dist/commands/providers/create.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/providers/create.js)_
 
 ## `fonoster providers:delete [REF]`
 
@@ -625,7 +625,7 @@ ALIASES
   $ fonoster providers:rm
 ```
 
-_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/delete.js)_
+_See code: [dist/commands/providers/delete.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/providers/delete.js)_
 
 ## `fonoster providers:get [REF]`
 
@@ -636,7 +636,7 @@ USAGE
   $ fonoster providers:get [REF]
 ```
 
-_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/get.js)_
+_See code: [dist/commands/providers/get.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/providers/get.js)_
 
 ## `fonoster providers:list`
 
@@ -657,7 +657,7 @@ ALIASES
   $ fonoster providers:ls
 ```
 
-_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/list.js)_
+_See code: [dist/commands/providers/list.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/providers/list.js)_
 
 ## `fonoster providers:update [REF]`
 
@@ -672,5 +672,5 @@ DESCRIPTION
      Update a Fonoster Provider
 ```
 
-_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonoster/blob/v0.2.14/dist/commands/providers/update.js)_
+_See code: [dist/commands/providers/update.js](https://github.com/fonoster/fonoster/blob/v0.2.16/dist/commands/providers/update.js)_
 <!-- commandsstop -->
