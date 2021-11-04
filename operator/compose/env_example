@@ -63,7 +63,7 @@ CONFIG=/opt/fonoster/config
 #LETSENCRYPT_EMAIL=alice@acme.com
 
 # Whitelisted services (comma separated)
-AUTH_ACCESS_WHITELIST=/fonoster.auth.v1beta1.Auth/GetRole,/fonoster.users.v1beta1.Users/CreateUser,/fonoster.users.v1beta1.Users/Login
+AUTH_ACCESS_WHITELIST=/fonoster.auth.v1beta1.Auth/GetRole,/fonoster.users.v1beta1.Users/CreateUser,/fonoster.auth.v1beta1.Users/CreateUsersCredentials,/fonoster.users.v1beta1.Users/Login
 
 # Issuer for JWT claims
 AUTH_ISS=fonoster
