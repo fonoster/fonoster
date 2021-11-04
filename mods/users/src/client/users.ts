@@ -72,14 +72,14 @@ export default class Users extends APIClient implements IUsersClient {
   }
 
   /**
-   * Return a list of Users
+   * Return a list of Users.
    *
-   * @param {ListProjectsRequest} request - Request filters
+   * @param {ListUsersRequest} request - Request filters
    * @param {string} request.email - Optional email filter
-   * @return {Promise<ListProjectsResponse>}
+   * @return {Promise<ListUsersResponse>}
    * @example
    *
-   * projects.listProjects({ email: "john.doe@email.com" })
+   * projects.listUsers({ email: "john.doe@email.com" })
    * .then(result => {
    *   console.log(result)             // successful response
    * }).catch(e => console.error(e))   // an error occurred
