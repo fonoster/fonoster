@@ -25,7 +25,7 @@ export default class CreateCommand extends Command {
 
     const view: CommonPB.View = CommonPB.View.BASIC;
     try {
-      const response = await Providers(getProjectConfig()).listProviders({
+      const response = await new Providers(getProjectConfig()).listProviders({
         pageSize: 25,
         pageToken: "1"
       });

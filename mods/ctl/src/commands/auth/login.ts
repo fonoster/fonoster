@@ -4,7 +4,7 @@ import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {setConfig} from "../../config";
 
-const Agents = require("@fonoster/agents");
+const Projects = require("@fonoster/projects");
 const inquirer = require("inquirer");
 
 export default class extends Command {
@@ -46,8 +46,8 @@ export default class extends Command {
         cli.action.start(`Accessing endpoint ${answers.endpoint}`);
 
         try {
-          const agents = new Agents(answers);
-          await agents.listAgents({pageSize: 20, pageToken: "1", view: 0});
+          const projects = new Projects(answers);
+          await projects.listProjects();
           answers.confirm = void 0;
           setConfig(answers);
           await cli.wait(1000);
