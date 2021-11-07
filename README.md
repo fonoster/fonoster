@@ -79,7 +79,9 @@ callManager.call({
 To get started with FN use the following resources:
 
 - [Deploying Fonoster to the Cloud](./docs/operator/deploy-your-server.md)
-- [An introduction to Programmable Voice Applications](https://github.com/fonoster/blog/blob/main/2021/002/post.md)
+- [Getting started with Fonoster](https://learn.fonoster.com/)
+- [Connecting Fonoster with Dialogflow](https://learn.fonoster.com/docs/tutorials/connecting_with_dialogflow)
+- [Using Google Speech APIs](https://learn.fonoster.com/docs/tutorials/using_google_speech)
 - [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
 
 ## Bugs and Feedback
