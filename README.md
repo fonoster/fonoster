@@ -4,21 +4,8 @@
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
----
+💬 [Join the conversation](https://github.com/fonoster/fonoster/discussions) 👈
 
-<p align="center">
-		<sup>Special Announcement:</sup>
-		<br>
-		<a href="https://form.typeform.com/to/CvQqk9">
-			<img width="70px" src="https://assets.brandfolder.com/pl546j-7le8zk-afym5u/original/Slack_Mark_Web.png">
-		</a>
-		<br>
-		<sub><b>We now have a Slack Channel</b></sub>
-		<br>
-		<sub>There we plan to discuss roadmaps, feature requests and more<br><a href="https://form.typeform.com/to/CvQqk9">Join the channel</a></sub>
-</p>
-
----
 ## Features
 
 The most notable features on FN 0.1 are:
@@ -108,13 +95,27 @@ For contributing, please see the following links:
 
 We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors learn more](https://github.com/sponsors/psanders).
 
-**Platinum Sponsors**
+** Sponsors**
 
 <a href="https://github.com/sponsors/psanders"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
 
 Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
 
 > [Support Fono's developers on Gh Sponsors](https://github.com/sponsors/psanders)
+
+---
+
+<p align="center">
+		<sup>Special Announcement:</sup>
+		<br>
+		<a href="https://form.typeform.com/to/CvQqk9">
+			<img width="70px" src="https://assets.brandfolder.com/pl546j-7le8zk-afym5u/original/Slack_Mark_Web.png">
+		</a>
+		<br>
+		<sub><b>We now have a Slack Channel</b></sub>
+		<br>
+		<sub>There we plan to discuss roadmaps, feature requests and more<br><a href="https://form.typeform.com/to/CvQqk9">Join the channel</a></sub>
+</p>
 
 ---
 
