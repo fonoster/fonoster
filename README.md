@@ -2,9 +2,10 @@
 
 ![Flow](https://raw.githubusercontent.com/fonoster/fonoster/main/flow.png)
 
+## 💬 [Join the conversation](https://github.com/fonoster/fonoster/discussions) 👈
+
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-💬 [Join the conversation](https://github.com/fonoster/fonoster/discussions) 👈
 
 ## Features
 
