@@ -98,7 +98,7 @@ For contributing, please see the following links:
 
 We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors learn more](https://github.com/sponsors/psanders).
 
-** Sponsors**
+** Sponsors **
 
 <a href="https://github.com/sponsors/psanders"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
 
