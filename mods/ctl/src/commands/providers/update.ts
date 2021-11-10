@@ -21,7 +21,7 @@ export default class UpdateCommand extends Command {
     const {args} = this.parse(UpdateCommand);
 
     if (!args.ref)
-      throw new Error("please provide the reference of your Fonoster Number");
+      throw new Error("please provide the reference of your Fonoster Provider");
 
     console.log(
       "This utility will help you update an existing Fonoster Provider"
