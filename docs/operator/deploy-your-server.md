@@ -1,5 +1,3 @@
-![Deploy Server Banner](https://raw.githubusercontent.com/fonoster/fonos/main/docs/assets/images/deploy_banner.png)
-
 This document will guide guide through installationg process of Project Fonos(PF) in a self-hosted environment or the cloud. You will learn about the available installation options and which one is the best for your current journey with PF.
 
 ## Self-hosted or Cloud
