@@ -2,7 +2,7 @@
 
 Fonoster assembles the components needed to deploy a telephony system. It helps VoIP integrators quickly deploy new networks and include value-added services such as Programmable Voice, Messaging, and Video.
 
-Fonoster: https://github.com/fonoster/fonos
+Fonoster: https://github.com/fonoster/fonoster
 
 ## Introduction
 
@@ -29,7 +29,7 @@ fonos config:init
 ## Add this Helm repository to your Helm client
 
 ```bash
-helm repo add fonoster https://fonoster.github.io/fonos
+helm repo add fonoster https://fonoster.github.io/fonoster/charts
 ```
 
 ## Installing the Chart
