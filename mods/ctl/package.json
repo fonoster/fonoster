@@ -59,10 +59,10 @@
         "description": "manage Providers"
       },
       "auth": {
-        "description": "manage user credentials"
+        "description": "manage User credentials"
       },
       "projects": {
-        "description": "manage Project's resources"
+        "description": "manage Projects"
       }
     }
   },
