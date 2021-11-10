@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/sdk",
-  "version": "0.2.17",
+  "version": "0.2.18",
   "description": "Fonoster SDK module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,9 +29,9 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/agents": "^0.2.17",
+    "@fonoster/agents": "^0.2.18",
     "@fonoster/auth": "^0.2.17",
-    "@fonoster/callmanager": "^0.2.17",
+    "@fonoster/callmanager": "^0.2.18",
     "@fonoster/domains": "^0.2.17",
     "@fonoster/funcs": "^0.2.17",
     "@fonoster/logger": "^0.2.17",
