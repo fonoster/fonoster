@@ -9,7 +9,7 @@
 
 ## Features
 
-The most notable features on FN 0.1 are:
+The most notable features on FN 0.2 are:
 
 - [x] Cloud initialization with Cloud-Init
 - [x] Multitenancy
