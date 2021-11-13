@@ -81,17 +81,17 @@ class AgentsServer implements IAgentsServer {
     callback: grpc.sendUnaryData<Agent>
   ) {
     try {
-      const agent = await ResourceServer.getResource(
-        Kind.AGENT,
-        call
-      ) as any;
+      const agent = (await ResourceServer.getResource(Kind.AGENT, call)) as any;
 
       const resource = new ResourceBuilder(
         Kind.AGENT,
         call.request.getName(),
         call.request.getRef()
       )
-        .withCredentials(agent.spec.credentials.username, call.request.getSecret())
+        .withCredentials(
+          agent.spec.credentials.username,
+          call.request.getSecret()
+        )
         .build();
 
       const result = await updateResource({
