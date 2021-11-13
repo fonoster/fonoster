@@ -38,7 +38,7 @@ export default class ResourceServer {
         itemsPerPage: call.request.getPageSize()
       });
     } catch (e) {
-      logger.error(e)
+      logger.error(e);
       return null;
     }
   }
@@ -54,7 +54,7 @@ export default class ResourceServer {
         accessKeyId: getAccessKeyId(call)
       });
     } catch (e) {
-      logger.error(e)
+      logger.error(e);
       return null;
     }
   }

@@ -42,7 +42,7 @@ import {
   getAccessKeyId
 } from "@fonoster/core";
 import decoder from "./decoder";
-import { assertIsValidHost } from "./assertions";
+import {assertIsValidHost} from "./assertions";
 
 class ProvidersServer implements IProvidersServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -66,7 +66,7 @@ class ProvidersServer implements IProvidersServer {
   ) {
     try {
       // The host must be hostname:{port}
-      assertIsValidHost(call.request.getHost())
+      assertIsValidHost(call.request.getHost());
       const resource = new ResourceBuilder(Kind.GATEWAY, call.request.getName())
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withHost(call.request.getHost())
@@ -87,11 +87,11 @@ class ProvidersServer implements IProvidersServer {
     callback: grpc.sendUnaryData<Provider>
   ) {
     try {
-      assertIsValidHost(call.request.getHost())
-      const provider = await ResourceServer.getResource(
+      assertIsValidHost(call.request.getHost());
+      const provider = (await ResourceServer.getResource(
         Kind.GATEWAY,
         call
-      ) as any;
+      )) as any;
 
       const resource = new ResourceBuilder(
         Kind.GATEWAY,
