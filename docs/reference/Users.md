@@ -11,6 +11,7 @@ running Fonoster deployment.
 
 * [Users](#Users) ⇐ <code>APIClient</code>
     * [new Users(options)](#new_Users_new)
+    * [.listUsers(request)](#Users+listUsers) ⇒ <code>Promise.&lt;ListUsersResponse&gt;</code>
     * [.createUser(request)](#Users+createUser) ⇒ <code>Promise.&lt;CreateUserResponse&gt;</code>
     * [.getUser(ref)](#Users+getUser) ⇒ <code>Promise.&lt;GetUserResponse&gt;</code>
     * [.updateUser(request)](#Users+updateUser) ⇒ <code>Promise.&lt;UpdateUserResponse&gt;</code>
@@ -44,10 +45,29 @@ users.createUser(request)
   console.log(result)             // successful response
 }).catch(e => console.error(e))   // an error occurred
 ```
+<a name="Users+listUsers"></a>
+
+### users.listUsers(request) ⇒ <code>Promise.&lt;ListUsersResponse&gt;</code>
+Return a list of Users.
+
+**Kind**: instance method of [<code>Users</code>](#Users)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>ListUsersRequest</code> | Request filters |
+| request.email | <code>string</code> | Optional email filter |
+
+**Example**  
+```js
+projects.listUsers({ email: "john.doe@email.com" })
+.then(result => {
+  console.log(result)             // successful response
+}).catch(e => console.error(e))   // an error occurred
+```
 <a name="Users+createUser"></a>
 
 ### users.createUser(request) ⇒ <code>Promise.&lt;CreateUserResponse&gt;</code>
-Creates a new User on Fonoster.
+Create a new Fonoster User.
 
 **Kind**: instance method of [<code>Users</code>](#Users)  
 

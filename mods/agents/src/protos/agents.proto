@@ -84,10 +84,9 @@ message UpdateAgentRequest {
   // Agent's reference
   string ref = 1;
   string name = 2;
-  string username = 3;
-  string secret = 4;
-  repeated string domains = 5;
-  string privacy = 6;
+  string secret = 3;
+  repeated string domains = 4;
+  string privacy = 5;
 }
 
 message GetAgentRequest {

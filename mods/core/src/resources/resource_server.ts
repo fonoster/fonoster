@@ -23,6 +23,7 @@ import listResourcesHere from "./list_resources";
 import deleteResourceHere from "./delete_resource";
 import getAccessKeyId from "../common/get_access_key_id";
 import {ListResourceResponse} from "./types";
+import logger from "@fonoster/logger";
 
 export default class ResourceServer {
   static async listResources(
@@ -37,6 +38,7 @@ export default class ResourceServer {
         itemsPerPage: call.request.getPageSize()
       });
     } catch (e) {
+      logger.error(e);
       return null;
     }
   }
@@ -46,15 +48,13 @@ export default class ResourceServer {
     call: grpc.ServerUnaryCall<any, unknown>
   ): Promise<unknown> {
     try {
-      console.log("call.request.getRef() =>" + call.request);
-      console.log("call.request.getRef() =>" + call.request.getRef());
-      return await getResourceHere({
+      return getResourceHere({
         ref: call.request.getRef(),
         kind,
         accessKeyId: getAccessKeyId(call)
       });
     } catch (e) {
-      console.log("call.request.getRef() =>" + call.request);
+      logger.error(e);
       return null;
     }
   }

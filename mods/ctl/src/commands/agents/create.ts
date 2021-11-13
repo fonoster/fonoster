@@ -21,10 +21,11 @@ export default class extends Command {
     console.log("Press ^C at any time to quit.");
 
     // TODO: Consider using the autocomplete plugin
-    const response = await Domains(getProjectConfig()).listDomains({
+    const response = await new Domains(getProjectConfig()).listDomains({
       pageSize: 25,
       pageToken: "1"
     });
+
     const domains = response.domains.map((app: any) => app.domainUri);
 
     if (domains.length === 0) {
@@ -32,6 +33,12 @@ export default class extends Command {
     }
 
     const answers: any = await inquirer.prompt([
+      {
+        name: "domain",
+        message: "domain",
+        type: "list",
+        choices: domains
+      },
       {
         name: "name",
         message: "friendly name",
@@ -47,12 +54,6 @@ export default class extends Command {
         message: "secret",
         type: "password",
         mask: true
-      },
-      {
-        name: "domain",
-        message: "domain",
-        type: "list",
-        choices: domains
       },
       {
         name: "privacy",

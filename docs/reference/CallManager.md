@@ -25,8 +25,8 @@ const callManager = new Fonoster.CallManager()
 
 callManager.call({
   from: "9102104343",
-  to: "17853178070"
-  app: "default"
+  to: "17853178070",
+  webhook: "https://https://071e-47-132-137-75.ngrok.io/voiceapp",
 })
 .then(console.log)        // successful response
 .catch(console.error)   // an error occurred

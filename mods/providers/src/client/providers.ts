@@ -188,6 +188,7 @@ export default class Providers extends APIClient implements IProvidersClient {
     request: UpdateProviderRequest
   ): Promise<UpdateProviderResponse> {
     const req = new ProvidersPB.UpdateProviderRequest();
+    req.setRef(request.ref);
     if (request.name) req.setName(request.name);
     if (request.username) req.setUsername(request.username);
     if (request.secret) req.setSecret(request.secret);

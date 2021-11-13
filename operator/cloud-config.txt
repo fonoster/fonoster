@@ -22,7 +22,7 @@ write_files:
       # We recommend using a working email
       #LETSENCRYPT_EMAIL=admin@yourdomain.com
 
-      FONOSTER_VERSION=0.2.16
+      FONOSTER_VERSION=0.2.20
 
 runcmd:
   - |
