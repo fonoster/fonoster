@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'typescrypt' ]
+        language: [ 'javascript', 'typescript' ]
 
 
     steps:
