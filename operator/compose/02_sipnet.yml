@@ -18,7 +18,7 @@ services:
       EX_RTP_ENGINE_HOST: ${RTPE_HOST}
       EX_RTP_ENGINE_PORT: ${RTPE_PORT}
       # Setting this to true is breaking the routing workflow in Routr
-      EX_CONVERT_TEL_TO_E164: 'false'
+      EX_CONVERT_TEL_TO_E164: "false"
     ports:
       - ${SIPPROXY_SIP_PORTS}:${SIPPROXY_SIP_PORTS}
     healthcheck:
