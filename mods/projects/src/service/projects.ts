@@ -57,7 +57,8 @@ class ProjectsServer implements IProjectsServer {
     try {
       assertNotEmpty("name", call.request.getName());
 
-      const ref = objectid() + "";
+      // Prefixing Project's accessKeyID to avoid confusion with user accounts
+      const ref = "PJ" + objectid();
       const userRef = getAccessKeyId(call);
       const project = new ProjectsPB.Project();
 
