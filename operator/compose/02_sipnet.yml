@@ -21,6 +21,7 @@ services:
       EX_CONVERT_TEL_TO_E164: "false"
     ports:
       - ${SIPPROXY_SIP_PORTS}:${SIPPROXY_SIP_PORTS}
+      - ${SIPPROXY_SIP_PORT_UDP}:${SIPPROXY_SIP_PORT_UDP}/udp
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
       interval: 30s
