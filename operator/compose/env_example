@@ -124,6 +124,7 @@ SIPPROXY_HOST=sipproxy.fonoster
 SIPPROXY_API_PORT=4567
 SIPPROXY_API_USERNAME=admin
 SIPPROXY_SIP_PORTS=5060-5063
+SIPPROXY_SIP_PORT_UDP=5060
 
 # Single port for connection from Peers (Such as the Media Server)
 SIPPROXY_SIP_PORT=5060
