@@ -68,9 +68,6 @@ AUTH_ACCESS_WHITELIST=/fonoster.auth.v1beta1.Auth/GetRole,/fonoster.users.v1beta
 # Issuer for JWT claims
 AUTH_ISS=fonoster
 
-# Image for the reverse proxy (Traefik)
-AS_IMAGE=traefik:v2.4
-
 # Hostname for reverse proxy
 AS_HOST=apiserver.fonoster
 
@@ -104,7 +101,6 @@ RTPE_RTP_PORT_END=31000
 # get started. However, we strongly recommend using a managed
 # S3 service with your prefer cloud service provider
 #
-FS_IMAGE=minio/minio:RELEASE.2020-02-27T00-23-05Z
 FS_HOST=fs.fonoster
 FS_PORT=9000
 FS_USERNAME=minio
@@ -116,14 +112,12 @@ FS_USERNAME=minio
 # get started. However, we strongly recommend using a managed
 # database.
 #
-DS_IMAGE=redis:6.0.3-alpine
 DS_HOST=datasource.fonoster
 DS_PORT=6379
 
 #
 # Integration with SIPProxy (Routr)
 #
-SIPPROXY_IMAGE=fonoster/routr:1.0.0-rc6
 SIPPROXY_USERNAME=ast
 SIPPROXY_API_HOST=sipproxy.fonoster
 SIPPROXY_HOST=sipproxy.fonoster
@@ -140,9 +134,6 @@ SIPPROXY_SIP_PORT=5060
 #
 # Configuration to logging service (Based on Kibana)
 #
-LOGS_AGGREGATOR_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:7.9.3
-LOGS_MONITOR_IMAGE=kibana:7.9.3
-LOGS_DRIVER_IMAGE=fonoster/fluent-elasticsearch:latest
 LOGS_DRIVER_HOST=logsdriver.fonoster
 LOGS_DRIVER_PORT=24224
 LOGS_AGGREGRATOR_PORT=9200
@@ -153,7 +144,6 @@ LOG_OPT_TAG_PREFIX=early
 #
 # Integration with events server (RabbitMQ)
 #
-EB_IMAGE=bitnami/rabbitmq:latest
 EB_HOST=eventsbroker.fonos
 EB_PORT=5672
 EB_USERNAME=fonoster
@@ -164,19 +154,17 @@ EB_ENABLED=false
 #
 # Integration with secrets server (Vault)
 #
-#SECRETS_IMAGE=vault
-#SECRETS_URL=http://secrets:8200
-#SECRETS_POLICY=fonoster-policy
-#SECRETS_TOKEN=
+SECRETS_URL=http://secrets:8200
+SECRETS_POLICY=fonoster-policy
+SECRETS_TOKEN=
 
 
 #
 # Integration with TTS Service (MaryTTS)
 #
-#TTS_IMAGE=synesthesiam/marytts:5.2
-#TTS_ENGINE_HOST=tts.fonoster
-#TTS_ENGINE_PORT=59125
-#TTS_BASE_URI=/tts
+TTS_ENGINE_HOST=tts.fonoster
+TTS_ENGINE_PORT=59125
+TTS_BASE_URI=/tts
 
 #
 # OpenFaas integration (for Cloud Funcions)
@@ -206,25 +194,11 @@ EB_ENABLED=false
 #DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
 
 #
-# Integration with Github Oauth2
-#
-#GH_OAUTH2_CLIENT_ID=
-#GH_OAUTH2_CLIENT_SECRET=
-#GH_OAUTH2_CALLBACK_URL=
-#GH_OAUTH2_ENDPOINT=http://api.example.com:50051
-#GH_OAUTH2_PAGE_TITLE=FN Access Information
-#GH_OAUTH2_PAGE_MESSAGE=FN Access Information
-
-# Comma separated list of Github users. Uncomment only if 
-# you want to restrict access to a list if Github users. 
-#GH_OAUTH2_ACCESS_LIST=
-
-#
 # Miscelaneous variables
 #
 
 # Name of the overall project
-COMPOSE_PROJECT_NAME=fonos
+COMPOSE_PROJECT_NAME=fonoster
 
 # Overall version for the project
 # This variable will determine which docker

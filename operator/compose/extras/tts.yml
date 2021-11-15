@@ -8,7 +8,7 @@ networks:
 services:
 
   tts:
-    image: ${TTS_IMAGE}
+    image: fonoster/marytts:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     labels:
       - "traefik.enable=true"

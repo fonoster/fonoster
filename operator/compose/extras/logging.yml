@@ -8,7 +8,7 @@ networks:
 services:
 
   logsdriver:
-    image: ${LOGS_DRIVER_IMAGE}
+    image: fonoster/fluent-elasticsearch:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     ports:
       - ${LOGS_DRIVER_PORT}:${LOGS_DRIVER_PORT}
@@ -20,7 +20,7 @@ services:
           - ${LOGS_DRIVER_HOST}      
 
   logsaggregator:
-    image: ${LOGS_AGGREGATOR_IMAGE}
+    image: fonoster/elasticsearch:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     environment:
       - discovery.type=single-node
@@ -28,7 +28,7 @@ services:
       - fonos
 
   logsmonitor:
-    image: ${LOGS_MONITOR_IMAGE}
+    image: fonoster/kibana:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     environment:
       ELASTICSEARCH_HOSTS: http://logsaggregator:${LOGS_AGGREGRATOR_PORT}

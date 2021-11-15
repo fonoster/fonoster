@@ -5,7 +5,7 @@ version: '3.7'
 services:
 
   apiserver:
-    image: ${AS_IMAGE}
+    image: fonoster/traefik:${COMPOSE_PROJECT_VERSION}
     command:
       # - "--log.level=DEBUG"
       - "--api.insecure=true"

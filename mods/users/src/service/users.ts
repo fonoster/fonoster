@@ -124,7 +124,7 @@ class UsersServer implements IUsersServer {
         );
       }
 
-      const ref = objectid() + "";
+      const ref = "US" + objectid();
       const user = new UserPB.User();
 
       user.setRef(ref);
