@@ -3,7 +3,7 @@ version: '3.7'
 services:
 
   sipproxy:
-    image: ${SIPPROXY_IMAGE}
+    image: fonoster/routr:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     environment:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}

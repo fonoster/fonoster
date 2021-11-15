@@ -12,7 +12,7 @@ volumes:
 services:
 
   fs:
-    image: ${FS_IMAGE}
+    image: fonoster/minio:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     command: minio server /fonos
     volumes:

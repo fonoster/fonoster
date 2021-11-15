@@ -12,7 +12,7 @@ volumes:
 services:
 
   datasource:
-    image: ${DS_IMAGE} 
+    image: fonoster/redis:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     command: ['redis-server', '/etc/redis/redis.conf' ]
     healthcheck:
