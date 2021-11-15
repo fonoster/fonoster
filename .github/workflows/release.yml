@@ -10,17 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Login Dockerhub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-    - name: Copy and Push Traefik image
-      uses: akhilerm/tag-push-action@v2.0.0
-      with:
-        src: docker.io/traefik:v2.4
-        dst: |
-          docker.io/fonoster/traefik:v2.4
     - name: Checkout
       uses: actions/checkout@v2
     - uses: actions/setup-node@v1
@@ -35,6 +24,17 @@ jobs:
         npm install
         npm run bootstrap
         npm run build
+    - name: Login Dockerhub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+    - name: Copy and Push Traefik image
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: docker.io/traefik:v2.4
+        dst: |
+          docker.io/fonoster/traefik:${{ steps.get_version.outputs.VERSION }}
     - name: Publish to Docker Hub the Fonoster installer
       uses: elgohr/Publish-Docker-Github-Action@master
       env:
