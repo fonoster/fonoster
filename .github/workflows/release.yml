@@ -35,6 +35,22 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
         buildargs: FONOSTER_VERSION,BRANCH
+    - name: Copy and Push Traefik 
+      uses: julb/action-copy-docker-tag@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        from: traefik:v2.4
+        tags: |
+          fonoster/traefik:${{ steps.get_version.outputs.VERSION }}
+    - name: Publish Traefik image to Docker Hub
+      uses: tinact/docker.image-retag@master
+      with:
+        image_name: traefik
+        image_old_tag: v2.4
+        image_new_tag: ${{ steps.get_version.outputs.VERSION }}
+        registry_username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        registry_password: ${{ secrets.DOCKER_HUB_PASSWORD }}        
     - name: Publish to Docker Hub the Projects API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
