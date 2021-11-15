@@ -6,6 +6,7 @@
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
+<a href="https://www.producthunt.com/posts/fonoster?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-fonoster" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=319527&theme=light" alt="Fonoster - Engage with your customers with VoIP or SMS | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 ## Features
 

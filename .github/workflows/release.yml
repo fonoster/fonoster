@@ -24,6 +24,47 @@ jobs:
         npm install
         npm run bootstrap
         npm run build
+    - name: Login Dockerhub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+    - name: Copy and Push Traefik image
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: docker.io/traefik:v2.4
+        dst: |
+          docker.io/fonoster/traefik:${{ steps.get_version.outputs.VERSION }}
+    - name: Copy and Push Whoami image
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: docker.io/containous/whoami:latest
+        dst: |
+          docker.io/fonoster/whoami:${{ steps.get_version.outputs.VERSION }}
+    - name: Copy and Push Minio image
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: docker.io/minio/minio:RELEASE.2020-02-27T00-23-05Z
+        dst: |
+          docker.io/fonoster/minio:${{ steps.get_version.outputs.VERSION }}
+    - name: Copy and Push Redis image
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: docker.io/redis:6.0.3-alpine
+        dst: |
+          docker.io/fonoster/redis:${{ steps.get_version.outputs.VERSION }}
+    - name: Copy and Push RTPEngine image
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: docker.io/psanders/rtpengine:20211114
+        dst: |
+          docker.io/fonoster/rtpengine:${{ steps.get_version.outputs.VERSION }}
+    - name: Copy and Push Routr image
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: docker.io/fonoster/routr:1.0.0-rc6
+        dst: |
+          docker.io/fonoster/routr:${{ steps.get_version.outputs.VERSION }}
     - name: Publish to Docker Hub the Fonoster installer
       uses: elgohr/Publish-Docker-Github-Action@master
       env:
@@ -34,7 +75,7 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-        buildargs: FONOSTER_VERSION,BRANCH
+        buildargs: FONOSTER_VERSION,BRANCH          
     - name: Publish to Docker Hub the Projects API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
