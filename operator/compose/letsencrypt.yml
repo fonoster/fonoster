@@ -23,7 +23,7 @@ services:
       - "${CONFIG}/letsencrypt:/letsencrypt"
 
   dummy_service:
-    image: containous/whoami
+    image: fonoster/whoami:${COMPOSE_PROJECT_VERSION}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dummy_service.rule=Host(`${LETSENCRYPT_DOMAIN}`)"
