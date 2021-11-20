@@ -23,7 +23,7 @@ export default class extends Command {
       },
       {
         name: "allowExperiments",
-        message: "allow experiments",
+        message: "enable experimental APIs",
         type: "confirm"
       },
       {
