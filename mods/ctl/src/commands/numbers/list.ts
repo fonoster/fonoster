@@ -63,7 +63,7 @@ export default class ListCommand extends Command {
               providerRef: {header: "Provider Ref", minWidth: 15},
               e164Number: {header: "E164 Number", minWidth: 15},
               aorLink: {
-                header: "AOR Link",
+                header: "Address of Record",
                 minWidth: 15,
                 get: (row) => (row["aorLink"] ? row["aorLink"] : "--")
               },
