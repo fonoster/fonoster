@@ -1,4 +1,4 @@
-Voice application plugin that converts text into natural-sounding speech using an API powered by Google’s AI AI technologies.
+Voice application plugin that converts text into natural-sounding speech using an API powered by Google’s AI technologies.
 
 ## Installation
 
