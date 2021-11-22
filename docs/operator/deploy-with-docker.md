@@ -41,7 +41,7 @@ docker run -it --rm ,
 
 - `DOCKER_HOST_IP` - If you run on a cloud, such as Digital Ocean, the installer will use your public IP. For a local environment, you must set the value of your host's IP (it won't be automatic.)
 - `DOMAIN` - The Domain for your API endpoint. This is required for TLS support. The DNS entry must point to the public IP of your Docker Host
-- `ENABLE_TLS` - Set to `true` if you want to generate and use a set of Let's Encrypt certificates. The value of `DOMAIN` must be publically routable. Defaults to `false`
+- `ENABLE_TLS` - Set to `true` if you want to generate and use a set of Let's Encrypt certificates. The value of `DOMAIN` must be publicly accessible. Defaults to `false`
 - `HTTP_PORT` - Unsecure port for HTTP connections. Defaults to `50051`
 - `HTTPS_PORT` - Secure port for HTTP connections. Defaults to `443`
 - `LETSENCRYPT_EMAIL` - We recommend setting this value to get important communication from Let's Encrypt. Defaults to `admin@$DOMAIN`
