@@ -10,7 +10,7 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster:0.2.14
+  fonoster/fonoster:0.2.20
 ```
 
 ## Windows
@@ -23,7 +23,7 @@ docker run -it --rm ^
   --volume //var/run/docker.sock:/var/run/docker.sock ^
   --volume "%cd%"/fonoster:/out:rw ^
   --entrypoint="/install.sh" ^
-  fonoster/fonoster:0.2.14
+  fonoster/fonoster:0.2.20
 ```
 
 **PowerShell**
@@ -34,7 +34,7 @@ docker run -it --rm ,
   --volume /var/run/docker.sock:/var/run/docker.sock ,
   --volume ${pwd}/fonoster:/out:rw ,
   --entrypoint="/install.sh" ,
-  fonoster/fonoster:0.2.14
+  fonoster/fonoster:0.2.20
 ```
 
 ## Environment Variables
