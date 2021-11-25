@@ -19,7 +19,7 @@
 import AnswerVerb from "./answer/answer";
 import HangupVerb from "./hangup/hangup";
 import UnmuteVerb from "./unmute/unmute";
-import GatherVerb from "./gather/gather";
+import GatherVerb, { GatherOptions } from "./gather/gather";
 import MuteVerb, {MuteOptions} from "./mute/mute";
 import PlayVerb, {PlayOptions} from "./play/play";
 import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
@@ -151,7 +151,7 @@ export default class VoiceResponse {
    *   console.log("digits: " + digits);
    * }
    */
-  async gather(options: {source: "speech,dtmf"}): Promise<string> {
+  async gather(options: GatherOptions = {source: "speech,dtmf"}): Promise<string> {
     let asr = null;
     if (options.source.includes("speech")) {
       assertPluginExist(this, "asr");
