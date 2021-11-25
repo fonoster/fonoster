@@ -4,10 +4,10 @@ LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 # Build example: 
 # docker build --no-cache \
 #   --build-arg BRANCH=dev \
-#   --build-arg FONOSTER_VERSION=0.1.24 \
-#   --tag fonoster/fonoster:0.2.16 .
+#   --build-arg FONOSTER_VERSION=0.2.20 \
+#   --tag fonoster/fonoster:0.2.20 .
 
-ARG FONOSTER_VERSION=0.2.16
+ARG FONOSTER_VERSION=0.2.20
 ARG BRANCH=main
 ENV FONOSTER_VERSION=$FONOSTER_VERSION
 ENV BRANCH=$BRANCH
