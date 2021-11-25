@@ -48,7 +48,7 @@ export default class CreateCommand extends Command {
       },
       {
         name: "domainUri",
-        message: "domain uri (e.g acme.com)",
+        message: "domain uri (e.g acme)",
         type: "input"
       },
       {
