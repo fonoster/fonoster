@@ -51,7 +51,7 @@ export default class CreateCommand extends Command {
       },
       {
         name: "expires",
-        message: "expire",
+        message: "sip registration refresh (in seconds)",
         type: "input",
         validate: (answer: number) => {
           if (isNaN(answer)) {

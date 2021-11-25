@@ -19,6 +19,7 @@
 import https from "https";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import {Plugin} from "@fonoster/common";
 import {
   TTSPlugin,
@@ -53,7 +54,7 @@ export default class MaryTTS extends Plugin implements TTSPlugin {
   constructor(config: MaryTTSConfig) {
     super("tts", "marytts");
     this.config = config;
-    this.config.path = this.config.path ? this.config.path : "/tmp";
+    this.config.path = this.config.path ? this.config.path : os.tmpdir();
     this.init(this.config);
   }
 

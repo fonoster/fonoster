@@ -67,8 +67,8 @@ export default class ListCommand extends Command {
                 get: (row) => row.username || "(static)"
               },
               host: {header: "Host", minWidth: 18},
-              transport: {header: "Transport", minWidth: 13},
-              expires: {header: "Expires", minWidth: 13}
+              transport: {header: "Transport", minWidth: 13}
+              //expires: {header: "SIP Registration Refresh", minWidth: 13}
             },
             {"no-header": !showHeader}
           );

@@ -30,7 +30,7 @@ export default class GetCommand extends Command {
         Username: provider.username || "(static)",
         Host: provider.host,
         Transport: provider.transport,
-        Expires: provider.expires,
+        "SIP Registration Refresh": provider.expires,
         Created: moment(provider.createTime).fromNow(),
         Updated: moment(provider.updateTime).fromNow()
       };

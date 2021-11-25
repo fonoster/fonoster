@@ -62,7 +62,7 @@ export default class CreateCommand extends Command {
         },
         {
           name: "aorLink",
-          message: "aor link",
+          message: "address of record",
           type: "input",
           default: null
         }

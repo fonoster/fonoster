@@ -65,7 +65,7 @@ export default class UpdateCommand extends Command {
       },
       {
         name: "expires",
-        message: "expire",
+        message: "sip registration refresh (in seconds)",
         type: "input",
         default: provider.expires
       },

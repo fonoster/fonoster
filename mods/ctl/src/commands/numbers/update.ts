@@ -30,7 +30,7 @@ export class UpdateCommand extends Command {
     const answers = await inquirer.prompt([
       {
         name: "aorLink",
-        message: "aor link",
+        message: "address of record",
         type: "input",
         default: null
       }
