@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/marytts",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "description": "Concrete implementation of AbstractTTS",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
