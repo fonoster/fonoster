@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import fs from "fs";
+import os from "os";
 import util from "util";
 import path from "path";
 import textToSpeech from "@google-cloud/text-to-speech";
@@ -48,7 +49,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
   constructor(config: GoogleTTSConfig) {
     super("tts", "googletts");
     this.config = config;
-    this.config.path = config.path ? config.path : "/tmp";
+    this.config.path = config.path ? config.path : os.tmpdir();
   }
 
   /**
