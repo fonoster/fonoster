@@ -24,6 +24,7 @@ services:
 
   dummy_service:
     image: fonoster/whoami:${COMPOSE_PROJECT_VERSION}
+    restart: ${RESTART_POLICY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dummy_service.rule=Host(`${LETSENCRYPT_DOMAIN}`)"
