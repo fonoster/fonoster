@@ -105,7 +105,7 @@ We're glad to be supported by respected companies and individuals from several i
 
 Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
 
-> [Support Fono's developers on Gh Sponsors](https://github.com/sponsors/psanders)
+> [Become a Github Sponsor](https://github.com/sponsors/fonoster)
 
 ---
 
