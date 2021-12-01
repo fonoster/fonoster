@@ -147,7 +147,7 @@ export default class VoiceResponse {
    *
    * async function handler (request, response) {
    *   await response.answer();
-   *   const digits = await response.gather({numDigits: 3});
+   *   const digits = await response.gather({source: "dtmf,speech", numDigits: 3});
    *   console.log("digits: " + digits);
    * }
    */
