@@ -79,7 +79,7 @@ describe("@fonoster/googletts", () => {
     expect(result).to.have.property("pathToFile").to.not.be.null;
   });
 
-  it.only("checks if input is ssml", async () => {
+  it("checks if input is ssml", async () => {
     const input1 =
       '<speak data-ui-hide-intent="true"> <par> <media xml:id=\'a\'> <speak><break time="2s" />Hello, thanks for calling! How can I help you? </speak> </media> <media xml:id=\'bg-loop\' end="speak.begin"> <audio soundLevel="-5dB" src="https://storage.googleapis.com/gablex-tts/persona/house/bg-loop-minimal.mp3"/> </media> <media xml:id="speak" begin="a.end-500ms"><audio soundLevel="+10dB" src="https://storage.googleapis.com/gablex-tts/persona/house/slang_notification_speak_now_08.wav"/></media> </par> </speak>';
     const input2 = '<speak data-ui-hide-intent="true">...</speak> ';
