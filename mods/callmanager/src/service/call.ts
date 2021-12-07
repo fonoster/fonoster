@@ -34,7 +34,10 @@ export default async function (
     throw new FonosterError("invalid e164 number");
   }
 
-  if (!request.getIgnoreE164Validation() && phone(request.getTo()).length === 0) {
+  if (
+    !request.getIgnoreE164Validation() &&
+    phone(request.getTo()).length === 0
+  ) {
     throw new FonosterError("invalid e164 number");
   }
 
@@ -42,7 +45,11 @@ export default async function (
   response.setRef(nanoid());
 
   const variables = !request.getWebhook()
-    ? {DID_INFO: request.getFrom(), REF: response.getRef(), METADATA: request.getMetadata()}
+    ? {
+        DID_INFO: request.getFrom(),
+        REF: response.getRef(),
+        METADATA: request.getMetadata()
+      }
     : {
         DID_INFO: request.getFrom(),
         WEBHOOK: request.getWebhook(),
@@ -53,7 +60,9 @@ export default async function (
   await channel.originate({
     context: endpointInfo.context,
     extension: endpointInfo.extension,
-    endpoint: `PJSIP/${endpointInfo.trunk}/sip:${request.getTo()}@${endpointInfo.domain}`,
+    endpoint: `PJSIP/${endpointInfo.trunk}/sip:${request.getTo()}@${
+      endpointInfo.domain
+    }`,
     variables
   });
 
