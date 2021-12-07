@@ -56,7 +56,7 @@ describe("@fonoster/googleasr", () => {
     expect(result).to.have.property("transcript").not.to.be.null;
   });
 
-  it.only("returns a speech result for a given stream", (done) => {
+  it("returns a speech result for a given stream", (done) => {
     logger.info("Begin to talk now");
     const speechTracker = new GoogleSpeechTracker(speechConfig);
     const recorderStream = recorder
