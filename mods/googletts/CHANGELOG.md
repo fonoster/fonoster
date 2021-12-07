@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.27
+
+- Fix bug with isSSML function
+
 ## 0.2.25
 
 - Added support for SSML input
