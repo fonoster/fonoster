@@ -25,7 +25,7 @@ import {Plugin} from "@fonoster/common";
 import {TTSPlugin, computeFilename, SynthResult} from "@fonoster/tts";
 import logger from "@fonoster/logger";
 import {GoogleTTSConfig, SynthOptions} from "./types";
-import { isSSML } from "./utils";
+import {isSSML} from "./utils";
 
 const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
 
