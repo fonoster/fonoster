@@ -38,6 +38,7 @@ import DtmfVerb from "./dtmf/dtmf";
 import DialVerb from "./dial/dial";
 import {DialOptions} from "./dial/types";
 import StreamStatus from "./dial/status_stream";
+import {VoiceTracer} from "./tracer";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -59,6 +60,7 @@ import StreamStatus from "./dial/status_stream";
 export default class VoiceResponse {
   request: VoiceRequest;
   plugins: {};
+  voiceTracer: VoiceTracer;
 
   /**
    * Constructs a new VoiceResponse object.
@@ -66,8 +68,9 @@ export default class VoiceResponse {
    * @param {VoiceRequest} request - Options to indicate the objects endpoint
    * @see module:core:APIClient
    */
-  constructor(request: VoiceRequest) {
+  constructor(request: VoiceRequest, voiceTracer: VoiceTracer) {
     this.request = request;
+    this.voiceTracer = voiceTracer;
     this.plugins = {};
   }
 
@@ -100,7 +103,9 @@ export default class VoiceResponse {
    * }
    */
   async play(media: string, options: PlayOptions = {}): Promise<void> {
+    const span = this.voiceTracer.createSpan("play");
     await new PlayVerb(this.request).run(media, options);
+    span.end();
   }
 
   /**
@@ -127,9 +132,18 @@ export default class VoiceResponse {
     assertPluginExist(this, "tts");
     const tts = this.plugins["tts"];
     // It should return the filename and the generated file location
+    const main = this.voiceTracer.createSpan("play");
+    const span = this.voiceTracer.createSpan("synthetize");
     const result = await tts.synthetize(text, options);
+    span.setAttribute("text", text);
+    span.setAttribute("options", JSON.stringify(options));
+    span.end();
     const media = `sound:${this.request.selfEndpoint}/tts/${result.filename}`;
+
     await new PlayVerb(this.request).run(media, options);
+    main.setAttribute("media", media);
+    main.setAttribute("options", JSON.stringify(options));
+    main.end();
   }
 
   /**
@@ -159,7 +173,11 @@ export default class VoiceResponse {
       assertPluginExist(this, "asr");
       asr = this.plugins["asr"];
     }
-    return await new GatherVerb(this.request, asr).run(options);
+    const span = this.voiceTracer.createSpan("gather");
+    const result = await new GatherVerb(this.request, asr).run(options);
+    span.setAttribute("options", JSON.stringify(options));
+    span.end();
+    return result;
   }
 
   /**
@@ -213,7 +231,11 @@ export default class VoiceResponse {
    * }
    */
   async dtmf(options: DtmfOptions): Promise<void> {
-    return await new DtmfVerb(this.request).run(options);
+    const span = this.voiceTracer.createSpan("dtmf");
+    const result = await new DtmfVerb(this.request).run(options);
+    span.setAttribute("options", JSON.stringify(options));
+    span.end();
+    return result;
   }
 
   /**
@@ -239,7 +261,12 @@ export default class VoiceResponse {
     destination: string,
     options?: DialOptions
   ): Promise<StreamStatus> {
-    return await new DialVerb(this.request).run(destination, options);
+    const span = this.voiceTracer.createSpan("dial");
+    const result = await new DialVerb(this.request).run(destination, options);
+    span.setAttribute("destination", destination);
+    span.setAttribute("options", JSON.stringify(options));
+    span.end();
+    return result;
   }
 
   /**
@@ -264,7 +291,11 @@ export default class VoiceResponse {
    * }
    */
   playback(playbackId: string): PlaybackControl {
-    return new PlaybackControl(this.request, playbackId);
+    const span = this.voiceTracer.createSpan("playback");
+    const result = new PlaybackControl(this.request, playbackId);
+    span.setAttribute("playbackId", playbackId);
+    span.end();
+    return result;
   }
 
   /**
@@ -307,7 +338,11 @@ export default class VoiceResponse {
    * }
    */
   async mute(options?: MuteOptions): Promise<void> {
-    await new MuteVerb(this.request).run(options);
+    const span = this.voiceTracer.createSpan("mute");
+    const result = new MuteVerb(this.request).run(options);
+    span.setAttribute("options", JSON.stringify(options));
+    span.end();
+    await result;
   }
 
   /**
@@ -324,7 +359,11 @@ export default class VoiceResponse {
    * }
    */
   async unmute(options?: MuteOptions): Promise<void> {
-    await new UnmuteVerb(this.request).run(options);
+    const span = this.voiceTracer.createSpan("unmute");
+    const result = new UnmuteVerb(this.request).run(options);
+    span.setAttribute("options", JSON.stringify(options));
+    span.end();
+    await result;
   }
 
   /**
@@ -339,7 +378,10 @@ export default class VoiceResponse {
    * }
    */
   async answer(): Promise<void> {
-    await new AnswerVerb(this.request).run();
+    const span = this.voiceTracer.createSpan("answer");
+    const result = new AnswerVerb(this.request).run();
+    span.end();
+    await result;
   }
 
   /**
@@ -353,7 +395,12 @@ export default class VoiceResponse {
    * }
    */
   async hangup(): Promise<void> {
-    await new HangupVerb(this.request).run();
+    const span = this.voiceTracer.createSpan("hangup");
+    const result = new HangupVerb(this.request).run();
+    span.end();
+    // Need to close or the span will be lost
+    this.voiceTracer.close();
+    await result;
   }
 
   /**
@@ -375,18 +422,25 @@ export default class VoiceResponse {
    * }
    */
   async record(options: RecordOptions): Promise<RecordResult> {
-    return await new RecordVerb(this.request).run(options);
+    const span = this.voiceTracer.createSpan("record");
+    const result = await new RecordVerb(this.request).run(options);
+    span.end();
+    return result;
   }
 
   // Requests media from Media server
   async openMediaPipe() {
+    const span = this.voiceTracer.createSpan("openMediaPipe");
     const genericVerb = new Verb(this.request);
     await startMediaTransfer(genericVerb, this.request.sessionId);
+    span.end();
   }
 
   // Requests media stop from Media server
   async closeMediaPipe() {
+    const span = this.voiceTracer.createSpan("stopMediaTransfer");
     const genericVerb = new Verb(this.request);
     await stopMediaTransfer(genericVerb, this.request.sessionId);
+    span.end();
   }
 }
