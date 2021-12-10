@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/websdk",
-  "version": "0.2.24",
+  "version": "0.2.28",
   "description": "Fonoster WebSDK module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -37,7 +37,7 @@
     "@babel/preset-env": "^7.15.8",
     "@fonoster/agents": "^0.2.24",
     "@fonoster/auth": "^0.2.24",
-    "@fonoster/callmanager": "^0.2.24",
+    "@fonoster/callmanager": "^0.2.28",
     "@fonoster/common": "^0.2.24",
     "@fonoster/domains": "^0.2.24",
     "@fonoster/funcs": "^0.2.24",
