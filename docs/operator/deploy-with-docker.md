@@ -29,11 +29,11 @@ docker run -it --rm ^
 **PowerShell**
 
 ```powershell
-docker run -it --rm ,
-  -e CONFIG_PATH=${pwd}/fonoster/config ,
-  --volume /var/run/docker.sock:/var/run/docker.sock ,
-  --volume ${pwd}/fonoster:/out:rw ,
-  --entrypoint="/install.sh" ,
+docker run -it --rm `
+  -e CONFIG_PATH=${pwd}/fonoster/config `
+  --volume /var/run/docker.sock:/var/run/docker.sock `
+  --volume ${pwd}/fonoster:/out:rw `
+  --entrypoint="/install.sh" `
   fonoster/fonoster:0.2.20
 ```
 

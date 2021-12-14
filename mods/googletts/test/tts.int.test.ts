@@ -38,19 +38,21 @@ describe("@fonoster/googletts", () => {
     expect(synthesizeSpeech).to.not.have.been.called
   })*/
 
-  it("synthesizes text and returns path to file", async () => {
+  it.only("synthesizes text or ssml and returns path to the new file", async () => {
     const config = {
       projectId: "clever-tube-275321",
       keyFilename: "/Users/pedrosanders/Projects/fonoster/credentials.json"
     };
 
     const tts = new GoogleTTS(config);
-    await tts.synthetize("Hello Kayla, how are you doing today?", {
-      ssmlGender: "FEMALE"
-    });
-    transcode(
-      "/tmp/793891cb5510c196c4f487ad00c430fd.mp3",
-      "/tmp/t_793891cb5510c196c4f487ad00c430fd.wav"
+    const result = await tts.synthetize(
+      '<speak data-ui-hide-intent="true"> <par> <media xml:id=\'a\'> <speak><break time="2s" />Hello, thanks for calling! How can I help you? </speak> </media> <media xml:id=\'bg-loop\' end="speak.begin"> <audio soundLevel="-5dB" src="https://storage.googleapis.com/gablex-tts/persona/house/bg-loop-minimal.mp3"/> </media> <media xml:id="speak" begin="a.end-500ms"><audio soundLevel="+10dB" src="https://storage.googleapis.com/gablex-tts/persona/house/slang_notification_speak_now_08.wav"/></media> </par> </speak>',
+      {
+        ssmlGender: "FEMALE"
+      }
     );
+
+    expect(result).to.have.property("filename");
+    expect(result).to.have.property("pathToFile");
   });
 });

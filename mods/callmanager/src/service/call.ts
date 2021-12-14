@@ -30,22 +30,28 @@ export default async function (
   if (
     !request.getIgnoreE164Validation() &&
     phone(request.getFrom()).length === 0
-  )
+  ) {
     throw new FonosterError("invalid e164 number");
-  if (!request.getIgnoreE164Validation() && phone(request.getTo()).length === 0)
+  }
+
+  if (
+    !request.getIgnoreE164Validation() &&
+    phone(request.getTo()).length === 0
+  ) {
     throw new FonosterError("invalid e164 number");
+  }
 
   const response = new CallResponse();
   response.setRef(nanoid());
 
-  // Removing the "+" sign
-  const from = request.getFrom().replace("+", "");
-  const to = request.getTo().replace("+", "");
-
   const variables = !request.getWebhook()
-    ? {DID_INFO: from, REF: response.getRef(), METADATA: request.getMetadata()}
+    ? {
+        DID_INFO: request.getFrom(),
+        REF: response.getRef(),
+        METADATA: request.getMetadata()
+      }
     : {
-        DID_INFO: from,
+        DID_INFO: request.getFrom(),
         WEBHOOK: request.getWebhook(),
         REF: response.getRef(),
         METADATA: request.getMetadata()
@@ -54,7 +60,9 @@ export default async function (
   await channel.originate({
     context: endpointInfo.context,
     extension: endpointInfo.extension,
-    endpoint: `PJSIP/${endpointInfo.trunk}/sip:${to}@${endpointInfo.domain}`,
+    endpoint: `PJSIP/${endpointInfo.trunk}/sip:${request.getTo()}@${
+      endpointInfo.domain
+    }`,
     variables
   });
 
