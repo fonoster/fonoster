@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/googletts",
-  "version": "0.2.27",
+  "version": "0.2.29",
   "description": "Wrapper for Google TTS",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,9 +29,9 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/common": "^0.2.24",
-    "@fonoster/logger": "^0.2.24",
-    "@fonoster/tts": "^0.2.24",
+    "@fonoster/common": "^0.2.29",
+    "@fonoster/logger": "^0.2.29",
+    "@fonoster/tts": "^0.2.29",
     "@google-cloud/text-to-speech": "^3.2.2",
     "deepmerge": "^4.2.2"
   },
