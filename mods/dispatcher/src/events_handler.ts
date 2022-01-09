@@ -19,21 +19,22 @@
 import Auth from "@fonoster/auth";
 import Numbers from "@fonoster/numbers";
 import logger from "@fonoster/logger";
-import {CallRequest} from "./types";
-import {sendCallRequest} from "./utils/send_call_request";
-import {getChannelVar, getChannelVarAsJson} from "./utils/channel_variable";
-import {externalMediaHandler} from "./handlers/external_media";
-import {dtmfReceivedHandler} from "./handlers/dtmf_received";
-import {playbackFinishedHandler} from "./handlers/playback_finished";
-import {recordFinishHandler} from "./handlers/record_finished";
-import {uploadRecording} from "./utils/upload_recording";
-import {recordFailedHandler} from "./handlers/record_failed";
-import {destroyBridge, hangup} from "./utils/destroy_channel";
-import {channelTalkingHandler} from "./handlers/channel_talking";
 import WebSocket from "ws";
-import {sendDtmf} from "./handlers/send_dtmf";
-import {answer} from "./utils/answer_channel";
-import {dial} from "./handlers/dial";
+import { CallRequest } from "./types";
+import { sendCallRequest } from "./utils/send_call_request";
+import { getChannelVar, getChannelVarAsJson } from "./utils/channel_variable";
+import { externalMediaHandler } from "./handlers/external_media";
+import { dtmfReceivedHandler } from "./handlers/dtmf_received";
+import { playbackFinishedHandler } from "./handlers/playback_finished";
+import { recordFinishHandler } from "./handlers/record_finished";
+import { uploadRecording } from "./utils/upload_recording";
+import { recordFailedHandler } from "./handlers/record_failed";
+import { destroyBridge, hangup } from "./utils/destroy_channel";
+import { channelTalkingHandler } from "./handlers/channel_talking";
+import { sendDtmf } from "./handlers/send_dtmf";
+import { answer } from "./utils/answer_channel";
+import { dial } from "./handlers/dial";
+
 const wsConnections = new Map();
 
 // First try the short env but fallback to the cannonical version
@@ -126,6 +127,18 @@ export default function (err: any, ari: any) {
     channel.on("ChannelTalkingFinished", async (event: any, channel: any) => {
       channelTalkingHandler(wsConnections.get(channel.id), channel.id, false);
     });
+
+    channel.on("ChannelLeftBridge", async (event: any, resources: any) => {
+      logger.verbose(
+        `@fonoster/dispatcher channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
+      );
+      try {
+        await resources.channel.hangup()
+      } catch (e) { /* Ignore because because channel might not exist anymore */ }
+      try {
+        await resources.bridge.destroy()
+      } catch (e) { /* Ignore because the bridge might not exist anymore */ }
+    });
   });
 
   ari.on("ChannelUserevent", async (event: any) => {
@@ -155,7 +168,7 @@ export default function (err: any, ari: any) {
         await sendDtmf(wsClient, ari, event);
         break;
       case "Hangup":
-        await hangup(wsClient, ari, event.userevent.sessionId, true);
+        await hangup(ari, event.userevent.sessionId);
         break;
       case "Answer":
         await answer(wsClient, ari, event.userevent.sessionId);
@@ -194,11 +207,21 @@ export default function (err: any, ari: any) {
     );
   });
 
-  ari.on("StasisEnd", (event: any, channel: any) => {
+  ari.on("StasisEnd", async (event: any, channel: any) => {
     logger.verbose(
       `@fonoster/dispatcher stasis end [sessionId = ${channel.id}]`
     );
-    wsConnections.delete(channel.id);
+    const ws = wsConnections.get(channel.id)
+    // The external channels don't have ws connections
+    if (ws) {
+      ws.send(
+        JSON.stringify({
+          type: "SessionClosed",
+          sessionId: channel.id
+        })
+      );
+      wsConnections.delete(channel.id);
+    }
   });
 
   ari.start("mediacontroller");

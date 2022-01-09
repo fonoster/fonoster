@@ -21,10 +21,8 @@ import {getChannelVar} from "./channel_variable";
  * limitations under the License.
  */
 export async function hangup(
-  ws: WebSocket,
   ari: any,
-  sessionId: string,
-  destroyBridge = false
+  sessionId: string
 ) {
   try {
     const channel = await ari.channels.get({channelId: sessionId});
@@ -34,20 +32,13 @@ export async function hangup(
       `@fonoster/dispatcher hangup and destroy bridge [session = ${sessionId}, bridge = ${bridgeId}]`
     );
 
-    if (bridgeId && destroyBridge) {
+    if (bridgeId) {
       await ari.bridges.removeChannel({bridgeId, channel: sessionId});
       await ari.bridges.removeChannel({bridgeId, channel: externalChannelId});
       await ari.bridges.destroy({bridgeId});
     }
 
-    await channel.hangup();
-
-    ws.send(
-      JSON.stringify({
-        type: "SessionClosed",
-        sessionId
-      })
-    );
+    channel.hangup()
   } catch (e) {
     /** We can only try because the channel might be already closed */
   }
