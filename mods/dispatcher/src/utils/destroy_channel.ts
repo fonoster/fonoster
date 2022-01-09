@@ -20,10 +20,7 @@ import {getChannelVar} from "./channel_variable";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export async function hangup(
-  ari: any,
-  sessionId: string
-) {
+export async function hangup(ari: any, sessionId: string) {
   try {
     const channel = await ari.channels.get({channelId: sessionId});
     const externalChannelId = await getChannelVar(channel, "EXTERNAL_CHANNEL");
@@ -38,7 +35,7 @@ export async function hangup(
       await ari.bridges.destroy({bridgeId});
     }
 
-    channel.hangup()
+    channel.hangup();
   } catch (e) {
     /** We can only try because the channel might be already closed */
   }

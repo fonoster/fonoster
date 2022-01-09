@@ -20,20 +20,20 @@ import Auth from "@fonoster/auth";
 import Numbers from "@fonoster/numbers";
 import logger from "@fonoster/logger";
 import WebSocket from "ws";
-import { CallRequest } from "./types";
-import { sendCallRequest } from "./utils/send_call_request";
-import { getChannelVar, getChannelVarAsJson } from "./utils/channel_variable";
-import { externalMediaHandler } from "./handlers/external_media";
-import { dtmfReceivedHandler } from "./handlers/dtmf_received";
-import { playbackFinishedHandler } from "./handlers/playback_finished";
-import { recordFinishHandler } from "./handlers/record_finished";
-import { uploadRecording } from "./utils/upload_recording";
-import { recordFailedHandler } from "./handlers/record_failed";
-import { destroyBridge, hangup } from "./utils/destroy_channel";
-import { channelTalkingHandler } from "./handlers/channel_talking";
-import { sendDtmf } from "./handlers/send_dtmf";
-import { answer } from "./utils/answer_channel";
-import { dial } from "./handlers/dial";
+import {CallRequest} from "./types";
+import {sendCallRequest} from "./utils/send_call_request";
+import {getChannelVar, getChannelVarAsJson} from "./utils/channel_variable";
+import {externalMediaHandler} from "./handlers/external_media";
+import {dtmfReceivedHandler} from "./handlers/dtmf_received";
+import {playbackFinishedHandler} from "./handlers/playback_finished";
+import {recordFinishHandler} from "./handlers/record_finished";
+import {uploadRecording} from "./utils/upload_recording";
+import {recordFailedHandler} from "./handlers/record_failed";
+import {destroyBridge, hangup} from "./utils/destroy_channel";
+import {channelTalkingHandler} from "./handlers/channel_talking";
+import {sendDtmf} from "./handlers/send_dtmf";
+import {answer} from "./utils/answer_channel";
+import {dial} from "./handlers/dial";
 
 const wsConnections = new Map();
 
@@ -133,11 +133,15 @@ export default function (err: any, ari: any) {
         `@fonoster/dispatcher channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
       );
       try {
-        await resources.channel.hangup()
-      } catch (e) { /* Ignore because because channel might not exist anymore */ }
+        await resources.channel.hangup();
+      } catch (e) {
+        /* Ignore because because channel might not exist anymore */
+      }
       try {
-        await resources.bridge.destroy()
-      } catch (e) { /* Ignore because the bridge might not exist anymore */ }
+        await resources.bridge.destroy();
+      } catch (e) {
+        /* Ignore because the bridge might not exist anymore */
+      }
     });
   });
 
@@ -211,7 +215,7 @@ export default function (err: any, ari: any) {
     logger.verbose(
       `@fonoster/dispatcher stasis end [sessionId = ${channel.id}]`
     );
-    const ws = wsConnections.get(channel.id)
+    const ws = wsConnections.get(channel.id);
     // The external channels don't have ws connections
     if (ws) {
       ws.send(
