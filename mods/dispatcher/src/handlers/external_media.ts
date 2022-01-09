@@ -48,9 +48,23 @@ export const externalMediaHandler = async (
     bridge.addChannel({channel: channel.id})
   );
 
-  externalChannel.on("StasisEnd", (event: any, channel: any) => {
-    udpServer.close();
+  externalChannel.on("StasisEnd", () => {
+    try {
+      udpServer.close();
+    } catch (e) {
+      console.warn(e);
+    }
   });
+
+  externalChannel.on(
+    "ChannelLeftBridge",
+    async (event: any, resources: any) => {
+      logger.verbose(
+        `@fonoster/dispatcher external channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
+      );
+      await resources.channel.hangup();
+    }
+  );
 
   // We save the bridge id as channel bar and later use the info
   // to destroy the bridge
@@ -72,5 +86,6 @@ export const externalMediaHandler = async (
   udpServer
     .getServer()
     .on("data", (data: Buffer) => sendData(ws, data, sessionId));
+
   await externalChannel.externalMedia(streamConfig(address));
 };

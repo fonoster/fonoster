@@ -35,7 +35,8 @@ const defaultServerConfig: ServerConfig = {
   base: "/",
   port: 3000,
   bind: "0.0.0.0",
-  pathToFiles: os.tmpdir()
+  pathToFiles: os.tmpdir(),
+  otlSpanExporters: []
 };
 
 export default class VoiceServer {
