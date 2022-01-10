@@ -1,4 +1,4 @@
-import Help from "@oclif/plugin-help";
+import {Help} from "@oclif/plugin-help";
 const figlet = require("figlet");
 
 export default class MyHelpClass extends Help {
@@ -21,6 +21,6 @@ export default class MyHelpClass extends Help {
       );
       console.log("\x1b[0m");
     }
-    super.showHelp(args);
+    //super.showHelp(args);
   }
 }
