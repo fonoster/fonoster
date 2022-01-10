@@ -32,7 +32,6 @@
     "@fonoster/common": "^0.2.29",
     "@fonoster/logger": "^0.2.29",
     "@google-cloud/speech": "^4.0.0",
-    "axios": "^0.21.1",
     "node-record-lpcm16": "^1.0.1",
     "objectid": "^3.2.1",
     "sync": "^0.2.5"

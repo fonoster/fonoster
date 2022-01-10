@@ -48,7 +48,6 @@
     "@fonoster/numbers": "^0.2.29",
     "@fonoster/storage": "^0.2.29",
     "ari-client": "^2.2.0",
-    "axios": "^0.21.1",
     "pick-port": "^1.0.0",
     "wait-port": "^0.2.9",
     "ws": "^6.2.2"

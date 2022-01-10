@@ -51,7 +51,6 @@
     "@fonoster/logger": "^0.2.29",
     "@fonoster/storage": "^0.2.29",
     "@grpc/grpc-js": "^1.3.6",
-    "axios": "^0.21.1",
     "btoa": "^1.2.1",
     "container-image-builder": "^3.2.0",
     "cron-validate": "^1.4.3",

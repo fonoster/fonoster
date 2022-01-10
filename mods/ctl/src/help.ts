@@ -21,6 +21,6 @@ export default class MyHelpClass extends Help {
       );
       console.log("\x1b[0m");
     }
-    super.showHelp(args);
+    //super.showHelp(args);
   }
 }

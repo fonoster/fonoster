@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^8.2.0",
-    "@types/node": "^15.12.2",
+    "@types/node": "^15.14.9",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "chai": "^4.2.0",
@@ -55,6 +55,10 @@
     "sinon": "^9.0.1",
     "sinon-chai": "^3.5.0",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "axios": "^0.24.0",
+    "colors": "^1.4.0"
   }
 }
