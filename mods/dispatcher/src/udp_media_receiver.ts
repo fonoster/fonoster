@@ -100,6 +100,8 @@ export default class UDPMediaReceiver {
 
   close() {
     logger.verbose(`@fonoster/dispatcher udpServer [closing server socket]`);
-    this.server.close();
+    try {
+      this.server.close();
+    } catch(e) { /** We can only try */}
   }
 }

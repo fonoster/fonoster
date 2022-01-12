@@ -29,7 +29,7 @@ import {playbackFinishedHandler} from "./handlers/playback_finished";
 import {recordFinishHandler} from "./handlers/record_finished";
 import {uploadRecording} from "./utils/upload_recording";
 import {recordFailedHandler} from "./handlers/record_failed";
-import {destroyBridge, hangup} from "./utils/destroy_channel";
+import {hangup, hangupExternalChannel} from "./utils/destroy_channel";
 import {channelTalkingHandler} from "./handlers/channel_talking";
 import {sendDtmf} from "./handlers/send_dtmf";
 import {answer} from "./utils/answer_channel";
@@ -133,7 +133,7 @@ export default function (err: any, ari: any) {
         `@fonoster/dispatcher channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
       );
       try {
-        await resources.channel.hangup();
+        await channel.hangup();
       } catch (e) {
         /* Ignore because because channel might not exist anymore */
       }
@@ -160,7 +160,7 @@ export default function (err: any, ari: any) {
         await externalMediaHandler(wsClient, ari, event);
         break;
       case "StopExternalMedia":
-        await destroyBridge(ari, event.userevent.sessionId);
+        await hangupExternalChannel(ari, event.userevent.sessionId);
         break;
       case "UploadRecording":
         await uploadRecording(

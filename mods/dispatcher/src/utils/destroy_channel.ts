@@ -41,22 +41,22 @@ export async function hangup(ari: any, sessionId: string) {
   }
 }
 
-export async function destroyBridge(ari: any, sessionId: string) {
+export async function hangupExternalChannel(ari: any, sessionId: string) {
   try {
     const channel = await ari.channels.get({channelId: sessionId});
+    const externalChannelId = await getChannelVar(channel, "EXTERNAL_CHANNEL");
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
     logger.verbose(
-      `@fonoster/dispatcher remove channel and destroy bridge [session = ${sessionId}, bridge = ${bridgeId}]`
+      `@fonoster/dispatcher remove external media channel [session = ${sessionId}, bridge = ${bridgeId}]`
     );
 
-    if (bridgeId) {
-      await ari.bridges.removeChannel({bridgeId, channel: sessionId});
-      await ari.bridges.destroy({bridgeId});
+    if (bridgeId && externalChannelId) {
+      await ari.bridges.removeChannel({bridgeId, channel: externalChannelId});
       return;
     }
 
     logger.warning(
-      `@fonoster/dispatcher no bridge found [sessionId = ${sessionId}]`
+      `@fonoster/dispatcher no bridge or external chanel found [sessionId = ${sessionId}]`
     );
   } catch (e) {
     /** We can only try because the channel might be already closed */

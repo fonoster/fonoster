@@ -20,6 +20,7 @@ import WebSocket from "ws";
 import logger from "@fonoster/logger";
 import {routr} from "@fonoster/core";
 import {uploadRecording} from "../utils/upload_recording";
+import { getChannelVar } from "../utils/channel_variable";
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();
@@ -72,9 +73,15 @@ export const dial = async (
     `@fonoster/dispatcher dialing [endpoint = sip:${destination}@${domainUri}]`
   );
 
-  const bridge = await ari.bridges.create({
-    type: "mixing"
-  });
+  const channel = await ari.channels.get({channelId: sessionId});  
+  const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
+  let bridge = await ari.bridges.get({bridgeId: bridgeId});                                                                                                        
+
+  if(!bridge) {                                                                                                                                        
+    bridge = await ari.bridges.create({                                                                                                                   
+      type: "mixing"                                                                                                                                      
+    });                                                                                                                                                
+  }  
 
   const dialed = ari.Channel();
 
@@ -86,7 +93,12 @@ export const dial = async (
 
   dialed.on("StasisStart", async (event: any, channel: any) => {
     try {
-      await bridge.addChannel({channel: [sessionId, dialed.id]});
+      if (bridgeId) {
+        await bridge.addChannel({channel: dialed.id});
+      } else {
+        // Is a new bridge so we need to add both channels
+        await bridge.addChannel({channel: [sessionId, dialed.id]});
+      }
 
       if (record) {
         if (record.direction === "in" || record.direction === "both") {
@@ -124,26 +136,30 @@ export const dial = async (
     }
   });
 
-  dialed.on("StasisEnd", async (event: any, channel: any) => {
-    const bridgeId = bridge.id;
+  dialed.on("ChannelLeftBridge", async (event: any, resources: any) => {
+    logger.verbose(
+      `@fonoster/dispatcher dialed channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
+    );
     try {
-      await ari.bridges.removeChannel({bridgeId, channel: sessionId});
-      const channel = await ari.channels.get({channelId: sessionId});
-      await channel.hangup();
-    } catch (e) {
-      /** We can only try because the originating channel might be already closed */
-      logger.warn(e);
-    } finally {
-      if (record) {
-        if (record.direction === "in" || record.direction === "both") {
-          await uploadRecording(accessKeyId, `${sessionId}_in.wav`);
-        }
+      dialed.hangup();
+    } catch (e) { /** We can only try */ }
 
-        if (record.direction === "out" || record.direction === "both") {
-          await uploadRecording(accessKeyId, `${sessionId}_out.wav`);
-        }
+    try {
+      await resources.bridge.destroy();
+    } catch (e) {
+      /* Ignore because the bridge might not exist anymore */
+    }
+  });
+
+  dialed.on("StasisEnd", async (event: any, channel: any) => {
+    if (record) {
+      if (record.direction === "in" || record.direction === "both") {
+        await uploadRecording(accessKeyId, `${sessionId}_in.wav`);
       }
-      await ari.bridges.destroy({bridgeId});
+
+      if (record.direction === "out" || record.direction === "both") {
+        await uploadRecording(accessKeyId, `${sessionId}_out.wav`);
+      }
     }
   });
 

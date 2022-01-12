@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/core",
-  "version": "0.2.32",
+  "version": "0.2.34",
   "description": "Core artifacts",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,11 +29,11 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.2.32",
-    "@fonoster/certs": "^0.2.32",
-    "@fonoster/common": "^0.2.32",
-    "@fonoster/errors": "^0.2.32",
-    "@fonoster/logger": "^0.2.32",
+    "@fonoster/auth": "^0.2.34",
+    "@fonoster/certs": "^0.2.34",
+    "@fonoster/common": "^0.2.34",
+    "@fonoster/errors": "^0.2.34",
+    "@fonoster/logger": "^0.2.34",
     "@grpc/grpc-js": "^1.3.6",
     "atob": "^2.1.2",
     "btoa": "^1.2.1",
