@@ -133,7 +133,7 @@ export default function (err: any, ari: any) {
         `@fonoster/dispatcher channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
       );
       try {
-        await resources.channel.hangup();
+        await channel.hangup();
       } catch (e) {
         /* Ignore because because channel might not exist anymore */
       }

@@ -1,0 +1,24 @@
+version: '3.7'
+
+networks:
+  fonoster:
+
+services:
+  healthcheck:
+    image: fonoster/healthcheck:${COMPOSE_PROJECT_VERSION}
+    restart: ${RESTART_POLICY}
+    ports:
+      - 45679:3000
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      fonoster:
+  autoheal:
+    image: fonoster/autoheal:${COMPOSE_PROJECT_VERSION}
+    restart: ${RESTART_POLICY}
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: all
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      fonoster:
