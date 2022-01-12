@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/googleasr",
-  "version": "0.2.34",
+  "version": "0.2.35",
   "description": "Wrapper for Google ASR",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,8 +29,8 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/common": "^0.2.34",
-    "@fonoster/logger": "^0.2.34",
+    "@fonoster/common": "^0.2.35",
+    "@fonoster/logger": "^0.2.35",
     "@google-cloud/speech": "^4.0.0",
     "node-record-lpcm16": "^1.0.1",
     "objectid": "^3.2.1",
