@@ -4,7 +4,7 @@ networks:
   fonoster:
 
 services:
-  rox:
+  voice:
     image: fonoster/voice:${COMPOSE_PROJECT_VERSION}
     command: ['rox']
     ports:
