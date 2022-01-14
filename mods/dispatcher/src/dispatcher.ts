@@ -40,7 +40,11 @@ const connection = {
 wait(connection)
   .then((open) => {
     if (open) {
-      ari.connect(ariHost, ariUsername, ariSecret, events);
+      // Give time to Media Server to publish the API endpoint
+      setTimeout(
+        () => ari.connect(ariHost, ariUsername, ariSecret, events),
+        10000
+      )
       return;
     }
 
