@@ -168,6 +168,11 @@ TTS_ENGINE_PORT=59125
 TTS_BASE_URI=/tts
 
 #
+# Integration with Rox Connector
+#
+VOICE_HOST=voice.fonoster
+
+#
 # OpenFaas integration (for Cloud Funcions)
 #
 
@@ -204,7 +209,7 @@ COMPOSE_PROJECT_NAME=fonoster
 # Overall version for the project
 # This variable will determine which docker
 # image is downloaded for FN services
-COMPOSE_PROJECT_VERSION=0.2.20
+COMPOSE_PROJECT_VERSION=0.2.36
 
 # Restart policy for containers
 RESTART_POLICY=unless-stopped

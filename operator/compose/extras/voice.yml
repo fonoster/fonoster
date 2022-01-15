@@ -46,4 +46,4 @@ services:
     networks:
       fonoster:
         aliases: 
-          - ${ROX_HOST}
+          - ${VOICE_HOST}
