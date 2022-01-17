@@ -35,6 +35,18 @@ jobs:
         src: docker.io/traefik:v2.4
         dst: |
           docker.io/fonoster/traefik:${{ steps.get_version.outputs.VERSION }}
+    - name: Copy and Push Fluentd with Elasticsearch Plugin
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: fonoster/fluent-elasticsearch:latest
+        dst: |
+          docker.io/fonoster/fluent-elasticsearch:${{ steps.get_version.outputs.VERSION }}              
+    - name: Copy and Push Elasticsearch
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: elasticsearch/elasticsearch:7.13.1
+        dst: |
+          docker.io/fonoster/elasticsearch:${{ steps.get_version.outputs.VERSION }}          
     - name: Copy and Push Whoami image
       uses: akhilerm/tag-push-action@v2.0.0
       with:
