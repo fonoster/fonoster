@@ -25,6 +25,7 @@ if (process.env.NODE_ENV === "dev") {
   dotenv.config({path: join(__dirname, ".env")});
 }
 
+import MonitorServer from "./mods/monitor/src/service/monitor";
 import UsersServer from "./mods/users/src/service/users";
 import ProjectsServer from "./mods/projects/src/service/projects";
 import AuthServer from "./mods/auth/src/service/auth";
@@ -36,6 +37,7 @@ import NumbersServer from "./mods/numbers/src/service/numbers";
 import ProvidersServer from "./mods/providers/src/service/providers";
 import CallManagerServer from "./mods/callmanager/src/service/callmanager";
 import StorageServer from "./mods/storage/src/service/storage";
+import {MonitorService} from "./mods/monitor/src/service/protos/monitor_grpc_pb";
 import {ProjectsService} from "./mods/projects/src/service/protos/projects_grpc_pb";
 import {UsersService} from "./mods/users/src/service/protos/users_grpc_pb";
 import {AuthService} from "./mods/auth/src/service/protos/auth_grpc_pb";
@@ -52,6 +54,12 @@ import AuthMiddleware from "./mods/auth/src/auth_middleware";
 import {getSalt} from "./mods/certs/src/certs";
 
 const services = [
+  {
+    name: "monitor",
+    version: "v1beta1",
+    service: MonitorService,
+    server: new MonitorServer()
+  },
   {
     name: "users",
     version: "v1beta1",
@@ -121,6 +129,7 @@ const services = [
 ];
 
 const whitelist = [
+  "/fonoster.monitor.v1beta1.Monitor/SearchEvents",
   "/fonoster.users.v1beta1.Users/ListUsers",
   "/fonoster.users.v1beta1.Users/CreateUser",
   "/fonoster.users.v1beta1.Users/DeleteUser",

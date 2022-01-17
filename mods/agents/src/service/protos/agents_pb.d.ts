@@ -99,8 +99,6 @@ export class UpdateAgentRequest extends jspb.Message {
     setRef(value: string): UpdateAgentRequest;
     getName(): string;
     setName(value: string): UpdateAgentRequest;
-    getUsername(): string;
-    setUsername(value: string): UpdateAgentRequest;
     getSecret(): string;
     setSecret(value: string): UpdateAgentRequest;
     clearDomainsList(): void;
@@ -124,7 +122,6 @@ export namespace UpdateAgentRequest {
     export type AsObject = {
         ref: string,
         name: string,
-        username: string,
         secret: string,
         domainsList: Array<string>,
         privacy: string,

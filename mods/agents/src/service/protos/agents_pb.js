@@ -839,7 +839,7 @@ proto.fonoster.agents.v1beta1.CreateAgentRequest.prototype.setPrivacy = function
  * @private {!Array<number>}
  * @const
  */
-proto.fonoster.agents.v1beta1.UpdateAgentRequest.repeatedFields_ = [5];
+proto.fonoster.agents.v1beta1.UpdateAgentRequest.repeatedFields_ = [4];
 
 
 
@@ -874,10 +874,9 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.toObject = function(includeInst
   var f, obj = {
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    username: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    secret: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    domainsList: (f = jspb.Message.getRepeatedField(msg, 5)) == null ? undefined : f,
-    privacy: jspb.Message.getFieldWithDefault(msg, 6, "")
+    secret: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    domainsList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f,
+    privacy: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -924,17 +923,13 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.deserializeBinaryFromReader = f
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setUsername(value);
+      msg.setSecret(value);
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setSecret(value);
-      break;
-    case 5:
-      var value = /** @type {string} */ (reader.readString());
       msg.addDomains(value);
       break;
-    case 6:
+    case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setPrivacy(value);
       break;
@@ -981,31 +976,24 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.serializeBinaryToWriter = funct
       f
     );
   }
-  f = message.getUsername();
+  f = message.getSecret();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getSecret();
-  if (f.length > 0) {
-    writer.writeString(
-      4,
-      f
-    );
-  }
   f = message.getDomainsList();
   if (f.length > 0) {
     writer.writeRepeatedString(
-      5,
+      4,
       f
     );
   }
   f = message.getPrivacy();
   if (f.length > 0) {
     writer.writeString(
-      6,
+      5,
       f
     );
   }
@@ -1049,10 +1037,10 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.setName = function(va
 
 
 /**
- * optional string username = 3;
+ * optional string secret = 3;
  * @return {string}
  */
-proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.getUsername = function() {
+proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.getSecret = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -1061,35 +1049,17 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.getUsername = functio
  * @param {string} value
  * @return {!proto.fonoster.agents.v1beta1.UpdateAgentRequest} returns this
  */
-proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.setUsername = function(value) {
+proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.setSecret = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string secret = 4;
- * @return {string}
- */
-proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.getSecret = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonoster.agents.v1beta1.UpdateAgentRequest} returns this
- */
-proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.setSecret = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
-};
-
-
-/**
- * repeated string domains = 5;
+ * repeated string domains = 4;
  * @return {!Array<string>}
  */
 proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.getDomainsList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 5));
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
 };
 
 
@@ -1098,7 +1068,7 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.getDomainsList = func
  * @return {!proto.fonoster.agents.v1beta1.UpdateAgentRequest} returns this
  */
 proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.setDomainsList = function(value) {
-  return jspb.Message.setField(this, 5, value || []);
+  return jspb.Message.setField(this, 4, value || []);
 };
 
 
@@ -1108,7 +1078,7 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.setDomainsList = func
  * @return {!proto.fonoster.agents.v1beta1.UpdateAgentRequest} returns this
  */
 proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.addDomains = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 5, value, opt_index);
+  return jspb.Message.addToRepeatedField(this, 4, value, opt_index);
 };
 
 
@@ -1122,11 +1092,11 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.clearDomainsList = fu
 
 
 /**
- * optional string privacy = 6;
+ * optional string privacy = 5;
  * @return {string}
  */
 proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.getPrivacy = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
 
@@ -1135,7 +1105,7 @@ proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.getPrivacy = function
  * @return {!proto.fonoster.agents.v1beta1.UpdateAgentRequest} returns this
  */
 proto.fonoster.agents.v1beta1.UpdateAgentRequest.prototype.setPrivacy = function(value) {
-  return jspb.Message.setProto3StringField(this, 6, value);
+  return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
