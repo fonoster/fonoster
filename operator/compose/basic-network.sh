@@ -1,7 +1,7 @@
 #!/bin/bash
 
 EXTRAS="-f extras/datasource.yml -f extras/fs.yml"
-COMPOSE_CMD="docker-compose --env-file .env -f health.yml -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml ${EXTRAS}"
+COMPOSE_CMD="docker-compose --env-file .env -f logging.yml -f health.yml -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml ${EXTRAS}"
 
 basic_network() {
   case $1 in
