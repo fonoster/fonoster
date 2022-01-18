@@ -27,6 +27,7 @@ import {
 } from "./types";
 import {Struct} from "google-protobuf/google/protobuf/struct_pb";
 import {Level} from "../service/level";
+import {EventType} from "../service/event_type";
 
 /**
  * @classdesc Use Fonoster Monitor, a capability of Fonoster to obtain user events.
@@ -93,6 +94,7 @@ export default class Monitor extends APIClient implements IMonitorClient {
         return {
           ref: e.getRef(),
           level: Level.toString(e.getLevel()),
+          eventType: EventType.toString(e.getEventType()),
           message: e.getMessage(),
           timestamp: new Date(e.getTimestamp()),
           body: e.getBody().toJavaScript()

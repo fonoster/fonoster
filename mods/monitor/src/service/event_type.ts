@@ -16,19 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Level as Le} from "./protos/monitor_pb";
+import {EventType as ET} from "./protos/monitor_pb";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace Level {
+export namespace EventType {
   // eslint-disable-next-line require-jsdoc
-  export function toString(level: Le): string {
-    return Object.keys(Le)
-      .find((key) => Le[key] === level)
-      .toLowerCase();
+  export function toString(type: ET): string {
+    return Object.keys(ET)
+      .find((key) => ET[key] === type)
+      ?.toLowerCase();
   }
 
   // eslint-disable-next-line require-jsdoc
-  export function fromString(dir: string): Le {
-    return (Le as any)[dir?.toUpperCase()];
+  export function fromString(type: string): ET {
+    return (ET as any)[type.toUpperCase()];
   }
 }

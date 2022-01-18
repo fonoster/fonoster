@@ -33,6 +33,8 @@ export namespace SearchEventsRequest {
 export class Event extends jspb.Message { 
     getRef(): string;
     setRef(value: string): Event;
+    getEventType(): EventType;
+    setEventType(value: EventType): Event;
     getLevel(): Level;
     setLevel(value: Level): Event;
     getTimestamp(): string;
@@ -58,6 +60,7 @@ export class Event extends jspb.Message {
 export namespace Event {
     export type AsObject = {
         ref: string,
+        eventType: EventType,
         level: Level,
         timestamp: string,
         message: string,
@@ -69,4 +72,11 @@ export enum Level {
     INFO = 0,
     WARN = 1,
     ERROR = 2,
+    VERBOSE = 3,
+}
+
+export enum EventType {
+    APP = 0,
+    SIP = 1,
+    CALL = 2,
 }

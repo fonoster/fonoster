@@ -34,7 +34,7 @@ export const sendCallRequest = async (url: string, request: CallRequest) => {
     logger.error(error);
     ulogger({
       accessKeyId: request.accessKeyId,
-      type: ULogType.APP,
+      eventType: ULogType.APP,
       level: "error",
       message: error
     })

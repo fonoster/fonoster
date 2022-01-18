@@ -23,6 +23,7 @@ export interface IMonitorClient {
 export interface Event {
   ref: string;
   level: string;
+  eventType: string;
   message: string;
   timestamp: Date;
   body: Record<string, unknown>;

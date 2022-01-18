@@ -20,7 +20,7 @@ import winston from "winston";
 import fluentLogger from "fluent-logger";
 
 export enum ULogType {
-  APP = "application",
+  APP = "app",
   CALL = "call",
   SIP = "sip"
 }
@@ -28,7 +28,7 @@ export enum ULogType {
 // User Logging
 export interface ULog {
   accessKeyId: string;
-  type: ULogType;
+  eventType: ULogType;
   level: "info" | "error" | "verbose" | "warn";
   message: string;
   body?: Record<string, unknown>;
@@ -70,7 +70,7 @@ const unmute = () => logger.transports.forEach((t: any) => (t.silent = false));
 
 const ulogger = (log: ULog) =>
   logger[log.level](log.message, {
-    type: log.type,
+    eventType: log.eventType,
     body: log.body,
     accessKeyId: log.accessKeyId
   })

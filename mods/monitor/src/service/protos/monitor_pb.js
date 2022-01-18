@@ -18,6 +18,7 @@ var global = Function('return this')();
 var google_protobuf_struct_pb = require('google-protobuf/google/protobuf/struct_pb.js');
 goog.object.extend(proto, google_protobuf_struct_pb);
 goog.exportSymbol('proto.fonoster.monitor.v1beta1.Event', null, global);
+goog.exportSymbol('proto.fonoster.monitor.v1beta1.EventType', null, global);
 goog.exportSymbol('proto.fonoster.monitor.v1beta1.Level', null, global);
 goog.exportSymbol('proto.fonoster.monitor.v1beta1.SearchEventsRequest', null, global);
 /**
@@ -246,9 +247,10 @@ proto.fonoster.monitor.v1beta1.Event.prototype.toObject = function(opt_includeIn
 proto.fonoster.monitor.v1beta1.Event.toObject = function(includeInstance, msg) {
   var f, obj = {
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    level: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    timestamp: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    message: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    eventType: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    level: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    timestamp: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    message: jspb.Message.getFieldWithDefault(msg, 5, ""),
     body: (f = msg.getBody()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f)
   };
 
@@ -291,18 +293,22 @@ proto.fonoster.monitor.v1beta1.Event.deserializeBinaryFromReader = function(msg,
       msg.setRef(value);
       break;
     case 2:
+      var value = /** @type {!proto.fonoster.monitor.v1beta1.EventType} */ (reader.readEnum());
+      msg.setEventType(value);
+      break;
+    case 3:
       var value = /** @type {!proto.fonoster.monitor.v1beta1.Level} */ (reader.readEnum());
       msg.setLevel(value);
       break;
-    case 3:
+    case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setTimestamp(value);
       break;
-    case 4:
+    case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setMessage(value);
       break;
-    case 5:
+    case 6:
       var value = new google_protobuf_struct_pb.Struct;
       reader.readMessage(value,google_protobuf_struct_pb.Struct.deserializeBinaryFromReader);
       msg.setBody(value);
@@ -343,31 +349,38 @@ proto.fonoster.monitor.v1beta1.Event.serializeBinaryToWriter = function(message,
       f
     );
   }
-  f = message.getLevel();
+  f = message.getEventType();
   if (f !== 0.0) {
     writer.writeEnum(
       2,
       f
     );
   }
-  f = message.getTimestamp();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getLevel();
+  if (f !== 0.0) {
+    writer.writeEnum(
       3,
       f
     );
   }
-  f = message.getMessage();
+  f = message.getTimestamp();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
+  f = message.getMessage();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
   f = message.getBody();
   if (f != null) {
     writer.writeMessage(
-      5,
+      6,
       f,
       google_protobuf_struct_pb.Struct.serializeBinaryToWriter
     );
@@ -394,11 +407,29 @@ proto.fonoster.monitor.v1beta1.Event.prototype.setRef = function(value) {
 
 
 /**
- * optional Level level = 2;
+ * optional EventType event_type = 2;
+ * @return {!proto.fonoster.monitor.v1beta1.EventType}
+ */
+proto.fonoster.monitor.v1beta1.Event.prototype.getEventType = function() {
+  return /** @type {!proto.fonoster.monitor.v1beta1.EventType} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.monitor.v1beta1.EventType} value
+ * @return {!proto.fonoster.monitor.v1beta1.Event} returns this
+ */
+proto.fonoster.monitor.v1beta1.Event.prototype.setEventType = function(value) {
+  return jspb.Message.setProto3EnumField(this, 2, value);
+};
+
+
+/**
+ * optional Level level = 3;
  * @return {!proto.fonoster.monitor.v1beta1.Level}
  */
 proto.fonoster.monitor.v1beta1.Event.prototype.getLevel = function() {
-  return /** @type {!proto.fonoster.monitor.v1beta1.Level} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  return /** @type {!proto.fonoster.monitor.v1beta1.Level} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
@@ -407,33 +438,15 @@ proto.fonoster.monitor.v1beta1.Event.prototype.getLevel = function() {
  * @return {!proto.fonoster.monitor.v1beta1.Event} returns this
  */
 proto.fonoster.monitor.v1beta1.Event.prototype.setLevel = function(value) {
-  return jspb.Message.setProto3EnumField(this, 2, value);
+  return jspb.Message.setProto3EnumField(this, 3, value);
 };
 
 
 /**
- * optional string timestamp = 3;
+ * optional string timestamp = 4;
  * @return {string}
  */
 proto.fonoster.monitor.v1beta1.Event.prototype.getTimestamp = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonoster.monitor.v1beta1.Event} returns this
- */
-proto.fonoster.monitor.v1beta1.Event.prototype.setTimestamp = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
-/**
- * optional string message = 4;
- * @return {string}
- */
-proto.fonoster.monitor.v1beta1.Event.prototype.getMessage = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
@@ -442,18 +455,36 @@ proto.fonoster.monitor.v1beta1.Event.prototype.getMessage = function() {
  * @param {string} value
  * @return {!proto.fonoster.monitor.v1beta1.Event} returns this
  */
-proto.fonoster.monitor.v1beta1.Event.prototype.setMessage = function(value) {
+proto.fonoster.monitor.v1beta1.Event.prototype.setTimestamp = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional google.protobuf.Struct body = 5;
+ * optional string message = 5;
+ * @return {string}
+ */
+proto.fonoster.monitor.v1beta1.Event.prototype.getMessage = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.monitor.v1beta1.Event} returns this
+ */
+proto.fonoster.monitor.v1beta1.Event.prototype.setMessage = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional google.protobuf.Struct body = 6;
  * @return {?proto.google.protobuf.Struct}
  */
 proto.fonoster.monitor.v1beta1.Event.prototype.getBody = function() {
   return /** @type{?proto.google.protobuf.Struct} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 5));
+    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 6));
 };
 
 
@@ -462,7 +493,7 @@ proto.fonoster.monitor.v1beta1.Event.prototype.getBody = function() {
  * @return {!proto.fonoster.monitor.v1beta1.Event} returns this
 */
 proto.fonoster.monitor.v1beta1.Event.prototype.setBody = function(value) {
-  return jspb.Message.setWrapperField(this, 5, value);
+  return jspb.Message.setWrapperField(this, 6, value);
 };
 
 
@@ -480,7 +511,7 @@ proto.fonoster.monitor.v1beta1.Event.prototype.clearBody = function() {
  * @return {boolean}
  */
 proto.fonoster.monitor.v1beta1.Event.prototype.hasBody = function() {
-  return jspb.Message.getField(this, 5) != null;
+  return jspb.Message.getField(this, 6) != null;
 };
 
 
@@ -490,7 +521,17 @@ proto.fonoster.monitor.v1beta1.Event.prototype.hasBody = function() {
 proto.fonoster.monitor.v1beta1.Level = {
   INFO: 0,
   WARN: 1,
-  ERROR: 2
+  ERROR: 2,
+  VERBOSE: 3
+};
+
+/**
+ * @enum {number}
+ */
+proto.fonoster.monitor.v1beta1.EventType = {
+  APP: 0,
+  SIP: 1,
+  CALL: 2
 };
 
 goog.object.extend(exports, proto.fonoster.monitor.v1beta1);

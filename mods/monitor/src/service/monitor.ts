@@ -29,6 +29,7 @@ import {Client} from "@elastic/elasticsearch";
 import {ErrorCodes, FonosterError} from "@fonoster/errors";
 import {getAccessKeyId} from "@fonoster/core";
 import {Level} from "./level";
+import {EventType} from "./event_type";
 
 const host = process.env.LOGS_AGGREGRATOR_HOST;
 const port = process.env.LOGS_AGGREGRATOR_PORT;
@@ -43,9 +44,6 @@ class MonitorServer implements IMonitorServer {
 
   // eslint-disable-next-line require-jsdoc
   async searchEvents(call: ServerWritableStream<SearchEventsRequest, Event>) {
-    console.log(
-      "query: " + JSON.stringify(call.request.getQuery().toJavaScript())
-    );
     const accessKeyId = getAccessKeyId(call);
 
     // TODO:
@@ -53,9 +51,7 @@ class MonitorServer implements IMonitorServer {
     const {body} = await client.search(
       {
         body: {
-          query: {
-            match_all: call.request.getQuery().toJavaScript()
-          }
+          query: call.request.getQuery().toJavaScript()
         }
       },
       {
@@ -71,16 +67,13 @@ class MonitorServer implements IMonitorServer {
           (hit) => hit["_source"]?.accessKeyId === accessKeyId
         )
         .map((hit) => {
-          console.log("id: " + hit["_id"]);
           const entry = new Event();
           entry.setRef(hit["_id"]);
           entry.setMessage(hit["_source"].message);
-          entry.setLevel(1);
           entry.setTimestamp(hit["_source"]["@timestamp"]);
           entry.setBody(Struct.fromJavaScript(hit["_source"]?.body));
-          entry.setLevel(
-            Level.fromString(hit["_source"]?.level?.toUpperCase())
-          );
+          entry.setEventType(EventType.fromString(hit["_source"]?.eventType));
+          entry.setLevel(Level.fromString(hit["_source"]?.level));
           return entry;
         });
 

@@ -120,7 +120,7 @@ export default function (err: any, ari: any) {
       );
       ulogger({
         accessKeyId: request.accessKeyId,
-        type: ULogType.APP,
+        eventType: ULogType.APP,
         level: "error",
         message: error
       })

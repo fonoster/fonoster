@@ -17,16 +17,24 @@ enum Level {
   INFO = 0;
   WARN = 1;
   ERROR = 2;
+  VERBOSE = 3;
 }
  
+enum EventType {
+  APP = 0;
+  SIP = 1;
+  CALL = 2;
+}
+
 message SearchEventsRequest {
   .google.protobuf.Struct query = 1;
 }
 
 message Event {
   string ref = 1;
-  Level level = 2;
-  string timestamp = 3;
-  string message = 4;
-  .google.protobuf.Struct body = 5;
+  EventType event_type = 2;
+  Level level = 3;
+  string timestamp = 4;
+  string message = 5;
+  .google.protobuf.Struct body = 6;
 }
