@@ -27,6 +27,7 @@ import Funcs from "@fonoster/funcs";
 import Auth from "@fonoster/auth";
 import Projects from "@fonoster/projects";
 import Users from "@fonoster/users";
+import Monitor from "@fonoster/monitor";
 import {mute} from "@fonoster/logger";
 
 mute();
@@ -42,7 +43,8 @@ const Fonoster = {
   Numbers,
   Providers,
   Projects,
-  Users
+  Users,
+  Monitor,
 };
 
 export {Fonoster as default};
