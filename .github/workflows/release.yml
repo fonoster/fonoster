@@ -44,7 +44,7 @@ jobs:
     - name: Copy and Push Elasticsearch
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: elasticsearch/elasticsearch:7.13.1
+        src: elasticsearch:7.16.3
         dst: |
           docker.io/fonoster/elasticsearch:${{ steps.get_version.outputs.VERSION }}          
     - name: Copy and Push Whoami image
@@ -114,6 +114,14 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/projects
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Monitor API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/monitor
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/monitor
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
     - name: Publish to Docker Hub the Users API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
