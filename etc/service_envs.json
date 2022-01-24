@@ -77,7 +77,10 @@
     ]
   },
   {
-    "module": "voice",
-    "env": []
+    "module": "monitor",
+    "env": [
+      "LOGS_AGGREGRATOR_HOST",
+      "LOGS_AGGREGRATOR_PORT"
+    ]
   }
 ]

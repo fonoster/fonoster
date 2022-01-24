@@ -1,0 +1,40 @@
+/**
+ * MIT License
+ * Copyright (c) 2021 Fonoster Inc
+ */
+syntax = "proto3";
+
+package fonoster.monitor.v1beta1;
+
+import "google/protobuf/struct.proto";
+
+service Monitor {
+  // Gets a stream of events
+  rpc SearchEvents (SearchEventsRequest) returns (stream Event);
+}
+
+enum Level {
+  INFO = 0;
+  WARN = 1;
+  ERROR = 2;
+  VERBOSE = 3;
+}
+ 
+enum EventType {
+  APP = 0;
+  SIP = 1;
+  CALL = 2;
+}
+
+message SearchEventsRequest {
+  .google.protobuf.Struct query = 1;
+}
+
+message Event {
+  string ref = 1;
+  EventType event_type = 2;
+  Level level = 3;
+  string timestamp = 4;
+  string message = 5;
+  .google.protobuf.Struct body = 6;
+}

@@ -33,6 +33,17 @@ services:
     volumes:
       - ${CONFIG}/rbac.json:/home/fonoster/rbac.json
 
+  monitor:
+    image: fonoster/monitor:${COMPOSE_PROJECT_VERSION}
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.monitor.entrypoints=internal,websecure"
+      - "traefik.http.routers.monitor.rule=PathPrefix(`/fonoster.monitor.v1beta1`)"
+      - "traefik.http.services.monitor.loadbalancer.server.scheme=h2c"
+
   users:
     image: fonoster/users:${COMPOSE_PROJECT_VERSION}
     extends:

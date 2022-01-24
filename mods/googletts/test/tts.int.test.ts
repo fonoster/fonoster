@@ -38,7 +38,7 @@ describe("@fonoster/googletts", () => {
     expect(synthesizeSpeech).to.not.have.been.called
   })*/
 
-  it.only("synthesizes text or ssml and returns path to the new file", async () => {
+  it("synthesizes text or ssml and returns path to the new file", async () => {
     const config = {
       projectId: "clever-tube-275321",
       keyFilename: "/Users/pedrosanders/Projects/fonoster/credentials.json"

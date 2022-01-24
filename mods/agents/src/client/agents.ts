@@ -37,7 +37,7 @@ import {
 /**
  * @classdesc Use Fonoster Agents, a capability of Fonoster SIP Proxy subsystem,
  * to create, update, get and delete Agents. Agents requires of a
- * runningFonosterdeployment.
+ * running Fonoster deployment.
  *
  * @extends APIClient
  * @example

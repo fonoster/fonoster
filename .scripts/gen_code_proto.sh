@@ -1,7 +1,19 @@
 #!/usr/bin/env sh
 DIRNAME="$(cd "$(dirname "$0")"; pwd)"
 
-PROTOS=(agents callmanager domains storage numbers providers funcs auth secrets users projects)
+PROTOS=(
+  monitor \
+  agents \
+  callmanager \
+  domains \
+  storage \
+  numbers \
+  providers \
+  funcs \
+  auth \
+  secrets \
+  users \
+  projects)
 
 for proto in "${PROTOS[@]}"
 do

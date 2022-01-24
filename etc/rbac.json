@@ -19,6 +19,7 @@
     "name": "PROJECT",
     "description": "Access to Project resources",
     "access": [
+      "/fonoster.monitor.v1beta1.Monitor/SearchEvents",
       "/fonoster.storage.v1beta1.Storage/UploadObject",
       "/fonoster.storage.v1beta1.Storage/GetObjectURL",
       "/fonoster.providers.v1beta1.Providers/ListProviders",

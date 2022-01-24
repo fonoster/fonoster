@@ -16,7 +16,8 @@
     {"path": "../numbers"},
     {"path": "../domains"},
     {"path": "../projects"},
-    {"path": "../users"}
+    {"path": "../users"},
+    {"path": "../monitor"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

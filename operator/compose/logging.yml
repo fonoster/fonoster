@@ -1,0 +1,36 @@
+# Logging services (Elastic Search, Fluent)
+
+version: '3.7'
+
+networks:
+  fonoster:
+
+services:
+
+  logsdriver:
+    image: fonoster/fluent-elasticsearch:${COMPOSE_PROJECT_VERSION}
+    restart: ${RESTART_POLICY}
+    expose:
+      - ${LOGS_DRIVER_PORT}
+    volumes:
+      - ${CONFIG}/fluent.conf:/fluentd/etc/fluent.conf:ro
+    logging:
+      driver: "local"
+    networks:
+      fonoster:
+        aliases: 
+          - ${LOGS_DRIVER_HOST}
+
+  logsaggregator:
+    image: fonoster/elasticsearch:${COMPOSE_PROJECT_VERSION}
+    restart: ${RESTART_POLICY}
+    environment:
+      - "discovery.type=single-node"
+    expose:
+      - ${LOGS_AGGREGRATOR_PORT}
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data:rw
+    networks:
+      fonoster:
+        aliases: 
+          - ${LOGS_AGGREGRATOR_HOST}     

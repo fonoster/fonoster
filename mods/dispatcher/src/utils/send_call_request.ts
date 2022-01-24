@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import logger from "@fonoster/logger";
+import { ulogger, ULogType } from "@fonoster/logger/src/logger";
 import axios from "axios";
 import {CallRequest} from "../types";
 
@@ -29,6 +30,13 @@ export const sendCallRequest = async (url: string, request: CallRequest) => {
       }]`
     );
   } catch (e) {
-    logger.error(`Unable to send request to voice app at [url = ${url}]`);
+    const error = `Error communicating with your Voice application: Unable to connect with ${url}` 
+    logger.error(error);
+    ulogger({
+      accessKeyId: request.accessKeyId,
+      eventType: ULogType.APP,
+      level: "error",
+      message: error
+    })
   }
 };

@@ -34,6 +34,7 @@ import {channelTalkingHandler} from "./handlers/channel_talking";
 import {sendDtmf} from "./handlers/send_dtmf";
 import {answer} from "./utils/answer_channel";
 import {dial} from "./handlers/dial";
+import { ulogger, ULogType } from "@fonoster/logger/src/logger";
 
 const wsConnections = new Map();
 
@@ -113,10 +114,16 @@ export default function (err: any, ari: any) {
     });
 
     ws.on("error", async (e: Error) => {
+      const error = `Error communicating with your Webhook: Unable to connect with Webhook ${webhook}` 
       logger.error(
         `@fonoster/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`
       );
-      logger.silly(e);
+      ulogger({
+        accessKeyId: request.accessKeyId,
+        eventType: ULogType.APP,
+        level: "error",
+        message: error
+      })
       channel.hangup();
     });
 

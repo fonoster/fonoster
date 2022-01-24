@@ -19,10 +19,25 @@
 import winston from "winston";
 import fluentLogger from "fluent-logger";
 
+export enum ULogType {
+  APP = "app",
+  CALL = "call",
+  SIP = "sip"
+}
+
+// User Logging
+export interface ULog {
+  accessKeyId: string;
+  eventType: ULogType;
+  level: "info" | "error" | "verbose" | "warn";
+  message: string;
+  body?: Record<string, unknown>;
+}
+
 const fluentTransport = fluentLogger.support.winstonTransport();
 
 const fluent = new fluentTransport(
-  `${process.env.LOG_OPT_TAG_PREFIX}.${process.env.COMPOSE_PROJECT_NAME}.mediacontroller`,
+  `${process.env.LOG_OPT_TAG_PREFIX}.fonoster`,
   {
     host: process.env.LOGS_DRIVER_HOST,
     port: process.env.LOGS_DRIVER_PORT,
@@ -31,31 +46,33 @@ const fluent = new fluentTransport(
   }
 );
 
-const level = process.env.NODE_ENV !== "production" ? "verbose" : "info";
+const level = process.env.NODE_ENV === "production" ? "info" : "verbose";
 
 const transports =
-  process.env.NODE_ENV !== "production"
-    ? [new winston.transports.Console()]
-    : [fluent];
-
-const format =
-  process.env.NODE_ENV !== "production"
-    ? winston.format.simple()
-    : winston.format.json();
+  process.env.NODE_ENV === "production"
+    ? [fluent]
+    : [new winston.transports.Console(), fluent]
 
 const logger = winston.createLogger({
-  format: winston.format.combine(winston.format.colorize(), format),
+  format: winston.format.json(),
   levels: winston.config.npm.levels,
   transports,
   level
 });
 
 logger.on("finish", () => {
-  fluent.sender.end("end", {}, () => {});
+  fluent.sender.end("end", {}, () => { });
 });
 
 const mute = () => logger.transports.forEach((t: any) => (t.silent = true));
 
 const unmute = () => logger.transports.forEach((t: any) => (t.silent = false));
 
-export {logger as default, mute, unmute};
+const ulogger = (log: ULog) =>
+  logger[log.level](log.message, {
+    eventType: log.eventType,
+    body: log.body,
+    accessKeyId: log.accessKeyId
+  })
+
+export { logger as default, ulogger, mute, unmute };
