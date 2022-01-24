@@ -38,9 +38,15 @@ jobs:
     - name: Copy and Push Fluentd with Elasticsearch Plugin
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: fonoster/fluent-elasticsearch:latest
+        src: fonoster/fluent:latest
         dst: |
-          docker.io/fonoster/fluent-elasticsearch:${{ steps.get_version.outputs.VERSION }}              
+          docker.io/fonoster/fluent:${{ steps.get_version.outputs.VERSION }}
+    - name: Copy and Push Vault
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: vault:latest
+        dst: |
+          docker.io/fonoster/vault:${{ steps.get_version.outputs.VERSION }}                
     - name: Copy and Push Elasticsearch
       uses: akhilerm/tag-push-action@v2.0.0
       with:
