@@ -63,6 +63,17 @@ describe("@fonoster/marytts", () => {
     const get = sandbox.stub(https, "get").yields({statusCode: 200, pipe});
 
     const tts = new MaryTTS(defConfig);
+    // TODO remove once officially deprecated
+    const resultFromDeprecatedMethod = await tts.synthetize("hello world");
+    expect(resultFromDeprecatedMethod).to.have.property("filename").to.not.be
+      .null;
+    expect(resultFromDeprecatedMethod).to.have.property("pathToFile").to.not.be
+      .null;
+    expect(pipe).to.have.been.calledOnce;
+    expect(join).to.have.been.calledOnce;
+    expect(createWriteStream).to.have.been.calledOnce;
+    expect(get).to.have.been.calledOnce;
+
     const result = await tts.synthetize("hello world");
     expect(result).to.have.property("filename").to.not.be.null;
     expect(result).to.have.property("pathToFile").to.not.be.null;
