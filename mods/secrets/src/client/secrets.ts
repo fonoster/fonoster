@@ -32,7 +32,7 @@ import {
 
 /**
  * @classdesc Use Fonoster Secrets, a capability of Fonoster Secrets Service,
- * to create and manage your secrets.FonosterSecrets requires of a
+ * to create and manage your secrets. Fonoster Secrets requires of a
  * running Fonoster deployment.
  *
  * @extends APIClient
@@ -42,18 +42,18 @@ import {
  * const secrets = new Fonoster.Secrets()
  *
  * const request = {
- *    secretName: "Jenkins",
+ *    secretName: "my-secret",
  *    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
  * };
  *
  * secrets.createSecret(request)
  * .then(result => {
- *   console.log(result) // returns the CreateDomainResponse interface
+ *   console.log(result) // message with the CreateSecretResponse interface
  * }).catch(e => console.error(e)); // an error occurred
  */
 export default class Secrets extends APIClient implements ISecretsClient {
   /**
-   * Constructs a Secret Object.
+   * Constructs a Secrets Object.
    *
    * @param {ClientOptions} options - Options to indicate the objects endpoint
    * @see module:core:APIClient
@@ -64,22 +64,17 @@ export default class Secrets extends APIClient implements ISecretsClient {
     promisifyAll(super.getService(), {metadata: super.getMeta()});
   }
 
-  listSecrets(request: ListSecretsRequest): Promise<ListSecretsResponse> {
-    throw new Error("Method not implemented.");
-  }
-
   /**
-   * Creates a new Secret.
+   * Creates and stores a new secret.
    *
-   * @param {CreateSecretRequest} request - Request for the provision of
-   * a new Secret
-   * @param {string} request.name - Friendly name for the Secret
-   * @param {string} request.secret - secret to be save
+   * @param {CreateSecretRequest} request - Request to create a new secret
+   * @param {string} request.name - Friendly name for the secret
+   * @param {string} request.secret - Actual secret
    * @return {Promise<CreateSecretResponse>}
    * @example
    *
    * const request = {
-   *    secretName: "Jenkins",
+   *    name: "my-secret",
    *    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
    * };
    *
@@ -110,23 +105,22 @@ export default class Secrets extends APIClient implements ISecretsClient {
   }
 
   /**
-   * Get a Secret.
+   * Gets a secret by name.
    *
-   * @param {CreateSecretRequest} request - Request for the provision of
-   * a new Secret
+   * @param {CreateSecretRequest} request - Request to create a new Secret
    * @param {string} request.name - Friendly name for the Secret
-   * @param {string} request.secret - secret to be save
+   * @param {string} request.secret - Secret to save
    * @return {Promise<CreateSecretResponse>}
    * @example
    *
    * const request = {
-   *    secretName: "Jenkins",
+   *    name: "my-secret",
    *    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
    * };
    *
    * secrets.createSecret(request)
    * .then(result => {
-   *   console.log(result) // returns the CreateDomainResponse interface
+   *   console.log(result) // returns the GetSecretResponse interface
    * }).catch(e => console.error(e)); // an error occurred
    */
   async getSecret(name: string): Promise<GetSecretResponse> {
@@ -145,7 +139,7 @@ export default class Secrets extends APIClient implements ISecretsClient {
   }
 
   /**
-   * List all user secrets.
+   * List all the secrets for current Project.
    *
    * @param {ListSecretRequest} request - Request for the provision of
    * a new Secret
@@ -159,13 +153,13 @@ export default class Secrets extends APIClient implements ISecretsClient {
    *    pageToken: 1
    * };
    *
-   * secrets.listSecret(request)
+   * secrets.listSecrets(request)
    * .then(result => {
-   *   console.log(result) // returns the CreateDomainResponse interface
+   *   console.log(result)
    * }).catch(e => console.error(e)); // an error occurred
    */
-  async listSecret(request: ListSecretsRequest): Promise<ListSecretsResponse> {
-    const req = new SecretPB.ListSecretIdRequest();
+  async listSecrets(request: ListSecretsRequest): Promise<ListSecretsResponse> {
+    const req = new SecretPB.ListSecretsIdRequest();
     req.setPageSize(request.pageSize);
     req.setPageToken(request.pageToken);
     const paginatedList = await this.getService()
@@ -174,24 +168,23 @@ export default class Secrets extends APIClient implements ISecretsClient {
 
     return {
       nextPageToken: paginatedList.getNextPageToken(),
-      secrets: paginatedList.getSecretsList().map((secret: SecretPB.Secret) => {
+      secrets: paginatedList.getSecretsList().map((name: string) => {
         return {
-          name: secret.getName()
+          name
         };
       })
     };
   }
 
   /**
-   * Retrives a Secret using its reference.
+   * Removes a secret by name.
    *
-   * @param {string} request - Reference to Secret
-   * @return {Promise<void>} The domain
+   * @param {string} name - Secret name
    * @example
    *
-   * secrets.deleteSecret("jenkins")
+   * secrets.deleteSecret("my-secret")
    * .then(() => {
-   *   console.log("successful")      // returns the CreateGetResponse interface
+   *   console.log("successful")
    * }).catch(e => console.error(e)); // an error occurred
    */
   async deleteSecret(name: string): Promise<void> {

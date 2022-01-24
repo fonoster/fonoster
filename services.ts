@@ -137,6 +137,7 @@ const whitelist = [
   "/fonoster.auth.v1beta1.Auth/GetRole",
   "/fonoster.auth.v1beta1.Auth/CreateToken",
   "/fonoster.auth.v1beta1.Auth/CreateNoAccessToken",
+  "/fonoster.auth.v1beta1.Secrets/GetSecret",
   "/grpc.health.v1.Health/Check"
 ];
 

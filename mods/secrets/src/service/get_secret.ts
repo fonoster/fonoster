@@ -16,18 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GetSecretResponse} from "./protos/secrets_pb";
+import {Secret} from "./protos/secrets_pb";
 import getUserToken from "./token";
+import Vault from "node-vault";
 
 export default async function (
   name: string,
   accessKeyId: string
-): Promise<GetSecretResponse> {
-  const vault = require("node-vault")();
+): Promise<Secret> {
+  const vault = Vault();
   const entityId = await getUserToken(accessKeyId);
   const secretFromVault = await vault.read(`secret/data/${entityId}/` + name);
-  const response = new GetSecretResponse();
-  response.setSecret(secretFromVault.data.data.value);
+  const response = new Secret();
+  response.setSecret(secretFromVault?.data?.data?.value);
   response.setName(name);
   return response;
 }

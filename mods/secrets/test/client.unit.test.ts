@@ -27,8 +27,9 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-const response = {
-  getName: () => "my-secret"
+const secretsObj = {
+  getName: () => "my-secret",
+  getSecret: () => "abc"
 };
 
 describe("@fonoster/secrets/client", () => {
@@ -39,46 +40,62 @@ describe("@fonoster/secrets/client", () => {
     sandbox.stub(APIClient.prototype, "getService").returns({
       createSecret: () => {
         return {
-          sendMessage: () => Promise.resolve(response)
+          sendMessage: () => Promise.resolve(secretsObj)
         };
       }
     });
     const secrets = new Secrets();
     const result = await secrets.createSecret({
-      name: response.getName(),
+      name: secretsObj.getName(),
       secret: "test"
     });
-    expect(result).to.have.property("name").to.be.equal(response.getName());
+    expect(result).to.have.property("name").to.be.equal(secretsObj.getName());
   });
 
   it("should list all secrets", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
-    sandbox.stub(APIClient.prototype, "getService").returns({
-      createSecret: () => {
-        return {
-          sendMessage: () => Promise.resolve(response)
-        };
-      }
-    });
-    const secrets = new Secrets();
-    const result = await secrets.createSecret({
-      name: response.getName(),
-      secret: "test"
-    });
-    expect(result).to.have.property("name").to.be.equal(response.getName());
+    const serviceStub = sandbox
+      .stub(APIClient.prototype, "getService")
+      .returns({
+        listSecretsId: () => {
+          return {
+            sendMessage: () =>
+              Promise.resolve({
+                getNextPageToken: () => "1",
+                getSecretsList: () => [secretsObj.getName()]
+              })
+          };
+        }
+      });
+
+    const request = {
+      pageSize: 0,
+      pageToken: "1",
+      view: 0
+    };
+
+    const secretsAPI = new Secrets();
+    const result = await secretsAPI.listSecrets(request);
+
+    expect(serviceStub).to.be.calledTwice;
+    expect(result.secrets[0])
+      .to.have.property("name")
+      .to.be.equal(secretsObj.getName());
   });
 
   it("should get a secret", async () => {
     sandbox.stub(APIClient.prototype, "init").returns();
     const stubFunc = sandbox.stub(APIClient.prototype, "getService").returns({
-      deleteSecret: () => {
+      getSecret: () => {
         return {
-          sendMessage: () => Promise.resolve(response)
+          sendMessage: () => Promise.resolve(secretsObj)
         };
       }
     });
     const secret = new Secrets();
-    const result = await secret.deleteSecret(response.getName());
+    const result = await secret.getSecret(secretsObj.getName());
+    expect(result).to.have.property("name").to.be.equal(secretsObj.getName());
+    expect(result).to.have.property("secret").to.be.equal(secretsObj.getSecret());
   });
 
   it("should delete a function", async () => {
@@ -91,8 +108,8 @@ describe("@fonoster/secrets/client", () => {
       }
     });
     const secret = new Secrets();
-    const result = await secret.deleteSecret(response.getName());
+    const result = await secret.deleteSecret(secretsObj.getName());
     expect(stubFunc).to.be.calledTwice;
-    expect(result).to.be.an("undefined");
+    expect(result).to.be.undefined
   });
 });

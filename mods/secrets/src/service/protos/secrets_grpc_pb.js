@@ -36,17 +36,6 @@ function deserialize_fonoster_secrets_v1beta1_CreateSecretRequest(buffer_arg) {
   return secrets_pb.CreateSecretRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_secrets_v1beta1_CreateSecretResponse(arg) {
-  if (!(arg instanceof secrets_pb.CreateSecretResponse)) {
-    throw new Error('Expected argument of type fonoster.secrets.v1beta1.CreateSecretResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonoster_secrets_v1beta1_CreateSecretResponse(buffer_arg) {
-  return secrets_pb.CreateSecretResponse.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_fonoster_secrets_v1beta1_DeleteSecretRequest(arg) {
   if (!(arg instanceof secrets_pb.DeleteSecretRequest)) {
     throw new Error('Expected argument of type fonoster.secrets.v1beta1.DeleteSecretRequest');
@@ -69,37 +58,37 @@ function deserialize_fonoster_secrets_v1beta1_GetSecretRequest(buffer_arg) {
   return secrets_pb.GetSecretRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_secrets_v1beta1_GetSecretResponse(arg) {
-  if (!(arg instanceof secrets_pb.GetSecretResponse)) {
-    throw new Error('Expected argument of type fonoster.secrets.v1beta1.GetSecretResponse');
+function serialize_fonoster_secrets_v1beta1_ListSecretsIdRequest(arg) {
+  if (!(arg instanceof secrets_pb.ListSecretsIdRequest)) {
+    throw new Error('Expected argument of type fonoster.secrets.v1beta1.ListSecretsIdRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonoster_secrets_v1beta1_GetSecretResponse(buffer_arg) {
-  return secrets_pb.GetSecretResponse.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonoster_secrets_v1beta1_ListSecretsIdRequest(buffer_arg) {
+  return secrets_pb.ListSecretsIdRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_secrets_v1beta1_ListSecretIdRequest(arg) {
-  if (!(arg instanceof secrets_pb.ListSecretIdRequest)) {
-    throw new Error('Expected argument of type fonoster.secrets.v1beta1.ListSecretIdRequest');
+function serialize_fonoster_secrets_v1beta1_ListSecretsIdResponse(arg) {
+  if (!(arg instanceof secrets_pb.ListSecretsIdResponse)) {
+    throw new Error('Expected argument of type fonoster.secrets.v1beta1.ListSecretsIdResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonoster_secrets_v1beta1_ListSecretIdRequest(buffer_arg) {
-  return secrets_pb.ListSecretIdRequest.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonoster_secrets_v1beta1_ListSecretsIdResponse(buffer_arg) {
+  return secrets_pb.ListSecretsIdResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_secrets_v1beta1_ListSecretIdResponse(arg) {
-  if (!(arg instanceof secrets_pb.ListSecretIdResponse)) {
-    throw new Error('Expected argument of type fonoster.secrets.v1beta1.ListSecretIdResponse');
+function serialize_fonoster_secrets_v1beta1_Secret(arg) {
+  if (!(arg instanceof secrets_pb.Secret)) {
+    throw new Error('Expected argument of type fonoster.secrets.v1beta1.Secret');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonoster_secrets_v1beta1_ListSecretIdResponse(buffer_arg) {
-  return secrets_pb.ListSecretIdResponse.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonoster_secrets_v1beta1_Secret(buffer_arg) {
+  return secrets_pb.Secret.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
@@ -109,12 +98,23 @@ listSecretsId: {
     path: '/fonoster.secrets.v1beta1.Secrets/ListSecretsId',
     requestStream: false,
     responseStream: false,
-    requestType: secrets_pb.ListSecretIdRequest,
-    responseType: secrets_pb.ListSecretIdResponse,
-    requestSerialize: serialize_fonoster_secrets_v1beta1_ListSecretIdRequest,
-    requestDeserialize: deserialize_fonoster_secrets_v1beta1_ListSecretIdRequest,
-    responseSerialize: serialize_fonoster_secrets_v1beta1_ListSecretIdResponse,
-    responseDeserialize: deserialize_fonoster_secrets_v1beta1_ListSecretIdResponse,
+    requestType: secrets_pb.ListSecretsIdRequest,
+    responseType: secrets_pb.ListSecretsIdResponse,
+    requestSerialize: serialize_fonoster_secrets_v1beta1_ListSecretsIdRequest,
+    requestDeserialize: deserialize_fonoster_secrets_v1beta1_ListSecretsIdRequest,
+    responseSerialize: serialize_fonoster_secrets_v1beta1_ListSecretsIdResponse,
+    responseDeserialize: deserialize_fonoster_secrets_v1beta1_ListSecretsIdResponse,
+  },
+  createSecret: {
+    path: '/fonoster.secrets.v1beta1.Secrets/CreateSecret',
+    requestStream: false,
+    responseStream: false,
+    requestType: secrets_pb.CreateSecretRequest,
+    responseType: secrets_pb.Secret,
+    requestSerialize: serialize_fonoster_secrets_v1beta1_CreateSecretRequest,
+    requestDeserialize: deserialize_fonoster_secrets_v1beta1_CreateSecretRequest,
+    responseSerialize: serialize_fonoster_secrets_v1beta1_Secret,
+    responseDeserialize: deserialize_fonoster_secrets_v1beta1_Secret,
   },
   // Gets Secret with the Secret-name
 getSecret: {
@@ -122,22 +122,11 @@ getSecret: {
     requestStream: false,
     responseStream: false,
     requestType: secrets_pb.GetSecretRequest,
-    responseType: secrets_pb.GetSecretResponse,
+    responseType: secrets_pb.Secret,
     requestSerialize: serialize_fonoster_secrets_v1beta1_GetSecretRequest,
     requestDeserialize: deserialize_fonoster_secrets_v1beta1_GetSecretRequest,
-    responseSerialize: serialize_fonoster_secrets_v1beta1_GetSecretResponse,
-    responseDeserialize: deserialize_fonoster_secrets_v1beta1_GetSecretResponse,
-  },
-  createSecret: {
-    path: '/fonoster.secrets.v1beta1.Secrets/CreateSecret',
-    requestStream: false,
-    responseStream: false,
-    requestType: secrets_pb.CreateSecretRequest,
-    responseType: secrets_pb.CreateSecretResponse,
-    requestSerialize: serialize_fonoster_secrets_v1beta1_CreateSecretRequest,
-    requestDeserialize: deserialize_fonoster_secrets_v1beta1_CreateSecretRequest,
-    responseSerialize: serialize_fonoster_secrets_v1beta1_CreateSecretResponse,
-    responseDeserialize: deserialize_fonoster_secrets_v1beta1_CreateSecretResponse,
+    responseSerialize: serialize_fonoster_secrets_v1beta1_Secret,
+    responseDeserialize: deserialize_fonoster_secrets_v1beta1_Secret,
   },
   // Peforms a hard delete of the Secret resource
 deleteSecret: {

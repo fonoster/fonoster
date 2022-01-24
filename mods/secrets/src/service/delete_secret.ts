@@ -17,9 +17,10 @@
  * limitations under the License.
  */
 import getUserToken from "./token";
+import Vault from "node-vault";
 
 export default async function (name: string, accessKeyId: string) {
-  const vault = require("node-vault")();
+  const vault = Vault();
   const entityId = await getUserToken(accessKeyId);
   await vault.delete(`secret/data/${entityId}/` + name);
 }
