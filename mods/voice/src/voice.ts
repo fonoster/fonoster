@@ -133,7 +133,7 @@ export default class VoiceResponse {
     const tts = this.plugins["tts"];
     // It should return the filename and the generated file location
     const main = this.voiceTracer.createSpan("play");
-    const span = this.voiceTracer.createSpan("synthetize");
+    const span = this.voiceTracer.createSpan("synthesize");
     const result = await tts.synthetize(text, options);
     span.setAttribute("text", text);
     span.setAttribute("options", JSON.stringify(options));
@@ -161,7 +161,7 @@ export default class VoiceResponse {
    *
    * async function handler (request, response) {
    *   await response.answer();
-   *   const digits = await response.gather({numDigits: 3});
+   *   const digits = await response.gather({source: "dtmf,speech", numDigits: 3});
    *   console.log("digits: " + digits);
    * }
    */

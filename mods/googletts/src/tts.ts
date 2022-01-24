@@ -36,7 +36,7 @@ const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
  * @example
  * const GoogleTTS = require("@fonoster/googletts");
  *
- * new GoogleTTS().synthetize("Hello world")
+ * new GoogleTTS().synthesize("Hello world")
  *  .then((result) => console.log("path: " + result.pathToFile))
  *  .catch(console.error);
  */
@@ -55,8 +55,16 @@ class GoogleTTS extends Plugin implements TTSPlugin {
 
   /**
    * @inherit
+   * @deprecated
    */
-  async synthetize(
+  async synthetize(text: string, options: SynthOptions = {}) {
+    await this.synthesize(text, options)
+  }
+
+  /**
+   * @inherit
+   */
+  async synthesize(
     text: string,
     options: SynthOptions = {}
   ): Promise<SynthResult> {
