@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/projects",
-  "version": "0.2.40",
+  "version": "0.2.41",
   "description": "User Projects",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,12 +43,12 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.2.40",
-    "@fonoster/certs": "^0.2.40",
-    "@fonoster/common": "^0.2.40",
-    "@fonoster/core": "^0.2.40",
-    "@fonoster/errors": "^0.2.40",
-    "@fonoster/logger": "^0.2.40",
+    "@fonoster/auth": "^0.2.41",
+    "@fonoster/certs": "^0.2.41",
+    "@fonoster/common": "^0.2.41",
+    "@fonoster/core": "^0.2.41",
+    "@fonoster/errors": "^0.2.41",
+    "@fonoster/logger": "^0.2.41",
     "@grpc/grpc-js": "^1.3.6",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
