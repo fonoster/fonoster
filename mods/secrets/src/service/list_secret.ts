@@ -16,12 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// import {userOperation} from "@fonoster/auth";
-// import {User} from "./protos/usermanager_pb";
-// import jsonParse from "./json_parser";
-
-import {SecretName} from "./protos/secrets_pb";
 import getUserToken from "./token";
+import Vault from "node-vault";
 
 export default async function (
   pageToken: number,
@@ -32,26 +28,20 @@ export default async function (
   pageToken--;
   pageSize--;
 
-  let upperRange = pageToken + pageSize;
-
-  const vault = require("node-vault")();
+  const upperRange = pageToken + pageSize;
+  const vault = Vault();
   const entityId = await getUserToken(accessKeyId);
   const secretFromVault = await vault.list(`secret/data/${entityId}/`);
 
-  const secretArray = secretFromVault.data.keys;
-  const secrets: SecretName[] = [];
+  const keys = secretFromVault.data.keys;
+  const secrets = [];
 
-  for (const idx in secretArray) {
-    const singleSecret = secretArray[idx];
-    const secretName = new SecretName();
-    secretName.setName(singleSecret);
-    secrets.push(secretName);
+  for (const index in keys) {
+    secrets.push(keys[index]);
   }
-
-  upperRange++;
 
   return {
     secrets,
-    pageToken: upperRange
+    pageToken: upperRange + 1
   };
 }

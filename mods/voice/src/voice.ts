@@ -134,7 +134,7 @@ export default class VoiceResponse {
     // It should return the filename and the generated file location
     const main = this.voiceTracer.createSpan("play");
     const span = this.voiceTracer.createSpan("synthesize");
-    const result = await tts.synthetize(text, options);
+    const result = await tts.synthesize(text, options);
     span.setAttribute("text", text);
     span.setAttribute("options", JSON.stringify(options));
     span.end();
