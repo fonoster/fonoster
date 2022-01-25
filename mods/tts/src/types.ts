@@ -20,7 +20,7 @@ export interface TTSPlugin {
   /**
    * @deprecated The method should not be used, please use synthesize instead
    */
-  synthetize(text: string, options: any): Promise<SynthResult>;
+  synthetize?(text: string, options: any): Promise<SynthResult>;
   synthesize(text: string, options: any): Promise<SynthResult>;
 }
 

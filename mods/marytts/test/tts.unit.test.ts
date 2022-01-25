@@ -47,7 +47,7 @@ describe("@fonoster/marytts", () => {
 
     const tts = new MaryTTS(defConfig);
 
-    await expect(tts.synthetize("hello world", {locale: "en_US"}))
+    await expect(tts.synthesize("hello world", {locale: "en_US"}))
       .to.be.eventually.rejected.and.to.be.an.instanceOf(Error)
       .to.have.property("message", "Request failed with status code: 201");
     expect(pipe).to.not.have.been.calledOnce;
@@ -63,18 +63,7 @@ describe("@fonoster/marytts", () => {
     const get = sandbox.stub(https, "get").yields({statusCode: 200, pipe});
 
     const tts = new MaryTTS(defConfig);
-    // TODO remove once officially deprecated
-    const resultFromDeprecatedMethod = await tts.synthetize("hello world");
-    expect(resultFromDeprecatedMethod).to.have.property("filename").to.not.be
-      .null;
-    expect(resultFromDeprecatedMethod).to.have.property("pathToFile").to.not.be
-      .null;
-    expect(pipe).to.have.been.calledOnce;
-    expect(join).to.have.been.calledOnce;
-    expect(createWriteStream).to.have.been.calledOnce;
-    expect(get).to.have.been.calledOnce;
-
-    const result = await tts.synthetize("hello world");
+    const result = await tts.synthesize("hello world");
     expect(result).to.have.property("filename").to.not.be.null;
     expect(result).to.have.property("pathToFile").to.not.be.null;
     expect(pipe).to.have.been.calledOnce;

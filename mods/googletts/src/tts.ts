@@ -58,7 +58,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
    * @deprecated
    */
   async synthetize(text: string, options: SynthOptions = {}) {
-    await this.synthesize(text, options)
+    return await this.synthesize(text, options)
   }
 
   /**

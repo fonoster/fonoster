@@ -45,7 +45,7 @@ describe("@fonoster/googletts", () => {
       keyFilename: ""
     });
 
-    await expect(tts.synthetize("hello world")).to.be.eventually.rejectedWith(
+    await expect(tts.synthesize("hello world")).to.be.eventually.rejectedWith(
       "Could not load the default credentials."
     );
     expect(join).to.have.been.called;
@@ -65,7 +65,7 @@ describe("@fonoster/googletts", () => {
     };
 
     const tts = new GoogleTTS(config);
-    const result = await tts.synthetize(
+    const result = await tts.synthesize(
       "Hello Kayla, how are you doing today?",
       {
         ssmlGender: "FEMALE"
