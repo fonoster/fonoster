@@ -1,0 +1,19 @@
+name: release
+on:
+  push:
+    paths:
+    - 'mods/**'
+    branches:
+    - main
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Copy and Push Vault
+      uses: akhilerm/tag-push-action@v2.0.0
+      with:
+        src: docker.io/library/vault:latest
+        dst: |
+          docker.io/fonoster/vault:${{ steps.get_version.outputs.VERSION }}                
+    
