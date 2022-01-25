@@ -34,7 +34,7 @@ import {channelTalkingHandler} from "./handlers/channel_talking";
 import {sendDtmf} from "./handlers/send_dtmf";
 import {answer} from "./utils/answer_channel";
 import {dial} from "./handlers/dial";
-import { ulogger, ULogType } from "@fonoster/logger/src/logger";
+import {ulogger, ULogType} from "@fonoster/logger";
 
 const wsConnections = new Map();
 
