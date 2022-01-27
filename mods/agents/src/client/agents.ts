@@ -20,7 +20,6 @@ import {APIClient, ClientOptions} from "@fonoster/common";
 import {AgentsClient} from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
-import logger from "@fonoster/logger";
 import {promisifyAll} from "grpc-promise";
 import {
   CreateAgentRequest,
