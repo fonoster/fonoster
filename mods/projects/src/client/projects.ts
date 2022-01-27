@@ -206,7 +206,8 @@ export default class Projects extends APIClient implements IProjectsClient {
     req.setRef(request.ref);
 
     if (request.name) req.setName(request.name);
-    if (request.allowExperiments) req.setName(request.name);
+    if (request.allowExperiments)
+      req.setAllowExperiments(request.allowExperiments);
 
     const res = await super.getService().updateProject().sendMessage(req);
 

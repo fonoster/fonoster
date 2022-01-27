@@ -124,7 +124,7 @@ export default class Agents extends APIClient implements IAgentsClient {
    * @throws if ref is null or Agent does not exist
    * @example
    *
-   * const ref = "507f1f77bcf86cd799439011";
+   * const ref = "aynB1z0tzd";
    *
    * agents.getAgent(ref)
    * .then(result => {
@@ -235,11 +235,11 @@ export default class Agents extends APIClient implements IAgentsClient {
    * @param {string} ref - Agent's reference
    * @example
    *
-   * const ref = "507f1f77bcf86cd799439011"
+   * const ref = "aynB1z0tzd"
    *
    * agents.deleteAgent(ref)
    * .then(() => {
-   *   console.log("done")            // returns a reference of the agent
+   *   console.log("done")            // returns a reference of the Agent
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteAgent(ref: string): Promise<DeleteAgentResponse> {
