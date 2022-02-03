@@ -119,9 +119,9 @@ export default class AppsServer implements IAppsServer {
         app.setSpeechConfig(call.request.getSpeechConfig());
 
       if (
-        call.request.getTransferConfig().getMessage() ||
-        call.request.getTransferConfig().getMediaBusy() ||
-        call.request.getTransferConfig().getMediaNoAnswer()
+        call.request.getTransferConfig()?.getMessage() ||
+        call.request.getTransferConfig()?.getMediaBusy() ||
+        call.request.getTransferConfig()?.getMediaNoAnswer()
       )
         app.setTransferConfig(call.request.getTransferConfig());
 
