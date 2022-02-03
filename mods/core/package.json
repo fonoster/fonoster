@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/core",
-  "version": "0.2.42",
+  "version": "0.2.43",
   "description": "Core artifacts",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,7 +29,7 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.2.42",
+    "@fonoster/auth": "^0.2.43",
     "@fonoster/certs": "^0.2.42",
     "@fonoster/common": "^0.2.42",
     "@fonoster/errors": "^0.2.42",

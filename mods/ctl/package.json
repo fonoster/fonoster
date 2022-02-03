@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/ctl",
-  "version": "0.2.42",
+  "version": "0.2.43",
   "description": "Command-Line for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -76,12 +76,12 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/agents": "^0.2.42",
-    "@fonoster/domains": "^0.2.42",
+    "@fonoster/agents": "^0.2.43",
+    "@fonoster/domains": "^0.2.43",
     "@fonoster/logger": "^0.2.42",
-    "@fonoster/numbers": "^0.2.42",
-    "@fonoster/projects": "^0.2.42",
-    "@fonoster/providers": "^0.2.42",
+    "@fonoster/numbers": "^0.2.43",
+    "@fonoster/projects": "^0.2.43",
+    "@fonoster/providers": "^0.2.43",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/errors": "^1.3.4",

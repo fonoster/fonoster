@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apps",
-  "version": "0.2.42",
+  "version": "0.2.43",
   "description": "Fonoster Voice Applications",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,8 +43,8 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/core": "^0.2.42",
-    "@fonoster/auth": "^0.2.42",
+    "@fonoster/auth": "^0.2.43",
+    "@fonoster/core": "^0.2.43",
     "@fonoster/errors": "^0.2.42",
     "@fonoster/logger": "^0.2.42"
   },
