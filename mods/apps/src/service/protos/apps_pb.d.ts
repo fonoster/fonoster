@@ -70,10 +70,6 @@ export class CreateAppRequest extends jspb.Message {
     setWelcomeIntentPhrase(value: string): CreateAppRequest;
     getActivationIntentId(): string;
     setActivationIntentId(value: string): CreateAppRequest;
-    getCreateTime(): string;
-    setCreateTime(value: string): CreateAppRequest;
-    getUpdateTime(): string;
-    setUpdateTime(value: string): CreateAppRequest;
     getActivationTimeout(): number;
     setActivationTimeout(value: number): CreateAppRequest;
     getInteractionTimeout(): number;
@@ -112,8 +108,6 @@ export namespace CreateAppRequest {
         initialDtmf: string,
         welcomeIntentPhrase: string,
         activationIntentId: string,
-        createTime: string,
-        updateTime: string,
         activationTimeout: number,
         interactionTimeout: number,
         enableEvents: boolean,
@@ -134,10 +128,6 @@ export class UpdateAppRequest extends jspb.Message {
     setWelcomeIntentPhrase(value: string): UpdateAppRequest;
     getActivationIntentId(): string;
     setActivationIntentId(value: string): UpdateAppRequest;
-    getCreateTime(): string;
-    setCreateTime(value: string): UpdateAppRequest;
-    getUpdateTime(): string;
-    setUpdateTime(value: string): UpdateAppRequest;
     getActivationTimeout(): number;
     setActivationTimeout(value: number): UpdateAppRequest;
     getInteractionTimeout(): number;
@@ -177,8 +167,6 @@ export namespace UpdateAppRequest {
         initialDtmf: string,
         welcomeIntentPhrase: string,
         activationIntentId: string,
-        createTime: string,
-        updateTime: string,
         activationTimeout: number,
         interactionTimeout: number,
         enableEvents: boolean,
@@ -269,6 +257,8 @@ export namespace TransferConfig {
 export class App extends jspb.Message { 
     getRef(): string;
     setRef(value: string): App;
+    getAccessKeyId(): string;
+    setAccessKeyId(value: string): App;
     getName(): string;
     setName(value: string): App;
     getInitialDtmf(): string;
@@ -316,6 +306,7 @@ export class App extends jspb.Message {
 export namespace App {
     export type AsObject = {
         ref: string,
+        accessKeyId: string,
         name: string,
         initialDtmf: string,
         welcomeIntentPhrase: string,

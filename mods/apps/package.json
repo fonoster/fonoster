@@ -43,6 +43,8 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
+    "@fonoster/core": "^0.2.42",
+    "@fonoster/auth": "^0.2.42",
     "@fonoster/errors": "^0.2.42",
     "@fonoster/logger": "^0.2.42"
   },

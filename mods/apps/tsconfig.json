@@ -5,6 +5,8 @@
     "rootDir": "./src"
   },
   "references": [
+    {"path": "../core"},
+    {"path": "../auth"},
     {"path": "../common"},
     {"path": "../logger"},
     {"path": "../errors"},

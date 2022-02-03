@@ -39,7 +39,7 @@ export default class AuthMiddleware {
     const pathRequest = ctx.service.path;
 
     logger.verbose(
-      `@fonoster/logger middleware [request.path = ${pathRequest}]`
+      `@fonoster/middleware receiving request [request.path = ${pathRequest}]`
     );
 
     if (this.whitelist.includes(pathRequest)) {

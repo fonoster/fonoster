@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {APIClient, ClientOptions} from "@fonoster/common";
-import AppsPB, {TransferConfig} from "../service/protos/apps_pb";
+import AppsPB from "../service/protos/apps_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import {AppsClient} from "../service/protos/apps_grpc_pb";
