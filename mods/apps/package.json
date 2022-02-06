@@ -47,7 +47,8 @@
     "@fonoster/core": "^0.3.0",
     "@fonoster/errors": "^0.3.0",
     "@fonoster/logger": "^0.3.0",
-    "@fonoster/common": "^0.3.0"
+    "@fonoster/common": "^0.3.0",
+    "@fonoster/certs": "^0.3.0"
   },
   "devDependencies": {
     "@types/google-protobuf": "^3.15.2"
