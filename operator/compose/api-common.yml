@@ -41,6 +41,7 @@ services:
       AUTH_ACCESS_WHITELIST: ${AUTH_ACCESS_WHITELIST}
       AUTH_ISS: ${AUTH_ISS}
       NODE_ENV: ${NODE_ENV}
+      VOICE_URL: ${VOICE_URL}
     networks:
       fonoster:
     volumes:

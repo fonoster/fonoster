@@ -68,6 +68,7 @@ export default function (err: any, ari: any) {
 
     logger.verbose(`ingressInfo: ${JSON.stringify(ingressInfo, null, " ")}`);
 
+    const appRef = await getChannelVar(channel, "APP_REF") || ingressInfo.appRef
     const webhook =
       (await getChannelVar(channel, "WEBHOOK")) || ingressInfo.webhook;
     const metadata = await getChannelVarAsJson(channel, "METADATA");
@@ -95,6 +96,7 @@ export default function (err: any, ari: any) {
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number,
       selfEndpoint: webhook,
+      appRef,
       metadata: metadata || {}
     };
 

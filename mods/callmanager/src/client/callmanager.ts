@@ -86,6 +86,7 @@ export default class CallManager
     r.setFrom(request.from);
     r.setTo(request.to);
     r.setWebhook(request.webhook);
+    r.setAppRef(request.appRef);
     r.setIgnoreE164Validation(request.ignoreE164Validation);
     r.setMetadata(metadata);
 

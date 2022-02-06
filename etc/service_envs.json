@@ -54,6 +54,8 @@
   {
     "module": "numbers",
     "env": [
+      "VOICE_URL",
+      "MS_ENDPOINT",
       "SIPPROXY_HOST",
       "SIPPROXY_API_PORT",
       "SIPPROXY_API_USERNAME",

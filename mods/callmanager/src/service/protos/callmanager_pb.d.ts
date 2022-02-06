@@ -18,6 +18,8 @@ export class CallRequest extends jspb.Message {
     setIgnoreE164Validation(value: boolean): CallRequest;
     getMetadata(): string;
     setMetadata(value: string): CallRequest;
+    getAppRef(): string;
+    setAppRef(value: string): CallRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CallRequest.AsObject;
@@ -36,6 +38,7 @@ export namespace CallRequest {
         webhook: string,
         ignoreE164Validation: boolean,
         metadata: string,
+        appRef: string,
     }
 }
 

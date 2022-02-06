@@ -1,3 +1,5 @@
+import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb"
+
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,25 +18,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface ICallManagerClient {
-  call(request: CallRequest): Promise<CallResponse>;
-}
+export const getWebhook = (request: CreateNumberRequest | UpdateNumberRequest) =>
+  request.getIngressInfo()?.getAppRef()
+    ? process.env.VOICE_URL
+    : request.getIngressInfo().getWebhook().trim();
 
-export interface CallRequest {
-  from: string;
-  to: string;
-  webhook?: string;
-  appRef?: string;
-  metadata?: Record<string, unknown>;
-  ignoreE164Validation?: boolean;
-}
-
-export interface CallResponse {
-  ref: string;
-}
-export interface EndpointInfo {
-  domain: string;
-  trunk: string;
-  context: string;
-  extension: string;
-}
+export const getAppRef = (request: CreateNumberRequest | UpdateNumberRequest) =>
+  request.getIngressInfo()?.getAppRef()
+    ? request.getIngressInfo()?.getAppRef()
+    : null;

@@ -1807,7 +1807,8 @@ proto.fonoster.numbers.v1beta1.IngressInfo.prototype.toObject = function(opt_inc
 proto.fonoster.numbers.v1beta1.IngressInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
     accessKeyId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    webhook: jspb.Message.getFieldWithDefault(msg, 2, "")
+    webhook: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    appRef: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -1852,6 +1853,10 @@ proto.fonoster.numbers.v1beta1.IngressInfo.deserializeBinaryFromReader = functio
       var value = /** @type {string} */ (reader.readString());
       msg.setWebhook(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAppRef(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1895,6 +1900,13 @@ proto.fonoster.numbers.v1beta1.IngressInfo.serializeBinaryToWriter = function(me
       f
     );
   }
+  f = message.getAppRef();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -1931,6 +1943,24 @@ proto.fonoster.numbers.v1beta1.IngressInfo.prototype.getWebhook = function() {
  */
 proto.fonoster.numbers.v1beta1.IngressInfo.prototype.setWebhook = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string app_ref = 3;
+ * @return {string}
+ */
+proto.fonoster.numbers.v1beta1.IngressInfo.prototype.getAppRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.numbers.v1beta1.IngressInfo} returns this
+ */
+proto.fonoster.numbers.v1beta1.IngressInfo.prototype.setAppRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 

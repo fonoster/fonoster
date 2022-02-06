@@ -38,6 +38,8 @@ message CallRequest {
   bool ignore_e164_validation = 4;
   // Optional metadata for voice applications
   string metadata = 5;
+  // Optional app reference
+  string app_ref = 6;
 }
 
 message CallResponse {
