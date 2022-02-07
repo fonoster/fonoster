@@ -72,8 +72,8 @@ callManager.call({
  to: "17853178070",
  webhook: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
 })
-.then(console.log)
-.catch(console.error);
+ .then(console.log)
+ .catch(console.error);
 ```
 
 ## Getting Started
