@@ -82,8 +82,10 @@ export default function (err: any, ari: any) {
       \r]`
     );
 
-    const access = await auth.createNoAccessToken({
-      accessKeyId: ingressInfo.accessKeyId
+    const access = await auth.createToken({
+      accessKeyId: ingressInfo.accessKeyId,
+      roleName: "PROJECT",
+      expiration: "5m"
     });
 
     const request: CallRequest = {

@@ -56,7 +56,8 @@
       "/fonoster.funcs.v1beta1.Funcs/GetFuncLogs",
       "/fonoster.secrets.v1beta1.Secrets/CreateSecret",
       "/fonoster.secrets.v1beta1.Secrets/ListSecretsId",
-      "/fonoster.secrets.v1beta1.Secrets/DeleteSecret"
+      "/fonoster.secrets.v1beta1.Secrets/DeleteSecret",
+      "/fonoster.secrets.v1beta1.Secrets/GetSecret"
     ]
   },
   {

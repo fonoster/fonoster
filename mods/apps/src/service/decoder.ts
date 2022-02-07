@@ -30,7 +30,6 @@ export default (raw: string): App => {
 
   app.setRef(appJSON.ref);
   app.setAccessKeyId(appJSON.accessKeyId);
-  app.setWelcomeIntentPhrase(appJSON.welcomeIntentPhrase);
   app.setInitialDtmf(appJSON.initialDtmf);
   app.setActivationIntentId(appJSON.activationIntentId);
   app.setActivationTimeout(appJSON.activationTimeout);

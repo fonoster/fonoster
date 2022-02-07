@@ -22,7 +22,6 @@ export default (app: App): string =>
   JSON.stringify({
     ref: app.getRef(),
     accessKeyId: app.getAccessKeyId(),
-    welcomeIntentPhrase: app.getWelcomeIntentPhrase(),
     initialDtmf: app.getInitialDtmf(),
     activationIntentId: app.getActivationIntentId(),
     activationTimeout: app.getActivationTimeout(),

@@ -66,8 +66,6 @@ export class CreateAppRequest extends jspb.Message {
     setName(value: string): CreateAppRequest;
     getInitialDtmf(): string;
     setInitialDtmf(value: string): CreateAppRequest;
-    getWelcomeIntentPhrase(): string;
-    setWelcomeIntentPhrase(value: string): CreateAppRequest;
     getActivationIntentId(): string;
     setActivationIntentId(value: string): CreateAppRequest;
     getActivationTimeout(): number;
@@ -106,7 +104,6 @@ export namespace CreateAppRequest {
     export type AsObject = {
         name: string,
         initialDtmf: string,
-        welcomeIntentPhrase: string,
         activationIntentId: string,
         activationTimeout: number,
         interactionTimeout: number,
@@ -124,8 +121,6 @@ export class UpdateAppRequest extends jspb.Message {
     setName(value: string): UpdateAppRequest;
     getInitialDtmf(): string;
     setInitialDtmf(value: string): UpdateAppRequest;
-    getWelcomeIntentPhrase(): string;
-    setWelcomeIntentPhrase(value: string): UpdateAppRequest;
     getActivationIntentId(): string;
     setActivationIntentId(value: string): UpdateAppRequest;
     getActivationTimeout(): number;
@@ -165,7 +160,6 @@ export namespace UpdateAppRequest {
         ref: string,
         name: string,
         initialDtmf: string,
-        welcomeIntentPhrase: string,
         activationIntentId: string,
         activationTimeout: number,
         interactionTimeout: number,
@@ -263,8 +257,6 @@ export class App extends jspb.Message {
     setName(value: string): App;
     getInitialDtmf(): string;
     setInitialDtmf(value: string): App;
-    getWelcomeIntentPhrase(): string;
-    setWelcomeIntentPhrase(value: string): App;
     getActivationIntentId(): string;
     setActivationIntentId(value: string): App;
     getCreateTime(): string;
@@ -309,7 +301,6 @@ export namespace App {
         accessKeyId: string,
         name: string,
         initialDtmf: string,
-        welcomeIntentPhrase: string,
         activationIntentId: string,
         createTime: string,
         updateTime: string,

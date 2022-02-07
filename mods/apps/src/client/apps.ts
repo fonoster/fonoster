@@ -82,7 +82,6 @@ export default class Apps extends APIClient implements IAppsClient {
    * @param {CreateAppRequest} request -  Request to create a new Voice Application
    * @param {string} request.name - The name of the application
    * @param {string} request.initialDtmf - Optional DTMF code to be sent at after answer the call
-   * @param {string} request.welcomeIntentPhrase - Optional phrase to retrieve the welcome intent
    * @param {string} request.activationIntentId - Optional intent id to "wake" the application. Similar to "Alexa!"
    * @param {number} request.activationTimeout - Time in seconds for the duration of the `AWAKE_ACTIVE` state,
    * set for the activation command. After this time the bot will return to `AWAKE_PASSIVE` and new intents will be ignored. Defaults to 15000
@@ -127,7 +126,6 @@ export default class Apps extends APIClient implements IAppsClient {
     const outRequest = new AppsPB.CreateAppRequest();
     outRequest.setName(request.name);
     outRequest.setInitialDtmf(request.initialDtmf);
-    outRequest.setWelcomeIntentPhrase(request.welcomeIntentPhrase);
     outRequest.setActivationIntentId(request.activationIntentId);
     outRequest.setActivationTimeout(request.activationTimeout);
     outRequest.setInteractionTimeout(request.interactionTimeout);
@@ -150,7 +148,6 @@ export default class Apps extends APIClient implements IAppsClient {
       ref: res.getRef(),
       name: res.getName(),
       initialDtmf: res.getInitialDtmf(),
-      welcomeIntentPhrase: res.getWelcomeIntentPhrase(),
       activationIntentId: res.getActivationIntentId(),
       activationTimeout: res.getActivationTimeout(),
       interactionTimeout: res.getInteractionTimeout(),
@@ -191,7 +188,6 @@ export default class Apps extends APIClient implements IAppsClient {
       ref: res.getRef(),
       name: res.getName(),
       initialDtmf: res.getInitialDtmf(),
-      welcomeIntentPhrase: res.getWelcomeIntentPhrase(),
       activationIntentId: res.getActivationIntentId(),
       activationTimeout: res.getActivationTimeout(),
       interactionTimeout: res.getInteractionTimeout(),
@@ -215,7 +211,6 @@ export default class Apps extends APIClient implements IAppsClient {
    * @param {string} request.ref - The reference of the application
    * @param {string} request.name - The name of the application
    * @param {string} request.initialDtmf - Optional DTMF code to be sent at after answer the call
-   * @param {string} request.welcomeIntentPhrase - Optional phrase to retrieve the welcome intent
    * @param {string} request.activationIntentId - Optional intent id to "wake" the application. Similar to "Alexa!"
    * @param {number} request.activationTimeout - Time in seconds for the duration of the `AWAKE_ACTIVE` state,
    * set for the activation command. After this time the bot will return to `AWAKE_PASSIVE` and new intents will be ignored. Defaults to 15000
@@ -337,7 +332,6 @@ export default class Apps extends APIClient implements IAppsClient {
           ref: a.getRef(),
           name: a.getName(),
           initialDtmf: a.getInitialDtmf(),
-          welcomeIntentPhrase: a.getWelcomeIntentPhrase(),
           activationIntentId: a.getActivationIntentId(),
           activationTimeout: a.getActivationTimeout(),
           interactionTimeout: a.getInteractionTimeout(),

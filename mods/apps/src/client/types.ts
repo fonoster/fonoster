@@ -36,7 +36,7 @@ export interface GoogleSpeechConfig {
 export interface DialogflowES {
   projectId: string;
   secretName: string;
-  welcomeIntentEvent?: string;
+  welcomeIntentId?: string;
   emulateTelephonyPlatform?: boolean;
 }
 
@@ -45,7 +45,7 @@ export interface DialoflowCX {
   agent: string;
   location: string;
   secretName: string;
-  welcomeIntentEvent: string;
+  welcomeIntentId: string;
   emulateTelephonyPlatform: boolean;
 }
 
@@ -62,7 +62,6 @@ export interface App {
   ref: string;
   name: string;
   initialDtmf?: string;
-  welcomeIntentPhrase?: string;
   activationIntentId?: string;
   activationTimeout?: number;
   interactionTimeout?: number;
@@ -75,7 +74,6 @@ export interface App {
 export interface CreateAppRequest {
   name: string;
   initialDtmf?: string;
-  welcomeIntentPhrase?: string;
   activationIntentId?: string;
   activationTimeout?: number;
   interactionTimeout?: number;
@@ -89,7 +87,6 @@ export interface CreateAppResponse {
   ref: string;
   name: string;
   initialDtmf?: string;
-  welcomeIntentPhrase?: string;
   activationIntentId?: string;
   activationTimeout: number;
   interactionTimeout: number;
@@ -105,7 +102,6 @@ export interface UpdateAppRequest {
   ref: string;
   name?: string;
   initialDtmf?: string;
-  welcomeIntentPhrase?: string;
   activationIntentId?: string;
   activationTimeout?: number;
   interactionTimeout?: number;
@@ -123,7 +119,6 @@ export interface GetAppResponse {
   ref: string;
   name: string;
   initialDtmf?: string;
-  welcomeIntentPhrase?: string;
   activationIntentId?: string;
   activationTimeout: number;
   interactionTimeout: number;

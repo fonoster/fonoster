@@ -615,11 +615,10 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.toObject = function(includeInstance
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
     initialDtmf: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    welcomeIntentPhrase: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    activationIntentId: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    activationTimeout: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    interactionTimeout: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    enableEvents: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
+    activationIntentId: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    activationTimeout: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    interactionTimeout: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    enableEvents: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
     transferConfig: (f = msg.getTransferConfig()) && proto.fonoster.apps.v1beta1.TransferConfig.toObject(includeInstance, f),
     speechConfig: (f = msg.getSpeechConfig()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f),
     intentsEngineConfig: (f = msg.getIntentsEngineConfig()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f)
@@ -669,35 +668,31 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.deserializeBinaryFromReader = funct
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setWelcomeIntentPhrase(value);
-      break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
       msg.setActivationIntentId(value);
       break;
-    case 5:
+    case 4:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setActivationTimeout(value);
       break;
-    case 6:
+    case 5:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setInteractionTimeout(value);
       break;
-    case 7:
+    case 6:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setEnableEvents(value);
       break;
-    case 8:
+    case 7:
       var value = new proto.fonoster.apps.v1beta1.TransferConfig;
       reader.readMessage(value,proto.fonoster.apps.v1beta1.TransferConfig.deserializeBinaryFromReader);
       msg.setTransferConfig(value);
       break;
-    case 9:
+    case 8:
       var value = new google_protobuf_struct_pb.Struct;
       reader.readMessage(value,google_protobuf_struct_pb.Struct.deserializeBinaryFromReader);
       msg.setSpeechConfig(value);
       break;
-    case 10:
+    case 9:
       var value = new google_protobuf_struct_pb.Struct;
       reader.readMessage(value,google_protobuf_struct_pb.Struct.deserializeBinaryFromReader);
       msg.setIntentsEngineConfig(value);
@@ -745,45 +740,38 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.serializeBinaryToWriter = function(
       f
     );
   }
-  f = message.getWelcomeIntentPhrase();
+  f = message.getActivationIntentId();
   if (f.length > 0) {
     writer.writeString(
       3,
       f
     );
   }
-  f = message.getActivationIntentId();
-  if (f.length > 0) {
-    writer.writeString(
-      4,
-      f
-    );
-  }
   f = message.getActivationTimeout();
   if (f !== 0) {
     writer.writeInt32(
-      5,
+      4,
       f
     );
   }
   f = message.getInteractionTimeout();
   if (f !== 0) {
     writer.writeInt32(
-      6,
+      5,
       f
     );
   }
   f = message.getEnableEvents();
   if (f) {
     writer.writeBool(
-      7,
+      6,
       f
     );
   }
   f = message.getTransferConfig();
   if (f != null) {
     writer.writeMessage(
-      8,
+      7,
       f,
       proto.fonoster.apps.v1beta1.TransferConfig.serializeBinaryToWriter
     );
@@ -791,7 +779,7 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.serializeBinaryToWriter = function(
   f = message.getSpeechConfig();
   if (f != null) {
     writer.writeMessage(
-      9,
+      8,
       f,
       google_protobuf_struct_pb.Struct.serializeBinaryToWriter
     );
@@ -799,7 +787,7 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.serializeBinaryToWriter = function(
   f = message.getIntentsEngineConfig();
   if (f != null) {
     writer.writeMessage(
-      10,
+      9,
       f,
       google_protobuf_struct_pb.Struct.serializeBinaryToWriter
     );
@@ -844,10 +832,10 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setInitialDtmf = function
 
 
 /**
- * optional string welcome_intent_phrase = 3;
+ * optional string activation_intent_id = 3;
  * @return {string}
  */
-proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getWelcomeIntentPhrase = function() {
+proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getActivationIntentId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -856,35 +844,17 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getWelcomeIntentPhrase = 
  * @param {string} value
  * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
  */
-proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setWelcomeIntentPhrase = function(value) {
+proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setActivationIntentId = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional string activation_intent_id = 4;
- * @return {string}
- */
-proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getActivationIntentId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
- */
-proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setActivationIntentId = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
-};
-
-
-/**
- * optional int32 activation_timeout = 5;
+ * optional int32 activation_timeout = 4;
  * @return {number}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getActivationTimeout = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
@@ -893,16 +863,16 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getActivationTimeout = fu
  * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setActivationTimeout = function(value) {
-  return jspb.Message.setProto3IntField(this, 5, value);
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional int32 interaction_timeout = 6;
+ * optional int32 interaction_timeout = 5;
  * @return {number}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getInteractionTimeout = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
@@ -911,16 +881,16 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getInteractionTimeout = f
  * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setInteractionTimeout = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
 /**
- * optional bool enable_events = 7;
+ * optional bool enable_events = 6;
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getEnableEvents = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 6, false));
 };
 
 
@@ -929,17 +899,17 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getEnableEvents = functio
  * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setEnableEvents = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 7, value);
+  return jspb.Message.setProto3BooleanField(this, 6, value);
 };
 
 
 /**
- * optional TransferConfig transfer_config = 8;
+ * optional TransferConfig transfer_config = 7;
  * @return {?proto.fonoster.apps.v1beta1.TransferConfig}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getTransferConfig = function() {
   return /** @type{?proto.fonoster.apps.v1beta1.TransferConfig} */ (
-    jspb.Message.getWrapperField(this, proto.fonoster.apps.v1beta1.TransferConfig, 8));
+    jspb.Message.getWrapperField(this, proto.fonoster.apps.v1beta1.TransferConfig, 7));
 };
 
 
@@ -948,7 +918,7 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getTransferConfig = funct
  * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
 */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setTransferConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 8, value);
+  return jspb.Message.setWrapperField(this, 7, value);
 };
 
 
@@ -966,17 +936,17 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.clearTransferConfig = fun
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.hasTransferConfig = function() {
-  return jspb.Message.getField(this, 8) != null;
+  return jspb.Message.getField(this, 7) != null;
 };
 
 
 /**
- * optional google.protobuf.Struct speech_config = 9;
+ * optional google.protobuf.Struct speech_config = 8;
  * @return {?proto.google.protobuf.Struct}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getSpeechConfig = function() {
   return /** @type{?proto.google.protobuf.Struct} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 9));
+    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 8));
 };
 
 
@@ -985,7 +955,7 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getSpeechConfig = functio
  * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
 */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setSpeechConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 9, value);
+  return jspb.Message.setWrapperField(this, 8, value);
 };
 
 
@@ -1003,17 +973,17 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.clearSpeechConfig = funct
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.hasSpeechConfig = function() {
-  return jspb.Message.getField(this, 9) != null;
+  return jspb.Message.getField(this, 8) != null;
 };
 
 
 /**
- * optional google.protobuf.Struct intents_engine_config = 10;
+ * optional google.protobuf.Struct intents_engine_config = 9;
  * @return {?proto.google.protobuf.Struct}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getIntentsEngineConfig = function() {
   return /** @type{?proto.google.protobuf.Struct} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 10));
+    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 9));
 };
 
 
@@ -1022,7 +992,7 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getIntentsEngineConfig = 
  * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
 */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setIntentsEngineConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 10, value);
+  return jspb.Message.setWrapperField(this, 9, value);
 };
 
 
@@ -1040,7 +1010,7 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.clearIntentsEngineConfig 
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.hasIntentsEngineConfig = function() {
-  return jspb.Message.getField(this, 10) != null;
+  return jspb.Message.getField(this, 9) != null;
 };
 
 
@@ -1079,11 +1049,10 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.toObject = function(includeInstance
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     initialDtmf: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    welcomeIntentPhrase: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    activationIntentId: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    activationTimeout: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    interactionTimeout: jspb.Message.getFieldWithDefault(msg, 7, 0),
-    enableEvents: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
+    activationIntentId: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    activationTimeout: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    interactionTimeout: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    enableEvents: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
     transferConfig: (f = msg.getTransferConfig()) && proto.fonoster.apps.v1beta1.TransferConfig.toObject(includeInstance, f),
     speechConfig: (f = msg.getSpeechConfig()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f),
     intentsEngineConfig: (f = msg.getIntentsEngineConfig()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f)
@@ -1137,35 +1106,31 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.deserializeBinaryFromReader = funct
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setWelcomeIntentPhrase(value);
-      break;
-    case 5:
-      var value = /** @type {string} */ (reader.readString());
       msg.setActivationIntentId(value);
       break;
-    case 6:
+    case 5:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setActivationTimeout(value);
       break;
-    case 7:
+    case 6:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setInteractionTimeout(value);
       break;
-    case 8:
+    case 7:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setEnableEvents(value);
       break;
-    case 9:
+    case 8:
       var value = new proto.fonoster.apps.v1beta1.TransferConfig;
       reader.readMessage(value,proto.fonoster.apps.v1beta1.TransferConfig.deserializeBinaryFromReader);
       msg.setTransferConfig(value);
       break;
-    case 10:
+    case 9:
       var value = new google_protobuf_struct_pb.Struct;
       reader.readMessage(value,google_protobuf_struct_pb.Struct.deserializeBinaryFromReader);
       msg.setSpeechConfig(value);
       break;
-    case 11:
+    case 10:
       var value = new google_protobuf_struct_pb.Struct;
       reader.readMessage(value,google_protobuf_struct_pb.Struct.deserializeBinaryFromReader);
       msg.setIntentsEngineConfig(value);
@@ -1220,45 +1185,38 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.serializeBinaryToWriter = function(
       f
     );
   }
-  f = message.getWelcomeIntentPhrase();
+  f = message.getActivationIntentId();
   if (f.length > 0) {
     writer.writeString(
       4,
       f
     );
   }
-  f = message.getActivationIntentId();
-  if (f.length > 0) {
-    writer.writeString(
-      5,
-      f
-    );
-  }
   f = message.getActivationTimeout();
   if (f !== 0) {
     writer.writeInt32(
-      6,
+      5,
       f
     );
   }
   f = message.getInteractionTimeout();
   if (f !== 0) {
     writer.writeInt32(
-      7,
+      6,
       f
     );
   }
   f = message.getEnableEvents();
   if (f) {
     writer.writeBool(
-      8,
+      7,
       f
     );
   }
   f = message.getTransferConfig();
   if (f != null) {
     writer.writeMessage(
-      9,
+      8,
       f,
       proto.fonoster.apps.v1beta1.TransferConfig.serializeBinaryToWriter
     );
@@ -1266,7 +1224,7 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.serializeBinaryToWriter = function(
   f = message.getSpeechConfig();
   if (f != null) {
     writer.writeMessage(
-      10,
+      9,
       f,
       google_protobuf_struct_pb.Struct.serializeBinaryToWriter
     );
@@ -1274,7 +1232,7 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.serializeBinaryToWriter = function(
   f = message.getIntentsEngineConfig();
   if (f != null) {
     writer.writeMessage(
-      11,
+      10,
       f,
       google_protobuf_struct_pb.Struct.serializeBinaryToWriter
     );
@@ -1337,10 +1295,10 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setInitialDtmf = function
 
 
 /**
- * optional string welcome_intent_phrase = 4;
+ * optional string activation_intent_id = 4;
  * @return {string}
  */
-proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getWelcomeIntentPhrase = function() {
+proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getActivationIntentId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
@@ -1349,35 +1307,17 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getWelcomeIntentPhrase = 
  * @param {string} value
  * @return {!proto.fonoster.apps.v1beta1.UpdateAppRequest} returns this
  */
-proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setWelcomeIntentPhrase = function(value) {
+proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setActivationIntentId = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
 /**
- * optional string activation_intent_id = 5;
- * @return {string}
- */
-proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getActivationIntentId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonoster.apps.v1beta1.UpdateAppRequest} returns this
- */
-proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setActivationIntentId = function(value) {
-  return jspb.Message.setProto3StringField(this, 5, value);
-};
-
-
-/**
- * optional int32 activation_timeout = 6;
+ * optional int32 activation_timeout = 5;
  * @return {number}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getActivationTimeout = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
@@ -1386,16 +1326,16 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getActivationTimeout = fu
  * @return {!proto.fonoster.apps.v1beta1.UpdateAppRequest} returns this
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setActivationTimeout = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
 /**
- * optional int32 interaction_timeout = 7;
+ * optional int32 interaction_timeout = 6;
  * @return {number}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getInteractionTimeout = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
 };
 
 
@@ -1404,16 +1344,16 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getInteractionTimeout = f
  * @return {!proto.fonoster.apps.v1beta1.UpdateAppRequest} returns this
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setInteractionTimeout = function(value) {
-  return jspb.Message.setProto3IntField(this, 7, value);
+  return jspb.Message.setProto3IntField(this, 6, value);
 };
 
 
 /**
- * optional bool enable_events = 8;
+ * optional bool enable_events = 7;
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getEnableEvents = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 8, false));
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
 };
 
 
@@ -1422,17 +1362,17 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getEnableEvents = functio
  * @return {!proto.fonoster.apps.v1beta1.UpdateAppRequest} returns this
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setEnableEvents = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 8, value);
+  return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 
 /**
- * optional TransferConfig transfer_config = 9;
+ * optional TransferConfig transfer_config = 8;
  * @return {?proto.fonoster.apps.v1beta1.TransferConfig}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getTransferConfig = function() {
   return /** @type{?proto.fonoster.apps.v1beta1.TransferConfig} */ (
-    jspb.Message.getWrapperField(this, proto.fonoster.apps.v1beta1.TransferConfig, 9));
+    jspb.Message.getWrapperField(this, proto.fonoster.apps.v1beta1.TransferConfig, 8));
 };
 
 
@@ -1441,7 +1381,7 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getTransferConfig = funct
  * @return {!proto.fonoster.apps.v1beta1.UpdateAppRequest} returns this
 */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setTransferConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 9, value);
+  return jspb.Message.setWrapperField(this, 8, value);
 };
 
 
@@ -1459,17 +1399,17 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.clearTransferConfig = fun
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.hasTransferConfig = function() {
-  return jspb.Message.getField(this, 9) != null;
+  return jspb.Message.getField(this, 8) != null;
 };
 
 
 /**
- * optional google.protobuf.Struct speech_config = 10;
+ * optional google.protobuf.Struct speech_config = 9;
  * @return {?proto.google.protobuf.Struct}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getSpeechConfig = function() {
   return /** @type{?proto.google.protobuf.Struct} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 10));
+    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 9));
 };
 
 
@@ -1478,7 +1418,7 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getSpeechConfig = functio
  * @return {!proto.fonoster.apps.v1beta1.UpdateAppRequest} returns this
 */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setSpeechConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 10, value);
+  return jspb.Message.setWrapperField(this, 9, value);
 };
 
 
@@ -1496,17 +1436,17 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.clearSpeechConfig = funct
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.hasSpeechConfig = function() {
-  return jspb.Message.getField(this, 10) != null;
+  return jspb.Message.getField(this, 9) != null;
 };
 
 
 /**
- * optional google.protobuf.Struct intents_engine_config = 11;
+ * optional google.protobuf.Struct intents_engine_config = 10;
  * @return {?proto.google.protobuf.Struct}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getIntentsEngineConfig = function() {
   return /** @type{?proto.google.protobuf.Struct} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 11));
+    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 10));
 };
 
 
@@ -1515,7 +1455,7 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.getIntentsEngineConfig = 
  * @return {!proto.fonoster.apps.v1beta1.UpdateAppRequest} returns this
 */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.setIntentsEngineConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 11, value);
+  return jspb.Message.setWrapperField(this, 10, value);
 };
 
 
@@ -1533,7 +1473,7 @@ proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.clearIntentsEngineConfig 
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.UpdateAppRequest.prototype.hasIntentsEngineConfig = function() {
-  return jspb.Message.getField(this, 11) != null;
+  return jspb.Message.getField(this, 10) != null;
 };
 
 
@@ -2143,13 +2083,12 @@ proto.fonoster.apps.v1beta1.App.toObject = function(includeInstance, msg) {
     accessKeyId: jspb.Message.getFieldWithDefault(msg, 2, ""),
     name: jspb.Message.getFieldWithDefault(msg, 3, ""),
     initialDtmf: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    welcomeIntentPhrase: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    activationIntentId: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    createTime: jspb.Message.getFieldWithDefault(msg, 7, ""),
-    updateTime: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    activationTimeout: jspb.Message.getFieldWithDefault(msg, 9, 0),
-    interactionTimeout: jspb.Message.getFieldWithDefault(msg, 10, 0),
-    enableEvents: jspb.Message.getBooleanFieldWithDefault(msg, 11, false),
+    activationIntentId: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    createTime: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    updateTime: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    activationTimeout: jspb.Message.getFieldWithDefault(msg, 8, 0),
+    interactionTimeout: jspb.Message.getFieldWithDefault(msg, 9, 0),
+    enableEvents: jspb.Message.getBooleanFieldWithDefault(msg, 10, false),
     transferConfig: (f = msg.getTransferConfig()) && proto.fonoster.apps.v1beta1.TransferConfig.toObject(includeInstance, f),
     speechConfig: (f = msg.getSpeechConfig()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f),
     intentsEngineConfig: (f = msg.getIntentsEngineConfig()) && google_protobuf_struct_pb.Struct.toObject(includeInstance, f)
@@ -2207,43 +2146,39 @@ proto.fonoster.apps.v1beta1.App.deserializeBinaryFromReader = function(msg, read
       break;
     case 5:
       var value = /** @type {string} */ (reader.readString());
-      msg.setWelcomeIntentPhrase(value);
+      msg.setActivationIntentId(value);
       break;
     case 6:
       var value = /** @type {string} */ (reader.readString());
-      msg.setActivationIntentId(value);
+      msg.setCreateTime(value);
       break;
     case 7:
       var value = /** @type {string} */ (reader.readString());
-      msg.setCreateTime(value);
-      break;
-    case 8:
-      var value = /** @type {string} */ (reader.readString());
       msg.setUpdateTime(value);
       break;
-    case 9:
+    case 8:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setActivationTimeout(value);
       break;
-    case 10:
+    case 9:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setInteractionTimeout(value);
       break;
-    case 11:
+    case 10:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setEnableEvents(value);
       break;
-    case 12:
+    case 11:
       var value = new proto.fonoster.apps.v1beta1.TransferConfig;
       reader.readMessage(value,proto.fonoster.apps.v1beta1.TransferConfig.deserializeBinaryFromReader);
       msg.setTransferConfig(value);
       break;
-    case 13:
+    case 12:
       var value = new google_protobuf_struct_pb.Struct;
       reader.readMessage(value,google_protobuf_struct_pb.Struct.deserializeBinaryFromReader);
       msg.setSpeechConfig(value);
       break;
-    case 14:
+    case 13:
       var value = new google_protobuf_struct_pb.Struct;
       reader.readMessage(value,google_protobuf_struct_pb.Struct.deserializeBinaryFromReader);
       msg.setIntentsEngineConfig(value);
@@ -2305,59 +2240,52 @@ proto.fonoster.apps.v1beta1.App.serializeBinaryToWriter = function(message, writ
       f
     );
   }
-  f = message.getWelcomeIntentPhrase();
+  f = message.getActivationIntentId();
   if (f.length > 0) {
     writer.writeString(
       5,
       f
     );
   }
-  f = message.getActivationIntentId();
+  f = message.getCreateTime();
   if (f.length > 0) {
     writer.writeString(
       6,
       f
     );
   }
-  f = message.getCreateTime();
+  f = message.getUpdateTime();
   if (f.length > 0) {
     writer.writeString(
       7,
       f
     );
   }
-  f = message.getUpdateTime();
-  if (f.length > 0) {
-    writer.writeString(
-      8,
-      f
-    );
-  }
   f = message.getActivationTimeout();
   if (f !== 0) {
     writer.writeInt32(
-      9,
+      8,
       f
     );
   }
   f = message.getInteractionTimeout();
   if (f !== 0) {
     writer.writeInt32(
-      10,
+      9,
       f
     );
   }
   f = message.getEnableEvents();
   if (f) {
     writer.writeBool(
-      11,
+      10,
       f
     );
   }
   f = message.getTransferConfig();
   if (f != null) {
     writer.writeMessage(
-      12,
+      11,
       f,
       proto.fonoster.apps.v1beta1.TransferConfig.serializeBinaryToWriter
     );
@@ -2365,7 +2293,7 @@ proto.fonoster.apps.v1beta1.App.serializeBinaryToWriter = function(message, writ
   f = message.getSpeechConfig();
   if (f != null) {
     writer.writeMessage(
-      13,
+      12,
       f,
       google_protobuf_struct_pb.Struct.serializeBinaryToWriter
     );
@@ -2373,7 +2301,7 @@ proto.fonoster.apps.v1beta1.App.serializeBinaryToWriter = function(message, writ
   f = message.getIntentsEngineConfig();
   if (f != null) {
     writer.writeMessage(
-      14,
+      13,
       f,
       google_protobuf_struct_pb.Struct.serializeBinaryToWriter
     );
@@ -2454,10 +2382,10 @@ proto.fonoster.apps.v1beta1.App.prototype.setInitialDtmf = function(value) {
 
 
 /**
- * optional string welcome_intent_phrase = 5;
+ * optional string activation_intent_id = 5;
  * @return {string}
  */
-proto.fonoster.apps.v1beta1.App.prototype.getWelcomeIntentPhrase = function() {
+proto.fonoster.apps.v1beta1.App.prototype.getActivationIntentId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
 };
 
@@ -2466,16 +2394,16 @@ proto.fonoster.apps.v1beta1.App.prototype.getWelcomeIntentPhrase = function() {
  * @param {string} value
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
  */
-proto.fonoster.apps.v1beta1.App.prototype.setWelcomeIntentPhrase = function(value) {
+proto.fonoster.apps.v1beta1.App.prototype.setActivationIntentId = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
 };
 
 
 /**
- * optional string activation_intent_id = 6;
+ * optional string create_time = 6;
  * @return {string}
  */
-proto.fonoster.apps.v1beta1.App.prototype.getActivationIntentId = function() {
+proto.fonoster.apps.v1beta1.App.prototype.getCreateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
@@ -2484,16 +2412,16 @@ proto.fonoster.apps.v1beta1.App.prototype.getActivationIntentId = function() {
  * @param {string} value
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
  */
-proto.fonoster.apps.v1beta1.App.prototype.setActivationIntentId = function(value) {
+proto.fonoster.apps.v1beta1.App.prototype.setCreateTime = function(value) {
   return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
 /**
- * optional string create_time = 7;
+ * optional string update_time = 7;
  * @return {string}
  */
-proto.fonoster.apps.v1beta1.App.prototype.getCreateTime = function() {
+proto.fonoster.apps.v1beta1.App.prototype.getUpdateTime = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
@@ -2502,35 +2430,17 @@ proto.fonoster.apps.v1beta1.App.prototype.getCreateTime = function() {
  * @param {string} value
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
  */
-proto.fonoster.apps.v1beta1.App.prototype.setCreateTime = function(value) {
+proto.fonoster.apps.v1beta1.App.prototype.setUpdateTime = function(value) {
   return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
 /**
- * optional string update_time = 8;
- * @return {string}
- */
-proto.fonoster.apps.v1beta1.App.prototype.getUpdateTime = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonoster.apps.v1beta1.App} returns this
- */
-proto.fonoster.apps.v1beta1.App.prototype.setUpdateTime = function(value) {
-  return jspb.Message.setProto3StringField(this, 8, value);
-};
-
-
-/**
- * optional int32 activation_timeout = 9;
+ * optional int32 activation_timeout = 8;
  * @return {number}
  */
 proto.fonoster.apps.v1beta1.App.prototype.getActivationTimeout = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
 };
 
 
@@ -2539,16 +2449,16 @@ proto.fonoster.apps.v1beta1.App.prototype.getActivationTimeout = function() {
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
  */
 proto.fonoster.apps.v1beta1.App.prototype.setActivationTimeout = function(value) {
-  return jspb.Message.setProto3IntField(this, 9, value);
+  return jspb.Message.setProto3IntField(this, 8, value);
 };
 
 
 /**
- * optional int32 interaction_timeout = 10;
+ * optional int32 interaction_timeout = 9;
  * @return {number}
  */
 proto.fonoster.apps.v1beta1.App.prototype.getInteractionTimeout = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 10, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
 };
 
 
@@ -2557,16 +2467,16 @@ proto.fonoster.apps.v1beta1.App.prototype.getInteractionTimeout = function() {
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
  */
 proto.fonoster.apps.v1beta1.App.prototype.setInteractionTimeout = function(value) {
-  return jspb.Message.setProto3IntField(this, 10, value);
+  return jspb.Message.setProto3IntField(this, 9, value);
 };
 
 
 /**
- * optional bool enable_events = 11;
+ * optional bool enable_events = 10;
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.App.prototype.getEnableEvents = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 11, false));
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 10, false));
 };
 
 
@@ -2575,17 +2485,17 @@ proto.fonoster.apps.v1beta1.App.prototype.getEnableEvents = function() {
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
  */
 proto.fonoster.apps.v1beta1.App.prototype.setEnableEvents = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 11, value);
+  return jspb.Message.setProto3BooleanField(this, 10, value);
 };
 
 
 /**
- * optional TransferConfig transfer_config = 12;
+ * optional TransferConfig transfer_config = 11;
  * @return {?proto.fonoster.apps.v1beta1.TransferConfig}
  */
 proto.fonoster.apps.v1beta1.App.prototype.getTransferConfig = function() {
   return /** @type{?proto.fonoster.apps.v1beta1.TransferConfig} */ (
-    jspb.Message.getWrapperField(this, proto.fonoster.apps.v1beta1.TransferConfig, 12));
+    jspb.Message.getWrapperField(this, proto.fonoster.apps.v1beta1.TransferConfig, 11));
 };
 
 
@@ -2594,7 +2504,7 @@ proto.fonoster.apps.v1beta1.App.prototype.getTransferConfig = function() {
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
 */
 proto.fonoster.apps.v1beta1.App.prototype.setTransferConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 12, value);
+  return jspb.Message.setWrapperField(this, 11, value);
 };
 
 
@@ -2612,17 +2522,17 @@ proto.fonoster.apps.v1beta1.App.prototype.clearTransferConfig = function() {
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.App.prototype.hasTransferConfig = function() {
-  return jspb.Message.getField(this, 12) != null;
+  return jspb.Message.getField(this, 11) != null;
 };
 
 
 /**
- * optional google.protobuf.Struct speech_config = 13;
+ * optional google.protobuf.Struct speech_config = 12;
  * @return {?proto.google.protobuf.Struct}
  */
 proto.fonoster.apps.v1beta1.App.prototype.getSpeechConfig = function() {
   return /** @type{?proto.google.protobuf.Struct} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 13));
+    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 12));
 };
 
 
@@ -2631,7 +2541,7 @@ proto.fonoster.apps.v1beta1.App.prototype.getSpeechConfig = function() {
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
 */
 proto.fonoster.apps.v1beta1.App.prototype.setSpeechConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 13, value);
+  return jspb.Message.setWrapperField(this, 12, value);
 };
 
 
@@ -2649,17 +2559,17 @@ proto.fonoster.apps.v1beta1.App.prototype.clearSpeechConfig = function() {
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.App.prototype.hasSpeechConfig = function() {
-  return jspb.Message.getField(this, 13) != null;
+  return jspb.Message.getField(this, 12) != null;
 };
 
 
 /**
- * optional google.protobuf.Struct intents_engine_config = 14;
+ * optional google.protobuf.Struct intents_engine_config = 13;
  * @return {?proto.google.protobuf.Struct}
  */
 proto.fonoster.apps.v1beta1.App.prototype.getIntentsEngineConfig = function() {
   return /** @type{?proto.google.protobuf.Struct} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 14));
+    jspb.Message.getWrapperField(this, google_protobuf_struct_pb.Struct, 13));
 };
 
 
@@ -2668,7 +2578,7 @@ proto.fonoster.apps.v1beta1.App.prototype.getIntentsEngineConfig = function() {
  * @return {!proto.fonoster.apps.v1beta1.App} returns this
 */
 proto.fonoster.apps.v1beta1.App.prototype.setIntentsEngineConfig = function(value) {
-  return jspb.Message.setWrapperField(this, 14, value);
+  return jspb.Message.setWrapperField(this, 13, value);
 };
 
 
@@ -2686,7 +2596,7 @@ proto.fonoster.apps.v1beta1.App.prototype.clearIntentsEngineConfig = function() 
  * @return {boolean}
  */
 proto.fonoster.apps.v1beta1.App.prototype.hasIntentsEngineConfig = function() {
-  return jspb.Message.getField(this, 14) != null;
+  return jspb.Message.getField(this, 13) != null;
 };
 
 

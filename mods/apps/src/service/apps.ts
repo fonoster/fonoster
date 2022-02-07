@@ -52,7 +52,6 @@ export default class AppsServer implements IAppsServer {
 
       app.setRef(ref);
       app.setAccessKeyId(getAccessKeyId(call));
-      app.setWelcomeIntentPhrase(call.request.getWelcomeIntentPhrase());
       app.setInitialDtmf(call.request.getInitialDtmf());
       app.setActivationIntentId(call.request.getActivationIntentId());
       app.setActivationTimeout(call.request.getActivationTimeout());
@@ -91,9 +90,6 @@ export default class AppsServer implements IAppsServer {
           ErrorCodes.PERMISSION_DENIED
         );
       }
-
-      if (call.request.getWelcomeIntentPhrase())
-        app.setWelcomeIntentPhrase(call.request.getWelcomeIntentPhrase());
 
       if (call.request.getInitialDtmf())
         app.setInitialDtmf(call.request.getInitialDtmf());
