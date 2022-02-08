@@ -27,6 +27,7 @@ export interface VoiceRequest {
   callerId: string;
   callerNumber: string;
   selfEndpoint: string;
+  appRef?: string;
 }
 
 export interface ServerConfig {
