@@ -37,9 +37,9 @@ export const assertCompatibleParameters = (
   request: NumbersPB.CreateNumberRequest | NumbersPB.UpdateNumberRequest
 ) => {
   const aorLinkAndIngressInfo = request.getAorLink() && request.getIngressInfo();
-  const webhookAndAppRef = request.getIngressInfo()?.getAppRef() && request.getIngressInfo()?.getWebhook();
+  //const webhookAndAppRef = request.getIngressInfo()?.getAppRef() && request.getIngressInfo()?.getWebhook();
 
-  if (aorLinkAndIngressInfo || webhookAndAppRef) {
+  if (aorLinkAndIngressInfo /*|| webhookAndAppRef*/) {
     throw new FonosterInvalidArgument(
       "you might provide only one of the following 'aorLink', 'webhook', or 'appRef'"
     );

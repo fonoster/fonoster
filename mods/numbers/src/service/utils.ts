@@ -19,7 +19,7 @@ import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb"
  * limitations under the License.
  */
 export const getWebhook = (request: CreateNumberRequest | UpdateNumberRequest) =>
-  request.getIngressInfo()?.getAppRef()
+  request.getIngressInfo()?.getAppRef() && !request.getIngressInfo()?.getWebhook()
     ? process.env.VOICE_URL
     : request.getIngressInfo().getWebhook().trim();
 
