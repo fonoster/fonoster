@@ -111,7 +111,15 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-        buildargs: FONOSTER_VERSION,BRANCH          
+        buildargs: FONOSTER_VERSION,BRANCH
+    - name: Publish to Docker Hub the Apps API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/apps
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/apps
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
     - name: Publish to Docker Hub the Projects API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
