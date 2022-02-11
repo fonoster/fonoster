@@ -5,6 +5,7 @@ networks:
 
 services:
   voice:
+    restart: ${RESTART_POLICY}
     image: fonoster/voice:${COMPOSE_PROJECT_VERSION}
     command: ['rox']
     ports:
