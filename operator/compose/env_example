@@ -140,7 +140,9 @@ LOGS_DRIVER_PORT=24224
 LOGS_AGGREGRATOR_HOST=logsaggregator.fonoster
 LOGS_AGGREGRATOR_PORT=9200
 LOG_OPT_TAG_PREFIX=early
-
+LOGS_FORMAT=json
+LOGS_LEVEL=info
+LOGS_TRANSPORT=fluent
 
 #
 # Integration with events server (RabbitMQ)
@@ -215,5 +217,6 @@ COMPOSE_PROJECT_VERSION=0.2.36
 # Restart policy for containers
 RESTART_POLICY=unless-stopped
 
-# Node environment variable 
-NODE_ENV=staging
+# Node environment variable
+NODE_ENV=production
+NODE_OPTIONS=--unhandled-rejections=throw
