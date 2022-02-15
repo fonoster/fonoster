@@ -30,7 +30,6 @@
   },
   "dependencies": {
     "@fonoster/agents": "^0.2.43",
-    "@fonoster/apps": "^0.2.43",
     "@fonoster/auth": "^0.2.43",
     "@fonoster/callmanager": "^0.2.43",
     "@fonoster/domains": "^0.2.43",

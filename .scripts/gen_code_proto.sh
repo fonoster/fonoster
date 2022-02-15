@@ -13,8 +13,7 @@ PROTOS=(
   auth \
   secrets \
   users \
-  projects \
-  apps)
+  projects)
 
 for proto in "${PROTOS[@]}"
 do
