@@ -71,7 +71,7 @@ message CreateAppRequest {
     example: "{\"name\": \"Pizza App\", \"initialDtmf\": \"145\", \"intentsEngineConfig\": { \"projectId\": \"my-project\", \"secret\": \"my-secret\" }, \"speechConfig\": { \"secretName\": \"my-secret\", \"voice\": \"en-US-Wavenet-F\" }, \"transferConfig\": { \"message\": \"Transfering...\" } , \"enableEvents\": false}"
   };
   string name = 1 [(google.api.field_behavior) = REQUIRED];
-  string initial_dtmf = 2;
+  optional string initial_dtmf = 2;
   string activation_intent_id = 3;
   int32 activation_timeout = 4;
   int32 interaction_timeout = 5;

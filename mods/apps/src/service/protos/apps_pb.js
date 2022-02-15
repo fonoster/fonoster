@@ -733,8 +733,8 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.serializeBinaryToWriter = function(
       f
     );
   }
-  f = message.getInitialDtmf();
-  if (f.length > 0) {
+  f = /** @type {string} */ (jspb.Message.getField(message, 2));
+  if (f != null) {
     writer.writeString(
       2,
       f
@@ -827,7 +827,25 @@ proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.getInitialDtmf = function
  * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
  */
 proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.setInitialDtmf = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
+  return jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.fonoster.apps.v1beta1.CreateAppRequest} returns this
+ */
+proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.clearInitialDtmf = function() {
+  return jspb.Message.setField(this, 2, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.fonoster.apps.v1beta1.CreateAppRequest.prototype.hasInitialDtmf = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 

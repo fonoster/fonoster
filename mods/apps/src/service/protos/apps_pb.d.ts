@@ -64,7 +64,10 @@ export namespace ListAppsResponse {
 export class CreateAppRequest extends jspb.Message { 
     getName(): string;
     setName(value: string): CreateAppRequest;
-    getInitialDtmf(): string;
+
+    hasInitialDtmf(): boolean;
+    clearInitialDtmf(): void;
+    getInitialDtmf(): string | undefined;
     setInitialDtmf(value: string): CreateAppRequest;
     getActivationIntentId(): string;
     setActivationIntentId(value: string): CreateAppRequest;
@@ -103,7 +106,7 @@ export class CreateAppRequest extends jspb.Message {
 export namespace CreateAppRequest {
     export type AsObject = {
         name: string,
-        initialDtmf: string,
+        initialDtmf?: string,
         activationIntentId: string,
         activationTimeout: number,
         interactionTimeout: number,
