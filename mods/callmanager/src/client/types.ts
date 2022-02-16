@@ -24,6 +24,7 @@ export interface CallRequest {
   from: string;
   to: string;
   webhook?: string;
+  appRef?: string;
   metadata?: Record<string, unknown>;
   ignoreE164Validation?: boolean;
 }

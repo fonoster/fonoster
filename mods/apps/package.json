@@ -1,0 +1,56 @@
+{
+  "name": "@fonoster/apps",
+  "version": "0.3.3",
+  "description": "Fonoster Voice Applications",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/client/apps",
+  "types": "dist/client/apps",
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
+    "build": "tsc -b tsconfig.json",
+    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+  },
+  "bin": {
+    "run_apps": "dist/service/runner.js",
+    "healthcheck_apps": "dist/service/healthcheck.js"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "../"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "dependencies": {
+    "@fonoster/auth": "^0.3.3",
+    "@fonoster/certs": "^0.3.3",
+    "@fonoster/common": "^0.3.3",
+    "@fonoster/core": "^0.3.3",
+    "@fonoster/errors": "^0.3.3",
+    "@fonoster/logger": "^0.3.3"
+  },
+  "devDependencies": {
+    "@types/google-protobuf": "^3.15.2"
+  }
+}

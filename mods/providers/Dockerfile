@@ -1,8 +1,8 @@
 FROM fonoster/base
 COPY . /scripts
-RUN ./install.sh
-RUN link /usr/bin/run_providers /usr/bin/run \
-  && link /usr/bin/healthcheck_providers /usr/bin/healthcheck
+RUN ./install.sh; \
+  link /usr/local/bin/run_providers /usr/local/bin/run; \
+  link /usr/local/bin/healthcheck_providers /usr/local/bin/healthcheck
 USER fonoster
 HEALTHCHECK --interval=30s \
   --timeout=30s \

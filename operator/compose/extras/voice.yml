@@ -5,6 +5,7 @@ networks:
 
 services:
   voice:
+    restart: ${RESTART_POLICY}
     image: fonoster/voice:${COMPOSE_PROJECT_VERSION}
     command: ['rox']
     ports:
@@ -12,35 +13,13 @@ services:
       - 3001:3001
       - 9090:9090
     environment:
-      - INTENTS_ENGINE
-      - INTENTS_ENGINE_AGENT
-      - INTENTS_ENGINE_LOCATION
-      - ASR_ENGINE
-      - TTS_ENGINE
-      - TTS_VOICE
-      - INITIAL_DTMF
-      - WELCOME_INTENT_TRIGGER
-      - ACTIVATION_INTENT
-      - INTERACTION_TIMEOUT
-      - EVENTS_ENABLED
-      - ACTIVATION_TIMEOUT
-      - LANGUAGE_CODE
+      - DEFAULT_LANGUAGE_CODE
       - OTL_EXPORTER_ZIPKIN_URL
       - OTL_EXPORTER_JAEGER_URL
       - OTL_EXPORTER_PROMETHEUS_PORT
       - OTL_EXPORTER_GCP_ENABLED
       - GOOGLE_CONFIG_FILE
-      - INTENTS_ENGINE_PROJECT_ID
-      - INTENTS_ENGINE_PLATFORM
-      - INIT_ENDPOINT
-      - INIT_ENDPOINT_USERNAME
-      - INIT_ENDPOINT_PASSWORD
-      - TRANSFER_MEDIA
-      - TRANSFER_MEDIA_BUSY
-      - TRANSFER_MEDIA_NOANSWER
-      - TRANSFER_MESSAGE
-      - TRANSFER_MESSAGE_BUSY
-      - TRANSFER_MESSAGE_NOANSWER        
+      - LOGS_LEVEL     
     volumes:
       - ${CONFIG}/google.json:/home/fonoster/.fonoster/google.json
     networks:

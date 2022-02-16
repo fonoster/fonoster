@@ -56,7 +56,7 @@ mediaserver:
   # externPort is the public facing port
   externPort: 6060
   # proxyUsername username at SIPProxy
-  proxyUsername: ast
+  proxyUsername: ms
   # replicproxySecret secret at SIPProxy
   proxySecret: changeit
   # replicaCount is the number of MediaServer nodes

@@ -65,8 +65,8 @@ export interface GetDomainResponse {
   egressNumberRef?: string;
   accessDeny?: string[];
   accessAllow?: string[];
-  createTime?: string;
-  updateTime?: string;
+  createTime: string;
+  updateTime: string;
 }
 
 export interface UpdateDomainRequest {

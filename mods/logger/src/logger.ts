@@ -46,16 +46,17 @@ const fluent = new fluentTransport(
   }
 );
 
-const level = process.env.NODE_ENV === "production" ? "info" : "verbose";
-
-const transports =
-  process.env.NODE_ENV === "production"
-    ? [fluent]
-    : [new winston.transports.Console(), fluent]
+const format = process.env.LOGS_FORMAT === "json" 
+  ? winston.format.json()
+  : winston.format.simple()
+const level = process.env.LOGS_LEVEL ? process.env.LOGS_LEVEL : "info";
+const transports = process.env.LOGS_TRANSPORT === "fluent"
+  ? [fluent]
+  : [new winston.transports.Console()]
 
 const logger = winston.createLogger({
-  format: winston.format.json(),
   levels: winston.config.npm.levels,
+  format: winston.format.combine(winston.format.colorize(), format),
   transports,
   level
 });

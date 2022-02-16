@@ -1,2 +1,2 @@
-import logger, {mute, unmute} from "./logger";
-export {logger as default, mute, unmute};
+import logger, {ulogger, ULogType, mute, unmute} from "./logger";
+export {logger as default, ulogger, ULogType, mute, unmute};

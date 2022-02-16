@@ -1,12 +1,11 @@
-# Media Controller
+# Voice Media Server
 
 - apiVersion: v1beta1
   kind: Peer
   metadata:
-    name: Media Controller @ Node 1
+    name: Voice Media Server @ Default Region
   spec:
-    device: node1
+    device: default
     credentials:
-      username: ast
-      secret: 'changeit'
-
+      username: voice
+      secret: '6d1dea885027e3489322711f9708a7b7'

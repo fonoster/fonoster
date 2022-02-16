@@ -5,6 +5,7 @@
     "rootDir": "./src"
   },
   "references": [
+    {"path": "../apps"},
     {"path": "../common"},
     {"path": "../core"},
     {"path": "../logger"},

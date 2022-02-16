@@ -104,7 +104,7 @@ message Agent {
     example: "{\"ref\": \"aynB1z0tzd\", \"name\": \"John Doe\", \"username\": \"1001\", \"secret\": \"1234\", \"domains\": \"['sip.fonoster.com']\", \"privacy\": \"none\", \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
   };
   // Agent's reference
-  string ref = 1;
+  string ref = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
   string name = 2 [(google.api.field_behavior) = REQUIRED];
   string username = 3 [(google.api.field_behavior) = REQUIRED];
   string secret = 4 [(google.api.field_behavior) = REQUIRED];

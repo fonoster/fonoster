@@ -31,9 +31,8 @@ describe("@fonoster/number", () => {
     e164Number: numberObj.getE164Number(),
     aorLink: numberObj.getAorLink(),
     metadata: {
-      webhook: numberObj.getIngressInfo()
-        ? numberObj.getIngressInfo().getWebhook()
-        : null
+      webhook: numberObj.getIngressInfo()?.getWebhook(),
+      appRef: numberObj.getIngressInfo()?.getAppRef()
     },
     providerRef: numberObj.getProviderRef()
   };
@@ -77,6 +76,10 @@ describe("@fonoster/number", () => {
       .to.have.property("e164Number")
       .to.be.equal(numberPlain.e164Number);
     expect(result).to.have.property("aorLink").to.be.equal(numberPlain.aorLink);
+    expect(result).to.have.property("ingressInfo")
+      .to.have.property("webhook").to.be.equal(numberPlain.metadata.webhook);
+      expect(result).to.have.property("ingressInfo")
+      .to.have.property("appRef").to.be.equal(numberPlain.metadata.appRef);
     expect(result)
       .to.have.property("providerRef")
       .to.be.equal(numberPlain.providerRef);
@@ -250,6 +253,7 @@ describe("@fonoster/number", () => {
   it("Should return the ingress info for a number", async () => {
     const returnIngressInfo = new NumbersPB.IngressInfo();
     returnIngressInfo.setWebhook("https://webhooks.acme.com/calls");
+    returnIngressInfo.setAppRef("134");
 
     sandbox.stub(APIClient.prototype, "init").returns();
     sandbox.stub(APIClient.prototype, "getService").returns({
@@ -265,6 +269,9 @@ describe("@fonoster/number", () => {
     expect(result)
       .to.have.property("webhook")
       .to.be.equal(returnIngressInfo.getWebhook());
+    expect(result)
+      .to.have.property("appRef")
+      .to.be.equal(returnIngressInfo.getAppRef());  
   });
 
   context("number decoder", () => {

@@ -77,7 +77,7 @@ AS_ALLOW_INSECURE=true
 #
 # Media Server integration (Asterisk)
 #
-MS_ENDPOINT=sip:ast@node1
+MS_ENDPOINT=sip:voice@default
 MS_SIP_PORT=6060
 MS_RTP_PORT_START=20000
 MS_RTP_PORT_END=21000
@@ -118,7 +118,7 @@ DS_PORT=6379
 #
 # Integration with SIPProxy (Routr)
 #
-SIPPROXY_USERNAME=ast
+SIPPROXY_USERNAME=voice
 SIPPROXY_API_HOST=sipproxy.fonoster
 SIPPROXY_HOST=sipproxy.fonoster
 SIPPROXY_API_PORT=4567
@@ -140,7 +140,9 @@ LOGS_DRIVER_PORT=24224
 LOGS_AGGREGRATOR_HOST=logsaggregator.fonoster
 LOGS_AGGREGRATOR_PORT=9200
 LOG_OPT_TAG_PREFIX=early
-
+LOGS_FORMAT=json
+LOGS_LEVEL=info
+LOGS_TRANSPORT=fluent
 
 #
 # Integration with events server (RabbitMQ)
@@ -170,6 +172,7 @@ TTS_BASE_URI=/tts
 #
 # Integration with Rox Connector
 #
+VOICE_URL=http://voice.fonoster:3000
 VOICE_HOST=voice.fonoster
 
 #
@@ -214,5 +217,6 @@ COMPOSE_PROJECT_VERSION=0.2.36
 # Restart policy for containers
 RESTART_POLICY=unless-stopped
 
-# Node environment variable 
-NODE_ENV=staging
+# Node environment variable
+NODE_ENV=production
+NODE_OPTIONS=--unhandled-rejections=throw

@@ -14,11 +14,16 @@
       "/fonoster.projects.v1beta1.Projects/DeleteProject",
       "/fonoster.projects.v1beta1.Projects/RenewAccessKeySecret"
     ]
-  },  
+  },
   {
     "name": "PROJECT",
     "description": "Access to Project resources",
     "access": [
+      "/fonoster.apps.v1beta1.Apps/ListApps",
+      "/fonoster.apps.v1beta1.Apps/CreateApp",
+      "/fonoster.apps.v1beta1.Apps/GetApp",
+      "/fonoster.apps.v1beta1.Apps/UpdateApp",
+      "/fonoster.apps.v1beta1.Apps/DeleteApp",
       "/fonoster.monitor.v1beta1.Monitor/SearchEvents",
       "/fonoster.storage.v1beta1.Storage/UploadObject",
       "/fonoster.storage.v1beta1.Storage/GetObjectURL",
@@ -51,7 +56,8 @@
       "/fonoster.funcs.v1beta1.Funcs/GetFuncLogs",
       "/fonoster.secrets.v1beta1.Secrets/CreateSecret",
       "/fonoster.secrets.v1beta1.Secrets/ListSecretsId",
-      "/fonoster.secrets.v1beta1.Secrets/DeleteSecret"
+      "/fonoster.secrets.v1beta1.Secrets/DeleteSecret",
+      "/fonoster.secrets.v1beta1.Secrets/GetSecret"
     ]
   },
   {

@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonoster/logger";
-import { ulogger, ULogType } from "@fonoster/logger/src/logger";
+import logger, {ulogger, ULogType} from "@fonoster/logger";
 import axios from "axios";
 import {CallRequest} from "../types";
 

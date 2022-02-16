@@ -34,7 +34,7 @@ import {channelTalkingHandler} from "./handlers/channel_talking";
 import {sendDtmf} from "./handlers/send_dtmf";
 import {answer} from "./utils/answer_channel";
 import {dial} from "./handlers/dial";
-import { ulogger, ULogType } from "@fonoster/logger/src/logger";
+import {ulogger, ULogType} from "@fonoster/logger";
 
 const wsConnections = new Map();
 
@@ -68,6 +68,7 @@ export default function (err: any, ari: any) {
 
     logger.verbose(`ingressInfo: ${JSON.stringify(ingressInfo, null, " ")}`);
 
+    const appRef = await getChannelVar(channel, "APP_REF") || ingressInfo.appRef
     const webhook =
       (await getChannelVar(channel, "WEBHOOK")) || ingressInfo.webhook;
     const metadata = await getChannelVarAsJson(channel, "METADATA");
@@ -81,8 +82,10 @@ export default function (err: any, ari: any) {
       \r]`
     );
 
-    const access = await auth.createNoAccessToken({
-      accessKeyId: ingressInfo.accessKeyId
+    const access = await auth.createToken({
+      accessKeyId: ingressInfo.accessKeyId,
+      roleName: "PROJECT",
+      expiration: "5m"
     });
 
     const request: CallRequest = {
@@ -95,6 +98,7 @@ export default function (err: any, ari: any) {
       callerId: event.channel.caller.name,
       callerNumber: event.channel.caller.number,
       selfEndpoint: webhook,
+      appRef,
       metadata: metadata || {}
     };
 

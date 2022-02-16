@@ -25,6 +25,7 @@ if (process.env.NODE_ENV === "dev") {
   dotenv.config({path: join(__dirname, ".env")});
 }
 
+import AppsServer from "./mods/apps/src/service/apps";
 import MonitorServer from "./mods/monitor/src/service/monitor";
 import UsersServer from "./mods/users/src/service/users";
 import ProjectsServer from "./mods/projects/src/service/projects";
@@ -37,6 +38,7 @@ import NumbersServer from "./mods/numbers/src/service/numbers";
 import ProvidersServer from "./mods/providers/src/service/providers";
 import CallManagerServer from "./mods/callmanager/src/service/callmanager";
 import StorageServer from "./mods/storage/src/service/storage";
+import {AppsService} from "./mods/apps/src/service/protos/apps_grpc_pb";
 import {MonitorService} from "./mods/monitor/src/service/protos/monitor_grpc_pb";
 import {ProjectsService} from "./mods/projects/src/service/protos/projects_grpc_pb";
 import {UsersService} from "./mods/users/src/service/protos/users_grpc_pb";
@@ -54,6 +56,12 @@ import AuthMiddleware from "./mods/auth/src/auth_middleware";
 import {getSalt} from "./mods/certs/src/certs";
 
 const services = [
+  {
+    name: "apps",
+    version: "v1beta1",
+    service: AppsService,
+    server: new AppsServer()
+  },
   {
     name: "monitor",
     version: "v1beta1",
