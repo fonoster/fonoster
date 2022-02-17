@@ -3,7 +3,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
 import {CommonPB} from "@fonoster/numbers";
-import {Provider} from "@fonoster/providers/src/client/types";
+import {Provider} from "@fonoster/providers/dist/client/types";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
 const Providers = require("@fonoster/providers");
@@ -106,7 +106,7 @@ export default class CreateCommand extends Command {
       if (e.code === 9) {
         throw new CLIError("This Number already exist");
       } else {
-        throw new CLIError(e);
+        throw new CLIError(e.message);
       }
     }
   }
