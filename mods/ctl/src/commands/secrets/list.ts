@@ -65,7 +65,7 @@ export default class ListCommand extends Command {
         secrets.length ? table.toString() : "You haven’t created a Secret yet."
       );
     } catch (e) {
-      throw new CLIError(e);
+      throw new CLIError(e.message);
     }
   }
 }

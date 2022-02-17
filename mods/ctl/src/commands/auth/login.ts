@@ -53,7 +53,7 @@ export default class extends Command {
           await cli.wait(1000);
           cli.action.stop("Done");
         } catch (e) {
-          console.log(e);
+          console.error(e.message);
           await cli.wait(1000);
           cli.action.stop("Invalid credentials or endpoint");
         }

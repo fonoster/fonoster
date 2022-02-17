@@ -84,7 +84,7 @@ export default class CreateCommand extends Command {
         if (e.code === 9) {
           throw new CLIError("This Provider already exist");
         } else {
-          throw new CLIError(e);
+          throw new CLIError(e.message);
         }
       }
     }
