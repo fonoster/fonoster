@@ -76,6 +76,7 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
+    "@fonoster/secrets": "^0.2.44",
     "@fonoster/agents": "^0.3.3",
     "@fonoster/domains": "^0.3.3",
     "@fonoster/logger": "^0.3.3",
@@ -91,7 +92,10 @@
     "@oclif/plugin-warn-if-update-available": "^1.7.0",
     "cli-ux": "5.5.1",
     "dockerode": "^3.3.0",
+    "easy-table": "^1.2.0",
     "figlet": "^1.5.0",
+    "get-stdin": "^9.0.0",
+    "get-stdin-with-tty": "^6.0.0",
     "inquirer": "^7.3.3",
     "moment": "^2.29.1",
     "phone": "^2.4.21",
