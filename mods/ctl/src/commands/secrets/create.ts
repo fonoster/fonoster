@@ -57,7 +57,7 @@ export default class CreateCommand extends Command {
 
       console.log(result.name);
     } catch (e) {
-      throw new CLIError(e);
+      throw new CLIError(e.message);
     }
   }
 }

@@ -107,7 +107,7 @@ export default class CreateCommand extends Command {
         if (e.code === 9) {
           throw new CLIError("This Domain already exist");
         } else {
-          throw new CLIError(e);
+          throw new CLIError(e.message);
         }
       }
     }

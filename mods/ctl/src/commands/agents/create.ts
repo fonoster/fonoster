@@ -85,7 +85,7 @@ export default class extends Command {
         if (e.code === 9) {
           throw new CLIError("This Agent already exist");
         } else {
-          throw new CLIError(e);
+          throw new CLIError(e.message);
         }
       }
     }
