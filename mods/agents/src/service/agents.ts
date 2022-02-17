@@ -89,7 +89,7 @@ class AgentsServer implements IAgentsServer {
         call.request.getRef()
       )
         .withCredentials(
-          agent.spec.credentials.username,
+          agent?.spec?.credentials?.username,
           call.request.getSecret()
         )
         .build();
