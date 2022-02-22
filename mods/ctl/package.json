@@ -38,11 +38,12 @@
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
       "@oclif/plugin-not-found",
-      "@oclif/plugin-warn-if-update-available"
+      "@fonoster/plugin-warn-if-update-available"
     ],
     "warn-if-update-available": {
       "timeoutInDays": 1,
-      "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
+      "nagTimeoutInDays": 1,
+      "message": "\n <%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
     },
     "topics": {
       "domains": {
@@ -84,6 +85,7 @@
     "@fonoster/domains": "^0.3.3",
     "@fonoster/logger": "^0.3.3",
     "@fonoster/numbers": "^0.3.3",
+    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
     "@fonoster/projects": "^0.3.3",
     "@fonoster/providers": "^0.3.3",
     "@fonoster/secrets": "^0.2.44",
@@ -93,7 +95,6 @@
     "@oclif/plugin-help": "^3.2.2",
     "@oclif/plugin-not-found": "1.2.4",
     "@oclif/plugin-plugins": "^1.10.0",
-    "@oclif/plugin-warn-if-update-available": "^1.7.0",
     "cli-ux": "5.5.1",
     "dockerode": "^3.3.0",
     "easy-table": "^1.2.0",
