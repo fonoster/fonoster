@@ -38,11 +38,12 @@
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
       "@oclif/plugin-not-found",
-      "@oclif/plugin-warn-if-update-available"
+      "@fonoster/plugin-warn-if-update-available"
     ],
     "warn-if-update-available": {
       "timeoutInDays": 1,
-      "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
+      "nagTimeoutInDays": 1,
+      "message": "\n <%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
     },
     "topics": {
       "domains": {
@@ -62,6 +63,9 @@
       },
       "projects": {
         "description": "manage Projects"
+      },
+      "apps": {
+        "description": "manage Apps"
       }
     }
   },
@@ -76,20 +80,21 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/secrets": "^0.2.44",
     "@fonoster/agents": "^0.3.3",
+    "@fonoster/apps": "^0.3.3",
     "@fonoster/domains": "^0.3.3",
     "@fonoster/logger": "^0.3.3",
     "@fonoster/numbers": "^0.3.3",
+    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
     "@fonoster/projects": "^0.3.3",
     "@fonoster/providers": "^0.3.3",
+    "@fonoster/secrets": "^0.2.44",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/errors": "^1.3.4",
     "@oclif/plugin-help": "^3.2.2",
     "@oclif/plugin-not-found": "1.2.4",
     "@oclif/plugin-plugins": "^1.10.0",
-    "@oclif/plugin-warn-if-update-available": "^1.7.0",
     "cli-ux": "5.5.1",
     "dockerode": "^3.3.0",
     "easy-table": "^1.2.0",
@@ -102,7 +107,8 @@
     "prettyjson": "^1.2.1",
     "promise-fs": "^2.1.1",
     "truncate": "^2.1.0",
-    "update-notifier": "^5.1.0"
+    "update-notifier": "^5.1.0",
+    "winston": "^3.6.0"
   },
   "devDependencies": {
     "@types/dockerode": "^3.2.2",
