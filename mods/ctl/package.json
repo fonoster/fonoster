@@ -33,6 +33,7 @@
   ],
   "oclif": {
     "commands": "./dist/commands",
+    "helpClass": "./dist/help",
     "bin": "fonoster",
     "plugins": [
       "@oclif/plugin-help",
@@ -44,29 +45,6 @@
       "timeoutInDays": 1,
       "nagTimeoutInDays": 1,
       "message": "\n <%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
-    },
-    "topics": {
-      "domains": {
-        "description": "manage Domains"
-      },
-      "agents": {
-        "description": "manage Agents"
-      },
-      "numbers": {
-        "description": "manage Numbers"
-      },
-      "providers": {
-        "description": "manage Providers"
-      },
-      "auth": {
-        "description": "manage User credentials"
-      },
-      "projects": {
-        "description": "manage Projects"
-      },
-      "apps": {
-        "description": "manage Apps"
-      }
     }
   },
   "publishConfig": {
