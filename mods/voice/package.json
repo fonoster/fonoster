@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/voice",
-  "version": "0.3.6-alpha.3",
+  "version": "0.3.6-alpha.4",
   "description": "Voice verbs",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,8 +29,8 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/common": "^0.3.6-alpha.3",
-    "@fonoster/logger": "^0.3.6-alpha.3",
+    "@fonoster/common": "^0.3.6-alpha.4",
+    "@fonoster/logger": "^0.3.6-alpha.4",
     "@opentelemetry/api": "^1.0.2",
     "@opentelemetry/node": "^0.24.0",
     "@opentelemetry/plugin-express": "^0.15.0",
@@ -41,10 +41,10 @@
     "@opentelemetry/sdk-trace-base": "0.25.0",
     "@opentelemetry/semantic-conventions": "0.25.0",
     "@opentelemetry/tracing": "^0.24.0",
+    "bson-objectid": "^2.0.2",
     "deepmerge": "^4.2.2",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
-    "bson-objectid": "^2.0.2",
     "pubsub-js": "^1.9.3",
     "sync": "^0.2.5"
   },
