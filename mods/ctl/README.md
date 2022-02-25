@@ -21,7 +21,7 @@ $ npm install -g @fonoster/ctl
 $ fonoster COMMAND
 running command...
 $ fonoster (-v|--version|version)
-@fonoster/ctl/0.3.4 darwin-x64 node-v14.16.0
+@fonoster/ctl/0.3.5-alpha.0 darwin-x64 node-v14.16.0
 $ fonoster --help [COMMAND]
 USAGE
   $ fonoster COMMAND
@@ -32,9 +32,6 @@ USAGE
 # Commands
 
 <!-- commands -->
-* [`fonoster auth:logout`](#fonoster-authlogout)
-* [`fonoster bug`](#fonoster-bug)
-* [`fonoster feedback`](#fonoster-feedback)
 * [`fonoster help [COMMAND]`](#fonoster-help-command)
 * [`fonoster plugins`](#fonoster-plugins)
 * [`fonoster plugins:inspect PLUGIN...`](#fonoster-pluginsinspect-plugin)
@@ -42,50 +39,6 @@ USAGE
 * [`fonoster plugins:link PLUGIN`](#fonoster-pluginslink-plugin)
 * [`fonoster plugins:uninstall PLUGIN...`](#fonoster-pluginsuninstall-plugin)
 * [`fonoster plugins:update`](#fonoster-pluginsupdate)
-* [`fonoster secrets:create [NAME]`](#fonoster-secretscreate-name)
-* [`fonoster secrets:delete [NAME]`](#fonoster-secretsdelete-name)
-* [`fonoster secrets:list`](#fonoster-secretslist)
-
-## `fonoster auth:logout`
-
-log out from a fonoster deployment
-
-```
-USAGE
-  $ fonoster auth:logout
-```
-
-_See code: [dist/commands/auth/logout.js](https://github.com/fonoster/fonoster/blob/v0.3.4/dist/commands/auth/logout.js)_
-
-## `fonoster bug`
-
-start a bug report 🐞
-
-```
-USAGE
-  $ fonoster bug
-
-DESCRIPTION
-  ...
-     Opens github issues with a predefine bug template
-```
-
-_See code: [dist/commands/bug.js](https://github.com/fonoster/fonoster/blob/v0.3.4/dist/commands/bug.js)_
-
-## `fonoster feedback`
-
-let us know how we're doing
-
-```
-USAGE
-  $ fonoster feedback
-
-DESCRIPTION
-  ...
-     Help us improve by providing some feedback
-```
-
-_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonoster/blob/v0.3.4/dist/commands/feedback.js)_
 
 ## `fonoster help [COMMAND]`
 
@@ -241,52 +194,4 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.10.11/src/commands/plugins/update.ts)_
-
-## `fonoster secrets:create [NAME]`
-
-create a Fonoster secret.
-
-```
-USAGE
-  $ fonoster secrets:create [NAME]
-
-OPTIONS
-  -h, --help                       show CLI help
-  -l, --from-literal=from-literal  pass from literal
-  -s, --from-stdin                 pass from stdin
-```
-
-_See code: [dist/commands/secrets/create.js](https://github.com/fonoster/fonoster/blob/v0.3.4/dist/commands/secrets/create.js)_
-
-## `fonoster secrets:delete [NAME]`
-
-remove Fonoster secret
-
-```
-USAGE
-  $ fonoster secrets:delete [NAME]
-
-ALIASES
-  $ fonoster secrets:del
-  $ fonoster secrets:rm
-```
-
-_See code: [dist/commands/secrets/delete.js](https://github.com/fonoster/fonoster/blob/v0.3.4/dist/commands/secrets/delete.js)_
-
-## `fonoster secrets:list`
-
-list of the secrets you have access to
-
-```
-USAGE
-  $ fonoster secrets:list
-
-OPTIONS
-  -s, --size=size  [default: 25] secrets of result per page
-
-ALIASES
-  $ fonoster secrets:ls
-```
-
-_See code: [dist/commands/secrets/list.js](https://github.com/fonoster/fonoster/blob/v0.3.4/dist/commands/secrets/list.js)_
 <!-- commandsstop -->

@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/storage",
-  "version": "0.3.4",
+  "version": "0.3.5-alpha.0",
   "description": "Fonoster Storage Servoce",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,12 +43,12 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.4",
-    "@fonoster/certs": "^0.3.4",
-    "@fonoster/common": "^0.3.4",
-    "@fonoster/core": "^0.3.4",
-    "@fonoster/errors": "^0.3.4",
-    "@fonoster/logger": "^0.3.4",
+    "@fonoster/auth": "^0.3.5-alpha.0",
+    "@fonoster/certs": "^0.3.5-alpha.0",
+    "@fonoster/common": "^0.3.5-alpha.0",
+    "@fonoster/core": "^0.3.5-alpha.0",
+    "@fonoster/errors": "^0.3.5-alpha.0",
+    "@fonoster/logger": "^0.3.5-alpha.0",
     "@grpc/grpc-js": "^1.3.6",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
