@@ -44,7 +44,7 @@
     "deepmerge": "^4.2.2",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
-    "objectid": "^3.2.1",
+    "bson-objectid": "^2.0.2",
     "pubsub-js": "^1.9.3",
     "sync": "^0.2.5"
   },

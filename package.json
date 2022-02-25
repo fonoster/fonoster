@@ -12,7 +12,7 @@
     "lint": "eslint mods --ext .ts --fix",
     "format": "prettier --write mods",
     "check-types": "tsc --noEmit",
-    "postinstall": "husky install",
+
     "start": "cross-env NODE_ENV=dev nodemon services",
     "start:dispatcher": "cross-env NODE_ENV=dev nodemon dispatcher",
     "gen:protos": "./.scripts/gen_code_proto.sh",

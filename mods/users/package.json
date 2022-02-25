@@ -53,7 +53,7 @@
     "bcrypt": "^5.0.1",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
-    "objectid": "^3.2.1"
+    "bson-objectid": "^2.0.2"
   },
   "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
 }

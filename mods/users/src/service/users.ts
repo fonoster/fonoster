@@ -42,7 +42,7 @@ import {
   getAccessKeyId,
   getAccessKeySecret
 } from "@fonoster/core";
-import objectid from "objectid";
+import objectid from "bson-objectid";
 import encoder from "./encoder";
 import decoder from "./decoder";
 import {FonosterError} from "@fonoster/errors";
