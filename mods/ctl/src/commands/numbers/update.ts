@@ -2,7 +2,8 @@ import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {cli} from "cli-ux";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import {getProjectConfig} from "../../config";
+import { ProjectGuard } from "../../decorators/project_guard";
 
 const Numbers = require("@fonoster/numbers");
 const inquirer = require("inquirer");
@@ -15,16 +16,20 @@ export class UpdateCommand extends Command {
 
   static args = [{name: "ref"}];
 
+  @ProjectGuard()
   async run() {
-    if (!hasProjectConfig()) {
-      throw new CLIError("you must set a default project");
-    }
     console.log(
       "This utility will help you update an existing Fonoster Number"
     );
     console.log("Press ^C at any time to quit.");
 
     const {args} = this.parse(UpdateCommand);
+
+    if (!args.ref) {
+      cli.action.stop();
+      throw new CLIError("You must provide a Number ref before continuing");
+    }
+
     const numbers = new Numbers(getProjectConfig());
 
     const answers = await inquirer.prompt([

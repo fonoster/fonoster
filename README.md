@@ -8,8 +8,6 @@ https://user-images.githubusercontent.com/40646537/148554756-0258e06b-d850-46fb-
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-<a href="https://www.producthunt.com/posts/fonoster?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-fonoster" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=319527&theme=light" alt="Fonoster - Engage with your customers with VoIP or SMS | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-
 ## Features
 
 The most notable features on FN 0.2 are:
@@ -74,8 +72,8 @@ callManager.call({
  to: "17853178070",
  webhook: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
 })
-.then(console.log)
-.catch(console.error);
+ .then(console.log)
+ .catch(console.error);
 ```
 
 ## Getting Started
@@ -87,6 +85,8 @@ To get started with FN use the following resources:
 - [Connecting Fonoster with Dialogflow](https://learn.fonoster.com/docs/tutorials/connecting_with_dialogflow)
 - [Using Google Speech APIs](https://learn.fonoster.com/docs/tutorials/using_google_speech)
 - [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
+
+<a href="https://www.producthunt.com/posts/fonoster?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-fonoster" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=319527&theme=light" alt="Fonoster - Engage with your customers with VoIP or SMS | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 ## Bugs and Feedback
 

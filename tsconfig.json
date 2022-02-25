@@ -10,7 +10,8 @@
     "strict": false,
     "module": "commonjs",
     "target": "es2020",
-    "lib": [ "es2020" ]
+    "lib": [ "es2020" ],
+    "experimentalDecorators": true
   },
   "exclude": [
     "node_modules",
