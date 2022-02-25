@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "make": "npm i rimraf && npm run clean && npm i && npm run bootstrap && npm run build && npm run test",
-    "bootstrap": "lerna bootstrap --no-ci --hoist",
+    "bootstrap": "lerna bootstrap --ci --hoist",
     "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "integration": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha --timeout 220000 -r ts-node/register mods/**/*.int.test.ts --exit",
     "build": "lerna run build",
@@ -17,7 +17,8 @@
     "start:dispatcher": "cross-env NODE_ENV=dev nodemon dispatcher",
     "gen:protos": "./.scripts/gen_code_proto.sh",
     "gen:docs": "node ./.scripts/gen_docs.js",
-    "version:force": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM"
+    "audit": "lerna-audit",
+    "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM"
   },
   "nodemonConfig": {
     "watch": [
@@ -47,7 +48,8 @@
     "husky": "^6.0.0",
     "jsdoc-to-markdown": "^7.0.1",
     "lerna": "^4.0.0",
-    "mocha": "^8.3.0",
+    "lerna-audit": "^1.3.3",
+    "mocha": "^9.2.1",
     "nodemon": "^2.0.7",
     "nyc": "^15.1.0",
     "prettier": "^2.3.0",

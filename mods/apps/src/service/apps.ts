@@ -91,10 +91,6 @@ export default class AppsServer implements IAppsServer {
         );
       }
 
-      console.log(call.request.ha() === "");
-      console.log(call.request.getInitialDtmf() === null);
-      console.log(call.request.getInitialDtmf() === undefined);
-
       if (call.request.getInitialDtmf() !== undefined)
         app.setInitialDtmf(call.request.getInitialDtmf());
 
