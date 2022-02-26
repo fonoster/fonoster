@@ -22,6 +22,7 @@ import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
 import {promisifyAll} from "grpc-promise";
 import {
+  Agent,
   CreateAgentRequest,
   CreateAgentResponse,
   DeleteAgentResponse,
@@ -250,7 +251,7 @@ export default class Agents extends APIClient implements IAgentsClient {
   }
 }
 
-export {AgentsPB, CommonPB, IAgentsClient};
+export {Agent, AgentsPB, CommonPB, IAgentsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Agents;

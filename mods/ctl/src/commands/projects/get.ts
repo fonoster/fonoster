@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {render} from "prettyjson";
 
 const Projects = require("@fonoster/projects");
@@ -16,7 +16,7 @@ export default class GetCommand extends Command {
 
     try {
       const projects = new Projects();
-      cli.action.start(`Getting Project ${args.ref}`);
+      CliUx.ux.action.start(`Getting Project ${args.ref}`);
       const p = await projects.getProject(args.ref);
 
       const jsonObj = {
@@ -29,8 +29,8 @@ export default class GetCommand extends Command {
         Updated: moment(p.updateTime).fromNow()
       };
 
-      await cli.wait(1000);
-      cli.action.stop("");
+      await CliUx.ux.wait(1000);
+      CliUx.ux.action.stop("");
       console.log(render(jsonObj, {noColor: true}));
     } catch (e) {
       throw new CLIError(e.message);

@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {setConfig} from "../../config";
 
 const Projects = require("@fonoster/projects");
@@ -43,22 +43,22 @@ export default class extends Command {
       console.log("Aborted");
     } else {
       try {
-        cli.action.start(`Accessing endpoint ${answers.endpoint}`);
+        CliUx.ux.action.start(`Accessing endpoint ${answers.endpoint}`);
 
         try {
           const projects = new Projects(answers);
           await projects.listProjects();
           answers.confirm = void 0;
           setConfig(answers);
-          await cli.wait(1000);
-          cli.action.stop("Done");
+          await CliUx.ux.wait(1000);
+          CliUx.ux.action.stop("Done");
         } catch (e) {
           console.error(e.message);
-          await cli.wait(1000);
-          cli.action.stop("Invalid credentials or endpoint");
+          await CliUx.ux.wait(1000);
+          CliUx.ux.action.stop("Invalid credentials or endpoint");
         }
       } catch (e) {
-        cli.action.stop();
+        CliUx.ux.action.stop();
         throw new CLIError(e.message);
       }
     }

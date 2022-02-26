@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 const Agents = require("@fonoster/agents");
 const inquirer = require("inquirer");
@@ -56,14 +56,14 @@ export default class UpdateCommand extends Command {
       console.log("Aborted");
     } else {
       try {
-        cli.action.start(`Updating agent ${answers.name}`);
+        CliUx.ux.action.start(`Updating agent ${answers.name}`);
 
         await agents.updateAgent(answers);
-        await cli.wait(1000);
+        await CliUx.ux.wait(1000);
 
-        cli.action.stop("Done");
+        CliUx.ux.action.stop("Done");
       } catch (e) {
-        cli.action.stop();
+        CliUx.ux.action.stop();
         throw new CLIError(e.message);
       }
     }

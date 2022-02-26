@@ -1,7 +1,7 @@
 import "../config";
 import Command from "@oclif/command";
 import {Input} from "@oclif/parser";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {CLIError} from "@oclif/errors";
 
 export default abstract class extends Command {
@@ -9,15 +9,15 @@ export default abstract class extends Command {
 
   async deleteResource(API: any, funcName: string) {
     if (!this.ref) {
-      cli.action.stop();
+      CliUx.ux.action.stop();
       throw new CLIError("You must provide a resource ref before continuing");
     }
 
-    cli.action.start(`Deleting resource ${this.ref}`);
+    CliUx.ux.action.start(`Deleting resource ${this.ref}`);
     const results = await API[funcName](this.ref);
 
-    await cli.wait(1000);
-    cli.action.stop(results ? "Done" : "Failed");
+    await CliUx.ux.wait(1000);
+    CliUx.ux.action.stop(results ? "Done" : "Failed");
   }
 
   async init() {

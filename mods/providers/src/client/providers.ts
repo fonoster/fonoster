@@ -25,7 +25,8 @@ import {
   ListProvidersResponse,
   GetProviderResponse,
   DeleteProviderResponse,
-  IProvidersClient
+  IProvidersClient,
+  Provider
 } from "./types";
 import {APIClient, ClientOptions} from "@fonoster/common";
 import {ProvidersClient} from "../service/protos/providers_grpc_pb";
@@ -278,7 +279,7 @@ export default class Providers extends APIClient implements IProvidersClient {
   }
 }
 
-export {ProvidersPB, CommonPB, IProvidersClient};
+export {Provider, ProvidersPB, CommonPB, IProvidersClient};
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Providers;

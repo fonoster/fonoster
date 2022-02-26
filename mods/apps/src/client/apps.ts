@@ -23,6 +23,7 @@ import {promisifyAll} from "grpc-promise";
 import {AppsClient} from "../service/protos/apps_grpc_pb";
 import {Struct} from "google-protobuf/google/protobuf/struct_pb";
 import {
+  App,
   CreateAppRequest,
   CreateAppResponse,
   DeleteAppResponse,
@@ -371,7 +372,7 @@ export default class Apps extends APIClient implements IAppsClient {
   }
 }
 
-export {AppsPB, CommonPB, IAppsClient};
+export {App, AppsPB, CommonPB, IAppsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Apps;

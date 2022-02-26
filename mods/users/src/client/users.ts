@@ -32,7 +32,8 @@ import {
   CreateUserCredentialsResponse,
   IUsersClient,
   ListUsersRequest,
-  ListUsersResponse
+  ListUsersResponse,
+  User
 } from "./types";
 
 /**
@@ -274,7 +275,7 @@ export default class Users extends APIClient implements IUsersClient {
   }
 }
 
-export {UsersPB, CommonPB, IUsersClient};
+export {User, UsersPB, CommonPB, IUsersClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Users;

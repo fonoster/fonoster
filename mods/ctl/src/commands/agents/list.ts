@@ -2,9 +2,10 @@ import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {CommonPB} from "@fonoster/agents";
-import {cli} from "cli-ux";
-import {Agent} from "@fonoster/agents/src/client/types";
+import {CliUx} from "@oclif/core";
+import {Agent} from "@fonoster/agents";
 import {getProjectConfig, hasProjectConfig} from "../../config";
+
 const Agents = require("@fonoster/agents");
 const inquirer = require("inquirer");
 
@@ -50,7 +51,7 @@ export default class ListCommand extends Command {
         if (list.length < 1) break;
 
         const showTable = (showHeader: boolean, data: Agent[]) => {
-          cli.table(
+          CliUx.ux.table(
             data,
             {
               ref: {minWidth: 12},
@@ -60,7 +61,7 @@ export default class ListCommand extends Command {
               domains: {
                 header: "Domains",
                 minWidth: 12,
-                get: (row) => `${row.domains.join(",")}`
+                get: (row: any) => `${row.domains.join(",")}`
               }
             },
             {"no-header": !showHeader}

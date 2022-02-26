@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
 const Providers = require("@fonoster/providers");
@@ -72,15 +72,15 @@ export default class CreateCommand extends Command {
       console.log("Aborted");
     } else {
       try {
-        cli.action.start(`Creating Provider ${answers.name}`);
+        CliUx.ux.action.start(`Creating Provider ${answers.name}`);
 
         const providers = new Providers(getProjectConfig());
         const provider = await providers.createProvider(answers);
-        await cli.wait(1000);
+        await CliUx.ux.wait(1000);
 
-        cli.action.stop(provider.ref);
+        CliUx.ux.action.stop(provider.ref);
       } catch (e) {
-        cli.action.stop();
+        CliUx.ux.action.stop();
         if (e.code === 9) {
           throw new CLIError("This Provider already exist");
         } else {

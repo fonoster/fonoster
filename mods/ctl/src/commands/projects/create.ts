@@ -2,7 +2,7 @@ import "../../config";
 const Projects = require("@fonoster/projects");
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 const inquirer = require("inquirer");
 
 export default class extends Command {
@@ -37,13 +37,13 @@ export default class extends Command {
       console.log("Aborted");
     } else {
       try {
-        cli.action.start(`Creating Project ${answers.name}`);
+        CliUx.ux.action.start(`Creating Project ${answers.name}`);
         const projects = new Projects();
         const project = await projects.createProject(answers);
-        await cli.wait(1000);
-        cli.action.stop(project.ref);
+        await CliUx.ux.wait(1000);
+        CliUx.ux.action.stop(project.ref);
       } catch (e) {
-        cli.action.stop();
+        CliUx.ux.action.stop();
         if (e.code === 9) {
           throw new CLIError("This Project already exist");
         } else {

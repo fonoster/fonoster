@@ -1,5 +1,5 @@
 import "../config";
-import cli from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {Command} from "@oclif/command";
 
 export default class extends Command {
@@ -9,7 +9,7 @@ export default class extends Command {
   `;
 
   async run() {
-    await cli.open(
+    await CliUx.ux.open(
       "https://docs.google.com/forms/d/e/1FAIpQLSd1G2ahRYqkbksOvz7XhNHfSLepUh3KzRHsXh2HXfZr68nhtQ/viewform?vc=0&c=0&w=1&flr=0"
     );
   }
