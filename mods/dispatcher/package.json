@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/dispatcher",
-  "version": "0.3.6-alpha.4",
+  "version": "0.3.6-alpha.5",
   "description": "Application Router for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -45,7 +45,7 @@
     "@fonoster/auth": "^0.3.6-alpha.4",
     "@fonoster/core": "^0.3.6-alpha.4",
     "@fonoster/logger": "^0.3.6-alpha.4",
-    "@fonoster/numbers": "^0.3.6-alpha.4",
+    "@fonoster/numbers": "^0.3.6-alpha.5",
     "@fonoster/storage": "^0.3.6-alpha.4",
     "ari-client": "^2.2.0",
     "pick-port": "^1.0.0",
