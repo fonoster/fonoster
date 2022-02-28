@@ -4,5 +4,7 @@ networks:
   fonoster:
 
 volumes:
+  esdata1:
+    external: true
   data1-1:
     external: true

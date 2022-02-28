@@ -8,29 +8,54 @@ LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 #   --tag fonoster/fonoster:0.2.20 .
 
 ARG FONOSTER_VERSION=0.2.20
-ARG BRANCH=main
 ENV FONOSTER_VERSION=$FONOSTER_VERSION
-ENV BRANCH=$BRANCH
 
 WORKDIR /work
 
-RUN apk add --no-cache --update git curl docker docker-compose openssl bash\
-  && git clone https://github.com/fonoster/fonoster --depth=1 -b $BRANCH --single-branch \
-  && curl -qL -o /usr/bin/netdiscover https://github.com/CyCoreSystems/netdiscover/releases/download/v1.2.5/netdiscover.linux.amd64 \
-  && chmod +x /usr/bin/netdiscover \
-  && mkdir -p operator config \
-  && touch config/config config/user_credentials \
-  && cp -a fonoster/operator/compose/* operator \
-  && mv operator/env_example operator/.env \
-  && cp fonoster/etc/rbac.json config \
+# Copy project files to /work
+COPY . /work/fonoster
+
+# Install dependencies
+RUN apk add --no-cache --update git curl docker docker-compose openssl bash
+
+# Install Netdiscover
+RUN curl -qL -o /usr/bin/netdiscover https://github.com/CyCoreSystems/netdiscover/releases/download/v1.2.5/netdiscover.linux.amd64
+
+# Set permissions for netdiscover
+RUN chmod +x /usr/bin/netdiscover
+
+# Create necessary directories
+RUN mkdir -p docker operator config
+
+# Create config and credentials files
+RUN touch config/config config/user_credentials
+
+# Copy docker-backed infrastructure management
+RUN cp -r fonoster/docker .
+
+# Copy services and scripts for operator
+RUN cp -a fonoster/operator/compose/* operator
+
+# Sets environment variables
+RUN mv operator/env_example operator/.env
+
+# Create config file for your instance from fonoster
+RUN cp fonoster/etc/rbac.json config \
   && cp fonoster/etc/log4j2.yml config \
   && cp fonoster/etc/bootstrap.yml config \
   && cp fonoster/etc/redis.conf config \
   && cp fonoster/etc/service_envs.json config \
   && cp fonoster/install.sh . \
-  && rm -rf fonoster \
-  && find . -type f -iname "*.sh" -exec chmod +x {} + \
-  && mv /work/install.sh /install.sh \
-  && chown -R fonoster:fonoster /work 
+  && cp fonoster/update.sh . \
+  && rm -rf fonoster
+
+# Sets permissions for all scripts
+RUN find . -type f -iname "*.sh" -exec chmod +x {} +
+
+# Move scrips to root
+RUN mv /work/install.sh /install.sh \
+  && mv /work/update.sh /update.sh \
+  && mv /work/docker /docker \
+  && chown -R fonoster:fonoster /work
 
 ENTRYPOINT [ "/install.sh" ]
