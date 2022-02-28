@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {CommonPB} from "@fonoster/numbers";
 import {Provider} from "@fonoster/providers/dist/client/types";
 import {getProjectConfig, hasProjectConfig} from "../../config";
@@ -95,14 +95,14 @@ export default class CreateCommand extends Command {
       if (!answers.confirm) {
         console.log("Aborted");
       } else {
-        cli.action.start(`Creating Number ${answers.e164Number}`);
+        CliUx.ux.action.start(`Creating Number ${answers.e164Number}`);
         const numbers = new Numbers(getProjectConfig());
         const result = await numbers.createNumber(answers);
-        await cli.wait(1000);
-        cli.action.stop(result.ref);
+        await CliUx.ux.wait(1000);
+        CliUx.ux.action.stop(result.ref);
       }
     } catch (e) {
-      cli.action.stop();
+      CliUx.ux.action.stop();
       if (e.code === 9) {
         throw new CLIError("This Number already exist");
       } else {

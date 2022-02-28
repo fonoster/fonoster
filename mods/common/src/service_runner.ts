@@ -22,7 +22,7 @@ import logger from "@fonoster/logger";
 import assertEnvIsSet from "./env_is_set";
 const grpc = require("@grpc/grpc-js");
 import {getServerCredentials} from "./trust_util";
-const interceptor = require("@speedymonster/grpc-interceptors");
+const interceptor = require("grpc-interceptors");
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
 
 interface ServiceInf {

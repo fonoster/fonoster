@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/dispatcher",
-  "version": "0.3.3",
+  "version": "0.3.6-alpha.5",
   "description": "Application Router for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -42,11 +42,11 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.3",
-    "@fonoster/core": "^0.3.3",
-    "@fonoster/logger": "^0.3.3",
-    "@fonoster/numbers": "^0.3.3",
-    "@fonoster/storage": "^0.3.3",
+    "@fonoster/auth": "^0.3.6-alpha.4",
+    "@fonoster/core": "^0.3.6-alpha.4",
+    "@fonoster/logger": "^0.3.6-alpha.4",
+    "@fonoster/numbers": "^0.3.6-alpha.5",
+    "@fonoster/storage": "^0.3.6-alpha.4",
     "ari-client": "^2.2.0",
     "pick-port": "^1.0.0",
     "wait-port": "^0.2.9",
@@ -56,7 +56,7 @@
     "bufferutil": "^4.0.3",
     "utf-8-validate": "^5.0.5"
   },
-  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b",
+  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857",
   "devDependencies": {
     "@types/ws": "^7.4.7"
   }

@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {getProjectConfig} from "../../config";
 import {ProjectGuard} from "../../decorators/project_guard";
 import {voices} from "../../data/voices";
@@ -215,7 +215,7 @@ export default class UpdateCommand extends Command {
 
       if (!confirmPrompt.confirm) return console.log("Aborted");
 
-      cli.action.start(`Updating App ${answers.name}`);
+      CliUx.ux.action.start(`Updating App ${answers.name}`);
 
       const apps = new Apps(getProjectConfig());
 
@@ -226,10 +226,10 @@ export default class UpdateCommand extends Command {
 
       const result = await apps.updateApp(answers);
 
-      await cli.wait(1000);
-      cli.action.stop(`App ${result.ref} updated`);
+      await CliUx.ux.wait(1000);
+      CliUx.ux.action.stop(`App ${result.ref} updated`);
     } catch (e) {
-      cli.action.stop();
+      CliUx.ux.action.stop();
       throw new CLIError(e.code === 9 ? "This App already exist" : e.message);
     }
   }

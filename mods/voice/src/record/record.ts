@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import objectid from "objectid";
+import objectid from "bson-objectid";
 import {Verb} from "../verb";
 import {RecordOptions, RecordResult} from "./types";
 import {objectToQString} from "../utils";

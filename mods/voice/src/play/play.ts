@@ -20,7 +20,7 @@ import {Verb} from "../verb";
 import {PlayOptions} from "./types";
 import {objectToQString} from "../utils";
 import {assertsValueIsPositive} from "../asserts";
-import objectid from "objectid";
+import objectid from "bson-objectid";
 import PubSub from "pubsub-js";
 
 export default class PlayVerb extends Verb {

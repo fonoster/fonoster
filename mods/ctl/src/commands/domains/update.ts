@@ -2,7 +2,7 @@ import "../../config";
 import {CommonPB} from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
 const Numbers = require("@fonoster/numbers");
@@ -100,14 +100,14 @@ export default class UpdateCommand extends Command {
         answers.accessDeny = accessDeny ? accessDeny.split(",") : [];
         answers.accessAllow = accessAllow ? accessAllow.split(",") : [];
 
-        cli.action.start(`Updating domain ${answers.name}`);
+        CliUx.ux.action.start(`Updating domain ${answers.name}`);
 
         await domains.updateDomain(answers);
-        await cli.wait(1000);
+        await CliUx.ux.wait(1000);
 
-        cli.action.stop("Done");
+        CliUx.ux.action.stop("Done");
       } catch (e) {
-        cli.action.stop();
+        CliUx.ux.action.stop();
         throw new CLIError(e.message);
       }
     }

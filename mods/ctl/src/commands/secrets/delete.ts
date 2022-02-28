@@ -18,7 +18,7 @@
  */
 import "../../config";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {getProjectConfig} from "../../config";
 import {ProjectGuard} from "../../decorators/project_guard";
 import {CLIError} from "@oclif/errors";
@@ -38,11 +38,11 @@ export default class DeleteCommand extends Command {
     if (!args.name) throw new CLIError("You must specify a secret name");
 
     try {
-      cli.action.start("Removing the secret...");
+      CliUx.ux.action.start("Removing the secret...");
 
       await secretsManager.deleteSecret(args.name);
-      await cli.wait(1000);
-      cli.action.stop("Done");
+      await CliUx.ux.wait(1000);
+      CliUx.ux.action.stop("Done");
     } catch (e) {
       console.error("Unable to remove!");
     }

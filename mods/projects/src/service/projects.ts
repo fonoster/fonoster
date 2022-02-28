@@ -37,7 +37,7 @@ import {
   IProjectsServer
 } from "./protos/projects_grpc_pb";
 import {getRedisConnection, getAccessKeyId} from "@fonoster/core";
-import objectid from "objectid";
+import objectid from "bson-objectid";
 import encoder from "./encoder";
 import {assertNotEmpty} from "./assertions";
 import JWT from "@fonoster/auth/dist/utils/jwt";

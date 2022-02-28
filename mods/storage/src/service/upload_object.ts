@@ -23,7 +23,7 @@ import {getAccessKeyId} from "@fonoster/core";
 import {getFilesizeInBytes, isCompressFile} from "../utils/files";
 import {handleCompressUpload, handleUncompressUpload} from "../utils/helper";
 import {getBucketAsString, handleError} from "../utils/utils";
-const objectid = require("objectid");
+const objectid = require("bson-objectid");
 
 export default async function (call: any, callback: any) {
   const tmpName = objectid();

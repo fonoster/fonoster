@@ -2,8 +2,8 @@ import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {CommonPB} from "@fonoster/providers";
-import {cli} from "cli-ux";
-import {Provider} from "@fonoster/providers/src/client/types";
+import {CliUx} from "@oclif/core";
+import {Provider} from "@fonoster/providers";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
 const Providers = require("@fonoster/providers");
@@ -56,8 +56,8 @@ export default class ListCommand extends Command {
         if (list.length < 1) break;
 
         const showTable = (showHeader: boolean, data: Provider[]) => {
-          cli.table(
-            data,
+          CliUx.ux.table(
+            data as any,
             {
               ref: {minWidth: 13},
               name: {header: "Name", minWidth: 13},

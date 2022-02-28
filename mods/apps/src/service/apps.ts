@@ -77,7 +77,7 @@ export default class AppsServer implements IAppsServer {
     callback: grpc.sendUnaryData<AppsPB.App>
   ): Promise<void> {
     try {
-      // TODO: Next validation
+      // TODO: Needs assertions
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
@@ -91,22 +91,23 @@ export default class AppsServer implements IAppsServer {
         );
       }
 
-      if (call.request.getInitialDtmf())
+      if (call.request.getInitialDtmf() !== undefined)
         app.setInitialDtmf(call.request.getInitialDtmf());
 
-      if (call.request.getActivationIntentId())
+      if (call.request.getActivationIntentId() !== undefined)
         app.setActivationIntentId(call.request.getActivationIntentId());
 
-      if (call.request.getActivationTimeout())
+      if (call.request.getActivationTimeout() !== undefined)
         app.setActivationTimeout(call.request.getActivationTimeout());
 
-      if (call.request.getInteractionTimeout())
+      if (call.request.getInteractionTimeout() !== undefined)
         app.setInteractionTimeout(call.request.getInteractionTimeout());
 
-      if (call.request.getEnableEvents())
+      if (call.request.getEnableEvents() !== undefined)
         app.setEnableEvents(call.request.getEnableEvents());
 
-      if (call.request.getName()) app.setName(call.request.getName());
+      if (call.request.getName() !== undefined)
+        app.setName(call.request.getName());
 
       if (call.request.getIntentsEngineConfig())
         app.setIntentsEngineConfig(call.request.getIntentsEngineConfig());
@@ -115,9 +116,9 @@ export default class AppsServer implements IAppsServer {
         app.setSpeechConfig(call.request.getSpeechConfig());
 
       if (
-        call.request.getTransferConfig()?.getMessage() ||
-        call.request.getTransferConfig()?.getMediaBusy() ||
-        call.request.getTransferConfig()?.getMediaNoAnswer()
+        call.request.getTransferConfig()?.getMessage() !== undefined ||
+        call.request.getTransferConfig()?.getMediaBusy() !== undefined ||
+        call.request.getTransferConfig()?.getMediaNoAnswer() !== undefined
       )
         app.setTransferConfig(call.request.getTransferConfig());
 

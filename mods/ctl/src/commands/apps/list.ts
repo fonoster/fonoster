@@ -2,13 +2,12 @@ import "../../config";
 import {CommonPB} from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import {cli} from "cli-ux";
-import {App} from "@fonoster/apps/dist/client/types";
+import {CliUx} from "@oclif/core";
+import {App} from "@fonoster/apps";
 import {getProjectConfig} from "../../config";
 import {ProjectGuard} from "../../decorators/project_guard";
 
 const Apps = require("@fonoster/apps");
-const inquirer = require("inquirer");
 
 export default class ListCommand extends Command {
   static description = `list all Fonoster Apps you have access to
@@ -57,15 +56,15 @@ export default class ListCommand extends Command {
         // if (list.length < 1) break;
 
         const showTable = (showHeader: boolean, data: App[]) => {
-          cli.table(
-            data,
+          CliUx.ux.table(
+            data as any,
             {
               ref: {minWidth: 15},
               name: {header: "Name", minWidth: 15},
               projectId: {
                 header: "Project ID",
                 minWidth: 15,
-                get: (row) => row.intentsEngineConfig?.projectId || "N/A"
+                get: (row: Record<string, any>) => row.intentsEngineConfig?.projectId || "N/A"
               },
               voice: {
                 header: "Voice",

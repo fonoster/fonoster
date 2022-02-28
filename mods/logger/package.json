@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/logger",
-  "version": "0.3.3",
+  "version": "0.3.6-alpha.4",
   "description": "Logger module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -30,10 +30,10 @@
   },
   "dependencies": {
     "fluent-logger": "^3.4.1",
-    "winston": "^3.3.3"
+    "winston": "^3.6.0"
   },
   "devDependencies": {
     "rimraf": "^3.0.2"
   },
-  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
+  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
 }

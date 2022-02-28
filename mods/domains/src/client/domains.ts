@@ -25,7 +25,8 @@ import {
   ListDomainsResponse,
   GetDomainResponse,
   DeleteDomainResponse,
-  IDomainsClient
+  IDomainsClient,
+  Domain
 } from "./types";
 import {APIClient, ClientOptions} from "@fonoster/common";
 import {DomainsClient} from "../service/protos/domains_grpc_pb";
@@ -274,7 +275,7 @@ export default class Domains extends APIClient implements IDomainsClient {
   }
 }
 
-export {DomainsPB, CommonPB, IDomainsClient};
+export {Domain, DomainsPB, CommonPB, IDomainsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Domains;

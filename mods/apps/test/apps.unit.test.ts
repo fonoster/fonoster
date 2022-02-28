@@ -37,7 +37,6 @@ describe("@fonoster/apps/client", () => {
   appObj.setRef("Nx05y-ldZa");
   appObj.setName("my app");
   appObj.setInitialDtmf("1234");
-  appObj.setWelcomeIntentPhrase("Hello app");
   appObj.setActivationIntentId("activate.bot");
   appObj.setActivationTimeout(3000);
   appObj.setInteractionTimeout(4000);
@@ -93,9 +92,6 @@ describe("@fonoster/apps/client", () => {
     expect(result)
       .to.have.property("initialDtmf")
       .to.be.equal(appObj.getInitialDtmf());
-    expect(result)
-      .to.have.property("welcomeIntentPhrase")
-      .to.be.equal(appObj.getWelcomeIntentPhrase());
     expect(result)
       .to.have.property("activationIntentId")
       .to.be.equal(appObj.getActivationIntentId());
@@ -153,9 +149,6 @@ describe("@fonoster/apps/client", () => {
     expect(result)
       .to.have.property("initialDtmf")
       .to.be.equal(appObj.getInitialDtmf());
-    expect(result)
-      .to.have.property("welcomeIntentPhrase")
-      .to.be.equal(appObj.getWelcomeIntentPhrase());
     expect(result)
       .to.have.property("activationIntentId")
       .to.be.equal(appObj.getActivationIntentId());
@@ -247,9 +240,6 @@ describe("@fonoster/apps/client", () => {
     expect(result.apps[0])
       .to.have.property("initialDtmf")
       .to.be.equal(appObj.getInitialDtmf());
-    expect(result.apps[0])
-      .to.have.property("welcomeIntentPhrase")
-      .to.be.equal(appObj.getWelcomeIntentPhrase());
     expect(result.apps[0])
       .to.have.property("activationIntentId")
       .to.be.equal(appObj.getActivationIntentId());
