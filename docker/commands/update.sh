@@ -5,7 +5,7 @@ function update() {
 
   info "Updating Fonoster application... 🚀 "
 
-  execute "cd operator"
+  execute "cd /out/operator"
 
   [ -f .env ] || error "You don't have a Fonoster application installed in this directory. Please, install it first."
 
