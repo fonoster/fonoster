@@ -1,15 +1,12 @@
 #!/bin/bash
 
 function install() {
+  info "Checking if the application is already installed..."
+  check_if_installed
+
   info "Installing Fonoster application... 🚀 "
 
   execute "cd /work"
-
-  # Checks the requirements to install the application
-  command_is_installed "docker" "openssl"
-
-  info "Checking if the application is already installed..."
-  check_if_installed
 
   info "Configuring ports..."
   [ -z "$HTTP_PORT" ] && HTTP_PORT=50051
@@ -18,12 +15,15 @@ function install() {
   info "Checking if the required ports are available..."
   check_ports "$HTTP_PORT" "$HTTPS_PORT"
 
+  # Checks the requirements to install the application
+  command_is_installed "docker" "openssl"
+
   # Configure the application
 
   info "Generating private key... 🔑 "
-  { 
+  {
     openssl rand -hex 16
-  } > config/private_key
+  } >config/private_key
 
   info "Configuring docker host and sets environment variables... 💻 "
   [ -z "$DOCKER_HOST_IP" ] && DOCKER_HOST_IP=$(netdiscover -field publicv4)
