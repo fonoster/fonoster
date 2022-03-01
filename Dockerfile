@@ -7,9 +7,6 @@ LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 #   --build-arg FONOSTER_VERSION=0.2.20 \
 #   --tag fonoster/fonoster:0.2.20 .
 
-ARG FONOSTER_VERSION=0.2.20
-ENV FONOSTER_VERSION=$FONOSTER_VERSION
-
 WORKDIR /work
 
 # Copy project files to /work

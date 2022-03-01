@@ -55,8 +55,7 @@ function install() {
   }
 
   info "Generating service secrets... 🔑 "
-  execute "cd operator"
-  execute "./gen-secrets.sh"
+  execute "cd operator" "./gen-secrets.sh"
 
   DS_SECRET=$(grep DS_SECRET .env | cut -d '=' -f2)
   SIPPROXY_SECRET=$(grep SIPPROXY_SECRET .env | cut -d '=' -f2)
@@ -66,24 +65,23 @@ function install() {
   sed -i.bak -e "s#HTTP_PORT=50051#HTTP_PORT=$HTTP_PORT#g" ".env"
   sed -i.bak -e "s#HTTPS_PORT=50051#HTTPS_PORT=$HTTPS_PORT#g" ".env"
   sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$FONOSTER_VERSION#g" ".env"
+  sed -i.bak -e "s#EXTRA_SERVICES=.*#EXTRA_SERVICES=$EXTRA_SERVICES#g" ".env"
 
-  [ -z "$FONOSTER_VERSION" ] && error "Fonoster version is not defined"
+  [ -z "$FONOSTER_VERSION" ] && error "Fonoster version is not defined. Please send the FONOSTER_VERSION environment variable. (e.g. -e FONOSTER_VERSION=0.x.x)"
 
   info "Copying the application to the output directory... 📁 "
   execute "cp -a /work/* /out"
 
   info "Creating volumes for minio(s3 buckets) and redis... 💾 "
-  execute "docker volume create --name=datasource"
-  execute "docker volume create --name=data1-1"
-  execute "docker volume create --name=esdata1"
+  execute "docker volume create --name=datasource" "docker volume create --name=data1-1" "docker volume create --name=esdata1"
 
   info "Creating service and user credentials... 🔑 "
   execute "docker-compose -f init.yml up service_creds user_creds"
 
   if [ "$ENABLE_TLS" = "true" ]; then
-    execute "./basic-network.sh start"
+    execute "bash ./basic-network.sh start"
   else
-    execute "./basic-network.sh start-unsecure"
+    execute "bash ./basic-network.sh start-unsecure"
   fi
 
   info "Please wait... 🕐 "

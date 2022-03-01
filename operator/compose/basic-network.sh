@@ -1,34 +1,93 @@
 #!/bin/bash
 
-basic_network() {
-  EXTRAS="-f extras/datasource.yml -f extras/fs.yml"
-  SERVICES=(
-    "logging.yml"
-    "health.yml"
-    "00_config.yml"
-    "01_api.yml"
-    "02_sipnet.yml"
+function error() {
+  echo -e "🔥 [ERROR]: $1"
+  echo " "
+  exit 1
+}
+
+function basic_network() {
+  local COMPOSE_CMD COMPOSE_FILES SERVICES DEFAULT_SERVICES DEFAULT_IFS
+
+  DEFAULT_IFS=$IFS
+
+  DEFAULT_SERVICES=(
+    "fs"
+    "datasource"
   )
 
-  [ -z "$EXTRA_SERVICES" ] && EXTRA_SERVICES=$EXTRAS
+  SERVICES=(
+    "logging"
+    "health"
+    "00_config"
+    "01_api"
+    "02_sipnet"
+  )
 
-  COMPOSE_CMD="docker-compose --env-file .env -f logging.yml -f health.yml -f 00_config.yml -f 01_api.yml -f 02_sipnet.yml ${EXTRA_SERVICES}"
+  echo -e "Checking basic network... 🌐 \n"
+
+  IFS=,
+  if [ -n "$EXTRA_SERVICES" ]; then
+    echo -e "Getting extra services... 🔍 \n"
+
+    for service in $EXTRA_SERVICES; do
+      [[ $service = *.yml ]] && error "Service $service must not have .yml extension"
+
+      [[ $service = extras/* ]] && error "Service $service must not contain 'extras/'"
+
+      [[ $service = "datasource" && -n $DS_HOST && -n $DS_SECRET ]] && {
+        error "Service datasource must not be used with DS_HOST and DS_SECRET env vars"
+      }
+
+      [[ $service = "secrets" && -n $SECRETS_URL && -n $SECRETS_TOKEN ]] && {
+        error "Service secrets must not be used with SECRETS_URL and SECRETS_TOKEN env vars"
+      }
+
+      SERVICES+=("extras/$service")
+    done
+  fi
+
+  IFS=$DEFAULT_IFS
+
+  echo -e "Checking and adding default services... 🔍 \n"
+  for service in "${DEFAULT_SERVICES[@]}"; do
+    EXTRA_SERVICE="extras/${service}"
+
+    if [[ ! "${SERVICES[*]}" =~ $EXTRA_SERVICE ]]; then
+
+      # Skip datasource service if DS_HOST and DS_SECRET env vars are set
+      [[ $EXTRA_SERVICE = "extras/datasource" && -n $DS_HOST && -n $DS_SECRET ]] && continue
+
+      SERVICES+=("$EXTRA_SERVICE")
+    fi
+  done
+
+  for service in "${SERVICES[@]}"; do
+    local PATH="${service}.yml"
+
+    if [ -f "$PATH" ]; then
+      COMPOSE_FILES+="-f $PATH "
+    else
+      echo -e "Service $PATH not found. This service will not be started. \n"
+    fi
+  done
+
+  COMPOSE_CMD="docker-compose --env-file .env ${COMPOSE_FILES[*]}"
 
   case $1 in
-    start)
-      eval "$COMPOSE_CMD -f letsencrypt.yml up -d"
-      ;;
-    start-unsecure)
-      eval "$COMPOSE_CMD -f noencrypt.yml up -d"
-      ;;      
-    stop)
-      eval "$COMPOSE_CMD -f noencrypt.yml down"
-      ;;
-    *)
-      echo -n "Usage: ./basic_network start|start-unsecure|stop"
-      echo ""
-      ;;
+  start)
+    eval "$COMPOSE_CMD -f letsencrypt.yml up -d"
+    ;;
+  start-unsecure)
+    eval "$COMPOSE_CMD -f noencrypt.yml up -d"
+    ;;
+  stop | down)
+    eval "$COMPOSE_CMD -f noencrypt.yml down"
+    ;;
+  *)
+    echo -e "Usage: basic_network start|start-unsecure|stop \n"
+    ;;
   esac
 }
 
-basic_network "$1"
+basic_network "$@"

@@ -219,4 +219,7 @@ RESTART_POLICY=unless-stopped
 
 # Node environment variable
 NODE_ENV=production
-NODE_OPTIONS=--unhandled-rejections=throw
+NODE_OPTIONS="--unhandled-rejections=throw"
+
+# Fonoster extra services (comma separated)
+EXTRA_SERVICES=datasource,fs
