@@ -63,12 +63,12 @@ function basic_network() {
   done
 
   for service in "${SERVICES[@]}"; do
-    local PATH="${service}.yml"
+    local SERVICE_PATH="${service}.yml"
 
-    if [ -f "$PATH" ]; then
-      COMPOSE_FILES+="-f $PATH "
+    if [ -f "$SERVICE_PATH" ]; then
+      COMPOSE_FILES+="-f $SERVICE_PATH "
     else
-      echo -e "Service $PATH not found. This service will not be started. \n"
+      echo -e "Service $SERVICE_PATH not found. This service will not be started. \n"
     fi
   done
 

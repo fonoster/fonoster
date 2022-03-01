@@ -5,10 +5,12 @@ function update() {
 
   info "Updating Fonoster application... 🚀 "
 
-  [ -f operator/.env ] || error "You don't have a Fonoster application installed in this directory. Please, install it first."
+  execute "cd operator"
+
+  [ -f .env ] || error "You don't have a Fonoster application installed in this directory. Please, install it first."
 
   VERSION=$FONOSTER_VERSION
-  COMPOSE_PROJECT_VERSION=$(grep COMPOSE_PROJECT_VERSION operator/.env | cut -d '=' -f 2)
+  COMPOSE_PROJECT_VERSION=$(grep COMPOSE_PROJECT_VERSION .env | cut -d '=' -f2)
 
   if [ -z "$VERSION" ]; then
     local TMP="fonoster-tmp"
@@ -34,7 +36,7 @@ function update() {
     "$(echo "$VERSION" | cut -d '.' -f3)" != "$(echo "$COMPOSE_PROJECT_VERSION" | cut -d '.' -f3)" ]]; then
 
     info "Stop Fonoster application... 🚨 "
-    execute "cd operator" "bash ./basic-network.sh down"
+    execute "bash ./basic-network.sh down"
 
     info "Updating Compose version... 🔍 "
     sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$VERSION#g" ".env"
