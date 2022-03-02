@@ -43,6 +43,7 @@ services:
       ACCESS_KEY_ID: internal
       ROLE: SERVICE
       EXPIRATION: 1y
+      LOGS_TRANSPORT: console
     volumes:
       - type: bind
         source: ${CONFIG}/private_key
@@ -58,6 +59,7 @@ services:
       ACCESS_KEY_ID: fonoster
       ROLE: USER
       EXPIRATION: 1y
+      LOGS_TRANSPORT: console
     volumes:
       - type: bind
         source: ${CONFIG}/private_key
