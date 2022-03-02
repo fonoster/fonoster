@@ -81,8 +81,10 @@ function install() {
     execute "bash ./basic-network.sh start-unsecure"
   fi
 
-  info "Please wait... 🕐 "
-  sleep 30
+  while "$(docker ps -f health=unhealthy -q | grep fonoster/routr)"; do
+    info "Please wait... 🕐 "
+    sleep infinity
+  done
 
   info "Bootstrapping sip-proxy and creating initial buckets... 💾 "
   execute "docker-compose -f init.yml up create_buckets bootstrap_sipnet"
