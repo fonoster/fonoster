@@ -30,6 +30,7 @@ RUN mkdir -p docker operator config \
   && cp fonoster/etc/log4j2.yml config \
   && cp fonoster/etc/bootstrap.yml config \
   && cp fonoster/etc/redis.conf config \
+  && cp fonoster/etc/fluent.conf config \
   && cp fonoster/etc/service_envs.json config \
   && cp fonoster/install.sh . \
   && cp fonoster/update.sh . \
