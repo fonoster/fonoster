@@ -81,9 +81,9 @@ function install() {
     execute "bash ./basic-network.sh start-unsecure"
   fi
 
-  while "$(docker ps -f health=unhealthy -q | grep fonoster/routr)"; do
-    info "Please wait... 🕐 "
-    sleep infinity
+  while [ "$(docker ps -f health=healthy | grep fonoster/routr)" == "" ]; do
+    info "Waiting for Routr to be ready... 🕐 "
+    sleep 15
   done
 
   info "Bootstrapping sip-proxy and creating initial buckets... 💾 "
