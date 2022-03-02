@@ -8,7 +8,7 @@ networks:
 services:
 
   logsdriver:
-    image: fonoster/fluent-elasticsearch:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/fluent:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
     expose:
       - ${LOGS_DRIVER_PORT}
