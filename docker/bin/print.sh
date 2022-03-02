@@ -15,8 +15,6 @@ function prefix() {
 function error() {
   for err in "$@"; do
     echo -e "🔥 $(prefix "error") $err"
-
-    line
   done
 
   exit 1
@@ -24,8 +22,6 @@ function error() {
 
 function info() {
   echo -e "🔔 $(prefix "info") $1"
-
-  line
 }
 
 function input() {
@@ -34,6 +30,4 @@ function input() {
 
 function warning() {
   echo -e "⚠️  $(prefix "warning") $1"
-
-  line
 }

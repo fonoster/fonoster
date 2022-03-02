@@ -8,15 +8,14 @@ function install() {
 
   execute "cd /work"
 
+  [ -z "$FONOSTER_VERSION" ] && FONOSTER_VERSION=$(get_latest_version)
+
   info "Configuring ports..."
   [ -z "$HTTP_PORT" ] && HTTP_PORT=50051
   [ -z "$HTTPS_PORT" ] && HTTPS_PORT=443
 
   info "Checking if the required ports are available..."
   check_ports "$HTTP_PORT" "$HTTPS_PORT"
-
-  # Checks the requirements to install the application
-  command_is_installed "docker" "openssl"
 
   # Configure the application
 
@@ -66,8 +65,6 @@ function install() {
   sed -i.bak -e "s#HTTPS_PORT=50051#HTTPS_PORT=$HTTPS_PORT#g" ".env"
   sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$FONOSTER_VERSION#g" ".env"
   sed -i.bak -e "s#EXTRA_SERVICES=.*#EXTRA_SERVICES=$EXTRA_SERVICES#g" ".env"
-
-  [ -z "$FONOSTER_VERSION" ] && error "Fonoster version is not defined. Please send the FONOSTER_VERSION environment variable. (e.g. -e FONOSTER_VERSION=0.x.x)"
 
   info "Copying the application to the output directory... 📁 "
   execute "cp -a /work/* /out"

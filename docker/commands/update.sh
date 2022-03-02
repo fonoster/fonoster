@@ -12,20 +12,7 @@ function update() {
   VERSION=$FONOSTER_VERSION
   COMPOSE_PROJECT_VERSION=$(grep COMPOSE_PROJECT_VERSION .env | cut -d '=' -f2)
 
-  if [ -z "$VERSION" ]; then
-    local TMP="fonoster-tmp"
-
-    info "Getting latest version of Fonoster..."
-    execute "git clone https://github.com/fonoster/fonoster --depth=1 -b main --single-branch $TMP"
-
-    line
-
-    VERSION=$(cat $TMP/lerna.json | grep version | cut -d ':' -f2 | cut -d '"' -f2)
-
-    rm -rf $TMP
-  fi
-
-  [ -z "$VERSION" ] && error "Could not get the new version for Fonoster application."
+  [ -z "$VERSION" ] && VERSION=$(get_latest_version)
   [ -z "$COMPOSE_PROJECT_VERSION" ] && error "Could not get the current version of Fonoster application."
 
   info "CURRENT VERSION: $COMPOSE_PROJECT_VERSION | NEW VERSION: $VERSION"
