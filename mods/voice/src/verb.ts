@@ -70,7 +70,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.silly(`@fonoster/voice posting [url: ${url}]`);
+    logger.silly(`@fonoster/voice deleting [url: ${url}]`);
 
     return await axios({
       method: "delete",
