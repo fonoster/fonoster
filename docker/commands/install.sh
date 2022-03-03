@@ -4,20 +4,20 @@ function install() {
   info "Checking if the application is already installed..."
   check_if_installed
 
-  info "Installing Fonoster application... 🚀 "
-
-  execute "cd /work"
-
-  [ -z "$FONOSTER_VERSION" ] && FONOSTER_VERSION=$(get_latest_version)
-
-  info "Configuring ports..."
   [ -z "$HTTP_PORT" ] && HTTP_PORT=50051
   [ -z "$HTTPS_PORT" ] && HTTPS_PORT=443
 
   info "Checking if the required ports are available..."
   check_ports "$HTTP_PORT" "$HTTPS_PORT"
 
-  # Configure the application
+  # Get the latest version of the application from the GitHub repository
+  get_latest_version
+
+  [ -z "$FONOSTER_VERSION" ] && FONOSTER_VERSION=$FONOSTER_LATEST_VERSION
+  check_version "$FONOSTER_VERSION"
+
+  info "Installing Fonoster... 📦 "
+  execute "cd /work"
 
   info "Generating private key... 🔑 "
   {

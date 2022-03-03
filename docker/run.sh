@@ -19,6 +19,7 @@ source "$BIN/execute.sh"
 source "$HELPERS/check-ports.sh"
 source "$HELPERS/check-if-installed.sh"
 source "$HELPERS/latest-version.sh"
+source "$HELPERS/check-version.sh"
 
 # Commands sources
 source "$COMMANDS/install.sh"
