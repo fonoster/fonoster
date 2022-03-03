@@ -4,7 +4,7 @@ function check_version() {
   local CURRENT="$1"
   local LATEST=$FONOSTER_LATEST_VERSION
 
-  info "Checking version... 🔍 "
+  info "Comparing version $CURRENT with the latest version $LATEST ... 🔍 "
 
   if [[ "$(semver validate "$CURRENT")" == "invalid" ]]; then
     error "Invalid version: $CURRENT"
