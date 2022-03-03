@@ -15,6 +15,8 @@ function update() {
   VERSION=$FONOSTER_VERSION
   COMPOSE_PROJECT_VERSION=$(grep COMPOSE_PROJECT_VERSION .env | cut -d '=' -f2)
 
+  [ -z "$EXTRA_SERVICES" ] && EXTRA_SERVICES=$(grep EXTRA_SERVICES .env | cut -d '=' -f2)
+
   [ -z "$VERSION" ] && VERSION=$FONOSTER_LATEST_VERSION
   [ -z "$COMPOSE_PROJECT_VERSION" ] && error "Could not get the current version of Fonoster application."
 
