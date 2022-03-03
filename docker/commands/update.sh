@@ -22,11 +22,7 @@ function update() {
 
   info "CURRENT VERSION: $COMPOSE_PROJECT_VERSION | NEW VERSION: $VERSION"
 
-  if [[ "$VERSION" != "$COMPOSE_PROJECT_VERSION" &&
-    "$(semver get major "$VERSION")" == "$(semver get major "$COMPOSE_PROJECT_VERSION")" &&
-    "$(semver get minor "$VERSION")" == "$(semver get minor "$COMPOSE_PROJECT_VERSION")" &&
-    "$(semver get patch "$VERSION")" != "$(semver get patch "$COMPOSE_PROJECT_VERSION")" ]]; then
-
+  if [[ "$(is_patch_of "$VERSION" "$COMPOSE_PROJECT_VERSION")" == "true" ]]; then
     info "Stop Fonoster application... 🚨 "
     execute "bash ./basic-network.sh down"
 
