@@ -9,7 +9,9 @@ LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 # Install dependencies and set permissions
 RUN apk add --no-cache --update git curl docker docker-compose openssl bash \
   && curl -qL -o /usr/bin/netdiscover https://github.com/CyCoreSystems/netdiscover/releases/download/v1.2.5/netdiscover.linux.amd64 \
-  && chmod +x /usr/bin/netdiscover
+  && chmod +x /usr/bin/netdiscover \
+  && curl -qL -o /usr/bin/semver https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver \
+  && chmod +x /usr/bin/semver
 
 ##
 ## Stage
