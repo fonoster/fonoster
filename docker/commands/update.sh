@@ -9,18 +9,23 @@ function update() {
 
   [ -f .env ] || error "You don't have a Fonoster application installed in this directory. Please, install it first."
 
+  # Get the latest version of the application from the GitHub repository
+  get_latest_version
+
   VERSION=$FONOSTER_VERSION
   COMPOSE_PROJECT_VERSION=$(grep COMPOSE_PROJECT_VERSION .env | cut -d '=' -f2)
 
-  [ -z "$VERSION" ] && VERSION=$(get_latest_version)
+  [ -z "$VERSION" ] && VERSION=$FONOSTER_LATEST_VERSION
   [ -z "$COMPOSE_PROJECT_VERSION" ] && error "Could not get the current version of Fonoster application."
+
+  check_version "$VERSION"
 
   info "CURRENT VERSION: $COMPOSE_PROJECT_VERSION | NEW VERSION: $VERSION"
 
   if [[ "$VERSION" != "$COMPOSE_PROJECT_VERSION" &&
-    "$(echo "$VERSION" | cut -d '.' -f1)" == "$(echo "$COMPOSE_PROJECT_VERSION" | cut -d '.' -f1)" &&
-    "$(echo "$VERSION" | cut -d '.' -f2)" == "$(echo "$COMPOSE_PROJECT_VERSION" | cut -d '.' -f2)" &&
-    "$(echo "$VERSION" | cut -d '.' -f3)" != "$(echo "$COMPOSE_PROJECT_VERSION" | cut -d '.' -f3)" ]]; then
+    "$(semver get major "$VERSION")" == "$(semver get major "$COMPOSE_PROJECT_VERSION")" &&
+    "$(semver get minor "$VERSION")" == "$(semver get minor "$COMPOSE_PROJECT_VERSION")" &&
+    "$(semver get patch "$VERSION")" != "$(semver get patch "$COMPOSE_PROJECT_VERSION")" ]]; then
 
     info "Stop Fonoster application... 🚨 "
     execute "bash ./basic-network.sh down"
