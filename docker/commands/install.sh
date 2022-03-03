@@ -75,6 +75,7 @@ function install() {
   info "Creating service and user credentials... 🔑 "
   execute "docker-compose -f init.yml up service_creds user_creds"
 
+  info "Please wait, the next command will take a few minutes... 🕐 "
   if [ "$ENABLE_TLS" = "true" ]; then
     execute "bash ./basic-network.sh start"
   else
@@ -82,10 +83,11 @@ function install() {
   fi
 
   while [ "$(docker ps -f health=healthy | grep fonoster/routr)" == "" ]; do
-    info "Waiting for Routr to be ready... 🕐 "
+    info "Waiting for SIP Proxy to be ready... 🕐 "
     sleep 15
   done
 
   info "Bootstrapping sip-proxy and creating initial buckets... 💾 "
+  info "Please wait, the next command will take a few minutes... 🕐 "
   execute "docker-compose -f init.yml up create_buckets bootstrap_sipnet"
 }

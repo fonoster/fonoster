@@ -8,7 +8,7 @@ function exec_command() {
   if [ -n "$VERBOSE" ]; then
     eval "$COMMAND"
   else
-    eval "$COMMAND" >$COMMAND_LOGS 2>&1
+    eval "$COMMAND" >>$COMMAND_LOGS 2>&1
   fi
 }
 
@@ -30,17 +30,11 @@ function execute() {
         warning " -------------------------------------------------- "
 
         line
-
-        rm -rf $COMMAND_LOGS
       fi
 
       error "Unable to continue. Exiting... ⭕ "
     else
       info "Successfully executed command: '$command' ✅ "
-    fi
-
-    if [ -f $COMMAND_LOGS ]; then
-      rm -rf $COMMAND_LOGS
     fi
   done
 }
