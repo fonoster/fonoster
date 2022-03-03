@@ -8,8 +8,8 @@ function set_env() {
   sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/bootstrap.yml"
 
   [ -n "$CONFIG_PATH" ] && sed -i.bak -e "s#CONFIG=/opt/fonoster/config#CONFIG=$CONFIG_PATH#g" ".env"
-  [ -n "$HTTP_PORT" ] && sed -i.bak -e "s#HTTP_PORT=50051#HTTP_PORT=$HTTP_PORT#g" ".env"
-  [ -n "$HTTPS_PORT" ] && sed -i.bak -e "s#HTTPS_PORT=50051#HTTPS_PORT=$HTTPS_PORT#g" ".env"
+  [ -n "$HTTP_PORT" ] && sed -i.bak -e "s#HTTP_PORT=51051#HTTP_PORT=$HTTP_PORT#g" ".env"
+  [ -n "$HTTPS_PORT" ] && sed -i.bak -e "s#HTTPS_PORT=51051#HTTPS_PORT=$HTTPS_PORT#g" ".env"
 
   [ -n "$FONOSTER_VERSION" ] && sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$FONOSTER_VERSION#g" ".env"
   [ -n "$EXTRA_SERVICES" ] && sed -i.bak -e "s#EXTRA_SERVICES=.*#EXTRA_SERVICES=$EXTRA_SERVICES#g" ".env"

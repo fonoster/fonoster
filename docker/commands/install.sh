@@ -4,7 +4,7 @@ function install() {
   info "Checking if the application is already installed..."
   check_if_installed
 
-  [ -z "$HTTP_PORT" ] && HTTP_PORT=50051
+  [ -z "$HTTP_PORT" ] && HTTP_PORT=51051
   [ -z "$HTTPS_PORT" ] && HTTPS_PORT=443
 
   info "Checking if the required ports are available..."
