@@ -5,7 +5,7 @@ function get_latest_version() {
 
   if [ -z "$FONOSTER_LATEST_VERSION" ]; then
     info "Getting latest version of Fonoster... 🔍 "
-    execute "git clone https://github.com/fonoster/fonoster --quiet --depth=1 -b main --single-branch $PROJECT_TMP"
+    execute "git clone https://github.com/fonoster/fonoster --quiet --depth=1 -b 0.3 --single-branch $PROJECT_TMP"
 
     FONOSTER_LATEST_VERSION=$(cat $PROJECT_TMP/lerna.json | grep version | cut -d ':' -f2 | cut -d '"' -f2)
     execute "rm -rf $PROJECT_TMP"
