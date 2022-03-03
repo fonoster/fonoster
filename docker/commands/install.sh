@@ -68,8 +68,7 @@ function install() {
   execute "docker-compose -f init.yml up service_creds user_creds"
 
   info "Removing initiaization resources... 📦 "
-  # /bin/dev
-  execute "docker rm $(docker ps -qa --filter status=exited) >/dev/null 2>&1"
+  execute "docker ps --filter status=exited -q | xargs docker rm >/dev/null"
 
   info "Please wait, the next command will take a few minutes... 🕐 "
   if [ "$ENABLE_TLS" = "true" ]; then
