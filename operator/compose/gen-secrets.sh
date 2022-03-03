@@ -9,8 +9,10 @@ MS_ARI_SECRET=$(generateSecrets)
 FS_SECRET=$(generateSecrets)
 SIPPROXY_SECRET=$(generateSecrets)
 SIPPROXY_API_SECRET=$(generateSecrets)
-DS_SECRET=$(generateSecrets)
 MS_ARI_AUTHORIZATION=$(printf ${MS_ARI_USERNAME}:${MS_ARI_SECRET} | base64)
+
+[ -z "$DS_SECRET" ] && DS_SECRET=$(generateSecrets)
+[ -z "$FS_SECRET" ] && FS_SECRET=$(generateSecrets)
 
 sed -i.bak \
   -e "s#MS_ARI_SECRET=.*#MS_ARI_SECRET=${MS_ARI_SECRET}#g" \
