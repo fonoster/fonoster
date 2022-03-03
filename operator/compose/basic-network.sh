@@ -32,20 +32,7 @@ function basic_network() {
 
     for service in $EXTRA_SERVICES; do
       [[ $service = *.yml ]] && error "Service $service must not have .yml extension"
-
       [[ $service = extras/* ]] && error "Service $service must not contain 'extras/'"
-
-      if [[ $service = "datasource" ]]; then
-        [[ -n $DS_HOST || -n $DS_SECRET ]] && {
-          error "Service datasource must not be used with DS_HOST and DS_SECRET env vars"
-        }
-      fi
-
-      if [[ $service = "secrets" ]]; then
-        [[ -n $SECRETS_URL || -n $SECRETS_TOKEN ]] && {
-          error "Service secrets must not be used with SECRETS_URL and SECRETS_TOKEN env vars"
-        }
-      fi
 
       SERVICES+=("extras/$service")
     done

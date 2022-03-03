@@ -56,15 +56,7 @@ function install() {
   info "Generating service secrets... 🔑 "
   execute "cd operator" "./gen-secrets.sh"
 
-  DS_SECRET=$(grep DS_SECRET .env | cut -d '=' -f2)
-  SIPPROXY_SECRET=$(grep SIPPROXY_SECRET .env | cut -d '=' -f2)
-  sed -i.bak -e "s#requirepass .*#requirepass ${DS_SECRET}#g" "./../config/redis.conf"
-  sed -i.bak -e "s#changeit#${SIPPROXY_SECRET}#g" "./../config/bootstrap.yml"
-  sed -i.bak -e "s#CONFIG=/opt/fonoster/config#CONFIG=$CONFIG_PATH#g" ".env"
-  sed -i.bak -e "s#HTTP_PORT=50051#HTTP_PORT=$HTTP_PORT#g" ".env"
-  sed -i.bak -e "s#HTTPS_PORT=50051#HTTPS_PORT=$HTTPS_PORT#g" ".env"
-  sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$FONOSTER_VERSION#g" ".env"
-  sed -i.bak -e "s#EXTRA_SERVICES=.*#EXTRA_SERVICES=$EXTRA_SERVICES#g" ".env"
+  set_env
 
   info "Copying the application to the output directory... 📁 "
   execute "cp -a /work/* /out"
@@ -76,7 +68,8 @@ function install() {
   execute "docker-compose -f init.yml up service_creds user_creds"
 
   info "Removing initiaization resources... 📦 "
-  execute "docker rm $(docker ps -qa --filter status=exited)"
+  # /bin/dev
+  execute "docker rm $(docker ps -qa --filter status=exited) >/dev/null 2>&1"
 
   info "Please wait, the next command will take a few minutes... 🕐 "
   if [ "$ENABLE_TLS" = "true" ]; then

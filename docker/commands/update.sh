@@ -29,7 +29,8 @@ function update() {
     execute "bash ./basic-network.sh down"
 
     info "Updating Compose version... 🔍 "
-    sed -i.bak -e "s#COMPOSE_PROJECT_VERSION=.*#COMPOSE_PROJECT_VERSION=$VERSION#g" ".env"
+    FONOSTER_VERSION=$VERSION
+    set_env
 
     info "Starting Fonoster application... 🚀 "
     if [ "$ENABLE_TLS" = "true" ]; then
