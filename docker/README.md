@@ -2,8 +2,7 @@
 
 > Docker-backed infrastructure management for the Fonoster application stack.
 
-The easiest way to start running your Fonoster server is with our docker-in-docker (dind) installer.
-Before running the installation command, make sure you have Docker Engine installed on your machine:
+The easiest way to start running your Fonoster server is with our docker-in-docker (dind) installer. Before running the installation command, make sure you have Docker Engine installed on your machine:
 
 #### Install (Happy path)
 
@@ -24,6 +23,7 @@ Install application with the latest version and add additional services.
 
 ```bash
 docker run -it --rm \
+  -e VERBOSE=true \
   -e CONFIG_PATH=$(pwd)/fonoster/config \
   -e EXTRA_SERVICES=secrets,fs \
   --volume /var/run/docker.sock:/var/run/docker.sock \

@@ -75,6 +75,9 @@ function install() {
   info "Creating service and user credentials... 🔑 "
   execute "docker-compose -f init.yml up service_creds user_creds"
 
+  info "Removing initiaization resources... 📦 "
+  execute "docker rm $(docker ps -qa --filter status=exited)"
+
   info "Please wait, the next command will take a few minutes... 🕐 "
   if [ "$ENABLE_TLS" = "true" ]; then
     execute "bash ./basic-network.sh start"
