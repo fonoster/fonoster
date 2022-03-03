@@ -28,8 +28,9 @@ function is_patch_of() {
 
   COMPARE_VERSION=$(semver compare "$PATCH_VERSION" "$VERSION")
 
-  if [[ $COMPARE_VERSION == "0" &&
-    "$(semver get patch "$PATCH_VERSION")" != "$(semver get patch "$VERSION")" ]]; then
+  if [[ "$(semver get major "$VERSION")" == "$(semver get major "$COMPOSE_PROJECT_VERSION")" &&
+  "$(semver get minor "$VERSION")" == "$(semver get minor "$COMPOSE_PROJECT_VERSION")" &&
+  "$(semver get patch "$PATCH_VERSION")" != "$(semver get patch "$VERSION")" ]]; then
     echo "true"
     return
   else
