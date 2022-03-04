@@ -34,7 +34,7 @@ describe('@fonoster/core/service', () => {
     it('should merge defaultOptions with the ones in the access file', () => {
       const fs = sinon.stub(require('fs'), 'readFileSync').returns(
         JSON.stringify({
-          endpoint: 'localhost:50051',
+          endpoint: 'localhost:51051',
           accessKeyId: 'fonos',
           accessKeySecret: 'validjwtkey'
         })
@@ -42,7 +42,7 @@ describe('@fonoster/core/service', () => {
       const service = new APIClient()
       expect(service.getOptions())
         .to.have.property('endpoint')
-        .to.be.equal('localhost:50051')
+        .to.be.equal('localhost:51051')
       fs.restore()
     })
 
@@ -53,10 +53,10 @@ describe('@fonoster/core/service', () => {
           accessKeySecret: 'validjwtkey'
         })
       )
-      const service = new APIClient(void 0, { endpoint: 'apiserver:50051' })
+      const service = new APIClient(void 0, { endpoint: 'apiserver:51051' })
       expect(service.getOptions())
         .to.have.property('endpoint')
-        .to.be.equal('apiserver:50051')
+        .to.be.equal('apiserver:51051')
       fs.restore()
     })
 
