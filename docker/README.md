@@ -1,12 +1,10 @@
-# Docker-backed infrastructure
+# Docker-in-Docker(dind) Installation and Update Examples
 
-> Docker-backed infrastructure management for the Fonoster application stack.
-
-The easiest way to start running your Fonoster server is with our docker-in-docker (dind) installer. Before running the installation command, make sure you have Docker Engine installed on your machine:
+The following examples show-case using Fonsoter's dind operator. Before using this operator, be sure you have Docker Engine installed on your machine:
 
 #### Install (Happy path)
 
-Install application with the latest version available.
+Install the application with the latest version available.
 
 ```bash
 docker run -it --rm \
@@ -14,22 +12,21 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster
+  fonoster/fonoster:0.3.6-alpha.5
 ```
 
 #### Install (With extra services)
 
-Install application with the latest version and add additional services.
+Install the application with the latest version and add additional services.
 
 ```bash
 docker run -it --rm \
-  -e VERBOSE=true \
   -e CONFIG_PATH=$(pwd)/fonoster/config \
   -e EXTRA_SERVICES=secrets,fs \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster
+  fonoster/fonoster:0.3.6-alpha.5
 ```
 
 #### Install (Passing version)
@@ -44,12 +41,12 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster
+  fonoster/fonoster:0.3.6-alpha.5
 ```
 
 #### Install (Verbose mode)
 
-Display all logs of each process or command.
+Display all logs of each processor command.
 
 ```bash
 docker run -it --rm \
@@ -59,7 +56,7 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster
+  fonoster/fonoster:0.3.6-alpha.5
 ```
 
 #### Update (Happy path)
@@ -72,7 +69,7 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/update.sh" \
-  fonoster/fonoster
+  fonoster/fonoster:0.3.6-alpha.5
 ```
 
 #### Update (Passing version and verbose)
@@ -82,10 +79,10 @@ Update your current installation to the provided version. (if it's the same vers
 ```bash
 docker run -it --rm \
   -e CONFIG_PATH=$(pwd)/fonoster/config \
-  -e FONOSTER_VERSION=0.3.3 \
   -e VERBOSE=true \
+  -e FONOSTER_VERSION=0.3.3 \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/update.sh" \
-  fonoster/fonoster
+  fonoster/fonoster:0.3.6-alpha.5
 ```
