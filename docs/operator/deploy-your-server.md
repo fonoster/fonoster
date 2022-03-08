@@ -1,4 +1,4 @@
-This document will guide guide through installationg process of Fonoster in a self-hosted environment or the cloud. You will learn about the available installation options and which one is the best for your current journey with Fonoster.
+This document will guide through the installation process of Fonoster in a self-hosted environment or the cloud. You will learn about the available installation options and which one is the best for your current journey with Fonoster.
 
 ## Self-hosted or Cloud
 
