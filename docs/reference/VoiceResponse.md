@@ -112,7 +112,7 @@ first setup a TTS plugin such as MaryTTS, GoogleTTS, or AWS PollyTTS
 async function handler (request, response) {
   await response.answer();
   response.use(new GoogleTTS())
-  await response.say("Hello workd");   // Plays the sound using GoogleTTS's default values
+  await response.say("Hello world");   // Plays the sound using GoogleTTS's default values
 }
 ```
 <a name="VoiceResponse+gather"></a>
@@ -130,7 +130,7 @@ Waits for data entry from the user's keypad or from a speech provider.
 | options.numDigits | <code>number</code> | Milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified |
 | options.timeout | <code>number</code> | Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout. |
 | options.finishOnKey | <code>string</code> | Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits |
-| options.source | <code>string</code> | Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `dtmf` |
+| options.source | <code>string</code> | Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure when including the `speech` source. You might include both with `dtmf,speech`. Defaults to `dtmf` |
 
 **Example**  
 ```js
@@ -317,7 +317,7 @@ async function handler (request, response) {
 
 ### voiceResponse.answer()
 Answer the communication channel. Before running any other verb you
-must run the anwer command.
+must run the answer command.
 
 **Kind**: instance method of [<code>VoiceResponse</code>](#VoiceResponse)  
 **Example**  
