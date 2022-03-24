@@ -29,9 +29,6 @@ import Projects from "@fonoster/projects";
 import Users from "@fonoster/users";
 import Monitor from "@fonoster/monitor";
 import Apps from "@fonoster/apps";
-import {mute} from "@fonoster/logger";
-
-mute();
 
 const Fonoster = {
   Secrets,
