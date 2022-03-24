@@ -38,10 +38,10 @@ DS_SECRET=
 # External IP or Domain for your Fonoster API (required)
 # Before going on production you must replace this with the
 # TLS protected URL
-#PUBLIC_URL=http://api.example.com:50051
+#PUBLIC_URL=http://api.example.com:51051
 
 # Exposed HTTP port
-HTTP_PORT=50051
+HTTP_PORT=51051
 
 # Exposed HTTPS port (required)
 HTTPS_PORT=443
@@ -129,8 +129,8 @@ SIPPROXY_SIP_PORT_UDP=5060
 # Single port for connection from Peers (Such as the Media Server)
 SIPPROXY_SIP_PORT=5060
 
-# If set, any new domain will be a subdomain under this global domain
-# GLOBAL_SIP_DOMAIN=fonoster.io
+# Any new domain will be a subdomain under this global domain
+GLOBAL_SIP_DOMAIN=fonoster.io
 
 #
 # Configuration to logging service (Based on Kibana)
@@ -219,4 +219,7 @@ RESTART_POLICY=unless-stopped
 
 # Node environment variable
 NODE_ENV=production
-NODE_OPTIONS=--unhandled-rejections=throw
+NODE_OPTIONS="--unhandled-rejections=throw"
+
+# Fonoster extra services (comma separated)
+EXTRA_SERVICES=datasource,fs
