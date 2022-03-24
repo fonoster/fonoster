@@ -37,7 +37,7 @@ describe("@fonoster/providers", () => {
   providerObj.setSecret("uio3uwd12s23");
   providerObj.setHost("sip.provider.net");
   providerObj.setTransport("tcp");
-  providerObj.setExpires(3600);
+  providerObj.setExpires(600);
   providerObj.setUpdateTime("...");
   providerObj.setCreateTime("...");
 
