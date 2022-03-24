@@ -59,7 +59,7 @@ export default class CreateCommand extends Command {
           }
           return true;
         },
-        default: 300
+        default: 600
       },
       {
         name: "confirm",
