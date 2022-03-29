@@ -36,6 +36,9 @@ import {
   SecretsService,
   ISecretsServer
 } from "./protos/secrets_grpc_pb";
+import {Tracer as T} from "@fonoster/common";
+
+T.init("secrets-service");
 
 class SecretServer implements ISecretsServer {
   [name: string]: grpc.UntypedHandleCall;

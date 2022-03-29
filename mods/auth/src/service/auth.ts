@@ -31,6 +31,10 @@ import {getSalt, AUTH_ISS} from "@fonoster/certs";
 import logger from "@fonoster/logger";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
+import { Tracer as T } from "@fonoster/common";
+
+T.init("auth-service");
+
 const authenticator = new Auth(new JWT());
 const rbac = require(process.env.AUTH_RBAC || "/home/fonoster/rbac.json");
 

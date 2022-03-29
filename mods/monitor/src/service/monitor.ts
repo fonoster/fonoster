@@ -30,6 +30,9 @@ import {ErrorCodes, FonosterError} from "@fonoster/errors";
 import {getAccessKeyId} from "@fonoster/core";
 import {Level} from "./level";
 import {EventType} from "./event_type";
+import {Tracer as T} from "@fonoster/common";
+
+T.init("monitor-service");
 
 const host = process.env.LOGS_AGGREGRATOR_HOST;
 const port = process.env.LOGS_AGGREGRATOR_PORT;

@@ -45,6 +45,9 @@ import {
 import unmarshalDomain from "./decoder";
 import decoder from "./decoder";
 import isValidDomain from "is-valid-domain";
+import {Tracer as T} from "@fonoster/common";
+
+T.init("domains-service");
 
 class DomainsServer implements IDomainsServer {
   [name: string]: grpc.UntypedHandleCall;

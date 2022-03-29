@@ -45,6 +45,10 @@ import {AUTH_ISS, getSalt} from "@fonoster/certs";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import decoder from "./decoder";
 import {ErrorCodes, FonosterError} from "@fonoster/errors";
+import {Tracer as T} from "@fonoster/common";
+
+T.init("projects-service");
+
 const authenticator = new Auth(new JWT());
 const redis = getRedisConnection();
 

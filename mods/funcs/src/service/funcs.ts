@@ -55,6 +55,9 @@ import btoa from "btoa";
 import request from "request";
 import ndjson from "ndjson";
 import {promisify} from "util";
+import {Tracer as T} from "@fonoster/common";
+
+T.init("funcs-service");
 
 const sleep = promisify(setTimeout);
 

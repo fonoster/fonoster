@@ -52,6 +52,9 @@ import JWT from "@fonoster/auth/dist/utils/jwt";
 import {AUTH_ISS, getSalt} from "@fonoster/certs";
 import logger from "@fonoster/logger";
 import bcrypt from "bcrypt";
+import {Tracer as T} from "@fonoster/common";
+
+T.init("users-service");
 
 const authenticator = new Auth(new JWT());
 const redis = getRedisConnection();

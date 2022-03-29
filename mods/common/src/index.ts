@@ -29,6 +29,7 @@ import {
   SpeechResult,
   StreamSpeechResult
 } from "./speech/types";
+export * as Tracer from "./tracer";
 
 export {
   APIClient,

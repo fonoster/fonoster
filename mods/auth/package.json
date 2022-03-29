@@ -51,7 +51,8 @@
     "express": "^4.17.1",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^8.5.1",
+    "@opentelemetry/api": "^1.0.2"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.0"

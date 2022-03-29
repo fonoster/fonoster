@@ -48,7 +48,8 @@
     "@fonoster/common": "^0.3.6-alpha.4",
     "@fonoster/core": "^0.3.6-alpha.4",
     "@fonoster/errors": "^0.3.6-alpha.4",
-    "@fonoster/logger": "^0.3.6-alpha.4"
+    "@fonoster/logger": "^0.3.6-alpha.4",
+    "@opentelemetry/api": "^1.0.2"
   },
   "devDependencies": {
     "@types/google-protobuf": "^3.15.2"

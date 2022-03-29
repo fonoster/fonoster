@@ -43,6 +43,7 @@ services:
       NODE_ENV: ${NODE_ENV}
       NODE_OPTIONS: ${NODE_OPTIONS}
       VOICE_URL: ${VOICE_URL}
+      TRACING_ENDINGPOINT: ${TRACING_ENDINGPOINT}
     networks:
       fonoster:
     volumes:

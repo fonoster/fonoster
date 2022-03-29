@@ -144,6 +144,9 @@ LOGS_FORMAT=json
 LOGS_LEVEL=info
 LOGS_TRANSPORT=fluent
 
+# Tracing
+TRACING_ENDINGPOINT=http://tracing:14268/api/traces
+
 #
 # Integration with events server (RabbitMQ)
 #
