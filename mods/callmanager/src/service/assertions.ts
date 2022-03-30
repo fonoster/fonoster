@@ -1,6 +1,6 @@
-import { FonosterInvalidArgument } from "@fonoster/errors";
+import {FonosterInvalidArgument} from "@fonoster/errors";
 import phone from "phone";
-import { CallManagerPB } from "../client/callmanager";
+import {CallManagerPB} from "../client/callmanager";
 
 export const assertCompatibleParameters = (
   request: CallManagerPB.CallRequest
@@ -12,7 +12,7 @@ export const assertCompatibleParameters = (
   }
 };
 
-const isValidURL= (value: string) => 
+const isValidURL = (value: string) =>
   /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(value);
 
 export const assertIsE164 = (number: string, field: string) => {
@@ -25,8 +25,6 @@ export const assertIsE164 = (number: string, field: string) => {
 
 export const assertWebhookIsURL = (webhook: string) => {
   if (webhook && !isValidURL(webhook)) {
-    throw new FonosterInvalidArgument(
-      "webhook field must be a valid URL."
-    );
+    throw new FonosterInvalidArgument("webhook field must be a valid URL.");
   }
 };

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -27,10 +27,8 @@ const ariHost =
   process.env.ARI_INTERNAL_URL ||
   process.env.MS_ARI_INTERNAL_URL ||
   "http://localhost:8088";
-const ariUsername =
-  process.env.ARI_USERNAME || process.env.MS_ARI_USERNAME || "admin";
-const ariSecret =
-  process.env.ARI_SECRET || process.env.MS_ARI_SECRET || "changeit";
+const ariUsername = process.env.ARI_USERNAME || process.env.MS_ARI_USERNAME;
+const ariSecret = process.env.ARI_SECRET || process.env.MS_ARI_SECRET;
 
 const connection = {
   host: ariHost.split("//")[1].split(":")[0],
@@ -44,10 +42,12 @@ wait(connection)
       setTimeout(
         () => ari.connect(ariHost, ariUsername, ariSecret, events),
         10000
-      )
+      );
       return;
     }
 
-    logger.info("The port did not open before the timeout...");
+    logger.info(
+      "the mediaserver's port did not open before the timeout [ exiting dispatcher ]"
+    );
   })
   .catch(logger.error);

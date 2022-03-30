@@ -16,10 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallRequest, CallResponse } from "./protos/callmanager_pb";
-import { nanoid } from "nanoid";
-import { EndpointInfo } from "../client/types";
-import { assertCompatibleParameters, assertIsE164, assertWebhookIsURL } from "./assertions";
+import {CallRequest, CallResponse} from "./protos/callmanager_pb";
+import {nanoid} from "nanoid";
+import {EndpointInfo} from "../client/types";
+import {
+  assertCompatibleParameters,
+  assertIsE164,
+  assertWebhookIsURL
+} from "./assertions";
 
 export default async function (
   request: CallRequest,
@@ -28,11 +32,9 @@ export default async function (
 ): Promise<CallResponse> {
   assertCompatibleParameters(request);
   if (!request.getIgnoreE164Validation())
-    assertIsE164(request.getFrom(), 'from')
-  if (!request.getIgnoreE164Validation())
-    assertIsE164(request.getFrom(), 'to')
-  if (request.getWebhook())
-    assertWebhookIsURL(request.getWebhook())
+    assertIsE164(request.getFrom(), "from");
+  if (!request.getIgnoreE164Validation()) assertIsE164(request.getFrom(), "to");
+  if (request.getWebhook()) assertWebhookIsURL(request.getWebhook());
 
   const response = new CallResponse();
   response.setRef(nanoid());
@@ -40,8 +42,9 @@ export default async function (
   await channel.originate({
     context: endpointInfo.context,
     extension: endpointInfo.extension,
-    endpoint: `PJSIP/${endpointInfo.trunk}/sip:${request.getTo()}@${endpointInfo.domain
-      }`,
+    endpoint: `PJSIP/${endpointInfo.trunk}/sip:${request.getTo()}@${
+      endpointInfo.domain
+    }`,
     variables: {
       DID_INFO: request.getFrom(),
       REF: response.getRef(),

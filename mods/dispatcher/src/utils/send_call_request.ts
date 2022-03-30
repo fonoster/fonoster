@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -23,19 +23,18 @@ import {CallRequest} from "../types";
 export const sendCallRequest = async (url: string, request: CallRequest) => {
   try {
     const response = await axios.post(url, request);
-    logger.verbose(
-      `@fonoster/dispatcher mediacontroller [response = ${
-        response.data ? response.data.data : "no response"
-      }]`
-    );
+    logger.verbose("dispatcher received from mediacontroller", {
+      data: response.data ? response.data.data : "no response"
+    });
   } catch (e) {
-    const error = `Error communicating with your Voice application: Unable to connect with ${url}` 
-    logger.error(error);
+    const message = "error connecting with your voice application";
+    logger.error(message, {url});
     ulogger({
       accessKeyId: request.accessKeyId,
       eventType: ULogType.APP,
       level: "error",
-      message: error
-    })
+      message: message,
+      body: {url}
+    });
   }
 };

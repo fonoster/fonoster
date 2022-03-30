@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -24,9 +24,7 @@ export const uploadRecording = async (
   accessKeyId: string,
   filename: string
 ) => {
-  logger.verbose(
-    `@fonoster/dispatcher creating short-life token [accessKeyId = ${accessKeyId}]`
-  );
+  logger.silly("creating short-lived token", {accessKeyId});
   const auth = new Auth();
   // Creates a PROJECT level token with 10 minutes expiration
   const access = await auth.createToken({
@@ -36,13 +34,7 @@ export const uploadRecording = async (
   });
   const storage = new Storage({accessKeyId, accessKeySecret: access.token});
 
-  logger.verbose(
-    `@fonoster/dispatcher uploading file to storage subsystem [filename = ${filename}]`
-  );
-
-  if (!process.env.RECORDINGS_PATH) {
-    throw new Error("environment variable 'RECORDINGS_PATH' is not set");
-  }
+  logger.verbose("uploading file to storage subsystem", {filename});
 
   await storage.uploadObject({
     // TODO: Place bucket name on a constant

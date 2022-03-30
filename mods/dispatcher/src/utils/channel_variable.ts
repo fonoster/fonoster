@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -22,9 +22,8 @@ export async function getChannelVar(
   channel: any,
   variable: string
 ): Promise<string> {
-  logger.verbose(
-    `@fonoster/dispatcher get var [variable "${variable}" @ session "${channel.id}"]`
-  );
+  logger.verbose("getting session variable", {sessionId: channel.id, variable});
+
   try {
     const channelVar = await channel.getChannelVar({
       channelId: channel.id,

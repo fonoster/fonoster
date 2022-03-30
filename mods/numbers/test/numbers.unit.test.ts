@@ -76,10 +76,14 @@ describe("@fonoster/number", () => {
       .to.have.property("e164Number")
       .to.be.equal(numberPlain.e164Number);
     expect(result).to.have.property("aorLink").to.be.equal(numberPlain.aorLink);
-    expect(result).to.have.property("ingressInfo")
-      .to.have.property("webhook").to.be.equal(numberPlain.metadata.webhook);
-      expect(result).to.have.property("ingressInfo")
-      .to.have.property("appRef").to.be.equal(numberPlain.metadata.appRef);
+    expect(result)
+      .to.have.property("ingressInfo")
+      .to.have.property("webhook")
+      .to.be.equal(numberPlain.metadata.webhook);
+    expect(result)
+      .to.have.property("ingressInfo")
+      .to.have.property("appRef")
+      .to.be.equal(numberPlain.metadata.appRef);
     expect(result)
       .to.have.property("providerRef")
       .to.be.equal(numberPlain.providerRef);
@@ -271,7 +275,7 @@ describe("@fonoster/number", () => {
       .to.be.equal(returnIngressInfo.getWebhook());
     expect(result)
       .to.have.property("appRef")
-      .to.be.equal(returnIngressInfo.getAppRef());  
+      .to.be.equal(returnIngressInfo.getAppRef());
   });
 
   context("number decoder", () => {

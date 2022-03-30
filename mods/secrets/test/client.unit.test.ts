@@ -95,7 +95,9 @@ describe("@fonoster/secrets/client", () => {
     const secret = new Secrets();
     const result = await secret.getSecret(secretsObj.getName());
     expect(result).to.have.property("name").to.be.equal(secretsObj.getName());
-    expect(result).to.have.property("secret").to.be.equal(secretsObj.getSecret());
+    expect(result)
+      .to.have.property("secret")
+      .to.be.equal(secretsObj.getSecret());
   });
 
   it("should delete a function", async () => {
@@ -110,6 +112,6 @@ describe("@fonoster/secrets/client", () => {
     const secret = new Secrets();
     const result = await secret.deleteSecret(secretsObj.getName());
     expect(stubFunc).to.be.calledTwice;
-    expect(result).to.be.undefined
+    expect(result).to.be.undefined;
   });
 });

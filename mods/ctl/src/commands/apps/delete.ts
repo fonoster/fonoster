@@ -13,10 +13,7 @@ export default class DeleteCommand extends Command {
   @ProjectGuard()
   async run() {
     try {
-      await super.deleteResource(
-        new Apps(getProjectConfig()),
-        "deleteApp"
-      );
+      await super.deleteResource(new Apps(getProjectConfig()), "deleteApp");
     } catch (e) {
       const message =
         e.code === 9

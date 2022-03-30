@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -28,9 +28,7 @@ export const externalMediaHandler = async (
   event: any
 ) => {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonoster/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn("ignoring socket request on lost connection");
     return;
   }
   const port = await pickPort();
@@ -59,9 +57,10 @@ export const externalMediaHandler = async (
   externalChannel.on(
     "ChannelLeftBridge",
     async (event: any, resources: any) => {
-      logger.verbose(
-        `@fonoster/dispatcher external channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
-      );
+      logger.verbose("external channel left the bridge", {
+        brideId: resources.bridge.id,
+        sessionId: resources.channel.id
+      });
       await resources.channel.hangup();
     }
   );

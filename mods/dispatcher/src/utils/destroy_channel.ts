@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -25,9 +25,12 @@ export async function hangup(ari: any, sessionId: string) {
     const channel = await ari.channels.get({channelId: sessionId});
     const externalChannelId = await getChannelVar(channel, "EXTERNAL_CHANNEL");
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
-    logger.verbose(
-      `@fonoster/dispatcher hangup and destroy bridge [session = ${sessionId}, bridge = ${bridgeId}]`
-    );
+
+    logger.verbose("hanging up and destroy bridge", {
+      sessionId,
+      externalChannelId,
+      bridgeId
+    });
 
     if (bridgeId) {
       await ari.bridges.removeChannel({bridgeId, channel: sessionId});
@@ -46,18 +49,18 @@ export async function hangupExternalChannel(ari: any, sessionId: string) {
     const channel = await ari.channels.get({channelId: sessionId});
     const externalChannelId = await getChannelVar(channel, "EXTERNAL_CHANNEL");
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
-    logger.verbose(
-      `@fonoster/dispatcher remove external media channel [session = ${sessionId}, bridge = ${bridgeId}]`
-    );
+    logger.verbose("removing external media channel", {sessionId, bridgeId});
 
     if (bridgeId && externalChannelId) {
       await ari.bridges.removeChannel({bridgeId, channel: externalChannelId});
       return;
     }
 
-    logger.warning(
-      `@fonoster/dispatcher no bridge or external chanel found [sessionId = ${sessionId}]`
-    );
+    logger.warn("no bridge or external channel found", {
+      sessionId,
+      bridgeId,
+      externalChannelId
+    });
   } catch (e) {
     /** We can only try because the channel might be already closed */
   }

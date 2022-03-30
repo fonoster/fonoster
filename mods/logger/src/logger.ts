@@ -46,13 +46,15 @@ const fluent = new fluentTransport(
   }
 );
 
-const format = process.env.LOGS_FORMAT === "json" 
-  ? winston.format.json()
-  : winston.format.simple()
+const format =
+  process.env.LOGS_FORMAT === "json"
+    ? winston.format.json()
+    : winston.format.simple();
 const level = process.env.LOGS_LEVEL ? process.env.LOGS_LEVEL : "info";
-const transports = process.env.LOGS_TRANSPORT === "fluent"
-  ? [fluent]
-  : [new winston.transports.Console()]
+const transports =
+  process.env.LOGS_TRANSPORT === "fluent"
+    ? [fluent]
+    : [new winston.transports.Console()];
 
 const logger = winston.createLogger({
   levels: winston.config.npm.levels,
@@ -62,7 +64,7 @@ const logger = winston.createLogger({
 });
 
 logger.on("finish", () => {
-  fluent.sender.end("end", {}, () => { });
+  fluent.sender.end("end", {}, () => {});
 });
 
 const mute = () => logger.transports.forEach((t: any) => (t.silent = true));
@@ -74,6 +76,6 @@ const ulogger = (log: ULog) =>
     eventType: log.eventType,
     body: log.body,
     accessKeyId: log.accessKeyId
-  })
+  });
 
-export { logger as default, ulogger, mute, unmute };
+export {logger as default, ulogger, mute, unmute};

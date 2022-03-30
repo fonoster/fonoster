@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -20,7 +20,7 @@ import WebSocket from "ws";
 import logger from "@fonoster/logger";
 import {routr} from "@fonoster/core";
 import {uploadRecording} from "../utils/upload_recording";
-import { getChannelVar } from "../utils/channel_variable";
+import {getChannelVar} from "../utils/channel_variable";
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();
@@ -38,18 +38,10 @@ export const dial = async (
 ) => {
   const {number, destination, timeout, record, sessionId} = event.userevent;
 
-  logger.verbose(
-    `@fonoster/dispatcher dialing [request: ${JSON.stringify(
-      event.userevent,
-      null,
-      " "
-    )}`
-  );
+  logger.silly("initiating dial request", {request: event.userevent});
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonoster/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn("ignoring socket request on lost connection");
     return;
   }
 
@@ -68,20 +60,21 @@ export const dial = async (
   }
 
   const domainUri = domain.spec.context.domainUri;
-
-  logger.verbose(
-    `@fonoster/dispatcher dialing [endpoint = sip:${destination}@${domainUri}]`
-  );
-
-  const channel = await ari.channels.get({channelId: sessionId});  
+  const channel = await ari.channels.get({channelId: sessionId});
   const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
-  let bridge = await ari.bridges.get({bridgeId: bridgeId});                                                                                                        
+  let bridge = await ari.bridges.get({bridgeId: bridgeId});
 
-  if(!bridge) {                                                                                                                                        
-    bridge = await ari.bridges.create({                                                                                                                   
-      type: "mixing"                                                                                                                                      
-    });                                                                                                                                                
-  }  
+  logger.verbose("dialing sip endpoint", {
+    endpoint: `sip:${destination}@${domainUri}`,
+    sessionId,
+    bridgeId
+  });
+
+  if (!bridge) {
+    bridge = await ari.bridges.create({
+      type: "mixing"
+    });
+  }
 
   const dialed = ari.Channel();
 
@@ -137,12 +130,16 @@ export const dial = async (
   });
 
   dialed.on("ChannelLeftBridge", async (event: any, resources: any) => {
-    logger.verbose(
-      `@fonoster/dispatcher dialed channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
-    );
+    logger.verbose("dialed channel left bridge", {
+      bridgeId: resources.bridge.id,
+      sessionId: resources.channel.id
+    });
+
     try {
       dialed.hangup();
-    } catch (e) { /** We can only try */ }
+    } catch (e) {
+      /** We can only try */
+    }
 
     try {
       await resources.bridge.destroy();

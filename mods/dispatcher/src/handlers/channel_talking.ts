@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -24,12 +24,10 @@ export const channelTalkingHandler = (
   sessionId: string,
   onOff: boolean
 ) => {
-  logger.verbose(`@fonoster/dispatcher channel talking [on = ${onOff}]`);
+  logger.verbose("channel talking status changed", {sessionId, status: onOff});
 
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonoster/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn("ignoring socket request on lost connection");
     return;
   }
 

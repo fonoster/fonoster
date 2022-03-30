@@ -35,13 +35,13 @@ export default class ListCommand extends Command {
       const view: CommonPB.View = CommonPB.View.BASIC;
 
       // while (true) {
-        // Get a list
-        const result = await apps.listApps({pageSize, pageToken, view});
+      // Get a list
+      const result = await apps.listApps({pageSize, pageToken, view});
 
-        const list = result.apps;
-        pageToken = result.nextPageToken;
+      const list = result.apps;
+      pageToken = result.nextPageToken;
 
-        /**
+      /**
          * @todo Uncomment when pagination is applied in backend.
          * 
          *  if (list.length > 0 && !firstBatch) {
@@ -53,38 +53,39 @@ export default class ListCommand extends Command {
             }
          */
 
-        // if (list.length < 1) break;
+      // if (list.length < 1) break;
 
-        const showTable = (showHeader: boolean, data: App[]) => {
-          CliUx.ux.table(
-            data as any,
-            {
-              ref: {minWidth: 15},
-              name: {header: "Name", minWidth: 15},
-              projectId: {
-                header: "Project ID",
-                minWidth: 15,
-                get: (row: Record<string, any>) => row.intentsEngineConfig?.projectId || "N/A"
-              },
-              voice: {
-                header: "Voice",
-                minWidth: 20,
-                get: (row) => row.speechConfig?.voice || "N/A"
-              },
-              welcomeIntentId: {
-                header: "Welcome Intent ID",
-                minWidth: 15,
-                get: (row) => row.intentsEngineConfig?.welcomeIntentId || "N/A"
-              }
+      const showTable = (showHeader: boolean, data: App[]) => {
+        CliUx.ux.table(
+          data as any,
+          {
+            ref: {minWidth: 15},
+            name: {header: "Name", minWidth: 15},
+            projectId: {
+              header: "Project ID",
+              minWidth: 15,
+              get: (row: Record<string, any>) =>
+                row.intentsEngineConfig?.projectId || "N/A"
             },
-            {"no-header": !showHeader}
-          );
-        };
+            voice: {
+              header: "Voice",
+              minWidth: 20,
+              get: (row) => row.speechConfig?.voice || "N/A"
+            },
+            welcomeIntentId: {
+              header: "Welcome Intent ID",
+              minWidth: 15,
+              get: (row) => row.intentsEngineConfig?.welcomeIntentId || "N/A"
+            }
+          },
+          {"no-header": !showHeader}
+        );
+      };
 
-        showTable(firstBatch, list);
+      showTable(firstBatch, list);
 
-        firstBatch = false;
-        // if (!pageToken) break;
+      firstBatch = false;
+      // if (!pageToken) break;
       // }
     } catch (e) {
       throw new CLIError(e.message);

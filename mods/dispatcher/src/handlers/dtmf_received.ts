@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -24,14 +24,13 @@ export const dtmfReceivedHandler = (
   event: Record<string, unknown>,
   channel: any
 ) => {
-  logger.verbose(
-    `@fonoster/dispatcher sending dtmf event [digit: ${event.digit}, channel=${channel.id}]`
-  );
+  logger.silly("sending dtmf event", {
+    digit: event.digit,
+    sessionId: channel.id
+  });
 
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonoster/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn("ignoring socket request on lost connection");
     return;
   }
 

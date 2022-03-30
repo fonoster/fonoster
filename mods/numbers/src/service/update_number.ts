@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { ResourceBuilder, Kind, routr, ResourceServer } from "@fonoster/core";
+import {ResourceBuilder, Kind, routr, ResourceServer} from "@fonoster/core";
 import numberDecoder from "./decoder";
 import decoder from "./decoder";
 import {
@@ -8,7 +8,7 @@ import {
   assertHasAorLinkOrIngressInfo,
   assertWebhookIsURL
 } from "./assertions";
-import { getAppRef, getWebhook } from "./utils";
+import {getAppRef, getWebhook} from "./utils";
 import logger from "@fonoster/logger";
 
 export default async function updateNumber(call: any, callback: any) {
@@ -16,7 +16,7 @@ export default async function updateNumber(call: any, callback: any) {
   try {
     assertHasAorLinkOrIngressInfo(request);
     assertCompatibleParameters(request);
-    assertWebhookIsURL(request.getIngressInfo()?.getWebhook())
+    assertWebhookIsURL(request.getIngressInfo()?.getWebhook());
 
     const objectFromDB = decoder(
       await ResourceServer.getResource(Kind.NUMBER, call)
@@ -29,7 +29,10 @@ export default async function updateNumber(call: any, callback: any) {
 
     if (request.getAorLink()) {
       encoder = encoder
-        .withLocation(`tel:${objectFromDB.getE164Number()}`, request.getAorLink())
+        .withLocation(
+          `tel:${objectFromDB.getE164Number()}`,
+          request.getAorLink()
+        )
         .withMetadata({
           gwRef: request.getProviderRef(),
           createdOn: objectFromDB.getCreateTime()

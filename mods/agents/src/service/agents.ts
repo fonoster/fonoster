@@ -40,7 +40,7 @@ import {
   getAccessKeyId
 } from "@fonoster/core";
 import decoder from "./decoder";
-import { Tracer as T } from "@fonoster/common";
+import {Tracer as T} from "@fonoster/common";
 
 T.init("agents-service");
 

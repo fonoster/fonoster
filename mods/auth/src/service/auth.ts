@@ -31,7 +31,7 @@ import {getSalt, AUTH_ISS} from "@fonoster/certs";
 import logger from "@fonoster/logger";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
-import { Tracer as T } from "@fonoster/common";
+import {Tracer as T} from "@fonoster/common";
 
 T.init("auth-service");
 

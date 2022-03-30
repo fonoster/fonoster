@@ -9,7 +9,7 @@
     {"path": "../auth"},
     {"path": "../common"},
     {"path": "../logger"},
-    {"path": "../errors"},
+    {"path": "../errors"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -18,15 +18,12 @@
  */
 import logger from "@fonoster/logger";
 import WebSocket from "ws";
-import {getChannelVar} from "./channel_variable";
 
 export async function answer(ws: WebSocket, ari: any, sessionId: string) {
   try {
-    logger.verbose(
-      `@fonoster/dispatcher acepting call request [session = ${sessionId}]`
-    );
+    logger.verbose("answering call request", {sessionId});
 
-    await ari.channels.answer({channelId: sessionId});
+    await ari.channels.answer({sessionId});
 
     ws.send(
       JSON.stringify({

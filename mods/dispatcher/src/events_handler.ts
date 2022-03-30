@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -52,9 +52,7 @@ export default function (err: any, ari: any) {
 
     if (!didInfo) {
       // If DID_INFO is not set we need to ignore the event
-      logger.silly(
-        `@fonoster/dispatcher DID_INFO variable not found [ignoring event]`
-      );
+      logger.silly("variable DID_INFO not found [ignoring event]");
       return;
     }
 
@@ -66,21 +64,19 @@ export default function (err: any, ari: any) {
       e164Number: didInfo
     });
 
-    logger.verbose(`ingressInfo: ${JSON.stringify(ingressInfo, null, " ")}`);
-
-    const appRef = await getChannelVar(channel, "APP_REF") || ingressInfo.appRef
+    const appRef =
+      (await getChannelVar(channel, "APP_REF")) || ingressInfo.appRef;
     const webhook =
       (await getChannelVar(channel, "WEBHOOK")) || ingressInfo.webhook;
     const metadata = await getChannelVarAsJson(channel, "METADATA");
 
-    logger.verbose(
-      `@fonoster/dispatcher stasis start [
-      \r sessionId   = ${channel.id}
-      \r e164Number  = ${didInfo}
-      \r webhook     = ${webhook}
-      \r accessKeyId = ${ingressInfo.accessKeyId}
-      \r]`
-    );
+    logger.silly("new request ingressed to dispatcher", ingressInfo);
+    logger.silly("dispatcher found related metadata for request", {
+      sessionId: channel.id,
+      e164Number: didInfo,
+      webhook: webhook,
+      accessKeyId: ingressInfo.accessKeyId
+    });
 
     const access = await auth.createToken({
       accessKeyId: ingressInfo.accessKeyId,
@@ -102,13 +98,7 @@ export default function (err: any, ari: any) {
       metadata: metadata || {}
     };
 
-    logger.verbose(
-      `@fonoster/dispatcher sending request to mediacontroller [request = ${JSON.stringify(
-        request,
-        null,
-        " "
-      )}]`
-    );
+    logger.silly("dispatcher sending request to dialback", request);
 
     const ws = wsConnections.get(sessionId) || new WebSocket(webhook);
 
@@ -118,16 +108,16 @@ export default function (err: any, ari: any) {
     });
 
     ws.on("error", async (e: Error) => {
-      const error = `Error communicating with your Webhook: Unable to connect with Webhook ${webhook}` 
-      logger.error(
-        `@fonoster/dispatcher cannot connect with voiceapp [webhook = ${webhook}]`
-      );
+      const message =
+        "error connecting with your webhook. please ensure your webhook is valid and accessible";
+      logger.error(message, {webhook});
       ulogger({
         accessKeyId: request.accessKeyId,
         eventType: ULogType.APP,
         level: "error",
-        message: error
-      })
+        message: message,
+        body: {webhook}
+      });
       channel.hangup();
     });
 
@@ -140,9 +130,10 @@ export default function (err: any, ari: any) {
     });
 
     channel.on("ChannelLeftBridge", async (event: any, resources: any) => {
-      logger.verbose(
-        `@fonoster/dispatcher channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
-      );
+      logger.verbose("channel left bridge", {
+        bridgeId: resources.bridge.id,
+        channelId: resources.channel.id
+      });
       try {
         await channel.hangup();
       } catch (e) {
@@ -157,13 +148,8 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("ChannelUserevent", async (event: any) => {
-    logger.verbose(
-      `@fonoster/dispatcher [got user event = ${JSON.stringify(
-        event,
-        null,
-        " "
-      )}]`
-    );
+    logger.verbose("dispatcher received user event", {event});
+
     const wsClient = wsConnections.get(event.userevent.sessionId);
 
     switch (event.eventname) {
@@ -192,9 +178,7 @@ export default function (err: any, ari: any) {
         await dial(wsClient, ari, event, event.userevent.accessKeyId);
         break;
       default:
-        logger.error(
-          `@fonoster/dispatcher unknown user event [name = ${event.eventname}]`
-        );
+        logger.error("unknown user event", {event: event.eventname});
     }
   });
 
@@ -223,9 +207,7 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("StasisEnd", async (event: any, channel: any) => {
-    logger.verbose(
-      `@fonoster/dispatcher stasis end [sessionId = ${channel.id}]`
-    );
+    logger.verbose("voice session ended", {sessionId: channel.id});
     const ws = wsConnections.get(channel.id);
     // The external channels don't have ws connections
     if (ws) {

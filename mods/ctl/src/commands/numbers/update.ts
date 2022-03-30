@@ -3,7 +3,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {CliUx} from "@oclif/core";
 import {getProjectConfig} from "../../config";
-import { ProjectGuard } from "../../decorators/project_guard";
+import {ProjectGuard} from "../../decorators/project_guard";
 
 const Numbers = require("@fonoster/numbers");
 const inquirer = require("inquirer");

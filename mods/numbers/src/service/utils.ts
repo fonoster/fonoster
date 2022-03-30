@@ -1,4 +1,4 @@
-import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb"
+import {CreateNumberRequest, UpdateNumberRequest} from "./protos/numbers_pb";
 
 /*
  * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
@@ -18,8 +18,11 @@ import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb"
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const getWebhook = (request: CreateNumberRequest | UpdateNumberRequest) =>
-  request.getIngressInfo()?.getAppRef() && !request.getIngressInfo()?.getWebhook()
+export const getWebhook = (
+  request: CreateNumberRequest | UpdateNumberRequest
+) =>
+  request.getIngressInfo()?.getAppRef() &&
+  !request.getIngressInfo()?.getWebhook()
     ? process.env.VOICE_URL
     : request.getIngressInfo().getWebhook().trim();
 

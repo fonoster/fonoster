@@ -1,5 +1,6 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+require("@fonoster/common").Tracer.init("numbers-service");
 import grpc from "@grpc/grpc-js";
 import createNumber from "./create_number";
 import updateNumber from "./update_number";
@@ -23,9 +24,6 @@ import {
 import {Kind, ResourceServer} from "@fonoster/core";
 import decoder from "./decoder";
 import {ErrorCodes, FonosterError} from "@fonoster/errors";
-import {Tracer as T} from "@fonoster/common";
-
-T.init("numbers-service");
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   [name: string]: grpc.UntypedHandleCall;

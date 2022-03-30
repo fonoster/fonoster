@@ -32,8 +32,7 @@ export default class UpdateCommand extends Command {
 
       const {secrets: response} = await new Secrets(
         getProjectConfig()
-      )
-      .listSecrets({
+      ).listSecrets({
         pageSize: 25,
         pageToken: "1"
       });
@@ -79,7 +78,7 @@ export default class UpdateCommand extends Command {
           name: "intentsEngineConfig.welcomeIntentId",
           message: "Type the welcome intent ID (e.g. WELCOME)",
           type: "input",
-          default: app.intentsEngineConfig.welcomeIntentId,
+          default: app.intentsEngineConfig.welcomeIntentId
         },
         {
           name: "engine",

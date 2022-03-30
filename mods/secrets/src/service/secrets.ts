@@ -27,7 +27,7 @@ import {
   DeleteSecretRequest,
   ListSecretsIdRequest,
   ListSecretsIdResponse,
-  Secret,
+  Secret
 } from "./protos/secrets_pb";
 import {Empty} from "./protos/common_pb";
 import {getAccessKeyId} from "@fonoster/core";

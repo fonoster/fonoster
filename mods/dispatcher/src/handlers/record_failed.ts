@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -20,9 +20,9 @@ import WebSocket from "ws";
 import logger from "@fonoster/logger";
 
 export const recordFailedHandler = (ws: WebSocket, event: any) => {
-  logger.verbose(
-    `@fonoster/dispatcher sending recording failed event [filename: ${event.recording.name}]`
-  );
+  logger.verbose("sending recording failed event", {
+    filename: event.recording.name
+  });
 
   ws.send(
     JSON.stringify({
