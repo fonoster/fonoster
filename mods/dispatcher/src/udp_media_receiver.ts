@@ -58,7 +58,7 @@ export default class UDPMediaReceiver {
     });
 
     this.server.on("close", (err) => {
-      logger.verbose(`dispatcher udpServer [server socket closed]`);
+      logger.verbose('dispatcher udpServer [server socket closed]');
       if (this.fileStream) {
         this.fileStream.close();
       }

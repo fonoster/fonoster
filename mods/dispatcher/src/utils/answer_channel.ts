@@ -23,7 +23,7 @@ export async function answer(ws: WebSocket, ari: any, sessionId: string) {
   try {
     logger.verbose("answering call request", {sessionId});
 
-    await ari.channels.answer({sessionId});
+    await ari.channels.answer({channelId: sessionId});
 
     ws.send(
       JSON.stringify({

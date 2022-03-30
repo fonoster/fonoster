@@ -91,6 +91,7 @@ services:
       LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
       LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
       LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
+      TRACING_ENDPOINT: ${TRACING_ENDPOINT}
       # Give asterisk a fake localnet to force it to always advertise its public address
       # Deprecated
       # LOCALNET: '8.8.8.8'

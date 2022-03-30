@@ -63,7 +63,6 @@ export default class ResourceServer {
     kind: Kind,
     call: grpc.ServerUnaryCall<any, any>
   ) {
-    logger.verbose("wtf...");
     await deleteResourceHere({
       ref: call.request.getRef(),
       kind,
