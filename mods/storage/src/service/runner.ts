@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require("@fonoster/common").Tracer.init("storage-service");
 import StorageServer from "./storage";
 import {StorageService} from "./protos/storage_grpc_pb";
 import {AuthMiddleware} from "@fonoster/auth";

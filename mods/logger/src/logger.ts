@@ -49,7 +49,7 @@ const fluent = new fluentTransport(
 const format =
   process.env.LOGS_FORMAT === "json"
     ? winston.format.json()
-    : winston.format.simple();
+    : winston.format.combine(winston.format.colorize(), winston.format.simple()) ;
 const level = process.env.LOGS_LEVEL ? process.env.LOGS_LEVEL : "info";
 const transports =
   process.env.LOGS_TRANSPORT === "fluent"
@@ -58,7 +58,7 @@ const transports =
 
 const logger = winston.createLogger({
   levels: winston.config.npm.levels,
-  format: winston.format.combine(winston.format.colorize(), format),
+  format,
   transports,
   level
 });
@@ -75,6 +75,7 @@ const ulogger = (log: ULog) =>
   logger[log.level](log.message, {
     eventType: log.eventType,
     body: log.body,
+    level: log.level,
     accessKeyId: log.accessKeyId
   });
 

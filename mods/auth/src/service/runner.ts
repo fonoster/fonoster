@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import {Tracer as T} from "@fonoster/common";
+T.init("auth-service");
+
 import AuthServer from "./auth";
 import {AuthService} from "./protos/auth_grpc_pb";
 import {runServices} from "@fonoster/common";

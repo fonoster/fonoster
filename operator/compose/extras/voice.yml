@@ -8,10 +8,10 @@ services:
     restart: ${RESTART_POLICY}
     image: fonoster/voice:${COMPOSE_PROJECT_VERSION}
     command: ['rox']
-    ports:
-      - 3000:3000
-      - 3001:3001
-      - 9090:9090
+    expose:
+      - 3000
+      - 3001
+      - 9090
     environment:
       - DEFAULT_LANGUAGE_CODE
       - OTL_EXPORTER_ZIPKIN_URL
@@ -19,7 +19,11 @@ services:
       - OTL_EXPORTER_PROMETHEUS_PORT
       - OTL_EXPORTER_GCP_ENABLED
       - GOOGLE_CONFIG_FILE
-      - LOGS_LEVEL     
+      - LOGS_FORMAT
+      - LOGS_LEVEL
+      - LOGS_TRANSPORT
+      - LOGS_DRIVER_HOST
+      - LOGS_DRIVER_PORT
     volumes:
       - ${CONFIG}/google.json:/home/fonoster/.fonoster/google.json
     networks:

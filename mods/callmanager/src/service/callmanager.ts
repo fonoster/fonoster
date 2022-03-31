@@ -25,9 +25,6 @@ import originate from "./call";
 import {ICallManagerServer} from "./protos/callmanager_grpc_pb";
 import logger from "@fonoster/logger";
 import {FonosterError} from "@fonoster/errors";
-import {Tracer as T} from "@fonoster/common";
-
-T.init("callmanager-service");
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();

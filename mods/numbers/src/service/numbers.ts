@@ -1,6 +1,5 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-require("@fonoster/common").Tracer.init("numbers-service");
 import grpc from "@grpc/grpc-js";
 import createNumber from "./create_number";
 import updateNumber from "./update_number";

@@ -30,9 +30,6 @@ import {ErrorCodes, FonosterError} from "@fonoster/errors";
 import {getAccessKeyId} from "@fonoster/core";
 import {Level} from "./level";
 import {EventType} from "./event_type";
-import {Tracer as T} from "@fonoster/common";
-
-T.init("monitor-service");
 
 const host = process.env.LOGS_AGGREGRATOR_HOST;
 const port = process.env.LOGS_AGGREGRATOR_PORT;
@@ -48,7 +45,6 @@ class MonitorServer implements IMonitorServer {
   // eslint-disable-next-line require-jsdoc
   async searchEvents(call: ServerWritableStream<SearchEventsRequest, Event>) {
     const accessKeyId = getAccessKeyId(call);
-
     // TODO:
     // Assert toJavaScript is valid
     const {body} = await client.search(
@@ -80,15 +76,19 @@ class MonitorServer implements IMonitorServer {
           return entry;
         });
 
-    body.on("data", (chunk) =>
-      entries(chunk)?.forEach((e: Event) => call.write(e))
-    );
-    // eslint-disable-next-line no-console
+    let payload = "";
+
+    body.on("data", async (chunk) => (payload += chunk));
+
     body.on(
       "error",
       (e: Error) => new FonosterError(e.message, ErrorCodes.UNKNOWN)
     );
-    body.on("end", () => call.end());
+
+    body.on("end", () => {
+      entries(payload)?.forEach((e: Event) => call.write(e));
+      call.end();
+    });
   }
 }
 

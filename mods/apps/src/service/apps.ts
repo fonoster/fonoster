@@ -35,9 +35,6 @@ import {ErrorCodes, FonosterError} from "@fonoster/errors";
 import decoder from "./decoder";
 import {nanoid} from "nanoid";
 import encoder from "./encoder";
-import {Tracer as T} from "@fonoster/common";
-
-T.init("apps-service");
 
 const redis = getRedisConnection();
 

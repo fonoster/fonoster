@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+require("@fonoster/common").Tracer.init("numbers-service");
 import NumbersServer from "./numbers";
 import {NumbersService} from "./protos/numbers_grpc_pb";
 import {AuthMiddleware} from "@fonoster/auth";

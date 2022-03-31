@@ -43,9 +43,6 @@ import {
 } from "@fonoster/core";
 import decoder from "./decoder";
 import {assertIsValidHost} from "./assertions";
-import {Tracer as T} from "@fonoster/common";
-
-T.init("providers-service");
 
 class ProvidersServer implements IProvidersServer {
   [name: string]: grpc.UntypedHandleCall;

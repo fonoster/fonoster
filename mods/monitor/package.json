@@ -43,7 +43,7 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^7.16.0",
+    "@elastic/elasticsearch": "^7.17.0",
     "@fonoster/auth": "^0.3.6-alpha.9",
     "@fonoster/certs": "^0.3.6-alpha.9",
     "@fonoster/common": "^0.3.6-alpha.9",

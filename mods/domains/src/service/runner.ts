@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import {Tracer as T} from "@fonoster/common";
+T.init("domains-service");
+
 import DomainsServer from "./domains";
 import {DomainsService} from "./protos/domains_grpc_pb";
 import {AuthMiddleware} from "@fonoster/auth";

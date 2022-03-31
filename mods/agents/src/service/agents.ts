@@ -40,9 +40,6 @@ import {
   getAccessKeyId
 } from "@fonoster/core";
 import decoder from "./decoder";
-import {Tracer as T} from "@fonoster/common";
-
-T.init("agents-service");
 
 class AgentsServer implements IAgentsServer {
   [name: string]: grpc.UntypedHandleCall;

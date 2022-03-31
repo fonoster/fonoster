@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require("@fonoster/common").Tracer.init("providers-service");
 import ProvidersServer from "./providers";
 import {ProvidersService} from "./protos/providers_grpc_pb";
 import {AuthMiddleware} from "@fonoster/auth";

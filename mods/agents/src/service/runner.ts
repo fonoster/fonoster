@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import {Tracer as T} from "@fonoster/common";
+T.init("agents-service");
+
 import AgentsServer from "./agents";
 import {AgentsService} from "./protos/agents_grpc_pb";
 import {AuthMiddleware} from "@fonoster/auth";
