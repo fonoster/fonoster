@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/projects",
-  "version": "0.3.6-alpha.9",
+  "version": "0.3.6-alpha.10",
   "description": "User Projects",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,12 +43,12 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.6-alpha.9",
-    "@fonoster/certs": "^0.3.6-alpha.9",
-    "@fonoster/common": "^0.3.6-alpha.9",
-    "@fonoster/core": "^0.3.6-alpha.9",
-    "@fonoster/errors": "^0.3.6-alpha.9",
-    "@fonoster/logger": "^0.3.6-alpha.9",
+    "@fonoster/auth": "^0.3.6-alpha.10",
+    "@fonoster/certs": "^0.3.6-alpha.10",
+    "@fonoster/common": "^0.3.6-alpha.10",
+    "@fonoster/core": "^0.3.6-alpha.10",
+    "@fonoster/errors": "^0.3.6-alpha.10",
+    "@fonoster/logger": "^0.3.6-alpha.10",
     "@grpc/grpc-js": "^1.3.6",
     "@opentelemetry/api": "^1.0.2",
     "bson-objectid": "^2.0.2",
