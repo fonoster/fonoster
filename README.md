@@ -54,7 +54,7 @@ voiceServer.listen((req, res) => {
   res.play("sound:hello-world");
 });
 
-// your app will leave at http://127.0.0.1/voiceapp 
+// your app will be at http://127.0.0.1/voiceapp 
 // and you can easily publish it to the Internet with:
 // ngrok http 3000
 ```
