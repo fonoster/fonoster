@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/domains",
-  "version": "0.3.6-alpha.10",
+  "version": "0.3.6-alpha.11",
   "description": "VoIP Domains",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,10 +43,10 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.6-alpha.10",
-    "@fonoster/certs": "^0.3.6-alpha.10",
-    "@fonoster/common": "^0.3.6-alpha.10",
-    "@fonoster/core": "^0.3.6-alpha.10",
+    "@fonoster/auth": "^0.3.6-alpha.11",
+    "@fonoster/certs": "^0.3.6-alpha.11",
+    "@fonoster/common": "^0.3.6-alpha.11",
+    "@fonoster/core": "^0.3.6-alpha.11",
     "@grpc/grpc-js": "^1.3.6",
     "@opentelemetry/api": "^1.0.2",
     "google-protobuf": "^3.17.0",
