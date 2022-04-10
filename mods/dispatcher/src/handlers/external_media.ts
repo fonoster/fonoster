@@ -61,7 +61,7 @@ export const externalMediaHandler = async (
         brideId: resources.bridge.id,
         sessionId: resources.channel.id
       });
-      await resources.channel.hangup();
+      await externalChannel.hangup();
     }
   );
 
