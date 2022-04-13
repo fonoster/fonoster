@@ -49,7 +49,7 @@ export async function hangupExternalChannel(ari: any, sessionId: string) {
     const channel = await ari.channels.get({channelId: sessionId});
     const externalChannelId = await getChannelVar(channel, "EXTERNAL_CHANNEL");
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
-    logger.verbose("removing external media channel", {sessionId, bridgeId});
+    logger.verbose("removing external media channel", {bridgeId, sessionId, externalChannelId});
 
     if (bridgeId && externalChannelId) {
       await ari.bridges.removeChannel({bridgeId, channel: externalChannelId});

@@ -21,6 +21,7 @@ import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonoster/logger";
 import {sendData, streamConfig} from "../utils/udp_server_utils";
 import pickPort from "pick-port";
+import { getChannelVar } from "../utils/channel_variable";
 
 export const externalMediaHandler = async (
   ws: WebSocket,
@@ -33,15 +34,22 @@ export const externalMediaHandler = async (
   }
   const port = await pickPort();
   const address = `0.0.0.0:${port}`;
-  const udpServer = new UDPMediaReceiver(address, true);
-  const bridge = ari.Bridge();
-  const externalChannel = ari.Channel();
+  const udpServer = new UDPMediaReceiver(address, true); 
   const sessionId = event.userevent.sessionId;
+  const currentChannel = await ari.channels.get({channelId: sessionId})
+  const bridgeId = await getChannelVar(currentChannel, "CURRENT_BRIDGE");
+  let bridge: any
 
-  // Creating a room to receive the audio and then forward
-  // the audio to via ws
-  await bridge.create({type: "mixing"});
-  bridge.addChannel({channel: sessionId});
+  // We check if the bridge already exist to avoid creating a new one
+  if (bridgeId) {
+    bridge = await ari.bridges.get({ bridgeId });
+  } else {
+    bridge = ari.Bridge();
+    await bridge.create({type: "mixing"});
+    bridge.addChannel({channel: sessionId});
+  }
+
+  const externalChannel = ari.Channel();
   externalChannel.on("StasisStart", (event: any, channel: any) =>
     bridge.addChannel({channel: channel.id})
   );
@@ -59,7 +67,7 @@ export const externalMediaHandler = async (
     async (event: any, resources: any) => {
       logger.verbose("external channel left the bridge", {
         brideId: resources.bridge.id,
-        sessionId: resources.channel.id
+        externalChannelId: resources.channel.id
       });
       await externalChannel.hangup();
     }
