@@ -42,7 +42,7 @@ export default class GatherVerb extends Verb {
   async run(opts: GatherOptions): Promise<string> {
     const options = merge(defaultOptions, opts);
 
-    assertsHasNumDigitsOrTimeout(options);
+    // assertsHasNumDigitsOrTimeout(options);
     // assertsValuesIsZeroOrGreater("timeout", options.timeout);
     assertsValueIsPositive("numDigits", options.numDigits);
     assertsFinishOnKeyIsChar(options.finishOnKey);
