@@ -28,7 +28,6 @@ import {GatherOptions} from "./types";
 import logger from "@fonoster/logger";
 
 const defaultOptions: GatherOptions = {
-  timeout: 4000,
   finishOnKey: "#",
   source: "dtmf"
 };
@@ -48,7 +47,7 @@ export default class GatherVerb extends Verb {
     assertsValueIsPositive("numDigits", options.numDigits);
     assertsFinishOnKeyIsChar(options.finishOnKey);
 
-    if (options.source.includes("speech")) options.timeout = 10000;
+    options.timeout = !options.timeout && options.source.includes("speech") ? 10000 : options.timeout || 4000;
 
     return new Promise(async (resolve, reject) => {
       logger.verbose(
