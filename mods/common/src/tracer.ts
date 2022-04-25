@@ -10,7 +10,7 @@ import {SimpleSpanProcessor} from "@opentelemetry/sdk-trace-base";
 import {JaegerExporter} from "@opentelemetry/exporter-jaeger";
 import {GrpcInstrumentation} from "@opentelemetry/instrumentation-grpc";
 
-function getLogLevel () {
+function getLogLevel() {
   switch (process.env.LOGS_LEVEL?.toLowerCase()) {
     case "debug":
       return DiagLogLevel.DEBUG;

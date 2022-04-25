@@ -29,7 +29,7 @@ export namespace EventType {
 
   // eslint-disable-next-line require-jsdoc
   export function fromString(type: string): ET {
-    console.log(type)
+    console.log(type);
     return (ET as any)[type.toUpperCase()];
   }
 }

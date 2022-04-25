@@ -47,7 +47,10 @@ export default class GatherVerb extends Verb {
     assertsValueIsPositive("numDigits", options.numDigits);
     assertsFinishOnKeyIsChar(options.finishOnKey);
 
-    options.timeout = !options.timeout && options.source.includes("speech") ? 10000 : options.timeout || 4000;
+    options.timeout =
+      !options.timeout && options.source.includes("speech")
+        ? 10000
+        : options.timeout || 4000;
 
     return new Promise(async (resolve, reject) => {
       logger.verbose(
