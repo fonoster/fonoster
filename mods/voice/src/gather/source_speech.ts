@@ -46,9 +46,16 @@ const waitForSpeech = async (
     });
 
     await startMediaTransfer(verb, sessionId);
+    let enabledMedia = true;
 
     if (options.timeout > 0) {
-      timer = setTimeout(() => resolve(""), options.timeout);
+      timer = setTimeout(() => {
+        if (enabledMedia) stopMediaTransfer(verb, sessionId);
+        PubSub.unsubscribe(token);
+        (speechTracker as any).client.close();
+        resolve("");
+        enabledMedia = false;
+      }, options.timeout);
     }
 
     speechTracker
@@ -56,9 +63,10 @@ const waitForSpeech = async (
       .then((result) => resolve(result.transcript))
       .catch(reject)
       .finally(() => {
-        stopMediaTransfer(verb, sessionId);
-        PubSub.unsubscribe(token);
+        if (enabledMedia) stopMediaTransfer(verb, sessionId);
         if (timer) clearTimeout(timer);
+        PubSub.unsubscribe(token);
+        enabledMedia = false;
       });
   });
 
