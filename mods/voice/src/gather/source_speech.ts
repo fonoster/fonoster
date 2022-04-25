@@ -45,29 +45,21 @@ const waitForSpeech = async (
       readable.push(data);
     });
 
-    speechTracker
-      .transcribe(readable)
-      .then((result) => {
-        if (timer) clearTimeout(timer);
-        resolve(result.transcript);
-      })
-      .catch(reject)
-      .finally(async () => {
-        PubSub.unsubscribe(token);
-        await stopMediaTransfer(verb, sessionId);
-      });
-
     await startMediaTransfer(verb, sessionId);
 
     if (options.timeout > 0) {
-      timer = setTimeout(async () => {
-        // Simply resolve an empty string
-        resolve("");
-        PubSub.unsubscribe(token);
-        await stopMediaTransfer(verb, sessionId);
-        return;
-      }, options.timeout);
+      timer = setTimeout(() => resolve(""), options.timeout);
     }
+
+    speechTracker
+      .transcribe(readable)
+      .then((result) => resolve(result.transcript))
+      .catch(reject)
+      .finally(() => {
+        stopMediaTransfer(verb, sessionId);
+        PubSub.unsubscribe(token);
+        if (timer) clearTimeout(timer);
+      });
   });
 
 export default waitForSpeech;
