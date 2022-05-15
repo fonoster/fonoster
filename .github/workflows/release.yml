@@ -80,13 +80,13 @@ jobs:
     - name: Copy and Push Routr image
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/fonoster/routr:1.0.2
+        src: docker.io/fonoster/routr:1.0.3
         dst: |
           docker.io/fonoster/routr:${{ steps.get_version.outputs.VERSION }}
     - name: Copy and Push Rox as Voice image
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/fonoster/rox:0.3.1
+        src: docker.io/fonoster/rox:0.3.2
         dst: |
           docker.io/fonoster/voice:${{ steps.get_version.outputs.VERSION }}
     - name: Copy and Push Autoheal
