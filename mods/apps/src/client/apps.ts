@@ -208,7 +208,7 @@ export default class Apps extends APIClient implements IAppsClient {
   /**
    * Update a Voice Application.
    *
-   * @param {CreateAppRequest} request -  Request to create a new Voice Application
+   * @param {UpdateAppRequest} request -  Request to update an existing Voice Application
    * @param {string} request.ref - The reference of the application
    * @param {string} request.name - The name of the application
    * @param {string} request.initialDtmf - Optional DTMF code to be sent at after answer the call
@@ -283,7 +283,7 @@ export default class Apps extends APIClient implements IAppsClient {
         ) as unknown as Struct
       );
 
-    if (request.intentsEngineConfig)
+    if (request.speechConfig)
       outRequest.setSpeechConfig(
         Struct.fromJavaScript(
           request.speechConfig as unknown as Record<string, unknown>
