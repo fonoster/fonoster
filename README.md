@@ -1,8 +1,8 @@
 ![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
-![Flow](https://raw.githubusercontent.com/fonoster/fonoster/main/flow.png)
+<!--![Flow](https://raw.githubusercontent.com/fonoster/fonoster/main/flow.png)-->
 
-<!-- https://user-images.githubusercontent.com/40646537/148554756-0258e06b-d850-46fb-8206-daf9c601b9bf.mov -->
+https://user-images.githubusercontent.com/539774/170885814-02c53689-af12-4e05-8351-e78d72f958d9.mov
 
 ## 💬 [Join the conversation](https://github.com/fonoster/fonoster/discussions) 👈
 
