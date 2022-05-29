@@ -1,14 +1,15 @@
+
 # Programmable Telecommunications in the Cloud without Twilio
 
-![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
+[Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-<!--![Flow](https://raw.githubusercontent.com/fonoster/fonoster/main/flow.png)-->
+<a href="https://www.producthunt.com/posts/fonoster?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-fonoster" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=319527&theme=light" alt="Fonoster - Engage with your customers with VoIP or SMS | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 https://user-images.githubusercontent.com/539774/170885814-02c53689-af12-4e05-8351-e78d72f958d9.mov
 
-## 💬 [Join the conversation](https://github.com/fonoster/fonoster/discussions) 👈
+![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
 
-[Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
+
 
 ## Features
 
@@ -87,8 +88,6 @@ To get started with FN use the following resources:
 - [Connecting Fonoster with Dialogflow](https://learn.fonoster.com/docs/tutorials/connecting_with_dialogflow)
 - [Using Google Speech APIs](https://learn.fonoster.com/docs/tutorials/using_google_speech)
 - [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
-
-<a href="https://www.producthunt.com/posts/fonoster?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-fonoster" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=319527&theme=light" alt="Fonoster - Engage with your customers with VoIP or SMS | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 ## Give a Star! ⭐
 
