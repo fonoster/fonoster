@@ -1,5 +1,5 @@
 
-# Programmable Telecom in the Cloud without Twilio
+# The open-source alternative to Twilio
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
