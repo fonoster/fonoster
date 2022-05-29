@@ -1,5 +1,5 @@
 
-# Programmable Telecommunications in the Cloud without Twilio
+# Programmable Telecomm in the Cloud without Twilio
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
