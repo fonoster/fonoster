@@ -88,6 +88,10 @@ To get started with FN use the following resources:
 
 <a href="https://www.producthunt.com/posts/fonoster?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-fonoster" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=319527&theme=light" alt="Fonoster - Engage with your customers with VoIP or SMS | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
+## Give a Star! ⭐
+
+If you like this project or plan to use it in the future, please give it a star. Thanks 🙏
+
 ## Bugs and Feedback
 
 For bugs, questions, and discussions, please use the [Github Issues](https://github.com/fonoster/fonoster/issues)
@@ -129,5 +133,5 @@ Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
  - [Pedro Sanders](https://github.com/psanders)
 
 ## License
-Copyright (C) 2021 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/master/LICENSE) for details).
+Copyright (C) 2022 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/master/LICENSE) for details).
 
