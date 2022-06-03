@@ -37,12 +37,12 @@ service Funcs {
     option (google.api.http) = { get: "/v1beta1/funcs/{name}/logs" };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       responses: {
-        key: "200";
+        key: "200"
         value: {
-          description: "Stream of logs";
+          description: "Stream of logs"
           schema: {
             json_schema: {
-              ref: "FuncLog";
+              ref: "FuncLog"
             }
           }
         }
