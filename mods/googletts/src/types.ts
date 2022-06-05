@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 export interface GoogleTTSConfig {
-  keyFilename: string;
+  keyFilename?: string;
   projectId?: string;
   // Location of resulting sound
   path?: string;

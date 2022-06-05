@@ -26,6 +26,7 @@ import {TTSPlugin, computeFilename, SynthResult} from "@fonoster/tts";
 import logger from "@fonoster/logger";
 import {GoogleTTSConfig, SynthOptions} from "./types";
 import {isSSML} from "./utils";
+const merge = require("deepmerge");
 
 const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
 
@@ -81,7 +82,6 @@ class GoogleTTS extends Plugin implements TTSPlugin {
       )} options: ${JSON.stringify(options)}]`
     );
 
-    const merge = require("deepmerge");
     const voice = merge(defaultVoice, options || {});
     const input = isSSML(text) ? {ssml: text} : {text: text};
 
