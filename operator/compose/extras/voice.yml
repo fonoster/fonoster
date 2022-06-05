@@ -24,8 +24,6 @@ services:
       - LOGS_TRANSPORT
       - LOGS_DRIVER_HOST
       - LOGS_DRIVER_PORT
-    volumes:
-      - ${CONFIG}/google.json:/home/fonoster/.fonoster/google.json
     networks:
       fonoster:
         aliases: 
