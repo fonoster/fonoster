@@ -16,7 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Verb} from "./verb";
+import { ServerConfig } from "./types";
+import { Verb } from "./verb";
+import { join } from "path";
+import fs from "fs";
 
 /**
  * Takes a json object and creates a query formatted string
@@ -58,4 +61,23 @@ export async function startMediaTransfer(verb: Verb, sessionId: string) {
 
 export async function stopMediaTransfer(verb: Verb, sessionId: string) {
   await sendMediaTransferEvent(verb, sessionId, "StopExternalMedia");
+}
+
+export const serveFiles = (config: ServerConfig) => {
+  return (req , res) => {
+    // TODO: Update to use a stream instead of fs.readFile
+    fs.readFile(
+      join(config.pathToFiles, req.params.file),
+      function (err, data) {
+        if (err) {
+          res.send("unable to find or open file");
+        } else {
+          // TODO: Set this value according to file extension
+          res.setHeader("content-type", "audio/x-wav");
+          res.send(data);
+        }
+        res.end();
+      }
+    );
+  }
 }

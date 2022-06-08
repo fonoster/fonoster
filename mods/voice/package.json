@@ -49,6 +49,7 @@
   },
   "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857",
   "devDependencies": {
+    "@types/express": "^4.17.13",
     "@types/pubsub-js": "^1.8.2"
   }
 }

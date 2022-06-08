@@ -16,16 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {ServerConfig} from "./types";
+import { ServerConfig } from "./types";
+import { posix } from "path";
+import { Plugin } from "@fonoster/common";
+import { VoiceTracer } from "./tracer";
+import { serveFiles } from "./utils";
 import VoiceResponse from "./voice";
 import logger from "@fonoster/logger";
 import express from "express";
-import {join, posix} from "path";
-import {Plugin} from "@fonoster/common";
-import fs from "fs";
 import os from "os";
 import PubSub from "pubsub-js";
-import {VoiceTracer} from "./tracer";
 const merge = require("deepmerge");
 const app = express();
 app.use(express.json());
@@ -60,22 +60,10 @@ export default class VoiceServer {
   }
 
   listen(handler: Function, port = this.config.port) {
-    app.get(posix.join(this.config.base, "/tts/:file"), (req, res) => {
-      // TODO: Update to use a stream instead of fs.readFile
-      fs.readFile(
-        join(this.config.pathToFiles, req.params.file),
-        function (err, data) {
-          if (err) {
-            res.send("unable to find or open file");
-          } else {
-            // TODO: Set this value according to file extension
-            res.setHeader("content-type", "audio/x-wav");
-            res.send(data);
-          }
-          res.end();
-        }
-      );
-    });
+    app.get(posix.join(this.config.base, "/sounds/:file"), (req, res) =>  serveFiles(this.config)(req, res));
+
+    // Alias path for sounds
+    app.get(posix.join(this.config.base, "/tts/:file"), (req, res) => serveFiles(this.config)(req, res));
 
     app.get("/ping", (req, res) => {
       res.send("pong");
@@ -99,7 +87,7 @@ export default class VoiceServer {
 
   init() {
     logger.info(`initializing voice server`);
-    app.ws(this.config.base, (ws) => {
+    (app as any).ws(this.config.base, (ws) => {
       ws.on("message", (msg) => {
         if (Buffer.isBuffer(msg)) {
           // Session ids will always be 12 or 13 digits long)
