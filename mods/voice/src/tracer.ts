@@ -19,8 +19,8 @@
 import opentelemetry, {Context, Span, Tracer} from "@opentelemetry/api";
 import {Resource} from "@opentelemetry/resources";
 import {SemanticResourceAttributes} from "@opentelemetry/semantic-conventions";
-import {BatchSpanProcessor, SpanExporter} from "@opentelemetry/sdk-trace-base";
-const {NodeTracerProvider} = require("@opentelemetry/node");
+import {BatchSpanProcessor} from "@opentelemetry/sdk-trace-base";
+const {NodeTracerProvider} = require("@opentelemetry/sdk-trace-node");
 
 export class VoiceTracer {
   callTracer: Tracer;
