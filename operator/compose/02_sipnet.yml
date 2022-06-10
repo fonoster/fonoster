@@ -19,6 +19,7 @@ services:
       EX_RTP_ENGINE_PORT: ${RTPE_PORT}
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: "false"
+      JAVA_OPTS: "-XX:NewRatio=2 -Xmx250M"
     ports:
       - ${SIPPROXY_SIP_PORTS}:${SIPPROXY_SIP_PORTS}
       - ${SIPPROXY_SIP_PORT_UDP}:${SIPPROXY_SIP_PORT_UDP}/udp
