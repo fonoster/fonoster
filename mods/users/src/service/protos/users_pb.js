@@ -1119,7 +1119,9 @@ proto.fonoster.users.v1beta1.UpdateUserRequest.toObject = function(includeInstan
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     secret: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    avatar: jspb.Message.getFieldWithDefault(msg, 4, "")
+    avatar: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    status: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    limiter: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -1171,6 +1173,14 @@ proto.fonoster.users.v1beta1.UpdateUserRequest.deserializeBinaryFromReader = fun
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setAvatar(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setStatus(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setLimiter(value);
       break;
     default:
       reader.skipField();
@@ -1226,6 +1236,20 @@ proto.fonoster.users.v1beta1.UpdateUserRequest.serializeBinaryToWriter = functio
   if (f.length > 0) {
     writer.writeString(
       4,
+      f
+    );
+  }
+  f = message.getStatus();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
+      f
+    );
+  }
+  f = message.getLimiter();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -1301,6 +1325,42 @@ proto.fonoster.users.v1beta1.UpdateUserRequest.prototype.getAvatar = function() 
  */
 proto.fonoster.users.v1beta1.UpdateUserRequest.prototype.setAvatar = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional string status = 5;
+ * @return {string}
+ */
+proto.fonoster.users.v1beta1.UpdateUserRequest.prototype.getStatus = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.users.v1beta1.UpdateUserRequest} returns this
+ */
+proto.fonoster.users.v1beta1.UpdateUserRequest.prototype.setStatus = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string limiter = 6;
+ * @return {string}
+ */
+proto.fonoster.users.v1beta1.UpdateUserRequest.prototype.getLimiter = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.users.v1beta1.UpdateUserRequest} returns this
+ */
+proto.fonoster.users.v1beta1.UpdateUserRequest.prototype.setLimiter = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -1602,7 +1662,9 @@ proto.fonoster.users.v1beta1.User.toObject = function(includeInstance, msg) {
     name: jspb.Message.getFieldWithDefault(msg, 4, ""),
     avatar: jspb.Message.getFieldWithDefault(msg, 5, ""),
     createTime: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    updateTime: jspb.Message.getFieldWithDefault(msg, 7, "")
+    updateTime: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    status: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    limiter: jspb.Message.getFieldWithDefault(msg, 9, "")
   };
 
   if (includeInstance) {
@@ -1666,6 +1728,14 @@ proto.fonoster.users.v1beta1.User.deserializeBinaryFromReader = function(msg, re
     case 7:
       var value = /** @type {string} */ (reader.readString());
       msg.setUpdateTime(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setStatus(value);
+      break;
+    case 9:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setLimiter(value);
       break;
     default:
       reader.skipField();
@@ -1742,6 +1812,20 @@ proto.fonoster.users.v1beta1.User.serializeBinaryToWriter = function(message, wr
   if (f.length > 0) {
     writer.writeString(
       7,
+      f
+    );
+  }
+  f = message.getStatus();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
+      f
+    );
+  }
+  f = message.getLimiter();
+  if (f.length > 0) {
+    writer.writeString(
+      9,
       f
     );
   }
@@ -1871,6 +1955,42 @@ proto.fonoster.users.v1beta1.User.prototype.getUpdateTime = function() {
  */
 proto.fonoster.users.v1beta1.User.prototype.setUpdateTime = function(value) {
   return jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
+/**
+ * optional string status = 8;
+ * @return {string}
+ */
+proto.fonoster.users.v1beta1.User.prototype.getStatus = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.users.v1beta1.User} returns this
+ */
+proto.fonoster.users.v1beta1.User.prototype.setStatus = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+
+/**
+ * optional string limiter = 9;
+ * @return {string}
+ */
+proto.fonoster.users.v1beta1.User.prototype.getLimiter = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.users.v1beta1.User} returns this
+ */
+proto.fonoster.users.v1beta1.User.prototype.setLimiter = function(value) {
+  return jspb.Message.setProto3StringField(this, 9, value);
 };
 
 

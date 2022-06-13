@@ -12,7 +12,8 @@
       "/fonoster.projects.v1beta1.Projects/UpdateProject",
       "/fonoster.projects.v1beta1.Projects/GetProject",
       "/fonoster.projects.v1beta1.Projects/DeleteProject",
-      "/fonoster.projects.v1beta1.Projects/RenewAccessKeySecret"
+      "/fonoster.projects.v1beta1.Projects/RenewAccessKeySecret",
+      "/fonoster.limiter.v1beta1.Limiter/CheckAuthorized"
     ]
   },
   {
@@ -57,7 +58,8 @@
       "/fonoster.secrets.v1beta1.Secrets/CreateSecret",
       "/fonoster.secrets.v1beta1.Secrets/ListSecretsId",
       "/fonoster.secrets.v1beta1.Secrets/DeleteSecret",
-      "/fonoster.secrets.v1beta1.Secrets/GetSecret"
+      "/fonoster.secrets.v1beta1.Secrets/GetSecret",
+      "/fonoster.limiter.v1beta1.Limiter/CheckAuthorized"
     ]
   },
   {
@@ -78,7 +80,8 @@
       "/fonoster.auth.v1beta1.Auth/CreateNoAccessToken",
       "/fonoster.auth.v1beta1.Auth/ValidateToken",
       "/fonoster.users.v1beta1.Users/CreateUser",
-      "/fonoster.users.v1beta1.Users/ListUsers"
+      "/fonoster.users.v1beta1.Users/ListUsers",
+      "/fonoster.users.v1beta1.Users/UpdateUser"
     ]
   },
   {
@@ -93,7 +96,8 @@
       "/fonoster.auth.v1beta1.Auth/CreateToken",
       "/fonoster.users.v1beta1.Users/CreateUser",
       "/fonoster.users.v1beta1.Users/DeleteUser",
-      "/fonoster.users.v1beta1.Users/ListUsers"
+      "/fonoster.users.v1beta1.Users/ListUsers",
+      "/fonoster.users.v1beta1.Users/UpdateUser"
     ]
   }
 ]

@@ -140,6 +140,10 @@ export class UpdateUserRequest extends jspb.Message {
     setSecret(value: string): UpdateUserRequest;
     getAvatar(): string;
     setAvatar(value: string): UpdateUserRequest;
+    getStatus(): string;
+    setStatus(value: string): UpdateUserRequest;
+    getLimiter(): string;
+    setLimiter(value: string): UpdateUserRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): UpdateUserRequest.AsObject;
@@ -157,6 +161,8 @@ export namespace UpdateUserRequest {
         name: string,
         secret: string,
         avatar: string,
+        status: string,
+        limiter: string,
     }
 }
 
@@ -215,6 +221,10 @@ export class User extends jspb.Message {
     setCreateTime(value: string): User;
     getUpdateTime(): string;
     setUpdateTime(value: string): User;
+    getStatus(): string;
+    setStatus(value: string): User;
+    getLimiter(): string;
+    setLimiter(value: string): User;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): User.AsObject;
@@ -235,5 +245,7 @@ export namespace User {
         avatar: string,
         createTime: string,
         updateTime: string,
+        status: string,
+        limiter: string,
     }
 }

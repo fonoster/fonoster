@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const grpc = require("@grpc/grpc-js");
 import AuthPB from "../service/protos/auth_pb";
 import {AuthClient} from "../service/protos/auth_grpc_pb";
 import {getClientCredentials} from "@fonoster/common";
