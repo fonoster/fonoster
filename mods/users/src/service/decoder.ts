@@ -28,5 +28,7 @@ export default (raw: string): User => {
   user.setAvatar(userJSON.avatar);
   user.setCreateTime(userJSON.createTime);
   user.setUpdateTime(userJSON.updateTime);
+  user.setLimiter(userJSON.limiter);
+  user.setStatus(userJSON.status);
   return user;
 };

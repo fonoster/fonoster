@@ -176,7 +176,9 @@ export default class Users extends APIClient implements IUsersClient {
       name: res.getName(),
       avatar: res.getAvatar(),
       createTime: res.getCreateTime(),
-      updateTime: res.getUpdateTime()
+      updateTime: res.getUpdateTime(),
+      limiter: res.getLimiter(),
+      status: res.getStatus()
     };
   }
 

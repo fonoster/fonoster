@@ -53,6 +53,7 @@ import {AUTH_ISS, getSalt} from "@fonoster/certs";
 import logger from "@fonoster/logger";
 import bcrypt from "bcrypt";
 import {Tracer as T} from "@fonoster/common";
+import {UserLimiter, UserStatus} from "./types";
 
 T.init("users-service");
 
@@ -137,6 +138,8 @@ class UsersServer implements IUsersServer {
       user.setAvatar(call.request.getAvatar());
       user.setUpdateTime(new Date().toISOString());
       user.setCreateTime(new Date().toISOString());
+      user.setStatus(UserStatus.ACTIVE);
+      user.setLimiter(UserLimiter.DEFAULT);
       // TODO: Apply strong cypher
       const secretHash = await bcrypt.hash(call.request.getSecret(), 10);
 
@@ -154,7 +157,9 @@ class UsersServer implements IUsersServer {
     callback: grpc.sendUnaryData<UserPB.User>
   ) {
     try {
-      const ref = getAccessKeyId(call);
+      const role = await getTokenRole(getAccessKeySecret(call));
+      const ref = call.request.getRef();
+
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
       let secretHash = JSON.parse(raw.toString()).secretHash;
@@ -167,6 +172,28 @@ class UsersServer implements IUsersServer {
       if (call.request.getAvatar()) {
         assertValidURL(call.request.getAvatar());
         user.setAvatar(call.request.getAvatar());
+      }
+
+      if (call.request.getStatus()) {
+        if (role === "SERVICE" || role === "ADMIN") {
+          user.setStatus(call.request.getStatus());
+        } else {
+          throw new FonosterError(
+            "not authorized",
+            ErrorCodes.PERMISSION_DENIED
+          );
+        }
+      }
+
+      if (call.request.getLimiter()) {
+        if (role === "SERVICE" || role === "ADMIN") {
+          user.setLimiter(call.request.getLimiter());
+        } else {
+          throw new FonosterError(
+            "not authorized",
+            ErrorCodes.PERMISSION_DENIED
+          );
+        }
       }
 
       user.setUpdateTime(new Date().toISOString());

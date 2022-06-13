@@ -27,6 +27,8 @@ export default (user: User, secretHash: string): string => {
     avatar: user.getAvatar(),
     createTime: user.getCreateTime(),
     updateTime: user.getUpdateTime(),
+    limiter: user.getLimiter(),
+    status: user.getStatus(),
     secretHash
   };
   return JSON.stringify(userJSON);

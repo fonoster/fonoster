@@ -78,6 +78,8 @@ export interface UpdateUserRequest {
   name?: string;
   secret?: string;
   avatar?: string;
+  limiter?: string;
+  status?: string;
 }
 
 export interface UpdateUserResponse {
@@ -96,6 +98,8 @@ export interface GetUserResponse {
   avatar: string;
   createTime: string;
   updateTime: string;
+  limiter: string;
+  status: string;
 }
 
 export interface DeleteUserRequest {

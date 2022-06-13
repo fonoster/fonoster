@@ -97,6 +97,10 @@ message UpdateUserRequest {
   string name = 2;
   string secret = 3;
   string avatar = 4;
+  // Only an elevated user can change the user's status
+  string status = 5;
+  // Only an elevated user can change the user's limiter
+  string limiter = 6;
 }
 
 message GetUserRequest {
@@ -121,4 +125,6 @@ message User {
   string avatar = 5;
   string create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
   string update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string status = 8;
+  string limiter = 9;
 }
