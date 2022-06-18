@@ -20,6 +20,6 @@ import Jwt from "./utils/jwt";
 import AuthMiddleware from "./auth_middleware";
 import Auth from "./client/auth";
 import AuthUtils from "./utils/auth_utils";
-import { limiterMiddleware } from "./limiter_middleware";
+import limiterMiddleware from "./limiter_middleware";
 
 export { AuthMiddleware, limiterMiddleware, Jwt, AuthUtils, Auth as default };

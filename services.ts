@@ -54,8 +54,6 @@ import {CallManagerService} from "./mods/callmanager/src/service/protos/callmana
 import {StorageService} from "./mods/storage/src/service/protos/storage_grpc_pb";
 import {LimiterService} from "./mods/auth/src/service/protos/auth_grpc_pb";
 import runServices from "./mods/common/src/service_runner";
-import AuthMiddleware from "./mods/auth/src/auth_middleware";
-import {getSalt} from "./mods/certs/src/certs";
 
 const services = [
   {
@@ -144,25 +142,4 @@ const services = [
   }
 ];
 
-const whitelist = [
-  "/fonoster.monitor.v1beta1.Monitor/SearchEvents",
-  "/fonoster.users.v1beta1.Users/ListUsers",
-  "/fonoster.users.v1beta1.Users/CreateUser",
-  "/fonoster.users.v1beta1.Users/DeleteUser",
-  "/fonoster.users.v1beta1.Users/LoginUser",
-  "/fonoster.auth.v1beta1.Auth/GetRole",
-  "/fonoster.auth.v1beta1.Auth/CreateToken",
-  "/fonoster.auth.v1beta1.Auth/CreateNoAccessToken",
-  "/fonoster.auth.v1beta1.Secrets/GetSecret",
-  "/fonoster.auth.v1beta1.Limiter/CheckAuthorized",
-  "/grpc.health.v1.Health/Check"
-];
-
-const middlewares = [
-  {
-    name: "authentication",
-    middlewareObj: new AuthMiddleware(getSalt(), whitelist).middleware
-  }
-];
-
-runServices(services, middlewares);
+runServices(services);

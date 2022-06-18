@@ -56,7 +56,7 @@ class LimiterServer implements ILimiterServer {
     );
 
     const resourceCount = await getResourceCount(redis, routr)(
-      accessKeyId,
+      user.getAccessKeyId(),
       limit?.resource
     );
 

@@ -21,7 +21,7 @@ import AuthPB from "./service/protos/auth_pb";
 import { LimiterClient } from "./service/protos/auth_grpc_pb";
 import { getClientCredentials } from "@fonoster/common";
 
-interface CTX {
+interface Context {
   service: {
     path: string
   },
@@ -35,7 +35,7 @@ const svc = new LimiterClient(
   getClientCredentials()
 );
 
-export default async function checkAuthorized(
+export async function checkAuthorized(
   path: string,
   metadata: Metadata
 ): Promise<boolean> {
@@ -49,7 +49,7 @@ export default async function checkAuthorized(
   });
 }
 
-export async function limiterMiddleware(ctx: CTX, 
+export default async function limiterMiddleware(ctx: Context, 
   next: () => void, errorCb: (e: Error) => void) {
   try {
     if (await checkAuthorized(ctx.service.path, ctx.call.metadata)) {

@@ -19,12 +19,12 @@ const services = [
 
 const middlewares = [
   {
-    name: "limiter",
-    middlewareObj: limiterMiddleware
-  },
-  {
     name: "authenticator",
     middlewareObj: new AuthMiddleware(getSalt()).middleware
+  },
+  {
+    name: "limiter",
+    middlewareObj: limiterMiddleware
   }
 ]
 
