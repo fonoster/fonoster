@@ -1,0 +1,35 @@
+[
+  {
+    "name": "default",
+    "limits": [
+      {
+        "path": "/fonoster.projects.v1beta1.Projects/CreateProject",
+        "resource": "Project",
+        "limit": 1,
+        "timeUnit": "ever",
+        "allowedForStatus": "active"
+      },
+      {
+        "path": "/fonoster.domains.v1beta1.Domains/CreateDomain",
+        "resource": "Domain",
+        "limit": 2,
+        "timeUnit": "ever",
+        "allowedForStatus": "active"
+      },
+      {
+        "path": "/fonoster.agents.v1beta1.Agents/CreateAgent",
+        "resource": "Agent",
+        "limit": 20,
+        "timeUnit": "ever",
+        "allowedForStatus": "active"
+      },
+      {
+        "path": "/fonoster.callmanager.v1beta1.CallManager/Call",
+        "resource": "Call",
+        "limit": 150,
+        "timeUnit": "ever",
+        "allowedForStatus": "active"
+      }
+    ]
+  }
+]

@@ -38,6 +38,7 @@ import NumbersServer from "./mods/numbers/src/service/numbers";
 import ProvidersServer from "./mods/providers/src/service/providers";
 import CallManagerServer from "./mods/callmanager/src/service/callmanager";
 import StorageServer from "./mods/storage/src/service/storage";
+import LimiterServer from "./mods/limiter/src/service/limiter";
 import {AppsService} from "./mods/apps/src/service/protos/apps_grpc_pb";
 import {MonitorService} from "./mods/monitor/src/service/protos/monitor_grpc_pb";
 import {ProjectsService} from "./mods/projects/src/service/protos/projects_grpc_pb";
@@ -51,6 +52,7 @@ import {NumbersService} from "./mods/numbers/src/service/protos/numbers_grpc_pb"
 import {ProvidersService} from "./mods/providers/src/service/protos/providers_grpc_pb";
 import {CallManagerService} from "./mods/callmanager/src/service/protos/callmanager_grpc_pb";
 import {StorageService} from "./mods/storage/src/service/protos/storage_grpc_pb";
+import {LimiterService} from "./mods/auth/src/service/protos/auth_grpc_pb";
 import runServices from "./mods/common/src/service_runner";
 import AuthMiddleware from "./mods/auth/src/auth_middleware";
 import {getSalt} from "./mods/certs/src/certs";
@@ -133,6 +135,12 @@ const services = [
     version: "v1beta1",
     service: SecretsService,
     server: new SecretServer()
+  },
+  {
+    name: "limiter",
+    version: "v1beta1",
+    service: LimiterService,
+    server: new LimiterServer()
   }
 ];
 
@@ -146,6 +154,7 @@ const whitelist = [
   "/fonoster.auth.v1beta1.Auth/CreateToken",
   "/fonoster.auth.v1beta1.Auth/CreateNoAccessToken",
   "/fonoster.auth.v1beta1.Secrets/GetSecret",
+  "/fonoster.auth.v1beta1.Limiter/CheckAuthorized",
   "/grpc.health.v1.Health/Check"
 ];
 

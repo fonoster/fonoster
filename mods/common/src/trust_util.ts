@@ -56,10 +56,10 @@ const getServerCredentials = () => {
       true
     );
   } catch (e) {
-    logger.warn(
-      "@fonoster/common trust util [unable to load security certificates]"
+    logger.info(
+      "@fonoster/common trust util [unable to load security certificates]",
     );
-    logger.warn(
+    logger.info(
       "@fonoster/common trust util [starting server in insecure mode]"
     );
     return grpc.ServerCredentials.createInsecure();

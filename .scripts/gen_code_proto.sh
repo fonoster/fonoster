@@ -14,7 +14,6 @@ PROTOS=(
   secrets \
   users \
   projects \
-  limiter \
   apps)
 
 for proto in "${PROTOS[@]}"

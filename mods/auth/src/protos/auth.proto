@@ -35,6 +35,20 @@ service Auth {
   rpc CreateNoAccessToken (CreateTokenRequest) returns (CreateTokenResponse) {}
 }
 
+service Limiter {
+  rpc CheckAuthorized (CheckAuthorizedRequest) returns (CheckAuthorizedResponse) { };
+}
+
+message CheckAuthorizedRequest {
+  // The path of the resource to check.
+  string path = 1;
+}
+
+message CheckAuthorizedResponse {
+  // Whether the user is authorized to access the resource.
+  bool authorized = 1;
+}
+
 message GetRoleRequest {
   string name = 1;
 }

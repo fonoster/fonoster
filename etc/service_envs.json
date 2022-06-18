@@ -84,5 +84,25 @@
       "LOGS_AGGREGRATOR_HOST",
       "LOGS_AGGREGRATOR_PORT"
     ]
+  },
+  {
+    "module": "limiter",
+    "env": [
+      "DS_HOST",
+      "DS_PORT",
+      "DS_SECRET",
+      "SIPPROXY_HOST",
+      "SIPPROXY_API_PORT",
+      "SIPPROXY_API_USERNAME",
+      "SIPPROXY_API_SECRET"
+    ]
+  },
+  {
+    "module": "apps",
+    "env": [
+      "DS_HOST",
+      "DS_PORT",
+      "DS_SECRET"
+    ]
   }
 ]
