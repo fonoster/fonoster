@@ -5,8 +5,6 @@
   "author": "Fonoster Inc",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",

@@ -1,4 +1,3 @@
-/* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,64 +17,75 @@
  * limitations under the License.
  */
 import userDecoder from "@fonoster/users/dist/service/decoder";
-import projectDecoder from "@fonoster/projects/dist/service/decoder";
-import {UserLimiter} from "@fonoster/users/dist/service/types";
-import {Limit, Limiter} from "../service/types";
+import UserPB from "@fonoster/users/dist/service/protos/users_pb";
+import { UserLimiter } from "@fonoster/users/dist/service/types";
+import {
+  Limit,
+  Limiter,
+  RedisClient,
+  RESOURCE,
+  RoutrClient,
+  ROUTR_RESOURCES
+} from "../service/types";
 import logger from "@fonoster/logger";
 
-export function getUserByAccessKeyId(redis: any) {
-  return async (accessKeyId: string) => {
-    // Will return User or Project
-    const raw = await redis.get(accessKeyId);
-    if (raw) {
-      if (accessKeyId.startsWith("US")) {
-        return userDecoder(raw);
-      }
+/* eslint-disable require-jsdoc */
 
-      const project = projectDecoder(raw);
-      return userDecoder(await redis.get(project.getUserRef()));
+export function getUserByAccessKeyId(redis: RedisClient) {
+  return async (accessKeyId: string): Promise<UserPB.User> => {
+    // Will return User or Project
+    const jsonStr = await redis.get(accessKeyId);
+    if (!jsonStr) {
+      return null;
     }
-    return null;
+
+    if (accessKeyId.startsWith("US")) {
+      return userDecoder(jsonStr);
+    }
+
+    return userDecoder(
+      await redis.get((JSON.parse(jsonStr) as { userRef: string }).userRef)
+    );
   };
 }
 
-export function getLimitForPath(limiters: Limiter[]) {
-  return (limiterName: string, path: string): Limit => {
+export function getLimiterByName(limiters: Limiter[]) {
+  return (limiterName?: string): Limiter => {
     const lname = limiterName ? limiterName : UserLimiter.DEFAULT;
-    const limiter = limiters.find(
+    const limiter = limiters?.find(
       (l) => l.name.toLowerCase() === lname.toLowerCase()
     );
-    if (limiter) {
-      return limiter.limits.find((l) => l.path === path);
-    }
-    return null;
+    return limiter;
   };
 }
 
-export function getResourceCount(redis: any, routr: any) {
+export function getLimit(limiter: Limiter, path: string): Limit {
+  return limiter?.limits?.find((l) => l.path === path);
+}
+
+export function getResourceCount(redis: RedisClient, routr: RoutrClient) {
   return async (userAccessKeyId: string, resource: string): Promise<number> => {
     const pAccessKeyIds = await redis.smembers("u_" + userAccessKeyId);
 
-    if (resource?.toLowerCase() === "project") {
+    if (resource?.toLowerCase() === RESOURCE.PROJECT) {
       return pAccessKeyIds.length;
     }
 
     if (
-      ["provider", "domain", "number", "agent"].includes(
-        resource?.toLowerCase()
-      )
+      ROUTR_RESOURCES.map((r) => r.toString()).includes(resource?.toLowerCase())
     ) {
       const res =
-        resource.toLowerCase() === "provider"
-          ? "gateways"
+        resource.toLowerCase() === RESOURCE.PROVIDER
+          ? RESOURCE.PROVIDER_ALIAS
           : `${resource.toLowerCase()}s`;
 
       await routr.connect();
+      routr.resourceType(res);
 
       return (
         await Promise.all<number>(
           pAccessKeyIds.map(async (id: string) => {
-            const result = await routr.resourceType(res).list(
+            const result = await routr.list(
               {
                 itemsPerPage: 10000
               },
@@ -92,13 +102,13 @@ export function getResourceCount(redis: any, routr: any) {
 }
 
 export function getLimiters(): Limiter[] {
+  const path = process.env.LIMITERS_PATH || "/home/fonoster/limiters.json";
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    return require(process.env.LIMITERS_PATH ||
-      "/home/fonoster/limiters.json") as Limiter[];
+    return require(path) as Limiter[];
   } catch (e) {
     logger.info(
-      "@fonoster/limiter failed to load limiters; starting without limiters"
+      `@fonoster/limiter unable to open limiter configuration at '${path}' ; starting without limiters`
     );
     return [];
   }

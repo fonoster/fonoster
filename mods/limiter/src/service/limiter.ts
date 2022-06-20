@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint-disable require-jsdoc */
 import grpc from "@grpc/grpc-js";
 import {
   CheckAuthorizedRequest,
@@ -27,45 +26,42 @@ import {
   ILimiterService,
   LimiterService
 } from "@fonoster/auth/dist/service/protos/auth_grpc_pb";
-import {getAccessKeyId, getRedisConnection, routr} from "@fonoster/core";
 import {
   getLimiters,
-  getLimitForPath,
+  getLimiterByName,
+  getLimit,
   getResourceCount,
   getUserByAccessKeyId
 } from "../utils/utils";
-import {Limiter} from "./types";
-import {ErrorCodes, FonosterError} from "@fonoster/errors";
-import {UserStatus} from "@fonoster/users/dist/service/types";
+import { Limiter } from "./types";
+import { ErrorCodes, FonosterError } from "@fonoster/errors";
+import { UserStatus } from "@fonoster/users/dist/service/types";
+import { getAccessKeyId, getRedisConnection, routr } from "@fonoster/core";
 
 const redis = getRedisConnection();
 const limiters: Limiter[] = getLimiters();
 
+/* eslint-disable require-jsdoc */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
 class LimiterServer implements ILimiterServer {
   [name: string]: grpc.UntypedHandleCall;
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+
   async checkAuthorized(
     call: grpc.ServerUnaryCall<CheckAuthorizedRequest, CheckAuthorizedResponse>,
     callback: grpc.sendUnaryData<CheckAuthorizedResponse>
   ) {
     const accessKeyId = getAccessKeyId(call);
     const user = await getUserByAccessKeyId(redis)(accessKeyId);
-    const limit = getLimitForPath(limiters)(
-      user.getLimiter(),
-      call.request.getPath()
-    );
-
-    const resourceCount = await getResourceCount(redis, routr)(
-      user.getAccessKeyId(),
-      limit?.resource
-    );
+    const limiter = getLimiterByName(limiters)(user.getLimiter());
+    const limit = getLimit(limiter, call.request.getPath());
 
     if (limit) {
       const userStatus = user.getStatus()
         ? user.getStatus()
         : UserStatus.ACTIVE;
 
-      if (limit.allowedForStatus.toLowerCase() != userStatus.toLowerCase()) {
+      if (limiter.allowedStatus.toLowerCase() != userStatus.toLowerCase()) {
         return callback(
           new FonosterError(
             `Permission denied due to account status (${user.getStatus()})`,
@@ -73,6 +69,11 @@ class LimiterServer implements ILimiterServer {
           )
         );
       }
+
+      const resourceCount = await getResourceCount(redis, routr as any)(
+        user.getAccessKeyId(),
+        limit.resource
+      );
 
       if (resourceCount >= limit.limit) {
         return callback(
@@ -90,4 +91,4 @@ class LimiterServer implements ILimiterServer {
   }
 }
 
-export {LimiterServer as default, ILimiterService, LimiterService};
+export { LimiterServer as default, ILimiterService, LimiterService };

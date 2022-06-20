@@ -16,23 +16,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {UserStatus} from "@fonoster/users/dist/service/types";
+import { UserStatus } from "@fonoster/users/dist/service/types";
 
 export enum TimeUnit {
   DAY = "day",
-  MONTH = "month",
-  EVER = "ever"
+  MONTH = "month"
 }
 
 export interface Limit {
   path: string;
   resource: string;
   limit: number;
-  timeUnit: TimeUnit;
-  allowedForStatus: UserStatus;
+  timeUnit?: TimeUnit;
 }
 
 export interface Limiter {
   name: string;
+  allowedStatus: UserStatus;
   limits: Limit[];
 }
+
+export interface RedisClient {
+  get(key: string): Promise<string>;
+  smembers(key: string): Promise<string[]>;
+}
+
+export interface RoutrClient {
+  connect: () => Promise<void>;
+  resourceType: (resourceType: string) => RoutrClient;
+  list: (
+    { itemsPerPage: number },
+    id: string
+  ) => Promise<{ meta: { totalItems: number } }>;
+}
+
+export enum RESOURCE {
+  PROVIDER = "provider",
+  PROVIDER_ALIAS = "gateways",
+  AGENT = "agent",
+  DOMAIN = "domain",
+  PROJECT = "project",
+  NUMBER = "number"
+}
+
+export const ROUTR_RESOURCES = [
+  RESOURCE.AGENT,
+  RESOURCE.DOMAIN,
+  RESOURCE.NUMBER,
+  RESOURCE.PROVIDER
+];
