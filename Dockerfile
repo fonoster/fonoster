@@ -29,13 +29,14 @@ RUN mkdir -p docker operator config \
   && cp -a fonoster/operator/compose/* operator \
   && mv operator/env_example operator/.env \
   && cp fonoster/etc/rbac.json config \
+  && cp fonoster/etc/limiter.json config \
   && cp fonoster/etc/log4j2.yml config \
   && cp fonoster/etc/bootstrap.yml config \
   && cp fonoster/etc/redis.conf config \
   && cp fonoster/etc/fluent.conf config \
   && cp fonoster/etc/service_envs.json config \
-  && cp fonoster/install.sh . \
-  && cp fonoster/update.sh . \
+  && cp fonoster/etc/install.sh . \
+  && cp fonoster/etc/update.sh . \
   && rm -rf fonoster
 
 ##
