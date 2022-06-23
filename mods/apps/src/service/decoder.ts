@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Struct} from "google-protobuf/google/protobuf/struct_pb";
-import {AppsPB} from "../client/apps";
-import {App} from "./protos/apps_pb";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
+import { AppsPB } from "../client/apps";
+import { App } from "./protos/apps_pb";
 
 export default (raw: string): App => {
   const appJSON = JSON.parse(raw);

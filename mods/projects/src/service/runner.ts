@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -19,10 +19,10 @@
  */
 require("@fonoster/common").Tracer.init("projects-service");
 import ProjectsServer from "./projects";
-import {ProjectsService} from "./protos/projects_grpc_pb";
-import {AuthMiddleware} from "@fonoster/auth";
-import {getSalt} from "@fonoster/certs";
-import {runServices} from "@fonoster/common";
+import { ProjectsService } from "./protos/projects_grpc_pb";
+import { AuthMiddleware, limiterMiddleware } from "@fonoster/auth";
+import { getSalt } from "@fonoster/certs";
+import { runServices } from "@fonoster/common";
 
 const services = [
   {
@@ -33,9 +33,15 @@ const services = [
   }
 ];
 
-const middleware = {
-  name: "authentication",
-  middlewareObj: new AuthMiddleware(getSalt()).middleware
-};
+const middlewares = [
+  {
+    name: "authenticator",
+    middlewareObj: new AuthMiddleware(getSalt()).middleware
+  },
+  {
+    name: "limiter",
+    middlewareObj: limiterMiddleware
+  }
+];
 
-runServices(services, [middleware]);
+runServices(services, middlewares);

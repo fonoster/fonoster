@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -19,9 +19,9 @@
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
-import Users, {UsersPB} from "../src/client/users";
+import Users, { UsersPB } from "../src/client/users";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonoster/common";
+import { APIClient } from "@fonoster/common";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -148,7 +148,7 @@ describe("@fonoster/users", () => {
       .returns({
         deleteUser: () => {
           return {
-            sendMessage: () => Promise.resolve({ref: "Nx05y-ldZa"})
+            sendMessage: () => Promise.resolve({ ref: "Nx05y-ldZa" })
           };
         }
       });
@@ -173,7 +173,8 @@ describe("@fonoster/users", () => {
       .returns({
         updateUser: () => {
           return {
-            sendMessage: () => Promise.resolve({getRef: () => userObj.getRef()})
+            sendMessage: () =>
+              Promise.resolve({ getRef: () => userObj.getRef() })
           };
         }
       });

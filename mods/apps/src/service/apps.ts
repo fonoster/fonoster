@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 import grpc from "@grpc/grpc-js";
-import {getRedisConnection, getAccessKeyId} from "@fonoster/core";
-import {AppsPB} from "../client/apps";
-import {AppsService, IAppsServer, IAppsService} from "./protos/apps_grpc_pb";
+import { getRedisConnection, getAccessKeyId } from "@fonoster/core";
+import { AppsPB } from "../client/apps";
+import { AppsService, IAppsServer, IAppsService } from "./protos/apps_grpc_pb";
 import {
   GetAppRequest,
   App,
@@ -30,10 +30,10 @@ import {
   CreateAppRequest,
   UpdateAppRequest
 } from "./protos/apps_pb";
-import {Empty} from "./protos/common_pb";
-import {ErrorCodes, FonosterError} from "@fonoster/errors";
+import { Empty } from "./protos/common_pb";
+import { ErrorCodes, FonosterError } from "@fonoster/errors";
 import decoder from "./decoder";
-import {nanoid} from "nanoid";
+import { nanoid } from "nanoid";
 import encoder from "./encoder";
 
 const redis = getRedisConnection();
@@ -205,4 +205,4 @@ export default class AppsServer implements IAppsServer {
   }
 }
 
-export {IAppsService, AppsService};
+export { IAppsService, AppsService };

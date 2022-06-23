@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -21,9 +21,9 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import Apps from "../src/client/apps";
-import {APIClient} from "@fonoster/common";
-import AppsPB, {TransferConfig} from "../src/service/protos/apps_pb";
-import {Struct} from "google-protobuf/google/protobuf/struct_pb";
+import { APIClient } from "@fonoster/common";
+import AppsPB, { TransferConfig } from "../src/service/protos/apps_pb";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -191,7 +191,7 @@ describe("@fonoster/apps/client", () => {
       .returns({
         deleteApp: () => {
           return {
-            sendMessage: () => Promise.resolve({ref: "Nx05y-ldZa"})
+            sendMessage: () => Promise.resolve({ ref: "Nx05y-ldZa" })
           };
         }
       });
@@ -312,7 +312,7 @@ describe("@fonoster/apps/client", () => {
               ).to.be.deep.equal(
                 appObj.getIntentsEngineConfig().toJavaScript()
               );
-              return Promise.resolve({getRef: () => appObj.getRef()});
+              return Promise.resolve({ getRef: () => appObj.getRef() });
             }
           };
         }

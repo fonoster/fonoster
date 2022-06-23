@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -30,13 +30,13 @@ import UserPB, {
   ListUsersResponse,
   User
 } from "./protos/users_pb";
-import {Empty} from "./protos/common_pb";
+import { Empty } from "./protos/common_pb";
 import {
   IUsersService,
   UsersService,
   IUsersServer
 } from "./protos/users_grpc_pb";
-import {assertNotEmpty, assertValidEmail, assertValidURL} from "./assertions";
+import { assertNotEmpty, assertValidEmail, assertValidURL } from "./assertions";
 import {
   getRedisConnection,
   getAccessKeyId,
@@ -45,15 +45,15 @@ import {
 import objectid from "bson-objectid";
 import encoder from "./encoder";
 import decoder from "./decoder";
-import {FonosterError} from "@fonoster/errors";
-import {ErrorCodes} from "@fonoster/errors";
+import { FonosterError } from "@fonoster/errors";
+import { ErrorCodes } from "@fonoster/errors";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import JWT from "@fonoster/auth/dist/utils/jwt";
-import {AUTH_ISS, getSalt} from "@fonoster/certs";
+import { AUTH_ISS, getSalt } from "@fonoster/certs";
 import logger from "@fonoster/logger";
 import bcrypt from "bcrypt";
-import {Tracer as T} from "@fonoster/common";
-import {UserLimiter, UserStatus} from "./types";
+import { Tracer as T } from "@fonoster/common";
+import { UserLimiter, UserStatus } from "./types";
 
 T.init("users-service");
 
@@ -299,4 +299,4 @@ class UsersServer implements IUsersServer {
   }
 }
 
-export {UsersServer as default, IUsersService, UsersService};
+export { UsersServer as default, IUsersService, UsersService };

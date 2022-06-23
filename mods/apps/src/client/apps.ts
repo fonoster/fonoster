@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
+import { APIClient, ClientOptions } from "@fonoster/common";
 import AppsPB from "../service/protos/apps_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
-import {AppsClient} from "../service/protos/apps_grpc_pb";
-import {Struct} from "google-protobuf/google/protobuf/struct_pb";
+import { promisifyAll } from "grpc-promise";
+import { AppsClient } from "../service/protos/apps_grpc_pb";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import {
   App,
   CreateAppRequest,
@@ -74,7 +74,7 @@ export default class Apps extends APIClient implements IAppsClient {
   constructor(options?: ClientOptions) {
     super(AppsClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -368,11 +368,11 @@ export default class Apps extends APIClient implements IAppsClient {
     const req = new AppsPB.DeleteAppRequest();
     req.setRef(ref);
     await super.getService().deleteApp().sendMessage(req);
-    return {ref};
+    return { ref };
   }
 }
 
-export {App, AppsPB, CommonPB, IAppsClient};
+export { App, AppsPB, CommonPB, IAppsClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Apps;
