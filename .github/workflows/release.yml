@@ -208,6 +208,14 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/callmanager
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
+    - name: Publish to Docker Hub the Limiter API
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: fonoster/limiter
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        workdir: mods/limiter
+        tags: "latest, ${{ steps.get_version.outputs.VERSION }}"        
     - name: Publish to Docker Hub the Auth API
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
