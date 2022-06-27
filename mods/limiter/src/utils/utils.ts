@@ -39,7 +39,7 @@ export function getUserByAccessKeyId(redis: RedisClient) {
       return null;
     }
 
-    if (accessKeyId.startsWith("US")) {
+    if (!accessKeyId.startsWith("PJ")) {
       return userDecoder(jsonStr);
     }
 
