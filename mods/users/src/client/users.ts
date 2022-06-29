@@ -209,6 +209,8 @@ export default class Users extends APIClient implements IUsersClient {
     if (request.name) req.setName(request.name);
     if (request.secret) req.setSecret(request.secret);
     if (request.avatar) req.setAvatar(request.avatar);
+    if (request.status) req.setStatus(request.status);
+    if (request.limiter) req.setLimiter(request.limiter);
 
     const res = await super.getService().updateUser().sendMessage(req);
 
