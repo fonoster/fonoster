@@ -37,6 +37,7 @@ RUN mkdir -p docker operator config \
   && cp fonoster/etc/service_envs.json config \
   && cp fonoster/etc/install.sh . \
   && cp fonoster/etc/update.sh . \
+  && cp fonoster/etc/stop.sh . \
   && rm -rf fonoster
 
 ##
@@ -45,12 +46,13 @@ RUN mkdir -p docker operator config \
 FROM stage AS serve
 WORKDIR /work
 
-COPY --from=stage /work/install.sh /work/update.sh ./
+COPY --from=stage /work/install.sh /work/update.sh /work/stop.sh ./
 COPY --from=stage /work/docker /work/docker
 
 RUN find . -type f -iname "*.sh" -exec chmod +x {} + \
   && mv /work/install.sh /install.sh \
   && mv /work/update.sh /update.sh \
+  && mv /work/stop.sh /stop.sh \
   && mv /work/docker /docker \
   && chown -R fonoster:fonoster /work
 

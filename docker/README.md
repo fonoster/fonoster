@@ -12,7 +12,7 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster:0.3.6-alpha.5
+  fonoster/fonoster:0.3.12
 ```
 
 #### Install (With extra services)
@@ -26,7 +26,7 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster:0.3.6-alpha.5
+  fonoster/fonoster:0.3.12
 ```
 
 #### Install (Passing version)
@@ -41,7 +41,7 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster:0.3.6-alpha.5
+  fonoster/fonoster:0.3.12
 ```
 
 #### Install (Verbose mode)
@@ -56,7 +56,7 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/install.sh" \
-  fonoster/fonoster:0.3.6-alpha.5
+  fonoster/fonoster:0.3.12
 ```
 
 #### Update (Happy path)
@@ -69,7 +69,7 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/update.sh" \
-  fonoster/fonoster:0.3.6-alpha.5
+  fonoster/fonoster:0.3.12
 ```
 
 #### Update (Passing version and verbose)
@@ -84,5 +84,18 @@ docker run -it --rm \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
   --entrypoint="/update.sh" \
-  fonoster/fonoster:0.3.6-alpha.5
+  fonoster/fonoster:0.3.12
+```
+
+#### Stop (Happy path)
+
+Stop your current installation.
+
+```bash
+docker run -it --rm \
+  -e CONFIG_PATH=$(pwd)/fonoster/config \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume $(pwd)/fonoster:/out:rw \
+  --entrypoint="/stop.sh" \
+  fonoster/fonoster:0.3.12
 ```
