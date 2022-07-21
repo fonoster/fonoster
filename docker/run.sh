@@ -25,6 +25,7 @@ source "$HELPERS/set-env.sh"
 # Commands sources
 source "$COMMANDS/install.sh"
 source "$COMMANDS/update.sh"
+source "$COMMANDS/stop.sh"
 
 INPUT=$1
 shift
@@ -40,6 +41,9 @@ install | setup | init | start)
 upgrade | update)
   update "$@"
   ;;
+stop)
+  stop "$@"
+  ;;  
 *)
   error "Unknown command: $COMMAND"
   ;;
