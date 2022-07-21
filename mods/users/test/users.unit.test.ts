@@ -164,7 +164,9 @@ describe("@fonoster/users", () => {
     const request = {
       ref: userObj.getRef(),
       secret: "1234",
-      avatar: userObj.getAvatar()
+      avatar: userObj.getAvatar(),
+      status: "active",
+      limiter: "starter"
     };
 
     sandbox.stub(APIClient.prototype, "init").returns();
