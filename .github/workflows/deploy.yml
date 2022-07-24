@@ -27,7 +27,7 @@ jobs:
           script: |
             set -e
             cd /opt
-            docker run -it --rm \
+            docker run --rm \
               -e CONFIG_PATH=$(pwd)/fonoster/config \
               --volume /var/run/docker.sock:/var/run/docker.sock \
               --volume $(pwd)/fonoster:/out:rw \
