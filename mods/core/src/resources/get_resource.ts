@@ -1,15 +1,14 @@
 import routr from "../common/routr";
 import {GetResourceRequest} from "./types";
-import ot from "@opentelemetry/api";
+import opentelemetry from "@opentelemetry/api";
 import logger from "@fonoster/logger";
-import {Tracer as T} from "@fonoster/common";
 
-const tracer = T.init("core");
+const tracer = opentelemetry.trace.getTracer("fonoster-tracer")
 
 export default async function getResource(
   request: GetResourceRequest
 ): Promise<unknown> {
-  const currentSpan = ot.trace.getSpan(ot.context.active());
+  const currentSpan = opentelemetry.trace.getSpan(opentelemetry.context.active());
   const meta = {...request, traceId: currentSpan.spanContext().traceId};
   const span = tracer.startSpan("get_resource.ts:getResource()", {kind: 1});
 

@@ -1,20 +1,20 @@
 # API Services
 
-version: '3.7'
+version: '3'
 
 services:
 
   apiserver:
     image: fonoster/traefik:${COMPOSE_PROJECT_VERSION}
     command:
-      # - "--log.level=DEBUG"
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.internal.address=:${HTTP_PORT}"
-      - "--entrypoints.websecure.address=:${HTTPS_PORT}"
+      # - --log.level=DEBUG
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.internal.address=:${HTTP_PORT}
+      - --entrypoints.websecure.address=:${HTTPS_PORT}
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       fonoster:
         aliases: 
@@ -26,10 +26,10 @@ services:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.auth.entrypoints=internal,websecure"
-      - "traefik.http.routers.auth.rule=PathPrefix(`/fonoster.auth.v1beta1.Auth`)"
-      - "traefik.http.services.auth.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.auth.entrypoints=internal,websecure
+      - traefik.http.routers.auth.rule=PathPrefix(`/fonoster.auth.v1beta1.Auth`)
+      - traefik.http.services.auth.loadbalancer.server.scheme=h2c
     volumes:
       - ${CONFIG}/rbac.json:/home/fonoster/rbac.json
 
@@ -38,11 +38,16 @@ services:
     extends:
       file: api-common.yml
       service: common
+    environment:
+      - SIPPROXY_HOST
+      - SIPPROXY_API_PORT
+      - SIPPROXY_API_USERNAME
+      - SIPPROXY_API_SECRET     
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.limiter.entrypoints=internal,websecure"
-      - "traefik.http.routers.limiter.rule=PathPrefix(`/fonoster.auth.v1beta1.Limiter`)"
-      - "traefik.http.services.limiter.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.limiter.entrypoints=internal,websecure
+      - traefik.http.routers.limiter.rule=PathPrefix(`/fonoster.auth.v1beta1.Limiter`)
+      - traefik.http.services.limiter.loadbalancer.server.scheme=h2c
     volumes:
       - ${CONFIG}/limiters.json:/home/fonoster/limiters.json
 
@@ -52,10 +57,10 @@ services:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.monitor.entrypoints=internal,websecure"
-      - "traefik.http.routers.monitor.rule=PathPrefix(`/fonoster.monitor.v1beta1`)"
-      - "traefik.http.services.monitor.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.monitor.entrypoints=internal,websecure
+      - traefik.http.routers.monitor.rule=PathPrefix(`/fonoster.monitor.v1beta1`)
+      - traefik.http.services.monitor.loadbalancer.server.scheme=h2c
 
   users:
     image: fonoster/users:${COMPOSE_PROJECT_VERSION}
@@ -63,10 +68,10 @@ services:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.users.entrypoints=internal,websecure"
-      - "traefik.http.routers.users.rule=PathPrefix(`/fonoster.users.v1beta1`)"
-      - "traefik.http.services.users.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.users.entrypoints=internal,websecure
+      - traefik.http.routers.users.rule=PathPrefix(`/fonoster.users.v1beta1`)
+      - traefik.http.services.users.loadbalancer.server.scheme=h2c
 
   projects:
     image: fonoster/projects:${COMPOSE_PROJECT_VERSION}
@@ -74,73 +79,112 @@ services:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.projects.entrypoints=internal,websecure"
-      - "traefik.http.routers.projects.rule=PathPrefix(`/fonoster.projects.v1beta1`)"
-      - "traefik.http.services.projects.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.projects.entrypoints=internal,websecure
+      - traefik.http.routers.projects.rule=PathPrefix(`/fonoster.projects.v1beta1`)
+      - traefik.http.services.projects.loadbalancer.server.scheme=h2c
 
   agents:
     image: fonoster/agents:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
+    environment:
+      - SIPPROXY_HOST
+      - SIPPROXY_API_PORT
+      - SIPPROXY_API_USERNAME
+      - SIPPROXY_API_SECRET
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.agents.entrypoints=internal,websecure"
-      - "traefik.http.routers.agents.rule=PathPrefix(`/fonoster.agents.v1beta1`)"
-      - "traefik.http.services.agents.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.agents.entrypoints=internal,websecure
+      - traefik.http.routers.agents.rule=PathPrefix(`/fonoster.agents.v1beta1`)
+      - traefik.http.services.agents.loadbalancer.server.scheme=h2c
   
   domains:
     image: fonoster/domains:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
+    environment:
+      - GLOBAL_SIP_DOMAIN
+      - SIPPROXY_HOST
+      - SIPPROXY_API_PORT
+      - SIPPROXY_API_USERNAME
+      - SIPPROXY_API_SECRET      
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.domains.entrypoints=internal,websecure"
-      - "traefik.http.routers.domains.rule=PathPrefix(`/fonoster.domains.v1beta1`)"
-      - "traefik.http.services.domains.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.domains.entrypoints=internal,websecure
+      - traefik.http.routers.domains.rule=PathPrefix(`/fonoster.domains.v1beta1`)
+      - traefik.http.services.domains.loadbalancer.server.scheme=h2c
   
   numbers:
     image: fonoster/numbers:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
+    environment:
+      - VOICE_URL
+      - MS_ENDPOINT
+      - SIPPROXY_HOST
+      - SIPPROXY_API_PORT
+      - SIPPROXY_API_USERNAME
+      - SIPPROXY_API_SECRET
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.numbers.entrypoints=internal,websecure" 
-      - "traefik.http.routers.numbers.rule=PathPrefix(`/fonoster.numbers.v1beta1`)"
-      - "traefik.http.services.numbers.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.numbers.entrypoints=internal,websecure 
+      - traefik.http.routers.numbers.rule=PathPrefix(`/fonoster.numbers.v1beta1`)
+      - traefik.http.services.numbers.loadbalancer.server.scheme=h2c
 
   providers:
     image: fonoster/providers:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
+    environment:
+      - SIPPROXY_HOST
+      - SIPPROXY_API_PORT
+      - SIPPROXY_API_USERNAME
+      - SIPPROXY_API_SECRET
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.providers.entrypoints=internal,websecure"
-      - "traefik.http.routers.providers.rule=PathPrefix(`/fonoster.providers.v1beta1`)"
-      - "traefik.http.services.providers.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.providers.entrypoints=internal,websecure
+      - traefik.http.routers.providers.rule=PathPrefix(`/fonoster.providers.v1beta1`)
+      - traefik.http.services.providers.loadbalancer.server.scheme=h2c
 
   storage:
     image: fonoster/storage:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
+    environment:
+      - FS_HOST
+      - FS_PORT
+      - FS_USERNAME
+      - FS_SECRET
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.storage.entrypoints=internal,websecure"
-      - "traefik.http.routers.storage.rule=PathPrefix(`/fonoster.storage.v1beta1`)"
-      - "traefik.http.services.storage.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.storage.entrypoints=internal,websecure
+      - traefik.http.routers.storage.rule=PathPrefix(`/fonoster.storage.v1beta1`)
+      - traefik.http.services.storage.loadbalancer.server.scheme=h2c
   
   callmanager:
     image: fonoster/callmanager:${COMPOSE_PROJECT_VERSION}
     extends:
       file: api-common.yml
       service: common
+    environment:
+      - MS_ARI_INTERNAL_URL
+      - MS_TRUNK
+      - MS_CONTEXT
+      - MS_EXTENSION
+      - MS_ARI_USERNAME
+      - MS_ARI_SECRET
+      - SIPPROXY_HOST
+      - SIPPROXY_API_PORT
+      - SIPPROXY_API_USERNAME
+      - SIPPROXY_API_SECRET
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.callmanager.entrypoints=internal,websecure"    
-      - "traefik.http.routers.callmanager.rule=PathPrefix(`/fonoster.callmanager.v1beta1`)"
-      - "traefik.http.services.callmanager.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.callmanager.entrypoints=internal,websecure    
+      - traefik.http.routers.callmanager.rule=PathPrefix(`/fonoster.callmanager.v1beta1`)
+      - traefik.http.services.callmanager.loadbalancer.server.scheme=h2c

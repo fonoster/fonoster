@@ -67,10 +67,10 @@ function basic_network() {
 
   case $1 in
   start)
-    eval "$COMPOSE_CMD -f letsencrypt.yml up -d"
+    eval "$COMPOSE_CMD -f letsencrypt.yml up -d --remove-orphans"
     ;;
   start-unsecure)
-    eval "$COMPOSE_CMD -f noencrypt.yml up -d"
+    eval "$COMPOSE_CMD -f noencrypt.yml up -d --remove-orphans"
     ;;
   stop | down)
     eval "$COMPOSE_CMD -f noencrypt.yml down"

@@ -20,9 +20,6 @@ import walk from "walk";
 import path from "path";
 import logger from "@fonoster/logger";
 import policyForBucket from "./bucket_policy";
-import {Tracer as T} from "@fonoster/common";
-
-T.init("storage-service");
 
 const splitPath = (p: string) => path.dirname(p).split(path.sep);
 
