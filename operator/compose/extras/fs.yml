@@ -1,6 +1,6 @@
 # Required dependencies
 
-version: '3.7'
+version: '3'
 
 networks:
   fonoster:
@@ -14,9 +14,9 @@ services:
   fs:
     image: fonoster/minio:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
-    command: minio server /fonos
+    command: minio server /fonoster
     volumes:
-      - data1-1:/fonos
+      - data1-1:/fonoster
     environment:
       MINIO_ACCESS_KEY: ${FS_USERNAME}
       MINIO_SECRET_KEY: ${FS_SECRET}

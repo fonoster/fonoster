@@ -1,6 +1,6 @@
 # Extra API Service
 
-version: '3.7'
+version: '3'
 
 networks:
   fonoster:
@@ -13,7 +13,7 @@ services:
       file: api-common.yml
       service: common
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.apps.entrypoints=internal,websecure"
-      - "traefik.http.routers.apps.rule=PathPrefix(`/fonoster.apps.v1beta1`)"
-      - "traefik.http.services.apps.loadbalancer.server.scheme=h2c"
+      - traefik.enable=true
+      - traefik.http.routers.apps.entrypoints=internal,websecure
+      - traefik.http.routers.apps.rule=PathPrefix(`/fonoster.apps.v1beta1`)
+      - traefik.http.services.apps.loadbalancer.server.scheme=h2c

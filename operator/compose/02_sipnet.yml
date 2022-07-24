@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3'
 
 services:
 
@@ -19,7 +19,7 @@ services:
       EX_RTP_ENGINE_PORT: ${RTPE_PORT}
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: "false"
-      JAVA_OPTS: "-XX:NewRatio=2 -Xmx250M"
+      JAVA_OPTS: -XX:NewRatio=2 -Xmx250M
     ports:
       - ${SIPPROXY_SIP_PORTS}:${SIPPROXY_SIP_PORTS}
       - ${SIPPROXY_SIP_PORT_UDP}:${SIPPROXY_SIP_PORT_UDP}/udp
@@ -39,12 +39,12 @@ services:
     image: fonoster/rtpengine:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}  
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.rtpengine.entrypoints=internal,websecure"
-      - "traefik.http.routers.rtpengine.rule=PathPrefix(`/ng`)"
-      - "traefik.http.services.rtpengine.loadbalancer.server.port=8080"
+      - traefik.enable=true
+      - traefik.http.routers.rtpengine.entrypoints=internal,websecure
+      - traefik.http.routers.rtpengine.rule=PathPrefix(`/ng`)
+      - traefik.http.services.rtpengine.loadbalancer.server.port=8080
     # Network hostmode seems to only work in Linux systems
-    network_mode: "host"
+    network_mode: host
     environment:
       # This will fail if network_mode != host
       PUBLIC_IP: ${DOCKER_HOST_ADDRESS}
@@ -55,14 +55,19 @@ services:
   mediaserver:
     image: fonoster/mediaserver:${COMPOSE_PROJECT_VERSION}
     restart: ${RESTART_POLICY}
+    depends_on:
+      rtpengine:
+        condition: 'service_healthy'
+      sipproxy:
+        condition: 'service_healthy'        
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mediaserver.entrypoints=internal,websecure"
-      - "traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/playbacks`) || PathPrefix(`/ari/channels`) || PathPrefix(`/ari/events`)"
-      - "traefik.http.services.mediaserver.loadbalancer.server.port=8088"
-      - "traefik.http.routers.mediaserver.middlewares=basic-auth@docker,session-auth@docker"
-      - "traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth"
-      - "traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}"
+      - traefik.enable=true
+      - traefik.http.routers.mediaserver.entrypoints=internal,websecure
+      - traefik.http.routers.mediaserver.rule=PathPrefix(`/ari/playbacks`) || PathPrefix(`/ari/channels`) || PathPrefix(`/ari/events`)
+      - traefik.http.services.mediaserver.loadbalancer.server.port=8088
+      - traefik.http.routers.mediaserver.middlewares=basic-auth@docker,session-auth@docker
+      - traefik.http.middlewares.session-auth.forwardauth.address=http://auth:3000/session_auth
+      - traefik.http.middlewares.basic-auth.headers.customrequestheaders.Authorization=Basic ${MS_ARI_AUTHORIZATION}
     environment:
       APISERVER_ENDPOINT: ${AS_HOST}:${HTTP_PORT}
       ALLOW_INSECURE: ${AS_ALLOW_INSECURE}
@@ -88,9 +93,6 @@ services:
       LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
       LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
       TRACING_ENDPOINT: ${TRACING_ENDPOINT}
-      # Give asterisk a fake localnet to force it to always advertise its public address
-      # Deprecated
-      # LOCALNET: '8.8.8.8'
     volumes:
       - data1-1:/home/fonoster
       # TODO: Update image to add user fonoster

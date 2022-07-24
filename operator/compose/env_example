@@ -5,7 +5,7 @@
 # Set these to strong secrets to avoid intruders from impersonating a service account
 # The service(s) won't start unless these are specified
 # Running ./gen-secrets.sh will update .env with strong passwords
-# DO NOT reuse secrets
+# Reusing secrets IS NOT recommended.
 #
 
 # Password for Asterisk ARI API
@@ -30,15 +30,17 @@ SIPPROXY_API_SECRET=
 # you will have to set this manually
 DS_SECRET=
 
-
 #
-# Basic configuration options
+# General configuration
 #
 
 # External IP or Domain for your Fonoster API (required)
 # Before going on production you must replace this with the
 # TLS protected URL
 #PUBLIC_URL=http://api.example.com:51051
+
+# Any new domain will be a subdomain under this global domain
+GLOBAL_SIP_DOMAIN=fonoster.io
 
 # Exposed HTTP port
 HTTP_PORT=51051
@@ -57,10 +59,10 @@ CONFIG=/opt/fonoster/config
 #RTPE_HOST=192.168.1.1
 
 # Domain for which to generate the certificate
-#LETSENCRYPT_DOMAIN=api.example.com
+LETSENCRYPT_DOMAIN=
 
 # E-Mail for receiving important account notifications (mandatory)
-#LETSENCRYPT_EMAIL=alice@acme.com
+LETSENCRYPT_EMAIL=
 
 # Whitelisted services (comma separated)
 AUTH_ACCESS_WHITELIST=/fonoster.auth.v1beta1.Auth/GetRole,/fonoster.users.v1beta1.Users/CreateUser,/fonoster.auth.v1beta1.Users/CreateUserCredentials
@@ -129,9 +131,6 @@ SIPPROXY_SIP_PORT_UDP=5060
 # Single port for connection from Peers (Such as the Media Server)
 SIPPROXY_SIP_PORT=5060
 
-# Any new domain will be a subdomain under this global domain
-GLOBAL_SIP_DOMAIN=fonoster.io
-
 #
 # Configuration to logging service (Based on Kibana)
 #
@@ -139,23 +138,13 @@ LOGS_DRIVER_HOST=logsdriver.fonoster
 LOGS_DRIVER_PORT=24224
 LOGS_AGGREGRATOR_HOST=logsaggregator.fonoster
 LOGS_AGGREGRATOR_PORT=9200
-LOG_OPT_TAG_PREFIX=early
+LOG_OPT_TAG_PREFIX=beta
 LOGS_FORMAT=json
 LOGS_LEVEL=info
 LOGS_TRANSPORT=fluent
 
 # Tracing
-TRACING_ENDINGPOINT=http://tracing:14268/api/traces
-
-#
-# Integration with events server (RabbitMQ)
-#
-EB_HOST=eventsbroker.fonos
-EB_PORT=5672
-EB_USERNAME=fonoster
-EB_SECRET=
-# Enables sending events to RabbitMQ
-EB_ENABLED=false
+TRACING_ENDPOINT=http://tracing:14268/api/traces
 
 #
 # Integration with secrets server (Vault)
@@ -164,46 +153,11 @@ SECRETS_URL=http://secrets:8200
 SECRETS_POLICY=fonoster-policy
 SECRETS_TOKEN=
 
-
-#
-# Integration with TTS Service (MaryTTS)
-#
-TTS_ENGINE_HOST=tts.fonoster
-TTS_ENGINE_PORT=59125
-TTS_BASE_URI=/tts
-
 #
 # Integration with Rox Connector
 #
 VOICE_URL=http://voice.fonoster:3000
 VOICE_HOST=voice.fonoster
-
-#
-# OpenFaas integration (for Cloud Funcions)
-#
-
-# Domain where your functions server lives
-#FUNCS_URL=https://faasd.yourdomain.net:8080
-
-# Temporary folder for new image creation
-#FUNCS_WORKDIR=/home/fonoster/funcs
-
-# Username at functions server
-#FUNCS_USERNAME=admin
-
-# Secrets at functions server
-#FUNCS_SECRET=
-
-
-#
-# Docker registry integration (for container creation and upload)
-#
-#DOCKER_REGISTRY_ORG=yourorg
-#DOCKER_REGISTRY_USERNAME=yourorg
-#DOCKER_REGISTRY_SECRET=
-#DOCKER_REGISTRY=docker.io
-#DOCKER_REGISTRY_SERVICE=registry.docker.io
-#DOCKER_REGISTRY_AUTH_ENDPOINT=https://auth.docker.io/token
 
 #
 # Miscelaneous variables

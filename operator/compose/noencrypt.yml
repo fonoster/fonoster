@@ -1,6 +1,6 @@
 # Warning: Using this configuration will allow unsecured access to the API
 
-version: '3.7'
+version: '3'
 
 services:
 
