@@ -13,7 +13,7 @@ https://user-images.githubusercontent.com/539774/170885814-02c53689-af12-4e05-83
 
 ## Features
 
-The most notable features on FN 0.2 are:
+The most notable features on FN 0.3 are:
 
 - [x] Cloud initialization with Cloud-Init
 - [x] Multitenancy
@@ -49,15 +49,23 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 Voice Application Example:
 
 ```typescript
-const { VoiceServer } = require("@fonoster/voice");
-const voiceServer = new VoiceServer({ base: '/voiceapp' });
+import {VoiceRequest, VoiceServer, VoiceResponse} from "@fonoster/voice";
+import logger from "@fonoster/logger";
 
-voiceServer.listen((req, res) => {
-  console.log(req);
-  res.play("sound:hello-world");
-});
+const serverConfig = {
+  pathToFiles: `${process.cwd()}/sounds`,
+};
 
-// your app will be at http://127.0.0.1/voiceapp 
+new VoiceServer(serverConfig).listen(
+  async (req: VoiceRequest, res: VoiceResponse) => {
+    logger.verbose(req);
+    await res.answer();
+    await res.play(`sound:${req.selfEndpoint}/sounds/hello-world.sln16`);
+    await res.hangup();
+  }
+);
+
+// your app will live at http://127.0.0.1:3000 
 // and you can easily publish it to the Internet with:
 // ngrok http 3000
 ```
