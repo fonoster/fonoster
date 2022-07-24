@@ -1,10 +1,11 @@
 name: int tests
 on:
+  workflow_dispatch:
   push:
     paths:
     - 'mods/**'
     branches:
-    - master
+    - main
 jobs:
   build:
     timeout-minutes: 5
