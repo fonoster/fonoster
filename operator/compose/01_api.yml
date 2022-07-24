@@ -38,6 +38,11 @@ services:
     extends:
       file: api-common.yml
       service: common
+    environment:
+      - SIPPROXY_HOST
+      - SIPPROXY_API_PORT
+      - SIPPROXY_API_USERNAME
+      - SIPPROXY_API_SECRET     
     labels:
       - traefik.enable=true
       - traefik.http.routers.limiter.entrypoints=internal,websecure

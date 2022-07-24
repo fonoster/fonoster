@@ -59,10 +59,10 @@ CONFIG=/opt/fonoster/config
 #RTPE_HOST=192.168.1.1
 
 # Domain for which to generate the certificate
-#LETSENCRYPT_DOMAIN=api.example.com
+LETSENCRYPT_DOMAIN=
 
 # E-Mail for receiving important account notifications (mandatory)
-#LETSENCRYPT_EMAIL=alice@acme.com
+LETSENCRYPT_EMAIL=
 
 # Whitelisted services (comma separated)
 AUTH_ACCESS_WHITELIST=/fonoster.auth.v1beta1.Auth/GetRole,/fonoster.users.v1beta1.Users/CreateUser,/fonoster.auth.v1beta1.Users/CreateUserCredentials
@@ -144,7 +144,7 @@ LOGS_LEVEL=info
 LOGS_TRANSPORT=fluent
 
 # Tracing
-TRACING_ENDINGPOINT=http://tracing:14268/api/traces
+TRACING_ENDPOINT=http://tracing:14268/api/traces
 
 #
 # Integration with secrets server (Vault)
