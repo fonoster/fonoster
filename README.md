@@ -49,16 +49,15 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 Voice Application Example:
 
 ```typescript
-import {VoiceRequest, VoiceServer, VoiceResponse} from "@fonoster/voice";
-import logger from "@fonoster/logger";
+const { VoiceServer } = require("@fonoster/voice");
 
 const serverConfig = {
   pathToFiles: `${process.cwd()}/sounds`,
 };
 
 new VoiceServer(serverConfig).listen(
-  async (req: VoiceRequest, res: VoiceResponse) => {
-    logger.verbose(req);
+  async (req, res) => {
+    console.log(req);
     await res.answer();
     await res.play(`sound:${req.selfEndpoint}/sounds/hello-world.sln16`);
     await res.hangup();
