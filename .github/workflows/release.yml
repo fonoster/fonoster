@@ -29,6 +29,38 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+    - name: Publishing MediaServer Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/mediaserver
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    #- name: Publishing RTPEngine Service
+    #  uses: benc-uk/workflow-dispatch@v1
+    #  with:
+    #    workflow: publish to docker hub
+    #    repo: fonoster/rtpengine
+    #    token: ${{ secrets.GH_PAT }}
+    #    ref: main
+    #    inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing JWTHelper Service
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/jwt-helper
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
+    - name: Publishing GRPC Gateway
+      uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: publish to docker hub
+        repo: fonoster/grpc-gateway
+        token: ${{ secrets.GH_PAT }}
+        ref: main
+        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'        
     - name: Copy and Push Traefik image
       uses: akhilerm/tag-push-action@v2.0.0
       with:
@@ -224,36 +256,3 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         workdir: mods/auth
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"
-    - name: Publishing MediaServer Service
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/mediaserver
-        token: ${{ secrets.GH_PAT }}
-        ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    #- name: Publishing RTPEngine Service
-    #  uses: benc-uk/workflow-dispatch@v1
-    #  with:
-    #    workflow: publish to docker hub
-    #    repo: fonoster/rtpengine
-    #    token: ${{ secrets.GH_PAT }}
-    #    ref: main
-    #    inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing JWTHelper Service
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/jwt-helper
-        token: ${{ secrets.GH_PAT }}
-        ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
-    - name: Publishing GRPC Gateway
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/grpc-gateway
-        token: ${{ secrets.GH_PAT }}
-        ref: main
-        inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'          
-
