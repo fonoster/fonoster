@@ -1,8 +1,6 @@
 name: deploy
 
 on:
-  push:
-    branches: [ main ]
 
   workflow_dispatch:
     inputs:
