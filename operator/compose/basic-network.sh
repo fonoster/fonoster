@@ -63,7 +63,7 @@ function basic_network() {
     fi
   done
 
-  COMPOSE_CMD="docker compose --env-file .env ${COMPOSE_FILES[*]}"
+  COMPOSE_CMD="docker-compose --env-file .env ${COMPOSE_FILES[*]}"
 
   case $1 in
   start)
