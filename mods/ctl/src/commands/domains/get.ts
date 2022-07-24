@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {render} from "prettyjson";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
@@ -20,7 +20,7 @@ export default class GetCommand extends Command {
 
     try {
       const domains = new Domains(getProjectConfig());
-      cli.action.start(`Getting domain ${args.ref}`);
+      CliUx.ux.action.start(`Getting domain ${args.ref}`);
       const domain = await domains.getDomain(args.ref);
       console.log("geting domain: ");
 
@@ -41,8 +41,8 @@ export default class GetCommand extends Command {
         Updated: moment(domain.updateTime).fromNow()
       };
 
-      await cli.wait(1000);
-      cli.action.stop("");
+      await CliUx.ux.wait(1000);
+      CliUx.ux.action.stop("");
       console.log(render(jsonObj, {noColor: true}));
     } catch (e) {
       throw new CLIError(e.message);

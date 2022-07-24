@@ -4,7 +4,7 @@ import handleError from "./routr_errors";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 /**
- * Oversimplified version of a Routr API Client
+ * Simple Routr Client
  */
 export default class RoutrClient {
   apiUrl: string;

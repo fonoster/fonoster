@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -206,7 +206,8 @@ export default class Projects extends APIClient implements IProjectsClient {
     req.setRef(request.ref);
 
     if (request.name) req.setName(request.name);
-    if (request.allowExperiments) req.setName(request.name);
+    if (request.allowExperiments)
+      req.setAllowExperiments(request.allowExperiments);
 
     const res = await super.getService().updateProject().sendMessage(req);
 

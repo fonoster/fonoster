@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {render} from "prettyjson";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 const Agents = require("@fonoster/agents");
@@ -19,7 +19,7 @@ export default class GetCommand extends Command {
 
     try {
       const agents = new Agents(getProjectConfig());
-      cli.action.start(`Getting Agent ${args.ref}`);
+      CliUx.ux.action.start(`Getting Agent ${args.ref}`);
       const agent = await agents.getAgent(args.ref);
 
       const jsonObj = {
@@ -32,8 +32,8 @@ export default class GetCommand extends Command {
         Updated: moment(agent.updateTime).fromNow()
       };
 
-      await cli.wait(1000);
-      cli.action.stop("");
+      await CliUx.ux.wait(1000);
+      CliUx.ux.action.stop("");
       console.log(render(jsonObj, {noColor: true}));
     } catch (e) {
       throw new CLIError(e.message);

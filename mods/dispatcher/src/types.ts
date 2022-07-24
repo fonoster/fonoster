@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -26,6 +26,7 @@ export interface CallRequest {
   callerNumber: string;
   selfEndpoint: string;
   metadata?: Record<string, unknown>;
+  appRef?: string;
 }
 
 export interface AttachToEventsRequest {

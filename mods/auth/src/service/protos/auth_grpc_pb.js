@@ -14,6 +14,28 @@ var protoc$gen$openapiv2_options_annotations_pb = require('./protoc-gen-openapiv
 var google_api_annotations_pb = require('./google/api/annotations_pb.js');
 var google_api_field_behavior_pb = require('./google/api/field_behavior_pb.js');
 
+function serialize_fonoster_auth_v1beta1_CheckAuthorizedRequest(arg) {
+  if (!(arg instanceof auth_pb.CheckAuthorizedRequest)) {
+    throw new Error('Expected argument of type fonoster.auth.v1beta1.CheckAuthorizedRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_auth_v1beta1_CheckAuthorizedRequest(buffer_arg) {
+  return auth_pb.CheckAuthorizedRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_auth_v1beta1_CheckAuthorizedResponse(arg) {
+  if (!(arg instanceof auth_pb.CheckAuthorizedResponse)) {
+    throw new Error('Expected argument of type fonoster.auth.v1beta1.CheckAuthorizedResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_auth_v1beta1_CheckAuthorizedResponse(buffer_arg) {
+  return auth_pb.CheckAuthorizedResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_auth_v1beta1_CreateTokenRequest(arg) {
   if (!(arg instanceof auth_pb.CreateTokenRequest)) {
     throw new Error('Expected argument of type fonoster.auth.v1beta1.CreateTokenRequest');
@@ -133,3 +155,18 @@ createNoAccessToken: {
 };
 
 exports.AuthClient = grpc.makeGenericClientConstructor(AuthService);
+var LimiterService = exports.LimiterService = {
+  checkAuthorized: {
+    path: '/fonoster.auth.v1beta1.Limiter/CheckAuthorized',
+    requestStream: false,
+    responseStream: false,
+    requestType: auth_pb.CheckAuthorizedRequest,
+    responseType: auth_pb.CheckAuthorizedResponse,
+    requestSerialize: serialize_fonoster_auth_v1beta1_CheckAuthorizedRequest,
+    requestDeserialize: deserialize_fonoster_auth_v1beta1_CheckAuthorizedRequest,
+    responseSerialize: serialize_fonoster_auth_v1beta1_CheckAuthorizedResponse,
+    responseDeserialize: deserialize_fonoster_auth_v1beta1_CheckAuthorizedResponse,
+  },
+};
+
+exports.LimiterClient = grpc.makeGenericClientConstructor(LimiterService);

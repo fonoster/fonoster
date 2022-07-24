@@ -119,4 +119,5 @@ message Number {
 message IngressInfo {
   string access_key_id = 1;
   string webhook = 2;
+  string app_ref = 3;
 }

@@ -1,0 +1,29 @@
+[
+  {
+    "name": "default",
+    "allowedStatus": "active",
+    "limits": [
+      {
+        "path": "/fonoster.projects.v1beta1.Projects/CreateProject",
+        "resource": "Project",
+        "limit": 1
+      },
+      {
+        "path": "/fonoster.domains.v1beta1.Domains/CreateDomain",
+        "resource": "Domain",
+        "limit": 5
+      },
+      {
+        "path": "/fonoster.agents.v1beta1.Agents/CreateAgent",
+        "resource": "Agent",
+        "limit": 20
+      },
+      {
+        "path": "/fonoster.callmanager.v1beta1.CallManager/Call",
+        "resource": "Call",
+        "limit": 150,
+        "timeUnit": "month"
+      }
+    ]
+  }
+]

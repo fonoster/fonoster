@@ -19,14 +19,10 @@ services:
       EX_RTP_ENGINE_PORT: ${RTPE_PORT}
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: "false"
+      JAVA_OPTS: "-XX:NewRatio=2 -Xmx250M"
     ports:
       - ${SIPPROXY_SIP_PORTS}:${SIPPROXY_SIP_PORTS}
       - ${SIPPROXY_SIP_PORT_UDP}:${SIPPROXY_SIP_PORT_UDP}/udp
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost ${SIPPROXY_API_PORT} || exit 1"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
     logging:
       options:
         tag: ${LOG_OPT_TAG_PREFIX}.${COMPOSE_PROJECT_NAME}.sipproxy
@@ -85,6 +81,13 @@ services:
       SIPPROXY_SECRET: ${SIPPROXY_SECRET}
       RTP_PORT_START: ${MS_RTP_PORT_START}
       RTP_PORT_END: ${MS_RTP_PORT_END}
+      LOGS_FORMAT: ${LOGS_FORMAT}
+      LOGS_LEVEL: ${LOGS_LEVEL}
+      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      LOG_OPT_TAG_PREFIX: ${LOG_OPT_TAG_PREFIX}
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
+      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
+      TRACING_ENDPOINT: ${TRACING_ENDPOINT}
       # Give asterisk a fake localnet to force it to always advertise its public address
       # Deprecated
       # LOCALNET: '8.8.8.8'

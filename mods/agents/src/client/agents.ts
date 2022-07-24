@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -20,9 +20,9 @@ import {APIClient, ClientOptions} from "@fonoster/common";
 import {AgentsClient} from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
-import logger from "@fonoster/logger";
 import {promisifyAll} from "grpc-promise";
 import {
+  Agent,
   CreateAgentRequest,
   CreateAgentResponse,
   DeleteAgentResponse,
@@ -125,7 +125,7 @@ export default class Agents extends APIClient implements IAgentsClient {
    * @throws if ref is null or Agent does not exist
    * @example
    *
-   * const ref = "507f1f77bcf86cd799439011";
+   * const ref = "aynB1z0tzd";
    *
    * agents.getAgent(ref)
    * .then(result => {
@@ -236,11 +236,11 @@ export default class Agents extends APIClient implements IAgentsClient {
    * @param {string} ref - Agent's reference
    * @example
    *
-   * const ref = "507f1f77bcf86cd799439011"
+   * const ref = "aynB1z0tzd"
    *
    * agents.deleteAgent(ref)
    * .then(() => {
-   *   console.log("done")            // returns a reference of the agent
+   *   console.log("done")            // returns a reference of the Agent
    * }).catch(e => console.error(e))  // an error occurred
    */
   async deleteAgent(ref: string): Promise<DeleteAgentResponse> {
@@ -251,7 +251,7 @@ export default class Agents extends APIClient implements IAgentsClient {
   }
 }
 
-export {AgentsPB, CommonPB, IAgentsClient};
+export {Agent, AgentsPB, CommonPB, IAgentsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Agents;

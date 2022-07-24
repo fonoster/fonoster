@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import {Tracer as T} from "@fonoster/common";
+T.init("funcs-service");
+
 import {AuthMiddleware} from "@fonoster/auth";
 import {runServices} from "@fonoster/common";
 import {getSalt} from "@fonoster/certs";

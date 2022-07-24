@@ -35,6 +35,20 @@ service Auth {
   rpc CreateNoAccessToken (CreateTokenRequest) returns (CreateTokenResponse) {}
 }
 
+service Limiter {
+  rpc CheckAuthorized (CheckAuthorizedRequest) returns (CheckAuthorizedResponse) { };
+}
+
+message CheckAuthorizedRequest {
+  // The path of the resource to check.
+  string path = 1;
+}
+
+message CheckAuthorizedResponse {
+  // Whether the user is authorized to access the resource.
+  bool authorized = 1;
+}
+
 message GetRoleRequest {
   string name = 1;
 }
@@ -55,7 +69,7 @@ message ValidateTokenResponse {
 
 message CreateTokenRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"roleName\": \"USER\", \"accessKeyId\": \"4e9f2cdf4387\"}"
+    example: "{\"roleName\": \"USER\", \"accessKeyId\": \"US618572e3ec11d10600000001\"}"
   };
   string role_name = 1 [(google.api.field_behavior) = REQUIRED];
   string access_key_id = 2 [(google.api.field_behavior) = REQUIRED];

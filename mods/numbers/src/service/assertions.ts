@@ -1,5 +1,9 @@
 import {FonosterInvalidArgument} from "@fonoster/errors";
 import {NumbersPB} from "../client/numbers";
+import {IngressInfo} from "./protos/numbers_pb";
+
+const isValidURL = (value: string) =>
+  /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(value);
 
 export const assertIsE164 = (number: string) => {
   if (!number) {
@@ -9,16 +13,36 @@ export const assertIsE164 = (number: string) => {
   }
 };
 
+export const assertWebhookIsURL = (webhook: string) => {
+  if (webhook && !isValidURL(webhook)) {
+    throw new FonosterInvalidArgument("webhook field must be a valid URL.");
+  }
+};
+
 export const assertHasAorLinkOrIngressInfo = (
-  number: NumbersPB.CreateNumberRequest
+  request: NumbersPB.CreateNumberRequest | NumbersPB.UpdateNumberRequest
 ) => {
-  if (number.getAorLink() && number.getIngressInfo()) {
+  if (
+    !request.getAorLink() &&
+    !request.getIngressInfo()?.getWebhook() &&
+    !request.getIngressInfo()?.getAppRef()
+  ) {
     throw new FonosterInvalidArgument(
-      "'webhook' and 'aorLink' are not compatible parameters"
+      "You must provide either a 'webhook', 'appRef', or an 'aorLink'"
     );
-  } else if (!number.getAorLink() && !number.getIngressInfo()) {
+  }
+};
+
+export const assertCompatibleParameters = (
+  request: NumbersPB.CreateNumberRequest | NumbersPB.UpdateNumberRequest
+) => {
+  const aorLinkAndIngressInfo =
+    request.getAorLink() && request.getIngressInfo();
+  //const webhookAndAppRef = request.getIngressInfo()?.getAppRef() && request.getIngressInfo()?.getWebhook();
+
+  if (aorLinkAndIngressInfo /*|| webhookAndAppRef*/) {
     throw new FonosterInvalidArgument(
-      "You must provider either an 'webhook' or and 'aorLink'"
+      "you might provide only one of the following 'aorLink', 'webhook', or 'appRef'"
     );
   }
 };

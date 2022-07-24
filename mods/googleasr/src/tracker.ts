@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -67,16 +67,16 @@ export class GoogleSpeechTracker implements SpeechTracker {
         .streamingRecognize(this.config)
         .on("error", (e: Error) => reject(e))
         .on("data", (data: Record<string, unknown>) => {
-          if (data.results[0] && data.results[0].alternatives[0]) {
+          if (data.results[0]?.alternatives[0]) {
             const result = {
               transcript: data.results[0].alternatives[0].transcript,
               isFinal: true
             };
             resolve(result);
-            return;
+          } else {
+            resolve({transcript: "", isFinal: true});
           }
         });
-
       stream.pipe(recognizeStream);
     });
   }

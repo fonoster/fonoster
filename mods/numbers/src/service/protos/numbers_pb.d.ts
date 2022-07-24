@@ -227,6 +227,8 @@ export class IngressInfo extends jspb.Message {
     setAccessKeyId(value: string): IngressInfo;
     getWebhook(): string;
     setWebhook(value: string): IngressInfo;
+    getAppRef(): string;
+    setAppRef(value: string): IngressInfo;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): IngressInfo.AsObject;
@@ -242,5 +244,6 @@ export namespace IngressInfo {
     export type AsObject = {
         accessKeyId: string,
         webhook: string,
+        appRef: string,
     }
 }

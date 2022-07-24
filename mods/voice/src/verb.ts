@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -70,7 +70,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.silly(`@fonoster/voice posting [url: ${url}]`);
+    logger.silly(`@fonoster/voice deleting [url: ${url}]`);
 
     return await axios({
       method: "delete",

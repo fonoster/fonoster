@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -24,6 +24,7 @@ export interface CallRequest {
   from: string;
   to: string;
   webhook?: string;
+  appRef?: string;
   metadata?: Record<string, unknown>;
   ignoreE164Validation?: boolean;
 }

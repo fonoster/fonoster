@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -20,5 +20,6 @@ import Jwt from "./utils/jwt";
 import AuthMiddleware from "./auth_middleware";
 import Auth from "./client/auth";
 import AuthUtils from "./utils/auth_utils";
+import limiterMiddleware from "./limiter_middleware";
 
-export {AuthMiddleware, Jwt, AuthUtils, Auth as default};
+export { AuthMiddleware, limiterMiddleware, Jwt, AuthUtils, Auth as default };

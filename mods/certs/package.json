@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/certs",
-  "version": "0.2.40",
+  "version": "0.3.12",
   "description": "Handles Fonoster certificates",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -34,5 +34,5 @@
     "btoa": "^1.2.1",
     "jsonwebtoken": "^8.5.1"
   },
-  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
+  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
 }

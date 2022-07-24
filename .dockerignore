@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+!etc/**
+!operator/**
+!docker/**
+!install.sh
+!update.sh

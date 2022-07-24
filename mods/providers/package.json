@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/providers",
-  "version": "0.2.40",
+  "version": "0.3.12",
   "description": "VoIP Providers",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,15 +43,16 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.2.40",
-    "@fonoster/certs": "^0.2.40",
-    "@fonoster/common": "^0.2.40",
-    "@fonoster/core": "^0.2.40",
-    "@fonoster/errors": "^0.2.40",
-    "@grpc/grpc-js": "^1.3.6",
+    "@fonoster/auth": "^0.3.12",
+    "@fonoster/certs": "^0.3.12",
+    "@fonoster/common": "^0.3.12",
+    "@fonoster/core": "^0.3.12",
+    "@fonoster/errors": "^0.3.12",
+    "@grpc/grpc-js": "^1.3.7",
+    "@opentelemetry/api": "^1.0.4",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
     "is-valid-host": "^1.0.1"
   },
-  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b"
+  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
 }

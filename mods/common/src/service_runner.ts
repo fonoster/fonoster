@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable require-jsdoc */
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -21,8 +21,8 @@
 import logger from "@fonoster/logger";
 import assertEnvIsSet from "./env_is_set";
 const grpc = require("@grpc/grpc-js");
-import {getServerCredentials} from "./trust_util";
-const interceptor = require("@speedymonster/grpc-interceptors");
+import { getServerCredentials } from "./trust_util";
+const interceptor = require("grpc-interceptors");
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
 
 interface ServiceInf {
@@ -50,14 +50,12 @@ export default function run(
     `@fonoster/common service runner [starting @ ${ENDPOINT}, api = ${srvInfList[0].version}]`
   );
 
-  if (middlewareList) {
-    middlewareList.forEach((middleware) => {
-      server.use(middleware.middlewareObj);
-      logger.info(
-        `@fonoster/common service runner [added ${middleware.name} middleware]`
-      );
-    });
-  }
+  middlewareList?.forEach((middleware) => {
+    server.use(middleware.middlewareObj);
+    logger.info(
+      `@fonoster/common service runner [added ${middleware.name} middleware]`
+    );
+  });
 
   srvInfList.forEach((srvInf: ServiceInf) => {
     assertEnvIsSet(srvInf.name);

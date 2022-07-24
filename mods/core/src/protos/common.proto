@@ -1,6 +1,6 @@
 /**
  * MIT License
- * Copyright (c) 2021 Fonoster Inc
+ * Copyright (c) 2022 Fonoster Inc
  *
  * This proto stores common messages for the fonoster platform.
  */
@@ -21,72 +21,81 @@ enum View {
 }
 
 message ErrorResponse {
-	option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-		example: "{\"status\": 0, \"message\": \"string\"}"
-	};
-	int32 status = 1;
-	string message = 2;
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"status\": 0, \"message\": \"string\"}"
+  };
+  int32 status = 1;
+  string message = 2;
 }
 
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  base_path: "/api";
-	info: {
-		title: "Fonoster";
-		version: "v1beta1";
-		contact: {
-		name: "Fonoster OSS";
-		url: "https://fonoster.com";
-		email: "psanders@fonoster.com";
-		};
-		license: {
-		name: "MIT License";
-		url: "https://raw.githubusercontent.com/fonoster/fonoster/main/LICENSE";
-		};
-	};
+  base_path: "/api"
+
+  info: {
+    title: "Fonoster"
+    version: "v1beta1"
+    contact: {
+      name: "Fonoster OSS"
+      url: "https://fonoster.com"
+      email: "psanders@fonoster.com"
+    }
+    license: {
+      name: "MIT License"
+      url: "https://raw.githubusercontent.com/fonoster/fonoster/main/LICENSE"
+    }
+  }
+
   // Overwriting host entry breaks tests, so this is not done here.
   external_docs: {
-    url: "https://github.com/fonoster/fonoster";
-    description: "Github Repo";
+    url: "https://github.com/fonoster/fonoster"
+    description: "Github Repo"
   }
-  schemes: HTTP;
-  schemes: HTTPS;
-  consumes: "application/json";
-  produces: "application/json";
+
+  schemes: HTTP
+
+  schemes: HTTPS
+
+  consumes: "application/json"
+
+  produces: "application/json"
+
   security_definitions: {
     security: {
-      key: "AccessKeyId";
+      key: "AccessKeyId"
       value: {
-        type: TYPE_API_KEY;
-        in: IN_HEADER;
-        name: "access_key_id";
+        type: TYPE_API_KEY
+        in: IN_HEADER
+        name: "access_key_id"
       }
     }
     security: {
-      key: "AccessKeySecret";
+      key: "AccessKeySecret"
       value: {
-        type: TYPE_API_KEY;
-        in: IN_HEADER;
-        name: "access_key_secret";
+        type: TYPE_API_KEY
+        in: IN_HEADER
+        name: "access_key_secret"
       }
     }
   }
+
   security: {
     security_requirement: {
-      key: "AccessKeyId";
-      value: {};
+      key: "AccessKeyId"
+      value: {}
     }
     security_requirement: {
-      key: "AccessKeySecret";
-      value: {};
+      key: "AccessKeySecret"
+      value: {}
     }
   }
+
   responses: {
-    key: "default";
+    key: "default"
     value: {
-      description: "User or system error.";
+      description: "User or system error."
       schema: {
         json_schema: {
-          ref: ".fonoster.common.v1beta1.ErrorResponse";
+          ref: ".fonoster.common.v1beta1.ErrorResponse"
         }
       }
     }

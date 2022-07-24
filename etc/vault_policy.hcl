@@ -1,3 +1,3 @@
 path "secret/data/{{identity.entity.id}}/*" {
-    capabilities = ["create", "read", "update", "delete", "list"]
+  capabilities = ["create", "read", "update", "delete", "list"]
 }

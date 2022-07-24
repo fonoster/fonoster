@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -19,8 +19,8 @@
 import opentelemetry, {Context, Span, Tracer} from "@opentelemetry/api";
 import {Resource} from "@opentelemetry/resources";
 import {SemanticResourceAttributes} from "@opentelemetry/semantic-conventions";
-import {BatchSpanProcessor, SpanExporter} from "@opentelemetry/sdk-trace-base";
-const {NodeTracerProvider} = require("@opentelemetry/node");
+import {BatchSpanProcessor} from "@opentelemetry/sdk-trace-base";
+const {NodeTracerProvider} = require("@opentelemetry/sdk-trace-node");
 
 export class VoiceTracer {
   callTracer: Tracer;

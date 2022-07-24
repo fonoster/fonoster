@@ -1,8 +1,9 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import {CliUx} from "@oclif/core";
+import {getProjectConfig} from "../../config";
+import {ProjectGuard} from "../../decorators/project_guard";
 
 const Numbers = require("@fonoster/numbers");
 const inquirer = require("inquirer");
@@ -15,16 +16,20 @@ export class UpdateCommand extends Command {
 
   static args = [{name: "ref"}];
 
+  @ProjectGuard()
   async run() {
-    if (!hasProjectConfig()) {
-      throw new CLIError("you must set a default project");
-    }
     console.log(
       "This utility will help you update an existing Fonoster Number"
     );
     console.log("Press ^C at any time to quit.");
 
     const {args} = this.parse(UpdateCommand);
+
+    if (!args.ref) {
+      CliUx.ux.action.stop();
+      throw new CLIError("You must provide a Number ref before continuing");
+    }
+
     const numbers = new Numbers(getProjectConfig());
 
     const answers = await inquirer.prompt([
@@ -70,14 +75,14 @@ export class UpdateCommand extends Command {
         answers.accessDeny = accessDeny ? accessDeny.split(",") : [];
         answers.accessAllow = accessAllow ? accessAllow.split(",") : [];
 
-        cli.action.start(`Updating number`);
+        CliUx.ux.action.start(`Updating number`);
 
         await numbers.updateNumber(answers);
-        await cli.wait(1000);
+        await CliUx.ux.wait(1000);
 
-        cli.action.stop("Done");
+        CliUx.ux.action.stop("Done");
       } catch (e) {
-        cli.action.stop();
+        CliUx.ux.action.stop();
         throw new CLIError(e.message);
       }
     }

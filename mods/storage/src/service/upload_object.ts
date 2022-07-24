@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -23,7 +23,7 @@ import {getAccessKeyId} from "@fonoster/core";
 import {getFilesizeInBytes, isCompressFile} from "../utils/files";
 import {handleCompressUpload, handleUncompressUpload} from "../utils/helper";
 import {getBucketAsString, handleError} from "../utils/utils";
-const objectid = require("objectid");
+const objectid = require("bson-objectid");
 
 export default async function (call: any, callback: any) {
   const tmpName = objectid();

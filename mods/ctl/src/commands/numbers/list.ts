@@ -2,7 +2,7 @@ import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
 import {CommonPB} from "@fonoster/numbers";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {Number} from "@fonoster/numbers/src/client/types";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
@@ -56,7 +56,7 @@ export default class ListCommand extends Command {
         if (list.length < 1) break;
 
         const showTable = (showHeader: boolean, data: Number[]) => {
-          cli.table(
+          CliUx.ux.table(
             data,
             {
               ref: {minWidth: 15},
@@ -70,7 +70,7 @@ export default class ListCommand extends Command {
               ingressInfo: {
                 header: "Webhook",
                 minWidth: 15,
-                get: (row) =>
+                get: (row: any) =>
                   row["ingressInfo"] ? row["ingressInfo"].webhook : "--"
               }
             },

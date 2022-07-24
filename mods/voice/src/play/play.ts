@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -20,7 +20,7 @@ import {Verb} from "../verb";
 import {PlayOptions} from "./types";
 import {objectToQString} from "../utils";
 import {assertsValueIsPositive} from "../asserts";
-import objectid from "objectid";
+import objectid from "bson-objectid";
 import PubSub from "pubsub-js";
 
 export default class PlayVerb extends Verb {

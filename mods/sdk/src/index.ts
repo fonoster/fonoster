@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -28,9 +28,7 @@ import Auth from "@fonoster/auth";
 import Projects from "@fonoster/projects";
 import Users from "@fonoster/users";
 import Monitor from "@fonoster/monitor";
-import {mute} from "@fonoster/logger";
-
-mute();
+import Apps from "@fonoster/apps";
 
 const Fonoster = {
   Secrets,
@@ -45,6 +43,7 @@ const Fonoster = {
   Projects,
   Users,
   Monitor,
+  Apps
 };
 
 export {Fonoster as default};

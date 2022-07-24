@@ -99,7 +99,8 @@ proto.fonoster.callmanager.v1beta1.CallRequest.toObject = function(includeInstan
     to: jspb.Message.getFieldWithDefault(msg, 2, ""),
     webhook: jspb.Message.getFieldWithDefault(msg, 3, ""),
     ignoreE164Validation: jspb.Message.getBooleanFieldWithDefault(msg, 4, false),
-    metadata: jspb.Message.getFieldWithDefault(msg, 5, "")
+    metadata: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    appRef: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -155,6 +156,10 @@ proto.fonoster.callmanager.v1beta1.CallRequest.deserializeBinaryFromReader = fun
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setMetadata(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAppRef(value);
       break;
     default:
       reader.skipField();
@@ -217,6 +222,13 @@ proto.fonoster.callmanager.v1beta1.CallRequest.serializeBinaryToWriter = functio
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getAppRef();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -310,6 +322,24 @@ proto.fonoster.callmanager.v1beta1.CallRequest.prototype.getMetadata = function(
  */
 proto.fonoster.callmanager.v1beta1.CallRequest.prototype.setMetadata = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string app_ref = 6;
+ * @return {string}
+ */
+proto.fonoster.callmanager.v1beta1.CallRequest.prototype.getAppRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.callmanager.v1beta1.CallRequest} returns this
+ */
+proto.fonoster.callmanager.v1beta1.CallRequest.prototype.setAppRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 

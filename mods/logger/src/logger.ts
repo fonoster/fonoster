@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -46,22 +46,28 @@ const fluent = new fluentTransport(
   }
 );
 
-const level = process.env.NODE_ENV === "production" ? "info" : "verbose";
-
+const format =
+  process.env.LOGS_FORMAT === "json"
+    ? winston.format.json()
+    : winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      );
+const level = process.env.LOGS_LEVEL ? process.env.LOGS_LEVEL : "info";
 const transports =
-  process.env.NODE_ENV === "production"
+  process.env.LOGS_TRANSPORT === "fluent"
     ? [fluent]
-    : [new winston.transports.Console(), fluent]
+    : [new winston.transports.Console()];
 
 const logger = winston.createLogger({
-  format: winston.format.json(),
   levels: winston.config.npm.levels,
+  format,
   transports,
   level
 });
 
 logger.on("finish", () => {
-  fluent.sender.end("end", {}, () => { });
+  fluent.sender.end("end", {}, () => {});
 });
 
 const mute = () => logger.transports.forEach((t: any) => (t.silent = true));
@@ -72,7 +78,8 @@ const ulogger = (log: ULog) =>
   logger[log.level](log.message, {
     eventType: log.eventType,
     body: log.body,
+    level: log.level,
     accessKeyId: log.accessKeyId
-  })
+  });
 
-export { logger as default, ulogger, mute, unmute };
+export {logger as default, ulogger, mute, unmute};

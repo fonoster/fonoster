@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -31,6 +31,7 @@ import {getSalt, AUTH_ISS} from "@fonoster/certs";
 import logger from "@fonoster/logger";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
+
 const authenticator = new Auth(new JWT());
 const rbac = require(process.env.AUTH_RBAC || "/home/fonoster/rbac.json");
 

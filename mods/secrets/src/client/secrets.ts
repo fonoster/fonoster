@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -27,7 +27,8 @@ import {
   GetSecretResponse,
   ISecretsClient,
   ListSecretsRequest,
-  ListSecretsResponse
+  ListSecretsResponse,
+  Secret
 } from "./types";
 
 /**
@@ -194,7 +195,7 @@ export default class Secrets extends APIClient implements ISecretsClient {
   }
 }
 
-export {SecretPB, CommonPB, ISecretsClient};
+export {Secret, SecretPB, CommonPB, ISecretsClient};
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Secrets;

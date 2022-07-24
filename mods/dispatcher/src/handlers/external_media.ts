@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -21,6 +21,7 @@ import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonoster/logger";
 import {sendData, streamConfig} from "../utils/udp_server_utils";
 import pickPort from "pick-port";
+import {getChannelVar} from "../utils/channel_variable";
 
 export const externalMediaHandler = async (
   ws: WebSocket,
@@ -28,22 +29,35 @@ export const externalMediaHandler = async (
   event: any
 ) => {
   if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonoster/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn("ignoring socket request on lost connection");
     return;
   }
   const port = await pickPort();
   const address = `0.0.0.0:${port}`;
   const udpServer = new UDPMediaReceiver(address, true);
-  const bridge = ari.Bridge();
-  const externalChannel = ari.Channel();
   const sessionId = event.userevent.sessionId;
+  const currentChannel = await ari.channels.get({channelId: sessionId});
+  const bridgeId = await getChannelVar(currentChannel, "CURRENT_BRIDGE");
+  let bridge: any;
 
-  // Creating a room to receive the audio and then forward
-  // the audio to via ws
-  await bridge.create({type: "mixing"});
-  bridge.addChannel({channel: sessionId});
+  // We check if the bridge already exist to avoid creating a new one
+  if (bridgeId) {
+    bridge = await ari.bridges.get({bridgeId});
+  } else {
+    bridge = ari.Bridge();
+    await bridge.create({type: "mixing"});
+    bridge.addChannel({channel: sessionId});
+
+    // We save the bridge id as channel bar and later use the info
+    // to destroy the bridge
+    ari.channels.setChannelVar({
+      channelId: sessionId,
+      variable: "CURRENT_BRIDGE",
+      value: bridge.id
+    });
+  }
+
+  const externalChannel = ari.Channel();
   externalChannel.on("StasisStart", (event: any, channel: any) =>
     bridge.addChannel({channel: channel.id})
   );
@@ -59,20 +73,13 @@ export const externalMediaHandler = async (
   externalChannel.on(
     "ChannelLeftBridge",
     async (event: any, resources: any) => {
-      logger.verbose(
-        `@fonoster/dispatcher external channel left bridge [bridgeId = ${resources.bridge.id}, channelId = ${resources.channel.id}]`
-      );
-      await resources.channel.hangup();
+      logger.verbose("external channel left the bridge", {
+        brideId: resources.bridge.id,
+        externalChannelId: resources.channel.id
+      });
+      await externalChannel.hangup();
     }
   );
-
-  // We save the bridge id as channel bar and later use the info
-  // to destroy the bridge
-  ari.channels.setChannelVar({
-    channelId: sessionId,
-    variable: "CURRENT_BRIDGE",
-    value: bridge.id
-  });
 
   // We save the bridge id as channel bar and later use the info
   // to destroy the bridge

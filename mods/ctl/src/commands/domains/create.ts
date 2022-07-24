@@ -2,7 +2,7 @@ import "../../config";
 import {CommonPB} from "@fonoster/domains";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
 const Numbers = require("@fonoster/numbers");
@@ -95,19 +95,19 @@ export default class CreateCommand extends Command {
           delete answers.egressNumberRef;
         }
 
-        cli.action.start(`Creating Domain ${answers.name}`);
+        CliUx.ux.action.start(`Creating Domain ${answers.name}`);
 
         const domains = new Domains(getProjectConfig());
         const domain = await domains.createDomain(answers);
-        await cli.wait(1000);
+        await CliUx.ux.wait(1000);
 
-        cli.action.stop(domain.ref);
+        CliUx.ux.action.stop(domain.ref);
       } catch (e) {
-        cli.action.stop();
+        CliUx.ux.action.stop();
         if (e.code === 9) {
           throw new CLIError("This Domain already exist");
         } else {
-          throw new CLIError(e);
+          throw new CLIError(e.message);
         }
       }
     }

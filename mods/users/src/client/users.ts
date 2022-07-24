@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {UsersClient} from "../service/protos/users_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { UsersClient } from "../service/protos/users_grpc_pb";
 import UsersPB from "../service/protos/users_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 import {
   CreateUserRequest,
   CreateUserResponse,
@@ -32,7 +32,8 @@ import {
   CreateUserCredentialsResponse,
   IUsersClient,
   ListUsersRequest,
-  ListUsersResponse
+  ListUsersResponse,
+  User
 } from "./types";
 
 /**
@@ -68,7 +69,7 @@ export default class Users extends APIClient implements IUsersClient {
   constructor(options?: ClientOptions) {
     super(UsersClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -175,7 +176,9 @@ export default class Users extends APIClient implements IUsersClient {
       name: res.getName(),
       avatar: res.getAvatar(),
       createTime: res.getCreateTime(),
-      updateTime: res.getUpdateTime()
+      updateTime: res.getUpdateTime(),
+      limiter: res.getLimiter(),
+      status: res.getStatus()
     };
   }
 
@@ -206,6 +209,8 @@ export default class Users extends APIClient implements IUsersClient {
     if (request.name) req.setName(request.name);
     if (request.secret) req.setSecret(request.secret);
     if (request.avatar) req.setAvatar(request.avatar);
+    if (request.status) req.setStatus(request.status);
+    if (request.limiter) req.setLimiter(request.limiter);
 
     const res = await super.getService().updateUser().sendMessage(req);
 
@@ -231,7 +236,7 @@ export default class Users extends APIClient implements IUsersClient {
     const req = new UsersPB.DeleteUserRequest();
     req.setRef(ref);
     await super.getService().deleteUser().sendMessage(req);
-    return {ref};
+    return { ref };
   }
 
   /**
@@ -274,7 +279,7 @@ export default class Users extends APIClient implements IUsersClient {
   }
 }
 
-export {UsersPB, CommonPB, IUsersClient};
+export { User, UsersPB, CommonPB, IUsersClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Users;

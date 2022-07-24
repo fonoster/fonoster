@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -50,9 +50,7 @@ export default class UDPMediaReceiver {
     }
 
     this.server.on("error", (err) => {
-      logger.error(
-        `@fonoster/dispatcher udpServer [server error:\n${err.stack}]`
-      );
+      logger.error("dispatcher udpServer error", {stack: err.stack});
       this.server.close();
       if (this.fileStream) {
         this.fileStream.close();
@@ -60,7 +58,7 @@ export default class UDPMediaReceiver {
     });
 
     this.server.on("close", (err) => {
-      logger.verbose(`@fonoster/dispatcher udpServer [server socket closed]`);
+      logger.verbose("dispatcher udpServer [server socket closed]");
       if (this.fileStream) {
         this.fileStream.close();
       }
@@ -86,9 +84,9 @@ export default class UDPMediaReceiver {
 
     this.server.on("listening", () => {
       const address = this.server.address();
-      logger.verbose(
-        `@fonoster/dispatcher udpServer [address = ${address.address}:${address.port}]`
-      );
+      logger.verbose("starting dispatcher udpServer", {
+        address: `${address.address}:${address.port}`
+      });
     });
 
     this.server.bind(this.port, this.address);
@@ -99,9 +97,11 @@ export default class UDPMediaReceiver {
   }
 
   close() {
-    logger.verbose(`@fonoster/dispatcher udpServer [closing server socket]`);
+    logger.verbose("dispatcher udpServer [closing server socket]");
     try {
       this.server.close();
-    } catch(e) { /** We can only try */}
+    } catch (e) {
+      /** We can only try */
+    }
   }
 }

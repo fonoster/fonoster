@@ -5,6 +5,7 @@
     "rootDir": "./src"
   },
   "references": [
+    {"path": "../apps"},
     {"path": "../auth"},
     {"path": "../secrets"},
     {"path": "../agents"},

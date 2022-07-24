@@ -1,26 +1,34 @@
 import {Help} from "@oclif/plugin-help";
+
 const figlet = require("figlet");
 
 export default class MyHelpClass extends Help {
-  showHelp(args: string[]) {
-    // Only shouw the figlet if user ask for help at the root
-    // level.
-    if (
-      args.length === 0 ||
-      (args.length === 1 &&
-        (args[0].includes("help") || args[0].includes("-h")))
-    ) {
-      console.log("\x1b[32m");
-      console.log(
-        figlet.textSync("Fonoster", {
-          horizontalLayout: "default",
-          verticalLayout: "default",
-          width: 60,
-          whitespaceBreak: true
-        })
-      );
-      console.log("\x1b[0m");
-    }
-    //super.showHelp(args);
+  protected showRootHelp() {
+    this.showLogo();
+
+    console.log(this.formatRoot());
+    console.log("");
+
+    console.log(this.formatCommands(this.customCommands));
+    console.log("");
+  }
+
+  private showLogo() {
+    console.log("\x1b[32m");
+    console.log(
+      figlet.textSync("Fonoster", {
+        horizontalLayout: "default",
+        verticalLayout: "default",
+        width: 60,
+        whitespaceBreak: true
+      })
+    );
+    console.log("\x1b[0m");
+  }
+
+  private get customCommands() {
+    return this.sortedCommands
+      .filter((c) => c.id)
+      .sort((a, b) => (a.id.includes(":") ? 1 : b.id.includes(":") ? -1 : 0));
   }
 }

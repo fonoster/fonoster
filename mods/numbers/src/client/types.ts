@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -55,7 +55,8 @@ export interface CreateNumberRequest {
   providerRef: string;
   e164Number: string;
   ingressInfo?: {
-    webhook: string;
+    webhook?: string;
+    appRef?: string;
   };
   aorLink?: string;
 }
@@ -64,7 +65,8 @@ export interface UpdateNumberRequest {
   ref: string;
   aorLink?: string;
   ingressInfo?: {
-    webhook: string;
+    webhook?: string;
+    appRef?: string;
   };
 }
 
@@ -92,6 +94,7 @@ export interface GetNumberResponse {
   e164Number: string;
   ingressInfo: {
     webhook: string;
+    appRef?: string;
   };
   aorLink: string;
   createTime: string;
@@ -105,4 +108,5 @@ export interface GetIngressInfoRequest {
 export interface GetIngressInfoResponse {
   accessKeyId: string;
   webhook: string;
+  appRef?: string;
 }

@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 const Agents = require("@fonoster/agents");
 const Domains = require("@fonoster/domains");
@@ -75,17 +75,17 @@ export default class extends Command {
       console.log("Aborted");
     } else {
       try {
-        cli.action.start(`Creating agent ${answers.name}`);
+        CliUx.ux.action.start(`Creating agent ${answers.name}`);
         const agents = new Agents(getProjectConfig());
         const agent = await agents.createAgent(answers);
-        await cli.wait(1000);
-        cli.action.stop(agent.ref);
+        await CliUx.ux.wait(1000);
+        CliUx.ux.action.stop(agent.ref);
       } catch (e) {
-        cli.action.stop();
+        CliUx.ux.action.stop();
         if (e.code === 9) {
           throw new CLIError("This Agent already exist");
         } else {
-          throw new CLIError(e);
+          throw new CLIError(e.message);
         }
       }
     }

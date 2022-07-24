@@ -38,10 +38,10 @@ DS_SECRET=
 # External IP or Domain for your Fonoster API (required)
 # Before going on production you must replace this with the
 # TLS protected URL
-#PUBLIC_URL=http://api.example.com:50051
+#PUBLIC_URL=http://api.example.com:51051
 
 # Exposed HTTP port
-HTTP_PORT=50051
+HTTP_PORT=51051
 
 # Exposed HTTPS port (required)
 HTTPS_PORT=443
@@ -77,7 +77,7 @@ AS_ALLOW_INSECURE=true
 #
 # Media Server integration (Asterisk)
 #
-MS_ENDPOINT=sip:ast@node1
+MS_ENDPOINT=sip:voice@default
 MS_SIP_PORT=6060
 MS_RTP_PORT_START=20000
 MS_RTP_PORT_END=21000
@@ -118,7 +118,7 @@ DS_PORT=6379
 #
 # Integration with SIPProxy (Routr)
 #
-SIPPROXY_USERNAME=ast
+SIPPROXY_USERNAME=voice
 SIPPROXY_API_HOST=sipproxy.fonoster
 SIPPROXY_HOST=sipproxy.fonoster
 SIPPROXY_API_PORT=4567
@@ -129,8 +129,8 @@ SIPPROXY_SIP_PORT_UDP=5060
 # Single port for connection from Peers (Such as the Media Server)
 SIPPROXY_SIP_PORT=5060
 
-# If set, any new domain will be a subdomain under this global domain
-# GLOBAL_SIP_DOMAIN=fonoster.io
+# Any new domain will be a subdomain under this global domain
+GLOBAL_SIP_DOMAIN=fonoster.io
 
 #
 # Configuration to logging service (Based on Kibana)
@@ -140,7 +140,12 @@ LOGS_DRIVER_PORT=24224
 LOGS_AGGREGRATOR_HOST=logsaggregator.fonoster
 LOGS_AGGREGRATOR_PORT=9200
 LOG_OPT_TAG_PREFIX=early
+LOGS_FORMAT=json
+LOGS_LEVEL=info
+LOGS_TRANSPORT=fluent
 
+# Tracing
+TRACING_ENDINGPOINT=http://tracing:14268/api/traces
 
 #
 # Integration with events server (RabbitMQ)
@@ -170,6 +175,7 @@ TTS_BASE_URI=/tts
 #
 # Integration with Rox Connector
 #
+VOICE_URL=http://voice.fonoster:3000
 VOICE_HOST=voice.fonoster
 
 #
@@ -214,5 +220,9 @@ COMPOSE_PROJECT_VERSION=0.2.36
 # Restart policy for containers
 RESTART_POLICY=unless-stopped
 
-# Node environment variable 
-NODE_ENV=staging
+# Node environment variable
+NODE_ENV=production
+NODE_OPTIONS="--unhandled-rejections=throw"
+
+# Fonoster extra services (comma separated)
+EXTRA_SERVICES=datasource,fs

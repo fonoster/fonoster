@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -18,10 +18,10 @@
  * limitations under the License.
  */
 import UsersServer from "./users";
-import {UsersService} from "./protos/users_grpc_pb";
-import {AuthMiddleware} from "@fonoster/auth";
-import {getSalt} from "@fonoster/certs";
-import {runServices} from "@fonoster/common";
+import { UsersService } from "./protos/users_grpc_pb";
+import { AuthMiddleware } from "@fonoster/auth";
+import { getSalt } from "@fonoster/certs";
+import { runServices } from "@fonoster/common";
 
 const services = [
   {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -28,7 +28,6 @@ import {GatherOptions} from "./types";
 import logger from "@fonoster/logger";
 
 const defaultOptions: GatherOptions = {
-  timeout: 4000,
   finishOnKey: "#",
   source: "dtmf"
 };
@@ -43,12 +42,15 @@ export default class GatherVerb extends Verb {
   async run(opts: GatherOptions): Promise<string> {
     const options = merge(defaultOptions, opts);
 
-    assertsHasNumDigitsOrTimeout(options);
+    // assertsHasNumDigitsOrTimeout(options);
     // assertsValuesIsZeroOrGreater("timeout", options.timeout);
     assertsValueIsPositive("numDigits", options.numDigits);
     assertsFinishOnKeyIsChar(options.finishOnKey);
 
-    if (options.source.includes("speech")) options.timeout = 10000;
+    options.timeout =
+      !options.timeout && options.source.includes("speech")
+        ? 10000
+        : options.timeout || 4000;
 
     return new Promise(async (resolve, reject) => {
       logger.verbose(

@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 const Projects = require("@fonoster/projects");
 
 export default class ListCommand extends Command {
@@ -16,7 +16,7 @@ export default class ListCommand extends Command {
       const projects = new Projects();
       // Gets the list
       const result = await projects.listProjects({});
-      cli.table(result.projects, {
+      CliUx.ux.table(result.projects, {
         accessKeyId: {header: "Ref / Access Key Id", minWidth: 30},
         name: {header: "Name", minWidth: 12}
       });

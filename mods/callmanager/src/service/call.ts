@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -18,44 +18,26 @@
  */
 import {CallRequest, CallResponse} from "./protos/callmanager_pb";
 import {nanoid} from "nanoid";
-import {FonosterError} from "@fonoster/errors";
-import phone from "phone";
 import {EndpointInfo} from "../client/types";
+import {
+  assertCompatibleParameters,
+  assertIsE164,
+  assertWebhookIsURL
+} from "./assertions";
 
 export default async function (
   request: CallRequest,
   channel: any,
   endpointInfo: EndpointInfo
 ): Promise<CallResponse> {
-  if (
-    !request.getIgnoreE164Validation() &&
-    phone(request.getFrom()).length === 0
-  ) {
-    throw new FonosterError("invalid e164 number");
-  }
-
-  if (
-    !request.getIgnoreE164Validation() &&
-    phone(request.getTo()).length === 0
-  ) {
-    throw new FonosterError("invalid e164 number");
-  }
+  assertCompatibleParameters(request);
+  if (!request.getIgnoreE164Validation())
+    assertIsE164(request.getFrom(), "from");
+  if (!request.getIgnoreE164Validation()) assertIsE164(request.getFrom(), "to");
+  if (request.getWebhook()) assertWebhookIsURL(request.getWebhook());
 
   const response = new CallResponse();
   response.setRef(nanoid());
-
-  const variables = !request.getWebhook()
-    ? {
-        DID_INFO: request.getFrom(),
-        REF: response.getRef(),
-        METADATA: request.getMetadata()
-      }
-    : {
-        DID_INFO: request.getFrom(),
-        WEBHOOK: request.getWebhook(),
-        REF: response.getRef(),
-        METADATA: request.getMetadata()
-      };
 
   await channel.originate({
     context: endpointInfo.context,
@@ -63,7 +45,13 @@ export default async function (
     endpoint: `PJSIP/${endpointInfo.trunk}/sip:${request.getTo()}@${
       endpointInfo.domain
     }`,
-    variables
+    variables: {
+      DID_INFO: request.getFrom(),
+      REF: response.getRef(),
+      METADATA: request.getMetadata(),
+      WEBHOOK: request.getWebhook(),
+      APP_REF: request.getAppRef()
+    }
   });
 
   return response;

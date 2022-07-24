@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -37,7 +37,7 @@ import {
   IProjectsServer
 } from "./protos/projects_grpc_pb";
 import {getRedisConnection, getAccessKeyId} from "@fonoster/core";
-import objectid from "objectid";
+import objectid from "bson-objectid";
 import encoder from "./encoder";
 import {assertNotEmpty} from "./assertions";
 import JWT from "@fonoster/auth/dist/utils/jwt";
@@ -45,6 +45,7 @@ import {AUTH_ISS, getSalt} from "@fonoster/certs";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import decoder from "./decoder";
 import {ErrorCodes, FonosterError} from "@fonoster/errors";
+
 const authenticator = new Auth(new JWT());
 const redis = getRedisConnection();
 

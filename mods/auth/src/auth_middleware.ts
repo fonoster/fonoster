@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const grpc = require("@grpc/grpc-js");
+import {status} from "@grpc/grpc-js";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
@@ -39,7 +39,7 @@ export default class AuthMiddleware {
     const pathRequest = ctx.service.path;
 
     logger.verbose(
-      `@fonoster/logger middleware [request.path = ${pathRequest}]`
+      `@fonoster/middleware receiving request [request.path = ${pathRequest}]`
     );
 
     if (this.whitelist.includes(pathRequest)) {
@@ -55,7 +55,7 @@ export default class AuthMiddleware {
         !ctx.call.metadata.get("access_key_secret").toString()
       ) {
         errorCb({
-          code: grpc.status.UNAUTHENTICATED,
+          code: status.UNAUTHENTICATED,
           message: "UNAUTHENTICATED"
         });
         return;
@@ -72,7 +72,7 @@ export default class AuthMiddleware {
           if (result.isValid) {
             if (result.data.accessKeyId != accessKeyId)
               errorCb({
-                code: grpc.status.UNAUTHENTICATED,
+                code: status.UNAUTHENTICATED,
                 // TODO: Improve error message
                 message: "invalid authentication"
               });
@@ -86,14 +86,14 @@ export default class AuthMiddleware {
               await next();
             } else {
               errorCb({
-                code: grpc.status.PERMISSION_DENIED,
+                code: status.PERMISSION_DENIED,
                 // TODO: Improve error message
                 message: "permission denied"
               });
             }
           } else {
             errorCb({
-              code: grpc.status.UNAUTHENTICATED,
+              code: status.UNAUTHENTICATED,
               // TODO: Improve error message
               message: "invalid authentication"
             });
@@ -101,7 +101,7 @@ export default class AuthMiddleware {
         });
     } catch (e) {
       errorCb({
-        code: grpc.status.INTERNAL,
+        code: status.INTERNAL,
         message: e
       });
     }

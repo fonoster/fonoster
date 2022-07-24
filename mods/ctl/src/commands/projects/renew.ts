@@ -1,7 +1,7 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
-import {cli} from "cli-ux";
+import {CliUx} from "@oclif/core";
 const Projects = require("@fonoster/projects");
 
 export default class UpdateCommand extends Command {
@@ -16,12 +16,12 @@ export default class UpdateCommand extends Command {
     try {
       const projects = new Projects();
       const project = await projects.renewAccessKeySecret({ref: args.ref});
-      cli.action.start(`Renewing credentials for ${args.ref}`);
-      await cli.wait(1000);
+      CliUx.ux.action.start(`Renewing credentials for ${args.ref}`);
+      await CliUx.ux.wait(1000);
 
-      cli.action.stop(project.accessKeySecret);
+      CliUx.ux.action.stop(project.accessKeySecret);
     } catch (e) {
-      cli.action.stop();
+      CliUx.ux.action.stop();
       throw new CLIError(e.message);
     }
   }

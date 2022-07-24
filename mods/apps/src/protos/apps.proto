@@ -1,0 +1,137 @@
+/**
+ * MIT License
+ * Copyright (c) 2021 Fonoster Inc
+ *
+ * The Apps proto contains the artificats for application administration
+ * such as creation and deployment.
+ */
+syntax = "proto3";
+
+package fonoster.apps.v1beta1;
+
+option go_package = "github.com/fonoster/fonoster/mods/apps/fonoster/services/protos/apps";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/struct.proto";
+import "common.proto";
+
+service Apps {
+  // Shows a list of user applications
+  rpc ListApps (ListAppsRequest) returns (ListAppsResponse) {
+    option (google.api.http) = { get: "/v1beta1/apps" };
+  };
+  // Creates a new App resource
+  rpc CreateApp (CreateAppRequest) returns (App) {
+    option (google.api.http) = { 
+      post: "/v1beta1/apps"
+      body: "*"
+    };
+  };  
+  // Gets an application by reference
+  rpc GetApp (GetAppRequest) returns (App) {
+    option (google.api.http) = { get: "/v1beta1/apps/{ref}" };
+  };
+  // Change or update fields in a resource
+  rpc UpdateApp (UpdateAppRequest) returns (App) {
+    option (google.api.http) = { 
+      put: "/v1beta1/apps/{ref}"
+      body: "*" 
+    };
+  };
+  // Peforms a hard delete of an application
+  rpc DeleteApp (DeleteAppRequest) returns (fonoster.common.v1beta1.Empty) {
+    option (google.api.http) = { 
+      delete: "/v1beta1/apps/{ref}"
+    };
+  };
+}
+
+message ListAppsRequest {
+  // The maximum number of items in the list
+  int32 page_size = 1;
+
+  // The next_page_token value returned from the previous request, if any
+  string page_token = 2;
+
+  // Level of detail of the individual entities
+  fonoster.common.v1beta1.View view = 3;
+}
+
+message ListAppsResponse {
+  // List of applications
+  repeated App apps = 1;
+  // Token to retrieve the next page of results, or empty if there are no more results in the list
+  string next_page_token = 2;
+}
+
+message CreateAppRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"Pizza App\", \"initialDtmf\": \"145\", \"intentsEngineConfig\": { \"projectId\": \"my-project\", \"secret\": \"my-secret\" }, \"speechConfig\": { \"secretName\": \"my-secret\", \"voice\": \"en-US-Wavenet-F\" }, \"transferConfig\": { \"message\": \"Transfering...\" } , \"enableEvents\": false}"
+  };
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+  optional string initial_dtmf = 2;
+  string activation_intent_id = 3;
+  int32 activation_timeout = 4;
+  int32 interaction_timeout = 5;
+  bool enable_events = 6;
+  TransferConfig transfer_config = 7;
+  .google.protobuf.Struct speech_config = 8 [(google.api.field_behavior) = REQUIRED];
+  .google.protobuf.Struct intents_engine_config = 9 [(google.api.field_behavior) = REQUIRED];  
+}
+
+message UpdateAppRequest {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"name\": \"My Pizzeria\", \"initialDtmf\": \"4567\"}"
+  };
+  // App's reference
+  string ref = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  string initial_dtmf = 3;
+  string activation_intent_id = 4;
+  int32 activation_timeout = 5;
+  int32 interaction_timeout = 6;
+  bool enable_events = 7;
+  TransferConfig transfer_config = 8;
+  .google.protobuf.Struct speech_config = 9;
+  .google.protobuf.Struct intents_engine_config = 10;
+}
+
+message GetAppRequest {
+  string ref = 1;
+  // Requested level of detail
+  fonoster.common.v1beta1.View view = 2;
+}
+
+message DeleteAppRequest {
+  string ref = 1;
+}
+
+message TransferConfig {
+  string media = 1;
+  string media_busy = 2;
+  string media_no_answer= 3;
+  string message = 4;
+  string message_busy = 5;
+  string message_no_answer = 6;
+}
+
+message App {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    example: "{\"ref\": \"aynB1z0tzd\", \"accessKeyId\": \"aynB1z0tzd\", \"name\": \"Pizza App\", \"initialDtmf\": \"145\", \"intentsEngineConfig\": { \"projectId\": \"my-project\", \"secret\": \"my-secret\" }, \"speechConfig\": { \"secretName\": \"my-secret\", \"voice\": \"en-US-Wavenet-F\" }, \"transferConfig\": { \"message\": \"Transfering...\" } , \"enableEvents\": false, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+  };
+  string ref = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string access_key_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string name = 3 [(google.api.field_behavior) = REQUIRED];
+  string initial_dtmf = 4;
+  string activation_intent_id = 5;
+  string create_time = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
+  string update_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
+  int32 activation_timeout = 8;
+  int32 interaction_timeout = 9;
+  bool enable_events = 10;
+  TransferConfig transfer_config = 11;
+  .google.protobuf.Struct speech_config = 12 [(google.api.field_behavior) = REQUIRED];
+  .google.protobuf.Struct intents_engine_config = 13 [(google.api.field_behavior) = REQUIRED];
+}

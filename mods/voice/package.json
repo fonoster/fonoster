@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/voice",
-  "version": "0.2.40",
+  "version": "0.3.12",
   "description": "Voice verbs",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,27 +29,27 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/common": "^0.2.40",
-    "@fonoster/logger": "^0.2.40",
-    "@opentelemetry/api": "^1.0.2",
-    "@opentelemetry/node": "^0.24.0",
-    "@opentelemetry/plugin-express": "^0.15.0",
-    "@opentelemetry/plugin-http": "^0.18.2",
-    "@opentelemetry/plugin-https": "^0.18.2",
-    "@opentelemetry/resources": "0.25.0",
-    "@opentelemetry/sdk-metrics-base": "0.25.0",
-    "@opentelemetry/sdk-trace-base": "0.25.0",
-    "@opentelemetry/semantic-conventions": "0.25.0",
-    "@opentelemetry/tracing": "^0.24.0",
+    "@fonoster/common": "^0.3.12",
+    "@fonoster/logger": "^0.3.12",
+    "@opentelemetry/api": "^1.0.4",
+    "@opentelemetry/instrumentation": "^0.27.0",
+    "@opentelemetry/instrumentation-express": "^0.27.0",
+    "@opentelemetry/instrumentation-http": "^0.27.0",
+    "@opentelemetry/resources": "^1.0.4",
+    "@opentelemetry/sdk-metrics-base": "0.27.0",
+    "@opentelemetry/sdk-trace-base": "^1.0.4",
+    "@opentelemetry/sdk-trace-node": "^1.0.4",
+    "@opentelemetry/semantic-conventions": "^1.0.4",
+    "bson-objectid": "^2.0.2",
     "deepmerge": "^4.2.2",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
-    "objectid": "^3.2.1",
     "pubsub-js": "^1.9.3",
     "sync": "^0.2.5"
   },
-  "gitHead": "e7d1d6d4b29f2e0b4b37a55ea4026931a3f76d1b",
+  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857",
   "devDependencies": {
+    "@types/express": "^4.17.13",
     "@types/pubsub-js": "^1.8.2"
   }
 }

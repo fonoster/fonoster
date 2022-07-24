@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -25,7 +25,8 @@ import {
   ListProvidersResponse,
   GetProviderResponse,
   DeleteProviderResponse,
-  IProvidersClient
+  IProvidersClient,
+  Provider
 } from "./types";
 import {APIClient, ClientOptions} from "@fonoster/common";
 import {ProvidersClient} from "../service/protos/providers_grpc_pb";
@@ -82,7 +83,7 @@ export default class Providers extends APIClient implements IProvidersClient {
    * @param {string} request.transport - The transport for the Provider.
    *Fonoster will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
-   *Fonoster will use 3600 if non is provided
+   *Fonoster will use 600 if non is provided
    * @return {Promise<Object>}
    * @example
    *
@@ -107,7 +108,7 @@ export default class Providers extends APIClient implements IProvidersClient {
     req.setSecret(request.secret);
     req.setHost(request.host);
     req.setTransport(request.transport || "tcp");
-    req.setExpires(request.expires || 3600);
+    req.setExpires(request.expires || 600);
 
     const res = await super.getService().createProvider().sendMessage(req);
 
@@ -170,7 +171,7 @@ export default class Providers extends APIClient implements IProvidersClient {
    * @param {string} request.transport - The transport for the Provider.
    *Fonoster will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
-   *Fonoster will use 3600 if non is provided
+   *Fonoster will use 600 if non is provided
    * @return {Promise<Object>}
    * @example
    *
@@ -278,7 +279,7 @@ export default class Providers extends APIClient implements IProvidersClient {
   }
 }
 
-export {ProvidersPB, CommonPB, IProvidersClient};
+export {Provider, ProvidersPB, CommonPB, IProvidersClient};
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Providers;

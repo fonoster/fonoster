@@ -28,10 +28,23 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.auth.entrypoints=internal,websecure"
-      - "traefik.http.routers.auth.rule=PathPrefix(`/fonoster.auth.v1beta1`)"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/fonoster.auth.v1beta1.Auth`)"
       - "traefik.http.services.auth.loadbalancer.server.scheme=h2c"
     volumes:
       - ${CONFIG}/rbac.json:/home/fonoster/rbac.json
+
+  limiter:
+    image: fonoster/limiter:${COMPOSE_PROJECT_VERSION}
+    extends:
+      file: api-common.yml
+      service: common
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.limiter.entrypoints=internal,websecure"
+      - "traefik.http.routers.limiter.rule=PathPrefix(`/fonoster.auth.v1beta1.Limiter`)"
+      - "traefik.http.services.limiter.loadbalancer.server.scheme=h2c"
+    volumes:
+      - ${CONFIG}/limiters.json:/home/fonoster/limiters.json
 
   monitor:
     image: fonoster/monitor:${COMPOSE_PROJECT_VERSION}

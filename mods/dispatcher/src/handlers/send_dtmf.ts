@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -20,18 +20,17 @@ import WebSocket from "ws";
 import logger from "@fonoster/logger";
 
 export const sendDtmf = async (ws: WebSocket, ari: any, event: any) => {
-  logger.verbose(
-    `@fonoster/dispatcher sending dtmf tones [sesionId: ${event.userevent.sessionId}, tones: ${event.userevent.dtmf}]`
-  );
+  logger.verbose("sending dtmf tones", {
+    sessionId: event.userevent.sessionId,
+    tones: event.userevent.dtmf
+  });
 
   const channel = await ari.channels.get({
     channelId: event.userevent.sessionId
   });
 
   if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn(
-      `@fonoster/dispatcher ignoring socket request on lost connection`
-    );
+    logger.warn("ignoring socket request on lost connection");
     return;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -50,7 +50,7 @@ import {promisifyAll} from "grpc-promise";
  *   providerRef: "516f1577bcf86cd797439012",
  *   e164Number: "+17853177343",
  *   ingressInfo: {
- *      webhook: "https://webhooks.acme.com/hooks"
+ *     webhook: "https://webhooks.acme.com/hooks"
  *   }
  * };
  *
@@ -100,9 +100,8 @@ export default class Numbers extends APIClient implements INumbersClient {
     request: CreateNumberRequest
   ): Promise<CreateNumberResponse> {
     const ingressInfo = new NumbersPB.IngressInfo();
-    ingressInfo.setWebhook(
-      request.ingressInfo ? request.ingressInfo.webhook : null
-    );
+    ingressInfo.setWebhook(request?.ingressInfo?.webhook);
+    ingressInfo.setAppRef(request?.ingressInfo?.appRef);
     const req = new NumbersPB.CreateNumberRequest();
     req.setProviderRef(request.providerRef);
     req.setE164Number(request.e164Number);
@@ -137,7 +136,8 @@ export default class Numbers extends APIClient implements INumbersClient {
       aorLink: res.getAorLink(),
       e164Number: res.getE164Number(),
       ingressInfo: {
-        webhook: res.getIngressInfo() ? res.getIngressInfo().getWebhook : null
+        webhook: res.getIngressInfo()?.getWebhook(),
+        appRef: res.getIngressInfo()?.getAppRef()
       },
       providerRef: res.getProviderRef(),
       ref: res.getRef(),
@@ -170,30 +170,16 @@ export default class Numbers extends APIClient implements INumbersClient {
   async updateNumber(
     request: UpdateNumberRequest
   ): Promise<UpdateNumberResponse> {
-    if (request.aorLink && request.ingressInfo) {
-      throw new Error(
-        "'ingressApp' and 'aorLink' are not compatible parameters"
-      );
-    } else if (!request.aorLink && !request.ingressInfo) {
-      throw new Error(
-        "You must provider either an 'ingressApp' or and 'aorLink'"
-      );
-    }
+    const ingressInfo = new IngressInfo();
+    ingressInfo.setWebhook(request?.ingressInfo?.webhook);
+    ingressInfo.setAppRef(request?.ingressInfo?.appRef);
 
     const req = new NumbersPB.UpdateNumberRequest();
     req.setRef(request.ref);
+    req.setAorLink(request.aorLink);
 
-    if (request.aorLink) {
-      req.setAorLink(request.aorLink);
-      req.setIngressInfo(undefined);
-    } else {
-      req.setAorLink(undefined);
-      const ingressInfo = new IngressInfo();
-      ingressInfo.setWebhook(
-        request.ingressInfo ? request.ingressInfo.webhook : null
-      );
+    if (ingressInfo.getAppRef() || ingressInfo.getWebhook())
       req.setIngressInfo(ingressInfo);
-    }
 
     const result = await super.getService().updateNumber().sendMessage(req);
 
@@ -301,7 +287,8 @@ export default class Numbers extends APIClient implements INumbersClient {
 
     return {
       webhook: result.getWebhook(),
-      accessKeyId: result.getAccessKeyId()
+      accessKeyId: result.getAccessKeyId(),
+      appRef: result.getAppRef()
     };
   }
 }
