@@ -1,12 +1,11 @@
 import routr from "../common/routr";
-import ot from "@opentelemetry/api";
+import opentelemetry from "@opentelemetry/api";
 import logger from "@fonoster/logger";
-import {Tracer as T} from "@fonoster/common";
 
-const tracer = T.init("core");
+const tracer = opentelemetry.trace.getTracer("fonoster-tracer")
 
 export default async function (resource: any): Promise<any> {
-  const currentSpan = ot.trace.getSpan(ot.context.active());
+  const currentSpan = opentelemetry.trace.getSpan(opentelemetry.context.active());
   const meta = {
     kind: resource.kind,
     accessKeyId: resource.metadata.accessKeyId,
@@ -17,7 +16,7 @@ export default async function (resource: any): Promise<any> {
   });
 
   logger.verbose("creating resource", meta);
-  span.addEvent("creating resource", meta);
+  //span.addEvent("creating resource", meta);
 
   await routr.connect();
 
