@@ -1,7 +1,7 @@
 # Enables remote access to datasource(Redis)
 # Recommended only for development
 
-version: '3.7'
+version: '3'
 
 services:
 

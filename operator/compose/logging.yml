@@ -1,6 +1,6 @@
 # Logging services (Elastic Search, Fluent)
 
-version: '3.7'
+version: '3'
 
 networks:
   fonoster:
