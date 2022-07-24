@@ -1,11 +1,11 @@
 name: unit tests
 on:
+  workflow_dispatch:
   push:
     paths:
     - 'mods/**'
     branches:
-    - master
-    - dev
+    - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,10 +23,7 @@ jobs:
           node-version: '14.x'
       - run: |
           npm config set unsafe-perm true
-          npm install lerna -g
-          npm install
-          npm run bootstrap
-          npm run build
+          npm run make
           npm test
       - name: Running SonarCloud scan
         uses: sonarsource/sonarcloud-github-action@master
