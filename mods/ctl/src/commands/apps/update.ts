@@ -72,7 +72,7 @@ export default class UpdateCommand extends Command {
           choices: secrets,
           default: app.speechConfig.secretName,
           validate: (value: string) =>
-            validator(value, "You must select a secret")
+            validator(value, "You must select a Secret")
         },
         {
           name: "intentsEngineConfig.welcomeIntentId",
@@ -106,8 +106,10 @@ export default class UpdateCommand extends Command {
           choices: secrets,
           default: app.intentsEngineConfig.secretName,
           validate: (value: string) =>
-            validator(value, "You must select a secret")
+            validator(value, "You must select a Secret")
         },
+        // Disabled until we add support for DialogFlow CX
+        /*
         {
           name: "intentsEngineConfig.agent",
           message: "Type a agent",
@@ -126,6 +128,7 @@ export default class UpdateCommand extends Command {
           validate: (value: string) =>
             validator(value, "You must enter a location for your Application.")
         },
+        */
         {
           name: "showAdvanceOptions",
           message: "Show advance options?",

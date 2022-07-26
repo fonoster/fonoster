@@ -63,7 +63,7 @@ export default class CreateCommand extends Command {
           type: "list",
           choices: secrets,
           validate: (value: string) =>
-            validator(value, "You must select a secret")
+            validator(value, "You must select a Secret")
         },
         {
           name: "intentsEngineConfig.welcomeIntentId",
@@ -94,11 +94,12 @@ export default class CreateCommand extends Command {
           type: "list",
           choices: secrets,
           validate: (value: string) =>
-            validator(value, "You must select a secret")
+            validator(value, "You must select a Secret")
         },
-        {
+        // Disabling this until we bring support for Dialogflow CX
+        /*{
           name: "intentsEngineConfig.agent",
-          message: "Type a agent",
+          message: "Type an Agent",
           type: "input",
           when: (answers) => answers.engine === "DialogflowES",
           validate: (value: string) =>
@@ -106,12 +107,12 @@ export default class CreateCommand extends Command {
         },
         {
           name: "intentsEngineConfig.location",
-          message: "Type a location",
+          message: "Type a Location",
           type: "input",
           when: (answers) => answers.engine === "DialogflowES",
           validate: (value: string) =>
             validator(value, "You must enter a location for your Application.")
-        },
+        },*/
         {
           name: "showAdvanceOptions",
           message: "Show advance options?",
@@ -171,7 +172,7 @@ export default class CreateCommand extends Command {
         {
           name: "transferConfig.message",
           message:
-            "Type a transfer message (e.g. Please wait while we transfer you)",
+            "Type a transfer message (e.g. Please wait while we transfer your call.)",
           type: "input",
           when: (answers) => answers.showAdvanceOptions
         },
