@@ -1,101 +1,59 @@
-# Docker-in-Docker(dind) Installation and Update Examples
+# Deploy with Docker
 
-The following examples show-case using Fonsoter's dind operator. Before using this operator, be sure you have Docker Engine installed on your machine:
+The easiest way to start a Fonoster instance is with our docker-in-docker (dind) installer. Before running the operator, make sure you have [Docker Engine](https://docs.docker.com/engine/install/) installed on your machine:
 
-#### Install (Happy path)
+**TL;DR**
 
-Install the application with the latest version available.
-
-```bash
-docker run -it --rm \
-  -e CONFIG_PATH=$(pwd)/fonoster/config \
-  --volume /var/run/docker.sock:/var/run/docker.sock \
-  --volume $(pwd)/fonoster:/out:rw \
-  --entrypoint="/install.sh" \
-  fonoster/fonoster:0.3.12
-```
-
-#### Install (With extra services)
-
-Install the application with the latest version and add additional services.
-
-```bash
-docker run -it --rm \
-  -e CONFIG_PATH=$(pwd)/fonoster/config \
-  -e EXTRA_SERVICES=secrets,fs \
-  --volume /var/run/docker.sock:/var/run/docker.sock \
-  --volume $(pwd)/fonoster:/out:rw \
-  --entrypoint="/install.sh" \
-  fonoster/fonoster:0.3.12
-```
-
-#### Install (Passing version)
-
-Install the app with the provided version.
-
-```bash
-docker run -it --rm \
-  -e CONFIG_PATH=$(pwd)/fonoster/config \
-  -e EXTRA_SERVICES=secrets,fs \
-  -e FONOSTER_VERSION=0.3.3 \
-  --volume /var/run/docker.sock:/var/run/docker.sock \
-  --volume $(pwd)/fonoster:/out:rw \
-  --entrypoint="/install.sh" \
-  fonoster/fonoster:0.3.12
-```
-
-#### Install (Verbose mode)
-
-Display all logs of each processor command.
-
-```bash
-docker run -it --rm \
-  -e CONFIG_PATH=$(pwd)/fonoster/config \
-  -e VERBOSE=true \
-  -e FONOSTER_VERSION=0.3.3 \
-  --volume /var/run/docker.sock:/var/run/docker.sock \
-  --volume $(pwd)/fonoster:/out:rw \
-  --entrypoint="/install.sh" \
-  fonoster/fonoster:0.3.12
-```
-
-#### Update (Happy path)
-
-Update your current installation to the latest patch for your current version. (e.g. 0.3.0 => 0.3.3)
+## Unix
 
 ```bash
 docker run -it --rm \
   -e CONFIG_PATH=$(pwd)/fonoster/config \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume $(pwd)/fonoster:/out:rw \
-  --entrypoint="/update.sh" \
-  fonoster/fonoster:0.3.12
+  fonoster/fonoster
 ```
 
-#### Update (Passing version and verbose)
+## Windows
 
-Update your current installation to the provided version. (if it's the same version with different patches)
+**CMD**
 
-```bash
-docker run -it --rm \
-  -e CONFIG_PATH=$(pwd)/fonoster/config \
-  -e VERBOSE=true \
-  -e FONOSTER_VERSION=0.3.3 \
-  --volume /var/run/docker.sock:/var/run/docker.sock \
-  --volume $(pwd)/fonoster:/out:rw \
-  --entrypoint="/update.sh" \
-  fonoster/fonoster:0.3.12
+```cmd
+docker run -it --rm ^
+  -e CONFIG_PATH="%cd%"/fonoster/config ^
+  --volume //var/run/docker.sock:/var/run/docker.sock ^
+  --volume "%cd%"/fonoster:/out:rw ^
+  fonoster/fonoster
 ```
 
-#### Stop (Happy path)
+**PowerShell**
 
-Stop your current installation.
-
-```bash
-docker run -it --rm \
-  -e CONFIG_PATH=$(pwd)/fonoster/config \
-  --volume /var/run/docker.sock:/var/run/docker.sock \
-  --volume $(pwd)/fonoster:/out:rw \
-  --entrypoint="/stop.sh" \
-  fonoster/fonoster:0.3.12
+```powershell
+docker run -it --rm `
+  -e CONFIG_PATH=${pwd}/fonoster/config `
+  --volume /var/run/docker.sock:/var/run/docker.sock `
+  --volume ${pwd}/fonoster:/out:rw `
+  fonoster/fonoster
 ```
+
+## Additional Entrypoints
+
+The dind operator provides additional endpoints. Use `--entrypoint="/update.sh"` to update your instance, or use `--entrypoint="/stop.sh"` to stop all your services. 
+
+## Troubleshooting
+
+A known issue with the operator causes Minio to fail if there was a previous installation in the host. You will see an error on Minio's service indicating that there is a bad authentication. To fix the issue, you must manually update the password on Minio to match the one on your `.env` or start a fresh installation.
+
+## Environment Variables
+
+- `DOCKER_HOST_IP` - If you run on a cloud provider, like Digital Ocean, the installer will use your public IP. For a local environment, you must set the value of your host's IP (it won't be automatic.)
+- `DOMAIN` - The Domain for your API endpoint. This is required for TLS support. The DNS entry must point to the public IP of your Docker Host
+- `ENABLE_TLS` - Set to `true` if you want to generate and use a set of Let's Encrypt certificates. Your `DOMAIN` must be publicly accessible. Defaults to `false`.
+- `HTTP_PORT` - Unsecure port for HTTP connections. Defaults to `51051`.
+- `HTTPS_PORT` - Secure port for HTTP connections. Defaults to `51051`.
+- `LETSENCRYPT_EMAIL` - We recommend setting this value to get important communication from Let's Encrypt. Defaults to `admin@$DOMAIN`.
+- `GLOBAL_SIP_DOMAIN` - The main SIP Domain. New Domains will be under this one
+- `EXTRA_SERVICES` - A comma-separated list of additional services to add.
+- `FONOSTER_VERSION` - Use to indicate the version of Fonoster you wish to install. It must be a patch version.
+- `CONFIG_PATH` - Use this environment variable to set the location of your configuration. **Required**
+- `VERBOSE` - Controls the verbosity of the operator. Defaults to `false`.
