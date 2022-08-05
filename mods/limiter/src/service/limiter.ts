@@ -52,6 +52,16 @@ class LimiterServer implements ILimiterServer {
     callback: grpc.sendUnaryData<CheckAuthorizedResponse>
   ) {
     const accessKeyId = getAccessKeyId(call);
+
+    // Special case for limiter
+    // NOTE: Perhaps we should avoid calling the limiter if the accessKeyId === internal
+    if (accessKeyId === "internal") {
+      const response = new CheckAuthorizedResponse();
+      response.setAuthorized(true);
+      callback(null, response);
+      return;
+    }
+
     const user = await getUserByAccessKeyId(redis)(accessKeyId);
     const limiter = getLimiterByName(limiters)(user.getLimiter());
     const limit = getLimit(limiter, call.request.getPath());
