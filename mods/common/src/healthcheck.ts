@@ -40,7 +40,7 @@ export default function (): void {
     request,
     (error: Error | null, response: HealthCheckResponse) => {
       if (error) {
-        logger.error(`@fonoster/common healthcheck fialed: ${error}`, error);
+        logger.error(`@fonoster/common healthcheck failed: ${error}`, error);
         process.exit(1);
       } else {
         logger.verbose(
