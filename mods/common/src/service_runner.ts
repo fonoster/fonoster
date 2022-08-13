@@ -20,7 +20,7 @@
  */
 import logger from "@fonoster/logger";
 import assertEnvIsSet from "./env_is_set";
-const grpc = require("@grpc/grpc-js");
+import * as grpc from "@grpc/grpc-js";
 import { getServerCredentials } from "./trust_util";
 const interceptor = require("grpc-interceptors");
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
