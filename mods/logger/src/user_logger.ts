@@ -16,23 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import winston from "winston";
-import { fluent, format, level, transports } from "./envs";
+import logger from "./logger";
 import { ULog } from "./types";
 
-const logger = winston.createLogger({
-  levels: winston.config.npm.levels,
-  format,
-  transports,
-  level
-});
+// Special logger function for User specific events
+const ulogger = (log: ULog) =>
+  logger[log.level](log.message, {
+    eventType: log.eventType,
+    body: log.body,
+    level: log.level,
+    accessKeyId: log.accessKeyId
+  });
 
-logger.on("finish", () => {
-  fluent.sender.end("end", {}, () => { });
-});
-
-const mute = () => logger.transports.forEach((t: any) => (t.silent = true));
-
-const unmute = () => logger.transports.forEach((t: any) => (t.silent = false));
-
-export { logger as default, mute, unmute };
+export { ulogger as default }
