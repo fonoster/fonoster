@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { ULogType } from "./types";
-import Logger from "./new_logger";
+import getLogger from "./get_logger";
 import ulogger from "./user_logger";
 import logger, { mute, unmute } from "./logger";
 
-export { logger as default, Logger, ulogger, ULogType, mute, unmute };
+export { logger as default, getLogger, ulogger, ULogType, mute, unmute };

@@ -20,7 +20,7 @@ import winston from "winston";
 import { resolve } from "path";
 import { fluent, level, transports } from "./envs";
 
-export const Logger = (config: { service: string, filePath: string }) => {
+export const getLogger = (config: { service?: string, filePath: string }) => {
   const file = config.filePath.replace(resolve("./"), "");
 
   const humanFormat = winston.format.combine(
@@ -43,4 +43,4 @@ export const Logger = (config: { service: string, filePath: string }) => {
   return logger
 }
 
-export { Logger as default }
+export { getLogger as default }
