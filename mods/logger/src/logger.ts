@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 import winston from "winston";
+import { resolve } from "path";
+import { fileURLToPath, URL } from "url";
 import fluentLogger from "fluent-logger";
 
 export enum ULogType {
@@ -48,11 +50,14 @@ const fluent = new fluentTransport(
 
 const format =
   process.env.LOGS_FORMAT === "json"
-    ? winston.format.json()
+    ? winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.json()
+    )
     : winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      );
+      winston.format.colorize(),
+      winston.format.simple()
+    );
 const level = process.env.LOGS_LEVEL ? process.env.LOGS_LEVEL : "info";
 const transports =
   process.env.LOGS_TRANSPORT === "fluent"
@@ -67,8 +72,31 @@ const logger = winston.createLogger({
 });
 
 logger.on("finish", () => {
-  fluent.sender.end("end", {}, () => {});
+  fluent.sender.end("end", {}, () => { });
 });
+
+const fogger = (config: { service: string, filePath: string }) => {
+  const file = config.filePath.replace(resolve("./"), "");
+
+  const humanFormat = winston.format.combine(
+    winston.format.timestamp({
+      format: "YYYY-MM-dd HH:mm:ss.SSS"
+    }),
+    winston.format.printf(({ level, message, timestamp, ...metadata }) => `${timestamp} [${level}]: ${config.service ? `(${config.service})` : ''} ${file} ${message} ${JSON.stringify(metadata)}`)
+  );
+
+  const logger = winston.createLogger({
+    levels: winston.config.npm.levels,
+    format: humanFormat,
+    transports,
+    level
+  });
+
+  logger.on("finish", () => {
+    fluent.sender.end("end", {}, () => { });
+  });
+  return logger
+}
 
 const mute = () => logger.transports.forEach((t: any) => (t.silent = true));
 
@@ -82,4 +110,4 @@ const ulogger = (log: ULog) =>
     accessKeyId: log.accessKeyId
   });
 
-export {logger as default, ulogger, mute, unmute};
+export { logger as default, ulogger, fogger, mute, unmute };
