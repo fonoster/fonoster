@@ -134,6 +134,12 @@ export default class CreateCommand extends Command {
           }
         },
         {
+          name: "enableEvents",
+          message: "Enable Events",
+          type: "confirm",
+          when: (answers) => answers.showAdvanceOptions
+        },
+        {
           name: "activationIntentId",
           message: "Type the activation intent ID (optional)",
           type: "input",

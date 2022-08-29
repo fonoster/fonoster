@@ -152,6 +152,13 @@ export default class UpdateCommand extends Command {
           }
         },
         {
+          name: "enableEvents",
+          message: "Enable Events",
+          type: "confirm",
+          default: app.enableEvents,
+          when: (answers) => answers.showAdvanceOptions
+        },
+        {
           name: "activationIntentId",
           message: "Type the activation intent ID (optional)",
           type: "input",
