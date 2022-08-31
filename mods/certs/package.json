@@ -2,37 +2,40 @@
   "name": "@fonoster/certs",
   "version": "0.3.15",
   "description": "Handles Fonoster certificates",
-  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
-  "license": "MIT",
-  "main": "dist/certs",
-  "types": "dist/certs",
-  "scripts": {
-    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
-  },
-  "directories": {
-    "src": "src",
-    "test": "test"
-  },
-  "files": [
-    "dist"
-  ],
-  "publishConfig": {
-    "access": "public"
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fonoster/fonoster.git"
   },
-  "bugs": {
-    "url": "https://github.com/fonoster/fonoster/issues"
+  "license": "MIT",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "main": "dist/certs",
+  "types": "dist/certs",
+  "directories": {
+    "test": "test",
+    "src": "src"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@types/jsonwebtoken": "^8.5.0",
     "acme-client": "^4.1.3",
     "btoa": "^1.2.1",
     "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "minipass": "3.3.4"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
 }

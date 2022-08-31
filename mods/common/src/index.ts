@@ -20,7 +20,7 @@ import APIClient from "./api_client";
 import WebAPIClient from "./web_client";
 import {ClientOptions, WebClientOptions} from "./types";
 import {getClientCredentials, getServerCredentials} from "./trust_util";
-//import healthcheck from "./healthcheck";
+import healthcheck from "./healthcheck";
 import runServices from "./service_runner";
 import {Plugin} from "./speech/plugin";
 import {
@@ -43,6 +43,6 @@ export {
   StreamSpeechResult,
   getClientCredentials,
   getServerCredentials,
-  runServices
-  //healthcheck
+  runServices,
+  healthcheck
 };
