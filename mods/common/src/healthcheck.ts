@@ -17,21 +17,10 @@
  * limitations under the License.
  */
 /* eslint-disable require-jsdoc */
-import logger from "@fonoster/logger";
 import { checker } from "@fonoster/grpc-health-check";
-import { getClientCredentials } from "./trust_util";
 
 const host = process.env.SERVICE_ADDRESS || "localhost";
 const port = parseInt(process.env.SERVICE_PORT) || 50052;
 const service = process.env.SERVICE_NAME || "";
 
-export default async function () {
-  logger.info("[@fonoster/common]: Starting the health check...");
-
-  const options = {
-    address: `${host}:${port}`,
-    credentials: getClientCredentials()
-  };
-
-  await checker(service, options);
-}
+export default async () => checker(service, `${host}:${port}`);
