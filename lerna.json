@@ -2,5 +2,5 @@
   "packages": [
     "mods/*"
   ],
-  "version": "0.3.16-alpha.2"
+  "version": "0.3.17-alpha.0"
 }
