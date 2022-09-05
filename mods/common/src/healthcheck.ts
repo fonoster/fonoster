@@ -17,37 +17,10 @@
  * limitations under the License.
  */
 /* eslint-disable require-jsdoc */
-import logger from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
-import {
-  HealthCheckRequest,
-  HealthCheckResponse,
-  HealthClient
-} from "grpc-ts-health-check";
+import { checker } from "@fonoster/grpc-health-check";
 
 const host = process.env.SERVICE_ADDRESS || "localhost";
 const port = parseInt(process.env.SERVICE_PORT) || 50052;
 const service = process.env.SERVICE_NAME || "";
 
-export default function (): void {
-  const healthClient = new HealthClient(
-    `${host}:${port}`,
-    grpc.credentials.createInsecure()
-  );
-  const request = new HealthCheckRequest();
-  request.setService(service);
-  healthClient.check(
-    request,
-    (error: Error | null, response: HealthCheckResponse) => {
-      if (error) {
-        logger.error(`@fonoster/common healthcheck failed: ${error}`, error);
-        process.exit(1);
-      } else {
-        logger.verbose(
-          `@fonoster/common healthcheck success [status: ${response.getStatus()}]`
-        );
-        process.exit(0);
-      }
-    }
-  );
-}
+export default async () => checker(service, `${host}:${port}`);

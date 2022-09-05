@@ -2,31 +2,28 @@
   "name": "@fonoster/core",
   "version": "0.3.16-alpha.2",
   "description": "Core artifacts",
-  "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
-  "license": "MIT",
-  "main": "dist/index",
-  "types": "dist/index",
-  "scripts": {
-    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
-  },
-  "directories": {
-    "src": "src",
-    "test": "test"
-  },
-  "files": [
-    "dist"
-  ],
-  "publishConfig": {
-    "access": "public"
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fonoster/fonoster.git"
   },
-  "bugs": {
-    "url": "https://github.com/fonoster/fonoster/issues"
+  "license": "MIT",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "test": "test",
+    "src": "src"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@fonoster/auth": "^0.3.16-alpha.2",
@@ -39,7 +36,6 @@
     "atob": "^2.1.2",
     "btoa": "^1.2.1",
     "deepmerge": "^4.2.2",
-    "grpc-ts-health-check": "^2.0.6",
     "ioredis": "^4.16.0",
     "nanoid": "^3.1.23",
     "phone": "^2.4.21"
@@ -47,6 +43,9 @@
   "devDependencies": {
     "@types/btoa": "^1.2.3",
     "@types/ioredis": "^4.16.5"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
 }
