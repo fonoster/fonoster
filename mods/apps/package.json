@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apps",
-  "version": "0.3.17-alpha.0",
+  "version": "0.3.17-alpha.1",
   "description": "Fonoster Voice Applications",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,12 +43,12 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.17-alpha.0",
-    "@fonoster/certs": "^0.3.17-alpha.0",
-    "@fonoster/common": "^0.3.17-alpha.0",
-    "@fonoster/core": "^0.3.17-alpha.0",
-    "@fonoster/errors": "^0.3.17-alpha.0",
-    "@fonoster/logger": "^0.3.17-alpha.0",
+    "@fonoster/auth": "^0.3.17-alpha.1",
+    "@fonoster/certs": "^0.3.17-alpha.1",
+    "@fonoster/common": "^0.3.17-alpha.1",
+    "@fonoster/core": "^0.3.17-alpha.1",
+    "@fonoster/errors": "^0.3.17-alpha.1",
+    "@fonoster/logger": "^0.3.17-alpha.1",
     "@opentelemetry/api": "^1.0.4"
   },
   "devDependencies": {

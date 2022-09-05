@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/common",
-  "version": "0.3.17-alpha.0",
+  "version": "0.3.17-alpha.1",
   "description": "Common artifacts",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "bugs": {
@@ -26,9 +26,9 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@fonoster/certs": "^0.3.17-alpha.0",
+    "@fonoster/certs": "^0.3.17-alpha.1",
     "@fonoster/grpc-health-check": "github:fonoster/grpc-health-check",
-    "@fonoster/logger": "^0.3.17-alpha.0",
+    "@fonoster/logger": "^0.3.17-alpha.1",
     "@grpc/grpc-js": "^1.3.7",
     "@grpc/proto-loader": "^0.7.2",
     "@opentelemetry/api": "^1.0.4",
