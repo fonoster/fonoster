@@ -57,7 +57,7 @@
     "bufferutil": "^4.0.3",
     "utf-8-validate": "^5.0.5"
   },
-  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857",
+  "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135",
   "devDependencies": {
     "@types/ws": "^7.4.7"
   }

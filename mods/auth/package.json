@@ -57,5 +57,5 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.0"
   },
-  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
+  "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135"
 }
