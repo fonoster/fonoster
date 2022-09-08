@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/funcs",
-  "version": "0.3.15",
+  "version": "0.3.17-alpha.2",
   "description": "Fonoster functions support",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,13 +43,13 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.15",
-    "@fonoster/certs": "^0.3.15",
-    "@fonoster/common": "^0.3.15",
-    "@fonoster/core": "^0.3.15",
-    "@fonoster/errors": "^0.3.15",
-    "@fonoster/logger": "^0.3.15",
-    "@fonoster/storage": "^0.3.15",
+    "@fonoster/auth": "^0.3.17-alpha.2",
+    "@fonoster/certs": "^0.3.17-alpha.2",
+    "@fonoster/common": "^0.3.17-alpha.2",
+    "@fonoster/core": "^0.3.17-alpha.2",
+    "@fonoster/errors": "^0.3.17-alpha.2",
+    "@fonoster/logger": "^0.3.17-alpha.2",
+    "@fonoster/storage": "^0.3.17-alpha.2",
     "@grpc/grpc-js": "^1.3.7",
     "@opentelemetry/api": "^1.0.4",
     "btoa": "^1.2.1",
@@ -71,5 +71,5 @@
     "@types/google-protobuf": "^3.15.2",
     "@types/tar": "^4.0.3"
   },
-  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
+  "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135"
 }

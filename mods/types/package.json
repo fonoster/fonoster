@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/types",
-  "version": "0.3.15",
+  "version": "0.3.17-alpha.2",
   "description": "Handles Fonoster types",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -28,5 +28,5 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "gitHead": "68e3f58bf970724877170648aa1d981da0bfc857"
+  "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135"
 }

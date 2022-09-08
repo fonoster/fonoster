@@ -20,8 +20,10 @@
  */
 import logger from "@fonoster/logger";
 import assertEnvIsSet from "./env_is_set";
-const grpc = require("@grpc/grpc-js");
+import * as grpc from "@grpc/grpc-js";
 import { getServerCredentials } from "./trust_util";
+import { useHealth } from "@fonoster/grpc-health-check";
+
 const interceptor = require("grpc-interceptors");
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
 
@@ -44,7 +46,7 @@ export default function run(
 ) {
   const grpcServer = new grpc.Server();
   // Wrapped server
-  const server = interceptor.serverProxy(grpcServer);
+  const server = interceptor.serverProxy(useHealth(grpcServer));
 
   logger.info(
     `@fonoster/common service runner [starting @ ${ENDPOINT}, api = ${srvInfList[0].version}]`
