@@ -81,7 +81,7 @@
     "moment": "^2.29.1",
     "phone": "^2.4.21",
     "prettyjson": "^1.2.1",
-    "update-notifier": "^5.1.0"
+    "update-notifier": "^6.0.2"
   },
   "devDependencies": {
     "@types/prettyjson": "0.0.29",
