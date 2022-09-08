@@ -122,18 +122,13 @@ Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
 > [Become a Github Sponsor](https://github.com/sponsors/fonoster)
 
 ---
+## JOIN OUR COMMUNITY! 🎉
 
-<p align="center">
-		<sup>Special Announcement:</sup>
-		<br>
-		<a href="https://form.typeform.com/to/CvQqk9">
-			<img width="70px" src="https://assets.brandfolder.com/pl546j-7le8zk-afym5u/original/Slack_Mark_Web.png">
-		</a>
-		<br>
-		<sub><b>We now have a Slack Channel</b></sub>
-		<br>
-		<sub>There we plan to discuss roadmaps, feature requests and more<br><a href="https://form.typeform.com/to/CvQqk9">Join the channel</a></sub>
-</p>
+<p> You can get insight on our roadmap, get help, future feature releases, community events, feature requests and more! </p>
+
+[![](https://dcbadge.vercel.app/api/server/mpWSRUhG7e?theme=clean-inverted)](https://discord.gg/mpWSRUhG7e)
+
+<a href="https://discord.gg/mpWSRUhG7e" alt="discord-invite" target="_blank"> ![Discord Banner 2](https://discordapp.com/api/guilds/1016419835455996076/widget.png?style=banner2) </a>
 
 ---
 
