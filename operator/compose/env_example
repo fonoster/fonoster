@@ -180,3 +180,7 @@ NODE_OPTIONS="--unhandled-rejections=throw"
 
 # Fonoster extra services (comma separated)
 EXTRA_SERVICES=datasource,fs
+
+# Jaeger credentials
+JAEGER_USERNAME=fonoster
+JAEGER_PASSWORD_HASH=$apr1$VJx7cQNd$F1kwQsD5u7LAReunUNL310
