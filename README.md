@@ -121,17 +121,6 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
 
 > [Become a Github Sponsor](https://github.com/sponsors/fonoster)
 
----
-## JOIN OUR COMMUNITY! 🎉
-
-<p> You can get insight on our roadmap, get help, future feature releases, community events, feature requests and more! </p>
-
-[![](https://dcbadge.vercel.app/api/server/mpWSRUhG7e?theme=clean-inverted)](https://discord.gg/mpWSRUhG7e)
-
-<a href="https://discord.gg/mpWSRUhG7e" alt="discord-invite" target="_blank"> ![Discord Banner 2](https://discordapp.com/api/guilds/1016419835455996076/widget.png?style=banner2) </a>
-
----
-
 ## Authors
  - [Pedro Sanders](https://github.com/psanders)
 
