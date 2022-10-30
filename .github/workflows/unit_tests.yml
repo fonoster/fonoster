@@ -20,7 +20,7 @@ jobs:
       - name: Running tests
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: '16.x'
       - run: |
           npm config set unsafe-perm true
           npm run make
