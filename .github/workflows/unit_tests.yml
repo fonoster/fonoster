@@ -22,8 +22,9 @@ jobs:
         with:
           node-version: '16.x'
       - run: |
-          npm config set unsafe-perm true
           npm run make
+          # Workaround for permission issue with cross-env
+          chmod +x node_modules/.bin/cross-env
           npm test
       - name: Running SonarCloud scan
         uses: sonarsource/sonarcloud-github-action@master
