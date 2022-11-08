@@ -40,6 +40,7 @@ import {
   getAccessKeyId
 } from "@fonoster/core";
 import decoder from "./decoder";
+import { Privacy } from "@fonoster/core/src/common/resource_builder";
 
 class AgentsServer implements IAgentsServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -65,10 +66,10 @@ class AgentsServer implements IAgentsServer {
       const resource = new ResourceBuilder(Kind.AGENT, call.request.getName())
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withDomains(call.request.getDomainsList())
+        .withPrivacy(call.request.getPrivacy() as Privacy || Privacy.NONE)
         .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
-      // .withPrivacy(provider.getPrivacy()) // TODO
       const response = await createResource(resource);
       callback(null, decoder(response));
     } catch (e) {
@@ -91,11 +92,13 @@ class AgentsServer implements IAgentsServer {
         .withCredentials(
           agent?.spec?.credentials?.username,
           call.request.getSecret()
-        )
-        .build();
+        );
+
+        if (call.request.getPrivacy())
+          resource.withPrivacy(call.request.getPrivacy() as Privacy);
 
       const result = await updateResource({
-        resource,
+        resource: resource.build(),
         accessKeyId: getAccessKeyId(call)
       });
 
