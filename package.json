@@ -17,7 +17,9 @@
     "gen:protos": "./.scripts/gen_code_proto.sh",
     "gen:docs": "node ./.scripts/gen_docs.js",
     "audit": "lerna-audit",
-    "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM"
+    "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
+    "publish": "lerna publish",
+    "publish:prerelease": "lerna publish prerelease --dist-tag next"
   },
   "nodemonConfig": {
     "watch": [
