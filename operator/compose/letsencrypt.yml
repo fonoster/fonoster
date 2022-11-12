@@ -7,8 +7,8 @@ services:
   apiserver:
     command:
       # - "--log.level=DEBUG"
-      - --api.insecure=true"
-      - --providers.docker=true"
+      - --api.insecure=true
+      - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.internal.address=:${HTTP_PORT}
       - --entrypoints.websecure.address=:${HTTPS_PORT}
