@@ -8,4 +8,4 @@
     device: default
     credentials:
       username: voice
-      secret: '6d1dea885027e3489322711f9708a7b7'
+      secret: 'changeit'
