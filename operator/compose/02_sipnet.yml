@@ -54,12 +54,7 @@ services:
 
   mediaserver:
     image: fonoster/mediaserver:${COMPOSE_PROJECT_VERSION}
-    restart: ${RESTART_POLICY}
-    depends_on:
-      rtpengine:
-        condition: 'service_healthy'
-      sipproxy:
-        condition: 'service_healthy'        
+    restart: ${RESTART_POLICY}   
     labels:
       - traefik.enable=true
       - traefik.http.routers.mediaserver.entrypoints=internal,websecure
