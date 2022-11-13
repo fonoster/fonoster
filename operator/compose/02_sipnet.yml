@@ -25,6 +25,8 @@ services:
       # Setting this to true is breaking the routing workflow in Routr
       EX_CONVERT_TEL_TO_E164: "false"
       JAVA_OPTS: -XX:NewRatio=2 -Xmx250M
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
+      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
     ports:
       - ${SIPPROXY_SIP_PORTS}:${SIPPROXY_SIP_PORTS}
       - ${SIPPROXY_SIP_PORT_UDP}:${SIPPROXY_SIP_PORT_UDP}/udp
