@@ -3,11 +3,9 @@
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-<a href="https://www.producthunt.com/posts/fonoster?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-fonoster" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=319527&theme=dark&period=daily" alt="Fonoster - Engage&#0032;with&#0032;your&#0032;customers&#0032;with&#0032;VoIP&#0032;or&#0032;SMS | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-
 https://user-images.githubusercontent.com/539774/170885814-02c53689-af12-4e05-8351-e78d72f958d9.mov
 
-![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license: MIT"></a> [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Programmable%20Voice%20&url=https://github.com/fonoster/fonos&via=fonoster&hashtags=voip,sip,webrtc,telephony)
+![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/mpWSRUhG7e) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
 
 
@@ -111,26 +109,15 @@ For contributing, please see the following links:
  - [Contribution Documents](https://github.com/fonoster/fonoster/blob/master/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonoster/contributors)
 
-We're glad to be supported by respected companies and individuals from several industries. [See our Github Sponsors learn more](https://github.com/sponsors/psanders).
-
 **Sponsors**
 
-<a href="https://github.com/sponsors/psanders"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
+We're glad to be supported by respected companies and individuals from several industries.
 
-Find all supporters in our [`BACKERS.md`](./BACKERS.md) file.
+<a href="https://github.com/sponsors/fonoster"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
+
+Find all our supporters [here](https://github.com/sponsors/fonoster)
 
 > [Become a Github Sponsor](https://github.com/sponsors/fonoster)
-
----
-## JOIN OUR COMMUNITY! 🎉
-
-<p> You can get insight on our roadmap, get help, future feature releases, community events, feature requests and more! </p>
-
-[![](https://dcbadge.vercel.app/api/server/mpWSRUhG7e?theme=clean-inverted)](https://discord.gg/mpWSRUhG7e)
-
-<a href="https://discord.gg/mpWSRUhG7e" alt="discord-invite" target="_blank"> ![Discord Banner 2](https://discordapp.com/api/guilds/1016419835455996076/widget.png?style=banner2) </a>
-
----
 
 ## Authors
  - [Pedro Sanders](https://github.com/psanders)

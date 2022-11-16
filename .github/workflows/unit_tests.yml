@@ -17,13 +17,14 @@ jobs:
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
-      - name: Running tests
+      - name: Installing dependency
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
-      - run: |
-          npm config set unsafe-perm true
+          node-version: '16.x'
+      - name: Running tests
+        run: |
           npm run make
+          chmod +x node_modules/.bin/cross-env
           npm test
       - name: Running SonarCloud scan
         uses: sonarsource/sonarcloud-github-action@master
