@@ -63,10 +63,12 @@ class AgentsServer implements IAgentsServer {
     callback: grpc.sendUnaryData<Agent>
   ) {
     try {
+      const privacy = call.request.getPrivacy() === Privacy.PRIVATE ? Privacy.PRIVATE : Privacy.NONE;
+
       const resource = new ResourceBuilder(Kind.AGENT, call.request.getName())
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withDomains(call.request.getDomainsList())
-        .withPrivacy(call.request.getPrivacy() as Privacy || Privacy.NONE)
+        .withPrivacy(privacy)
         .withMetadata({accessKeyId: getAccessKeyId(call)})
         .build();
 
@@ -83,6 +85,7 @@ class AgentsServer implements IAgentsServer {
   ) {
     try {
       const agent = (await ResourceServer.getResource(Kind.AGENT, call)) as any;
+      const privacy = call.request.getPrivacy() === Privacy.PRIVATE ? Privacy.PRIVATE : Privacy.NONE;
 
       const resource = new ResourceBuilder(
         Kind.AGENT,
@@ -92,13 +95,12 @@ class AgentsServer implements IAgentsServer {
         .withCredentials(
           agent?.spec?.credentials?.username,
           call.request.getSecret()
-        );
-
-        if (call.request.getPrivacy())
-          resource.withPrivacy(call.request.getPrivacy() as Privacy);
+        )
+        .withPrivacy(privacy)
+        .build();
 
       const result = await updateResource({
-        resource: resource.build(),
+        resource,
         accessKeyId: getAccessKeyId(call)
       });
 

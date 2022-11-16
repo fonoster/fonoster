@@ -10,7 +10,6 @@ enum Kind {
 
 enum Privacy {
   PRIVATE = "Private",
-  PUBLIC = "Public",
   NONE = "None"
 }
 
