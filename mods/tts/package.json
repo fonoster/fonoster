@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/tts",
-  "version": "0.3.17-alpha.3",
+  "version": "0.3.17",
   "description": "Fonoster TTS module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
