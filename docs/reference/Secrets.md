@@ -2,7 +2,7 @@
 
 ## Secrets ⇐ <code>APIClient</code>
 Use Fonoster Secrets, a capability of Fonoster Secrets Service,
-to create and manage your secrets.FonosterSecrets requires of a
+to create and manage your secrets. Fonoster Secrets requires of a
 running Fonoster deployment.
 
 **Kind**: global class  
@@ -13,13 +13,13 @@ running Fonoster deployment.
     * [new Secrets(options)](#new_Secrets_new)
     * [.createSecret(request)](#Secrets+createSecret) ⇒ <code>Promise.&lt;CreateSecretResponse&gt;</code>
     * [.getSecret(request)](#Secrets+getSecret) ⇒ <code>Promise.&lt;CreateSecretResponse&gt;</code>
-    * [.listSecret(request)](#Secrets+listSecret) ⇒ <code>Promise.&lt;ListSecretResponse&gt;</code>
-    * [.deleteSecret(request)](#Secrets+deleteSecret) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [.listSecrets(request)](#Secrets+listSecrets) ⇒ <code>Promise.&lt;ListSecretResponse&gt;</code>
+    * [.deleteSecret(name)](#Secrets+deleteSecret)
 
 <a name="new_Secrets_new"></a>
 
 ### new Secrets(options)
-Constructs a Secret Object.
+Constructs a Secrets Object.
 
 
 | Param | Type | Description |
@@ -32,32 +32,32 @@ const Fonoster = require("@fonoster/sdk")
 const secrets = new Fonoster.Secrets()
 
 const request = {
-   secretName: "Jenkins",
+   secretName: "my-secret",
    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 };
 
 secrets.createSecret(request)
 .then(result => {
-  console.log(result) // returns the CreateDomainResponse interface
+  console.log(result) // message with the CreateSecretResponse interface
 }).catch(e => console.error(e)); // an error occurred
 ```
 <a name="Secrets+createSecret"></a>
 
 ### secrets.createSecret(request) ⇒ <code>Promise.&lt;CreateSecretResponse&gt;</code>
-Creates a new Secret.
+Creates and stores a new secret.
 
 **Kind**: instance method of [<code>Secrets</code>](#Secrets)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>CreateSecretRequest</code> | Request for the provision of a new Secret |
-| request.name | <code>string</code> | Friendly name for the Secret |
-| request.secret | <code>string</code> | secret to be save |
+| request | <code>CreateSecretRequest</code> | Request to create a new secret |
+| request.name | <code>string</code> | Friendly name for the secret |
+| request.secret | <code>string</code> | Actual secret |
 
 **Example**  
 ```js
 const request = {
-   secretName: "Jenkins",
+   name: "my-secret",
    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 };
 
@@ -69,32 +69,32 @@ secrets.createSecret(request)
 <a name="Secrets+getSecret"></a>
 
 ### secrets.getSecret(request) ⇒ <code>Promise.&lt;CreateSecretResponse&gt;</code>
-Get a Secret.
+Gets a secret by name.
 
 **Kind**: instance method of [<code>Secrets</code>](#Secrets)  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>CreateSecretRequest</code> | Request for the provision of a new Secret |
+| request | <code>CreateSecretRequest</code> | Request to create a new Secret |
 | request.name | <code>string</code> | Friendly name for the Secret |
-| request.secret | <code>string</code> | secret to be save |
+| request.secret | <code>string</code> | Secret to save |
 
 **Example**  
 ```js
 const request = {
-   secretName: "Jenkins",
+   name: "my-secret",
    secret: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 };
 
 secrets.createSecret(request)
 .then(result => {
-  console.log(result) // returns the CreateDomainResponse interface
+  console.log(result) // returns the GetSecretResponse interface
 }).catch(e => console.error(e)); // an error occurred
 ```
-<a name="Secrets+listSecret"></a>
+<a name="Secrets+listSecrets"></a>
 
-### secrets.listSecret(request) ⇒ <code>Promise.&lt;ListSecretResponse&gt;</code>
-List all user secrets.
+### secrets.listSecrets(request) ⇒ <code>Promise.&lt;ListSecretResponse&gt;</code>
+List all the secrets for current Project.
 
 **Kind**: instance method of [<code>Secrets</code>](#Secrets)  
 
@@ -111,27 +111,26 @@ const request = {
    pageToken: 1
 };
 
-secrets.listSecret(request)
+secrets.listSecrets(request)
 .then(result => {
-  console.log(result) // returns the CreateDomainResponse interface
+  console.log(result)
 }).catch(e => console.error(e)); // an error occurred
 ```
 <a name="Secrets+deleteSecret"></a>
 
-### secrets.deleteSecret(request) ⇒ <code>Promise.&lt;void&gt;</code>
-Retrives a Secret using its reference.
+### secrets.deleteSecret(name)
+Removes a secret by name.
 
 **Kind**: instance method of [<code>Secrets</code>](#Secrets)  
-**Returns**: <code>Promise.&lt;void&gt;</code> - The domain  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>string</code> | Reference to Secret |
+| name | <code>string</code> | Secret name |
 
 **Example**  
 ```js
-secrets.deleteSecret("jenkins")
+secrets.deleteSecret("my-secret")
 .then(() => {
-  console.log("successful")      // returns the CreateGetResponse interface
+  console.log("successful")
 }).catch(e => console.error(e)); // an error occurred
 ```

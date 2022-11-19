@@ -3,6 +3,8 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {CliUx} from "@oclif/core";
 import {getProjectConfig, hasProjectConfig} from "../../config";
+import { toPascalCase } from "../../utils";
+const {Privacy} = require("@fonoster/agents");
 const Agents = require("@fonoster/agents");
 const inquirer = require("inquirer");
 
@@ -40,8 +42,11 @@ export default class UpdateCommand extends Command {
         name: "privacy",
         message: "privacy",
         type: "list",
-        choices: ["None", "Private"],
-        default: agent.privacy
+        choices: [
+          toPascalCase(Privacy.NONE),
+          toPascalCase(Privacy.PRIVATE)
+        ],
+        default: toPascalCase(agent.privacy)
       },
       {
         name: "confirm",
@@ -57,7 +62,7 @@ export default class UpdateCommand extends Command {
     } else {
       try {
         CliUx.ux.action.start(`Updating agent ${answers.name}`);
-
+        answers.privacy = Privacy[answers.privacy.toUpperCase()];
         await agents.updateAgent(answers);
         await CliUx.ux.wait(1000);
 

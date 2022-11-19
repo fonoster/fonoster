@@ -31,7 +31,10 @@ export default class CreateCommand extends Command {
   static args = [{name: "name"}];
   static flags = {
     help: flags.help({char: "h"}),
-    "from-literal": flags.string({char: "l", description: "pass from literal"}),
+    "from-literal": flags.string({
+      char: "l",
+      description: "pass from literal"
+    }),
     "from-stdin": flags.boolean({char: "s", description: "pass from stdin"})
   };
 

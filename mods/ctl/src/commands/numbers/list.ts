@@ -1,9 +1,8 @@
 import "../../config";
 import {CLIError} from "@oclif/errors";
 import {Command, flags as oclifFlags} from "@oclif/command";
-import {CommonPB} from "@fonoster/numbers";
+import {CommonPB, Number} from "@fonoster/numbers";
 import {CliUx} from "@oclif/core";
-import {Number} from "@fonoster/numbers/src/client/types";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
 const Numbers = require("@fonoster/numbers");

@@ -63,10 +63,10 @@
     "@fonoster/domains": "^0.3.17",
     "@fonoster/logger": "^0.3.17",
     "@fonoster/numbers": "^0.3.17",
-    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
     "@fonoster/projects": "^0.3.17",
     "@fonoster/providers": "^0.3.17",
     "@fonoster/secrets": "^0.3.17",
+    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
     "@oclif/command": "^1.8.16",
     "@oclif/config": "^1.18.3",
     "@oclif/core": "^1.3.4",
@@ -84,6 +84,7 @@
     "update-notifier": "^5.1.0"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.3",
     "@types/prettyjson": "0.0.29",
     "rimraf": "^3.0.2"
   },

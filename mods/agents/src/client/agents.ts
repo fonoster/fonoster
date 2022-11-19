@@ -77,8 +77,8 @@ export default class Agents extends APIClient implements IAgentsClient {
    * @param {string} request.name - Friendly name for the SIP device
    * @param {string} request.username -Agent's credential username
    * @param {string} request.secret - Agent's credential secret
-   * @param {string} request.privacy - If set to "Private" Fonoster removes
-   * identifiable information for the requests. Defaults to "None"
+   * @param {Privacy} request.privacy - If set to Privacy.PRIVATE Fonoster removes
+   * identifiable information for the requests. Defaults to Privacy.NONE
    * @param {string[]} request.domains - List of domains this Agent has access to
    * @return {Promise<CreateAgentResponse>}
    * @example
@@ -88,6 +88,7 @@ export default class Agents extends APIClient implements IAgentsClient {
    *   username: "john",
    *   secret: "1234",
    *   domains: ["sip.local"]
+   *   privacy: Privacy.PRIVATE
    * }
    *
    * agents.createAgent(request)

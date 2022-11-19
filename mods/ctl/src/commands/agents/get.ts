@@ -4,6 +4,7 @@ import {Command} from "@oclif/command";
 import {CliUx} from "@oclif/core";
 import {render} from "prettyjson";
 import {getProjectConfig, hasProjectConfig} from "../../config";
+import { toPascalCase } from "../../utils";
 const Agents = require("@fonoster/agents");
 const moment = require("moment");
 
@@ -26,7 +27,7 @@ export default class GetCommand extends Command {
         Ref: agent.ref,
         Name: agent.name,
         Username: agent.username,
-        // Privacy: agent.getPrivacy(),
+        Privacy: toPascalCase(agent.privacy),
         Domains: agent.domains.join(","),
         Created: moment(agent.createTime).fromNow(),
         Updated: moment(agent.updateTime).fromNow()

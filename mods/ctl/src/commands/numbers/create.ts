@@ -3,7 +3,7 @@ import {CLIError} from "@oclif/errors";
 import {Command} from "@oclif/command";
 import {CliUx} from "@oclif/core";
 import {CommonPB} from "@fonoster/numbers";
-import {Provider} from "@fonoster/providers/dist/client/types";
+import {Provider} from "@fonoster/providers";
 import {getProjectConfig, hasProjectConfig} from "../../config";
 
 const Providers = require("@fonoster/providers");

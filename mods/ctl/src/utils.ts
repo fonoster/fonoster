@@ -16,18 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Agent} from "./protos/agents_pb";
-
-export default function (jsonObj: any) {
-  const agent = new Agent();
-  const spec = jsonObj?.spec;
-  agent.setRef(jsonObj.metadata.ref);
-  agent.setName(jsonObj.metadata.name);
-  agent.setUsername(spec?.credentials?.username);
-  agent.setSecret(spec?.credentials?.secret);
-  agent.setDomainsList(spec?.domains);
-  agent.setCreateTime(jsonObj.metadata.createdOn);
-  agent.setUpdateTime(jsonObj.metadata.modifiedOn);
-  agent.setPrivacy(spec?.privacy);
-  return agent;
+export function toPascalCase(str: string) {
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+      return index === 0 ? word.toUpperCase() : word.toLowerCase();
+    })
+    .replace(/\s+/g, "");
 }
