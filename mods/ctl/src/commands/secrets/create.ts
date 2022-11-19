@@ -44,7 +44,9 @@ export default class CreateCommand extends Command {
 
     const { args, flags } = this.parse(CreateCommand);
 
-    let secret = flags["from-stdin"] ? await getStdin() : flags["from-literal"];
+    const secret = flags["from-stdin"]
+      ? await getStdin()
+      : flags["from-literal"];
 
     if (!args.name || !secret) {
       throw new CLIError(

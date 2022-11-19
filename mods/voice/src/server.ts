@@ -90,7 +90,7 @@ export default class VoiceServer {
   }
 
   init() {
-    logger.info(`initializing voice server`);
+    logger.info("initializing voice server");
     (app as any).ws(this.config.base, (ws) => {
       ws.on("message", (msg) => {
         if (Buffer.isBuffer(msg)) {

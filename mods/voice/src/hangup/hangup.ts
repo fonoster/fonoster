@@ -39,7 +39,7 @@ export default class HangupVerb extends Verb {
         );
 
         await super.post(
-          `events/user/Hangup`,
+          "events/user/Hangup",
           objectToQString({
             // WARNING: Harcoded value
             application: "mediacontroller"

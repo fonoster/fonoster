@@ -24,7 +24,7 @@ const waitForDtmf = async (
   options: GatherOptions
 ): Promise<string> =>
   new Promise(async (resolve, reject) => {
-    let token = null;
+    const token = null;
     try {
       let timer: NodeJS.Timeout;
       let digits = "";

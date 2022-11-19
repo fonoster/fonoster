@@ -39,7 +39,7 @@ export default class AnswerVerb extends Verb {
         );
 
         await super.post(
-          `events/user/Answer`,
+          "events/user/Answer",
           objectToQString({
             // WARNING: Harcoded value
             application: "mediacontroller"

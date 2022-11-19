@@ -60,7 +60,7 @@ export default class DialVerb extends Verb {
         );
 
         await super.post(
-          `events/user/Dial`,
+          "events/user/Dial",
           objectToQString({
             // WARNING: Harcoded value
             application: "mediacontroller"

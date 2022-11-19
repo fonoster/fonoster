@@ -45,7 +45,7 @@ export default class DtmfVerb extends Verb {
         );
 
         await super.post(
-          `events/user/SendDtmf`,
+          "events/user/SendDtmf",
           objectToQString({
             // WARNING: Harcoded value
             application: "mediacontroller"
