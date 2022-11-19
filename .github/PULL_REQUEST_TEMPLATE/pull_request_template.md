@@ -1,4 +1,4 @@
-# Description
+## Description
 
 <!--
   Please include a summary of the changes and the related issue. 
@@ -15,7 +15,7 @@
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] This change requires a documentation update
 
-# How Has This Been Tested?
+## How Has This Been Tested?
 
 <!-- 
   Please describe the tests that you ran to verify your changes. 
@@ -26,7 +26,7 @@
 - [ ] Test A
 - [ ] Test B
 
-# Checklist:
+## Checklist:
 
 <!-- Please delete options that are not relevant. -->
 
