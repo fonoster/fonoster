@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {getClientCredentials} from "./trust_util";
-import {ClientOptions} from "./types";
+import { getClientCredentials } from "./trust_util";
+import { ClientOptions } from "./types";
 import * as fs from "fs";
 import * as path from "path";
-import {Metadata} from "@grpc/grpc-js";
+import { Metadata } from "@grpc/grpc-js";
 
 const CONFIG_FILE =
   process.env.API_CONFIG_FILE ||

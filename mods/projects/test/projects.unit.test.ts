@@ -19,9 +19,9 @@
 import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
-import Projects, {ProjectsPB} from "../src/client/projects";
+import Projects, { ProjectsPB } from "../src/client/projects";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonoster/common";
+import { APIClient } from "@fonoster/common";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -122,7 +122,7 @@ describe("@fonoster/projects", () => {
       .returns({
         deleteProject: () => {
           return {
-            sendMessage: () => Promise.resolve({ref: "Nx05y-ldZa"})
+            sendMessage: () => Promise.resolve({ ref: "Nx05y-ldZa" })
           };
         }
       });
@@ -193,7 +193,7 @@ describe("@fonoster/projects", () => {
         updateProject: () => {
           return {
             sendMessage: () =>
-              Promise.resolve({getRef: () => projectObj.getRef()})
+              Promise.resolve({ getRef: () => projectObj.getRef() })
           };
         }
       });

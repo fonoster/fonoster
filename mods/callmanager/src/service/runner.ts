@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import {Tracer as T} from "@fonoster/common";
+import { Tracer as T } from "@fonoster/common";
 T.init("callmanager-service");
 
 import CallManagerServer from "./callmanager";
-import {CallManagerService} from "./protos/callmanager_grpc_pb";
-import {AuthMiddleware} from "@fonoster/auth";
-import {getSalt} from "@fonoster/certs";
-import {runServices} from "@fonoster/common";
+import { CallManagerService } from "./protos/callmanager_grpc_pb";
+import { AuthMiddleware } from "@fonoster/auth";
+import { getSalt } from "@fonoster/certs";
+import { runServices } from "@fonoster/common";
 
 const services = [
   {

@@ -58,4 +58,4 @@ const transcode = (fileIn: string, fileOut: string): Promise<string> =>
     sox.on("end", () => resolve(fileOut));
   });
 
-export {computeFilename, transcode, optionsToQueryString};
+export { computeFilename, transcode, optionsToQueryString };

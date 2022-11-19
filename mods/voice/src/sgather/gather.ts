@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {SpeechProvider} from "@fonoster/common";
-import {VoiceRequest} from "../types";
-import {Verb} from "../verb";
-import {SGatherOptions, SGatherStream} from "./types";
+import { SpeechProvider } from "@fonoster/common";
+import { VoiceRequest } from "../types";
+import { Verb } from "../verb";
+import { SGatherOptions, SGatherStream } from "./types";
 import PubSub from "pubsub-js";
 import logger from "@fonoster/logger";
 import merge from "deepmerge";
@@ -56,7 +56,7 @@ export default class SGatherVerb extends Verb {
     }
 
     if (options.source.includes("speech")) {
-      const {speechStream, token} = await startSpeechSource(
+      const { speechStream, token } = await startSpeechSource(
         this.request.sessionId,
         opts,
         super.getSelf(),
@@ -72,4 +72,4 @@ export default class SGatherVerb extends Verb {
   }
 }
 
-export {SGatherOptions};
+export { SGatherOptions };

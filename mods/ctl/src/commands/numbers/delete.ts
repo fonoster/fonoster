@@ -1,12 +1,12 @@
 import Command from "../../base/delete";
-import {CLIError} from "@oclif/errors";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CLIError } from "@oclif/errors";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Numbers = require("@fonoster/numbers");
 
 export default class DeleteCommand extends Command {
   static description = "delete a Fonoster Number";
-  static args = [{name: "ref"}];
+  static args = [{ name: "ref" }];
   static aliases = ["numbers:del", "numbers:rm"];
 
   async run() {

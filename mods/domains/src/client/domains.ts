@@ -28,11 +28,11 @@ import {
   IDomainsClient,
   Domain
 } from "./types";
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {DomainsClient} from "../service/protos/domains_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { DomainsClient } from "../service/protos/domains_grpc_pb";
 import DomainsPB from "../service/protos/domains_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 
 /**
  * @classdesc Use Fonoster Domains, a capability of Fonoster SIP Proxy Subsystem,
@@ -60,7 +60,7 @@ export default class Domains extends APIClient implements IDomainsClient {
   constructor(options?: ClientOptions) {
     super(DomainsClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -271,11 +271,11 @@ export default class Domains extends APIClient implements IDomainsClient {
     const req = new DomainsPB.DeleteDomainRequest();
     req.setRef(ref);
     await super.getService().deleteDomain().sendMessage(req);
-    return {ref};
+    return { ref };
   }
 }
 
-export {Domain, DomainsPB, CommonPB, IDomainsClient};
+export { Domain, DomainsPB, CommonPB, IDomainsClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Domains;

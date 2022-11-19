@@ -18,8 +18,8 @@
  */
 import PubSub from "pubsub-js";
 import logger from "@fonoster/logger";
-import {objectToQString} from "../utils";
-import {Verb} from "../verb";
+import { objectToQString } from "../utils";
+import { Verb } from "../verb";
 
 export default class AnswerVerb extends Verb {
   async run(): Promise<void> {

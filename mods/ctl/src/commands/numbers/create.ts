@@ -1,10 +1,10 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {CommonPB} from "@fonoster/numbers";
-import {Provider} from "@fonoster/providers";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { CommonPB } from "@fonoster/numbers";
+import { Provider } from "@fonoster/providers";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Providers = require("@fonoster/providers");
 const Numbers = require("@fonoster/numbers");

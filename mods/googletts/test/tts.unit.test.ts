@@ -24,7 +24,7 @@ import chaiAsPromised from "chai-as-promised";
 import textToSpeech from "@google-cloud/text-to-speech";
 import fs from "fs";
 import path from "path";
-import {isSSML} from "../src/utils";
+import { isSSML } from "../src/utils";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -56,7 +56,7 @@ describe("@fonoster/googletts", () => {
   it("synthesizes text and returns path to file", async () => {
     const synthesizeSpeechStub = sandbox
       .stub(textToSpeech.TextToSpeechClient.prototype, "synthesizeSpeech")
-      .resolves([{audioContent: "some-audio"}]);
+      .resolves([{ audioContent: "some-audio" }]);
     const writeFile = sandbox.spy(fs, "writeFile");
     const join = sandbox.spy(path, "join");
     const config = {

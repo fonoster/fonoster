@@ -18,11 +18,11 @@
  */
 import PubSub from "pubsub-js";
 import logger from "@fonoster/logger";
-import {objectToQString} from "../utils";
-import {Verb} from "../verb";
-import {DialOptions} from "./types";
+import { objectToQString } from "../utils";
+import { Verb } from "../verb";
+import { DialOptions } from "./types";
 import StatusStream from "./status_stream";
-import {Stream} from "stream";
+import { Stream } from "stream";
 
 export default class DialVerb extends Verb {
   async run(

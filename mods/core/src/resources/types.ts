@@ -1,4 +1,4 @@
-import {Kind} from "../common/resource_builder";
+import { Kind } from "../common/resource_builder";
 
 export interface GetResourceRequest {
   ref: string;

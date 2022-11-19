@@ -5,13 +5,13 @@
     "rootDir": "./src"
   },
   "references": [
-    {"path": "../common"},
-    {"path": "../auth"},
-    {"path": "../certs"},
-    {"path": "../logger"},
-    {"path": "../core"},
-    {"path": "../errors"},
-    {"path": "../storage"}
+    { "path": "../common" },
+    { "path": "../auth" },
+    { "path": "../certs" },
+    { "path": "../logger" },
+    { "path": "../core" },
+    { "path": "../errors" },
+    { "path": "../storage" }
   ],
   "exclude": ["node_modules", "dist", "test", "etc"]
 }

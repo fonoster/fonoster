@@ -22,7 +22,10 @@ export async function getChannelVar(
   channel: any,
   variable: string
 ): Promise<string> {
-  logger.verbose("getting session variable", {sessionId: channel.id, variable});
+  logger.verbose("getting session variable", {
+    sessionId: channel.id,
+    variable
+  });
 
   try {
     const channelVar = await channel.getChannelVar({

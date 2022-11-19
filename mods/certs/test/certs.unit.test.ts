@@ -5,7 +5,7 @@ import chaiAsPromised from "chai-as-promised";
 import createConfigFile from "../src/certs";
 import jwt from "jsonwebtoken";
 import fs from "fs";
-import {join} from "path";
+import { join } from "path";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -13,7 +13,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
+  require("dotenv").config({ path: join(__dirname, "..", "..", ".env") });
 }
 
 describe("@fonoster/certs", () => {

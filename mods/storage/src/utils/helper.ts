@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {UploadObjectResponse} from "../service/protos/storage_pb";
-import {extract, removeDirSync} from "./files";
-import {uploadToFS} from "./storage";
+import { UploadObjectResponse } from "../service/protos/storage_pb";
+import { extract, removeDirSync } from "./files";
+import { uploadToFS } from "./storage";
 import logger from "@fonoster/logger";
 
 export const handleCompressUpload = async (

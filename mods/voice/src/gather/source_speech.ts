@@ -18,10 +18,10 @@
  */
 import Stream from "stream";
 import PubSub from "pubsub-js";
-import {GatherOptions} from "./types";
-import {startMediaTransfer, stopMediaTransfer} from "../utils";
-import {SpeechProvider} from "@fonoster/common";
-import {Verb} from "../verb";
+import { GatherOptions } from "./types";
+import { startMediaTransfer, stopMediaTransfer } from "../utils";
+import { SpeechProvider } from "@fonoster/common";
+import { Verb } from "../verb";
 
 const waitForSpeech = async (
   sessionId: string,

@@ -20,11 +20,11 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonoster/common";
-import Monitor, {MonitorPB} from "../src/client/monitor";
-import {Level} from "../src/service/level";
-import {EventType} from "../src/service/event_type";
-import {Struct} from "google-protobuf/google/protobuf/struct_pb";
+import { APIClient } from "@fonoster/common";
+import Monitor, { MonitorPB } from "../src/client/monitor";
+import { Level } from "../src/service/level";
+import { EventType } from "../src/service/event_type";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -38,7 +38,7 @@ describe("@fonoster/monitor", () => {
   eventObj.setLevel(Level.fromString("warn"));
   eventObj.setEventType(EventType.fromString("app"));
   eventObj.setTimestamp(new Date().toISOString());
-  eventObj.setBody(Struct.fromJavaScript({test: "test"}));
+  eventObj.setBody(Struct.fromJavaScript({ test: "test" }));
 
   afterEach(() => sandbox.restore());
 

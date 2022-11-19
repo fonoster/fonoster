@@ -1,10 +1,10 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command, flags as oclifFlags} from "@oclif/command";
-import {CommonPB} from "@fonoster/agents";
-import {CliUx} from "@oclif/core";
-import {Agent} from "@fonoster/agents";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CLIError } from "@oclif/errors";
+import { Command, flags as oclifFlags } from "@oclif/command";
+import { CommonPB } from "@fonoster/agents";
+import { CliUx } from "@oclif/core";
+import { Agent } from "@fonoster/agents";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Agents = require("@fonoster/agents");
 const inquirer = require("inquirer");
@@ -27,7 +27,7 @@ export default class ListCommand extends Command {
     if (!hasProjectConfig()) {
       throw new CLIError("you must set a default project");
     }
-    const {flags} = this.parse(ListCommand);
+    const { flags } = this.parse(ListCommand);
     try {
       const agents = new Agents(getProjectConfig());
       let firstBatch = true;
@@ -36,14 +36,14 @@ export default class ListCommand extends Command {
       const view: CommonPB.View = CommonPB.View.BASIC;
       while (true) {
         // Get a list
-        const result = await agents.listAgents({pageSize, pageToken, view});
+        const result = await agents.listAgents({ pageSize, pageToken, view });
         const list = result.agents;
         pageToken = result.nextPageToken;
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
           const answer: any = await inquirer.prompt([
-            {name: "q", message: "More", type: "confirm"}
+            { name: "q", message: "More", type: "confirm" }
           ]);
           if (!answer.q) break;
         }
@@ -54,17 +54,17 @@ export default class ListCommand extends Command {
           CliUx.ux.table(
             data,
             {
-              ref: {minWidth: 12},
-              name: {header: "Name", minWidth: 12},
-              username: {header: "Username", minWidth: 12},
-              privacy: {header: "Privacy", minWidth: 12, extended: true},
+              ref: { minWidth: 12 },
+              name: { header: "Name", minWidth: 12 },
+              username: { header: "Username", minWidth: 12 },
+              privacy: { header: "Privacy", minWidth: 12, extended: true },
               domains: {
                 header: "Domains",
                 minWidth: 12,
                 get: (row: any) => `${row.domains.join(",")}`
               }
             },
-            {"no-header": !showHeader}
+            { "no-header": !showHeader }
           );
         };
         showTable(firstBatch, list);

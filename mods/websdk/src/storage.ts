@@ -34,9 +34,8 @@ export default class Storage extends WebAPIClient implements IStorageClient {
     super(c, "StorageApi", options);
   }
 
-  async uploadObject(
-    request: UploadObjectRequest
-  ): Promise<UploadObjectResponse> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async uploadObject(_: UploadObjectRequest): Promise<UploadObjectResponse> {
     throw new Error("implementation not available on browsers");
   }
 

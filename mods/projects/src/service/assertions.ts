@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FonosterError, ErrorCodes} from "@fonoster/errors";
+import { FonosterError, ErrorCodes } from "@fonoster/errors";
 
 // TODO: Move to @fonoster/common
 export const assertNotEmpty = (name: string, value: string): void => {

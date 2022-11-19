@@ -1,4 +1,4 @@
-import {Provider} from "./protos/providers_pb";
+import { Provider } from "./protos/providers_pb";
 
 export default function (jsonObj: any) {
   const provider = new Provider();

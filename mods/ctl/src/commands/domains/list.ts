@@ -1,10 +1,10 @@
 import "../../config";
-import {CommonPB} from "@fonoster/domains";
-import {CLIError} from "@oclif/errors";
-import {Command, flags as oclifFlags} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {Domain} from "@fonoster/domains";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CommonPB } from "@fonoster/domains";
+import { CLIError } from "@oclif/errors";
+import { Command, flags as oclifFlags } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { Domain } from "@fonoster/domains";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Domains = require("@fonoster/domains");
 const inquirer = require("inquirer");
@@ -27,7 +27,7 @@ export default class ListCommand extends Command {
     if (!hasProjectConfig()) {
       throw new CLIError("you must set a default project");
     }
-    const {flags} = this.parse(ListCommand);
+    const { flags } = this.parse(ListCommand);
     try {
       const domains = new Domains(getProjectConfig());
       let firstBatch = true;
@@ -36,14 +36,14 @@ export default class ListCommand extends Command {
       const view: CommonPB.View = CommonPB.View.BASIC;
       while (true) {
         // Get a list
-        const result = await domains.listDomains({pageSize, pageToken, view});
+        const result = await domains.listDomains({ pageSize, pageToken, view });
         const list = result.domains;
         pageToken = result.nextPageToken;
 
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
           const answer: any = await inquirer.prompt([
-            {name: "q", message: "More", type: "confirm"}
+            { name: "q", message: "More", type: "confirm" }
           ]);
           if (!answer.q) break;
         }
@@ -54,9 +54,9 @@ export default class ListCommand extends Command {
           CliUx.ux.table(
             data as any,
             {
-              ref: {minWidth: 15},
-              name: {header: "Name", minWidth: 15},
-              domainUri: {header: "Domain URI", minWidth: 15},
+              ref: { minWidth: 15 },
+              name: { header: "Name", minWidth: 15 },
+              domainUri: { header: "Domain URI", minWidth: 15 },
               egressRule: {
                 header: "Egress Rule",
                 minWidth: 15,
@@ -67,7 +67,7 @@ export default class ListCommand extends Command {
                 minWidth: 15
               }
             },
-            {"no-header": !showHeader}
+            { "no-header": !showHeader }
           );
         };
         showTable(firstBatch, list);

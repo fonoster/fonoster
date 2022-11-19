@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import AuthPB from "../service/protos/auth_pb";
-import {AuthClient} from "../service/protos/auth_grpc_pb";
-import {getClientCredentials} from "@fonoster/common";
+import { AuthClient } from "../service/protos/auth_grpc_pb";
+import { getClientCredentials } from "@fonoster/common";
 
 const svc = new AuthClient(
   process.env.APISERVER_ENDPOINT || "localhost:50052",

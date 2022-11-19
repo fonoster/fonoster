@@ -17,22 +17,22 @@
  * limitations under the License.
  */
 import "../../config";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {getProjectConfig} from "../../config";
-import {ProjectGuard} from "../../decorators/project_guard";
-import {CLIError} from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { getProjectConfig } from "../../config";
+import { ProjectGuard } from "../../decorators/project_guard";
+import { CLIError } from "@oclif/errors";
 
 const Secrets = require("@fonoster/secrets");
 
 export default class DeleteCommand extends Command {
   static description = "remove Fonoster secret";
   static aliases = ["secrets:del", "secrets:rm"];
-  static args = [{name: "name"}];
+  static args = [{ name: "name" }];
 
   @ProjectGuard()
   async run() {
-    const {args} = this.parse(DeleteCommand);
+    const { args } = this.parse(DeleteCommand);
     const secretsManager = new Secrets(getProjectConfig());
 
     if (!args.name) throw new CLIError("You must specify a secret name");

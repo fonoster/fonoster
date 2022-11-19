@@ -20,9 +20,9 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {Verb} from "../src/verb";
+import { Verb } from "../src/verb";
 import RecordVerb from "../src/record/record";
-import {voiceRequest} from "./voice_request";
+import { voiceRequest } from "./voice_request";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -38,7 +38,7 @@ describe("@fonoster/voice/record", () => {
     record
       .run()
       .then((event) => {
-        expect(event).to.be.deep.equal({duration: 30});
+        expect(event).to.be.deep.equal({ duration: 30 });
         done();
       })
       .catch((e) => done(e));
@@ -46,7 +46,7 @@ describe("@fonoster/voice/record", () => {
     setTimeout(() => {
       PubSub.publish("RecordingFinished", {
         type: "RecordingFinished",
-        data: {duration: 30}
+        data: { duration: 30 }
       });
     }, 500);
   });

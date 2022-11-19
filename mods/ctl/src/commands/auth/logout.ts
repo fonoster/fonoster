@@ -1,9 +1,9 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {join} from "path";
-import {homedir} from "os";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { join } from "path";
+import { homedir } from "os";
 
 const BASE_DIR = join(homedir(), ".fonoster");
 const fs = require("fs");
@@ -15,7 +15,7 @@ export default class extends Command {
     CliUx.ux.action.start(`Login out`);
 
     try {
-      fs.rmSync(BASE_DIR, {recursive: true});
+      fs.rmSync(BASE_DIR, { recursive: true });
       await CliUx.ux.wait(1000);
       CliUx.ux.action.stop("Done");
     } catch (e) {

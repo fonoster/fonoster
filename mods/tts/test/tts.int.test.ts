@@ -1,8 +1,8 @@
-import {transcode} from "../src/utils";
+import { transcode } from "../src/utils";
 import path from "path";
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({path: path.join(__dirname, "..", "..", ".env")});
+  require("dotenv").config({ path: path.join(__dirname, "..", "..", ".env") });
 }
 
 describe("TTS Utils", () => {

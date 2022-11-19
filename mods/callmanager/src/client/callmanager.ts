@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {CallManagerClient} from "../service/protos/callmanager_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { CallManagerClient } from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
-import {promisifyAll} from "grpc-promise";
-import {CallRequest, CallResponse, ICallManagerClient} from "./types";
+import { promisifyAll } from "grpc-promise";
+import { CallRequest, CallResponse, ICallManagerClient } from "./types";
 
 /**
  * @classdesc Use Fonoster CallManager, a capability of Fonoster CallManager,
@@ -53,7 +53,7 @@ export default class CallManager
   constructor(options?: ClientOptions) {
     super(CallManagerClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -98,7 +98,7 @@ export default class CallManager
   }
 }
 
-export {CallManagerPB, ICallManagerClient};
+export { CallManagerPB, ICallManagerClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = CallManager;

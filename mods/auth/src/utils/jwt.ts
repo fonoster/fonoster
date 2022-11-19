@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {promisify} from "util";
-import {sign, verify} from "jsonwebtoken";
+import { promisify } from "util";
+import { sign, verify } from "jsonwebtoken";
 import logger from "@fonoster/logger";
 import JwtPayload from "./jwt_payload";
 import ITokenManager from "./itoken_manager";
@@ -36,7 +36,7 @@ export default class JWT implements ITokenManager {
   ): Promise<string> {
     if (!privateKey) throw new Error("Token generation failure");
     // @ts-ignore
-    return promisify(sign)({...payload}, privateKey, {
+    return promisify(sign)({ ...payload }, privateKey, {
       expiresIn
     });
   }

@@ -1,10 +1,10 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {getProjectConfig} from "../../config";
-import {ProjectGuard} from "../../decorators/project_guard";
-import {voices} from "../../data/voices";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { getProjectConfig } from "../../config";
+import { ProjectGuard } from "../../decorators/project_guard";
+import { voices } from "../../data/voices";
 
 const Apps = require("@fonoster/apps");
 const Secrets = require("@fonoster/secrets");
@@ -25,14 +25,14 @@ export default class CreateCommand extends Command {
     console.log("Press ^C at any time to quit.\n");
 
     try {
-      const {secrets: response} = await new Secrets(
+      const { secrets: response } = await new Secrets(
         getProjectConfig()
       ).listSecrets({
         pageSize: 25,
         pageToken: "1"
       });
 
-      const secrets = response.map(({name}) => name) || [];
+      const secrets = response.map(({ name }) => name) || [];
 
       if (secrets.length === 0) {
         throw new CLIError("Before adding a App you must create a Secret");

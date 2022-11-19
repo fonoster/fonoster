@@ -34,7 +34,7 @@ export default class RoutrClient {
       const response = await axios
         .create({
           baseURL: `${this.apiUrl}`,
-          headers: {Authorization: `Basic ${btoa(username + ":" + password)}`}
+          headers: { Authorization: `Basic ${btoa(username + ":" + password)}` }
         })
         .get("/token");
       return response.data.data;

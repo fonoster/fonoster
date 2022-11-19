@@ -19,10 +19,10 @@
 import fs from "fs";
 import tar from "tar";
 import logger from "@fonoster/logger";
-import {FonosterError} from "@fonoster/errors";
+import { FonosterError } from "@fonoster/errors";
 
 export const extract = (source: string, target: string) =>
-  tar.extract({file: source, cwd: target});
+  tar.extract({ file: source, cwd: target });
 
 export const getFilesizeInBytes = (filename: string) => {
   if (!fs.existsSync(filename)) {

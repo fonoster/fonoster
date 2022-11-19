@@ -19,26 +19,26 @@
 import AnswerVerb from "./answer/answer";
 import HangupVerb from "./hangup/hangup";
 import UnmuteVerb from "./unmute/unmute";
-import GatherVerb, {GatherOptions} from "./gather/gather";
-import MuteVerb, {MuteOptions} from "./mute/mute";
-import PlayVerb, {PlayOptions} from "./play/play";
-import RecordVerb, {RecordOptions, RecordResult} from "./record/record";
-import {PlaybackControl} from "./playback/playback";
-import {SayOptions} from "./say/types";
-import {VoiceRequest} from "./types";
-import {Plugin} from "@fonoster/common";
-import {assertPluginExist} from "./asserts";
+import GatherVerb, { GatherOptions } from "./gather/gather";
+import MuteVerb, { MuteOptions } from "./mute/mute";
+import PlayVerb, { PlayOptions } from "./play/play";
+import RecordVerb, { RecordOptions, RecordResult } from "./record/record";
+import { PlaybackControl } from "./playback/playback";
+import { SayOptions } from "./say/types";
+import { VoiceRequest } from "./types";
+import { Plugin } from "@fonoster/common";
+import { assertPluginExist } from "./asserts";
 import PubSub from "pubsub-js";
-import {Verb} from "./verb";
-import {startMediaTransfer, stopMediaTransfer} from "./utils";
-import SGatherVerb, {SGatherOptions} from "./sgather/gather";
-import {SGatherStream} from "./sgather/types";
-import {DtmfOptions} from "./dtmf/types";
+import { Verb } from "./verb";
+import { startMediaTransfer, stopMediaTransfer } from "./utils";
+import SGatherVerb, { SGatherOptions } from "./sgather/gather";
+import { SGatherStream } from "./sgather/types";
+import { DtmfOptions } from "./dtmf/types";
 import DtmfVerb from "./dtmf/dtmf";
 import DialVerb from "./dial/dial";
-import {DialOptions} from "./dial/types";
+import { DialOptions } from "./dial/types";
 import StreamStatus from "./dial/status_stream";
-import {VoiceTracer} from "./tracer";
+import { VoiceTracer } from "./tracer";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -166,7 +166,7 @@ export default class VoiceResponse {
    * }
    */
   async gather(
-    options: GatherOptions = {source: "speech,dtmf"}
+    options: GatherOptions = { source: "speech,dtmf" }
   ): Promise<string> {
     let asr = null;
     if (options.source.includes("speech")) {
@@ -207,7 +207,7 @@ export default class VoiceResponse {
    * }
    */
   async sgather(
-    options: SGatherOptions = {source: "speech,dtmf"}
+    options: SGatherOptions = { source: "speech,dtmf" }
   ): Promise<SGatherStream> {
     let asr = null;
     if (options.source.includes("speech")) {

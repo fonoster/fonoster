@@ -16,11 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {AgentsClient} from "../service/protos/agents_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { AgentsClient } from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
+import { Privacy } from "@fonoster/core/src/common/resource_builder";
 import {
   Agent,
   CreateAgentRequest,
@@ -67,7 +68,7 @@ export default class Agents extends APIClient implements IAgentsClient {
   constructor(options?: ClientOptions) {
     super(AgentsClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -248,13 +249,14 @@ export default class Agents extends APIClient implements IAgentsClient {
     const req = new AgentsPB.DeleteAgentRequest();
     req.setRef(ref);
     await super.getService().deleteAgent().sendMessage(req);
-    return {ref};
+    return { ref };
   }
 }
 
-export {Agent, AgentsPB, CommonPB, IAgentsClient};
+export { Agent, Privacy, AgentsPB, CommonPB, IAgentsClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Agents;
+module.exports.Privacy = Privacy;
 module.exports.AgentsPB = AgentsPB;
 module.exports.CommonPB = CommonPB;

@@ -21,8 +21,8 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import fs, {Stats} from "fs";
-import {APIClient} from "@fonoster/common";
+import fs, { Stats } from "fs";
+import { APIClient } from "@fonoster/common";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -83,7 +83,7 @@ describe("@fonoster/storage", () => {
     sandbox.stub(path, "basename").returns(fileNameReturn);
     sandbox
       .stub(fs, "statSync")
-      .returns({...Stats.prototype, size: objectSize});
+      .returns({ ...Stats.prototype, size: objectSize });
     sandbox.stub(APIClient.prototype, "getService").returns({
       uploadObject: () => {
         return uploadObjectStubReturn;
@@ -107,7 +107,7 @@ describe("@fonoster/storage", () => {
     sandbox.stub(path, "basename").returns(fileNameReturn);
     sandbox
       .stub(fs, "statSync")
-      .returns({...Stats.prototype, size: objectSize});
+      .returns({ ...Stats.prototype, size: objectSize });
     sandbox.stub(APIClient.prototype, "getService").returns({
       uploadObject: () => {
         return uploadObjectStubReturn;
@@ -132,7 +132,7 @@ describe("@fonoster/storage", () => {
     sandbox.stub(path, "basename").returns(fileNameReturn);
     sandbox
       .stub(fs, "statSync")
-      .returns({...Stats.prototype, size: objectSize});
+      .returns({ ...Stats.prototype, size: objectSize });
     sandbox.stub(APIClient.prototype, "getService").returns({
       uploadObject: () => {
         return uploadObjectStubReturn;

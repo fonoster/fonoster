@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import "../../config";
-import {Command, flags} from "@oclif/command";
-import {CLIError} from "@oclif/errors";
-import {ProjectGuard} from "../../decorators/project_guard";
-import {getProjectConfig} from "../../config";
-import type {Secret} from "@fonoster/secrets/dist/client/types";
+import { Command, flags } from "@oclif/command";
+import { CLIError } from "@oclif/errors";
+import { ProjectGuard } from "../../decorators/project_guard";
+import { getProjectConfig } from "../../config";
+import type { Secret } from "@fonoster/secrets/dist/client/types";
 
 // Using import will cause: Error: easy_table_1.default is not a constructor
 const Table = require("easy-table");
@@ -40,14 +40,14 @@ export default class ListCommand extends Command {
 
   @ProjectGuard()
   async run() {
-    const {flags} = this.parse(ListCommand);
+    const { flags } = this.parse(ListCommand);
     const secretsManager = new Secrets(getProjectConfig());
 
     try {
       const pageSize = flags.size;
       let pageToken = "1";
 
-      const {secrets, nextPageToken} = await secretsManager.listSecrets({
+      const { secrets, nextPageToken } = await secretsManager.listSecrets({
         pageSize,
         pageToken
       });

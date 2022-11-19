@@ -1,8 +1,8 @@
 import "../config";
 import Command from "@oclif/command";
-import {Input} from "@oclif/parser";
-import {CliUx} from "@oclif/core";
-import {CLIError} from "@oclif/errors";
+import { Input } from "@oclif/parser";
+import { CliUx } from "@oclif/core";
+import { CLIError } from "@oclif/errors";
 
 export default abstract class extends Command {
   ref: string;
@@ -21,7 +21,7 @@ export default abstract class extends Command {
   }
 
   async init() {
-    const {args} = this.parse(<Input<any>>this.constructor);
+    const { args } = this.parse(<Input<any>>this.constructor);
     this.ref = args.ref;
   }
 

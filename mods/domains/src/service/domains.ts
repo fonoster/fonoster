@@ -28,7 +28,7 @@ import {
   UpdateDomainRequest,
   DeleteDomainRequest
 } from "./protos/domains_pb";
-import {Empty} from "./protos/common_pb";
+import { Empty } from "./protos/common_pb";
 import {
   IDomainsService,
   DomainsService,
@@ -89,7 +89,7 @@ class DomainsServer implements IDomainsServer {
         .withDomainUri(domainUri)
         .withEgressPolicy(request.getEgressRule(), request.getEgressNumberRef())
         .withACL(request.getAccessAllowList(), request.getAccessDenyList())
-        .withMetadata({accessKeyId: getAccessKeyId(call)})
+        .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build();
 
       const response = await createResource(resource);
@@ -164,4 +164,4 @@ class DomainsServer implements IDomainsServer {
   }
 }
 
-export {DomainsServer as default, IDomainsService, DomainsService};
+export { DomainsServer as default, IDomainsService, DomainsService };

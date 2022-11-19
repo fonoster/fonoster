@@ -17,14 +17,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Tracer as T} from "@fonoster/common";
+import { Tracer as T } from "@fonoster/common";
 T.init("monitor-service");
 
 import MonitorServer from "./monitor";
-import {MonitorService} from "./protos/monitor_grpc_pb";
-import {AuthMiddleware} from "@fonoster/auth";
-import {getSalt} from "@fonoster/certs";
-import {runServices} from "@fonoster/common";
+import { MonitorService } from "./protos/monitor_grpc_pb";
+import { AuthMiddleware } from "@fonoster/auth";
+import { getSalt } from "@fonoster/certs";
+import { runServices } from "@fonoster/common";
 
 const services = [
   {

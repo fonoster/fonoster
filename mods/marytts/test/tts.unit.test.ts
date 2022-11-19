@@ -43,11 +43,11 @@ describe("@fonoster/marytts", () => {
     const join = sandbox.spy(path, "join");
     const createWriteStream = sandbox.spy(fs, "createWriteStream");
     const pipe = sandbox.stub();
-    const get = sandbox.stub(https, "get").yields({statusCode: 201, pipe});
+    const get = sandbox.stub(https, "get").yields({ statusCode: 201, pipe });
 
     const tts = new MaryTTS(defConfig);
 
-    await expect(tts.synthesize("hello world", {locale: "en_US"}))
+    await expect(tts.synthesize("hello world", { locale: "en_US" }))
       .to.be.eventually.rejected.and.to.be.an.instanceOf(Error)
       .to.have.property("message", "Request failed with status code: 201");
     expect(pipe).to.not.have.been.calledOnce;
@@ -60,7 +60,7 @@ describe("@fonoster/marytts", () => {
     const join = sandbox.spy(path, "join");
     const createWriteStream = sandbox.stub(fs, "createWriteStream").resolves();
     const pipe = sandbox.stub();
-    const get = sandbox.stub(https, "get").yields({statusCode: 200, pipe});
+    const get = sandbox.stub(https, "get").yields({ statusCode: 200, pipe });
 
     const tts = new MaryTTS(defConfig);
     const result = await tts.synthesize("hello world");

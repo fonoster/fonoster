@@ -61,10 +61,7 @@ export default class extends Command {
         name: "privacy",
         message: "privacy",
         type: "list",
-        choices: [
-          toPascalCase(Privacy.NONE),
-          toPascalCase(Privacy.PRIVATE)
-        ],
+        choices: [toPascalCase(Privacy.NONE), toPascalCase(Privacy.PRIVATE)],
         default: "None"
       },
       {

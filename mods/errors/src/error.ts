@@ -1,4 +1,4 @@
-import {UNKNOWN} from "./codes";
+import { UNKNOWN } from "./codes";
 
 export default class extends Error {
   code: any;

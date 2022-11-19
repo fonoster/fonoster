@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Privacy} from "@fonoster/core/src/common/resource_builder";
+import { Privacy } from "@fonoster/core/src/common/resource_builder";
 
 export interface IAgentsClient {
   createAgent(request: CreateAgentRequest): Promise<CreateAgentResponse>;

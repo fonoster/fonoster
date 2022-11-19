@@ -1,5 +1,5 @@
-import {Jwt, AuthUtils} from "@fonoster/auth";
-import {getSalt, AUTH_ISS} from "@fonoster/certs";
+import { Jwt, AuthUtils } from "@fonoster/auth";
+import { getSalt, AUTH_ISS } from "@fonoster/certs";
 
 // Obtains a set of credentials for the docker image
 // TODO: Role should be a constant somewhere

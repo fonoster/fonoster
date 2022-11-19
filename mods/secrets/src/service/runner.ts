@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 require("@fonoster/common").Tracer.init("secrets-service");
 import SecretServer from "./secrets";
-import {SecretsService} from "./protos/secrets_grpc_pb";
-import {AuthMiddleware} from "@fonoster/auth";
-import {getSalt} from "@fonoster/certs";
-import {runServices} from "@fonoster/common";
+import { SecretsService } from "./protos/secrets_grpc_pb";
+import { AuthMiddleware } from "@fonoster/auth";
+import { getSalt } from "@fonoster/certs";
+import { runServices } from "@fonoster/common";
 
 const services = [
   {

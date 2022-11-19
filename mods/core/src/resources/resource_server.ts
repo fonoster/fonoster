@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 import grpc from "@grpc/grpc-js";
-import {Kind} from "../common/resource_builder";
+import { Kind } from "../common/resource_builder";
 import getResourceHere from "./get_resource";
 import listResourcesHere from "./list_resources";
 import deleteResourceHere from "./delete_resource";
 import getAccessKeyId from "../common/get_access_key_id";
-import {ListResourceResponse} from "./types";
+import { ListResourceResponse } from "./types";
 import logger from "@fonoster/logger";
 
 export default class ResourceServer {

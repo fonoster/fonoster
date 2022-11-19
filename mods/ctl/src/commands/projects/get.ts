@@ -1,18 +1,18 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {render} from "prettyjson";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { render } from "prettyjson";
 
 const Projects = require("@fonoster/projects");
 const moment = require("moment");
 
 export default class GetCommand extends Command {
   static description = `get a Fonoster Project`;
-  static args = [{name: "ref"}];
+  static args = [{ name: "ref" }];
 
   async run() {
-    const {args} = this.parse(GetCommand);
+    const { args } = this.parse(GetCommand);
 
     try {
       const projects = new Projects();
@@ -31,7 +31,7 @@ export default class GetCommand extends Command {
 
       await CliUx.ux.wait(1000);
       CliUx.ux.action.stop("");
-      console.log(render(jsonObj, {noColor: true}));
+      console.log(render(jsonObj, { noColor: true }));
     } catch (e) {
       throw new CLIError(e.message);
     }

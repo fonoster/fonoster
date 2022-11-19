@@ -1,6 +1,6 @@
 import "../config";
-import {CliUx} from "@oclif/core";
-import {Command} from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { Command } from "@oclif/command";
 
 export default class extends Command {
   static description = `let us know how we're doing

@@ -28,7 +28,7 @@ const logger = winston.createLogger({
 });
 
 logger.on("finish", () => {
-  fluent.sender.end("end", {}, () => { });
+  fluent.sender.end("end", {}, () => {});
 });
 
 const mute = () => logger.transports.forEach((t: any) => (t.silent = true));

@@ -1,9 +1,9 @@
 import "../../config";
-import {CommonPB} from "@fonoster/domains";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CommonPB } from "@fonoster/domains";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Numbers = require("@fonoster/numbers");
 const Domains = require("@fonoster/domains");
@@ -11,7 +11,7 @@ const inquirer = require("inquirer");
 const view: CommonPB.View = CommonPB.View.BASIC;
 
 export default class UpdateCommand extends Command {
-  static args = [{name: "ref"}];
+  static args = [{ name: "ref" }];
   static description = `update a Fonoster Domain
   ...
   Update a Fonoster Domain
@@ -26,7 +26,7 @@ export default class UpdateCommand extends Command {
     );
     console.log("to help you get start quickly. Press ^C at any time to quit.");
 
-    const {args} = this.parse(UpdateCommand);
+    const { args } = this.parse(UpdateCommand);
     const domains = new Domains(getProjectConfig());
     const numbers = new Numbers(getProjectConfig());
 

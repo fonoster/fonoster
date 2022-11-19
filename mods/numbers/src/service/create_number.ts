@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 import NumbersPB from "./protos/numbers_pb";
-import {ResourceBuilder, Kind, routr, getAccessKeyId} from "@fonoster/core";
+import { ResourceBuilder, Kind, routr, getAccessKeyId } from "@fonoster/core";
 import numberDecoder from "./decoder";
 import {
   assertCompatibleParameters,
@@ -8,7 +8,7 @@ import {
   assertIsE164,
   assertWebhookIsURL
 } from "./assertions";
-import {getAppRef, getWebhook} from "./utils";
+import { getAppRef, getWebhook } from "./utils";
 
 export default async function createNumber(
   request: NumbersPB.CreateNumberRequest,
@@ -22,7 +22,7 @@ export default async function createNumber(
 
   let encoder = new ResourceBuilder(Kind.NUMBER, request.getE164Number())
     .withGatewayRef(request.getProviderRef())
-    .withMetadata({accessKeyId: getAccessKeyId(call)});
+    .withMetadata({ accessKeyId: getAccessKeyId(call) });
 
   if (request.getAorLink()) {
     encoder = encoder.withLocation(

@@ -18,10 +18,10 @@
  */
 import Stream from "stream";
 import PubSub from "pubsub-js";
-import {SGatherOptions} from "./types";
-import {startMediaTransfer} from "../utils";
-import {Verb} from "../verb";
-import {SpeechProvider} from "@fonoster/common";
+import { SGatherOptions } from "./types";
+import { startMediaTransfer } from "../utils";
+import { Verb } from "../verb";
+import { SpeechProvider } from "@fonoster/common";
 
 export default async function startSpeechSource(
   sessionId: string,
@@ -44,5 +44,5 @@ export default async function startSpeechSource(
     }
   );
   const speechStream = speechTracker.streamTranscribe(readable);
-  return {speechStream, token};
+  return { speechStream, token };
 }

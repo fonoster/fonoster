@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import FuncPB from "../service/protos/funcs_pb";
-import {DeployStream, LogsStream} from "./stream_wrappers";
+import { DeployStream, LogsStream } from "./stream_wrappers";
 
 export interface IFuncsClient {
   deployFunc(request: DeployFuncRequest): Promise<DeployStream>;

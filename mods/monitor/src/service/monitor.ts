@@ -17,19 +17,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc, {ServerWritableStream} from "@grpc/grpc-js";
-import {Event, SearchEventsRequest} from "./protos/monitor_pb";
+import grpc, { ServerWritableStream } from "@grpc/grpc-js";
+import { Event, SearchEventsRequest } from "./protos/monitor_pb";
 import {
   IMonitorServer,
   IMonitorService,
   MonitorService
 } from "./protos/monitor_grpc_pb";
-import {Struct} from "google-protobuf/google/protobuf/struct_pb";
-import {Client} from "@elastic/elasticsearch";
-import {ErrorCodes, FonosterError} from "@fonoster/errors";
-import {getAccessKeyId} from "@fonoster/core";
-import {Level} from "./level";
-import {EventType} from "./event_type";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
+import { Client } from "@elastic/elasticsearch";
+import { ErrorCodes, FonosterError } from "@fonoster/errors";
+import { getAccessKeyId } from "@fonoster/core";
+import { Level } from "./level";
+import { EventType } from "./event_type";
 
 const host = process.env.LOGS_AGGREGRATOR_HOST;
 const port = process.env.LOGS_AGGREGRATOR_PORT;
@@ -47,7 +47,7 @@ class MonitorServer implements IMonitorServer {
     const accessKeyId = getAccessKeyId(call);
     // TODO:
     // Assert toJavaScript is valid
-    const {body} = await client.search(
+    const { body } = await client.search(
       {
         body: {
           query: call.request.getQuery().toJavaScript()
@@ -92,4 +92,4 @@ class MonitorServer implements IMonitorServer {
   }
 }
 
-export {MonitorServer as default, IMonitorService, MonitorService};
+export { MonitorServer as default, IMonitorService, MonitorService };

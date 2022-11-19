@@ -1,22 +1,22 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {render} from "prettyjson";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { render } from "prettyjson";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Numbers = require("@fonoster/numbers");
 const moment = require("moment");
 
 export default class GetCommand extends Command {
   static description = `get a Fonoster Number`;
-  static args = [{name: "ref"}];
+  static args = [{ name: "ref" }];
 
   async run() {
     if (!hasProjectConfig()) {
       throw new CLIError("you must set a default project");
     }
-    const {args} = this.parse(GetCommand);
+    const { args } = this.parse(GetCommand);
 
     try {
       const numbers = new Numbers(getProjectConfig());
@@ -35,7 +35,7 @@ export default class GetCommand extends Command {
 
       await CliUx.ux.wait(1000);
       CliUx.ux.action.stop("");
-      console.log(render(jsonObj, {noColor: true}));
+      console.log(render(jsonObj, { noColor: true }));
     } catch (e) {
       throw new CLIError(e.message);
     }

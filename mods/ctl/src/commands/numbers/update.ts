@@ -1,9 +1,9 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {getProjectConfig} from "../../config";
-import {ProjectGuard} from "../../decorators/project_guard";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { getProjectConfig } from "../../config";
+import { ProjectGuard } from "../../decorators/project_guard";
 
 const Numbers = require("@fonoster/numbers");
 const inquirer = require("inquirer");
@@ -14,7 +14,7 @@ export class UpdateCommand extends Command {
   Update a Fonoster Number
   `;
 
-  static args = [{name: "ref"}];
+  static args = [{ name: "ref" }];
 
   @ProjectGuard()
   async run() {
@@ -23,7 +23,7 @@ export class UpdateCommand extends Command {
     );
     console.log("Press ^C at any time to quit.");
 
-    const {args} = this.parse(UpdateCommand);
+    const { args } = this.parse(UpdateCommand);
 
     if (!args.ref) {
       CliUx.ux.action.stop();

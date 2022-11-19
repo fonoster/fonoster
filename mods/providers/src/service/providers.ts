@@ -28,13 +28,13 @@ import {
   UpdateProviderRequest,
   DeleteProviderRequest
 } from "./protos/providers_pb";
-import {Empty} from "./protos/common_pb";
+import { Empty } from "./protos/common_pb";
 import {
   IProvidersService,
   ProvidersService,
   IProvidersServer
 } from "./protos/providers_grpc_pb";
-import {Kind, ResourceBuilder} from "@fonoster/core";
+import { Kind, ResourceBuilder } from "@fonoster/core";
 import {
   updateResource,
   createResource,
@@ -42,7 +42,7 @@ import {
   getAccessKeyId
 } from "@fonoster/core";
 import decoder from "./decoder";
-import {assertIsValidHost} from "./assertions";
+import { assertIsValidHost } from "./assertions";
 
 class ProvidersServer implements IProvidersServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -72,7 +72,7 @@ class ProvidersServer implements IProvidersServer {
         .withHost(call.request.getHost())
         .withTransport(call.request.getTransport())
         .withExpires(call.request.getExpires())
-        .withMetadata({accessKeyId: getAccessKeyId(call)})
+        .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build();
 
       const result = await createResource(resource);
@@ -143,4 +143,4 @@ class ProvidersServer implements IProvidersServer {
   }
 }
 
-export {ProvidersServer as default, IProvidersService, ProvidersService};
+export { ProvidersServer as default, IProvidersService, ProvidersService };

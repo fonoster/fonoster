@@ -25,9 +25,9 @@ import {
   CreateTokenRequest,
   CreateTokenResponse
 } from "./protos/auth_pb";
-import {IAuthServer, IAuthService, AuthService} from "./protos/auth_grpc_pb";
-import {ErrorCodes, FonosterError} from "@fonoster/errors";
-import {getSalt, AUTH_ISS} from "@fonoster/certs";
+import { IAuthServer, IAuthService, AuthService } from "./protos/auth_grpc_pb";
+import { ErrorCodes, FonosterError } from "@fonoster/errors";
+import { getSalt, AUTH_ISS } from "@fonoster/certs";
 import logger from "@fonoster/logger";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
@@ -42,7 +42,7 @@ class AuthServer implements IAuthServer {
     callback: grpc.sendUnaryData<ValidateTokenResponse>
   ) {
     const result = await authenticator.validateToken(
-      {accessToken: call.request.getToken()},
+      { accessToken: call.request.getToken() },
       getSalt()
     );
     const validateTokenResponse = new ValidateTokenResponse();
@@ -116,4 +116,4 @@ class AuthServer implements IAuthServer {
   }
 }
 
-export {AuthServer as default, IAuthService, AuthService};
+export { AuthServer as default, IAuthService, AuthService };

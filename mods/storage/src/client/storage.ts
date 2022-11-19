@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {StorageClient} from "../service/protos/storage_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { StorageClient } from "../service/protos/storage_grpc_pb";
 import StoragePB from "../service/protos/storage_pb";
 import CommonPB from "../service/protos/common_pb";
 import {
@@ -27,8 +27,12 @@ import {
   UploadObjectResponse,
   IStorageClient
 } from "./types";
-import {promisifyAll} from "grpc-promise";
-import {getObjectServiceUtils, isDirectory, uploadServiceUtils} from "./utils";
+import { promisifyAll } from "grpc-promise";
+import {
+  getObjectServiceUtils,
+  isDirectory,
+  uploadServiceUtils
+} from "./utils";
 
 /**
  * @classdesc Use Fonoster Storage, a capability of Fonoster Object Storage subsystem,
@@ -54,7 +58,7 @@ export default class Storage extends APIClient implements IStorageClient {
   constructor(options?: ClientOptions) {
     super(StorageClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -91,7 +95,7 @@ export default class Storage extends APIClient implements IStorageClient {
     const uor = new StoragePB.UploadObjectRequest();
     const result = await this.getService().uploadObject().sendMessage(uor);
     const size = await uploadServiceUtils(request, result.stream);
-    return {size};
+    return { size };
   }
 
   /**
@@ -123,11 +127,11 @@ export default class Storage extends APIClient implements IStorageClient {
       .getObjectURL()
       .sendMessage(getObjectServiceUtils(request));
 
-    return {url: result.getUrl()};
+    return { url: result.getUrl() };
   }
 }
 
-export {StoragePB, CommonPB, IStorageClient};
+export { StoragePB, CommonPB, IStorageClient };
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Storage;

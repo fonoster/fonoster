@@ -1,5 +1,5 @@
-import {CLIError} from "@oclif/errors";
-import {hasProjectConfig} from "../config";
+import { CLIError } from "@oclif/errors";
+import { hasProjectConfig } from "../config";
 
 /**
  * Project Guard

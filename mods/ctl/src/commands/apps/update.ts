@@ -1,10 +1,10 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {getProjectConfig} from "../../config";
-import {ProjectGuard} from "../../decorators/project_guard";
-import {voices} from "../../data/voices";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { getProjectConfig } from "../../config";
+import { ProjectGuard } from "../../decorators/project_guard";
+import { voices } from "../../data/voices";
 
 const Apps = require("@fonoster/apps");
 const Secrets = require("@fonoster/secrets");
@@ -14,7 +14,7 @@ const validator = (value?: string, message = "This field is required") =>
   Boolean(value?.trim()?.length) || message;
 
 export default class UpdateCommand extends Command {
-  static args = [{name: "ref"}];
+  static args = [{ name: "ref" }];
   static description = `update a new Fonoster App
   ...
   Update a new Fonoster App
@@ -23,21 +23,21 @@ export default class UpdateCommand extends Command {
   @ProjectGuard()
   async run() {
     try {
-      const {args} = this.parse(UpdateCommand);
+      const { args } = this.parse(UpdateCommand);
 
       if (!args.ref)
         throw new CLIError(
           "Please provide the reference of your Fonoster Application"
         );
 
-      const {secrets: response} = await new Secrets(
+      const { secrets: response } = await new Secrets(
         getProjectConfig()
       ).listSecrets({
         pageSize: 25,
         pageToken: "1"
       });
 
-      const secrets = response.map(({name}) => name) || [];
+      const secrets = response.map(({ name }) => name) || [];
 
       const appsManager = new Apps(getProjectConfig());
       const app = await appsManager.getApp(args.ref);

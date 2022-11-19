@@ -21,8 +21,8 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import PlayVerb from "../src/play/play";
-import {Verb} from "../src/verb";
-import {voiceRequest} from "./voice_request";
+import { Verb } from "../src/verb";
+import { voiceRequest } from "./voice_request";
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -38,13 +38,16 @@ describe("@fonoster/voice/play", () => {
     play
       .run("sounds:hello-world", {})
       .then((event) => {
-        expect(event).to.be.deep.equal({type: "PlaybackFinished", data: "1"});
+        expect(event).to.be.deep.equal({ type: "PlaybackFinished", data: "1" });
         done();
       })
       .catch((e) => done(e));
 
     setTimeout(() => {
-      PubSub.publish("PlaybackFinished", {type: "PlaybackFinished", data: "1"});
+      PubSub.publish("PlaybackFinished", {
+        type: "PlaybackFinished",
+        data: "1"
+      });
     }, 500);
   });
 });

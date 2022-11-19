@@ -64,7 +64,7 @@ export async function stopMediaTransfer(verb: Verb, sessionId: string) {
 }
 
 export const serveFiles = (config: ServerConfig) => {
-  return (req , res) => {
+  return (req, res) => {
     // TODO: Update to use a stream instead of fs.readFile
     fs.readFile(
       join(config.pathToFiles, req.params.file),
@@ -79,5 +79,5 @@ export const serveFiles = (config: ServerConfig) => {
         res.end();
       }
     );
-  }
-}
+  };
+};

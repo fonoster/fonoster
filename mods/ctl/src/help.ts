@@ -1,4 +1,4 @@
-import {Help} from "@oclif/plugin-help";
+import { Help } from "@oclif/plugin-help";
 
 const figlet = require("figlet");
 

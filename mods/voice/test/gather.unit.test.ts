@@ -21,9 +21,9 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import GatherVerb from "../src/gather/gather";
-import {Verb} from "../src/verb";
-import {assertsHasNumDigitsOrTimeout} from "../src/gather/asserts";
-import {voiceRequest} from "./voice_request";
+import { Verb } from "../src/verb";
+import { assertsHasNumDigitsOrTimeout } from "../src/gather/asserts";
+import { voiceRequest } from "./voice_request";
 import PubSub from "pubsub-js";
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -48,9 +48,9 @@ describe("@fonoster/voice/gather", () => {
       .catch((e) => done(e));
 
     setTimeout(() => {
-      PubSub.publish("DtmfReceived", {type: "DtmfReceived", data: "1"});
-      PubSub.publish("DtmfReceived", {type: "DtmfReceived", data: "2"});
-      PubSub.publish("DtmfReceived", {type: "DtmfReceived", data: "2"});
+      PubSub.publish("DtmfReceived", { type: "DtmfReceived", data: "1" });
+      PubSub.publish("DtmfReceived", { type: "DtmfReceived", data: "2" });
+      PubSub.publish("DtmfReceived", { type: "DtmfReceived", data: "2" });
     }, 1000);
   });
 
@@ -70,9 +70,9 @@ describe("@fonoster/voice/gather", () => {
       .catch((e) => done(e));
 
     setTimeout(() => {
-      PubSub.publish("DtmfReceived", {type: "DtmfReceived", data: "1"});
-      PubSub.publish("DtmfReceived", {type: "DtmfReceived", data: "2"});
-      PubSub.publish("DtmfReceived", {type: "DtmfReceived", data: "#"});
+      PubSub.publish("DtmfReceived", { type: "DtmfReceived", data: "1" });
+      PubSub.publish("DtmfReceived", { type: "DtmfReceived", data: "2" });
+      PubSub.publish("DtmfReceived", { type: "DtmfReceived", data: "#" });
     }, 500);
   });
 
@@ -92,15 +92,15 @@ describe("@fonoster/voice/gather", () => {
       .catch((e) => done(e));
 
     setTimeout(() => {
-      PubSub.publish("DtmfReceived", {type: "DtmfReceived", data: "1"});
-      PubSub.publish("DtmfReceived", {type: "DtmfReceived", data: "2"});
+      PubSub.publish("DtmfReceived", { type: "DtmfReceived", data: "1" });
+      PubSub.publish("DtmfReceived", { type: "DtmfReceived", data: "2" });
       // Here we simulate taking a long time to send the last digit
     }, 200);
   });
 
   context("assert functions", () => {
     it.skip("asserts that options has either a numDigits or a timeout back stop", () => {
-      expect(() => assertsHasNumDigitsOrTimeout({numDigits: 3})).to.not.throw;
+      expect(() => assertsHasNumDigitsOrTimeout({ numDigits: 3 })).to.not.throw;
       expect(() => assertsHasNumDigitsOrTimeout({})).to.throw(
         "you must provide either 'numDigits' or 'timeout' option"
       );

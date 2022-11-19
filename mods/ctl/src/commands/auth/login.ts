@@ -1,8 +1,8 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {setConfig} from "../../config";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { setConfig } from "../../config";
 
 const Projects = require("@fonoster/projects");
 const inquirer = require("inquirer");

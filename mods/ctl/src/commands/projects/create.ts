@@ -1,8 +1,8 @@
 import "../../config";
 const Projects = require("@fonoster/projects");
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
 const inquirer = require("inquirer");
 
 export default class extends Command {

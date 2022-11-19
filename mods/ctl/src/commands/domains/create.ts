@@ -1,9 +1,9 @@
 import "../../config";
-import {CommonPB} from "@fonoster/domains";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CommonPB } from "@fonoster/domains";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Numbers = require("@fonoster/numbers");
 const Domains = require("@fonoster/domains");

@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import Funcs from "../src/client/funcs";
-import {DeployFuncRequest, GetFuncRequest} from "../src/client/types";
+import { DeployFuncRequest, GetFuncRequest } from "../src/client/types";
 import logger from "@fonoster/logger";
 
 const expect = chai.expect;

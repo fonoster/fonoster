@@ -1,9 +1,9 @@
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command, flags as oclifFlags} from "@oclif/command";
-import {CommonPB, Number} from "@fonoster/numbers";
-import {CliUx} from "@oclif/core";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CLIError } from "@oclif/errors";
+import { Command, flags as oclifFlags } from "@oclif/command";
+import { CommonPB, Number } from "@fonoster/numbers";
+import { CliUx } from "@oclif/core";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Numbers = require("@fonoster/numbers");
 const inquirer = require("inquirer");
@@ -27,7 +27,7 @@ export default class ListCommand extends Command {
     if (!hasProjectConfig()) {
       throw new CLIError("you must set a default project");
     }
-    const {flags} = this.parse(ListCommand);
+    const { flags } = this.parse(ListCommand);
     try {
       const numbers = new Numbers(getProjectConfig());
       let firstBatch = true;
@@ -47,7 +47,7 @@ export default class ListCommand extends Command {
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
           const answer: any = await inquirer.prompt([
-            {name: "q", message: "More", type: "confirm"}
+            { name: "q", message: "More", type: "confirm" }
           ]);
           if (!answer.q) break;
         }
@@ -58,9 +58,9 @@ export default class ListCommand extends Command {
           CliUx.ux.table(
             data,
             {
-              ref: {minWidth: 15},
-              providerRef: {header: "Provider Ref", minWidth: 15},
-              e164Number: {header: "E164 Number", minWidth: 15},
+              ref: { minWidth: 15 },
+              providerRef: { header: "Provider Ref", minWidth: 15 },
+              e164Number: { header: "E164 Number", minWidth: 15 },
               aorLink: {
                 header: "Address of Record",
                 minWidth: 15,
@@ -73,7 +73,7 @@ export default class ListCommand extends Command {
                   row["ingressInfo"] ? row["ingressInfo"].webhook : "--"
               }
             },
-            {"no-header": !showHeader}
+            { "no-header": !showHeader }
           );
         };
         showTable(firstBatch, list);

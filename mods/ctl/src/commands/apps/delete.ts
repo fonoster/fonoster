@@ -1,13 +1,13 @@
 import Command from "../../base/delete";
-import {CLIError} from "@oclif/errors";
-import {getProjectConfig} from "../../config";
-import {ProjectGuard} from "../../decorators/project_guard";
+import { CLIError } from "@oclif/errors";
+import { getProjectConfig } from "../../config";
+import { ProjectGuard } from "../../decorators/project_guard";
 
 const Apps = require("@fonoster/apps");
 
 export default class DeleteCommand extends Command {
   static description = "delete a Fonoster Application";
-  static args = [{name: "ref"}];
+  static args = [{ name: "ref" }];
   static aliases = ["apps:del", "apps:rm"];
 
   @ProjectGuard()

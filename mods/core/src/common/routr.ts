@@ -7,4 +7,4 @@ const username = process.env.SIPPROXY_API_USERNAME || "admin";
 const secret = process.env.SIPPROXY_API_SECRET || "changeit";
 const apiUrl = `https://${host}:${port}/api/v1beta1`;
 
-export = new RoutrClient(apiUrl, username, secret);
+export const routr = new RoutrClient(apiUrl, username, secret);

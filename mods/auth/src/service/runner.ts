@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import {Tracer as T} from "@fonoster/common";
+import { Tracer as T } from "@fonoster/common";
 T.init("auth-service");
 
-import {AuthService} from "./protos/auth_grpc_pb";
-import {runServices} from "@fonoster/common";
-import {getSalt} from "@fonoster/certs";
+import { AuthService } from "./protos/auth_grpc_pb";
+import { runServices } from "@fonoster/common";
+import { getSalt } from "@fonoster/certs";
 import AuthServer from "./auth";
 import logger from "@fonoster/logger";
 import Auth from "../utils/auth_utils";
@@ -19,7 +19,7 @@ const authenticator = new Auth(new JWT());
 app.get("/session_auth", async (req, res) => {
   const sessionToken = req.headers["x-session-token"] as string;
   const result = await authenticator.validateToken(
-    {accessToken: sessionToken},
+    { accessToken: sessionToken },
     getSalt()
   );
 

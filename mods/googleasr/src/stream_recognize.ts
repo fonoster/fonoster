@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Transform} from "stream";
+import { Transform } from "stream";
 import logger from "@fonoster/logger";
-import {GoogleSpeechConfig} from "./types";
+import { GoogleSpeechConfig } from "./types";
 const speech = require("@google-cloud/speech").v1p1beta1;
 
 // Sending a dummy package with a different size breaks the
@@ -31,7 +31,7 @@ const emptyBuffer = Buffer.alloc(640, 0);
 
 export default class StreamRecognize {
   speechClient: any;
-  request: {config: GoogleSpeechConfig; interimResults: boolean};
+  request: { config: GoogleSpeechConfig; interimResults: boolean };
   recognizeStream: any;
   restartCounter: number;
   audioInput: any[];

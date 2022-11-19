@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {FuncsPB} from "./funcs";
+import { FuncsPB } from "./funcs";
 
 export class DeployStream {
   stream: any;
@@ -26,7 +26,7 @@ export class DeployStream {
 
   onMessage(callback) {
     this.stream.on("data", (data: FuncsPB.DeployStream) => {
-      callback({text: data.getText()});
+      callback({ text: data.getText() });
     });
   }
 

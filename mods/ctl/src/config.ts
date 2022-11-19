@@ -1,6 +1,6 @@
-import {mute} from "@fonoster/logger";
-import {join} from "path";
-import {homedir} from "os";
+import { mute } from "@fonoster/logger";
+import { join } from "path";
+import { homedir } from "os";
 const BASE_DIR = join(homedir(), ".fonoster");
 const PATH_TO_CONFIG = join(BASE_DIR, "config");
 const fs = require("fs");
@@ -36,7 +36,7 @@ export function getConfig(): Config {
 }
 
 export function getProjectConfig() {
-  const {endpoint, defaultProject} = getConfig();
+  const { endpoint, defaultProject } = getConfig();
   return {
     endpoint,
     accessKeyId: defaultProject.accessKeyId,
@@ -46,9 +46,9 @@ export function getProjectConfig() {
 
 export function setConfig(config: Config) {
   if (fs.existsSync(BASE_DIR)) {
-    fs.rmSync(BASE_DIR, {recursive: true});
+    fs.rmSync(BASE_DIR, { recursive: true });
   }
-  fs.mkdirSync(BASE_DIR, {recursive: true});
+  fs.mkdirSync(BASE_DIR, { recursive: true });
   fs.writeFileSync(PATH_TO_CONFIG, JSON.stringify(config, null, " "));
 }
 
