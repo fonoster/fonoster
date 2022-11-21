@@ -317,7 +317,7 @@ async function handler (request, response) {
 
 ### voiceResponse.answer()
 Answer the communication channel. Before running any other verb you
-must run the anwer command.
+must run the answer command.
 
 **Kind**: instance method of [<code>VoiceResponse</code>](#VoiceResponse)  
 **Example**  
