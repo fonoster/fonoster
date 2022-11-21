@@ -112,7 +112,7 @@ first setup a TTS plugin such as MaryTTS, GoogleTTS, or AWS PollyTTS
 async function handler (request, response) {
   await response.answer();
   response.use(new GoogleTTS())
-  await response.say("Hello workd");   // Plays the sound using GoogleTTS's default values
+  await response.say("Hello world"); // Plays the sound using GoogleTTS's default values
 }
 ```
 <a name="VoiceResponse+gather"></a>
