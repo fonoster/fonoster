@@ -130,7 +130,7 @@ Waits for data entry from the user's keypad or from a speech provider.
 | options.numDigits | <code>number</code> | Milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified |
 | options.timeout | <code>number</code> | Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout. |
 | options.finishOnKey | <code>string</code> | Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits |
-| options.source | <code>string</code> | Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `dtmf` |
+| options.source | <code>string</code> | Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure when including the `speech` source. You might include both with `dtmf,speech`. Defaults to `dtmf` |
 
 **Example**  
 ```js
