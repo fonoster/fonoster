@@ -30,15 +30,16 @@ export default class extends Command {
   static description = "log out from a fonoster deployment";
 
   async run() {
-    CliUx.ux.action.start("Login out");
-
-    try {
-      fs.rmSync(BASE_DIR, { recursive: true });
-      await CliUx.ux.wait(1000);
-      CliUx.ux.action.stop("Done");
-    } catch (e) {
-      CliUx.ux.action.stop();
-      throw new CLIError(e.message);
+    CliUx.ux.action.start(`Login out`);
+    if (fs.existsSync(BASE_DIR)) {
+      try {
+        fs.rmSync(BASE_DIR, {recursive: true});
+        await CliUx.ux.wait(1000);
+      } catch (e) {
+        CliUx.ux.action.stop();
+        throw new CLIError(e.message);
+      }
     }
+    CliUx.ux.action.stop("Done");
   }
 }
