@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/events",
-  "version": "0.3.17-alpha.3",
+  "version": "0.3.17",
   "description": "Fonoster events managment",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,7 +29,7 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.3.17-alpha.3",
+    "@fonoster/logger": "^0.3.17",
     "amqp-connection-manager": "^3.2.2",
     "amqplib": "^0.8.0"
   },

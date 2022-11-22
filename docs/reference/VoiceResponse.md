@@ -112,7 +112,7 @@ first setup a TTS plugin such as MaryTTS, GoogleTTS, or AWS PollyTTS
 async function handler (request, response) {
   await response.answer();
   response.use(new GoogleTTS())
-  await response.say("Hello world");   // Plays the sound using GoogleTTS's default values
+  await response.say("Hello world"); // Plays the sound using GoogleTTS's default values
 }
 ```
 <a name="VoiceResponse+gather"></a>
@@ -136,7 +136,7 @@ Waits for data entry from the user's keypad or from a speech provider.
 ```js
 async function handler (request, response) {
   await response.answer();
-  const digits = await response.gather({numDigits: 3});
+  const digits = await response.gather({source: "dtmf,speech", numDigits: 3});
   console.log("digits: " + digits);
 }
 ```

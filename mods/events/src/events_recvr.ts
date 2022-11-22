@@ -23,7 +23,7 @@ export default class EventsRecvr extends RabbitQConnector {
             );
             func(msg.content);
           },
-          {noAck: true, exclusive: false}
+          { noAck: true, exclusive: false }
         )
       ]);
     });

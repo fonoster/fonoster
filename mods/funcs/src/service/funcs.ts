@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc, {ServerWritableStream} from "@grpc/grpc-js";
-import {Empty} from "./protos/common_pb";
-import {IFuncsServer} from "./protos/funcs_grpc_pb";
+import grpc, { ServerWritableStream } from "@grpc/grpc-js";
+import { Empty } from "./protos/common_pb";
+import { IFuncsServer } from "./protos/funcs_grpc_pb";
 import {
   CreateRegistryTokenRequest,
   CreateRegistryTokenResponse,
@@ -32,14 +32,14 @@ import {
   ListFuncsRequest,
   ListFuncsResponse
 } from "./protos/funcs_pb";
-import {HttpBasicAuth, DefaultApi as FaaS} from "openfaas-client";
+import { HttpBasicAuth, DefaultApi as FaaS } from "openfaas-client";
 import logger from "@fonoster/logger";
 import {
   ErrorCodes,
   FonosterError,
   FonosterSubsysUnavailable
 } from "@fonoster/errors";
-import {getAccessKeyId} from "@fonoster/core";
+import { getAccessKeyId } from "@fonoster/core";
 import axios from "axios";
 import {
   rawFuncToFunc,
@@ -54,7 +54,7 @@ import buildAndPublishImage from "./registry";
 import btoa from "btoa";
 import request from "request";
 import ndjson from "ndjson";
-import {promisify} from "util";
+import { promisify } from "util";
 
 const sleep = promisify(setTimeout);
 
@@ -232,7 +232,7 @@ export default class FuncsServer implements IFuncsServer {
     const accessKeyId = getAccessKeyId(call);
     const functionName = getFuncName(accessKeyId, call.request.getName());
     try {
-      await faas.systemFunctionsDelete({functionName});
+      await faas.systemFunctionsDelete({ functionName });
       callback(null, new Empty());
     } catch (e) {
       logger.error(`@fonoster/funcs delete [${e}]`);
@@ -341,7 +341,7 @@ export default class FuncsServer implements IFuncsServer {
       const baseURL = `${endpoint}?service=${service}&scope=repository:${image}:push`;
       const result = await axios
         .create({
-          headers: {Authorization: `Basic ${auth}`}
+          headers: { Authorization: `Basic ${auth}` }
         })
         .get(baseURL);
       const token = result.data.token;

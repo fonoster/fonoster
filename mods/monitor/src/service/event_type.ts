@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {EventType as ET} from "./protos/monitor_pb";
+import { EventType as ET } from "./protos/monitor_pb";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace EventType {
@@ -29,7 +29,6 @@ export namespace EventType {
 
   // eslint-disable-next-line require-jsdoc
   export function fromString(type: string): ET {
-    console.log(type);
-    return (ET as any)[type.toUpperCase()];
+    return (ET as unknown)[type.toUpperCase()];
   }
 }

@@ -30,21 +30,21 @@ import ProjectsPB, {
   RenewAccessKeySecretResponse,
   Project
 } from "./protos/projects_pb";
-import {Empty} from "./protos/common_pb";
+import { Empty } from "./protos/common_pb";
 import {
   IProjectsService,
   ProjectsService,
   IProjectsServer
 } from "./protos/projects_grpc_pb";
-import {getRedisConnection, getAccessKeyId} from "@fonoster/core";
+import { getRedisConnection, getAccessKeyId } from "@fonoster/core";
 import objectid from "bson-objectid";
 import encoder from "./encoder";
-import {assertNotEmpty} from "./assertions";
+import { assertNotEmpty } from "./assertions";
 import JWT from "@fonoster/auth/dist/utils/jwt";
-import {AUTH_ISS, getSalt} from "@fonoster/certs";
+import { AUTH_ISS, getSalt } from "@fonoster/certs";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import decoder from "./decoder";
-import {ErrorCodes, FonosterError} from "@fonoster/errors";
+import { ErrorCodes, FonosterError } from "@fonoster/errors";
 
 const authenticator = new Auth(new JWT());
 const redis = getRedisConnection();
@@ -233,4 +233,4 @@ class ProjectsServer implements IProjectsServer {
   }
 }
 
-export {ProjectsServer as default, IProjectsService, ProjectsService};
+export { ProjectsServer as default, IProjectsService, ProjectsService };

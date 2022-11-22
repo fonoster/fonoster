@@ -1,5 +1,5 @@
-import {FonosterError, FonosterFailedPrecondition} from "@fonoster/errors";
-import {UploadObjectRequest} from "../service/protos/storage_pb";
+import { FonosterError, FonosterFailedPrecondition } from "@fonoster/errors";
+import { UploadObjectRequest } from "../service/protos/storage_pb";
 
 /*
  * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
@@ -20,15 +20,15 @@ import {UploadObjectRequest} from "../service/protos/storage_pb";
  * limitations under the License.
  */
 import grpc from "@grpc/grpc-js";
-import {constants} from "./constants";
-import {StoragePB} from "../client/storage";
+import { constants } from "./constants";
+import { StoragePB } from "../client/storage";
 
 export const mapToObj = (map: {
   toArray: () => {
     (): any;
     new (): any;
     length: number;
-    reduce: {(arg0: (e: any[]) => {}): any; new (): any};
+    reduce: { (arg0: (e: any[]) => {}): any; new (): any };
   };
 }) => {
   if (!map || map.toArray().length === 0) return {};
@@ -40,7 +40,7 @@ export const mapToObj = (map: {
 };
 
 export const handleError = (
-  err: {code: any; message: string},
+  err: { code: any; message: string },
   bucket: string
 ) => {
   switch (err.code) {

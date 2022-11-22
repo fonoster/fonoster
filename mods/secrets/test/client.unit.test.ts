@@ -20,7 +20,7 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonoster/common";
+import { APIClient } from "@fonoster/common";
 import Secrets from "../src/client/secrets";
 const expect = chai.expect;
 chai.use(sinonChai);

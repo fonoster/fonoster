@@ -3,7 +3,7 @@
 ## Agents ⇐ <code>APIClient</code>
 Use Fonoster Agents, a capability of Fonoster SIP Proxy subsystem,
 to create, update, get and delete Agents. Agents requires of a
-runningFonosterdeployment.
+running Fonoster deployment.
 
 **Kind**: global class  
 **Extends**: <code>APIClient</code>  
@@ -57,7 +57,7 @@ Creates a new Agent on the SIP Proxy subsystem.
 | request.name | <code>string</code> | Friendly name for the SIP device |
 | request.username | <code>string</code> | Agent's credential username |
 | request.secret | <code>string</code> | Agent's credential secret |
-| request.privacy | <code>string</code> | If set to "Private" Fonoster removes identifiable information for the requests. Defaults to "None" |
+| request.privacy | <code>Privacy</code> | If set to Privacy.PRIVATE Fonoster removes identifiable information from the requests. Defaults to Privacy.NONE |
 | request.domains | <code>Array.&lt;string&gt;</code> | List of domains this Agent has access to |
 
 **Example**  
@@ -67,6 +67,7 @@ const request = {
   username: "john",
   secret: "1234",
   domains: ["sip.local"]
+  privacy: Privacy.PRIVATE
 }
 
 agents.createAgent(request)
@@ -92,7 +93,7 @@ Retrives an Agent by reference.
 
 **Example**  
 ```js
-const ref = "507f1f77bcf86cd799439011";
+const ref = "aynB1z0tzd";
 
 agents.getAgent(ref)
 .then(result => {
@@ -164,10 +165,10 @@ Deletes an Agent from the SIP Proxy subsystem.
 
 **Example**  
 ```js
-const ref = "507f1f77bcf86cd799439011"
+const ref = "aynB1z0tzd"
 
 agents.deleteAgent(ref)
 .then(() => {
-  console.log("done")            // returns a reference of the agent
+  console.log("done")            // returns a reference of the Agent
 }).catch(e => console.error(e))  // an error occurred
 ```

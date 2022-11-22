@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Secret} from "./protos/secrets_pb";
+import { Secret } from "./protos/secrets_pb";
 import getUserToken from "./token";
 import Vault from "node-vault";
 

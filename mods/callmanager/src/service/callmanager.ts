@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {routr} from "@fonoster/core";
+import { routr } from "@fonoster/core";
 import grpc from "@grpc/grpc-js";
 import client from "ari-client";
-import {CallRequest, CallResponse} from "./protos/callmanager_pb";
-import {EndpointInfo} from "../client/types";
+import { CallRequest, CallResponse } from "./protos/callmanager_pb";
+import { EndpointInfo } from "../client/types";
 import originate from "./call";
-import {ICallManagerServer} from "./protos/callmanager_grpc_pb";
+import { ICallManagerServer } from "./protos/callmanager_grpc_pb";
 import logger from "@fonoster/logger";
-import {FonosterError} from "@fonoster/errors";
+import { FonosterError } from "@fonoster/errors";
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();
@@ -98,4 +98,4 @@ class CallManagerServer implements ICallManagerServer {
   }
 }
 
-export {CallManagerServer as default, ICallManagerServer, CallManagerServer};
+export { CallManagerServer as default, ICallManagerServer, CallManagerServer };

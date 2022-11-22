@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {SpeechProvider} from "@fonoster/common";
+import { SpeechProvider } from "@fonoster/common";
 import merge from "deepmerge";
-import {assertsFinishOnKeyIsChar, assertsValueIsPositive} from "../asserts";
-import {VoiceRequest} from "../types";
-import {Verb} from "../verb";
-import {assertsHasNumDigitsOrTimeout} from "./asserts";
+import { assertsFinishOnKeyIsChar, assertsValueIsPositive } from "../asserts";
+import { VoiceRequest } from "../types";
+import { Verb } from "../verb";
+import { assertsHasNumDigitsOrTimeout } from "./asserts";
 import waitForDtmf from "./source_dtmf";
 import waitForSpeech from "./source_speech";
-import {GatherOptions} from "./types";
+import { GatherOptions } from "./types";
 import logger from "@fonoster/logger";
 
 const defaultOptions: GatherOptions = {
@@ -78,4 +78,4 @@ export default class GatherVerb extends Verb {
   }
 }
 
-export {GatherOptions};
+export { GatherOptions };

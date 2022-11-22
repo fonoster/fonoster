@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Privacy } from "@fonoster/core/src/common/resource_builder";
+
 export interface IAgentsClient {
   createAgent(request: CreateAgentRequest): Promise<CreateAgentResponse>;
   getAgent(ref: string): Promise<GetAgentResponse>;
@@ -30,7 +32,7 @@ export interface Agent {
   username: string;
   secret: string;
   domains: string[];
-  privacy: string;
+  privacy: Privacy;
   createTime: string;
   updateTime: string;
 }
@@ -40,7 +42,7 @@ export interface CreateAgentRequest {
   username: string;
   secret: string;
   domains: string[];
-  privacy?: string;
+  privacy?: Privacy;
 }
 
 export interface CreateAgentResponse {
@@ -49,7 +51,7 @@ export interface CreateAgentResponse {
   username: string;
   secret: string;
   domains: string[];
-  privacy: string;
+  privacy: Privacy;
   createTime: string;
   updateTime: string;
 }
@@ -60,7 +62,7 @@ export interface GetAgentResponse {
   username: string;
   secret: string;
   domains: string[];
-  privacy: string;
+  privacy: Privacy;
   createTime: string;
   updateTime: string;
 }
@@ -69,7 +71,7 @@ export interface UpdateAgentRequest {
   ref: string;
   name?: string;
   secret?: string;
-  privacy?: string;
+  privacy?: Privacy;
 }
 
 export interface UpdateAgentResponse {

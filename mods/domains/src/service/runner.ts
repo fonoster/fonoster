@@ -17,14 +17,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Tracer as T} from "@fonoster/common";
+import { Tracer as T } from "@fonoster/common";
 T.init("domains-service");
 
 import DomainsServer from "./domains";
-import {DomainsService} from "./protos/domains_grpc_pb";
-import {AuthMiddleware, limiterMiddleware} from "@fonoster/auth";
-import {getSalt} from "@fonoster/certs";
-import {runServices} from "@fonoster/common";
+import { DomainsService } from "./protos/domains_grpc_pb";
+import { AuthMiddleware, limiterMiddleware } from "@fonoster/auth";
+import { getSalt } from "@fonoster/certs";
+import { runServices } from "@fonoster/common";
 
 const services = [
   {
@@ -44,6 +44,6 @@ const middlewares = [
     name: "limiter",
     middlewareObj: limiterMiddleware
   }
-]
+];
 
 runServices(services, middlewares);

@@ -22,7 +22,7 @@ import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import Apps from "../src/client/apps";
 import { APIClient } from "@fonoster/common";
-import AppsPB, { TransferConfig } from "../src/service/protos/apps_pb";
+import AppsPB from "../src/service/protos/apps_pb";
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 
 const expect = chai.expect;

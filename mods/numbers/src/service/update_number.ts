@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import {ResourceBuilder, Kind, routr, ResourceServer} from "@fonoster/core";
+import { ResourceBuilder, Kind, routr, ResourceServer } from "@fonoster/core";
 import numberDecoder from "./decoder";
 import decoder from "./decoder";
 import {
@@ -8,7 +8,7 @@ import {
   assertHasAorLinkOrIngressInfo,
   assertWebhookIsURL
 } from "./assertions";
-import {getAppRef, getWebhook} from "./utils";
+import { getAppRef, getWebhook } from "./utils";
 import logger from "@fonoster/logger";
 
 export default async function updateNumber(call: any, callback: any) {

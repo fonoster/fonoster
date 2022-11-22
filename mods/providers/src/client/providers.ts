@@ -28,11 +28,11 @@ import {
   IProvidersClient,
   Provider
 } from "./types";
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {ProvidersClient} from "../service/protos/providers_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { ProvidersClient } from "../service/protos/providers_grpc_pb";
 import ProvidersPB from "../service/protos/providers_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 
 /**
  * @classdesc Use Fonoster Providers, a capability of Fonoster SIP Proxy subsystem,
@@ -67,7 +67,7 @@ export default class Providers extends APIClient implements IProvidersClient {
   constructor(options?: ClientOptions) {
     super(ProvidersClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -275,11 +275,11 @@ export default class Providers extends APIClient implements IProvidersClient {
     const req = new ProvidersPB.DeleteProviderRequest();
     req.setRef(ref);
     await super.getService().deleteProvider().sendMessage(req);
-    return {ref};
+    return { ref };
   }
 }
 
-export {Provider, ProvidersPB, CommonPB, IProvidersClient};
+export { Provider, ProvidersPB, CommonPB, IProvidersClient };
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Providers;

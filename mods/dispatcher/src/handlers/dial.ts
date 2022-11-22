@@ -18,9 +18,9 @@
  */
 import WebSocket from "ws";
 import logger from "@fonoster/logger";
-import {routr} from "@fonoster/core";
-import {uploadRecording} from "../utils/upload_recording";
-import {getChannelVar} from "../utils/channel_variable";
+import { routr } from "@fonoster/core";
+import { uploadRecording } from "../utils/upload_recording";
+import { getChannelVar } from "../utils/channel_variable";
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();
@@ -36,9 +36,9 @@ export const dial = async (
   event: any,
   accessKeyId: string
 ) => {
-  const {number, destination, timeout, record, sessionId} = event.userevent;
+  const { number, destination, timeout, record, sessionId } = event.userevent;
 
-  logger.silly("initiating dial request", {request: event.userevent});
+  logger.silly("initiating dial request", { request: event.userevent });
 
   if (ws.readyState !== WebSocket.OPEN) {
     logger.warn("ignoring socket request on lost connection");
@@ -60,9 +60,9 @@ export const dial = async (
   }
 
   const domainUri = domain.spec.context.domainUri;
-  const channel = await ari.channels.get({channelId: sessionId});
+  const channel = await ari.channels.get({ channelId: sessionId });
   const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
-  let bridge = await ari.bridges.get({bridgeId: bridgeId});
+  let bridge = await ari.bridges.get({ bridgeId: bridgeId });
 
   logger.verbose("dialing sip endpoint", {
     endpoint: `sip:${destination}@${domainUri}`,
@@ -87,10 +87,10 @@ export const dial = async (
   dialed.on("StasisStart", async (event: any, channel: any) => {
     try {
       if (bridgeId) {
-        await bridge.addChannel({channel: dialed.id});
+        await bridge.addChannel({ channel: dialed.id });
       } else {
         // Is a new bridge so we need to add both channels
-        await bridge.addChannel({channel: [sessionId, dialed.id]});
+        await bridge.addChannel({ channel: [sessionId, dialed.id] });
       }
 
       if (record) {

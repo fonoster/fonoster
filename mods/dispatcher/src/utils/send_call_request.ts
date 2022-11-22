@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger, {ulogger, ULogType} from "@fonoster/logger";
+import logger, { ulogger, ULogType } from "@fonoster/logger";
 import axios from "axios";
-import {CallRequest} from "../types";
+import { CallRequest } from "../types";
 
 export const sendCallRequest = async (url: string, request: CallRequest) => {
   try {
@@ -28,13 +28,13 @@ export const sendCallRequest = async (url: string, request: CallRequest) => {
     });
   } catch (e) {
     const message = "error connecting with your voice application";
-    logger.error(message, {url});
+    logger.error(message, { url });
     ulogger({
       accessKeyId: request.accessKeyId,
       eventType: ULogType.APP,
       level: "error",
       message: message,
-      body: {url}
+      body: { url }
     });
   }
 };

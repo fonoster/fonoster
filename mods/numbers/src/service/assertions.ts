@@ -1,6 +1,6 @@
-import {FonosterInvalidArgument} from "@fonoster/errors";
-import {NumbersPB} from "../client/numbers";
-import {IngressInfo} from "./protos/numbers_pb";
+import { FonosterInvalidArgument } from "@fonoster/errors";
+import { NumbersPB } from "../client/numbers";
+import { IngressInfo } from "./protos/numbers_pb";
 
 const isValidURL = (value: string) =>
   /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(value);

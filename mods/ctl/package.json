@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/ctl",
-  "version": "0.3.17-alpha.3",
+  "version": "0.3.17",
   "description": "Command-Line for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -58,15 +58,15 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/agents": "^0.3.17-alpha.3",
-    "@fonoster/apps": "^0.3.17-alpha.3",
-    "@fonoster/domains": "^0.3.17-alpha.3",
-    "@fonoster/logger": "^0.3.17-alpha.3",
-    "@fonoster/numbers": "^0.3.17-alpha.3",
+    "@fonoster/agents": "^0.3.17",
+    "@fonoster/apps": "^0.3.17",
+    "@fonoster/domains": "^0.3.17",
+    "@fonoster/logger": "^0.3.17",
+    "@fonoster/numbers": "^0.3.17",
+    "@fonoster/projects": "^0.3.17",
+    "@fonoster/providers": "^0.3.17",
+    "@fonoster/secrets": "^0.3.17",
     "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
-    "@fonoster/projects": "^0.3.17-alpha.3",
-    "@fonoster/providers": "^0.3.17-alpha.3",
-    "@fonoster/secrets": "^0.3.17-alpha.3",
     "@oclif/command": "^1.8.16",
     "@oclif/config": "^1.18.3",
     "@oclif/core": "^1.3.4",
@@ -84,6 +84,7 @@
     "update-notifier": "^5.1.0"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.3",
     "@types/prettyjson": "0.0.29",
     "rimraf": "^3.0.2"
   },

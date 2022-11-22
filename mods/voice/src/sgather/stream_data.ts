@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Stream} from "stream";
-import {SGatherStream} from "./types";
+import { Stream } from "stream";
+import { SGatherStream } from "./types";
 import PubSub from "pubsub-js";
 
 export default class StreamData implements SGatherStream {

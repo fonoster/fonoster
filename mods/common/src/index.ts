@@ -18,11 +18,11 @@
  */
 import APIClient from "./api_client";
 import WebAPIClient from "./web_client";
-import {ClientOptions, WebClientOptions} from "./types";
-import {getClientCredentials, getServerCredentials} from "./trust_util";
+import { ClientOptions, WebClientOptions } from "./types";
+import { getClientCredentials, getServerCredentials } from "./trust_util";
 import healthcheck from "./healthcheck";
 import runServices from "./service_runner";
-import {Plugin} from "./speech/plugin";
+import { Plugin } from "./speech/plugin";
 import {
   SpeechProvider,
   SpeechTracker,

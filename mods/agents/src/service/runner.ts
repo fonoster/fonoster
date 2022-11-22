@@ -26,6 +26,6 @@ const middlewares = [
     name: "limiter",
     middlewareObj: limiterMiddleware
   }
-]
+];
 
 runServices(services, middlewares);

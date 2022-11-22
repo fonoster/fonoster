@@ -29,8 +29,8 @@ import {
   ListSecretsIdResponse,
   Secret
 } from "./protos/secrets_pb";
-import {Empty} from "./protos/common_pb";
-import {getAccessKeyId} from "@fonoster/core";
+import { Empty } from "./protos/common_pb";
+import { getAccessKeyId } from "@fonoster/core";
 import {
   ISecretsService,
   SecretsService,
@@ -108,4 +108,4 @@ class SecretServer implements ISecretsServer {
   }
 }
 
-export {SecretServer as default, ISecretsService, SecretsService};
+export { SecretServer as default, ISecretsService, SecretsService };

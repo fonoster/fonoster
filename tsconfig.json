@@ -15,7 +15,8 @@
   },
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "mods/websdk/"
   ],
   "references": [
     {"path": "mods/auth"}

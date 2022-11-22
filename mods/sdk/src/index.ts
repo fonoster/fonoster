@@ -46,7 +46,7 @@ const Fonoster = {
   Apps
 };
 
-export {Fonoster as default};
+export { Fonoster as default };
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Fonoster;

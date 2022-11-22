@@ -21,14 +21,14 @@ import os from "os";
 import util from "util";
 import path from "path";
 import textToSpeech from "@google-cloud/text-to-speech";
-import {Plugin} from "@fonoster/common";
-import {TTSPlugin, computeFilename, SynthResult} from "@fonoster/tts";
+import { Plugin } from "@fonoster/common";
+import { TTSPlugin, computeFilename, SynthResult } from "@fonoster/tts";
 import logger from "@fonoster/logger";
-import {GoogleTTSConfig, SynthOptions} from "./types";
-import {isSSML} from "./utils";
+import { GoogleTTSConfig, SynthOptions } from "./types";
+import { isSSML } from "./utils";
 const merge = require("deepmerge");
 
-const defaultVoice = {languageCode: "en-US", ssmlGender: "NEUTRAL"};
+const defaultVoice = { languageCode: "en-US", ssmlGender: "NEUTRAL" };
 
 /**
  * @classdesc Optional TTS engine for Fonoster.
@@ -83,12 +83,12 @@ class GoogleTTS extends Plugin implements TTSPlugin {
     );
 
     const voice = merge(defaultVoice, options || {});
-    const input = isSSML(text) ? {ssml: text} : {text: text};
+    const input = isSSML(text) ? { ssml: text } : { text: text };
 
     const request = {
       voice,
       input,
-      audioConfig: {audioEncoding: "LINEAR16"}
+      audioConfig: { audioEncoding: "LINEAR16" }
     };
 
     // Performs the text-to-speech request
@@ -96,7 +96,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
     // Write the binary audio content to a local file
     const writeFile = util.promisify(fs.writeFile);
     await writeFile(pathToFile, response.audioContent, "binary");
-    return {filename, pathToFile};
+    return { filename, pathToFile };
   }
 }
 

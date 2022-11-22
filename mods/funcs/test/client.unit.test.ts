@@ -20,9 +20,9 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonoster/common";
-import Funcs, {buildDeployFuncRequest, FuncsPB} from "../src/client/funcs";
-import {DeployFuncRequest} from "../src/client/types";
+import { APIClient } from "@fonoster/common";
+import Funcs, { buildDeployFuncRequest, FuncsPB } from "../src/client/funcs";
+import { DeployFuncRequest } from "../src/client/types";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -74,7 +74,7 @@ describe("@fonoster/funcs/client", () => {
     });
 
     const funcs = new Funcs();
-    const result = await funcs.getFunc({name: funcObj.getName()});
+    const result = await funcs.getFunc({ name: funcObj.getName() });
     expect(result).to.have.property("name").to.be.equal(funcObj.getName());
     expect(result).to.have.property("image").to.be.equal(funcObj.getImage());
     expect(result)
@@ -103,7 +103,7 @@ describe("@fonoster/funcs/client", () => {
     });
 
     const funcs = new Funcs();
-    const result = await funcs.deleteFunc({name: funcObj.getName()});
+    const result = await funcs.deleteFunc({ name: funcObj.getName() });
 
     expect(stubFunc).to.be.calledTwice;
     expect(result).to.have.property("name").to.be.equal(response.name);

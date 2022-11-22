@@ -61,7 +61,7 @@ const redis = getRedisConnection();
 async function getTokenRole(token: string): Promise<string> {
   try {
     const jwt = new JWT();
-    const payload = (await jwt.decode(token, getSalt())) as any;
+    const payload = (await jwt.decode(token, getSalt())) as { role: string };
     return payload.role;
   } catch (e) {
     return null;

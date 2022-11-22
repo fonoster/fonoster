@@ -49,8 +49,9 @@ Call method.
 | request | <code>CallRequest</code> | Call request options |
 | request.from | <code>string</code> | Number you are calling from. You must have this Number configured in your account |
 | request.to | <code>string</code> | The callee |
-| request.webhook | <code>string</code> | Url of the application that will handle the call. If none is provided it will use the webook setup in the Number |
-| request.ignoreE164Validation | <code>string</code> | If enabled it will accept any input in the from and to |
+| request.webhook | <code>string</code> | Url of the application that will handle the call If none is provided it will use the webook setup in the Number |
+| request.metadata | <code>object</code> | Arbitrary payload to send to the Voice Application |
+| request.ignoreE164Validation | <code>boolean</code> | If enabled it will accept any input in the from and to |
 
 **Example**  
 ```js

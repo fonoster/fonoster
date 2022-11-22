@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {CallRequest, CallResponse} from "./protos/callmanager_pb";
-import {nanoid} from "nanoid";
-import {EndpointInfo} from "../client/types";
+import { CallRequest, CallResponse } from "./protos/callmanager_pb";
+import { nanoid } from "nanoid";
+import { EndpointInfo } from "../client/types";
 import {
   assertCompatibleParameters,
   assertIsE164,

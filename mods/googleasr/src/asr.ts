@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GoogleSpeechTracker} from "./tracker";
-import {GoogleSpeechConfig} from "./types";
-import {Plugin, SpeechProvider, SpeechTracker} from "@fonoster/common";
+import { GoogleSpeechTracker } from "./tracker";
+import { GoogleSpeechConfig } from "./types";
+import { Plugin, SpeechProvider, SpeechTracker } from "@fonoster/common";
 
 const defaultSpeechConfig: GoogleSpeechConfig = {
   languageCode: "en-US"
@@ -41,7 +41,7 @@ class GoogleASR extends Plugin implements SpeechProvider {
 }
 
 export default GoogleASR;
-export {GoogleSpeechTracker, GoogleSpeechConfig};
+export { GoogleSpeechTracker, GoogleSpeechConfig };
 
 // WARNING: Workaround to support commonjs clients
 module.exports = GoogleASR;

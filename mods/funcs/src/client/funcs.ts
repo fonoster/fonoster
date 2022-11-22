@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import Storage from "@fonoster/storage";
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {FuncsClient} from "../service/protos/funcs_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { FuncsClient } from "../service/protos/funcs_grpc_pb";
 import FuncsPB from "../service/protos/funcs_pb";
 import CommonPB from "../service/protos/common_pb";
 import {
@@ -37,7 +37,7 @@ import {
   cleanupTmpDirSync,
   copyFuncAtTmp
 } from "../utils/utils";
-import {DeployStream, LogsStream} from "./stream_wrappers";
+import { DeployStream, LogsStream } from "./stream_wrappers";
 
 /**
  * @classdesc Use Fonoster Funcs, a capability of FaaS subsystem,
@@ -287,7 +287,7 @@ export default class Funcs extends APIClient implements IFuncsClient {
   }
 }
 
-export {FuncsPB, CommonPB, buildDeployFuncRequest, IFuncsClient};
+export { FuncsPB, CommonPB, buildDeployFuncRequest, IFuncsClient };
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Funcs;

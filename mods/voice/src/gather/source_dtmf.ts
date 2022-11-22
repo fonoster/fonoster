@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GatherOptions} from "./types";
+import { GatherOptions } from "./types";
 import PubSub from "pubsub-js";
 
 const waitForDtmf = async (
@@ -24,7 +24,7 @@ const waitForDtmf = async (
   options: GatherOptions
 ): Promise<string> =>
   new Promise(async (resolve, reject) => {
-    let token = null;
+    const token = null;
     try {
       let timer: NodeJS.Timeout;
       let digits = "";

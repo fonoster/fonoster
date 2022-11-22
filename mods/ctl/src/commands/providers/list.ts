@@ -1,10 +1,28 @@
+/*
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command, flags as oclifFlags} from "@oclif/command";
-import {CommonPB} from "@fonoster/providers";
-import {CliUx} from "@oclif/core";
-import {Provider} from "@fonoster/providers";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CLIError } from "@oclif/errors";
+import { Command, flags as oclifFlags } from "@oclif/command";
+import { CommonPB } from "@fonoster/providers";
+import { CliUx } from "@oclif/core";
+import { Provider } from "@fonoster/providers";
+import { getProjectConfig, hasProjectConfig } from "../../config";
 
 const Providers = require("@fonoster/providers");
 const inquirer = require("inquirer");
@@ -28,7 +46,7 @@ export default class ListCommand extends Command {
     if (!hasProjectConfig()) {
       throw new CLIError("you must set a default project");
     }
-    const {flags} = this.parse(ListCommand);
+    const { flags } = this.parse(ListCommand);
     try {
       const providers = new Providers(getProjectConfig());
       let firstBatch = true;
@@ -48,7 +66,7 @@ export default class ListCommand extends Command {
         // Dont ask this if is the first time or empty data
         if (list.length > 0 && !firstBatch) {
           const answer: any = await inquirer.prompt([
-            {name: "q", message: "More", type: "confirm"}
+            { name: "q", message: "More", type: "confirm" }
           ]);
           if (!answer.q) break;
         }
@@ -59,18 +77,18 @@ export default class ListCommand extends Command {
           CliUx.ux.table(
             data as any,
             {
-              ref: {minWidth: 13},
-              name: {header: "Name", minWidth: 13},
+              ref: { minWidth: 13 },
+              name: { header: "Name", minWidth: 13 },
               username: {
                 header: "Username",
                 minWidth: 13,
                 get: (row) => row.username || "(static)"
               },
-              host: {header: "Host", minWidth: 18},
-              transport: {header: "Transport", minWidth: 13}
-              //expires: {header: "SIP Registration Refresh", minWidth: 13}
+              host: { header: "Host", minWidth: 18 },
+              transport: { header: "Transport", minWidth: 13 }
+              // expires: {header: "SIP Registration Refresh", minWidth: 13}
             },
-            {"no-header": !showHeader}
+            { "no-header": !showHeader }
           );
         };
         showTable(firstBatch, list);

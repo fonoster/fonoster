@@ -1,6 +1,6 @@
-import {FonosterInvalidArgument} from "@fonoster/errors";
+import { FonosterInvalidArgument } from "@fonoster/errors";
 import phone from "phone";
-import {CallManagerPB} from "../client/callmanager";
+import { CallManagerPB } from "../client/callmanager";
 
 export const assertCompatibleParameters = (
   request: CallManagerPB.CallRequest

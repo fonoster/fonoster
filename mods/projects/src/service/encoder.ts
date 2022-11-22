@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Project} from "./protos/projects_pb";
+import { Project } from "./protos/projects_pb";
 
 export default (project: Project): string => {
   const projectJSON = {

@@ -20,14 +20,14 @@ import https from "https";
 import fs from "fs";
 import path from "path";
 import os from "os";
-import {Plugin} from "@fonoster/common";
+import { Plugin } from "@fonoster/common";
 import {
   TTSPlugin,
   optionsToQueryString,
   computeFilename,
   SynthResult
 } from "@fonoster/tts";
-import {MaryTTSConfig, MarySynthOptions} from "./types";
+import { MaryTTSConfig, MarySynthOptions } from "./types";
 import logger from "@fonoster/logger";
 
 /**
@@ -85,7 +85,7 @@ export default class MaryTTS extends Plugin implements TTSPlugin {
    */
   async synthesize(
     text: string,
-    options: MarySynthOptions = {locale: "EN_US"}
+    options: MarySynthOptions = { locale: "EN_US" }
   ): Promise<SynthResult> {
     const filename = computeFilename(text, options, "sln16");
     const pathToFile = path.join(this.config.path, filename);
@@ -117,14 +117,14 @@ export default class MaryTTS extends Plugin implements TTSPlugin {
           headers
         },
         (response) => {
-          const {statusCode} = response;
+          const { statusCode } = response;
 
           if (statusCode !== 200) {
             reject(new Error(`Request failed with status code: ${statusCode}`));
             return;
           }
           response.pipe(fs.createWriteStream(pathToFile));
-          resolve({filename, pathToFile});
+          resolve({ filename, pathToFile });
         }
       );
     });

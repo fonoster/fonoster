@@ -21,9 +21,9 @@ import WebSocket from "ws";
 
 export async function answer(ws: WebSocket, ari: any, sessionId: string) {
   try {
-    logger.verbose("answering call request", {sessionId});
+    logger.verbose("answering call request", { sessionId });
 
-    await ari.channels.answer({channelId: sessionId});
+    await ari.channels.answer({ channelId: sessionId });
 
     ws.send(
       JSON.stringify({

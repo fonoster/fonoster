@@ -60,10 +60,14 @@ export default class VoiceServer {
   }
 
   listen(handler: Function, port = this.config.port) {
-    app.get(posix.join(this.config.base, "/sounds/:file"), (req, res) =>  serveFiles(this.config)(req, res));
+    app.get(posix.join(this.config.base, "/sounds/:file"), (req, res) =>
+      serveFiles(this.config)(req, res)
+    );
 
     // Alias path for sounds
-    app.get(posix.join(this.config.base, "/tts/:file"), (req, res) => serveFiles(this.config)(req, res));
+    app.get(posix.join(this.config.base, "/tts/:file"), (req, res) =>
+      serveFiles(this.config)(req, res)
+    );
 
     app.get("/ping", (req, res) => {
       res.send("pong");
@@ -86,7 +90,7 @@ export default class VoiceServer {
   }
 
   init() {
-    logger.info(`initializing voice server`);
+    logger.info("initializing voice server");
     (app as any).ws(this.config.base, (ws) => {
       ws.on("message", (msg) => {
         if (Buffer.isBuffer(msg)) {

@@ -24,7 +24,10 @@ export const channelTalkingHandler = (
   sessionId: string,
   onOff: boolean
 ) => {
-  logger.verbose("channel talking status changed", {sessionId, status: onOff});
+  logger.verbose("channel talking status changed", {
+    sessionId,
+    status: onOff
+  });
 
   if (!ws || ws.readyState !== WebSocket.OPEN) {
     logger.warn("ignoring socket request on lost connection");

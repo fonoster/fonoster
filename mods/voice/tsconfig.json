@@ -5,11 +5,11 @@
     "rootDir": "./src"
   },
   "references": [
-    {"path": "../tts"},
-    {"path": "../logger"},
-    {"path": "../events"},
-    {"path": "../common"},
-    {"path": "../googleasr"}
+    { "path": "../tts" },
+    { "path": "../logger" },
+    { "path": "../events" },
+    { "path": "../common" },
+    { "path": "../googleasr" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

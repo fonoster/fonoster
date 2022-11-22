@@ -20,8 +20,8 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonoster/common";
-import Providers, {ProvidersPB} from "../src/client/providers";
+import { APIClient } from "@fonoster/common";
+import Providers, { ProvidersPB } from "../src/client/providers";
 import providerDecoder from "../src/service/decoder";
 
 const expect = chai.expect;
@@ -116,7 +116,7 @@ describe("@fonoster/providers", () => {
       .returns({
         deleteProvider: () => {
           return {
-            sendMessage: () => Promise.resolve({ref: providerObj.getRef()})
+            sendMessage: () => Promise.resolve({ ref: providerObj.getRef() })
           };
         }
       });
@@ -195,7 +195,7 @@ describe("@fonoster/providers", () => {
         updateProvider: () => {
           return {
             sendMessage: () =>
-              Promise.resolve({getRef: () => returnProvider.ref})
+              Promise.resolve({ getRef: () => returnProvider.ref })
           };
         },
         getProvider: () => {

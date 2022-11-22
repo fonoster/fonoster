@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Verb} from "../verb";
-import {VoiceRequest} from "../types";
+import { Verb } from "../verb";
+import { VoiceRequest } from "../types";
 import logger from "@fonoster/logger";
 
 export class PlaybackControl extends Verb {

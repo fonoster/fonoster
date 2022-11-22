@@ -18,8 +18,8 @@
  */
 import logger from "@fonoster/logger";
 import grpc from "@grpc/grpc-js";
-import {FonosterError} from "@fonoster/errors";
-import {fsInstance} from "../utils/storage";
+import { FonosterError } from "@fonoster/errors";
+import { fsInstance } from "../utils/storage";
 
 export default async function (
   accessKeyId: string,
@@ -35,7 +35,7 @@ export default async function (
     fsInstance().statObject(
       bucket,
       `${accessKeyId}/${filename}`,
-      (err: {message: string}) => {
+      (err: { message: string }) => {
         if (err) {
           reject(
             new FonosterError(

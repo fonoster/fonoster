@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {status} from "@grpc/grpc-js";
+import { status } from "@grpc/grpc-js";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
@@ -67,7 +67,7 @@ export default class AuthMiddleware {
         .toString();
 
       jwtHandler
-        .validateToken({accessToken: accessKeySecret}, this.privateKey)
+        .validateToken({ accessToken: accessKeySecret }, this.privateKey)
         .then(async (result) => {
           if (result.isValid) {
             if (result.data.accessKeyId != accessKeyId)

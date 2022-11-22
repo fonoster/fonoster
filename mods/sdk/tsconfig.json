@@ -5,20 +5,20 @@
     "rootDir": "./src"
   },
   "references": [
-    {"path": "../apps"},
-    {"path": "../auth"},
-    {"path": "../secrets"},
-    {"path": "../agents"},
-    {"path": "../funcs"},
-    {"path": "../storage"},
-    {"path": "../callmanager"},
-    {"path": "../logger"},
-    {"path": "../providers"},
-    {"path": "../numbers"},
-    {"path": "../domains"},
-    {"path": "../projects"},
-    {"path": "../users"},
-    {"path": "../monitor"}
+    { "path": "../apps" },
+    { "path": "../auth" },
+    { "path": "../secrets" },
+    { "path": "../agents" },
+    { "path": "../funcs" },
+    { "path": "../storage" },
+    { "path": "../callmanager" },
+    { "path": "../logger" },
+    { "path": "../providers" },
+    { "path": "../numbers" },
+    { "path": "../domains" },
+    { "path": "../projects" },
+    { "path": "../users" },
+    { "path": "../monitor" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

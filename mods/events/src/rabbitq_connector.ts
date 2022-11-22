@@ -23,7 +23,7 @@ export default class RabbitQConnector {
         logger.info(
           `@fonoster/events rabbitq connector [setting up q => ${this.q}, durable => false]`
         );
-        return channel.assertQueue(this.q, {durable: false});
+        return channel.assertQueue(this.q, { durable: false });
       }
     });
   }

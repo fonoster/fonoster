@@ -5,11 +5,11 @@
     "rootDir": "./src"
   },
   "references": [
-    {"path": "../common"},
-    {"path": "../tts"},
-    {"path": "../logger"},
-    {"path": "../core"},
-    {"path": "../errors"}
+    { "path": "../common" },
+    { "path": "../tts" },
+    { "path": "../logger" },
+    { "path": "../core" },
+    { "path": "../errors" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

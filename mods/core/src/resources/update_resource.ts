@@ -1,5 +1,5 @@
-import routr from "../common/routr";
-import {UpdateResourceRequest} from "./types";
+import { routr } from "../common/routr";
+import { UpdateResourceRequest } from "./types";
 
 export default async function (request: UpdateResourceRequest): Promise<any> {
   await routr.connect();

@@ -2,10 +2,10 @@ import chai from "chai";
 import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
-import {join} from "path";
+import { join } from "path";
 import FonosterError from "../src/error";
 import FonosInvalidArgument from "../src/invalid_argument";
-import {INVALID_ARGUMENT} from "../src/codes";
+import { INVALID_ARGUMENT } from "../src/codes";
 
 const expect = chai.expect;
 chai.use(sinonChai);
@@ -13,7 +13,7 @@ chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
 if (process.env.NODE_ENV === "dev") {
-  require("dotenv").config({path: join(__dirname, "..", "..", ".env")});
+  require("dotenv").config({ path: join(__dirname, "..", "..", ".env") });
 }
 
 describe("@fonoster/errors", () => {

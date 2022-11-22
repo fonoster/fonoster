@@ -17,11 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Tracer as T} from "@fonoster/common";
+import { Tracer as T } from "@fonoster/common";
 T.init("auth-service");
 
-import {LimiterService} from "@fonoster/auth/dist/service/protos/auth_grpc_pb";
-import {runServices} from "@fonoster/common";
+import { LimiterService } from "@fonoster/auth/dist/service/protos/auth_grpc_pb";
+import { runServices } from "@fonoster/common";
 import LimiterServer from "./limiter";
 
 const services = [

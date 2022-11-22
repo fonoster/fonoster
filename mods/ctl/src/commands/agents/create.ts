@@ -1,8 +1,28 @@
+/*
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import "../../config";
-import {CLIError} from "@oclif/errors";
-import {Command} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {getProjectConfig, hasProjectConfig} from "../../config";
+import { CLIError } from "@oclif/errors";
+import { Command } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { getProjectConfig, hasProjectConfig } from "../../config";
+import { toPascalCase } from "../../utils";
+const { Privacy } = require("@fonoster/agents");
 const Agents = require("@fonoster/agents");
 const Domains = require("@fonoster/domains");
 const inquirer = require("inquirer");
@@ -59,7 +79,7 @@ export default class extends Command {
         name: "privacy",
         message: "privacy",
         type: "list",
-        choices: ["None", "Private"],
+        choices: [toPascalCase(Privacy.NONE), toPascalCase(Privacy.PRIVATE)],
         default: "None"
       },
       {
@@ -77,6 +97,7 @@ export default class extends Command {
       try {
         CliUx.ux.action.start(`Creating agent ${answers.name}`);
         const agents = new Agents(getProjectConfig());
+        answers.privacy = Privacy[answers.privacy.toUpperCase()];
         const agent = await agents.createAgent(answers);
         await CliUx.ux.wait(1000);
         CliUx.ux.action.stop(agent.ref);

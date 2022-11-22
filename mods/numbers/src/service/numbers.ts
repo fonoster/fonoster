@@ -3,7 +3,7 @@
 import grpc from "@grpc/grpc-js";
 import createNumber from "./create_number";
 import updateNumber from "./update_number";
-import {routr} from "@fonoster/core";
+import { routr } from "@fonoster/core";
 import {
   ListNumbersRequest,
   ListNumbersResponse,
@@ -14,15 +14,15 @@ import {
   GetIngressInfoRequest
 } from "./protos/numbers_pb";
 import NumberPB from "./protos/numbers_pb";
-import {Empty} from "./protos/common_pb";
+import { Empty } from "./protos/common_pb";
 import {
   INumbersService,
   NumbersService,
   INumbersServer
 } from "./protos/numbers_grpc_pb";
-import {Kind, ResourceServer} from "@fonoster/core";
+import { Kind, ResourceServer } from "@fonoster/core";
 import decoder from "./decoder";
-import {ErrorCodes, FonosterError} from "@fonoster/errors";
+import { ErrorCodes, FonosterError } from "@fonoster/errors";
 
 class NumbersServer extends ResourceServer implements INumbersServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -100,4 +100,4 @@ class NumbersServer extends ResourceServer implements INumbersServer {
   }
 }
 
-export {NumbersServer as default, INumbersService, NumbersService};
+export { NumbersServer as default, INumbersService, NumbersService };
