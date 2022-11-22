@@ -22,7 +22,7 @@ import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { getProjectConfig, hasProjectConfig } from "../../config";
 import { toPascalCase } from "../../utils";
-const { Privacy } = require("@fonoster/agents");
+import { Privacy } from "@fonoster/agents";
 const Agents = require("@fonoster/agents");
 const Domains = require("@fonoster/domains");
 const inquirer = require("inquirer");
