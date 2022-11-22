@@ -32,7 +32,7 @@ import {
   IAgentsService,
   AgentsService
 } from "./protos/agents_grpc_pb";
-import { Kind, ResourceBuilder } from "@fonoster/core";
+import { Kind, Privacy, ResourceBuilder } from "@fonoster/core";
 import {
   updateResource,
   createResource,
@@ -40,7 +40,6 @@ import {
   getAccessKeyId
 } from "@fonoster/core";
 import decoder from "./decoder";
-import { Privacy } from "@fonoster/core/src/common/resource_builder";
 
 class AgentsServer implements IAgentsServer {
   [name: string]: grpc.UntypedHandleCall;

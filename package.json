@@ -19,7 +19,8 @@
     "audit": "lerna-audit",
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
     "publish": "lerna publish",
-    "publish:prerelease": "lerna publish prerelease --dist-tag next"
+    "publish:prerelease": "lerna publish prerelease --dist-tag next",
+    "publish:frompackages": "lerna publish from-package"
   },
   "nodemonConfig": {
     "watch": [

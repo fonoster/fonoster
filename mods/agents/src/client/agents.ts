@@ -21,7 +21,6 @@ import { AgentsClient } from "../service/protos/agents_grpc_pb";
 import AgentsPB from "../service/protos/agents_pb";
 import CommonPB from "../service/protos/common_pb";
 import { promisifyAll } from "grpc-promise";
-import { Privacy } from "@fonoster/core/src/common/resource_builder";
 import {
   Agent,
   CreateAgentRequest,
@@ -34,6 +33,7 @@ import {
   UpdateAgentRequest,
   UpdateAgentResponse
 } from "./types";
+import { Privacy } from "@fonoster/core";
 
 /**
  * @classdesc Use Fonoster Agents, a capability of Fonoster SIP Proxy subsystem,
