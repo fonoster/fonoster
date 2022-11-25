@@ -34,6 +34,10 @@ export default class ListCommand extends Command {
       const projects = new Projects();
       // Gets the list
       const result = await projects.listProjects({});
+      // 1st project is the default project
+      if (result.projects?.length !== 0) {
+        result.projects[0].name = `${result.projects[0].name} *`;
+      }
       CliUx.ux.table(result.projects, {
         accessKeyId: { header: "Ref / Access Key Id", minWidth: 30 },
         name: { header: "Name", minWidth: 12 }
