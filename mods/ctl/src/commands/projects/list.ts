@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import "../../config";
 import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
+import { isDefaultProject } from "../../config";
 const Projects = require("@fonoster/projects");
 
 export default class ListCommand extends Command {
@@ -34,7 +34,8 @@ export default class ListCommand extends Command {
       const projects = new Projects();
       // Gets the list
       const result = await projects.listProjects({});
-      CliUx.ux.table(result.projects, {
+      const projs = result.projects?.map(p => Object.assign(p, {name: isDefaultProject(p.ref) ? `${p.name} *` : p.name}));
+      CliUx.ux.table(projs, {
         accessKeyId: { header: "Ref / Access Key Id", minWidth: 30 },
         name: { header: "Name", minWidth: 12 }
       });
