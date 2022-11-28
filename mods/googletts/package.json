@@ -31,7 +31,7 @@
   "dependencies": {
     "@fonoster/common": "^0.3.18",
     "@fonoster/logger": "^0.3.18",
-    "@fonoster/tts": "^0.3.18",
+    "@fonoster/tts": "file:../tts",
     "@google-cloud/text-to-speech": "^3.2.2",
     "deepmerge": "^4.2.2"
   },

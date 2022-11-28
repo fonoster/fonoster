@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "flat": "^5.0.2",
-    "sox-audio": "^0.3.0"
+    "sox-audio": "^0.3.0",
+    "@fonoster/common": "^0.3.18"
   },
   "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135"
 }

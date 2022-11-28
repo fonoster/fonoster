@@ -28,3 +28,7 @@ export interface SynthResult {
   filename: string;
   pathToFile: string;
 }
+
+export interface TTSConfig {
+  path?: string;
+}

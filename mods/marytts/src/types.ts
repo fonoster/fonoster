@@ -1,3 +1,5 @@
+import { TTSConfig } from "@fonoster/tts";
+
 /*
  * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -21,10 +23,9 @@ export interface MarySynthOptions {
   voice?: string;
 }
 
-export interface MaryTTSConfig {
+export interface MaryTTSConfig extends TTSConfig {
   url: string;
   accessKeyId?: string;
   accessKeySecret?: string;
   locale?: string;
-  path?: string;
 }
