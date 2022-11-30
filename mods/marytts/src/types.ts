@@ -1,5 +1,3 @@
-import { TTSConfig } from "@fonoster/tts";
-
 /*
  * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,6 +16,8 @@ import { TTSConfig } from "@fonoster/tts";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { TTSConfig } from "@fonoster/tts";
 export interface MarySynthOptions {
   locale: string;
   voice?: string;
