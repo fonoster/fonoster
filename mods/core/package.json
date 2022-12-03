@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/core",
-  "version": "0.3.18",
+  "version": "0.3.19",
   "description": "Core artifacts",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "bugs": {
@@ -26,11 +26,11 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.18",
-    "@fonoster/certs": "^0.3.18",
-    "@fonoster/common": "^0.3.18",
-    "@fonoster/errors": "^0.3.18",
-    "@fonoster/logger": "^0.3.18",
+    "@fonoster/auth": "^0.3.19",
+    "@fonoster/certs": "^0.3.19",
+    "@fonoster/common": "^0.3.19",
+    "@fonoster/errors": "^0.3.19",
+    "@fonoster/logger": "^0.3.19",
     "@grpc/grpc-js": "^1.3.7",
     "@opentelemetry/api": "^1.0.4",
     "atob": "^2.1.2",
