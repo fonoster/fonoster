@@ -50,7 +50,7 @@
     "husky": "^6.0.0",
     "jsdoc-to-markdown": "^7.0.1",
     "jsonfile": "^6.1.0",
-    "lerna": "^4.0.0",
+    "lerna": "^6.1.0",
     "lerna-audit": "^1.3.3",
     "mocha": "^9.2.1",
     "nodemon": "^2.0.7",
