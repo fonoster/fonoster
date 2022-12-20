@@ -13,6 +13,7 @@ export const assertIsE164 = (number: string) => {
       "e164Number field must be a valid e164 value."
     );
   }
+  return validatedPhone.phoneNumber;
 };
 
 export const assertWebhookIsURL = (webhook: string) => {

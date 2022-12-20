@@ -15,7 +15,7 @@ export default async function createNumber(
   call: any
 ): Promise<NumbersPB.Number> {
   // TODO: Needs resource ownership validation for appRef
-  assertIsE164(request.getE164Number());
+  request.setE164Number(assertIsE164(request.getE164Number()));
   assertHasAorLinkOrIngressInfo(request);
   assertCompatibleParameters(request);
   assertWebhookIsURL(request.getIngressInfo()?.getWebhook());
