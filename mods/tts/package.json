@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/tts",
-  "version": "0.3.19",
+  "version": "0.3.20",
   "description": "Fonoster TTS module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,9 +29,9 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
+    "@fonoster/common": "^0.3.20",
     "flat": "^5.0.2",
-    "sox-audio": "^0.3.0",
-    "@fonoster/common": "^0.3.18"
+    "sox-audio": "^0.3.0"
   },
   "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135"
 }
