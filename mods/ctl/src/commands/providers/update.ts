@@ -88,6 +88,12 @@ export default class UpdateCommand extends Command {
         default: provider.expires
       },
       {
+        name: "register",
+        message: "Send REGISTER messages to Provider?",
+        type: "confirm",
+        default: provider.register
+      },
+      {
         name: "confirm",
         message: "ready?",
         type: "confirm"

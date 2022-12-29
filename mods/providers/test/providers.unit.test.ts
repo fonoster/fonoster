@@ -38,6 +38,7 @@ describe("@fonoster/providers", () => {
   providerObj.setHost("sip.provider.net");
   providerObj.setTransport("tcp");
   providerObj.setExpires(600);
+  providerObj.setRegister(true);  
   providerObj.setUpdateTime("...");
   providerObj.setCreateTime("...");
 
@@ -62,6 +63,7 @@ describe("@fonoster/providers", () => {
       host: providerObj.getHost(),
       transport: providerObj.getTransport(),
       expires: providerObj.getExpires(),
+      register: providerObj.getRegister(),
       createTime: providerObj.getCreateTime(),
       updateTime: providerObj.getUpdateTime()
     };
@@ -72,6 +74,7 @@ describe("@fonoster/providers", () => {
     expect(result).to.have.property("ref").to.be.equal(providerObj.getRef());
     expect(result).to.have.property("name").to.be.equal(providerObj.getName());
     expect(result).to.have.property("host").to.be.equal(providerObj.getHost());
+    expect(result).to.have.property("register").to.be.equal(providerObj.getRegister());
     expect(result)
       .to.have.property("transport")
       .to.be.equal(providerObj.getTransport());
@@ -101,6 +104,7 @@ describe("@fonoster/providers", () => {
     expect(result).to.have.property("ref").to.be.equal(providerObj.getRef());
     expect(result).to.have.property("name").to.be.equal(providerObj.getName());
     expect(result).to.have.property("host").to.be.equal(providerObj.getHost());
+    expect(result).to.have.property("register").to.be.equal(providerObj.getRegister());
     expect(result)
       .to.have.property("transport")
       .to.be.equal(providerObj.getTransport());
@@ -166,6 +170,9 @@ describe("@fonoster/providers", () => {
     expect(result.providers[0])
       .to.have.property("transport")
       .to.be.equal(providerObj.getTransport());
+    expect(result.providers[0])
+      .to.have.property("register")
+      .to.be.equal(providerObj.getRegister());
     expect(result.providers[0]).to.have.property("createTime").not.to.be.null;
     expect(result.providers[0]).to.have.property("updateTime").not.to.be.null;
   });
@@ -173,7 +180,8 @@ describe("@fonoster/providers", () => {
   it("should update a provider (name)", async () => {
     const request = {
       ref: providerObj.getRef(),
-      name: providerObj.getName()
+      name: providerObj.getName(),
+      register: providerObj.getRegister(), 
     };
 
     const returnProvider = {
@@ -184,6 +192,7 @@ describe("@fonoster/providers", () => {
       host: providerObj.getName(),
       transport: providerObj.getName(),
       expires: providerObj.getName(),
+      register: providerObj.getRegister(),
       createTime: providerObj.getCreateTime(),
       updateTime: providerObj.getUpdateTime()
     };
@@ -226,6 +235,7 @@ describe("@fonoster/providers", () => {
           host: "127.0.0.1",
           transport: "tcp",
           expires: 0,
+          register: false,
           credentials: {
             username: "trunk001",
             secret: "1234"
@@ -243,6 +253,7 @@ describe("@fonoster/providers", () => {
       expect(provider.getHost()).to.be.equal(jsonObj.spec.host);
       expect(provider.getTransport()).to.be.equal(jsonObj.spec.transport);
       expect(provider.getExpires()).to.be.equal(jsonObj.spec.expires);
+      expect(provider.getRegister()).to.be.equal(jsonObj.spec.register);
       expect(provider.getUsername()).to.be.equal(
         jsonObj.spec.credentials.username
       );
@@ -259,6 +270,7 @@ describe("@fonoster/providers", () => {
       expect(provider.getHost()).to.be.equal(jsonObj.spec.host);
       expect(provider.getTransport()).to.be.equal(jsonObj.spec.transport);
       expect(provider.getExpires()).to.be.equal(jsonObj.spec.expires);
+      expect(provider.getRegister()).to.be.equal(jsonObj.spec.register);
       expect(provider.getUsername()).to.be.a("string").lengthOf(0);
       expect(provider.getSecret()).to.be.a("string").lengthOf(0);
     });

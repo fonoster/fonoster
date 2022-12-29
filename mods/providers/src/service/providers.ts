@@ -73,6 +73,7 @@ class ProvidersServer implements IProvidersServer {
         .withTransport(call.request.getTransport())
         .withExpires(call.request.getExpires())
         .withMetadata({ accessKeyId: getAccessKeyId(call) })
+        .withSendRegister(call.request.getRegister())
         .build();
 
       const result = await createResource(resource);
@@ -105,6 +106,7 @@ class ProvidersServer implements IProvidersServer {
         .withHost(call.request.getHost())
         .withTransport(call.request.getTransport())
         .withExpires(call.request.getExpires())
+        .withSendRegister(call.request.getRegister())
         .build();
 
       const result = await updateResource({

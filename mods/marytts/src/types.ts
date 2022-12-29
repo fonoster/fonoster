@@ -16,15 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { TTSConfig } from "@fonoster/tts";
 export interface MarySynthOptions {
   locale: string;
   voice?: string;
 }
 
-export interface MaryTTSConfig {
+export interface MaryTTSConfig extends TTSConfig {
   url: string;
   accessKeyId?: string;
   accessKeySecret?: string;
   locale?: string;
-  path?: string;
 }

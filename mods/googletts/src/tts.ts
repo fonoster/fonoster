@@ -17,14 +17,11 @@
  * limitations under the License.
  */
 import fs from "fs";
-import os from "os";
 import util from "util";
-import path from "path";
-import textToSpeech from "@google-cloud/text-to-speech";
-import { Plugin } from "@fonoster/common";
-import { TTSPlugin, computeFilename, SynthResult } from "@fonoster/tts";
+import textToSpeech, {v1} from "@google-cloud/text-to-speech";
+import { SynthResult, AbstractTTS } from "@fonoster/tts";
 import logger from "@fonoster/logger";
-import { GoogleTTSConfig, SynthOptions } from "./types";
+import { GoogleTTSConfig } from "./types";
 import { isSSML } from "./utils";
 const merge = require("deepmerge");
 
@@ -41,41 +38,21 @@ const defaultVoice = { languageCode: "en-US", ssmlGender: "NEUTRAL" };
  *  .then((result) => console.log("path: " + result.pathToFile))
  *  .catch(console.error);
  */
-class GoogleTTS extends Plugin implements TTSPlugin {
-  config: GoogleTTSConfig;
+class GoogleTTS extends AbstractTTS {
+  client: v1.TextToSpeechClient;
   /**
    * Constructs a new GoogleTTS object.
    *
    * @see module:tts:AbstractTTS
    */
   constructor(config: GoogleTTSConfig) {
-    super("tts", "googletts");
-    this.config = config;
-    this.config.path = config.path ? config.path : os.tmpdir();
+    super("tts", "googletts", config);
+    this.client = new textToSpeech.TextToSpeechClient(this.client as any);
   }
-
-  /**
-   * @inherit
-   * @deprecated
-   */
-  async synthetize(text: string, options: SynthOptions = {}) {
-    return await this.synthesize(text, options);
-  }
-
   /**
    * @inherit
    */
-  async synthesize(
-    text: string,
-    options: SynthOptions = {}
-  ): Promise<SynthResult> {
-    const client = new textToSpeech.TextToSpeechClient(this.config as any);
-    // TODO: The file extension should be set based on the sample rate
-    // For example, if we set the sample rate to 16K, then the extension needs to be
-    // snl16, for 8K => sln, etc...
-    const filename = computeFilename(text, options, "sln24");
-    const pathToFile = path.join(this.config.path, filename);
-
+  async synthesizeSpeech(text: string, options: any, filename: string, pathToFile: string): Promise<SynthResult> {
     logger.verbose(
       `@fonoster/tts.GoogleTTS.synthesize [input: ${text}, isSSML=${isSSML(
         text
@@ -92,7 +69,7 @@ class GoogleTTS extends Plugin implements TTSPlugin {
     };
 
     // Performs the text-to-speech request
-    const [response] = await client.synthesizeSpeech(request as any);
+    const [response] = await this.client.synthesizeSpeech(request as any);
     // Write the binary audio content to a local file
     const writeFile = util.promisify(fs.writeFile);
     await writeFile(pathToFile, response.audioContent, "binary");

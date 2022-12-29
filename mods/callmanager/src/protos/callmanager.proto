@@ -17,7 +17,7 @@ import "google/api/annotations.proto";
 service CallManager {
   // Originates a call and pass channel to an application
   rpc Call (CallRequest) returns (CallResponse) {
-    option (google.api.http) = { 
+    option (google.api.http) = {
       post: "/v1beta1/call"
       body: "*"
     };
@@ -27,7 +27,7 @@ service CallManager {
 message CallRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     example: "{\"from\": \"+17853178070\", \"to\": \"+17852268080\", \"webhook\": \"https://c5b6-172-220-243-215.ngrok.io\"}"
-  };  
+  };
   // Origination number
   string from = 1;
   // Destination number
@@ -35,6 +35,9 @@ message CallRequest {
   // Optional webhook
   string webhook = 3;
   // If enabled it will accept any input in the from and to
+  /**
+  * @deprecated
+  */
   bool ignore_e164_validation = 4;
   // Optional metadata for voice applications
   string metadata = 5;

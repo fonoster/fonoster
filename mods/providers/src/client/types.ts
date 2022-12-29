@@ -38,6 +38,7 @@ export interface Provider {
   expires: number;
   createTime?: string;
   updateTime?: string;
+  register?: boolean;
 }
 
 export interface CreateProviderRequest {
@@ -48,6 +49,7 @@ export interface CreateProviderRequest {
   host: string;
   transport: string;
   expires: number;
+  register?: boolean;
 }
 
 export interface CreateProviderResponse {
@@ -60,6 +62,7 @@ export interface CreateProviderResponse {
   expires: number;
   createTime: string;
   updateTime: string;
+  register?: boolean;
 }
 
 export interface GetProviderResponse {
@@ -72,6 +75,7 @@ export interface GetProviderResponse {
   expires: number;
   createTime: string;
   updateTime: string;
+  register?: boolean;
 }
 
 export interface UpdateProviderRequest {
@@ -82,6 +86,7 @@ export interface UpdateProviderRequest {
   host?: string;
   transport?: string;
   expires?: number;
+  register?: boolean;
 }
 
 export interface UpdateProviderResponse {

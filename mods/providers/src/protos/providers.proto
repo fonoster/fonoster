@@ -68,7 +68,7 @@ message ListProvidersResponse {
 
 message CreateProviderRequest {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"name\": \"VoIP.ms\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\", \"host\": \"newyork1.voip.ms\", \"transport\": \"tcp\", \"expires\": 300}"
+    example: "{\"name\": \"VoIP.ms\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\", \"host\": \"newyork1.voip.ms\", \"transport\": \"tcp\", \"expires\": 300, \"register\": true}"
   };  
   string name = 2 [(google.api.field_behavior) = REQUIRED];
   string username = 3 [(google.api.field_behavior) = REQUIRED];
@@ -76,6 +76,7 @@ message CreateProviderRequest {
   string host = 5 [(google.api.field_behavior) = REQUIRED];
   string transport = 6 [(google.api.field_behavior) = REQUIRED];
   int32 expires = 7;
+  bool register = 8;
 }
 
 message UpdateProviderRequest {
@@ -90,6 +91,7 @@ message UpdateProviderRequest {
   string host = 5 [(google.api.field_behavior) = REQUIRED];
   string transport = 6 [(google.api.field_behavior) = REQUIRED];
   int32 expires = 7;
+  bool register = 8;
 }
 
 message GetProviderRequest {
@@ -104,7 +106,7 @@ message DeleteProviderRequest {
 
 message Provider {
   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
-    example: "{\"ref\": \"ghnH1z0tzd\", \"name\": \"VoIP.ms\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\", \"host\": \"newyork1.voip.ms\", \"transport\": \"tcp\", \"expires\": 300, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\"}"
+    example: "{\"ref\": \"ghnH1z0tzd\", \"name\": \"VoIP.ms\", \"username\": \"200122\", \"secret\": \"TerD$$sd01\", \"host\": \"newyork1.voip.ms\", \"transport\": \"tcp\", \"expires\": 300, \"createTime\": \"2021-10-05T13:23:07.221Z\", \"updateTime\": \"2021-10-05T13:23:07.221Z\", \"register\": true}"
   };
   // Provider's reference
   string ref = 1;
@@ -116,4 +118,5 @@ message Provider {
   int32 expires = 7;
   string create_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];
   string update_time = 9 [(google.api.field_behavior) = OUTPUT_ONLY];
+  bool register = 10;
 }

@@ -73,6 +73,8 @@ export class CreateProviderRequest extends jspb.Message {
     setTransport(value: string): CreateProviderRequest;
     getExpires(): number;
     setExpires(value: number): CreateProviderRequest;
+    getRegister(): boolean;
+    setRegister(value: boolean): CreateProviderRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): CreateProviderRequest.AsObject;
@@ -92,6 +94,7 @@ export namespace CreateProviderRequest {
         host: string,
         transport: string,
         expires: number,
+        register: boolean,
     }
 }
 
@@ -110,6 +113,8 @@ export class UpdateProviderRequest extends jspb.Message {
     setTransport(value: string): UpdateProviderRequest;
     getExpires(): number;
     setExpires(value: number): UpdateProviderRequest;
+    getRegister(): boolean;
+    setRegister(value: boolean): UpdateProviderRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): UpdateProviderRequest.AsObject;
@@ -130,6 +135,7 @@ export namespace UpdateProviderRequest {
         host: string,
         transport: string,
         expires: number,
+        register: boolean,
     }
 }
 
@@ -192,6 +198,8 @@ export class Provider extends jspb.Message {
     setCreateTime(value: string): Provider;
     getUpdateTime(): string;
     setUpdateTime(value: string): Provider;
+    getRegister(): boolean;
+    setRegister(value: boolean): Provider;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Provider.AsObject;
@@ -214,5 +222,6 @@ export namespace Provider {
         expires: number,
         createTime: string,
         updateTime: string,
+        register: boolean,
     }
 }

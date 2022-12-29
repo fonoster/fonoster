@@ -46,7 +46,7 @@
     "eslint-plugin-notice": "^0.9.10",
     "eslint-plugin-prettier": "^3.3.1",
     "grpc_tools_node_protoc_ts": "5.2.2",
-    "grpc-tools": "1.11.1",
+    "grpc-tools": "1.11.3",
     "husky": "^6.0.0",
     "jsdoc-to-markdown": "^7.0.1",
     "jsonfile": "^6.1.0",

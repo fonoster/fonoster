@@ -57,6 +57,9 @@ describe("@fonoster/googletts", () => {
     const synthesizeSpeechStub = sandbox
       .stub(textToSpeech.TextToSpeechClient.prototype, "synthesizeSpeech")
       .resolves([{ audioContent: "some-audio" }]);
+    const fsStub = sandbox
+      .stub(fs, "existsSync")
+      .returns(false);
     const writeFile = sandbox.spy(fs, "writeFile");
     const join = sandbox.spy(path, "join");
     const config = {
@@ -75,6 +78,37 @@ describe("@fonoster/googletts", () => {
     expect(join).to.have.been.calledOnce;
     expect(writeFile).to.have.been.calledOnce;
     expect(synthesizeSpeechStub).to.have.been.calledOnce;
+    expect(fsStub).to.have.been.calledOnce;
+    expect(result).to.have.property("filename").to.not.be.null;
+    expect(result).to.have.property("pathToFile").to.not.be.null;
+  });
+
+  it("file already exist, not synthesizes text and returns path to file", async () => {
+    const synthesizeSpeechStub = sandbox
+      .stub(textToSpeech.TextToSpeechClient.prototype, "synthesizeSpeech")
+      .resolves([{ audioContent: "some-audio" }]);
+    const fsStub = sandbox
+      .stub(fs, "existsSync")
+      .returns(true);
+    const writeFile = sandbox.spy(fs, "writeFile");
+    const join = sandbox.spy(path, "join");
+    const config = {
+      projectId: "project-id",
+      keyFilename: "path-to-file"
+    };
+
+    const tts = new GoogleTTS(config);
+    const result = await tts.synthesize(
+      "Hello Kayla, how are you doing today?",
+      {
+        ssmlGender: "FEMALE"
+      }
+    );
+
+    expect(join).to.have.been.calledOnce;
+    expect(writeFile).to.not.have.been.calledOnce;
+    expect(synthesizeSpeechStub).to.not.have.been.calledOnce;
+    expect(fsStub).to.have.been.calledOnce;
     expect(result).to.have.property("filename").to.not.be.null;
     expect(result).to.have.property("pathToFile").to.not.be.null;
   });

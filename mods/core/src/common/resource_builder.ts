@@ -35,6 +35,7 @@ class ResourceBuilder {
     };
     host?: string;
     transport?: string;
+    sendRegister?: boolean;
     location?: {
       telUrl: string;
       aorLink?: string;
@@ -94,6 +95,18 @@ class ResourceBuilder {
       );
     this.spec.transport = transport;
     if (!transport) delete this.spec.transport;
+    return this;
+  }
+
+  withSendRegister(sendRegister: boolean) {
+    if (this.kind != Kind.GATEWAY)
+      throw new Error(
+        `Kind ${this.kind} does not holds 'spec.sendRegister' value`
+      );
+    this.spec.sendRegister = sendRegister;
+
+    if (!sendRegister) delete this.spec.sendRegister;
+
     return this;
   }
 
