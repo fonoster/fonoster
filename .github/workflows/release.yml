@@ -130,7 +130,7 @@ jobs:
     - name: Copy and Push Healthcheck
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/psanders/healthcheck:latest
+        src: docker.io/fonoster/healthcheck:latest
         dst: |
           docker.io/fonoster/healthcheck:${{ steps.get_version.outputs.VERSION }}             
     - name: Publish to Docker Hub the Fonoster installer
