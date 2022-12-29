@@ -93,7 +93,7 @@ export default class Providers extends APIClient implements IProvidersClient {
    *   username: "trunk001",
    *   secret: "secretkey",
    *   host: "sip.provider.net",
-   *   register: true,
+   *   register: true
    * };
    *
    * providers.createProvider(request)
@@ -125,7 +125,7 @@ export default class Providers extends APIClient implements IProvidersClient {
       expires: res.getExpires(),
       register: res.getRegister(),
       createTime: res.getCreateTime(),
-      updateTime: res.getUpdateTime(),
+      updateTime: res.getUpdateTime()
     };
   }
 
