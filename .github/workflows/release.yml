@@ -106,7 +106,7 @@ jobs:
     - name: Copy and Push RTPEngine image
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/psanders/rtpengine:20211114
+        src: docker.io/fonoster/rtpengine:20211114
         dst: |
           docker.io/fonoster/rtpengine:${{ steps.get_version.outputs.VERSION }}
     - name: Copy and Push Routr image
