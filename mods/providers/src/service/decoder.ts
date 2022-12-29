@@ -11,6 +11,7 @@ export default function (jsonObj: any) {
   provider.setHost(spec?.host);
   provider.setTransport(spec?.transport);
   provider.setExpires(spec?.expires);
+  provider.setRegister(spec?.sendRegister);
 
   if (spec.credentials) {
     provider.setUsername(spec.credentials.username);

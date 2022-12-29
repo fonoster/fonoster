@@ -49,6 +49,7 @@ export default class GetCommand extends Command {
         Host: provider.host,
         Transport: provider.transport,
         "SIP Registration Refresh": provider.expires,
+        Register: provider.register,
         Created: moment(provider.createTime).fromNow(),
         Updated: moment(provider.updateTime).fromNow()
       };

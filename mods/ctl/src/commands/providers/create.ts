@@ -80,6 +80,11 @@ export default class CreateCommand extends Command {
         default: 600
       },
       {
+        name: "register",
+        message: "Send REGISTER messages to provider?",
+        type: "confirm",
+      },
+      {
         name: "confirm",
         message: "ready?",
         type: "confirm"

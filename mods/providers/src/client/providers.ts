@@ -83,6 +83,7 @@ export default class Providers extends APIClient implements IProvidersClient {
    * @param {string} request.transport - The transport for the Provider.
    *Fonoster will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
+   * @param {boolean} request.register - Indicates if the Provider should be registered
    *Fonoster will use 600 if non is provided
    * @return {Promise<Object>}
    * @example
@@ -91,7 +92,8 @@ export default class Providers extends APIClient implements IProvidersClient {
    *   name: "Provider Name",
    *   username: "trunk001",
    *   secret: "secretkey",
-   *   host: "sip.provider.net"
+   *   host: "sip.provider.net",
+   *   register: true
    * };
    *
    * providers.createProvider(request)
@@ -109,6 +111,7 @@ export default class Providers extends APIClient implements IProvidersClient {
     req.setHost(request.host);
     req.setTransport(request.transport || "tcp");
     req.setExpires(request.expires || 600);
+    req.setRegister(Boolean(request.register));
 
     const res = await super.getService().createProvider().sendMessage(req);
 
@@ -120,13 +123,14 @@ export default class Providers extends APIClient implements IProvidersClient {
       host: res.getHost(),
       transport: res.getTransport(),
       expires: res.getExpires(),
+      register: res.getRegister(),
       createTime: res.getCreateTime(),
       updateTime: res.getUpdateTime()
     };
   }
 
   /**
-   * Retrives a Provider by its reference.
+   * Retrieves a Provider by its reference.
    *
    * @param {string} ref - Reference to Provider
    * @return {Promise<Object>} The provider
@@ -152,6 +156,7 @@ export default class Providers extends APIClient implements IProvidersClient {
       host: res.getHost(),
       transport: res.getTransport(),
       expires: res.getExpires(),
+      register: res.getRegister(),
       createTime: res.getCreateTime(),
       updateTime: res.getUpdateTime()
     };
@@ -171,6 +176,7 @@ export default class Providers extends APIClient implements IProvidersClient {
    * @param {string} request.transport - The transport for the Provider.
    *Fonoster will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
+   * @param {boolean} request.register - Indicates if the Provider should be registered
    *Fonoster will use 600 if non is provided
    * @return {Promise<Object>}
    * @example
@@ -196,6 +202,7 @@ export default class Providers extends APIClient implements IProvidersClient {
     if (request.host) req.setHost(request.host);
     if (request.transport) req.setTransport(request.transport);
     if (request.expires) req.setExpires(request.expires);
+    if (typeof request.register === 'boolean') req.setRegister(request.register);
 
     const res = await super.getService().updateProvider().sendMessage(req);
 
@@ -250,6 +257,7 @@ export default class Providers extends APIClient implements IProvidersClient {
             host: provider.getHost(),
             transport: provider.getTransport(),
             expires: provider.getExpires(),
+            register: provider.getRegister(),
             createTime: provider.getCreateTime(),
             updateTime: provider.getUpdateTime()
           };
