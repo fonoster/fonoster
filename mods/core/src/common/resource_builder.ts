@@ -104,9 +104,6 @@ class ResourceBuilder {
         `Kind ${this.kind} does not holds 'spec.sendRegister' value`
       );
     this.spec.sendRegister = sendRegister;
-
-    if (!sendRegister) delete this.spec.sendRegister;
-
     return this;
   }
 

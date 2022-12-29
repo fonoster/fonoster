@@ -82,16 +82,16 @@ export default class UpdateCommand extends Command {
         default: provider.transport
       },
       {
+        name: "register",
+        message: "enable registration?",
+        type: "confirm",
+        default: provider.register
+      },
+      {
         name: "expires",
         message: "sip registration refresh (in seconds)",
         type: "input",
         default: provider.expires
-      },
-      {
-        name: "register",
-        message: "Send REGISTER messages to Provider?",
-        type: "confirm",
-        default: provider.register
       },
       {
         name: "confirm",
