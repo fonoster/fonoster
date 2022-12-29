@@ -89,7 +89,7 @@ export default class UpdateCommand extends Command {
       },
       {
         name: "register",
-        message: "Allow default registration for this provider?",
+        message: "Send REGISTER messages to Provider?",
         type: "confirm",
         default: provider.register
       },
