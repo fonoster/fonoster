@@ -68,6 +68,11 @@ export default class CreateCommand extends Command {
         default: "tcp"
       },
       {
+        name: "register",
+        message: "enable registration?",
+        type: "confirm",
+      },
+      {
         name: "expires",
         message: "sip registration refresh (in seconds)",
         type: "input",
@@ -78,11 +83,6 @@ export default class CreateCommand extends Command {
           return true;
         },
         default: 600
-      },
-      {
-        name: "register",
-        message: "Send REGISTER messages to provider?",
-        type: "confirm",
       },
       {
         name: "confirm",
