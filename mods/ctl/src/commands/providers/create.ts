@@ -81,7 +81,7 @@ export default class CreateCommand extends Command {
       },
       {
         name: "register",
-        message: "Allow default registration for this provider?",
+        message: "Send REGISTER messages to provider?",
         type: "confirm",
       },
       {
