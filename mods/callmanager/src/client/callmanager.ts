@@ -65,7 +65,6 @@ export default class CallManager
    * @param {string} request.webhook - Url of the application that will handle the call
    * If none is provided it will use the webook setup in the Number
    * @param {object} request.metadata - Arbitrary payload to send to the Voice Application
-   * @param {boolean} request.ignoreE164Validation - If enabled it will accept any input in the from and to
    * @return {Promise<CallResponse>} - call results
    * @throws if the from number doesn't exist
    * @throws if could not connect to the underline services
@@ -87,7 +86,6 @@ export default class CallManager
     r.setTo(request.to);
     r.setWebhook(request.webhook);
     r.setAppRef(request.appRef);
-    r.setIgnoreE164Validation(request.ignoreE164Validation);
     r.setMetadata(metadata);
 
     const p = await super.getService().call().sendMessage(r);
