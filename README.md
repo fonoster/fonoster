@@ -1,11 +1,11 @@
-
 # Fonoster: The open-source alternative to Twilio
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
 https://user-images.githubusercontent.com/539774/170885814-02c53689-af12-4e05-8351-e78d72f958d9.mov
 
-![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/mpWSRUhG7e) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
+![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/mpWSRUhG7e) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffonoster%2Ffonoster.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffonoster%2Ffonoster?ref=badge_shield)
+<a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
 
 
@@ -125,3 +125,6 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
 ## License
 Copyright (C) 2022 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/master/LICENSE) for details).
 
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffonoster%2Ffonoster.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffonoster%2Ffonoster?ref=badge_large)
