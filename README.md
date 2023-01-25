@@ -106,7 +106,7 @@ For bugs, questions, and discussions, please use the [Github Issues](https://git
 
 For contributing, please see the following links:
 
- - [Contribution Documents](https://github.com/fonoster/fonoster/blob/master/CONTRIBUTING.md)
+ - [Contribution Documents](https://github.com/fonoster/fonoster/blob/main/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonoster/contributors)
 
 **Sponsors**
@@ -123,5 +123,5 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
  - [Pedro Sanders](https://github.com/psanders)
 
 ## License
-Copyright (C) 2022 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/master/LICENSE) for details).
+Copyright (C) 2022 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
 
