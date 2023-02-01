@@ -5,7 +5,7 @@ Command-Line for for Fonoster
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/ctl.svg)](https://npmjs.org/package/ctl)
 [![Downloads/week](https://img.shields.io/npm/dw/ctl.svg)](https://npmjs.org/package/ctl)
-[![License](https://img.shields.io/npm/l/ctl.svg)](https://github.com/fonoster/fonoster/blob/master/package.json)
+[![License](https://img.shields.io/npm/l/ctl.svg)](https://github.com/fonoster/fonoster/blob/main/package.json)
 
 <!-- toc -->
 * [ctl](#ctl)

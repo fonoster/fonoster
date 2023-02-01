@@ -18,7 +18,7 @@
     "build": "tsc -b tsconfig.json",
     "postpack": "rimraf -f oclif.manifest.json",
     "prepack": "oclif-dev manifest && oclif-dev readme",
-    "version": "oclif-dev readme && git add README.md"
+    "version": "oclif-dev readme && sed -i.bak \"s#master#main#g\" README.md && git add README.md"
   },
   "directories": {
     "src": "src",
