@@ -68,23 +68,6 @@ export default class CreateCommand extends Command {
         default: "tcp"
       },
       {
-        name: "register",
-        message: "enable registration?",
-        type: "confirm",
-      },
-      {
-        name: "expires",
-        message: "sip registration refresh (in seconds)",
-        type: "input",
-        validate: (answer: number) => {
-          if (isNaN(answer)) {
-            return "please enter a number";
-          }
-          return true;
-        },
-        default: 600
-      },
-      {
         name: "confirm",
         message: "ready?",
         type: "confirm"
