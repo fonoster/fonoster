@@ -8,7 +8,9 @@
 
 ## Type of change
 
-<!-- Please delete options that are not relevant. -->
+<!-- 
+  Choose all that apply and delete options that are not relevant.
+-->
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
@@ -23,14 +25,10 @@
   Please also list any relevant details for your test configuration 
 -->
 
-- [ ] Test A
-- [ ] Test B
-
 ## Checklist:
 
 <!-- Please delete options that are not relevant. -->
 
-- [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my code
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
