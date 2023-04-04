@@ -47,7 +47,7 @@ class GoogleTTS extends AbstractTTS {
    */
   constructor(config: GoogleTTSConfig) {
     super("tts", "googletts", config);
-    this.client = new textToSpeech.TextToSpeechClient(this.client as any);
+    this.client = new textToSpeech.TextToSpeechClient(config as any);
   }
   /**
    * @inherit
