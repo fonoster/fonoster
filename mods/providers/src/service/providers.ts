@@ -71,12 +71,15 @@ class ProvidersServer implements IProvidersServer {
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withHost(call.request.getHost())
         .withTransport(call.request.getTransport())
-        .withExpires(call.request.getExpires())
-        .withMetadata({ accessKeyId: getAccessKeyId(call) })
-        .withSendRegister(call.request.getRegister())
-        .build();
+        .withMetadata({ accessKeyId: getAccessKeyId(call) });
 
-      const result = await createResource(resource);
+      if (process.env.FEATURE_FLAG_SEND_REGISTER === "true") {
+        resource
+          .withSendRegister(call.request.getRegister())
+          .withExpires(call.request.getExpires());
+      }
+
+      const result = await createResource(resource.build());
       callback(null, decoder(result));
     } catch (e) {
       callback(e, null);
@@ -104,13 +107,16 @@ class ProvidersServer implements IProvidersServer {
         })
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withHost(call.request.getHost())
-        .withTransport(call.request.getTransport())
-        .withExpires(call.request.getExpires())
-        .withSendRegister(call.request.getRegister())
-        .build();
+        .withTransport(call.request.getTransport());
+
+      if (process.env.FEATURE_FLAG_SEND_REGISTER === "true") {
+        resource
+          .withSendRegister(call.request.getRegister())
+          .withExpires(call.request.getExpires());
+      }
 
       const result = await updateResource({
-        resource,
+        resource: resource.build(),
         accessKeyId: getAccessKeyId(call)
       });
 
