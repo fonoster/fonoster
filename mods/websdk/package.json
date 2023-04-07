@@ -32,34 +32,33 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "dependencies": {
-    "@babel/runtime": "^7.21.0",
-    "webpack": "^5.78.0",
-    "webpack-cli": "^5.0.1"
-  },
   "devDependencies": {
+    "@fonoster/agents": "^0.3.22",
+    "@fonoster/auth": "^0.3.22",
+    "@fonoster/callmanager": "^0.3.22",
+    "@fonoster/common": "^0.3.22",
+    "@fonoster/domains": "^0.3.22",
+    "@fonoster/funcs": "^0.3.22",
+    "@fonoster/logger": "^0.3.22",
+    "@fonoster/numbers": "^0.3.22",
+    "@fonoster/projects": "^0.3.22",
+    "@fonoster/providers": "^0.3.22",
+    "@fonoster/secrets": "^0.3.22",
+    "@fonoster/storage": "^0.3.22",
+    "@fonoster/users": "^0.3.22",
     "@babel/plugin-transform-runtime": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
-    "@fonoster/agents": "^0.4.0",
-    "@fonoster/auth": "^0.4.0",
-    "@fonoster/callmanager": "^0.4.0",
-    "@fonoster/common": "^0.4.0",
-    "@fonoster/domains": "^0.4.0",
-    "@fonoster/funcs": "^0.4.0",
-    "@fonoster/logger": "^0.4.0",
-    "@fonoster/numbers": "^0.4.0",
-    "@fonoster/projects": "^0.4.0",
-    "@fonoster/providers": "^0.4.0",
-    "@fonoster/secrets": "^0.4.0",
-    "@fonoster/storage": "^0.4.0",
-    "@fonoster/users": "^0.4.0",
+    "@babel/runtime": "^7.21.0",
     "@openapitools/openapi-generator-cli": "^2.4.13",
     "babel": "^6.23.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.2.3",
     "http-server": "^14.1.0",
     "rollup": "2.56.3",
-    "tslib": "2.3.1"
+    "ts-loader": "^9.4.2",
+    "tslib": "2.3.1",
+    "webpack": "^5.78.0",
+    "webpack-cli": "^5.0.1"
   },
   "gitHead": "0343acfa40882bc661eceb916c0c2d8806ee7ccf"
 }
