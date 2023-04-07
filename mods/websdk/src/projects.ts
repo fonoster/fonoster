@@ -30,7 +30,7 @@ import {
   ListProjectsResponse,
   UpdateProjectRequest,
   UpdateProjectResponse
-} from "@fonoster/projects/src/client/types";
+} from "../../projects/src/client/types";
 import * as c from "./generated/api";
 
 export default class Projects extends WebAPIClient implements IProjectsClient {

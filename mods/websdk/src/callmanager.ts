@@ -21,10 +21,7 @@
 import WebAPIClient from "@fonoster/common/dist/web_client";
 import { WebClientOptions } from "@fonoster/common/dist/types";
 import { ICallManagerClient } from "@fonoster/callmanager";
-import {
-  CallRequest,
-  CallResponse
-} from "@fonoster/callmanager/src/client/types";
+import { CallRequest, CallResponse } from "../../callmanager/src/client/types";
 import * as c from "./generated/api";
 
 export default class CallManager

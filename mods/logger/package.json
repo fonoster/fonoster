@@ -33,7 +33,9 @@
     "winston": "^3.6.0"
   },
   "devDependencies": {
-    "rimraf": "^3.0.2"
+    "@types/node": "^18.15.11",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.1.3"
   },
   "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135"
 }

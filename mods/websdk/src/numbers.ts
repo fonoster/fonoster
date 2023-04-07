@@ -32,7 +32,7 @@ import {
   UpdateNumberResponse,
   GetIngressInfoRequest,
   GetIngressInfoResponse
-} from "@fonoster/numbers/src/client/types";
+} from "../../numbers/src/client/types";
 import * as c from "./generated/api";
 
 export default class Numbers extends WebAPIClient implements INumbersClient {

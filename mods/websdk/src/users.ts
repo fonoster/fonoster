@@ -32,7 +32,7 @@ import {
   CreateUserCredentialsResponse,
   ListUsersRequest,
   ListUsersResponse
-} from "@fonoster/users/src/client/types";
+} from "../../users/src/client/types";
 import * as c from "./generated/api";
 
 export default class Users extends WebAPIClient implements IUsersClient {

@@ -1,17 +1,18 @@
 {
-  "name": "@fonoster/domains",
+  "name": "@fonoster/apiserver",
   "version": "0.3.22",
-  "description": "VoIP Domains",
+  "description": "Fonoster API Server",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
-  "main": "dist/client/domains",
-  "types": "dist/client/domains",
+  "main": "dist/index",
+  "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
-    "build": "tsc -b tsconfig.json",
-    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+    "build": "tsc -b tsconfig.json"
+  },
+  "bin": {
+    "run_apiserver": "dist/services.js"
   },
   "nodemonConfig": {
     "watch": [
@@ -22,8 +23,7 @@
     "ignore": "**/*.d.ts"
   },
   "directories": {
-    "src": "src",
-    "test": "test"
+    "src": "src"
   },
   "files": [
     "dist"
@@ -39,15 +39,8 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.22",
-    "@fonoster/certs": "^0.3.22",
+    "@fonoster/apps": "^0.3.22",
     "@fonoster/common": "^0.3.22",
-    "@fonoster/core": "^0.3.22",
-    "@grpc/grpc-js": "^1.8.13",
-    "@opentelemetry/api": "^1.0.4",
-    "google-protobuf": "^3.17.0",
-    "grpc-promise": "^1.4.0",
-    "is-valid-domain": "^0.1.2"
-  },
-  "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135"
+    "dotenv": "^8.2.0"
+  }
 }

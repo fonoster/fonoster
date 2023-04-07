@@ -18,11 +18,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonoster/logger";
-import assertEnvIsSet from "./env_is_set";
 import * as grpc from "@grpc/grpc-js";
 import { getServerCredentials } from "./trust_util";
 import { useHealth } from "@fonoster/grpc-health-check";
+import logger from "@fonoster/logger";
+import assertEnvIsSet from "./env_is_set";
 
 const interceptor = require("grpc-interceptors");
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";

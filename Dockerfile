@@ -1,59 +1,42 @@
 ##
-## Dependencies
+## Build and pack the service
 ##
-FROM fonoster/base AS deps
+FROM alpine:3.15 as builder
+
+COPY mods/apiserver /work
 WORKDIR /work
 
-LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
-
-# Install dependencies and set permissions
-RUN apk add --no-cache --update git curl docker docker-compose openssl bash \
-  && curl -qL -o /usr/bin/netdiscover https://github.com/CyCoreSystems/netdiscover/releases/download/v1.2.5/netdiscover.linux.amd64 \
-  && chmod +x /usr/bin/netdiscover \
-  && curl -qL -o /usr/bin/semver https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver \
-  && chmod +x /usr/bin/semver
+RUN apk add --no-cache --update git npm curl bash git tini nodejs npm python3 make cmake g++ \
+  && npm rebuild \
+  && npm pack
 
 ##
-## Stage
+## Runner
 ##
-FROM deps AS stage
-WORKDIR /work
+FROM alpine:3.15 as runner
+ENV USER=fonoster
+ENV GID=1000
+ENV UID=1000
+ENV HOME=/home/fonoster
 
-# Copy relevant files
-COPY . /work/fonoster
+WORKDIR /service
 
-# Copy configuration files
-RUN mkdir -p docker operator config \
-  && touch config/config config/user_credentials \
-  && cp -r fonoster/docker . \
-  && cp -a fonoster/operator/compose/* operator \
-  && mv operator/env_example operator/.env \
-  && cp fonoster/etc/rbac.json config \
-  && cp fonoster/etc/limiters.json config \
-  && cp fonoster/etc/log4j2.yml config \
-  && cp fonoster/etc/bootstrap.yml config \
-  && cp fonoster/etc/redis.conf config \
-  && cp fonoster/etc/fluent.conf config \
-  && cp fonoster/etc/service_envs.json config \
-  && cp fonoster/etc/install.sh . \
-  && cp fonoster/etc/update.sh . \
-  && cp fonoster/etc/stop.sh . \
-  && rm -rf fonoster
+COPY --from=builder /work/fonoster-apiserver-* .
+COPY ./mods/apiserver/etc/service_envs.json /home/fonoster/service_envs.json
 
-##
-## Serve
-##
-FROM stage AS serve
-WORKDIR /work
+RUN apk add --no-cache --update git tini npm nodejs \
+  && npm install -g fonoster-apiserver-*.tgz \
+  && apk del npm git \
+  && rm -rf /var/cache/apk/*
 
-COPY --from=stage /work/install.sh /work/update.sh /work/stop.sh ./
-COPY --from=stage /work/docker /work/docker
+RUN addgroup -g ${GID} ${USER} && adduser \
+    --disabled-password \
+    --gecos "" \
+    --ingroup "$USER" \
+    --home ${HOME} \
+    --uid "$UID" \
+    "$USER"
 
-RUN find . -type f -iname "*.sh" -exec chmod +x {} + \
-  && mv /work/install.sh /install.sh \
-  && mv /work/update.sh /update.sh \
-  && mv /work/stop.sh /stop.sh \
-  && mv /work/docker /docker \
-  && chown -R fonoster:fonoster /work
-
-ENTRYPOINT [ "/install.sh" ]
+# Re-mapping the signal from 143 to 0
+ENTRYPOINT ["tini", "-v", "-e", "143", "--"]
+CMD ["node", "./dist/index.js"]

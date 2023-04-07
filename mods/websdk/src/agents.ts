@@ -30,7 +30,7 @@ import {
   ListAgentsResponse,
   UpdateAgentRequest,
   UpdateAgentResponse
-} from "@fonoster/agents/src/client/types";
+} from "../../agents/src/client/types";
 import * as c from "./generated/api";
 
 export default class Agents extends WebAPIClient implements IAgentsClient {

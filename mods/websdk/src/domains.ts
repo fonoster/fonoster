@@ -30,7 +30,7 @@ import {
   ListDomainsResponse,
   UpdateDomainRequest,
   UpdateDomainResponse
-} from "@fonoster/domains/src/client/types";
+} from "../../domains/src/client/types";
 import * as c from "./generated/api";
 
 export default class Domains extends WebAPIClient implements IDomainsClient {

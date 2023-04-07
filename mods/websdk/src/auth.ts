@@ -20,12 +20,12 @@
  */
 import WebAPIClient from "@fonoster/common/dist/web_client";
 import { WebClientOptions } from "@fonoster/common/dist/types";
-import { IAuthClient } from "@fonoster/auth/src/client/types";
+import { IAuthClient } from "../../auth/src/client/types";
 import {
   CreateTokenRequest,
   CreateTokenResponse,
   ValidateTokenRequest
-} from "@fonoster/auth/src/client/types";
+} from "../../auth/src/client/types";
 import * as c from "./generated/api";
 
 export default class Auth extends WebAPIClient implements IAuthClient {

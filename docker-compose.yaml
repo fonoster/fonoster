@@ -2,6 +2,17 @@ version: '3'
 
 services:
 
+  apiserver:
+    image: fonoster/apiserver:${COMPOSE_PROJECT_VERSION}
+    restart: unless-stopped
+    environment:
+      DATASOURCE_HOST: ${DATASOURCE_HOST}
+      DATASOURCE_PORT: ${DATASOURCE_PORT}
+    depends_on:
+      - datasource
+    ports:
+      - 50052:50052
+
   sipproxy:
     image: fonoster/routr:${COMPOSE_PROJECT_VERSION}
     restart: unless-stopped

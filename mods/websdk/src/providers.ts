@@ -30,7 +30,7 @@ import {
   ListProvidersResponse,
   UpdateProviderRequest,
   UpdateProviderResponse
-} from "@fonoster/providers/src/client/types";
+} from "../../providers/src/client/types";
 import * as c from "./generated/api";
 
 export default class Providers

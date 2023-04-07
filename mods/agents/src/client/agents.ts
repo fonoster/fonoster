@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 import { APIClient, ClientOptions } from "@fonoster/common";
+import { Privacy } from "@fonoster/core";
 import { AgentsClient } from "../service/protos/agents_grpc_pb";
-import AgentsPB from "../service/protos/agents_pb";
-import CommonPB from "../service/protos/common_pb";
 import { promisifyAll } from "grpc-promise";
 import {
   Agent,
@@ -33,7 +32,8 @@ import {
   UpdateAgentRequest,
   UpdateAgentResponse
 } from "./types";
-import { Privacy } from "@fonoster/core";
+import AgentsPB from "../service/protos/agents_pb";
+import CommonPB from "../service/protos/common_pb";
 
 /**
  * @classdesc Use Fonoster Agents, a capability of Fonoster SIP Proxy subsystem,

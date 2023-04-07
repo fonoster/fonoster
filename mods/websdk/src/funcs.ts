@@ -30,11 +30,11 @@ import {
   ListFuncsRequest,
   ListFuncsResponse,
   GetFuncLogsRequest
-} from "@fonoster/funcs/src/client/types";
+} from "../../funcs/src/client/types";
 import {
   DeployStream,
   LogsStream
-} from "@fonoster/funcs/src/client/stream_wrappers";
+} from "../../funcs/src/client/stream_wrappers";
 import * as c from "./generated/api";
 
 export default class Agents extends WebAPIClient implements IFuncsClient {

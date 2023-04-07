@@ -26,7 +26,7 @@ import {
   UploadObjectResponse,
   GetObjectURLRequest,
   GetObjectURLResponse
-} from "@fonoster/storage/src/client/types";
+} from "../../storage/src/client/types";
 import * as c from "./generated/api";
 
 export default class Storage extends WebAPIClient implements IStorageClient {
