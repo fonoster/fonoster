@@ -1,0 +1,133 @@
+version: '3'
+
+services:
+
+  sipproxy:
+    image: fonoster/routr:${COMPOSE_PROJECT_VERSION}
+    restart: unless-stopped
+    environment:
+      EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
+      DATA_SOURCE_PROVIDER: ${SIPPROXY_DATA_SOURCE_PROVIDER}
+      INITIAL_API_SECRET: ${SIPPROXY_API_SECRET}
+      DATA_SOURCE_PARAMETERS: ${SIPPROXY_DATA_SOURCE_PARAMETERS}
+      BIND_ADDR: ${SIPPROXY_BIND_ADDR}
+      RECORD_ROUTE: ${SIPPROXY_RECORD_ROUTE}
+      REGISTRAR_INTF: ${SIPPROXY_REGISTRAR_INTF}
+      EX_RTP_ENGINE_ENABLED: ${SIPPROXY_EX_RTP_ENGINE_ENABLED}
+      EX_RTP_ENGINE_PROTO: ${SIPPROXY_EX_RTP_ENGINE_PROTO}
+      EX_RTP_ENGINE_HOST: ${SIPPROXY_EX_RTP_ENGINE_HOST}
+      EX_RTP_ENGINE_PORT: ${SIPPROXY_EX_RTP_ENGINE_PORT}
+      EX_CONVERT_TEL_TO_E164: ${SIPPROXY_EX_CONVERT_TEL_TO_E164}
+      JAVA_OPTS: ${SIPPROXY_JAVA_OPTS}
+    depends_on:
+      - datasource
+    ports:
+      - 4567:4567
+      - 5060-5063:5060-5063
+      - 5060:5060/udp
+
+  # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
+  # is not possible in Docker, we need to use network_mode: host.
+  #
+  # Unfortunately, network_mode: host is not supported in Docker for Windows or Mac.
+  # In those cases, we need to use a different approach.
+  #
+  # By default we are opening a small range of ports (30000-30100) to handle RTP traffic.
+  # However, this is not enough for production environments.
+  #
+  # We recommend that when using Linux you use network_mode: host and remove the ports section.
+  rtpengine:
+    image: fonoster/rtpengine:${COMPOSE_PROJECT_VERSION}
+    restart: unless-stopped
+    ports: 
+      - 10000-10020:10000-10020/udp
+    expose:
+      - 8080
+    environment:
+      PUBLIC_IP: ${DOCKER_HOST_ADDRESS}
+      PORT_MIN: 10000
+      PORT_MAX: 10100
+
+  mediaserver:
+    image: fonoster/mediaserver:${COMPOSE_PROJECT_VERSION}
+    restart: unless-stopped
+    environment:
+      EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
+      EXTERN_PORT: ${MEDIASERVER_EXTERN_PORT}
+      LOGS_LEVEL: ${LOGS_LEVEL}
+      APISERVER_ENDPOINT: ${MEDIASERVER_APISERVER_ENDPOINT}
+      ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
+      ARI_EXTERNAL_URL: ${MEDIASERVER_ARI_EXTERNAL_URL}
+      ARI_INTERNAL_URL: ${MEDIASERVER_ARI_INTERNAL_URL}
+      ARI_USERNAME: ${MEDIASERVER_ARI_USERNAME}
+      ARI_SECRET: ${MEDIASERVER_ARI_SECRET}
+      SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
+      SIPPROXY_PORT: ${MEDIASERVER_SIPPROXY_PORT}
+      SIPPROXY_USERNAME: ${MEDIASERVER_SIPPROXY_USERNAME}
+      SIPPROXY_SECRET: ${MEDIASERVER_SIPPROXY_SECRET}
+      RTP_PORT_START: ${MEDIASERVER_RTP_PORT_START}
+      RTP_PORT_END: ${MEDIASERVER_RTP_PORT_END}
+    volumes:
+      - shared:/home/fonoster
+    expose:
+      - 8080
+
+  voice:
+    image: fonoster/voice:${COMPOSE_PROJECT_VERSION}
+    restart: unless-stopped
+    expose:
+      - 3000
+      - 3001
+    environment:
+      LOGS_LEVEL: ${LOGS_LEVEL}
+
+  datasource:
+    image: redis:latest
+    restart: unless-stopped
+    environment:
+      - DATASOURCE_PEER_REF=${DATASOURCE_PEER_REF}
+      - DATASOURCE_PEER_USERNAME=${DATASOURCE_PEER_USERNAME}
+      - DATASOURCE_PEER_SECRET=${DATASOURCE_PEER_SECRET}
+      - DATASOURCE_PEER_DESCRIPTION=Voice Peer @ Default Region
+    command: >
+      /bin/sh -c "
+        redis-server --daemonize yes;
+        sleep 3;
+        redis-cli SADD peers \"$$DATASOURCE_PEER_REF\";
+        JSON_TEMPLATE='{
+          \"apiVersion\": \"v1beta1\",
+          \"kind\": \"Peer\",
+          \"metadata\": {
+            \"name\": \"__DATASOURCE_PEER_DESCRIPTION__\",
+            \"ref\": \"__DATASOURCE_PEER_REF__\",
+            \"createdOn\": \"__CREATED_ON__\",
+            \"modifiedOn\": \"__MODIFIED_ON__\"
+          },
+          \"spec\": {
+            \"device\": \"default\",
+            \"credentials\": {
+              \"username\": \"__DATASOURCE_PEER_USERNAME__\",
+              \"secret\": \"__DATASOURCE_PEER_SECRET__\"
+            }
+          }
+        }';
+        CREATED_ON=$(date -u +'%Y-%m-%dT%H:%M:%S.%3NZ');
+        MODIFIED_ON=$(date -u +'%Y-%m-%dT%H:%M:%S.%3NZ');
+        JSON_STR=$(echo \"$$JSON_TEMPLATE\" |
+          sed \"s/__DATASOURCE_PEER_DESCRIPTION__/$$DATASOURCE_PEER_DESCRIPTION/g\" |
+          sed \"s/__DATASOURCE_PEER_REF__/$$DATASOURCE_PEER_REF/g\" |
+          sed \"s/__DATASOURCE_PEER_USERNAME__/$$DATASOURCE_PEER_USERNAME/g\" |
+          sed \"s/__DATASOURCE_PEER_SECRET__/$$DATASOURCE_PEER_SECRET/g\" |
+          sed \"s/__CREATED_ON__/$$CREATED_ON/g\" |
+          sed \"s/__MODIFIED_ON__/$$MODIFIED_ON/g\");
+        redis-cli SET \"$$DATASOURCE_PEER_REF\" \"$$JSON_STR\";
+        redis-cli SAVE;
+        redis-cli SHUTDOWN NOSAVE;
+        sleep 3;
+        exec redis-server
+      "
+    expose:
+      - 6379
+
+volumes:
+  shared:
