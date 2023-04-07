@@ -42,5 +42,6 @@
     "@fonoster/apps": "^0.4.0",
     "@fonoster/common": "^0.4.0",
     "dotenv": "^8.2.0"
-  }
+  },
+  "gitHead": "0343acfa40882bc661eceb916c0c2d8806ee7ccf"
 }

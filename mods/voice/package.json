@@ -47,7 +47,7 @@
     "pubsub-js": "^1.9.3",
     "sync": "^0.2.5"
   },
-  "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135",
+  "gitHead": "0343acfa40882bc661eceb916c0c2d8806ee7ccf",
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/pubsub-js": "^1.8.2"
