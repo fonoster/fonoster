@@ -13,10 +13,6 @@
     "build": "tsc -b tsconfig.json",
     "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
   },
-  "bin": {
-    "run_domains": "dist/service/runner.js",
-    "healthcheck_domains": "dist/service/healthcheck.js"
-  },
   "nodemonConfig": {
     "watch": [
       "../"

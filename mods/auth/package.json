@@ -13,10 +13,6 @@
     "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
     "start": "cross-env NODE_ENV=dev nodemon src/service/runner"
   },
-  "bin": {
-    "run_auth": "dist/service/runner.js",
-    "healthcheck_auth": "dist/service/healthcheck.js"
-  },
   "nodemonConfig": {
     "watch": [
       "../"
