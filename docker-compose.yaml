@@ -6,6 +6,7 @@ services:
     image: fonoster/apiserver:latest
     restart: unless-stopped
     environment:
+      ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
       DATASOURCE_HOST: ${DATASOURCE_HOST}
       DATASOURCE_PORT: ${DATASOURCE_PORT}
       SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
@@ -13,6 +14,26 @@ services:
       SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
       SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
       GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN}
+      MS_TRUNK: "ms_trunk_name"
+      MS_CONTEXT: "ms_context_name"
+      MS_EXTENSION: "1001"
+      MS_ARI_INTERNAL_URL: "http://ari.internal.example.com"
+      MS_ARI_USERNAME: "ari_user"
+      MS_ARI_SECRET: "ari_secret"
+      RECORDINGS_PATH: "/path/to/recordings"
+      VOICE_URL: "http://voice.example.com"
+      MS_ENDPOINT: "ms_endpoint_name"
+      VAULT_ADDR: "http://vault.example.com"
+      SECRETS_POLICY: "secrets_policy_name"
+      FS_HOST: "fs.example.com"
+      FS_PORT: "9000"
+      FS_USERNAME: "fs_user"
+      FS_SECRET: "fs_secret"
+      LOGS_AGGREGRATOR_HOST: "logs.example.com"
+      LOGS_AGGREGRATOR_PORT: "5000"
+      DS_HOST: "ds.example.com"
+      DS_PORT: "6379"
+      DS_SECRET: "ds_secret"
     depends_on:
       - datasource
     ports:
@@ -65,7 +86,7 @@ services:
       PORT_MAX: 10100
 
   mediaserver:
-    image: fonoster/mediaserver:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/mediaserver
     restart: unless-stopped
     environment:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
@@ -88,8 +109,8 @@ services:
     expose:
       - 8080
 
-  voice:
-    image: fonoster/voice:latest
+  intents_analyzer:
+    image: fonoster/rox:latest
     restart: unless-stopped
     expose:
       - 3000

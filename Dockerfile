@@ -26,6 +26,7 @@ COPY --from=builder /work/package.json package.json
 COPY ./mods/apiserver/etc/service_envs.json /home/fonoster/service_envs.json
 
 RUN apk add --no-cache --update git tini npm nodejs \
+  && echo "[]" > /home/fonoster/limiter.json \
   && apk del npm git \
   && rm -rf /var/cache/apk/*
 
