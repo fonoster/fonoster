@@ -10,8 +10,7 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
-    "build": "tsc -b tsconfig.json",
-    "start": "cross-env NODE_ENV=dev nodemon src/srv_runner"
+    "build": "tsc -b tsconfig.json"
   },
   "nodemonConfig": {
     "watch": [
@@ -45,7 +44,7 @@
     "@fonoster/core": "^0.4.0",
     "@fonoster/errors": "^0.4.0",
     "@fonoster/logger": "^0.4.0",
-    "@grpc/grpc-js": "^1.8.13",
+    "@grpc/grpc-js": "1.3.7",
     "@opentelemetry/api": "^1.0.4",
     "ari-client": "^2.2.0",
     "google-protobuf": "^3.17.0",

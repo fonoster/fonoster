@@ -36,8 +36,6 @@ import decoder from "./decoder";
 import { nanoid } from "nanoid";
 import encoder from "./encoder";
 
-const redis = getRedisConnection();
-
 export default class AppsServer implements IAppsServer {
   [name: string]: grpc.UntypedHandleCall;
   async createApp(
@@ -46,6 +44,8 @@ export default class AppsServer implements IAppsServer {
   ): Promise<void> {
     try {
       // TODO: Needs assertions
+
+      const redis = getRedisConnection();
 
       const ref = nanoid(10);
       const app = new AppsPB.App();
@@ -78,6 +78,9 @@ export default class AppsServer implements IAppsServer {
   ): Promise<void> {
     try {
       // TODO: Needs assertions
+
+      const redis = getRedisConnection();
+
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
@@ -135,6 +138,8 @@ export default class AppsServer implements IAppsServer {
     callback: grpc.sendUnaryData<ListAppsResponse>
   ): Promise<void> {
     try {
+      const redis = getRedisConnection();
+
       const list = await redis.smembers("apps_" + getAccessKeyId(call));
       const Apps: App[] = await Promise.all(
         list.map(async (ref) => {
@@ -159,6 +164,8 @@ export default class AppsServer implements IAppsServer {
     callback: grpc.sendUnaryData<AppsPB.App>
   ): Promise<void> {
     try {
+      const redis = getRedisConnection();
+
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
@@ -183,6 +190,8 @@ export default class AppsServer implements IAppsServer {
     callback: grpc.sendUnaryData<Empty>
   ): Promise<void> {
     try {
+      const redis = getRedisConnection();
+
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);

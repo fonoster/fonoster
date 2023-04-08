@@ -114,4 +114,4 @@ const services = [
   // }
 ];
 
-// runServices(services);
+runServices(services);

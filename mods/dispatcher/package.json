@@ -9,7 +9,7 @@
   "types": "dist/dispatcher",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json",
+    "build": "tsc -b tsconfig.json", 
     "start": "cross-env NODE_ENV=dev nodemon src/dispatcher"
   },
   "bin": {
