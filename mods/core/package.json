@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/core",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Core artifacts",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "bugs": {
@@ -26,9 +26,9 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.4.4",
+    "@fonoster/auth": "^0.4.5",
     "@fonoster/certs": "^0.4.1",
-    "@fonoster/common": "^0.4.3",
+    "@fonoster/common": "^0.4.5",
     "@fonoster/errors": "^0.4.1",
     "@fonoster/logger": "^0.4.3",
     "@grpc/grpc-js": "^1.8.4",
