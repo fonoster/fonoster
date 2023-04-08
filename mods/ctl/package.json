@@ -15,10 +15,7 @@
   },
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json",
-    "postpack": "rimraf -f oclif.manifest.json",
-    "prepack": "oclif-dev manifest && oclif-dev readme",
-    "version": "oclif-dev readme && sed -i.bak \"s#master#main#g\" README.md && git add README.md"
+    "build": "tsc -b tsconfig.json"
   },
   "directories": {
     "src": "src",
@@ -58,35 +55,34 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/agents": "^0.4.0",
-    "@fonoster/apps": "^0.4.0",
-    "@fonoster/domains": "^0.4.0",
-    "@fonoster/logger": "^0.4.0",
-    "@fonoster/numbers": "^0.4.0",
+    "@fonoster/agents": "^0.3.22",
+    "@fonoster/apps": "^0.3.22",
+    "@fonoster/domains": "^0.3.22",
+    "@fonoster/logger": "^0.3.22",
+    "@fonoster/numbers": "^0.3.22",
     "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
-    "@fonoster/projects": "^0.4.0",
-    "@fonoster/providers": "^0.4.0",
-    "@fonoster/secrets": "^0.4.0",
-    "@oclif/command": "^1.8.16",
-    "@oclif/config": "^1.18.3",
-    "@oclif/core": "^1.3.4",
+    "@fonoster/projects": "^0.3.22",
+    "@fonoster/providers": "^0.3.22",
+    "@fonoster/secrets": "^0.3.22",
+    "@oclif/command": "^1.8.22",
+    "@oclif/config": "^1.18.8",
+    "@oclif/core": "^1.26.2",
     "@oclif/errors": "^1.3.5",
     "@oclif/plugin-help": "^3.3.1",
-    "@oclif/plugin-not-found": "^2.3.1",
-    "@oclif/plugin-plugins": "^2.1.0",
+    "@oclif/plugin-not-found": "^2.3.23",
+    "@oclif/plugin-plugins": "^2.4.4",
     "easy-table": "^1.2.0",
-    "figlet": "^1.5.0",
+    "figlet": "^1.5.2",
     "get-stdin-with-tty": "^6.0.0",
     "inquirer": "^7.3.3",
-    "moment": "^2.29.1",
-    "phone": "^2.4.21",
-    "prettyjson": "^1.2.1",
+    "moment": "^2.29.4",
+    "phone": "^2.4.22",
+    "prettyjson": "^1.2.5",
     "update-notifier": "^6.0.2"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.3",
     "@types/prettyjson": "0.0.29",
     "rimraf": "^3.0.2"
-  },
-  "gitHead": "0343acfa40882bc661eceb916c0c2d8806ee7ccf"
+  }
 }

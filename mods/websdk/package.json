@@ -33,6 +33,9 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "@babel/runtime": "^7.21.0",
     "@fonoster/agents": "^0.3.22",
     "@fonoster/auth": "^0.3.22",
     "@fonoster/callmanager": "^0.3.22",
@@ -46,9 +49,6 @@
     "@fonoster/secrets": "^0.3.22",
     "@fonoster/storage": "^0.3.22",
     "@fonoster/users": "^0.3.22",
-    "@babel/plugin-transform-runtime": "^7.15.8",
-    "@babel/preset-env": "^7.15.8",
-    "@babel/runtime": "^7.21.0",
     "@openapitools/openapi-generator-cli": "^2.4.13",
     "babel": "^6.23.0",
     "babel-core": "^6.26.3",
@@ -60,5 +60,5 @@
     "webpack": "^5.78.0",
     "webpack-cli": "^5.0.1"
   },
-  "gitHead": "0343acfa40882bc661eceb916c0c2d8806ee7ccf"
+  "gitHead": "552170a8374df6d8bca49393003448ee283bb352"
 }
