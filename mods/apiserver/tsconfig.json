@@ -6,6 +6,7 @@
   },
   "references": [
     { "path": "../apps" },
+    { "path": "../domains" },
     { "path": "../common" }
   ],
   "exclude": ["node_modules", "dist", "test"]

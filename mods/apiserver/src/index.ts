@@ -25,6 +25,7 @@ if (process.env.NODE_ENV === "dev") {
 }
 
 import { AppsServer, AppsService } from "@fonoster/apps";
+import { DomainsServer, DomainsService } from "@fonoster/domains";
 import { runServices } from "@fonoster/common";
 
 const services = [
@@ -33,7 +34,7 @@ const services = [
     version: "v1beta1",
     service: AppsService,
     server: new AppsServer()
-  }
+  },
   // {
   //   name: "monitor",
   //   version: "v1beta1",
@@ -70,12 +71,12 @@ const services = [
   //   service: AgentsService,
   //   server: new AgentsServer()
   // },
-  // {
-  //   name: "domains",
-  //   version: "v1beta1",
-  //   service: DomainsService,
-  //   server: new DomainsServer()
-  // },
+  {
+    name: "domains",
+    version: "v1beta1",
+    service: DomainsService,
+    server: new DomainsServer()
+  }
   // {
   //   name: "numbers",
   //   version: "v1beta1",

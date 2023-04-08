@@ -3,7 +3,7 @@ version: '3'
 services:
 
   apiserver:
-    image: fonoster/apiserver:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/apiserver:latest
     restart: unless-stopped
     environment:
       DATASOURCE_HOST: ${DATASOURCE_HOST}
@@ -14,7 +14,7 @@ services:
       - 50052:50052
 
   sipproxy:
-    image: fonoster/routr:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/routr:latest
     restart: unless-stopped
     environment:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
@@ -48,7 +48,7 @@ services:
   #
   # We recommend that when using Linux you use network_mode: host and remove the ports section.
   rtpengine:
-    image: fonoster/rtpengine:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/rtpengine:latest
     restart: unless-stopped
     ports: 
       - 10000-10020:10000-10020/udp
@@ -84,7 +84,7 @@ services:
       - 8080
 
   voice:
-    image: fonoster/voice:${COMPOSE_PROJECT_VERSION}
+    image: fonoster/voice:latest
     restart: unless-stopped
     expose:
       - 3000

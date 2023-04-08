@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@fonoster/apps": "^0.4.1",
+    "@fonoster/domains": "^0.4.1",
     "@fonoster/common": "^0.4.1",
     "dotenv": "^8.2.0"
   },
