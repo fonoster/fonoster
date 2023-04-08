@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -18,7 +18,7 @@
  */
 import grpc, { ServerWritableStream } from "@grpc/grpc-js";
 import { Empty } from "./protos/common_pb";
-import { IFuncsServer } from "./protos/funcs_grpc_pb";
+import { FuncsService, IFuncsServer } from "./protos/funcs_grpc_pb";
 import {
   CreateRegistryTokenRequest,
   CreateRegistryTokenResponse,
@@ -354,3 +354,5 @@ export default class FuncsServer implements IFuncsServer {
     }
   }
 }
+
+export { FuncsServer, FuncsService };

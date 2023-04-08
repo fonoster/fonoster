@@ -6,8 +6,20 @@
   },
   "references": [
     { "path": "../apps" },
+    { "path": "../agents" },
     { "path": "../domains" },
-    { "path": "../common" }
+    { "path": "../common" },
+    { "path": "../numbers" },
+    { "path": "../providers" },
+    { "path": "../callmanager" },
+    { "path": "../storage" },
+    { "path": "../secrets" },
+    { "path": "../limiter" },
+    { "path": "../monitor" },
+    { "path": "../projects" },
+    { "path": "../auth" },
+    { "path": "../users" },
+    { "path": "../funcs" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

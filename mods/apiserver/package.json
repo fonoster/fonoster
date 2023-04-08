@@ -37,8 +37,20 @@
   },
   "dependencies": {
     "@fonoster/apps": "^0.4.1",
+    "@fonoster/agents": "^0.4.1",
     "@fonoster/common": "^0.4.1",
     "@fonoster/domains": "^0.4.2",
+    "@fonoster/numbers": "^0.4.1",
+    "@fonoster/providers": "^0.4.1",
+    "@fonoster/callmanager": "^0.4.1",
+    "@fonoster/storage": "^0.4.1",
+    "@fonoster/secrets": "^0.4.1",
+    "@fonoster/limiter": "^0.4.1",
+    "@fonoster/monitor": "^0.4.1",
+    "@fonoster/projects": "^0.4.1",
+    "@fonoster/auth": "^0.4.1",
+    "@fonoster/users": "^0.4.1",
+    "@fonoster/funcs": "^0.4.1",
     "dotenv": "^8.2.0"
   },
   "gitHead": "9103932a97973f9bb4ceef7fd58119816a75646e"

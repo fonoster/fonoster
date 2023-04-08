@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -26,6 +26,18 @@ if (process.env.NODE_ENV === "dev") {
 
 import { AppsServer, AppsService } from "@fonoster/apps";
 import { DomainsServer, DomainsService } from "@fonoster/domains";
+import { NumbersServer, NumbersService } from "@fonoster/numbers";
+import { ProvidersServer, ProvidersService } from "@fonoster/providers";
+import { CallManagerServer, CallManagerService } from "@fonoster/callmanager";
+import { StorageServer, StorageService } from "@fonoster/storage";
+import { SecretsServer, SecretsService } from "@fonoster/secrets";
+import { LimiterServer, LimiterService } from "@fonoster/limiter";
+import { MonitorServer, MonitorService } from "@fonoster/monitor";
+import { UsersServer, UsersService } from "@fonoster/users";
+import { ProjectsServer, ProjectsService } from "@fonoster/projects";
+import { AuthServer, AuthService } from "@fonoster/auth";
+import { FuncsServer, FuncsService } from "@fonoster/funcs";
+import { AgentsServer, AgentsService } from "@fonoster/agents";
 import { runServices } from "@fonoster/common";
 
 const services = [
@@ -35,84 +47,84 @@ const services = [
     service: AppsService,
     server: new AppsServer()
   },
-  // {
-  //   name: "monitor",
-  //   version: "v1beta1",
-  //   service: MonitorService,
-  //   server: new MonitorServer()
-  // },
-  // {
-  //   name: "users",
-  //   version: "v1beta1",
-  //   service: UsersService,
-  //   server: new UsersServer()
-  // },
-  // {
-  //   name: "projects",
-  //   version: "v1beta1",
-  //   service: ProjectsService,
-  //   server: new ProjectsServer()
-  // },
-  // {
-  //   name: "auth",
-  //   version: "v1beta1",
-  //   service: AuthService,
-  //   server: new AuthServer()
-  // },
-  // {
-  //   name: "funcs",
-  //   version: "v1beta1",
-  //   service: FuncsService,
-  //   server: new FuncsServer()
-  // },
-  // {
-  //   name: "agents",
-  //   version: "v1beta1",
-  //   service: AgentsService,
-  //   server: new AgentsServer()
-  // },
+  {
+    name: "monitor",
+    version: "v1beta1",
+    service: MonitorService,
+    server: new MonitorServer()
+  },
+  {
+    name: "users",
+    version: "v1beta1",
+    service: UsersService,
+    server: new UsersServer()
+  },
+  {
+    name: "projects",
+    version: "v1beta1",
+    service: ProjectsService,
+    server: new ProjectsServer()
+  },
+  {
+    name: "auth",
+    version: "v1beta1",
+    service: AuthService,
+    server: new AuthServer()
+  },
+  {
+    name: "funcs",
+    version: "v1beta1",
+    service: FuncsService,
+    server: new FuncsServer()
+  },
+  {
+    name: "agents",
+    version: "v1beta1",
+    service: AgentsService,
+    server: new AgentsServer()
+  },
   {
     name: "domains",
     version: "v1beta1",
     service: DomainsService,
     server: new DomainsServer()
+  },
+  {
+    name: "numbers",
+    version: "v1beta1",
+    service: NumbersService,
+    server: new NumbersServer()
+  },
+  {
+    name: "providers",
+    version: "v1beta1",
+    service: ProvidersService,
+    server: new ProvidersServer()
+  },
+  {
+    name: "callmanager",
+    version: "v1beta1",
+    service: CallManagerService,
+    server: new CallManagerServer()
+  },
+  {
+    name: "storage",
+    version: "v1beta1",
+    service: StorageService,
+    server: new StorageServer()
+  },
+  {
+    name: "secrets",
+    version: "v1beta1",
+    service: SecretsService,
+    server: new SecretsServer()
+  },
+  {
+    name: "limiter",
+    version: "v1beta1",
+    service: LimiterService,
+    server: new LimiterServer()
   }
-  // {
-  //   name: "numbers",
-  //   version: "v1beta1",
-  //   service: NumbersService,
-  //   server: new NumbersServer()
-  // },
-  // {
-  //   name: "providers",
-  //   version: "v1beta1",
-  //   service: ProvidersService,
-  //   server: new ProvidersServer()
-  // },
-  // {
-  //   name: "callmanager",
-  //   version: "v1beta1",
-  //   service: CallManagerService,
-  //   server: new CallManagerServer()
-  // },
-  // {
-  //   name: "storage",
-  //   version: "v1beta1",
-  //   service: StorageService,
-  //   server: new StorageServer()
-  // },
-  // {
-  //   name: "secrets",
-  //   version: "v1beta1",
-  //   service: SecretsService,
-  //   server: new SecretServer()
-  // },
-  // {
-  //   name: "limiter",
-  //   version: "v1beta1",
-  //   service: LimiterService,
-  //   server: new LimiterServer()
-  // }
 ];
 
 runServices(services);

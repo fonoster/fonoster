@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -22,7 +22,7 @@ import client from "ari-client";
 import { CallRequest, CallResponse } from "./protos/callmanager_pb";
 import { EndpointInfo } from "../client/types";
 import originate from "./call";
-import { ICallManagerServer } from "./protos/callmanager_grpc_pb";
+import { CallManagerService, ICallManagerServer } from "./protos/callmanager_grpc_pb";
 import logger from "@fonoster/logger";
 import { FonosterError } from "@fonoster/errors";
 
@@ -98,4 +98,4 @@ class CallManagerServer implements ICallManagerServer {
   }
 }
 
-export { CallManagerServer as default, ICallManagerServer, CallManagerServer };
+export { CallManagerServer as default, CallManagerService, ICallManagerServer, CallManagerServer };

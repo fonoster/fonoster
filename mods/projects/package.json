@@ -5,8 +5,8 @@
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
-  "main": "dist/client/projects",
-  "types": "dist/client/projects",
+  "main": "dist/index",
+  "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "postbuild": "cp -a ./src/service/protos/ ./dist/service/protos",
