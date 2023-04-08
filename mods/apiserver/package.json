@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apiserver",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Fonoster API Server",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -36,8 +36,8 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/apps": "^0.4.0",
-    "@fonoster/common": "^0.4.0",
+    "@fonoster/apps": "^0.4.1",
+    "@fonoster/common": "^0.4.1",
     "dotenv": "^8.2.0"
   },
   "gitHead": "9103932a97973f9bb4ceef7fd58119816a75646e"

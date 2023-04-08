@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/sdk",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Fonoster SDK module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,20 +29,20 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/agents": "^0.4.0",
-    "@fonoster/apps": "^0.4.0",
-    "@fonoster/auth": "^0.4.0",
-    "@fonoster/callmanager": "^0.4.0",
-    "@fonoster/domains": "^0.4.0",
-    "@fonoster/funcs": "^0.4.0",
-    "@fonoster/logger": "^0.4.0",
-    "@fonoster/monitor": "^0.4.0",
-    "@fonoster/numbers": "^0.4.0",
-    "@fonoster/projects": "^0.4.0",
-    "@fonoster/providers": "^0.4.0",
-    "@fonoster/secrets": "^0.4.0",
-    "@fonoster/storage": "^0.4.0",
-    "@fonoster/users": "^0.4.0"
+    "@fonoster/agents": "^0.4.1",
+    "@fonoster/apps": "^0.4.1",
+    "@fonoster/auth": "^0.4.1",
+    "@fonoster/callmanager": "^0.4.1",
+    "@fonoster/domains": "^0.4.1",
+    "@fonoster/funcs": "^0.4.1",
+    "@fonoster/logger": "^0.4.1",
+    "@fonoster/monitor": "^0.4.1",
+    "@fonoster/numbers": "^0.4.1",
+    "@fonoster/projects": "^0.4.1",
+    "@fonoster/providers": "^0.4.1",
+    "@fonoster/secrets": "^0.4.1",
+    "@fonoster/storage": "^0.4.1",
+    "@fonoster/users": "^0.4.1"
   },
   "gitHead": "5ba21ada612657dcaff6f6aa7bce5a8e4a00830a"
 }
