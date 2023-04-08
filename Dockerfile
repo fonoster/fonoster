@@ -24,6 +24,7 @@ COPY --from=builder /work/dist dist
 COPY --from=builder /work/node_modules node_modules
 COPY --from=builder /work/package.json package.json
 COPY ./mods/apiserver/etc/service_envs.json /home/fonoster/service_envs.json
+COPY ./mods/apiserver/etc/rbac.json /home/fonoster/rbac.json
 
 RUN apk add --no-cache --update git tini npm nodejs \
   && echo "[]" > /home/fonoster/limiter.json \

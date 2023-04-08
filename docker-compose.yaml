@@ -9,11 +9,16 @@ services:
       ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
       DATASOURCE_HOST: ${DATASOURCE_HOST}
       DATASOURCE_PORT: ${DATASOURCE_PORT}
+      # Deprecated values, will be renamed in services
+      DS_HOST: ${DATASOURCE_HOST}
+      DS_PORT: ${DATASOURCE_PORT}
+      DS_SECRET: ""
       SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
       SIPPROXY_API_PORT: ${SIPPROXY_API_PORT}
       SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
       SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
       GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN}
+      # TODO: Take values from environment variables
       MS_TRUNK: "ms_trunk_name"
       MS_CONTEXT: "ms_context_name"
       MS_EXTENSION: "1001"
@@ -31,9 +36,7 @@ services:
       FS_SECRET: "fs_secret"
       LOGS_AGGREGRATOR_HOST: "logs.example.com"
       LOGS_AGGREGRATOR_PORT: "5000"
-      DS_HOST: "ds.example.com"
-      DS_PORT: "6379"
-      DS_SECRET: "ds_secret"
+
     depends_on:
       - datasource
     ports:
