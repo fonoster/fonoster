@@ -84,5 +84,6 @@
     "@types/inquirer": "^9.0.3",
     "@types/prettyjson": "0.0.29",
     "rimraf": "^3.0.2"
-  }
+  },
+  "gitHead": "5ba21ada612657dcaff6f6aa7bce5a8e4a00830a"
 }

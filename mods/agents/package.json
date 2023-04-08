@@ -49,5 +49,5 @@
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0"
   },
-  "gitHead": "552170a8374df6d8bca49393003448ee283bb352"
+  "gitHead": "5ba21ada612657dcaff6f6aa7bce5a8e4a00830a"
 }
