@@ -19,8 +19,6 @@ jobs:
       id: get_version
       run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)")
     - run: |
-        npm config set unsafe-perm true
-        npm install lerna -g
         npm install
         npm run bootstrap
         npm run build
