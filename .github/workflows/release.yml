@@ -37,7 +37,7 @@ jobs:
         inputs: '{"version": "${{ steps.get_version.outputs.VERSION }}" }'
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    - name: Publish to Docker Hub the Limiter API
+    - name: Publish to Docker Hub the APIServer
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: fonoster/apiserver
