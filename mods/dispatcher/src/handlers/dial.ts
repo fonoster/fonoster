@@ -62,7 +62,7 @@ export const dial = async (
   const domainUri = domain.spec.context.domainUri;
   const channel = await ari.channels.get({ channelId: sessionId });
   const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
-  let bridge = await ari.bridges.get({ bridgeId: bridgeId });
+  let bridge = bridgeId && await ari.bridges.get({ bridgeId: bridgeId });
 
   logger.verbose("dialing sip endpoint", {
     endpoint: `sip:${destination}@${domainUri}`,
