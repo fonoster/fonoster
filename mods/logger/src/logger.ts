@@ -18,7 +18,6 @@
  */
 import winston from "winston";
 import { fluent, format, level, transports } from "./envs";
-import { ULog } from "./types";
 
 const logger = winston.createLogger({
   levels: winston.config.npm.levels,

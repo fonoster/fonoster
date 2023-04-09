@@ -55,15 +55,14 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/agents": "^0.3.22",
-    "@fonoster/apps": "^0.3.22",
-    "@fonoster/domains": "^0.3.22",
-    "@fonoster/logger": "^0.3.22",
-    "@fonoster/numbers": "^0.3.22",
-    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
-    "@fonoster/projects": "^0.3.22",
-    "@fonoster/providers": "^0.3.22",
-    "@fonoster/secrets": "^0.3.22",
+    "@fonoster/agents": "^0.4.5",
+    "@fonoster/apps": "^0.4.5",
+    "@fonoster/domains": "^0.4.5",
+    "@fonoster/logger": "^0.4.3",
+    "@fonoster/numbers": "^0.4.5",
+    "@fonoster/projects": "^0.4.5",
+    "@fonoster/providers": "^0.4.5",
+    "@fonoster/secrets": "^0.4.5",
     "@oclif/command": "^1.8.22",
     "@oclif/config": "^1.18.8",
     "@oclif/core": "^1.26.2",
@@ -78,7 +77,8 @@
     "moment": "^2.29.4",
     "phone": "^2.4.22",
     "prettyjson": "^1.2.5",
-    "update-notifier": "^6.0.2"
+    "update-notifier": "^6.0.2",
+    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.3",

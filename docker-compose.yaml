@@ -9,10 +9,6 @@ services:
       ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
       DATASOURCE_HOST: ${DATASOURCE_HOST}
       DATASOURCE_PORT: ${DATASOURCE_PORT}
-      # Deprecated values, will be renamed in services
-      DS_HOST: ${DATASOURCE_HOST}
-      DS_PORT: ${DATASOURCE_PORT}
-      DS_SECRET: ""
       SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
       SIPPROXY_API_PORT: ${SIPPROXY_API_PORT}
       SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
@@ -36,7 +32,6 @@ services:
       FS_SECRET: "fs_secret"
       LOGS_AGGREGRATOR_HOST: "logs.example.com"
       LOGS_AGGREGRATOR_PORT: "5000"
-
     depends_on:
       - datasource
     ports:

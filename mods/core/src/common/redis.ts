@@ -1,6 +1,6 @@
 import Redis from "ioredis";
-const host = process.env.DS_HOST || "localhost";
-const port = process.env.DS_PORT || 6379;
-const secret = process.env.DS_SECRET ? `:${process.env.DS_SECRET}@` : "";
+const host = process.env.DATASOURCE_HOST || "localhost";
+const port = process.env.DATASOURCE_PORT || 6379;
+const secret = process.env.DATASOURCE_SECRET ? `:${process.env.DATASOURCE_SECRET}@` : "";
 
 export = () => new Redis(`redis://${secret}${host}:${port}`);

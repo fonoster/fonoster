@@ -88,9 +88,8 @@
   {
     "module": "limiter",
     "env": [
-      "DS_HOST",
-      "DS_PORT",
-      "DS_SECRET",
+      "DATASOURCE_HOST",
+      "DATASOURCE_PORT",
       "SIPPROXY_HOST",
       "SIPPROXY_API_PORT",
       "SIPPROXY_API_USERNAME",

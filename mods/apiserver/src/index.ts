@@ -21,6 +21,8 @@ import dotenv from "dotenv";
 import { join } from "path";
 
 if (process.env.NODE_ENV === "dev") {
+  console.log("Loading .env file from root folder");
+
   dotenv.config({ path: join(__dirname, "../../../", ".env") });
 }
 
