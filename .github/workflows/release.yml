@@ -18,6 +18,10 @@ jobs:
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::$(node -e "console.log(require('./lerna.json').version)")
+    - run: |
+        npm install
+        npm run bootstrap
+        npm run build
     - name: Login Dockerhub
       uses: docker/login-action@v1
       with:
