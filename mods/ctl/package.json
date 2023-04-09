@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/ctl",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Command-Line for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -55,14 +55,15 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/agents": "^0.4.5",
-    "@fonoster/apps": "^0.4.5",
-    "@fonoster/domains": "^0.4.5",
-    "@fonoster/logger": "^0.4.3",
-    "@fonoster/numbers": "^0.4.5",
-    "@fonoster/projects": "^0.4.5",
-    "@fonoster/providers": "^0.4.5",
-    "@fonoster/secrets": "^0.4.5",
+    "@fonoster/agents": "^0.4.6",
+    "@fonoster/apps": "^0.4.6",
+    "@fonoster/domains": "^0.4.6",
+    "@fonoster/logger": "^0.4.6",
+    "@fonoster/numbers": "^0.4.6",
+    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
+    "@fonoster/projects": "^0.4.6",
+    "@fonoster/providers": "^0.4.6",
+    "@fonoster/secrets": "^0.4.6",
     "@oclif/command": "^1.8.22",
     "@oclif/config": "^1.18.8",
     "@oclif/core": "^1.26.2",
@@ -77,8 +78,7 @@
     "moment": "^2.29.4",
     "phone": "^2.4.22",
     "prettyjson": "^1.2.5",
-    "update-notifier": "^6.0.2",
-    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available"
+    "update-notifier": "^6.0.2"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.3",
