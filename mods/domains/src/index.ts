@@ -20,3 +20,5 @@ import { Domain } from "./client/domains";
 import DomainsServer, { DomainsService } from "./service/domains";
 
 export { DomainsServer, DomainsService, Domain };
+export * from "./client/types";
+export * from "./client/domains";

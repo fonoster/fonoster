@@ -21,3 +21,5 @@ import { Agent } from "./client/agents";
 import AgentsServer from "./service/agents";
 
 export { AgentsServer, AgentsService, Agent };
+export * from "./client/types";
+export * from "./client/agents";

@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import SecretsServer, { SecretsService } from "./service/secrets";
-import { Secret } from "./client/secrets";
 
-export { SecretsServer, SecretsService, Secret };
+export { SecretsServer, SecretsService };
+export * from "./client/types";
+export * from "./client/secrets";

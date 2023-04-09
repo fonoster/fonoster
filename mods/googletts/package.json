@@ -32,7 +32,7 @@
     "@fonoster/common": "^0.4.6",
     "@fonoster/logger": "^0.4.6",
     "@fonoster/tts": "^0.4.6",
-    "@google-cloud/text-to-speech": "^3.2.2",
+    "@google-cloud/text-to-speech": "^4.2.1",
     "deepmerge": "^4.2.2"
   },
   "gitHead": "5ba21ada612657dcaff6f6aa7bce5a8e4a00830a"

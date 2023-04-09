@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Provider } from "./client/providers";
 import ProvidersServer, { ProvidersService } from "./service/providers";
 
-export { ProvidersServer, ProvidersService, Provider };
+export { ProvidersServer, ProvidersService };
+export * from "./client/types";
+export * from "./client/providers";

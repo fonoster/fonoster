@@ -20,3 +20,5 @@ import { User } from "./client/users";
 import UsersServer, { UsersService } from "./service/users";
 
 export { UsersServer, UsersService, User };
+export * from "./client/types";
+export * from "./client/users";

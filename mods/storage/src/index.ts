@@ -20,3 +20,5 @@ import StorageServer, { StorageService } from "./service/storage";
 import Storage from "./client/storage";
 
 export { StorageServer, StorageService, Storage as default };
+export * from "./client/types";
+export * from "./client/storage";

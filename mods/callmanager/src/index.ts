@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CallManagerPB } from "./client/callmanager";
 import CallManagerServer, { CallManagerService } from "./service/callmanager";
 
-export { CallManagerServer, CallManagerService, CallManagerPB };
+export { CallManagerServer, CallManagerService };
+export * from "./client/types";
+export * from "./client/callmanager";

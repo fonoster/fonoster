@@ -20,3 +20,5 @@ import Numbers, { Number } from "./client/numbers";
 import NumbersServer, { NumbersService } from "./service/numbers";
 
 export { NumbersServer, NumbersService, Number, Numbers as default };
+export * from "./client/types";
+export * from "./client/numbers";

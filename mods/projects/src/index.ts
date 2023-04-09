@@ -19,3 +19,5 @@
 import ProjectsServer, { ProjectsService } from "./service/projects";
 
 export { ProjectsServer, ProjectsService };
+export * from "./client/types";
+export * from "./client/projects";
