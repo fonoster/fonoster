@@ -16,9 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { User } from "./client/users";
+import Users, { User } from "./client/users";
 import UsersServer, { UsersService } from "./service/users";
 
-export { UsersServer, UsersService, User };
+export { UsersServer, UsersService, User, Users as default };
 export * from "./client/types";
-export * from "./client/users";

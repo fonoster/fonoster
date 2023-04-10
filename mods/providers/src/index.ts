@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import ProvidersServer, { ProvidersService } from "./service/providers";
+import ProvidersClient, { ProvidersPB, CommonPB } from "./client/providers";
 
-export { ProvidersServer, ProvidersService };
+export { ProvidersServer, ProvidersService, ProvidersClient as default, ProvidersPB, CommonPB };
 export * from "./client/types";
-export * from "./client/providers";

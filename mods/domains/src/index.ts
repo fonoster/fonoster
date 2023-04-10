@@ -16,9 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Domain } from "./client/domains";
+import Domains, { Domain } from "./client/domains";
 import DomainsServer, { DomainsService } from "./service/domains";
 
-export { DomainsServer, DomainsService, Domain };
+export { DomainsServer, DomainsService, Domains as default, Domain };
 export * from "./client/types";
-export * from "./client/domains";

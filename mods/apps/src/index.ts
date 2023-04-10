@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { App } from "./client/apps";
+import Apps, { App } from "./client/apps";
 import AppsServer, { AppsService } from "./service/apps";
 
-export { AppsServer, AppsService, App };
+export { AppsServer, AppsService, App, Apps as default };

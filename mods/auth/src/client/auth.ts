@@ -18,7 +18,6 @@
  */
 import { APIClient, ClientOptions } from "@fonoster/common";
 import { AuthClient } from "../service/protos/auth_grpc_pb";
-import AuthPB from "../service/protos/auth_pb";
 import { promisifyAll } from "grpc-promise";
 import {
   CreateTokenRequest,
@@ -26,6 +25,7 @@ import {
   IAuthClient,
   ValidateTokenRequest
 } from "./types";
+import AuthPB from "../service/protos/auth_pb";
 
 /**
  * @classdesc Use Fonoster Auth, a capability of Fonoster,

@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Metadata } from "@grpc/grpc-js";
-import AuthPB from "./service/protos/auth_pb";
 import { LimiterClient } from "./service/protos/auth_grpc_pb";
 import { getClientCredentials } from "@fonoster/common";
+import { Metadata } from "@grpc/grpc-js";
+import AuthPB from "./service/protos/auth_pb";
 
 interface Context {
   service: {

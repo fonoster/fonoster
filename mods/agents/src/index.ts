@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 import { AgentsService } from "./service/agents";
-import { Agent } from "./client/agents";
+import Agents, { Agent } from "./client/agents";
 import AgentsServer from "./service/agents";
 
-export { AgentsServer, AgentsService, Agent };
+export { AgentsServer, AgentsService, Agents as default, Agent};
 export * from "./client/types";
 export * from "./client/agents";

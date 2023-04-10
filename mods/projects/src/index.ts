@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import ProjectsServer, { ProjectsService } from "./service/projects";
+import ProjectsClient, { ProjectsPB } from "./client/projects";
 
-export { ProjectsServer, ProjectsService };
 export * from "./client/types";
-export * from "./client/projects";
+export {
+  ProjectsServer,
+  ProjectsService,
+  ProjectsClient as default,
+  ProjectsPB
+};

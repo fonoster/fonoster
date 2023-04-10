@@ -17,6 +17,6 @@
  * limitations under the License.
  */
 import FuncsServer, { FuncsService } from "./service/funcs";
-import { FuncsPB } from "./client/funcs";
+import Functions, { FuncsPB } from "./client/funcs";
 
-export { FuncsServer, FuncsService, FuncsPB };
+export { FuncsServer, FuncsService, FuncsPB, Functions as default};

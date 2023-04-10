@@ -65,18 +65,18 @@ const services = [
     service: ProjectsService,
     server: new ProjectsServer()
   },
-  {
-    name: "auth",
-    version: "v1beta1",
-    service: AuthService,
-    server: new AuthServer()
-  },
-  {
-    name: "funcs",
-    version: "v1beta1",
-    service: FuncsService,
-    server: new FuncsServer()
-  },
+  // {
+  //   name: "auth",
+  //   version: "v1beta1",
+  //   service: AuthService,
+  //   server: new AuthServer()
+  // },
+  // {
+  //   name: "funcs",
+  //   version: "v1beta1",
+  //   service: FuncsService,
+  //   server: new FuncsServer()
+  // },
   {
     name: "agents",
     version: "v1beta1",
