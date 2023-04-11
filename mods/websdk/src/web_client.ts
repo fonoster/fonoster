@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientOptions, WebClientOptions } from "@fonoster/common/src/types";
+import { ClientOptions } from "@fonoster/common/src/types";
+import { WebClientOptions } from "types";
 const DEFAULT_ENDPOINT = "https://api.fonoster.io/api";
 
 // eslint-disable-next-line require-jsdoc
