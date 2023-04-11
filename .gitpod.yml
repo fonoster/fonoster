@@ -11,7 +11,7 @@ tasks:
   - name: Run dependencies
     command: |
       cp .env.example .env
-      && docker-compose up datasource rtpengine intents_analyzer mediaserver sipproxy
+      docker-compose up datasource rtpengine intents_analyzer mediaserver sipproxy
   - name: Build and start application
     init: |
       npm run make
