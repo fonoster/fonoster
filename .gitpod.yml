@@ -1,21 +1,21 @@
-## Learn more about this file at 'https://www.gitpod.io/docs/references/gitpod-yml'
-##
-## This '.gitpod.yml' file when placed at the root of a project instructs
-## Gitpod how to prepare & build the project, start development environments
-## and configure continuous prebuilds. Prebuilds when enabled builds a project
-## like a CI server so you can start coding right away - no more waiting for
-## dependencies to download and builds to finish when reviewing pull-requests
-## or hacking on something new.
-##
+# Learn more about this file at 'https://www.gitpod.io/docs/references/gitpod-yml'
+#
+# This '.gitpod.yml' file when placed at the root of a project instructs
+# Gitpod how to prepare & build the project, start development environments
+# and configure continuous prebuilds. Prebuilds when enabled builds a project
+# like a CI server so you can start coding right away - no more waiting for
+# dependencies to download and builds to finish when reviewing pull-requests
+# or hacking on something new.
+#
 tasks:
   - name: Run dependencies
-    command: >
+    command: |
       cp .env.example .env
-      docker-compose up datasource rtpengine intents_analyzer mediaserver sipproxy
+      && docker-compose up datasource rtpengine intents_analyzer mediaserver sipproxy
   - name: Build and start application
-    init: > 
+    init: |
       npm run make
-      chmod +x node_modules/.bin/cross-env node_modules/.bin/ts-node 
+      chmod +x node_modules/.bin/cross-env node_modules/.bin/ts-node
     command: npm start
 
 ports:
