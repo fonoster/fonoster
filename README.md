@@ -3,12 +3,10 @@
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-https://user-images.githubusercontent.com/539774/170885814-02c53689-af12-4e05-8351-e78d72f958d9.mov
-
 <br />
 
-![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/mpWSRUhG7e) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
-
+<a href="https://gitpod.io/#https://github.com/fonoster/fonoster"> <img src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod" alt="Contribute with Gitpod" />
+</a> [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/mpWSRUhG7e) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
 ## Features
 
@@ -84,6 +82,49 @@ callManager.call({
  .then(console.log)
  .catch(console.error);
 ```
+
+## Deployment
+
+### Instant Server deployment with Docker and Compose
+
+For a quick demo of Fonoster, run the following command:
+
+```
+git clone https://github.com/fonoster/fonoster
+docker-compose up 
+```
+
+### Deploying in development mode with Gitpod
+
+Routr's one-click interactive deployment will familiarize you with the server in development mode.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/fonoster/fonoster)
+
+To connect to your instance, follow these steps:
+
+First, add your public SSH-keys to your Gitpod account by going to [Gitpod account keys](https://gitpod.io/user/keys) and adding your public key.
+
+Next, find your [Gitpod workspace](https://gitpod.io/workspaces) and click on the "More" button. Then, select "Connect via SSH."
+
+Finally, copy the SSH Command and run it in your terminal by pasting it and pressing Enter. The command should look like this:
+
+```bash
+ssh -L 5060:localhost:5060 <workspace-ssh-connection>
+```
+
+Replace <workspace-ssh-connection> with your own workspace SSH connection.
+
+For example, your command might look like this:
+
+```bash
+ssh -L 5060:localhost:5060 fonoster-mn8nsx0d9px@fonoster-mn8nsx0d9px.ssh.ws-us90.gitpod.io
+```
+
+This command forwards traffic from your local port 5060 to your Gitpod workspace's port 5060, allowing you to access your instance.
+
+### Kubernetes
+
+Deploying Routr in Kubernetes is coming soon.
 
 ## Getting Started
 
