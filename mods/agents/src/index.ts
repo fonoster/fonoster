@@ -20,6 +20,6 @@ import { AgentsService } from "./service/agents";
 import Agents, { Agent } from "./client/agents";
 import AgentsServer from "./service/agents";
 
-export { AgentsServer, AgentsService, Agents as default, Agent};
+export { AgentsServer, AgentsService, Agents as default, Agent };
 export * from "./client/types";
 export * from "./client/agents";

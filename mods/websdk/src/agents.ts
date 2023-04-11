@@ -18,8 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import WebAPIClient from "@fonoster/common/dist/web_client";
-import { WebClientOptions } from "@fonoster/common/dist/types";
+import * as c from "./generated/api";
 import { IAgentsClient } from "@fonoster/agents";
 import {
   CreateAgentRequest,
@@ -31,7 +30,8 @@ import {
   UpdateAgentRequest,
   UpdateAgentResponse
 } from "../../agents/src/client/types";
-import * as c from "./generated/api";
+import { WebClientOptions } from "./types";
+import WebAPIClient from "./web_client";
 
 export default class Agents extends WebAPIClient implements IAgentsClient {
   constructor(options: WebClientOptions) {

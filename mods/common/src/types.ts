@@ -22,10 +22,3 @@ export interface ClientOptions {
   accessKeyId?: string;
   accessKeySecret?: string;
 }
-
-export interface WebClientOptions {
-  endpoint?: string;
-  bucket?: string;
-  accessKeyId: string;
-  accessKeySecret: string;
-}

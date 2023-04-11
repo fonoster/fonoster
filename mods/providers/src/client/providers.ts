@@ -202,7 +202,8 @@ export default class Providers extends APIClient implements IProvidersClient {
     if (request.host) req.setHost(request.host);
     if (request.transport) req.setTransport(request.transport);
     if (request.expires) req.setExpires(request.expires);
-    if (typeof request.register === 'boolean') req.setRegister(request.register);
+    if (typeof request.register === "boolean")
+      req.setRegister(request.register);
 
     const res = await super.getService().updateProvider().sendMessage(req);
 

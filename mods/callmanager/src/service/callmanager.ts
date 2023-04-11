@@ -22,7 +22,10 @@ import client from "ari-client";
 import { CallRequest, CallResponse } from "./protos/callmanager_pb";
 import { EndpointInfo } from "../client/types";
 import originate from "./call";
-import { CallManagerService, ICallManagerServer } from "./protos/callmanager_grpc_pb";
+import {
+  CallManagerService,
+  ICallManagerServer
+} from "./protos/callmanager_grpc_pb";
 import logger from "@fonoster/logger";
 import { FonosterError } from "@fonoster/errors";
 
@@ -98,4 +101,9 @@ class CallManagerServer implements ICallManagerServer {
   }
 }
 
-export { CallManagerServer as default, CallManagerService, ICallManagerServer, CallManagerServer };
+export {
+  CallManagerServer as default,
+  CallManagerService,
+  ICallManagerServer,
+  CallManagerServer
+};

@@ -1,13 +1,13 @@
 import { FonosterInvalidArgument } from "@fonoster/errors";
 import { NumbersPB } from "../client/numbers";
 import { IngressInfo } from "./protos/numbers_pb";
-import { phone } from 'phone'
+import { phone } from "phone";
 
 const isValidURL = (value: string) =>
   /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(value);
 
 export const assertIsE164 = (number: string) => {
-  const validatedPhone = phone(number, { validateMobilePrefix: false })
+  const validatedPhone = phone(number, { validateMobilePrefix: false });
   if (!validatedPhone.isValid) {
     throw new FonosterInvalidArgument(
       "e164Number field must be a valid e164 value."

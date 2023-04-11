@@ -33,7 +33,7 @@ export default class extends Command {
     CliUx.ux.action.start(`Login out`);
     if (fs.existsSync(BASE_DIR)) {
       try {
-        fs.rmSync(BASE_DIR, {recursive: true});
+        fs.rmSync(BASE_DIR, { recursive: true });
         await CliUx.ux.wait(1000);
       } catch (e) {
         CliUx.ux.action.stop();

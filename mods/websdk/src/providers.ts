@@ -18,8 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import WebAPIClient from "@fonoster/common/dist/web_client";
-import { WebClientOptions } from "@fonoster/common/dist/types";
+import * as c from "./generated/api";
 import { IProvidersClient } from "@fonoster/providers";
 import {
   CreateProviderRequest,
@@ -31,7 +30,8 @@ import {
   UpdateProviderRequest,
   UpdateProviderResponse
 } from "../../providers/src/client/types";
-import * as c from "./generated/api";
+import WebAPIClient from "./web_client";
+import { WebClientOptions } from "./types";
 
 export default class Providers
   extends WebAPIClient

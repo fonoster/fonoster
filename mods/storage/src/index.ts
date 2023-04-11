@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import StorageServer, { StorageService } from "./service/storage";
-import Storage, { StoragePB }  from "./client/storage";
+import Storage, { StoragePB } from "./client/storage";
 
 export { StorageServer, StorageService, Storage as default, StoragePB };
 export * from "./client/types";

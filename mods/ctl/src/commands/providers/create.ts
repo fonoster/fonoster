@@ -70,7 +70,7 @@ export default class CreateCommand extends Command {
       {
         name: "register",
         message: "enable registration?",
-        type: "confirm",
+        type: "confirm"
       },
       {
         name: "expires",

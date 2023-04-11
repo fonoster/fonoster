@@ -19,5 +19,11 @@
 import ProvidersServer, { ProvidersService } from "./service/providers";
 import ProvidersClient, { ProvidersPB, CommonPB } from "./client/providers";
 
-export { ProvidersServer, ProvidersService, ProvidersClient as default, ProvidersPB, CommonPB };
+export {
+  ProvidersServer,
+  ProvidersService,
+  ProvidersClient as default,
+  ProvidersPB,
+  CommonPB
+};
 export * from "./client/types";

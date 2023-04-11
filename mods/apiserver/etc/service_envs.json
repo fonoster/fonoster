@@ -64,26 +64,15 @@
   },
   {
     "module": "secrets",
-    "env": [
-      "VAULT_ADDR",
-      "SECRETS_POLICY"
-    ]
+    "env": ["VAULT_ADDR", "SECRETS_POLICY"]
   },
   {
     "module": "storage",
-    "env": [
-      "FS_HOST",
-      "FS_PORT",
-      "FS_USERNAME",
-      "FS_SECRET"
-    ]
+    "env": ["FS_HOST", "FS_PORT", "FS_USERNAME", "FS_SECRET"]
   },
   {
     "module": "monitor",
-    "env": [
-      "LOGS_AGGREGRATOR_HOST",
-      "LOGS_AGGREGRATOR_PORT"
-    ]
+    "env": ["LOGS_AGGREGRATOR_HOST", "LOGS_AGGREGRATOR_PORT"]
   },
   {
     "module": "limiter",
@@ -98,9 +87,6 @@
   },
   {
     "module": "apps",
-    "env": [
-      "DATASOURCE_HOST",
-      "DATASOURCE_PORT"
-    ]
+    "env": ["DATASOURCE_HOST", "DATASOURCE_PORT"]
   }
 ]

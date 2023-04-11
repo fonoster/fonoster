@@ -23,4 +23,4 @@ import AuthUtils from "./utils/auth_utils";
 import limiterMiddleware from "./limiter_middleware";
 
 export { AuthMiddleware, limiterMiddleware, Jwt, AuthUtils, Auth as default };
-export { default as AuthServer,  AuthService } from "./service/auth";
+export { default as AuthServer, AuthService } from "./service/auth";

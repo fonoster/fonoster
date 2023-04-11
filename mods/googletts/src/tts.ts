@@ -18,7 +18,7 @@
  */
 import fs from "fs";
 import util from "util";
-import textToSpeech, {v1} from "@google-cloud/text-to-speech";
+import textToSpeech, { v1 } from "@google-cloud/text-to-speech";
 import { SynthResult, AbstractTTS } from "@fonoster/tts";
 import logger from "@fonoster/logger";
 import { GoogleTTSConfig } from "./types";
@@ -52,7 +52,12 @@ class GoogleTTS extends AbstractTTS {
   /**
    * @inherit
    */
-  async synthesizeSpeech(text: string, options: any, filename: string, pathToFile: string): Promise<SynthResult> {
+  async synthesizeSpeech(
+    text: string,
+    options: any,
+    filename: string,
+    pathToFile: string
+  ): Promise<SynthResult> {
     logger.verbose(
       `@fonoster/tts.GoogleTTS.synthesize [input: ${text}, isSSML=${isSSML(
         text

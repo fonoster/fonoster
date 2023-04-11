@@ -19,6 +19,11 @@
 import CallManagerServer, { CallManagerService } from "./service/callmanager";
 import CallManagerClient, { CallManagerPB } from "./client/callmanager";
 
-export { CallManagerServer, CallManagerService, CallManagerClient as default, CallManagerPB };
+export {
+  CallManagerServer,
+  CallManagerService,
+  CallManagerClient as default,
+  CallManagerPB
+};
 export * from "./client/types";
 export * from "./client/callmanager";

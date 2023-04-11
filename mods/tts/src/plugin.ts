@@ -18,20 +18,20 @@
  */
 
 import { SynthResult, TTSConfig, TTSPlugin } from "./types";
-import { Plugin } from "@fonoster/common"
+import { Plugin } from "@fonoster/common";
 import { computeFilename } from "./utils";
 import path from "path";
 import fs from "fs";
 import os from "os";
 
 export default abstract class AbstractTTS extends Plugin implements TTSPlugin {
-   config: TTSConfig;
+  config: TTSConfig;
 
-   constructor(type: string, name: string, config: TTSConfig) {
+  constructor(type: string, name: string, config: TTSConfig) {
     super(type, name);
     this.config = config;
     this.config.path = config.path ? config.path : os.tmpdir();
-   }
+  }
   /**
    * @inherit
    * @deprecated
@@ -50,9 +50,13 @@ export default abstract class AbstractTTS extends Plugin implements TTSPlugin {
     if (!fs.existsSync(pathToFile)) {
       return await this.synthesizeSpeech(text, options, filename, pathToFile);
     }
-    return {filename, pathToFile}
+    return { filename, pathToFile };
   }
 
-  abstract synthesizeSpeech(text: string, options: any, filename: string, pathToFile: string): Promise<SynthResult>;
-
+  abstract synthesizeSpeech(
+    text: string,
+    options: any,
+    filename: string,
+    pathToFile: string
+  ): Promise<SynthResult>;
 }

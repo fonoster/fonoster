@@ -38,7 +38,7 @@ describe("@fonoster/providers", () => {
   providerObj.setHost("sip.provider.net");
   providerObj.setTransport("tcp");
   providerObj.setExpires(600);
-  providerObj.setRegister(true);  
+  providerObj.setRegister(true);
   providerObj.setUpdateTime("...");
   providerObj.setCreateTime("...");
 
@@ -74,7 +74,9 @@ describe("@fonoster/providers", () => {
     expect(result).to.have.property("ref").to.be.equal(providerObj.getRef());
     expect(result).to.have.property("name").to.be.equal(providerObj.getName());
     expect(result).to.have.property("host").to.be.equal(providerObj.getHost());
-    expect(result).to.have.property("register").to.be.equal(providerObj.getRegister());
+    expect(result)
+      .to.have.property("register")
+      .to.be.equal(providerObj.getRegister());
     expect(result)
       .to.have.property("transport")
       .to.be.equal(providerObj.getTransport());
@@ -104,7 +106,9 @@ describe("@fonoster/providers", () => {
     expect(result).to.have.property("ref").to.be.equal(providerObj.getRef());
     expect(result).to.have.property("name").to.be.equal(providerObj.getName());
     expect(result).to.have.property("host").to.be.equal(providerObj.getHost());
-    expect(result).to.have.property("register").to.be.equal(providerObj.getRegister());
+    expect(result)
+      .to.have.property("register")
+      .to.be.equal(providerObj.getRegister());
     expect(result)
       .to.have.property("transport")
       .to.be.equal(providerObj.getTransport());
@@ -181,7 +185,7 @@ describe("@fonoster/providers", () => {
     const request = {
       ref: providerObj.getRef(),
       name: providerObj.getName(),
-      register: providerObj.getRegister(), 
+      register: providerObj.getRegister()
     };
 
     const returnProvider = {

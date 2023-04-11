@@ -57,9 +57,7 @@ describe("@fonoster/googletts", () => {
     const synthesizeSpeechStub = sandbox
       .stub(textToSpeech.TextToSpeechClient.prototype, "synthesizeSpeech")
       .resolves([{ audioContent: "some-audio" }]);
-    const fsStub = sandbox
-      .stub(fs, "existsSync")
-      .returns(false);
+    const fsStub = sandbox.stub(fs, "existsSync").returns(false);
     const writeFile = sandbox.spy(fs, "writeFile");
     const join = sandbox.spy(path, "join");
     const config = {
@@ -87,9 +85,7 @@ describe("@fonoster/googletts", () => {
     const synthesizeSpeechStub = sandbox
       .stub(textToSpeech.TextToSpeechClient.prototype, "synthesizeSpeech")
       .resolves([{ audioContent: "some-audio" }]);
-    const fsStub = sandbox
-      .stub(fs, "existsSync")
-      .returns(true);
+    const fsStub = sandbox.stub(fs, "existsSync").returns(true);
     const writeFile = sandbox.spy(fs, "writeFile");
     const join = sandbox.spy(path, "join");
     const config = {

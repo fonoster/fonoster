@@ -19,4 +19,4 @@
 import FuncsServer, { FuncsService } from "./service/funcs";
 import Functions, { FuncsPB } from "./client/funcs";
 
-export { FuncsServer, FuncsService, FuncsPB, Functions as default};
+export { FuncsServer, FuncsService, FuncsPB, Functions as default };

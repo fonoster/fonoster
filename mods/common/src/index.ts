@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 import APIClient from "./api_client";
-import WebAPIClient from "./web_client";
-import { ClientOptions, WebClientOptions } from "./types";
+import { ClientOptions } from "./types";
 import { getClientCredentials, getServerCredentials } from "./trust_util";
 import healthcheck from "./healthcheck";
 import runServices from "./service_runner";
@@ -33,8 +32,6 @@ export * as Tracer from "./tracer";
 
 export {
   APIClient,
-  WebAPIClient,
-  WebClientOptions,
   ClientOptions,
   Plugin,
   SpeechTracker,

@@ -13,9 +13,7 @@ tasks:
       cp .env.example .env
       docker-compose up datasource rtpengine intents_analyzer mediaserver sipproxy
   - name: Build and start application
-    init: |
-      npm run make
-      chmod +x node_modules/.bin/cross-env node_modules/.bin/ts-node
+    init: npm run make
     command: npm start
 
 ports:

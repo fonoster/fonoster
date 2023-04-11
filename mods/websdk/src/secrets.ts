@@ -18,8 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import WebAPIClient from "@fonoster/common/dist/web_client";
-import { WebClientOptions } from "@fonoster/common/dist/types";
+import * as c from "./generated/api";
 import { ISecretsClient } from "@fonoster/secrets";
 import {
   CreateSecretRequest,
@@ -28,7 +27,8 @@ import {
   ListSecretsRequest,
   ListSecretsResponse
 } from "../../secrets/src/client/types";
-import * as c from "./generated/api";
+import { WebClientOptions } from "./types";
+import WebAPIClient from "./web_client";
 
 export default class Secrets extends WebAPIClient implements ISecretsClient {
   constructor(options: WebClientOptions) {
