@@ -1,9 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 
-// Change this to the file or folder you want to modify the permissions for
-const targetPath = path.join(__dirname, "../node_modules/.bin");
-
 // Permissions for Linux and macOS (read, write, execute for the owner)
 const posixPermissions = 0o700;
 
@@ -12,7 +9,7 @@ const windowsPermissions = {
   mode: fs.constants.F_OK | fs.constants.R_OK | fs.constants.W_OK | fs.constants.X_OK,
 };
 
-function setPermissions() {
+function setPermissions(targetPath) {
   const isWindows = process.platform === "win32";
 
   try {
@@ -27,4 +24,8 @@ function setPermissions() {
   }
 }
 
-setPermissions();
+const crossEnvPath = path.join(__dirname, "../node_modules/.bin/cross-env");
+const tsNodePath = path.join(__dirname, "../node_modules/.bin/ts-node");
+
+setPermissions(crossEnvPath);
+setPermissions(tsNodePath);
