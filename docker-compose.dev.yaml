@@ -4,7 +4,7 @@ services:
 
   sipproxy:
     ports:
-      - 4567:4567
+      - 4567
       - 5060-5063:5060-5063
       - 5060:5060/udp
 
@@ -14,7 +14,7 @@ services:
 
   intents_analyzer:
     ports:
-      - 3000:80
+      - 80:3000
       - 3001:3001
 
   datasource:

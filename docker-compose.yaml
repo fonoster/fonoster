@@ -110,7 +110,7 @@ services:
     image: fonoster/rox:latest
     restart: unless-stopped
     expose:
-      - 3000:80
+      - 80:3000
       - 3001
     environment:
       LOGS_LEVEL: ${LOGS_LEVEL}
