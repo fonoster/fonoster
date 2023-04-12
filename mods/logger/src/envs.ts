@@ -21,12 +21,12 @@ import fluentLogger from "fluent-logger";
 const fluentTransport = fluentLogger.support.winstonTransport();
 
 const fluent = new fluentTransport(
-  `${process.env.LOG_OPT_TAG_PREFIX}.fonoster`,
+  `${process.env.LOGS_OPT_TAG_PREFIX}`,
   {
     host: process.env.LOGS_DRIVER_HOST,
     port: process.env.LOGS_DRIVER_PORT,
     timeout: 3.0,
-    requireAckResponse: true
+    requireAckResponse: false
   }
 );
 

@@ -26,11 +26,11 @@ const splitPath = (p: string) => path.dirname(p).split(path.sep);
 export const fsInstance = () => {
   const Minio = require("minio");
   return new Minio.Client({
-    endPoint: process.env.FS_HOST,
-    port: parseInt(process.env.FS_PORT),
+    endPoint: process.env.S3_SERVER_HOST,
+    port: parseInt(process.env.S3_SERVER_PORT),
     useSSL: false,
-    accessKey: process.env.FS_USERNAME,
-    secretKey: process.env.FS_SECRET
+    accessKey: process.env.S3_SERVER_USERNAME,
+    secretKey: process.env.S3_SERVER_SECRET
   });
 };
 

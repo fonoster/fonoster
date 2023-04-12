@@ -69,29 +69,29 @@ class CallManagerServer implements ICallManagerServer {
     }
 
     logger.verbose(
-      `@core/callmanager call [ari url ${process.env.MS_ARI_INTERNAL_URL}]`
+      `@core/callmanager call [ari url ${process.env.MEDIASERVER_ARI_INTERNAL_URL}]`
     );
 
     logger.verbose(
-      `@core/callmanager call [ari username ${process.env.MS_ARI_USERNAME}]`
+      `@core/callmanager call [ari username ${process.env.MEDIASERVER_ARI_USERNAME}]`
     );
 
     logger.verbose(
-      `@core/callmanager call [endpoint ${process.env.MS_TRUNK}/${process.env.MS_CONTEXT}/${process.env.MS_EXTENSION}]`
+      `@core/callmanager call [endpoint ${process.env.MEDIASERVER_TRUNK}/${process.env.MEDIASERVER_CONTEXT}/${process.env.MEDIASERVER_EXTENSION}]`
     );
 
     try {
       const epInfo: EndpointInfo = {
         domain: domainUri,
-        trunk: process.env.MS_TRUNK,
-        context: process.env.MS_CONTEXT,
-        extension: process.env.MS_EXTENSION
+        trunk: process.env.MEDIASERVER_TRUNK,
+        context: process.env.MEDIASERVER_CONTEXT,
+        extension: process.env.MEDIASERVER_EXTENSION
       };
 
       const conn = await client.connect(
-        process.env.MS_ARI_INTERNAL_URL,
-        process.env.MS_ARI_USERNAME,
-        process.env.MS_ARI_SECRET
+        process.env.MEDIASERVER_ARI_INTERNAL_URL,
+        process.env.MEDIASERVER_ARI_USERNAME,
+        process.env.MEDIASERVER_ARI_SECRET
       );
       const channel = conn.Channel();
       callback(null, await originate(call.request, channel, epInfo));

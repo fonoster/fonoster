@@ -16,8 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import userDecoder from "@fonoster/users/dist/service/decoder";
-import UserPB from "@fonoster/users/dist/service/protos/users_pb";
 import { UserLimiter } from "@fonoster/users/dist/service/types";
 import {
   Limit,
@@ -27,7 +25,11 @@ import {
   RoutrClient,
   ROUTR_RESOURCES
 } from "../service/types";
-import logger from "@fonoster/logger";
+import { getLogger } from "@fonoster/logger";
+import userDecoder from "@fonoster/users/dist/service/decoder";
+import UserPB from "@fonoster/users/dist/service/protos/users_pb";
+
+const logger = getLogger({ service: "limiter", filePath: __filename });
 
 /* eslint-disable require-jsdoc */
 
@@ -107,9 +109,9 @@ export function getLimiters(): Limiter[] {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     return require(path) as Limiter[];
   } catch (e) {
-    logger.info(
-      `@fonoster/limiter unable to open limiter configuration at '${path}' ; starting without limiters`
-    );
+    logger.info("no configuration found", {
+      path
+    });
     return [];
   }
 }

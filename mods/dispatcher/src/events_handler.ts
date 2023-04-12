@@ -41,7 +41,7 @@ const wsConnections = new Map();
 // First try the short env but fallback to the cannonical version
 const dialbackEnpoint =
   process.env.ARI_EXTERNAL_URL ||
-  process.env.MS_ARI_EXTERNAL_URL ||
+  process.env.MEDIASERVER_ARI_INTERNAL_URL ||
   "http://localhost:8088";
 
 export default function (err: any, ari: any) {

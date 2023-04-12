@@ -46,7 +46,7 @@ export default async function (
           return;
         }
         resolve(
-          `http://${process.env.FS_HOST}:${process.env.FS_PORT}/${bucket}/${accessKeyId}/${filename}`
+          `http://${process.env.S3_SERVER_HOST}:${process.env.S3_SERVER_PORT}/${bucket}/${accessKeyId}/${filename}`
         );
       }
     );

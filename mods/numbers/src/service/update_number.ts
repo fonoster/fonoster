@@ -41,7 +41,7 @@ export default async function updateNumber(call: any, callback: any) {
       encoder = encoder
         .withLocation(
           `tel:${objectFromDB.getE164Number()}`,
-          process.env.MS_ENDPOINT
+          process.env.MEDIASERVER_SIP_ENDPOINT
         )
         .withMetadata({
           webhook: getWebhook(request),

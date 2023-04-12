@@ -20,12 +20,12 @@
   {
     "module": "callmanager",
     "env": [
-      "MS_TRUNK",
-      "MS_CONTEXT",
-      "MS_EXTENSION",
-      "MS_ARI_INTERNAL_URL",
-      "MS_ARI_USERNAME",
-      "MS_ARI_SECRET",
+      "MEDIASERVER_TRUNK",
+      "MEDIASERVER_CONTEXT",
+      "MEDIASERVER_EXTENSION",
+      "MEDIASERVER_ARI_INTERNAL_URL",
+      "MEDIASERVER_ARI_USERNAME",
+      "MEDIASERVER_ARI_SECRET",
       "SIPPROXY_HOST",
       "SIPPROXY_API_PORT",
       "SIPPROXY_API_USERNAME",
@@ -35,10 +35,10 @@
   {
     "module": "dispatcher",
     "env": [
-      "MS_ARI_INTERNAL_URL",
-      "MS_ARI_USERNAME",
-      "MS_ARI_SECRET",
-      "RECORDINGS_PATH"
+      "MEDIASERVER_ARI_INTERNAL_URL",
+      "MEDIASERVER_ARI_USERNAME",
+      "MEDIASERVER_ARI_SECRET",
+      "MEDIASERVER_RECORDINGS_PATH"
     ]
   },
   {
@@ -55,7 +55,7 @@
     "module": "numbers",
     "env": [
       "VOICE_URL",
-      "MS_ENDPOINT",
+      "MEDIASERVER_SIP_ENDPOINT",
       "SIPPROXY_HOST",
       "SIPPROXY_API_PORT",
       "SIPPROXY_API_USERNAME",
@@ -68,7 +68,7 @@
   },
   {
     "module": "storage",
-    "env": ["FS_HOST", "FS_PORT", "FS_USERNAME", "FS_SECRET"]
+    "env": ["S3_SERVER_HOST", "S3_SERVER_PORT", "S3_SERVER_USERNAME", "S3_SERVER_SECRET"]
   },
   {
     "module": "monitor",

@@ -6,7 +6,7 @@ services:
     image: fonoster/apiserver:latest
     restart: unless-stopped
     environment:
-      ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
+      GRPC_ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
       DATASOURCE_HOST: ${DATASOURCE_HOST}
       DATASOURCE_PORT: ${DATASOURCE_PORT}
       SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
@@ -15,21 +15,21 @@ services:
       SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
       GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN}
       # TODO: Take values from environment variables
-      MS_TRUNK: "ms_trunk_name"
-      MS_CONTEXT: "ms_context_name"
-      MS_EXTENSION: "1001"
-      MS_ARI_INTERNAL_URL: "http://ari.internal.example.com"
-      MS_ARI_USERNAME: "ari_user"
-      MS_ARI_SECRET: "ari_secret"
-      RECORDINGS_PATH: "/path/to/recordings"
+      MEDIASERVER_TRUNK: "ms_trunk_name"
+      MEDIASERVER_CONTEXT: "ms_context_name"
+      MEDIASERVER_EXTENSION: "1001"
+      MEDIASERVER_ARI_INTERNAL_URL: "http://ari.internal.example.com"
+      MEDIASERVER_ARI_USERNAME: "ari_user"
+      MEDIASERVER_ARI_SECRET: "ari_secret"
+      MEDIASERVER_RECORDINGS_PATH: "/path/to/recordings"
       VOICE_URL: "http://voice.example.com"
-      MS_ENDPOINT: "ms_endpoint_name"
+      MEDIASERVER_SIP_ENDPOINT: "ms_endpoint_name"
       VAULT_ADDR: "http://vault.example.com"
       SECRETS_POLICY: "secrets_policy_name"
-      FS_HOST: "fs.example.com"
-      FS_PORT: "9000"
-      FS_USERNAME: "fs_user"
-      FS_SECRET: "fs_secret"
+      S3_SERVER_HOST: "fs.example.com"
+      S3_SERVER_PORT: "9000"
+      S3_SERVER_USERNAME: "fs_user"
+      S3_SERVER_SECRET: "fs_secret"
       LOGS_AGGREGRATOR_HOST: "logs.example.com"
       LOGS_AGGREGRATOR_PORT: "5000"
     depends_on:
@@ -90,8 +90,8 @@ services:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       EXTERN_PORT: ${MEDIASERVER_EXTERN_PORT}
       LOGS_LEVEL: ${LOGS_LEVEL}
-      APISERVER_ENDPOINT: ${MEDIASERVER_APISERVER_ENDPOINT}
-      ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
+      APISERVER_ENDPOINT: ${APISERVER_ENDPOINT}
+      GRPC_ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
       ARI_EXTERNAL_URL: ${MEDIASERVER_ARI_EXTERNAL_URL}
       ARI_INTERNAL_URL: ${MEDIASERVER_ARI_INTERNAL_URL}
       ARI_USERNAME: ${MEDIASERVER_ARI_USERNAME}

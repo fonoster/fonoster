@@ -39,6 +39,6 @@ export const uploadRecording = async (
   await storage.uploadObject({
     // TODO: Place bucket name on a constant
     bucket: "recordings",
-    filename: `${process.env.RECORDINGS_PATH}/${filename}`
+    filename: `${process.env.MEDIASERVER_RECORDINGS_PATH}/${filename}`
   });
 };

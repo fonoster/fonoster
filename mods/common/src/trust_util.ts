@@ -16,14 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonoster/logger";
-import path from "path";
 import * as os from "os";
 import * as fs from "fs";
+import { getLogger } from "@fonoster/logger";
+import path from "path";
 import atob from "atob";
-const grpc = require("@grpc/grpc-js");
 
+const grpc = require("@grpc/grpc-js");
 const prepCert = (cert: string) => Buffer.from(atob(cert), "utf-8");
+const logger = getLogger({ service: "common", filePath: __filename })
 
 let config: {
   caCertificate?: string;
@@ -40,7 +41,7 @@ try {
       .toString("utf-8")
   );
 } catch (e) {
-  logger.verbose("@fonoster/common no config found");
+  logger.verbose("no config found at " + path.join(os.homedir(), ".fonoster", "config"));
 }
 
 const getServerCredentials = () => {
@@ -57,17 +58,17 @@ const getServerCredentials = () => {
     );
   } catch (e) {
     logger.info(
-      "@fonoster/common trust util [unable to load security certificates]"
+      "unable to load security certificates"
     );
     logger.info(
-      "@fonoster/common trust util [starting server in insecure mode]"
+      "starting server in insecure mode"
     );
     return grpc.ServerCredentials.createInsecure();
   }
 };
 
 const getClientCredentials = () =>
-  process.env.ALLOW_INSECURE === "true"
+  process.env.GRPC_ALLOW_INSECURE === "true"
     ? grpc.credentials.createInsecure()
     : grpc.credentials.createSsl();
 
