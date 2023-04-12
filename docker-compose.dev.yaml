@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+
+  sipproxy:
+    ports:
+      - 4567:4567
+      - 5060-5063:5060-5063
+      - 5060:5060/udp
+
+  mediaserver:
+    ports:
+      - 8080
+
+  intents_analyzer:
+    ports:
+      - 3000:80
+      - 3001:3001
+
+  datasource:
+    ports:
+      - 6379:6379
+
+volumes:
+  shared:

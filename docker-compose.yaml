@@ -6,32 +6,30 @@ services:
     image: fonoster/apiserver:latest
     restart: unless-stopped
     environment:
-      GRPC_ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
+      GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN}
       DATASOURCE_HOST: ${DATASOURCE_HOST}
       DATASOURCE_PORT: ${DATASOURCE_PORT}
       SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
       SIPPROXY_API_PORT: ${SIPPROXY_API_PORT}
       SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
       SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
-      GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN}
-      # TODO: Take values from environment variables
-      MEDIASERVER_TRUNK: "ms_trunk_name"
-      MEDIASERVER_CONTEXT: "ms_context_name"
-      MEDIASERVER_EXTENSION: "1001"
-      MEDIASERVER_ARI_INTERNAL_URL: "http://ari.internal.example.com"
-      MEDIASERVER_ARI_USERNAME: "ari_user"
-      MEDIASERVER_ARI_SECRET: "ari_secret"
-      MEDIASERVER_RECORDINGS_PATH: "/path/to/recordings"
-      VOICE_URL: "http://voice.example.com"
-      MEDIASERVER_SIP_ENDPOINT: "ms_endpoint_name"
-      VAULT_ADDR: "http://vault.example.com"
-      SECRETS_POLICY: "secrets_policy_name"
-      S3_SERVER_HOST: "fs.example.com"
-      S3_SERVER_PORT: "9000"
-      S3_SERVER_USERNAME: "fs_user"
-      S3_SERVER_SECRET: "fs_secret"
-      LOGS_AGGREGRATOR_HOST: "logs.example.com"
-      LOGS_AGGREGRATOR_PORT: "5000"
+      MEDIASERVER_SIP_ENDPOINT: ${MEDIASERVER_SIP_ENDPOINT}
+      MEDIASERVER_TRUNK: ${MEDIASERVER_TRUNK}
+      MEDIASERVER_CONTEXT: ${MEDIASERVER_CONTEXT}
+      MEDIASERVER_EXTENSION: ${MEDIASERVER_EXTENSION}
+      MEDIASERVER_ARI_INTERNAL_URL: ${MEDIASERVER_ARI_INTERNAL_URL}
+      MEDIASERVER_ARI_USERNAME: ${MEDIASERVER_ARI_USERNAME}
+      MEDIASERVER_ARI_SECRET: ${MEDIASERVER_ARI_SECRET}
+      MEDIASERVER_RECORDINGS_PATH: ${MEDIASERVER_RECORDINGS_PATH}
+      VOICE_URL: ${VOICE_URL}
+      VAULT_ADDR: ${VAULT_ADDR}
+      SECRETS_POLICY: ${SECRETS_POLICY}
+      S3_SERVER_HOST: ${S3_SERVER_HOST}
+      S3_SERVER_PORT: ${S3_SERVER_PORT}
+      S3_SERVER_USERNAME: ${S3_SERVER_USERNAME}
+      S3_SERVER_SECRET: ${S3_SERVER_SECRET}
+      LOGS_AGGREGRATOR_HOST: ${LOGS_AGGREGRATOR_HOST}
+      LOGS_AGGREGRATOR_PORT: ${LOGS_AGGREGRATOR_PORT}
     depends_on:
       - datasource
     ports:
@@ -56,8 +54,9 @@ services:
       JAVA_OPTS: ${SIPPROXY_JAVA_OPTS}
     depends_on:
       - datasource
+    expose:
+      - 4567
     ports:
-      - 4567:4567
       - 5060-5063:5060-5063
       - 5060:5060/udp
 
@@ -111,7 +110,7 @@ services:
     image: fonoster/rox:latest
     restart: unless-stopped
     expose:
-      - 3000
+      - 3000:80
       - 3001
     environment:
       LOGS_LEVEL: ${LOGS_LEVEL}
