@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as grpc from "@grpc/grpc-js";
 import * as os from "os";
 import * as fs from "fs";
 import { getLogger } from "@fonoster/logger";
 import path from "path";
 import atob from "atob";
 
-const grpc = require("@grpc/grpc-js");
 const prepCert = (cert: string) => Buffer.from(atob(cert), "utf-8");
 const logger = getLogger({ service: "common", filePath: __filename })
 

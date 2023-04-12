@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "@grpc/grpc-js";
+// const grpc = require("@grpc/grpc-js").grpc;
+import * as grpc from "@grpc/grpc-js";
 import {
   GetRoleRequest,
   Role,
