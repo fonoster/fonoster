@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/auth",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Authentication Module",
   "author": "Raul Sanchez <rsanchez@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@fonoster/certs": "^0.4.6",
-    "@fonoster/common": "^0.4.7",
+    "@fonoster/common": "^0.4.8",
     "@fonoster/errors": "^0.4.6",
     "@fonoster/logger": "^0.4.7",
     "@grpc/grpc-js": "^1.8.4",

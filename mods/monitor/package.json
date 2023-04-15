@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/monitor",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Monitoring API",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -39,10 +39,10 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.17.0",
-    "@fonoster/auth": "^0.4.7",
+    "@fonoster/auth": "^0.4.8",
     "@fonoster/certs": "^0.4.6",
-    "@fonoster/common": "^0.4.7",
-    "@fonoster/core": "^0.4.7",
+    "@fonoster/common": "^0.4.8",
+    "@fonoster/core": "^0.4.8",
     "@fonoster/errors": "^0.4.6",
     "@fonoster/logger": "^0.4.7",
     "@grpc/grpc-js": "^1.8.4",
