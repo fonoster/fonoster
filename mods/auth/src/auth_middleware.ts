@@ -17,10 +17,12 @@
  * limitations under the License.
  */
 import { status } from "@grpc/grpc-js";
+import { getLogger } from "@fonoster/logger";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
-import logger from "@fonoster/logger";
+
+const logger = getLogger({ service: "auth", filePath: __filename })
 
 const WHITELIST = process.env.AUTH_ACCESS_WHITELIST
   ? process.env.AUTH_ACCESS_WHITELIST.split(",")
@@ -39,7 +41,7 @@ export default class AuthMiddleware {
     const pathRequest = ctx.service.path;
 
     logger.verbose(
-      `@fonoster/middleware receiving request [request.path = ${pathRequest}]`
+      `receiving request [request.path = ${pathRequest}]`
     );
 
     if (this.whitelist.includes(pathRequest)) {

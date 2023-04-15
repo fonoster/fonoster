@@ -20,7 +20,7 @@ import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { isDefaultProject } from "../../config";
-const Projects = require("@fonoster/projects");
+const Projects = require("@fonoster/projects").default;
 
 export default class ListCommand extends Command {
   static description = `list all Fonoster Projects you have access to

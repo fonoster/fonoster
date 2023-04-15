@@ -11,7 +11,7 @@ export default async function (resource: any): Promise<any> {
   const meta = {
     kind: resource.kind,
     accessKeyId: resource.metadata.accessKeyId,
-    traceId: currentSpan.spanContext().traceId
+    //traceId: currentSpan.spanContext().traceId
   };
   const span = tracer.startSpan("create_resource.ts:createResource()", {
     kind: 1

@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import winston from "winston";
 import { resolve } from "path";
 import { fluent, level, transports } from "./envs";
+import winston from "winston";
 
 export const getLogger = (config: { service?: string; filePath: string }) => {
   const file = config.filePath.replace(resolve("./"), "");
