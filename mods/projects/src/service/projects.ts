@@ -18,7 +18,7 @@
  */
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import grpc from "@grpc/grpc-js";
+import * as grpc from "@grpc/grpc-js";
 import ProjectsPB, {
   ListProjectsRequest,
   ListProjectsResponse,
@@ -30,24 +30,21 @@ import ProjectsPB, {
   RenewAccessKeySecretResponse,
   Project
 } from "./protos/projects_pb";
-import { Empty } from "./protos/common_pb";
 import {
   IProjectsService,
   ProjectsService,
   IProjectsServer
 } from "./protos/projects_grpc_pb";
+import { Empty } from "./protos/common_pb";
 import { getRedisConnection, getAccessKeyId } from "@fonoster/core";
-import objectid from "bson-objectid";
-import encoder from "./encoder";
 import { assertNotEmpty } from "./assertions";
-import JWT from "@fonoster/auth/dist/utils/jwt";
 import { AUTH_ISS, getSalt } from "@fonoster/certs";
+import { ErrorCodes, FonosterError } from "@fonoster/errors";
+import JWT from "@fonoster/auth/dist/utils/jwt";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import decoder from "./decoder";
-import { ErrorCodes, FonosterError } from "@fonoster/errors";
-
-const authenticator = new Auth(new JWT());
-const redis = getRedisConnection();
+import objectid from "bson-objectid";
+import encoder from "./encoder";
 
 class ProjectsServer implements IProjectsServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -57,6 +54,9 @@ class ProjectsServer implements IProjectsServer {
   ): Promise<void> {
     try {
       assertNotEmpty("name", call.request.getName());
+
+      const authenticator = new Auth(new JWT());
+      const redis = getRedisConnection();
 
       // Prefixing Project's accessKeyID to avoid confusion with user accounts
       const ref = "PJ" + objectid();
@@ -93,6 +93,8 @@ class ProjectsServer implements IProjectsServer {
     callback: grpc.sendUnaryData<ProjectsPB.Project>
   ) {
     try {
+      const redis = getRedisConnection();
+
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
@@ -123,6 +125,8 @@ class ProjectsServer implements IProjectsServer {
     callback: grpc.sendUnaryData<ProjectsPB.Project>
   ) {
     try {
+      const redis = getRedisConnection();
+
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
@@ -147,6 +151,8 @@ class ProjectsServer implements IProjectsServer {
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
+      const redis = getRedisConnection();
+
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
@@ -174,6 +180,8 @@ class ProjectsServer implements IProjectsServer {
     callback: grpc.sendUnaryData<ListProjectsResponse>
   ) {
     try {
+      const redis = getRedisConnection();
+
       const list = await redis.smembers("u_" + getAccessKeyId(call));
       const projects: Project[] = await Promise.all(
         list.map(async (ref) => {
@@ -199,6 +207,9 @@ class ProjectsServer implements IProjectsServer {
     callback: grpc.sendUnaryData<RenewAccessKeySecretResponse>
   ) {
     try {
+      const authenticator = new Auth(new JWT());
+      const redis = getRedisConnection();
+
       const ref = call.request.getRef();
       const raw = await redis.get(ref);
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);

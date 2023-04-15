@@ -38,9 +38,6 @@ import { ErrorCodes, FonosterError } from "@fonoster/errors";
 import { UserStatus } from "@fonoster/users/dist/service/types";
 import { getAccessKeyId, getRedisConnection, routr } from "@fonoster/core";
 
-const redis = getRedisConnection();
-const limiters: Limiter[] = getLimiters();
-
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
@@ -52,6 +49,8 @@ class LimiterServer implements ILimiterServer {
     callback: grpc.sendUnaryData<CheckAuthorizedResponse>
   ) {
     const accessKeyId = getAccessKeyId(call);
+    const redis = getRedisConnection();
+    const limiters: Limiter[] = getLimiters();
 
     // Special case for limiter
     // NOTE: Perhaps we should avoid calling the limiter if the accessKeyId === internal

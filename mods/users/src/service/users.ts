@@ -18,7 +18,7 @@
  */
 /* eslint-disable require-jsdoc */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import grpc from "@grpc/grpc-js";
+import * as grpc from "@grpc/grpc-js";
 import UserPB, {
   CreateUserRequest,
   UpdateUserRequest,
@@ -30,32 +30,31 @@ import UserPB, {
   ListUsersResponse,
   User
 } from "./protos/users_pb";
-import { Empty } from "./protos/common_pb";
 import {
   IUsersService,
   UsersService,
   IUsersServer
 } from "./protos/users_grpc_pb";
-import { assertNotEmpty, assertValidEmail, assertValidURL } from "./assertions";
 import {
   getRedisConnection,
   getAccessKeyId,
   getAccessKeySecret
 } from "@fonoster/core";
+import { Empty } from "./protos/common_pb";
+import { assertNotEmpty, assertValidEmail, assertValidURL } from "./assertions";
+import { FonosterError } from "@fonoster/errors";
+import { ErrorCodes } from "@fonoster/errors";
+import { AUTH_ISS, getSalt } from "@fonoster/certs";
+import { UserLimiter, UserStatus } from "./types";
+import Auth from "@fonoster/auth/dist/utils/auth_utils";
+import JWT from "@fonoster/auth/dist/utils/jwt";
+import logger from "@fonoster/logger";
+import bcrypt from "bcrypt";
 import objectid from "bson-objectid";
 import encoder from "./encoder";
 import decoder from "./decoder";
-import { FonosterError } from "@fonoster/errors";
-import { ErrorCodes } from "@fonoster/errors";
-import Auth from "@fonoster/auth/dist/utils/auth_utils";
-import JWT from "@fonoster/auth/dist/utils/jwt";
-import { AUTH_ISS, getSalt } from "@fonoster/certs";
-import logger from "@fonoster/logger";
-import bcrypt from "bcrypt";
-import { UserLimiter, UserStatus } from "./types";
 
 const authenticator = new Auth(new JWT());
-const redis = getRedisConnection();
 
 // TODO: Move to commons or core
 async function getTokenRole(token: string): Promise<string> {
@@ -76,6 +75,7 @@ class UsersServer implements IUsersServer {
     callback: grpc.sendUnaryData<ListUsersResponse>
   ) {
     try {
+      const redis = getRedisConnection();
       const role = await getTokenRole(getAccessKeySecret(call));
       const accessKeyId = getAccessKeyId(call);
       const list = await redis.smembers("fn_users");
@@ -116,6 +116,8 @@ class UsersServer implements IUsersServer {
       assertValidEmail(call.request.getEmail());
       assertValidURL(call.request.getAvatar());
 
+      const redis = getRedisConnection();
+
       const emailExist = await redis.get(call.request.getEmail());
 
       if (emailExist) {
@@ -154,6 +156,7 @@ class UsersServer implements IUsersServer {
     callback: grpc.sendUnaryData<UserPB.User>
   ) {
     try {
+      const redis = getRedisConnection();
       const role = await getTokenRole(getAccessKeySecret(call));
       const ref = call.request.getRef();
 
@@ -215,6 +218,8 @@ class UsersServer implements IUsersServer {
         );
       }
 
+      const redis = getRedisConnection();
+
       // Get result here
       const raw = await redis.get(call.request.getRef());
 
@@ -232,6 +237,7 @@ class UsersServer implements IUsersServer {
     callback: grpc.sendUnaryData<Empty>
   ) {
     try {
+      const redis = getRedisConnection();
       const raw = await redis.get(call.request.getRef());
       if (!raw) throw new FonosterError("not found", ErrorCodes.NOT_FOUND);
       const user = decoder(raw.toString());
@@ -255,6 +261,8 @@ class UsersServer implements IUsersServer {
       logger.verbose(
         `@fonoster/auth creating token [email is ${call.request.getEmail()}]`
       );
+      const redis = getRedisConnection();
+
       const ref = await redis.get(call.request.getEmail());
 
       // Compare the value send with the value stored
