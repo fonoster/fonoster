@@ -16,11 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import APIClient from "./api_client";
+export * as Tracer from "./tracer";
 import { ClientOptions } from "./types";
 import { getClientCredentials, getServerCredentials } from "./trust_util";
-import healthcheck from "./healthcheck";
-import runServices from "./service_runner";
 import { Plugin } from "./speech/plugin";
 import {
   SpeechProvider,
@@ -28,7 +26,9 @@ import {
   SpeechResult,
   StreamSpeechResult
 } from "./speech/types";
-export * as Tracer from "./tracer";
+import APIClient from "./api_client";
+import healthcheck from "./healthcheck";
+import runServices from "./service_runner";
 
 export {
   APIClient,

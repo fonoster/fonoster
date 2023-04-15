@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ServerStream } from "./funcs";
+import { FonosterError } from "@fonoster/errors";
+import { promisify } from "util";
 import Docker from "dockerode";
 import fs from "fs";
 import logger from "@fonoster/logger";
-import { ServerStream } from "./funcs";
-import { FonosterError } from "@fonoster/errors";
 import walk from "walk";
-import { promisify } from "util";
 
 const sleep = promisify(setTimeout);
 

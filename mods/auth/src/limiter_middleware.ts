@@ -30,15 +30,15 @@ interface Context {
   };
 }
 
-const svc = new LimiterClient(
-  process.env.APISERVER_ENDPOINT || "localhost:50052",
-  getClientCredentials()
-);
-
 export async function checkAuthorized(
   path: string,
   metadata: Metadata
 ): Promise<boolean> {
+  const svc = new LimiterClient(
+    process.env.APISERVER_ENDPOINT || "localhost:50052",
+    getClientCredentials()
+  );
+  
   return new Promise((resolve, reject) => {
     const req = new AuthPB.CheckAuthorizedRequest();
     req.setPath(path);

@@ -20,15 +20,14 @@ import { AuthClient } from "../service/protos/auth_grpc_pb";
 import { getClientCredentials } from "@fonoster/common";
 import AuthPB from "../service/protos/auth_pb";
 
-const svc = new AuthClient(
-  process.env.APISERVER_ENDPOINT || "localhost:50052",
-  getClientCredentials()
-);
-
 export default async function (
   role: string,
   service: string
 ): Promise<boolean> {
+  const svc = new AuthClient(
+    process.env.APISERVER_ENDPOINT || "localhost:50052",
+    getClientCredentials()
+  );
   return new Promise((resolve, reject) => {
     const req = new AuthPB.GetRoleRequest();
     req.setName(role);

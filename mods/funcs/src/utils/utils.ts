@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FuncsPB, { Func } from "../service/protos/funcs_pb";
+import { FunctionDefinition } from "openfaas-client";
 import { DeployFuncRequest, FuncParameters } from "../client/types";
+import { FonosterError, ErrorCodes } from "@fonoster/errors";
+import FuncsPB, { Func } from "../service/protos/funcs_pb";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
-import { FonosterError, ErrorCodes } from "@fonoster/errors";
 import cron from "cron-validate";
 import createAccessKeySecret from "./auth";
-import { FunctionDefinition } from "openfaas-client";
 
 export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
