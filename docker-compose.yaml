@@ -7,12 +7,8 @@ services:
     restart: unless-stopped
     environment:
       GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN}
-      DATASOURCE_HOST: ${DATASOURCE_HOST}
-      DATASOURCE_PORT: ${DATASOURCE_PORT}
+      DATABASE_URL: ${DATABASE_URL}
       SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
-      SIPPROXY_API_PORT: ${SIPPROXY_API_PORT}
-      SIPPROXY_API_USERNAME: ${SIPPROXY_API_USERNAME}
-      SIPPROXY_API_SECRET: ${SIPPROXY_API_SECRET}
       MEDIASERVER_SIP_ENDPOINT: ${MEDIASERVER_SIP_ENDPOINT}
       MEDIASERVER_TRUNK: ${MEDIASERVER_TRUNK}
       MEDIASERVER_CONTEXT: ${MEDIASERVER_CONTEXT}
@@ -30,33 +26,23 @@ services:
       S3_SERVER_SECRET: ${S3_SERVER_SECRET}
       LOGS_AGGREGRATOR_HOST: ${LOGS_AGGREGRATOR_HOST}
       LOGS_AGGREGRATOR_PORT: ${LOGS_AGGREGRATOR_PORT}
-    depends_on:
-      - datasource
     ports:
       - 50052:50052
 
   sipproxy:
-    image: fonoster/routr:latest
+    image: fonoster/routr-one:latest
     restart: unless-stopped
     environment:
-      EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
-      DATA_SOURCE_PROVIDER: ${SIPPROXY_DATA_SOURCE_PROVIDER}
-      INITIAL_API_SECRET: ${SIPPROXY_API_SECRET}
-      DATA_SOURCE_PARAMETERS: ${SIPPROXY_DATA_SOURCE_PARAMETERS}
-      BIND_ADDR: ${SIPPROXY_BIND_ADDR}
-      RECORD_ROUTE: ${SIPPROXY_RECORD_ROUTE}
-      REGISTRAR_INTF: ${SIPPROXY_REGISTRAR_INTF}
-      EX_RTP_ENGINE_ENABLED: ${SIPPROXY_EX_RTP_ENGINE_ENABLED}
-      EX_RTP_ENGINE_PROTO: ${SIPPROXY_EX_RTP_ENGINE_PROTO}
-      EX_RTP_ENGINE_HOST: ${SIPPROXY_EX_RTP_ENGINE_HOST}
-      EX_RTP_ENGINE_PORT: ${SIPPROXY_EX_RTP_ENGINE_PORT}
-      EX_CONVERT_TEL_TO_E164: ${SIPPROXY_EX_CONVERT_TEL_TO_E164}
-      JAVA_OPTS: ${SIPPROXY_JAVA_OPTS}
+      EXTERNAL_ADDRS: ${DOCKER_HOST_ADDRESS}
+      RTPENGINE_HOST: ${RTPENGINE_HOST}
+      RTPENGINE_PORT: ${RTPENGINE_PORT}
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
-      - datasource
+      - postgres
     expose:
-      - 4567
+      - 51907
     ports:
+      - 51907:51907
       - 5060-5063:5060-5063
       - 5060:5060/udp
 
@@ -115,53 +101,27 @@ services:
     environment:
       LOGS_LEVEL: ${LOGS_LEVEL}
 
-  datasource:
-    image: redis:latest
+  postgres:
+    image: postgres:14.1-alpine
     restart: unless-stopped
     environment:
-      - DATASOURCE_PEER_REF=${DATASOURCE_PEER_REF}
-      - DATASOURCE_PEER_USERNAME=${DATASOURCE_PEER_USERNAME}
-      - DATASOURCE_PEER_SECRET=${DATASOURCE_PEER_SECRET}
-      - DATASOURCE_PEER_DESCRIPTION=Voice Peer @ Default Region
-    command: >
-      /bin/sh -c "
-        redis-server --daemonize yes;
-        sleep 3;
-        redis-cli SADD peers \"$$DATASOURCE_PEER_REF\";
-        JSON_TEMPLATE='{
-          \"apiVersion\": \"v1beta1\",
-          \"kind\": \"Peer\",
-          \"metadata\": {
-            \"name\": \"__DATASOURCE_PEER_DESCRIPTION__\",
-            \"ref\": \"__DATASOURCE_PEER_REF__\",
-            \"createdOn\": \"__CREATED_ON__\",
-            \"modifiedOn\": \"__MODIFIED_ON__\"
-          },
-          \"spec\": {
-            \"device\": \"default\",
-            \"credentials\": {
-              \"username\": \"__DATASOURCE_PEER_USERNAME__\",
-              \"secret\": \"__DATASOURCE_PEER_SECRET__\"
-            }
-          }
-        }';
-        CREATED_ON=$(date -u +'%Y-%m-%dT%H:%M:%S.%3NZ');
-        MODIFIED_ON=$(date -u +'%Y-%m-%dT%H:%M:%S.%3NZ');
-        JSON_STR=$(echo \"$$JSON_TEMPLATE\" |
-          sed \"s/__DATASOURCE_PEER_DESCRIPTION__/$$DATASOURCE_PEER_DESCRIPTION/g\" |
-          sed \"s/__DATASOURCE_PEER_REF__/$$DATASOURCE_PEER_REF/g\" |
-          sed \"s/__DATASOURCE_PEER_USERNAME__/$$DATASOURCE_PEER_USERNAME/g\" |
-          sed \"s/__DATASOURCE_PEER_SECRET__/$$DATASOURCE_PEER_SECRET/g\" |
-          sed \"s/__CREATED_ON__/$$CREATED_ON/g\" |
-          sed \"s/__MODIFIED_ON__/$$MODIFIED_ON/g\");
-        redis-cli SET \"$$DATASOURCE_PEER_REF\" \"$$JSON_STR\";
-        redis-cli SAVE;
-        redis-cli SHUTDOWN NOSAVE;
-        sleep 3;
-        exec redis-server
-      "
+      - POSTGRES_USER=${DATABASE_USERNAME}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - TZ=UTC
+      - PGTZ=UTC
     expose:
-      - 6379
+      - 5432
+    volumes:
+      - shared:/var/lib/postgresql/data
+
+  postgres_init:
+    image: fonoster/routr-pgdata-migrations:latest
+    restart: "no"
+    command: ["npx", "-y", "prisma", "migrate", "deploy"]
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL
 
 volumes:
   shared:
