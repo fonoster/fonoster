@@ -38,7 +38,7 @@
     "deepmerge": "^4.2.2",
     "ioredis": "^4.16.0",
     "nanoid": "^3.1.23",
-    "phone": "^2.4.21"
+    "phone": "^3.1.37"
   },
   "devDependencies": {
     "@types/btoa": "^1.2.3",
