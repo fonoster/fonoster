@@ -63,7 +63,7 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
-    "axios": "^0.24.0",
+    "axios": "^1.6.0",
     "colors": "^1.4.0"
   }
 }
