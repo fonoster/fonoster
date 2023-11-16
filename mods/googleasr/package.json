@@ -31,7 +31,7 @@
   "dependencies": {
     "@fonoster/common": "^0.3.26",
     "@fonoster/logger": "^0.3.26",
-    "@google-cloud/speech": "^4.10.1",
+    "@google-cloud/speech": "^6.1.0",
     "bson-objectid": "^2.0.2",
     "node-record-lpcm16": "^1.0.1",
     "sync": "^0.2.5"
