@@ -3,12 +3,13 @@
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-<a href="https://gitpod.io/#https://github.com/fonoster/fonoster/tree/0.4"> <img src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod" alt="Contribute with Gitpod" />
-</a> [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/mpWSRUhG7e) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
+<a href="https://discord.gg/mpWSRUhG7e"><img alt="Fonoster community banner" src="https://raw.githubusercontent.com/fonoster/.github/main/profile/community.png"></img></a>
 
-## Features
+![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
-The most notable features on FN 0.3 are:
+## Features 
+
+The most notable features on FN 0.4 are:
 
 - [x] Cloud initialization with Cloud-Init
 - [x] Multitenancy
@@ -81,49 +82,6 @@ callManager.call({
  .catch(console.error);
 ```
 
-## Deployment
-
-### Instant Server deployment with Docker and Compose
-
-For a quick demo of Fonoster, run the following command:
-
-```
-git clone https://github.com/fonoster/fonoster
-docker-compose up 
-```
-
-### Deploying in development mode with Gitpod
-
-Routr's one-click interactive deployment will familiarize you with the server in development mode.
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/fonoster/fonoster/tree/0.4)
-
-To connect to your instance, follow these steps:
-
-First, add your public SSH-keys to your Gitpod account by going to [Gitpod account keys](https://gitpod.io/user/keys) and adding your public key.
-
-Next, find your [Gitpod workspace](https://gitpod.io/workspaces) and click on the "More" button. Then, select "Connect via SSH."
-
-Finally, copy the SSH Command and run it in your terminal by pasting it and pressing Enter. The command should look like this:
-
-```bash
-ssh -L 5060:localhost:5060 <workspace-ssh-connection>
-```
-
-Replace <workspace-ssh-connection> with your own workspace SSH connection.
-
-For example, your command might look like this:
-
-```bash
-ssh -L 5060:localhost:5060 fonoster-mn8nsx0d9px@fonoster-mn8nsx0d9px.ssh.ws-us90.gitpod.io
-```
-
-This command forwards traffic from your local port 5060 to your Gitpod workspace's port 5060, allowing you to access your instance.
-
-### Kubernetes
-
-Deploying Routr in Kubernetes is coming soon.
-
 ## Getting Started
 
 To get started with FN use the following resources:
@@ -149,7 +107,11 @@ For contributing, please see the following links:
  - [Contribution Documents](https://github.com/fonoster/fonoster/blob/main/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonoster/contributors)
 
-**Sponsors**
+<a href="https://github.com/fonoster/fonoster/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=fonoster/fonoster" />
+</a>
+
+## Sponsors
 
 We're glad to be supported by respected companies and individuals from several industries.
 
@@ -163,5 +125,5 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
  - [Pedro Sanders](https://github.com/psanders)
 
 ## License
-Copyright (C) 2022 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
+Copyright (C) 2023 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
 
