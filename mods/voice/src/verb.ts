@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import axios from "axios";
-import {VoiceRequest} from "./types";
+import { VoiceRequest } from "./types";
 import logger from "@fonoster/logger";
 
 const auth =

@@ -20,14 +20,19 @@ import winston from "winston";
 import { resolve } from "path";
 import { fluent, level, transports } from "./envs";
 
-export const getLogger = (config: { service?: string, filePath: string }) => {
+export const getLogger = (config: { service?: string; filePath: string }) => {
   const file = config.filePath.replace(resolve("./"), "");
 
   const humanFormat = winston.format.combine(
     winston.format.timestamp({
       format: "YYYY-MM-dd HH:mm:ss.SSS"
     }),
-    winston.format.printf(({ level, message, timestamp, ...metadata }) => `${timestamp} [${level}]: ${config.service ? `(${config.service})` : ''} ${file} ${message} ${JSON.stringify(metadata)}`)
+    winston.format.printf(
+      ({ level, message, timestamp, ...metadata }) =>
+        `${timestamp} [${level}]: ${
+          config.service ? `(${config.service})` : ""
+        } ${file} ${message} ${JSON.stringify(metadata)}`
+    )
   );
 
   const logger = winston.createLogger({
@@ -38,9 +43,9 @@ export const getLogger = (config: { service?: string, filePath: string }) => {
   });
 
   logger.on("finish", () => {
-    fluent.sender.end("end", {}, () => { });
+    fluent.sender.end("end", {}, () => {});
   });
-  return logger
-}
+  return logger;
+};
 
-export { getLogger as default }
+export { getLogger as default };

@@ -32,18 +32,15 @@ const fluent = new fluentTransport(
 
 const format =
   process.env.LOGS_FORMAT === "json"
-    ? winston.format.combine(
-      winston.format.timestamp(),
-      winston.format.json()
-    )
+    ? winston.format.combine(winston.format.timestamp(), winston.format.json())
     : winston.format.combine(
-      winston.format.colorize(),
-      winston.format.simple()
-    );
+        winston.format.colorize(),
+        winston.format.simple()
+      );
 const level = process.env.LOGS_LEVEL ? process.env.LOGS_LEVEL : "info";
 const transports =
   process.env.LOGS_TRANSPORT === "fluent"
     ? [fluent]
     : [new winston.transports.Console()];
 
-export { format, level, transports, fluent }
+export { format, level, transports, fluent };

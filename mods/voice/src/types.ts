@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {MeterProvider} from "@opentelemetry/sdk-metrics-base";
+import { MeterProvider } from "@opentelemetry/sdk-metrics-base";
 
 export interface VoiceRequest {
   accessKeyId: string;

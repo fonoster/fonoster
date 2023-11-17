@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {SecretsClient} from "../service/protos/secrets_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { SecretsClient } from "../service/protos/secrets_grpc_pb";
 import SecretPB from "../service/protos/secrets_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 import {
   CreateSecretRequest,
   CreateSecretResponse,
@@ -62,7 +62,7 @@ export default class Secrets extends APIClient implements ISecretsClient {
   constructor(options?: ClientOptions) {
     super(SecretsClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -195,7 +195,7 @@ export default class Secrets extends APIClient implements ISecretsClient {
   }
 }
 
-export {Secret, SecretPB, CommonPB, ISecretsClient};
+export { Secret, SecretPB, CommonPB, ISecretsClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Secrets;

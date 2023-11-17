@@ -17,13 +17,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Tracer as T} from "@fonoster/common";
+import { Tracer as T } from "@fonoster/common";
 T.init("apps-service");
 
-import {AuthMiddleware} from "@fonoster/auth";
-import {runServices} from "@fonoster/common";
-import {getSalt} from "@fonoster/certs";
-import {AppsService} from "./protos/apps_grpc_pb";
+import { AuthMiddleware } from "@fonoster/auth";
+import { runServices } from "@fonoster/common";
+import { getSalt } from "@fonoster/certs";
+import { AppsService } from "./protos/apps_grpc_pb";
 import AppsServer from "./apps";
 
 const services = [

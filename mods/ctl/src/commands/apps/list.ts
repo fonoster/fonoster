@@ -1,11 +1,29 @@
+/*
+ * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import "../../config";
-import {CommonPB} from "@fonoster/domains";
-import {CLIError} from "@oclif/errors";
-import {Command, flags as oclifFlags} from "@oclif/command";
-import {CliUx} from "@oclif/core";
-import {App} from "@fonoster/apps";
-import {getProjectConfig} from "../../config";
-import {ProjectGuard} from "../../decorators/project_guard";
+import { CommonPB } from "@fonoster/domains";
+import { CLIError } from "@oclif/errors";
+import { Command, flags as oclifFlags } from "@oclif/command";
+import { CliUx } from "@oclif/core";
+import { App } from "@fonoster/apps";
+import { getProjectConfig } from "../../config";
+import { ProjectGuard } from "../../decorators/project_guard";
 
 const Apps = require("@fonoster/apps");
 
@@ -25,7 +43,7 @@ export default class ListCommand extends Command {
 
   @ProjectGuard()
   async run() {
-    const {flags} = this.parse(ListCommand);
+    const { flags } = this.parse(ListCommand);
 
     try {
       const apps = new Apps(getProjectConfig());
@@ -36,7 +54,7 @@ export default class ListCommand extends Command {
 
       // while (true) {
       // Get a list
-      const result = await apps.listApps({pageSize, pageToken, view});
+      const result = await apps.listApps({ pageSize, pageToken, view });
 
       const list = result.apps;
       pageToken = result.nextPageToken;
@@ -59,8 +77,8 @@ export default class ListCommand extends Command {
         CliUx.ux.table(
           data as any,
           {
-            ref: {minWidth: 15},
-            name: {header: "Name", minWidth: 15},
+            ref: { minWidth: 15 },
+            name: { header: "Name", minWidth: 15 },
             projectId: {
               header: "Project ID",
               minWidth: 15,
@@ -78,7 +96,7 @@ export default class ListCommand extends Command {
               get: (row) => row.intentsEngineConfig?.welcomeIntentId || "N/A"
             }
           },
-          {"no-header": !showHeader}
+          { "no-header": !showHeader }
         );
       };
 

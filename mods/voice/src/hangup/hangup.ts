@@ -18,8 +18,8 @@
  */
 import PubSub from "pubsub-js";
 import logger from "@fonoster/logger";
-import {objectToQString} from "../utils";
-import {Verb} from "../verb";
+import { objectToQString } from "../utils";
+import { Verb } from "../verb";
 
 export default class HangupVerb extends Verb {
   async run(): Promise<void> {
@@ -39,7 +39,7 @@ export default class HangupVerb extends Verb {
         );
 
         await super.post(
-          `events/user/Hangup`,
+          "events/user/Hangup",
           objectToQString({
             // WARNING: Harcoded value
             application: "mediacontroller"

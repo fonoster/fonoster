@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Level as Le} from "./protos/monitor_pb";
+import { Level as Le } from "./protos/monitor_pb";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Level {
@@ -29,6 +29,6 @@ export namespace Level {
 
   // eslint-disable-next-line require-jsdoc
   export function fromString(dir: string): Le {
-    return (Le as any)[dir?.toUpperCase()];
+    return (Le as unknown)[dir?.toUpperCase()];
   }
 }

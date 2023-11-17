@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {DtmfOptions} from "./types";
+import { DtmfOptions } from "./types";
 
 export const assertsHasDtmf = (options: DtmfOptions) => {
   if (!options || !options.dtmf) {

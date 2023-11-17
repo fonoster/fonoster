@@ -28,11 +28,11 @@ import {
   IProvidersClient,
   Provider
 } from "./types";
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {ProvidersClient} from "../service/protos/providers_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { ProvidersClient } from "../service/protos/providers_grpc_pb";
 import ProvidersPB from "../service/protos/providers_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 
 /**
  * @classdesc Use Fonoster Providers, a capability of Fonoster SIP Proxy subsystem,
@@ -67,7 +67,7 @@ export default class Providers extends APIClient implements IProvidersClient {
   constructor(options?: ClientOptions) {
     super(ProvidersClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -83,6 +83,7 @@ export default class Providers extends APIClient implements IProvidersClient {
    * @param {string} request.transport - The transport for the Provider.
    *Fonoster will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
+   * @param {boolean} request.register - Indicates if the Provider should be registered
    *Fonoster will use 600 if non is provided
    * @return {Promise<Object>}
    * @example
@@ -91,7 +92,8 @@ export default class Providers extends APIClient implements IProvidersClient {
    *   name: "Provider Name",
    *   username: "trunk001",
    *   secret: "secretkey",
-   *   host: "sip.provider.net"
+   *   host: "sip.provider.net",
+   *   register: true
    * };
    *
    * providers.createProvider(request)
@@ -109,6 +111,7 @@ export default class Providers extends APIClient implements IProvidersClient {
     req.setHost(request.host);
     req.setTransport(request.transport || "tcp");
     req.setExpires(request.expires || 600);
+    req.setRegister(Boolean(request.register));
 
     const res = await super.getService().createProvider().sendMessage(req);
 
@@ -120,13 +123,14 @@ export default class Providers extends APIClient implements IProvidersClient {
       host: res.getHost(),
       transport: res.getTransport(),
       expires: res.getExpires(),
+      register: res.getRegister(),
       createTime: res.getCreateTime(),
       updateTime: res.getUpdateTime()
     };
   }
 
   /**
-   * Retrives a Provider by its reference.
+   * Retrieves a Provider by its reference.
    *
    * @param {string} ref - Reference to Provider
    * @return {Promise<Object>} The provider
@@ -152,6 +156,7 @@ export default class Providers extends APIClient implements IProvidersClient {
       host: res.getHost(),
       transport: res.getTransport(),
       expires: res.getExpires(),
+      register: res.getRegister(),
       createTime: res.getCreateTime(),
       updateTime: res.getUpdateTime()
     };
@@ -171,6 +176,7 @@ export default class Providers extends APIClient implements IProvidersClient {
    * @param {string} request.transport - The transport for the Provider.
    *Fonoster will use TCP if none is provided
    * @param {string} request.expires - Expiration time for the registration.
+   * @param {boolean} request.register - Indicates if the Provider should be registered
    *Fonoster will use 600 if non is provided
    * @return {Promise<Object>}
    * @example
@@ -196,6 +202,7 @@ export default class Providers extends APIClient implements IProvidersClient {
     if (request.host) req.setHost(request.host);
     if (request.transport) req.setTransport(request.transport);
     if (request.expires) req.setExpires(request.expires);
+    if (typeof request.register === 'boolean') req.setRegister(request.register);
 
     const res = await super.getService().updateProvider().sendMessage(req);
 
@@ -250,6 +257,7 @@ export default class Providers extends APIClient implements IProvidersClient {
             host: provider.getHost(),
             transport: provider.getTransport(),
             expires: provider.getExpires(),
+            register: provider.getRegister(),
             createTime: provider.getCreateTime(),
             updateTime: provider.getUpdateTime()
           };
@@ -275,11 +283,11 @@ export default class Providers extends APIClient implements IProvidersClient {
     const req = new ProvidersPB.DeleteProviderRequest();
     req.setRef(ref);
     await super.getService().deleteProvider().sendMessage(req);
-    return {ref};
+    return { ref };
   }
 }
 
-export {Provider, ProvidersPB, CommonPB, IProvidersClient};
+export { Provider, ProvidersPB, CommonPB, IProvidersClient };
 
 // WARNING: Workaround to support commonjs clients
 module.exports = Providers;

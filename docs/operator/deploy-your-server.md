@@ -11,5 +11,4 @@ To get started check the following guides:
 - [Deploy with Docker](./deploy-with-docker.md)
 - [Deploy to Multipass](./deploy-to-multipass.md)
 - [Deploy to Digital Ocean](./deploy-to-digitalocean.md)
-- [Adding support for Cloud Functions (Experimental)](./adding_support_for_functions.md)
 - [Adding support for Secrets (Experimental)](./adding_support_for_secrets.md)

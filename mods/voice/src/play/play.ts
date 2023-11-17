@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Verb} from "../verb";
-import {PlayOptions} from "./types";
-import {objectToQString} from "../utils";
-import {assertsValueIsPositive} from "../asserts";
+import { Verb } from "../verb";
+import { PlayOptions } from "./types";
+import { objectToQString } from "../utils";
+import { assertsValueIsPositive } from "../asserts";
 import objectid from "bson-objectid";
 import PubSub from "pubsub-js";
 
@@ -60,4 +60,4 @@ export default class PlayVerb extends Verb {
   }
 }
 
-export {PlayOptions};
+export { PlayOptions };

@@ -7,7 +7,7 @@ const vault = Vault({
 
 // init vault server
 vault
-  .init({secret_shares: 1, secret_threshold: 1})
+  .init({ secret_shares: 1, secret_threshold: 1 })
   .then(async (result) => {
     console.log("Initialized vault");
     const keys = result.keys;
@@ -20,7 +20,7 @@ vault
     console.log("token: " + result.root_token);
 
     // unseal vault server
-    await vault.unseal({secret_shares: 1, key: keys[0]});
+    await vault.unseal({ secret_shares: 1, key: keys[0] });
     console.log("Vault unsealed");
 
     // TODO: Adding initial policy

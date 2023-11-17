@@ -19,9 +19,9 @@
 import WebSocket from "ws";
 import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonoster/logger";
-import {sendData, streamConfig} from "../utils/udp_server_utils";
+import { sendData, streamConfig } from "../utils/udp_server_utils";
 import pickPort from "pick-port";
-import {getChannelVar} from "../utils/channel_variable";
+import { getChannelVar } from "../utils/channel_variable";
 
 export const externalMediaHandler = async (
   ws: WebSocket,
@@ -36,17 +36,17 @@ export const externalMediaHandler = async (
   const address = `0.0.0.0:${port}`;
   const udpServer = new UDPMediaReceiver(address, true);
   const sessionId = event.userevent.sessionId;
-  const currentChannel = await ari.channels.get({channelId: sessionId});
+  const currentChannel = await ari.channels.get({ channelId: sessionId });
   const bridgeId = await getChannelVar(currentChannel, "CURRENT_BRIDGE");
   let bridge: any;
 
   // We check if the bridge already exist to avoid creating a new one
   if (bridgeId) {
-    bridge = await ari.bridges.get({bridgeId});
+    bridge = await ari.bridges.get({ bridgeId });
   } else {
     bridge = ari.Bridge();
-    await bridge.create({type: "mixing"});
-    bridge.addChannel({channel: sessionId});
+    await bridge.create({ type: "mixing" });
+    bridge.addChannel({ channel: sessionId });
 
     // We save the bridge id as channel bar and later use the info
     // to destroy the bridge
@@ -59,7 +59,7 @@ export const externalMediaHandler = async (
 
   const externalChannel = ari.Channel();
   externalChannel.on("StasisStart", (event: any, channel: any) =>
-    bridge.addChannel({channel: channel.id})
+    bridge.addChannel({ channel: channel.id })
   );
 
   externalChannel.on("StasisEnd", () => {

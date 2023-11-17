@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {StreamSpeechResult} from "@fonoster/common";
-import {Stream} from "stream";
+import { StreamSpeechResult } from "@fonoster/common";
+import { Stream } from "stream";
 
 export default class StreamSpeechImpl implements StreamSpeechResult {
   stream: Stream;

@@ -1,10 +1,10 @@
-import {FonosterError} from "@fonoster/errors";
+import { FonosterError } from "@fonoster/errors";
 import {
   FonosterAuthError,
   FonosterFailedPrecondition,
   FonosterInvalidArgument
 } from "@fonoster/errors";
-import {status as Status} from "@grpc/grpc-js";
+import { status as Status } from "@grpc/grpc-js";
 
 export default function (error: any) {
   if (!error.response) throw new FonosterError(error);

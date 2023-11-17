@@ -3,13 +3,11 @@
 
 [Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
 
-https://user-images.githubusercontent.com/539774/170885814-02c53689-af12-4e05-8351-e78d72f958d9.mov
+<a href="https://discord.gg/mpWSRUhG7e"><img alt="Fonoster community banner" src="https://raw.githubusercontent.com/fonoster/.github/main/profile/community.png"></img></a>
 
-![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/mpWSRUhG7e) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
+![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
-
-
-## Features
+## Features 
 
 The most notable features on FN 0.3 are:
 
@@ -106,10 +104,14 @@ For bugs, questions, and discussions, please use the [Github Issues](https://git
 
 For contributing, please see the following links:
 
- - [Contribution Documents](https://github.com/fonoster/fonoster/blob/master/CONTRIBUTING.md)
+ - [Contribution Documents](https://github.com/fonoster/fonoster/blob/main/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonoster/contributors)
 
-**Sponsors**
+<a href="https://github.com/fonoster/fonoster/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=fonoster/fonoster" />
+</a>
+
+## Sponsors
 
 We're glad to be supported by respected companies and individuals from several industries.
 
@@ -123,5 +125,5 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
  - [Pedro Sanders](https://github.com/psanders)
 
 ## License
-Copyright (C) 2022 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/master/LICENSE) for details).
+Copyright (C) 2023 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
 

@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {objectToQString} from "../utils";
-import {Verb} from "../verb";
-import {MuteOptions} from "./types";
+import { objectToQString } from "../utils";
+import { Verb } from "../verb";
+import { MuteOptions } from "./types";
 
 export default class UnmuteVerb extends Verb {
-  async run(opts: MuteOptions = {direction: "both"}): Promise<void> {
+  async run(opts: MuteOptions = { direction: "both" }): Promise<void> {
     await super.delete(
       `channels/${this.request.sessionId}/mute`,
       objectToQString(opts)
@@ -29,4 +29,4 @@ export default class UnmuteVerb extends Verb {
   }
 }
 
-export {MuteOptions};
+export { MuteOptions };

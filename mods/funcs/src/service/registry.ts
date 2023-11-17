@@ -19,10 +19,10 @@
 import Docker from "dockerode";
 import fs from "fs";
 import logger from "@fonoster/logger";
-import {ServerStream} from "./funcs";
-import {FonosterError} from "@fonoster/errors";
+import { ServerStream } from "./funcs";
+import { FonosterError } from "@fonoster/errors";
 import walk from "walk";
-import {promisify} from "util";
+import { promisify } from "util";
 
 const sleep = promisify(setTimeout);
 
@@ -53,7 +53,7 @@ const ls = (pathToFunc: string): Promise<string[]> => {
   return new Promise((resolve, reject) => {
     walker.on(
       "file",
-      (root: string, stats: {name: string}, next: () => void) => {
+      (root: string, stats: { name: string }, next: () => void) => {
         let base = root.substring(pathToFunc.length + 1);
         base = base.length > 0 ? base + "/" : "";
         const file = base + stats.name;
@@ -111,14 +111,14 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
   serverStream.write("building image");
   serverStream.write("required function keys added");
 
-  const docker = new Docker({socketPath: "/var/run/docker.sock"});
+  const docker = new Docker({ socketPath: "/var/run/docker.sock" });
   try {
     const stream = await docker.buildImage(
       {
         context: request.pathToFunc,
         src: files
       },
-      {t: request.image}
+      { t: request.image }
     );
 
     await new Promise((resolve, reject) => {
@@ -150,6 +150,6 @@ export default async function (request: BuildInfo, serverStream: ServerStream) {
     );
   } finally {
     // Clean all the files
-    fs.rmdirSync(request.pathToFunc, {recursive: true});
+    fs.rmdirSync(request.pathToFunc, { recursive: true });
   }
 }

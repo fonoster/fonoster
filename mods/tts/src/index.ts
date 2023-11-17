@@ -16,5 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import AbstractTTS from "./plugin"
 export * from "./utils";
 export * from "./types";
+export { AbstractTTS };

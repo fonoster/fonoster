@@ -27,8 +27,8 @@ Constructs a new Auth object.
 **Example**  
 ```js
 const request = {
-  accessKeyId: "603693c0afaa1a080000000e",
-  roleName: "ROLE"
+  accessKeyId: "US618572e3ec11d10600000001",
+  roleName: "USER"
 };
 
 auth.createToken(request)
@@ -56,9 +56,9 @@ const Fonoster = require("@fonoster/sdk");
 const auth = new Fonoster.Auth();
 
 const request = {
-  accessKeyId: "603693c0afaa1a080000000e",
+  accessKeyId: "PJ618572e3ec11d10600000001",
   roleName: "SERVICE",
-  expirantion: '10m'
+  expiration: "10m"
 };
 
 auth.createToken(request)
@@ -84,7 +84,7 @@ const Fonoster = require("@fonoster/sdk");
 const auth = new Fonoster.Auth();
 
 const request = {
-  accessKeyId: "603693c0afaa1a080000000e",
+  accessKeyId: "PJ619154d081467a0700000001",
 };
 
 auth.createNoAccessToken(request)

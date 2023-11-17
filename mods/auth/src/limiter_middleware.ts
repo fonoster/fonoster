@@ -23,11 +23,11 @@ import { getClientCredentials } from "@fonoster/common";
 
 interface Context {
   service: {
-    path: string
-  },
+    path: string;
+  };
   call: {
-    metadata: Metadata
-  }
+    metadata: Metadata;
+  };
 }
 
 const svc = new LimiterClient(
@@ -40,22 +40,29 @@ export async function checkAuthorized(
   metadata: Metadata
 ): Promise<boolean> {
   return new Promise((resolve, reject) => {
-    const req = new AuthPB.CheckAuthorizedRequest
+    const req = new AuthPB.CheckAuthorizedRequest();
     req.setPath(path);
-    svc.checkAuthorized(req, metadata, (e: any, res: AuthPB.CheckAuthorizedResponse) => {
-      if (e) return reject(e);
-      resolve(res.getAuthorized());
-    });
+    svc.checkAuthorized(
+      req,
+      metadata,
+      (e: any, res: AuthPB.CheckAuthorizedResponse) => {
+        if (e) return reject(e);
+        resolve(res.getAuthorized());
+      }
+    );
   });
 }
 
-export default async function limiterMiddleware(ctx: Context, 
-  next: () => void, errorCb: (e: Error) => void) {
+export default async function limiterMiddleware(
+  ctx: Context,
+  next: () => void,
+  errorCb: (e: Error) => void
+) {
   try {
     if (await checkAuthorized(ctx.service.path, ctx.call.metadata)) {
       next();
     }
   } catch (e) {
-    errorCb(e)
+    errorCb(e);
   }
 }

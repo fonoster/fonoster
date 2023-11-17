@@ -24,7 +24,7 @@ export const uploadRecording = async (
   accessKeyId: string,
   filename: string
 ) => {
-  logger.silly("creating short-lived token", {accessKeyId});
+  logger.silly("creating short-lived token", { accessKeyId });
   const auth = new Auth();
   // Creates a PROJECT level token with 10 minutes expiration
   const access = await auth.createToken({
@@ -32,9 +32,9 @@ export const uploadRecording = async (
     expiration: "10m",
     roleName: "PROJECT"
   });
-  const storage = new Storage({accessKeyId, accessKeySecret: access.token});
+  const storage = new Storage({ accessKeyId, accessKeySecret: access.token });
 
-  logger.verbose("uploading file to storage subsystem", {filename});
+  logger.verbose("uploading file to storage subsystem", { filename });
 
   await storage.uploadObject({
     // TODO: Place bucket name on a constant

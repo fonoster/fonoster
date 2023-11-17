@@ -16,18 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {MonitorClient} from "../service/protos/monitor_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { MonitorClient } from "../service/protos/monitor_grpc_pb";
 import MonitorPB from "../service/protos/monitor_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 import {
   IMonitorClient,
   SearchEventsRequest,
   SearchEventsResponse
 } from "./types";
-import {Struct} from "google-protobuf/google/protobuf/struct_pb";
-import {Level} from "../service/level";
-import {EventType} from "../service/event_type";
+import { Struct } from "google-protobuf/google/protobuf/struct_pb";
+import { Level } from "../service/level";
+import { EventType } from "../service/event_type";
 
 /**
  * @classdesc Use Fonoster Monitor, a capability of Fonoster to obtain user events.
@@ -58,7 +58,7 @@ export default class Monitor extends APIClient implements IMonitorClient {
   constructor(options?: ClientOptions) {
     super(MonitorClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -104,7 +104,7 @@ export default class Monitor extends APIClient implements IMonitorClient {
   }
 }
 
-export {MonitorPB, IMonitorClient};
+export { MonitorPB, IMonitorClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Monitor;

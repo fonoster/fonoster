@@ -25,8 +25,8 @@ import {
   GetObjectURLRequest,
   GetObjectURLResponse
 } from "./protos/storage_pb";
-import {IStorageServer, StorageService} from "./protos/storage_grpc_pb";
-import {getAccessKeyId} from "@fonoster/core";
+import { IStorageServer, StorageService } from "./protos/storage_grpc_pb";
+import { getAccessKeyId } from "@fonoster/core";
 
 const getBucketName = (bucket: GetObjectURLRequest.Bucket) => {
   switch (bucket) {
@@ -81,4 +81,4 @@ class StorageServer implements IStorageServer {
   }
 }
 
-export {StorageServer as default, IStorageServer, StorageService};
+export { StorageServer as default, IStorageServer, StorageService };

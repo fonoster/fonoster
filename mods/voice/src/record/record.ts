@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import objectid from "bson-objectid";
-import {Verb} from "../verb";
-import {RecordOptions, RecordResult} from "./types";
-import {objectToQString} from "../utils";
-import {assertsFinishOnKeyIsChar, assertsValueIsPositive} from "../asserts";
+import { Verb } from "../verb";
+import { RecordOptions, RecordResult } from "./types";
+import { objectToQString } from "../utils";
+import { assertsFinishOnKeyIsChar, assertsValueIsPositive } from "../asserts";
 import PubSub from "pubsub-js";
 
 export default class RecordVerb extends Verb {
@@ -75,4 +75,4 @@ export default class RecordVerb extends Verb {
   }
 }
 
-export {RecordOptions, RecordResult};
+export { RecordOptions, RecordResult };

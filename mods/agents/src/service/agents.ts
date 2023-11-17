@@ -26,13 +26,13 @@ import {
   UpdateAgentRequest,
   DeleteAgentRequest
 } from "./protos/agents_pb";
-import {Empty} from "./protos/common_pb";
+import { Empty } from "./protos/common_pb";
 import {
   IAgentsServer,
   IAgentsService,
   AgentsService
 } from "./protos/agents_grpc_pb";
-import {Kind, ResourceBuilder} from "@fonoster/core";
+import { Kind, Privacy, ResourceBuilder } from "@fonoster/core";
 import {
   updateResource,
   createResource,
@@ -40,7 +40,6 @@ import {
   getAccessKeyId
 } from "@fonoster/core";
 import decoder from "./decoder";
-import { Privacy } from "@fonoster/core/src/common/resource_builder";
 
 class AgentsServer implements IAgentsServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -63,13 +62,16 @@ class AgentsServer implements IAgentsServer {
     callback: grpc.sendUnaryData<Agent>
   ) {
     try {
-      const privacy = call.request.getPrivacy() === Privacy.PRIVATE ? Privacy.PRIVATE : Privacy.NONE;
+      const privacy =
+        call.request.getPrivacy() === Privacy.PRIVATE
+          ? Privacy.PRIVATE
+          : Privacy.NONE;
 
       const resource = new ResourceBuilder(Kind.AGENT, call.request.getName())
         .withCredentials(call.request.getUsername(), call.request.getSecret())
         .withDomains(call.request.getDomainsList())
         .withPrivacy(privacy)
-        .withMetadata({accessKeyId: getAccessKeyId(call)})
+        .withMetadata({ accessKeyId: getAccessKeyId(call) })
         .build();
 
       const response = await createResource(resource);
@@ -85,7 +87,11 @@ class AgentsServer implements IAgentsServer {
   ) {
     try {
       const agent = (await ResourceServer.getResource(Kind.AGENT, call)) as any;
-      const privacy = call.request.getPrivacy() === Privacy.PRIVATE ? Privacy.PRIVATE : Privacy.NONE;
+
+      const privacy =
+        call.request.getPrivacy() === Privacy.PRIVATE
+          ? Privacy.PRIVATE
+          : Privacy.NONE;
 
       const resource = new ResourceBuilder(
         Kind.AGENT,
@@ -135,4 +141,4 @@ class AgentsServer implements IAgentsServer {
   }
 }
 
-export {AgentsServer as default, IAgentsService, AgentsService};
+export { AgentsServer as default, IAgentsService, AgentsService };

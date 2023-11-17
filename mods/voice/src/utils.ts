@@ -25,7 +25,7 @@ import fs from "fs";
  * Takes a json object and creates a query formatted string
  *
  * @param {object} - a one level json object with the query options
- * @returns {string} a string in the form of 'key1=value1&key2=value2&...'
+ * @return {string} a string in the form of 'key1=value1&key2=value2&...'
  */
 export const objectToQString = (obj: any = {}): string =>
   Object.keys(obj)
@@ -64,7 +64,7 @@ export async function stopMediaTransfer(verb: Verb, sessionId: string) {
 }
 
 export const serveFiles = (config: ServerConfig) => {
-  return (req , res) => {
+  return (req, res) => {
     // TODO: Update to use a stream instead of fs.readFile
     fs.readFile(
       join(config.pathToFiles, req.params.file),
@@ -79,5 +79,5 @@ export const serveFiles = (config: ServerConfig) => {
         res.end();
       }
     );
-  }
-}
+  };
+};

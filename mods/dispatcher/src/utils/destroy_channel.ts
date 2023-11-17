@@ -18,11 +18,11 @@
  */
 import logger from "@fonoster/logger";
 import WebSocket from "ws";
-import {getChannelVar} from "./channel_variable";
+import { getChannelVar } from "./channel_variable";
 
 export async function hangup(ari: any, sessionId: string) {
   try {
-    const channel = await ari.channels.get({channelId: sessionId});
+    const channel = await ari.channels.get({ channelId: sessionId });
     const externalChannelId = await getChannelVar(channel, "EXTERNAL_CHANNEL");
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
 
@@ -33,9 +33,9 @@ export async function hangup(ari: any, sessionId: string) {
     });
 
     if (bridgeId) {
-      await ari.bridges.removeChannel({bridgeId, channel: sessionId});
-      await ari.bridges.removeChannel({bridgeId, channel: externalChannelId});
-      await ari.bridges.destroy({bridgeId});
+      await ari.bridges.removeChannel({ bridgeId, channel: sessionId });
+      await ari.bridges.removeChannel({ bridgeId, channel: externalChannelId });
+      await ari.bridges.destroy({ bridgeId });
     }
 
     channel.hangup();
@@ -46,7 +46,7 @@ export async function hangup(ari: any, sessionId: string) {
 
 export async function hangupExternalChannel(ari: any, sessionId: string) {
   try {
-    const channel = await ari.channels.get({channelId: sessionId});
+    const channel = await ari.channels.get({ channelId: sessionId });
     const externalChannelId = await getChannelVar(channel, "EXTERNAL_CHANNEL");
     const bridgeId = await getChannelVar(channel, "CURRENT_BRIDGE");
     logger.verbose("removing external media channel", {
@@ -56,7 +56,7 @@ export async function hangupExternalChannel(ari: any, sessionId: string) {
     });
 
     if (bridgeId && externalChannelId) {
-      await ari.bridges.removeChannel({bridgeId, channel: externalChannelId});
+      await ari.bridges.removeChannel({ bridgeId, channel: externalChannelId });
       return;
     }
 

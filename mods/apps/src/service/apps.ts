@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "@grpc/grpc-js";
+import * as grpc from "@grpc/grpc-js";
 import { getRedisConnection, getAccessKeyId } from "@fonoster/core";
 import { AppsPB } from "../client/apps";
 import { AppsService, IAppsServer, IAppsService } from "./protos/apps_grpc_pb";

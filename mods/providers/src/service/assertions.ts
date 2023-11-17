@@ -1,4 +1,4 @@
-import {FonosterInvalidArgument} from "@fonoster/errors";
+import { FonosterInvalidArgument } from "@fonoster/errors";
 import isValidHost from "is-valid-host";
 
 export const assertIsValidHost = (host: string) => {

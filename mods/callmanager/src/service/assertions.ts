@@ -1,6 +1,6 @@
-import {FonosterInvalidArgument} from "@fonoster/errors";
+import { FonosterInvalidArgument } from "@fonoster/errors";
 import phone from "phone";
-import {CallManagerPB} from "../client/callmanager";
+import { CallManagerPB } from "../client/callmanager";
 
 export const assertCompatibleParameters = (
   request: CallManagerPB.CallRequest
@@ -16,7 +16,8 @@ const isValidURL = (value: string) =>
   /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(value);
 
 export const assertIsE164 = (number: string, field: string) => {
-  if (phone(number).length === 0) {
+  const phoneValidation = phone(number,{validateMobilePrefix: false});
+  if (!phoneValidation.isValid) {
     throw new FonosterInvalidArgument(
       `field "${field}" must be a valid e164 value.`
     );

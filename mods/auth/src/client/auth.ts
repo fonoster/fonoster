@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {AuthClient} from "../service/protos/auth_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { AuthClient } from "../service/protos/auth_grpc_pb";
 import AuthPB from "../service/protos/auth_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 import {
   CreateTokenRequest,
   CreateTokenResponse,
@@ -52,7 +52,7 @@ export default class Auths extends APIClient implements IAuthClient {
   constructor(options?: ClientOptions) {
     super(AuthClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -149,7 +149,7 @@ export default class Auths extends APIClient implements IAuthClient {
   }
 }
 
-export {AuthPB, IAuthClient};
+export { AuthPB, IAuthClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Auths;

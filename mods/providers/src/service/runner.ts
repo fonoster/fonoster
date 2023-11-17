@@ -19,10 +19,10 @@
  */
 require("@fonoster/common").Tracer.init("providers-service");
 import ProvidersServer from "./providers";
-import {ProvidersService} from "./protos/providers_grpc_pb";
-import {AuthMiddleware, limiterMiddleware} from "@fonoster/auth";
-import {getSalt} from "@fonoster/certs";
-import {runServices} from "@fonoster/common";
+import { ProvidersService } from "./protos/providers_grpc_pb";
+import { AuthMiddleware, limiterMiddleware } from "@fonoster/auth";
+import { getSalt } from "@fonoster/certs";
+import { runServices } from "@fonoster/common";
 
 const services = [
   {

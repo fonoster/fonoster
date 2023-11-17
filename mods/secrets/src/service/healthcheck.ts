@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {healthcheck} from "@fonoster/common";
+import { healthcheck } from "@fonoster/common";
 import axios from "axios";
 import logger from "@fonoster/logger";
 

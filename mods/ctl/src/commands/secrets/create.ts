@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import "../../config";
-import {Command, flags} from "@oclif/command";
-import {CLIError} from "@oclif/errors";
-import {getProjectConfig} from "../../config";
-import {ProjectGuard} from "../../decorators/project_guard";
+import { Command, flags } from "@oclif/command";
+import { CLIError } from "@oclif/errors";
+import { getProjectConfig } from "../../config";
+import { ProjectGuard } from "../../decorators/project_guard";
 
 const getStdin = require("get-stdin-with-tty");
 const Secrets = require("@fonoster/secrets");
@@ -28,20 +28,25 @@ const Secrets = require("@fonoster/secrets");
 export default class CreateCommand extends Command {
   static description = "create a Fonoster secret.";
 
-  static args = [{name: "name"}];
+  static args = [{ name: "name" }];
   static flags = {
-    help: flags.help({char: "h"}),
-    "from-literal": flags.string({char: "l", description: "pass from literal"}),
-    "from-stdin": flags.boolean({char: "s", description: "pass from stdin"})
+    help: flags.help({ char: "h" }),
+    "from-literal": flags.string({
+      char: "l",
+      description: "pass from literal"
+    }),
+    "from-stdin": flags.boolean({ char: "s", description: "pass from stdin" })
   };
 
   @ProjectGuard()
   async run() {
     const secretsManager = new Secrets(getProjectConfig());
 
-    const {args, flags} = this.parse(CreateCommand);
+    const { args, flags } = this.parse(CreateCommand);
 
-    let secret = flags["from-stdin"] ? await getStdin() : flags["from-literal"];
+    const secret = flags["from-stdin"]
+      ? await getStdin()
+      : flags["from-literal"];
 
     if (!args.name || !secret) {
       throw new CLIError(

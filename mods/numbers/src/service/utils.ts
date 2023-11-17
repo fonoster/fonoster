@@ -1,4 +1,4 @@
-import {CreateNumberRequest, UpdateNumberRequest} from "./protos/numbers_pb";
+import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb";
 
 /*
  * Copyright (C) 2022 by Fonoster Inc (https://fonoster.com)

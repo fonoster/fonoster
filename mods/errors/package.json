@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/errors",
-  "version": "0.3.17-alpha.3",
+  "version": "0.3.27",
   "description": "Handles Fonoster errors",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -28,5 +28,5 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "gitHead": "9834f90642e6603cb00ae0ec76ec798f74ed2135"
+  "gitHead": "b282dd99ea19f41c015b6ead6dea276e988f527c"
 }

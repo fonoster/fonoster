@@ -57,7 +57,7 @@ const getServerCredentials = () => {
     );
   } catch (e) {
     logger.info(
-      "@fonoster/common trust util [unable to load security certificates]",
+      "@fonoster/common trust util [unable to load security certificates]"
     );
     logger.info(
       "@fonoster/common trust util [starting server in insecure mode]"
@@ -71,4 +71,4 @@ const getClientCredentials = () =>
     ? grpc.credentials.createInsecure()
     : grpc.credentials.createSsl();
 
-export {getClientCredentials, getServerCredentials};
+export { getClientCredentials, getServerCredentials };

@@ -76,7 +76,7 @@ jobs:
     - name: Copy and Push Vault
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/library/vault:latest
+        src: docker.io/library/vault:1.13.3
         dst: |
           docker.io/fonoster/vault:${{ steps.get_version.outputs.VERSION }}                
     - name: Copy and Push Elasticsearch
@@ -106,19 +106,19 @@ jobs:
     - name: Copy and Push RTPEngine image
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/psanders/rtpengine:20211114
+        src: docker.io/fonoster/rtpengine:20211114
         dst: |
           docker.io/fonoster/rtpengine:${{ steps.get_version.outputs.VERSION }}
     - name: Copy and Push Routr image
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/fonoster/routr:1.2.0
+        src: docker.io/fonoster/routr:1.2.6
         dst: |
           docker.io/fonoster/routr:${{ steps.get_version.outputs.VERSION }}
     - name: Copy and Push Rox as Voice image
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/fonoster/rox:0.3.5
+        src: docker.io/fonoster/rox:0.3.7
         dst: |
           docker.io/fonoster/voice:${{ steps.get_version.outputs.VERSION }}
     - name: Copy and Push Autoheal
@@ -130,7 +130,7 @@ jobs:
     - name: Copy and Push Healthcheck
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: docker.io/psanders/healthcheck:latest
+        src: docker.io/fonoster/healthcheck:latest
         dst: |
           docker.io/fonoster/healthcheck:${{ steps.get_version.outputs.VERSION }}             
     - name: Publish to Docker Hub the Fonoster installer

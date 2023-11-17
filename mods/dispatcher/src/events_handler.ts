@@ -20,21 +20,21 @@ import Auth from "@fonoster/auth";
 import Numbers from "@fonoster/numbers";
 import logger from "@fonoster/logger";
 import WebSocket from "ws";
-import {CallRequest} from "./types";
-import {sendCallRequest} from "./utils/send_call_request";
-import {getChannelVar, getChannelVarAsJson} from "./utils/channel_variable";
-import {externalMediaHandler} from "./handlers/external_media";
-import {dtmfReceivedHandler} from "./handlers/dtmf_received";
-import {playbackFinishedHandler} from "./handlers/playback_finished";
-import {recordFinishHandler} from "./handlers/record_finished";
-import {uploadRecording} from "./utils/upload_recording";
-import {recordFailedHandler} from "./handlers/record_failed";
-import {hangup, hangupExternalChannel} from "./utils/destroy_channel";
-import {channelTalkingHandler} from "./handlers/channel_talking";
-import {sendDtmf} from "./handlers/send_dtmf";
-import {answer} from "./utils/answer_channel";
-import {dial} from "./handlers/dial";
-import {ulogger, ULogType} from "@fonoster/logger";
+import { CallRequest } from "./types";
+import { sendCallRequest } from "./utils/send_call_request";
+import { getChannelVar, getChannelVarAsJson } from "./utils/channel_variable";
+import { externalMediaHandler } from "./handlers/external_media";
+import { dtmfReceivedHandler } from "./handlers/dtmf_received";
+import { playbackFinishedHandler } from "./handlers/playback_finished";
+import { recordFinishHandler } from "./handlers/record_finished";
+import { uploadRecording } from "./utils/upload_recording";
+import { recordFailedHandler } from "./handlers/record_failed";
+import { hangup, hangupExternalChannel } from "./utils/destroy_channel";
+import { channelTalkingHandler } from "./handlers/channel_talking";
+import { sendDtmf } from "./handlers/send_dtmf";
+import { answer } from "./utils/answer_channel";
+import { dial } from "./handlers/dial";
+import { ulogger, ULogType } from "@fonoster/logger";
 
 const wsConnections = new Map();
 
@@ -110,13 +110,13 @@ export default function (err: any, ari: any) {
     ws.on("error", async (e: Error) => {
       const message =
         "error connecting with your webhook. please ensure your webhook is valid and accessible";
-      logger.error(message, {webhook});
+      logger.error(message, { webhook });
       ulogger({
         accessKeyId: request.accessKeyId,
         eventType: ULogType.APP,
         level: "error",
         message: message,
-        body: {webhook}
+        body: { webhook }
       });
       channel.hangup();
     });
@@ -148,7 +148,7 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("ChannelUserevent", async (event: any) => {
-    logger.verbose("dispatcher received user event", {event});
+    logger.verbose("dispatcher received user event", { event });
 
     const wsClient = wsConnections.get(event.userevent.sessionId);
 
@@ -178,7 +178,7 @@ export default function (err: any, ari: any) {
         await dial(wsClient, ari, event, event.userevent.accessKeyId);
         break;
       default:
-        logger.error("unknown user event", {event: event.eventname});
+        logger.error("unknown user event", { event: event.eventname });
     }
   });
 
@@ -207,7 +207,7 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("StasisEnd", async (event: any, channel: any) => {
-    logger.verbose("voice session ended", {sessionId: channel.id});
+    logger.verbose("voice session ended", { sessionId: channel.id });
     const ws = wsConnections.get(channel.id);
     // The external channels don't have ws connections
     if (ws) {

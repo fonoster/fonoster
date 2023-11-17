@@ -1,6 +1,6 @@
 /* eslint-disable require-jsdoc */
 import NumbersPB from "./protos/numbers_pb";
-import {ResourceBuilder, Kind, routr, getAccessKeyId} from "@fonoster/core";
+import { ResourceBuilder, Kind, routr, getAccessKeyId } from "@fonoster/core";
 import numberDecoder from "./decoder";
 import {
   assertCompatibleParameters,
@@ -8,21 +8,21 @@ import {
   assertIsE164,
   assertWebhookIsURL
 } from "./assertions";
-import {getAppRef, getWebhook} from "./utils";
+import { getAppRef, getWebhook } from "./utils";
 
 export default async function createNumber(
   request: NumbersPB.CreateNumberRequest,
   call: any
 ): Promise<NumbersPB.Number> {
   // TODO: Needs resource ownership validation for appRef
-  assertIsE164(request.getE164Number());
+  request.setE164Number(assertIsE164(request.getE164Number()));
   assertHasAorLinkOrIngressInfo(request);
   assertCompatibleParameters(request);
   assertWebhookIsURL(request.getIngressInfo()?.getWebhook());
 
   let encoder = new ResourceBuilder(Kind.NUMBER, request.getE164Number())
     .withGatewayRef(request.getProviderRef())
-    .withMetadata({accessKeyId: getAccessKeyId(call)});
+    .withMetadata({ accessKeyId: getAccessKeyId(call) });
 
   if (request.getAorLink()) {
     encoder = encoder.withLocation(

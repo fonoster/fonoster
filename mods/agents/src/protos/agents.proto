@@ -74,6 +74,7 @@ message CreateAgentRequest {
   string username = 2 [(google.api.field_behavior) = REQUIRED];
   string secret = 3 [(google.api.field_behavior) = REQUIRED];
   repeated string domains = 4 [(google.api.field_behavior) = REQUIRED];
+  // TODO: Change to enum in 0.4
   string privacy = 5;
 }
 
@@ -86,6 +87,7 @@ message UpdateAgentRequest {
   string name = 2;
   string secret = 3;
   repeated string domains = 4;
+  // TODO: Change to enum in 0.4
   string privacy = 5;
 }
 
@@ -109,6 +111,7 @@ message Agent {
   string username = 3 [(google.api.field_behavior) = REQUIRED];
   string secret = 4 [(google.api.field_behavior) = REQUIRED];
   repeated string domains = 5 [(google.api.field_behavior) = REQUIRED];
+  // TODO: Change to enum in 0.4
   string privacy = 6;
   string create_time = 7 [(google.api.field_behavior) = OUTPUT_ONLY];
   string update_time = 8 [(google.api.field_behavior) = OUTPUT_ONLY];

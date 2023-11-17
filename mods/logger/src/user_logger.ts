@@ -28,4 +28,4 @@ const ulogger = (log: ULog) =>
     accessKeyId: log.accessKeyId
   });
 
-export { ulogger as default }
+export { ulogger as default };

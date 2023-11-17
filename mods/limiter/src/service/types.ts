@@ -42,7 +42,7 @@ export interface RedisClient {
 }
 
 export interface RoutrClient {
-  connect: () => Promise<void>;
+  connect: () => Promise<RoutrClient>;
   resourceType: (resourceType: string) => RoutrClient;
   list: (
     { itemsPerPage: number },

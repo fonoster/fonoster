@@ -1,5 +1,5 @@
 import FonosterError from "./error";
-import {INVALID_ARGUMENT} from "./codes";
+import { INVALID_ARGUMENT } from "./codes";
 
 export default class extends FonosterError {
   constructor(message?: string) {

@@ -43,11 +43,11 @@ describe("@fonoster/marytts", () => {
     const join = sandbox.spy(path, "join");
     const createWriteStream = sandbox.spy(fs, "createWriteStream");
     const pipe = sandbox.stub();
-    const get = sandbox.stub(https, "get").yields({statusCode: 201, pipe});
+    const get = sandbox.stub(https, "get").yields({ statusCode: 201, pipe });
 
     const tts = new MaryTTS(defConfig);
 
-    await expect(tts.synthesize("hello world", {locale: "en_US"}))
+    await expect(tts.synthesize("hello world", { locale: "en_US" }))
       .to.be.eventually.rejected.and.to.be.an.instanceOf(Error)
       .to.have.property("message", "Request failed with status code: 201");
     expect(pipe).to.not.have.been.calledOnce;
@@ -60,7 +60,7 @@ describe("@fonoster/marytts", () => {
     const join = sandbox.spy(path, "join");
     const createWriteStream = sandbox.stub(fs, "createWriteStream").resolves();
     const pipe = sandbox.stub();
-    const get = sandbox.stub(https, "get").yields({statusCode: 200, pipe});
+    const get = sandbox.stub(https, "get").yields({ statusCode: 200, pipe });
 
     const tts = new MaryTTS(defConfig);
     const result = await tts.synthesize("hello world");
@@ -70,5 +70,17 @@ describe("@fonoster/marytts", () => {
     expect(join).to.have.been.calledOnce;
     expect(createWriteStream).to.have.been.calledOnce;
     expect(get).to.have.been.calledOnce;
+  });
+
+  it("file exist, not synthesizes text and returns path to file", async () => {
+    const createWriteStream = sandbox.stub(fs, "createWriteStream").resolves();
+    const fsExistSyncStub = sandbox.stub(fs, "existsSync").returns(true);
+
+    const tts = new MaryTTS(defConfig);
+    const result = await tts.synthesize("hello world");
+    expect(result).to.have.property("filename").to.not.be.null;
+    expect(result).to.have.property("pathToFile").to.not.be.null;
+    expect(createWriteStream).to.not.have.been.calledOnce;
+    expect(fsExistSyncStub).to.have.been.calledOnce;
   });
 });

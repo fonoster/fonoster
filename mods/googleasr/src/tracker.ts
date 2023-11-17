@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GoogleSpeechConfig, TrackerConfig} from "./types";
+import { GoogleSpeechConfig, TrackerConfig } from "./types";
 import {
   SpeechTracker,
   SpeechResult,
   StreamSpeechResult
 } from "@fonoster/common";
-import {Stream} from "stream";
+import { Stream } from "stream";
 import speech from "@google-cloud/speech";
 import StreamRecognize from "./stream_recognize";
 import StreamSpeechImpl from "./stream_speech_result";
@@ -41,7 +41,7 @@ export class GoogleSpeechTracker implements SpeechTracker {
   config: TrackerConfig;
   constructor(config: GoogleSpeechConfig) {
     const merge = require("deepmerge");
-    this.config = merge(defaultTrackerConfig, {config} || {});
+    this.config = merge(defaultTrackerConfig, { config } || {});
     this.client = new speech.SpeechClient(this.config.config);
   }
 
@@ -51,7 +51,7 @@ export class GoogleSpeechTracker implements SpeechTracker {
       this.config.config,
       stream,
       async (transcript: string, isFinal: boolean) => {
-        s.emit({transcript, isFinal});
+        s.emit({ transcript, isFinal });
       },
       (result) => {
         // We are not yet doing diarization
@@ -74,7 +74,7 @@ export class GoogleSpeechTracker implements SpeechTracker {
             };
             resolve(result);
           } else {
-            resolve({transcript: "", isFinal: true});
+            resolve({ transcript: "", isFinal: true });
           }
         });
       stream.pipe(recognizeStream);

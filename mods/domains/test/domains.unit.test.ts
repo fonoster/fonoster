@@ -21,7 +21,7 @@ import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import Domains from "../src/client/domains";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonoster/common";
+import { APIClient } from "@fonoster/common";
 import DomainsPB from "../src/service/protos/domains_pb";
 import domainDecoder from "../src/service/decoder";
 
@@ -127,7 +127,7 @@ describe("@fonoster/domains", () => {
       .returns({
         deleteDomain: () => {
           return {
-            sendMessage: () => Promise.resolve({ref: "Nx05y-ldZa"})
+            sendMessage: () => Promise.resolve({ ref: "Nx05y-ldZa" })
           };
         }
       });
@@ -197,7 +197,7 @@ describe("@fonoster/domains", () => {
         updateDomain: () => {
           return {
             sendMessage: () =>
-              Promise.resolve({getRef: () => domainObj.getRef()})
+              Promise.resolve({ getRef: () => domainObj.getRef() })
           };
         },
         getDomain: () => {

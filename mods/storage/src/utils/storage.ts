@@ -48,7 +48,7 @@ export const uploadToFS = async (
 
     walker.on(
       "file",
-      (root: string, stats: {name: string}, next: () => void) => {
+      (root: string, stats: { name: string }, next: () => void) => {
         const filePath = root + "/" + stats.name;
         const destFilePath = root + "/" + (object || stats.name);
         const dest =

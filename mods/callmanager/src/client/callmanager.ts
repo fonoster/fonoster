@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {CallManagerClient} from "../service/protos/callmanager_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { CallManagerClient } from "../service/protos/callmanager_grpc_pb";
 import CallManagerPB from "../service/protos/callmanager_pb";
-import {promisifyAll} from "grpc-promise";
-import {CallRequest, CallResponse, ICallManagerClient} from "./types";
+import { promisifyAll } from "grpc-promise";
+import { CallRequest, CallResponse, ICallManagerClient } from "./types";
 
 /**
  * @classdesc Use Fonoster CallManager, a capability of Fonoster CallManager,
@@ -53,7 +53,7 @@ export default class CallManager
   constructor(options?: ClientOptions) {
     super(CallManagerClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -65,7 +65,6 @@ export default class CallManager
    * @param {string} request.webhook - Url of the application that will handle the call
    * If none is provided it will use the webook setup in the Number
    * @param {object} request.metadata - Arbitrary payload to send to the Voice Application
-   * @param {boolean} request.ignoreE164Validation - If enabled it will accept any input in the from and to
    * @return {Promise<CallResponse>} - call results
    * @throws if the from number doesn't exist
    * @throws if could not connect to the underline services
@@ -87,7 +86,6 @@ export default class CallManager
     r.setTo(request.to);
     r.setWebhook(request.webhook);
     r.setAppRef(request.appRef);
-    r.setIgnoreE164Validation(request.ignoreE164Validation);
     r.setMetadata(metadata);
 
     const p = await super.getService().call().sendMessage(r);
@@ -98,7 +96,7 @@ export default class CallManager
   }
 }
 
-export {CallManagerPB, ICallManagerClient};
+export { CallManagerPB, ICallManagerClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = CallManager;

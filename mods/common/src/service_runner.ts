@@ -24,7 +24,7 @@ import * as grpc from "@grpc/grpc-js";
 import { getServerCredentials } from "./trust_util";
 import { useHealth } from "@fonoster/grpc-health-check";
 
-const interceptor = require("grpc-interceptors");
+const interceptor = require("@fonoster/grpc-interceptors");
 const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
 
 interface ServiceInf {

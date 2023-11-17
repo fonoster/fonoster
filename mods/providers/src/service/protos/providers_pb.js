@@ -594,7 +594,8 @@ proto.fonoster.providers.v1beta1.CreateProviderRequest.toObject = function(inclu
     secret: jspb.Message.getFieldWithDefault(msg, 4, ""),
     host: jspb.Message.getFieldWithDefault(msg, 5, ""),
     transport: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    expires: jspb.Message.getFieldWithDefault(msg, 7, 0)
+    expires: jspb.Message.getFieldWithDefault(msg, 7, 0),
+    register: jspb.Message.getBooleanFieldWithDefault(msg, 8, false)
   };
 
   if (includeInstance) {
@@ -654,6 +655,10 @@ proto.fonoster.providers.v1beta1.CreateProviderRequest.deserializeBinaryFromRead
     case 7:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setExpires(value);
+      break;
+    case 8:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setRegister(value);
       break;
     default:
       reader.skipField();
@@ -723,6 +728,13 @@ proto.fonoster.providers.v1beta1.CreateProviderRequest.serializeBinaryToWriter =
   if (f !== 0) {
     writer.writeInt32(
       7,
+      f
+    );
+  }
+  f = message.getRegister();
+  if (f) {
+    writer.writeBool(
+      8,
       f
     );
   }
@@ -837,6 +849,24 @@ proto.fonoster.providers.v1beta1.CreateProviderRequest.prototype.setExpires = fu
 };
 
 
+/**
+ * optional bool register = 8;
+ * @return {boolean}
+ */
+proto.fonoster.providers.v1beta1.CreateProviderRequest.prototype.getRegister = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 8, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.fonoster.providers.v1beta1.CreateProviderRequest} returns this
+ */
+proto.fonoster.providers.v1beta1.CreateProviderRequest.prototype.setRegister = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 8, value);
+};
+
+
 
 
 
@@ -875,7 +905,8 @@ proto.fonoster.providers.v1beta1.UpdateProviderRequest.toObject = function(inclu
     secret: jspb.Message.getFieldWithDefault(msg, 4, ""),
     host: jspb.Message.getFieldWithDefault(msg, 5, ""),
     transport: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    expires: jspb.Message.getFieldWithDefault(msg, 7, 0)
+    expires: jspb.Message.getFieldWithDefault(msg, 7, 0),
+    register: jspb.Message.getBooleanFieldWithDefault(msg, 8, false)
   };
 
   if (includeInstance) {
@@ -939,6 +970,10 @@ proto.fonoster.providers.v1beta1.UpdateProviderRequest.deserializeBinaryFromRead
     case 7:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setExpires(value);
+      break;
+    case 8:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setRegister(value);
       break;
     default:
       reader.skipField();
@@ -1015,6 +1050,13 @@ proto.fonoster.providers.v1beta1.UpdateProviderRequest.serializeBinaryToWriter =
   if (f !== 0) {
     writer.writeInt32(
       7,
+      f
+    );
+  }
+  f = message.getRegister();
+  if (f) {
+    writer.writeBool(
+      8,
       f
     );
   }
@@ -1144,6 +1186,24 @@ proto.fonoster.providers.v1beta1.UpdateProviderRequest.prototype.getExpires = fu
  */
 proto.fonoster.providers.v1beta1.UpdateProviderRequest.prototype.setExpires = function(value) {
   return jspb.Message.setProto3IntField(this, 7, value);
+};
+
+
+/**
+ * optional bool register = 8;
+ * @return {boolean}
+ */
+proto.fonoster.providers.v1beta1.UpdateProviderRequest.prototype.getRegister = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 8, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.fonoster.providers.v1beta1.UpdateProviderRequest} returns this
+ */
+proto.fonoster.providers.v1beta1.UpdateProviderRequest.prototype.setRegister = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 8, value);
 };
 
 
@@ -1447,7 +1507,8 @@ proto.fonoster.providers.v1beta1.Provider.toObject = function(includeInstance, m
     transport: jspb.Message.getFieldWithDefault(msg, 6, ""),
     expires: jspb.Message.getFieldWithDefault(msg, 7, 0),
     createTime: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    updateTime: jspb.Message.getFieldWithDefault(msg, 9, "")
+    updateTime: jspb.Message.getFieldWithDefault(msg, 9, ""),
+    register: jspb.Message.getBooleanFieldWithDefault(msg, 10, false)
   };
 
   if (includeInstance) {
@@ -1519,6 +1580,10 @@ proto.fonoster.providers.v1beta1.Provider.deserializeBinaryFromReader = function
     case 9:
       var value = /** @type {string} */ (reader.readString());
       msg.setUpdateTime(value);
+      break;
+    case 10:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setRegister(value);
       break;
     default:
       reader.skipField();
@@ -1609,6 +1674,13 @@ proto.fonoster.providers.v1beta1.Provider.serializeBinaryToWriter = function(mes
   if (f.length > 0) {
     writer.writeString(
       9,
+      f
+    );
+  }
+  f = message.getRegister();
+  if (f) {
+    writer.writeBool(
+      10,
       f
     );
   }
@@ -1774,6 +1846,24 @@ proto.fonoster.providers.v1beta1.Provider.prototype.getUpdateTime = function() {
  */
 proto.fonoster.providers.v1beta1.Provider.prototype.setUpdateTime = function(value) {
   return jspb.Message.setProto3StringField(this, 9, value);
+};
+
+
+/**
+ * optional bool register = 10;
+ * @return {boolean}
+ */
+proto.fonoster.providers.v1beta1.Provider.prototype.getRegister = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 10, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.fonoster.providers.v1beta1.Provider} returns this
+ */
+proto.fonoster.providers.v1beta1.Provider.prototype.setRegister = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 10, value);
 };
 
 

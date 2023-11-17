@@ -27,13 +27,14 @@ import {
   ListNumbersResponse,
   GetIngressInfoRequest,
   GetIngressInfoResponse,
-  INumbersClient
+  INumbersClient,
+  Number
 } from "./types";
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {NumbersClient} from "../service/protos/numbers_grpc_pb";
-import NumbersPB, {IngressInfo} from "../service/protos/numbers_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { NumbersClient } from "../service/protos/numbers_grpc_pb";
+import NumbersPB, { IngressInfo } from "../service/protos/numbers_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 
 /**
  * @classdesc Use Fonoster Numbers, a capability of Fonoster SIP Proxy subsystem,
@@ -68,7 +69,7 @@ export default class Numbers extends APIClient implements INumbersClient {
   constructor(options?: ClientOptions) {
     super(NumbersClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -293,9 +294,10 @@ export default class Numbers extends APIClient implements INumbersClient {
   }
 }
 
-export {NumbersPB, CommonPB, INumbersClient};
+export { Number, NumbersPB, CommonPB, INumbersClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Numbers;
+module.exports.Number = Number;
 module.exports.NumbersPB = NumbersPB;
 module.exports.CommonPB = CommonPB;

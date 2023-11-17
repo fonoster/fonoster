@@ -5,11 +5,11 @@
     "rootDir": "./src"
   },
   "references": [
-    {"path": "../agents"},
-    {"path": "../domains"},
-    {"path": "../numbers"},
-    {"path": "../providers"},
-    {"path": "../logger"}
+    { "path": "../agents" },
+    { "path": "../domains" },
+    { "path": "../numbers" },
+    { "path": "../providers" },
+    { "path": "../logger" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

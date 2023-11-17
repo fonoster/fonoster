@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {APIClient, ClientOptions} from "@fonoster/common";
-import {ProjectsClient} from "../service/protos/projects_grpc_pb";
+import { APIClient, ClientOptions } from "@fonoster/common";
+import { ProjectsClient } from "../service/protos/projects_grpc_pb";
 import ProjectsPB from "../service/protos/projects_pb";
 import CommonPB from "../service/protos/common_pb";
-import {promisifyAll} from "grpc-promise";
+import { promisifyAll } from "grpc-promise";
 import {
   CreateProjectRequest,
   CreateProjectResponse,
@@ -66,7 +66,7 @@ export default class Projects extends APIClient implements IProjectsClient {
   constructor(options?: ClientOptions) {
     super(ProjectsClient, options);
     super.init();
-    promisifyAll(super.getService(), {metadata: super.getMeta()});
+    promisifyAll(super.getService(), { metadata: super.getMeta() });
   }
 
   /**
@@ -233,7 +233,7 @@ export default class Projects extends APIClient implements IProjectsClient {
     const req = new ProjectsPB.DeleteProjectRequest();
     req.setRef(ref);
     await super.getService().deleteProject().sendMessage(req);
-    return {ref};
+    return { ref };
   }
 
   /**
@@ -269,7 +269,7 @@ export default class Projects extends APIClient implements IProjectsClient {
   }
 }
 
-export {ProjectsPB, CommonPB, IProjectsClient};
+export { ProjectsPB, CommonPB, IProjectsClient };
 
 // WARNING: Workaround for support to commonjs clients
 module.exports = Projects;

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {Agent} from "./protos/agents_pb";
+import { Agent } from "./protos/agents_pb";
 
 export default function (jsonObj: any) {
   const agent = new Agent();
@@ -28,5 +28,6 @@ export default function (jsonObj: any) {
   agent.setDomainsList(spec?.domains);
   agent.setCreateTime(jsonObj.metadata.createdOn);
   agent.setUpdateTime(jsonObj.metadata.modifiedOn);
+  agent.setPrivacy(spec?.privacy);
   return agent;
 }

@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import FuncsPB, {Func} from "../service/protos/funcs_pb";
-import {DeployFuncRequest, FuncParameters} from "../client/types";
+import FuncsPB, { Func } from "../service/protos/funcs_pb";
+import { DeployFuncRequest, FuncParameters } from "../client/types";
 import fs from "fs-extra";
 import path from "path";
 import tar from "tar";
-import {FonosterError, ErrorCodes} from "@fonoster/errors";
+import { FonosterError, ErrorCodes } from "@fonoster/errors";
 import cron from "cron-validate";
 import createAccessKeySecret from "./auth";
-import {FunctionDefinition} from "openfaas-client";
+import { FunctionDefinition } from "openfaas-client";
 
 export const buildDeployFuncRequest = (request: DeployFuncRequest) => {
   const limits = new FuncsPB.Resource();
@@ -99,7 +99,7 @@ export const validateFunc = (pathToFunc: string) => {
 
 export const cleanupTmpDirSync = (dirName: string) => {
   if (fs.existsSync(`/tmp/${dirName}`))
-    fs.rmdirSync(`/tmp/${dirName}`, {recursive: true});
+    fs.rmdirSync(`/tmp/${dirName}`, { recursive: true });
   if (fs.existsSync(`/tmp/${dirName}.tgz`))
     fs.unlinkSync(`/tmp/${dirName}.tgz`);
 };
@@ -108,7 +108,7 @@ export const copyFuncAtTmp = async (funcPath: string, dirName: string) => {
   await fs.copy(funcPath, `/tmp/${dirName}`, {
     filter: (currentPath) => !currentPath.includes("node_modules")
   });
-  await tar.create({file: `/tmp/${dirName}.tgz`, cwd: "/tmp"}, [dirName]);
+  await tar.create({ file: `/tmp/${dirName}.tgz`, cwd: "/tmp" }, [dirName]);
 };
 
 export const getFuncName = (accessKeyId: string, name: string) =>

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {VoiceRequest} from "../src/types";
+import { VoiceRequest } from "../src/types";
 
 export const voiceRequest: VoiceRequest = {
   accessKeyId: "603693c0afaa1a080000000c",

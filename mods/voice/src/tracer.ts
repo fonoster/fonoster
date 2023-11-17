@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import opentelemetry, {Context, Span, Tracer} from "@opentelemetry/api";
-import {Resource} from "@opentelemetry/resources";
-import {SemanticResourceAttributes} from "@opentelemetry/semantic-conventions";
-import {BatchSpanProcessor} from "@opentelemetry/sdk-trace-base";
-const {NodeTracerProvider} = require("@opentelemetry/sdk-trace-node");
+import opentelemetry, { Context, Span, Tracer } from "@opentelemetry/api";
+import { Resource } from "@opentelemetry/resources";
+import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+const { NodeTracerProvider } = require("@opentelemetry/sdk-trace-node");
 
 export class VoiceTracer {
   callTracer: Tracer;

@@ -3,9 +3,9 @@ import chai from "chai";
 import sinonChai from "sinon-chai";
 import sinon from "sinon";
 import chaiAsPromised from "chai-as-promised";
-import {APIClient} from "@fonoster/common";
-import {NumbersPB} from "../src/client/numbers";
-import {CreateNumberResponse} from "../src/client/types";
+import { APIClient } from "@fonoster/common";
+import { NumbersPB } from "../src/client/numbers";
+import { CreateNumberResponse } from "../src/client/types";
 import numberDecoder from "../src/service/decoder";
 
 const expect = chai.expect;
@@ -269,7 +269,7 @@ describe("@fonoster/number", () => {
     });
 
     const numbers = new Numbers();
-    const result = await numbers.getIngressInfo({e164Number: "16471234567"});
+    const result = await numbers.getIngressInfo({ e164Number: "16471234567" });
     expect(result)
       .to.have.property("webhook")
       .to.be.equal(returnIngressInfo.getWebhook());
