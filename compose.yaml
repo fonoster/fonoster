@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
 
@@ -6,8 +6,7 @@ services:
     image: fonoster/apiserver:latest
     restart: unless-stopped
     environment:
-      GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN}
-      DATABASE_URL: ${DATABASE_URL}
+      GLOBAL_SIP_DOMAIN: ${GLOBAL_SIP_DOMAIN} 
       SIPPROXY_HOST: ${DOCKER_HOST_ADDRESS}
       MEDIASERVER_SIP_ENDPOINT: ${MEDIASERVER_SIP_ENDPOINT}
       MEDIASERVER_TRUNK: ${MEDIASERVER_TRUNK}
@@ -30,19 +29,28 @@ services:
       - 50052:50052
 
   sipproxy:
-    image: fonoster/routr-one:latest
+    image: fonoster/routr:1.2.8
     restart: unless-stopped
     environment:
-      EXTERNAL_ADDRS: ${DOCKER_HOST_ADDRESS}
-      RTPENGINE_HOST: ${RTPENGINE_HOST}
-      RTPENGINE_PORT: ${RTPENGINE_PORT}
-      DATABASE_URL: ${DATABASE_URL}
-    depends_on:
-      - postgres
-    expose:
-      - 51907
+      EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
+      DATA_SOURCE_PROVIDER: redis_data_provider
+      INITIAL_API_SECRET: ${SIPPROXY_API_SECRET}
+      DATA_SOURCE_PARAMETERS: host=${REDIS_HOST},port=${REDIS_PORT},secret=${REDIS_SECRET}
+      BIND_ADDR: 0.0.0.0
+      RECORD_ROUTE: "true"
+      REGISTRAR_INTF: Internal
+      EX_RTP_ENGINE_ENABLED: "true"
+      EX_RTP_ENGINE_PROTO: http
+      EX_RTP_ENGINE_HOST: ${RTPENGINE_HOST}
+      EX_RTP_ENGINE_PORT: ${RTPENGINE_PORT}
+      # Setting this to true is breaking the routing workflow in Routr
+      EX_CONVERT_TEL_TO_E164: "true"
+      REST_SERVICE_MIN_THREADS: 8
+      REST_SERVICE_MAX_THREADS: 8
+      JAVA_OPTS: "-XX:NewRatio=2 -Xmx1200M"
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
+      LOGS_DRIVER_PORT: ${LOGS_DRIVER_PORT}
     ports:
-      - 51907:51907
       - 5060-5063:5060-5063
       - 5060:5060/udp
 
@@ -92,7 +100,7 @@ services:
     expose:
       - 8080
 
-  intents_analyzer:
+  voice:
     image: fonoster/rox:latest
     restart: unless-stopped
     expose:
@@ -101,27 +109,11 @@ services:
     environment:
       LOGS_LEVEL: ${LOGS_LEVEL}
 
-  postgres:
-    image: postgres:14.1-alpine
+  redis:
+    image: redis:7.0.8-alpine
     restart: unless-stopped
-    environment:
-      - POSTGRES_USER=${DATABASE_USERNAME}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - TZ=UTC
-      - PGTZ=UTC
-    expose:
-      - 5432
-    volumes:
-      - shared:/var/lib/postgresql/data
-
-  postgres_init:
-    image: fonoster/routr-pgdata-migrations:latest
-    restart: "no"
-    command: ["npx", "-y", "prisma", "migrate", "deploy"]
-    depends_on:
-      - postgres
-    environment:
-      - DATABASE_URL
+    export:
+      - 6379
 
 volumes:
   shared:
