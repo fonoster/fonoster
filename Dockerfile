@@ -1,18 +1,18 @@
 ##
 ## Build and pack the service
 ##
-FROM alpine:3.17 as builder
+FROM node:lts-alpine as builder
 
 COPY mods/apiserver /work
 WORKDIR /work
 
-RUN apk add --no-cache --update git npm curl bash git tini nodejs npm python3 make cmake g++ \
+RUN apk add --no-cache --update git npm curl bash git tini npm python3 make cmake g++ \
   && npm install --production
 
 ##  
 ## Runner
 ##
-FROM alpine:3.17 as runner
+FROM node:lts-alpine as runner
 ENV USER=fonoster
 ENV GID=1000
 ENV UID=1000
@@ -26,7 +26,7 @@ COPY --from=builder /work/package.json package.json
 COPY ./mods/apiserver/etc/service_envs.json /home/fonoster/service_envs.json
 COPY ./mods/apiserver/etc/rbac.json /home/fonoster/rbac.json
 
-RUN apk add --no-cache --update git tini npm nodejs \
+RUN apk add --no-cache --update git tini \
   && echo "[]" > /home/fonoster/limiter.json \
   && apk del npm git \
   && rm -rf /var/cache/apk/*
