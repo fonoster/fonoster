@@ -110,7 +110,7 @@ export default class VoiceResponse {
 
   /**
    * Converts a text into a sound and sends sound to media server. To use this verb, you must
-   * first setup a TTS plugin such as MaryTTS, GoogleTTS, or AWS PollyTTS
+   * first setup a TTS plugin such as GoogleTTS, or AWS PollyTTS
    *
    * @param {string} text - Converts a text into a sound and sends sound to media server
    * @param {SayOptions} options - Optional parameters to alter the command's normal

@@ -8,7 +8,6 @@
     { "path": "../common" },
     { "path": "../certs" },
     { "path": "../errors" },
-    { "path": "../events" },
     { "path": "../logger" },
     { "path": "../auth" }
   ],

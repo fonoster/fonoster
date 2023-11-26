@@ -18,8 +18,7 @@
     { "path": "../monitor" },
     { "path": "../projects" },
     { "path": "../auth" },
-    { "path": "../users" },
-    { "path": "../funcs" }
+    { "path": "../users" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }
