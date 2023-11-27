@@ -59,10 +59,56 @@ new VoiceServer(serverConfig).listen(
     await res.hangup();
   }
 );
+```
 
-// your app will live at http://127.0.0.1:3000 
-// and you can easily publish it to the Internet with:
-// ngrok http 3000
+### Get a public URL
+Your app will live at http://127.0.0.1:3000
+
+There are a couple of options to easily publish your app to the Internet.
+
+#### Tunnelmole
+Tunnelmole is an open source tunneling tool. You can find it on [Github](https://github.com/robbie-cahill/tunnelmole-client).
+
+To install Tunnelmole, select one of the following options:
+
+- ***NPM***:
+```text
+npm install -g tunnelmole
+```
+
+- ***Linux***:
+```text
+curl -s https://tunnelmole.com/sh/install-linux.sh | sudo bash
+```
+
+- ***Mac***:
+```text
+curl -s https://tunnelmole.com/sh/install-mac.sh --output install-mac.sh && sudo bash install-mac.sh
+```
+
+- ***Windows***:
+If you have NodeJS installed, you can install with NPM. If not, download the `exe` file for Windows [here](https://tunnelmole.com/downloads/tmole.exe) and put it somewhere in your PATH.
+
+Lastly, to publish your app using Tunnelmole, run the following command:
+
+```text
+tmole 3000
+```
+
+You will see something similar to the following message indicating your app is being forwarded:
+
+```text
+http://bvdo5f-ip-49-183-170-144.tunnelmole.net is forwarding to localhost:3000
+https://bvdo5f-ip-49-183-170-144.tunnelmole.net is forwarding to localhost:3000
+```
+
+#### ngrok
+ngrok is a popular closed source tunnelling tool.
+
+You can use it by running the command:
+
+```text
+ngrok http 3000
 ```
 
 Everything in FN is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
@@ -76,7 +122,7 @@ const callManager = new Fonoster.CallManager();
 callManager.call({
  from: "9842753574",
  to: "17853178070",
- webhook: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
+ webhook: "https://bvdo5f-ip-49-183-170-144.tunnelmole.net/voiceapp" // Replace with ngrok URL if using ngrok
 })
  .then(console.log)
  .catch(console.error);
