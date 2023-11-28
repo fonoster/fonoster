@@ -9,7 +9,6 @@ PROTOS=(
   storage \
   numbers \
   providers \
-  funcs \
   auth \
   secrets \
   users \

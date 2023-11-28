@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Help } from "@oclif/plugin-help";
+import { Help } from "@oclif/core"
 
 const figlet = require("figlet");
 
 export default class MyHelpClass extends Help {
-  protected showRootHelp() {
+  protected async showRootHelp() {
     this.showLogo();
 
     console.log(this.formatRoot());

@@ -45,7 +45,6 @@ export namespace UploadObjectRequest {
     APPS = 0,
     RECORDINGS = 1,
     PUBLIC = 2,
-    FUNCS = 3,
     }
 
 }
@@ -99,7 +98,6 @@ export namespace GetObjectURLRequest {
     APPS = 0,
     RECORDINGS = 1,
     PUBLIC = 2,
-    FUNCS = 3,
     }
 
 }

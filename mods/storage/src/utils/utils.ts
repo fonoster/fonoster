@@ -57,8 +57,6 @@ export const handleError = (
 
 export const getBucketAsString = (bucket: UploadObjectRequest.Bucket) => {
   switch (bucket) {
-    case UploadObjectRequest.Bucket.FUNCS:
-      return constants.FUNCS_BUCKET;
     case UploadObjectRequest.Bucket.APPS:
       return constants.APPS_BUCKET;
     case UploadObjectRequest.Bucket.RECORDINGS:
@@ -72,8 +70,6 @@ export const getBucketAsPB = (bucket: string): UploadObjectRequest.Bucket => {
   switch (bucket) {
     case constants.APPS_BUCKET:
       return StoragePB.GetObjectURLRequest.Bucket.APPS;
-    case constants.FUNCS_BUCKET:
-      return StoragePB.GetObjectURLRequest.Bucket.FUNCS;
     case constants.RECORDINGS_BUCKET:
       return StoragePB.GetObjectURLRequest.Bucket.RECORDINGS;
     case constants.PUBLIC_BUCKET:

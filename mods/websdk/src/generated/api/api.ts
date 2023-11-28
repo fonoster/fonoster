@@ -651,8 +651,7 @@ export interface FuncLog {
 export enum GetObjectURLRequestBucket {
     Apps = 'APPS',
     Recordings = 'RECORDINGS',
-    Public = 'PUBLIC',
-    Funcs = 'FUNCS'
+    Public = 'PUBLIC'
 }
 
 /**

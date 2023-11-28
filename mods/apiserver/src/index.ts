@@ -36,7 +36,6 @@ import { MonitorServer, MonitorService } from "@fonoster/monitor";
 import { UsersServer, UsersService } from "@fonoster/users";
 import { ProjectsServer, ProjectsService } from "@fonoster/projects";
 import { AuthServer, AuthService } from "@fonoster/auth";
-import { FuncsServer, FuncsService } from "@fonoster/funcs";
 import { AgentsServer, AgentsService } from "@fonoster/agents";
 import { runServices } from "@fonoster/common";
 
@@ -70,12 +69,6 @@ const services = [
     version: "v1beta1",
     service: AuthService,
     server: new AuthServer()
-  },
-  {
-    name: "funcs",
-    version: "v1beta1",
-    service: FuncsService,
-    server: new FuncsServer()
   },
   {
     name: "agents",

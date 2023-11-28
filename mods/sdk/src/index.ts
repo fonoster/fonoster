@@ -23,7 +23,6 @@ import Providers from "@fonoster/providers";
 import Numbers from "@fonoster/numbers";
 import Domains from "@fonoster/domains";
 import Agents from "@fonoster/agents";
-import Funcs from "@fonoster/funcs";
 import Auth from "@fonoster/auth";
 import Projects from "@fonoster/projects";
 import Users from "@fonoster/users";
@@ -36,7 +35,6 @@ const Fonoster = {
   Agents,
   CallManager,
   Domains,
-  Funcs,
   Storage,
   Numbers,
   Providers,

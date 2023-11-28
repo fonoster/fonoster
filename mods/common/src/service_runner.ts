@@ -67,7 +67,8 @@ export default function run(
   });
 
   srvInfList.forEach((srvInf: ServiceInf) => {
-    assertEnvIsSet(srvInf.name);
+    // TODO: Perhaps this method should be simplified now that we are using less services
+    assertEnvIsSet("apiserver");
     server.addService(srvInf.service, srvInf.server);
     logger.info(
       `service runner`,

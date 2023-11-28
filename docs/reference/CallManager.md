@@ -51,7 +51,6 @@ Call method.
 | request.to | <code>string</code> | The callee |
 | request.webhook | <code>string</code> | Url of the application that will handle the call If none is provided it will use the webook setup in the Number |
 | request.metadata | <code>object</code> | Arbitrary payload to send to the Voice Application |
-| request.ignoreE164Validation | <code>boolean</code> | If enabled it will accept any input in the from and to |
 
 **Example**  
 ```js

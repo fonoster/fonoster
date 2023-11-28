@@ -25,7 +25,6 @@ message UploadObjectRequest {
     APPS = 0;
     RECORDINGS = 1;
     PUBLIC = 2;
-    FUNCS = 3;
   }    
   Bucket bucket = 1;
   string filename = 2;
@@ -44,7 +43,6 @@ message GetObjectURLRequest {
     APPS = 0;
     RECORDINGS = 1;
     PUBLIC = 2;
-    FUNCS = 3;
   }    
   Bucket bucket = 1;
   string filename = 2;

@@ -57,7 +57,7 @@ Creates a new Agent on the SIP Proxy subsystem.
 | request.name | <code>string</code> | Friendly name for the SIP device |
 | request.username | <code>string</code> | Agent's credential username |
 | request.secret | <code>string</code> | Agent's credential secret |
-| request.privacy | <code>Privacy</code> | If set to Privacy.PRIVATE Fonoster removes identifiable information from the requests. Defaults to Privacy.NONE |
+| request.privacy | <code>Privacy</code> | If set to Privacy.PRIVATE Fonoster removes identifiable information for the requests. Defaults to Privacy.NONE |
 | request.domains | <code>Array.&lt;string&gt;</code> | List of domains this Agent has access to |
 
 **Example**  

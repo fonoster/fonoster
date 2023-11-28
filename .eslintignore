@@ -1,7 +1,6 @@
 mods/common
 mods/secrets
 mods/auth
-mods/funcs
 mods/appmanager
 mods/agents
 mods/auth

@@ -278,8 +278,7 @@ proto.fonoster.storage.v1beta1.UploadObjectRequest.serializeBinaryToWriter = fun
 proto.fonoster.storage.v1beta1.UploadObjectRequest.Bucket = {
   APPS: 0,
   RECORDINGS: 1,
-  PUBLIC: 2,
-  FUNCS: 3
+  PUBLIC: 2
 };
 
 /**
@@ -672,8 +671,7 @@ proto.fonoster.storage.v1beta1.GetObjectURLRequest.serializeBinaryToWriter = fun
 proto.fonoster.storage.v1beta1.GetObjectURLRequest.Bucket = {
   APPS: 0,
   RECORDINGS: 1,
-  PUBLIC: 2,
-  FUNCS: 3
+  PUBLIC: 2
 };
 
 /**

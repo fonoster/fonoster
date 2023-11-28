@@ -42,7 +42,6 @@
     "@fonoster/callmanager": "^0.4.8",
     "@fonoster/common": "^0.4.8",
     "@fonoster/domains": "^0.4.8",
-    "@fonoster/funcs": "^0.4.8",
     "@fonoster/limiter": "^0.4.8",
     "@fonoster/monitor": "^0.4.8",
     "@fonoster/numbers": "^0.4.8",

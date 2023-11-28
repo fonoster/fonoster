@@ -1,35 +1,26 @@
 [
   {
-    "module": "agents",
+    "module": "apiserver",
     "env": [
+      "GLOBAL_SIP_DOMAIN",
       "SIPPROXY_HOST",
-      "SIPPROXY_API_PORT",
-      "SIPPROXY_API_USERNAME",
-      "SIPPROXY_API_SECRET"
-    ]
-  },
-  {
-    "module": "providers",
-    "env": [
-      "SIPPROXY_HOST",
-      "SIPPROXY_API_PORT",
-      "SIPPROXY_API_USERNAME",
-      "SIPPROXY_API_SECRET"
-    ]
-  },
-  {
-    "module": "callmanager",
-    "env": [
+      "MEDIASERVER_SIP_ENDPOINT",
       "MEDIASERVER_TRUNK",
       "MEDIASERVER_CONTEXT",
       "MEDIASERVER_EXTENSION",
       "MEDIASERVER_ARI_INTERNAL_URL",
       "MEDIASERVER_ARI_USERNAME",
       "MEDIASERVER_ARI_SECRET",
-      "SIPPROXY_HOST",
-      "SIPPROXY_API_PORT",
-      "SIPPROXY_API_USERNAME",
-      "SIPPROXY_API_SECRET"
+      "MEDIASERVER_RECORDINGS_PATH",
+      "VOICE_URL",
+      "VAULT_ADDR",
+      "SECRETS_POLICY",
+      "S3_SERVER_HOST",
+      "S3_SERVER_PORT",
+      "S3_SERVER_USERNAME",
+      "S3_SERVER_SECRET",
+      "LOGS_AGGREGRATOR_HOST",
+      "LOGS_AGGREGRATOR_PORT"
     ]
   },
   {
@@ -40,53 +31,5 @@
       "MEDIASERVER_ARI_SECRET",
       "MEDIASERVER_RECORDINGS_PATH"
     ]
-  },
-  {
-    "module": "domains",
-    "env": [
-      "SIPPROXY_HOST",
-      "SIPPROXY_API_PORT",
-      "SIPPROXY_API_USERNAME",
-      "SIPPROXY_API_SECRET",
-      "GLOBAL_SIP_DOMAIN"
-    ]
-  },
-  {
-    "module": "numbers",
-    "env": [
-      "VOICE_URL",
-      "MEDIASERVER_SIP_ENDPOINT",
-      "SIPPROXY_HOST",
-      "SIPPROXY_API_PORT",
-      "SIPPROXY_API_USERNAME",
-      "SIPPROXY_API_SECRET"
-    ]
-  },
-  {
-    "module": "secrets",
-    "env": ["VAULT_ADDR", "SECRETS_POLICY"]
-  },
-  {
-    "module": "storage",
-    "env": ["S3_SERVER_HOST", "S3_SERVER_PORT", "S3_SERVER_USERNAME", "S3_SERVER_SECRET"]
-  },
-  {
-    "module": "monitor",
-    "env": ["LOGS_AGGREGRATOR_HOST", "LOGS_AGGREGRATOR_PORT"]
-  },
-  {
-    "module": "limiter",
-    "env": [
-      "DATASOURCE_HOST",
-      "DATASOURCE_PORT",
-      "SIPPROXY_HOST",
-      "SIPPROXY_API_PORT",
-      "SIPPROXY_API_USERNAME",
-      "SIPPROXY_API_SECRET"
-    ]
-  },
-  {
-    "module": "apps",
-    "env": ["DATASOURCE_HOST", "DATASOURCE_PORT"]
   }
 ]

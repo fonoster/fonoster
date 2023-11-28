@@ -34,7 +34,6 @@
     "@fonoster/auth": "^0.4.8",
     "@fonoster/callmanager": "^0.4.8",
     "@fonoster/domains": "^0.4.8",
-    "@fonoster/funcs": "^0.4.8",
     "@fonoster/logger": "^0.4.7",
     "@fonoster/monitor": "^0.4.8",
     "@fonoster/numbers": "^0.4.8",
