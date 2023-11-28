@@ -36,12 +36,11 @@
       "@oclif/plugin-help",
       "@oclif/plugin-plugins",
       "@oclif/plugin-not-found",
-      "@fonoster/plugin-warn-if-update-available"
+      "@oclif/plugin-warn-if-update-available"
     ],
     "warn-if-update-available": {
       "timeoutInDays": 1,
-      "nagTimeoutInDays": 1,
-      "message": "\n <%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
+      "message": "<%= config.name %> update available from <%= chalk.greenBright(config.version) %> to <%= chalk.greenBright(latest) %>."
     }
   },
   "publishConfig": {
@@ -60,7 +59,6 @@
     "@fonoster/domains": "^0.3.27",
     "@fonoster/logger": "^0.3.27",
     "@fonoster/numbers": "^0.3.27",
-    "@fonoster/plugin-warn-if-update-available": "github:fonoster/plugin-warn-if-update-available",
     "@fonoster/projects": "^0.3.27",
     "@fonoster/providers": "^0.3.27",
     "@fonoster/secrets": "^0.3.27",
@@ -71,6 +69,7 @@
     "@oclif/plugin-help": "^3.3.1",
     "@oclif/plugin-not-found": "^2.3.1",
     "@oclif/plugin-plugins": "^2.1.0",
+    "@oclif/plugin-warn-if-update-available": "^2.0.19",
     "easy-table": "^1.2.0",
     "figlet": "^1.5.0",
     "get-stdin-with-tty": "^6.0.0",
