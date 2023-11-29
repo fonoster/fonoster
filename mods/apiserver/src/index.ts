@@ -38,7 +38,7 @@ import { ProjectsServer, ProjectsService } from "@fonoster/projects";
 import { AuthMiddleware, AuthServer, AuthService } from "@fonoster/auth";
 import { AgentsServer, AgentsService } from "@fonoster/agents";
 import { runServices } from "@fonoster/common";
-import { getSalt } from "@fonoster/certs";
+import { PRIVATE_KEY } from "./envs";
 
 const services = [
   {
@@ -124,7 +124,7 @@ const services = [
 const middlewares = [
   {
     name: "authenticator",
-    middlewareObj: new AuthMiddleware(getSalt(), [
+    middlewareObj: new AuthMiddleware(PRIVATE_KEY, [
       "/fonoster.auth.v1beta1.Auth/GetRole",
       "/fonoster.users.v1beta1.Users/CreateUser",
       "/fonoster.auth.v1beta1.Users/CreateUserCredentials"

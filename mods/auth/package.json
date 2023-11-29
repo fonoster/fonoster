@@ -39,7 +39,6 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/certs": "^0.4.6",
     "@fonoster/common": "^0.4.8",
     "@fonoster/errors": "^0.4.6",
     "@fonoster/logger": "^0.4.7",

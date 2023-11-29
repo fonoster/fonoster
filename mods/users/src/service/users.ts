@@ -44,8 +44,8 @@ import { Empty } from "./protos/common_pb";
 import { assertNotEmpty, assertValidEmail, assertValidURL } from "./assertions";
 import { FonosterError } from "@fonoster/errors";
 import { ErrorCodes } from "@fonoster/errors";
-import { AUTH_ISS, getSalt } from "@fonoster/certs";
 import { UserLimiter, UserStatus } from "./types";
+import { AUTH_ISS, PRIVATE_KEY } from "../envs";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import JWT from "@fonoster/auth/dist/utils/jwt";
 import logger from "@fonoster/logger";
@@ -60,7 +60,7 @@ const authenticator = new Auth(new JWT());
 async function getTokenRole(token: string): Promise<string> {
   try {
     const jwt = new JWT();
-    const payload = (await jwt.decode(token, getSalt())) as { role: string };
+    const payload = (await jwt.decode(token, PRIVATE_KEY)) as { role: string };
     return payload.role;
   } catch (e) {
     return null;
@@ -290,7 +290,7 @@ class UsersServer implements IUsersServer {
         user.accessKeyId,
         AUTH_ISS,
         "USER",
-        getSalt(),
+        PRIVATE_KEY,
         call.request.getExpiration() || "30d"
       );
 

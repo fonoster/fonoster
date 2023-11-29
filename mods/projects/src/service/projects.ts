@@ -38,8 +38,8 @@ import {
 import { Empty } from "./protos/common_pb";
 import { getRedisConnection, getAccessKeyId } from "@fonoster/core";
 import { assertNotEmpty } from "./assertions";
-import { AUTH_ISS, getSalt } from "@fonoster/certs";
 import { ErrorCodes, FonosterError } from "@fonoster/errors";
+import { AUTH_ISS, PRIVATE_KEY } from "../envs";
 import JWT from "@fonoster/auth/dist/utils/jwt";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import decoder from "./decoder";
@@ -67,7 +67,7 @@ class ProjectsServer implements IProjectsServer {
         ref,
         AUTH_ISS,
         "PROJECT",
-        getSalt(),
+        PRIVATE_KEY,
         "1y"
       );
 
@@ -227,7 +227,7 @@ class ProjectsServer implements IProjectsServer {
         project.getAccessKeyId(),
         AUTH_ISS,
         "PROJECT",
-        getSalt(),
+        PRIVATE_KEY,
         "1y"
       );
 

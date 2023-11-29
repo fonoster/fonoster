@@ -3,7 +3,6 @@
     "module": "apiserver",
     "env": [
       "GLOBAL_SIP_DOMAIN",
-      "SIPPROXY_HOST",
       "MEDIASERVER_SIP_ENDPOINT",
       "MEDIASERVER_TRUNK",
       "MEDIASERVER_CONTEXT",
@@ -20,7 +19,9 @@
       "S3_SERVER_USERNAME",
       "S3_SERVER_SECRET",
       "LOGS_AGGREGRATOR_HOST",
-      "LOGS_AGGREGRATOR_PORT"
+      "LOGS_AGGREGRATOR_PORT",
+      "PRIVATE_KEY",
+      "AUTH_ISS"
     ]
   },
   {

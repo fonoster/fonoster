@@ -28,8 +28,8 @@ import {
 } from "./protos/auth_pb";
 import { IAuthServer, IAuthService, AuthService } from "./protos/auth_grpc_pb";
 import { ErrorCodes, FonosterError } from "@fonoster/errors";
-import { getSalt, AUTH_ISS } from "@fonoster/certs";
 import { getLogger } from "@fonoster/logger";
+import { AUTH_ISS, PRIVATE_KEY } from "../envs";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
 
@@ -46,7 +46,7 @@ class AuthServer implements IAuthServer {
   ) {
     const result = await authenticator.validateToken(
       { accessToken: call.request.getToken() },
-      getSalt()
+      PRIVATE_KEY
     );
     const validateTokenResponse = new ValidateTokenResponse();
     validateTokenResponse.setValid(result.isValid);
@@ -67,7 +67,7 @@ class AuthServer implements IAuthServer {
       call.request.getAccessKeyId(),
       AUTH_ISS,
       call.request.getRoleName(),
-      getSalt(),
+      PRIVATE_KEY,
       call.request.getExpiration() || "30d"
     );
     const response = new CreateTokenResponse();
@@ -89,7 +89,7 @@ class AuthServer implements IAuthServer {
       call.request.getAccessKeyId(),
       AUTH_ISS,
       "NO_ACCESS",
-      getSalt(),
+      PRIVATE_KEY,
       "1d"
     );
     const response = new CreateTokenResponse();

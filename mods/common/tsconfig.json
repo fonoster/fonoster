@@ -4,6 +4,14 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "references": [{ "path": "../logger" }, { "path": "../certs" }],
-  "exclude": ["node_modules", "dist", "test"]
+  "references": [
+    {
+      "path": "../logger"
+    }
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test"
+  ]
 }

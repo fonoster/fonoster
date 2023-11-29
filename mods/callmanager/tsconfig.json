@@ -6,7 +6,6 @@
   },
   "references": [
     { "path": "../auth" },
-    { "path": "../certs" },
     { "path": "../common" },
     { "path": "../core" },
     { "path": "../errors" },

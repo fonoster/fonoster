@@ -40,7 +40,6 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.17.0",
     "@fonoster/auth": "^0.4.8",
-    "@fonoster/certs": "^0.4.6",
     "@fonoster/common": "^0.4.8",
     "@fonoster/core": "^0.4.8",
     "@fonoster/errors": "^0.4.6",
