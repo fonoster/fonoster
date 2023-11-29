@@ -44,8 +44,7 @@
     "deepmerge": "^4.2.2",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
-    "pubsub-js": "^1.9.3",
-    "sync": "^0.2.5"
+    "pubsub-js": "^1.9.3"
   },
   "gitHead": "b282dd99ea19f41c015b6ead6dea276e988f527c",
   "devDependencies": {
