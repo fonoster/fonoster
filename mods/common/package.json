@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/common",
-  "version": "0.3.30-alpha.0",
+  "version": "0.3.30-alpha.1",
   "description": "Common artifacts",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "bugs": {
@@ -26,7 +26,7 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@fonoster/certs": "^0.3.30-alpha.0",
+    "@fonoster/certs": "^0.3.30-alpha.1",
     "@fonoster/grpc-health-check": "^3.1.6",
     "@fonoster/grpc-interceptors": "^0.2.5",
     "@fonoster/logger": "^0.3.30-alpha.0",
