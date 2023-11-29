@@ -5,6 +5,8 @@
     "rootDir": "./src"
   },
   "references": [
+    { "path": "../projects" },
+    { "path": "../apps"},
     { "path": "../agents" },
     { "path": "../domains" },
     { "path": "../numbers" },

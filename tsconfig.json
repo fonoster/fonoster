@@ -9,8 +9,11 @@
     "esModuleInterop": true,
     "strict": false,
     "module": "commonjs",
-    "target": "es2020",
-    "lib": [ "es2020" ],
+    "moduleResolution": "node",
+    "target": "esnext",
+    "lib": [ "esnext" ],
+    "preserveSymlinks": true,
+    "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true
   },
   "exclude": [
