@@ -35,9 +35,10 @@ import { LimiterServer, LimiterService } from "@fonoster/limiter";
 import { MonitorServer, MonitorService } from "@fonoster/monitor";
 import { UsersServer, UsersService } from "@fonoster/users";
 import { ProjectsServer, ProjectsService } from "@fonoster/projects";
-import { AuthServer, AuthService } from "@fonoster/auth";
+import { AuthMiddleware, AuthServer, AuthService } from "@fonoster/auth";
 import { AgentsServer, AgentsService } from "@fonoster/agents";
 import { runServices } from "@fonoster/common";
+import { getSalt } from "@fonoster/certs";
 
 const services = [
   {
@@ -120,4 +121,15 @@ const services = [
   }
 ];
 
-runServices(services);
+const middlewares = [
+  {
+    name: "authenticator",
+    middlewareObj: new AuthMiddleware(getSalt(), [
+      "/fonoster.auth.v1beta1.Auth/GetRole",
+      "/fonoster.users.v1beta1.Users/CreateUser",
+      "/fonoster.auth.v1beta1.Users/CreateUserCredentials"
+    ]).middleware
+  }
+];
+
+runServices(services, middlewares);

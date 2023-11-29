@@ -18,15 +18,12 @@
  */
 import { status } from "@grpc/grpc-js";
 import { getLogger } from "@fonoster/logger";
+import { Context } from "./types";
 import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
 
 const logger = getLogger({ service: "auth", filePath: __filename })
-
-const WHITELIST = process.env.AUTH_ACCESS_WHITELIST
-  ? process.env.AUTH_ACCESS_WHITELIST.split(",")
-  : [];
 
 export default class AuthMiddleware {
   privateKey: string;
@@ -34,10 +31,10 @@ export default class AuthMiddleware {
 
   constructor(privateKey: string, whitelist = []) {
     this.privateKey = privateKey;
-    this.whitelist = whitelist || WHITELIST;
+    this.whitelist = whitelist;
   }
 
-  middleware = async (ctx: any, next: any, errorCb: any) => {
+  middleware = async (ctx: Context, next: () => Promise<void>, errorCb: (err: any) => void) => {
     const pathRequest = ctx.service.path;
 
     logger.verbose(
@@ -50,11 +47,13 @@ export default class AuthMiddleware {
     }
 
     const jwtHandler = new Auth(new JWT());
+    const metadata = ctx.call.metadata
+    const accessKeyId = metadata.get("access_key_id")[0]
+    const accessKeySecret = metadata.get("access_key_secret")[0]?.toString()
 
     try {
       if (
-        !ctx.call.metadata.get("access_key_id").toString() ||
-        !ctx.call.metadata.get("access_key_secret").toString()
+        !accessKeyId || !accessKeySecret
       ) {
         errorCb({
           code: status.UNAUTHENTICATED,
@@ -63,44 +62,38 @@ export default class AuthMiddleware {
         return;
       }
 
-      const accessKeyId = ctx.call.metadata.get("access_key_id").toString();
-      const accessKeySecret = ctx.call.metadata
-        .get("access_key_secret")
-        .toString();
-
-      jwtHandler
+      const result = await jwtHandler
         .validateToken({ accessToken: accessKeySecret }, this.privateKey)
-        .then(async (result) => {
-          if (result.isValid) {
-            if (result.data.accessKeyId != accessKeyId)
-              errorCb({
-                code: status.UNAUTHENTICATED,
-                // TODO: Improve error message
-                message: "invalid authentication"
-              });
 
-            const hasAccess = await roleHasAccess(
-              result.data.role,
-              pathRequest
-            );
+      if (result.isValid) {
+        if (result.data.accessKeyId != accessKeyId)
+          errorCb({
+            code: status.UNAUTHENTICATED,
+            // TODO: Improve error message
+            message: "invalid authentication"
+          });
 
-            if (hasAccess) {
-              await next();
-            } else {
-              errorCb({
-                code: status.PERMISSION_DENIED,
-                // TODO: Improve error message
-                message: "permission denied"
-              });
-            }
-          } else {
-            errorCb({
-              code: status.UNAUTHENTICATED,
-              // TODO: Improve error message
-              message: "invalid authentication"
-            });
-          }
+        const hasAccess = await roleHasAccess(
+          result.data.role,
+          pathRequest
+        );
+
+        if (hasAccess) {
+          await next();
+        } else {
+          errorCb({
+            code: status.PERMISSION_DENIED,
+            // TODO: Improve error message
+            message: "permission denied"
+          });
+        }
+      } else {
+        errorCb({
+          code: status.UNAUTHENTICATED,
+          // TODO: Improve error message
+          message: "invalid authentication"
         });
+      }
     } catch (e) {
       errorCb({
         code: status.INTERNAL,
