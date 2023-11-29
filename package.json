@@ -17,7 +17,7 @@
     "lint": "eslint mods --ext .ts --fix",
     "format": "prettier --write mods",
     "check-types": "tsc --noEmit",
-  "gen:protos": "./.scripts/gen_code_proto.sh",
+    "gen:protos": "./.scripts/gen_code_proto.sh",
     "gen:docs": "node ./.scripts/gen_docs.js",
     "audit": "lerna-audit",
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",

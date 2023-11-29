@@ -33,8 +33,7 @@
     "@fonoster/logger": "^0.4.7",
     "@google-cloud/speech": "^5.4.0",
     "bson-objectid": "^2.0.2",
-    "node-record-lpcm16": "^1.0.1",
-    "sync": "^0.2.5"
+    "node-record-lpcm16": "^1.0.1"
   },
   "gitHead": "5ba21ada612657dcaff6f6aa7bce5a8e4a00830a"
 }

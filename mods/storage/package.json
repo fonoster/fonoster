@@ -49,7 +49,6 @@
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
     "minio": "^7.0.18",
-    "sync": "^0.2.5",
     "tar": "^6.1.0",
     "walk": "^2.3.14"
   },
