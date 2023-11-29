@@ -5,4 +5,6 @@ const secret = process.env.DATASOURCE_SECRET
   ? `:${process.env.DATASOURCE_SECRET}@`
   : "";
 
-export = () => new Redis(`redis://${secret}${host}:${port}`);
+const redis = () => new Redis(`redis://${secret}${host}:${port}`);
+
+export default redis;

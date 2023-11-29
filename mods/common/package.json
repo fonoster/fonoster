@@ -26,7 +26,7 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@fonoster/grpc-health-check": "^3.1.2",
+    "@fonoster/grpc-health-check": "^3.1.6",
     "@fonoster/logger": "^0.4.7",
     "@grpc/grpc-js": "^1.8.4",
     "@grpc/proto-loader": "^0.7.2",
