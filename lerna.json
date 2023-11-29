@@ -1,4 +1,4 @@
 {
-  "packages": ["mods/*"],
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
   "version": "0.3.30-alpha.0"
 }

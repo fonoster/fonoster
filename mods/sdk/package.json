@@ -34,7 +34,6 @@
     "@fonoster/auth": "^0.3.30-alpha.0",
     "@fonoster/callmanager": "^0.3.30-alpha.0",
     "@fonoster/domains": "^0.3.30-alpha.0",
-    "@fonoster/funcs": "^0.3.30-alpha.0",
     "@fonoster/logger": "^0.3.30-alpha.0",
     "@fonoster/monitor": "^0.3.30-alpha.0",
     "@fonoster/numbers": "^0.3.30-alpha.0",

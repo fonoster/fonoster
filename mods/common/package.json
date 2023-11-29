@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@fonoster/certs": "^0.3.30-alpha.0",
-    "@fonoster/grpc-health-check": "^3.1.1",
+    "@fonoster/grpc-health-check": "^3.1.6",
     "@fonoster/grpc-interceptors": "^0.2.5",
     "@fonoster/logger": "^0.3.30-alpha.0",
     "@grpc/grpc-js": "^1.9.12",

@@ -1,6 +1,6 @@
 import fs from "fs";
 import jwt from "jsonwebtoken";
-import { forge } from "acme-client";
+import { generateKey } from '@47ng/cloak'
 import { join } from "path";
 import { homedir } from "os";
 import btoa from "btoa";
@@ -22,7 +22,7 @@ const saltExist = () => fs.existsSync(PATH_TO_SALT);
 
 async function createAccessFile() {
   if (!saltExist()) {
-    fs.writeFileSync(PATH_TO_SALT, await forge.createPrivateKey());
+    fs.writeFileSync(PATH_TO_SALT, generateKey());
   }
 
   const salt = getSalt();

@@ -45,7 +45,7 @@ export interface RoutrClient {
   connect: () => Promise<RoutrClient>;
   resourceType: (resourceType: string) => RoutrClient;
   list: (
-    { itemsPerPage: number },
+    { itemsPerPage },
     id: string
   ) => Promise<{ meta: { totalItems: number } }>;
 }

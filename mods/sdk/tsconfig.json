@@ -9,7 +9,6 @@
     { "path": "../auth" },
     { "path": "../secrets" },
     { "path": "../agents" },
-    { "path": "../funcs" },
     { "path": "../storage" },
     { "path": "../callmanager" },
     { "path": "../logger" },
