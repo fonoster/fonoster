@@ -52,10 +52,10 @@
     "express": "^4.17.1",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^8.5.0"
+    "@types/jsonwebtoken": "^9.0.5"
   },
   "gitHead": "b282dd99ea19f41c015b6ead6dea276e988f527c"
 }
