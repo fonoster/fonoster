@@ -21,9 +21,8 @@ import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Providers = require("@fonoster/providers");
-const inquirer = require("inquirer");
+import Providers from "@fonoster/providers";
+import inquirer from "inquirer";
 
 export default class CreateCommand extends Command {
   static description = `create a new Fonoster Provider (trunk)

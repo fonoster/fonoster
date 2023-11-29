@@ -23,8 +23,8 @@ import { CliUx } from "@oclif/core";
 import { render } from "prettyjson";
 import { getProjectConfig, hasProjectConfig } from "../../config";
 import { toPascalCase } from "../../utils";
-const Agents = require("@fonoster/agents");
-const moment = require("moment");
+import Agents from "@fonoster/agents";
+import moment from "moment";
 
 export default class GetCommand extends Command {
   static description = "get a Fonoster Agent";

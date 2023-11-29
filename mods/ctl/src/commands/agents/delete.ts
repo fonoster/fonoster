@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Command from "../../base/delete";
 import { getProjectConfig, hasProjectConfig } from "../../config";
 import { CLIError } from "@oclif/errors";
-const Agents = require("@fonoster/agents");
+import Command from "../../base/delete";
+import Agents from "@fonoster/agents";
 
 export default class extends Command {
   static description = "delete a Fonoster Agent";

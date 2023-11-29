@@ -23,9 +23,8 @@ import { CommonPB } from "@fonoster/providers";
 import { CliUx } from "@oclif/core";
 import { Provider } from "@fonoster/providers";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Providers = require("@fonoster/providers");
-const inquirer = require("inquirer");
+import Providers from "@fonoster/providers";
+import inquirer from "inquirer";
 
 export default class ListCommand extends Command {
   static description = `list all Fonoster Providers you have access to

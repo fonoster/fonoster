@@ -20,7 +20,7 @@ import "../../config";
 import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
-const Projects = require("@fonoster/projects");
+import Projects from "@fonoster/projects";
 
 export default class UpdateCommand extends Command {
   static args = [{ name: "ref" }];

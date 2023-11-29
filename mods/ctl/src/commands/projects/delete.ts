@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import Command from "../../base/delete";
-const Projects = require("@fonoster/projects");
 import { isDefaultProject, unsetDefaultProject } from "../../config";
+import Projects from "@fonoster/projects";
 
 export default class extends Command {
   static description = "delete a Fonoster Project";

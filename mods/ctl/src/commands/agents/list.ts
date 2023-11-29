@@ -23,9 +23,8 @@ import { CommonPB } from "@fonoster/agents";
 import { CliUx } from "@oclif/core";
 import { Agent } from "@fonoster/agents";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Agents = require("@fonoster/agents");
-const inquirer = require("inquirer");
+import Agents from "@fonoster/agents";
+import inquirer from "inquirer";
 
 export default class ListCommand extends Command {
   static description = `list all Fonoster Agents you have access to

@@ -21,11 +21,12 @@ import { Command, flags } from "@oclif/command";
 import { CLIError } from "@oclif/errors";
 import { ProjectGuard } from "../../decorators/project_guard";
 import { getProjectConfig } from "../../config";
-import type { Secret } from "@fonoster/secrets/dist/client/types";
+import type { Secret } from "@fonoster/secrets";
+import Secrets from "@fonoster/secrets";
 
-// Using import will cause: Error: easy_table_1.default is not a constructor
-const Table = require("easy-table");
-const Secrets = require("@fonoster/secrets");
+// WARNING: Using import will cause: Error: easy_table_1.default is not a constructor
+import Table from "easy-table";
+
 
 export default class ListCommand extends Command {
   static description = "list of the secrets you have access to";

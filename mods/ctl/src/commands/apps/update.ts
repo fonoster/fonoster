@@ -23,10 +23,9 @@ import { CliUx } from "@oclif/core";
 import { getProjectConfig } from "../../config";
 import { ProjectGuard } from "../../decorators/project_guard";
 import { voices } from "../../data/voices";
-
-const Apps = require("@fonoster/apps");
-const Secrets = require("@fonoster/secrets");
-const inquirer = require("inquirer");
+import Apps from "@fonoster/apps";
+import Secrets from "@fonoster/secrets";
+import inquirer from "inquirer";
 
 const validator = (value?: string, message = "This field is required") =>
   Boolean(value?.trim()?.length) || message;

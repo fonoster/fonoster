@@ -20,7 +20,7 @@ import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { isDefaultProject } from "../../config";
-const Projects = require("@fonoster/projects").default;
+import Projects from "@fonoster/projects";
 
 export default class ListCommand extends Command {
   static description = `list all Fonoster Projects you have access to
@@ -38,7 +38,8 @@ export default class ListCommand extends Command {
         Object.assign(p, {
           name: isDefaultProject(p.ref) ? `${p.name} *` : p.name
         })
-      );
+      ) as Record<string, any>[];
+
       CliUx.ux.table(projs, {
         accessKeyId: { header: "Ref / Access Key Id", minWidth: 30 },
         name: { header: "Name", minWidth: 12 }

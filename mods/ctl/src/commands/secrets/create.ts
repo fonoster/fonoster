@@ -21,9 +21,8 @@ import { Command, flags } from "@oclif/command";
 import { CLIError } from "@oclif/errors";
 import { getProjectConfig } from "../../config";
 import { ProjectGuard } from "../../decorators/project_guard";
-
-const getStdin = require("get-stdin-with-tty");
-const Secrets = require("@fonoster/secrets");
+import getStdin from "get-stdin-with-tty";
+import Secrets from "@fonoster/secrets";
 
 export default class CreateCommand extends Command {
   static description = "create a Fonoster secret.";

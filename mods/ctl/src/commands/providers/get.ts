@@ -17,15 +17,13 @@
  * limitations under the License.
  */
 import "../../config";
-
 import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { render } from "prettyjson";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Providers = require("@fonoster/providers");
-const moment = require("moment");
+import Providers from "@fonoster/providers";
+import moment from "moment";
 
 export default class GetCommand extends Command {
   static description = "get a Fonoster Provider";

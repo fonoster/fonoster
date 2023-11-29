@@ -22,9 +22,8 @@ import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { getProjectConfig } from "../../config";
 import { ProjectGuard } from "../../decorators/project_guard";
-
-const Numbers = require("@fonoster/numbers");
-const inquirer = require("inquirer");
+import Numbers from "@fonoster/numbers";
+import inquirer from "inquirer";
 
 export class UpdateCommand extends Command {
   static description = `update a Fonoster Number

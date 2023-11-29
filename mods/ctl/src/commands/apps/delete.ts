@@ -20,8 +20,7 @@ import Command from "../../base/delete";
 import { CLIError } from "@oclif/errors";
 import { getProjectConfig } from "../../config";
 import { ProjectGuard } from "../../decorators/project_guard";
-
-const Apps = require("@fonoster/apps");
+import Apps from "@fonoster/apps";
 
 export default class DeleteCommand extends Command {
   static description = "delete a Fonoster Application";

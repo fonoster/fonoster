@@ -32,8 +32,8 @@ import {
 } from "./protos/apps_pb";
 import { Empty } from "./protos/common_pb";
 import { ErrorCodes, FonosterError } from "@fonoster/errors";
-import decoder from "./decoder";
 import { nanoid } from "nanoid";
+import decoder from "./decoder";
 import encoder from "./encoder";
 
 export default class AppsServer implements IAppsServer {

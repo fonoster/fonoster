@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 import { Help } from "@oclif/core"
-
-const figlet = require("figlet");
+import figlet from "figlet"
 
 export default class MyHelpClass extends Help {
   protected async showRootHelp() {

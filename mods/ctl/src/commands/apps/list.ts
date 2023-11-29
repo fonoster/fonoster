@@ -21,11 +21,9 @@ import { CommonPB } from "@fonoster/domains";
 import { CLIError } from "@oclif/errors";
 import { Command, flags as oclifFlags } from "@oclif/command";
 import { CliUx } from "@oclif/core";
-import { App } from "@fonoster/apps";
 import { getProjectConfig } from "../../config";
 import { ProjectGuard } from "../../decorators/project_guard";
-
-const Apps = require("@fonoster/apps");
+import Apps, { App } from "@fonoster/apps";
 
 export default class ListCommand extends Command {
   static description = `list all Fonoster Apps you have access to

@@ -19,12 +19,11 @@
 import "../../config";
 import { CLIError } from "@oclif/errors";
 import { Command, flags as oclifFlags } from "@oclif/command";
-import { CommonPB, Number } from "@fonoster/numbers";
+import { CommonPB } from "@fonoster/numbers";
 import { CliUx } from "@oclif/core";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Numbers = require("@fonoster/numbers");
-const inquirer = require("inquirer");
+import Numbers from "@fonoster/numbers";
+import inquirer from "inquirer";
 
 export default class ListCommand extends Command {
   static description = `list all Fonoster Numbers you have access to

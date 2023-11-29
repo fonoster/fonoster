@@ -22,10 +22,10 @@ import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { getProjectConfig, hasProjectConfig } from "../../config";
+import Numbers from "@fonoster/numbers";
+import Domains from "@fonoster/domains";
+import inquirer from "inquirer";
 
-const Numbers = require("@fonoster/numbers");
-const Domains = require("@fonoster/domains");
-const inquirer = require("inquirer");
 const view: CommonPB.View = CommonPB.View.BASIC;
 
 export default class CreateCommand extends Command {

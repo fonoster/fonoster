@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import "../../config";
-const Projects = require("@fonoster/projects");
 import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
-const inquirer = require("inquirer");
+import Projects from "@fonoster/projects";
+import inquirer from "inquirer";
 
 export default class extends Command {
   static description = `create a new Fonoster Project
@@ -33,7 +33,7 @@ export default class extends Command {
     console.log("This utility will help you create a new Fonoster Project");
     console.log("Press ^C at any time to quit.");
 
-    const answers: any = await inquirer.prompt([
+    const answers = await inquirer.prompt([
       {
         name: "name",
         message: "friendly name",

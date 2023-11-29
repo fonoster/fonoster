@@ -19,9 +19,10 @@
 import { mute } from "@fonoster/logger";
 import { join } from "path";
 import { homedir } from "os";
+import fs from "fs";
+
 const BASE_DIR = join(homedir(), ".fonoster");
 const PATH_TO_CONFIG = join(BASE_DIR, "config");
-const fs = require("fs");
 
 mute();
 
@@ -47,7 +48,7 @@ export function getConfig(): Config {
     throw new Error("no config found");
   }
   try {
-    return JSON.parse(fs.readFileSync(PATH_TO_CONFIG));
+    return JSON.parse(fs.readFileSync(PATH_TO_CONFIG).toString());
   } catch (e) {
     throw new Error("malformed config: " + e);
   }

@@ -22,9 +22,9 @@ import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { join } from "path";
 import { homedir } from "os";
+import fs from "fs";
 
 const BASE_DIR = join(homedir(), ".fonoster");
-const fs = require("fs");
 
 export default class extends Command {
   static description = "log out from a fonoster deployment";

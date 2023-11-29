@@ -23,9 +23,9 @@ import { CliUx } from "@oclif/core";
 import { getProjectConfig, hasProjectConfig } from "../../config";
 import { toPascalCase } from "../../utils";
 import { Privacy } from "@fonoster/agents";
-const Agents = require("@fonoster/agents");
-const Domains = require("@fonoster/domains");
-const inquirer = require("inquirer");
+import Agents from "@fonoster/agents";
+import Domains from "@fonoster/domains";
+import inquirer from "inquirer";
 
 export default class extends Command {
   static description = `create a new Fonoster Agent

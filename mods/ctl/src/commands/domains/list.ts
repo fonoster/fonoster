@@ -23,9 +23,8 @@ import { Command, flags as oclifFlags } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { Domain } from "@fonoster/domains";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Domains = require("@fonoster/domains");
-const inquirer = require("inquirer");
+import Domains from "@fonoster/domains";
+import inquirer from "inquirer";
 
 export default class ListCommand extends Command {
   static description = `list all Fonoster Domains you have access to

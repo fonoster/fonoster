@@ -16,11 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Command from "../../base/delete";
 import { CLIError } from "@oclif/errors";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Domains = require("@fonoster/domains");
+import Domains from "@fonoster/domains";
+import Command from "../../base/delete";
 
 export default class DeleteCommand extends Command {
   static description = "delete a Fonoster Domain";

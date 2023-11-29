@@ -21,9 +21,8 @@ import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { setConfig } from "../../config";
-
-const Projects = require("@fonoster/projects");
-const inquirer = require("inquirer");
+import Projects from "@fonoster/projects";
+import inquirer from "inquirer";
 
 export default class extends Command {
   static description = "log in to a Fonoster deployment";
@@ -65,12 +64,14 @@ export default class extends Command {
 
         try {
           const projects = new Projects(answers);
-          await projects.listProjects();
+          const w = await projects.listProjects();
+          console.log(w);
           answers.confirm = void 0;
           setConfig(answers);
           await CliUx.ux.wait(1000);
           CliUx.ux.action.stop("Done");
         } catch (e) {
+          console.error(e);
           console.error(e.message);
           await CliUx.ux.wait(1000);
           CliUx.ux.action.stop("Invalid credentials or endpoint");

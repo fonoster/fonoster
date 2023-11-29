@@ -21,9 +21,8 @@ import { CLIError } from "@oclif/errors";
 import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { render } from "prettyjson";
-
-const Projects = require("@fonoster/projects");
-const moment = require("moment");
+import Projects from "@fonoster/projects";
+import moment from "moment";
 
 export default class GetCommand extends Command {
   static description = "get a Fonoster Project";

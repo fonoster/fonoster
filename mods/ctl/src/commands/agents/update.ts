@@ -22,9 +22,9 @@ import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { getProjectConfig, hasProjectConfig } from "../../config";
 import { toPascalCase } from "../../utils";
-const { Privacy } = require("@fonoster/agents");
-const Agents = require("@fonoster/agents");
-const inquirer = require("inquirer");
+import { Privacy } from "@fonoster/agents";
+import Agents from "@fonoster/agents";
+import inquirer from "inquirer";
 
 export default class UpdateCommand extends Command {
   static args = [{ name: "ref" }];

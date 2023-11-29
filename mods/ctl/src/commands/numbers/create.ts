@@ -23,10 +23,9 @@ import { CliUx } from "@oclif/core";
 import { CommonPB } from "@fonoster/numbers";
 import { Provider } from "@fonoster/providers";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Providers = require("@fonoster/providers");
-const Numbers = require("@fonoster/numbers");
-const inquirer = require("inquirer");
+import Providers from "@fonoster/providers";
+import Numbers from "@fonoster/numbers";
+import inquirer from "inquirer";
 
 export default class CreateCommand extends Command {
   static description = `create a new Fonoster Number

@@ -22,9 +22,8 @@ import { Command } from "@oclif/command";
 import { CliUx } from "@oclif/core";
 import { render } from "prettyjson";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Domains = require("@fonoster/domains");
-const moment = require("moment");
+import Domains from "@fonoster/domains";
+import moment from "moment";
 
 export default class GetCommand extends Command {
   static description = "get a Fonoster Domain";

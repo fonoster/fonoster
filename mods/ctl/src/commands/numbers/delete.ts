@@ -19,8 +19,7 @@
 import Command from "../../base/delete";
 import { CLIError } from "@oclif/errors";
 import { getProjectConfig, hasProjectConfig } from "../../config";
-
-const Numbers = require("@fonoster/numbers");
+import Numbers from "@fonoster/numbers";
 
 export default class DeleteCommand extends Command {
   static description = "delete a Fonoster Number";

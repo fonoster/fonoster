@@ -22,8 +22,7 @@ import { CliUx } from "@oclif/core";
 import { getProjectConfig } from "../../config";
 import { ProjectGuard } from "../../decorators/project_guard";
 import { CLIError } from "@oclif/errors";
-
-const Secrets = require("@fonoster/secrets");
+import Secrets from "@fonoster/secrets";
 
 export default class DeleteCommand extends Command {
   static description = "remove Fonoster secret";
