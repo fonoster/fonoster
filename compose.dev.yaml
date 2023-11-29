@@ -5,3 +5,7 @@ services:
   apiserver:
     build:
       context: .
+
+  redis:
+    ports:
+      - 6379:6379
