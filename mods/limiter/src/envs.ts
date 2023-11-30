@@ -16,23 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { User } from "./protos/users_pb";
-
-export default (user: User, secretHash: string): string => {
-  if (!user) {
-    return null;
-  }
-  const userJSON = {
-    ref: user.getRef(),
-    accessKeyId: user.getAccessKeyId(),
-    email: user.getEmail(),
-    name: user.getName(),
-    avatar: user.getAvatar(),
-    createTime: user.getCreateTime(),
-    updateTime: user.getUpdateTime(),
-    limiter: user.getLimiter(),
-    status: user.getStatus(),
-    secretHash
-  };
-  return JSON.stringify(userJSON);
-};
+export const LIMITERS_PATH =
+  process.env.LIMITERS_PATH || "/home/fonoster/limiters.json";

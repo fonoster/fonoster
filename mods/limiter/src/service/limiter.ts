@@ -62,7 +62,7 @@ class LimiterServer implements ILimiterServer {
     }
 
     const user = await getUserByAccessKeyId(redis)(accessKeyId);
-    const limiter = getLimiterByName(limiters)(user.getLimiter());
+    const limiter = getLimiterByName(limiters)(user?.getLimiter());
     const limit = getLimit(limiter, call.request.getPath());
 
     if (limit) {

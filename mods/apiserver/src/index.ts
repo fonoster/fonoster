@@ -35,7 +35,12 @@ import { LimiterServer, LimiterService } from "@fonoster/limiter";
 import { MonitorServer, MonitorService } from "@fonoster/monitor";
 import { UsersServer, UsersService } from "@fonoster/users";
 import { ProjectsServer, ProjectsService } from "@fonoster/projects";
-import { AuthMiddleware, AuthServer, AuthService } from "@fonoster/auth";
+import {
+  AuthMiddleware,
+  AuthServer,
+  AuthService,
+  createLimiterMiddleware
+} from "@fonoster/auth";
 import { AgentsServer, AgentsService } from "@fonoster/agents";
 import { runServices } from "@fonoster/common";
 import { PRIVATE_KEY } from "./envs";
@@ -127,8 +132,16 @@ const middlewares = [
     middlewareObj: new AuthMiddleware(PRIVATE_KEY, [
       "/fonoster.auth.v1beta1.Auth/GetRole",
       "/fonoster.users.v1beta1.Users/CreateUser",
-      "/fonoster.auth.v1beta1.Users/CreateUserCredentials"
+      "/fonoster.auth.v1beta1.Users/CreateUserCredentials",
+      "/fonoster.auth.v1beta1.Limiter/CheckAuthorized"
     ]).middleware
+  },
+  {
+    name: "limiter",
+    middlewareObj: createLimiterMiddleware([
+      "/fonoster.auth.v1beta1.Auth/GetRole",
+      "/fonoster.auth.v1beta1.Limiter/CheckAuthorized"
+    ])
   }
 ];
 

@@ -19,7 +19,11 @@
 import { LimiterClient } from "./service/protos/auth_grpc_pb";
 import { getClientCredentials } from "@fonoster/common";
 import { Metadata } from "@grpc/grpc-js";
+import { APISERVER_ENDPOINT } from "./envs";
+import { getLogger } from "@fonoster/logger";
 import AuthPB from "./service/protos/auth_pb";
+
+const logger = getLogger({ service: "limiter", filePath: __filename })
 
 interface Context {
   service: {
@@ -35,7 +39,7 @@ export async function checkAuthorized(
   metadata: Metadata
 ): Promise<boolean> {
   const svc = new LimiterClient(
-    process.env.APISERVER_ENDPOINT || "localhost:50052",
+    APISERVER_ENDPOINT,
     getClientCredentials()
   );
   
@@ -53,16 +57,22 @@ export async function checkAuthorized(
   });
 }
 
-export default async function limiterMiddleware(
-  ctx: Context,
-  next: () => void,
-  errorCb: (e: Error) => void
-) {
-  try {
-    if (await checkAuthorized(ctx.service.path, ctx.call.metadata)) {
-      next();
+export default function createLimiterMiddleware(ignorePaths: string[] = []) {
+  return async function (ctx, next, errorCb) {
+    const { path } = ctx.service;
+    const { metadata } = ctx.call;
+
+    if (ignorePaths.includes(path)) {
+      logger.verbose(`Ignoring path ${path}`, { path });
+      return next();
     }
-  } catch (e) {
-    errorCb(e);
-  }
+
+    try {
+      if (await checkAuthorized(path, metadata)) {
+        next();
+      }
+    } catch (e) {
+      errorCb(e);
+    }
+  };
 }

@@ -18,3 +18,4 @@
  */
 export const PRIVATE_KEY = process.env.PRIVATE_KEY;
 export const AUTH_ISS = process.env.AUTH_ISS;
+export const APISERVER_ENDPOINT = process.env.APISERVER_ENDPOINT || "localhost:50052";

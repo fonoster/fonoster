@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -25,13 +26,12 @@ import {
   RoutrClient,
   ROUTR_RESOURCES
 } from "../service/types";
+import { LIMITERS_PATH } from "../envs";
 import { getLogger } from "@fonoster/logger";
 import userDecoder from "@fonoster/users/dist/service/decoder";
 import UserPB from "@fonoster/users/dist/service/protos/users_pb";
 
 const logger = getLogger({ service: "limiter", filePath: __filename });
-
-/* eslint-disable require-jsdoc */
 
 export function getUserByAccessKeyId(redis: RedisClient) {
   return async (accessKeyId: string): Promise<UserPB.User> => {
@@ -104,13 +104,12 @@ export function getResourceCount(redis: RedisClient, routr: RoutrClient) {
 }
 
 export function getLimiters(): Limiter[] {
-  const path = process.env.LIMITERS_PATH || "/home/fonoster/limiters.json";
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    return require(path) as Limiter[];
+    return require(LIMITERS_PATH) as Limiter[];
   } catch (e) {
     logger.info("no configuration found", {
-      path
+      path: LIMITERS_PATH
     });
     return [];
   }
