@@ -22,6 +22,7 @@ import * as fs from "fs";
 import { getLogger } from "@fonoster/logger";
 import path from "path";
 import atob from "atob";
+import { GRPC_ALLOW_INSECURE } from "./envs";
 
 const prepCert = (cert: string) => Buffer.from(atob(cert), "utf-8");
 const logger = getLogger({ service: "common", filePath: __filename })
@@ -68,7 +69,7 @@ const getServerCredentials = () => {
 };
 
 const getClientCredentials = () =>
-  process.env.GRPC_ALLOW_INSECURE === "true"
+  GRPC_ALLOW_INSECURE === "true"
     ? grpc.credentials.createInsecure()
     : grpc.credentials.createSsl();
 

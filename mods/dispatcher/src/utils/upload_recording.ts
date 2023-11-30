@@ -19,6 +19,7 @@
 import Auth from "@fonoster/auth";
 import Storage from "@fonoster/storage";
 import logger from "@fonoster/logger";
+import { APISERVER_RECORDINGS_PATH } from "../envs";
 
 export const uploadRecording = async (
   accessKeyId: string,
@@ -39,6 +40,6 @@ export const uploadRecording = async (
   await storage.uploadObject({
     // TODO: Place bucket name on a constant
     bucket: "recordings",
-    filename: `${process.env.MEDIASERVER_RECORDINGS_PATH}/${filename}`
+    filename: `${APISERVER_RECORDINGS_PATH}/${filename}`
   });
 };

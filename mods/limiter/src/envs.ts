@@ -17,4 +17,4 @@
  * limitations under the License.
  */
 export const LIMITERS_PATH =
-  process.env.LIMITERS_PATH || "/home/fonoster/limiters.json";
+  process.env.APISERVER_LIMITERS_PATH || "/home/fonoster/limiters.json";

@@ -16,26 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AuthClient } from "../service/protos/auth_grpc_pb";
-import { getClientCredentials } from "@fonoster/common";
-import { APISERVER_ENDPOINT } from "../envs";
-import AuthPB from "../service/protos/auth_pb";
-
-export default async function (
-  role: string,
-  service: string
-): Promise<boolean> {
-  const svc = new AuthClient(
-    APISERVER_ENDPOINT,
-    getClientCredentials()
-  );
-  return new Promise((resolve, reject) => {
-    const req = new AuthPB.GetRoleRequest();
-    req.setName(role);
-    svc.getRole(req, (e: any, res: AuthPB.Role) => {
-      if (e) reject(e);
-
-      resolve(res && res.getAccessList().includes(service));
-    });
-  });
-}
+export const APISERVER_S3_SERVER_HOST = process.env.APISERVER_S3_SERVER_HOST;
+export const APISERVER_S3_SERVER_PORT = process.env.APISERVER_S3_SERVER_PORT;
+export const APISERVER_S3_SERVER_USERNAME = process.env.APISERVER_S3_SERVER_USERNAME;
+export const APISERVER_S3_SERVER_SECRET = process.env.APISERVER_S3_SERVER_SECRET;
+export const APISERVER_S4_SERVER_USE_SSL = process.env.APISERVER_S4_SERVER_USE_SSL === "true";

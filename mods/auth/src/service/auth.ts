@@ -29,14 +29,14 @@ import {
 import { IAuthServer, IAuthService, AuthService } from "./protos/auth_grpc_pb";
 import { ErrorCodes, FonosterError } from "@fonoster/errors";
 import { getLogger } from "@fonoster/logger";
-import { AUTH_ISS, PRIVATE_KEY } from "../envs";
+import { APISERVER_RBAC_CONFIG, APISERVER_JWT_AUTH_ISS, APISERVER_JWT_PRIVATE_KEY } from "../envs";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
 
 const logger = getLogger({ service: "auth", filePath: __filename })
 
 const authenticator = new Auth(new JWT());
-const rbac = require(process.env.AUTH_RBAC || "/home/fonoster/rbac.json");
+const rbac = require(APISERVER_RBAC_CONFIG);
 
 class AuthServer implements IAuthServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -46,7 +46,7 @@ class AuthServer implements IAuthServer {
   ) {
     const result = await authenticator.validateToken(
       { accessToken: call.request.getToken() },
-      PRIVATE_KEY
+      APISERVER_JWT_PRIVATE_KEY
     );
     const validateTokenResponse = new ValidateTokenResponse();
     validateTokenResponse.setValid(result.isValid);
@@ -65,9 +65,9 @@ class AuthServer implements IAuthServer {
     );
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
-      AUTH_ISS,
+      APISERVER_JWT_AUTH_ISS,
       call.request.getRoleName(),
-      PRIVATE_KEY,
+      APISERVER_JWT_PRIVATE_KEY,
       call.request.getExpiration() || "30d"
     );
     const response = new CreateTokenResponse();
@@ -87,9 +87,9 @@ class AuthServer implements IAuthServer {
     );
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
-      AUTH_ISS,
+      APISERVER_JWT_AUTH_ISS,
       "NO_ACCESS",
-      PRIVATE_KEY,
+      APISERVER_JWT_PRIVATE_KEY,
       "1d"
     );
     const response = new CreateTokenResponse();

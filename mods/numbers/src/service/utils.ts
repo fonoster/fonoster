@@ -1,3 +1,4 @@
+import { APISERVER_VOICE_URL } from "../envs";
 import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb";
 
 /*
@@ -23,7 +24,7 @@ export const getWebhook = (
 ) =>
   request.getIngressInfo()?.getAppRef() &&
   !request.getIngressInfo()?.getWebhook()
-    ? process.env.VOICE_URL
+    ? APISERVER_VOICE_URL
     : request.getIngressInfo().getWebhook().trim();
 
 export const getAppRef = (request: CreateNumberRequest | UpdateNumberRequest) =>

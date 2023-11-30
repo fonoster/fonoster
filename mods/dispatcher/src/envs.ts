@@ -16,26 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AuthClient } from "../service/protos/auth_grpc_pb";
-import { getClientCredentials } from "@fonoster/common";
-import { APISERVER_ENDPOINT } from "../envs";
-import AuthPB from "../service/protos/auth_pb";
-
-export default async function (
-  role: string,
-  service: string
-): Promise<boolean> {
-  const svc = new AuthClient(
-    APISERVER_ENDPOINT,
-    getClientCredentials()
-  );
-  return new Promise((resolve, reject) => {
-    const req = new AuthPB.GetRoleRequest();
-    req.setName(role);
-    svc.getRole(req, (e: any, res: AuthPB.Role) => {
-      if (e) reject(e);
-
-      resolve(res && res.getAccessList().includes(service));
-    });
-  });
-}
+export const ARI_INTERNAL_URL = process.env.APISERVER_MEDIASERVER_ARI_INTERNAL_URL;
+export const ARI_EXTERNAL_URL = process.env.APISERVER_MEDIASERVER_ARI_EXTERNAL_URL;
+export const ARI_USERNAME = process.env.APISERVER_MEDIASERVER_ARI_USERNAME;
+export const ARI_SECRET = process.env.APISERVER_MEDIASERVER_ARI_SECRET;
+export const APISERVER_RECORDINGS_PATH = process.env.APISERVER_RECORDINGS_PATH;

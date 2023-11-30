@@ -16,9 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import grpc from "@grpc/grpc-js";
-import getObjectURL from "./get_object_url";
-import uploadObject from "./upload_object";
+import * as grpc from "@grpc/grpc-js";
 import {
   UploadObjectRequest,
   UploadObjectResponse,
@@ -27,6 +25,8 @@ import {
 } from "./protos/storage_pb";
 import { IStorageServer, StorageService } from "./protos/storage_grpc_pb";
 import { getAccessKeyId } from "@fonoster/core";
+import getObjectURL from "./get_object_url";
+import uploadObject from "./upload_object";
 
 const getBucketName = (bucket: GetObjectURLRequest.Bucket) => {
   switch (bucket) {

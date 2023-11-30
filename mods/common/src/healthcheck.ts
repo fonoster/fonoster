@@ -19,8 +19,4 @@
 /* eslint-disable require-jsdoc */
 import { checker } from "@fonoster/grpc-health-check";
 
-const host = process.env.SERVICE_ADDRESS || "localhost";
-const port = parseInt(process.env.SERVICE_PORT) || 50052;
-const service = process.env.SERVICE_NAME || "";
-
-export default async () => checker(service, `${host}:${port}`);
+export default async () => checker("", `localhost:50052`);

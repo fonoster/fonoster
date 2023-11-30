@@ -1,8 +1,10 @@
 #!/usr/bin/env node
+
+import { APISERVER_VAULT_ADDR } from "../env";
 import Vault from "node-vault";
 
 const vault = Vault({
-  endpoint: process.env.VAULT_ADDR
+  endpoint: APISERVER_VAULT_ADDR
 });
 
 // init vault server

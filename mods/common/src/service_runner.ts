@@ -25,7 +25,7 @@ import { getLogger } from "@fonoster/logger";
 import assertEnvIsSet from "./env_is_set";
 
 const interceptor = require("grpc-interceptors");
-const ENDPOINT = process.env.BINDADDR || "0.0.0.0:50052";
+const BIND_ADDR = "0.0.0.0:50052";
 
 const logger = getLogger({ service: "common", filePath: __filename })
 
@@ -52,7 +52,7 @@ export default function run(
 
   logger.info(
     `service runner`, {
-      endpoint: ENDPOINT,
+      bindAddr: BIND_ADDR,
       apiVersion: srvInfList[0].version
     }
   );
@@ -78,8 +78,9 @@ export default function run(
     );
   });
 
-  server.bindAsync(ENDPOINT, getServerCredentials(), () => {
+  server.bindAsync(BIND_ADDR, getServerCredentials(), () => {
     server.start();
   });
+
   logger.info("service runner online");
 }

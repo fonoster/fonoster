@@ -1,3 +1,5 @@
+import { APISERVER_VAULT_SECRETS_POLICY } from "../env";
+
 /*
  * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -22,7 +24,7 @@ export default async function (accessKeyId: string) {
   // Instead, it should be done during the user creation.
   await vault.addApproleRole({
     role_name: accessKeyId,
-    policies: process.env.SECRETS_POLICY
+    policies: APISERVER_VAULT_SECRETS_POLICY
   });
 
   const roleId = (await vault.getApproleRoleId({ role_name: accessKeyId })).data

@@ -18,8 +18,6 @@
  */
 import { APIClient, ClientOptions } from "@fonoster/common";
 import { StorageClient } from "../service/protos/storage_grpc_pb";
-import StoragePB from "../service/protos/storage_pb";
-import CommonPB from "../service/protos/common_pb";
 import {
   GetObjectURLRequest,
   UploadObjectRequest,
@@ -33,6 +31,8 @@ import {
   isDirectory,
   uploadServiceUtils
 } from "./utils";
+import StoragePB from "../service/protos/storage_pb";
+import CommonPB from "../service/protos/common_pb";
 
 /**
  * @classdesc Use Fonoster Storage, a capability of Fonoster Object Storage subsystem,

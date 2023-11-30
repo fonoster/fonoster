@@ -16,6 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { 
+  APISERVER_S3_SERVER_HOST, 
+  APISERVER_S3_SERVER_PORT, 
+  APISERVER_S3_SERVER_USERNAME, 
+  APISERVER_S3_SERVER_SECRET 
+} from "../envs";
 import walk from "walk";
 import path from "path";
 import logger from "@fonoster/logger";
@@ -26,11 +32,11 @@ const splitPath = (p: string) => path.dirname(p).split(path.sep);
 export const fsInstance = () => {
   const Minio = require("minio");
   return new Minio.Client({
-    endPoint: process.env.S3_SERVER_HOST,
-    port: parseInt(process.env.S3_SERVER_PORT),
+    endPoint: APISERVER_S3_SERVER_HOST,
+    port: parseInt(APISERVER_S3_SERVER_PORT),
     useSSL: false,
-    accessKey: process.env.S3_SERVER_USERNAME,
-    secretKey: process.env.S3_SERVER_SECRET
+    accessKey: APISERVER_S3_SERVER_USERNAME,
+    secretKey: APISERVER_S3_SERVER_SECRET
   });
 };
 

@@ -39,7 +39,7 @@ import { Empty } from "./protos/common_pb";
 import { getRedisConnection, getAccessKeyId } from "@fonoster/core";
 import { assertNotEmpty } from "./assertions";
 import { ErrorCodes, FonosterError } from "@fonoster/errors";
-import { AUTH_ISS, PRIVATE_KEY } from "../envs";
+import { APISERVER_JWT_PRIVATE_KEY, APISERVER_JWT_AUTH_ISS } from "../envs";
 import JWT from "@fonoster/auth/dist/utils/jwt";
 import Auth from "@fonoster/auth/dist/utils/auth_utils";
 import decoder from "./decoder";
@@ -65,9 +65,9 @@ class ProjectsServer implements IProjectsServer {
 
       const result = await authenticator.createToken(
         ref,
-        AUTH_ISS,
+        APISERVER_JWT_AUTH_ISS,
         "PROJECT",
-        PRIVATE_KEY,
+        APISERVER_JWT_PRIVATE_KEY,
         "1y"
       );
 
@@ -225,9 +225,9 @@ class ProjectsServer implements IProjectsServer {
 
       const result = await authenticator.createToken(
         project.getAccessKeyId(),
-        AUTH_ISS,
+        APISERVER_JWT_AUTH_ISS,
         "PROJECT",
-        PRIVATE_KEY,
+        APISERVER_JWT_PRIVATE_KEY,
         "1y"
       );
 

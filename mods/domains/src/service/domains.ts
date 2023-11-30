@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable require-jsdoc */
 /*
  * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,8 +18,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable require-jsdoc */
 import grpc from "@grpc/grpc-js";
 import {
   Domain,
@@ -45,6 +45,7 @@ import {
 import unmarshalDomain from "./decoder";
 import decoder from "./decoder";
 import isValidDomain from "is-valid-domain";
+import { APISERVER_GLOBAL_SIP_DOMAIN } from "../envs";
 
 class DomainsServer implements IDomainsServer {
   [name: string]: grpc.UntypedHandleCall;
@@ -68,8 +69,8 @@ class DomainsServer implements IDomainsServer {
   ) {
     const request = call.request;
 
-    const domainUri = process.env.GLOBAL_SIP_DOMAIN
-      ? `${request.getDomainUri()}.${process.env.GLOBAL_SIP_DOMAIN}`
+    const domainUri = APISERVER_GLOBAL_SIP_DOMAIN
+      ? `${request.getDomainUri()}.${APISERVER_GLOBAL_SIP_DOMAIN}`
       : request.getDomainUri();
 
     if (isValidDomain(domainUri) == false) {

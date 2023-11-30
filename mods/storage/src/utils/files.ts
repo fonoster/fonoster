@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { FonosterError } from "@fonoster/errors";
 import fs from "fs";
 import tar from "tar";
 import logger from "@fonoster/logger";
-import { FonosterError } from "@fonoster/errors";
 
 export const extract = (source: string, target: string) =>
   tar.extract({ file: source, cwd: target });

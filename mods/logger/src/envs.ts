@@ -18,6 +18,7 @@
  */
 import winston from "winston";
 import fluentLogger from "fluent-logger";
+
 const fluentTransport = fluentLogger.support.winstonTransport();
 
 const fluent = new fluentTransport(

@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from "fs";
-import path from "path";
 import { constants } from "../utils/constants";
-import StoragePB from "../service/protos/storage_pb";
 import { UploadObjectRequest, GetObjectURLRequest } from "./types";
 import { getBucketAsPB } from "../utils/utils";
+import StoragePB from "../service/protos/storage_pb";
+import fs from "fs";
+import path from "path";
 
 interface CallService {
   write(storageObject: StoragePB.UploadObjectRequest);

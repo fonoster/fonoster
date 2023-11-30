@@ -30,12 +30,10 @@ import { ErrorCodes, FonosterError } from "@fonoster/errors";
 import { getAccessKeyId } from "@fonoster/core";
 import { Level } from "./level";
 import { EventType } from "./event_type";
-
-const host = process.env.LOGS_AGGREGRATOR_HOST;
-const port = process.env.LOGS_AGGREGRATOR_PORT;
+import { LOGS_AGGREGRATOR_HOST, LOGS_AGGREGRATOR_PORT } from "../env";
 
 const client = new Client({
-  node: `http://${host}:${port}`
+  node: `http://${LOGS_AGGREGRATOR_HOST}:${LOGS_AGGREGRATOR_PORT}`
 });
 
 // eslint-disable-next-line require-jsdoc

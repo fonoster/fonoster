@@ -16,10 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Auth from "@fonoster/auth";
-import Numbers from "@fonoster/numbers";
-import logger from "@fonoster/logger";
-import WebSocket from "ws";
 import { CallRequest } from "./types";
 import { sendCallRequest } from "./utils/send_call_request";
 import { getChannelVar, getChannelVarAsJson } from "./utils/channel_variable";
@@ -35,14 +31,16 @@ import { sendDtmf } from "./handlers/send_dtmf";
 import { answer } from "./utils/answer_channel";
 import { dial } from "./handlers/dial";
 import { ulogger, ULogType } from "@fonoster/logger";
+import { ARI_EXTERNAL_URL } from "./envs";
+import Auth from "@fonoster/auth";
+import Numbers from "@fonoster/numbers";
+import logger from "@fonoster/logger";
+import WebSocket from "ws";
+
 
 const wsConnections = new Map();
 
-// First try the short env but fallback to the cannonical version
-const dialbackEnpoint =
-  process.env.ARI_EXTERNAL_URL ||
-  process.env.MEDIASERVER_ARI_INTERNAL_URL ||
-  "http://localhost:8088";
+const dialbackEnpoint = ARI_EXTERNAL_URL
 
 export default function (err: any, ari: any) {
   if (err) throw err;

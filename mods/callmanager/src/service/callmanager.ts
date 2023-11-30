@@ -16,18 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as grpc from "@grpc/grpc-js";
 import { routr } from "@fonoster/core";
-import grpc from "@grpc/grpc-js";
-import client from "ari-client";
 import { CallRequest, CallResponse } from "./protos/callmanager_pb";
 import { EndpointInfo } from "../client/types";
-import originate from "./call";
+import { FonosterError } from "@fonoster/errors";
 import {
   CallManagerService,
   ICallManagerServer
 } from "./protos/callmanager_grpc_pb";
+import { 
+  APISERVER_MEDIASERVER_ARI_INTERNAL_URL, 
+  APISERVER_MEDIASERVER_ARI_USERNAME, 
+  APISERVER_MEDIASERVER_TRUNK, 
+  APISERVER_MEDIASERVER_CONTEXT, 
+  APISERVER_MEDIASERVER_EXTENSION,
+  APISERVER_MEDIASERVER_ARI_SECRET 
+} from "./envs";
+import originate from "./call";
+import client from "ari-client";
 import logger from "@fonoster/logger";
-import { FonosterError } from "@fonoster/errors";
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();
@@ -69,29 +77,29 @@ class CallManagerServer implements ICallManagerServer {
     }
 
     logger.verbose(
-      `@core/callmanager call [ari url ${process.env.MEDIASERVER_ARI_INTERNAL_URL}]`
+      `@core/callmanager call [ari url ${APISERVER_MEDIASERVER_ARI_INTERNAL_URL}]`
     );
 
     logger.verbose(
-      `@core/callmanager call [ari username ${process.env.MEDIASERVER_ARI_USERNAME}]`
+      `@core/callmanager call [ari username ${APISERVER_MEDIASERVER_ARI_USERNAME}]`
     );
 
     logger.verbose(
-      `@core/callmanager call [endpoint ${process.env.MEDIASERVER_TRUNK}/${process.env.MEDIASERVER_CONTEXT}/${process.env.MEDIASERVER_EXTENSION}]`
+      `@core/callmanager call [endpoint ${APISERVER_MEDIASERVER_TRUNK}/${APISERVER_MEDIASERVER_CONTEXT}/${APISERVER_MEDIASERVER_EXTENSION}]`
     );
 
     try {
       const epInfo: EndpointInfo = {
         domain: domainUri,
-        trunk: process.env.MEDIASERVER_TRUNK,
-        context: process.env.MEDIASERVER_CONTEXT,
-        extension: process.env.MEDIASERVER_EXTENSION
+        trunk: APISERVER_MEDIASERVER_TRUNK,
+        context: APISERVER_MEDIASERVER_CONTEXT,
+        extension: APISERVER_MEDIASERVER_EXTENSION
       };
 
       const conn = await client.connect(
-        process.env.MEDIASERVER_ARI_INTERNAL_URL,
-        process.env.MEDIASERVER_ARI_USERNAME,
-        process.env.MEDIASERVER_ARI_SECRET
+        APISERVER_MEDIASERVER_ARI_INTERNAL_URL,
+        APISERVER_MEDIASERVER_ARI_USERNAME,
+        APISERVER_MEDIASERVER_ARI_SECRET
       );
       const channel = conn.Channel();
       callback(null, await originate(call.request, channel, epInfo));

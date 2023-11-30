@@ -4,6 +4,7 @@ import sinonChai from "sinon-chai";
 import chaiAsPromised from "chai-as-promised";
 import AuthUtils from "../src/utils/auth_utils";
 import Jwt from "../src/utils/jwt";
+
 const expect = chai.expect;
 chai.use(sinonChai);
 chai.use(chaiAsPromised);

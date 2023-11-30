@@ -16,26 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AuthClient } from "../service/protos/auth_grpc_pb";
-import { getClientCredentials } from "@fonoster/common";
-import { APISERVER_ENDPOINT } from "../envs";
-import AuthPB from "../service/protos/auth_pb";
-
-export default async function (
-  role: string,
-  service: string
-): Promise<boolean> {
-  const svc = new AuthClient(
-    APISERVER_ENDPOINT,
-    getClientCredentials()
-  );
-  return new Promise((resolve, reject) => {
-    const req = new AuthPB.GetRoleRequest();
-    req.setName(role);
-    svc.getRole(req, (e: any, res: AuthPB.Role) => {
-      if (e) reject(e);
-
-      resolve(res && res.getAccessList().includes(service));
-    });
-  });
-}
+export const REDIS_HOST = process.env.REDIS_HOST;
+export const REDIS_PORT = process.env.REDIS_PORT;
+export const REDIS_SECRET = process.env.REDIS_SECRET;
+export const APISERVER_ROUTR_API_HOST = process.env.APISERVER_ROUTR_API_HOST;
+export const APISERVER_ROUTR_API_PORT = process.env.APISERVER_ROUTR_API_PORT || "4567";
+export const APISERVER_ROUTR_API_USERNAME = process.env.APISERVER_ROUTR_API_USERNAME;
+export const APISERVER_ROUTR_API_SECRET = process.env.APISERVER_ROUTR_API_SECRET;

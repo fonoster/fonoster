@@ -17,18 +17,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ARI_INTERNAL_URL, ARI_SECRET, ARI_USERNAME } from "./envs";
 import ari from "ari-client";
 import wait from "wait-port";
 import logger from "@fonoster/logger";
 import events from "./events_handler";
 
-// First try the short env but fallback to the cannonical env
-const ariHost =
-  process.env.ARI_INTERNAL_URL ||
-  process.env.MEDIASERVER_ARI_INTERNAL_URL ||
-  "http://localhost:8088";
-const ariUsername = process.env.ARI_USERNAME || process.env.MEDIASERVER_ARI_USERNAME;
-const ariSecret = process.env.ARI_SECRET || process.env.MEDIASERVER_ARI_SECRET;
+const ariHost = ARI_INTERNAL_URL
+const ariUsername = ARI_USERNAME;
+const ariSecret = ARI_SECRET;
 
 const connection = {
   host: ariHost.split("//")[1].split(":")[0],

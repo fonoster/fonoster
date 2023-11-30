@@ -21,18 +21,10 @@ import { getClientCredentials } from "@fonoster/common";
 import { Metadata } from "@grpc/grpc-js";
 import { APISERVER_ENDPOINT } from "./envs";
 import { getLogger } from "@fonoster/logger";
+import { Context } from "./types";
 import AuthPB from "./service/protos/auth_pb";
 
 const logger = getLogger({ service: "limiter", filePath: __filename })
-
-interface Context {
-  service: {
-    path: string;
-  };
-  call: {
-    metadata: Metadata;
-  };
-}
 
 export async function checkAuthorized(
   path: string,
@@ -49,7 +41,7 @@ export async function checkAuthorized(
     svc.checkAuthorized(
       req,
       metadata,
-      (e: any, res: AuthPB.CheckAuthorizedResponse) => {
+      (e: Error, res: AuthPB.CheckAuthorizedResponse) => {
         if (e) return reject(e);
         resolve(res.getAuthorized());
       }
@@ -58,7 +50,7 @@ export async function checkAuthorized(
 }
 
 export default function createLimiterMiddleware(ignorePaths: string[] = []) {
-  return async function (ctx, next, errorCb) {
+  return async function (ctx: Context, next, errorCb) {
     const { path } = ctx.service;
     const { metadata } = ctx.call;
 

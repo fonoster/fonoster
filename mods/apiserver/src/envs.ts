@@ -16,4 +16,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const PRIVATE_KEY = process.env.PRIVATE_KEY;
+export const APISERVER_JWT_PRIVATE_KEY = process.env.APISERVER_JWT_PRIVATE_KEY;

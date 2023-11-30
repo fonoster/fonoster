@@ -16,22 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getClientCredentials } from "./trust_util";
-import { ClientOptions } from "./types";
 import * as fs from "fs";
 import * as path from "path";
+import { getClientCredentials } from "./trust_util";
+import { ClientOptions } from "./types";
 import { Metadata } from "@grpc/grpc-js";
+import { APISERVER_ENDPOINT, APISERVER_ACCESS_KEY_ID, APISERVER_ACCESS_KEY_SECRET } from "./envs";
 
-const CONFIG_FILE =
-  process.env.API_CONFIG_FILE ||
-  path.join(require("os").homedir(), ".fonoster", "config");
+const CONFIG_FILE = path.join(require("os").homedir(), ".fonoster", "config");
 const configFileExit = () => fs.existsSync(CONFIG_FILE);
 const getConfigFile = () => JSON.parse(fs.readFileSync(CONFIG_FILE).toString());
 
 const defaultOptions: ClientOptions = {
-  endpoint: process.env.APISERVER_ENDPOINT || "api.fonoster.io",
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  accessKeySecret: process.env.ACCESS_KEY_SECRET
+  endpoint: APISERVER_ENDPOINT || "api.fonoster.io",
+  accessKeyId: APISERVER_ACCESS_KEY_ID,
+  accessKeySecret: APISERVER_ACCESS_KEY_SECRET
 };
 
 export default class {

@@ -16,13 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonoster/logger";
-import fs from "fs";
 import { UploadObjectRequest } from "./protos/storage_pb";
 import { getAccessKeyId } from "@fonoster/core";
 import { getFilesizeInBytes, isCompressFile } from "../utils/files";
 import { handleCompressUpload, handleUncompressUpload } from "../utils/helper";
 import { getBucketAsString, handleError } from "../utils/utils";
+import logger from "@fonoster/logger";
+import fs from "fs";
+
 const objectid = require("bson-objectid");
 
 export default async function (call: any, callback: any) {

@@ -1,10 +1,10 @@
 import Redis from "ioredis";
-const host = process.env.DATASOURCE_HOST || "localhost";
-const port = process.env.DATASOURCE_PORT || 6379;
-const secret = process.env.DATASOURCE_SECRET
-  ? `:${process.env.DATASOURCE_SECRET}@`
+import { REDIS_HOST, REDIS_PORT, REDIS_SECRET } from "../envs";
+
+const secret = REDIS_SECRET
+  ? `:${REDIS_SECRET}@`
   : "";
 
-const redis = () => new Redis(`redis://${secret}${host}:${port}`);
+const redis = () => new Redis(`redis://${secret}${REDIS_HOST}:${REDIS_PORT}`);
 
 export default redis;

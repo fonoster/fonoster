@@ -6,6 +6,10 @@ services:
     build:
       context: .
 
+  routr:
+    ports:
+      - 4567:4567
+
   redis:
     ports:
       - 6379:6379

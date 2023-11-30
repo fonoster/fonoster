@@ -17,8 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import dotenv from "dotenv";
 import { join } from "path";
+import dotenv from "dotenv";
 
 if (process.env.NODE_ENV === "dev") {
   dotenv.config({ path: join(__dirname, "../../../", ".env") });
@@ -43,7 +43,7 @@ import {
 } from "@fonoster/auth";
 import { AgentsServer, AgentsService } from "@fonoster/agents";
 import { runServices } from "@fonoster/common";
-import { PRIVATE_KEY } from "./envs";
+import { APISERVER_JWT_PRIVATE_KEY } from "./envs";
 
 const services = [
   {
@@ -129,7 +129,7 @@ const services = [
 const middlewares = [
   {
     name: "authenticator",
-    middlewareObj: new AuthMiddleware(PRIVATE_KEY, [
+    middlewareObj: new AuthMiddleware(APISERVER_JWT_PRIVATE_KEY, [
       "/fonoster.auth.v1beta1.Auth/GetRole",
       "/fonoster.users.v1beta1.Users/CreateUser",
       "/fonoster.auth.v1beta1.Users/CreateUserCredentials",

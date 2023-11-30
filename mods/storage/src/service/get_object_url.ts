@@ -16,10 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonoster/logger";
-import grpc from "@grpc/grpc-js";
+import * as grpc from "@grpc/grpc-js";
 import { FonosterError } from "@fonoster/errors";
 import { fsInstance } from "../utils/storage";
+import { APISERVER_S3_SERVER_HOST, APISERVER_S3_SERVER_PORT } from "../envs";
+import logger from "@fonoster/logger";
 
 export default async function (
   accessKeyId: string,
@@ -46,7 +47,7 @@ export default async function (
           return;
         }
         resolve(
-          `http://${process.env.S3_SERVER_HOST}:${process.env.S3_SERVER_PORT}/${bucket}/${accessKeyId}/${filename}`
+          `http://${APISERVER_S3_SERVER_HOST}:${APISERVER_S3_SERVER_PORT}/${bucket}/${accessKeyId}/${filename}`
         );
       }
     );

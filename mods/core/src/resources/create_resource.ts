@@ -1,6 +1,8 @@
 import { routr } from "../common/routr";
 import opentelemetry from "@opentelemetry/api";
-import logger from "@fonoster/logger";
+import { getLogger } from "@fonoster/logger";
+
+const logger = getLogger({ service: "core", filePath: __filename })
 
 const tracer = opentelemetry.trace.getTracer("fonoster-tracer");
 

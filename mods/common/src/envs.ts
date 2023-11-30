@@ -16,26 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AuthClient } from "../service/protos/auth_grpc_pb";
-import { getClientCredentials } from "@fonoster/common";
-import { APISERVER_ENDPOINT } from "../envs";
-import AuthPB from "../service/protos/auth_pb";
-
-export default async function (
-  role: string,
-  service: string
-): Promise<boolean> {
-  const svc = new AuthClient(
-    APISERVER_ENDPOINT,
-    getClientCredentials()
-  );
-  return new Promise((resolve, reject) => {
-    const req = new AuthPB.GetRoleRequest();
-    req.setName(role);
-    svc.getRole(req, (e: any, res: AuthPB.Role) => {
-      if (e) reject(e);
-
-      resolve(res && res.getAccessList().includes(service));
-    });
-  });
-}
+export const APISERVER_ENDPOINT = process.env.APISERVER_ENDPOINT || "api.fonoster.io";
+export const APISERVER_ACCESS_KEY_ID = process.env.APISERVER_ACCESS_KEY_ID;
+export const APISERVER_ACCESS_KEY_SECRET = process.env.APISERVER_ACCESS_KEY_SECRET;
+export const GRPC_ALLOW_INSECURE = process.env.GRPC_ALLOW_INSECURE || "false";

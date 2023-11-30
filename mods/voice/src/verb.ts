@@ -16,17 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import axios from "axios";
 import { VoiceRequest } from "./types";
+import axios from "axios";
 import logger from "@fonoster/logger";
-
-const auth =
-  process.env.NODE_ENV != "production"
-    ? {
-        username: "admin",
-        password: "changeit"
-      }
-    : null;
 
 export class Verb {
   request: VoiceRequest;
@@ -56,7 +48,6 @@ export class Verb {
     return await axios({
       method: "post",
       url,
-      auth,
       headers: {
         "X-Session-Token": this.request.sessionToken,
         "Content-Type": "application/json"
@@ -75,7 +66,6 @@ export class Verb {
     return await axios({
       method: "delete",
       url,
-      auth,
       headers: {
         "X-Session-Token": this.request.sessionToken
       }
