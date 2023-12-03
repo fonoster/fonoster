@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/storage",
-  "version": "0.3.30",
+  "version": "0.3.31",
   "description": "Fonoster Storage Servoce",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,12 +43,12 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.3.30-alpha.2",
-    "@fonoster/certs": "^0.3.30-alpha.1",
-    "@fonoster/common": "^0.3.30-alpha.2",
-    "@fonoster/core": "^0.3.30",
-    "@fonoster/errors": "^0.3.30-alpha.0",
-    "@fonoster/logger": "^0.3.30-alpha.0",
+    "@fonoster/auth": "^0.3.31",
+    "@fonoster/certs": "^0.3.31",
+    "@fonoster/common": "^0.3.31",
+    "@fonoster/core": "^0.3.31",
+    "@fonoster/errors": "^0.3.31",
+    "@fonoster/logger": "^0.3.31",
     "@grpc/grpc-js": "^1.9.12",
     "@opentelemetry/api": "^1.0.4",
     "bson-objectid": "^2.0.2",

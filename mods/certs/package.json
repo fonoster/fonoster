@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/certs",
-  "version": "0.3.30-alpha.1",
+  "version": "0.3.31",
   "description": "Handles Fonoster certificates",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "bugs": {
