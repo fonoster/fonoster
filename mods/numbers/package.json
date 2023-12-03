@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/numbers",
-  "version": "0.3.30-alpha.2",
+  "version": "0.3.30",
   "description": "VoIP Numbers",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -43,11 +43,11 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/apps": "^0.3.30-alpha.2",
+    "@fonoster/apps": "^0.3.30",
     "@fonoster/auth": "^0.3.30-alpha.2",
     "@fonoster/certs": "^0.3.30-alpha.1",
     "@fonoster/common": "^0.3.30-alpha.2",
-    "@fonoster/core": "^0.3.30-alpha.2",
+    "@fonoster/core": "^0.3.30",
     "@fonoster/errors": "^0.3.30-alpha.0",
     "@fonoster/logger": "^0.3.30-alpha.0",
     "@grpc/grpc-js": "^1.9.12",
