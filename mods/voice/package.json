@@ -40,6 +40,7 @@
     "@opentelemetry/sdk-trace-base": "^1.0.4",
     "@opentelemetry/sdk-trace-node": "^1.0.4",
     "@opentelemetry/semantic-conventions": "^1.0.4",
+    "axios": "^1.6.2",
     "bson-objectid": "^2.0.2",
     "deepmerge": "^4.2.2",
     "express": "^4.17.1",

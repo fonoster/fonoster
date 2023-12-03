@@ -57,5 +57,8 @@
     "webpack": "^5.60.0",
     "webpack-cli": "^4.9.1"
   },
-  "gitHead": "b282dd99ea19f41c015b6ead6dea276e988f527c"
+  "gitHead": "b282dd99ea19f41c015b6ead6dea276e988f527c",
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
 }

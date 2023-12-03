@@ -45,6 +45,7 @@
     "@opentelemetry/sdk-trace-node": "^1.0.4",
     "@opentelemetry/semantic-conventions": "^1.0.4",
     "atob": "^2.1.2",
+    "axios": "^1.6.2",
     "deepmerge": "^4.2.2"
   },
   "publishConfig": {

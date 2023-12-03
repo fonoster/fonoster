@@ -49,6 +49,7 @@
     "@fonoster/storage": "^0.3.30-alpha.1",
     "@opentelemetry/api": "^1.0.4",
     "ari-client": "^2.2.0",
+    "axios": "^1.6.2",
     "pick-port": "^1.0.0",
     "wait-port": "^0.2.9",
     "ws": "^6.2.2"
