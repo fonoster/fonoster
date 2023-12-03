@@ -17,8 +17,6 @@
  * limitations under the License.
  */
 import { APIClient, ClientOptions } from "@fonoster/common";
-import AppsPB from "../service/protos/apps_pb";
-import CommonPB from "../service/protos/common_pb";
 import { promisifyAll } from "grpc-promise";
 import { AppsClient } from "../service/protos/apps_grpc_pb";
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
@@ -34,6 +32,8 @@ import {
   UpdateAppRequest,
   UpdateAppResponse
 } from "./types";
+import AppsPB from "../service/protos/apps_pb";
+import CommonPB from "../service/protos/common_pb";
 
 /**
  * @classdesc Use Fonoster Apps, a capability of Fonoster Voice Subsystem,
