@@ -2,7 +2,7 @@ import axios from "axios";
 import btoa from "btoa";
 import handleError from "./routr_errors";
 
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 /**
  * Simple Routr Client

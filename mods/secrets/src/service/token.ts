@@ -1,5 +1,3 @@
-import { APISERVER_VAULT_SECRETS_POLICY } from "../env";
-
 /*
  * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,6 +16,8 @@ import { APISERVER_VAULT_SECRETS_POLICY } from "../env";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const APISERVER_VAULT_SECRETS_POLICY = "fonoster-secrets-policy";
+
 export default async function (accessKeyId: string) {
   const vault = require("node-vault")();
   // TODO: The policy assignment shouldn't be done automatically.

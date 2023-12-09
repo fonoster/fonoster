@@ -17,4 +17,3 @@
  * limitations under the License.
  */
 export const APISERVER_VAULT_ADDR = process.env.APISERVER_VAULT_ADDR;
-export const APISERVER_VAULT_SECRETS_POLICY = process.env.APISERVER_VAULT_SECRETS_POLICY;

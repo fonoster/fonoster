@@ -13,3 +13,7 @@ services:
   redis:
     ports:
       - 6379:6379
+
+  vault:
+    ports:
+      - 8200:8200
