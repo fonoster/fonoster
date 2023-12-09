@@ -23,5 +23,6 @@ mods/numbers
 mods/providers
 mods/storage
 mods/voice
+mods/webui
 node_modules/*
 dist

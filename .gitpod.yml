@@ -12,7 +12,7 @@ tasks:
     command: |
       cp .env.example .env
       docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml \
-        up datasource rtpengine intents_analyzer mediaserver sipproxy
+        up redis rtpengine voice mediaserver routr
   - name: Build and start application
     init: npm run make
     command: npm start
@@ -22,13 +22,3 @@ ports:
     onOpen: ignore
   - port: 5060-5063
     onOpen: ignore
-
-github:
-  prebuilds:
-    master: true
-    branches: true
-    pullRequests: true
-    pullRequestsFromForks: true
-    addCheck: true
-    addComment: false
-    addBadge: true

@@ -18,6 +18,7 @@
  */
 // const grpc = require("@grpc/grpc-js").grpc;
 import * as grpc from "@grpc/grpc-js";
+import fs from "fs";
 import {
   GetRoleRequest,
   Role,
@@ -36,7 +37,8 @@ import JWT from "../utils/jwt";
 const logger = getLogger({ service: "auth", filePath: __filename })
 
 const authenticator = new Auth(new JWT());
-const rbac = require(APISERVER_RBAC_CONFIG);
+
+const rbac = JSON.parse(fs.readFileSync(APISERVER_RBAC_CONFIG, "utf8"));
 
 class AuthServer implements IAuthServer {
   [name: string]: grpc.UntypedHandleCall;

@@ -6,6 +6,7 @@
 # Other
 node_modules
 coverage
+.next
 .nyc_output
 *.DS_Store
 *.tar.gz
