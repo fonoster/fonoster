@@ -1,0 +1,66 @@
+{
+  "name": "@fonoster/webui",
+  "version": "0.4.8",
+  "private": true,
+  "author": "Fonoster Team",
+  "bin": {
+    "run": "./run.sh"
+  },
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@fonoster/logger": "^0.4.7",
+    "@fonoster/monitor": "^0.4.8",
+    "@fonoster/sdk": "^0.4.8",
+    "@fonoster/opentelemetry-user-interaction": "github:fonoster/opentelemetry-user-interaction",
+    "@headlessui/react": "^1.4.2",
+    "@heroicons/react": "^1.0.5",
+    "@opentelemetry/api": "^1.1.0",
+    "@opentelemetry/context-zone": "^1.1.0",
+    "@opentelemetry/sdk-trace-web": "^1.1.0",
+    "@sentry/browser": "^6.19.1",
+    "@sentry/tracing": "^6.19.1",
+    "@supabase/supabase-js": "^1.29.1",
+    "@supabase/ui": "^0.36.2",
+    "@tailwindcss/forms": "^0.4.0",
+    "autoprefixer": "^10.4.1",
+    "axios": "^0.24.0",
+    "dotenv": "^16.3.1",
+    "mixpanel-browser": "^2.45.0",
+    "next": "12.3.4",
+    "next-auth": "4.15.0",
+    "next-query-params": "^2.1.2",
+    "next-seo": "^4.28.1",
+    "nextjs-progressbar": "0.0.13",
+    "node-fetch": "^3.1.0",
+    "phone": "^3.1.37",
+    "postcss": "^8.4.5",
+    "postcss-preset-env": "^7.2.0",
+    "react": "^17.0.2",
+    "react-copy-to-clipboard": "^5.1.0",
+    "react-dom": "^17.0.2",
+    "react-hook-form": "^7.23.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-json-view": "^1.21.3",
+    "react-phone-input-2": "^2.15.1",
+    "react-query": "^3.34.7",
+    "react-syntax-highlighter": "^15.5.0",
+    "react-toastify": "^8.1.0",
+    "tailwindcss": "^3.0.11",
+    "wphone": "^0.0.8",
+    "zustand": "^3.6.9"
+  },
+  "devDependencies": {
+    "@types/mixpanel-browser": "^2.38.1",
+    "@types/next-auth": "^3.15.0",
+    "@types/node": "^17.0.8",
+    "@types/react": "^17.0.38",
+    "typescript": "^4.5.4"
+  },
+  "engines": {
+    "node": ">=16.x.x"
+  }
+}

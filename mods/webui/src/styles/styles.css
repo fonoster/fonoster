@@ -1,0 +1,391 @@
+@import 'tailwindcss/base';
+
+/* Write your own custom base styles here */
+
+/* Start purging... */
+@import 'tailwindcss/components';
+/* Stop purging. */
+
+/* Write you own custom component styles here */
+
+/* Start purging... */
+@import 'tailwindcss/utilities';
+/* Stop purging. */
+
+/* Your own custom utilities */
+
+img {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+@font-face {
+  font-family: 'custom-font';
+  src: url(/fonts/custom/CircularStd-Book.woff2) format('woff2'),
+    url(/fonts/custom/CircularStd-Book.woff) format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'custom-font';
+  src: url(/fonts/custom/CircularStd-Medium.woff2) format('woff2'),
+    url(/fonts/custom/CircularStd-Medium.woff) format('woff');
+  font-weight: 500;
+  font-style: normal;
+}
+
+/*
+  Typography
+*/
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 16px;
+}
+
+h1,
+h2 {
+  line-height: 1.2 !important;
+}
+
+p {
+  line-height: 1.60rem !important;
+}
+
+@media only screen and (max-width: 960px) {
+  h1 {
+    font-size: 2.2rem !important;
+  }
+
+  h2 {
+    font-size: 2rem !important;
+  }
+
+  h3 {
+    font-size: 1.5rem !important;
+  }
+}
+
+@media only screen and (max-width: 720px) {
+  h1 {
+    font-size: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.8rem !important;
+  }
+
+  h3 {
+    font-size: 1.2rem !important;
+  }
+}
+
+@media only screen and (max-width: 520px) {
+  h1 {
+    font-size: 1.8rem !important;
+  }
+  h2 {
+    font-size: 1.6rem !important;
+  }
+}
+
+p {
+  margin-bottom: 16px;
+}
+
+.sbui-border-fix select {
+  @apply border-solid;
+  border-width: 1px;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 1rem;
+}
+
+p {
+  font-size: 1rem;
+}
+
+.section--bg-masked {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.section--bg {
+  @apply bg-gray-50 dark:bg-gray-800;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  transform-origin: 100% 0;
+  transform: skewY(-2deg);
+  overflow: hidden;
+}
+
+.section-container {
+  position: relative;
+}
+
+/* Database page */
+
+.dashboard-tabs div[role='seperator'] {
+  @apply border border-gray-50 dark:border-gray-700;
+}
+
+.sbui-tabs--alt div[role='tablist'] .sbui-btn-primary {
+  @apply bg-gray-800 text-white dark:bg-gray-600 dark:text-white;
+  text-shadow: none;
+  font-weight: 400;
+}
+.sbui-tabs--alt div[role='tablist'] .sbui-btn-text {
+  @apply dark:text-gray-400;
+  font-weight: 400;
+  shadow: none;
+}
+
+.sbui-tabs--underline-alt div[role='tablist'] .sbui-tab-button-underline--active {
+  @apply border-gray-900 dark:border-white;
+}
+
+/* override position of tabs  */
+.dashboard-tabs > div > div > div > div {
+  justify-content: center;
+}
+
+/* Auth page */
+.auth-container {
+  @apply rounded;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23edebf0' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.dark .auth-container {
+  background-color: #27292f;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23313131' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0H5v5H0v1h5v94h1V6h94V5H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.dark .header--light {
+  display: none;
+}
+
+.header--dark {
+  display: none;
+}
+
+.dark .header--dark {
+  display: block;
+}
+
+table {
+  margin-top: 1em;
+  border-collapse: collapse;
+}
+
+table .thead--plans th {
+  @apply py-4;
+  position: sticky;
+  border-collapse: separate;
+  top: 0;
+  z-index: 5;
+}
+
+.pricing-table__product-row {
+  /* @apply py-4; */
+  position: sticky;
+  border-collapse: separate;
+  top: 0;
+  z-index: 5;
+}
+
+.sbui-typography-container thead {
+  @apply text-gray-500 dark:text-gray-200;
+}
+
+.sbui-typography a {
+  @apply break-words;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pf-spinner-content {
+  width: 80px;
+  height: 80px;
+  border: 2.5px solid #333741;
+  border-top-color: #39e19e;
+  border-radius: 50%;
+  animation: spinner 1s ease-in-out infinite alternate;
+}
+
+.pf-spinner-wrapper {
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  animation: fade 0.3s ease-in-out;
+}
+
+.container {
+  @apply py-12 mx-auto px-4;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.Toastify__toast {
+  font-size: 14px;
+  @apply text-gray-200 bg-gray-600 !important;
+}
+
+.Toastify__close-button {
+  @apply text-gray-200 !important;
+}
+
+.Toastify__toast-body > div:nth-child(2) {
+  @apply ml-2;
+  word-break: break-word;
+}
+
+.Toastify__toast-body {
+  @apply p-4 !important;
+}
+
+#__next {
+  @apply h-full flex;
+}
+
+.term {
+  @apply underline underline-offset-4 hover:text-black dark:hover:text-white;
+}
+
+.filter {
+  @apply inline-flex text-sm font-medium bg-gray-600 border border-gray-400 rounded-md shadow-sm relative w-full pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm;
+}
+
+.cancel {
+  @apply bg-cancel text-white !important;
+}
+
+.sbui-input-container input::placeholder {
+  @apply text-gray-400;
+  opacity: 0.7; /* Firefox */
+}
+
+
+/* override supabase ui */
+
+.sbui-btn-primary  {
+  @apply bg-primary text-white !important;
+}
+
+.sbui-btn {
+  border-radius: 100px !important;
+  min-height: 42px !important;
+}
+
+.sbui-input {
+  padding: 0.8rem 1rem !important;
+}
+
+.dark .sbui-btn-default {
+  @apply bg-gray-600 border-gray-700 !important;
+  border-radius: 6px !important;
+}
+
+.btn-delete {
+  color: rgba(244, 69, 102, 1) !important;
+  background-color: rgba(244, 69, 102, 0.08) !important;
+  padding: 0.5rem 1rem !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-600;
+}
+
+.custom-input-phone__main .react-tel-input .form-control {
+  @apply w-full;
+  padding: 0.8rem 1rem !important;
+  padding-left: 3.5rem !important;
+  height: 100% !important;
+}
+
+.custom-input-phone__main .react-tel-input .flag-dropdown {
+  @apply text-gray-400 bg-gray-600 !important;
+
+  border-color: #444444;
+}
+
+.custom-input-phone__main .react-tel-input .flag-dropdown,
+.custom-input-phone__main .react-tel-input .country-list,
+.custom-input-phone__main .react-tel-input .flag-dropdown.open .selected-flag,
+.custom-input-phone__main .react-tel-input .country-list .search {
+  @apply bg-gray-600 !important;
+}
+
+.custom-input-phone__main .react-tel-input .country-list .country.highlight {
+  @apply bg-gray-800 !important;
+}
+
+.custom-input-phone__main .react-tel-input .country-list .search-emoji {
+  display: none;
+}
+
+.custom-input-phone__main .react-tel-input .country-list .search-box {
+  @apply bg-gray-800 !important;
+
+  border: 1px solid #444444;
+  margin-left: 0;
+  width: 98%;
+  box-shadow: none;
+}
+
+.custom-input-phone__main .react-tel-input .country-list .country .dial-code {
+  @apply text-gray-200 !important;
+}
+
+.custom-input-phone__main .react-tel-input .selected-flag:hover, .react-tel-input .selected-flag:focus,
+.react-tel-input .country-list .country:hover {
+  @apply bg-gray-600 !important;
+}
+
+.custom-input-phone__main--error .react-tel-input .flag-dropdown {
+  @apply text-gray-400 bg-gray-600 !important;
+
+  border-color: rgb(239,68,68);
+}
