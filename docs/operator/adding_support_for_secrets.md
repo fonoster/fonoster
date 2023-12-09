@@ -111,7 +111,7 @@ export VAULT_TOKEN=s.23OL31TAw1MarBDp34O6B2p6
 Next, copy Vault's policy file somewhere in the container and run the following lines
 
 ```bash
-vault policy write fonos-policy vault_policy.hcl
+vault policy write fonoster-secrets-policy vault_policy.hcl
 vault secrets enable -path=secret kv
 vault auth enable approle
 ```
@@ -119,7 +119,7 @@ vault auth enable approle
 Output:
 
 ```bash
-Success! Uploaded policy: fonos-policy
+Success! Uploaded policy: fonoster-secrets-policy
 Success! Enabled the kv secrets engine at: secret/
 Success! Enabled approle auth method at: approle/
 ```
@@ -131,7 +131,7 @@ Once you find the variables, uncomment the variables and replace the token with 
 ```bash
 SECRETS_IMAGE=vault
 SECRETS_URL=http://secrets:8200
-SECRETS_POLICY=fonos-policy
+SECRETS_POLICY=fonoster-secrets-policy
 SECRETS_TOKEN=s.yDSlcyHGNvm9YOpJSVHbPYXI
 ```
 
