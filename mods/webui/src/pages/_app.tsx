@@ -1,5 +1,4 @@
 import '../styles/styles.css'
-import '@/telemetry'
 
 import { SessionProvider } from 'next-auth/react'
 import { NextQueryParamProvider } from 'next-query-params'

@@ -7,7 +7,6 @@ import { useCreationEditingDomain } from '@/mods/domains/components/creation-edi
 import { useDomains } from '@/mods/domains/hooks/useDomains'
 import { Notifier } from '@/mods/shared/components/Notification'
 import { wait } from '@/mods/shared/helpers/wait'
-import { analytics } from '@/telemetry'
 import { Button, Input, Panel, Radio, Select, Spinner } from '@/ui'
 
 import { useCreateAgent } from '../../hooks/useCreateAgent'
@@ -52,7 +51,6 @@ export const CreationEditingAgent = () => {
             onSuccess() {
               onClose()
 
-              analytics.track('Agent updated')
               Notifier.success('Your Agent has been successfully edited.')
             },
           })
@@ -60,7 +58,6 @@ export const CreationEditingAgent = () => {
             onSuccess() {
               onClose()
 
-              analytics.track('Agent created')
               Notifier.success('Your new Agent has been successfully created.')
             },
           })

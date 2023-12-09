@@ -42,7 +42,7 @@
     "@fonoster/common": "^0.4.8",
     "@fonoster/core": "^0.4.8",
     "@grpc/grpc-js": "^1.8.4",
-    "@opentelemetry/api": "^1.0.4",
+
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
     "is-valid-domain": "^0.1.2"

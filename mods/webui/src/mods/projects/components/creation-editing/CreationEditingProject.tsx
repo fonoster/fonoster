@@ -4,7 +4,6 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { Notifier } from '@/mods/shared/components/Notification'
 import { wait } from '@/mods/shared/helpers/wait'
-import { analytics } from '@/telemetry'
 import { Checkbox, Input, Panel } from '@/ui'
 
 import { useCreateProject } from '../../hooks/useCreateProject'
@@ -44,7 +43,6 @@ export const CreationEditingProject = () => {
             onSuccess() {
               onClose()
 
-              analytics.track('Project updated')
               Notifier.success('Your Project has been successfully edited.')
             },
           })
@@ -52,7 +50,6 @@ export const CreationEditingProject = () => {
             onSuccess() {
               onClose()
 
-              analytics.track('Project created')
               Notifier.success(
                 'Your new Project has been successfully created.'
               )

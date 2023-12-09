@@ -3,8 +3,6 @@ import getConfig from 'next/config'
 type Config = {
   publicRuntimeConfig: {
     [key: string]: string
-    APP_TELEMETRY_ENABLED: string
-    APP_TELEMETRY_MIXPANEL_TOKEN: string
     APP_FEATURE_FLAG_SEND_REGISTER: string
     WEBUI_APISERVER_ENDPOINT: string
     WEBUI_APP_URL: string
@@ -26,7 +24,6 @@ const { publicRuntimeConfig } = getConfig() as Config
 
 export const config = Object.freeze({
   ...publicRuntimeConfig,
-  APP_TELEMETRY_ENABLED: publicRuntimeConfig.APP_TELEMETRY_ENABLED === 'true',
   APP_FEATURE_FLAG_SEND_REGISTER:
     publicRuntimeConfig.APP_FEATURE_FLAG_SEND_REGISTER === 'true',
 })

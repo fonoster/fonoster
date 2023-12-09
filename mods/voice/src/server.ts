@@ -19,7 +19,6 @@
 import { ServerConfig } from "./types";
 import { posix } from "path";
 import { Plugin } from "@fonoster/common";
-import { VoiceTracer } from "./tracer";
 import { serveFiles } from "./utils";
 import VoiceResponse from "./voice";
 import logger from "@fonoster/logger";
@@ -35,14 +34,12 @@ const defaultServerConfig: ServerConfig = {
   base: "/",
   port: 3000,
   bind: "0.0.0.0",
-  pathToFiles: os.tmpdir(),
-  otlSpanExporters: []
+  pathToFiles: os.tmpdir()
 };
 
 export default class VoiceServer {
   config: ServerConfig;
   plugins: {};
-  voiceTracer: VoiceTracer;
   constructor(config: ServerConfig = defaultServerConfig) {
     this.config = merge(defaultServerConfig, config);
     this.init();
@@ -74,9 +71,7 @@ export default class VoiceServer {
     });
 
     app.post(posix.join(this.config.base), async (req, res) => {
-      this.voiceTracer = new VoiceTracer(this.config.otlSpanExporters);
-      this.voiceTracer.init();
-      const response = new VoiceResponse(req.body, this.voiceTracer);
+      const response = new VoiceResponse(req.body);
       response.plugins = this.plugins;
       handler(req.body, response);
       res.end();

@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 
 import { Notifier } from '@/mods/shared/components/Notification'
 import { wait } from '@/mods/shared/helpers/wait'
-import { analytics } from '@/telemetry'
 import { Panel } from '@/ui'
 
 import { useCreateApp } from '../../hooks/useCreateApp'
@@ -57,7 +56,6 @@ export const CreationEditingApp: React.FC = () => {
             onSuccess() {
               onClose()
 
-              analytics.track('Application updated')
               Notifier.success('Your Application has been successfully edited.')
             },
           })
@@ -65,7 +63,6 @@ export const CreationEditingApp: React.FC = () => {
             onSuccess() {
               onClose()
 
-              analytics.track('Application created')
               Notifier.success(
                 'Your new Application has been successfully created.'
               )

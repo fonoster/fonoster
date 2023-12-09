@@ -52,8 +52,5 @@
     "@fonoster/users": "^0.4.8",
     "dotenv": "^8.2.0"
   },
-  "gitHead": "9103932a97973f9bb4ceef7fd58119816a75646e",
-  "devDependencies": {
-    "@types/dotenv": "^8.2.0"
-  }
+  "gitHead": "9103932a97973f9bb4ceef7fd58119816a75646e"
 }

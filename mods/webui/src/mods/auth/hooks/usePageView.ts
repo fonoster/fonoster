@@ -1,8 +1,6 @@
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import { analytics } from '@/telemetry'
-
 import { useLoggedIn } from './useLoggedIn'
 
 export const usePageView = () => {
@@ -10,9 +8,7 @@ export const usePageView = () => {
   const { user } = useLoggedIn()
 
   useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      analytics.track('Page view', { url }, user?.accessKeyId)
-    }
+    const handleRouteChange = (url: string) => {}
 
     router.events.on('routeChangeComplete', handleRouteChange)
 

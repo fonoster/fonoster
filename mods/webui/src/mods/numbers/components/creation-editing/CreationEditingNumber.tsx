@@ -8,7 +8,6 @@ import { useProviders } from '@/mods/providers/hooks/useProviders'
 import { Notifier } from '@/mods/shared/components/Notification'
 import { classes } from '@/mods/shared/helpers/classes'
 import { wait } from '@/mods/shared/helpers/wait'
-import { analytics } from '@/telemetry'
 import { Button, Input, Panel, Select, Spinner } from '@/ui'
 
 import { useCreateNumber } from '../../hooks/useCreateNumber'
@@ -68,7 +67,6 @@ export const CreationEditingNumber = () => {
             onSuccess() {
               onClose()
 
-              analytics.track('Number updated')
               Notifier.success('Your Number has been successfully edited.')
             },
           })
@@ -76,7 +74,6 @@ export const CreationEditingNumber = () => {
             onSuccess() {
               onClose()
 
-              analytics.track('Number created')
               Notifier.success('Your new Number has been successfully created.')
             },
           })

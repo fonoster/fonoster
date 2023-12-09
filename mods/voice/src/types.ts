@@ -16,8 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MeterProvider } from "@opentelemetry/sdk-metrics-base";
-
 export interface VoiceRequest {
   accessKeyId: string;
   sessionToken: string;
@@ -35,8 +33,6 @@ export interface ServerConfig {
   port?: number;
   base?: string;
   pathToFiles?: string;
-  otlSpanExporters?: Array<any>;
-  meterProvider?: MeterProvider;
 }
 
 export interface VoiceEventData {

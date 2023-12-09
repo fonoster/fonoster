@@ -47,7 +47,7 @@
     "@fonoster/logger": "^0.4.7",
     "@fonoster/numbers": "^0.4.8",
     "@fonoster/storage": "^0.4.8",
-    "@opentelemetry/api": "^1.0.4",
+
     "ari-client": "^2.2.0",
     "pick-port": "^1.0.0",
     "wait-port": "^0.2.9",

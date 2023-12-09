@@ -49,9 +49,6 @@
     "@fonoster/storage": "^0.4.8",
     "@fonoster/users": "^0.4.8",
     "@openapitools/openapi-generator-cli": "^2.4.13",
-    "babel": "^6.23.0",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^8.2.3",
     "http-server": "^14.1.0",
     "rollup": "2.56.3",
     "ts-loader": "^9.4.2",
@@ -61,6 +58,7 @@
   },
   "gitHead": "5ba21ada612657dcaff6f6aa7bce5a8e4a00830a",
   "dependencies": {
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "babel-loader": "^9.1.3"
   }
 }
