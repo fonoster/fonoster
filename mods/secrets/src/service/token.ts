@@ -1,3 +1,5 @@
+import { APISERVER_VAULT_ADDR, APISERVER_VAULT_TOKEN } from "../env";
+
 /*
  * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -19,7 +21,10 @@
 const APISERVER_VAULT_SECRETS_POLICY = "fonoster-secrets-policy";
 
 export default async function (accessKeyId: string) {
-  const vault = require("node-vault")();
+  const vault = require("node-vault")({
+    endpoint: APISERVER_VAULT_ADDR,
+    token: APISERVER_VAULT_TOKEN
+  });
   // TODO: The policy assignment shouldn't be done automatically.
   // Instead, it should be done during the user creation.
   await vault.addApproleRole({

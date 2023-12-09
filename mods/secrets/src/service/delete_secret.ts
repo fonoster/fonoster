@@ -16,11 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APISERVER_VAULT_ADDR, APISERVER_VAULT_TOKEN } from "../env";
 import getUserToken from "./token";
 import Vault from "node-vault";
 
 export default async function (name: string, accessKeyId: string) {
-  const vault = Vault();
+  const vault = Vault({
+    endpoint: APISERVER_VAULT_ADDR,
+    token: APISERVER_VAULT_TOKEN
+  });
   const entityId = await getUserToken(accessKeyId);
   await vault.delete(`secret/data/${entityId}/` + name);
 }
