@@ -24,7 +24,7 @@
     "axios": "^0.24.0",
     "dotenv": "^16.3.1",
     "next": "12.3.4",
-    "next-auth": "4.15.2",
+    "next-auth": "4.24.5",
     "next-query-params": "^2.1.2",
     "next-seo": "^4.28.1",
     "nextjs-progressbar": "0.0.13",
