@@ -162,6 +162,7 @@ services:
     entrypoint: vault server -config=/vault/config/vault.json   
     volumes:
       - shared:/vault/file:rw
+      - ./etc/vault_policy.hcl:/vault/config/vault_policy.hcl:ro
       - ./etc/vault.json:/vault/config/vault.json:ro
     cap_add:
       - IPC_LOCK
