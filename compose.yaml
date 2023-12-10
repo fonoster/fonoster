@@ -11,12 +11,17 @@ services:
       WEBUI_APISERVER_ENDPOINT: ${WEBUI_APISERVER_ENDPOINT}
       WEBUI_GITHUB_CLIENT_ID: ${WEBUI_GITHUB_CLIENT_ID}
       WEBUI_GITHUB_CLIENT_SECRET: ${WEBUI_GITHUB_CLIENT_SECRET} 
+    logging:
+      options:
+        tag: fonoster-logs
 
   apiserver:
     image: fonoster/apiserver:latest
     restart: unless-stopped
     environment:
       LOGS_LEVEL: ${LOGS_LEVEL}
+      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      LOGS_FORMAT: ${LOGS_FORMAT}
       APISERVER_GLOBAL_SIP_DOMAIN: ${APISERVER_GLOBAL_SIP_DOMAIN}
       APISERVER_ROUTR_API_HOST: ${APISERVER_ROUTR_API_HOST}
       APISERVER_ROUTR_API_PORT: ${APISERVER_ROUTR_API_PORT}
@@ -44,6 +49,9 @@ services:
       LOGS_AGGREGRATOR_PORT: ${LOGS_AGGREGRATOR_PORT}
     ports:
       - 50052:50052
+    logging:
+      options:
+        tag: fonoster-logs
 
   routr:
     image: fonoster/routr:1.2.8
@@ -71,6 +79,9 @@ services:
     ports:
       - 5060-5063:5060-5063
       - 5060:5060/udp
+    logging:
+      options:
+        tag: fonoster-logs
 
   # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
   # is not possible in Docker, we need to use network_mode: host.
@@ -101,6 +112,8 @@ services:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       GRPC_ALLOW_INSECURE: ${GRPC_ALLOW_INSECURE}
       LOGS_LEVEL: ${LOGS_LEVEL}
+      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      LOGS_FORMAT: ${LOGS_FORMAT}
       EXTERN_PORT: ${MEDIASERVER_EXTERN_PORT}
       APISERVER_ENDPOINT: ${MEDIASERVER_APISERVER_ENDPOINT}
       ARI_EXTERNAL_URL: ${MEDIASERVER_ARI_EXTERNAL_URL}
@@ -117,6 +130,9 @@ services:
       - shared:/home/fonoster
     expose:
       - 8080
+    logging:
+      options:
+        tag: fonoster-logs
 
   voice:
     image: fonoster/rox:latest
@@ -126,6 +142,11 @@ services:
       - 3001
     environment:
       LOGS_LEVEL: ${LOGS_LEVEL}
+      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      LOGS_FORMAT: ${LOGS_FORMAT}
+    logging:
+      options:
+        tag: fonoster-logs
 
   redis:
     image: redis:7.0.8-alpine
@@ -144,6 +165,37 @@ services:
       - ./etc/vault.json:/vault/config/vault.json:ro
     cap_add:
       - IPC_LOCK
+
+  fluent:
+    image: fonoster/fluent:latest
+    restart: unless-stopped
+    expose:
+      - 24224
+    volumes:
+      - ./etc/fluent.conf:/fluentd/etc/fluent.conf:ro
+
+  elasticsearch:
+    image: elasticsearch:7.17.15
+    platform: linux/x86_64
+    restart: unless-stopped
+    environment:
+      - "discovery.type=single-node"
+    expose:
+      - 9200
+    volumes:
+      - shared:/usr/share/elasticsearch/data:rw
+
+  minio:
+    image: minio/minio:RELEASE.2023-12-09T18-17-51Z
+    restart: unless-stopped
+    command: minio server /fonoster
+    environment:
+      MINIO_ACCESS_KEY: ${APISERVER_S3_SERVER_USERNAME}
+      MINIO_SECRET_KEY: ${APISERVER_S3_SERVER_SECRET}
+    expose:
+      - 9000
+    volumes:
+      - shared:/fonoster  
 
 volumes:
   shared:

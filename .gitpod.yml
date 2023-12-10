@@ -11,8 +11,8 @@ tasks:
   - name: Run dependencies
     command: |
       cp .env.example .env
-      docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml \
-        up redis rtpengine voice mediaserver routr
+      docker-compose -f compose.yaml -f compose.dev.yaml \
+        up minio redis rtpengine voice mediaserver routr fluent elasticsearch
   - name: Build and start application
     init: npm run make
     command: npm start

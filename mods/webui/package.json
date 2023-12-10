@@ -17,15 +17,12 @@
     "@fonoster/sdk": "^0.4.8",
     "@headlessui/react": "^1.4.2",
     "@heroicons/react": "^1.0.5",
-    "@sentry/browser": "^6.19.1",
-    "@sentry/tracing": "^6.19.1",
     "@supabase/supabase-js": "^1.29.1",
     "@supabase/ui": "^0.36.2",
     "@tailwindcss/forms": "^0.4.0",
     "autoprefixer": "^10.4.1",
     "axios": "^0.24.0",
     "dotenv": "^16.3.1",
-    "mixpanel-browser": "^2.45.0",
     "next": "12.3.4",
     "next-auth": "4.15.2",
     "next-query-params": "^2.1.2",
@@ -50,7 +47,6 @@
     "zustand": "^3.6.9"
   },
   "devDependencies": {
-    "@types/mixpanel-browser": "^2.38.1",
     "@types/node": "^17.0.8",
     "@types/react": "^17.0.38",
     "typescript": "^4.5.4"

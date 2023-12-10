@@ -1,4 +1,4 @@
-const Monitor = require('@fonoster/monitor')
+const Monitor = require('@fonoster/monitor/dist/client/monitor')
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import { getServerCurrentProject } from '@/mods/auth/lib/getUserLogged'
@@ -9,7 +9,7 @@ export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const manager = new Monitor(getServerCurrentProject(req))
+  const monitor = new Monitor(getServerCurrentProject(req))
 
   const get = async () => {
     const { time = TIMES[0].value, eventType, level } = req.query
@@ -34,7 +34,7 @@ export default async function handle(
       })
     }
 
-    return manager.searchEvents({
+    return monitor.searchEvents({
       query: {
         bool: {
           must,

@@ -17,3 +17,15 @@ services:
   vault:
     ports:
       - 8200:8200
+
+  fluent:
+    ports:
+      - 24224:24224
+  
+  elasticsearch:
+    ports:
+      - 9200:9200
+
+  minio:
+    ports:
+      - 9000:9000
