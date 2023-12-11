@@ -27,8 +27,3 @@ jobs:
           chmod +x node_modules/.bin/cross-env
           npm run build
           npm test
-      - name: Running SonarCloud scan
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
