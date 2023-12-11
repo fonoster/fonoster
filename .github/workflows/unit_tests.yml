@@ -20,11 +20,12 @@ jobs:
       - name: Installing dependency
         uses: actions/setup-node@v1
         with:
-          node-version: '16.x'
+          node-version: '18.x'
       - name: Running tests
         run: |
-          npm run make
+          npm install
           chmod +x node_modules/.bin/cross-env
+          npm run build
           npm test
       - name: Running SonarCloud scan
         uses: sonarsource/sonarcloud-github-action@master
