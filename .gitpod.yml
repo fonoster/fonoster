@@ -35,7 +35,7 @@ tasks:
     command: |
       npm run start:webui
 
-  - name:Start Docker Containers
+  - name: Start Docker Containers
     before: |
       while [ ! -f /workspace/.init_done ]; do sleep 2; done
     command: |
