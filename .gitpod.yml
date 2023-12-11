@@ -8,17 +8,53 @@
 # or hacking on something new.
 #
 tasks:
-  - name: Run dependencies
-    command: |
+  - name: Initial Setup
+    init: |
+      APP_URL=$(gp url 3000)
+      WEBUI_TEST_PHONE_SERVER=$(gp url 5062 | sed 's/http/ws/g')
       cp .env.example .env
-      docker-compose -f compose.yaml -f compose.dev.yaml \
-        up minio redis rtpengine voice mediaserver routr fluent elasticsearch
-  - name: Build and start application
-    init: npm run make
-    command: npm start
+      set -i "s|NEXTAUTH_URL=.*|NEXTAUTH_URL=$APP_URL|g" .env
+      sed -i "s|WEBUI_APP_URL=.*|WEBUI_APP_URL=$APP_URL|g" .env
+      sed -i "s|WEBUI_TEST_PHONE_SERVER=.*|WEBUI_TEST_PHONE_SERVER=$WEBUI_TEST_PHONE_SERVER|g" .env
+      sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=$(gp url 5062 | sed 's|https://||')|g" .env
+      npm install
+      npm run build
+      touch /workspace/.init_done
+      exit
+    command: echo "Initial Setup Complete"
+
+  - name: Start API Server
+    before: |
+      while [ ! -f /workspace/.init_done ]; do sleep 2; done
+    command: |
+      npm run start:apiserver
+  
+  - name: Start Web UI
+    before: |
+      while [ ! -f /workspace/.init_done ]; do sleep 2; done
+    command: |
+      npm run start:webui
+
+  - name:Start Docker Containers
+    before: |
+      while [ ! -f /workspace/.init_done ]; do sleep 2; done
+    command: |
+      docker compose -f compose.yaml -f compose.dev.yaml \
+        up minio vault redis elasticsearch fluent rtpengine voice mediaserver routr
 
 ports:
   - port: 50052
     onOpen: ignore
-  - port: 5060-5063
+    visibility: public
+  - port: 5060
     onOpen: ignore
+  - port: 5061
+    onOpen: ignore
+  - port: 5062
+    onOpen: ignore
+    visibility: public
+  - port: 5063
+    onOpen: ignore
+  - port: 3000
+    onOpen: open-preview
+    visibility: public

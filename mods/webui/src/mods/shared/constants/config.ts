@@ -6,7 +6,6 @@ type Config = {
     APP_FEATURE_FLAG_SEND_REGISTER: string
     WEBUI_APISERVER_ENDPOINT: string
     WEBUI_APP_URL: string
-    WEBUI_SENTRY_DSN: string
     WEBUI_BILLING_URL: string
     WEBUI_BANNER_ANNOUNCEMENT: string
     WEBUI_FEEDBACK_URL: string
