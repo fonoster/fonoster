@@ -28,7 +28,6 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 import path from "path";
-import fiber from "fibers";
 import * as utils from "../src/client/utils";
 
 describe("@fonoster/storage", () => {

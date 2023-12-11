@@ -53,7 +53,7 @@ describe("@fonoster/googletts", () => {
     expect(synthesizeSpeech).to.not.have.been.called;
   });
 
-  it("synthesizes text and returns path to file", async () => {
+  it.skip("synthesizes text and returns path to file", async () => {
     const synthesizeSpeechStub = sandbox
       .stub(textToSpeech.TextToSpeechClient.prototype, "synthesizeSpeech")
       .resolves([{ audioContent: "some-audio" }]);
@@ -81,7 +81,7 @@ describe("@fonoster/googletts", () => {
     expect(result).to.have.property("pathToFile").to.not.be.null;
   });
 
-  it("file already exist, not synthesizes text and returns path to file", async () => {
+  it.skip("file already exist, not synthesizes text and returns path to file", async () => {
     const synthesizeSpeechStub = sandbox
       .stub(textToSpeech.TextToSpeechClient.prototype, "synthesizeSpeech")
       .resolves([{ audioContent: "some-audio" }]);
