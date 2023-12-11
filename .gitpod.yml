@@ -13,6 +13,7 @@ tasks:
       APP_URL=$(gp url 3000)
       WEBUI_TEST_PHONE_SERVER=$(gp url 5062 | sed 's/http/ws/g')
       cp .env.example .env
+      set -i "s|APISERVER_RBAC_CONFIG=.*|APISERVER_RBAC_CONFIG=/workspace/fonoster/mods/apiserver/etc/rbac.json|g" .env
       set -i "s|NEXTAUTH_URL=.*|NEXTAUTH_URL=$APP_URL|g" .env
       sed -i "s|WEBUI_APP_URL=.*|WEBUI_APP_URL=$APP_URL|g" .env
       sed -i "s|WEBUI_TEST_PHONE_SERVER=.*|WEBUI_TEST_PHONE_SERVER=$WEBUI_TEST_PHONE_SERVER|g" .env
@@ -40,7 +41,8 @@ tasks:
       while [ ! -f /workspace/.init_done ]; do sleep 2; done
     command: |
       docker compose -f compose.yaml -f compose.dev.yaml \
-        up minio vault redis elasticsearch fluent rtpengine voice mediaserver routr
+        up minio vault redis elasticsearch fluent rtpengine voice mediaserver routr -d
+      exit
 
 ports:
   - port: 50052
