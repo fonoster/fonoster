@@ -5,6 +5,7 @@ services:
   apiserver:
     build:
       context: .
+      dockerfile: ./mods/apiserver/Dockerfile
 
   routr:
     ports:

@@ -39,8 +39,10 @@ jobs:
     - name: Publish to Docker Hub the APIServer
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
-        name: fonoster/apiserver
+        name: fonoster/apiserver   
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        context: .
+        dockerfile: mods/apiserver/Dockerfile     
         tags: "latest, ${{ steps.get_version.outputs.VERSION }}"    
         platforms: linux/amd64,linux/arm64
