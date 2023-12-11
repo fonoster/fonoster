@@ -13,8 +13,14 @@ tasks:
       APP_URL=$(gp url 3000)
       WEBUI_TEST_PHONE_SERVER=$(gp url 5062 | sed 's/http/ws/g')
       cp .env.example .env
-      set -i "s|APISERVER_RBAC_CONFIG=.*|APISERVER_RBAC_CONFIG=/workspace/fonoster/mods/apiserver/etc/rbac.json|g" .env
-      set -i "s|NEXTAUTH_URL=.*|NEXTAUTH_URL=$APP_URL|g" .env
+      sed -i "s|REDIS_HOST=.*|REDIS_HOST=localhost|g" .env
+      sed -i "s|LOGS_DRIVER_HOST=.*|LOGS_DRIVER_HOST=localhost|g" .env
+      sed -i "s|LOGS_AGGREGRATOR_HOST=.*|LOGS_AGGREGRATOR_HOST=localhost|g" .env
+      sed -i "s|APISERVER_RBAC_CONFIG=.*|APISERVER_RBAC_CONFIG=/workspace/fonoster/mods/apiserver/etc/rbac.json|g" .env
+      sed -i "s|APISERVER_ENDPOINT=.*|APISERVER_ENDPOINT=localhost:50052|g" .env
+      sed -i "s|MEDIASERVER_APISERVER_ENDPOINT=.*|MEDIASERVER_APISERVER_ENDPOINT=localhost:50052|g" .env
+      sed -i "s|WEBUI_APISERVER_ENDPOINT=.*|WEBUI_APISERVER_ENDPOINT=localhost:50052|g" .env
+      sed -i "s|NEXTAUTH_URL=.*|NEXTAUTH_URL=$APP_URL|g" .env
       sed -i "s|WEBUI_APP_URL=.*|WEBUI_APP_URL=$APP_URL|g" .env
       sed -i "s|WEBUI_TEST_PHONE_SERVER=.*|WEBUI_TEST_PHONE_SERVER=$WEBUI_TEST_PHONE_SERVER|g" .env
       sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=$(gp url 5062 | sed 's|https://||')|g" .env
