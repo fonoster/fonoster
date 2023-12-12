@@ -1,0 +1,50 @@
+# Connecting Dialogflow and Fonoster
+
+[Rox AI](https://github.com/fonoster/rox) is a connector between Dialogflow and Fonoster. 
+
+Rox AI is for creating Programmable Voice Applications without having to do any coding.
+
+## Requirements
+
+- Creating a new [Fonoster Voice App](https://fonoster.com/docs/getting_started/create_a_voice_application)
+- Install **Docker** 
+
+## Overview
+
+This is the final product of this guide:
+
+<iframe width="100%" height="300px" src="https://www.youtube.com/embed/41Rx8KPb5GU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+## Preparing the environment
+
+Rox AI ships as a Docker container, open a file named `docker-compose.yml` and paste the content of this YAML.
+
+```yml
+version: '3.8'
+
+services:
+  rox:
+    image: fonoster/rox:latest
+    ports:
+      - 3000:3000
+    environment:
+      LOGS_LEVEL: verbose
+
+  ngrok:
+    image: wernight/ngrok:latest
+    ports:
+      - 4040:4040
+    environment:
+      NGROK_PROTOCOL: http
+      NGROK_PORT: rox:3000
+```
+
+## Running the Connector
+
+```bash
+docker-compose up
+```
+
+### Connecting your Voice Application to Fonoster
+
+Look for the newly generated [Ngrok's URL](http://localhost:4040/inspect/http), and update the Number webhook URL on **SIP NETWORK** of your previously created Fonoster Voice App.
