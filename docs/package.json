@@ -14,9 +14,9 @@
     "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.4.0",
-    "@docusaurus/plugin-google-gtag": "^2.4.1",
-    "@docusaurus/preset-classic": "^2.4.0",
+    "@docusaurus/core": "^3.0.1",
+    "@docusaurus/plugin-google-gtag": "^3.0.1",
+    "@docusaurus/preset-classic": "^3.0.1",
     "@kiwicopple/prism-react-renderer": "github:kiwicopple/prism-react-renderer",
     "@mdx-js/react": "^1.6.21",
     "@svgr/webpack": "^5.5.0",
