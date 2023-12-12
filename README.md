@@ -5,27 +5,24 @@
 
 <a href="https://discord.gg/mpWSRUhG7e"><img alt="Fonoster community banner" src="https://raw.githubusercontent.com/fonoster/.github/main/profile/community.png"></img></a>
 
-![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
+![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yaml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yaml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
 ## Features 
 
-The most notable features on FN 0.4 are:
+The most notable features on Fonoster 0.4 are:
 
-- [x] Cloud initialization with Cloud-Init
 - [x] Multitenancy
 - [x] Easy deployment of PBXs functionalities
 - [x] Programmable Voice Applications
 - [x] NodeJS SDK
-- [x] Web SDK
 - [x] Support for Amazon Simple Storage Service (S3)
 - [x] Secure API endpoints with Let's Encrypt
 - [x] Authentication with OAuth2
 - [X] Authentication with JWT 
 - [x] Role-Based Access Control (RBAC)
 - [x] Plugins-based Command-line Tool
-- [x] Support for Google Speech API
-- [x] Experimental support for Cloud Functions
-- [x] Experimental support for Secret management
+- [x] Support for Google Speech APIs
+- [x] Secrets managed by Hashicorp Vault
 
 ## Code Examples
 
@@ -65,7 +62,7 @@ new VoiceServer(serverConfig).listen(
 // ngrok http 3000
 ```
 
-Everything in FN is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
+Everything in Fonoster is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
 
 Example of originating a call with the SDK:
 
@@ -84,7 +81,7 @@ callManager.call({
 
 ## Getting Started
 
-To get started with FN use the following resources:
+To get started with Fonoster use the following resources:
 
 - [Deploying Fonoster to the Cloud](./docs/operator/deploy-your-server.md)
 - [Getting started with Fonoster](https://learn.fonoster.com/)
@@ -122,8 +119,10 @@ Find all our supporters [here](https://github.com/sponsors/fonoster)
 > [Become a Github Sponsor](https://github.com/sponsors/fonoster)
 
 ## Authors
+
  - [Pedro Sanders](https://github.com/psanders)
 
 ## License
+
 Copyright (C) 2023 by [Fonoster Inc](https://fonoster.com). MIT License (see [LICENSE](https://github.com/fonoster/fonoster/blob/main/LICENSE) for details).
 
