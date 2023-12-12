@@ -32,7 +32,7 @@ jobs:
         cd ..
         
         # Copy site assets
-        cp -a site/assets/* out/site-assets
+        cp -a site/site-assets/* out/site-assets
         cp site/index.html out/index.html
         echo > out/.nojekyll
     - name: Deploy to GitHub Pages
