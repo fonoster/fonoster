@@ -26,6 +26,9 @@ tasks:
       sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=$(gp url 5062 | sed 's|https://||')|g" .env
       npm install
       npm run build
+      mkdir ~/.fonoster
+      npm run gen:config
+      mv config ~/.fonoster/config
       touch /workspace/.init_done
       exit
     command: echo "Initial Setup Complete"
