@@ -25,7 +25,7 @@
     "gen:config": "node ./.scripts/gen-config.js",
     "audit": "lerna-audit",
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
-    "publish": "lerna publish",
+    "publish": "lerna publish --yes --no-git-reset --dist-tag next $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
     "publish:prerelease": "lerna publish prerelease --dist-tag next",
     "publish:frompackages": "lerna publish from-package"
   },
