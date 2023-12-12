@@ -62,11 +62,6 @@ jobs:
         release_name: Release v${{ env.LERNA_VERSION }}
         body: ${{ steps.changelog.outputs.changelog }}
         draft: true
-    - name: Login Dockerhub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
     - name: Publishing MediaServer Service
       uses: benc-uk/workflow-dispatch@v1
       with:
