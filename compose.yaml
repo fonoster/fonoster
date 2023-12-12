@@ -178,6 +178,7 @@ services:
   elasticsearch:
     image: elasticsearch:7.17.15
     restart: unless-stopped
+    platform: linux/x86_64
     environment:
       - "discovery.type=single-node"
     expose:

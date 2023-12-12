@@ -20,7 +20,15 @@ import { resolve } from "path";
 import { fluent, level, transports } from "./envs";
 import winston from "winston";
 
+const loggers = new Map();
+
 export const getLogger = (config: { service?: string; filePath: string }) => {
+  const key = config.service || 'default';
+
+  if (loggers.has(key)) {
+    return loggers.get(key);
+  }
+
   const file = config.filePath.replace(resolve("./"), "");
 
   const humanFormat = winston.format.combine(
@@ -35,17 +43,21 @@ export const getLogger = (config: { service?: string; filePath: string }) => {
     )
   );
 
-  const logger = winston.createLogger({
+  const newLogger = winston.createLogger({
     levels: winston.config.npm.levels,
     format: humanFormat,
     transports,
     level
   });
 
-  logger.on("finish", () => {
+  newLogger.on("finish", () => {
     fluent.sender.end("end", {}, () => {});
   });
-  return logger;
+
+  // Store the new logger in the map
+  loggers.set(key, newLogger);
+
+  return newLogger;
 };
 
 export { getLogger as default };
