@@ -22,7 +22,6 @@ config/*.yml
 *.ipr
 mod/vendor
 jre
-site
 .env*
 lerna-debug.log
 mods/**/src/protos/common.proto

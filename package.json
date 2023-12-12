@@ -10,6 +10,8 @@
     "start:apiserver": "cross-env LOGS_LEVEL=verbose AUTH_RBAC=$(pwd)/mods/apiserver/etc/rbac.json SERVICES_ENVS=$(pwd)/mods/apiserver/etc/service_envs.json NODE_ENV=dev nodemon ./mods/apiserver/src",
     "start:dispatcher": "cross-env NODE_ENV=dev nodemon .scripts/dispatcher",
     "start:dev": "docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up sipproxy datasource",
+    "start:site": "npx http-server site -p 8080",
+    "start:docs": "cd docs && npm start",
     "postinstall": "node ./.scripts/set-permissions.js",
     "test": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha -r ts-node/register mods/**/*.unit.test.ts --exit",
     "integration": "cross-env NODE_ENV=dev nyc --reporter=lcov mocha --timeout 220000 -r ts-node/register mods/**/*.int.test.ts --exit",
