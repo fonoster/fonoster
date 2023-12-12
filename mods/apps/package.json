@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apps",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "description": "Fonoster Voice Applications",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -38,11 +38,11 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.4.8",
-    "@fonoster/common": "^0.4.8",
-    "@fonoster/core": "^0.4.8",
-    "@fonoster/errors": "^0.4.6",
-    "@fonoster/logger": "^0.4.7",
+    "@fonoster/auth": "^0.4.9",
+    "@fonoster/common": "^0.4.9",
+    "@fonoster/core": "^0.4.9",
+    "@fonoster/errors": "^0.4.9",
+    "@fonoster/logger": "^0.4.9",
     "@grpc/grpc-js": "^1.8.4",
     "grpc-promise": "^1.4.0"
   },

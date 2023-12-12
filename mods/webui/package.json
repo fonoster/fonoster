@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/webui",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "private": true,
   "author": "Fonoster Team",
   "bin": {
@@ -12,9 +12,9 @@
     "start": "next start"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.4.7",
-    "@fonoster/monitor": "^0.4.8",
-    "@fonoster/sdk": "^0.4.8",
+    "@fonoster/logger": "^0.4.9",
+    "@fonoster/monitor": "^0.4.9",
+    "@fonoster/sdk": "^0.4.9",
     "@headlessui/react": "^1.4.2",
     "@heroicons/react": "^1.0.5",
     "@supabase/supabase-js": "^1.29.1",

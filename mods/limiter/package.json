@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/limiter",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "description": "Limiter Module",
   "author": "Fonoster Inc",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -38,13 +38,13 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.4.8",
-    "@fonoster/common": "^0.4.8",
-    "@fonoster/core": "^0.4.8",
-    "@fonoster/errors": "^0.4.6",
-    "@fonoster/logger": "^0.4.7",
-    "@fonoster/projects": "^0.4.8",
-    "@fonoster/users": "^0.4.8",
+    "@fonoster/auth": "^0.4.9",
+    "@fonoster/common": "^0.4.9",
+    "@fonoster/core": "^0.4.9",
+    "@fonoster/errors": "^0.4.9",
+    "@fonoster/logger": "^0.4.9",
+    "@fonoster/projects": "^0.4.9",
+    "@fonoster/users": "^0.4.9",
     "@grpc/grpc-js": "^1.8.4",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0"
