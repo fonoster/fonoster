@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/auth",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "Authentication Module",
   "author": "Raul Sanchez <rsanchez@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -39,9 +39,9 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/common": "^0.4.9",
+    "@fonoster/common": "^0.4.10",
     "@fonoster/errors": "^0.4.9",
-    "@fonoster/logger": "^0.4.9",
+    "@fonoster/logger": "^0.4.10",
     "@grpc/grpc-js": "^1.8.4",
     "express": "^4.17.1",
     "google-protobuf": "^3.17.0",
