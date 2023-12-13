@@ -30,3 +30,4 @@ services:
   minio:
     ports:
       - 9000:9000
+      - 9001:9001
