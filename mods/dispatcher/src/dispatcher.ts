@@ -18,33 +18,46 @@
  * limitations under the License.
  */
 import { ARI_INTERNAL_URL, ARI_SECRET, ARI_USERNAME } from "./envs";
-import ari from "ari-client";
+import { getLogger } from "@fonoster/logger";
+import ariClient from "ari-client";
 import wait from "wait-port";
-import logger from "@fonoster/logger";
 import events from "./events_handler";
 
-const ariHost = ARI_INTERNAL_URL
-const ariUsername = ARI_USERNAME;
-const ariSecret = ARI_SECRET;
+const logger = getLogger({ service: "limiter", filePath: __filename })
 
 const connection = {
-  host: ariHost.split("//")[1].split(":")[0],
-  port: parseInt(ariHost.split("//")[1].split(":")[1])
+  host: ARI_INTERNAL_URL.split("//")[1].split(":")[0],
+  port: parseInt(ARI_INTERNAL_URL.split("//")[1].split(":")[1]),
+  timeout: 30000
 };
 
-wait(connection)
-  .then((open) => {
-    if (open) {
-      // Give time to Media Server to publish the API endpoint
-      setTimeout(
-        () => ari.connect(ariHost, ariUsername, ariSecret, events),
-        10000
-      );
-      return;
-    }
+async function connectToARI() {
+  logger.info("Waiting for mediaserver to be ready...");
+  const open = await wait(connection)
+  if (open) {
+    const ari = await ariClient.connect(ARI_INTERNAL_URL, ARI_USERNAME, ARI_SECRET, events)
+  
+    ari.on("WebSocketReconnecting", (event) => {
+      logger.info("reconnecting to asterisk");
+    });
+  
+    ari.on("WebSocketMaxRetries", (event) => {
+      logger.error("max retries reconnecting to asterisk");
+      attemptReconnection();
+    });
+  
+    logger.info("asterisk is ready");
+  } else {
+    logger.error("asterisk is not ready");
+    process.exit(1);
+  }
+}
 
-    logger.info(
-      "the mediaserver's port did not open before the timeout [ exiting dispatcher ]"
-    );
-  })
-  .catch(logger.error);
+function attemptReconnection() {
+  logger.info('attempting to reconnect in 30 seconds...');
+  setTimeout(() => {
+    connectToARI();
+  }, 30000); // Reconnect after 30 seconds
+}
+
+connectToARI().catch(logger.error);
