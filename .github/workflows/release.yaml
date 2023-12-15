@@ -15,18 +15,23 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.GH_PAT }}
-    - uses: actions/setup-node@v1
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
       with:
         node-version: '18.x'
+
     - name: Install dependencies and build
       run: |
         npm install
         npm run build
+
     - name: Check for next release
       run: |
         release=$(.scripts/next-release.sh)
         echo "Next release: $release"
         echo "RELEASE=$release" >> $GITHUB_ENV
+
     - name: Publish packages to NPM
       if: env.RELEASE != 'none'
       run: |
@@ -40,10 +45,12 @@ jobs:
         git checkout package-lock.json
 
         npm run publish
+  
     - name: Get version from Lerna
       run: |
         lerna_version=$(node -p "require('./lerna.json').version")
         echo "LERNA_VERSION=$lerna_version" >> $GITHUB_ENV
+
     - name: Create release note
       if: env.RELEASE != 'none'
       id: changelog
@@ -52,6 +59,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         exclude_types: other,doc,chore
         config_file: ./.scripts/tag-changelog-config.js
+
     - name: Create draft release
       if: env.RELEASE != 'none'
       uses: actions/create-release@latest
@@ -62,6 +70,7 @@ jobs:
         release_name: Release v${{ env.LERNA_VERSION }}
         body: ${{ steps.changelog.outputs.changelog }}
         draft: true
+
     - name: Publishing MediaServer Service
       uses: benc-uk/workflow-dispatch@v1
       with:
@@ -72,7 +81,19 @@ jobs:
         inputs: '{"version": "${{ env.LERNA_VERSION }}" }'
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    - name: Publish to Docker Hub the APIServer
+
+    - name: Publish Asterisk to Docker Hub
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        name: fonoster/asterisk   
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        context: .
+        dockerfile: asterisk/Dockerfile     
+        tags: "latest, 16"
+        platforms: linux/amd64,linux/arm64
+
+    - name: Publish the API Server to Docker Hub
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: fonoster/apiserver   

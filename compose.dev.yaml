@@ -11,6 +11,14 @@ services:
     ports:
       - 4567:4567
 
+  asterisk:
+    build:
+      context: .
+      dockerfile: ./asterisk/Dockerfile
+    ports:
+      - 6060:6060
+      - 8088:8088
+
   redis:
     ports:
       - 6379:6379
