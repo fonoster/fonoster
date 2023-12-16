@@ -1,0 +1,42 @@
+{
+  "name": "@fonoster/pollytts",
+  "version": "0.2.21",
+  "description": "Amazon Polly TTS Plugin",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/pollytts#readme",
+  "license": "MIT",
+  "main": "dist/src/tts",
+  "types": "dist/src/tts",
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "dependencies": {
+    "@aws-sdk/client-polly": "^3.42.0",
+    "@fonoster/common": "^0.4.10",
+    "@fonoster/logger": "^0.4.10",
+    "@fonoster/tts": "^0.4.10",
+    "deepmerge": "^4.2.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/sinon": "^17.0.2"
+  }
+}

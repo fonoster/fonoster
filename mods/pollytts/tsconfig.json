@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "composite": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "declaration": true,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "strict": false,
+    "module": "commonjs",
+    "target": "es2020",
+    "lib": ["es2020"]
+  },
+  "exclude": ["node_modules", "dist"]
+}
