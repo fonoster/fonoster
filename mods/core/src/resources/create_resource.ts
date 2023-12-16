@@ -1,12 +1,12 @@
 import { routr } from "../common/routr";
 import { getLogger } from "@fonoster/logger";
 
-const logger = getLogger({ service: "core", filePath: __filename })
+const logger = getLogger({ service: "core", filePath: __filename });
 
 export default async function (resource: any): Promise<any> {
   const meta = {
     kind: resource.kind,
-    accessKeyId: resource.metadata.accessKeyId,
+    accessKeyId: resource.metadata.accessKeyId
     //traceId: currentSpan.spanContext().traceId
   };
 

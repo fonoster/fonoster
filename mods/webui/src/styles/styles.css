@@ -55,7 +55,7 @@ h2 {
 }
 
 p {
-  line-height: 1.60rem !important;
+  line-height: 1.6rem !important;
 }
 
 @media only screen and (max-width: 960px) {
@@ -153,7 +153,9 @@ p {
   shadow: none;
 }
 
-.sbui-tabs--underline-alt div[role='tablist'] .sbui-tab-button-underline--active {
+.sbui-tabs--underline-alt
+  div[role='tablist']
+  .sbui-tab-button-underline--active {
   @apply border-gray-900 dark:border-white;
 }
 
@@ -303,10 +305,9 @@ table .thead--plans th {
   opacity: 0.7; /* Firefox */
 }
 
-
 /* override supabase ui */
 
-.sbui-btn-primary  {
+.sbui-btn-primary {
   @apply bg-primary text-white !important;
 }
 
@@ -379,7 +380,8 @@ table .thead--plans th {
   @apply text-gray-200 !important;
 }
 
-.custom-input-phone__main .react-tel-input .selected-flag:hover, .react-tel-input .selected-flag:focus,
+.custom-input-phone__main .react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag:focus,
 .react-tel-input .country-list .country:hover {
   @apply bg-gray-600 !important;
 }
@@ -387,5 +389,5 @@ table .thead--plans th {
 .custom-input-phone__main--error .react-tel-input .flag-dropdown {
   @apply text-gray-400 bg-gray-600 !important;
 
-  border-color: rgb(239,68,68);
+  border-color: rgb(239, 68, 68);
 }

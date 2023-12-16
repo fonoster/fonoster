@@ -27,7 +27,7 @@ import assertEnvIsSet from "./env_is_set";
 const interceptor = require("grpc-interceptors");
 const BIND_ADDR = "0.0.0.0:50052";
 
-const logger = getLogger({ service: "common", filePath: __filename })
+const logger = getLogger({ service: "common", filePath: __filename });
 
 interface ServiceInf {
   name: string;
@@ -50,32 +50,25 @@ export default function run(
   // Wrapped server
   const server = interceptor.serverProxy(useHealth(grpcServer));
 
-  logger.info(
-    `service runner`, {
-      bindAddr: BIND_ADDR,
-      apiVersion: srvInfList[0].version
-    }
-  );
+  logger.info(`service runner`, {
+    bindAddr: BIND_ADDR,
+    apiVersion: srvInfList[0].version
+  });
 
   middlewareList?.forEach((middleware) => {
     server.use(middleware.middlewareObj);
-    logger.info(
-      `service runner`, {
-        middleware: middleware.name,
-      }
-    );
+    logger.info(`service runner`, {
+      middleware: middleware.name
+    });
   });
 
   srvInfList.forEach((srvInf: ServiceInf) => {
     // TODO: Perhaps this method should be simplified now that we are using less services
     assertEnvIsSet("apiserver");
     server.addService(srvInf.service, srvInf.server);
-    logger.info(
-      `service runner`,
-      {
-        service: srvInf.name,
-      }
-    );
+    logger.info(`service runner`, {
+      service: srvInf.name
+    });
   });
 
   server.bindAsync(BIND_ADDR, getServerCredentials(), () => {

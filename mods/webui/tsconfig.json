@@ -11,11 +11,7 @@
     "incremental": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
@@ -23,9 +19,7 @@
     "noImplicitReturns": false,
     "outDir": "dist",
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     },
     "pretty": true,
     "removeComments": true,
@@ -37,15 +31,8 @@
     "target": "es5",
     "useDefineForClassFields": true
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "next-auth.d.ts",
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
+  "exclude": ["node_modules"],
+  "include": ["next-auth.d.ts", "next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "references": [
     {
       "path": "../sdk"

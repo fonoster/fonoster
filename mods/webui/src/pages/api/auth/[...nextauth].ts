@@ -2,7 +2,7 @@ import logger from '@fonoster/logger'
 import NextAuth from 'next-auth'
 import GithubProvider from 'next-auth/providers/github'
 import fetch from 'node-fetch'
-import { config } from "../../../mods/shared/constants/config"
+import { config } from '../../../mods/shared/constants/config'
 
 import {
   createToken,
@@ -51,9 +51,9 @@ export default NextAuth({
     }),
   ],
   debug: true,
-  secret: "asdfasdfafasfasdfadfadfaf",
+  secret: 'asdfasdfafasfasdfadfadfaf',
   jwt: {
-    secret: "asdfasdfafasfasdfadfadfaf",
+    secret: 'asdfasdfafasfasdfadfadfaf',
   },
   callbacks: {
     async signIn({ profile, account }) {

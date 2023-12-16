@@ -55,7 +55,7 @@ export const CallLogsBoard: AppPage = () => {
       <div className="mb-4 lg:w-4/6">
         <Title level={3}>Call logs</Title>
         <Text className="whitespace-normal">
-          Here you will find your call records. {' '}
+          Here you will find your call records.{' '}
           <a
             className="term"
             href="https://learn.fonoster.com"

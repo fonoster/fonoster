@@ -33,7 +33,7 @@ export const AppLogsBoard: AppPage = () => {
         <Title level={3}>Applications logs</Title>
         <Text className="whitespace-normal">
           Here you will find notifications related to events and errors on your
-          Programmable Voice Applications. {' '}
+          Programmable Voice Applications.{' '}
           <a
             className="term"
             href="https://learn.fonoster.com"

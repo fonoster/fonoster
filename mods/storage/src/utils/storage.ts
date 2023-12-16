@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { 
-  APISERVER_S3_SERVER_HOST, 
-  APISERVER_S3_SERVER_PORT, 
-  APISERVER_S3_SERVER_USERNAME, 
-  APISERVER_S3_SERVER_SECRET 
+import {
+  APISERVER_S3_SERVER_HOST,
+  APISERVER_S3_SERVER_PORT,
+  APISERVER_S3_SERVER_USERNAME,
+  APISERVER_S3_SERVER_SECRET
 } from "../envs";
 import walk from "walk";
 import path from "path";

@@ -21,7 +21,11 @@ import * as path from "path";
 import { getClientCredentials } from "./trust_util";
 import { ClientOptions } from "./types";
 import { Metadata } from "@grpc/grpc-js";
-import { APISERVER_ENDPOINT, APISERVER_ACCESS_KEY_ID, APISERVER_ACCESS_KEY_SECRET } from "./envs";
+import {
+  APISERVER_ENDPOINT,
+  APISERVER_ACCESS_KEY_ID,
+  APISERVER_ACCESS_KEY_SECRET
+} from "./envs";
 
 const CONFIG_FILE = path.join(require("os").homedir(), ".fonoster", "config");
 const configFileExit = () => fs.existsSync(CONFIG_FILE);

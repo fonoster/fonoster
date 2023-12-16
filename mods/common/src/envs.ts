@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const APISERVER_ENDPOINT = process.env.APISERVER_ENDPOINT || "api.fonoster.io";
+export const APISERVER_ENDPOINT =
+  process.env.APISERVER_ENDPOINT || "api.fonoster.io";
 export const APISERVER_ACCESS_KEY_ID = process.env.APISERVER_ACCESS_KEY_ID;
-export const APISERVER_ACCESS_KEY_SECRET = process.env.APISERVER_ACCESS_KEY_SECRET;
+export const APISERVER_ACCESS_KEY_SECRET =
+  process.env.APISERVER_ACCESS_KEY_SECRET;
 export const GRPC_ALLOW_INSECURE = process.env.GRPC_ALLOW_INSECURE || "false";

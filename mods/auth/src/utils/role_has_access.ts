@@ -25,10 +25,7 @@ export default async function (
   role: string,
   service: string
 ): Promise<boolean> {
-  const svc = new AuthClient(
-    APISERVER_ENDPOINT,
-    getClientCredentials()
-  );
+  const svc = new AuthClient(APISERVER_ENDPOINT, getClientCredentials());
   return new Promise((resolve, reject) => {
     const req = new AuthPB.GetRoleRequest();
     req.setName(role);

@@ -149,7 +149,7 @@ export const Home: AppPage = () => {
             </Title>
             <Text className="max-w-lg">
               Create a new project to begin managing your SIP Network and
-              Programmable Voice Applications. {' '}
+              Programmable Voice Applications.{' '}
               <a
                 href="https://learn.fonoster.com/docs/getting_started/create_a_voice_application"
                 target="_blank"

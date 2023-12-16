@@ -23,7 +23,7 @@ import Auth from "./utils/auth_utils";
 import JWT from "./utils/jwt";
 import roleHasAccess from "./utils/role_has_access";
 
-const logger = getLogger({ service: "auth", filePath: __filename })
+const logger = getLogger({ service: "auth", filePath: __filename });
 
 export default class AuthMiddleware {
   privateKey: string;
@@ -34,12 +34,14 @@ export default class AuthMiddleware {
     this.whitelist = whitelist;
   }
 
-  middleware = async (ctx: Context, next: () => Promise<void>, errorCb: (err: any) => void) => {
+  middleware = async (
+    ctx: Context,
+    next: () => Promise<void>,
+    errorCb: (err: any) => void
+  ) => {
     const pathRequest = ctx.service.path;
 
-    logger.verbose(
-      `receiving request [request.path = ${pathRequest}]`
-    );
+    logger.verbose(`receiving request [request.path = ${pathRequest}]`);
 
     if (this.whitelist.includes(pathRequest)) {
       next();
@@ -47,14 +49,12 @@ export default class AuthMiddleware {
     }
 
     const jwtHandler = new Auth(new JWT());
-    const metadata = ctx.call.metadata
-    const accessKeyId = metadata.get("access_key_id")[0]
-    const accessKeySecret = metadata.get("access_key_secret")[0]?.toString()
+    const metadata = ctx.call.metadata;
+    const accessKeyId = metadata.get("access_key_id")[0];
+    const accessKeySecret = metadata.get("access_key_secret")[0]?.toString();
 
     try {
-      if (
-        !accessKeyId || !accessKeySecret
-      ) {
+      if (!accessKeyId || !accessKeySecret) {
         errorCb({
           code: status.UNAUTHENTICATED,
           message: "UNAUTHENTICATED"
@@ -62,8 +62,10 @@ export default class AuthMiddleware {
         return;
       }
 
-      const result = await jwtHandler
-        .validateToken({ accessToken: accessKeySecret }, this.privateKey)
+      const result = await jwtHandler.validateToken(
+        { accessToken: accessKeySecret },
+        this.privateKey
+      );
 
       if (result.isValid) {
         if (result.data.accessKeyId != accessKeyId)
@@ -73,10 +75,7 @@ export default class AuthMiddleware {
             message: "invalid authentication"
           });
 
-        const hasAccess = await roleHasAccess(
-          result.data.role,
-          pathRequest
-        );
+        const hasAccess = await roleHasAccess(result.data.role, pathRequest);
 
         if (hasAccess) {
           await next();

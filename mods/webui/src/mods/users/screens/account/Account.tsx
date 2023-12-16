@@ -78,7 +78,7 @@ export function Account() {
                 </Title>
                 <Text>
                   Use your Account credentials with the Projects API or to login
-                  into the Command-Line Tool. {' '}
+                  into the Command-Line Tool.{' '}
                   <a
                     className="term"
                     href="https://learn.fonoster.com"

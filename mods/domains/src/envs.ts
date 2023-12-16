@@ -16,4 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const APISERVER_GLOBAL_SIP_DOMAIN = process.env.APISERVER_GLOBAL_SIP_DOMAIN;
+export const APISERVER_GLOBAL_SIP_DOMAIN =
+  process.env.APISERVER_GLOBAL_SIP_DOMAIN;

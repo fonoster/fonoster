@@ -6,10 +6,7 @@
     "declaration": false,
     "esModuleInterop": true,
     "inlineSourceMap": false,
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "listEmittedFiles": false,
     "listFiles": false,
     "moduleResolution": "node",
@@ -23,13 +20,8 @@
     "outDir": "dist"
   },
   "compileOnSave": false,
-  "exclude": [
-    "node_modules",
-    "dist"
-  ],
-  "include": [
-    "src"
-  ],
+  "exclude": ["node_modules", "dist"],
+  "include": ["src"],
   "references": [
     {
       "path": "../auth"

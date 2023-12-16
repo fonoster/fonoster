@@ -33,7 +33,7 @@ export const SIPLogsBoard: AppPage = () => {
         <Title level={3}>SIP Network logs</Title>
         <Text className="whitespace-normal">
           Here you will find notifications related to events and errors on your
-          SIP Network. {' '}
+          SIP Network.{' '}
           <a
             className="term"
             href="https://learn.fonoster.com"

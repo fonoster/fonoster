@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
-const { join } = require('path');
-const dotenv = require('dotenv');
+const { join } = require('path')
+const dotenv = require('dotenv')
 
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config({ path: join("../../", ".env") });
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: join('../../', '.env') })
 }
 
 module.exports = {
@@ -21,5 +21,5 @@ module.exports = {
     WEBUI_TEST_PHONE_USERNAME: process.env.WEBUI_TEST_PHONE_USERNAME,
     WEBUI_TEST_PHONE_SECRET: process.env.WEBUI_TEST_PHONE_SECRET,
     APP_FEATURE_FLAG_SEND_REGISTER: process.env.APP_FEATURE_FLAG_SEND_REGISTER,
-  }
+  },
 }

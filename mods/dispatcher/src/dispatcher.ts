@@ -23,7 +23,7 @@ import ariClient from "ari-client";
 import wait from "wait-port";
 import events from "./events_handler";
 
-const logger = getLogger({ service: "limiter", filePath: __filename })
+const logger = getLogger({ service: "limiter", filePath: __filename });
 
 const connection = {
   host: ARI_INTERNAL_URL.split("//")[1].split(":")[0],
@@ -33,19 +33,24 @@ const connection = {
 
 async function connectToARI() {
   logger.info("Waiting for mediaserver to be ready...");
-  const open = await wait(connection)
+  const open = await wait(connection);
   if (open) {
-    const ari = await ariClient.connect(ARI_INTERNAL_URL, ARI_USERNAME, ARI_SECRET, events)
-  
+    const ari = await ariClient.connect(
+      ARI_INTERNAL_URL,
+      ARI_USERNAME,
+      ARI_SECRET,
+      events
+    );
+
     ari.on("WebSocketReconnecting", (event) => {
       logger.info("reconnecting to asterisk");
     });
-  
+
     ari.on("WebSocketMaxRetries", (event) => {
       logger.error("max retries reconnecting to asterisk");
       attemptReconnection();
     });
-  
+
     logger.info("asterisk is ready");
   } else {
     logger.error("asterisk is not ready");
@@ -54,7 +59,7 @@ async function connectToARI() {
 }
 
 function attemptReconnection() {
-  logger.info('attempting to reconnect in 30 seconds...');
+  logger.info("attempting to reconnect in 30 seconds...");
   setTimeout(() => {
     connectToARI();
   }, 30000); // Reconnect after 30 seconds

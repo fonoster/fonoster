@@ -37,10 +37,9 @@ import Numbers from "@fonoster/numbers";
 import logger from "@fonoster/logger";
 import WebSocket from "ws";
 
-
 const wsConnections = new Map();
 
-const dialbackEnpoint = ARI_EXTERNAL_URL
+const dialbackEnpoint = ARI_EXTERNAL_URL;
 
 export default function (err: any, ari: any) {
   if (err) throw err;

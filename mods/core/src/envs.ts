@@ -20,6 +20,9 @@ export const REDIS_HOST = process.env.REDIS_HOST;
 export const REDIS_PORT = process.env.REDIS_PORT;
 export const REDIS_SECRET = process.env.REDIS_SECRET;
 export const APISERVER_ROUTR_API_HOST = process.env.APISERVER_ROUTR_API_HOST;
-export const APISERVER_ROUTR_API_PORT = process.env.APISERVER_ROUTR_API_PORT || "4567";
-export const APISERVER_ROUTR_API_USERNAME = process.env.APISERVER_ROUTR_API_USERNAME;
-export const APISERVER_ROUTR_API_SECRET = process.env.APISERVER_ROUTR_API_SECRET;
+export const APISERVER_ROUTR_API_PORT =
+  process.env.APISERVER_ROUTR_API_PORT || "4567";
+export const APISERVER_ROUTR_API_USERNAME =
+  process.env.APISERVER_ROUTR_API_USERNAME;
+export const APISERVER_ROUTR_API_SECRET =
+  process.env.APISERVER_ROUTR_API_SECRET;

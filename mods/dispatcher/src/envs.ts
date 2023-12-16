@@ -16,8 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const ARI_INTERNAL_URL = process.env.APISERVER_MEDIASERVER_ARI_INTERNAL_URL;
-export const ARI_EXTERNAL_URL = process.env.APISERVER_MEDIASERVER_ARI_EXTERNAL_URL;
+export const ARI_INTERNAL_URL =
+  process.env.APISERVER_MEDIASERVER_ARI_INTERNAL_URL;
+export const ARI_EXTERNAL_URL =
+  process.env.APISERVER_MEDIASERVER_ARI_EXTERNAL_URL;
 export const ARI_USERNAME = process.env.APISERVER_MEDIASERVER_ARI_USERNAME;
 export const ARI_SECRET = process.env.APISERVER_MEDIASERVER_ARI_SECRET;
 export const APISERVER_RECORDINGS_PATH = process.env.APISERVER_RECORDINGS_PATH;

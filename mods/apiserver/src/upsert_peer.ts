@@ -18,9 +18,12 @@
  */
 import { getRedisConnection } from "@fonoster/core";
 import { getLogger } from "@fonoster/logger";
-import { APISERVER_ROUTR_DEFAULT_PEER_USERNAME, APISERVER_ROUTR_DEFAULT_PEER_SECRET } from "./envs";
+import {
+  APISERVER_ROUTR_DEFAULT_PEER_USERNAME,
+  APISERVER_ROUTR_DEFAULT_PEER_SECRET
+} from "./envs";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename })
+const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 type PeerInfo = {
   ref: string;
@@ -28,11 +31,11 @@ type PeerInfo = {
   secret: string;
 };
 
-async function upsertPeer(peerInfo: PeerInfo ) {
+async function upsertPeer(peerInfo: PeerInfo) {
   const redis = getRedisConnection();
   logger.info(`upserting peer ${peerInfo.ref}`);
 
-  try { 
+  try {
     await redis.sadd("peers", peerInfo.ref);
     await redis.set(peerInfo.ref, buildPeer(peerInfo));
   } catch (err) {
@@ -69,4 +72,4 @@ upsertPeer({
   ref: "default",
   username: APISERVER_ROUTR_DEFAULT_PEER_USERNAME,
   secret: APISERVER_ROUTR_DEFAULT_PEER_SECRET
-}).catch(logger.error)
+}).catch(logger.error);

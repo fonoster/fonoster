@@ -22,5 +22,11 @@ import Auth from "./client/auth";
 import AuthUtils from "./utils/auth_utils";
 import createLimiterMiddleware from "./limiter_middleware";
 
-export { AuthMiddleware, createLimiterMiddleware, Jwt, AuthUtils, Auth as default };
+export {
+  AuthMiddleware,
+  createLimiterMiddleware,
+  Jwt,
+  AuthUtils,
+  Auth as default
+};
 export { default as AuthServer, AuthService } from "./service/auth";

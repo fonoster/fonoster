@@ -24,17 +24,14 @@ import { getLogger } from "@fonoster/logger";
 import { Context } from "./types";
 import AuthPB from "./service/protos/auth_pb";
 
-const logger = getLogger({ service: "limiter", filePath: __filename })
+const logger = getLogger({ service: "limiter", filePath: __filename });
 
 export async function checkAuthorized(
   path: string,
   metadata: Metadata
 ): Promise<boolean> {
-  const svc = new LimiterClient(
-    APISERVER_ENDPOINT,
-    getClientCredentials()
-  );
-  
+  const svc = new LimiterClient(APISERVER_ENDPOINT, getClientCredentials());
+
   return new Promise((resolve, reject) => {
     const req = new AuthPB.CheckAuthorizedRequest();
     req.setPath(path);

@@ -32,7 +32,10 @@ export default async function createNumber(
     );
   } else {
     encoder = encoder
-      .withLocation(`tel:${request.getE164Number()}`, APISERVER_MEDIASERVER_SIP_ENDPOINT)
+      .withLocation(
+        `tel:${request.getE164Number()}`,
+        APISERVER_MEDIASERVER_SIP_ENDPOINT
+      )
       .withMetadata({
         webhook: getWebhook(request),
         appRef: getAppRef(request),

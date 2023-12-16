@@ -25,4 +25,4 @@ export type Context = {
   service: {
     path: string;
   };
-}
+};

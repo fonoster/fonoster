@@ -30,11 +30,15 @@ import {
 import { IAuthServer, IAuthService, AuthService } from "./protos/auth_grpc_pb";
 import { ErrorCodes, FonosterError } from "@fonoster/errors";
 import { getLogger } from "@fonoster/logger";
-import { APISERVER_RBAC_CONFIG, APISERVER_JWT_AUTH_ISS, APISERVER_JWT_PRIVATE_KEY } from "../envs";
+import {
+  APISERVER_RBAC_CONFIG,
+  APISERVER_JWT_AUTH_ISS,
+  APISERVER_JWT_PRIVATE_KEY
+} from "../envs";
 import Auth from "../utils/auth_utils";
 import JWT from "../utils/jwt";
 
-const logger = getLogger({ service: "auth", filePath: __filename })
+const logger = getLogger({ service: "auth", filePath: __filename });
 
 const authenticator = new Auth(new JWT());
 
@@ -62,9 +66,9 @@ class AuthServer implements IAuthServer {
     // TODO: We need to validate the token and verify
     // it has permissions to create token since the auth module
     // doesnt pass thru the auth middleware.
-    logger.verbose(
-      "creating token", { accessKeyId: call.request.getAccessKeyId() }
-    );
+    logger.verbose("creating token", {
+      accessKeyId: call.request.getAccessKeyId()
+    });
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
       APISERVER_JWT_AUTH_ISS,
@@ -84,9 +88,9 @@ class AuthServer implements IAuthServer {
     // TODO: We need to validate the token and verify
     // it has permissions to create token since the auth module
     // doesnt pass thru the auth middleware.
-    logger.verbose(
-      "creating no access token", { accessKeyId: call.request.getAccessKeyId() }
-    );
+    logger.verbose("creating no access token", {
+      accessKeyId: call.request.getAccessKeyId()
+    });
     const result = await authenticator.createToken(
       call.request.getAccessKeyId(),
       APISERVER_JWT_AUTH_ISS,

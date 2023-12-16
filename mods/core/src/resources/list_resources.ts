@@ -2,7 +2,7 @@ import { routr } from "../common/routr";
 import { ListResourceRequest, ListResourceResponse } from "./types";
 import { getLogger } from "@fonoster/logger";
 
-const logger = getLogger({ service: "core", filePath: __filename })
+const logger = getLogger({ service: "core", filePath: __filename });
 
 export default async function (
   request: ListResourceRequest

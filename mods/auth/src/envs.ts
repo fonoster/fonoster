@@ -19,4 +19,5 @@
 export const APISERVER_JWT_PRIVATE_KEY = process.env.APISERVER_JWT_PRIVATE_KEY;
 export const APISERVER_JWT_AUTH_ISS = process.env.APISERVER_JWT_AUTH_ISS;
 export const APISERVER_ENDPOINT = process.env.APISERVER_ENDPOINT;
-export const APISERVER_RBAC_CONFIG = process.env.APISERVER_RBAC_CONFIG || "/home/fonoster/rbac.json";
+export const APISERVER_RBAC_CONFIG =
+  process.env.APISERVER_RBAC_CONFIG || "/home/fonoster/rbac.json";

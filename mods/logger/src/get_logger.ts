@@ -23,7 +23,7 @@ import winston from "winston";
 const loggers = new Map();
 
 export const getLogger = (config: { service?: string; filePath: string }) => {
-  const key = config.service || 'default';
+  const key = config.service || "default";
 
   if (loggers.has(key)) {
     return loggers.get(key);

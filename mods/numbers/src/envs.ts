@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const APISERVER_MEDIASERVER_SIP_ENDPOINT = process.env.APISERVER_MEDIASERVER_SIP_ENDPOINT;
+export const APISERVER_MEDIASERVER_SIP_ENDPOINT =
+  process.env.APISERVER_MEDIASERVER_SIP_ENDPOINT;
 export const APISERVER_VOICE_URL = process.env.APISERVER_VOICE_URL;
-export const APISERVER_MEDIASERVER_ARI_INTERNAL_URL = process.env.APISERVER_MEDIASERVER_ARI_INTERNAL_URL;
+export const APISERVER_MEDIASERVER_ARI_INTERNAL_URL =
+  process.env.APISERVER_MEDIASERVER_ARI_INTERNAL_URL;

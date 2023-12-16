@@ -25,7 +25,7 @@ import atob from "atob";
 import { GRPC_ALLOW_INSECURE } from "./envs";
 
 const prepCert = (cert: string) => Buffer.from(atob(cert), "utf-8");
-const logger = getLogger({ service: "common", filePath: __filename })
+const logger = getLogger({ service: "common", filePath: __filename });
 
 let config: {
   caCertificate?: string;
@@ -42,7 +42,9 @@ try {
       .toString("utf-8")
   );
 } catch (e) {
-  logger.verbose("no config found at " + path.join(os.homedir(), ".fonoster", "config"));
+  logger.verbose(
+    "no config found at " + path.join(os.homedir(), ".fonoster", "config")
+  );
 }
 
 const getServerCredentials = () => {
@@ -58,12 +60,8 @@ const getServerCredentials = () => {
       true
     );
   } catch (e) {
-    logger.info(
-      "unable to load security certificates"
-    );
-    logger.info(
-      "starting server in insecure mode"
-    );
+    logger.info("unable to load security certificates");
+    logger.info("starting server in insecure mode");
     return grpc.ServerCredentials.createInsecure();
   }
 };
