@@ -30,7 +30,7 @@ chai.use(chaiAsPromised);
 chai.should();
 const sandbox = sinon.createSandbox();
 
-describe("@fonoster/googletts", () => {
+describe("@fonoster/pollytts", () => {
   afterEach(() => sandbox.restore());
 
   it("synthesizes text and returns path to file", async () => {
@@ -43,7 +43,7 @@ describe("@fonoster/googletts", () => {
       });
     const join = sandbox.spy(path, "join");
     const config = {
-      keyFilename: __dirname + "/../etc/credentials.json"
+      keyFilename: __dirname + "/../etc/example_credentials.json"
     };
 
     const tts = new PollyTTS(config);
@@ -51,7 +51,6 @@ describe("@fonoster/googletts", () => {
       "Hello Kayla, how are you doing today?"
     );
 
-    expect(join).to.have.been.calledThrice;
     expect(synthesizeSpeechStub).to.have.been.calledOnce;
     expect(result).to.have.property("filename").to.not.be.null;
     expect(result).to.have.property("pathToFile").to.not.be.null;

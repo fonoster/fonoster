@@ -7,7 +7,7 @@ chai.use(sinonChai);
 chai.use(chaiAsPromised);
 const sandbox = sinon.createSandbox();
 
-describe("@fonoster/googletts", () => {
+describe("@fonoster/pollytts", () => {
   afterEach(() => sandbox.restore());
   it("synthesizes text and returns path to file", async () => {
     const config = {
