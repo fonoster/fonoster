@@ -4,7 +4,7 @@
         <title>Fonoster Blog</title>
         <link>https://fonoster.com/blog</link>
         <description>Fonoster Blog</description>
-        <lastBuildDate>Tue, 12 Dec 2023 02:14:39 GMT</lastBuildDate>
+        <lastBuildDate>Sun, 17 Dec 2023 04:38:57 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
@@ -12,7 +12,7 @@
             <title><![CDATA[Dialogflow entities. Capturing useful data.]]></title>
             <link>https://fonoster.com/blog/Dialogflow entities</link>
             <guid>https://fonoster.com/blog/Dialogflow entities</guid>
-            <pubDate>Tue, 12 Dec 2023 02:14:39 GMT</pubDate>
+            <pubDate>Sun, 17 Dec 2023 04:38:57 GMT</pubDate>
             <description><![CDATA[Dialogflow sits in the middle between the user and our application, helping us capture conversations from natural language into useful and readable data.]]></description>
             <content:encoded><![CDATA[<p>Dialogflow sits in the middle between the user and our application, helping us capture conversations from natural language into useful and readable data. </p><p><strong>Entities</strong> take care of extracting information and details from what the user says. They are present the moment you create your first intent and start
 creating training phrases, Dialogflow will automatically identify and label some words suggesting entities for you to match with an intent.</p><p>Having entities set in place will help you train your assistant and make it more efficient for the users. These can be created manually or by a JSON or CSV file.</p><p>There are multiple types of entities:</p><ul><li><strong>System entities:</strong></li></ul><p>These are default entities of Dialogflow and they match many types of common words like geographic locations or dates.</p><div class="language-js codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#9CDCFE;--prism-background-color:#2a2a2a"><div class="codeBlockContent_biex"><pre tabindex="0" class="prism-code language-js codeBlock_bY9V thin-scrollbar"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#9CDCFE"><span class="token plain">@sys</span><span class="token punctuation" style="color:rgb(212, 212, 212)">.</span><span class="token property-access">date</span><br></span></code></pre><div class="buttonGroup__atx"><button type="button" aria-label="Copy code to clipboard" title="Copy" class="clean-btn"><span class="copyButtonIcons_eSgA" aria-hidden="true"><svg viewBox="0 0 24 24" class="copyButtonIcon_y97N"><path fill="currentColor" d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></path></svg><svg viewBox="0 0 24 24" class="copyButtonSuccessIcon_LjdS"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"></path></svg></span></button></div></div></div><ul><li><strong>Custom or developer entities:</strong></li></ul><p>These allow you to define your own words to trigger an intent, you can also provide synonyms. </p><p>They come in handy when building your own assistant with specific words you want it to listen to and identify so you can provide
