@@ -16,10 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APISERVER_RECORDINGS_PATH } from "../envs";
+import { getLogger } from "@fonoster/logger";
 import Auth from "@fonoster/auth";
 import Storage from "@fonoster/storage";
-import logger from "@fonoster/logger";
-import { APISERVER_RECORDINGS_PATH } from "../envs";
+
+const logger = getLogger({ service: "dispatcher", filePath: __filename });
 
 export const uploadRecording = async (
   accessKeyId: string,

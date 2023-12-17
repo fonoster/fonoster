@@ -16,9 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger, { ulogger, ULogType } from "@fonoster/logger";
-import axios from "axios";
 import { CallRequest } from "../types";
+import { getLogger, ulogger, ULogType } from "@fonoster/logger";
+import axios from "axios";
+
+const logger = getLogger({ service: "dispatcher", filePath: __filename });
 
 export const sendCallRequest = async (url: string, request: CallRequest) => {
   try {

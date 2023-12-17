@@ -16,8 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonoster/logger";
 import WebSocket from "ws";
+import { getLogger } from "@fonoster/logger";
+
+const logger = getLogger({ service: "dispatcher", filePath: __filename });
 
 export async function answer(ws: WebSocket, ari: any, sessionId: string) {
   try {

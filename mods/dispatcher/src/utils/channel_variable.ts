@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonoster/logger";
+import { getLogger } from "@fonoster/logger";
+
+const logger = getLogger({ service: "dispatcher", filePath: __filename });
 
 export async function getChannelVar(
   channel: any,

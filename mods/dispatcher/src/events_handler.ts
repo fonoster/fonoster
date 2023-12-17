@@ -30,14 +30,14 @@ import { channelTalkingHandler } from "./handlers/channel_talking";
 import { sendDtmf } from "./handlers/send_dtmf";
 import { answer } from "./utils/answer_channel";
 import { dial } from "./handlers/dial";
-import { ulogger, ULogType } from "@fonoster/logger";
+import { ulogger, ULogType, getLogger } from "@fonoster/logger";
 import { ARI_EXTERNAL_URL } from "./envs";
 import Auth from "@fonoster/auth";
 import Numbers from "@fonoster/numbers";
-import logger from "@fonoster/logger";
 import WebSocket from "ws";
 
 const wsConnections = new Map();
+const logger = getLogger({ service: "dispatcher", filePath: __filename });
 
 export default function (err: any, ari: any) {
   if (err) throw err;

@@ -16,9 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import logger from "@fonoster/logger";
-import WebSocket from "ws";
+import { getLogger } from "@fonoster/logger";
 import { getChannelVar } from "./channel_variable";
+
+const logger = getLogger({ service: "dispatcher", filePath: __filename });
 
 export async function hangup(ari: any, sessionId: string) {
   try {
