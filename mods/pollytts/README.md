@@ -27,7 +27,7 @@ voiceServer.use(new PollyTTS(speechConfig));
 voiceServer.listen(async(req, res) => {
   console.log(req);
   await res.answer();
-  await res.say("Hi! This is polly text to speech", { voice: Voice.Bianca });
+  await res.say("Hi! This is polly text to speech", { voice: Voice.BIANCA });
   await res.hangup();
 });
 ```

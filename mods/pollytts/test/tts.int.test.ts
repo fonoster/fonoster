@@ -34,7 +34,7 @@ describe("@fonoster/pollytts", () => {
     };
     const tts = new PollyTTS(config);
     await tts.synthesize("Hello Kayla, how are you doing today?", {
-      voice: Voice.Bianca
+      voice: Voice.BIANCA
     });
 
     // TODO: Verify using fs.existSync that a new file was created
