@@ -17,4 +17,4 @@
  * limitations under the License.
  */
 export const APISERVER_GLOBAL_SIP_DOMAIN =
-  process.env.APISERVER_GLOBAL_SIP_DOMAIN;
+  process.env.APISERVER_GLOBAL_SIP_DOMAIN || "sip.local";

@@ -17,4 +17,4 @@
  * limitations under the License.
  */
 export const LOGS_AGGREGRATOR_HOST = process.env.LOGS_AGGREGRATOR_HOST;
-export const LOGS_AGGREGRATOR_PORT = process.env.LOGS_AGGREGRATOR_PORT;
+export const LOGS_AGGREGRATOR_PORT = process.env.LOGS_AGGREGRATOR_PORT || 9200;

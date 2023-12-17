@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 export const REDIS_HOST = process.env.REDIS_HOST;
-export const REDIS_PORT = process.env.REDIS_PORT;
+export const REDIS_PORT = process.env.REDIS_PORT || "6379";
 export const REDIS_SECRET = process.env.REDIS_SECRET;
 export const APISERVER_ROUTR_API_HOST = process.env.APISERVER_ROUTR_API_HOST;
 export const APISERVER_ROUTR_API_PORT =

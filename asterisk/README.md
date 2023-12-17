@@ -78,7 +78,7 @@ Please read [CONTRIBUTING.md](https://github.com/fonoster/fonoster/blob/main/CON
 
 - [Pedro Sanders](https://github.com/psanders)
 
-See also the list of contributors who [participated](https://github.com/fonoster/mediaserver/contributors) in this project.
+See also the list of contributors who [participated](https://github.com/fonoster/fonoster/contributors) in this project.
 
 ## License
 

@@ -26,12 +26,12 @@ import {
   ICallManagerServer
 } from "./protos/callmanager_grpc_pb";
 import {
-  APISERVER_MEDIASERVER_ARI_INTERNAL_URL,
-  APISERVER_MEDIASERVER_ARI_USERNAME,
-  APISERVER_MEDIASERVER_TRUNK,
-  APISERVER_MEDIASERVER_CONTEXT,
-  APISERVER_MEDIASERVER_EXTENSION,
-  APISERVER_MEDIASERVER_ARI_SECRET
+  APISERVER_ASTERISK_ARI_INTERNAL_URL,
+  APISERVER_ASTERISK_ARI_USERNAME,
+  APISERVER_ASTERISK_TRUNK,
+  APISERVER_ASTERISK_CONTEXT,
+  APISERVER_ASTERISK_EXTENSION,
+  APISERVER_ASTERISK_ARI_SECRET
 } from "./envs";
 import originate from "./call";
 import client from "ari-client";
@@ -77,29 +77,29 @@ class CallManagerServer implements ICallManagerServer {
     }
 
     logger.verbose(
-      `@core/callmanager call [ari url ${APISERVER_MEDIASERVER_ARI_INTERNAL_URL}]`
+      `@core/callmanager call [ari url ${APISERVER_ASTERISK_ARI_INTERNAL_URL}]`
     );
 
     logger.verbose(
-      `@core/callmanager call [ari username ${APISERVER_MEDIASERVER_ARI_USERNAME}]`
+      `@core/callmanager call [ari username ${APISERVER_ASTERISK_ARI_USERNAME}]`
     );
 
     logger.verbose(
-      `@core/callmanager call [endpoint ${APISERVER_MEDIASERVER_TRUNK}/${APISERVER_MEDIASERVER_CONTEXT}/${APISERVER_MEDIASERVER_EXTENSION}]`
+      `@core/callmanager call [endpoint ${APISERVER_ASTERISK_TRUNK}/${APISERVER_ASTERISK_CONTEXT}/${APISERVER_ASTERISK_EXTENSION}]`
     );
 
     try {
       const epInfo: EndpointInfo = {
         domain: domainUri,
-        trunk: APISERVER_MEDIASERVER_TRUNK,
-        context: APISERVER_MEDIASERVER_CONTEXT,
-        extension: APISERVER_MEDIASERVER_EXTENSION
+        trunk: APISERVER_ASTERISK_TRUNK,
+        context: APISERVER_ASTERISK_CONTEXT,
+        extension: APISERVER_ASTERISK_EXTENSION
       };
 
       const conn = await client.connect(
-        APISERVER_MEDIASERVER_ARI_INTERNAL_URL,
-        APISERVER_MEDIASERVER_ARI_USERNAME,
-        APISERVER_MEDIASERVER_ARI_SECRET
+        APISERVER_ASTERISK_ARI_INTERNAL_URL,
+        APISERVER_ASTERISK_ARI_USERNAME,
+        APISERVER_ASTERISK_ARI_SECRET
       );
       const channel = conn.Channel();
       callback(null, await originate(call.request, channel, epInfo));

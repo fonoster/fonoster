@@ -1,6 +1,3 @@
-import { APISERVER_VOICE_URL } from "../envs";
-import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb";
-
 /*
  * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -19,12 +16,15 @@ import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APISERVER_SMARTVOICE_URL } from "../envs";
+import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb";
+
 export const getWebhook = (
   request: CreateNumberRequest | UpdateNumberRequest
 ) =>
   request.getIngressInfo()?.getAppRef() &&
   !request.getIngressInfo()?.getWebhook()
-    ? APISERVER_VOICE_URL
+    ? APISERVER_SMARTVOICE_URL
     : request.getIngressInfo().getWebhook().trim();
 
 export const getAppRef = (request: CreateNumberRequest | UpdateNumberRequest) =>

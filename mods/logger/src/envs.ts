@@ -21,24 +21,29 @@ import fluentLogger from "fluent-logger";
 
 const fluentTransport = fluentLogger.support.winstonTransport();
 
-const fluent = new fluentTransport(`${process.env.LOGS_OPT_TAG_PREFIX}`, {
-  host: process.env.LOGS_DRIVER_HOST,
-  port: process.env.LOGS_DRIVER_PORT,
+const LOGS_DRIVER_HOST = process.env.LOGS_DRIVER_HOST;
+const LOGS_DRIVER_PORT = process.env.LOGS_DRIVER_PORT || 24224;
+const LOGS_OPT_TAG_PREFIX = process.env.LOGS_OPT_TAG_PREFIX || "fonoster-logs";
+const LOGS_FORMAT = process.env.LOGS_FORMAT || "json";
+const LOGS_LEVEL = process.env.LOGS_LEVEL || "info";
+const LOGS_TRANSPORT = process.env.LOGS_TRANSPORT || "fluent";
+
+const fluent = new fluentTransport(`${LOGS_OPT_TAG_PREFIX}`, {
+  host: LOGS_DRIVER_HOST,
+  port: LOGS_DRIVER_PORT,
   timeout: 3.0,
   requireAckResponse: false
 });
 
-const format =
-  process.env.LOGS_FORMAT === "json"
-    ? winston.format.combine(winston.format.timestamp(), winston.format.json())
-    : winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      );
-const level = process.env.LOGS_LEVEL ? process.env.LOGS_LEVEL : "info";
-const transports =
-  process.env.LOGS_TRANSPORT === "fluent"
-    ? [fluent]
-    : [new winston.transports.Console()];
+const format = LOGS_FORMAT === "json"
+  ? winston.format.combine(winston.format.timestamp(), winston.format.json())
+  : winston.format.combine(
+    winston.format.colorize(),
+    winston.format.simple()
+  );
 
-export { format, level, transports, fluent };
+const transports = LOGS_TRANSPORT === "fluent"
+  ? [fluent]
+  : [new winston.transports.Console()];
+
+export { format, LOGS_LEVEL as level, transports, fluent };

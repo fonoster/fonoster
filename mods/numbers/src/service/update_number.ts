@@ -9,8 +9,7 @@ import {
   assertWebhookIsURL
 } from "./assertions";
 import { getAppRef, getWebhook } from "./utils";
-import logger from "@fonoster/logger";
-import { APISERVER_MEDIASERVER_SIP_ENDPOINT } from "../envs";
+import { APISERVER_ASTERISK_SIP_ENDPOINT } from "../envs";
 
 export default async function updateNumber(call: any, callback: any) {
   const request = call.request;
@@ -42,7 +41,7 @@ export default async function updateNumber(call: any, callback: any) {
       encoder = encoder
         .withLocation(
           `tel:${objectFromDB.getE164Number()}`,
-          APISERVER_MEDIASERVER_SIP_ENDPOINT
+          APISERVER_ASTERISK_SIP_ENDPOINT
         )
         .withMetadata({
           webhook: getWebhook(request),

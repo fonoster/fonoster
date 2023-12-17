@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const APISERVER_MEDIASERVER_SIP_ENDPOINT =
-  process.env.APISERVER_MEDIASERVER_SIP_ENDPOINT;
-export const APISERVER_VOICE_URL = process.env.APISERVER_VOICE_URL;
-export const APISERVER_MEDIASERVER_ARI_INTERNAL_URL =
-  process.env.APISERVER_MEDIASERVER_ARI_INTERNAL_URL;
+export const APISERVER_ASTERISK_SIP_ENDPOINT =
+  process.env.APISERVER_ASTERISK_SIP_ENDPOINT || "sip:voice@default";
+export const APISERVER_SMARTVOICE_URL = process.env.APISERVER_SMARTVOICE_URL;
+export const APISERVER_ASTERISK_ARI_INTERNAL_URL =
+  process.env.APISERVER_ASTERISK_ARI_INTERNAL_URL || "http://asterisk:8088";

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 export const APISERVER_S3_SERVER_HOST = process.env.APISERVER_S3_SERVER_HOST;
-export const APISERVER_S3_SERVER_PORT = process.env.APISERVER_S3_SERVER_PORT;
+export const APISERVER_S3_SERVER_PORT = process.env.APISERVER_S3_SERVER_PORT || "9000";
 export const APISERVER_S3_SERVER_USERNAME =
   process.env.APISERVER_S3_SERVER_USERNAME;
 export const APISERVER_S3_SERVER_SECRET =

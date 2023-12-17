@@ -9,7 +9,7 @@ import {
   assertWebhookIsURL
 } from "./assertions";
 import { getAppRef, getWebhook } from "./utils";
-import { APISERVER_MEDIASERVER_SIP_ENDPOINT } from "../envs";
+import { APISERVER_ASTERISK_SIP_ENDPOINT } from "../envs";
 
 export default async function createNumber(
   request: NumbersPB.CreateNumberRequest,
@@ -34,7 +34,7 @@ export default async function createNumber(
     encoder = encoder
       .withLocation(
         `tel:${request.getE164Number()}`,
-        APISERVER_MEDIASERVER_SIP_ENDPOINT
+        APISERVER_ASTERISK_SIP_ENDPOINT
       )
       .withMetadata({
         webhook: getWebhook(request),

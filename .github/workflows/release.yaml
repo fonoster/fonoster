@@ -71,14 +71,6 @@ jobs:
         body: ${{ steps.changelog.outputs.changelog }}
         draft: true
 
-    - name: Publishing MediaServer Service
-      uses: benc-uk/workflow-dispatch@v1
-      with:
-        workflow: publish to docker hub
-        repo: fonoster/mediaserver
-        token: ${{ secrets.GH_PAT }}
-        ref: main
-        inputs: '{"version": "${{ env.LERNA_VERSION }}" }'
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 

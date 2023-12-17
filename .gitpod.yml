@@ -18,7 +18,6 @@ tasks:
       sed -i "s|LOGS_AGGREGRATOR_HOST=.*|LOGS_AGGREGRATOR_HOST=localhost|g" .env
       sed -i "s|APISERVER_RBAC_CONFIG=.*|APISERVER_RBAC_CONFIG=/workspace/fonoster/mods/apiserver/etc/rbac.json|g" .env
       sed -i "s|APISERVER_ENDPOINT=.*|APISERVER_ENDPOINT=localhost:50052|g" .env
-      sed -i "s|MEDIASERVER_APISERVER_ENDPOINT=.*|MEDIASERVER_APISERVER_ENDPOINT=localhost:50052|g" .env
       sed -i "s|WEBUI_APISERVER_ENDPOINT=.*|WEBUI_APISERVER_ENDPOINT=localhost:50052|g" .env
       sed -i "s|NEXTAUTH_URL=.*|NEXTAUTH_URL=$APP_URL|g" .env
       sed -i "s|WEBUI_APP_URL=.*|WEBUI_APP_URL=$APP_URL|g" .env

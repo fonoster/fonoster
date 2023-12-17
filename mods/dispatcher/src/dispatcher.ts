@@ -32,7 +32,7 @@ const connection = {
 };
 
 async function connectToARI() {
-  logger.info("Waiting for mediaserver to be ready...");
+  logger.info("Waiting for Asterisk to be ready...");
   const open = await wait(connection);
   if (open) {
     const ari = await ariClient.connect(
