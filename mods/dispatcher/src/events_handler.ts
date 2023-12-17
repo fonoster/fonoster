@@ -39,8 +39,6 @@ import WebSocket from "ws";
 
 const wsConnections = new Map();
 
-const dialbackEnpoint = ARI_EXTERNAL_URL;
-
 export default function (err: any, ari: any) {
   if (err) throw err;
 
@@ -85,7 +83,7 @@ export default function (err: any, ari: any) {
       accessKeyId: ingressInfo.accessKeyId,
       sessionToken: access.token,
       // Dialback request must travel thru the reverse proxy first
-      dialbackEnpoint,
+      dialbackEnpoint: ARI_EXTERNAL_URL,
       sessionId,
       number: didInfo,
       callerId: event.channel.caller.name,

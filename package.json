@@ -8,8 +8,7 @@
   "scripts": {
     "start:webui": "cross-env NODE_ENV=dev && cd mods/webui && npm run dev",
     "start:apiserver": "cross-env LOGS_LEVEL=verbose AUTH_RBAC=$(pwd)/mods/apiserver/etc/rbac.json SERVICES_ENVS=$(pwd)/mods/apiserver/etc/service_envs.json NODE_ENV=dev nodemon ./mods/apiserver/src",
-    "start:dispatcher": "cross-env NODE_ENV=dev nodemon .scripts/dispatcher",
-    "start:dev": "docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up sipproxy datasource",
+    "start:services": "docker compose -f compose.yaml -f compose.dev.yaml up minio vault redis elasticsearch fluent rtpengine asterisk routr --detach --remove-orphans",
     "start:site": "npx http-server site -p 8080",
     "start:docs": "cd docs && npm start",
     "postinstall": "node ./.scripts/set-permissions.js",

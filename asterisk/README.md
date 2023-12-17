@@ -62,7 +62,6 @@ Environment variables are used in the entry point script to render configuration
 - `CODECS` - Comma separated list of codecs. Defaults to `ulaw,alaw,gsm,g722`
 - `HTTP_BINDADDR` - Where to listen for HTTP traffic. Defaults to `0.0.0.0`
 
-
 ## Exposed ports
 
 - `6060` - Default SIP port

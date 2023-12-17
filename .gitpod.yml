@@ -49,8 +49,7 @@ tasks:
     before: |
       while [ ! -f /workspace/.init_done ]; do sleep 2; done
     command: |
-      docker compose -f compose.yaml -f compose.dev.yaml \
-        up minio vault redis elasticsearch fluent rtpengine voice mediaserver routr -d
+      npm run start:services
       exit
 
 ports:
