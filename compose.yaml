@@ -58,6 +58,7 @@ services:
   routr:
     image: fonoster/routr:1.2.8
     restart: unless-stopped
+    platform: linux/x86_64
     environment:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       INITIAL_API_SECRET: ${ROUTR_INITIAL_API_SECRET}
@@ -98,22 +99,20 @@ services:
   rtpengine:
     image: fonoster/rtpengine:latest
     restart: unless-stopped
+    platform: linux/x86_64
     ports: 
       - 10000-10020:10000-10020/udp
-    expose:
-      - 8080
+      - 8080:8080
     environment:
       PUBLIC_IP: ${DOCKER_HOST_ADDRESS}
       PORT_MIN: 10000
-      PORT_MAX: 10100
+      PORT_MAX: 10020
 
   asterisk:
     image: fonoster/asterisk:latest
     restart: unless-stopped
     environment:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
-      ARI_EXTERNAL_URL: ${MEDIASERVER_ARI_EXTERNAL_URL}
-      ARI_INTERNAL_URL: ${MEDIASERVER_ARI_INTERNAL_URL}
       ARI_USERNAME: ${MEDIASERVER_ARI_USERNAME}
       ARI_SECRET: ${MEDIASERVER_ARI_SECRET}
       SIPPROXY_HOST: ${MEDIASERVER_SIPPROXY_HOST}
@@ -126,20 +125,6 @@ services:
       - shared:/home/fonoster
     expose:
       - 8080
-    logging:
-      options:
-        tag: fonoster-logs
-
-  voice:
-    image: fonoster/rox:latest
-    restart: unless-stopped
-    expose:
-      - 80:3000
-      - 3001
-    environment:
-      LOGS_LEVEL: ${LOGS_LEVEL}
-      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
-      LOGS_FORMAT: ${LOGS_FORMAT}
     logging:
       options:
         tag: fonoster-logs
@@ -166,6 +151,7 @@ services:
   fluent:
     image: fonoster/fluent:latest
     restart: unless-stopped
+    platform: linux/x86_64
     expose:
       - 24224
     volumes:
