@@ -31,10 +31,10 @@ import path from "path";
 const logger = getLogger({ service: "pollytts", filePath: __filename });
 
 const defaultVoice = {
-  voice: Voice.Vitoria,
+  voice: Voice.VITORIA,
   textType: TextType.Text,
-  engine: Engine.Standard,
-  languageCode: LanguageCode.en_US
+  engine: Engine.STANDARD,
+  languageCode: LanguageCode.EN_US
 };
 
 /**
@@ -59,7 +59,7 @@ class PollyTTS extends Plugin implements TTSPlugin {
     super("tts", "pollytts");
     this.config = config;
     this.config.path = config.path ? config.path : os.tmpdir();
-    this.config.region = config.region ? config.region : Region.us_east_1;
+    this.config.region = config.region ? config.region : Region.US_EAST_1;
     if (config.keyFilename) {
       assertFileExist(config.keyFilename);
       assertFileIsWellForm(config.keyFilename);

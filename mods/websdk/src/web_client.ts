@@ -20,7 +20,6 @@ import { ClientOptions } from "@fonoster/common/src/types";
 import { WebClientOptions } from "types";
 const DEFAULT_ENDPOINT = "https://api.fonoster.io/api";
 
-// eslint-disable-next-line require-jsdoc
 export default class {
   options: ClientOptions;
   api: any;

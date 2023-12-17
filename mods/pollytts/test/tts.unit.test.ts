@@ -41,7 +41,7 @@ describe("@fonoster/pollytts", () => {
           pipe: function () {}
         }
       });
-    const join = sandbox.spy(path, "join");
+    sandbox.spy(path, "join");
     const config = {
       keyFilename: __dirname + "/../etc/example_credentials.json"
     };
