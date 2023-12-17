@@ -1,7 +1,8 @@
 <a name="CallManager"></a>
 
 ## CallManager ⇐ <code>APIClient</code>
-Use Fonoster CallManager, a capability of Fonoster to initiate and monitor automated calls. Fonoster CallManager requires of a
+Use Fonoster CallManager, a capability of Fonoster CallManager,
+to initiate and monitor automated calls. Fonoster CallManager requires of a
 running Fonoster deployment.
 
 **Kind**: global class  
@@ -48,8 +49,8 @@ Call method.
 | request | <code>CallRequest</code> | Call request options |
 | request.from | <code>string</code> | Number you are calling from. You must have this Number configured in your account |
 | request.to | <code>string</code> | The callee |
-| request.webhook | <code>string</code> | Url of the application that will handle the call. If none is provided it will use the webhook setup in the Number |
-| request.ignoreE164Validation | <code>string</code> | If enabled it will accept any input in the `from` and `to` |
+| request.webhook | <code>string</code> | Url of the application that will handle the call If none is provided it will use the webook setup in the Number |
+| request.metadata | <code>object</code> | Arbitrary payload to send to the Voice Application |
 
 **Example**  
 ```js

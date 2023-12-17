@@ -3,7 +3,7 @@
 ## Providers ⇐ <code>APIClient</code>
 Use Fonoster Providers, a capability of Fonoster SIP Proxy subsystem,
 to create, update, get and delete providers. Fonoster Providers requires of a
-running Fonoster deployment.
+running Fonosterdeployment.
 
 **Kind**: global class  
 **Extends**: <code>APIClient</code>  
@@ -59,7 +59,8 @@ Creates a new Provider on the SIP Proxy subsystem.
 | request.secret | <code>string</code> | Password for the trunk. No required for static IP authentication |
 | request.host | <code>string</code> | Hostname or IP of the Provider |
 | request.transport | <code>string</code> | The transport for the Provider. Fonoster will use TCP if none is provided |
-| request.expires | <code>string</code> | Expiration time for the registration. Fonoster will use 3600 if none is provided |
+| request.expires | <code>string</code> | Expiration time for the registration. |
+| request.register | <code>boolean</code> | Indicates if the Provider should be registered Fonoster will use 600 if non is provided |
 
 **Example**  
 ```js
@@ -67,7 +68,8 @@ const request = {
   name: "Provider Name",
   username: "trunk001",
   secret: "secretkey",
-  host: "sip.provider.net"
+  host: "sip.provider.net",
+  register: true
 };
 
 providers.createProvider(request)
@@ -78,7 +80,7 @@ providers.createProvider(request)
 <a name="Providers+getProvider"></a>
 
 ### providers.getProvider(ref) ⇒ <code>Promise.&lt;Object&gt;</code>
-Retrives a Provider by its reference.
+Retrieves a Provider by its reference.
 
 **Kind**: instance method of [<code>Providers</code>](#Providers)  
 **Returns**: <code>Promise.&lt;Object&gt;</code> - The provider  
@@ -114,7 +116,8 @@ Update a Provider at the SIP Proxy subsystem.
 | request.secret | <code>string</code> | Password for the trunk. No required for static IP authentication |
 | request.host | <code>string</code> | Hostname or IP of the Provider |
 | request.transport | <code>string</code> | The transport for the Provider. Fonoster will use TCP if none is provided |
-| request.expires | <code>string</code> | Expiration time for the registration. Fonoster will use 3600 if none is provided |
+| request.expires | <code>string</code> | Expiration time for the registration. |
+| request.register | <code>boolean</code> | Indicates if the Provider should be registered Fonoster will use 600 if non is provided |
 
 **Example**  
 ```js

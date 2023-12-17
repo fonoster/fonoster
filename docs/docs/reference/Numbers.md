@@ -37,7 +37,7 @@ const request = {
   providerRef: "516f1577bcf86cd797439012",
   e164Number: "+17853177343",
   ingressInfo: {
-     webhook: "https://webhooks.acme.com/hooks"
+    webhook: "https://webhooks.acme.com/hooks"
   }
 };
 
@@ -52,7 +52,7 @@ numbers.createNumber(request)
 Creates a new Number on the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Note**: You can only provider an aorLink or an ingressInfo but not both  
+**Note**: You can only provide an aorLink or an ingressInfo but no both  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -104,7 +104,7 @@ numbers.getNumber(ref)
 Update a Number at the SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Note**: You can only provider an aorLink or an ingressApp but no both  
+**Note**: You can only provide an aorLink or an ingressApp but no both  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -178,7 +178,7 @@ Get the Ingress App for a given e164 number.
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
 **Throws**:
 
-- if the Number is not registered in Fonoster
+- if the Number is not register in Fonoster
 
 
 | Param | Type | Description |

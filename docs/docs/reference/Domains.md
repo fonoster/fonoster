@@ -49,7 +49,7 @@ Creates a new Domain on the SIP Proxy subsystem.
 | request | <code>CreateDomainRequest</code> | Request for the provision of a new Domain |
 | request.name | <code>string</code> | Friendly name for the SIP domain |
 | request.domainUri | <code>string</code> | Domain URI. FQDN is recommended |
-| request.egressNumberRef | <code>string</code> | A valid reference to a Number in Fonoster |
+| request.egressNumberRef | <code>string</code> | A valid reference to a Number in Fonos |
 | request.egressRule | <code>string</code> | Regular expression indicating when a call will be routed via request.egressNumberRef |
 | request.accessDeny | <code>string</code> | Optional list of IPs or networks that cannot communicate with this Domain |
 | request.accessAllow | <code>string</code> | Optional list of IPs or networks allow if request.accessDeny is defined |
@@ -107,10 +107,10 @@ Update a Domain at the SIP Proxy subsystem.
 | request | <code>UpdateDomainRequest</code> | Request for the update of an existing Domain |
 | request.ref | <code>string</code> | To update a Domain you must provide its reference |
 | request.name | <code>string</code> | Friendly name for the SIP domain |
-| request.egressNumberRef | <code>string</code> | A valid reference to a Number in Fonoster |
+| request.egressNumberRef | <code>string</code> | A valid reference to a Number in Fonos |
 | request.egressRule | <code>string</code> | Regular expression indicating when a call will be routed via request.egressNumberRef |
 | request.accessDeny | <code>string</code> | Optional list of IPs or networks that cannot communicate with this Domain |
-| request.accessAllow | <code>string</code> | Optional list of IPs or networks allow if request.accessDeny is defined |
+| request.accessAllow | <code>string</code> | Optiona list of IPs or networks allow if request.accessDeny is defined |
 
 **Example**  
 ```js
@@ -128,7 +128,7 @@ domains.updateDomain(request)
 <a name="Domains+listDomains"></a>
 
 ### domains.listDomains(request) ⇒ <code>Promise.&lt;ListDomainsResponse&gt;</code>
-Lists the Domains registered in the Fonoster SIP Proxy subsystem.
+List the Domains registered in Fonoster SIP Proxy subsystem.
 
 **Kind**: instance method of [<code>Domains</code>](#Domains)  
 **Returns**: <code>Promise.&lt;ListDomainsResponse&gt;</code> - Paginated list of Domains  

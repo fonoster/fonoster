@@ -82,7 +82,7 @@ export default class Numbers extends APIClient implements INumbersClient {
    * @param {string} request.aorLink - An AOR where ingress calls will be
    * directed to
    * @param {string} request.ingressInfo - Webhook to connect call to
-   * @note You can only provider an aorLink or an ingressInfo but no both
+   * @note You can only provide an aorLink or an ingressInfo but no both
    * @return {Promise<CreateNumberResponse>}
    * @example
    *
@@ -154,7 +154,7 @@ export default class Numbers extends APIClient implements INumbersClient {
    * @param {string} request.aorLink - An AOR where ingress calls will be
    * directed to
    * @param {string} request.ingressInfo - A webhook to direct the call for flow control
-   * @note You can only provider an aorLink or an ingressApp but no both
+   * @note You can only provide an aorLink or an ingressApp but no both
    * @return {Promise<UpdateNumberResponse>}
    * @example
    *
