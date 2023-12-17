@@ -50,7 +50,12 @@
     "@fonoster/secrets": "^0.4.10",
     "@fonoster/storage": "^0.4.10",
     "@fonoster/users": "^0.4.10",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "express": "^4.18.2",
+    "http-proxy": "^1.18.1"
   },
-  "gitHead": "9103932a97973f9bb4ceef7fd58119816a75646e"
+  "gitHead": "9103932a97973f9bb4ceef7fd58119816a75646e",
+  "devDependencies": {
+    "@types/http-proxy": "^1.17.14"
+  }
 }
