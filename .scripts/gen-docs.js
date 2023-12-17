@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 /* input and output paths */
-const outputDir = path.join(__dirname, "../docs/reference");
+const outputDir = path.join(__dirname, "../docs/docs/reference");
 
 function generate(inputFile) {
   /* get template data */

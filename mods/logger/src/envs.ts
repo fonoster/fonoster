@@ -35,15 +35,15 @@ const fluent = new fluentTransport(`${LOGS_OPT_TAG_PREFIX}`, {
   requireAckResponse: false
 });
 
-const format = LOGS_FORMAT === "json"
-  ? winston.format.combine(winston.format.timestamp(), winston.format.json())
-  : winston.format.combine(
-    winston.format.colorize(),
-    winston.format.simple()
-  );
+const format =
+  LOGS_FORMAT === "json"
+    ? winston.format.combine(winston.format.timestamp(), winston.format.json())
+    : winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      );
 
-const transports = LOGS_TRANSPORT === "fluent"
-  ? [fluent]
-  : [new winston.transports.Console()];
+const transports =
+  LOGS_TRANSPORT === "fluent" ? [fluent] : [new winston.transports.Console()];
 
 export { format, LOGS_LEVEL as level, transports, fluent };

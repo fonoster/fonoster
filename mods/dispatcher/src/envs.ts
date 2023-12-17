@@ -18,8 +18,7 @@
  */
 export const ARI_INTERNAL_URL =
   process.env.APISERVER_ASTERISK_ARI_INTERNAL_URL || "http://asterisk:8088";
-export const ARI_EXTERNAL_URL =
-  process.env.APISERVER_ASTERISK_ARI_URL;
+export const ARI_EXTERNAL_URL = process.env.APISERVER_ASTERISK_ARI_URL;
 export const ARI_USERNAME = process.env.APISERVER_ASTERISK_ARI_USERNAME;
 export const ARI_SECRET = process.env.APISERVER_ASTERISK_ARI_SECRET;
 export const APISERVER_RECORDINGS_PATH = process.env.APISERVER_RECORDINGS_PATH;

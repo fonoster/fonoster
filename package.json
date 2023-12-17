@@ -26,7 +26,8 @@
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
     "publish": "lerna publish --yes --no-git-reset --dist-tag next $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
     "publish:prerelease": "lerna publish prerelease --dist-tag next",
-    "publish:frompackages": "lerna publish from-package"
+    "publish:frompackages": "lerna publish from-package",
+    "prepare": "husky install"
   },
   "nodemonConfig": {
     "watch": [
@@ -39,8 +40,8 @@
   "devDependencies": {
     "@types/mocha": "^8.2.0",
     "@types/node": "^15.14.9",
-    "@typescript-eslint/eslint-plugin": "^4.19.0",
-    "@typescript-eslint/parser": "^4.19.0",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.3",
@@ -53,7 +54,7 @@
     "eslint-plugin-prettier": "^3.3.1",
     "grpc_tools_node_protoc_ts": "5.3.3",
     "grpc-tools": "1.12.4",
-    "husky": "^6.0.0",
+    "husky": "^8.0.1",
     "jsdoc-to-markdown": "^7.0.1",
     "jsonfile": "^6.1.0",
     "lerna": "^8.0.0",
