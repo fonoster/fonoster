@@ -114,6 +114,310 @@ For contributing, please see the following links:
 
 <!--contributors-->
 
+<table>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/psanders>
+            <img src=https://avatars.githubusercontent.com/u/539774?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Pedro Sanders/>
+            <br />
+            <sub style="font-size:14px"><b>Pedro Sanders</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/efraa>
+            <img src=https://avatars.githubusercontent.com/u/40646537?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Efrain Peralta/>
+            <br />
+            <sub style="font-size:14px"><b>Efrain Peralta</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/wardner>
+            <img src=https://avatars.githubusercontent.com/u/51765669?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Wardner Lara/>
+            <br />
+            <sub style="font-size:14px"><b>Wardner Lara</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/rihernandez>
+            <img src=https://avatars.githubusercontent.com/u/27718122?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Richard HC/>
+            <br />
+            <sub style="font-size:14px"><b>Richard HC</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/xquanluu>
+            <img src=https://avatars.githubusercontent.com/u/110280845?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Hoan Luu Huu/>
+            <br />
+            <sub style="font-size:14px"><b>Hoan Luu Huu</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/speedymonster>
+            <img src=https://avatars.githubusercontent.com/u/31810381?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Speedy Monster/>
+            <br />
+            <sub style="font-size:14px"><b>Speedy Monster</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/BrayanMnz>
+            <img src=https://avatars.githubusercontent.com/u/61812255?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Brayan Munoz Vargas/>
+            <br />
+            <sub style="font-size:14px"><b>Brayan Munoz Vargas</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/0xflotus>
+            <img src=https://avatars.githubusercontent.com/u/26602940?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=0xflotus/>
+            <br />
+            <sub style="font-size:14px"><b>0xflotus</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/hectorvent>
+            <img src=https://avatars.githubusercontent.com/u/2405682?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Hector Ventura/>
+            <br />
+            <sub style="font-size:14px"><b>Hector Ventura</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/ppborah>
+            <img src=https://avatars.githubusercontent.com/u/96339995?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Prasurjya Pran Borah/>
+            <br />
+            <sub style="font-size:14px"><b>Prasurjya Pran Borah</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/gad2103>
+            <img src=https://avatars.githubusercontent.com/u/1045265?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=gabriel duncan/>
+            <br />
+            <sub style="font-size:14px"><b>gabriel duncan</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/dedekrnwan>
+            <img src=https://avatars.githubusercontent.com/u/25242055?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Dede kurniawan/>
+            <br />
+            <sub style="font-size:14px"><b>Dede kurniawan</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/itsalb3rt>
+            <img src=https://avatars.githubusercontent.com/u/35310226?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Albert E. Hidalgo Taveras/>
+            <br />
+            <sub style="font-size:14px"><b>Albert E. Hidalgo Taveras</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/alexsands>
+            <img src=https://avatars.githubusercontent.com/u/4269772?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Alex/>
+            <br />
+            <sub style="font-size:14px"><b>Alex</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/alifiratari>
+            <img src=https://avatars.githubusercontent.com/u/10004438?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Ali Firat ARI/>
+            <br />
+            <sub style="font-size:14px"><b>Ali Firat ARI</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/antoniusostermann>
+            <img src=https://avatars.githubusercontent.com/u/2332002?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Antonius Ostermann/>
+            <br />
+            <sub style="font-size:14px"><b>Antonius Ostermann</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/brunoarueira>
+            <img src=https://avatars.githubusercontent.com/u/119518?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Bruno Arueira/>
+            <br />
+            <sub style="font-size:14px"><b>Bruno Arueira</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/brunowego>
+            <img src=https://avatars.githubusercontent.com/u/441774?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Bruno Wego/>
+            <br />
+            <sub style="font-size:14px"><b>Bruno Wego</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/infinitydon>
+            <img src=https://avatars.githubusercontent.com/u/6318992?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Christopher Adigun/>
+            <br />
+            <sub style="font-size:14px"><b>Christopher Adigun</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/cdosoftei>
+            <img src=https://avatars.githubusercontent.com/u/7636091?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Ciprian/>
+            <br />
+            <sub style="font-size:14px"><b>Ciprian</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/jellydn>
+            <img src=https://avatars.githubusercontent.com/u/870029?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Dung Duc Huynh (Kaka)/>
+            <br />
+            <sub style="font-size:14px"><b>Dung Duc Huynh (Kaka)</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/FidalMathew>
+            <img src=https://avatars.githubusercontent.com/u/84982038?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Fidal Mathew/>
+            <br />
+            <sub style="font-size:14px"><b>Fidal Mathew</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/GaryBarnes17>
+            <img src=https://avatars.githubusercontent.com/u/97693048?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Gary Barnes/>
+            <br />
+            <sub style="font-size:14px"><b>Gary Barnes</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/harish-chander>
+            <img src=https://avatars.githubusercontent.com/u/13236956?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Harish Chander/>
+            <br />
+            <sub style="font-size:14px"><b>Harish Chander</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/jonathan-chin>
+            <img src=https://avatars.githubusercontent.com/u/7519412?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Jon Chin/>
+            <br />
+            <sub style="font-size:14px"><b>Jon Chin</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/judgegodwins>
+            <img src=https://avatars.githubusercontent.com/u/38760034?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Judge Godwins/>
+            <br />
+            <sub style="font-size:14px"><b>Judge Godwins</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/itzmanish>
+            <img src=https://avatars.githubusercontent.com/u/12438068?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Manish/>
+            <br />
+            <sub style="font-size:14px"><b>Manish</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/osehgol>
+            <img src=https://avatars.githubusercontent.com/u/4996423?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Osama Sehgol/>
+            <br />
+            <sub style="font-size:14px"><b>Osama Sehgol</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/psuet>
+            <img src=https://avatars.githubusercontent.com/u/7604288?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Paul Sütterlin/>
+            <br />
+            <sub style="font-size:14px"><b>Paul Sütterlin</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/RiadVargas>
+            <img src=https://avatars.githubusercontent.com/u/4274014?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Riad Vargas/>
+            <br />
+            <sub style="font-size:14px"><b>Riad Vargas</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/vcidst>
+            <img src=https://avatars.githubusercontent.com/u/683016?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Shailendra Paliwal/>
+            <br />
+            <sub style="font-size:14px"><b>Shailendra Paliwal</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/gitter-badger>
+            <img src=https://avatars.githubusercontent.com/u/8518239?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=The Gitter Badger/>
+            <br />
+            <sub style="font-size:14px"><b>The Gitter Badger</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/YuriCodes>
+            <img src=https://avatars.githubusercontent.com/u/80093500?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Yuri/>
+            <br />
+            <sub style="font-size:14px"><b>Yuri</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/cdrsociate>
+            <img src=https://avatars.githubusercontent.com/u/89363212?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=cdrsociate/>
+            <br />
+            <sub style="font-size:14px"><b>cdrsociate</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/ghana7989>
+            <img src=https://avatars.githubusercontent.com/u/65382745?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=pavan/>
+            <br />
+            <sub style="font-size:14px"><b>pavan</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/nrjchnd>
+            <img src=https://avatars.githubusercontent.com/u/17134818?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=nrjchnd/>
+            <br />
+            <sub style="font-size:14px"><b>nrjchnd</b></sub>
+        </a>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/salami-dev>
+            <img src=https://avatars.githubusercontent.com/u/57477131?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Salami Bashir/>
+            <br />
+            <sub style="font-size:14px"><b>Salami Bashir</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/scshiv29-dev>
+            <img src=https://avatars.githubusercontent.com/u/68141773?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Shivam Deepak Chaudhary/>
+            <br />
+            <sub style="font-size:14px"><b>Shivam Deepak Chaudhary</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/showf68>
+            <img src=https://avatars.githubusercontent.com/u/45857918?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=showf68/>
+            <br />
+            <sub style="font-size:14px"><b>showf68</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/telenautical>
+            <img src=https://avatars.githubusercontent.com/u/106842020?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=telenautical/>
+            <br />
+            <sub style="font-size:14px"><b>telenautical</b></sub>
+        </a>
+    </td>
+    <td align="center" style="word-wrap: break-word; width: 150.0; height: 150.0">
+        <a href=https://github.com/theewiz>
+            <img src=https://avatars.githubusercontent.com/u/81051645?v=4 width="100;"  style="border-radius:50%;align-items:center;justify-content:center;overflow:hidden;padding-top:10px" alt=Wisdom Elendu/>
+            <br />
+            <sub style="font-size:14px"><b>Wisdom Elendu</b></sub>
+        </a>
+    </td>
+</tr>
+</table>
+
 ## Sponsors
 
 We're glad to be supported by respected companies and individuals from several industries.
