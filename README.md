@@ -112,9 +112,7 @@ For contributing, please see the following links:
  - [Contribution Documents](https://github.com/fonoster/fonoster/blob/main/CONTRIBUTING.md)
  - [Contributors](https://github.com/fonoster/fonoster/contributors)
 
-<a href="https://github.com/fonoster/fonoster/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=fonoster/fonoster" />
-</a>
+<!--contributors-->
 
 ## Sponsors
 
