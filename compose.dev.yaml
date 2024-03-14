@@ -10,6 +10,8 @@ services:
   routr:
     ports:
       - 4567:4567
+    volumes:
+      - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml:ro
 
   asterisk:
     build:
