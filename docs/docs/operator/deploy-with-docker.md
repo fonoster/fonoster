@@ -41,3 +41,7 @@ Finally, you can access the application by visiting the URL you set in the `WEBU
 ## Next Steps
 
 - [Configuring Vault for secrets](./configuring-vault.md)
+
+## Known Issues
+
+- Running Fonoster in development mode on macOS M2 chips causes several containers to crash and fail. No workaround is available at the moment.
