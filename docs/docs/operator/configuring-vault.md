@@ -55,4 +55,3 @@ docker exec -it -e VAULT_ADDR=$VAULT_ADDR -e VAULT_TOKEN=$VAULT_TOKEN $CONTAINER
 ```
 
 > Make sure to save the root token and unseal key in a safe place. You will need them to configure the operator and to unseal Vault in case of a restart.
-

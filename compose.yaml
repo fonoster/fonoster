@@ -147,7 +147,7 @@ services:
       - ./etc/fluent.conf:/fluentd/etc/fluent.conf:ro
 
   elasticsearch:
-    image: elasticsearch:7.17.15
+    image: elasticsearch:7.17.18
     restart: unless-stopped
     platform: linux/x86_64
     environment:
