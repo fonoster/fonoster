@@ -19,7 +19,8 @@
     { "path": "../projects" },
     { "path": "../auth" },
     { "path": "../users" },
-    { "path": "../dispatcher" }
+    { "path": "../dispatcher" },
+    { "path": "../logger" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

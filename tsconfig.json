@@ -20,8 +20,5 @@
     "node_modules",
     "dist",
     "mods/websdk/"
-  ],
-  "references": [
-    {"path": "mods/auth"}
-  ],
+  ]
 }

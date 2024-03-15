@@ -2,6 +2,11 @@ version: "3"
 
 services:
 
+  webui:
+    build:
+      context: .
+      dockerfile: ./mods/webui/Dockerfile
+
   apiserver:
     build:
       context: .

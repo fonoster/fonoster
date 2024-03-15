@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "../../logger/src";
+import { getLogger } from "@fonoster/logger";
 import {
   APISERVER_ASTERISK_ARI_INTERNAL_URL,
   APISERVER_ASTERISK_ARI_USERNAME,

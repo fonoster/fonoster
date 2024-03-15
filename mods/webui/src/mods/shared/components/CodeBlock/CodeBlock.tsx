@@ -66,8 +66,7 @@ export function CodeBlock(props: Props) {
             <Button
               type="outline"
               className="dark:bg-dark-800"
-              icon={<IconCopy />}
-            >
+              icon={<IconCopy />} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>
               Copy
             </Button>
           </CopyToClipboard>

@@ -5,10 +5,8 @@
     "rootDir": "./src"
   },
   "references": [
-    { "path": "../tts" },
-    { "path": "../logger" },
     { "path": "../common" },
-    { "path": "../googleasr" }
+    { "path": "../logger" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

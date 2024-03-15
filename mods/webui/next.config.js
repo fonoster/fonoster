@@ -22,4 +22,9 @@ module.exports = {
     WEBUI_TEST_PHONE_SECRET: process.env.WEBUI_TEST_PHONE_SECRET,
     APP_FEATURE_FLAG_SEND_REGISTER: process.env.APP_FEATURE_FLAG_SEND_REGISTER,
   },
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
 }

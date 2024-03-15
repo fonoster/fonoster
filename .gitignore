@@ -20,8 +20,6 @@ config/*.yml
 .idea
 *.iml
 *.ipr
-mod/vendor
-jre
 .env*
 lerna-debug.log
 mods/**/src/protos/common.proto
