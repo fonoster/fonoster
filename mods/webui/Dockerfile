@@ -45,9 +45,9 @@ ARG PORT=8080
 ARG HOST=0.0.0.0
 
 ENV APP_ENV=${APP_ENV} \
-    NODE_ENV=${NODE_ENV} \
-    PORT=${PORT} \
-    HOST=${HOST}
+  NODE_ENV=${NODE_ENV} \
+  PORT=${PORT} \
+  HOST=${HOST}
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
@@ -70,8 +70,5 @@ EXPOSE ${PORT}
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry.
 ENV NEXT_TELEMETRY_DISABLED 1
-
-HEALTHCHECK  --interval=5s --timeout=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
 
 CMD sh -c "PORT=\$PORT node_modules/.bin/next start"

@@ -10,7 +10,6 @@ Create an empty folder download Vault's configuration files with:
 ```bash
 mkdir vault
 cd vault
-curl -o vault.json https://raw.githubusercontent.com/fonoster/fonoster/main/etc/vault.json
 curl -o vault_policy.hcl https://raw.githubusercontent.com/fonoster/fonoster/main/etc/vault_policy.hcl
 ```
 

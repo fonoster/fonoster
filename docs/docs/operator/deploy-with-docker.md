@@ -11,7 +11,7 @@ The only prerequisite for Fonoster is to have [Docker](https://docs.docker.com/g
 First, create a new directory in your preferred location and change to it. The root directory we will use in the guide is `fonoster.`
 
 ```bash
-mkdir fonoster
+mkdir -p fonoster/etc
 cd fonoster
 ```
 
@@ -19,6 +19,9 @@ Next, copy the .env.example from the repository to the current directory and ren
 
 ```bash
 curl -o .env https://raw.githubusercontent.com/fonoster/fonos/main/.env.example
+curl -o ./etc/fluent.conf https://raw.githubusercontent.com/fonoster/fonos/main/etc/fluent.conf
+curl -o ./etc/vault.json https://raw.githubusercontent.com/fonoster/fonos/main/etc/vault.json
+curl -o ./etc/rbac.json https://raw.githubusercontent.com/fonoster/fonos/main/mods/apiserver/etc/rbac.json
 ```
 
 Then, open the .env file with your favorite editor and update the following variables:

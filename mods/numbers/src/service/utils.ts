@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { APISERVER_SMARTVOICE_URL } from "../envs";
+import { APISERVER_AUTOPILOT_URL } from "../envs";
 import { CreateNumberRequest, UpdateNumberRequest } from "./protos/numbers_pb";
 
 export const getWebhook = (
@@ -24,7 +24,7 @@ export const getWebhook = (
 ) =>
   request.getIngressInfo()?.getAppRef() &&
   !request.getIngressInfo()?.getWebhook()
-    ? APISERVER_SMARTVOICE_URL
+    ? APISERVER_AUTOPILOT_URL
     : request.getIngressInfo().getWebhook().trim();
 
 export const getAppRef = (request: CreateNumberRequest | UpdateNumberRequest) =>
