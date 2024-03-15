@@ -24,5 +24,6 @@ mods/providers
 mods/storage
 mods/voice
 mods/webui
+mods/apiserver
 node_modules/*
 dist

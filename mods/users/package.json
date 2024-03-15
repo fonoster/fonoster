@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/users",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "description": "System wide Users",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -38,11 +38,11 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.4.11",
-    "@fonoster/common": "^0.4.11",
-    "@fonoster/core": "^0.4.11",
-    "@fonoster/errors": "^0.4.11",
-    "@fonoster/logger": "^0.4.11",
+    "@fonoster/auth": "^0.4.12",
+    "@fonoster/common": "^0.4.12",
+    "@fonoster/core": "^0.4.12",
+    "@fonoster/errors": "^0.4.12",
+    "@fonoster/logger": "^0.4.12",
     "@grpc/grpc-js": "^1.8.4",
     "bcrypt": "^5.0.1",
     "bson-objectid": "^2.0.2",
