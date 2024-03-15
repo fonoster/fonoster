@@ -17,7 +17,7 @@ END
 [ -z "$HTTP_BINDADDR" ]       && { export HTTP_BINDADDR='0.0.0.0'; }
 [ -z "$SIP_BINDADDR" ]        && { export SIP_BINDADDR='0.0.0.0:6060'; }
 [ -z "$SIPPROXY_PORT" ]       && { export SIPPROXY_PORT='5060'; }
-[ -z "$CODECS" ]              && { export CODECS='ulaw,alaw,gsm,g722'; }
+[ -z "$CODECS" ]              && { export CODECS='g722,ulaw,alaw,gsm'; }
 [ -z "$DTMF_MODE" ]           && { export DTMF_MODE='inband'; }
 
 # Required environment variables

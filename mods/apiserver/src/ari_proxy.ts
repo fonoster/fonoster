@@ -31,7 +31,6 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 const PORT = 4000;
 const proxy = httpProxy.createProxyServer({});
 const app = express();
-const TARGET_SERVER = `${APISERVER_ASTERISK_ARI_INTERNAL_URL}/ari`;
 
 proxy.on("proxyReq", (proxyReq) => {
   const encodedCredentials = btoa(
@@ -41,16 +40,14 @@ proxy.on("proxyReq", (proxyReq) => {
 });
 
 app.use("/ari", (req, res) => {
-  const targetUrl = TARGET_SERVER + req.url;
-
-  logger.verbose(`proxying request to ${targetUrl}`, {
-    targetUrl,
+  logger.verbose("proxying request to target server", {
+    targetServer: APISERVER_ASTERISK_ARI_INTERNAL_URL,
     url: req.url
   });
 
-  proxy.web(req, res, { target: targetUrl, changeOrigin: true });
+  proxy.web(req, res, { target: APISERVER_ASTERISK_ARI_INTERNAL_URL });
 });
 
 app.listen(PORT, () => {
-  logger.info(`proxy server is running on http://localhost:${PORT}`);
+  logger.info(`ARI proxy server is running on http://localhost:${PORT}`);
 });

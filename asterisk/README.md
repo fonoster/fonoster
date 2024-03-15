@@ -48,8 +48,8 @@ docker run -it \
 
 Environment variables are used in the entry point script to render configuration templates. You can specify the values of these variables during `docker run`, `docker-compose up`, or in Kubernetes manifests in the `env` array.
 
-- `ARI_USERNAME` - Username for ARI API. Defaults to `admin`
-- `ARI_SECRET` - Password for ARI API. Defaults to `changeit`
+- `ARI_USERNAME` - Username for ARI API. **Required**
+- `ARI_SECRET` - Password for ARI API. **Required**
 - `SIPPROXY_HOST` - The SIP Proxy's IP address. **Required**
 - `SIPPROXY_PORT` - The SIP Proxy's port. Defaults `5060`
 - `SIPPROXY_USERNAME` - Username at SIP Proxy. **Required**

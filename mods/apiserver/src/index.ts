@@ -45,7 +45,7 @@ import { AgentsServer, AgentsService } from "@fonoster/agents";
 import { runServices } from "@fonoster/common";
 import { APISERVER_JWT_PRIVATE_KEY } from "./envs";
 
-import("./proxy");
+import("./ari_proxy");
 import("./upsert_peer");
 import("@fonoster/dispatcher");
 
