@@ -1,7 +1,7 @@
 {
   "name": "@fonoster/webui",
   "version": "0.4.12",
-  "private": true,
+  "private": false,
   "author": "Fonoster Team",
   "bin": {
     "run": "./run.sh"
