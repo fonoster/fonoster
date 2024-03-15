@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/common",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "description": "Common artifacts",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "bugs": {
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@fonoster/grpc-health-check": "^3.1.6",
-    "@fonoster/logger": "^0.4.10",
+    "@fonoster/logger": "^0.4.11",
     "@grpc/grpc-js": "^1.8.4",
     "@grpc/proto-loader": "^0.7.2",
     "atob": "^2.1.2",

@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/voice",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "description": "Voice verbs",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,8 +29,8 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/common": "^0.4.10",
-    "@fonoster/logger": "^0.4.10",
+    "@fonoster/common": "^0.4.11",
+    "@fonoster/logger": "^0.4.11",
     "axios": "^1.6.2",
     "bson-objectid": "^2.0.2",
     "deepmerge": "^4.2.2",

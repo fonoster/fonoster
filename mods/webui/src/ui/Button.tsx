@@ -3,5 +3,10 @@ import type { ButtonProps } from '@supabase/ui/dist/cjs/components/Button/Button
 import React from 'react'
 
 export const Button: React.FC<ButtonProps> = props => (
-  <ButtonUI onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined} size="medium" {...props} />
+  <ButtonUI
+    onPointerEnterCapture={undefined}
+    onPointerLeaveCapture={undefined}
+    size="medium"
+    {...props}
+  />
 )
