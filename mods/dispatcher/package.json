@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/dispatcher",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "description": "Application Router for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -42,11 +42,11 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.4.12",
-    "@fonoster/core": "^0.4.12",
-    "@fonoster/logger": "^0.4.12",
-    "@fonoster/numbers": "^0.4.12",
-    "@fonoster/storage": "^0.4.12",
+    "@fonoster/auth": "^0.4.13",
+    "@fonoster/core": "^0.4.13",
+    "@fonoster/logger": "^0.4.13",
+    "@fonoster/numbers": "^0.4.13",
+    "@fonoster/storage": "^0.4.13",
     "ari-client": "^2.2.0",
     "pick-port": "^1.0.0",
     "wait-port": "^0.2.9",
