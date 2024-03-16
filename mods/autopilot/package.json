@@ -33,5 +33,9 @@
   "files": [
     "/bin",
     "/dist"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "d9966ae5dcd515451de2af3450c24fdc922f7cf2"
 }
