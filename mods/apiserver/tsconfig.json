@@ -21,7 +21,7 @@
     { "path": "../users" },
     { "path": "../dispatcher" },
     { "path": "../logger" },
-    { "path": "../autopilot"}
+    { "path": "../autopilot" }
   ],
   "exclude": ["node_modules", "dist", "test"]
 }
