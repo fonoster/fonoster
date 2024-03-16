@@ -34,5 +34,6 @@
     "@fonoster/logger": "^0.4.13",
     "@fonoster/tts": "^0.4.13",
     "deepmerge": "^4.2.2"
-  }
+  },
+  "gitHead": "2441b22b3f0de7ee222897715f4c7c95f773b6a0"
 }
