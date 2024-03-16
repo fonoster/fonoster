@@ -1,7 +1,7 @@
 {
   "name": "@fonoster/webui",
   "version": "0.4.12",
-  "private": false,
+  "private": true,
   "author": "Fonoster Team",
   "bin": {
     "run": "./run.sh"
@@ -54,5 +54,5 @@
   "engines": {
     "node": ">=16.x.x"
   },
-  "gitHead": "cfec00264936b578ad6b111dc5ab73d127d8fb09"
+  "gitHead": "2305dfd8cbfb9ca9c9944b74438d39379b384faf"
 }

@@ -23,7 +23,7 @@ WORKDIR /service
 
 ARG APP_ENV=production
 ARG NODE_ENV=production
-ARG PORT=8080
+ARG PORT=8181
 ARG HOST=0.0.0.0
 
 ENV APP_ENV=${APP_ENV} \
@@ -43,6 +43,8 @@ COPY --from=builder /work/public ./public
 COPY --from=builder --chown=nextjs:nodejs /work/.next ./.next
 COPY --from=builder /work/node_modules ./node_modules
 COPY --from=builder /work/package.json ./package.json
+
+RUN apk add --no-cache nodejs
 
 USER nextjs
 

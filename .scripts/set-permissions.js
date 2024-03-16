@@ -11,6 +11,12 @@ const windowsPermissions = {
 
 function setPermissions(targetPath) {
   const isWindows = process.platform === "win32";
+  const isLinux = process.platform === "linux";
+
+  if (isLinux) {
+    console.log(`skipping set-permissions for: ${targetPath}`);
+    return;
+  }
 
   try {
     if (isWindows) {

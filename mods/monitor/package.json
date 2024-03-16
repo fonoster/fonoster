@@ -44,7 +44,7 @@
     "@fonoster/core": "^0.4.12",
     "@fonoster/errors": "^0.4.12",
     "@fonoster/logger": "^0.4.12",
-    "@grpc/grpc-js": "^1.8.4",
+    "@grpc/grpc-js": "~1.8.21",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0"
   },
