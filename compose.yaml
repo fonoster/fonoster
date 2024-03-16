@@ -67,6 +67,7 @@ services:
       - 50052:50052
       - 4000:4000
     volumes:
+      - ./etc/monitor.patch.js:/service/node_modules/@fonoster/monitor/dist/service/monitor.js:ro
       - ./etc/config:/home/fonoster/.fonoster/config:ro
       - ${APISERVER_RBAC_CONFIG}:/home/fonoster/rbac.json:ro
     logging:
