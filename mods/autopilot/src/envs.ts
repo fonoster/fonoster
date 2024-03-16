@@ -16,14 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  APISERVER_AUTOPILOT_DEFAULT_LANGUAGE_CODE,
-  APISERVER_AUTOPILOT_PORT
-} from "./envs";
-import pilot from "./pilot";
-
-pilot({
-  defaultLanguageCode: APISERVER_AUTOPILOT_DEFAULT_LANGUAGE_CODE,
-  port: APISERVER_AUTOPILOT_PORT,
-  eventsServerEnabled: false
-});
+export const APISERVER_AUTOPILOT_PORT = process.env.APISERVER_AUTOPILOT_PORT
+  ? parseInt(process.env.APISERVER_AUTOPILOT_PORT)
+  : 6445;
+export const APISERVER_AUTOPILOT_DEFAULT_LANGUAGE_CODE =
+  process.env.APISERVER_AUTOPILOT_DEFAULT_LANGUAGE_CODE || "en-US";
