@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { APISERVER_MEDIA_ENDPOINT } from "../envs";
 import { sendData, streamConfig } from "../utils/udp_server_utils";
 import { getChannelVar } from "../utils/channel_variable";
 import WebSocket from "ws";
@@ -35,7 +34,7 @@ export const externalMediaHandler = async (
   }
   const port = await pickPort();
 
-  const address = `${APISERVER_MEDIA_ENDPOINT}:${port}`;
+  const address = `0.0.0.0:${port}`;
   const udpServer = new UDPMediaReceiver(address, true);
   const sessionId = event.userevent.sessionId;
   const currentChannel = await ari.channels.get({ channelId: sessionId });

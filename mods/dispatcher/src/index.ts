@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,9 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const ARI_INTERNAL_URL =
-  process.env.APISERVER_ASTERISK_ARI_INTERNAL_URL || "http://asterisk:8088";
-export const ARI_EXTERNAL_URL = process.env.APISERVER_ASTERISK_ARI_URL;
-export const ARI_USERNAME = process.env.APISERVER_ASTERISK_ARI_USERNAME;
-export const ARI_SECRET = process.env.APISERVER_ASTERISK_ARI_SECRET;
-export const APISERVER_RECORDINGS_PATH = process.env.APISERVER_RECORDINGS_PATH;
+import { join } from "path";
+import dotenv from "dotenv";
+
+if (process.env.NODE_ENV === "dev") {
+  dotenv.config({ path: join(__dirname, "../../../", ".env") });
+}
+
+import("./dispatcher");

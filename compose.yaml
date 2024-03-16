@@ -56,7 +56,7 @@ services:
       APISERVER_JWT_AUTH_ISS: ${APISERVER_JWT_AUTH_ISS}
       APISERVER_JWT_PRIVATE_KEY: ${APISERVER_JWT_PRIVATE_KEY}
       APISERVER_AUTOPILOT_URL: ${APISERVER_AUTOPILOT_URL}
-      REDIS_HOST: ${REDIS_HOST}
+      REDIS_HOST: ${APISERVER_REDIS_HOST}
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
       LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
@@ -162,6 +162,8 @@ services:
     image: vault:1.13.3
     container_name: vault
     entrypoint: vault server -config=/vault/config/vault.json   
+    expose:
+      - 8200
     volumes:
       - shared:/vault/file:rw
       - ./etc/vault.json:/vault/config/vault.json:ro

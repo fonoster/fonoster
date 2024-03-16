@@ -51,4 +51,9 @@ rm /etc/asterisk/*.bak
 
 asterisk -v
 
-while sleep 3600; do :; done
+# Starts the dispatcher
+export RECORDINGS_PATH="/var/spool/asterisk/recording"
+export ARI_INTERNAL_URL='http://localhost:8088'
+dispatcher
+
+# while sleep 3600; do :; done

@@ -4,11 +4,15 @@ LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 COPY asterisk/config /etc/asterisk/
 COPY asterisk/run.sh /
 
-RUN apk add --no-cache --update tini asterisk asterisk-speex asterisk-curl \
- && chmod +x /run.sh
+RUN apk add --no-cache --update tini asterisk asterisk-speex asterisk-curl nodejs npm \
+ && npm install -g @fonoster/dispatcher \
+ && chmod +x /run.sh \
+ && apk del --purge npm
+
 
 ENTRYPOINT ["tini", "-v", "--"]
 CMD ["/run.sh"]
 
 HEALTHCHECK --interval=5s --timeout=3s \
-  CMD asterisk -rx "core show uptime" | grep uptime || exit 1
+  CMD ((asterisk -rx "core show uptime" | grep uptime) \
+  && (asterisk -rx "ari show apps" | grep -q "mediacontroller")) || exit 1

@@ -5,15 +5,15 @@
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
-  "main": "dist/dispatcher",
-  "types": "dist/dispatcher",
+  "main": "dist/index",
+  "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "start": "cross-env NODE_ENV=dev nodemon src/dispatcher"
   },
   "bin": {
-    "run": "dist/dispatcher.js"
+    "dispatcher": "dist/dispatcher.js"
   },
   "nodemonConfig": {
     "watch": [
