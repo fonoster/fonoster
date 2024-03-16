@@ -95,3 +95,14 @@ jobs:
         dockerfile: mods/apiserver/Dockerfile     
         tags: "latest, ${{ env.LERNA_VERSION }}"    
         platforms: linux/amd64,linux/arm64
+
+    - name: Publish the WebUI to Docker Hub
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        name: fonoster/webui   
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        context: .
+        dockerfile: mods/webui/Dockerfile     
+        tags: "latest, ${{ env.LERNA_VERSION }}"    
+        platforms: linux/amd64,linux/arm64
