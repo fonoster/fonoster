@@ -10,6 +10,7 @@ module.exports = {
   reactStrictMode: true,
   publicRuntimeConfig: {
     WEBUI_APP_URL: process.env.WEBUI_APP_URL,
+    WEBUI_APISERVER_ENDPOINT: process.env.WEBUI_APISERVER_ENDPOINT,
     WEBUI_GITHUB_CLIENT_ID: process.env.WEBUI_GITHUB_CLIENT_ID,
     WEBUI_GITHUB_CLIENT_SECRET: process.env.WEBUI_GITHUB_CLIENT_SECRET,
     WEBUI_BILLING_URL: process.env.WEBUI_BILLING_URL,

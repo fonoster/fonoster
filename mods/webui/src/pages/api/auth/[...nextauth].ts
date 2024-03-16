@@ -82,6 +82,7 @@ export default NextAuth({
     async session({ session, token }) {
       logger.verbose(`webui session [session -> ${JSON.stringify(session)}]`)
       logger.verbose(`webui session [token -> ${JSON.stringify(token)}]`)
+      logger.verbose(`webui session.endpoint [${config.WEBUI_APISERVER_ENDPOINT}]`)
 
       session.endpoint = config.WEBUI_APISERVER_ENDPOINT
 

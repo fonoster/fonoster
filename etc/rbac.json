@@ -1,0 +1,98 @@
+[
+  {
+    "name": "USER",
+    "description": "Access to User and Project endpoints",
+    "access": [
+      "/fonoster.users.v1beta1.Users/ListUsers",
+      "/fonoster.users.v1beta1.Users/GetUser",
+      "/fonoster.users.v1beta1.Users/UpdateUser",
+      "/fonoster.users.v1beta1.Users/Login",
+      "/fonoster.projects.v1beta1.Projects/ListProjects",
+      "/fonoster.projects.v1beta1.Projects/CreateProject",
+      "/fonoster.projects.v1beta1.Projects/UpdateProject",
+      "/fonoster.projects.v1beta1.Projects/GetProject",
+      "/fonoster.projects.v1beta1.Projects/DeleteProject",
+      "/fonoster.projects.v1beta1.Projects/RenewAccessKeySecret",
+      "/fonoster.limiter.v1beta1.Limiter/CheckAuthorized"
+    ]
+  },
+  {
+    "name": "PROJECT",
+    "description": "Access to Project resources",
+    "access": [
+      "/fonoster.apps.v1beta1.Apps/ListApps",
+      "/fonoster.apps.v1beta1.Apps/CreateApp",
+      "/fonoster.apps.v1beta1.Apps/GetApp",
+      "/fonoster.apps.v1beta1.Apps/UpdateApp",
+      "/fonoster.apps.v1beta1.Apps/DeleteApp",
+      "/fonoster.monitor.v1beta1.Monitor/SearchEvents",
+      "/fonoster.storage.v1beta1.Storage/UploadObject",
+      "/fonoster.storage.v1beta1.Storage/GetObjectURL",
+      "/fonoster.providers.v1beta1.Providers/ListProviders",
+      "/fonoster.providers.v1beta1.Providers/CreateProvider",
+      "/fonoster.providers.v1beta1.Providers/GetProvider",
+      "/fonoster.providers.v1beta1.Providers/UpdateProvider",
+      "/fonoster.providers.v1beta1.Providers/DeleteProvider",
+      "/fonoster.numbers.v1beta1.Numbers/ListNumbers",
+      "/fonoster.numbers.v1beta1.Numbers/CreateNumber",
+      "/fonoster.numbers.v1beta1.Numbers/GetIngressInfo",
+      "/fonoster.numbers.v1beta1.Numbers/GetNumber",
+      "/fonoster.numbers.v1beta1.Numbers/UpdateNumber",
+      "/fonoster.numbers.v1beta1.Numbers/DeleteNumber",
+      "/fonoster.domains.v1beta1.Domains/ListDomains",
+      "/fonoster.domains.v1beta1.Domains/CreateDomain",
+      "/fonoster.domains.v1beta1.Domains/GetDomain",
+      "/fonoster.domains.v1beta1.Domains/UpdateDomain",
+      "/fonoster.domains.v1beta1.Domains/DeleteDomain",
+      "/fonoster.callmanager.v1beta1.CallManager/Call",
+      "/fonoster.agents.v1beta1.Agents/ListAgents",
+      "/fonoster.agents.v1beta1.Agents/CreateAgent",
+      "/fonoster.agents.v1beta1.Agents/GetAgent",
+      "/fonoster.agents.v1beta1.Agents/UpdateAgent",
+      "/fonoster.agents.v1beta1.Agents/DeleteAgent",
+      "/fonoster.secrets.v1beta1.Secrets/CreateSecret",
+      "/fonoster.secrets.v1beta1.Secrets/ListSecretsId",
+      "/fonoster.secrets.v1beta1.Secrets/DeleteSecret",
+      "/fonoster.secrets.v1beta1.Secrets/GetSecret",
+      "/fonoster.limiter.v1beta1.Limiter/CheckAuthorized"
+    ]
+  },
+  {
+    "name": "FUNCTION",
+    "description": "This role is limited only to calling",
+    "access": [
+      "/fonoster.callmanager.v1beta1.CallManager/Call",
+      "/fonoster.secrets.v1beta1.Secrets/GetSecret",
+      "/fonoster.auth.v1beta1.Auth/ValidateToken"
+    ]
+  },
+  {
+    "name": "SERVICE",
+    "description": "This role is able to obtain ingress information and create short-live token",
+    "access": [
+      "/fonoster.numbers.v1beta1.Numbers/GetIngressInfo",
+      "/fonoster.auth.v1beta1.Auth/CreateToken",
+      "/fonoster.auth.v1beta1.Auth/CreateNoAccessToken",
+      "/fonoster.auth.v1beta1.Auth/ValidateToken",
+      "/fonoster.users.v1beta1.Users/CreateUser",
+      "/fonoster.users.v1beta1.Users/ListUsers",
+      "/fonoster.users.v1beta1.Users/UpdateUser"
+    ]
+  },
+  {
+    "name": "NO_ACCESSS",
+    "description": "Signature token without any access",
+    "access": []
+  },
+  {
+    "name": "ADMIN",
+    "description": "Can perform administrative task",
+    "access": [
+      "/fonoster.auth.v1beta1.Auth/CreateToken",
+      "/fonoster.users.v1beta1.Users/CreateUser",
+      "/fonoster.users.v1beta1.Users/DeleteUser",
+      "/fonoster.users.v1beta1.Users/ListUsers",
+      "/fonoster.users.v1beta1.Users/UpdateUser"
+    ]
+  }
+]

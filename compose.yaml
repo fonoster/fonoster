@@ -4,15 +4,30 @@ services:
 
   webui:
     image: fonoster/webui:latest
-    ports:
-      - 8181:3000
+    restart: unless-stopped
     environment:
-      LOGS_LEVEL: ${LOGS_LEVEL}
       WEBUI_APISERVER_ENDPOINT: ${WEBUI_APISERVER_ENDPOINT}
+      # TODO: Remove this deprecated variable
+      APISERVER_ENDPOINT: ${WEBUI_APISERVER_ENDPOINT}
       WEBUI_GITHUB_CLIENT_ID: ${WEBUI_GITHUB_CLIENT_ID}
       WEBUI_GITHUB_CLIENT_SECRET: ${WEBUI_GITHUB_CLIENT_SECRET}
+      WEBUI_TEST_PHONE_DOMAIN: ${WEBUI_TEST_PHONE_DOMAIN}
+      WEBUI_TEST_PHONE_SERVER: ${WEBUI_TEST_PHONE_SERVER}
+      WEBUI_TEST_PHONE_USERNAME: ${WEBUI_TEST_PHONE_USERNAME}
+      WEBUI_TEST_PHONE_SECRET: ${WEBUI_TEST_PHONE_SECRET}
+      WEBUI_TEST_PHONE_DISPLAY_NAME: ${WEBUI_TEST_PHONE_DISPLAY_NAME}
+      WEBUI_BILLING_URL: ${WEBUI_BILLING_URL}
+      WEBUI_FEEDBACK_URL: ${WEBUI_FEEDBACK_URL}
+      WEBUI_APP_URL: ${WEBUI_APP_URL}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      LOGS_LEVEL: ${LOGS_LEVEL}
+      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      GRPC_ALLOW_INSECURE: true
+    ports:
+      - 8181:8181
     volumes:
-      - ./etc/config:/home/fonoster/.fonoster/config:ro
+      - ./etc/config:/home/nextjs/.fonoster/config:ro
+      - ./etc/rbac.json:/home/fonoster/rbac.json:ro
     logging:
       options:
         tag: fonoster-logs
@@ -41,14 +56,19 @@ services:
       APISERVER_JWT_AUTH_ISS: ${APISERVER_JWT_AUTH_ISS}
       APISERVER_JWT_PRIVATE_KEY: ${APISERVER_JWT_PRIVATE_KEY}
       APISERVER_AUTOPILOT_URL: ${APISERVER_AUTOPILOT_URL}
+      REDIS_HOST: ${REDIS_HOST}
       LOGS_LEVEL: ${LOGS_LEVEL}
+      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
       LOGS_AGGREGRATOR_HOST: ${LOGS_AGGREGRATOR_HOST}
       LOGS_AGGREGRATOR_PORT: 24224
+      GRPC_ALLOW_INSECURE: true
     ports:
       - 50052:50052
       - 4000:4000
     volumes:
       - ./etc/config:/home/fonoster/.fonoster/config:ro
+      - ${APISERVER_RBAC_CONFIG}:/home/fonoster/rbac.json:ro
     logging:
       options:
         tag: fonoster-logs
@@ -83,6 +103,8 @@ services:
     logging:
       options:
         tag: fonoster-logs
+    volumes:
+      - ./etc/log4j2.yml:/opt/routr/config/log4j2.yml:ro
 
   # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
   # is not possible in Docker, we need to use network_mode: host.
