@@ -17,8 +17,10 @@
  * limitations under the License.
  */
 import { VoiceRequest } from "./types";
+import { getLogger } from "@fonoster/logger";
 import axios from "axios";
-import logger from "@fonoster/logger";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 export class Verb {
   request: VoiceRequest;

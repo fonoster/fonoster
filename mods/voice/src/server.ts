@@ -20,15 +20,18 @@ import { ServerConfig } from "./types";
 import { posix } from "path";
 import { Plugin } from "@fonoster/common";
 import { serveFiles } from "./utils";
+import { getLogger } from "@fonoster/logger";
 import VoiceResponse from "./voice";
-import logger from "@fonoster/logger";
 import express from "express";
-import os from "os";
 import PubSub from "pubsub-js";
+import os from "os";
+
 const merge = require("deepmerge");
 const app = express();
 app.use(express.json());
 require("express-ws")(app);
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 const defaultServerConfig: ServerConfig = {
   base: "/",

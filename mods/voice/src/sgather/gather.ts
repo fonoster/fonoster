@@ -20,11 +20,13 @@ import { SpeechProvider } from "@fonoster/common";
 import { VoiceRequest } from "../types";
 import { Verb } from "../verb";
 import { SGatherOptions, SGatherStream } from "./types";
+import { getLogger } from "@fonoster/logger";
 import PubSub from "pubsub-js";
-import logger from "@fonoster/logger";
-import merge from "deepmerge";
 import StreamData from "./stream_data";
 import startSpeechSource from "./source_speech";
+import merge from "deepmerge";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 const defaultOptions: SGatherOptions = {
   source: "speech,dtmf"

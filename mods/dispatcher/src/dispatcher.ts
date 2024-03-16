@@ -23,7 +23,7 @@ import ariClient from "ari-client";
 import wait from "wait-port";
 import events from "./events_handler";
 
-const logger = getLogger({ service: "limiter", filePath: __filename });
+const logger = getLogger({ service: "dispatcher", filePath: __filename });
 
 const connection = {
   host: ARI_INTERNAL_URL.split("//")[1].split(":")[0],

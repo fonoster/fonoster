@@ -45,9 +45,10 @@ import { AgentsServer, AgentsService } from "@fonoster/agents";
 import { runServices } from "@fonoster/common";
 import { APISERVER_JWT_PRIVATE_KEY } from "./envs";
 
-import("./ari_proxy");
-import("./upsert_peer");
 import("@fonoster/dispatcher");
+import("@fonoster/autopilot");
+import("./upsert_peer");
+import("./ari_proxy");
 
 const services = [
   {

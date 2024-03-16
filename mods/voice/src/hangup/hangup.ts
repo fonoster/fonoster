@@ -16,10 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import PubSub from "pubsub-js";
-import logger from "@fonoster/logger";
+import { getLogger } from "@fonoster/logger";
 import { objectToQString } from "../utils";
 import { Verb } from "../verb";
+import PubSub from "pubsub-js";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 export default class HangupVerb extends Verb {
   async run(): Promise<void> {

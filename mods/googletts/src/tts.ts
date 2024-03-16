@@ -38,7 +38,7 @@ const defaultVoice = { languageCode: "en-US", ssmlGender: "NEUTRAL" };
  *  .then((result) => console.log("path: " + result.pathToFile))
  *  .catch(console.error);
  */
-class GoogleTTS extends AbstractTTS {
+export default class GoogleTTS extends AbstractTTS {
   client: v1.TextToSpeechClient;
   /**
    * Constructs a new GoogleTTS object.
@@ -81,8 +81,3 @@ class GoogleTTS extends AbstractTTS {
     return { filename, pathToFile };
   }
 }
-
-export default GoogleTTS;
-
-// WARNING: Workaround to support commonjs clients
-module.exports = GoogleTTS;

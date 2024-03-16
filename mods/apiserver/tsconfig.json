@@ -20,7 +20,8 @@
     { "path": "../auth" },
     { "path": "../users" },
     { "path": "../dispatcher" },
-    { "path": "../logger" }
+    { "path": "../logger" },
+    { "path": "../autopilot"}
   ],
   "exclude": ["node_modules", "dist", "test"]
 }

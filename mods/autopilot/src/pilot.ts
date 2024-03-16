@@ -1,0 +1,167 @@
+#!/usr/bin/env node
+/* eslint-disable require-jsdoc */
+/*
+ * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/rox
+ *
+ * This file is part of Rox AI
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { CLIENT_EVENTS } from "./events/types";
+import { VoiceRequest, VoiceResponse, VoiceServer } from "@fonoster/voice";
+import { Cerebro } from "./cerebro";
+import { eventsServer } from "./events/server";
+import { nanoid } from "nanoid";
+import { getIntentsEngine } from "./intents/engines";
+import { ServerConfig } from "./types";
+import { sendClientEvent } from "./util";
+import { GoogleSpeechConfig } from "@fonoster/googleasr";
+import { getLogger, ulogger, ULogType } from "@fonoster/logger";
+import GoogleTTS, { GoogleTTSConfig } from "@fonoster/googletts";
+import Apps from "@fonoster/apps";
+import Secrets from "@fonoster/secrets";
+import GoogleASR from "@fonoster/googleasr";
+
+const logger = getLogger({ service: "autopilot", filePath: __filename });
+
+export default function pilot(config: ServerConfig) {
+  logger.info("starting autopilot");
+
+  const voiceServer = new VoiceServer({
+    port: config.port
+  });
+
+  if (config.eventsServerEnabled) eventsServer.start();
+
+  logger.verbose("events server enabled = " + config.eventsServerEnabled);
+
+  voiceServer.listen(
+    async (voiceRequest: VoiceRequest, voiceResponse: VoiceResponse) => {
+      logger.verbose(`new request [sessionId: ${voiceRequest.sessionId}]`, {
+        voiceRequest
+      });
+
+      try {
+        if (!voiceRequest.appRef)
+          throw new Error("invalid voice request: missing appRef");
+        // If set, we overwrite the configuration with the values obtain from the webhook
+        const serviceCredentials = {
+          accessKeyId: voiceRequest.accessKeyId,
+          accessKeySecret: voiceRequest.sessionToken
+        };
+        const apps = new Apps(serviceCredentials);
+        const secrets = new Secrets(serviceCredentials);
+        const app = await apps.getApp(voiceRequest.appRef);
+
+        logger.verbose(`requested app [ref: ${app.ref}]`, { app });
+
+        const ieSecret = await secrets.getSecret(
+          app.intentsEngineConfig.secretName
+        );
+        const intentsEngine = getIntentsEngine(app)(
+          JSON.parse(ieSecret.secret)
+        );
+        intentsEngine?.setProjectId(app.intentsEngineConfig.projectId);
+
+        const voiceConfig = {
+          name: app.speechConfig.voice,
+          playbackId: nanoid()
+        };
+
+        const speechSecret = await secrets.getSecret(
+          app.speechConfig.secretName
+        );
+        const speechCredentials = {
+          private_key: JSON.parse(speechSecret.secret).private_key,
+          client_email: JSON.parse(speechSecret.secret).client_email
+        };
+
+        voiceResponse.use(
+          new GoogleTTS({
+            credentials: speechCredentials,
+            languageCode: config.defaultLanguageCode,
+            path: config.fileRetentionPolicyDirectory
+          } as GoogleTTSConfig)
+        );
+
+        voiceResponse.use(
+          new GoogleASR({
+            credentials: speechCredentials,
+            languageCode: config.defaultLanguageCode
+          } as GoogleSpeechConfig)
+        );
+
+        await voiceResponse.answer();
+
+        const eventsClient =
+          app.enableEvents && config.eventsServerEnabled
+            ? eventsServer.getConnection(voiceRequest.callerNumber)
+            : null;
+
+        sendClientEvent(eventsClient, {
+          eventName: CLIENT_EVENTS.ANSWERED
+        });
+
+        if (app.initialDtmf)
+          await voiceResponse.dtmf({ dtmf: app.initialDtmf });
+
+        if (
+          app.intentsEngineConfig.welcomeIntentId &&
+          intentsEngine.findIntentWithEvent
+        ) {
+          const response = await intentsEngine.findIntentWithEvent(
+            app.intentsEngineConfig.welcomeIntentId,
+            {
+              telephony: {
+                caller_id: voiceRequest.callerNumber
+              }
+            }
+          );
+          if (response.effects.length > 0) {
+            await voiceResponse.say(
+              response.effects[0].parameters["response"] as string,
+              voiceConfig
+            );
+          } else {
+            logger.warn(
+              `no effects found for welcome intent: trigger '${app.intentsEngineConfig.welcomeIntentId}'`
+            );
+          }
+        }
+
+        const cerebro = new Cerebro({
+          voiceRequest,
+          voiceResponse,
+          eventsClient,
+          voiceConfig,
+          intentsEngine,
+          activationIntentId: app.activationIntentId,
+          activationTimeout: app.activationTimeout,
+          transfer: app.transferConfig,
+          alternativeLanguageCode: app.speechConfig.languageCode
+        });
+
+        // Open for bussiness
+        await cerebro.wake();
+      } catch (e) {
+        ulogger({
+          accessKeyId: voiceRequest.accessKeyId,
+          eventType: ULogType.APP,
+          level: "error",
+          message: (e as Error).message
+        });
+      }
+    }
+  );
+}

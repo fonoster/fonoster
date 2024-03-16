@@ -18,7 +18,9 @@
  */
 import { Verb } from "../verb";
 import { VoiceRequest } from "../types";
-import logger from "@fonoster/logger";
+import { getLogger } from "@fonoster/logger";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 export class PlaybackControl extends Verb {
   playbackId: string;

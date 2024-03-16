@@ -17,20 +17,21 @@
  * limitations under the License.
  */
 import { SpeechProvider } from "@fonoster/common";
-import merge from "deepmerge";
 import { assertsFinishOnKeyIsChar, assertsValueIsPositive } from "../asserts";
 import { VoiceRequest } from "../types";
 import { Verb } from "../verb";
-import { assertsHasNumDigitsOrTimeout } from "./asserts";
+import { GatherOptions } from "./types";
+import { getLogger } from "@fonoster/logger";
+import merge from "deepmerge";
 import waitForDtmf from "./source_dtmf";
 import waitForSpeech from "./source_speech";
-import { GatherOptions } from "./types";
-import logger from "@fonoster/logger";
 
 const defaultOptions: GatherOptions = {
   finishOnKey: "#",
   source: "dtmf"
 };
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 export default class GatherVerb extends Verb {
   speechProvider: SpeechProvider;

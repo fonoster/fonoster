@@ -1,0 +1,37 @@
+{
+  "name": "@fonoster/autopilot",
+  "version": "0.4.14",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "bin": {
+    "run": "./bin/run",
+    "rox": "./bin/run"
+  },
+  "scripts": {
+    "build": "tsc --build ./tsconfig.json"
+  },
+  "dependencies": {
+    "@fonoster/apps": "^0.4.14",
+    "@fonoster/googleasr": "^0.4.14",
+    "@fonoster/googletts": "^0.4.14",
+    "@fonoster/logger": "^0.4.14",
+    "@fonoster/secrets": "^0.4.14",
+    "@fonoster/voice": "^0.4.14",
+    "@google-cloud/dialogflow": "^4.3.1",
+    "@google-cloud/dialogflow-cx": "^2.13.0",
+    "date-fns": "^2.29.3",
+    "nanoid": "^3.1.25",
+    "node-cron": "^3.0.2",
+    "pb-util": "^1.0.2",
+    "uuid": "^8.3.2",
+    "ws": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^7.4.7"
+  },
+  "files": [
+    "/bin",
+    "/dist"
+  ]
+}

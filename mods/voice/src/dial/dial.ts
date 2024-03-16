@@ -16,13 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import PubSub from "pubsub-js";
-import logger from "@fonoster/logger";
+import { getLogger } from "@fonoster/logger";
 import { objectToQString } from "../utils";
 import { Verb } from "../verb";
 import { DialOptions } from "./types";
+import PubSub from "pubsub-js";
 import StatusStream from "./status_stream";
-import { Stream } from "stream";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 export default class DialVerb extends Verb {
   async run(

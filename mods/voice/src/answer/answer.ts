@@ -16,15 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import PubSub from "pubsub-js";
-import logger from "@fonoster/logger";
-import { objectToQString } from "../utils";
 import { Verb } from "../verb";
+import { getLogger } from "@fonoster/logger";
+import { objectToQString } from "../utils";
+import PubSub from "pubsub-js";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 export default class AnswerVerb extends Verb {
   async run(): Promise<void> {
     logger.verbose(
-      `@fonoster/voice sending answer request [sessionId = ${this.request.sessionId}]`
+      `sending answer request [sessionId = ${this.request.sessionId}]`
     );
 
     return new Promise(async (resolve, reject) => {
