@@ -39,7 +39,7 @@ proxy.on("proxyReq", (proxyReq) => {
   proxyReq.setHeader("Authorization", `Basic ${encodedCredentials}`);
 });
 
-app.use("/ari", (req, res) => {
+app.use("/", (req, res) => {
   logger.verbose("proxying request to target server", {
     targetServer: APISERVER_ASTERISK_ARI_INTERNAL_URL,
     url: req.url

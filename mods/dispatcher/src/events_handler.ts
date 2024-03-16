@@ -142,6 +142,7 @@ export default function (err: any, ari: any) {
     });
   });
 
+  // WARNING: The typo in the event name is intentional
   ari.on("ChannelUserevent", async (event: any) => {
     logger.verbose("dispatcher received user event", { event });
 

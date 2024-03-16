@@ -16,12 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APISERVER_MEDIA_ENDPOINT } from "../envs";
+import { sendData, streamConfig } from "../utils/udp_server_utils";
+import { getChannelVar } from "../utils/channel_variable";
 import WebSocket from "ws";
 import UDPMediaReceiver from "../udp_media_receiver";
 import logger from "@fonoster/logger";
-import { sendData, streamConfig } from "../utils/udp_server_utils";
 import pickPort from "pick-port";
-import { getChannelVar } from "../utils/channel_variable";
 
 export const externalMediaHandler = async (
   ws: WebSocket,
@@ -33,7 +34,8 @@ export const externalMediaHandler = async (
     return;
   }
   const port = await pickPort();
-  const address = `0.0.0.0:${port}`;
+
+  const address = `${APISERVER_MEDIA_ENDPOINT}:${port}`;
   const udpServer = new UDPMediaReceiver(address, true);
   const sessionId = event.userevent.sessionId;
   const currentChannel = await ari.channels.get({ channelId: sessionId });
