@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/autopilot",
-  "version": "0.4.19",
+  "version": "0.4.20",
   "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",
@@ -12,12 +12,12 @@
     "build": "tsc --build ./tsconfig.json"
   },
   "dependencies": {
-    "@fonoster/apps": "^0.4.19",
-    "@fonoster/googleasr": "^0.4.19",
-    "@fonoster/googletts": "^0.4.19",
-    "@fonoster/logger": "^0.4.19",
-    "@fonoster/secrets": "^0.4.19",
-    "@fonoster/voice": "^0.4.19",
+    "@fonoster/apps": "^0.4.20",
+    "@fonoster/googleasr": "^0.4.20",
+    "@fonoster/googletts": "^0.4.20",
+    "@fonoster/logger": "^0.4.20",
+    "@fonoster/secrets": "^0.4.20",
+    "@fonoster/voice": "^0.4.20",
     "@google-cloud/dialogflow": "^4.3.1",
     "@google-cloud/dialogflow-cx": "^2.13.0",
     "date-fns": "^2.29.3",

@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/projects",
-  "version": "0.4.19",
+  "version": "0.4.20",
   "description": "User Projects",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -38,11 +38,11 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.4.19",
-    "@fonoster/common": "^0.4.19",
-    "@fonoster/core": "^0.4.19",
-    "@fonoster/errors": "^0.4.19",
-    "@fonoster/logger": "^0.4.19",
+    "@fonoster/auth": "^0.4.20",
+    "@fonoster/common": "^0.4.20",
+    "@fonoster/core": "^0.4.20",
+    "@fonoster/errors": "^0.4.20",
+    "@fonoster/logger": "^0.4.20",
     "@grpc/grpc-js": "~1.8.21",
     "bson-objectid": "^2.0.2",
     "google-protobuf": "^3.17.0",
