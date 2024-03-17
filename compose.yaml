@@ -45,7 +45,6 @@ services:
       APISERVER_ASTERISK_ARI_INTERNAL_URL: ${APISERVER_ASTERISK_ARI_INTERNAL_URL}
       APISERVER_ASTERISK_ARI_USERNAME: ${APISERVER_ASTERISK_ARI_USERNAME}
       APISERVER_ASTERISK_ARI_SECRET: ${APISERVER_ASTERISK_ARI_SECRET}
-      APISERVER_ASTERISK_RECORDINGS_PATH: ${APISERVER_ASTERISK_RECORDINGS_PATH}
       APISERVER_VAULT_ADDR: ${APISERVER_VAULT_ADDR}
       APISERVER_VAULT_TOKEN: ${APISERVER_VAULT_TOKEN}
       APISERVER_S3_SERVER_HOST: ${APISERVER_S3_SERVER_HOST}
@@ -65,6 +64,8 @@ services:
     ports:
       - 50052:50052
       - 4000:4000
+    expose:
+      - 6445
     volumes:
       - ./etc/monitor.patch.js:/service/node_modules/@fonoster/monitor/dist/service/monitor.js:ro
       - ./etc/config:/home/fonoster/.fonoster/config:ro
@@ -133,6 +134,7 @@ services:
     restart: unless-stopped
     environment:
       APISERVER_RBAC_CONFIG: "/root/.fonoster/rbac.json"
+      APISEERVER_ENDPOINT: ${APISERVER_ENDPOINT}
       ARI_PROXY_URL: ${ASTERISK_ARI_PROXY_URL}
       ARI_USERNAME: ${ASTERISK_ARI_USERNAME}
       ARI_SECRET: ${ASTERISK_ARI_SECRET}
@@ -145,6 +147,7 @@ services:
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_DRIVER_HOST: ${LOGS_DRIVER_HOST}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      GRPC_ALLOW_INSECURE: true
     expose:
       - 6060
       - 8088
@@ -186,7 +189,7 @@ services:
       - ./etc/fluent.conf:/fluentd/etc/fluent.conf:ro
 
   elasticsearch:
-    image: elasticsearch:7.17.18
+    image: elasticsearch:7.16.3
     restart: unless-stopped
     platform: linux/x86_64
     environment:

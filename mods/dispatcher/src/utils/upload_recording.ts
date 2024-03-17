@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { APISERVER_RECORDINGS_PATH } from "../envs";
+import { RECORDINGS_PATH } from "../envs";
 import { getLogger } from "@fonoster/logger";
 import Auth from "@fonoster/auth";
 import Storage from "@fonoster/storage";
@@ -42,6 +42,6 @@ export const uploadRecording = async (
   await storage.uploadObject({
     // TODO: Place bucket name on a constant
     bucket: "recordings",
-    filename: `${APISERVER_RECORDINGS_PATH}/${filename}`
+    filename: `${RECORDINGS_PATH}/${filename}`
   });
 };
