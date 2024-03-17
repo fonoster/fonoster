@@ -19,5 +19,6 @@
 export const ARI_INTERNAL_URL = "http://localhost:8088";
 export const ARI_PROXY_URL = process.env.ARI_PROXY_URL;
 export const ARI_USERNAME = process.env.ARI_USERNAME;
-export const ARI_SECRET = process.env.ARI_USERNAME;
-export const APISERVER_RECORDINGS_PATH = process.env.APISERVER_RECORDINGS_PATH;
+export const ARI_SECRET = process.env.ARI_SECRET;
+export const RECORDINGS_PATH =
+  process.env.RECORDINGS_PATH || "/var/spool/asterisk/recording";
