@@ -18,10 +18,18 @@
  * limitations under the License.
  */
 import { join } from "path";
+import { getLogger } from "@fonoster/logger";
 import dotenv from "dotenv";
+
+const logger = getLogger({ service: "dispatcher", filePath: __filename });
 
 if (process.env.NODE_ENV === "dev") {
   dotenv.config({ path: join(__dirname, "../../../", ".env") });
 }
+
+process.on("unhandledRejection", (reason, p) => {
+  logger.error("unhandled rejection", p, "reason:", reason);
+  process.exit(1);
+});
 
 import("./dispatcher");

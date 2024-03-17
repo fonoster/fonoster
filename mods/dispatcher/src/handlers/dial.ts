@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import WebSocket from "ws";
-import logger from "@fonoster/logger";
 import { routr } from "@fonoster/core";
 import { uploadRecording } from "../utils/upload_recording";
 import { getChannelVar } from "../utils/channel_variable";
+import WebSocket from "ws";
+import logger from "@fonoster/logger";
 
 const getDomainByNumber = async (e164Number: string) => {
   await routr.connect();

@@ -19,5 +19,3 @@
 export const APISERVER_ASTERISK_SIP_ENDPOINT =
   process.env.APISERVER_ASTERISK_SIP_ENDPOINT || "sip:voice@default";
 export const APISERVER_AUTOPILOT_URL = process.env.APISERVER_AUTOPILOT_URL;
-export const APISERVER_ASTERISK_ARI_INTERNAL_URL =
-  process.env.APISERVER_ASTERISK_ARI_INTERNAL_URL || "http://asterisk:8088";

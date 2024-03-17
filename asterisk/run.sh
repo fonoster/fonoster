@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 USAGE=$(cat <<-END
 To run this image you must provide the following environment variables:
   ARI_USERNAME
@@ -56,4 +58,4 @@ export RECORDINGS_PATH="/var/spool/asterisk/recording"
 export ARI_INTERNAL_URL='http://localhost:8088'
 dispatcher
 
-# while sleep 3600; do :; done
+while sleep 3600; do :; done
