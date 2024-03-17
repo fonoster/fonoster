@@ -5,7 +5,7 @@ COPY asterisk/config /etc/asterisk/
 COPY asterisk/run.sh /
 
 RUN apk add --no-cache --update tini asterisk asterisk-speex asterisk-curl nodejs npm git \
- && npm install -g @fonoster/dispatcher \
+ && npm install -g @fonoster/dispatcher@0.4.18 \
  && chmod +x /run.sh \
  && apk del --purge npm git
 
