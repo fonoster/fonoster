@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/pollytts",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "description": "Amazon Polly TTS Plugin",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/pollytts#readme",
@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-polly": "^3.42.0",
-    "@fonoster/common": "^0.4.17",
-    "@fonoster/logger": "^0.4.17",
-    "@fonoster/tts": "^0.4.17",
+    "@fonoster/common": "^0.4.18",
+    "@fonoster/logger": "^0.4.18",
+    "@fonoster/tts": "^0.4.18",
     "deepmerge": "^4.2.2"
   },
   "gitHead": "2441b22b3f0de7ee222897715f4c7c95f773b6a0"

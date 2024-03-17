@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/domains",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "description": "VoIP Domains",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -38,9 +38,9 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.4.17",
-    "@fonoster/common": "^0.4.17",
-    "@fonoster/core": "^0.4.17",
+    "@fonoster/auth": "^0.4.18",
+    "@fonoster/common": "^0.4.18",
+    "@fonoster/core": "^0.4.18",
     "@grpc/grpc-js": "~1.8.21",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
