@@ -48,6 +48,7 @@ docker run -it \
 
 Environment variables are used in the entry point script to render configuration templates. You can specify the values of these variables during `docker run`, `docker-compose up`, or in Kubernetes manifests in the `env` array.
 
+- `ARI_PROXY_URL` - URL for ARI API. Defaults to `http://localhost:8088`
 - `ARI_USERNAME` - Username for ARI API. **Required**
 - `ARI_SECRET` - Password for ARI API. **Required**
 - `SIPPROXY_HOST` - The SIP Proxy's IP address. **Required**

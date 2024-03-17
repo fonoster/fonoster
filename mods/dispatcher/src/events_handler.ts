@@ -31,7 +31,7 @@ import { sendDtmf } from "./handlers/send_dtmf";
 import { answer } from "./utils/answer_channel";
 import { dial } from "./handlers/dial";
 import { ulogger, ULogType, getLogger } from "@fonoster/logger";
-import { ARI_EXTERNAL_URL } from "./envs";
+import { ARI_PROXY_URL } from "./envs";
 import Auth from "@fonoster/auth";
 import Numbers from "@fonoster/numbers";
 import WebSocket from "ws";
@@ -83,7 +83,7 @@ export default function (err: any, ari: any) {
       accessKeyId: ingressInfo.accessKeyId,
       sessionToken: access.token,
       // Dialback request must travel thru the reverse proxy first
-      dialbackEnpoint: ARI_EXTERNAL_URL,
+      dialbackEnpoint: ARI_PROXY_URL,
       sessionId,
       number: didInfo,
       callerId: event.channel.caller.name,

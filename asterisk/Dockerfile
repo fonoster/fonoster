@@ -1,13 +1,13 @@
-FROM alpine:3.12
+FROM alpine:3.19
 LABEL maintainer="Pedro Sanders <psanders@fonoster.com>"
 
 COPY asterisk/config /etc/asterisk/
 COPY asterisk/run.sh /
 
-RUN apk add --no-cache --update tini asterisk asterisk-speex asterisk-curl nodejs npm \
+RUN apk add --no-cache --update tini asterisk asterisk-speex asterisk-curl nodejs npm git \
  && npm install -g @fonoster/dispatcher \
  && chmod +x /run.sh \
- && apk del --purge npm
+ && apk del --purge npm git
 
 
 ENTRYPOINT ["tini", "-v", "--"]
