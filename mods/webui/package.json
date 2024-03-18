@@ -21,7 +21,7 @@
     "@supabase/ui": "^0.36.2",
     "@tailwindcss/forms": "^0.4.0",
     "autoprefixer": "^10.4.1",
-    "axios": "^0.24.0",
+    "axios": "^0.28.0",
     "dotenv": "^16.3.1",
     "next": "12.3.4",
     "next-auth": "4.15.2",

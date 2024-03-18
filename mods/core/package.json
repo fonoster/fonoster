@@ -32,7 +32,7 @@
     "@fonoster/logger": "^0.4.22",
     "@grpc/grpc-js": "~1.8.21",
     "atob": "^2.1.2",
-    "axios": "^1.6.2",
+    "axios": "^0.28.0",
     "btoa": "^1.2.1",
     "deepmerge": "^4.2.2",
     "ioredis": "^4.16.0",
