@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { SynthResult, TTSConfig, TTSPlugin } from "./types";
 import { Plugin } from "@fonoster/common";
 import { computeFilename } from "./utils";
@@ -32,19 +31,12 @@ export default abstract class AbstractTTS extends Plugin implements TTSPlugin {
     this.config = config;
     this.config.path = config.path ? config.path : os.tmpdir();
   }
-  /**
-   * @inherit
-   * @deprecated
-   */
-  async synthetize?(text: string, options: any = {}): Promise<SynthResult> {
-    return await this.synthesize(text, options);
-  }
 
   /**
    * @inherit
    */
   async synthesize(text: string, options: any = {}): Promise<SynthResult> {
-    const filename = computeFilename(text, options, "sln24");
+    const filename = computeFilename(text, options, "sln16");
     const pathToFile = path.join(this.config.path, filename);
 
     if (!fs.existsSync(pathToFile)) {

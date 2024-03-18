@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from "fs";
-import util from "util";
-import textToSpeech, { v1 } from "@google-cloud/text-to-speech";
 import { SynthResult, AbstractTTS } from "@fonoster/tts";
-import logger from "@fonoster/logger";
 import { GoogleTTSConfig } from "./types";
 import { isSSML } from "./utils";
-const merge = require("deepmerge");
+import textToSpeech, { v1 } from "@google-cloud/text-to-speech";
+import fs from "fs";
+import util from "util";
+import logger from "@fonoster/logger";
 
+const merge = require("deepmerge");
 const defaultVoice = { languageCode: "en-US", ssmlGender: "NEUTRAL" };
 
 /**
