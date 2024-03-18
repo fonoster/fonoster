@@ -83,7 +83,7 @@ export class Cerebro {
     this.stream = await this.voiceResponse.sgather(speechConfig as any);
 
     this.stream.on("transcript", async (data) => {
-      if (data.isFinal) {
+      if (data.isFinal && data.transcript) {
         const intent = await this.intentsEngine.findIntent(data.transcript, {
           telephony: {
             caller_id: this.voiceRequest.callerNumber

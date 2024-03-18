@@ -40,11 +40,6 @@ export const dial = async (
 
   logger.silly("initiating dial request", { request: event.userevent });
 
-  if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn("ignoring socket request on lost connection");
-    return;
-  }
-
   // Which Domain has this number assigned to for outbound
   const domain = await getDomainByNumber(number);
 

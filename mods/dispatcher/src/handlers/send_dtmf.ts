@@ -29,11 +29,6 @@ export const sendDtmf = async (ws: WebSocket, ari: any, event: any) => {
     channelId: event.userevent.sessionId
   });
 
-  if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn("ignoring socket request on lost connection");
-    return;
-  }
-
   await channel.sendDTMF({
     dtmf: event.userevent.dtmf
   });

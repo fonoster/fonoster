@@ -24,11 +24,6 @@ export const recordFinishHandler = (ws: WebSocket, event: any) => {
     filename: event.recording.name
   });
 
-  if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn("ignoring socket request on lost connection");
-    return;
-  }
-
   ws.send(
     JSON.stringify({
       type: "RecordingFinished",

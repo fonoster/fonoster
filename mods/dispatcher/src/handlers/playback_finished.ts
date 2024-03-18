@@ -22,11 +22,6 @@ import logger from "@fonoster/logger";
 export const playbackFinishedHandler = (ws: WebSocket, playback: any) => {
   logger.silly("sending playback finished event", { playbackId: playback.id });
 
-  if (ws.readyState !== WebSocket.OPEN) {
-    logger.warn("ignoring socket request on lost connection");
-    return;
-  }
-
   ws.send(
     JSON.stringify({
       type: "PlaybackFinished",

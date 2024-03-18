@@ -28,10 +28,6 @@ export const externalMediaHandler = async (
   ari: any,
   event: any
 ) => {
-  if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn("ignoring socket request on lost connection");
-    return;
-  }
   const port = await pickPort();
 
   const address = `0.0.0.0:${port}`;

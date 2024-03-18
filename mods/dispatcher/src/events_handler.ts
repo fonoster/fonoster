@@ -114,14 +114,37 @@ export default function (err: any, ari: any) {
         body: { webhook }
       });
       channel.hangup();
+      wsConnections.delete(sessionId);
     });
 
     channel.on("ChannelTalkingStarted", async (event: any, channel: any) => {
-      channelTalkingHandler(wsConnections.get(channel.id), channel.id, true);
+      const sessionId = channel.id;
+      const wsClient = wsConnections.get(sessionId);
+
+      if (!wsClient || wsClient.readyState !== WebSocket.OPEN) {
+        logger.warn("ignoring socket request on lost connection", {
+          sessionId
+        });
+        wsConnections.delete(sessionId);
+        return;
+      }
+
+      channelTalkingHandler(wsClient, sessionId, true);
     });
 
     channel.on("ChannelTalkingFinished", async (event: any, channel: any) => {
-      channelTalkingHandler(wsConnections.get(channel.id), channel.id, false);
+      const sessionId = channel.id;
+      const wsClient = wsConnections.get(sessionId);
+
+      if (!wsClient || wsClient.readyState !== WebSocket.OPEN) {
+        logger.warn("ignoring socket request on lost connection", {
+          sessionId
+        });
+        wsConnections.delete(sessionId);
+        return;
+      }
+
+      channelTalkingHandler(wsClient, sessionId, false);
     });
 
     channel.on("ChannelLeftBridge", async (event: any, resources: any) => {
@@ -146,7 +169,14 @@ export default function (err: any, ari: any) {
   ari.on("ChannelUserevent", async (event: any) => {
     logger.verbose("dispatcher received user event", { event });
 
-    const wsClient = wsConnections.get(event.userevent.sessionId);
+    const sessionId = event.userevent.sessionId;
+    const wsClient = wsConnections.get(sessionId);
+
+    if (!wsClient || wsClient.readyState !== WebSocket.OPEN) {
+      logger.warn("ignoring socket request on lost connection", { sessionId });
+      wsConnections.delete(sessionId);
+      return;
+    }
 
     switch (event.eventname) {
       case "SendExternalMedia":
@@ -179,41 +209,75 @@ export default function (err: any, ari: any) {
   });
 
   ari.on("ChannelDtmfReceived", async (event: any, channel: any) => {
-    dtmfReceivedHandler(wsConnections.get(channel.id), event, channel);
+    const sessionId = channel.id;
+    const wsClient = wsConnections.get(sessionId);
+
+    if (!wsClient || wsClient.readyState !== WebSocket.OPEN) {
+      logger.warn("ignoring socket request on lost connection", { sessionId });
+      wsConnections.delete(sessionId);
+      return;
+    }
+
+    dtmfReceivedHandler(wsClient, event, channel);
   });
 
   ari.on("PlaybackFinished", async (event: any, playback: any) => {
-    playbackFinishedHandler(
-      wsConnections.get(event.playback.target_uri.split(":")[1]),
-      playback
-    );
+    const sessionId = event.playback.target_uri.split(":")[1];
+    const wsClient = wsConnections.get(sessionId);
+
+    if (!wsClient || wsClient.readyState !== WebSocket.OPEN) {
+      logger.warn("ignoring socket request on lost connection", { sessionId });
+      wsConnections.delete(sessionId);
+      return;
+    }
+
+    playbackFinishedHandler(wsClient, playback);
   });
 
   ari.on("RecordingFinished", (event: any) => {
-    const conn = wsConnections.get(event.recording.name);
-    // Connection could be null if recording a dialed channel
-    conn && recordFinishHandler(conn, event);
+    const sessionId = event.recording.name;
+    const wsClient = wsConnections.get(sessionId);
+
+    if (!wsClient || wsClient.readyState !== WebSocket.OPEN) {
+      logger.warn("ignoring socket request on lost connection", { sessionId });
+      return;
+    }
+
+    recordFinishHandler(wsClient, event);
   });
 
   ari.on("RecordingFailed", (event: any) => {
-    recordFailedHandler(
-      wsConnections.get(event.recording.target_uri.split(":")[1]),
-      event
-    );
+    const sessionId = event.recording.target_uri.split(":")[1];
+    const wsClient = wsConnections.get(sessionId);
+
+    if (!wsClient || wsClient.readyState !== WebSocket.OPEN) {
+      logger.warn("ignoring socket request on lost connection", { sessionId });
+      wsConnections.delete(sessionId);
+      return;
+    }
+
+    recordFailedHandler(wsClient, event);
   });
 
   ari.on("StasisEnd", async (event: any, channel: any) => {
     logger.verbose("voice session ended", { sessionId: channel.id });
-    const ws = wsConnections.get(channel.id);
-    // The external channels don't have ws connections
-    if (ws) {
-      ws.send(
+    const sessionId = channel.id;
+    const wsClient = wsConnections.get(sessionId);
+
+    if (!wsClient || wsClient.readyState !== WebSocket.OPEN) {
+      logger.warn("ignoring socket request on lost connection", { sessionId });
+      wsConnections.delete(sessionId);
+      return;
+    }
+
+    if (wsClient) {
+      wsClient.send(
         JSON.stringify({
           type: "SessionClosed",
-          sessionId: channel.id
+          sessionId: sessionId
         })
       );
-      wsConnections.delete(channel.id);
+      wsConnections.delete(sessionId);
     }
   });
 

@@ -29,11 +29,6 @@ export const channelTalkingHandler = (
     status: onOff
   });
 
-  if (!ws || ws.readyState !== WebSocket.OPEN) {
-    logger.warn("ignoring socket request on lost connection");
-    return;
-  }
-
   ws.send(
     JSON.stringify({
       type: "ChannelTalking",
