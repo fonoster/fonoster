@@ -90,7 +90,7 @@ export default class VoiceServer {
   init() {
     logger.info("initializing voice server");
     (app as any).ws(this.config.base, (ws) => {
-      ws.on("message", (msg) => {
+      ws.on("message", (msg: string) => {
         if (Buffer.isBuffer(msg)) {
           // Session ids will always be 12 or 13 digits long)
           const numDigits = 2;
@@ -100,6 +100,11 @@ export default class VoiceServer {
           PubSub.publish(`ReceivingMedia.${sessionId}`, mediaData);
         } else {
           const event = JSON.parse(msg);
+
+          if (event.error) {
+            logger.error("received new event from the dispatcher", event);
+            return;
+          }
 
           if (event.type === "PlaybackFinished") {
             PubSub.publish(`${event.type}.${event.data.playbackId}`, event);
@@ -111,14 +116,6 @@ export default class VoiceServer {
           } else {
             PubSub.publish(`${event.type}.${event.sessionId}`, event);
           }
-
-          logger.verbose(
-            `@fonoster/voice received event [${JSON.stringify(
-              event,
-              null,
-              " "
-            )}]`
-          );
         }
       }).on("error", console.error);
     });
