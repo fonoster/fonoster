@@ -181,7 +181,7 @@ services:
     expose:
       - 8200
     volumes:
-      - shared:/vault/file:rw
+      - vault:/vault/file:rw
       - ./etc/vault.json:/vault/config/vault.json:ro
     cap_add:
       - IPC_LOCK
@@ -220,3 +220,4 @@ services:
 
 volumes:
   shared:
+  vault:
