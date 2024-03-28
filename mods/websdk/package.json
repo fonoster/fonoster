@@ -58,7 +58,7 @@
   },
   "gitHead": "a7f9f9412e4fb9b32fb502932fd6098aa173c279",
   "dependencies": {
-    "axios": "^1.6.2",
+    "axios": "^0.28.0",
     "babel-loader": "^9.1.3"
   }
 }

@@ -31,7 +31,7 @@
     "@grpc/grpc-js": "~1.8.21",
     "@grpc/proto-loader": "^0.7.2",
     "atob": "^2.1.2",
-    "axios": "^1.6.2",
+    "axios": "^0.28.0",
     "deepmerge": "^4.2.2",
     "grpc-interceptors": "github:fonoster/node-grpc-interceptors"
   },
