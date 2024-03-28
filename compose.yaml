@@ -69,7 +69,7 @@ services:
     volumes:
       - ./etc/monitor.patch.js:/service/node_modules/@fonoster/monitor/dist/service/monitor.js:ro
       - ./etc/config:/home/fonoster/.fonoster/config:ro
-      - ./etc/config/rbac.json:/home/fonoster/rbac.json:ro
+      - ./etc/rbac.json:/home/fonoster/rbac.json:ro
     logging:
       options:
         tag: fonoster-logs

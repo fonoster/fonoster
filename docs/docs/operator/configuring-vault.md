@@ -48,6 +48,7 @@ export VAULT_TOKEN=<InitialRootToken>
 Finally, configure Vault policies and enable secrets and authentication methods:
 
 ```bash
+docker cp vault_policy.hcl $CONTAINER_ID:/vault/config/vault_policy.hcl
 docker exec -it -e VAULT_ADDR=$VAULT_ADDR -e VAULT_TOKEN=$VAULT_TOKEN $CONTAINER_ID vault policy write fonoster-secrets-policy /vault/config/vault_policy.hcl
 docker exec -it -e VAULT_ADDR=$VAULT_ADDR -e VAULT_TOKEN=$VAULT_TOKEN $CONTAINER_ID vault secrets enable -path=secret kv
 docker exec -it -e VAULT_ADDR=$VAULT_ADDR -e VAULT_TOKEN=$VAULT_TOKEN $CONTAINER_ID vault auth enable approle
