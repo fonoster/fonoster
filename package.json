@@ -13,6 +13,7 @@
     "start:docs": "cd docs && npm start",
     "start:site": "npx http-server site -p 8080",
     "stop:services": "docker compose -f compose.yaml -f compose.dev.yaml down",
+    "prestart:apiserver": "npm run start:services && ./.scripts/unseal-vault.sh",
     "vault:init": ".scripts/init-vault.sh",
     "vault:unseal": ".scripts/unseal-vault.sh",
     "vault:destroy": ".scripts/destroy-vault.sh",

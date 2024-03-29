@@ -34,12 +34,16 @@ export class Cerebro {
   voiceRequest: VoiceRequest;
   status: CerebroStatus;
   activationTimeout: number;
+  maxIteractionsBeforeHangup: number = 2;
+  failedInteractions: number = 0;
   activeTimer: NodeJS.Timer;
+  interactionTimer: NodeJS.Timer;
   intentsEngine: IntentsEngine;
   stream: SGatherStream;
   config: CerebroConfig;
   lastIntent: any;
   effects: EffectsManager;
+  interactionsTimer: NodeJS.Timeout;
   constructor(config: CerebroConfig) {
     this.voiceResponse = config.voiceResponse;
     this.voiceRequest = config.voiceRequest;
@@ -62,6 +66,11 @@ export class Cerebro {
   async wake() {
     this.status = CerebroStatus.AWAKE_PASSIVE;
 
+    // This timer becomes active only if we don't have an activation intent
+    if (!this.config.activationIntentId) {
+      this.startInteractionTimer();
+    }
+
     this.voiceResponse.on("error", (error: Error) => {
       this.cerebroEvents.emit("error", error);
       ulogger({
@@ -73,6 +82,7 @@ export class Cerebro {
     });
 
     const speechConfig = { source: "speech,dtmf" } as any;
+
     if (this.config.alternativeLanguageCode) {
       speechConfig.model = "command_and_search";
       speechConfig.alternativeLanguageCodes = [
@@ -84,6 +94,12 @@ export class Cerebro {
 
     this.stream.on("transcript", async (data) => {
       if (data.isFinal && data.transcript) {
+        logger.verbose("clear interactions timer", {
+          sessionId: this.voiceRequest.sessionId
+        });
+
+        clearTimeout(this.interactionsTimer);
+
         const intent = await this.intentsEngine.findIntent(data.transcript, {
           telephony: {
             caller_id: this.voiceRequest.callerNumber
@@ -91,6 +107,7 @@ export class Cerebro {
         });
 
         logger.verbose("cerebro received new transcription from user", {
+          sessionId: this.voiceRequest.sessionId,
           text: data.transcript,
           ref: intent.ref,
           confidence: intent.confidence
@@ -98,6 +115,7 @@ export class Cerebro {
 
         await this.effects.invokeEffects(intent, this.status, async () => {
           await this.stopPlayback();
+
           if (this.config.activationIntentId === intent.ref) {
             sendClientEvent(this.config.eventsClient, {
               eventName: CLIENT_EVENTS.RECOGNIZING
@@ -110,6 +128,15 @@ export class Cerebro {
             }
           }
         });
+
+        logger.verbose("cerebro finished processing intent effects", {
+          sessionId: this.voiceRequest.sessionId
+        });
+
+        // Reset the interactions timer
+        if (!this.config.activationIntentId) {
+          this.resetInteractionTimer();
+        }
 
         // Need to save this to avoid duplicate intents
         this.lastIntent = intent;
@@ -143,6 +170,66 @@ export class Cerebro {
     logger.verbose("cerebro is reseting awake status");
     clearTimeout(this.activeTimer);
     this.startActiveTimer();
+  }
+
+  /**
+   * Start the interactions timer
+   * If the user doesn't say anything we should play the welcome message
+   * If it gets played twice many times we should hangup
+   * If the user says something we should reset the timer
+   * If we just finish an effect we should reset the timer
+   */
+  startInteractionTimer(): void {
+    logger.verbose("cerebro is starting interactions timer", {
+      sessionId: this.voiceRequest.sessionId
+    });
+
+    this.interactionsTimer = setInterval(async () => {
+      this.failedInteractions++;
+
+      logger.verbose("cerebro is counting interactions", {
+        sessionId: this.voiceRequest.sessionId,
+        failedInteractions: this.failedInteractions
+      });
+
+      let intentId = "welcome";
+
+      if (this.failedInteractions >= this.maxIteractionsBeforeHangup) {
+        logger.verbose(
+          "there was no interaction so for a long time so we hangup",
+          {
+            sessionId: this.voiceRequest.sessionId
+          }
+        );
+
+        intentId = "goodbye";
+
+        clearTimeout(this.interactionsTimer);
+      }
+
+      const intent = await this.intentsEngine.findIntentWithEvent(intentId, {
+        telephony: {
+          caller_id: this.voiceRequest.callerNumber
+        }
+      });
+
+      await this.effects.invokeEffects(intent, this.status, () => {
+        logger.verbose("invokeEffects callback", {
+          sessionId: this.voiceRequest.sessionId
+        });
+      });
+    }, this.activationTimeout);
+  }
+
+  resetInteractionTimer(): void {
+    logger.verbose("cerebro is reseting interactions timer", {
+      sessionId: this.voiceRequest.sessionId
+    });
+
+    // Reset the failed interactions timer
+    this.failedInteractions = 0;
+    clearTimeout(this.interactionsTimer);
+    this.startInteractionTimer();
   }
 
   async stopPlayback() {

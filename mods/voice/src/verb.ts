@@ -45,7 +45,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.silly(`@fonoster/voice posting [url: ${url}]`);
+    logger.silly("sending command to media server", { url });
 
     return await axios({
       method: "post",
@@ -63,7 +63,7 @@ export class Verb {
       this.getRequest().dialbackEnpoint
     }/ari/${apiPath}?${queryParameters}`;
 
-    logger.silly(`@fonoster/voice deleting [url: ${url}]`);
+    logger.silly("sending command to media server", { url });
 
     return await axios({
       method: "delete",

@@ -27,11 +27,7 @@ const logger = getLogger({ service: "voice", filePath: __filename });
 
 export default class DtmfVerb extends Verb {
   async run(opts: DtmfOptions): Promise<void> {
-    logger.verbose(
-      `@fonoster/voice sending dtmf request [sessionId = ${
-        this.request.sessionId
-      }, opts = ${JSON.stringify(opts)}]`
-    );
+    logger.verbose("sending dtmf request", { sessionId: this.request.sessionId, opts });
 
     assertsHasDtmf(opts);
 

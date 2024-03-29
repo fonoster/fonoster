@@ -31,9 +31,8 @@ export default class DialVerb extends Verb {
     options: DialOptions = {}
   ): Promise<StatusStream> {
     const streamStatus = new StatusStream();
-    logger.verbose(
-      `@fonoster/voice dialing [sessionId = ${this.request.sessionId}, number = ${this.request.number}]`
-    );
+
+    logger.verbose("dialing", { sessionId: this.request.sessionId, number: this.request.number })
 
     // We should reject if DialFailed
     return new Promise(async (resolve, reject) => {

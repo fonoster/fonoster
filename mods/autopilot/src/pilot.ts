@@ -26,12 +26,11 @@ import { nanoid } from "nanoid";
 import { getIntentsEngine } from "./intents/engines";
 import { ServerConfig } from "./types";
 import { sendClientEvent } from "./util";
-import { GoogleSpeechConfig } from "@fonoster/googleasr";
+import GoogleASR, { GoogleSpeechConfig } from "@fonoster/googleasr";
 import { getLogger, ulogger, ULogType } from "@fonoster/logger";
 import GoogleTTS, { GoogleTTSConfig } from "@fonoster/googletts";
 import Apps from "@fonoster/apps";
 import Secrets from "@fonoster/secrets";
-import GoogleASR from "@fonoster/googleasr";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -60,18 +59,21 @@ export default function pilot(config: ServerConfig) {
           accessKeyId: voiceRequest.accessKeyId,
           accessKeySecret: voiceRequest.sessionToken
         };
+
         const apps = new Apps(serviceCredentials);
         const secrets = new Secrets(serviceCredentials);
         const app = await apps.getApp(voiceRequest.appRef);
 
-        logger.verbose(`requested app [ref: ${app.ref}]`, { app });
+        logger.verbose("requested app", { app, ref: app.ref });
 
         const ieSecret = await secrets.getSecret(
           app.intentsEngineConfig.secretName
         );
+
         const intentsEngine = getIntentsEngine(app)(
           JSON.parse(ieSecret.secret)
         );
+
         intentsEngine?.setProjectId(app.intentsEngineConfig.projectId);
 
         const voiceConfig = {
@@ -82,6 +84,7 @@ export default function pilot(config: ServerConfig) {
         const speechSecret = await secrets.getSecret(
           app.speechConfig.secretName
         );
+
         const speechCredentials = {
           private_key: JSON.parse(speechSecret.secret).private_key,
           client_email: JSON.parse(speechSecret.secret).client_email
@@ -113,14 +116,16 @@ export default function pilot(config: ServerConfig) {
           eventName: CLIENT_EVENTS.ANSWERED
         });
 
-        if (app.initialDtmf)
+        if (app.initialDtmf) {
           await voiceResponse.dtmf({ dtmf: app.initialDtmf });
+        }
 
         if (
           app.intentsEngineConfig.welcomeIntentId &&
           intentsEngine.findIntentWithEvent
         ) {
           const response = await intentsEngine.findIntentWithEvent(
+            // TODO: This should be renamed to welcomeEventId
             app.intentsEngineConfig.welcomeIntentId,
             {
               telephony: {
@@ -129,14 +134,19 @@ export default function pilot(config: ServerConfig) {
             }
           );
           if (response.effects.length > 0) {
-            await voiceResponse.say(
-              response.effects[0].parameters["response"] as string,
-              voiceConfig
-            );
+            // eslint-disable-next-line no-loops/no-loops
+            for await (const effect of response.effects) {
+              if (effect.type === "say") {
+                await voiceResponse.say(
+                  effect.parameters["response"] as string,
+                  voiceConfig
+                );
+              }
+            }
           } else {
-            logger.warn(
-              `no effects found for welcome intent: trigger '${app.intentsEngineConfig.welcomeIntentId}'`
-            );
+            logger.warn("no effects found for welcome event", {
+              eventId: app.intentsEngineConfig.welcomeIntentId
+            });
           }
         }
 

@@ -43,9 +43,12 @@ export class EffectsManager {
   async invokeEffects(
     intent: Intent,
     status: CerebroStatus,
-    activateCallback: Function
+    activateCallback: () => void
   ) {
     activateCallback();
+
+    logger.verbose("intent received", { intentRef: intent.ref });
+
     if (this.config.activationIntentId === intent.ref) {
       logger.verbose("fired activation intent");
       return;
@@ -59,8 +62,9 @@ export class EffectsManager {
       return;
     }
 
+    // eslint-disable-next-line no-loops/no-loops
     for (const e of intent.effects) {
-      logger.verbose("effects running effect", { type: e.type });
+      logger.verbose("effects running", { type: e.type });
       await this.run(e);
     }
   }
@@ -129,6 +133,7 @@ export class EffectsManager {
       await playNoAnswerAndHangup(this.voice, playbackId, this.config);
     });
 
+    // eslint-disable-next-line no-loops/no-loops
     while (stay) {
       await playTransfering(this.voice, playbackId, this.config);
     }

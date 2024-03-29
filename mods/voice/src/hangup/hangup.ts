@@ -25,9 +25,7 @@ const logger = getLogger({ service: "voice", filePath: __filename });
 
 export default class HangupVerb extends Verb {
   async run(): Promise<void> {
-    logger.verbose(
-      `@fonoster/voice sending hangup request [sessionId = ${this.request.sessionId}]`
-    );
+    logger.verbose("waiting for session to close", { sessionId: this.request.sessionId });
 
     return new Promise(async (resolve, reject) => {
       let token: string;

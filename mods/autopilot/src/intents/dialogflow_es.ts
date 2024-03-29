@@ -133,10 +133,8 @@ export default class DialogFlow implements IntentsEngine {
       ref: responses[0].queryResult.intent.displayName || "unknown",
       effects,
       confidence: responses[0].queryResult.intentDetectionConfidence || 0,
-      allRequiredParamsPresent: responses[0].queryResult
-        .allRequiredParamsPresent
-        ? true
-        : false
+      allRequiredParamsPresent:
+        responses[0].queryResult.allRequiredParamsPresent
     };
   }
 
