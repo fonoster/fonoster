@@ -54,7 +54,7 @@ export default class GatherVerb extends Verb {
         : options.timeout || 4000;
 
     return new Promise(async (resolve, reject) => {
-      logger.verbose("waiting for input", { options })
+      logger.verbose("waiting for input", { options });
 
       if (options.source.includes("dtmf")) {
         waitForDtmf(this.request.sessionId, options)
