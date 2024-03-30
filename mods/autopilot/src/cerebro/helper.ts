@@ -32,6 +32,7 @@ const playOrSay = async (param: {
       playbackId: param.playbackId
     });
   }
+
   if (param.message) {
     if (param.voiceConfig) {
       param.voiceConfig.playbackId = param.playbackId;

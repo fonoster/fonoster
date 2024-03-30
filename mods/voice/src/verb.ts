@@ -41,11 +41,11 @@ export class Verb {
     queryParameters: string,
     data?: Record<string, unknown>
   ) {
-    const url = `${
-      this.getRequest().dialbackEnpoint
-    }/ari/${apiPath}?${queryParameters}`;
+    const url = queryParameters
+      ? `${this.getRequest().dialbackEnpoint}/ari/${apiPath}?${queryParameters}`
+      : `${this.getRequest().dialbackEnpoint}/ari/${apiPath}`;
 
-    logger.silly("sending command to media server", { url });
+    logger.verbose("sending command to media server", { url });
 
     return await axios({
       method: "post",
@@ -59,11 +59,11 @@ export class Verb {
   }
 
   async delete(apiPath: string, queryParameters?: string) {
-    const url = `${
-      this.getRequest().dialbackEnpoint
-    }/ari/${apiPath}?${queryParameters}`;
+    const url = queryParameters
+      ? `${this.getRequest().dialbackEnpoint}/ari/${apiPath}?${queryParameters}`
+      : `${this.getRequest().dialbackEnpoint}/ari/${apiPath}`;
 
-    logger.silly("sending command to media server", { url });
+    logger.verbose("sending command to media server", { url });
 
     return await axios({
       method: "delete",

@@ -44,6 +44,7 @@ export class Cerebro {
   lastIntent: any;
   effects: EffectsManager;
   interactionsTimer: NodeJS.Timeout;
+  isCallHandover: boolean = false;
   constructor(config: CerebroConfig) {
     this.voiceResponse = config.voiceResponse;
     this.voiceRequest = config.voiceRequest;
@@ -113,6 +114,25 @@ export class Cerebro {
           confidence: intent.confidence
         });
 
+        if (
+          intent.effects.find((e) => e.type === "hangup") ||
+          intent.effects.find((e) => e.type === "transfer")
+        ) {
+          logger.verbose(
+            "call hand over: stop all the timers and close the stream",
+            {
+              sessionId: this.voiceRequest.sessionId
+            }
+          );
+
+          clearTimeout(this.activeTimer);
+          clearTimeout(this.interactionsTimer);
+
+          this.voiceResponse.closeMediaPipe();
+
+          this.isCallHandover = true;
+        }
+
         await this.effects.invokeEffects(intent, this.status, async () => {
           await this.stopPlayback();
 
@@ -133,12 +153,21 @@ export class Cerebro {
           sessionId: this.voiceRequest.sessionId
         });
 
+        if (this.isCallHandover) {
+          try {
+            this.voiceResponse.hangup();
+          } catch (e) {
+            // All we can do is try as the call may have already been hung up
+          }
+          return;
+        }
+
         // Reset the interactions timer
         if (!this.config.activationIntentId) {
           this.resetInteractionTimer();
         }
 
-        // Need to save this to avoid duplicate intents
+        // WARNING: It doesn't appear that we are using this anywhere
         this.lastIntent = intent;
       }
     });

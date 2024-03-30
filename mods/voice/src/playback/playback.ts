@@ -30,7 +30,7 @@ export class PlaybackControl extends Verb {
   }
 
   private async operation(name: string) {
-    logger.verbose("playbe control", {
+    logger.verbose("playback control", {
       operation: name,
       playbackId: this.playbackId
     });

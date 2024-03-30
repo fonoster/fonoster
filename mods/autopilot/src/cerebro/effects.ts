@@ -87,7 +87,7 @@ export class EffectsManager {
         break;
       case "transfer":
         // TODO: Add record effect
-        await this.transferEffect(this.voice, effect);
+        await this.transferEffect(effect);
         break;
       case "send_data":
         // Only send if client support events
@@ -105,11 +105,13 @@ export class EffectsManager {
     }
   }
 
-  async transferEffect(voice: VoiceResponse, effect: Effect) {
+  async transferEffect(effect: Effect) {
     await this.voice.closeMediaPipe();
+
     const stream = await this.voice.dial(
       effect.parameters["destination"] as string
     );
+
     const playbackId: string = nanoid();
     const control: PlaybackControl = this.voice.playback(playbackId);
 
@@ -120,15 +122,24 @@ export class EffectsManager {
     };
 
     stream.on("answer", () => {
+      logger.verbose("call answered", {
+        destination: effect.parameters["destination"]
+      });
       moveForward();
     });
 
     stream.on("busy", async () => {
+      logger.verbose("call busy", {
+        destination: effect.parameters["destination"]
+      });
       await moveForward();
       await playBusyAndHangup(this.voice, playbackId, this.config);
     });
 
     stream.on("noanswer", async () => {
+      logger.verbose("call no answer", {
+        destination: effect.parameters["destination"]
+      });
       await moveForward();
       await playNoAnswerAndHangup(this.voice, playbackId, this.config);
     });
