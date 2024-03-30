@@ -31,6 +31,10 @@ import { getLogger, ulogger, ULogType } from "@fonoster/logger";
 import GoogleTTS, { GoogleTTSConfig } from "@fonoster/googletts";
 import Apps from "@fonoster/apps";
 import Secrets from "@fonoster/secrets";
+import {
+  APISERVER_AUTOPILOT_MEDIA_BUSY_MESSAGE,
+  APISERVER_AUTOPILOT_MEDIA_NOANSWER_MESSAGE
+} from "./envs";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -149,6 +153,15 @@ export default function pilot(config: ServerConfig) {
             });
           }
         }
+
+        const transfer = app.transferConfig;
+
+        transfer.messageNoAnswer = transfer.messageBusy =
+          transfer.messageBusy || APISERVER_AUTOPILOT_MEDIA_BUSY_MESSAGE;
+
+        transfer.messageNoAnswer =
+          transfer.messageNoAnswer ||
+          APISERVER_AUTOPILOT_MEDIA_NOANSWER_MESSAGE;
 
         const cerebro = new Cerebro({
           voiceRequest,
