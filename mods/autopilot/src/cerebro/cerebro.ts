@@ -45,6 +45,7 @@ export class Cerebro {
   effects: EffectsManager;
   interactionsTimer: NodeJS.Timeout;
   isCallHandover: boolean = false;
+  isDead: boolean = false;
   constructor(config: CerebroConfig) {
     this.voiceResponse = config.voiceResponse;
     this.voiceRequest = config.voiceRequest;
@@ -133,34 +134,47 @@ export class Cerebro {
           this.isCallHandover = true;
         }
 
-        await this.effects.invokeEffects(intent, this.status, async () => {
-          await this.stopPlayback();
+        await this.effects.invokeEffects(
+          intent,
+          this.status,
+          async () => {
+            await this.stopPlayback();
 
-          if (this.config.activationIntentId === intent.ref) {
-            sendClientEvent(this.config.eventsClient, {
-              eventName: CLIENT_EVENTS.RECOGNIZING
-            });
+            if (this.config.activationIntentId === intent.ref) {
+              sendClientEvent(this.config.eventsClient, {
+                eventName: CLIENT_EVENTS.RECOGNIZING
+              });
 
-            if (this.status === CerebroStatus.AWAKE_ACTIVE) {
-              this.resetActiveTimer();
-            } else {
-              this.startActiveTimer();
+              if (this.status === CerebroStatus.AWAKE_ACTIVE) {
+                this.resetActiveTimer();
+              } else {
+                this.startActiveTimer();
+              }
             }
+          },
+          () => {
+            logger.verbose("invokeEffects cleanup callback", {
+              sessionId: this.voiceRequest.sessionId
+            });
+            this.cleanup();
           }
-        });
+        );
 
-        logger.verbose("cerebro finished processing intent effects", {
-          sessionId: this.voiceRequest.sessionId
-        });
-
-        if (this.isCallHandover) {
+        if (this.isDead || this.isCallHandover) {
           try {
+            logger.verbose("the call was handover or cerebro was cleaned up", {
+              sessionId: this.voiceRequest.sessionId
+            });
             this.voiceResponse.hangup();
           } catch (e) {
             // All we can do is try as the call may have already been hung up
           }
           return;
         }
+
+        logger.verbose("cerebro finished processing intent effects", {
+          sessionId: this.voiceRequest.sessionId
+        });
 
         // Reset the interactions timer
         if (!this.config.activationIntentId) {
@@ -242,11 +256,21 @@ export class Cerebro {
         }
       });
 
-      await this.effects.invokeEffects(intent, this.status, () => {
-        logger.verbose("invokeEffects callback", {
-          sessionId: this.voiceRequest.sessionId
-        });
-      });
+      await this.effects.invokeEffects(
+        intent,
+        this.status,
+        () => {
+          logger.verbose("invokeEffects callback", {
+            sessionId: this.voiceRequest.sessionId
+          });
+        },
+        () => {
+          logger.verbose("invokeEffects cleanup callback", {
+            sessionId: this.voiceRequest.sessionId
+          });
+          this.cleanup();
+        }
+      );
     }, this.activationTimeout);
   }
 
@@ -279,5 +303,15 @@ export class Cerebro {
         });
       }
     }
+  }
+
+  // Cleanup all timers and events
+  async cleanup() {
+    this.isDead = true;
+    await this.voiceResponse.closeMediaPipe();
+    this.stream.close();
+    this.cerebroEvents.removeAllListeners();
+    clearTimeout(this.activeTimer);
+    clearTimeout(this.interactionsTimer);
   }
 }

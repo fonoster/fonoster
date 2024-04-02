@@ -80,6 +80,11 @@ services:
     image: fonoster/routr:1.2.8
     restart: unless-stopped
     platform: linux/x86_64
+    healthcheck:
+      test: ["CMD", "curl", "-k", "--fail", "--silent", "--show-error", "--connect-timeout", "2", "-L", "https://localhost:4567/api/v1beta1/system/status"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
     environment:
       EXTERN_ADDR: ${DOCKER_HOST_ADDRESS}
       LOCALNETS: ${ROUTR_LOCALNETS}

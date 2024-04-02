@@ -43,7 +43,8 @@ export class EffectsManager {
   async invokeEffects(
     intent: Intent,
     status: CerebroStatus,
-    activateCallback: () => void
+    activateCallback: () => void,
+    cleanupCallback: () => void
   ) {
     activateCallback();
 
@@ -64,8 +65,18 @@ export class EffectsManager {
 
     // eslint-disable-next-line no-loops/no-loops
     for (const e of intent.effects) {
-      logger.verbose("effects running", { type: e.type });
-      await this.run(e);
+      try {
+        logger.verbose("effects running", { type: e.type });
+        await this.run(e);
+      } catch (e) {
+        const axiosError = e as { response: { status: number } };
+
+        if (axiosError.response?.status !== 404) {
+          logger.error("error running effect", { error: e });
+          return;
+        }
+        cleanupCallback();
+      }
     }
   }
 

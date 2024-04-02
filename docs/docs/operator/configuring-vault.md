@@ -3,9 +3,9 @@
 
 Fonoster offers support for Secret management based on [Hashicorp Vault](https://www.vaultproject.io/).
 
-As with anything related to managing data, we recommend using a [managed service](https://www.hashicorp.com/blog/vault-on-the-hashicorp-cloud-platform) to back your secrets. However, to help you get started, we include a basic Vault deployment as part of the operator's scripts.
+As with anything related to managing data, we recommend backing up your secrets using a [managed service](https://www.hashicorp.com/blog/vault-on-the-hashicorp-cloud-platform). However, to help you get started, we include a basic Vault deployment in the operator's scripts.
 
-Create an empty folder download Vault's configuration files with:
+Create an empty folder and download Vault's configuration files with:
 
 ```bash
 mkdir vault
@@ -54,4 +54,4 @@ docker exec -it -e VAULT_ADDR=$VAULT_ADDR -e VAULT_TOKEN=$VAULT_TOKEN $CONTAINER
 docker exec -it -e VAULT_ADDR=$VAULT_ADDR -e VAULT_TOKEN=$VAULT_TOKEN $CONTAINER_ID vault auth enable approle
 ```
 
-> Make sure to save the root token and unseal key in a safe place. You will need them to configure the operator and to unseal Vault in case of a restart.
+> Make sure to save the root token and unseal the key in a safe place. You will need them to configure the operator and to unseal Vault in case of a restart.
