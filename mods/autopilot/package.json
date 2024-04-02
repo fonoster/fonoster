@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/autopilot",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",

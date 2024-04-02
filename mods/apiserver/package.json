@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apiserver",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Fonoster API Server",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -39,7 +39,7 @@
     "@fonoster/agents": "^0.5.1",
     "@fonoster/apps": "^0.5.1",
     "@fonoster/auth": "^0.5.1",
-    "@fonoster/autopilot": "^0.5.1",
+    "@fonoster/autopilot": "^0.5.2",
     "@fonoster/callmanager": "^0.5.1",
     "@fonoster/common": "^0.5.1",
     "@fonoster/dispatcher": "^0.5.1",
