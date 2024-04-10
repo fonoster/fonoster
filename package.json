@@ -9,7 +9,7 @@
     "start:apiserver": "cross-env LOGS_LEVEL=verbose AUTH_RBAC=$(pwd)/mods/apiserver/etc/rbac.json SERVICES_ENVS=$(pwd)/mods/apiserver/etc/service_envs.json NODE_ENV=dev nodemon ./mods/apiserver/src",
     "start:webui": "cross-env NODE_ENV=dev && cd mods/webui && npm run dev",
     "start:dispatcher": "cross-env LOGS_LEVEL=verbose NODE_ENV=dev nodemon ./mods/dispatcher/src",
-    "start:services": "docker compose -f compose.yaml -f compose.dev.yaml up minio vault redis elasticsearch fluent rtpengine asterisk routr --detach --remove-orphans",
+    "start:services": "docker compose -f compose.yaml -f compose.dev.yaml up minio vault redis rtpengine asterisk routr --detach --remove-orphans",
     "start:docs": "cd docs && npm start",
     "start:site": "npx http-server site -p 8080",
     "stop:services": "docker compose -f compose.yaml -f compose.dev.yaml down",
