@@ -21,15 +21,24 @@
 import { DialogFlowCXConfig, IntentsEngine, Intent } from "./types";
 import { transformPayloadToEffect } from "./df_utils";
 import { Effect } from "../cerebro/types";
+import { JsonObject, struct } from "pb-util";
 import { getLogger } from "@fonoster/logger";
 import dialogflow, { SessionsClient } from "@google-cloud/dialogflow-cx";
 import uuid = require("uuid");
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
+type DetectItemRequest = {
+  session: string;
+  queryParams: Record<string, unknown>;
+  queryInput:
+    | { text: { text: string } }
+    | ({ event: { event: string } } & { languageCode: string });
+};
+
 export default class DialogFlowCX implements IntentsEngine {
   sessionClient: SessionsClient;
-  sessionPath: any;
+  sessionPath: string;
   config: DialogFlowCXConfig;
   projectId: string;
   location: string;
@@ -42,11 +51,13 @@ export default class DialogFlowCX implements IntentsEngine {
     this.config = config;
     this.sessionId = sessionId;
     this.agent = config.agent;
+
     // Create a new session
     this.sessionClient = new dialogflow.SessionsClient({
       apiEndpoint: `${config.location}-dialogflow.googleapis.com`,
       credentials: config.credentials
     });
+
     logger.verbose("created new dialogflow/cx session", {
       projectId: this.projectId,
       sessionId: this.sessionId
@@ -57,63 +68,86 @@ export default class DialogFlowCX implements IntentsEngine {
     this.projectId = id;
   }
 
-  async findIntent(txt: string): Promise<Intent> {
-    const sessionPath = this.sessionClient.projectLocationAgentSessionPath(
-      this.projectId,
-      this.location,
-      this.agent,
-      this.sessionId
-    );
-
+  async findIntent(
+    text: string,
+    payload?: Record<string, unknown>
+  ): Promise<Intent> {
     const request = {
-      session: sessionPath,
+      session: this.getSessionPath(),
+      queryParams: {},
       queryInput: {
         text: {
-          text: txt
+          text
         },
         languageCode: this.config.languageCode
       }
     };
 
-    const responses = await this.sessionClient.detectIntent(request);
+    return this.detectIntent(request, payload);
+  }
 
-    logger.silly("got speech from api", { text: JSON.stringify(responses[0]) });
+  async findIntentWithEvent(name: string, payload?: Record<string, unknown>) {
+    const request = {
+      session: this.getSessionPath(),
+      queryParams: {},
+      queryInput: {
+        languageCode: this.config.languageCode,
+        event: {
+          event: name
+        }
+      }
+    };
 
-    if (
-      !responses ||
-      !responses[0].queryResult ||
-      !responses[0].queryResult.responseMessages
-    ) {
-      throw new Error("got unexpect null intent");
+    return this.detectIntent(request, payload);
+  }
+
+  async detectIntent(
+    request: DetectItemRequest,
+    payload?: Record<string, unknown>
+  ) {
+    if (payload) {
+      request.queryParams = { payload: struct.encode(payload as JsonObject) };
     }
 
+    const [response] = await this.sessionClient.detectIntent(request);
+
     const effects: Effect[] = this.getEffects(
-      responses[0].queryResult.responseMessages as Record<string, any>[]
+      response.queryResult.responseMessages as Record<string, unknown>[]
     );
 
-    const ref = responses[0].queryResult.intent
-      ? responses[0].queryResult.intent.displayName || "unknown"
-      : "unknown";
+    const params = struct.decode(
+      response.queryResult.parameters as JsonObject
+    ) as { skillCode: string };
+
+    const ref = params.skillCode?.toString() || "unknown";
 
     return {
       ref,
       effects,
-      confidence: responses[0].queryResult.intentDetectionConfidence || 0,
-      allRequiredParamsPresent: responses[0].queryResult.text ? true : false
+      confidence: response.queryResult.match?.confidence || 0
     };
   }
 
-  private getEffects(responseMessages: Record<string, any>[]): Effect[] {
+  private getSessionPath() {
+    return this.sessionClient.projectLocationAgentSessionPath(
+      this.projectId,
+      this.location,
+      this.agent,
+      this.sessionId
+    );
+  }
+
+  private getEffects(responseMessages: Record<string, unknown>[]): Effect[] {
     const effects: Effect[] = [];
     for (const r of responseMessages) {
       if (r.message === "text") {
+        const res = r.text as Record<string, { text: string[] }>;
         effects.push({
           type: "say",
           parameters: {
-            response: r.text.text[0]
+            response: res.text[0]
           }
         });
-        continue;
       } else if (r.payload) {
         effects.push(transformPayloadToEffect(r.payload));
       }

@@ -22,7 +22,6 @@ export interface Intent {
   ref: string;
   effects: Effect[];
   confidence: number;
-  allRequiredParamsPresent: boolean;
 }
 
 export interface IntentsEngine {

@@ -21,16 +21,23 @@
 import * as dialogflow from "@google-cloud/dialogflow";
 import { IntentsEngine, Intent, DialogFlowESConfig } from "./types";
 import { transformPayloadToEffect } from "./df_utils";
-import { struct } from "pb-util";
+import { JsonObject, struct } from "pb-util";
 import { Effect } from "../cerebro/types";
 import { getLogger } from "@fonoster/logger";
 import uuid = require("uuid");
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
+type FulfillmentMessage = {
+  payload?: Record<string, unknown>;
+  telephonySynthesizeSpeech?: Record<string, unknown>;
+  telephonyTransferCall?: Record<string, unknown>;
+  text?: Record<string, unknown>;
+};
+
 export default class DialogFlow implements IntentsEngine {
   sessionClient: dialogflow.v2beta1.SessionsClient;
-  sessionPath: any;
+  sessionPath: string;
   config: DialogFlowESConfig;
   sessionId: string;
   projectId: string;
@@ -62,7 +69,7 @@ export default class DialogFlow implements IntentsEngine {
       }
     };
 
-    return this.detect(request, payload);
+    return this.detectItent(request, payload);
   }
 
   async findIntent(
@@ -79,10 +86,10 @@ export default class DialogFlow implements IntentsEngine {
       }
     };
 
-    return this.detect(request, payload);
+    return this.detectItent(request, payload);
   }
 
-  private async detect(
+  private async detectItent(
     request: Record<string, unknown>,
     payload?: Record<string, unknown>
   ): Promise<Intent> {
@@ -95,51 +102,46 @@ export default class DialogFlow implements IntentsEngine {
 
     if (payload) {
       request.queryParams = {
-        payload: struct.encode(payload as any)
+        payload: struct.encode(payload as JsonObject)
       };
     }
 
-    const responses = await this.sessionClient.detectIntent(request);
+    const [response] = await this.sessionClient.detectIntent(request);
 
-    logger.silly("got speech from api", { text: JSON.stringify(responses[0]) });
+    logger.silly("got speech from api", { text: JSON.stringify(response) });
 
-    if (
-      !responses ||
-      !responses[0].queryResult ||
-      !responses[0].queryResult.intent
-    ) {
+    if (!response.queryResult?.intent) {
       throw new Error("got unexpect null intent");
     }
 
     let effects: Effect[] = [];
 
-    if (responses[0].queryResult.fulfillmentMessages) {
-      const messages = responses[0].queryResult.fulfillmentMessages.filter(
+    if (response.queryResult.fulfillmentMessages) {
+      const messages = response.queryResult.fulfillmentMessages.filter(
         (f) => f.platform === this.config.platform
       );
-      effects = this.getEffects(messages as Record<string, any>[]);
-    } else if (responses[0].queryResult.fulfillmentText) {
+      effects = this.getEffects(messages as Record<string, unknown>[]);
+    } else if (response.queryResult.fulfillmentText) {
       effects = [
         {
           type: "say",
           parameters: {
-            response: responses[0].queryResult.fulfillmentText
+            response: response.queryResult.fulfillmentText
           }
         }
       ];
     }
 
     return {
-      ref: responses[0].queryResult.intent.displayName || "unknown",
+      ref: response.queryResult.intent.displayName || "unknown",
       effects,
-      confidence: responses[0].queryResult.intentDetectionConfidence || 0,
-      allRequiredParamsPresent:
-        responses[0].queryResult.allRequiredParamsPresent
+      confidence: response.queryResult.intentDetectionConfidence || 0
     };
   }
 
-  private getEffects(fulfillmentMessages: Record<string, any>[]): Effect[] {
+  private getEffects(fulfillmentMessages: FulfillmentMessage[]): Effect[] {
     const effects: Effect[] = [];
+
     for (const f of fulfillmentMessages) {
       if (f.payload) {
         effects.push(transformPayloadToEffect(f.payload));

@@ -36,7 +36,7 @@ export const IntentsEngineStep: React.FC<IStepProps> = ({
         render={({ field: { name, onBlur, onChange, value } }) => (
           <Input
             className="mb-4"
-            label="Type the welcome intent ID"
+            label="Type a Welcome Intent ID"
             placeholder="(e.g. WELCOME)"
             disabled={isLoading}
             {...{
@@ -49,22 +49,22 @@ export const IntentsEngineStep: React.FC<IStepProps> = ({
         )}
       />
 
-      {!isEdit && (
-        <Select
-          className="mb-4"
-          label="Select Intents Engine Type"
-          disabled={isLoading}
-          value={intensConfigType}
-          onChange={({ target: { value } }) => setIntentsConfigType(value)}
-        >
-          <Select.Option value="">Choose a Engine</Select.Option>
-          {[{ name: 'DialogflowES' }].map(({ name }) => (
-            <Select.Option key={name} value={name}>
-              {name}
-            </Select.Option>
-          ))}
-        </Select>
-      )}
+      <Select
+        className="mb-4"
+        label="Select Intents Engine Type"
+        name="intentsEngineConfig.type"
+        disabled={isLoading}
+        value={intensConfigType}
+        onChange={({ target: { value } }) => setIntentsConfigType(value)}
+      >
+        <Select.Option value="">Choose a Engine</Select.Option>
+        {[{ name: 'DialogflowES' }, { name: 'DialogflowCX' }].map(({ name }) => (
+          <Select.Option key={name} value={name}>
+            {name}
+          </Select.Option>
+        ))}
+
+      </Select>
 
       {(intensConfigType || isEdit) && (
         <>
@@ -75,7 +75,7 @@ export const IntentsEngineStep: React.FC<IStepProps> = ({
             render={({ field: { name, onBlur, onChange, value } }) => (
               <Input
                 className="mb-4"
-                label="Type a project ID"
+                label="Type your GCP Project ID"
                 placeholder="(e.g my-gcp-project)"
                 disabled={isLoading}
                 error={
@@ -105,7 +105,7 @@ export const IntentsEngineStep: React.FC<IStepProps> = ({
                   !hasSecrets
                     ? 'Before adding a Application you must create a Secret'
                     : errors?.speechConfig?.secretName &&
-                      'You must enter a Secret'
+                    'You must enter a Secret'
                 }
                 {...{
                   name,
@@ -134,8 +134,8 @@ export const IntentsEngineStep: React.FC<IStepProps> = ({
                 render={({ field: { name, onBlur, onChange, value } }) => (
                   <Input
                     className="mb-4"
-                    label="Type a agent"
-                    placeholder="(e.g. Joe)"
+                    label="Type your DialogflowCX Agent ID"
+                    placeholder="00000000-0000-0000-0000000000"
                     disabled={isLoading}
                     error={
                       errors?.intentsEngineConfig?.agent &&
@@ -158,8 +158,8 @@ export const IntentsEngineStep: React.FC<IStepProps> = ({
                 render={({ field: { name, onBlur, onChange, value } }) => (
                   <Input
                     className="mb-4"
-                    label="Type a location"
-                    placeholder="(e.g. ...)"
+                    label="Type your DialogflowCX Location"
+                    placeholder="us-central1"
                     error={
                       errors?.intentsEngineConfig?.location &&
                       'You must enter a location'

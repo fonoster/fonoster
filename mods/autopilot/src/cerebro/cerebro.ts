@@ -235,6 +235,7 @@ export class Cerebro {
         failedInteractions: this.failedInteractions
       });
 
+      // Fix hard coded intent
       let intentId = "welcome";
 
       if (this.failedInteractions >= this.maxIteractionsBeforeHangup) {
@@ -245,6 +246,7 @@ export class Cerebro {
           }
         );
 
+        // Fix hard coded intent
         intentId = "goodbye";
 
         clearTimeout(this.interactionsTimer);
