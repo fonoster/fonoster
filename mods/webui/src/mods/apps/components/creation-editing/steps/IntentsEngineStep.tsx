@@ -58,12 +58,13 @@ export const IntentsEngineStep: React.FC<IStepProps> = ({
         onChange={({ target: { value } }) => setIntentsConfigType(value)}
       >
         <Select.Option value="">Choose a Engine</Select.Option>
-        {[{ name: 'DialogflowES' }, { name: 'DialogflowCX' }].map(({ name }) => (
-          <Select.Option key={name} value={name}>
-            {name}
-          </Select.Option>
-        ))}
-
+        {[{ name: 'DialogflowES' }, { name: 'DialogflowCX' }].map(
+          ({ name }) => (
+            <Select.Option key={name} value={name}>
+              {name}
+            </Select.Option>
+          )
+        )}
       </Select>
 
       {(intensConfigType || isEdit) && (
@@ -105,7 +106,7 @@ export const IntentsEngineStep: React.FC<IStepProps> = ({
                   !hasSecrets
                     ? 'Before adding a Application you must create a Secret'
                     : errors?.speechConfig?.secretName &&
-                    'You must enter a Secret'
+                      'You must enter a Secret'
                 }
                 {...{
                   name,
