@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { EffectsManager } from "./effects";
-import { IntentsEngine } from "../intents/types";
+import { Intent, IntentsEngine } from "../intents/types";
 import { SGatherStream, VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { CerebroConfig, CerebroStatus } from "./types";
 import { sendClientEvent } from "../util";
@@ -41,7 +41,7 @@ export class Cerebro {
   intentsEngine: IntentsEngine;
   stream: SGatherStream;
   config: CerebroConfig;
-  lastIntent: any;
+  lastIntent: Intent;
   effects: EffectsManager;
   interactionsTimer: NodeJS.Timeout;
   isCallHandover: boolean = false;
@@ -54,7 +54,7 @@ export class Cerebro {
     this.activationTimeout = config.activationTimeout || 15000;
     this.intentsEngine = config.intentsEngine;
     this.effects = new EffectsManager({
-      playbackId: config.voiceConfig.playbackId,
+      playbackId: config.voiceConfig.playbackId as string,
       eventsClient: config.eventsClient,
       voice: config.voiceResponse,
       voiceConfig: config.voiceConfig,
@@ -288,7 +288,7 @@ export class Cerebro {
   }
 
   async stopPlayback() {
-    const { playbackId } = this.config.voiceConfig;
+    const { playbackId } = this.config.voiceConfig as { playbackId: string };
     if (playbackId) {
       try {
         const playbackControl = this.voiceResponse.playback(playbackId);

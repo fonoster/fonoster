@@ -33,7 +33,7 @@ export interface CerebroConfig {
   activationTimeout?: number;
   activationIntentId?: string;
   intentsEngine: IntentsEngine;
-  voiceConfig: Record<string, string>;
+  voiceConfig: Record<string, string | string[]>;
   eventsClient: EventsClient | null;
   transfer?: Transfer;
   alternativeLanguageCode?: string;

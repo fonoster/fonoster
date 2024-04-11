@@ -33,6 +33,6 @@ describe("@fonoster/tts/utils", () => {
       language: "en",
       cachingFields: ["voice", "speed"]
     });
-    expect(t).to.be.equal("940c2687367636c07be34668c6d8299f.wav");
+    expect(t).to.be.equal("b7af8f1ae248e5d662086ff47ebe244f.wav");
   });
 });

@@ -11,16 +11,17 @@ import crypto from "crypto";
  */
 const computeFilename = (text: string, options: any = {}, format = "wav") => {
   const flat = require("flat");
-  let c = text;
-  if (options.cachingFields) {
+  let c = "";
+  if (options?.cachingFields?.length > 0) {
     const flatObj = flat(options);
     c = options.cachingFields
       .map((opt: string) => flatObj[opt])
       .sort()
       .join();
   }
+
   return (
-    crypto.createHash("md5").update(`${text},${c}`).digest("hex") + "." + format
+    crypto.createHash("md5").update(`${text}${c}`).digest("hex") + "." + format
   );
 };
 

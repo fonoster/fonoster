@@ -82,7 +82,8 @@ export default function pilot(config: ServerConfig) {
 
         const voiceConfig = {
           name: app.speechConfig.voice,
-          playbackId: nanoid()
+          playbackId: nanoid(),
+          cachingFields: ["name"]
         };
 
         const speechSecret = await secrets.getSecret(
