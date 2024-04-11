@@ -1,7 +1,7 @@
 
 # Fonoster: The open-source alternative to Twilio
 
-[Fonoster Inc](https://fonoster.com) researches an innovative Programmable Telecommunications Stack that will allow for an entirely cloud-based utility for businesses to connect telephony services with the Internet.
+[Fonoster Inc](https://fonoster.com) is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.
 
 <a href="https://discord.gg/mpWSRUhG7e"><img alt="Fonoster community banner" src="https://raw.githubusercontent.com/fonoster/.github/main/profile/community.png"></img></a>
 
@@ -17,10 +17,10 @@
 
 ## Features 
 
-The most notable features on Fonoster 0.4 are:
+The most notable features of Fonoster 0.4 are:
 
 - [x] Multitenancy
-- [x] Easy deployment of PBXs functionalities
+- [x] Easy deployment of PBX functionalities
 - [x] Programmable Voice Applications
 - [x] NodeJS SDK
 - [x] Support for Amazon Simple Storage Service (S3)
@@ -38,7 +38,7 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 
 - `Answer` - Accepts an incoming call
 - `Hangup` - Closes the call
-- `Play` - Takes an URL or file and streams the sound back to the calling party
+- `Play` - Takes a URL or file and streams the sound back to the calling party
 - `Say` - Takes a text, synthesizes the text into audio, and streams back the result
 - `Gather` - Waits for DTMF or speech events and returns back the result
 - `SGather` - Returns a stream for future DTMF and speech results
@@ -89,17 +89,17 @@ callManager.call({
 
 ## Getting Started
 
-To get started with Fonoster use the following resources:
+To get started with Fonoster, use the following resources:
 
-- [Deploying Fonoster to the Cloud](./docs/operator/deploy-your-server.md)
-- [Getting started with Fonoster](https://learn.fonoster.com/)
-- [Connecting Fonoster with Dialogflow](https://learn.fonoster.com/docs/tutorials/connecting_with_dialogflow)
-- [Using Google Speech APIs](https://learn.fonoster.com/docs/tutorials/using_google_speech)
-- [How we created an open-source alternative to Twilio and why it matters](https://github.com/fonoster/blog/blob/main/2021/001/post.md)
+- [Deploying Fonoster with Docker](./docs/docs/operator/deploy-with-docker.md)
+- [Getting started with Fonoster](https://fonoster.com/docs/overview/)
+- [Connecting Fonoster with Dialogflow](https://fonoster.com/docs/tutorials/connecting_with_dialogflow)
+- [Using Google Speech APIs](https://fonoster.com/docs/tutorials/using_google_speech)
+- [How we created an open-source alternative to Twilio and why it matters](https://dev.to/fonoster/how-we-created-an-open-source-alternative-to-twilio-and-why-it-matters-434g)
 
 ## Give a Star! ⭐
 
-If you like this project or plan to use it in the future, please give it a star. Thanks 🙏
+Please give it a star if you like this project or plan to use it. Thanks 🙏
 
 ## Bugs and Feedback
 
