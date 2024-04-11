@@ -25,7 +25,7 @@ import util from "util";
 import logger from "@fonoster/logger";
 
 const merge = require("deepmerge");
-const defaultVoice = { languageCode: "en-US", ssmlGender: "NEUTRAL" };
+const defaultVoice = { languageCode: "en-US" };
 
 /**
  * @classdesc Optional TTS engine for Fonoster.
@@ -70,13 +70,16 @@ export default class GoogleTTS extends AbstractTTS {
     const request = {
       voice,
       input,
-      audioConfig: { audioEncoding: "LINEAR16" }
+      audioConfig: { 
+        audioEncoding: "LINEAR16",
+        sampleRateHertz: 16000, 
+      }
     };
 
     // Performs the text-to-speech request
     const [response] = await this.client.synthesizeSpeech(request as any);
     // Write the binary audio content to a local file
-    const writeFile = util.promisify(fs.writeFile);
+    const writeFile = util.promisify(fs.writeFile); 
     await writeFile(pathToFile, response.audioContent, "binary");
     return { filename, pathToFile };
   }

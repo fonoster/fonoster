@@ -36,7 +36,7 @@ export default abstract class AbstractTTS extends Plugin implements TTSPlugin {
    * @inherit
    */
   async synthesize(text: string, options: any = {}): Promise<SynthResult> {
-    const filename = computeFilename(text, options, "sln24");
+    const filename = computeFilename(text, options, "wav16");
     const pathToFile = path.join(this.config.path, filename);
 
     if (!fs.existsSync(pathToFile)) {
