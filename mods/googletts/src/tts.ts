@@ -70,16 +70,16 @@ export default class GoogleTTS extends AbstractTTS {
     const request = {
       voice,
       input,
-      audioConfig: { 
+      audioConfig: {
         audioEncoding: "LINEAR16",
-        sampleRateHertz: 16000, 
+        sampleRateHertz: 16000
       }
     };
 
     // Performs the text-to-speech request
     const [response] = await this.client.synthesizeSpeech(request as any);
     // Write the binary audio content to a local file
-    const writeFile = util.promisify(fs.writeFile); 
+    const writeFile = util.promisify(fs.writeFile);
     await writeFile(pathToFile, response.audioContent, "binary");
     return { filename, pathToFile };
   }
