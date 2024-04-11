@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/sdk",
-  "version": "0.5.1",
+  "version": "0.5.3",
   "description": "Fonoster SDK module",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -35,7 +35,7 @@
     "@fonoster/callmanager": "^0.5.1",
     "@fonoster/domains": "^0.5.1",
     "@fonoster/logger": "^0.5.1",
-    "@fonoster/monitor": "^0.5.1",
+    "@fonoster/monitor": "^0.5.3",
     "@fonoster/numbers": "^0.5.1",
     "@fonoster/projects": "^0.5.1",
     "@fonoster/providers": "^0.5.1",
