@@ -61,14 +61,16 @@ export default class AzureTTS extends AbstractTTS {
       this.cfg.subscriptionKey,
       this.cfg.serviceRegion
     );
-    speechConfig.speechSynthesisVoiceName = (options.voice as string) || "en-US-AriaNeural";
-    speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm;
+    speechConfig.speechSynthesisVoiceName =
+      (options.voice as string) || "en-US-AriaNeural";
+    speechConfig.speechSynthesisOutputFormat =
+      sdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm;
 
     const result = await synthesize({
       text,
       filename: pathToFile,
       speechConfig,
-      isSSML: isSSML(text),
+      isSSML: isSSML(text)
     });
 
     logger.verbose(`synthesize [output: ${result}]`, { filename, pathToFile });
@@ -78,11 +80,11 @@ export default class AzureTTS extends AbstractTTS {
 }
 
 // eslint-disable-next-line require-jsdoc
-async function synthesize(params: { 
-  text: string, 
-  filename: string, 
-  speechConfig: sdk.SpeechConfig,
-  isSSML?: boolean
+async function synthesize(params: {
+  text: string;
+  filename: string;
+  speechConfig: sdk.SpeechConfig;
+  isSSML?: boolean;
 }) {
   const { text, filename, speechConfig } = params;
   const audioConfig = sdk.AudioConfig.fromAudioFileOutput(filename);
@@ -97,7 +99,9 @@ async function synthesize(params: {
         if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
           resolve(filename);
         } else {
-          reject(new Error("speech synthesis canceled: " + result.errorDetails));
+          reject(
+            new Error("speech synthesis canceled: " + result.errorDetails)
+          );
         }
         synthesizer.close();
       },
@@ -108,4 +112,3 @@ async function synthesize(params: {
     );
   });
 }
-
