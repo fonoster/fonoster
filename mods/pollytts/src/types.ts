@@ -16,13 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface PollyTTSConfig {
+import { TTSConfig } from "@fonoster/tts";
+
+export interface PollyTTSConfig extends TTSConfig {
   region?: string;
-  keyFilename?: string;
   accessKeyId?: string;
   secretAccessKey?: string;
-  // Location of resulting sound
-  path?: string;
 }
 
 export interface SynthOptions {

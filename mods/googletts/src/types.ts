@@ -16,11 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export interface GoogleTTSConfig {
-  keyFilename?: string;
+import { TTSConfig } from "@fonoster/tts";
+
+export interface GoogleTTSConfig extends TTSConfig {
   projectId?: string;
-  // Location of resulting sound
-  path?: string;
 }
 
 export interface SynthOptions {

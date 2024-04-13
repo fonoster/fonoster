@@ -21,7 +21,6 @@ import { Plugin } from "@fonoster/common";
 import { TTSPlugin, computeFilename, SynthResult } from "@fonoster/tts";
 import { PollyTTSConfig, SynthOptions } from "./types";
 import { LanguageCode, TextType, Voice, Engine, Region } from "./enums";
-import { assertFileExist, assertFileIsWellForm } from "./assertions";
 import { OutputFormat } from "@aws-sdk/client-polly";
 import { getLogger } from "@fonoster/logger";
 import fs from "fs";
@@ -33,7 +32,7 @@ const logger = getLogger({ service: "pollytts", filePath: __filename });
 const defaultVoice = {
   voice: Voice.VITORIA,
   textType: TextType.Text,
-  engine: Engine.STANDARD,
+  engine: Engine.NEURAL,
   languageCode: LanguageCode.EN_US
 };
 
@@ -50,9 +49,11 @@ const defaultVoice = {
  */
 class PollyTTS extends Plugin implements TTSPlugin {
   config: PollyTTSConfig;
+  client: AWS.Polly;
   /**
    * Constructs a new PollyTTS object.
    *
+   * @param {object} config -
    * @see module:tts:AbstractTTS
    */
   constructor(config: PollyTTSConfig) {
@@ -60,31 +61,34 @@ class PollyTTS extends Plugin implements TTSPlugin {
     this.config = config;
     this.config.path = config.path ? config.path : os.tmpdir();
     this.config.region = config.region ? config.region : Region.US_EAST_1;
-    if (config.keyFilename) {
-      assertFileExist(config.keyFilename);
-      assertFileIsWellForm(config.keyFilename);
-      const credentials = require(config.keyFilename);
-      this.config.accessKeyId = credentials.accessKeyId;
-      this.config.secretAccessKey = credentials.secretAccessKey;
-    } else {
-      this.config.accessKeyId = config.accessKeyId;
-      this.config.secretAccessKey = config.secretAccessKey;
-    }
+    this.config.accessKeyId = config.accessKeyId;
+    this.config.secretAccessKey = config.secretAccessKey;
+    this.client = new AWS.Polly({
+      credentials: {
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey
+      },
+      region: this.config.region
+    });
   }
 
   /**
-   * @inherit
+   *
+   *
+   * @param {string} text -
+   * @param {object} options -
+   * @return {Promise<SynthResult>}
    */
   async synthesize(
     text: string,
     options: SynthOptions = {}
   ): Promise<SynthResult> {
-    const client = new AWS.Polly(this.config as any);
     const filename = computeFilename(text, options, "sln16");
     const pathToFile = path.join(this.config.path, filename);
 
     logger.verbose(`text: ${text}`, options);
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const merge = require("deepmerge");
     const voice = merge(defaultVoice, options || {});
 
@@ -99,7 +103,7 @@ class PollyTTS extends Plugin implements TTSPlugin {
     };
 
     // Performs the text-to-speech request
-    const response = await client.synthesizeSpeech(request);
+    const response = await this.client.synthesizeSpeech(request);
     response.AudioStream.pipe(fs.createWriteStream(pathToFile));
     return { filename, pathToFile };
   }

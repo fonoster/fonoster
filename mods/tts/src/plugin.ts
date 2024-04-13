@@ -52,38 +52,3 @@ export default abstract class AbstractTTS extends Plugin implements TTSPlugin {
     pathToFile: string
   ): Promise<SynthResult>;
 }
-
-// .168.1.7:8088","url":"/ari/events/user/SendExternalMedia?application=mediacontroller"}
-// /Users/psanders/Projects/fonoster/node_modules/google-gax/node_modules/@grpc/grpc-js/src/call.ts:81
-//   const error = new Error(message);
-//                 ^
-// Error: 3 INVALID_ARGUMENT: Input text not set.
-//     at Object.callErrorFromStatus (/Users/psanders/Projects/fonoster/node_modules/google-gax/node_modules/@grpc/grpc-js/src/call.ts:81:17)
-//     at Object.onReceiveStatus (/Users/psanders/Projects/fonoster/node_modules/google-gax/node_modules/@grpc/grpc-js/src/client.ts:352:36)
-//     at Object.onReceiveStatus (/Users/psanders/Projects/fonoster/node_modules/google-gax/node_modules/@grpc/grpc-js/src/client-interceptors.ts:462:34)
-//     at Object.onReceiveStatus (/Users/psanders/Projects/fonoster/node_modules/google-gax/node_modules/@grpc/grpc-js/src/client-interceptors.ts:424:48)
-//     at /Users/psanders/Projects/fonoster/node_modules/google-gax/node_modules/@grpc/grpc-js/src/call-stream.ts:330:24
-//     at processTicksAndRejections (node:internal/process/task_queues:77:11)
-// for call at
-//     at ServiceClientImpl.makeUnaryRequest (/Users/psanders/Projects/fonoster/node_modules/google-gax/node_modules/@grpc/grpc-js/src/client.ts:324:26)
-//     at ServiceClientImpl.<anonymous> (/Users/psanders/Projects/fonoster/node_modules/google-gax/node_modules/@grpc/grpc-js/src/make-client.ts:189:15)
-//     at /Users/psanders/Projects/fonoster/node_modules/@google-cloud/dialogflow/src/v2beta1/sessions_client.ts:379:25
-//     at /Users/psanders/Projects/fonoster/node_modules/google-gax/src/normalCalls/timeout.ts:54:13
-//     at repeat (/Users/psanders/Projects/fonoster/node_modules/google-gax/src/normalCalls/retries.ts:104:19)
-//     at /Users/psanders/Projects/fonoster/node_modules/google-gax/src/normalCalls/retries.ts:144:7
-//     at OngoingCallPromise.call (/Users/psanders/Projects/fonoster/node_modules/google-gax/src/call.ts:81:23)
-//     at NormalApiCaller.call (/Users/psanders/Projects/fonoster/node_modules/google-gax/src/normalCalls/normalApiCaller.ts:43:15)
-//     at /Users/psanders/Projects/fonoster/node_modules/google-gax/src/createApiCall.ts:116:26
-//     at processTicksAndRejections (node:internal/process/task_queues:95:5) {
-//   code: 3,
-//   details: 'Input text not set.',
-//   metadata: Metadata {
-//     internalRepr: Map(2) {
-//       'endpoint-load-metrics-bin' => [Array],
-//       'grpc-server-stats-bin' => [Array]
-//     },
-//     options: {}
-//   },
-//   note: 'Exception occurred in retry method that was not classified as transient'
-// }
-// [nodemon] app crashed - waiting for file changes before starting...
