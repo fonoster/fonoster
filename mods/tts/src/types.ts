@@ -17,11 +17,17 @@
  * limitations under the License.
  */
 export interface TTSPlugin {
-  synthesize(text: string, options: Record<string, unknown>): Promise<SynthResult>;
+  synthesize(
+    text: string,
+    options: Record<string, unknown>
+  ): Promise<SynthResult>;
   /**
    * @deprecated The method should not be used, please use synthesize instead
    */
-  synthetize?(text: string, options: Record<string, unknown>): Promise<SynthResult>;
+  synthetize?(
+    text: string,
+    options: Record<string, unknown>
+  ): Promise<SynthResult>;
 }
 
 export interface SynthResult {
