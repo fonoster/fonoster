@@ -52,7 +52,7 @@ export default class GoogleTTS extends AbstractTTS {
     const credentials = {
       private_key: config.credentials.privateKey,
       client_email: config.credentials.clientEmail
-    }
+    };
     this.client = new textToSpeech.TextToSpeechClient({ credentials });
   }
   /**
