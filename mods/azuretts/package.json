@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/azuretts",
-  "version": "0.5.1",
+  "version": "0.5.4",
   "description": "Wrapper for Microsoft Azure TTS",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -29,9 +29,9 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/common": "^0.5.1",
-    "@fonoster/logger": "^0.5.1",
-    "@fonoster/tts": "^0.5.1",
+    "@fonoster/common": "^0.5.4",
+    "@fonoster/logger": "^0.5.4",
+    "@fonoster/tts": "^0.5.4",
     "microsoft-cognitiveservices-speech-sdk": "^1.36.0"
   },
   "gitHead": "a7f9f9412e4fb9b32fb502932fd6098aa173c279"

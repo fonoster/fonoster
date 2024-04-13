@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/providers",
-  "version": "0.5.1",
+  "version": "0.5.4",
   "description": "VoIP Providers",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -38,10 +38,10 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/auth": "^0.5.1",
-    "@fonoster/common": "^0.5.1",
-    "@fonoster/core": "^0.5.1",
-    "@fonoster/errors": "^0.5.1",
+    "@fonoster/auth": "^0.5.4",
+    "@fonoster/common": "^0.5.4",
+    "@fonoster/core": "^0.5.4",
+    "@fonoster/errors": "^0.5.4",
     "@grpc/grpc-js": "~1.8.21",
     "google-protobuf": "^3.17.0",
     "grpc-promise": "^1.4.0",
