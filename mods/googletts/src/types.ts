@@ -19,6 +19,11 @@
 import { TTSConfig } from "@fonoster/tts";
 
 export interface GoogleTTSConfig extends TTSConfig {
+  credentials: {
+    privateKey: string;
+    clientEmail: string;
+  };
+  languageCode: string;
   projectId?: string;
 }
 

@@ -16,8 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import GoogleTTS from "@fonoster/googletts";
+import PollyTTS from "@fonoster/pollytts";
 import { EventsClient } from "./events/emitter";
 import { ClientEvent } from "./events/types";
+import { TTSVendor } from "./types";
+import { nanoid } from "nanoid";
 
 export const getEnvOrDefault = (envName: string, def: number) =>
   process.env[envName] ? parseInt(process.env[envName] || "") : def;
@@ -43,4 +47,94 @@ export const sendClientEvent = (
   if (eventsClient) {
     eventsClient.send(event);
   }
+};
+
+export const getTTSPlugin = (params: {
+  languageCode: string;
+  vendor: TTSVendor;
+  path: string;
+  secretString: string;
+}) => {
+  const { path, languageCode, vendor, secretString } = params;
+
+  if (vendor === TTSVendor.AMAZON) {
+    const config = JSON.parse(secretString) as {
+      tts: {
+        credentials: {
+          accessKeyId: string;
+          secretAccessKey: string;
+        };
+      };
+    };
+
+    return new PollyTTS({
+      accessKeyId: config.tts?.credentials?.accessKeyId,
+      secretAccessKey: config.tts?.credentials?.secretAccessKey,
+      path
+    });
+  }
+
+  // Default to Google
+  const credentials = JSON.parse(secretString) as {
+    // eslint-disable-next-line camelcase
+    private_key: string;
+    // eslint-disable-next-line camelcase
+    client_email: string;
+  };
+
+  return new GoogleTTS({
+    credentials: {
+      privateKey: credentials.private_key,
+      clientEmail: credentials.client_email
+    },
+    languageCode,
+    path
+  });
+};
+
+export const getVoiceConfig = (params: {
+  secretString: string;
+  app: {
+    speechConfig: {
+      voice: string;
+      languageCode: string;
+    };
+  };
+  config: {
+    defaultLanguageCode: string;
+  };
+}) => {
+  const { secretString, app } = params;
+
+  const speechSecret = JSON.parse(secretString) as {
+    tts: {
+      voice: string;
+      languageCode: string;
+      region: string;
+      vendor: string;
+      cachingFields: string[];
+    };
+  };
+
+  if ("tts" in speechSecret) {
+    const ttsConfig = speechSecret.tts;
+
+    return {
+      voice: ttsConfig.voice,
+      languageCode: ttsConfig.languageCode,
+      region: ttsConfig.region,
+      vendor: ttsConfig.vendor,
+      cachingFields: ttsConfig.cachingFields,
+      playbackId: nanoid()
+    };
+  }
+
+  return {
+    name: app.speechConfig.voice,
+    languageCode:
+      app.speechConfig.languageCode || params.config.defaultLanguageCode,
+    cachingFields: ["name"],
+    playbackId: nanoid(),
+    vendor: TTSVendor.GOOGLE
+  };
 };

@@ -22,10 +22,12 @@ import { isSSML } from "./utils";
 import textToSpeech, { v1 } from "@google-cloud/text-to-speech";
 import fs from "fs";
 import util from "util";
-import logger from "@fonoster/logger";
+import { getLogger } from "@fonoster/logger";
 
 const merge = require("deepmerge");
 const defaultVoice = { languageCode: "en-US" };
+
+const logger = getLogger({ service: "googletts", filePath: __filename });
 
 /**
  * @classdesc Optional TTS engine for Fonoster.
@@ -47,7 +49,11 @@ export default class GoogleTTS extends AbstractTTS {
    */
   constructor(config: GoogleTTSConfig) {
     super("tts", "googletts", config);
-    this.client = new textToSpeech.TextToSpeechClient(config as any);
+    const credentials = {
+      private_key: config.credentials.privateKey,
+      client_email: config.credentials.clientEmail
+    }
+    this.client = new textToSpeech.TextToSpeechClient({ credentials });
   }
   /**
    * @inherit
@@ -59,7 +65,7 @@ export default class GoogleTTS extends AbstractTTS {
     pathToFile: string
   ): Promise<SynthResult> {
     logger.verbose(
-      `@fonoster/tts.GoogleTTS.synthesize [input: ${text}, isSSML=${isSSML(
+      `synthesize [input: ${text}, isSSML=${isSSML(
         text
       )} options: ${JSON.stringify(options)}]`
     );

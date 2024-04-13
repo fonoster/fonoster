@@ -20,6 +20,7 @@ import { TTSConfig } from "@fonoster/tts";
 
 export interface PollyTTSConfig extends TTSConfig {
   region?: string;
+  languageCode?: string;
   accessKeyId?: string;
   secretAccessKey?: string;
 }

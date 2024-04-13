@@ -22,13 +22,11 @@ import { CLIENT_EVENTS } from "./events/types";
 import { VoiceRequest, VoiceResponse, VoiceServer } from "@fonoster/voice";
 import { Cerebro } from "./cerebro";
 import { eventsServer } from "./events/server";
-import { nanoid } from "nanoid";
 import { getIntentsEngine } from "./intents/engines";
-import { ServerConfig } from "./types";
-import { sendClientEvent } from "./util";
+import { ServerConfig, TTSVendor } from "./types";
+import { getTTSPlugin, getVoiceConfig, sendClientEvent } from "./util";
 import GoogleASR, { GoogleSpeechConfig } from "@fonoster/googleasr";
 import { getLogger, ulogger, ULogType } from "@fonoster/logger";
-import GoogleTTS, { GoogleTTSConfig } from "@fonoster/googletts";
 import Apps from "@fonoster/apps";
 import Secrets from "@fonoster/secrets";
 import {
@@ -66,6 +64,7 @@ export default function pilot(config: ServerConfig) {
 
         const apps = new Apps(serviceCredentials);
         const secrets = new Secrets(serviceCredentials);
+
         const app = await apps.getApp(voiceRequest.appRef);
 
         logger.verbose("requested app", { app, ref: app.ref });
@@ -80,12 +79,6 @@ export default function pilot(config: ServerConfig) {
 
         intentsEngine?.setProjectId(app.intentsEngineConfig.projectId);
 
-        const voiceConfig = {
-          name: app.speechConfig.voice,
-          playbackId: nanoid(),
-          cachingFields: ["name"]
-        };
-
         const speechSecret = await secrets.getSecret(
           app.speechConfig.secretName
         );
@@ -95,13 +88,20 @@ export default function pilot(config: ServerConfig) {
           client_email: JSON.parse(speechSecret.secret).client_email
         };
 
-        voiceResponse.use(
-          new GoogleTTS({
-            credentials: speechCredentials,
-            languageCode: config.defaultLanguageCode,
-            path: config.fileRetentionPolicyDirectory
-          } as GoogleTTSConfig)
-        );
+        const voiceConfig = getVoiceConfig({
+          secretString: speechSecret.secret,
+          app,
+          config
+        });
+
+        const ttsPlugin = getTTSPlugin({
+          languageCode: voiceConfig.languageCode,
+          vendor: voiceConfig.vendor as TTSVendor,
+          secretString: speechSecret.secret,
+          path: config.fileRetentionPolicyDirectory
+        });
+
+        voiceResponse.use(ttsPlugin);
 
         voiceResponse.use(
           new GoogleASR({
@@ -144,7 +144,7 @@ export default function pilot(config: ServerConfig) {
               if (effect.type === "say") {
                 await voiceResponse.say(
                   effect.parameters["response"] as string,
-                  voiceConfig
+                  voiceConfig as { playbackId: string }
                 );
               }
             }

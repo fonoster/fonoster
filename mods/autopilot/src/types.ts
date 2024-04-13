@@ -52,3 +52,8 @@ export interface ServerConfig {
    */
   fileRetentionPolicyExtension?: string;
 }
+
+export enum TTSVendor {
+  GOOGLE = "google",
+  AMAZON = "amazon"
+}
