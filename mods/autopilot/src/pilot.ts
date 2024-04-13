@@ -94,6 +94,8 @@ export default function pilot(config: ServerConfig) {
           config
         });
 
+        logger.verbose("voice config", { voiceConfig });
+
         const ttsPlugin = getTTSPlugin({
           languageCode: voiceConfig.languageCode,
           vendor: voiceConfig.vendor as TTSVendor,

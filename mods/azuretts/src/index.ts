@@ -16,7 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const isSSML = (text: string) => {
-  const v = text.trim();
-  return v.startsWith("<") && v.endsWith(">");
-};
+export * from "./types";
+import AzureTTS from "./tts";
+
+export default AzureTTS;
+
+// WARNING: Workaround to support commonjs clients
+module.exports = AzureTTS;

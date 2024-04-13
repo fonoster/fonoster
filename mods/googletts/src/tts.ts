@@ -50,11 +50,12 @@ export default class GoogleTTS extends AbstractTTS {
   constructor(config: GoogleTTSConfig) {
     super("tts", "googletts", config);
     const credentials = {
-      private_key: config.credentials.privateKey,
-      client_email: config.credentials.clientEmail
+      private_key: config.credentials?.privateKey,
+      client_email: config.credentials?.clientEmail
     };
     this.client = new textToSpeech.TextToSpeechClient({ credentials });
   }
+
   /**
    * @inherit
    */

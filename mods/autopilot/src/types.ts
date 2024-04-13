@@ -55,5 +55,6 @@ export interface ServerConfig {
 
 export enum TTSVendor {
   GOOGLE = "google",
-  AMAZON = "amazon"
+  AMAZON = "amazon",
+  MICROSOFT = "microsoft"
 }

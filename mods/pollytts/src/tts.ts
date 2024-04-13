@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 import * as AWS from "@aws-sdk/client-polly";
-import { Plugin } from "@fonoster/common";
-import { TTSPlugin, computeFilename, SynthResult } from "@fonoster/tts";
+import { computeFilename, SynthResult, AbstractTTS } from "@fonoster/tts";
 import { PollyTTSConfig, SynthOptions } from "./types";
 import { LanguageCode, TextType, Voice, Engine, Region } from "./enums";
 import { OutputFormat } from "@aws-sdk/client-polly";
@@ -47,7 +46,7 @@ const defaultVoice = {
  *  .then((result) => console.log("path: " + result.pathToFile))
  *  .catch(console.error);
  */
-class PollyTTS extends Plugin implements TTSPlugin {
+class PollyTTS extends AbstractTTS {
   config: PollyTTSConfig;
   client: AWS.Polly;
   /**
@@ -57,7 +56,7 @@ class PollyTTS extends Plugin implements TTSPlugin {
    * @see module:tts:AbstractTTS
    */
   constructor(config: PollyTTSConfig) {
-    super("tts", "pollytts");
+    super("tts", "pollytts", config);
     this.config = config;
     this.config.path = config.path ? config.path : os.tmpdir();
     this.config.region = config.region ? config.region : Region.US_EAST_1;
@@ -72,17 +71,15 @@ class PollyTTS extends Plugin implements TTSPlugin {
     });
   }
 
-  /**
-   *
-   *
-   * @param {string} text -
-   * @param {object} options -
-   * @return {Promise<SynthResult>}
-   */
-  async synthesize(
+  // eslint-disable-next-line require-jsdoc
+  async synthesizeSpeech(
     text: string,
     options: SynthOptions = {}
   ): Promise<SynthResult> {
+    logger.verbose(
+      `synthesize [input: ${text}, options: ${JSON.stringify(options)}]`
+    );
+
     const filename = computeFilename(text, options, "sln16");
     const pathToFile = path.join(this.config.path, filename);
 

@@ -18,6 +18,7 @@
  */
 import GoogleTTS from "@fonoster/googletts";
 import PollyTTS from "@fonoster/pollytts";
+import AzureTTS from "@fonoster/azuretts";
 import { EventsClient } from "./events/emitter";
 import { ClientEvent } from "./events/types";
 import { TTSVendor } from "./types";
@@ -74,6 +75,21 @@ export const getTTSPlugin = (params: {
     });
   }
 
+  if (vendor === TTSVendor.MICROSOFT) {
+    const config = JSON.parse(secretString) as {
+      tts: {
+        subscriptionKey: string;
+        serviceRegion: string;
+      };
+    };
+
+    return new AzureTTS({
+      subscriptionKey: config.tts?.subscriptionKey,
+      serviceRegion: config.tts?.serviceRegion,
+      path
+    });
+  }
+
   // Default to Google
   const credentials = JSON.parse(secretString) as {
     // eslint-disable-next-line camelcase
@@ -123,7 +139,7 @@ export const getVoiceConfig = (params: {
       voice: ttsConfig.voice,
       languageCode: ttsConfig.languageCode,
       region: ttsConfig.region,
-      vendor: ttsConfig.vendor,
+      vendor: ttsConfig.vendor as TTSVendor,
       cachingFields: ttsConfig.cachingFields,
       playbackId: nanoid()
     };
