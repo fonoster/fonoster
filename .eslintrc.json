@@ -1,0 +1,82 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "mocha",
+    "no-loops",
+    "prettier",
+    "notice",
+    "sonarjs",
+    "import"
+  ],
+  "env": {
+    "mocha": true,
+    "node": true,
+    "commonjs": true
+  },
+  "extends": [
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:sonarjs/recommended",
+    "plugin:storybook/recommended",
+    "plugin:mocha/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    "eslint:recommended",
+    "google",
+    "prettier"
+  ],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "error",
+    "import/no-unresolved": "error",
+    "require-jsdoc": "off",
+    "no-unused-vars": "off",
+    "quotes": [
+      "error",
+      "double"
+    ],
+    "notice/notice": [
+      "error",
+      {
+        "mustMatch": "by Fonoster Inc",
+        "templateFile": ".scripts/copyright.js"
+      }
+    ],
+    "sort-imports": [
+      "error",
+      {
+        "ignoreCase": false,
+        "ignoreDeclarationSort": true, // don't want to sort import lines, use eslint-plugin-import instead
+        "ignoreMemberSort": false,
+        "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
+        "allowSeparatedGroups": true
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          ["sibling", "parent"],
+          "index",
+          "unknown"
+        ],
+        "newlines-between": "never",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
+    "no-loops/no-loops": 2,
+    "no-console": 1,
+    "prettier/prettier": 2
+  }
+}

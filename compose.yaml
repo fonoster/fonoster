@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  apiserver:
+    image: psanders/addsalt-apiserver:latest
+    restart: unless-stopped
+    environment:
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
+      PATH_TO_AGENTS: /service/agents.json
+      FULFILLMENT_ENDPOINT_USERNAME: ${FULFILLMENT_ENDPOINT_USERNAME}
+      FULFILLMENT_ENDPOINT_PASSWORD: ${FULFILLMENT_ENDPOINT_PASSWORD}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY}
+      LOCALES_DIR: /service/locales
+      DATABASE_URL: ${DATABASE_URL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_AUTH_USER: ${SMTP_AUTH_USER}
+      SMTP_AUTH_PASS: ${SMTP_AUTH_PASS}
+      SMTP_SENDER: ${SMTP_SENDER}
+      CLOAK_ENCRYPTION_KEY: ${CLOAK_ENCRYPTION_KEY}
+      LOGS_LEVEL: ${LOGS_LEVEL}
+      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+    ports:
+      - 6789:6789
+    volumes:
+      - ./agents.example.json:/service/agents.json
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apiserver.rule=Host(`api.addsalt.tech`)" 
+      - "traefik.http.routers.apiserver.entrypoints=websecure"
+      - "traefik.http.routers.apiserver.tls=true"
+      - "traefik.http.routers.apiserver.tls.certresolver=myresolver"
+      - "traefik.port=6789"
+
+  postgres:
+    image: postgres:14.1-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: UTC
+      PGTZ: UTC
+    expose:
+      - 5432
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:

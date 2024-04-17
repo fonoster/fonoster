@@ -1,0 +1,7 @@
+**/dist
+**/package-lock.json
+**/*.md
+**/generated/*
+.husky
+public
+*.hbs

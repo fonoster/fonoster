@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  apiserver:
+    build:
+      context: .
+      dockerfile: ./mods/apiserver/Dockerfile
+
+  postgres:
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - 8282:8080

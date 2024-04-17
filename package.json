@@ -1,0 +1,79 @@
+{
+  "name": "root",
+  "private": true,
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "license": "MIT",
+  "description": "Then open-source alternative to Twilio",
+  "main": "dist/index",
+  "types": "dist/index",
+  "workspaces": [
+    "mods/*"
+  ],
+  "scripts": {
+    "start:apiserver": "cross-env NODE_ENV=dev nodemon --watch mods/apiserver --exec ts-node mods/apiserver/src/index.ts",
+    "start:deps": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up mailhog -d --remove-orphans",
+    "build": "lerna run build",
+    "format": "prettier --write mods/**/src",
+    "lint": "eslint mods --ext .ts --fix",
+    "prepare": "husky",
+    "test": "cross-env NODE_ENV=dev LOGS_LEVEL=none LOGS_TRANSPORT=none mocha --require ts-node/register mods/**/test/*.test.ts"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.2.0",
+    "@commitlint/config-conventional": "^19.1.0",
+    "@types/chai": "^4.3.12",
+    "@types/chai-as-promised": "^7.1.8",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.28",
+    "@types/sinon": "^17.0.3",
+    "@types/sinon-chai": "^3.2.12",
+    "@typescript-eslint/eslint-plugin": "^7.3.0",
+    "@typescript-eslint/parser": "^7.3.0",
+    "chai-as-promised": "^7.1.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-mocha": "^10.4.1",
+    "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-notice": "^0.9.10",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-sonarjs": "^0.24.0",
+    "eslint-plugin-storybook": "^0.8.0",
+    "husky": "^9.0.11",
+    "lerna": "^8.1.2",
+    "mocha": "^10.3.0",
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5",
+    "sinon": "^17.0.1",
+    "sinon-chai": "^3.7.0",
+    "ts-node": "^10.9.2",
+    "rimraf": "^5.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "./mods/**"
+    ],
+    "ext": "ts",
+    "exec": "ts-node",
+    "ignore": "**/*.d.ts"
+  },
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20.11.1"
+  }
+}
