@@ -1,8 +1,0 @@
-node_modules
-.nyc_output
-coverage
-src
-test
-*.log
-generated
-*.ts
