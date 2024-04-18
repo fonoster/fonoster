@@ -14,13 +14,13 @@ RUN apk add --no-cache --update git \
   && npm run build \
   && cd mods/apiserver \
   && npm pack \
-  && npm install -g addsalt-apiserver-*.tgz \
-  && cp schema.prisma /usr/local/lib/node_modules/@addsalt/apiserver/ \
-  && cd /usr/local/lib/node_modules/@addsalt/apiserver/ \
+  && npm install -g apiserver-*.tgz \
+  && cp schema.prisma /usr/local/lib/node_modules/@fonoster/apiserver/ \
+  && cd /usr/local/lib/node_modules/@fonoster/apiserver/ \
   && npx prisma generate \
   && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
   && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz addsalt-apiserver-*
+  && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz apiserver-*
 
 ##
 # Run stage
@@ -31,12 +31,11 @@ RUN addgroup -g 1001 appuser && adduser -u 1001 -G appuser -D appuser
 
 WORKDIR /service
 
-COPY --from=builder --chown=appuser:appuser /usr/local/lib/node_modules/@addsalt/apiserver /usr/local/lib/node_modules/@addsalt/apiserver
+COPY --from=builder --chown=appuser:appuser /usr/local/lib/node_modules/@fonoster/apiserver /usr/local/lib/node_modules/@fonoster/apiserver
 COPY --from=builder --chown=appuser:appuser /usr/local/bin/dockerize /usr/local/bin/dockerize
 COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/schema.prisma .
-COPY locales /service/locales
 
-RUN npm install -g prisma@5.11.0 npm@latest 
+RUN npm install -g prisma@5.12.1 npm@latest 
 
 USER appuser
 

@@ -1,3 +1,3 @@
-<a href="https://gitpod.io/#https://github.com/addsaltai/addsalt"> <img src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod" alt="Contribute with Gitpod" />
+[<a href="https://gitpod.io/#https://github.com/addsaltai/addsalt"> <img src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod" alt="Contribute with Gitpod" />
 
-This module is part of the [AddSalt](https://addsalt.io) project. By itself, it does not do much. It is intended to be used as a dependency for other modules. For more information about the project, please visit [https://github.com/addsaltai/addsalt](https://github.com/addsaltai/addsalt).
+This module is part of the \[AddSalt\](https://addsalt.io) project. By itself, it does not do much. It is intended to be used as a dependency for other modules. For more information about the project, please visit \[https://github.com/addsaltai/addsalt\](https://github.com/addsaltai/addsalt).a](../apiserver/README.md)
