@@ -1,40 +1,68 @@
-version: "3"
-
 services:
   apiserver:
-    image: psanders/addsalt-apiserver:latest
+    image: fonoster/apiserver:latest
     restart: unless-stopped
     environment:
-      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
-      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
-      TWILIO_PHONE_NUMBER: ${TWILIO_PHONE_NUMBER}
-      PATH_TO_AGENTS: /service/agents.json
-      FULFILLMENT_ENDPOINT_USERNAME: ${FULFILLMENT_ENDPOINT_USERNAME}
-      FULFILLMENT_ENDPOINT_PASSWORD: ${FULFILLMENT_ENDPOINT_PASSWORD}
-      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY}
-      LOCALES_DIR: /service/locales
       DATABASE_URL: ${DATABASE_URL}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_AUTH_USER: ${SMTP_AUTH_USER}
-      SMTP_AUTH_PASS: ${SMTP_AUTH_PASS}
-      SMTP_SENDER: ${SMTP_SENDER}
       CLOAK_ENCRYPTION_KEY: ${CLOAK_ENCRYPTION_KEY}
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
     ports:
       - 6789:6789
+
+  routr:
+    image: fonoster/routr-one:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      EXTERNAL_ADDRS: ${DOCKER_HOST_ADDRESS}
+      LOGS_LEVEL: ${LOGS_LEVEL}
+      LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+    ports:
+      - 51908:51908
+      - 5060:5060/udp
+      - 5060-5063:5060-5063
     volumes:
-      - ./agents.example.json:/service/agents.json
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.apiserver.rule=Host(`api.addsalt.tech`)" 
-      - "traefik.http.routers.apiserver.entrypoints=websecure"
-      - "traefik.http.routers.apiserver.tls=true"
-      - "traefik.http.routers.apiserver.tls.certresolver=myresolver"
-      - "traefik.port=6789"
+      - db:/var/lib/postgresql/data
+
+  # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
+  # is not possible in Docker, we need to use network_mode: host.
+  #
+  # Unfortunately, network_mode: host is not supported in Docker for Windows or Mac.
+  # In those cases, we need to use a different approach.
+  #
+  # By default we are opening a small range of ports (10000-10100) to handle RTP traffic.
+  # However, this is not enough for production environments.
+  #
+  # We recommend that when using Linux you use network_mode: host and remove the ports section.
+  rtpengine:
+    image: fonoster/rtpengine:latest
+    restart: unless-stopped
+    platform: linux/x86_64
+    ports: 
+      - 10000-10100:10000-10100/udp
+      - 8080:8080
+    environment:
+      PUBLIC_IP: ${DOCKER_HOST_ADDRESS}
+      PORT_MIN: 10000
+      PORT_MAX: 10100
+
+  asterisk01:
+    image: fonoster/asterisk:latest
+    restart: unless-stopped
+    expose:
+      - 6060
+      - 8088
+
+  asterisk02:
+    image: fonoster/asterisk:latest
+    restart: unless-stopped
+    expose:
+      - 6060
+      - 8088
 
   postgres:
-    image: postgres:14.1-alpine
+    image: postgres:16.2-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}

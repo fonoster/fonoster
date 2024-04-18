@@ -1,10 +1,21 @@
-version: "3"
-
 services:
   apiserver:
     build:
       context: .
       dockerfile: ./mods/apiserver/Dockerfile
+
+  asterisk01:
+    build:
+      context: .
+      dockerfile: ./asterisk/Dockerfile
+    ports:
+      - 6060:6060
+      - 8088:8088
+
+  asterisk02:
+    ports:
+      - 6161:6060
+      - 8188:8088
 
   postgres:
     ports:
@@ -17,3 +28,9 @@ services:
       ADMINER_DEFAULT_SERVER: postgres
     ports:
       - 8282:8080
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 8025:8025
+      - 1025:1025
