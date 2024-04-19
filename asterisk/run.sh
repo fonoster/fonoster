@@ -6,7 +6,6 @@ USAGE=$(cat <<-END
 To run this image you must provide the following environment variables:
   ARI_USERNAME
   ARI_SECRET
-  EXTERN_ADDR
   SIPPROXY_HOST
   SIPPROXY_USERNAME
   SIPPROXY_SECRET
@@ -20,12 +19,11 @@ END
 [ -z "$SIP_BINDADDR" ]        && { export SIP_BINDADDR='0.0.0.0:6060'; }
 [ -z "$SIPPROXY_PORT" ]       && { export SIPPROXY_PORT='5060'; }
 [ -z "$CODECS" ]              && { export CODECS='g722,ulaw,alaw,gsm'; }
-[ -z "$DTMF_MODE" ]           && { export DTMF_MODE='inband'; }
+[ -z "$DTMF_MODE" ]           && { export DTMF_MODE='rfc2833'; }
 
 # Required environment variables
 [ -z "$ARI_USERNAME" ]          ||
 [ -z "$ARI_SECRET" ]            ||
-[ -z "$EXTERN_ADDR" ]           ||
 [ -z "$RTP_PORT_START" ]        ||
 [ -z "$RTP_PORT_END" ]          ||
 [ -z "$SIPPROXY_HOST" ]         ||
@@ -39,7 +37,6 @@ sed -i.bak "s|ARI_USERNAME_PLACEHOLDER|${ARI_USERNAME}|g" /etc/asterisk/ari.conf
 sed -i.bak "s|ARI_SECRET_PLACEHOLDER|${ARI_SECRET}|g" /etc/asterisk/ari.conf
 sed -i.bak "s|SIP_BINDADDR_PLACEHOLDER|${SIP_BINDADDR}|g" /etc/asterisk/pjsip.conf
 sed -i.bak "s|HTTP_BINDADDR_PLACEHOLDER|${HTTP_BINDADDR}|g" /etc/asterisk/http.conf
-sed -i.bak "s|EXTERN_ADDR_PLACEHOLDER|${EXTERN_ADDR}|g" /etc/asterisk/pjsip.conf
 sed -i.bak "s|SIPPROXY_HOST_PLACEHOLDER|${SIPPROXY_HOST}|g" /etc/asterisk/pjsip_wizard.conf
 sed -i.bak "s|SIPPROXY_PORT_PLACEHOLDER|${SIPPROXY_PORT}|g" /etc/asterisk/pjsip_wizard.conf
 sed -i.bak "s|SIPPROXY_USERNAME_PLACEHOLDER|${SIPPROXY_USERNAME}|g" /etc/asterisk/pjsip_wizard.conf
@@ -52,10 +49,5 @@ sed -i.bak "s|RTP_PORT_END_PLACEHOLDER|${RTP_PORT_END}|g" /etc/asterisk/rtp.conf
 rm /etc/asterisk/*.bak
 
 asterisk -v
-
-# Starts the dispatcher
-export RECORDINGS_PATH="/var/spool/asterisk/recording"
-export ARI_INTERNAL_URL='http://localhost:8088'
-dispatcher
 
 while sleep 3600; do :; done

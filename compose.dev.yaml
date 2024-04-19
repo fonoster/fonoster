@@ -4,18 +4,25 @@ services:
       context: .
       dockerfile: ./mods/apiserver/Dockerfile
 
+  routr:
+    ports:
+      - 51907:51907
+      - 51908:51908
+      - 5060:5060/udp
+      - 5060-5063:5060-5063
+    volumes:
+      - ./etc/log4j2.yaml:/etc/routr/log4j2.yaml
+
   asterisk01:
     build:
       context: .
       dockerfile: ./asterisk/Dockerfile
-    ports:
-      - 6060:6060
-      - 8088:8088
+    volumes:
+      - ./etc/hello-world.sln16:/var/lib/asterisk/sounds/hello-world.sln16
 
   asterisk02:
-    ports:
-      - 6161:6060
-      - 8188:8088
+    volumes:
+      - ./etc/hello-world.sln16:/var/lib/asterisk/sounds/hello-world.sln16
 
   postgres:
     ports:
@@ -34,3 +41,8 @@ services:
     ports:
       - 8025:8025
       - 1025:1025
+
+  simplephone:
+    image: psanders/simplephone:latest
+    ports:
+      - 8181:8080

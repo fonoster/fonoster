@@ -55,7 +55,6 @@ Environment variables are used in the entry point script to render configuration
 - `SIPPROXY_PORT` - The SIP Proxy's port. Defaults `5060`
 - `SIPPROXY_USERNAME` - Username at SIP Proxy. **Required**
 - `SIPPROXY_SECRET` - Secret at SIP Proxy. **Required**
-- `EXTERN_ADDR` - IP address to advertise. **Required**
 - `SIP_BINDADDR` - Where to listen for SIP traffic. Defaults to `0.0.0.0:6060`
 - `RTP_PORT_START` - Lower limit of the RTP port range. **Required**
 - `RTP_PORT_END` - Upper limit of the RTP port range. **Required**
