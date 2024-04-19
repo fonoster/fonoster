@@ -18,11 +18,11 @@ services:
       context: .
       dockerfile: ./asterisk/Dockerfile
     volumes:
-      - ./etc/hello-world.sln16:/var/lib/asterisk/sounds/hello-world.sln16
+      - ./etc/hello-world.g722:/var/lib/asterisk/sounds/hello-world.g722
 
   asterisk02:
     volumes:
-      - ./etc/hello-world.sln16:/var/lib/asterisk/sounds/hello-world.sln16
+      - ./etc/hello-world.g722:/var/lib/asterisk/sounds/hello-world.g722
 
   postgres:
     ports:
