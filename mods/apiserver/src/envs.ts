@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,22 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createDefaultPeer } from "./sipnet/peers/createDefaultPeer";
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function main() {
-  // Create a Peer for the default region, if it doesn't already exist
-  await createDefaultPeer();
-
-  // eslint-disable-next-line no-loops/no-loops, no-constant-condition
-  while (true) {
-    console.log("We are ready to rock and roll! 🚀");
-    await sleep(3600000);
-  }
-}
-
-main().catch(console.error);
+export const ROUTR_API_ENDPOINT =
+  process.env.ROUTR_API_ENDPOINT || "localhost:51908";
+export const ROUTR_DEFAULT_PEER_NAME =
+  process.env.ROUTR_DEFAULT_PEER_NAME || "Voice Autopilot";
+export const ROUTR_DEFAULT_PEER_USERNAME =
+  process.env.ROUTR_DEFAULT_PEER_USERNAME || "voice";
+export const ROUTR_DEFAULT_PEER_AOR =
+  process.env.ROUTR_DEFAULT_PEER_AOR || "sip:voice@default";
+export const ROUTR_DEFAULT_PEER_PASSWORD =
+  process.env.ROUTR_DEFAULT_PEER_PASSWORD || "changeme";

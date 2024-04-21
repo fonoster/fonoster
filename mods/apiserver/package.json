@@ -20,7 +20,9 @@
     "fonoster": "./dist/index.js"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.5.5"
+    "@fonoster/logger": "^0.5.5",
+    "@routr/common": "^2.10.0",
+    "@routr/sdk": "^2.10.0"
   },
   "files": [
     "dist"
