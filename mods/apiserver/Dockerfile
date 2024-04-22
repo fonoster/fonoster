@@ -2,7 +2,7 @@
 # Build stage
 ##
 FROM node:20-alpine3.19 AS builder 
-LABEL Salt AI <psanders@fonoster.ai>
+LABEL Fonoster Team <team@fonoster.com>
 
 WORKDIR /work
 COPY . .
@@ -42,4 +42,4 @@ USER appuser
 # TODO: Fix hardcode host for db
 CMD sh -c "dockerize -wait tcp://postgres:5432 -timeout 30s && \
   npx prisma migrate deploy && \
-  node /usr/local/lib/node_modules/@addsalt/apiserver/dist/index.js"
+  node /usr/local/lib/node_modules/@fonoster/apiserver/dist/index.js"
