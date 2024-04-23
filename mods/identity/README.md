@@ -45,12 +45,12 @@ Policy Example:
 			"/fonoster.users.v1beta2.Users/GetUser",
 			"/fonoster.users.v1beta2.Users/UpdateUser",
 			"/fonoster.users.v1beta2.Users/Login",
-  		"/fonoster.projects.v1beta2.Projects/ListProjects",
-			"/fonoster.projects.v1beta2.Projects/CreateProject",
-			"/fonoster.projects.v1beta2.Projects/UpdateProject",
-			"/fonoster.projects.v1beta2.Projects/GetProject",
-			"/fonoster.projects.v1beta2.Projects/DeleteProject",
-			"/fonoster.projects.v1beta2.Projects/RenewAccess",
+  		"/fonoster.workspaces.v1beta2.Workspaces/ListWorkspaces",
+			"/fonoster.workspaces.v1beta2.Workspaces/CreateWorkspace",
+			"/fonoster.workspaces.v1beta2.Workspaces/UpdateWorkspace",
+			"/fonoster.workspaces.v1beta2.Workspaces/GetWorkspace",
+			"/fonoster.workspaces.v1beta2.Workspaces/DeleteWorkspace",
+			"/fonoster.workspaces.v1beta2.Workspaces/RenewAccess",
 			"/fonoster.limiter.v1beta2.Limiter/CheckAuthorized"
     ]
 	}
