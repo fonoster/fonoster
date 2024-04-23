@@ -1,160 +1,100 @@
-[<a href="https://gitpod.io/#https://github.com/fonoster/fonoster"> <img src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod" alt="Contribute with Gitpod" />
+<a href="https://gitpod.io/#https://github.com/fonoster/fonoster"> <img src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod" alt="Contribute with Gitpod" />
 
-This module is part of the \[Fonoster\](https://fonoster.com) project. By itself, it does not do much. It is intended to be used as a dependency for other modules. For more information about the project, please visit \[https://github.com/fonoster/fonoster\](https://github.com/fonoster/fonoster).a](../apiserver/README.md)
+This module is part of the \[Fonoster\](https://fonoster.com) project. By itself, it does not do much. It is intended as a dependency for other modules. For more information about the project, please visit \[https://github.com/fonoster/fonoster\](https://github.com/fonoster/fonoster).a](../apiserver/README.md)
 
-## About the Identity Module
+## About Identity
 
-The Identity module is a set of tools to manage users, groups, and permissions. The module is generic enough to be used in other projects within Fonoster Ecosystem. 
+The Fonoster Identity Module provides the cornerstone for secure user management, authentication, and authorization within the Fonoster Ecosystem. It is designed with flexibility and scalability to accommodate the diverse and evolving needs of the various Fonoster projects.
 
-In general terms, the module provides the mecanisms to sign up, sign in, and manage users and groups. It also provides a way to manage permissions and roles for users and groups.
+## Key Features
 
-This modules makes use of the public/private key pair to sign and verify JWT tokens using the RS256 algorithm. This tokens can be use to access other services within the Fonoster Ecosystem and might be obtained by exchanging a username and password, a refresh token, or ouath2 code.
+This module offers comprehensive identity management functionality, including creating, reading, updating, and deleting user and group entities. Users may represent individual accounts or service accounts. Groups provide a way to organize users and streamline permission administration logically. A user can belong to multiple groups.
 
-Here are the main features of the module:
+The Identity module ensures secure authentication by employing industry-standard JSON Web Tokens (JWTs). It supports a variety of authentication mechanisms, including username and password, Multi-Factor Authentication (MFA) for added security, OAuth2 for integration with external identity providers, and seamless token exchange to accommodate diverse scenarios.
 
-- **Identity Management**: Manage users, groups, and permissions
-- **Authentication**: Authenticate users using JWT
-- **Authorization**: Authorize users using RBAC
+Authorization is implemented through a Role-Based Access Control (RBAC) model, allowing for granular control over user and service actions. Predefined roles offer convenience, while the option to create custom roles provides maximum flexibility.
 
-In this document, we will capture the concepts and guidelines for the Identity module.
+## Users, Groups, and Roles
 
-## About Users and Groups
+Individual users or services connecting to the Identity service will require a Role. As you will see in the next section, a Role has a set of allowed actions.
 
-The module is designed to work with users and groups. A user can belong to one or more groups. The group owns the resources and the permissions. A user can have different roles in different groups.
+Take the following example:
 
-[Diagram showing relationship between users, groups, and permissions]
+In the case of Fonoster, we might have the Owner, Admin, and Member as Roles associated with a Workspace (group). In such cases, the Owner will be able to perform all actions, the Admin will be allowed to perform all actions except removing the Workspace, and members will have the ability to make changes to specific resources but not be able to see billing information.
 
-Available roles include:
+## Role-Based Access Control 
 
-- **Admin**: Can manage all resources and permissions
-- **Member**: Can access SIPNet, Apps, and SMS APIs
+Fonoster Identity relies on Roled-Baed Access Control (RBAC) to offer granular control over parts of the system. The following pseudo-type can describe the policy for RBAC within Fonoster Identity.
 
-> While members will have access to monitoring they will not be able to open recordings.
+```json
+[ { "name": "string", "description": "string", "access": string [] } ]
+```
 
-## Role-Based Access Control
+Were the access array consist of the path for an individual gRPC function.
 
-The module uses Role-Based Access Control (RBAC) to manage permissions. RBAC is a policy neutral access control mechanism defined around roles and privileges. The components of RBAC such as role-permissions, user-role, and role-role relationships make it simple to perform user assignments.
+Policy Example:
 
 ```json
 [
-  {
-    "name": "USER",
-    "description": "Access to User and Project endpoints",
-    "access": [
-      "/fonoster.users.v1beta1.Users/ListUsers",
-      "/fonoster.users.v1beta1.Users/GetUser",
-      "/fonoster.users.v1beta1.Users/UpdateUser",
-      "/fonoster.users.v1beta1.Users/Login",
-      "/fonoster.projects.v1beta1.Projects/ListProjects",
-      "/fonoster.projects.v1beta1.Projects/CreateProject",
-      "/fonoster.projects.v1beta1.Projects/UpdateProject",
-      "/fonoster.projects.v1beta1.Projects/GetProject",
-      "/fonoster.projects.v1beta1.Projects/DeleteProject",
-      "/fonoster.projects.v1beta1.Projects/RenewAccessKeySecret",
-      "/fonoster.limiter.v1beta1.Limiter/CheckAuthorized"
-    ]
-  },
-  {
-    "name": "PROJECT",
-    "description": "Access to Project resources",
-    "access": [
-      "/fonoster.apps.v1beta1.Apps/ListApps",
-      "/fonoster.apps.v1beta1.Apps/CreateApp",
-      "/fonoster.apps.v1beta1.Apps/GetApp",
-      "/fonoster.apps.v1beta1.Apps/UpdateApp",
-      "/fonoster.apps.v1beta1.Apps/DeleteApp",
-      "/fonoster.monitor.v1beta1.Monitor/SearchEvents",
-      "/fonoster.storage.v1beta1.Storage/UploadObject",
-      "/fonoster.storage.v1beta1.Storage/GetObjectURL",
-      "/fonoster.providers.v1beta1.Providers/ListProviders",
-      "/fonoster.providers.v1beta1.Providers/CreateProvider",
-      "/fonoster.providers.v1beta1.Providers/GetProvider",
-      "/fonoster.providers.v1beta1.Providers/UpdateProvider",
-      "/fonoster.providers.v1beta1.Providers/DeleteProvider",
-      "/fonoster.numbers.v1beta1.Numbers/ListNumbers",
-      "/fonoster.numbers.v1beta1.Numbers/CreateNumber",
-      "/fonoster.numbers.v1beta1.Numbers/GetIngressInfo",
-      "/fonoster.numbers.v1beta1.Numbers/GetNumber",
-      "/fonoster.numbers.v1beta1.Numbers/UpdateNumber",
-      "/fonoster.numbers.v1beta1.Numbers/DeleteNumber",
-      "/fonoster.domains.v1beta1.Domains/ListDomains",
-      "/fonoster.domains.v1beta1.Domains/CreateDomain",
-      "/fonoster.domains.v1beta1.Domains/GetDomain",
-      "/fonoster.domains.v1beta1.Domains/UpdateDomain",
-      "/fonoster.domains.v1beta1.Domains/DeleteDomain",
-      "/fonoster.callmanager.v1beta1.CallManager/Call",
-      "/fonoster.agents.v1beta1.Agents/ListAgents",
-      "/fonoster.agents.v1beta1.Agents/CreateAgent",
-      "/fonoster.agents.v1beta1.Agents/GetAgent",
-      "/fonoster.agents.v1beta1.Agents/UpdateAgent",
-      "/fonoster.agents.v1beta1.Agents/DeleteAgent",
-      "/fonoster.secrets.v1beta1.Secrets/CreateSecret",
-      "/fonoster.secrets.v1beta1.Secrets/ListSecretsId",
-      "/fonoster.secrets.v1beta1.Secrets/DeleteSecret",
-      "/fonoster.secrets.v1beta1.Secrets/GetSecret",
-      "/fonoster.limiter.v1beta1.Limiter/CheckAuthorized"
-    ]
-  }
-  {
-    "name": "SERVICE",
-    "description": "This role is able to obtain ingress information and create short-live token",
-    "access": [
-      "/fonoster.numbers.v1beta1.Numbers/GetIngressInfo",
-      "/fonoster.auth.v1beta1.Auth/CreateToken",
-      "/fonoster.auth.v1beta1.Auth/CreateNoAccessToken",
-      "/fonoster.auth.v1beta1.Auth/ValidateToken",
-      "/fonoster.users.v1beta1.Users/CreateUser",
-      "/fonoster.users.v1beta1.Users/ListUsers",
-      "/fonoster.users.v1beta1.Users/UpdateUser"
-    ]
-  },
-  {
-    "name": "NO_ACCESSS",
-    "description": "Signature token without any access",
-    "access": []
-  },
-  {
-    "name": "ADMIN",
-    "description": "Can perform administrative task",
-    "access": [
-      "/fonoster.auth.v1beta1.Auth/CreateToken",
-      "/fonoster.users.v1beta1.Users/CreateUser",
-      "/fonoster.users.v1beta1.Users/DeleteUser",
-      "/fonoster.users.v1beta1.Users/ListUsers",
-      "/fonoster.users.v1beta1.Users/UpdateUser"
-    ]
-  }
+ 	{
+ 		"name": "USER",
+ 		"description": "Access to User and Project endpoints",
+ 		"access": [
+	 		"/fonoster.users.v1beta2.Users/ListUsers",
+ 			"/fonoster.users.v1beta2.Users/GetUser",
+ 			"/fonoster.users.v1beta2.Users/UpdateUser",
+ 			"/fonoster.users.v1beta2.Users/Login",
+  			"/fonoster.projects.v1beta2.Projects/ListProjects",
+ 			"/fonoster.projects.v1beta2.Projects/CreateProject",
+ 			"/fonoster.projects.v1beta2.Projects/UpdateProject",
+ 			"/fonoster.projects.v1beta2.Projects/GetProject",
+ 			"/fonoster.projects.v1beta2.Projects/DeleteProject",
+ 		        "/fonoster.projects.v1beta2.Projects/RenewAccess",
+ 		       "/fonoster.limiter.v1beta2.Limiter/CheckAuthorized"
+                 ]
+	}
 ]
 ```
 
 ## Access and Refresh Tokens
 
-(Talk about the difference between access and refresh tokens, claims, scopes, duration, refresh token rotation policy, etc.)
+The Identity module employs JSON Web Tokens (JWTs) for secure and flexible authentication. It strategically utilizes two distinct token types: access tokens and refresh tokens. Access tokens grant users or services access to protected resources within Fonoster services. 
 
-The module uses JWT to manage access and refresh tokens. The access token is used to access the services, and the refresh token is used to obtain a new access token when the current one expires. The access token is short-lived, and the refresh token is long-lived??. 
+They are designed to enhance security with short lifespans (e.g., minutes to an hour). Access tokens contain encoded information (claims) about the user or service, including the following
+
+- issuer (Identity module)
+- unique identifier (subject)
+- intended audience
+- expiration timestamp
+- issued at time 
+- and granted permissions (scope)
+
+Refresh tokens have the specific function of obtaining new access tokens upon expiry. They possess longer lifespans than access tokens, potentially spanning days, weeks, or months, minimizing the frequency with which users need to re-enter their credentials. Due to their extended validity, refresh tokens warrant secure storage and careful management.
 
 ## Token Exchange
 
-For a user to obtain a token, the user must provide a username and password. The user will receive an access token and a refresh token. The access token is used to access the services, and the refresh token is used to obtain a new access token when the current one expires.
+The Identity module supports a variety of mechanisms to obtain initial access and refresh tokens. A conventional method involves a user supplying their username and password in exchange for an access token and a refresh token. 
 
-When the MFA is enabled, the user must provide the username and password and the MFA code. The user will receive an access token and a refresh token. The access token is used to access the services, and the refresh token is used to obtain a new access token when the current one expires.
+For enhanced security, the module can require Multi-Factor Authentication (MFA), where the user must provide their username, password, and a time-based MFA code. Upon successful authentication, an access token and a refresh token are issued. 
 
-When the user has a refresh token, the user can obtain a new access token by providing the refresh token. The user will receive a new access token and a new refresh token.
+The Identity module also supports OAuth2 code exchange, enabling integration with external identity providers. In this scenario, a user authenticates with the third-party provider and receives an authorization code to exchange with the Identity module for an access and refresh token.
 
-When the user has an oauth2 code, the user can obtain a new access token by providing the oauth2 code. The user will receive a new access token and a new refresh token.
+When an access token expires, the Identity Module facilitates seamless renewal by allowing the presentation of a valid refresh token to obtain a new access and refresh token pair. If API keys are integrated into your authentication strategy, the module could also support exchanging API keys for tokens.
 
-When the user has a token, the user can obtain a new access token by providing the token. The user will receive a new access token and a new refresh token.
+## Refresh-Token Rotation Policy
 
-When the user has an API key, the user can obtain a new access token by providing the API key. The user will receive a new access token and a new refresh token.
+A well-defined refresh token rotation policy is crucial for maintaining security. Fonoster Identity will provide a time-based refresh token, which means a refresh token will expire after a fixed amount of time.
 
-(Look into other implementations for refresh token rotation policy)
-
-> The Fonoster SDK must provide the necessary mecanism to refresh the token.
+Along with the rotation policy, the Identity module will provide a mechanism to invalidate existing refresh tokens to address scenarios like compromised devices or accounts.
 
 ## Token Verification
 
-(Talk about how to use the public key to verify the token)
+The Identity module utilizes the RS256 algorithm to digitally sign JWTs tokens, ensuring their authenticity and integrity. Fonoster services can verify tokens using a public key provided by the Identity module ( exposed at endpoints like /.well-known/jwks.json). 
 
-The module uses the RS256 algorithm to sign and verify JWT tokens. Services within a Fonoster instance can verify the token by using the public key provided by the Identity module. The public key is available at the `/.well-known/jwks.json` endpoint for Restful services and at the `jwks` endpoint for gRPC services.
+The verification process involves two steps: first, confirming the token's signature using the correct private key, and second, validating claims such as the issuer, intended audience, and expiration time to establish the token's overall validity.
 
+> Fonoster's SDK must provide the necessary utility to automate this process
 
+## Security  Practices
+
+To uphold security standards, Fonoster Identity mandates the use of HTTPS for all communications to safeguard tokens during transmission. When defining access token scopes, the principle of least privilege should be followed, granting only the minimum permissions necessary for specific tasks. Finally, comprehensive logging and monitoring of authentication events, token activities, and potential anomalies are essential for security auditing and swift incident response.
