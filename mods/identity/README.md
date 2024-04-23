@@ -1,6 +1,7 @@
 <a href="https://gitpod.io/#https://github.com/fonoster/fonoster"> <img src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod" alt="Contribute with Gitpod" />
+</a> [![Sponsor this](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&link=https://github.com/sponsors/fonoster)](https://github.com/sponsors/fonoster) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
-This module is part of the \[Fonoster\](https://fonoster.com) project. By itself, it does not do much. It is intended as a dependency for other modules. For more information about the project, please visit \[https://github.com/fonoster/fonoster\](https://github.com/fonoster/fonoster).a](../apiserver/README.md)
+This module is part of the [Fonoster](https://fonoster.com) project. By itself, it does not do much. It is intended to be used in combination with other modules to create a complete solution. For more information about the project, please visit [https://github.com/fonoster/fonoster](https://github.com/fonoster/fonoster).
 
 ## About Identity
 
@@ -24,9 +25,9 @@ In the case of Fonoster, we might have the Owner, Admin, and Member as Roles ass
 
 ## Role-Based Access Control 
 
-Fonoster Identity relies on Roled-Baed Access Control (RBAC) to offer granular control over parts of the system. The following pseudo-type can describe the policy for RBAC within Fonoster Identity.
+Fonoster Identity relies on Roled-Baed Access Control (RBAC) to offer granular control over parts of the system. The following type can describe the policy for RBAC within Fonoster Identity.
 
-```json
+```typescript
 [ { "name": "string", "description": "string", "access": string [] } ]
 ```
 
@@ -44,14 +45,14 @@ Policy Example:
  			"/fonoster.users.v1beta2.Users/GetUser",
  			"/fonoster.users.v1beta2.Users/UpdateUser",
  			"/fonoster.users.v1beta2.Users/Login",
-  			"/fonoster.projects.v1beta2.Projects/ListProjects",
+  		"/fonoster.projects.v1beta2.Projects/ListProjects",
  			"/fonoster.projects.v1beta2.Projects/CreateProject",
  			"/fonoster.projects.v1beta2.Projects/UpdateProject",
  			"/fonoster.projects.v1beta2.Projects/GetProject",
  			"/fonoster.projects.v1beta2.Projects/DeleteProject",
- 		        "/fonoster.projects.v1beta2.Projects/RenewAccess",
- 		       "/fonoster.limiter.v1beta2.Limiter/CheckAuthorized"
-                 ]
+ 		  "/fonoster.projects.v1beta2.Projects/RenewAccess",
+ 		  "/fonoster.limiter.v1beta2.Limiter/CheckAuthorized"
+    ]
 	}
 ]
 ```
