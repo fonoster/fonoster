@@ -41,17 +41,17 @@ Policy Example:
  		"name": "USER",
  		"description": "Access to User and Project endpoints",
  		"access": [
-	 		"/fonoster.users.v1beta2.Users/ListUsers",
- 			"/fonoster.users.v1beta2.Users/GetUser",
- 			"/fonoster.users.v1beta2.Users/UpdateUser",
- 			"/fonoster.users.v1beta2.Users/Login",
+			"/fonoster.users.v1beta2.Users/ListUsers",
+			"/fonoster.users.v1beta2.Users/GetUser",
+			"/fonoster.users.v1beta2.Users/UpdateUser",
+			"/fonoster.users.v1beta2.Users/Login",
   		"/fonoster.projects.v1beta2.Projects/ListProjects",
- 			"/fonoster.projects.v1beta2.Projects/CreateProject",
- 			"/fonoster.projects.v1beta2.Projects/UpdateProject",
- 			"/fonoster.projects.v1beta2.Projects/GetProject",
- 			"/fonoster.projects.v1beta2.Projects/DeleteProject",
- 		  "/fonoster.projects.v1beta2.Projects/RenewAccess",
- 		  "/fonoster.limiter.v1beta2.Limiter/CheckAuthorized"
+			"/fonoster.projects.v1beta2.Projects/CreateProject",
+			"/fonoster.projects.v1beta2.Projects/UpdateProject",
+			"/fonoster.projects.v1beta2.Projects/GetProject",
+			"/fonoster.projects.v1beta2.Projects/DeleteProject",
+			"/fonoster.projects.v1beta2.Projects/RenewAccess",
+			"/fonoster.limiter.v1beta2.Limiter/CheckAuthorized"
     ]
 	}
 ]
