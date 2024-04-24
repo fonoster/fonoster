@@ -52,21 +52,19 @@ The access array consists of the path for an individual gRPC function.
 Policy Example:
 
 ```json
-[
- 	{
- 		"name": "USER",
- 		"description": "Access to User and Workspace endpoints",
- 		"access": [
-			"/fonoster.users.v1beta2.Users/GetUser",
-			"/fonoster.users.v1beta2.Users/UpdateUser",
-			"/fonoster.users.v1beta2.Users/Login",
-			"/fonoster.workspaces.v1beta2.Workspaces/CreateWorkspace",
-			"/fonoster.workspaces.v1beta2.Workspaces/UpdateWorkspace",
-			"/fonoster.workspaces.v1beta2.Workspaces/GetWorkspace",
-			"/fonoster.workspaces.v1beta2.Workspaces/RenewAccess",
- ]
-	}
-]
+{
+  "name": "USER",
+  "description": "Access to User and Workspace endpoints",
+  "access": [
+     "/fonoster.users.v1beta2.Users/GetUser",
+     "/fonoster.users.v1beta2.Users/UpdateUser",
+     "/fonoster.users.v1beta2.Users/Login",
+     "/fonoster.workspaces.v1beta2.Workspaces/CreateWorkspace",
+     "/fonoster.workspaces.v1beta2.Workspaces/UpdateWorkspace",
+     "/fonoster.workspaces.v1beta2.Workspaces/GetWorkspace",
+     "/fonoster.workspaces.v1beta2.Workspaces/RenewAccess",
+  ]
+}
 ```
 
 ## ID, Access, and Refresh Tokens
@@ -101,6 +99,7 @@ Access tokens enhance security with short lifespans (e.g., minutes to an hour). 
  "token_type": "access",
  "scope": "USER"
 }
+```
 
 Here, `sub` is the user identifier, `aud` is the group identifier, and `scope` is the user's role.
 
