@@ -35,7 +35,7 @@ function isValidToken(token: string, secret: string): boolean {
     return true;
   } catch (error) {
     if (error.name === "JsonWebTokenError") {
-      logger.verbose("invalid JWT:", error.message);
+      logger.verbose("invalid JWT:", error);
     } else if (error.name === "TokenExpiredError") {
       logger.verbose("token expired");
     } else {

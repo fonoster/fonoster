@@ -23,14 +23,11 @@ function createInterceptingCall(params: {
   code: grpc.status;
   details: string;
 }) {
-  return new grpc.ServerInterceptingCall(params.call, {
-    sendStatus: function (status, next) {
-      next({
-        code: params.code,
-        details: params.details
-      });
-    }
-  });
+  const { call, code, details } = params;
+
+  call.sendStatus({ code, details });
+
+  return call;
 }
 
 export default createInterceptingCall;
