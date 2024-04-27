@@ -21,12 +21,157 @@ syntax = "proto3";
 package fonoster.identity.v1beta2;
 
 service Identity {
+  rpc CreateGroup (CreateGroupRequest) returns (CreateGroupResponse) {}
+  rpc DeleteGroup (DeleteGroupRequest) returns (DeleteGroupResponse) {}
+  rpc GetGroup (GetGroupRequest) returns (GetGroupResponse) {}
+  rpc ListGroups (ListGroupsRequest) returns (ListGroupsResponse) {}
+  rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupResponse) {}
+  rpc AddUserToGroup (AddUserToGroupRequest) returns (AddUserToGroupResponse) {}
+  rpc RemoveUserFromGroup (RemoveUserFromGroupRequest) returns (RemoveUserFromGroupResponse) {}
+  rpc ResendGroupMembershipInvitation (ResendGroupMembershipInvitationRequest) returns (ResendGroupMembershipInvitationResponse) {}
+  rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+  rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
   rpc ExchangeCredentials (ExchangeCredentialsRequest) returns (ExchangeCredentialsResponse) {}
   rpc ExchangeAPIKey (ExchangeAPIKeyRequest) returns (ExchangeAPIKeyResponse) {}
   rpc ExchangeOAuth2Code (ExchangeOAuth2CodeRequest) returns (ExchangeOAuth2CodeResponse) {}
-  rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {}
+  rpc ExchangeRefreshToken (ExchangeRefreshTokenRequest) returns (ExchangeRefreshTokenResponse) {}
   rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
 }
+
+// Group Resources
+
+message CreateGroupRequest {
+  string name = 1;
+}
+
+message CreateGroupResponse {
+  string id = 1;
+}
+
+message DeleteGroupRequest {
+  string id = 1;
+}
+
+message DeleteGroupResponse {
+  string id = 1;
+}
+
+message GetGroupRequest {
+  string id = 1;
+}
+
+message GetGroupResponse {
+  string id = 1;
+  string name = 2;
+  string owner_id = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message ListGroupsRequest {
+  string page_token = 1;
+  int32 page_size = 2;
+}
+
+message ListGroupsResponse {
+  repeated Group groups = 1;
+  string next_page_token = 2;
+}
+
+message UpdateGroupRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message UpdateGroupResponse {
+  string id = 1;
+}
+
+message AddUserToGroupRequest {
+  string user_id = 1;
+  string group_id = 2;
+}
+
+message AddUserToGroupResponse {
+  string user_id = 1;
+  string group_id = 2;
+}
+
+message RemoveUserFromGroupRequest {
+  string user_id = 1;
+  string group_id = 2;
+}
+
+message RemoveUserFromGroupResponse {
+  string user_id = 1;
+  string group_id = 2;
+}
+
+message ResendGroupMembershipInvitationRequest {
+  string user_id = 1;
+  string group_id = 2;
+}
+
+message ResendGroupMembershipInvitationResponse {
+  string user_id = 1;
+  string group_id = 2;
+}
+
+// User Resources
+
+message CreateUserRequest {
+  string email = 1;
+  string password = 2;
+  string name = 3;
+  string avatar = 4;
+}
+
+message CreateUserResponse {
+  string id = 1;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  string id = 1;
+  string email = 2;
+  string name = 3;
+  string avatar = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  string name = 3;
+  string avatar = 4;
+}
+
+message UpdateUserResponse {
+  string id = 1;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {
+  string id = 1;
+}
+
+message Group {
+  string id = 1;
+  string name = 2;
+  string owner_id = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+// Token Exchange Resources
 
 message ExchangeCredentialsRequest {
   string username = 1;
@@ -61,11 +206,11 @@ message ExchangeOAuth2CodeResponse {
   string refresh_token = 3;
 }
 
-message RefreshTokenRequest {
+message ExchangeRefreshTokenRequest {
   string refresh_token = 1;
 }
 
-message RefreshTokenResponse {
+message ExchangeRefreshTokenResponse {
   string id_token = 1;
   string access_token = 2;
   string refresh_token = 3;

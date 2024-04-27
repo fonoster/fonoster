@@ -14,11 +14,13 @@
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr postgres adminer mailhog rtpengine asterisk01 asterisk02 simplephone -d --remove-orphans",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "build": "lerna run build",
+    "prebuild": "npx prisma generate --schema ./mods/apiserver/schema.prisma",
     "format": "prettier --write mods/**/src",
     "lint": "eslint mods --ext .ts --fix",
     "clean": "rimraf mods/**/dist mods/**/node_modules mods/**/package-lock.json node_modules package-lock.json",
     "prepare": "husky",
-    "gen:keypair": ".scripts/gen-keypair.sh",
+    "db:migrate": "npx prisma migrate dev --schema ./mods/apiserver/schema.prisma --name init --preview-feature",
+    "generate:keypair": ".scripts/gen-keypair.sh",
     "check:updates": "lerna exec -- npx npm-check-updates",
     "test": "cross-env NODE_ENV=dev LOGS_LEVEL=none LOGS_TRANSPORT=none mocha --require ts-node/register mods/**/test/*.test.ts"
   },
@@ -50,10 +52,11 @@
     "mocha": "^10.4.0",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
+    "prisma": "^5.13.0",
+    "rimraf": "^5.0.5",
     "sinon": "^17.0.1",
     "sinon-chai": "^3.7.0",
-    "ts-node": "^10.9.2",
-    "rimraf": "^5.0.5"
+    "ts-node": "^10.9.2"
   },
   "repository": {
     "type": "git",
@@ -79,5 +82,8 @@
   ],
   "engines": {
     "node": ">=20.11.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.13.0"
   }
 }

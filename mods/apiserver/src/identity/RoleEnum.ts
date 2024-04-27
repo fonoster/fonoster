@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 enum RoleEnum {
-  Owner = "owner",
-  ADMIN = "admin",
-  USER = "user"
+  OWNER = "OWNER",
+  ADMIN = "ADMIN",
+  USER = "USER"
 }
 
 export default RoleEnum;

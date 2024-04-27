@@ -8,7 +8,68 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id        String   @id @default(uuid())
+  email     String   @unique @db.VarChar(255)
+  password  String   @map("password_hash") /// @encrypted
+  name      String   @db.VarChar(60)
+  avatar    String?  @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  // Relations
+  ownedGroups     Group[] // Groups owned by the user
+  memberships     GroupMember[] // Groups the user is a member of
+
+  // Indexes and maps
+  @@index([email], type: Hash)
+  @@map("users")
+}
+
+model Group {
+  id               String          @id @default(uuid())
+  name             String          @db.VarChar(60)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  // Relations
+  owner          User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId        String
+  members        GroupMember[]
+
+  // Indexes and maps
+  @@index([name], type: Hash)
+  @@map("groups")
+}
+
+model GroupMember {
+  id     String                @id @default(uuid())
+  status GroupMemberStatus
+  role   GroupMemberRole       @default(USER)
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  group       Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     String
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([userId, groupId])
+  @@map("group_members")
+}
+
+enum GroupMemberStatus {
+  PENDING
+  ACTIVE
+
+  @@map("group_member_status")
+}
+
+enum GroupMemberRole {
+  OWNER
+  ADMIN
+  USER
+
+  @@map("group_member_role")
 }
