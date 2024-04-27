@@ -1,0 +1,10 @@
+node_modules/
+.env
+*.log
+reporting/*
+out/*
+dist
+coverage
+.nyc_output
+.keys
+tsconfig.tsbuildinfo
