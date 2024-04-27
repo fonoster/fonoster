@@ -16,4 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils/createService";
+enum RoleEnum {
+  Owner = "owner",
+  ADMIN = "admin",
+  USER = "user"
+}
+
+export default RoleEnum;

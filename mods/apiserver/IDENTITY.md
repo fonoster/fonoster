@@ -53,7 +53,7 @@ Policy Example:
 
 ```json
 {
-  "name": "USER",
+  "name": "user",
   "description": "Access to User and Workspace endpoints",
   "access": [
      "/fonoster.users.v1beta2.Users/GetUser",

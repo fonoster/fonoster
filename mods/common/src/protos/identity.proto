@@ -1,0 +1,80 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.identity.v1beta2;
+
+service Identity {
+  rpc ExchangeCredentials (ExchangeCredentialsRequest) returns (ExchangeCredentialsResponse) {}
+  rpc ExchangeAPIKey (ExchangeAPIKeyRequest) returns (ExchangeAPIKeyResponse) {}
+  rpc ExchangeOAuth2Code (ExchangeOAuth2CodeRequest) returns (ExchangeOAuth2CodeResponse) {}
+  rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {}
+  rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
+}
+
+message ExchangeCredentialsRequest {
+  string username = 1;
+  string password = 2;
+  // Optional code for multi-factor authentication
+  string ephemeral_code = 3;
+}
+
+message ExchangeCredentialsResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message ExchangeAPIKeyRequest {
+  string api_key = 1;
+}
+
+message ExchangeAPIKeyResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message ExchangeOAuth2CodeRequest {
+  string code = 1;
+}
+
+message ExchangeOAuth2CodeResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string id_token = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message RevokeTokenRequest {
+  string token = 1;
+}
+
+message RevokeTokenResponse {
+  string token = 1;
+}

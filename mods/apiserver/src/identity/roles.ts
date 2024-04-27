@@ -16,4 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils/createService";
+import { Role } from "./types";
+
+const roles = [
+  {
+    name: "user",
+    description: "Access to User and Workspace endpoints",
+    access: ["/fonoster.identity.v1beta2.Identity/RefreshToken"]
+  }
+] as Role[];
+
+export default roles;

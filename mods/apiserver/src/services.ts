@@ -16,4 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils/createService";
+import { exchangeCredentials } from "./identity/exchangeCredentials";
+import { refreshToken } from "./identity/refreshToken";
+
+const services = [
+  {
+    definition: {
+      serviceName: "Identity",
+      pckg: "identity",
+      version: "v1beta2",
+      proto: "identity.proto"
+    },
+    handlers: {
+      exchangeCredentials,
+      refreshToken
+    }
+  }
+];
+
+export default services;

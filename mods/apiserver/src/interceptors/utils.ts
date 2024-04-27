@@ -16,4 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils/createService";
+import * as grpc from "@grpc/grpc-js";
+
+function createInterceptingCall(params: {
+  call: grpc.ServerInterceptingCall;
+  code: grpc.status;
+  details: string;
+}) {
+  return new grpc.ServerInterceptingCall(params.call, {
+    sendStatus: function (status, next) {
+      next({
+        code: params.code,
+        details: params.details
+      });
+    }
+  });
+}
+
+export default createInterceptingCall;

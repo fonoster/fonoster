@@ -16,4 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils/createService";
+import { jwtDecode } from "jwt-decode";
+import TokenTypeEnum from "./TokenTypeEnum";
+import { DecodedToken } from "./types";
+
+function decodeToken<T extends TokenTypeEnum>(token: string): DecodedToken<T> {
+  return jwtDecode(token);
+}
+
+export default decodeToken;

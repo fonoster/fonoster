@@ -20,9 +20,14 @@
     "fonoster": "./dist/index.js"
   },
   "dependencies": {
+    "@fonoster/common": "^0.6.0",
     "@fonoster/logger": "^0.5.5",
+    "@grpc/grpc-js": "^1.10.6",
     "@routr/common": "^2.10.0",
-    "@routr/sdk": "^2.10.0"
+    "@routr/sdk": "^2.10.0",
+    "grpc-health-check": "^2.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0"
   },
   "files": [
     "dist"
@@ -36,5 +41,8 @@
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6"
   }
 }

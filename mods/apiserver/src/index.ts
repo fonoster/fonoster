@@ -17,22 +17,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getLogger } from "@fonoster/logger";
+import runServices from "./runServices";
 import { createDefaultPeer } from "./sipnet/peers/createDefaultPeer";
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function main() {
   // Create a Peer for the default region, if it doesn't already exist
   await createDefaultPeer();
 
-  // eslint-disable-next-line no-loops/no-loops, no-constant-condition
-  while (true) {
-    console.log("We are ready to rock and roll! 🚀");
-    await sleep(3600000);
-  }
+  // Start the gRPC server
+  await runServices();
 }
 
-main().catch(console.error);
+const logger = getLogger({ service: "apiserver", filePath: __filename });
+
+main().catch(logger.error);

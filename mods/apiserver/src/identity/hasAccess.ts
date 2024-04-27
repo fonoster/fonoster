@@ -16,4 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils/createService";
+import RoleEnum from "./RoleEnum";
+import roles from "./roles";
+
+function hasAccess(role: RoleEnum, grpcPath: string) {
+  return roles
+    .find((r) => r.name.toLocaleLowerCase() === role)
+    ?.access.includes(grpcPath);
+}
+
+export default hasAccess;

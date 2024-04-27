@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ServingStatus } from "grpc-health-check";
+
 export const ROUTR_API_ENDPOINT =
   process.env.ROUTR_API_ENDPOINT || "localhost:51908";
 export const ROUTR_DEFAULT_PEER_NAME =
@@ -26,3 +28,6 @@ export const ROUTR_DEFAULT_PEER_AOR =
   process.env.ROUTR_DEFAULT_PEER_AOR || "sip:voice@default";
 export const ROUTR_DEFAULT_PEER_PASSWORD =
   process.env.ROUTR_DEFAULT_PEER_PASSWORD || "changeme";
+export const APISERVER_BIND_ADDR = "0.0.0.0:50051";
+export const GRPC_SERVING_STATUS = "SERVING" as ServingStatus;
+export const GRPC_NOT_SERVING_STATUS = "NOT_SERVING" as ServingStatus;

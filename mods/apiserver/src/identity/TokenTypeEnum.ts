@@ -16,4 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils/createService";
+enum TokenTypeEnum {
+  ID = "id",
+  ACCESS = "access",
+  REFRESH = "refresh"
+}
+
+export default TokenTypeEnum;
