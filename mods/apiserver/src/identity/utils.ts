@@ -19,6 +19,7 @@
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import jwt from "jsonwebtoken";
+import { JsonWebErrorEnum } from "./JsonWebErrorEnum";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -34,10 +35,10 @@ function isValidToken(token: string, secret: string): boolean {
 
     return true;
   } catch (error) {
-    if (error.name === "JsonWebTokenError") {
-      logger.verbose("invalid JWT:", error);
-    } else if (error.name === "TokenExpiredError") {
-      logger.verbose("token expired");
+    if (error.name === JsonWebErrorEnum.JsonWebTokenError) {
+      logger.verbose("invalid JWT token", { token });
+    } else if (error.name === JsonWebErrorEnum.TokenExpiredError) {
+      logger.verbose("token expired", { token });
     } else {
       logger.verbose("unexpected JWT error:", error);
     }
