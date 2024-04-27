@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import { exchangeCredentials } from "./identity/exchangeCredentials";
+import { createGroup } from "./identity/groups/createGroup";
 import { refreshToken } from "./identity/refreshToken";
+import { createUser } from "./identity/users/createUser";
 
 const services = [
   {
@@ -28,6 +30,8 @@ const services = [
       proto: "identity.proto"
     },
     handlers: {
+      createUser,
+      createGroup,
       exchangeCredentials,
       refreshToken
     }

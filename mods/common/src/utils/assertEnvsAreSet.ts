@@ -16,17 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from "./types";
+import { getLogger } from "@fonoster/logger";
 
-const roles = [
-  {
-    name: "user",
-    description: "Access to User and Workspace endpoints",
-    access: [
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/RefreshToken"
-    ]
-  }
-] as Role[];
+/**
+ * Function that asserts that the given environment variable is set.
+ *
+ * @param {string[]} variables environment variables to check
+ */
+function assertEnvsAreSet(variables: string[]) {
+  variables.forEach((variable: string) => {
+    if (!(variable in process.env)) {
+      const logger = getLogger({ service: "common", filePath: __filename });
+      logger.error(
+        `the environment variable ${variable} is required but was not found`
+      );
+      process.exit(1);
+    }
+  });
+}
 
-export default roles;
+export { assertEnvsAreSet };

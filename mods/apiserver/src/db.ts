@@ -16,17 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from "./types";
+import { PrismaClient } from "@prisma/client";
+import { fieldEncryptionExtension } from "prisma-field-encryption";
+import { CLOAK_ENCRYPTION_KEY } from "./envs";
 
-const roles = [
-  {
-    name: "user",
-    description: "Access to User and Workspace endpoints",
-    access: [
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/RefreshToken"
-    ]
-  }
-] as Role[];
+// We encrypt all fields marked with /// encrypted in the schema
+const prisma = new PrismaClient().$extends(
+  fieldEncryptionExtension({
+    encryptionKey: CLOAK_ENCRYPTION_KEY
+  })
+);
 
-export default roles;
+export { prisma };

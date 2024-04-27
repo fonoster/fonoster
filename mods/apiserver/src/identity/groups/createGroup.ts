@@ -16,17 +16,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from "./types";
+import { getLogger } from "@fonoster/logger";
+import { prisma } from "../../db";
 
-const roles = [
-  {
-    name: "user",
-    description: "Access to User and Workspace endpoints",
-    access: [
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/RefreshToken"
-    ]
-  }
-] as Role[];
+const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-export default roles;
+type CreateGroupRequest = {
+  name: string;
+};
+
+type CreateGroupResponse = {
+  id: string;
+};
+
+async function createGroup(
+  call: { request: CreateGroupRequest },
+  callback: (error: Error, response: CreateGroupResponse) => void
+) {
+  const { name } = call.request;
+
+  logger.verbose("call to createGroup", { name });
+
+  const group = await prisma.group.create({
+    data: {
+      name,
+      ownerId: "123456"
+    }
+  });
+
+  callback(null, {
+    id: group.id
+  });
+}
+
+export { createGroup };
