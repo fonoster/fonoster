@@ -28,7 +28,7 @@ import {
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 const CreateUserRequestSchema = z.object({
-  name: z.string().min(3).max(50),
+  name: z.string().min(3, "Name must contain at least 3 characters").max(50),
   email: z.string().email(),
   password: z.string().min(8).max(100),
   avatar: z.string().url()

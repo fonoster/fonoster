@@ -18,9 +18,11 @@
  */
 import * as fs from "fs";
 import * as jwt from "jsonwebtoken";
+import RoleEnum from "./RoleEnum";
+import TokenTypeEnum from "./TokenTypeEnum";
+import { AccessToken } from "./types";
 
 function exchangeCredentials(call, callback) {
-  console.log("exchangeCredentials", { request: call.request });
   const signOptions = { algorithm: "RS256" } as jwt.SignOptions;
   const privateKey = fs.readFileSync(
     "/Users/psanders/Projects/fonoster/.keys/private.pem",
@@ -28,12 +30,13 @@ function exchangeCredentials(call, callback) {
   );
 
   const idTokenPayload = {
-    sub: "1234567890",
-    name: "John Doe",
-    iat: 1516239022,
-    tokenType: "access",
-    scope: "user"
-  };
+    iss: "https://identity-global.fonoster.io",
+    sub: "635c0cd8-8125-483d-b467-05c53ce2cd31",
+    iat: new Date().getTime() / 1000,
+    tokenType: TokenTypeEnum.ACCESS,
+    accessKeyId: "US14wj8q6qlirw331gfswusfblie6h78uz",
+    scope: RoleEnum.USER
+  } as AccessToken;
 
   const idToken = jwt.sign(idTokenPayload, privateKey, signOptions);
 

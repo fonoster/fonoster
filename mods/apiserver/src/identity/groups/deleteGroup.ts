@@ -18,60 +18,51 @@
  */
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
-import { z } from "zod";
 import { Prisma } from "../../db";
 import { GRPCErrors, handleError } from "../../errors";
-import {
-  AccessKeyIdType,
-  generateAccessKeyId
-} from "../utils/generateAccessKeyId";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const CreateGroupRequestSchema = z.object({
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50)
-});
-
-type CreateGroupRequest = z.infer<typeof CreateGroupRequestSchema>;
-
-type CreateGroupResponse = {
+type DeleteGroupRequest = {
   id: string;
 };
 
-function createGroup(prisma: Prisma) {
+type DeleteGroupResponse = {
+  id: string;
+};
+
+function deleteGroup(prisma: Prisma) {
   return async (
-    call: { request: CreateGroupRequest },
-    callback: (error: GRPCErrors, response?: CreateGroupResponse) => void
+    call: { request: DeleteGroupRequest },
+    callback: (error: GRPCErrors, response?: DeleteGroupResponse) => void
   ) => {
     try {
-      const validatedRequest = CreateGroupRequestSchema.parse(call.request);
-
+      const { id } = call.request;
       const token = getTokenFromCall(
         call as unknown as grpc.ServerInterceptingCall
       );
       const ownerId = getUserIdFromToken(token);
 
-      const { name } = validatedRequest;
+      logger.verbose("deleting group by id", { id, ownerId });
 
-      logger.verbose("call to createGroup", { name, ownerId });
-
-      const group = await prisma.group.create({
-        data: {
-          name,
-          accessKeyId: generateAccessKeyId(AccessKeyIdType.GROUP),
+      await prisma.group.delete({
+        where: {
+          id,
           ownerId
         }
       });
 
-      callback(null, {
-        id: group.id
-      });
+      const response: DeleteGroupRequest = {
+        id
+      };
+
+      callback(null, response);
     } catch (error) {
       handleError(error, callback);
     }
   };
 }
 
-export { createGroup };
+export { deleteGroup };

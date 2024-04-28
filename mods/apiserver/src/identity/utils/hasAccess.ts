@@ -21,7 +21,7 @@ import roles from "../roles";
 
 function hasAccess(role: RoleEnum, grpcPath: string) {
   return roles
-    .find((r) => r.name.toLocaleLowerCase() === role)
+    .find((r) => r.name.toUpperCase() === role)
     ?.access.includes(grpcPath);
 }
 

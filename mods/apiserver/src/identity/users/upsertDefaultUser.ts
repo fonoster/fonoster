@@ -48,7 +48,7 @@ function upsertDefaultUser(prisma: Prisma) {
 
       logger.verbose("call to upsertDefaultUser", { email, accessKeyId });
 
-      await prisma.user.upsert({
+      return await prisma.user.upsert({
         where: { id },
         update: {
           name,

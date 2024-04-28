@@ -30,12 +30,12 @@ const sandbox = createSandbox();
 const TEST_TOKEN =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJ0b2tlblR5cGUiOiJhY2Nlc3MiLCJzY29wZSI6InVzZXIifQ.oYI1CplgA-okuQtUxm-3q0zsZdNptW8z1I6pOBJ5uaXMCLcpALs5Jr32jq-Fl2Y5u5GAtgM9RM3YiEThP__UNOwm0roCx1-V3aJkT_eoRHT4DCDPNF1TxvQN2jyIuVQKaVbgimrWJ8l_jsBXPZJ7qLBt7ZWYucxusARhLv82t-_YBizg6595Q0_pdRQOO0_h_H1TjwoQkLB726aXdfPQuUK11rFGWjUtEFg-GaeiVkln625AL74aHZO18jJNuOe9ViQWPjIf9dODRYBn9fmSko6yKMf2Ql94aV--gVJ-PCIZMYC23s-bO0hhwvvJtYTAqPCRO7UCUUD68mkhtx6haA";
 
-describe("@apiserver[identity/users/deleteUser]", function () {
+describe("@apiserver[identity/groups/deleteGroup]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should delete a user by id", async function () {
+  it("should delete a group by id", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -48,18 +48,18 @@ describe("@apiserver[identity/users/deleteUser]", function () {
     };
 
     const prisma = {
-      user: {
+      group: {
         delete: sandbox.stub().resolves()
       }
     } as unknown as Prisma;
 
-    const { deleteUser } = await import(
-      "../../../src/identity/users/deleteUser"
+    const { deleteGroup } = await import(
+      "../../../src/identity/groups/deleteGroup"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      deleteUser(prisma)(call, (error, response) => {
+      deleteGroup(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -69,7 +69,7 @@ describe("@apiserver[identity/users/deleteUser]", function () {
     expect(response).to.deep.equal({ id: "123" });
   });
 
-  it("should throw an error if user not found", async function () {
+  it("should throw an error if group not found", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -82,17 +82,17 @@ describe("@apiserver[identity/users/deleteUser]", function () {
     };
 
     const prisma = {
-      user: {
+      group: {
         delete: sandbox.stub().throws({ code: "P2025" })
       }
     } as unknown as Prisma;
 
-    const { deleteUser } = await import(
-      "../../../src/identity/users/deleteUser"
+    const { deleteGroup } = await import(
+      "../../../src/identity/groups/deleteGroup"
     );
 
     // Act
-    await deleteUser(prisma)(call, (error) => {
+    await deleteGroup(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,

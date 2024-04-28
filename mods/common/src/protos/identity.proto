@@ -23,7 +23,7 @@ package fonoster.identity.v1beta2;
 service Identity {
   rpc CreateGroup (CreateGroupRequest) returns (CreateGroupResponse) {}
   rpc DeleteGroup (DeleteGroupRequest) returns (DeleteGroupResponse) {}
-  rpc GetGroup (GetGroupRequest) returns (GetGroupResponse) {}
+  rpc GetGroupById (GetGroupByIdRequest) returns (GetGroupByIdResponse) {}
   rpc ListGroups (ListGroupsRequest) returns (ListGroupsResponse) {}
   rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupResponse) {}
   rpc AddUserToGroup (AddUserToGroupRequest) returns (AddUserToGroupResponse) {}
@@ -58,11 +58,11 @@ message DeleteGroupResponse {
   string id = 1;
 }
 
-message GetGroupRequest {
+message GetGroupByIdRequest {
   string id = 1;
 }
 
-message GetGroupResponse {
+message GetGroupByIdResponse {
   string id = 1;
   string name = 2;
   string owner_id = 3;

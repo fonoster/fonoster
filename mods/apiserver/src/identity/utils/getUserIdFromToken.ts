@@ -16,5 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createGroup";
-export * from "./deleteGroup";
+import { decodeToken } from "./decodeToken";
+import TokenTypeEnum from "../TokenTypeEnum";
+
+function getUserIdFromToken(token: string): string {
+  const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
+
+  if (decodedToken.tokenType !== TokenTypeEnum.ACCESS) {
+    throw new Error("Invalid token type");
+  }
+
+  return decodedToken.sub;
+}
+
+export { getUserIdFromToken };
