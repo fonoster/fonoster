@@ -20,3 +20,4 @@ export * from "./createGroup";
 export * from "./deleteGroup";
 export * from "./getGroupById";
 export * from "./updateGroup";
+export * from "./listGroups";
