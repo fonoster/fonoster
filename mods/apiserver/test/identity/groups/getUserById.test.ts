@@ -50,6 +50,7 @@ describe("@apiserver[identity/groups/getGroupById]", function () {
     const group = {
       id: "123",
       name: "My Group",
+      ownerId: "123",
       createdAt: new Date(),
       updatedAt: new Date()
     };
