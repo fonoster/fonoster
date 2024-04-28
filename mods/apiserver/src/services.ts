@@ -18,8 +18,12 @@
  */
 import { prisma } from "./db";
 import { exchangeCredentials } from "./identity/exchangeCredentials";
-import { createGroup, deleteGroup } from "./identity/groups";
-import { getGroupById } from "./identity/groups/getGroupById";
+import {
+  createGroup,
+  deleteGroup,
+  getGroupById,
+  updateGroup
+} from "./identity/groups";
 import { refreshToken } from "./identity/refreshToken";
 import {
   createUser,
@@ -44,6 +48,7 @@ const services = [
       createGroup: createGroup(prisma),
       deleteGroup: deleteGroup(prisma),
       getGroupById: getGroupById(prisma),
+      updateGroup: updateGroup(prisma),
       exchangeCredentials,
       refreshToken
     }

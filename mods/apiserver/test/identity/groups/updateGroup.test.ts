@@ -30,12 +30,12 @@ const sandbox = createSandbox();
 const TEST_TOKEN =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lkZW50aXR5LWdsb2JhbC5mb25vc3Rlci5pbyIsInN1YiI6IjYzNWMwY2Q4LTgxMjUtNDgzZC1iNDY3LTA1YzUzY2UyY2QzMSIsImlhdCI6MTcxNDMyMjEwMi45MDgsInRva2VuVHlwZSI6ImFjY2VzcyIsImFjY2Vzc0tleUlkIjoiVVMxNHdqOHE2cWxpcnczMzFnZnN3dXNmYmxpZTZoNzh1eiIsInNjb3BlIjoiVVNFUiJ9.cgpRyb9a0NFzuQWGldIGXBlXTGBwXtXMvx_7uSWIVlq-_gRqZjQej2tm7O-RjXlly688Vu74nhUlowfhzj3DUPeXnwDkyHEK1wABFPWPwPfdSX29wntxnrDhd1KaO3JnEj6jwLEfN9EV--gXGygE1TdXLdYa-bxj26y_reZ1zT1guoNjJ9CaGJoM0rI2iv3TfxKANW6p27olFr4LBnonozyBGkkvuiyqXYzU8XKKWTVt1-pHMJlTqY0A203iPSc7CZUh6Y17fELlNwcY5O6gu3T3DXUbJBxkASGf0XXolwZcMcPeACpT2JEBIuxDTldDJMxeLVhunGSISC4ISH8-wA";
 
-describe("@apiserver[identity/groups/deleteGroup]", function () {
+describe("@apiserver[identity/group/updateGroup]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should delete a group by id", async function () {
+  it("should update a group", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -43,23 +43,28 @@ describe("@apiserver[identity/groups/deleteGroup]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        id: "123",
+        name: "My Groupx"
       }
     };
 
     const prisma = {
       group: {
-        delete: sandbox.stub().resolves()
+        update: sandbox.stub().resolves({ id: "123" }),
+        findUnique: sandbox.stub().resolves({ ownerId: "123" })
+      },
+      groupMember: {
+        findFirst: sandbox.stub().resolves({})
       }
     } as unknown as Prisma;
 
-    const { deleteGroup } = await import(
-      "../../../src/identity/groups/deleteGroup"
+    const { updateGroup } = await import(
+      "../../../src/identity/groups/updateGroup"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      deleteGroup(prisma)(call, (error, response) => {
+      updateGroup(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -69,7 +74,7 @@ describe("@apiserver[identity/groups/deleteGroup]", function () {
     expect(response).to.deep.equal({ id: "123" });
   });
 
-  it("should throw an error if group not found", async function () {
+  it("should throw an error if the user does not exist", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -77,27 +82,32 @@ describe("@apiserver[identity/groups/deleteGroup]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        id: "123",
+        name: "John Doex"
       }
     };
 
     const prisma = {
-      group: {
-        delete: sandbox.stub().throws({ code: "P2025" })
+      user: {
+        update: sandbox.stub().throws({ code: "P2025" })
       }
     } as unknown as Prisma;
 
-    const { deleteGroup } = await import(
-      "../../../src/identity/groups/deleteGroup"
+    const { updateUser } = await import(
+      "../../../src/identity/users/updateUser"
     );
 
     // Act
-    await deleteGroup(prisma)(call, (error) => {
-      // Assert
-      expect(error).to.deep.equal({
-        code: grpc.status.NOT_FOUND,
-        message: "The requested resource was not found"
+    const response = new Promise((resolve, reject) => {
+      updateUser(prisma)(call, (error, response) => {
+        if (error) return reject(error);
+        resolve(response);
       });
     });
+
+    // Assert
+    await expect(response).to.be.rejectedWith(
+      "The requested resource was not found"
+    );
   });
 });

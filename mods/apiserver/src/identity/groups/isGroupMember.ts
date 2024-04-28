@@ -16,7 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createGroup";
-export * from "./deleteGroup";
-export * from "./getGroupById";
-export * from "./updateGroup";
+import { Prisma } from "../../db";
+
+function isGroupMember(prisma: Prisma) {
+  return async (groupId: string, userId: string) => {
+    const group = await prisma.group.findUnique({
+      where: {
+        id: groupId
+      }
+    });
+
+    const groupMember = await prisma.groupMember.findFirst({
+      where: {
+        userId,
+        groupId
+      }
+    });
+
+    return !!(groupMember || group?.ownerId === userId);
+  };
+}
+
+export { isGroupMember };
