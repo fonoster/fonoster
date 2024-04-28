@@ -20,6 +20,10 @@ import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { Prisma } from "../../db";
 import { GRPCErrors, handleError } from "../../errors";
+import {
+  AccessKeyIdType,
+  generateAccessKeyId
+} from "../../utils/generateAccessKeyId";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -52,6 +56,7 @@ function createUser(prisma: Prisma) {
         data: {
           name,
           email,
+          accessKeyId: generateAccessKeyId(AccessKeyIdType.USER),
           password,
           avatar
         }

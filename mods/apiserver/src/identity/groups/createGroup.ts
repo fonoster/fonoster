@@ -18,6 +18,10 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { prisma } from "../../db";
+import {
+  AccessKeyIdType,
+  generateAccessKeyId
+} from "../../utils/generateAccessKeyId";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -40,6 +44,7 @@ async function createGroup(
   const group = await prisma.group.create({
     data: {
       name,
+      accessKeyId: generateAccessKeyId(AccessKeyIdType.GROUP),
       ownerId: "123456"
     }
   });

@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique @db.VarChar(255)
-  password  String   @map("password_hash") /// @encrypted
-  name      String   @db.VarChar(60)
-  avatar    String?  @db.VarChar(255)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+  id          String   @id @default(uuid())
+  email       String   @unique @db.VarChar(255)
+  accessKeyId String   @unique @db.VarChar(255)
+  password    String   @map("password_hash") /// @encrypted
+  name        String   @db.VarChar(60)
+  avatar      String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
 
   // Relations
-  ownedGroups     Group[] // Groups owned by the user
-  memberships     GroupMember[] // Groups the user is a member of
+  ownedGroups Group[] // Groups owned by the user
+  memberships GroupMember[] // Groups the user is a member of
 
   // Indexes and maps
   @@index([email], type: Hash)
@@ -26,16 +27,17 @@ model User {
 }
 
 model Group {
-  id               String          @id @default(uuid())
-  name             String          @db.VarChar(60)
+  id          String @id @default(uuid())
+  accessKeyId String @unique @db.VarChar(255)
+  name        String @db.VarChar(60)
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
 
   // Relations
-  owner          User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId        String
-  members        GroupMember[]
+  owner   User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+  members GroupMember[]
 
   // Indexes and maps
   @@index([name], type: Hash)
@@ -43,17 +45,17 @@ model Group {
 }
 
 model GroupMember {
-  id     String                @id @default(uuid())
+  id     String            @id @default(uuid())
   status GroupMemberStatus
-  role   GroupMemberRole       @default(USER)
+  role   GroupMemberRole   @default(USER)
 
   // Relations
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
-  group       Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId     String
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime  @default(now()) @map("updated_at") @db.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
 
   @@unique([userId, groupId])
   @@map("group_members")
