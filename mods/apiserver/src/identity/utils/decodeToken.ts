@@ -24,4 +24,4 @@ function decodeToken<T extends TokenTypeEnum>(token: string): DecodedToken<T> {
   return jwtDecode(token);
 }
 
-export default decodeToken;
+export { decodeToken };

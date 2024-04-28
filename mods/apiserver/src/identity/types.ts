@@ -35,6 +35,7 @@ type IDToken = {
   email: string;
   exp: number;
   iat: number;
+  accessKeyId: string;
   tokenType: TokenTypeEnum.ID;
 };
 
@@ -45,6 +46,7 @@ type AccessToken = {
   exp: number;
   iat: number;
   tokenType: TokenTypeEnum.ACCESS;
+  accessKeyId: string;
   scope: RoleEnum;
 };
 
@@ -55,6 +57,7 @@ type RefreshToken = {
   exp: number;
   iat: number;
   tokenType: TokenTypeEnum.REFRESH;
+  accessKeyId: string;
   scope: RoleEnum;
 };
 

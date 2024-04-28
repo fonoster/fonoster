@@ -16,18 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from "./types";
+import { decodeToken } from "./decodeToken";
+import TokenTypeEnum from "../TokenTypeEnum";
 
-const roles = [
-  {
-    name: "user",
-    description: "Access to User and Workspace endpoints",
-    access: [
-      "/fonoster.identity.v1beta2.Identity/GetUserById",
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/RefreshToken"
-    ]
+function getAccessKeyIdFromToken(token: string): string {
+  const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
+
+  if (decodedToken.tokenType !== TokenTypeEnum.ACCESS) {
+    throw new Error("Invalid token type");
   }
-] as Role[];
 
-export default roles;
+  return decodedToken.accessKeyId;
+}
+
+export { getAccessKeyIdFromToken };

@@ -30,7 +30,7 @@ service Identity {
   rpc RemoveUserFromGroup (RemoveUserFromGroupRequest) returns (RemoveUserFromGroupResponse) {}
   rpc ResendGroupMembershipInvitation (ResendGroupMembershipInvitationRequest) returns (ResendGroupMembershipInvitationResponse) {}
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
-  rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
+  rpc GetUserById (GetUserByIdRequest) returns (GetUserByIdResponse) {}
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
   rpc ExchangeCredentials (ExchangeCredentialsRequest) returns (ExchangeCredentialsResponse) {}
@@ -132,11 +132,11 @@ message CreateUserResponse {
   string id = 1;
 }
 
-message GetUserRequest {
+message GetUserByIdRequest {
   string id = 1;
 }
 
-message GetUserResponse {
+message GetUserByIdResponse {
   string id = 1;
   string email = 2;
   string name = 3;

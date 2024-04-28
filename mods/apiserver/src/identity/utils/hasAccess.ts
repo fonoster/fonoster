@@ -25,4 +25,4 @@ function hasAccess(role: RoleEnum, grpcPath: string) {
     ?.access.includes(grpcPath);
 }
 
-export default hasAccess;
+export { hasAccess };

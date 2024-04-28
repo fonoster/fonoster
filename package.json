@@ -22,7 +22,7 @@
     "db:migrate": "npx prisma migrate dev --schema ./mods/apiserver/schema.prisma --name init --preview-feature",
     "generate:keypair": ".scripts/gen-keypair.sh",
     "check:updates": "lerna exec -- npx npm-check-updates",
-    "test": "cross-env NODE_ENV=dev LOGS_LEVEL=none LOGS_TRANSPORT=none mocha --require ts-node/register mods/**/test/*.test.ts"
+    "test": "cross-env NODE_ENV=dev LOGS_LEVEL=none LOGS_TRANSPORT=none mocha --require ts-node/register mods/**/*.test.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
