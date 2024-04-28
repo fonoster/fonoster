@@ -20,6 +20,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
+import { Prisma } from "../src/db";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -30,7 +31,29 @@ describe("@apiserver[notifications/builders]", function () {
     return sandbox.restore();
   });
 
-  it("it needs a test", function () {
-    expect(true).to.be.true;
+  it("should create a user", async function () {
+    // Arrange
+    const call = {
+      request: {
+        name: "John Doe",
+        email: "john@example.com",
+        password: "12345678",
+        avatar: "https://example.com/avatar.jpg"
+      }
+    };
+
+    const prisma = {
+      user: {
+        create: sandbox.stub().resolves({ id: "123" })
+      }
+    } as unknown as Prisma;
+
+    const { createUser } = await import("../src/identity/users/createUser");
+
+    // Act
+    await createUser(prisma)(call, (_, response) => {
+      // Assert
+      expect(response).to.deep.equal({ id: "123" });
+    });
   });
 });

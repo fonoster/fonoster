@@ -17,41 +17,53 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { prisma } from "../../db";
+import { z } from "zod";
+import { Prisma } from "../../db";
+import { GRPCErrors, handleError } from "../../errors";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-type CreateUserRequest = {
-  name: string;
-  email: string;
-  password: string;
-  avatar: string;
-};
+const CreateUserRequestSchema = z.object({
+  name: z.string().min(3).max(50),
+  email: z.string().email(),
+  password: z.string().min(8).max(100),
+  avatar: z.string().url()
+});
+
+type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
 
 type CreateUserResponse = {
   id: string;
 };
 
-async function createUser(
-  call: { request: CreateUserRequest },
-  callback: (error: Error, response: CreateUserResponse) => void
-) {
-  const { name, email, password, avatar } = call.request;
+function createUser(prisma: Prisma) {
+  return async (
+    call: { request: CreateUserRequest },
+    callback: (error: GRPCErrors, response?: CreateUserResponse) => void
+  ) => {
+    try {
+      const validatedRequest = CreateUserRequestSchema.parse(call.request);
 
-  logger.verbose("call to createUser", { email });
+      const { name, email, password, avatar } = validatedRequest;
 
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password,
-      avatar
+      logger.verbose("call to createUser", { email });
+
+      const user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password,
+          avatar
+        }
+      });
+
+      callback(null, {
+        id: user.id
+      });
+    } catch (error) {
+      handleError(error, callback);
     }
-  });
-
-  callback(null, {
-    id: user.id
-  });
+  };
 }
 
 export { createUser };

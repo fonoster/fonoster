@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { prisma } from "./db";
 import { exchangeCredentials } from "./identity/exchangeCredentials";
 import { createGroup } from "./identity/groups/createGroup";
 import { refreshToken } from "./identity/refreshToken";
@@ -30,7 +31,7 @@ const services = [
       proto: "identity.proto"
     },
     handlers: {
-      createUser,
+      createUser: createUser(prisma),
       createGroup,
       exchangeCredentials,
       refreshToken
