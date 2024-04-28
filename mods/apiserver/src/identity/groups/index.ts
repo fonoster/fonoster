@@ -16,19 +16,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Role } from "./types";
-
-const roles = [
-  {
-    name: "user",
-    description: "Access to User and Workspace endpoints",
-    access: [
-      "/fonoster.identity.v1beta2.Identity/GetUserById",
-      "/fonoster.identity.v1beta2.Identity/DeleteUser",
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/RefreshToken"
-    ]
-  }
-] as Role[];
-
-export default roles;
+export * from "./createGroup";

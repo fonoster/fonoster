@@ -20,7 +20,7 @@ import { prisma } from "./db";
 import { exchangeCredentials } from "./identity/exchangeCredentials";
 import { createGroup } from "./identity/groups/createGroup";
 import { refreshToken } from "./identity/refreshToken";
-import { createUser, getUserById } from "./identity/users";
+import { createUser, deleteUser, getUserById } from "./identity/users";
 
 const services = [
   {
@@ -33,6 +33,7 @@ const services = [
     handlers: {
       createUser: createUser(prisma),
       getUserById: getUserById(prisma),
+      deleteUser: deleteUser(prisma),
       createGroup,
       exchangeCredentials,
       refreshToken
