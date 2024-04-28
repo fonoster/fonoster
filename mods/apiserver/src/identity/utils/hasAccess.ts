@@ -16,12 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { jwtDecode } from "jwt-decode";
-import TokenTypeEnum from "./TokenTypeEnum";
-import { DecodedToken } from "./types";
+import RoleEnum from "../RoleEnum";
+import roles from "../roles";
 
-function decodeToken<T extends TokenTypeEnum>(token: string): DecodedToken<T> {
-  return jwtDecode(token);
+function hasAccess(role: RoleEnum, grpcPath: string) {
+  return roles
+    .find((r) => r.name.toLocaleLowerCase() === role)
+    ?.access.includes(grpcPath);
 }
 
-export default decodeToken;
+export default hasAccess;

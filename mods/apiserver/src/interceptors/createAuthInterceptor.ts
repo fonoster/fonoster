@@ -20,10 +20,11 @@ import fs from "fs";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { permissionDeniedError, unauthenticatedError } from "./errors";
-import decodeToken from "../identity/decodeToken";
-import hasAccess from "../identity/hasAccess";
 import TokenTypeEnum from "../identity/TokenTypeEnum";
-import { getTokenFromCall, isValidToken } from "../identity/utils";
+import decodeToken from "../identity/utils/decodeToken";
+import { getTokenFromCall } from "../identity/utils/getTokenFromCall";
+import hasAccess from "../identity/utils/hasAccess";
+import { isValidToken } from "../identity/utils/isValidToken";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

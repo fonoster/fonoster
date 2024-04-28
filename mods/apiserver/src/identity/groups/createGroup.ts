@@ -21,7 +21,7 @@ import { prisma } from "../../db";
 import {
   AccessKeyIdType,
   generateAccessKeyId
-} from "../../utils/generateAccessKeyId";
+} from "../utils/generateAccessKeyId";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

@@ -23,7 +23,7 @@ import { GRPCErrors, handleError } from "../../errors";
 import {
   AccessKeyIdType,
   generateAccessKeyId
-} from "../../utils/generateAccessKeyId";
+} from "../utils/generateAccessKeyId";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

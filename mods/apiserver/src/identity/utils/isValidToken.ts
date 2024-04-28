@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
 import jwt from "jsonwebtoken";
-import { JsonWebErrorEnum } from "./JsonWebErrorEnum";
+import { JsonWebErrorEnum } from "../JsonWebErrorEnum";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -47,12 +46,4 @@ function isValidToken(token: string, secret: string): boolean {
   }
 }
 
-function getTokenFromCall(call: grpc.ServerInterceptingCall) {
-  const metadata = (
-    call as unknown as { metadata: grpc.Metadata }
-  ).metadata.getMap();
-
-  return metadata["token"]?.toString();
-}
-
-export { isValidToken, getTokenFromCall };
+export { isValidToken };
