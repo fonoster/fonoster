@@ -48,7 +48,7 @@ function createCredentialsForDefaultPeer() {
   return credentials.createCredentials(request);
 }
 
-export async function createDefaultPeer() {
+async function upsertDefaultPeer() {
   const peers = new SDK.Peers(clientOptions);
 
   logger.info("creating default peer");
@@ -95,3 +95,5 @@ export async function createDefaultPeer() {
     });
   }
 }
+
+export { upsertDefaultPeer };

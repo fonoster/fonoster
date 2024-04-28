@@ -24,6 +24,7 @@ const roles = [
     description: "Access to User and Workspace endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUserById",
+      "/fonoster.identity.v1beta2.Identity/UpdateUser",
       "/fonoster.identity.v1beta2.Identity/DeleteUser",
       "/fonoster.identity.v1beta2.Identity/CreateGroup",
       "/fonoster.identity.v1beta2.Identity/RefreshToken"

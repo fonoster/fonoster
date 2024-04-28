@@ -42,3 +42,10 @@ export const ROUTR_DEFAULT_PEER_PASSWORD =
 export const APISERVER_BIND_ADDR = "0.0.0.0:50051";
 export const GRPC_SERVING_STATUS = "SERVING" as ServingStatus;
 export const GRPC_NOT_SERVING_STATUS = "NOT_SERVING" as ServingStatus;
+export const OWNER_NAME = e.OWNER_NAME || "Admin";
+export const OWNER_ACCESS_KEY_ID = e.OWNER_ACCESS_KEY_ID
+  ? e.OWNER_ACCESS_KEY_ID
+  : "US14wj8q6qlirw331gfswusfblie6h78uz";
+export const OWNER_EMAIL = e.OWNER_EMAIL;
+export const OWNER_PASSWORD = e.OWNER_PASSWORD || "changeme";
+export const OWNER_ID = e.OWNER_ID || "635c0cd8-8125-483d-b467-05c53ce2cd31";

@@ -18,12 +18,34 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
+import {
+  OWNER_ACCESS_KEY_ID,
+  OWNER_EMAIL,
+  OWNER_ID,
+  OWNER_NAME,
+  OWNER_PASSWORD
+} from "./envs";
+// The order of imports is important here
+// eslint-disable-next-line import/order
+import { prisma } from "./db";
+import { upsertDefaultUser } from "./identity/users/upsertDefaultUser";
 import runServices from "./runServices";
-import { createDefaultPeer } from "./sipnet/peers/createDefaultPeer";
+import { upsertDefaultPeer } from "./sipnet/peers/upsertDefaultPeer";
 
 async function main() {
-  // Create a Peer for the default region, if it doesn't already exist
-  await createDefaultPeer();
+  if (OWNER_EMAIL) {
+    const user = {
+      id: OWNER_ID,
+      name: OWNER_NAME,
+      email: OWNER_EMAIL,
+      password: OWNER_PASSWORD,
+      accessKeyId: OWNER_ACCESS_KEY_ID
+    };
+    await upsertDefaultUser(prisma)(user);
+  }
+
+  // Upsert a Peer for the default region, if it doesn't already exist
+  await upsertDefaultPeer();
 
   // Start the gRPC server
   await runServices();

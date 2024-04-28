@@ -19,3 +19,4 @@
 export * from "./createUser";
 export * from "./getUserById";
 export * from "./deleteUser";
+export * from "./updateUser";
