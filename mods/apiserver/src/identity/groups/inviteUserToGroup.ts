@@ -20,8 +20,8 @@ import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
+import { isAdminMember } from "./isAdminMember";
 import { isGroupMember } from "./isGroupMember";
-import { isInviterAdmin } from "./isInviterAdmin";
 import { Prisma } from "../../db";
 import { GRPCErrors, handleError } from "../../errors";
 import { SendInvite } from "../../notifications/sendInvite";
@@ -46,8 +46,8 @@ const InviteUserToGroupRequestSchema = z.object({
 type InviteUserToGroupRequest = z.infer<typeof InviteUserToGroupRequestSchema>;
 
 type CreateGroupResponse = {
-  userId: string;
   groupId: string;
+  userId: string;
 };
 
 const userIsMemberError = {
@@ -104,9 +104,9 @@ function inviteUserToGroup(prisma: Prisma, sendInvite: SendInvite) {
 
       logger.info("inviting user to group", { groupId, email });
 
-      const isAdminOrOwner = await isInviterAdmin(prisma)(groupId, inviterId);
+      const isAdmin = await isAdminMember(prisma)(groupId, inviterId);
 
-      if (!isAdminOrOwner) {
+      if (!isAdmin) {
         return callback(inviterIsNotAdminError);
       }
 

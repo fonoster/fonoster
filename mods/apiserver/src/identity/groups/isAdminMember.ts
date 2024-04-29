@@ -19,7 +19,7 @@
 import { Prisma } from "../../db";
 import RoleEnum from "../RoleEnum";
 
-function isInviterAdmin(prisma: Prisma) {
+function isAdminMember(prisma: Prisma) {
   return async (groupId: string, userId: string) => {
     const group = await prisma.group.findUnique({
       where: {
@@ -42,4 +42,4 @@ function isInviterAdmin(prisma: Prisma) {
   };
 }
 
-export { isInviterAdmin };
+export { isAdminMember };

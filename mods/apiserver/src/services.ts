@@ -24,6 +24,7 @@ import {
   getGroupById,
   inviteUserToGroup,
   listGroups,
+  removeUserFromGroup,
   updateGroup
 } from "./identity/groups";
 import { refreshToken } from "./identity/refreshToken";
@@ -54,6 +55,7 @@ const services = [
       updateGroup: updateGroup(prisma),
       listGroups: listGroups(prisma),
       inviteUserToGroup: inviteUserToGroup(prisma, sendInvite),
+      removeUserFromGroup: removeUserFromGroup(prisma),
       exchangeCredentials,
       refreshToken
     }
