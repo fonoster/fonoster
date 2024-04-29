@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { SendInvite } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
@@ -24,7 +25,6 @@ import { isAdminMember } from "./isAdminMember";
 import { isGroupMember } from "./isGroupMember";
 import { Prisma } from "../../db";
 import { GRPCErrors, handleError } from "../../errors";
-import { SendInvite } from "../../notifications/sendInvite";
 import RoleEnum from "../RoleEnum";
 import { AccessKeyIdType, generateAccessKeyId } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";

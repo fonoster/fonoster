@@ -16,23 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type SendInvite = (params: {
-  recipient: string;
-  oneTimePassword: string;
-  groupId: string;
-  groupName: string;
-}) => Promise<void>;
+import { compileTemplate } from "./compileTemplate";
+import { TemplateName } from "./TemplateName";
 
-async function sendInvite(params: {
-  recipient: string;
-  oneTimePassword: string;
-  groupId: string;
-  groupName: string;
-}): Promise<void> {
-  // Send an email to the recipient with the one-time password
-  console.log(
-    `Sending email to ${params.recipient} with the one-time password ${params.oneTimePassword} to join the group ${params.groupName} (${params.groupId})`
-  );
+function createInviteBody(data: Record<string, string>) {
+  if (data.oneTimePassword) {
+    return compileTemplate(TemplateName.INVITE_NEW_USER, data);
+  } else {
+    return compileTemplate(TemplateName.INVITE_EXISTING_USER, data);
+  }
 }
 
-export { sendInvite, SendInvite };
+export { createInviteBody };

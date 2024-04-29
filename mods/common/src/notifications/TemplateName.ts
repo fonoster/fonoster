@@ -16,5 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
+enum TemplateName {
+  INVITE_NEW_USER = "inviteNewUserTemplate",
+  INVITE_EXISTING_USER = "inviteExistingUserTemplate"
+}
+
+export { TemplateName };

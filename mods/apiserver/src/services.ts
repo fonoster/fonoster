@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { sendInvite } from "@fonoster/common";
 import { prisma } from "./db";
 import { exchangeCredentials } from "./identity/exchangeCredentials";
 import {
@@ -35,7 +36,6 @@ import {
   getUserById,
   updateUser
 } from "./identity/users";
-import { sendInvite } from "./notifications/sendInvite";
 
 const services = [
   {

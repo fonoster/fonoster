@@ -14,13 +14,15 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "postbuild": "cp -a src/protos dist",
+    "postbuild": "cp -a src/protos dist && node ../../.scripts/copy-hbs.js",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "@fonoster/logger": "^0.5.5",
     "@grpc/grpc-js": "^1.10.6",
-    "@grpc/proto-loader": "^0.7.12"
+    "@grpc/proto-loader": "^0.7.12",
+    "handlebars": "^4.7.8",
+    "nodemailer": "^6.9.13"
   },
   "files": [
     "dist"
@@ -34,5 +36,8 @@
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.14"
   }
 }

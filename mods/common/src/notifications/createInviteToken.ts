@@ -16,5 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
+import { getLogger } from "@fonoster/logger";
+import jwt from "jsonwebtoken";
+
+type InviteTokenClaims = {
+  groupId: string;
+  email: string;
+};
+
+async function createInviteToken(claims: InviteTokenClaims) {
+  const logger = getLogger({ service: "apiserver", filePath: __filename });
+
+  logger.verbose("create invite token", { claims });
+
+  return jwt.sign(claims, "JWT_SECURITY_SALT", {
+    expiresIn: "1d"
+  });
+}
+
+export { createInviteToken, InviteTokenClaims };

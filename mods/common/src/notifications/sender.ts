@@ -16,5 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
+import { createEmailSender } from "./createEmailSender";
+import { createTransporter } from "./createTransporter";
+import { SMTP_AUTH_PASS, SMTP_AUTH_USER, SMTP_HOST, SMTP_PORT } from "../envs";
+
+const transporterConfig = {
+  host: SMTP_HOST,
+  port: SMTP_PORT,
+  secure: false,
+  auth: {
+    user: SMTP_AUTH_USER,
+    pass: SMTP_AUTH_PASS
+  }
+};
+
+const transporter = createTransporter(transporterConfig);
+const sendEmail = createEmailSender(transporter);
+
+export { sendEmail };

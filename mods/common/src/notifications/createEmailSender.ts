@@ -16,5 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
+import { getLogger } from "@fonoster/logger";
+import { Transporter } from "nodemailer";
+
+const logger = getLogger({ service: "common", filePath: __filename });
+
+type EmailOptions = {
+  to: string;
+  from: string;
+  subject: string;
+  html: string;
+};
+
+function createEmailSender(transporter: Transporter) {
+  return async function sendEmail(options: EmailOptions): Promise<void> {
+    const info = await transporter.sendMail({
+      from: options.from,
+      to: options.to,
+      subject: options.subject,
+      html: options.html
+    });
+
+    logger.verbose(`message sent: ${info.messageId}`);
+  };
+}
+
+export { createEmailSender, EmailOptions };

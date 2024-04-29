@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { SendInvite } from "@fonoster/common/src/notifications/sendInvite";
 import { getLogger } from "@fonoster/logger";
 import { status } from "@grpc/grpc-js";
 import * as grpc from "@grpc/grpc-js";
 import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../../db";
 import { GRPCErrors, handleError } from "../../errors";
-import { SendInvite } from "../../notifications/sendInvite";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 

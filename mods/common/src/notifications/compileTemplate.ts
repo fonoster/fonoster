@@ -16,5 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
+import fs from "fs";
+import path from "path";
+import handlebars from "handlebars";
+import { EMAIL_TEMPLATES_DIR } from "../envs";
+
+function compileTemplate(templateName: string, data: Record<string, string>) {
+  const templatesDir = EMAIL_TEMPLATES_DIR || path.join(__dirname, "templates");
+
+  let filePath = path.join(templatesDir, `${templateName}.hbs`);
+
+  if (!fs.existsSync(filePath)) {
+    filePath = path.join(__dirname, "templates", `${templateName}.hbs`);
+  }
+
+  const source = fs.readFileSync(filePath, "utf-8").toString();
+  const template = handlebars.compile(source);
+  return template(data);
+}
+
+export { compileTemplate };

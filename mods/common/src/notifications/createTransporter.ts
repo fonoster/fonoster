@@ -16,5 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
+import { Transporter, createTransport } from "nodemailer";
+
+type TransporterConfig = {
+  host: string;
+  port: number;
+  secure: boolean;
+  auth: {
+    user: string;
+    pass: string;
+  };
+};
+
+function createTransporter(config: TransporterConfig): Transporter {
+  return createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure, // true for 465, false for other ports
+    auth: {
+      user: config.auth.user,
+      pass: config.auth.pass
+    }
+  });
+}
+
+export { createTransporter, TransporterConfig };

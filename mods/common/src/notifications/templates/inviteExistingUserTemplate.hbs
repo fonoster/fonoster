@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Invite</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      line-height: 20px;
+      background: linear-gradient(323deg, #008751 30.56%, #3ae19e 118.19%);
+      color: white !important;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+    }
+    .fonoster-green {
+      color: #053204;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #181818;
+        color: #f4f4f4;
+      }
+      .container {
+        background: #181818;
+      }
+      .fonoster-green {
+        color: #f4f4f4;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p>Invitation to join the workspace <b class="fonoster-green">{{groupName}}</b> on Fonoster extended.</p>
+    <p>To accept the invitation, please use the button below:</p>
+    <a href="{{inviteUrl}}" class="button">Join Workspace</a>
+  </div>
+</body>
+</html>
