@@ -16,9 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createGroup";
-export * from "./deleteGroup";
-export * from "./getGroupById";
-export * from "./updateGroup";
-export * from "./listGroups";
-export * from "./inviteUserToGroup";
+import { Prisma } from "../../db";
+import RoleEnum from "../RoleEnum";
+
+function isInviterAdmin(prisma: Prisma) {
+  return async (groupId: string, userId: string) => {
+    const group = await prisma.group.findUnique({
+      where: {
+        id: groupId
+      },
+      include: {
+        members: true
+      }
+    });
+
+    if (group?.ownerId === userId) {
+      return true;
+    }
+
+    const role = group?.members.find(
+      (member) => member.userId === userId
+    )?.role;
+
+    return role === RoleEnum.ADMIN || role === RoleEnum.OWNER;
+  };
+}
+
+export { isInviterAdmin };

@@ -26,7 +26,7 @@ service Identity {
   rpc GetGroupById (GetGroupByIdRequest) returns (GetGroupByIdResponse) {}
   rpc ListGroups (ListGroupsRequest) returns (ListGroupsResponse) {}
   rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupResponse) {}
-  rpc AddUserToGroup (AddUserToGroupRequest) returns (AddUserToGroupResponse) {}
+  rpc InviteUserToGroup (InviteUserToGroupRequest) returns (InviteUserToGroupResponse) {}
   rpc RemoveUserFromGroup (RemoveUserFromGroupRequest) returns (RemoveUserFromGroupResponse) {}
   rpc ResendGroupMembershipInvitation (ResendGroupMembershipInvitationRequest) returns (ResendGroupMembershipInvitationResponse) {}
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
@@ -89,12 +89,14 @@ message UpdateGroupResponse {
   string id = 1;
 }
 
-message AddUserToGroupRequest {
-  string user_id = 1;
+message InviteUserToGroupRequest {
+  string email = 1;
   string group_id = 2;
+  string role = 3;
+  string name = 4;
 }
 
-message AddUserToGroupResponse {
+message InviteUserToGroupResponse {
   string user_id = 1;
   string group_id = 2;
 }

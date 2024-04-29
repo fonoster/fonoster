@@ -26,14 +26,18 @@ function isGroupMember(prisma: Prisma) {
       }
     });
 
-    const groupMember = await prisma.groupMember.findFirst({
+    const isMember = await prisma.groupMember.findFirst({
       where: {
-        userId,
+        // Force userId to be an empty string to ensure that the query is not
+        // fillter by groupId only
+        userId: userId || "",
         groupId
       }
     });
 
-    return !!(groupMember || group?.ownerId === userId);
+    const isOwner = group?.ownerId === userId;
+
+    return !!(isMember || isOwner);
   };
 }
 

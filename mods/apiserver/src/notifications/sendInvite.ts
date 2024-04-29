@@ -16,9 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createGroup";
-export * from "./deleteGroup";
-export * from "./getGroupById";
-export * from "./updateGroup";
-export * from "./listGroups";
-export * from "./inviteUserToGroup";
+type SendInvite = (params: {
+  recipient: string;
+  oneTimePassword: string;
+  groupId: string;
+  groupName: string;
+}) => Promise<void>;
+
+async function sendInvite(params: {
+  recipient: string;
+  oneTimePassword: string;
+  groupId: string;
+  groupName: string;
+}): Promise<void> {
+  // Send an email to the recipient with the one-time password
+  console.log(
+    `Sending email to ${params.recipient} with the one-time password ${params.oneTimePassword} to join the group ${params.groupName} (${params.groupId})`
+  );
+}
+
+export { sendInvite, SendInvite };

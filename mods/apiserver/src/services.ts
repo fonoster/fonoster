@@ -22,6 +22,7 @@ import {
   createGroup,
   deleteGroup,
   getGroupById,
+  inviteUserToGroup,
   listGroups,
   updateGroup
 } from "./identity/groups";
@@ -32,6 +33,7 @@ import {
   getUserById,
   updateUser
 } from "./identity/users";
+import { sendInvite } from "./notifications/sendInvite";
 
 const services = [
   {
@@ -51,6 +53,7 @@ const services = [
       getGroupById: getGroupById(prisma),
       updateGroup: updateGroup(prisma),
       listGroups: listGroups(prisma),
+      inviteUserToGroup: inviteUserToGroup(prisma, sendInvite),
       exchangeCredentials,
       refreshToken
     }

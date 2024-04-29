@@ -35,7 +35,7 @@ function exchangeCredentials(call, callback) {
     iat: new Date().getTime() / 1000,
     tokenType: TokenTypeEnum.ACCESS,
     accessKeyId: "US14wj8q6qlirw331gfswusfblie6h78uz",
-    scope: RoleEnum.USER
+    scope: RoleEnum.ADMIN
   } as AccessToken;
 
   const idToken = jwt.sign(idTokenPayload, privateKey, signOptions);
