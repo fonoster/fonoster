@@ -16,17 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { decodeToken } from "./decodeToken";
-import TokenTypeEnum from "../exchanges/TokenUseEnum";
-
-function getAccessKeyIdFromToken(token: string): string {
-  const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
-
-  if (decodedToken.tokenUse !== TokenTypeEnum.ACCESS) {
-    throw new Error("Invalid token type");
-  }
-
-  return decodedToken.accessKeyId;
+enum TokenUseEnum {
+  ID = "id",
+  ACCESS = "access",
+  REFRESH = "refresh"
 }
 
-export { getAccessKeyIdFromToken };
+export default TokenUseEnum;

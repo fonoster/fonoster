@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { jwtDecode } from "jwt-decode";
-import TokenTypeEnum from "../TokenTypeEnum";
-import { DecodedToken } from "../types";
+import TokenTypeEnum from "../exchanges/TokenUseEnum";
+import { DecodedToken } from "../exchanges/types";
 
 function decodeToken<T extends TokenTypeEnum>(token: string): DecodedToken<T> {
   return jwtDecode(token);

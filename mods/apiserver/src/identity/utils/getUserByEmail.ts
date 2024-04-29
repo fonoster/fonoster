@@ -16,17 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { decodeToken } from "./decodeToken";
-import TokenTypeEnum from "../exchanges/TokenUseEnum";
+import { Prisma } from "../../db";
 
-function getAccessKeyIdFromToken(token: string): string {
-  const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
+function getUserByEmail(prisma: Prisma) {
+  return async (email: string) => {
+    const user = await prisma.user.findFirst({
+      where: {
+        email
+      }
+    });
 
-  if (decodedToken.tokenUse !== TokenTypeEnum.ACCESS) {
-    throw new Error("Invalid token type");
-  }
+    if (!user) {
+      return null;
+    }
 
-  return decodedToken.accessKeyId;
+    return user;
+  };
 }
 
-export { getAccessKeyIdFromToken };
+export { getUserByEmail };

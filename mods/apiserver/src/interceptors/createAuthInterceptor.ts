@@ -19,9 +19,7 @@
 import fs from "fs";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
-import { permissionDeniedError, unauthenticatedError } from "./errors";
-import TokenTypeEnum from "../identity/TokenTypeEnum";
-import { decodeToken, hasAccess } from "../identity/utils";
+import { unauthenticatedError } from "./errors";
 import { getTokenFromCall } from "../identity/utils/getTokenFromCall";
 import { isValidToken } from "../identity/utils/isValidToken";
 
@@ -69,11 +67,11 @@ function createAuthInterceptor(publicPath: string[] = []) {
       return unauthenticatedError(call);
     }
 
-    const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
+    // const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
 
-    if (!hasAccess(decodedToken.scope, path)) {
-      return permissionDeniedError(call);
-    }
+    // if (!hasAccess(decodedToken.scope, path)) {
+    //   return permissionDeniedError(call);
+    // }
 
     return call;
   };

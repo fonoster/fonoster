@@ -18,6 +18,15 @@
  */
 import { prisma } from "./db";
 import {
+  IDENTITY_ACCESS_TOKEN_EXPIRES_IN,
+  IDENTITY_AUDIENCE,
+  IDENTITY_ID_TOKEN_EXPIRES_IN,
+  IDENTITY_ISSUER,
+  IDENTITY_PRIVATE_KEY,
+  IDENTITY_PUBLIC_KEY,
+  IDENTITY_REFRESH_TOKEN_EXPIRES_IN
+} from "./envs";
+import {
   createAPIKey,
   createGroup,
   createUser,
@@ -38,6 +47,16 @@ import {
   updateGroup,
   updateUser
 } from "./identity";
+
+const identityConfig = {
+  issuer: IDENTITY_ISSUER,
+  audience: IDENTITY_AUDIENCE,
+  privateKey: IDENTITY_PRIVATE_KEY,
+  publicKey: IDENTITY_PUBLIC_KEY,
+  accessTokenExpiresIn: IDENTITY_ACCESS_TOKEN_EXPIRES_IN,
+  refreshTokenExpiresIn: IDENTITY_REFRESH_TOKEN_EXPIRES_IN,
+  idTokenExpiresIn: IDENTITY_ID_TOKEN_EXPIRES_IN
+};
 
 const services = [
   {
@@ -71,7 +90,7 @@ const services = [
       listApiKeys: listAPIKeys(prisma),
       regenerateApiKey: regenerateAPIKey(prisma),
       // Exchanges
-      exchangeCredentials,
+      exchangeCredentials: exchangeCredentials(prisma, identityConfig),
       refreshToken
     }
   }

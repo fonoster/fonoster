@@ -16,8 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import fs from "fs";
 import { join } from "path";
-import { assertEnvsAreSet } from "@fonoster/common";
+import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
 import dotenv from "dotenv";
 import { ServingStatus } from "grpc-health-check";
 
@@ -33,11 +34,35 @@ assertEnvsAreSet([
   "SMTP_HOST",
   "SMTP_SENDER",
   "SMTP_AUTH_USER",
-  "SMTP_AUTH_PASS"
+  "SMTP_AUTH_PASS",
+  "IDENTITY_ISSUER",
+  "IDENTITY_PRIVATE_KEY_PATH",
+  "IDENTITY_PUBLIC_KEY_PATH"
 ]);
+
+assertFileExists(e.IDENTITY_PRIVATE_KEY_PATH);
+assertFileExists(e.IDENTITY_PUBLIC_KEY_PATH);
 
 // Frontend configurations
 export const APP_URL = e.APP_URL;
+
+// Identity configurations
+export const IDENTITY_ISSUER = e.IDENTITY_ISSUER;
+export const IDENTITY_AUDIENCE = e.IDENTITY_AUDIENCE || "api";
+export const IDENTITY_PRIVATE_KEY = fs.readFileSync(
+  e.IDENTITY_PRIVATE_KEY_PATH,
+  "utf8"
+);
+export const IDENTITY_PUBLIC_KEY = fs.readFileSync(
+  e.IDENTITY_PUBLIC_KEY_PATH,
+  "utf8"
+);
+export const IDENTITY_ID_TOKEN_EXPIRES_IN =
+  e.IDENTITY_ID_TOKEN_EXPIRES_IN || "15m";
+export const IDENTITY_ACCESS_TOKEN_EXPIRES_IN =
+  e.IDENTITY_ACCESS_TOKEN_EXPIRES_IN || "15m";
+export const IDENTITY_REFRESH_TOKEN_EXPIRES_IN =
+  e.IDENTITY_REFRESH_TOKEN_EXPIRES_IN || "24h";
 
 // SMTP configurations
 export const SMTP_HOST = e.SMTP_HOST;

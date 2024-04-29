@@ -8,14 +8,17 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique @db.VarChar(255)
-  accessKeyId String   @unique @db.VarChar(255)
-  password    String   @map("password_hash") /// @encrypted
-  name        String   @db.VarChar(60)
-  avatar      String?  @db.VarChar(255)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+  id                  String   @id @default(uuid())
+  email               String   @unique @db.VarChar(255)
+  phoneNumber         String?  @db.VarChar(20)
+  accessKeyId         String   @unique @db.VarChar(255)
+  password            String   @map("password_hash") /// @encrypted
+  name                String   @db.VarChar(60)
+  avatar              String?  @db.VarChar(255)
+  emailVerified       Boolean  @default(false) @map("email_verified")
+  phoneNumberVerified Boolean  @default(false) @map("phone_number_verified")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
 
   // Relations
   ownedGroups Group[] // Groups owned by the user

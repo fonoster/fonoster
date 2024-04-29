@@ -17,4 +17,5 @@
  * limitations under the License.
  */
 export * from "./assertEnvsAreSet";
+export * from "./assertFileExists";
 export * from "./createService";

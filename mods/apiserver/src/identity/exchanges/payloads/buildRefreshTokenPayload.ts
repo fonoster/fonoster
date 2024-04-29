@@ -16,17 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { decodeToken } from "./decodeToken";
-import TokenTypeEnum from "../exchanges/TokenUseEnum";
+import TokenUseEnum from "../TokenUseEnum";
+import { AccessToken, IdentityConfig } from "../types";
 
-function getAccessKeyIdFromToken(token: string): string {
-  const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
+function buildRefreshTokenPayload(params: {
+  identityConfig: IdentityConfig;
+  accessKeyId: string;
+  identityId: string;
+}) {
+  const { identityConfig, accessKeyId, identityId } = params;
+  const { issuer, audience } = identityConfig;
 
-  if (decodedToken.tokenUse !== TokenTypeEnum.ACCESS) {
-    throw new Error("Invalid token type");
-  }
-
-  return decodedToken.accessKeyId;
+  return {
+    iss: issuer,
+    sub: identityId,
+    aud: audience,
+    tokenUse: TokenUseEnum.REFRESH,
+    accessKeyId
+  } as AccessToken;
 }
 
-export { getAccessKeyIdFromToken };
+export { buildRefreshTokenPayload };

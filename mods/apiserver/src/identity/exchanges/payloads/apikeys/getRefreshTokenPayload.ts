@@ -16,17 +16,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { decodeToken } from "./decodeToken";
-import TokenTypeEnum from "../exchanges/TokenUseEnum";
+import { Prisma } from "../../../../db";
+import { AccessToken, IdentityConfig } from "../../types";
+import { buildRefreshTokenPayload } from "../buildRefreshTokenPayload";
 
-function getAccessKeyIdFromToken(token: string): string {
-  const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
+function getRefreshTokenPayload(
+  prisma: Prisma,
+  identityConfig: IdentityConfig
+) {
+  return async (accessKeyId: string): Promise<AccessToken> => {
+    const apiKey = await prisma.aPIKey.findFirst({
+      where: {
+        accessKeyId
+      }
+    });
 
-  if (decodedToken.tokenUse !== TokenTypeEnum.ACCESS) {
-    throw new Error("Invalid token type");
-  }
+    if (!apiKey) {
+      return null;
+    }
 
-  return decodedToken.accessKeyId;
+    const { id: identityId } = apiKey;
+
+    return buildRefreshTokenPayload({
+      identityConfig,
+      accessKeyId,
+      identityId
+    });
+  };
 }
 
-export { getAccessKeyIdFromToken };
+export { getRefreshTokenPayload };

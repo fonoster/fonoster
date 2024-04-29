@@ -16,10 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum TokenTypeEnum {
-  ID = "id",
-  ACCESS = "access",
-  REFRESH = "refresh"
+import { getUserByEmail } from "./getUserByEmail";
+import { Prisma } from "../../db";
+
+function getAccessKeyIdFromEmail(prisma: Prisma) {
+  return async (email: string): Promise<string> => {
+    return (await getUserByEmail(prisma)(email)).accessKeyId;
+  };
 }
 
-export default TokenTypeEnum;
+export { getAccessKeyIdFromEmail };
