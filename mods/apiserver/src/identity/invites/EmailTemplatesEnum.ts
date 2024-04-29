@@ -16,15 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { compileTemplate } from "./compileTemplate";
-import { TemplateName } from "./TemplateName";
-
-function createInviteBody(data: Record<string, string>) {
-  if (data.oneTimePassword) {
-    return compileTemplate(TemplateName.INVITE_NEW_USER, data);
-  } else {
-    return compileTemplate(TemplateName.INVITE_EXISTING_USER, data);
-  }
+enum EmailTemplatesEnum {
+  INVITE_NEW_USER = "inviteNewUser",
+  INVITE_EXISTING_USER = "inviteExistingUser"
 }
 
-export { createInviteBody };
+export { EmailTemplatesEnum };

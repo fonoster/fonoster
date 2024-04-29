@@ -16,13 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SendInvite } from "@fonoster/common/src/notifications/sendInvite";
 import { getLogger } from "@fonoster/logger";
 import { status } from "@grpc/grpc-js";
 import * as grpc from "@grpc/grpc-js";
 import { isAdminMember } from "./isAdminMember";
+import { sendEmail } from "./sendEmail";
 import { Prisma } from "../../db";
+import { SMTP_SENDER } from "../../envs";
 import { GRPCErrors, handleError } from "../../errors";
+import { SendInvite } from "../invites/sendInvite";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
@@ -85,11 +87,14 @@ function resendGroupMembershipInvitation(
         });
       }
 
-      await sendInvite({
+      await sendInvite(sendEmail, {
+        sender: SMTP_SENDER,
         recipient: member.user.email,
         oneTimePassword: member.user.password,
-        groupId,
-        groupName: member.group.name
+        groupName: member.group.name,
+        isExistingUser: true,
+        // TODO: Create inviteUrl with invite token
+        inviteUrl: "https://placehold.it?token=jwt"
       });
 
       callback(null, {

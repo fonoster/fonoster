@@ -16,38 +16,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { EmailParams } from "@fonoster/common";
 import { createInviteBody } from "./createInviteBody";
-import { createInviteToken } from "./createInviteToken";
-import { sendEmail } from "./sender";
-import { APP_URL, SMTP_SENDER } from "../envs";
 
-type SendInviteParams = {
+type InviteParams = {
+  sender: string;
   recipient: string;
+  inviteUrl: string;
   oneTimePassword: string;
-  groupId: string;
   groupName: string;
+  isExistingUser: boolean;
 };
 
-type SendInvite = (params: SendInviteParams) => Promise<void>;
+type SendInvite = (
+  sendEmail: (params: EmailParams) => Promise<void>,
+  request: InviteParams
+) => Promise<void>;
 
-async function sendInvite(request: SendInviteParams) {
-  const { recipient, oneTimePassword, groupId, groupName } = request;
-
-  const token = await createInviteToken({
-    groupId,
-    email: recipient
-  });
+async function sendInvite(
+  sendEmail: (params: EmailParams) => Promise<void>,
+  request: InviteParams
+) {
+  const { sender, recipient, inviteUrl, oneTimePassword, groupName } = request;
 
   await sendEmail({
-    from: SMTP_SENDER,
+    from: sender,
     to: recipient,
     subject: "Invite to join a Fonoster workspace",
     html: createInviteBody({
+      isExistingUser: request.isExistingUser,
       groupName,
       oneTimePassword,
-      inviteUrl: `${APP_URL}/accept-invite?token=${token}`
+      inviteUrl
     })
   });
 }
 
-export { sendInvite, SendInvite, SendInviteParams };
+export { sendInvite, SendInvite, InviteParams };

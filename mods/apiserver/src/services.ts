@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { sendInvite } from "@fonoster/common";
 import { prisma } from "./db";
 import { exchangeCredentials } from "./identity/exchangeCredentials";
 import {
@@ -29,6 +28,7 @@ import {
   resendGroupMembershipInvitation,
   updateGroup
 } from "./identity/groups";
+import { sendInvite } from "./identity/invites/sendInvite";
 import { refreshToken } from "./identity/refreshToken";
 import {
   createUser,

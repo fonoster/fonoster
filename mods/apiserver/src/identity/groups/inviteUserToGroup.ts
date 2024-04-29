@@ -16,15 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SendInvite } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { isAdminMember } from "./isAdminMember";
 import { isGroupMember } from "./isGroupMember";
+import { sendEmail } from "./sendEmail";
 import { Prisma } from "../../db";
+import { SMTP_SENDER } from "../../envs";
 import { GRPCErrors, handleError } from "../../errors";
+import { SendInvite } from "../invites/sendInvite";
 import RoleEnum from "../RoleEnum";
 import { AccessKeyIdType, generateAccessKeyId } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
@@ -120,7 +122,11 @@ function inviteUserToGroup(prisma: Prisma, sendInvite: SendInvite) {
 
       const oneTimePassword = customAlphabet("1234567890abcdef", 10)();
 
+      let isExistingUser = true;
+
       if (!user) {
+        isExistingUser = false;
+
         user = await createUser(prisma)({
           name,
           email,
@@ -140,11 +146,14 @@ function inviteUserToGroup(prisma: Prisma, sendInvite: SendInvite) {
         }
       });
 
-      await sendInvite({
+      await sendInvite(sendEmail, {
+        sender: SMTP_SENDER,
         recipient: email,
         oneTimePassword,
-        groupId,
-        groupName: newMember.group.name
+        groupName: newMember.group.name,
+        isExistingUser,
+        // TODO: Create inviteUrl with invite token
+        inviteUrl: "https://placehold.it?token=jwt"
       });
 
       callback(null, {

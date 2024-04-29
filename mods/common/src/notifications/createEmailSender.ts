@@ -17,28 +17,43 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { Transporter } from "nodemailer";
+import { createTransport } from "nodemailer";
 
 const logger = getLogger({ service: "common", filePath: __filename });
 
-type EmailOptions = {
-  to: string;
+type EmailSenderConfig = {
+  host: string;
+  port: number;
+  secure: boolean;
+  auth: {
+    user: string;
+    pass: string;
+  };
+};
+
+type EmailParams = {
   from: string;
+  to: string;
   subject: string;
   html: string;
 };
 
-function createEmailSender(transporter: Transporter) {
-  return async function sendEmail(options: EmailOptions): Promise<void> {
-    const info = await transporter.sendMail({
-      from: options.from,
-      to: options.to,
-      subject: options.subject,
-      html: options.html
-    });
+function createEmailSender(config: EmailSenderConfig) {
+  const { host, port, secure, auth } = config;
+  const transporter = createTransport({
+    host,
+    port,
+    secure,
+    auth
+  });
+
+  return async function sendEmail(params: EmailParams): Promise<void> {
+    const { from, to, subject, html } = params;
+
+    const info = await transporter.sendMail({ from, to, subject, html });
 
     logger.verbose(`message sent: ${info.messageId}`);
   };
 }
 
-export { createEmailSender, EmailOptions };
+export { createEmailSender, EmailSenderConfig, EmailParams };

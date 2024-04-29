@@ -16,4 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./sendInvite";
+export * from "./compileTemplate";
+export * from "./createEmailSender";

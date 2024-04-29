@@ -17,17 +17,18 @@
  * limitations under the License.
  */
 import fs from "fs";
-import path from "path";
 import handlebars from "handlebars";
-import { EMAIL_TEMPLATES_DIR } from "../envs";
 
-function compileTemplate(templateName: string, data: Record<string, string>) {
-  const templatesDir = EMAIL_TEMPLATES_DIR || path.join(__dirname, "templates");
+type CompileTemplateParams = {
+  filePath: string;
+  data: Record<string, string>;
+};
 
-  let filePath = path.join(templatesDir, `${templateName}.hbs`);
+function compileTemplate(params: CompileTemplateParams) {
+  const { filePath, data } = params;
 
   if (!fs.existsSync(filePath)) {
-    filePath = path.join(__dirname, "templates", `${templateName}.hbs`);
+    throw new Error(`Template file not found: ${filePath}`);
   }
 
   const source = fs.readFileSync(filePath, "utf-8").toString();
@@ -35,4 +36,4 @@ function compileTemplate(templateName: string, data: Record<string, string>) {
   return template(data);
 }
 
-export { compileTemplate };
+export { compileTemplate, CompileTemplateParams };
