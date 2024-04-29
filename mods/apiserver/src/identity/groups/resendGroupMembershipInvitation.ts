@@ -22,27 +22,31 @@ import * as grpc from "@grpc/grpc-js";
 import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../../db";
 import { GRPCErrors, handleError } from "../../errors";
+import { SendInvite } from "../../notifications/sendInvite";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-type RemoveUserFromGroupRequest = {
+type ResendGroupMembershipInvitationRequest = {
   groupId: string;
   userId: string;
 };
 
-type RemoveUserFromGroupResponse = {
+type ResendGroupMembershipInvitationResponse = {
   groupId: string;
   userId: string;
 };
 
-function removeUserFromGroup(prisma: Prisma) {
+function resendGroupMembershipInvitation(
+  prisma: Prisma,
+  sendInvite: SendInvite
+) {
   return async (
-    call: { request: RemoveUserFromGroupRequest },
+    call: { request: ResendGroupMembershipInvitationRequest },
     callback: (
       error: GRPCErrors,
-      response?: RemoveUserFromGroupResponse
+      response?: ResendGroupMembershipInvitationResponse
     ) => void
   ) => {
     try {
@@ -50,44 +54,52 @@ function removeUserFromGroup(prisma: Prisma) {
       const token = getTokenFromCall(
         call as unknown as grpc.ServerInterceptingCall
       );
-      const userIdFromToken = getUserIdFromToken(token);
+      const adminId = getUserIdFromToken(token);
 
-      logger.debug("removing user from group", { groupId, userId });
+      logger.debug("removing group member", { groupId, userId, adminId });
 
-      const isAdmin = await isAdminMember(prisma)(groupId, userIdFromToken);
+      const isAdmin = await isAdminMember(prisma)(groupId, adminId);
 
-      if (!isAdmin && userIdFromToken !== userId) {
+      if (!isAdmin && adminId !== userId) {
         return callback({
           code: status.PERMISSION_DENIED,
           message: "Only admins or owners can remove users from a group"
         });
       }
 
-      const memberId = await prisma.groupMember.findFirst({
+      const member = await prisma.groupMember.findFirst({
         where: {
           groupId,
           userId
+        },
+        include: {
+          user: true,
+          group: true
         }
       });
 
-      if (!memberId) {
+      if (!member) {
         return callback({
           code: status.NOT_FOUND,
           message: "User not found in group"
         });
       }
 
-      const response = await prisma.groupMember.delete({
-        where: {
-          id: memberId?.id
-        }
+      await sendInvite({
+        recipient: member.user.email,
+        oneTimePassword: member.user.password,
+        groupId,
+        groupName: member.group.name
       });
 
-      callback(null, response);
+      callback(null, {
+        groupId,
+        userId
+      });
     } catch (error) {
       handleError(error, callback);
     }
   };
 }
 
-export { removeUserFromGroup };
+export { resendGroupMembershipInvitation };

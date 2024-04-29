@@ -33,6 +33,7 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/ListGroups",
       "/fonoster.identity.v1beta2.Identity/InviteUserToGroup",
       "/fonoster.identity.v1beta2.Identity/RemoveUserFromGroup",
+      "/fonoster.identity.v1beta2.Identity/ResendGroupMembershipInvitation",
       "/fonoster.identity.v1beta2.Identity/RefreshToken"
     ]
   },
