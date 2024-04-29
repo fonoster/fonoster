@@ -24,3 +24,4 @@ export * from "./listGroups";
 export * from "./inviteUserToGroup";
 export * from "./removeUserFromGroup";
 export * from "./resendGroupMembershipInvitation";
+export * from "./GroupRoleEnum";

@@ -16,13 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GroupRoleEnum } from "../groups/GroupRoleEnum";
-import roles from "../roles";
-
-function hasAccess(role: GroupRoleEnum, grpcPath: string) {
-  return roles
-    .find((r) => r.name.toUpperCase() === role)
-    ?.access.includes(grpcPath);
+enum GroupRoleEnum {
+  OWNER = "OWNER",
+  ADMIN = "ADMIN",
+  USER = "USER"
 }
 
-export { hasAccess };
+export { GroupRoleEnum };

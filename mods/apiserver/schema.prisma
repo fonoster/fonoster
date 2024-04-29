@@ -38,6 +38,7 @@ model Group {
   owner   User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String
   members GroupMember[]
+  apiKeys APIKey[]
 
   // Indexes and maps
   @@index([name], type: Hash)
@@ -74,4 +75,29 @@ enum GroupMemberRole {
   USER
 
   @@map("group_member_role")
+}
+
+model APIKey {
+  id              String     @id @default(uuid())
+  accessKeyId     String     @unique @db.VarChar(255)
+  accessKeySecret String     @db.VarChar(255) /// @encrypted
+  role            APIKeyRole @default(GROUP_ADMIN)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(3)
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz(3)
+
+  // Relations
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String @map("group_id")
+
+  // Indexes and maps
+  @@index([accessKeyId], type: Hash)
+  @@map("api_keys")
+}
+
+enum APIKeyRole {
+  GROUP_ADMIN
+
+  @@map("api_key_role")
 }

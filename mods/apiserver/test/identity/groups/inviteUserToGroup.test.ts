@@ -22,7 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../../src/db";
-import RoleEnum from "../../../src/identity/RoleEnum";
+import { GroupRoleEnum } from "../../../src/identity/groups/GroupRoleEnum";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -38,7 +38,7 @@ const inviteRequest = {
   email: "john@example.com",
   name: "John Doe",
   // Why ?
-  role: RoleEnum.ADMIN as RoleEnum.ADMIN
+  role: GroupRoleEnum.ADMIN as GroupRoleEnum.ADMIN
 };
 
 describe("@apiserver[identity/group/inviteUserToGroup]", function () {

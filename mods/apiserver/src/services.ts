@@ -17,25 +17,24 @@
  * limitations under the License.
  */
 import { prisma } from "./db";
-import { exchangeCredentials } from "./identity/exchangeCredentials";
 import {
+  createAPIKey,
   createGroup,
+  createUser,
   deleteGroup,
+  deleteUser,
+  exchangeCredentials,
   getGroupById,
+  getUserById,
   inviteUserToGroup,
   listGroups,
+  refreshToken,
   removeUserFromGroup,
   resendGroupMembershipInvitation,
-  updateGroup
-} from "./identity/groups";
-import { sendInvite } from "./identity/invites/sendInvite";
-import { refreshToken } from "./identity/refreshToken";
-import {
-  createUser,
-  deleteUser,
-  getUserById,
+  sendInvite,
+  updateGroup,
   updateUser
-} from "./identity/users";
+} from "./identity";
 
 const services = [
   {
@@ -46,10 +45,7 @@ const services = [
       proto: "identity.proto"
     },
     handlers: {
-      createUser: createUser(prisma),
-      getUserById: getUserById(prisma),
-      deleteUser: deleteUser(prisma),
-      updateUser: updateUser(prisma),
+      // Group operations
       createGroup: createGroup(prisma),
       deleteGroup: deleteGroup(prisma),
       getGroupById: getGroupById(prisma),
@@ -61,6 +57,14 @@ const services = [
         sendInvite
       ),
       removeUserFromGroup: removeUserFromGroup(prisma),
+      // User operations
+      createUser: createUser(prisma),
+      getUserById: getUserById(prisma),
+      deleteUser: deleteUser(prisma),
+      updateUser: updateUser(prisma),
+      // API Key operations
+      createApiKey: createAPIKey(prisma),
+      // Exchanges
       exchangeCredentials,
       refreshToken
     }

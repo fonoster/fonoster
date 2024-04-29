@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import RoleEnum from "./RoleEnum";
+import { GroupRoleEnum } from "./groups/GroupRoleEnum";
 import TokenTypeEnum from "./TokenTypeEnum";
 
 type Role = {
@@ -47,7 +47,7 @@ type AccessToken = {
   iat: number;
   tokenType: TokenTypeEnum.ACCESS;
   accessKeyId: string;
-  scope: RoleEnum;
+  scope: GroupRoleEnum;
 };
 
 type RefreshToken = {
@@ -58,7 +58,7 @@ type RefreshToken = {
   iat: number;
   tokenType: TokenTypeEnum.REFRESH;
   accessKeyId: string;
-  scope: RoleEnum;
+  scope: GroupRoleEnum;
 };
 
 type DecodedToken<T extends TokenTypeEnum> = T extends TokenTypeEnum.ID

@@ -18,9 +18,9 @@
  */
 import * as fs from "fs";
 import * as jwt from "jsonwebtoken";
-import RoleEnum from "./RoleEnum";
-import TokenTypeEnum from "./TokenTypeEnum";
-import { AccessToken } from "./types";
+import { GroupRoleEnum } from "../groups/GroupRoleEnum";
+import TokenTypeEnum from "../TokenTypeEnum";
+import { AccessToken } from "../types";
 
 function exchangeCredentials(call, callback) {
   const signOptions = { algorithm: "RS256" } as jwt.SignOptions;
@@ -35,7 +35,7 @@ function exchangeCredentials(call, callback) {
     iat: new Date().getTime() / 1000,
     tokenType: TokenTypeEnum.ACCESS,
     accessKeyId: "US14wj8q6qlirw331gfswusfblie6h78uz",
-    scope: RoleEnum.ADMIN
+    scope: GroupRoleEnum.ADMIN
   } as AccessToken;
 
   const idToken = jwt.sign(idTokenPayload, privateKey, signOptions);

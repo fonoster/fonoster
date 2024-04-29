@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GroupRoleEnum } from "./GroupRoleEnum";
 import { Prisma } from "../../db";
-import RoleEnum from "../RoleEnum";
 
 function isAdminMember(prisma: Prisma) {
   return async (groupId: string, userId: string) => {
@@ -38,7 +38,7 @@ function isAdminMember(prisma: Prisma) {
       (member) => member.userId === userId
     )?.role;
 
-    return role === RoleEnum.ADMIN || role === RoleEnum.OWNER;
+    return role === GroupRoleEnum.ADMIN || role === GroupRoleEnum.OWNER;
   };
 }
 

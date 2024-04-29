@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import RoleEnum from "./RoleEnum";
+import { GroupRoleEnum } from "./groups/GroupRoleEnum";
 import { Role } from "./types";
 
 const roles = [
   {
-    name: RoleEnum.ADMIN,
+    name: GroupRoleEnum.ADMIN,
     description: "Access to all endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUserById",
@@ -34,11 +34,13 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/InviteUserToGroup",
       "/fonoster.identity.v1beta2.Identity/RemoveUserFromGroup",
       "/fonoster.identity.v1beta2.Identity/ResendGroupMembershipInvitation",
-      "/fonoster.identity.v1beta2.Identity/RefreshToken"
+      "/fonoster.identity.v1beta2.Identity/RefreshToken",
+      "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
+      "/fonoster.identity.v1beta2.Identity/DeleteAPIKey"
     ]
   },
   {
-    name: RoleEnum.USER,
+    name: GroupRoleEnum.USER,
     description: "Access to User and Workspace endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUserById",

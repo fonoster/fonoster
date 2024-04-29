@@ -20,6 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
+import { GroupRoleEnum } from "./GroupRoleEnum";
 import { isAdminMember } from "./isAdminMember";
 import { isGroupMember } from "./isGroupMember";
 import { sendEmail } from "./sendEmail";
@@ -27,7 +28,6 @@ import { Prisma } from "../../db";
 import { SMTP_SENDER } from "../../envs";
 import { GRPCErrors, handleError } from "../../errors";
 import { SendInvite } from "../invites/sendInvite";
-import RoleEnum from "../RoleEnum";
 import { AccessKeyIdType, generateAccessKeyId } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
@@ -38,7 +38,7 @@ const InviteUserToGroupRequestSchema = z.object({
   groupId: z.string(),
   email: z.string().email(),
   name: z.string().min(3, "Name must contain at least 3 characters").max(50),
-  role: z.enum([RoleEnum.ADMIN, RoleEnum.USER]),
+  role: z.enum([GroupRoleEnum.ADMIN, GroupRoleEnum.USER]),
   password: z
     .string()
     .min(6, "Password must contain at least 8 characters")
@@ -138,7 +138,7 @@ function inviteUserToGroup(prisma: Prisma, sendInvite: SendInvite) {
         data: {
           userId: user.id,
           groupId,
-          role: role as RoleEnum,
+          role: role as GroupRoleEnum,
           status: GroupMemberStatus.PENDING
         },
         include: {

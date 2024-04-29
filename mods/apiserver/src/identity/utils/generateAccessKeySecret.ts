@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GroupRoleEnum } from "../groups/GroupRoleEnum";
-import roles from "../roles";
+import { customAlphabet } from "nanoid";
 
-function hasAccess(role: GroupRoleEnum, grpcPath: string) {
-  return roles
-    .find((r) => r.name.toUpperCase() === role)
-    ?.access.includes(grpcPath);
+function generateAccessKeySecret() {
+  return customAlphabet(
+    "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    64
+  )();
 }
 
-export { hasAccess };
+export { generateAccessKeySecret };

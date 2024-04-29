@@ -21,6 +21,7 @@ syntax = "proto3";
 package fonoster.identity.v1beta2;
 
 service Identity {
+  // Group actions
   rpc CreateGroup (CreateGroupRequest) returns (CreateGroupResponse) {}
   rpc DeleteGroup (DeleteGroupRequest) returns (DeleteGroupResponse) {}
   rpc GetGroupById (GetGroupByIdRequest) returns (GetGroupByIdResponse) {}
@@ -29,10 +30,20 @@ service Identity {
   rpc InviteUserToGroup (InviteUserToGroupRequest) returns (InviteUserToGroupResponse) {}
   rpc RemoveUserFromGroup (RemoveUserFromGroupRequest) returns (RemoveUserFromGroupResponse) {}
   rpc ResendGroupMembershipInvitation (ResendGroupMembershipInvitationRequest) returns (ResendGroupMembershipInvitationResponse) {}
+  
+  // User specific actions
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
   rpc GetUserById (GetUserByIdRequest) returns (GetUserByIdResponse) {}
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
+  
+  // APIKey actions
+  rpc CreateAPIKey (CreateAPIKeyRequest) returns (CreateAPIKeyResponse) {}
+  rpc DeleteAPIKey (DeleteAPIKeyRequest) returns (DeleteAPIKeyResponse) {}
+  rpc ListAPIKeys (ListAPIKeysRequest) returns (ListAPIKeysResponse) {}
+  rpc RegenerateAPIKey (RegenerateAPIKeyRequest) returns (RegenerateAPIKeyResponse) {}
+
+  // Token exchange actions
   rpc ExchangeCredentials (ExchangeCredentialsRequest) returns (ExchangeCredentialsResponse) {}
   rpc ExchangeAPIKey (ExchangeAPIKeyRequest) returns (ExchangeAPIKeyResponse) {}
   rpc ExchangeOAuth2Code (ExchangeOAuth2CodeRequest) returns (ExchangeOAuth2CodeResponse) {}
@@ -172,6 +183,66 @@ message Group {
   string owner_id = 3;
   string created_at = 4;
   string updated_at = 5;
+}
+
+// APIKey Resources
+
+message CreateAPIKeyRequest {
+  string group_id = 1;
+  string role = 2;
+  string expires_at = 3;
+}
+
+message CreateAPIKeyResponse {
+  string id = 1;
+  string access_key_id = 2;
+  string access_key_secret = 3;
+  string role = 4;
+  string expires_at = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message DeleteAPIKeyRequest {
+  string id = 1;
+}
+
+message DeleteAPIKeyResponse {
+  string id = 1;
+}
+
+message ListAPIKeysRequest {
+  string group_id = 1;
+  string page_token = 2;
+  int32 page_size = 3;
+}
+
+message ListAPIKeysResponse {
+  repeated APIKey api_keys = 1;
+  string next_page_token = 2;
+}
+
+message RegenerateAPIKeyRequest {
+  string id = 1;
+}
+
+message RegenerateAPIKeyResponse {
+  string id = 1;
+  string access_key_id = 2;
+  string access_key_secret = 3;
+  string role = 4;
+  string expires_at = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message APIKey {
+  string id = 1;
+  string access_key_id = 2;
+  string role = 3;
+  string expires_at = 4;
+  string created_at = 5;
+  string updated_at = 6;
 }
 
 // Token Exchange Resources

@@ -21,8 +21,8 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
+import { APIRoleEnum } from "../../../dist/identity";
 import { Prisma } from "../../../src/db";
-import { GroupRoleEnum } from "../../../src/identity/groups/GroupRoleEnum";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -31,91 +31,81 @@ const sandbox = createSandbox();
 const TEST_TOKEN =
   "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lkZW50aXR5LWdsb2JhbC5mb25vc3Rlci5pbyIsInN1YiI6IjYzNWMwY2Q4LTgxMjUtNDgzZC1iNDY3LTA1YzUzY2UyY2QzMSIsImlhdCI6MTcxNDMyMjEwMi45MDgsInRva2VuVHlwZSI6ImFjY2VzcyIsImFjY2Vzc0tleUlkIjoiVVMxNHdqOHE2cWxpcnczMzFnZnN3dXNmYmxpZTZoNzh1eiIsInNjb3BlIjoiVVNFUiJ9.cgpRyb9a0NFzuQWGldIGXBlXTGBwXtXMvx_7uSWIVlq-_gRqZjQej2tm7O-RjXlly688Vu74nhUlowfhzj3DUPeXnwDkyHEK1wABFPWPwPfdSX29wntxnrDhd1KaO3JnEj6jwLEfN9EV--gXGygE1TdXLdYa-bxj26y_reZ1zT1guoNjJ9CaGJoM0rI2iv3TfxKANW6p27olFr4LBnonozyBGkkvuiyqXYzU8XKKWTVt1-pHMJlTqY0A203iPSc7CZUh6Y17fELlNwcY5O6gu3T3DXUbJBxkASGf0XXolwZcMcPeACpT2JEBIuxDTldDJMxeLVhunGSISC4ISH8-wA";
 
-describe("@apiserver[identity/group/removeUserFromGroup]", function () {
+describe("@apiserver[identity/apikeys/createAPIKey]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should remove a user from a group", async function () {
+  it("should create a new API Key", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-    const userId = "635c0cd8-8125-483d-b467-05c53ce2cd31";
 
     const call = {
       metadata,
       request: {
         groupId: "123",
-        userId
+        role: APIRoleEnum.GROUP_ADMIN,
+        expiresAt: new Date().toISOString()
       }
     };
 
+    const res = {
+      id: "123",
+      accessKeyId: "accessKeyId",
+      accessKeySecret: "accessKeySecret",
+      role: APIRoleEnum.GROUP_ADMIN,
+      expiresAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
     const prisma = {
-      groupMember: {
-        findFirst: sandbox.stub().resolves({ id: "123" }),
-        delete: sandbox.stub().resolves({ id: "123" })
-      },
-      group: {
-        findUnique: sandbox.stub().resolves({
-          ownerId: userId,
-          members: [{ userId: userId, role: GroupRoleEnum.ADMIN }]
-        })
+      aPIKey: {
+        create: sandbox.stub().resolves(res)
       }
     } as unknown as Prisma;
 
-    const { removeUserFromGroup } = await import(
-      "../../../src/identity/groups/removeUserFromGroup"
+    const { createAPIKey } = await import(
+      "../../../src/identity/apikeys/createAPIKey"
     );
 
     // Act
-    const response = await new Promise((resolve, reject) => {
-      removeUserFromGroup(prisma)(call, (error, response) => {
-        if (error) return reject(error);
-        resolve(response);
-      });
+    await createAPIKey(prisma)(call, (_, response) => {
+      // Assert
+      expect(response).to.deep.equal(res);
     });
-
-    // Assert
-    expect(response).to.deep.equal({ id: "123" });
   });
 
-  it("should throw a permission denied error", async function () {
+  it("should throw an error if the group already exists", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-    const userId = "635c0cd8-8125-483d-b467-05c53ce2cd31";
-
     const call = {
       metadata,
       request: {
         groupId: "123",
-        userId
+        role: APIRoleEnum.GROUP_ADMIN,
+        expiresAt: new Date().toISOString()
       }
     };
 
     const prisma = {
-      group: {
-        findUnique: sandbox.stub().resolves({
-          ownerId: "another-user-id",
-          members: [{ userId: "another-user-id", role: GroupRoleEnum.USER }]
-        })
-      },
-      groupMember: {
-        findFirst: sandbox.stub().resolves({ id: "123" }),
-        delete: sandbox.stub().resolves({ id: "123" })
+      aPIKey: {
+        create: sandbox.stub().throws({ code: "P2002" })
       }
     } as unknown as Prisma;
 
-    const { removeUserFromGroup } = await import(
-      "../../../src/identity/groups/removeUserFromGroup"
+    const { createAPIKey } = await import(
+      "../../../src/identity/apikeys/createAPIKey"
     );
 
     // Act
-    removeUserFromGroup(prisma)(call, (error) => {
+    await createAPIKey(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
-        code: grpc.status.PERMISSION_DENIED,
-        message: "Only admins or owners can remove users from a group"
+        code: grpc.status.ALREADY_EXISTS,
+        message: "Duplicated resource"
       });
     });
   });
