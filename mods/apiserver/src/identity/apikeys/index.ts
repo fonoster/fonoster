@@ -17,4 +17,7 @@
  * limitations under the License.
  */
 export * from "./createAPIKey";
+export * from "./deleteAPIKey";
+export * from "./listAPIKeys";
+export * from "./regenerateAPIKey";
 export * from "./APIRoleEnum";

@@ -21,14 +21,17 @@ import {
   createAPIKey,
   createGroup,
   createUser,
+  deleteAPIKey,
   deleteGroup,
   deleteUser,
   exchangeCredentials,
   getGroupById,
   getUserById,
   inviteUserToGroup,
+  listAPIKeys,
   listGroups,
   refreshToken,
+  regenerateAPIKey,
   removeUserFromGroup,
   resendGroupMembershipInvitation,
   sendInvite,
@@ -64,6 +67,9 @@ const services = [
       updateUser: updateUser(prisma),
       // API Key operations
       createApiKey: createAPIKey(prisma),
+      deleteApiKey: deleteAPIKey(prisma),
+      listApiKeys: listAPIKeys(prisma),
+      regenerateApiKey: regenerateAPIKey(prisma),
       // Exchanges
       exchangeCredentials,
       refreshToken

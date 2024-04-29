@@ -58,6 +58,7 @@ function upsertDefaultUser(prisma: Prisma) {
           updatedAt: new Date()
         },
         create: {
+          id,
           name,
           email,
           password,

@@ -36,7 +36,9 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/ResendGroupMembershipInvitation",
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
       "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
-      "/fonoster.identity.v1beta2.Identity/DeleteAPIKey"
+      "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
+      "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
+      "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey"
     ]
   },
   {
