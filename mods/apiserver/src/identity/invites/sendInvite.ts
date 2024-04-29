@@ -23,7 +23,7 @@ type InviteParams = {
   sender: string;
   recipient: string;
   inviteUrl: string;
-  oneTimePassword: string;
+  oneTimePassword?: string;
   groupName: string;
   isExistingUser: boolean;
 };
@@ -37,16 +37,23 @@ async function sendInvite(
   sendEmail: (params: EmailParams) => Promise<void>,
   request: InviteParams
 ) {
-  const { sender, recipient, inviteUrl, oneTimePassword, groupName } = request;
+  const {
+    sender,
+    recipient,
+    inviteUrl,
+    oneTimePassword,
+    isExistingUser,
+    groupName
+  } = request;
 
   await sendEmail({
     from: sender,
     to: recipient,
     subject: "Invite to join a Fonoster workspace",
     html: createInviteBody({
-      isExistingUser: request.isExistingUser,
+      isExistingUser,
       groupName,
-      oneTimePassword,
+      oneTimePassword: isExistingUser ? undefined : oneTimePassword,
       inviteUrl
     })
   });
