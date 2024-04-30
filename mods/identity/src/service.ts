@@ -41,8 +41,6 @@ import {
 } from ".";
 
 function buildIdentityService(identityConfig: IdentityConfig) {
-  const { encryptionKey } = identityConfig;
-
   return {
     definition: {
       serviceName: "Identity",

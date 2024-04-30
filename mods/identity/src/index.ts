@@ -23,4 +23,4 @@ export * from "./invites";
 export * from "./users";
 export * from "./groups";
 export * from "./utils";
-export * from "./services";
+export * from "./service";
