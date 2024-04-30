@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { upsertDefaultUser } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import {
   OWNER_ACCESS_KEY_ID,
@@ -25,10 +26,6 @@ import {
   OWNER_NAME,
   OWNER_PASSWORD
 } from "./envs";
-// The order of imports is important here
-// eslint-disable-next-line import/order
-import { prisma } from "./db";
-import { upsertDefaultUser } from "./identity/users/upsertDefaultUser";
 import runServices from "./runServices";
 import { upsertDefaultPeer } from "./sipnet/peers/upsertDefaultPeer";
 
@@ -41,7 +38,7 @@ async function main() {
       password: OWNER_PASSWORD,
       accessKeyId: OWNER_ACCESS_KEY_ID
     };
-    await upsertDefaultUser(prisma)(user);
+    await upsertDefaultUser(user);
   }
 
   // Upsert a Peer for the default region, if it doesn't already exist

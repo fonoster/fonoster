@@ -22,6 +22,7 @@ import { createTransport } from "nodemailer";
 const logger = getLogger({ service: "common", filePath: __filename });
 
 type EmailSenderConfig = {
+  sender: string;
   host: string;
   port: number;
   secure: boolean;
@@ -32,14 +33,13 @@ type EmailSenderConfig = {
 };
 
 type EmailParams = {
-  from: string;
   to: string;
   subject: string;
   html: string;
 };
 
 function createEmailSender(config: EmailSenderConfig) {
-  const { host, port, secure, auth } = config;
+  const { sender, host, port, secure, auth } = config;
   const transporter = createTransport({
     host,
     port,
@@ -48,9 +48,14 @@ function createEmailSender(config: EmailSenderConfig) {
   });
 
   return async function sendEmail(params: EmailParams): Promise<void> {
-    const { from, to, subject, html } = params;
+    const { to, subject, html } = params;
 
-    const info = await transporter.sendMail({ from, to, subject, html });
+    const info = await transporter.sendMail({
+      from: sender,
+      to,
+      subject,
+      html
+    });
 
     logger.verbose(`message sent: ${info.messageId}`);
   };

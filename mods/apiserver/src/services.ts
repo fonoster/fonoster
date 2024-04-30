@@ -16,84 +16,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { prisma } from "./db";
+import { buildIdentityService } from "@fonoster/identity";
 import {
+  CLOAK_ENCRYPTION_KEY,
   IDENTITY_ACCESS_TOKEN_EXPIRES_IN,
   IDENTITY_AUDIENCE,
   IDENTITY_ID_TOKEN_EXPIRES_IN,
   IDENTITY_ISSUER,
   IDENTITY_PRIVATE_KEY,
   IDENTITY_PUBLIC_KEY,
-  IDENTITY_REFRESH_TOKEN_EXPIRES_IN
+  IDENTITY_REFRESH_TOKEN_EXPIRES_IN,
+  SMTP_AUTH_PASS,
+  SMTP_AUTH_USER,
+  SMTP_HOST,
+  SMTP_PORT,
+  SMTP_SECURE,
+  SMTP_SENDER
 } from "./envs";
-import {
-  createAPIKey,
-  createGroup,
-  createUser,
-  deleteAPIKey,
-  deleteGroup,
-  deleteUser,
-  exchangeCredentials,
-  getGroupById,
-  getUserById,
-  inviteUserToGroup,
-  listAPIKeys,
-  listGroups,
-  refreshToken,
-  regenerateAPIKey,
-  removeUserFromGroup,
-  resendGroupMembershipInvitation,
-  sendInvite,
-  updateGroup,
-  updateUser
-} from "./identity";
 
 const identityConfig = {
   issuer: IDENTITY_ISSUER,
   audience: IDENTITY_AUDIENCE,
   privateKey: IDENTITY_PRIVATE_KEY,
   publicKey: IDENTITY_PUBLIC_KEY,
+  encryptionKey: CLOAK_ENCRYPTION_KEY,
   accessTokenExpiresIn: IDENTITY_ACCESS_TOKEN_EXPIRES_IN,
   refreshTokenExpiresIn: IDENTITY_REFRESH_TOKEN_EXPIRES_IN,
-  idTokenExpiresIn: IDENTITY_ID_TOKEN_EXPIRES_IN
-};
-
-const services = [
-  {
-    definition: {
-      serviceName: "Identity",
-      pckg: "identity",
-      version: "v1beta2",
-      proto: "identity.proto"
-    },
-    handlers: {
-      // Group operations
-      createGroup: createGroup(prisma),
-      deleteGroup: deleteGroup(prisma),
-      getGroupById: getGroupById(prisma),
-      updateGroup: updateGroup(prisma),
-      listGroups: listGroups(prisma),
-      inviteUserToGroup: inviteUserToGroup(prisma, sendInvite),
-      resendGroupMembershipInvitation: resendGroupMembershipInvitation(
-        prisma,
-        sendInvite
-      ),
-      removeUserFromGroup: removeUserFromGroup(prisma),
-      // User operations
-      createUser: createUser(prisma),
-      getUserById: getUserById(prisma),
-      deleteUser: deleteUser(prisma),
-      updateUser: updateUser(prisma),
-      // API Key operations
-      createApiKey: createAPIKey(prisma),
-      deleteApiKey: deleteAPIKey(prisma),
-      listApiKeys: listAPIKeys(prisma),
-      regenerateApiKey: regenerateAPIKey(prisma),
-      // Exchanges
-      exchangeCredentials: exchangeCredentials(prisma, identityConfig),
-      refreshToken
+  idTokenExpiresIn: IDENTITY_ID_TOKEN_EXPIRES_IN,
+  smtpConfig: {
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_SECURE,
+    sender: SMTP_SENDER,
+    auth: {
+      user: SMTP_AUTH_USER,
+      pass: SMTP_AUTH_PASS
     }
   }
-];
+};
+
+const identityService = buildIdentityService(identityConfig);
+
+const services = [identityService];
 
 export default services;

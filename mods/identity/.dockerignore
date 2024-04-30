@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# But not these files and directories (keep them):
+!migrations/
+!dist/
+!schema.prisma
+!package.json
+!package-lock.json

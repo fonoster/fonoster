@@ -17,11 +17,10 @@
  * limitations under the License.
  */
 import fs from "fs";
+import { getTokenFromCall, isValidToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { unauthenticatedError } from "./errors";
-import { getTokenFromCall } from "../identity/utils/getTokenFromCall";
-import { isValidToken } from "../identity/utils/isValidToken";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

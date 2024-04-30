@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("IDENTITY_DATABASE_URL")
+}
+
+model User {
+  id                  String   @id @default(uuid())
+  email               String   @unique @db.VarChar(255)
+  phoneNumber         String?  @db.VarChar(20)
+  accessKeyId         String   @unique @db.VarChar(255)
+  password            String   @map("password_hash") /// @encrypted
+  name                String   @db.VarChar(60)
+  avatar              String?  @db.VarChar(255)
+  emailVerified       Boolean  @default(false) @map("email_verified")
+  phoneNumberVerified Boolean  @default(false) @map("phone_number_verified")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  // Relations
+  ownedGroups Group[] // Groups owned by the user
+  memberships GroupMember[] // Groups the user is a member of
+
+  // Indexes and maps
+  @@index([email], type: Hash)
+  @@map("users")
+}
+
+model Group {
+  id          String @id @default(uuid())
+  accessKeyId String @unique @db.VarChar(255)
+  name        String @db.VarChar(60)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  // Relations
+  owner   User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String
+  members GroupMember[]
+  apiKeys APIKey[]
+
+  // Indexes and maps
+  @@index([name], type: Hash)
+  @@map("groups")
+}
+
+model GroupMember {
+  id     String            @id @default(uuid())
+  status GroupMemberStatus
+  role   GroupMemberRole   @default(USER)
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([userId, groupId])
+  @@map("group_members")
+}
+
+enum GroupMemberStatus {
+  PENDING
+  ACTIVE
+
+  @@map("group_member_status")
+}
+
+enum GroupMemberRole {
+  OWNER
+  ADMIN
+  USER
+
+  @@map("group_member_role")
+}
+
+model APIKey {
+  id              String     @id @default(uuid())
+  accessKeyId     String     @unique @db.VarChar(255)
+  accessKeySecret String     @db.VarChar(255) /// @encrypted
+  role            APIKeyRole @default(GROUP_ADMIN)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(3)
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz(3)
+
+  // Relations
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String @map("group_id")
+
+  // Indexes and maps
+  @@index([accessKeyId], type: Hash)
+  @@map("api_keys")
+}
+
+enum APIKeyRole {
+  GROUP_ADMIN
+
+  @@map("api_key_role")
+}
