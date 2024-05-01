@@ -20,7 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import jwt from "jsonwebtoken";
 import { JsonWebErrorEnum } from "../JsonWebErrorEnum";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const logger = getLogger({ service: "identity", filePath: __filename });
 
 function isValidToken(token: string, secret: string): boolean {
   try {

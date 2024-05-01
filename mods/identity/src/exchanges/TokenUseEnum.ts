@@ -22,4 +22,4 @@ enum TokenUseEnum {
   REFRESH = "refresh"
 }
 
-export default TokenUseEnum;
+export { TokenUseEnum };

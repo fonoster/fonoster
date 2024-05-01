@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
@@ -25,14 +26,13 @@ import { GroupRoleEnum } from "./GroupRoleEnum";
 import { isAdminMember } from "./isAdminMember";
 import { isGroupMember } from "./isGroupMember";
 import { Prisma } from "../db";
-import { GRPCErrors, handleError } from "../errors";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites/sendInvite";
 import { AccessKeyIdType, generateAccessKeyId } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const logger = getLogger({ service: "identity", filePath: __filename });
 
 const InviteUserToGroupRequestSchema = z.object({
   groupId: z.string(),

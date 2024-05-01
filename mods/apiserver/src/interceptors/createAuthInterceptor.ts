@@ -16,18 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from "fs";
-import { getTokenFromCall, isValidToken } from "@fonoster/identity";
+import {
+  Access,
+  TokenUseEnum,
+  decodeToken,
+  getRoleForAccessKeyId,
+  getTokenFromCall,
+  hasAccess,
+  isValidToken
+} from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
-import { unauthenticatedError } from "./errors";
+import { permissionDeniedError, unauthenticatedError } from "./errors";
+import { IDENTITY_PUBLIC_KEY } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
-
-const publicKey = fs.readFileSync(
-  "/Users/psanders/Projects/fonoster/.keys/public.pem",
-  "utf8"
-);
 
 /**
  * This function is a gRPC interceptor that checks if the request is valid
@@ -62,15 +65,23 @@ function createAuthInterceptor(publicPath: string[] = []) {
 
     const token = getTokenFromCall(call);
 
-    if (!isValidToken(token, publicKey)) {
+    if (!isValidToken(token, IDENTITY_PUBLIC_KEY)) {
       return unauthenticatedError(call);
     }
 
-    // const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
+    const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token) as {
+      access: Access[];
+      accessKeyId: string;
+    };
 
-    // if (!hasAccess(decodedToken.scope, path)) {
-    //   return permissionDeniedError(call);
-    // }
+    const role = getRoleForAccessKeyId(
+      decodedToken.access,
+      decodedToken.accessKeyId
+    );
+
+    if (!hasAccess(role, path)) {
+      return permissionDeniedError(call);
+    }
 
     return call;
   };

@@ -16,17 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function refreshToken(call, callback) {
-  console.log("refreshToken", { request: call.request });
-  // Needs implementation
+import { Access } from "../exchanges/types";
+import { GroupRoleEnum } from "../groups";
 
-  const token = call.request.token;
+function getRoleForAccessKeyId(
+  access: Access[],
+  accessKeyId: string
+): GroupRoleEnum {
+  const result = access.find((access) => access.accessKeyId === accessKeyId);
 
-  callback(null, {
-    idToken: token,
-    accessToken: token,
-    refreshToken: token
-  });
+  if (!result) {
+    throw new Error("Access Key Id not found");
+  }
+
+  return result.role;
 }
 
-export { refreshToken };
+export { getRoleForAccessKeyId };

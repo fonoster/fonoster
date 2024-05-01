@@ -16,17 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PrismaClient } from "@prisma/client";
-import { fieldEncryptionExtension } from "prisma-field-encryption";
-import { CLOAK_ENCRYPTION_KEY } from "./envs";
+import { assertEnvsAreSet } from "@fonoster/common";
 
-// We encrypt all fields marked with /// encrypted in the schema
-const prisma = new PrismaClient().$extends(
-  fieldEncryptionExtension({
-    encryptionKey: CLOAK_ENCRYPTION_KEY
-  })
-);
+assertEnvsAreSet(["CLOAK_ENCRYPTION_KEY"]);
 
-type Prisma = typeof prisma;
-
-export { prisma, Prisma };
+export const CLOAK_ENCRYPTION_KEY = process.env.CLOAK_ENCRYPTION_KEY;

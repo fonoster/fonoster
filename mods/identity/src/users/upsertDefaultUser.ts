@@ -24,7 +24,7 @@ import {
   generateAccessKeyId
 } from "../utils/generateAccessKeyId";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const logger = getLogger({ service: "identity", filePath: __filename });
 
 const CreateUserRequestSchema = z.object({
   id: z.string(),

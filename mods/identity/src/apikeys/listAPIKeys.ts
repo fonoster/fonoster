@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GRPCErrors } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { APIRoleEnum } from "./APIRoleEnum";
 import { Prisma } from "../db";
-import { GRPCErrors } from "../errors";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const logger = getLogger({ service: "identity", filePath: __filename });
 
 const ListAPIKeysRequestSchema = z.object({
   groupId: z.string()

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import TokenUseEnum from "../TokenUseEnum";
+import { TokenUseEnum } from "../TokenUseEnum";
 import { AccessToken, IdentityConfig } from "../types";
 
 function buildRefreshTokenPayload(params: {

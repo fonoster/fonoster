@@ -26,12 +26,12 @@ import {
   deleteGroup,
   deleteUser,
   exchangeCredentials,
+  exchangeRefreshToken,
   getGroupById,
   getUserById,
   inviteUserToGroup,
   listAPIKeys,
   listGroups,
-  refreshToken,
   regenerateAPIKey,
   removeUserFromGroup,
   resendGroupMembershipInvitation,
@@ -74,7 +74,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       regenerateApiKey: regenerateAPIKey(prisma),
       // Exchanges
       exchangeCredentials: exchangeCredentials(prisma, identityConfig),
-      refreshToken
+      exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig)
     }
   };
 }

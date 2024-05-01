@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import TokenUseEnum from "./TokenUseEnum";
+import { TokenUseEnum } from "./TokenUseEnum";
 import { GroupRoleEnum } from "../groups/GroupRoleEnum";
 
 type Role = {
@@ -89,6 +89,7 @@ type DecodedToken<T extends TokenUseEnum> = T extends TokenUseEnum.ID
 export {
   Role,
   IdToken,
+  Access,
   AccessToken,
   RefreshToken,
   DecodedToken,

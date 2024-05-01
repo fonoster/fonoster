@@ -18,7 +18,7 @@
  */
 import { Prisma } from "../../../db";
 import { GroupRoleEnum } from "../../../groups";
-import TokenUseEnum from "../../TokenUseEnum";
+import { TokenUseEnum } from "../../TokenUseEnum";
 import { AccessToken, IdentityConfig } from "../../types";
 
 function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {

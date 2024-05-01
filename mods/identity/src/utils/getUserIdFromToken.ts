@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 import { decodeToken } from "./decodeToken";
-import TokenTypeEnum from "../exchanges/TokenUseEnum";
+import { TokenUseEnum } from "../exchanges/TokenUseEnum";
 
 function getUserIdFromToken(token: string): string {
-  const decodedToken = decodeToken<TokenTypeEnum.ACCESS>(token);
+  const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token);
 
-  if (decodedToken.tokenUse !== TokenTypeEnum.ACCESS) {
+  if (decodedToken.tokenUse !== TokenUseEnum.ACCESS) {
     throw new Error("Invalid token type");
   }
 

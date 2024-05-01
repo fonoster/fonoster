@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Prisma } from "../../../db";
-import TokenUseEnum from "../../TokenUseEnum";
+import { TokenUseEnum } from "../../TokenUseEnum";
 import { IdToken, IdentityConfig } from "../../types";
 
 function getIdTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {

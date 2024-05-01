@@ -16,19 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status } from "@grpc/grpc-js";
 import * as grpc from "@grpc/grpc-js";
 import { createSendEmail } from "./createSendEmail";
 import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../db";
-import { GRPCErrors, handleError } from "../errors";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites/sendInvite";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const logger = getLogger({ service: "identity", filePath: __filename });
 
 type ResendGroupMembershipInvitationRequest = {
   groupId: string;

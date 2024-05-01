@@ -35,7 +35,8 @@ const authorization = authInterceptor([
   "/fonos.health.v1.Health/Check",
   // TODO: This should be rate limited to avoid account spamming
   "/fonoster.identity.v1beta2.Identity/CreateUser",
-  "/fonoster.identity.v1beta2.Identity/ExchangeCredentials"
+  "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",
+  "/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken"
 ]);
 
 async function runServices() {

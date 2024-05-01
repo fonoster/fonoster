@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
-import { GRPCErrors, handleError } from "../errors";
 import { getAccessKeyIdFromToken } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const logger = getLogger({ service: "identity", filePath: __filename });
 
 type DeleteUserRequest = {
   id: string;
