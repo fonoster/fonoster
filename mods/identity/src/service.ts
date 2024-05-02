@@ -25,6 +25,7 @@ import {
   deleteAPIKey,
   deleteGroup,
   deleteUser,
+  exchangeAPIKey,
   exchangeCredentials,
   exchangeRefreshToken,
   getGroupById,
@@ -73,6 +74,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       listApiKeys: listAPIKeys(prisma),
       regenerateApiKey: regenerateAPIKey(prisma),
       // Exchanges
+      exchangeApiKey: exchangeAPIKey(prisma, identityConfig),
       exchangeCredentials: exchangeCredentials(prisma, identityConfig),
       exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig)
     }

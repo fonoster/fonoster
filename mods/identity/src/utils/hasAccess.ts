@@ -16,13 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GroupRoleEnum } from "../groups/GroupRoleEnum";
+import { Access, Role } from "../exchanges";
 import roles from "../roles";
 
-function hasAccess(role: GroupRoleEnum, grpcPath: string) {
-  return roles
-    .find((r) => r.name.toUpperCase() === role)
-    ?.access.includes(grpcPath);
+// This method only checks if the role has access to the path
+function hasAccess(access: Access[], grpcPath: string) {
+  const roleList = access.map((a: Access) => a.role);
+
+  return roleList.some((r: string) => {
+    return roles.find(
+      (role: Role) => role.name === r && role.access.includes(grpcPath)
+    );
+  });
 }
 
 export { hasAccess };

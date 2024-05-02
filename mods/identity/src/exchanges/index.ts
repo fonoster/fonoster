@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./exchangeAPIKey";
 export * from "./exchangeCredentials";
 export * from "./exchangeRefreshToken";
 export * from "./TokenUseEnum";

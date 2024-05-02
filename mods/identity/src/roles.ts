@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,12 +17,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { APIRoleEnum } from "./apikeys";
 import { Role } from "./exchanges/types";
 import { GroupRoleEnum } from "./groups/GroupRoleEnum";
 
 const roles = [
   {
     name: GroupRoleEnum.ADMIN,
+    description: "Access to all endpoints",
+    access: [
+      "/fonoster.identity.v1beta2.Identity/GetUserById",
+      "/fonoster.identity.v1beta2.Identity/UpdateUser",
+      "/fonoster.identity.v1beta2.Identity/DeleteUser",
+      "/fonoster.identity.v1beta2.Identity/CreateGroup",
+      "/fonoster.identity.v1beta2.Identity/GetGroupById",
+      "/fonoster.identity.v1beta2.Identity/UpdateGroup",
+      "/fonoster.identity.v1beta2.Identity/ListGroups",
+      "/fonoster.identity.v1beta2.Identity/InviteUserToGroup",
+      "/fonoster.identity.v1beta2.Identity/RemoveUserFromGroup",
+      "/fonoster.identity.v1beta2.Identity/ResendGroupMembershipInvitation",
+      "/fonoster.identity.v1beta2.Identity/RefreshToken",
+      "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
+      "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
+      "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
+      "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey"
+    ]
+  },
+  {
+    name: APIRoleEnum.GROUP_ADMIN,
     description: "Access to all endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUserById",

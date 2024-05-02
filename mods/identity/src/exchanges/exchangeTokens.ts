@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 import jwt from "jsonwebtoken";
-import { getAccessTokenPayload } from "./payloads/users/getAccessTokenPayload";
-import { getIdTokenPayload } from "./payloads/users/getIdTokenPayload";
-import { getRefreshTokenPayload } from "./payloads/users/getRefreshTokenPayload";
+import * as AK from "./payloads/apikeys";
+import * as US from "./payloads/users";
 import { IdentityConfig } from "./types";
 import { Prisma } from "../db";
 
@@ -34,13 +33,25 @@ function exchangeTokens(prisma: Prisma, identityConfig: IdentityConfig) {
     const accessTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: accessTokenExpiresIn } as jwt.SignOptions;
     const refreshTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: refreshTokenExpiresIn } as jwt.SignOptions;
 
-    const idTokenPayload = await getIdTokenPayload(prisma, identityConfig)(accessKeyId);
-    const accessTokenPayload = await getAccessTokenPayload(prisma, identityConfig)(accessKeyId);
-    const refreshTokenPayload = await getRefreshTokenPayload(prisma, identityConfig)(accessKeyId);
+    let idToken = null;
+    let accessToken = null;
+    let refreshToken = null;
 
-    const idToken = jwt.sign(idTokenPayload, privateKey, idTokenSignOptions);
-    const accessToken = jwt.sign(accessTokenPayload, privateKey, accessTokenSignOptions);
-    const refreshToken = jwt.sign(refreshTokenPayload, privateKey, refreshTokenSignOptions);
+    if (accessKeyId.startsWith("US")) {
+      const idTokenPayload = await US.getIdTokenPayload(prisma, identityConfig)(accessKeyId);
+      const accessTokenPayload = await US.getAccessTokenPayload(prisma, identityConfig)(accessKeyId);
+      const refreshTokenPayload = await US.getRefreshTokenPayload(prisma, identityConfig)(accessKeyId);
+
+      idToken = jwt.sign(idTokenPayload, privateKey, idTokenSignOptions);
+      accessToken = jwt.sign(accessTokenPayload, privateKey, accessTokenSignOptions);
+      refreshToken = jwt.sign(refreshTokenPayload, privateKey, refreshTokenSignOptions);
+    } else {
+      const accessTokenPayload = await AK.getAccessTokenPayload(prisma, identityConfig)(accessKeyId);
+      const refreshTokenPayload = await AK.getRefreshTokenPayload(prisma, identityConfig)(accessKeyId);
+
+      accessToken = jwt.sign(accessTokenPayload, privateKey, accessTokenSignOptions);
+      refreshToken = jwt.sign(refreshTokenPayload, privateKey, refreshTokenSignOptions);
+    }
 
     return {
       idToken,

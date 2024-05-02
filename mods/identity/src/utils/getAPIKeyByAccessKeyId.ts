@@ -16,20 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Access } from "../exchanges/types";
-import { GroupRoleEnum } from "../groups";
+import { Prisma } from "../db";
 
-function getRoleForAccessKeyId(
-  access: Access[],
-  accessKeyId: string
-): GroupRoleEnum {
-  const result = access.find((access) => access.accessKeyId === accessKeyId);
+function getAPIKeyByAccessKeyId(prisma: Prisma) {
+  return async (accessKeyId: string) => {
+    const key = await prisma.aPIKey.findFirst({
+      where: {
+        accessKeyId
+      }
+    });
 
-  if (!result) {
-    throw new Error("Access Key Id not found");
-  }
+    if (!key) {
+      return null;
+    }
 
-  return result.role;
+    return key;
+  };
 }
 
-export { getRoleForAccessKeyId };
+export { getAPIKeyByAccessKeyId };

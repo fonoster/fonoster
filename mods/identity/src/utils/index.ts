@@ -22,4 +22,4 @@ export * from "./getAccessKeyIdFromToken";
 export * from "./hasAccess";
 export * from "./isValidToken";
 export * from "./getTokenFromCall";
-export * from "./getRoleForAccessKeyId";
+

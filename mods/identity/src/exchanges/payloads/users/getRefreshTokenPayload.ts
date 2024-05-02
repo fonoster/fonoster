@@ -18,13 +18,13 @@
  */
 import { Prisma } from "../../../db";
 import { TokenUseEnum } from "../../TokenUseEnum";
-import { AccessToken, IdentityConfig } from "../../types";
+import { IdentityConfig, RefreshToken } from "../../types";
 
 function getRefreshTokenPayload(
   prisma: Prisma,
   identityConfig: IdentityConfig
 ) {
-  return async (accessKeyId: string): Promise<AccessToken> => {
+  return async (accessKeyId: string): Promise<RefreshToken> => {
     const user = await prisma.user.findFirst({
       where: {
         accessKeyId
@@ -44,7 +44,7 @@ function getRefreshTokenPayload(
       aud: audience,
       tokenUse: TokenUseEnum.REFRESH,
       accessKeyId
-    } as AccessToken;
+    } as RefreshToken;
   };
 }
 

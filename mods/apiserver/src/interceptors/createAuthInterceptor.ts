@@ -20,7 +20,7 @@ import {
   Access,
   TokenUseEnum,
   decodeToken,
-  getRoleForAccessKeyId,
+
   getTokenFromCall,
   hasAccess,
   isValidToken
@@ -74,12 +74,7 @@ function createAuthInterceptor(publicPath: string[] = []) {
       accessKeyId: string;
     };
 
-    const role = getRoleForAccessKeyId(
-      decodedToken.access,
-      decodedToken.accessKeyId
-    );
-
-    if (!hasAccess(role, path)) {
+    if (!hasAccess(decodedToken.access, path)) {
       return permissionDeniedError(call);
     }
 

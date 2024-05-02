@@ -16,33 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma } from "../../../db";
-import { IdentityConfig, RefreshToken } from "../../types";
-import { buildRefreshTokenPayload } from "../buildRefreshTokenPayload";
-
-function getRefreshTokenPayload(
-  prisma: Prisma,
-  identityConfig: IdentityConfig
-) {
-  return async (accessKeyId: string): Promise<RefreshToken> => {
-    const apiKey = await prisma.aPIKey.findFirst({
-      where: {
-        accessKeyId
-      }
-    });
-
-    if (!apiKey) {
-      return null;
-    }
-
-    const { id: identityId } = apiKey;
-
-    return buildRefreshTokenPayload({
-      identityConfig,
-      accessKeyId,
-      identityId
-    });
-  };
-}
-
-export { getRefreshTokenPayload };
+export * from "./getIdTokenPayload";
+export * from "./getAccessTokenPayload";
+export * from "./getRefreshTokenPayload";

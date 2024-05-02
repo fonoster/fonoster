@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { TokenUseEnum } from "../TokenUseEnum";
-import { AccessToken, IdentityConfig } from "../types";
+import { IdentityConfig, RefreshToken } from "../types";
 
 function buildRefreshTokenPayload(params: {
   identityConfig: IdentityConfig;
@@ -33,7 +33,7 @@ function buildRefreshTokenPayload(params: {
     aud: audience,
     tokenUse: TokenUseEnum.REFRESH,
     accessKeyId
-  } as AccessToken;
+  } as RefreshToken;
 }
 
 export { buildRefreshTokenPayload };

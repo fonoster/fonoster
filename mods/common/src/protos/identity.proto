@@ -261,7 +261,8 @@ message ExchangeCredentialsResponse {
 }
 
 message ExchangeAPIKeyRequest {
-  string api_key = 1;
+  string access_key_id = 1;
+  string access_key_secret = 2;
 }
 
 message ExchangeAPIKeyResponse {
