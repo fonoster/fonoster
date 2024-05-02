@@ -20,7 +20,6 @@ import {
   Access,
   TokenUseEnum,
   decodeToken,
-
   getTokenFromCall,
   hasAccess,
   isValidToken

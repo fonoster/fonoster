@@ -20,6 +20,8 @@ import { GRPCErrors } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { Access } from "../exchanges";
+import { decodeToken } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
@@ -48,12 +50,22 @@ function listGroups(prisma: Prisma) {
       call as unknown as grpc.ServerInterceptingCall
     );
     const userId = getUserIdFromToken(token);
+    const access = decodeToken(token) as { access: Access[] };
+    const groupsAccessKeyIds = access.access?.map((a) => a.accessKeyId);
 
-    logger.verbose("list groups for user", { userId });
+    logger.verbose("list groups for user or apikey", {
+      userId,
+      groupsAccessKeyIds
+    });
 
     const groups = await prisma.group.findMany({
       where: {
         OR: [
+          {
+            accessKeyId: {
+              in: groupsAccessKeyIds
+            }
+          },
           {
             members: {
               some: {
