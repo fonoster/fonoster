@@ -17,46 +17,12 @@
  * limitations under the License.
  */
 import { buildIdentityService } from "@fonoster/identity";
-import {
-  CLOAK_ENCRYPTION_KEY,
-  IDENTITY_ACCESS_TOKEN_EXPIRES_IN,
-  IDENTITY_AUDIENCE,
-  IDENTITY_ID_TOKEN_EXPIRES_IN,
-  IDENTITY_ISSUER,
-  IDENTITY_PRIVATE_KEY,
-  IDENTITY_PUBLIC_KEY,
-  IDENTITY_REFRESH_TOKEN_EXPIRES_IN,
-  SMTP_AUTH_PASS,
-  SMTP_AUTH_USER,
-  SMTP_HOST,
-  SMTP_PORT,
-  SMTP_SECURE,
-  SMTP_SENDER
-} from "./envs";
-
-const identityConfig = {
-  issuer: IDENTITY_ISSUER,
-  audience: IDENTITY_AUDIENCE,
-  privateKey: IDENTITY_PRIVATE_KEY,
-  publicKey: IDENTITY_PUBLIC_KEY,
-  encryptionKey: CLOAK_ENCRYPTION_KEY,
-  accessTokenExpiresIn: IDENTITY_ACCESS_TOKEN_EXPIRES_IN,
-  refreshTokenExpiresIn: IDENTITY_REFRESH_TOKEN_EXPIRES_IN,
-  idTokenExpiresIn: IDENTITY_ID_TOKEN_EXPIRES_IN,
-  smtpConfig: {
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_SECURE,
-    sender: SMTP_SENDER,
-    auth: {
-      user: SMTP_AUTH_USER,
-      pass: SMTP_AUTH_PASS
-    }
-  }
-};
+import { buildSIPNetServices } from "@fonoster/sipnet";
+import { identityConfig } from "./identityConfig";
 
 const identityService = buildIdentityService(identityConfig);
+const sipnetServices = buildSIPNetServices();
 
-const services = [identityService];
+const services = [identityService, sipnetServices];
 
 export default services;

@@ -16,18 +16,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Access, Role } from "../exchanges";
-import roles from "../roles";
-
-// This method only checks if the role has access to the path
-function hasAccess(access: Access[], grpcPath: string) {
-  const roleList = access.map((a: Access) => a.role);
-
-  return roleList.some((r: string) =>
-    roles.find(
-      (role: Role) => role.name === r && role.access.includes(grpcPath)
-    )
-  );
-}
-
-export { hasAccess };
+export * from "./createDomain";

@@ -1,7 +1,7 @@
 {
-  "name": "@fonoster/identity",
+  "name": "@fonoster/sipnet",
   "version": "0.6.0",
-  "description": "Identity service for Fonoster",
+  "description": "Routr-based SIP stack",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
@@ -22,12 +22,8 @@
   "dependencies": {
     "@fonoster/common": "^0.6.0",
     "@fonoster/logger": "^0.5.5",
+    "@routr/sdk": "2.11.2",
     "@grpc/grpc-js": "^1.10.6",
-    "@prisma/client": "^5.13.0",
-    "jsonwebtoken": "^9.0.2",
-    "jwt-decode": "^4.0.0",
-    "nanoid": "^3.3.6",
-    "prisma-field-encryption": "^1.5.2",
     "zod": "^3.23.4"
   },
   "files": [
@@ -42,8 +38,5 @@
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
-  },
-  "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.6"
   }
 }

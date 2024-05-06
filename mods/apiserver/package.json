@@ -22,6 +22,7 @@
   "dependencies": {
     "@fonoster/common": "^0.6.0",
     "@fonoster/identity": "^0.6.0",
+    "@fonoster/sipnet": "^0.6.0",
     "@fonoster/logger": "^0.5.5",
     "@grpc/grpc-js": "^1.10.6",
     "@prisma/client": "^5.13.0",

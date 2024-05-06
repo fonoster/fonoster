@@ -23,6 +23,28 @@ import { GroupRoleEnum } from "./groups/GroupRoleEnum";
 
 const roles = [
   {
+    name: GroupRoleEnum.OWNER,
+    description: "Access to all endpoints",
+    access: [
+      "/fonoster.identity.v1beta2.Identity/GetUserById",
+      "/fonoster.identity.v1beta2.Identity/UpdateUser",
+      "/fonoster.identity.v1beta2.Identity/DeleteUser",
+      "/fonoster.identity.v1beta2.Identity/CreateGroup",
+      "/fonoster.identity.v1beta2.Identity/GetGroupById",
+      "/fonoster.identity.v1beta2.Identity/UpdateGroup",
+      "/fonoster.identity.v1beta2.Identity/ListGroups",
+      "/fonoster.identity.v1beta2.Identity/InviteUserToGroup",
+      "/fonoster.identity.v1beta2.Identity/RemoveUserFromGroup",
+      "/fonoster.identity.v1beta2.Identity/ResendGroupMembershipInvitation",
+      "/fonoster.identity.v1beta2.Identity/RefreshToken",
+      "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
+      "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
+      "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
+      "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
+      "/fonoster.domains.v1beta2.Domains/CreateDomain"
+    ]
+  },
+  {
     name: GroupRoleEnum.ADMIN,
     description: "Access to all endpoints",
     access: [
@@ -40,7 +62,8 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
       "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
       "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
-      "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey"
+      "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
+      "/fonoster.domains.v1beta2.Domains/CreateDomain"
     ]
   },
   {
@@ -61,7 +84,8 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
       "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
       "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
-      "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey"
+      "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
+      "/fonoster.domains.v1beta2.Domains/CreateDomain"
     ]
   },
   {
@@ -75,7 +99,8 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/GetGroupById",
       "/fonoster.identity.v1beta2.Identity/UpdateGroup",
       "/fonoster.identity.v1beta2.Identity/ListGroups",
-      "/fonoster.identity.v1beta2.Identity/RefreshToken"
+      "/fonoster.identity.v1beta2.Identity/RefreshToken",
+      "/fonoster.domains.v1beta2.Domains/CreateDomain"
     ]
   }
 ] as Role[];
