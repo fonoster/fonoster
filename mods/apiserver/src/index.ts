@@ -27,7 +27,7 @@ import {
   OWNER_PASSWORD
 } from "./envs";
 import runServices from "./runServices";
-import { upsertDefaultPeer } from "./sipnet/peers/upsertDefaultPeer";
+import { upsertDefaultPeer } from "./upsertDefaultPeer";
 
 async function main() {
   if (OWNER_EMAIL) {
