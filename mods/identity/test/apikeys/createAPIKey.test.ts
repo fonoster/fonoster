@@ -44,7 +44,7 @@ describe("@apiserver[identity/apikeys/createAPIKey]", function () {
       request: {
         groupId: "123",
         role: APIRoleEnum.GROUP_ADMIN,
-        expiresAt: new Date().toISOString()
+        expiresAt: new Date().getMilliseconds()
       }
     };
 
@@ -53,9 +53,9 @@ describe("@apiserver[identity/apikeys/createAPIKey]", function () {
       accessKeyId: "accessKeyId",
       accessKeySecret: "accessKeySecret",
       role: APIRoleEnum.GROUP_ADMIN,
-      expiresAt: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      expiresAt: 0,
+      createdAt: new Date().getMilliseconds(),
+      updatedAt: new Date().getMilliseconds()
     };
 
     const prisma = {
@@ -82,7 +82,7 @@ describe("@apiserver[identity/apikeys/createAPIKey]", function () {
       request: {
         groupId: "123",
         role: APIRoleEnum.GROUP_ADMIN,
-        expiresAt: new Date().toISOString()
+        expiresAt: new Date().getMilliseconds()
       }
     };
 

@@ -16,9 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createDomain } from "./domains";
+import SDK from "@routr/sdk";
+import { createDomain } from "./createDomain";
+import { ClientOptions } from "../types";
 
-function buildSIPNetServices() {
+function buildService(clientOptions: ClientOptions) {
+  const domainsClient = new SDK.Domains(clientOptions);
+
   return {
     definition: {
       serviceName: "Domains",
@@ -27,9 +31,9 @@ function buildSIPNetServices() {
       proto: "domains.proto"
     },
     handlers: {
-      createDomain: createDomain()
+      createDomain: createDomain(domainsClient)
     }
   };
 }
 
-export { buildSIPNetServices };
+export { buildService };

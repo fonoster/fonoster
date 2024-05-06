@@ -36,7 +36,7 @@ type RegenerateAPIKeyResponse = {
   accessKeyId: string;
   accessKeySecret: string;
   role: APIRoleEnum;
-  expiresAt: Date | null;
+  expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 };

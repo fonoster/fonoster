@@ -32,7 +32,7 @@ const logger = getLogger({ service: "identity", filePath: __filename });
 const CreateAPIKeyRequestSchema = z.object({
   groupId: z.string(),
   role: z.enum([APIRoleEnum.GROUP_ADMIN]),
-  expiresAt: z.string().transform((value) => (value === "" ? null : value))
+  expiresAt: z.number().transform((value) => (value === 0 ? null : value))
 });
 
 type CreateAPIKeyRequest = z.infer<typeof CreateAPIKeyRequestSchema>;
@@ -42,7 +42,7 @@ type CreateAPIKeyResponse = {
   accessKeyId: string;
   accessKeySecret: string;
   role: APIRoleEnum;
-  expiresAt: Date | null;
+  expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -65,7 +65,7 @@ function createAPIKey(prisma: Prisma) {
           role: validatedRequest.role,
           accessKeyId: generateAccessKeyId(AccessKeyIdType.API_KEY),
           accessKeySecret: generateAccessKeySecret(),
-          expiresAt: validatedRequest.expiresAt
+          expiresAt: expiresAt ? new Date(expiresAt) : null
         }
       });
 

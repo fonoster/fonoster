@@ -19,6 +19,7 @@
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
+import { DomainsAPI } from "./types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -36,7 +37,7 @@ type CreateDomainResponse = {
   id: string;
 };
 
-function createDomain() {
+function createDomain(domains: DomainsAPI) {
   return async (
     call: { request: CreateDomainRequest },
     callback: (error: GRPCErrors, response?: CreateDomainResponse) => void
@@ -44,12 +45,17 @@ function createDomain() {
     try {
       const validatedRequest = CreateDomainRequestSchema.parse(call.request);
 
-      const { name } = validatedRequest;
+      const { name, domainUri } = validatedRequest;
 
-      logger.verbose("call to createDomain", { name });
+      logger.verbose("call to createDomain", { name, domainUri });
+
+      const response = await domains.createDomain({
+        name,
+        domainUri
+      });
 
       callback(null, {
-        id: "test-id"
+        id: response.ref
       });
     } catch (error) {
       handleError(error, callback);

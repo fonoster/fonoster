@@ -17,12 +17,13 @@
  * limitations under the License.
  */
 import { buildIdentityService } from "@fonoster/identity";
-import { buildSIPNetServices } from "@fonoster/sipnet";
+import { buildDomainsService } from "@fonoster/sipnet";
 import { identityConfig } from "./identityConfig";
+import { routrConfig } from "./routrConfig";
 
 const identityService = buildIdentityService(identityConfig);
-const sipnetServices = buildSIPNetServices();
+const domainsService = buildDomainsService(routrConfig);
 
-const services = [identityService, sipnetServices];
+const services = [identityService, domainsService];
 
 export default services;

@@ -77,8 +77,8 @@ message GetGroupByIdResponse {
   string id = 1;
   string name = 2;
   string owner_id = 3;
-  string created_at = 4;
-  string updated_at = 5;
+  int32 created_at = 4;
+  int32 updated_at = 5;
 }
 
 message ListGroupsRequest {
@@ -154,8 +154,8 @@ message GetUserByIdResponse {
   string email = 2;
   string name = 3;
   string avatar = 4;
-  string created_at = 5;
-  string updated_at = 6;
+  int32 created_at = 5;
+  int32 updated_at = 6;
 }
 
 message UpdateUserRequest {
@@ -181,8 +181,8 @@ message Group {
   string id = 1;
   string name = 2;
   string owner_id = 3;
-  string created_at = 4;
-  string updated_at = 5;
+  int32 created_at = 4;
+  int32 updated_at = 5;
 }
 
 // APIKey Resources
@@ -190,7 +190,7 @@ message Group {
 message CreateAPIKeyRequest {
   string group_id = 1;
   string role = 2;
-  string expires_at = 3;
+  int32 expires_at = 3;
 }
 
 message CreateAPIKeyResponse {
@@ -198,9 +198,9 @@ message CreateAPIKeyResponse {
   string access_key_id = 2;
   string access_key_secret = 3;
   string role = 4;
-  string expires_at = 5;
-  string created_at = 6;
-  string updated_at = 7;
+  int32 expires_at = 5;
+  int32 created_at = 6;
+  int32 updated_at = 7;
 }
 
 message DeleteAPIKeyRequest {
@@ -231,18 +231,18 @@ message RegenerateAPIKeyResponse {
   string access_key_id = 2;
   string access_key_secret = 3;
   string role = 4;
-  string expires_at = 5;
-  string created_at = 6;
-  string updated_at = 7;
+  int32 expires_at = 5;
+  int32 created_at = 6;
+  int32 updated_at = 7;
 }
 
 message APIKey {
   string id = 1;
   string access_key_id = 2;
   string role = 3;
-  string expires_at = 4;
-  string created_at = 5;
-  string updated_at = 6;
+  int32 expires_at = 4;
+  int32 created_at = 5;
+  int32 updated_at = 6;
 }
 
 // Token Exchange Resources

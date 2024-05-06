@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,4 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./domains";
+import { ROUTR_API_ENDPOINT } from "./envs";
+
+const routrConfig = {
+  endpoint: ROUTR_API_ENDPOINT,
+  insecure: true
+};
+
+export { routrConfig };
