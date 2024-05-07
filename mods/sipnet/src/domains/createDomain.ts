@@ -16,49 +16,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromToken, getTokenFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { DomainsAPI } from "./client";
-import { CreateDomainRequest, CreateDomainResponse } from "./types";
+import { CreateDomainRequest } from "./types";
+import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function createDomain(domains: DomainsAPI) {
-  return async (
-    call: { request: CreateDomainRequest },
-    callback: (error: GRPCErrors, response?: CreateDomainResponse) => void
-  ) => {
-    try {
-      const { name, domainUri, accessControlListRef, egressPolicies } =
-        call.request;
+  return withAccess(async (call: { request: CreateDomainRequest }) => {
+    const { name, domainUri, accessControlListRef, egressPolicies } =
+      call.request;
 
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+    const token = getTokenFromCall(
+      call as unknown as grpc.ServerInterceptingCall
+    );
 
-      const accessKeyId = getAccessKeyIdFromToken(token);
+    const accessKeyId = getAccessKeyIdFromToken(token);
 
-      logger.verbose("call to createDomain", { name, domainUri });
+    logger.verbose("call to createDomain", { name, domainUri });
 
-      const response = await domains.createDomain({
-        name,
-        domainUri,
-        accessControlListRef,
-        egressPolicies,
-        extended: {
-          accessKeyId
-        }
-      });
-
-      callback(null, {
-        ref: response.ref
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
-  };
+    return await domains.createDomain({
+      name,
+      domainUri,
+      accessControlListRef,
+      egressPolicies,
+      extended: {
+        accessKeyId
+      }
+    });
+  }, domains.getDomain);
 }
 
 export { createDomain };

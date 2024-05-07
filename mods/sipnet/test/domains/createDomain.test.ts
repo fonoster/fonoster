@@ -22,6 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { DomainsAPI } from "../../dist/domains/client";
+import { getDomainHelper } from "../getDomainHelper";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
@@ -40,7 +41,8 @@ describe("@sipnet[domains/createDomain]", function () {
     metadata.set("token", TEST_TOKEN);
 
     const domains = {
-      createDomain: sandbox.stub().resolves({ ref: "123" })
+      createDomain: sandbox.stub().resolves({ ref: "123" }),
+      getDomain: getDomainHelper(sandbox)
     } as unknown as DomainsAPI;
 
     const call = {
@@ -49,7 +51,10 @@ describe("@sipnet[domains/createDomain]", function () {
         name: "My Domain",
         domainUri: "sip.local",
         accessControlListRef: "123",
-        egressPolicies: []
+        egressPolicies: [],
+        extended: {
+          accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
+        }
       }
     };
 
@@ -72,7 +77,8 @@ describe("@sipnet[domains/createDomain]", function () {
       createDomain: sandbox.stub().throws({
         code: grpc.status.ALREADY_EXISTS,
         message: "Domain already exists"
-      })
+      }),
+      getDomain: getDomainHelper(sandbox)
     } as unknown as DomainsAPI;
 
     const call = {

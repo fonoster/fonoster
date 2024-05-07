@@ -16,22 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
-import { DeleteDomainRequest, DomainsAPI } from "./client";
-import { withAccess } from "../withAccess";
+import sinon from "sinon";
 
-const logger = getLogger({ service: "sipnet", filePath: __filename });
-
-function deleteDomain(domains: DomainsAPI) {
-  return withAccess(async (call: { request: DeleteDomainRequest }) => {
-    const { ref } = call.request;
-
-    logger.verbose("call to deleteDomain", { ref });
-
-    await domains.deleteDomain(ref);
-
-    return { ref };
-  }, domains.getDomain);
+function getDomainHelper(sandbox: sinon.SinonSandbox) {
+  return sandbox.stub().resolves({
+    ref: "123",
+    extended: {
+      accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
+    }
+  });
 }
 
-export { deleteDomain };
+export { getDomainHelper };

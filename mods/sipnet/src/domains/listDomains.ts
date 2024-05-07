@@ -16,36 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { DomainsAPI, ListDomainsResponse } from "./client";
+import { DomainsAPI } from "./client";
 import { ListDomainsRequest } from "./types";
+import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function listDomains(domains: DomainsAPI) {
-  return async (
-    call: { request: ListDomainsRequest },
-    callback: (error: GRPCErrors, response?: ListDomainsResponse) => void
-  ) => {
-    try {
-      const { request } = call;
+  return withAccess(async (call: { request: ListDomainsRequest }) => {
+    const { request } = call;
 
-      // FIXME: Should check the ownership of the domain
-      // const token = getTokenFromCall(
-      //   call as unknown as grpc.ServerInterceptingCall
-      // );
-      // const accessKeyId = getAccessKeyIdFromToken(token);
+    logger.verbose("call to listDomains", { request });
 
-      logger.verbose("call to listDomains", { request });
-
-      const response = await domains.listDomains(request);
-
-      callback(null, response);
-    } catch (error) {
-      handleError(error, callback);
-    }
-  };
+    return await domains.listDomains(request);
+  }, domains.getDomain);
 }
 
 export { listDomains };

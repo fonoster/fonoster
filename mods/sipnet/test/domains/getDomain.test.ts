@@ -43,8 +43,8 @@ describe("@sipnet[domains/getDomain]", function () {
       ref: "123",
       name: "SIP Local",
       domainUri: "sip.local",
-      metadata: {
-        description: "test"
+      extended: {
+        accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
       }
     };
 

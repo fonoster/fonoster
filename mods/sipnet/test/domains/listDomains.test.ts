@@ -22,6 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { DomainsAPI } from "../../dist/domains/client";
+import { getDomainHelper } from "../getDomainHelper";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
@@ -52,7 +53,8 @@ describe("@sipnet[domains/listDomains]", function () {
       listDomains: sandbox.stub().resolves({
         domains: [domain],
         nextPageToken: ""
-      })
+      }),
+      getDomain: getDomainHelper(sandbox)
     } as unknown as DomainsAPI;
 
     const call = {

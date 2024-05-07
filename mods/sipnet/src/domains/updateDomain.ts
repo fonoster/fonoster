@@ -16,48 +16,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromToken, getTokenFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { DomainsAPI } from "./client";
-import { UpdateDomainRequest, UpdateDomainResponse } from "./types";
+import { UpdateDomainRequest } from "./types";
+import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function updateDomain(domains: DomainsAPI) {
-  return async (
-    call: { request: UpdateDomainRequest },
-    callback: (error: GRPCErrors, response?: UpdateDomainResponse) => void
-  ) => {
-    try {
-      const { ref, name, accessControlListRef, egressPolicies } = call.request;
+  return withAccess(async (call: { request: UpdateDomainRequest }) => {
+    const { ref, name, accessControlListRef, egressPolicies } = call.request;
 
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+    const token = getTokenFromCall(
+      call as unknown as grpc.ServerInterceptingCall
+    );
 
-      const accessKeyId = getAccessKeyIdFromToken(token);
+    const accessKeyId = getAccessKeyIdFromToken(token);
 
-      logger.verbose("call to updateDomain", { ref, name });
+    logger.verbose("call to updateDomain", { ref, name });
 
-      const response = await domains.updateDomain({
-        ref,
-        name,
-        accessControlListRef,
-        egressPolicies,
-        extended: {
-          accessKeyId
-        }
-      });
-
-      callback(null, {
-        ref: response.ref
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
-  };
+    return await domains.updateDomain({
+      ref,
+      name,
+      accessControlListRef,
+      egressPolicies,
+      extended: {
+        accessKeyId
+      }
+    });
+  }, domains.getDomain);
 }
 
 export { updateDomain };

@@ -22,6 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { DomainsAPI } from "../../dist/domains/client";
+import { getDomainHelper } from "../getDomainHelper";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
@@ -40,7 +41,8 @@ describe("@sipnet[domains/updateDomain]", function () {
     metadata.set("token", TEST_TOKEN);
 
     const domains = {
-      updateDomain: sandbox.stub().resolves({ ref: "123" })
+      updateDomain: sandbox.stub().resolves({ ref: "123" }),
+      getDomain: getDomainHelper(sandbox)
     } as unknown as DomainsAPI;
 
     const call = {
@@ -72,7 +74,8 @@ describe("@sipnet[domains/updateDomain]", function () {
       updateDomain: sandbox.stub().throws({
         code: grpc.status.NOT_FOUND,
         message: "Domain not found"
-      })
+      }),
+      getDomain: getDomainHelper(sandbox)
     } as unknown as DomainsAPI;
 
     const call = {

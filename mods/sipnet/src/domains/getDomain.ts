@@ -16,36 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { DomainsAPI, GetDomainRequest } from "./client";
-import { Domain } from "./types";
+import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function getDomain(domains: DomainsAPI) {
-  return async (
-    call: { request: GetDomainRequest },
-    callback: (error: GRPCErrors, response?: Domain) => void
-  ) => {
-    try {
-      const { ref } = call.request;
+  return withAccess(async (call: { request: GetDomainRequest }) => {
+    const { ref } = call.request;
 
-      // FIXME: Should check the ownership of the domain
-      // const token = getTokenFromCall(
-      //   call as unknown as grpc.ServerInterceptingCall
-      // );
-      // const accessKeyId = getAccessKeyIdFromToken(token);
+    logger.verbose("call to getDomain", { ref });
 
-      logger.verbose("call to getDomain", { ref });
-
-      const domain = await domains.getDomain(ref);
-
-      callback(null, domain);
-    } catch (error) {
-      handleError(error, callback);
-    }
-  };
+    return domains.getDomain(ref);
+  }, domains.getDomain);
 }
 
 export { getDomain };
