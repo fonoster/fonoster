@@ -20,6 +20,7 @@
     "fonoster": "./dist/index.js"
   },
   "dependencies": {
+    "@fonoster/identity": "^0.6.0",
     "@fonoster/common": "^0.6.0",
     "@fonoster/logger": "^0.5.5",
     "@routr/sdk": "2.11.2",

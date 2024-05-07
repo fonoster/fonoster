@@ -16,10 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as RTypes from "./client";
+type CreateDomainRequest = {
+  name: string;
+  domainUri: string;
+  accessControlListRef?: string;
+  egressPolicies: { rule: string; numberRef: string }[];
+  extended: {
+    accessKeyId: string;
+  };
+};
 
-type CreateDomainRequest = Omit<RTypes.CreateDomainRequest, "extended">;
+type CreateDomainResponse = {
+  ref: string;
+};
 
-type CreateDomainResponse = RTypes.CreateDomainResponse;
+type DomainsAPI = {
+  createDomain: (request: CreateDomainRequest) => Promise<CreateDomainResponse>;
+};
 
-export { CreateDomainRequest, CreateDomainResponse };
+export { CreateDomainRequest, CreateDomainResponse, DomainsAPI };

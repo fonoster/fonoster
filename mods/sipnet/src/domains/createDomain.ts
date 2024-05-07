@@ -17,25 +17,13 @@
  * limitations under the License.
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
+import { getAccessKeyIdFromToken, getTokenFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { z } from "zod";
-import { DomainsAPI } from "./types";
+import * as grpc from "@grpc/grpc-js";
+import { DomainsAPI } from "./client";
+import { CreateDomainRequest, CreateDomainResponse } from "./types";
 
-const logger = getLogger({ service: "identity", filePath: __filename });
-
-const CreateDomainRequestSchema = z.object({
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50),
-  domainUri: z
-    .string()
-    .min(3, "Domain URI must contain at least 3 characters")
-    .max(50)
-});
-
-type CreateDomainRequest = z.infer<typeof CreateDomainRequestSchema>;
-
-type CreateDomainResponse = {
-  id: string;
-};
+const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function createDomain(domains: DomainsAPI) {
   return async (
@@ -43,19 +31,29 @@ function createDomain(domains: DomainsAPI) {
     callback: (error: GRPCErrors, response?: CreateDomainResponse) => void
   ) => {
     try {
-      const validatedRequest = CreateDomainRequestSchema.parse(call.request);
+      const { name, domainUri, accessControlListRef, egressPolicies } =
+        call.request;
 
-      const { name, domainUri } = validatedRequest;
+      const token = getTokenFromCall(
+        call as unknown as grpc.ServerInterceptingCall
+      );
+
+      const accessKeyId = getAccessKeyIdFromToken(token);
 
       logger.verbose("call to createDomain", { name, domainUri });
 
       const response = await domains.createDomain({
         name,
-        domainUri
+        domainUri,
+        accessControlListRef,
+        egressPolicies,
+        extended: {
+          accessKeyId
+        }
       });
 
       callback(null, {
-        id: response.ref
+        ref: response.ref
       });
     } catch (error) {
       handleError(error, callback);

@@ -20,8 +20,6 @@ syntax = "proto3";
 
 package fonoster.domains.v1beta2;
 
-import "google/protobuf/duration.proto";
-
 // The Domains service definition
 service Domains {
   // Create a new Domain
@@ -48,10 +46,22 @@ message CreateDomainRequest {
   string name = 1;
   // The domain_uri of the Domain
   string domain_uri = 2;
+  // Reference to the Access Control List
+  string access_control_list_ref = 3;
+  // Optional list of egress policies
+  repeated EgressPolicy egress_policies = 4;
 }
 
 // The response message for Domains.Create
 message CreateDomainResponse {
   // The id of the new Domain
-  string id = 1;
+  string ref = 1;
+}
+
+// EgressPolicy defines the policy for egress traffic
+message EgressPolicy {
+  // The pattern to match
+  string rule = 1;
+  // Reference to the number to use for egress
+  string number_ref = 2;
 }

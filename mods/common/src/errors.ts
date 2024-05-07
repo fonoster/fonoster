@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
+import * as grpc from "@grpc/grpc-js";
 import { status } from "@grpc/grpc-js";
 import { z } from "zod";
 
@@ -31,22 +32,23 @@ function handleError(
   error: Error | { code: string },
   callback: (error: GRPCErrors) => void
 ) {
-  const code = (error as { code: string }).code;
+  const code = (error as { code: string | number }).code;
 
   if (error instanceof z.ZodError) {
     const firstError = error.issues[0];
     logger.error("validation error:", { message: firstError.message });
     callback({ code: status.INVALID_ARGUMENT, message: firstError.message });
-  } else if (code === "P2002") {
+  } else if (code === "P2002" || code === grpc.status.ALREADY_EXISTS) {
     const message = "Duplicated resource";
     logger.error("duplicated entity error:", { message });
     callback({ code: status.ALREADY_EXISTS, message });
-  } else if (code === "P2025") {
+  } else if (code === "P2025" || code === grpc.status.NOT_FOUND) {
     const message = "The requested resource was not found";
     logger.error("not found error:", { message });
     callback({ code: status.NOT_FOUND, message });
-  } else if (code === "P2003") {
-    const message = "A required foreign key was not provided";
+  } else if (code === "P2003" || code === grpc.status.FAILED_PRECONDITION) {
+    // FIXME: Improve for clarity
+    const message = "Failed precondition error (e.g., missing dependency)";
     logger.error("missing foreign key error:", { message });
     callback({ code: status.FAILED_PRECONDITION, message });
   } else {
