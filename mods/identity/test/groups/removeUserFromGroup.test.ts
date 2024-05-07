@@ -29,7 +29,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[identity/group/removeUserFromGroup]", function () {
+describe("@identity[group/removeUserFromGroup]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

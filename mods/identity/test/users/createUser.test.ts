@@ -29,7 +29,7 @@ const sandbox = createSandbox();
 
 const AVATAR_URL = "https://example.com/avatar.jpg";
 
-describe("@apiserver[identity/users/createUser]", function () {
+describe("@identity[users/createUser]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

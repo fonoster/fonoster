@@ -29,7 +29,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[identity/group/resendGroupMembershipInvitation]", function () {
+describe("@identity[group/resendGroupMembershipInvitation]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

@@ -25,7 +25,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[identity/users/updateUser]", function () {
+describe("@identity[users/updateUser]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

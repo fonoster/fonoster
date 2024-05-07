@@ -26,7 +26,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[identity/groups/isGroupMember]", function () {
+describe("@identity[groups/isGroupMember]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

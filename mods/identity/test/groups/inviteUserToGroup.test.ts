@@ -40,7 +40,7 @@ const inviteRequest = {
   role: GroupRoleEnum.ADMIN as GroupRoleEnum.ADMIN
 };
 
-describe("@apiserver[identity/group/inviteUserToGroup]", function () {
+describe("@identity[group/inviteUserToGroup]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

@@ -28,7 +28,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[identity/apikeys/deleteAPIKey]", function () {
+describe("@identity[apikeys/deleteAPIKey]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

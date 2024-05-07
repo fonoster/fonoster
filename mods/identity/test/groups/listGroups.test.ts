@@ -28,7 +28,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[identity/groups/listGroups]", function () {
+describe("@identity[groups/listGroups]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

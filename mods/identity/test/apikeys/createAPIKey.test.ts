@@ -29,7 +29,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[identity/apikeys/createAPIKey]", function () {
+describe("@identity[apikeys/createAPIKey]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

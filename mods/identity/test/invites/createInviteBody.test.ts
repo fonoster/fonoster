@@ -25,7 +25,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[identity/invites/createInviteBody]", function () {
+describe("@identity[invites/createInviteBody]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
