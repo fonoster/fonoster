@@ -21,33 +21,68 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI } from "../../dist/domains/client";
 import { TEST_TOKEN } from "../testToken";
+import { DomainsAPI } from "../../dist/domains/client";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@sipnet[domains/createDomain]", function () {
+// function updateDomain(domains: DomainsAPI) {
+//   return async (
+//     call: { request: UpdateDomainRequest },
+//     callback: (error: GRPCErrors, response?: UpdateDomainResponse) => void
+//   ) => {
+//     try {
+//       const { ref, name, accessControlListRef, egressPolicies } = call.request;
+
+//       const token = getTokenFromCall(
+//         call as unknown as grpc.ServerInterceptingCall
+//       );
+
+//       const accessKeyId = getAccessKeyIdFromToken(token);
+
+//       logger.verbose("call to updateDomain", { ref, name });
+
+//       const response = await domains.updateDomain({
+//         ref,
+//         name,
+//         accessControlListRef,
+//         egressPolicies,
+//         extended: {
+//           accessKeyId
+//         }
+//       });
+
+//       callback(null, {
+//         ref: response.ref
+//       });
+//     } catch (error) {
+//       handleError(error, callback);
+//     }
+//   };
+// }
+
+describe("@sipnet[domains/updateDomain]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
   it("should create a domain", async function () {
     // Arrange
-    const { createDomain } = await import("../../src/domains/createDomain");
+    const { updateDomain } = await import("../../src/domains/updateDomain");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
     const domains = {
-      createDomain: sandbox.stub().resolves({ ref: "123" })
+      updateDomain: sandbox.stub().resolves({ ref: "123" })
     } as unknown as DomainsAPI;
 
     const call = {
       metadata,
       request: {
+        ref: "123",
         name: "My Domain",
-        domainUri: "sip.local",
         accessControlListRef: "123",
         egressPolicies: []
       }
@@ -56,30 +91,30 @@ describe("@sipnet[domains/createDomain]", function () {
     const callback = sandbox.stub();
 
     // Act
-    await createDomain(domains)(call, callback);
+    await updateDomain(domains)(call, callback);
 
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
   });
 
-  it("should throw an error if the domain already exists", async function () {
+  it("should throw an error if the domain doesn't exists", async function () {
     // Arrange
-    const { createDomain } = await import("../../src/domains/createDomain");
+    const { updateDomain } = await import("../../src/domains/updateDomain");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
     const domains = {
-      createDomain: sandbox.stub().throws({
-        code: grpc.status.ALREADY_EXISTS,
-        message: "Domain already exists"
+      updateDomain: sandbox.stub().throws({
+        code: grpc.status.NOT_FOUND,
+        message: "Domain not found"
       })
     } as unknown as DomainsAPI;
 
     const call = {
       metadata,
       request: {
+        ref: "123",
         name: "My Domain",
-        domainUri: "sip.local",
         accessControlListRef: "123",
         egressPolicies: []
       }
@@ -88,12 +123,12 @@ describe("@sipnet[domains/createDomain]", function () {
     const callback = sandbox.stub();
 
     // Act
-    await createDomain(domains)(call, callback);
+    await updateDomain(domains)(call, callback);
 
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly({
-      code: grpc.status.ALREADY_EXISTS,
-      message: "Duplicated resource"
+      code: grpc.status.NOT_FOUND,
+      message: "The requested resource was not found"
     });
   });
 });

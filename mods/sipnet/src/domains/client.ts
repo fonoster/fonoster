@@ -20,18 +20,31 @@ type CreateDomainRequest = {
   name: string;
   domainUri: string;
   accessControlListRef?: string;
-  egressPolicies: { rule: string; numberRef: string }[];
+  egressPolicies?: { rule: string; numberRef: string }[];
   extended: {
     accessKeyId: string;
   };
 };
 
+type UpdateDomainRequest = {
+  ref: string;
+} & Omit<Partial<CreateDomainRequest>, "domainUri">;
+
 type CreateDomainResponse = {
   ref: string;
 };
 
+type UpdateDomainResponse = CreateDomainResponse;
+
 type DomainsAPI = {
   createDomain: (request: CreateDomainRequest) => Promise<CreateDomainResponse>;
+  updateDomain: (request: UpdateDomainRequest) => Promise<UpdateDomainResponse>;
 };
 
-export { CreateDomainRequest, CreateDomainResponse, DomainsAPI };
+export {
+  DomainsAPI,
+  CreateDomainRequest,
+  CreateDomainResponse,
+  UpdateDomainRequest,
+  UpdateDomainResponse
+};

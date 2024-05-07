@@ -18,6 +18,7 @@
  */
 import SDK from "@routr/sdk";
 import { createDomain } from "./createDomain";
+import { updateDomain } from "./updateDomain";
 import { ClientOptions } from "../types";
 
 function buildService(clientOptions: ClientOptions) {
@@ -31,7 +32,8 @@ function buildService(clientOptions: ClientOptions) {
       proto: "domains.proto"
     },
     handlers: {
-      createDomain: createDomain(domainsClient)
+      createDomain: createDomain(domainsClient),
+      updateDomain: updateDomain(domainsClient)
     }
   };
 }

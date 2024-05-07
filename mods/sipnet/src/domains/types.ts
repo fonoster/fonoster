@@ -22,4 +22,13 @@ type CreateDomainRequest = Omit<RTypes.CreateDomainRequest, "extended">;
 
 type CreateDomainResponse = RTypes.CreateDomainResponse;
 
-export { CreateDomainRequest, CreateDomainResponse };
+type UpdateDomainRequest = Omit<RTypes.UpdateDomainRequest, "extended">;
+
+type UpdateDomainResponse = RTypes.UpdateDomainResponse;
+
+export {
+  CreateDomainRequest,
+  CreateDomainResponse,
+  UpdateDomainRequest,
+  UpdateDomainResponse
+};

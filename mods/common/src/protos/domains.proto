@@ -24,6 +24,8 @@ package fonoster.domains.v1beta2;
 service Domains {
   // Create a new Domain
   rpc CreateDomain (CreateDomainRequest) returns (CreateDomainResponse) {}
+  // Update an existing Domain
+  rpc UpdateDomain (UpdateDomainRequest) returns (UpdateDomainResponse) {}
 }
 
 // The message for the Domain resource
@@ -55,6 +57,24 @@ message CreateDomainRequest {
 // The response message for Domains.Create
 message CreateDomainResponse {
   // The id of the new Domain
+  string ref = 1;
+}
+
+// The request message for Domains.Update
+message UpdateDomainRequest {
+  // The id of the Domain
+  string ref = 1;
+  // The name of the Domain
+  string name = 2;
+  // Reference to the Access Control List
+  string access_control_list_ref = 3;
+  // Optional list of egress policies
+  repeated EgressPolicy egress_policies = 4;
+}
+
+// The response message for Domains.Update
+message UpdateDomainResponse {
+  // The id of the updated Domain
   string ref = 1;
 }
 

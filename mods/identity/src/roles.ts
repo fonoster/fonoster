@@ -41,7 +41,8 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
       "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
       "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
-      "/fonoster.domains.v1beta2.Domains/CreateDomain"
+      "/fonoster.domains.v1beta2.Domains/CreateDomain",
+      "/fonoster.domains.v1beta2.Domains/UpdateDomain"
     ]
   },
   {
@@ -63,7 +64,8 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
       "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
       "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
-      "/fonoster.domains.v1beta2.Domains/CreateDomain"
+      "/fonoster.domains.v1beta2.Domains/CreateDomain",
+      "/fonoster.domains.v1beta2.Domains/UpdateDomain"
     ]
   },
   {
@@ -85,7 +87,8 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
       "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
       "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
-      "/fonoster.domains.v1beta2.Domains/CreateDomain"
+      "/fonoster.domains.v1beta2.Domains/CreateDomain",
+      "/fonoster.domains.v1beta2.Domains/UpdateDomain"
     ]
   },
   {
@@ -100,7 +103,8 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/UpdateGroup",
       "/fonoster.identity.v1beta2.Identity/ListGroups",
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
-      "/fonoster.domains.v1beta2.Domains/CreateDomain"
+      "/fonoster.domains.v1beta2.Domains/CreateDomain",
+      "/fonoster.domains.v1beta2.Domains/UpdateDomain"
     ]
   }
 ] as Role[];
