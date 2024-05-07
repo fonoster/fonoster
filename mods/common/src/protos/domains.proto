@@ -26,12 +26,18 @@ service Domains {
   rpc CreateDomain (CreateDomainRequest) returns (CreateDomainResponse) {}
   // Update an existing Domain
   rpc UpdateDomain (UpdateDomainRequest) returns (UpdateDomainResponse) {}
+  // Get an existing Domain
+  rpc GetDomain (GetDomainRequest) returns (Domain) {}
+  // List all Domains
+  rpc ListDomains (ListDomainsRequest) returns (ListDomainsResponse) {}
+  // Delete an existing Domain
+  rpc DeleteDomain (DeleteDomainRequest) returns (DeleteDomainResponse) {}
 }
 
 // The message for the Domain resource
 message Domain {
   // The unique identifier of the Domain
-  string id = 2;
+  string ref = 2;
   // The name of the Domain
   string name = 3;
   // The URI of the Domain
@@ -42,7 +48,15 @@ message Domain {
   int32 updated_at = 6;
 }
 
-// The request message for Domains.Create
+// EgressPolicy defines the policy for egress traffic
+message EgressPolicy {
+  // The pattern to match
+  string rule = 1;
+  // Reference to the number to use for egress
+  string number_ref = 2;
+}
+
+// The request message for Domains.CreateDomain
 message CreateDomainRequest {
   // The name of the Domain
   string name = 1;
@@ -54,13 +68,13 @@ message CreateDomainRequest {
   repeated EgressPolicy egress_policies = 4;
 }
 
-// The response message for Domains.Create
+// The response message for Domains.CreateDomain
 message CreateDomainResponse {
   // The id of the new Domain
   string ref = 1;
 }
 
-// The request message for Domains.Update
+// The request message for Domains.UpdateDomain
 message UpdateDomainRequest {
   // The id of the Domain
   string ref = 1;
@@ -72,16 +86,42 @@ message UpdateDomainRequest {
   repeated EgressPolicy egress_policies = 4;
 }
 
-// The response message for Domains.Update
+// The response message for Domains.UpdateDomain
 message UpdateDomainResponse {
   // The id of the updated Domain
   string ref = 1;
 }
 
-// EgressPolicy defines the policy for egress traffic
-message EgressPolicy {
-  // The pattern to match
-  string rule = 1;
-  // Reference to the number to use for egress
-  string number_ref = 2;
+// The request message for Domains.GetDomain
+message GetDomainRequest {
+  // // The unique identifier of the Domain
+  string ref = 1;
+}
+
+// The request message for Domains.DeleteDomain
+message DeleteDomainRequest {
+  // The unique identifier of the Domain
+  string ref = 1;
+}
+
+// The response message for Domains.DeleteDomain
+message DeleteDomainResponse {
+  // Echo back the id of the deleted Domain
+  string ref = 1;
+}
+
+// The request message for Domains.ListDomains
+message ListDomainsRequest {
+  // The maximum number of items in the list
+  int32 page_size = 1;
+  // The next_page_token value returned from the previous request, if any
+  string page_token = 2;
+}
+
+// The response message for Domains.ListDomains
+message ListDomainsResponse {
+  // List of Domains
+  repeated Domain items = 1;
+  // Token to retrieve the next page of results, or empty if there are no more results in the list
+  string next_page_token = 2;
 }

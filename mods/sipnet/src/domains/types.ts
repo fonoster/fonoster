@@ -18,6 +18,8 @@
  */
 import * as RTypes from "./client";
 
+type Domain = Omit<RTypes.Domain, "extended">;
+
 type CreateDomainRequest = Omit<RTypes.CreateDomainRequest, "extended">;
 
 type CreateDomainResponse = RTypes.CreateDomainResponse;
@@ -26,9 +28,27 @@ type UpdateDomainRequest = Omit<RTypes.UpdateDomainRequest, "extended">;
 
 type UpdateDomainResponse = RTypes.UpdateDomainResponse;
 
-export {
+type GetDomainByRefRequest = RTypes.GetDomainRequest;
+
+type ListDomainsRequest = RTypes.ListDomainsRequest;
+
+type ListDomainsResponse = RTypes.ListDomainsResponse;
+
+type DeleteDomainRequest = RTypes.DeleteDomainRequest;
+
+type DeleteDomainResponse = {
+  ref: string;
+};
+
+export type {
+  Domain,
   CreateDomainRequest,
   CreateDomainResponse,
   UpdateDomainRequest,
-  UpdateDomainResponse
+  UpdateDomainResponse,
+  GetDomainByRefRequest,
+  ListDomainsRequest,
+  ListDomainsResponse,
+  DeleteDomainRequest,
+  DeleteDomainResponse
 };

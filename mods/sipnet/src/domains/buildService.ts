@@ -18,11 +18,14 @@
  */
 import SDK from "@routr/sdk";
 import { createDomain } from "./createDomain";
+import { deleteDomain } from "./deleteDomain";
+import { getDomain } from "./getDomain";
+import { listDomains } from "./listDomains";
 import { updateDomain } from "./updateDomain";
 import { ClientOptions } from "../types";
 
 function buildService(clientOptions: ClientOptions) {
-  const domainsClient = new SDK.Domains(clientOptions);
+  const client = new SDK.Domains(clientOptions);
 
   return {
     definition: {
@@ -32,8 +35,11 @@ function buildService(clientOptions: ClientOptions) {
       proto: "domains.proto"
     },
     handlers: {
-      createDomain: createDomain(domainsClient),
-      updateDomain: updateDomain(domainsClient)
+      createDomain: createDomain(client),
+      updateDomain: updateDomain(client),
+      getDomain: getDomain(client),
+      listDomains: listDomains(client),
+      deleteDomain: deleteDomain(client)
     }
   };
 }

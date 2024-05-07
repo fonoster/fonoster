@@ -42,7 +42,10 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
       "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
       "/fonoster.domains.v1beta2.Domains/CreateDomain",
-      "/fonoster.domains.v1beta2.Domains/UpdateDomain"
+      "/fonoster.domains.v1beta2.Domains/UpdateDomain",
+      "/fonoster.domains.v1beta2.Domains/GetDomain",
+      "/fonoster.domains.v1beta2.Domains/DeleteDomain",
+      "/fonoster.domains.v1beta2.Domains/ListDomains"
     ]
   },
   {
@@ -65,7 +68,10 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
       "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
       "/fonoster.domains.v1beta2.Domains/CreateDomain",
-      "/fonoster.domains.v1beta2.Domains/UpdateDomain"
+      "/fonoster.domains.v1beta2.Domains/UpdateDomain",
+      "/fonoster.domains.v1beta2.Domains/GetDomain",
+      "/fonoster.domains.v1beta2.Domains/DeleteDomain",
+      "/fonoster.domains.v1beta2.Domains/ListDomains"
     ]
   },
   {
@@ -88,7 +94,10 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
       "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey",
       "/fonoster.domains.v1beta2.Domains/CreateDomain",
-      "/fonoster.domains.v1beta2.Domains/UpdateDomain"
+      "/fonoster.domains.v1beta2.Domains/UpdateDomain",
+      "/fonoster.domains.v1beta2.Domains/GetDomain",
+      "/fonoster.domains.v1beta2.Domains/DeleteDomain",
+      "/fonoster.domains.v1beta2.Domains/ListDomains"
     ]
   },
   {
@@ -104,7 +113,10 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/ListGroups",
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
       "/fonoster.domains.v1beta2.Domains/CreateDomain",
-      "/fonoster.domains.v1beta2.Domains/UpdateDomain"
+      "/fonoster.domains.v1beta2.Domains/UpdateDomain",
+      "/fonoster.domains.v1beta2.Domains/GetDomain",
+      "/fonoster.domains.v1beta2.Domains/DeleteDomain",
+      "/fonoster.domains.v1beta2.Domains/ListDomains"
     ]
   }
 ] as Role[];

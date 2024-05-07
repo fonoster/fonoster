@@ -16,6 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { JsonObject } from "@prisma/client/runtime/library";
+
+type Domain = {
+  ref: string;
+  name: string;
+  domainUri: string;
+  accessControlListRef?: string;
+  egressPolicies?: { rule: string; numberRef: string }[];
+  extended?: JsonObject;
+  // FIXME: Should be a Date
+  createdAt?: number;
+  updatedAt?: number;
+};
+
 type CreateDomainRequest = {
   name: string;
   domainUri: string;
@@ -34,17 +48,45 @@ type CreateDomainResponse = {
   ref: string;
 };
 
-type UpdateDomainResponse = CreateDomainResponse;
+type UpdateDomainResponse = {
+  ref: string;
+};
+
+type GetDomainRequest = {
+  ref: string;
+};
+
+type DeleteDomainRequest = {
+  ref: string;
+};
+
+type ListDomainsRequest = {
+  pageSize: number;
+  pageToken: string;
+};
+
+type ListDomainsResponse = {
+  items: Domain[];
+  nextPageToken: string;
+};
 
 type DomainsAPI = {
   createDomain: (request: CreateDomainRequest) => Promise<CreateDomainResponse>;
   updateDomain: (request: UpdateDomainRequest) => Promise<UpdateDomainResponse>;
+  getDomain: (ref: string) => Promise<Domain>;
+  listDomains: (request: ListDomainsRequest) => Promise<ListDomainsResponse>;
+  deleteDomain: (ref: string) => Promise<void>;
 };
 
 export {
   DomainsAPI,
+  Domain,
   CreateDomainRequest,
   CreateDomainResponse,
   UpdateDomainRequest,
-  UpdateDomainResponse
+  UpdateDomainResponse,
+  GetDomainRequest,
+  DeleteDomainRequest,
+  ListDomainsRequest,
+  ListDomainsResponse
 };
