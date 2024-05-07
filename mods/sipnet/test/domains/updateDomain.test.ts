@@ -21,47 +21,12 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { TEST_TOKEN } from "../testToken";
 import { DomainsAPI } from "../../dist/domains/client";
+import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
-
-// function updateDomain(domains: DomainsAPI) {
-//   return async (
-//     call: { request: UpdateDomainRequest },
-//     callback: (error: GRPCErrors, response?: UpdateDomainResponse) => void
-//   ) => {
-//     try {
-//       const { ref, name, accessControlListRef, egressPolicies } = call.request;
-
-//       const token = getTokenFromCall(
-//         call as unknown as grpc.ServerInterceptingCall
-//       );
-
-//       const accessKeyId = getAccessKeyIdFromToken(token);
-
-//       logger.verbose("call to updateDomain", { ref, name });
-
-//       const response = await domains.updateDomain({
-//         ref,
-//         name,
-//         accessControlListRef,
-//         egressPolicies,
-//         extended: {
-//           accessKeyId
-//         }
-//       });
-
-//       callback(null, {
-//         ref: response.ref
-//       });
-//     } catch (error) {
-//       handleError(error, callback);
-//     }
-//   };
-// }
 
 describe("@sipnet[domains/updateDomain]", function () {
   afterEach(function () {
