@@ -22,7 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { DomainsAPI } from "../../dist/domains/client";
-import { getDomainHelper } from "../getDomainHelper";
+import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
@@ -42,7 +42,7 @@ describe("@sipnet[domains/createDomain]", function () {
 
     const domains = {
       createDomain: sandbox.stub().resolves({ ref: "123" }),
-      getDomain: getDomainHelper(sandbox)
+      getDomain: getExtendedFieldsHelper(sandbox)
     } as unknown as DomainsAPI;
 
     const call = {
@@ -78,7 +78,7 @@ describe("@sipnet[domains/createDomain]", function () {
         code: grpc.status.ALREADY_EXISTS,
         message: "Domain already exists"
       }),
-      getDomain: getDomainHelper(sandbox)
+      getDomain: getExtendedFieldsHelper(sandbox)
     } as unknown as DomainsAPI;
 
     const call = {

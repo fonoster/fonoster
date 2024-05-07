@@ -21,7 +21,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI } from "../../dist/domains/client";
+import { AgentsAPI, Privacy } from "../../src/agents/client";
 import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
 import { TEST_TOKEN } from "../testToken";
 
@@ -29,33 +29,38 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@sipnet[domains/listDomains]", function () {
+describe("@sipnet[agents/listAgents]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should list domains", async function () {
+  it("should list agents", async function () {
     // Arrange
-    const { listDomains } = await import("../../src/domains/listDomains");
+    const { listAgents } = await import("../../src/agents/listAgents");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
-    const domain = {
+    const agent = {
       ref: "123",
-      name: "SIP Local",
-      domainUri: "sip.local",
+      name: "John Doe",
+      username: "myagent",
+      domainRef: "123",
+      privacy: Privacy.PRIVATE,
+      enabled: true,
+      maxContacts: 10,
+      expires: 600,
       metadata: {
-        description: "test"
+        accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
       }
     };
 
-    const domains = {
-      listDomains: sandbox.stub().resolves({
-        items: [domain],
+    const agents = {
+      listAgents: sandbox.stub().resolves({
+        items: [agent],
         nextPageToken: ""
       }),
-      getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+      getAgent: getExtendedFieldsHelper(sandbox)
+    } as unknown as AgentsAPI;
 
     const call = {
       metadata,
@@ -66,18 +71,18 @@ describe("@sipnet[domains/listDomains]", function () {
     };
 
     // Act
-    await listDomains(domains)(call, (error, response) => {
+    await listAgents(agents)(call, (error, response) => {
       // Assert
       expect(error).to.be.null;
       expect(response).to.deep.equal({
-        items: [domain],
+        items: [agent],
         nextPageToken: ""
       });
     });
 
     // Assert
-    expect(domains.listDomains).to.have.been.calledOnce;
-    expect(domains.listDomains).to.have.been.calledWith({
+    expect(agents.listAgents).to.have.been.calledOnce;
+    expect(agents.listAgents).to.have.been.calledWith({
       pageSize: 10,
       pageToken: ""
     });

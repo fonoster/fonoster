@@ -21,7 +21,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI } from "../../dist/domains/client";
+import { AgentsAPI } from "../../src/agents/client";
 import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
 import { TEST_TOKEN } from "../testToken";
 
@@ -29,57 +29,36 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@sipnet[domains/listDomains]", function () {
+describe("@sipnet[agents/deleteAgent]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should list domains", async function () {
+  it("should delete a agent", async function () {
     // Arrange
-    const { listDomains } = await import("../../src/domains/listDomains");
+    const { deleteAgent } = await import("../../src/agents/deleteAgent");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
-    const domain = {
-      ref: "123",
-      name: "SIP Local",
-      domainUri: "sip.local",
-      metadata: {
-        description: "test"
-      }
-    };
-
-    const domains = {
-      listDomains: sandbox.stub().resolves({
-        items: [domain],
-        nextPageToken: ""
-      }),
-      getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+    const agents = {
+      deleteAgent: sandbox.stub().resolves({ ref: "123" }),
+      getAgent: getExtendedFieldsHelper(sandbox)
+    } as unknown as AgentsAPI;
 
     const call = {
       metadata,
       request: {
-        pageSize: 10,
-        pageToken: ""
+        ref: "123"
       }
     };
 
+    const callback = sandbox.stub();
+
     // Act
-    await listDomains(domains)(call, (error, response) => {
-      // Assert
-      expect(error).to.be.null;
-      expect(response).to.deep.equal({
-        items: [domain],
-        nextPageToken: ""
-      });
-    });
+    await deleteAgent(agents)(call, callback);
 
     // Assert
-    expect(domains.listDomains).to.have.been.calledOnce;
-    expect(domains.listDomains).to.have.been.calledWith({
-      pageSize: 10,
-      pageToken: ""
-    });
+    expect(callback).to.have.been.calledOnce;
+    expect(callback).to.have.been.calledWith(null, { ref: "123" });
   });
 });

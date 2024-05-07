@@ -22,7 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { DomainsAPI } from "../../dist/domains/client";
-import { getDomainHelper } from "../getDomainHelper";
+import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
@@ -42,7 +42,7 @@ describe("@sipnet[domains/deleteDomain]", function () {
 
     const domains = {
       deleteDomain: sandbox.stub().resolves({ ref: "123" }),
-      getDomain: getDomainHelper(sandbox)
+      getDomain: getExtendedFieldsHelper(sandbox)
     } as unknown as DomainsAPI;
 
     const call = {

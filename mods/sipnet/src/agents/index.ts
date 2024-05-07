@@ -16,15 +16,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import sinon from "sinon";
-
-function getDomainHelper(sandbox: sinon.SinonSandbox) {
-  return sandbox.stub().resolves({
-    ref: "123",
-    extended: {
-      accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
-    }
-  });
-}
-
-export { getDomainHelper };
+export { buildService as buildDomainsService } from "./buildService";

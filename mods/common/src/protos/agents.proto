@@ -1,0 +1,152 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/routr
+ *
+ * This file is part of Routr
+ *
+ * Licensed under the MIT License (the "License")
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.agents.v1beta2;
+
+// The Agents service definition
+service Agents {
+  // Create a new Agent
+  rpc CreateAgent (CreateAgentRequest) returns (CreateAgentResponse) {}
+  // Update an existing Agent
+  rpc UpdateAgent (UpdateAgentRequest) returns (UpdateAgentResponse) {}
+  // Get an existing Agent
+  rpc GetAgent (GetAgentRequest) returns (Agent) {}
+  // Delete an existing Agent
+  rpc DeleteAgent (DeleteAgentRequest) returns (DeleteAgentResponse) {}
+  // List all Agents
+  rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse) {}
+}
+
+// The message for a new Agent
+message Agent {
+  // The unique identifier of the Agent
+  string ref = 1;
+  // The name of the Agent
+  string name = 2;
+  // The username of the Agent
+  string username = 3;
+  // The privacy settings of the Agent
+  Privacy privacy = 4;
+  // The enabled status of the Agent
+  bool enabled = 5;
+  // The created_at timestamp of the Agent
+  int32 created_at = 6;
+  // The updated_at timestamp of the Agent
+  int32 updated_at = 7;
+  // The maximum number of contacts that can be created for this Agent
+  int32 max_contacts = 8;
+  // Value to override the expires requested by the Agent
+  int32 expires = 9;
+  // The domain of the Agent
+  fonoster.domains.v1beta2.Domain domain = 10;
+  // The credentials of the Agent
+  // fonoster.credentials.v1beta2.Credentials credentials = 11;
+}
+
+// The request message for Agents.CreateAgent
+message CreateAgentRequest {
+  // The name of the Agent
+  string name = 1;
+  // The username of the Agent
+  string username = 2;
+  // The privacy settings of the Agent
+  Privacy privacy = 3;
+  // The enabled status of the Agent
+  bool enabled = 4;
+  // Reference to the Domain of the Agent
+  string domain_ref = 5;
+  // Reference to the Credentials of the Agent
+  string credentials_ref = 6;
+  // The maximum number of contacts that can be created for this Agent
+  int32 max_contacts = 7;
+  // Value to override the expires requested by the Agent
+  int32 expires = 8;
+}
+
+// The response message for Agents.CreateAgent
+message CreateAgentResponse {
+  // The unique identifier of the Agent
+  string ref = 1;
+}
+
+// The request message for Agents.UpdateAgent
+message UpdateAgentRequest {
+  // The unique identifier of the Agent
+  string ref = 1;
+  // The name of the Agent
+  string name = 2;
+  // The privacy settings of the Agent
+  Privacy privacy = 3;
+  // The enabled status of the Agent
+  bool enabled = 4;
+  // Reference to the Domain of the Agent
+  string domain_ref = 5;
+  // Reference to the Credentials of the Agent
+  string credentials_ref = 6;
+  // The maximum number of contacts that can be created for this Agent
+  int32 max_contacts = 7;
+  // Value to override the expires requested by the Agent
+  int32 expires = 8;
+}
+
+// The response message for Agents.UpdateAgent
+message UpdateAgentResponse {
+  // The id of the updated Agent
+  string ref = 1;
+}
+
+// The request message for Agents.GetAgent
+message GetAgentRequest {
+  // The unique identifier of the Agent
+  string ref = 1;
+}
+
+// The request message for Agents.DeleteAgent
+message DeleteAgentRequest {
+  // The unique identifier of the Agent
+  string ref = 1;
+}
+
+// The response message for Agents.DeleteAgent
+message DeleteAgentResponse {
+  // Echo back the id of the deleted Agent
+  string ref = 1;
+}
+
+// The request message for Agents.ListAgents
+message ListAgentsRequest {
+  // The maximum number of items in the list
+  int32 page_size = 1;
+  // The next_page_token value returned from the previous request, if any
+  string page_token = 2;
+}
+
+// The response message for Agents.ListAgents
+message ListAgentsResponse {
+  // List of Agents
+  repeated Agent items = 1;
+  // Token to retrieve the next page of results, or empty if there are no more results in the list
+  string next_page_token = 2;
+}
+
+enum Privacy {
+  PRIVATE = 0;
+  NONE = 1;
+}

@@ -21,7 +21,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI } from "../../dist/domains/client";
+import { AgentsAPI, Privacy } from "../../src/agents/client";
 import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
 import { TEST_TOKEN } from "../testToken";
 
@@ -29,74 +29,86 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@sipnet[domains/updateDomain]", function () {
+describe("@sipnet[agents/createAgent]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should update a domain", async function () {
+  it("should create an agent", async function () {
     // Arrange
-    const { updateDomain } = await import("../../src/domains/updateDomain");
+    const { createAgent } = await import("../../src/agents/createAgent");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
-    const domains = {
-      updateDomain: sandbox.stub().resolves({ ref: "123" }),
-      getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+    const agents = {
+      createAgent: sandbox.stub().resolves({ ref: "123" }),
+      getAgent: getExtendedFieldsHelper(sandbox)
+    } as unknown as AgentsAPI;
 
     const call = {
       metadata,
       request: {
-        ref: "123",
-        name: "My Domain",
-        accessControlListRef: "123",
-        egressPolicies: []
+        name: "John Doe",
+        username: "myagent",
+        domainRef: "123",
+        privacy: Privacy.PRIVATE,
+        enabled: true,
+        maxContacts: 10,
+        expires: 600,
+        extended: {
+          accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
+        }
       }
     };
 
     const callback = sandbox.stub();
 
     // Act
-    await updateDomain(domains)(call, callback);
+    await createAgent(agents)(call, callback);
 
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
   });
 
-  it("should throw an error if the domain doesn't exists", async function () {
+  it("should throw an error if the agent already exists", async function () {
     // Arrange
-    const { updateDomain } = await import("../../src/domains/updateDomain");
+    const { createAgent } = await import("../../src/agents/createAgent");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
-    const domains = {
-      updateDomain: sandbox.stub().throws({
-        code: grpc.status.NOT_FOUND,
-        message: "Domain not found"
+    const agents = {
+      createAgent: sandbox.stub().throws({
+        code: grpc.status.ALREADY_EXISTS,
+        message: "Domain already exists"
       }),
-      getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+      getAgent: getExtendedFieldsHelper(sandbox)
+    } as unknown as AgentsAPI;
 
     const call = {
       metadata,
       request: {
-        ref: "123",
-        name: "My Domain",
-        accessControlListRef: "123",
-        egressPolicies: []
+        name: "John Doe",
+        username: "myagent",
+        domainRef: "123",
+        privacy: Privacy.PRIVATE,
+        enabled: true,
+        maxContacts: 10,
+        expires: 600,
+        extended: {
+          accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
+        }
       }
     };
 
     const callback = sandbox.stub();
 
     // Act
-    await updateDomain(domains)(call, callback);
+    await createAgent(agents)(call, callback);
 
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly({
-      code: grpc.status.NOT_FOUND,
-      message: "The requested resource was not found"
+      code: grpc.status.ALREADY_EXISTS,
+      message: "Duplicated resource"
     });
   });
 });
