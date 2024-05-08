@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createInterceptingCall } from "@fonoster/common";
 import { ServerInterceptingCall, status } from "@grpc/grpc-js";
-import createInterceptingCall from "./utils";
 
 const unauthenticatedError = (call: ServerInterceptingCall) =>
   createInterceptingCall({

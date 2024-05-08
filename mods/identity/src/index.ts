@@ -24,3 +24,4 @@ export * from "./users";
 export * from "./groups";
 export * from "./utils";
 export * from "./service";
+export * from "./createAuthInterceptor";

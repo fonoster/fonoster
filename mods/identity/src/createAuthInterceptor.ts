@@ -16,24 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getLogger } from "@fonoster/logger";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { permissionDeniedError, unauthenticatedError } from "./errors";
+import { Access, TokenUseEnum } from "./exchanges";
 import {
-  Access,
-  TokenUseEnum,
   decodeToken,
   getAccessKeyIdFromCall,
   getTokenFromCall,
   hasAccess,
   isValidToken,
   tokenHasAccessKeyId
-} from "@fonoster/identity";
-import { getLogger } from "@fonoster/logger";
-import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { permissionDeniedError, unauthenticatedError } from "./errors";
-import { IDENTITY_PUBLIC_KEY } from "../envs";
+} from "./utils";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
-
-// FIXME: Move this interceptor to the identity package
+const logger = getLogger({ service: "identity", filePath: __filename });
 
 /**
  * This function is a gRPC interceptor that checks if the request is valid
@@ -41,10 +37,14 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
  * validating the request, the function will check if the request is in the
  * skip list, if the token is valid and if the role is allowed by the RBAC.
  *
+ * @param {string} identityPublicKey - The public key to validate the token
  * @param {string[]} publicPath - The list of public paths
  * @return {Function} - The gRPC interceptor
  */
-function createAuthInterceptor(publicPath: string[] = []) {
+function createAuthInterceptor(
+  identityPublicKey: string,
+  publicPath: string[]
+) {
   /**
    * Inner function that will be called by the gRPC server.
    *
@@ -69,7 +69,7 @@ function createAuthInterceptor(publicPath: string[] = []) {
 
     logger.verbose("validating token", { accessKeyId, path });
 
-    if (!isValidToken(token, IDENTITY_PUBLIC_KEY)) {
+    if (!isValidToken(token, identityPublicKey)) {
       return unauthenticatedError(call);
     }
 
@@ -91,4 +91,4 @@ function createAuthInterceptor(publicPath: string[] = []) {
   };
 }
 
-export default createAuthInterceptor;
+export { createAuthInterceptor };

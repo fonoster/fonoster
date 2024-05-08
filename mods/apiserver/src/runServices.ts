@@ -16,22 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createAuthInterceptor } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
 import {
   APISERVER_BIND_ADDR,
   GRPC_NOT_SERVING_STATUS,
-  GRPC_SERVING_STATUS
+  GRPC_SERVING_STATUS,
+  IDENTITY_PUBLIC_KEY
 } from "./envs";
-import authInterceptor from "./interceptors/createAuthInterceptor";
 import loadServices from "./loadServices";
 import services from "./services";
 import getServerCredentials from "./utils/getServerCredentials";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const authorization = authInterceptor([
+const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, [
   "/fonos.health.v1.Health/Check",
   // TODO: This should be rate limited to avoid account spamming
   "/fonoster.identity.v1beta2.Identity/CreateUser",
