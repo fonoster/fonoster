@@ -21,29 +21,30 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { AgentsAPI } from "../../src/agents/client";
-import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
-import { TEST_TOKEN } from "../testToken";
+import { getExtendedFieldsHelper } from "./getExtendedFieldsHelper";
+import { TEST_TOKEN } from "./testToken";
+import { DomainsAPI } from "../src/domains/client";
+import { DeleteDomainRequest, Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@sipnet[agents/deleteAgent]", function () {
+describe("@sipnet[resources/deleteResource]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should delete a agent", async function () {
+  it("should delete a sipnet resource", async function () {
     // Arrange
-    const { deleteAgent } = await import("../../src/agents/deleteAgent");
+    const { deleteResource } = await import("../src/resources/deleteResource");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
-    const agents = {
-      deleteAgent: sandbox.stub().resolves({ ref: "123" }),
-      getAgent: getExtendedFieldsHelper(sandbox)
-    } as unknown as AgentsAPI;
+    const domains = {
+      deleteDomain: sandbox.stub().resolves({ ref: "123" }),
+      getDomain: getExtendedFieldsHelper(sandbox)
+    } as unknown as DomainsAPI;
 
     const call = {
       metadata,
@@ -53,9 +54,13 @@ describe("@sipnet[agents/deleteAgent]", function () {
     };
 
     const callback = sandbox.stub();
+    const deleteD = deleteResource<Domain, DeleteDomainRequest, DomainsAPI>(
+      domains,
+      "Domain"
+    );
 
     // Act
-    await deleteAgent(agents)(call, callback);
+    await deleteD(call, callback);
 
     // Assert
     expect(callback).to.have.been.calledOnce;

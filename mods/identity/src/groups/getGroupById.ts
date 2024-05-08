@@ -18,8 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { status } from "@grpc/grpc-js";
-import * as grpc from "@grpc/grpc-js";
+import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
@@ -45,9 +44,7 @@ function getGroupById(prisma: Prisma) {
   ) => {
     try {
       const { id } = call.request;
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const ownerId = getUserIdFromToken(token);
 
       logger.verbose("getting group by id", { id, ownerId });
@@ -60,7 +57,7 @@ function getGroupById(prisma: Prisma) {
       });
 
       if (!group) {
-        callback({ code: status.NOT_FOUND, message: "Group not found" });
+        callback({ code: GRPCStatus.NOT_FOUND, message: "Group not found" });
         return;
       }
 

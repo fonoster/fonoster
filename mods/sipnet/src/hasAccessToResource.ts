@@ -22,7 +22,7 @@ import {
   decodeToken,
   getTokenFromCall
 } from "@fonoster/identity";
-import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { JsonObject } from "@prisma/client/runtime/library";
 
 async function hasAccessToResource(
@@ -32,11 +32,11 @@ async function hasAccessToResource(
   const { request } = call as { request: { ref: string } };
   const { extended } = await getFn(request.ref);
 
-  const token = getTokenFromCall(call as grpc.ServerInterceptingCall);
+  const token = getTokenFromCall(call as ServerInterceptingCall);
   const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token);
   const accessKeyIds = decodedToken.access?.map((a: Access) => a.accessKeyId);
 
-  return accessKeyIds.includes(extended?.accessKeyId?.toString());
+  return accessKeyIds.includes(extended?.accessKeyId as string);
 }
 
 export { hasAccessToResource };

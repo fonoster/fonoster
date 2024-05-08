@@ -18,7 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
+import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { createSendEmail } from "./createSendEmail";
@@ -53,12 +53,12 @@ type CreateGroupResponse = {
 };
 
 const userIsMemberError = {
-  code: grpc.status.ALREADY_EXISTS,
+  code: GRPCStatus.ALREADY_EXISTS,
   message: "User is already a member of this group"
 };
 
 const inviterIsNotAdminError = {
-  code: grpc.status.PERMISSION_DENIED,
+  code: GRPCStatus.PERMISSION_DENIED,
   message: "Only admins or owners can invite users to a group"
 };
 
@@ -100,9 +100,7 @@ function inviteUserToGroup(
     callback: (error: GRPCErrors, response?: CreateGroupResponse) => void
   ) => {
     try {
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const inviterId = getUserIdFromToken(token);
 
       const { groupId, email, name, role } =

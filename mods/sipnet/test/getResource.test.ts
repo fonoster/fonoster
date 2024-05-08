@@ -16,85 +16,96 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DomainsAPI } from "@fonoster/sipnet/dist/domains/client";
+import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI } from "../../dist/domains/client";
-import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
-import { TEST_TOKEN } from "../testToken";
+import { GetDomainRequest } from "../src/domains/client";
+import { Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@sipnet[domains/updateDomain]", function () {
+describe("@sipnet[resources/getResource]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should update a domain", async function () {
+  it("should get a sipnet resource", async function () {
     // Arrange
-    const { updateDomain } = await import("../../src/domains/updateDomain");
+    const { getResource } = await import("../src/resources/getResource");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
+    const domain = {
+      ref: "123",
+      name: "SIP Local",
+      domainUri: "sip.local",
+      extended: {
+        accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
+      }
+    };
+
     const domains = {
-      updateDomain: sandbox.stub().resolves({ ref: "123" }),
-      getDomain: getExtendedFieldsHelper(sandbox)
+      getDomain: sandbox.stub().resolves(domain)
     } as unknown as DomainsAPI;
 
     const call = {
       metadata,
       request: {
-        ref: "123",
-        name: "My Domain",
-        accessControlListRef: "123",
-        egressPolicies: []
+        ref: "123"
       }
     };
 
-    const callback = sandbox.stub();
+    const get = getResource<Domain, GetDomainRequest, DomainsAPI>(
+      domains,
+      "Domain"
+    );
 
     // Act
-    await updateDomain(domains)(call, callback);
-
-    // Assert
-    expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
+    await get(call, (error, response) => {
+      // Assert
+      expect(error).to.be.null;
+      expect(response).to.deep.equal(domain);
+    });
   });
 
-  it("should throw an error if the domain doesn't exists", async function () {
+  it("should throw an error if sipnet resource not found", async function () {
     // Arrange
-    const { updateDomain } = await import("../../src/domains/updateDomain");
+    const { getResource } = await import("../src/resources/getResource");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
     const domains = {
-      updateDomain: sandbox.stub().throws({
+      getDomain: sandbox.stub().throws({
         code: grpc.status.NOT_FOUND,
         message: "Domain not found"
-      }),
-      getDomain: getExtendedFieldsHelper(sandbox)
+      })
     } as unknown as DomainsAPI;
 
     const call = {
       metadata,
       request: {
-        ref: "123",
-        name: "My Domain",
-        accessControlListRef: "123",
-        egressPolicies: []
+        ref: "123"
       }
     };
 
     const callback = sandbox.stub();
+    const get = getResource<Domain, GetDomainRequest, DomainsAPI>(
+      domains,
+      "Domain"
+    );
 
     // Act
-    await updateDomain(domains)(call, callback);
+    await get(call, callback);
 
     // Assert
-    expect(callback).to.have.been.calledOnceWithExactly({
+    expect(callback).to.have.been.calledOnce;
+    expect(callback).to.have.been.calledWithMatch({
       code: grpc.status.NOT_FOUND,
       message: "The requested resource was not found"
     });

@@ -18,7 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromToken } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
@@ -40,9 +40,7 @@ function deleteUser(prisma: Prisma) {
   ) => {
     try {
       const { id } = call.request;
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const accessKeyId = getAccessKeyIdFromToken(token);
 
       logger.verbose("deleting user by id", { id, accessKeyId });

@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as grpc from "@grpc/grpc-js";
+import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 
 function createInterceptingCall(params: {
-  call: grpc.ServerInterceptingCall;
-  code: grpc.status;
+  call: ServerInterceptingCall;
+  code: GRPCStatus;
   details: string;
 }) {
   const { call, code, details } = params;

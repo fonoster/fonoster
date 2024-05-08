@@ -16,20 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import createInterceptingCall from "./utils";
 
-const unauthenticatedError = (call: grpc.ServerInterceptingCall) =>
+const unauthenticatedError = (call: ServerInterceptingCall) =>
   createInterceptingCall({
     call,
-    code: grpc.status.UNAUTHENTICATED,
+    code: status.UNAUTHENTICATED,
     details: "Invalid or expired token"
   });
 
-const permissionDeniedError = (call: grpc.ServerInterceptingCall) =>
+const permissionDeniedError = (call: ServerInterceptingCall) =>
   createInterceptingCall({
     call,
-    code: grpc.status.PERMISSION_DENIED,
+    code: status.PERMISSION_DENIED,
     details: "Permission denied"
   });
 

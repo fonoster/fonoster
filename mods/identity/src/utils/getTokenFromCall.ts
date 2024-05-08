@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as grpc from "@grpc/grpc-js";
+import { Metadata, ServerInterceptingCall } from "@grpc/grpc-js";
 
-function getTokenFromCall(call: grpc.ServerInterceptingCall) {
+function getTokenFromCall(call: ServerInterceptingCall) {
   const metadata = (
-    call as unknown as { metadata: grpc.Metadata }
+    call as unknown as { metadata: Metadata }
   ).metadata.getMap();
 
   return metadata["token"]?.toString();

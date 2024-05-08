@@ -16,20 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
-import { AgentsAPI, GetAgentRequest } from "./client";
-import { withAccess } from "../withAccess";
+import { Metadata, ServerInterceptingCall } from "@grpc/grpc-js";
 
-const logger = getLogger({ service: "sipnet", filePath: __filename });
+function getAccessKeyIdFromCall(call: ServerInterceptingCall) {
+  const metadata = (
+    call as unknown as { metadata: Metadata }
+  ).metadata.getMap();
 
-function getAgent(agents: AgentsAPI) {
-  return withAccess(async (call: { request: GetAgentRequest }) => {
-    const { ref } = call.request;
-
-    logger.verbose("call to getAgent", { ref });
-
-    return agents.getAgent(ref);
-  }, agents.getAgent);
+  return metadata["accesskeyid"]?.toString();
 }
 
-export { getAgent };
+export { getAccessKeyIdFromCall };

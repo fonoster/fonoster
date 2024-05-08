@@ -17,20 +17,23 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { AgentsAPI } from "./client";
-import { ListAgentsRequest } from "./types";
 import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function listAgents(agents: AgentsAPI) {
-  return withAccess(async (call: { request: ListAgentsRequest }) => {
-    const { request } = call;
+function updateResource<T, R, U>(api: U, resource: string) {
+  return withAccess(
+    async (call: { request: R }): Promise<T> => {
+      const { request } = call;
 
-    logger.verbose("call to listAgents", { request });
+      logger.verbose(`call to update${resource}`, { request });
 
-    return await agents.listAgents(request);
-  }, agents.getAgent);
+      return await api[`update${resource}`]({
+        ...request
+      });
+    },
+    (ref: string) => api[`get${resource}`](ref)
+  );
 }
 
-export { listAgents };
+export { updateResource };

@@ -16,27 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DomainsAPI } from "@fonoster/sipnet/dist/domains/client";
+import { getExtendedFieldsHelper } from "@fonoster/sipnet/test/getExtendedFieldsHelper";
+import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI } from "../../dist/domains/client";
-import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
-import { TEST_TOKEN } from "../testToken";
+import { ListDomainsRequest } from "../src/domains/client";
+import { Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@sipnet[domains/listDomains]", function () {
+describe("@sipnet[resources/listResources]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should list domains", async function () {
+  it("should list sipnet resources", async function () {
     // Arrange
-    const { listDomains } = await import("../../src/domains/listDomains");
+    const { listResources } = await import("../src/resources/listResources");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
@@ -65,8 +67,13 @@ describe("@sipnet[domains/listDomains]", function () {
       }
     };
 
+    const list = listResources<Domain, ListDomainsRequest, DomainsAPI>(
+      domains,
+      "Domain"
+    );
+
     // Act
-    await listDomains(domains)(call, (error, response) => {
+    await list(call, (error, response) => {
       // Assert
       expect(error).to.be.null;
       expect(response).to.deep.equal({

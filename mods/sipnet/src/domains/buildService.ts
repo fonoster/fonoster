@@ -17,11 +17,13 @@
  * limitations under the License.
  */
 import SDK from "@routr/sdk";
-import { createDomain } from "./createDomain";
-import { deleteDomain } from "./deleteDomain";
-import { getDomain } from "./getDomain";
-import { listDomains } from "./listDomains";
-import { updateDomain } from "./updateDomain";
+import {
+  createDomain,
+  deleteDomain,
+  getDomain,
+  listDomains,
+  updateDomain
+} from "./operations";
 import { ClientOptions } from "../types";
 
 function buildService(clientOptions: ClientOptions) {

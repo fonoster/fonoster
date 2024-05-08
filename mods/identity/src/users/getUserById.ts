@@ -18,8 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { status } from "@grpc/grpc-js";
-import * as grpc from "@grpc/grpc-js";
+import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromToken } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
@@ -46,9 +45,7 @@ function getUserById(prisma: Prisma) {
   ) => {
     try {
       const { id } = call.request;
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const accessKeyId = getAccessKeyIdFromToken(token);
 
       logger.verbose("getting user by id", { id, accessKeyId });
@@ -61,7 +58,7 @@ function getUserById(prisma: Prisma) {
       });
 
       if (!user) {
-        callback({ code: status.NOT_FOUND, message: "User not found" });
+        callback({ code: GRPCStatus.NOT_FOUND, message: "User not found" });
         return;
       }
 

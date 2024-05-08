@@ -18,8 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { status } from "@grpc/grpc-js";
-import * as grpc from "@grpc/grpc-js";
+import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
@@ -47,9 +46,7 @@ function removeUserFromGroup(prisma: Prisma) {
   ) => {
     try {
       const { groupId, userId } = call.request;
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const userIdFromToken = getUserIdFromToken(token);
 
       logger.debug("removing user from group", { groupId, userId });
@@ -58,7 +55,7 @@ function removeUserFromGroup(prisma: Prisma) {
 
       if (!isAdmin && userIdFromToken !== userId) {
         return callback({
-          code: status.PERMISSION_DENIED,
+          code: GRPCStatus.PERMISSION_DENIED,
           message: "Only admins or owners can remove users from a group"
         });
       }
@@ -72,7 +69,7 @@ function removeUserFromGroup(prisma: Prisma) {
 
       if (!memberId) {
         return callback({
-          code: status.NOT_FOUND,
+          code: GRPCStatus.NOT_FOUND,
           message: "User not found in group"
         });
       }

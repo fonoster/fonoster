@@ -18,7 +18,7 @@
  */
 import { GRPCErrors } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { TokenUseEnum } from "../exchanges";
 import { decodeToken } from "../utils";
@@ -26,8 +26,6 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-type ListGroupsRequest = unknown;
 
 type Group = {
   id: string;
@@ -43,12 +41,10 @@ type ListGroupsResponse = {
 
 function listGroups(prisma: Prisma) {
   return async (
-    call: { request: ListGroupsRequest },
+    call: { request: unknown },
     callback: (error: GRPCErrors, response?: ListGroupsResponse) => void
   ) => {
-    const token = getTokenFromCall(
-      call as unknown as grpc.ServerInterceptingCall
-    );
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const userId = getUserIdFromToken(token);
     const access = decodeToken<TokenUseEnum.ACCESS>(token);
     const groupsAccessKeyIds = access.access?.map((a) => a.accessKeyId);

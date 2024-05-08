@@ -16,21 +16,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GRPCErrors, handleError } from "@fonoster/common";
+import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { DomainsAPI } from "./client";
-import { ListDomainsRequest } from "./types";
-import { withAccess } from "../withAccess";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function listDomains(domains: DomainsAPI) {
-  return withAccess(async (call: { request: ListDomainsRequest }) => {
+function createResource<T, R, U>(api: U, resource: string) {
+  return async (
+    call: { request: R },
+    callback: (error?: GRPCErrors, response?: T) => void
+  ) => {
     const { request } = call;
 
-    logger.verbose("call to listDomains", { request });
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-    return await domains.listDomains(request);
-  }, domains.getDomain);
+    logger.verbose(`call to create${resource}`, { request });
+
+    try {
+      const response = await api[`create${resource}`]({
+        ...request,
+        extended: {
+          accessKeyId
+        }
+      });
+
+      callback(null, response);
+    } catch (e) {
+      handleError(e, callback);
+    }
+  };
 }
 
-export { listDomains };
+export { createResource };

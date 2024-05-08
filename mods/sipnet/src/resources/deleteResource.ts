@@ -16,37 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getAccessKeyIdFromToken, getTokenFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
-import { DomainsAPI } from "./client";
-import { UpdateDomainRequest } from "./types";
 import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function updateDomain(domains: DomainsAPI) {
-  return withAccess(async (call: { request: UpdateDomainRequest }) => {
-    const { ref, name, accessControlListRef, egressPolicies } = call.request;
+function deleteResource<T, R, U>(api: U, resource: string) {
+  return withAccess(
+    async (call: { request: R }): Promise<T> => {
+      const { request } = call;
 
-    const token = getTokenFromCall(
-      call as unknown as grpc.ServerInterceptingCall
-    );
+      logger.verbose(`call to delete${resource}`, { request });
 
-    const accessKeyId = getAccessKeyIdFromToken(token);
-
-    logger.verbose("call to updateDomain", { ref, name });
-
-    return await domains.updateDomain({
-      ref,
-      name,
-      accessControlListRef,
-      egressPolicies,
-      extended: {
-        accessKeyId
-      }
-    });
-  }, domains.getDomain);
+      return await api[`delete${resource}`](request);
+    },
+    (ref: string) => api[`get${resource}`](ref)
+  );
 }
 
-export { updateDomain };
+export { deleteResource };

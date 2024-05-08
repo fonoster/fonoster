@@ -52,7 +52,7 @@ function handleError(
     logger.error("missing foreign key error:", { message });
     callback({ code: status.FAILED_PRECONDITION, message });
   } else {
-    logger.error("error creating resource:", error);
+    logger.error("unknown error:", error);
     callback({ code: status.UNKNOWN, message: "Unknown error" });
   }
 }

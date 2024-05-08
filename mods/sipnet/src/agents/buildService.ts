@@ -17,11 +17,13 @@
  * limitations under the License.
  */
 import SDK from "@routr/sdk";
-import { createAgent } from "./createAgent";
-import { deleteAgent } from "./deleteAgent";
-import { getAgent } from "./getAgent";
-import { listAgents } from "./listAgents";
-import { updateAgent } from "./updateAgent";
+import {
+  createAgent,
+  deleteAgent,
+  getAgent,
+  listAgents,
+  updateAgent
+} from "./operations";
 import { ClientOptions } from "../types";
 
 function buildService(clientOptions: ClientOptions) {

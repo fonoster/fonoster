@@ -18,7 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
+import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { isGroupMember } from "./isGroupMember";
 import { Prisma } from "../db";
@@ -45,9 +45,7 @@ function updateGroup(prisma: Prisma) {
   ) => {
     try {
       const validatedRequest = UpdateGroupRequestSchema.parse(call.request);
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const userId = getUserIdFromToken(token);
       const { id, name } = validatedRequest;
 
@@ -57,7 +55,7 @@ function updateGroup(prisma: Prisma) {
 
       if (!isMember) {
         callback({
-          code: grpc.status.PERMISSION_DENIED,
+          code: GRPCStatus.PERMISSION_DENIED,
           message: "User is not a member of the group"
         });
       }

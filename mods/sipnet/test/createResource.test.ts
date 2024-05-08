@@ -21,66 +21,78 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { AgentsAPI } from "../../dist/agents/client";
-import { getExtendedFieldsHelper } from "../getExtendedFieldsHelper";
-import { TEST_TOKEN } from "../testToken";
+import { getExtendedFieldsHelper } from "./getExtendedFieldsHelper";
+import { TEST_TOKEN } from "./testToken";
+import { DomainsAPI } from "../dist/domains/client";
+import { Domain } from "../src/domains/client";
+import { CreateDomainRequest } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@sipnet[agents/updateAgent]", function () {
+describe("@sipnet[resources/createResource]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should update an agent", async function () {
+  it("should create a sipnet resource", async function () {
     // Arrange
-    const { updateAgent } = await import("../../src/agents/updateAgent");
+    const { createResource } = await import("../src/resources/createResource");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
-    const agents = {
-      updateAgent: sandbox.stub().resolves({ ref: "123" }),
-      getAgent: getExtendedFieldsHelper(sandbox)
-    } as unknown as AgentsAPI;
+    const domains = {
+      createDomain: sandbox.stub().resolves({ ref: "123" }),
+      getDomain: getExtendedFieldsHelper(sandbox)
+    } as unknown as DomainsAPI;
 
     const call = {
       metadata,
       request: {
-        ref: "123",
-        name: "Jane Doe"
+        name: "My Domain",
+        domainUri: "sip.local",
+        accessControlListRef: "123",
+        egressPolicies: [],
+        extended: {
+          accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
+        }
       }
     };
 
     const callback = sandbox.stub();
 
+    const create = createResource<Domain, CreateDomainRequest, DomainsAPI>(
+      domains,
+      "Domain"
+    );
+
     // Act
-    await updateAgent(agents)(call, callback);
+    await create(call, callback);
 
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
   });
 
-  it("should throw an error if the agent doesn't exists", async function () {
+  it("should throw an error if the sipnet resource already exists", async function () {
     // Arrange
-    const { updateAgent } = await import("../../src/agents/updateAgent");
+    const { createResource } = await import("../src/resources/createResource");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
 
-    const agents = {
-      updateAgent: sandbox.stub().throws({
-        code: grpc.status.NOT_FOUND,
-        message: "Domain not found"
+    const domains = {
+      createDomain: sandbox.stub().throws({
+        code: grpc.status.ALREADY_EXISTS,
+        message: "Domain already exists"
       }),
-      getAgent: getExtendedFieldsHelper(sandbox)
-    } as unknown as AgentsAPI;
+      getDomain: getExtendedFieldsHelper(sandbox)
+    } as unknown as DomainsAPI;
 
     const call = {
       metadata,
       request: {
-        ref: "123",
         name: "My Domain",
+        domainUri: "sip.local",
         accessControlListRef: "123",
         egressPolicies: []
       }
@@ -88,13 +100,18 @@ describe("@sipnet[agents/updateAgent]", function () {
 
     const callback = sandbox.stub();
 
+    const create = createResource<Domain, CreateDomainRequest, DomainsAPI>(
+      domains,
+      "Domain"
+    );
+
     // Act
-    await updateAgent(agents)(call, callback);
+    await create(call, callback);
 
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly({
-      code: grpc.status.NOT_FOUND,
-      message: "The requested resource was not found"
+      code: grpc.status.ALREADY_EXISTS,
+      message: "Duplicated resource"
     });
   });
 });

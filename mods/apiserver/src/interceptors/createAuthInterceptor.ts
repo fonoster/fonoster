@@ -20,16 +20,20 @@ import {
   Access,
   TokenUseEnum,
   decodeToken,
+  getAccessKeyIdFromCall,
   getTokenFromCall,
   hasAccess,
-  isValidToken
+  isValidToken,
+  tokenHasAccessKeyId
 } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { permissionDeniedError, unauthenticatedError } from "./errors";
 import { IDENTITY_PUBLIC_KEY } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
+
+// FIXME: Move this interceptor to the identity package
 
 /**
  * This function is a gRPC interceptor that checks if the request is valid
@@ -46,16 +50,15 @@ function createAuthInterceptor(publicPath: string[] = []) {
    *
    * @param {object} methodDefinition - The method definition
    * @param {string} methodDefinition.path - The path of the gRPC method
-   * @param {grpc.ServerInterceptingCall} call - The call object
-   * @return {grpc.ServerInterceptingCall} - The modified call object
+   * @param {ServerInterceptingCall} call - The call object
+   * @return {ServerInterceptingCall} - The modified call object
    */
-  return (
-    methodDefinition: { path: string },
-    call: grpc.ServerInterceptingCall
-  ) => {
+  return (methodDefinition: { path: string }, call: ServerInterceptingCall) => {
     const { path } = methodDefinition;
 
-    logger.verbose("intercepting api call", { path });
+    const accessKeyId = getAccessKeyIdFromCall(call);
+
+    logger.verbose("intercepting api call to path", { accessKeyId, path });
 
     if (publicPath.includes(methodDefinition.path)) {
       logger.verbose("skipping auth for public path", { path });
@@ -63,6 +66,8 @@ function createAuthInterceptor(publicPath: string[] = []) {
     }
 
     const token = getTokenFromCall(call);
+
+    logger.verbose("validating token", { accessKeyId, path });
 
     if (!isValidToken(token, IDENTITY_PUBLIC_KEY)) {
       return unauthenticatedError(call);
@@ -73,7 +78,12 @@ function createAuthInterceptor(publicPath: string[] = []) {
       accessKeyId: string;
     };
 
-    if (!hasAccess(decodedToken.access, path)) {
+    logger.verbose("checking access for accessKeyId", { accessKeyId, path });
+
+    if (
+      !hasAccess(decodedToken.access, path) ||
+      !tokenHasAccessKeyId(token, accessKeyId)
+    ) {
       return permissionDeniedError(call);
     }
 

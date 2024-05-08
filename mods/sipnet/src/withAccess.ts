@@ -18,6 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { JsonObject } from "@prisma/client/runtime/library";
 import { hasAccessToResource } from "./hasAccessToResource";
 
@@ -30,7 +31,7 @@ function withAccess<T, A>(
     callback: (error?: GRPCErrors, response?: A) => void
   ) => {
     try {
-      const typedCall = call as unknown as grpc.ServerInterceptingCall;
+      const typedCall = call as unknown as ServerInterceptingCall;
       const hasAccess = await hasAccessToResource(typedCall, getFn);
 
       if (!hasAccess) {

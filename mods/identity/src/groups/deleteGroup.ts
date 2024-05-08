@@ -18,7 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
@@ -40,9 +40,8 @@ function deleteGroup(prisma: Prisma) {
   ) => {
     try {
       const { id } = call.request;
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const ownerId = getUserIdFromToken(token);
 
       logger.verbose("deleting group by id", { id, ownerId });

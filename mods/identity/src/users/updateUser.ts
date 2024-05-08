@@ -18,7 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromToken } from "../utils";
@@ -46,9 +46,7 @@ function updateUser(prisma: Prisma) {
   ) => {
     try {
       const validatedRequest = UpdateUserRequestSchema.parse(call.request);
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const accessKeyId = getAccessKeyIdFromToken(token);
       const { id, name, avatar, password } = validatedRequest;
 

@@ -18,7 +18,7 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import * as grpc from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { Prisma } from "../db";
 import {
@@ -48,9 +48,7 @@ function createGroup(prisma: Prisma) {
     try {
       const validatedRequest = CreateGroupRequestSchema.parse(call.request);
 
-      const token = getTokenFromCall(
-        call as unknown as grpc.ServerInterceptingCall
-      );
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const ownerId = getUserIdFromToken(token);
 
       const { name } = validatedRequest;

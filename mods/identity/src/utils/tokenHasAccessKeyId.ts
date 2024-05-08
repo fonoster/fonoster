@@ -16,22 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
-import { DeleteDomainRequest, DomainsAPI } from "./client";
-import { withAccess } from "../withAccess";
+import { decodeToken } from "./decodeToken";
+import { Access, TokenUseEnum } from "../exchanges";
 
-const logger = getLogger({ service: "sipnet", filePath: __filename });
-
-function deleteDomain(domains: DomainsAPI) {
-  return withAccess(async (call: { request: DeleteDomainRequest }) => {
-    const { ref } = call.request;
-
-    logger.verbose("call to deleteDomain", { ref });
-
-    await domains.deleteDomain(ref);
-
-    return { ref };
-  }, domains.getDomain);
+function tokenHasAccessKeyId(token: string, accessKeyId: string) {
+  const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token);
+  const accessKeyIds = decodedToken.access?.map((a: Access) => a.accessKeyId);
+  return accessKeyIds.includes(accessKeyId);
 }
 
-export { deleteDomain };
+export { tokenHasAccessKeyId };

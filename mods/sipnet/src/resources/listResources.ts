@@ -16,20 +16,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { DomainsAPI, GetDomainRequest } from "./client";
-import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function getDomain(domains: DomainsAPI) {
-  return withAccess(async (call: { request: GetDomainRequest }) => {
-    const { ref } = call.request;
+type ListResourcesResponse<T> = {
+  nextPageToken?: string;
+  items: T[];
+};
 
-    logger.verbose("call to getDomain", { ref });
+function listResources<T, R, U>(api: U, resource: string) {
+  return async (
+    call: { request: R },
+    callback: (error?: GRPCErrors, response?: ListResourcesResponse<T>) => void
+  ) => {
+    const { request } = call;
 
-    return domains.getDomain(ref);
-  }, domains.getDomain);
+    logger.verbose(`call to list${resource}s`, { request });
+
+    try {
+      const response = await api[`list${resource}s`](request);
+      callback(null, response);
+    } catch (e) {
+      handleError(e, callback);
+    }
+  };
 }
 
-export { getDomain };
+export { listResources };

@@ -17,21 +17,21 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { AgentsAPI, DeleteAgentRequest } from "./client";
 import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function deleteAgent(agents: AgentsAPI) {
-  return withAccess(async (call: { request: DeleteAgentRequest }) => {
-    const { ref } = call.request;
+function getResource<T, R, U>(api: U, resource: string) {
+  return withAccess(
+    async (call: { request: R }): Promise<T> => {
+      const { request } = call as { request: { ref: string } };
 
-    logger.verbose("call to deleteAgent", { ref });
+      logger.verbose(`call to get${resource}`, { request, resource });
 
-    await agents.deleteAgent(ref);
-
-    return { ref };
-  }, agents.getAgent);
+      return await api[`get${resource}`](request.ref);
+    },
+    (ref: string) => api[`get${resource}`](ref)
+  );
 }
 
-export { deleteAgent };
+export { getResource };

@@ -28,7 +28,7 @@ type UpdateDomainRequest = Omit<RTypes.UpdateDomainRequest, "extended">;
 
 type UpdateDomainResponse = RTypes.UpdateDomainResponse;
 
-type GetDomainByRefRequest = RTypes.GetDomainRequest;
+type GetDomainRequest = RTypes.GetDomainRequest;
 
 type ListDomainsRequest = RTypes.ListDomainsRequest;
 
@@ -46,7 +46,7 @@ export type {
   CreateDomainResponse,
   UpdateDomainRequest,
   UpdateDomainResponse,
-  GetDomainByRefRequest,
+  GetDomainRequest,
   ListDomainsRequest,
   ListDomainsResponse,
   DeleteDomainRequest,

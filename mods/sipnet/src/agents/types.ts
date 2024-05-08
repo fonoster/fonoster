@@ -28,7 +28,7 @@ type UpdateAgentRequest = Omit<RTypes.UpdateAgentRequest, "extended">;
 
 type UpdateAgentResponse = RTypes.UpdateAgentResponse;
 
-type GetAgentByRefRequest = RTypes.GetAgentRequest;
+type GetAgentRequest = RTypes.GetAgentRequest;
 
 type ListAgentsRequest = RTypes.ListAgentsRequest;
 
@@ -46,7 +46,7 @@ export type {
   CreateAgentResponse,
   UpdateAgentRequest,
   UpdateAgentResponse,
-  GetAgentByRefRequest,
+  GetAgentRequest,
   ListAgentsRequest,
   ListAgentsResponse,
   DeleteAgentRequest,
