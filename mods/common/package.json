@@ -18,7 +18,7 @@
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.5.5",
+    "@fonoster/logger": "^0.6.0",
     "@grpc/grpc-js": "^1.10.6",
     "@grpc/proto-loader": "^0.7.12",
     "handlebars": "^4.7.8",
