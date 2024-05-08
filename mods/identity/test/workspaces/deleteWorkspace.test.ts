@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[groups/deleteGroup]", function () {
+describe("@identity[workspaces/deleteWorkspace]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should delete a group by id", async function () {
+  it("should delete a workspace by id", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -46,16 +46,18 @@ describe("@identity[groups/deleteGroup]", function () {
     };
 
     const prisma = {
-      group: {
+      workspace: {
         delete: sandbox.stub().resolves()
       }
     } as unknown as Prisma;
 
-    const { deleteGroup } = await import("../../src/groups/deleteGroup");
+    const { deleteWorkspace } = await import(
+      "../../src/workspaces/deleteWorkspace"
+    );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      deleteGroup(prisma)(call, (error, response) => {
+      deleteWorkspace(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -65,7 +67,7 @@ describe("@identity[groups/deleteGroup]", function () {
     expect(response).to.deep.equal({ id: "123" });
   });
 
-  it("should throw an error if group not found", async function () {
+  it("should throw an error if workspace not found", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -78,15 +80,17 @@ describe("@identity[groups/deleteGroup]", function () {
     };
 
     const prisma = {
-      group: {
+      workspace: {
         delete: sandbox.stub().throws({ code: "P2025" })
       }
     } as unknown as Prisma;
 
-    const { deleteGroup } = await import("../../src/groups/deleteGroup");
+    const { deleteWorkspace } = await import(
+      "../../src/workspaces/deleteWorkspace"
+    );
 
     // Act
-    await deleteGroup(prisma)(call, (error) => {
+    await deleteWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,

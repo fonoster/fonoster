@@ -17,27 +17,27 @@ The Fonoster Identity Module provides the cornerstone for secure user management
 
 ## Key Features
 
-This module offers comprehensive identity management functionality, including creating, reading, updating, and deleting user and group entities. Users may represent individual accounts or service accounts. Groups provide a way to organize users and streamline permission administration logically. A user can belong to multiple groups.
+This module offers comprehensive identity management functionality, including creating, reading, updating, and deleting user and workspace entities. Users may represent individual accounts or service accounts. Workspaces provide a way to organize users and streamline permission administration logically. A user can belong to multiple workspaces.
 
 The Identity module ensures secure authentication by employing industry-standard JSON Web Tokens (JWTs). It supports a variety of authentication mechanisms, including username and password, Multi-Factor Authentication (MFA) for added security, OAuth2 for integration with external identity providers, and seamless token exchange to accommodate diverse scenarios.
 
 Authorization is implemented through a Role-Based Access Control (RBAC) model, allowing for granular control over user and service actions. Predefined roles offer convenience, while the option to create custom roles provides maximum flexibility.
 
-## Users, Groups, and Roles
+## Users, Workspaces, and Roles
 
 Individual users or services connecting to the Identity service will require a Role. As you will see in the next section, a Role has a set of allowed actions.
 
 Take the following example:
 
-In the case of Fonoster, we might have the Owner, Admin, and Member as Roles associated with a Workspace (group). In such cases, the Owner will be able to perform all actions, the Admin will be allowed to perform all actions except removing the Workspace, and members will have the ability to make changes to specific resources but not be able to see billing information.
+In the case of Fonoster, we might have the Owner, Admin, and Member as Roles associated with a Workspace (workspace). In such cases, the Owner will be able to perform all actions, the Admin will be allowed to perform all actions except removing the Workspace, and members will have the ability to make changes to specific resources but not be able to see billing information.
 
 ## Resource Ownership
 
-All resources created within Fonoster have an owner. The owner may be a user or a group. For example, a user may own a group/workspace, and a group can own applications, phone numbers, domains, etc.
+All resources created within Fonoster have an owner. The owner may be a user or a workspace. For example, a user may own a workspace/workspace, and a workspace can own applications, phone numbers, domains, etc.
 
-Creating a resource within a group automatically marks it with the group's identifier (the accessKeyId). 
+Creating a resource within a workspace automatically marks it with the workspace's identifier (the accessKeyId). 
 
-> The `accessKeyId` for a user always starts with the prefix `US`, while the `accessKeyId` for a group starts with the prefix `GR`, which helps identify the resource owner type.
+> The `accessKeyId` for a user always starts with the prefix `US`, while the `accessKeyId` for a workspace starts with the prefix `GR`, which helps identify the resource owner type.
 
 ## Role-Based Access Control 
 
@@ -101,7 +101,7 @@ Access tokens enhance security with short lifespans (e.g., minutes to an hour). 
 }
 ```
 
-Here, `sub` is the user identifier, `aud` is the group identifier, and `scope` is the user's role.
+Here, `sub` is the user identifier, `aud` is the workspace identifier, and `scope` is the user's role.
 
 Refresh tokens have the specific function of obtaining new access tokens upon expiry. They possess longer lifespans than access tokens, potentially spanning days, weeks, or months, minimizing the frequency with which users need to re-enter their credentials. Due to their extended validity, refresh tokens warrant secure storage and careful management.
 
@@ -119,7 +119,7 @@ An example of a refresh token:
 }
 ```
 
-Like the access token, the sub is the user identifier, the `aud` is the group identifier, and the `scope` is the user's role.
+Like the access token, the sub is the user identifier, the `aud` is the workspace identifier, and the `scope` is the user's role.
 
 ## Token Exchange
 

@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DomainsAPI } from "@fonoster/sipnet/dist/domains/client";
 import { getExtendedFieldsHelper } from "@fonoster/sipnet/test/getExtendedFieldsHelper";
 import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
 import * as grpc from "@grpc/grpc-js";
@@ -24,7 +23,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { ListDomainsRequest } from "../src/domains/client";
+import { DomainsAPI, ListDomainsRequest } from "../src/domains/client";
 import { Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);

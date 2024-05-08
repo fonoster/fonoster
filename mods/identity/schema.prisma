@@ -21,15 +21,15 @@ model User {
   updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
 
   // Relations
-  ownedGroups Group[] // Groups owned by the user
-  memberships GroupMember[] // Groups the user is a member of
+  ownedWorkspaces Workspace[] // Workspaces owned by the user
+  memberships     WorkspaceMember[] // Workspaces the user is a member of
 
   // Indexes and maps
   @@index([email], type: Hash)
   @@map("users")
 }
 
-model Group {
+model Workspace {
   id          String @id @default(uuid())
   accessKeyId String @unique @db.VarChar(255)
   name        String @db.VarChar(60)
@@ -38,61 +38,61 @@ model Group {
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
 
   // Relations
-  owner   User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner   User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId String
-  members GroupMember[]
+  members WorkspaceMember[]
   apiKeys APIKey[]
 
   // Indexes and maps
   @@index([name], type: Hash)
-  @@map("groups")
+  @@map("workspaces")
 }
 
-model GroupMember {
-  id     String            @id @default(uuid())
-  status GroupMemberStatus
-  role   GroupMemberRole   @default(USER)
+model WorkspaceMember {
+  id     String                @id @default(uuid())
+  status WorkspaceMemberStatus
+  role   WorkspaceMemberRole   @default(USER)
 
   // Relations
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId   String
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @default(now()) @map("updated_at") @db.Timestamptz(3)
 
-  @@unique([userId, groupId])
-  @@map("group_members")
+  @@unique([userId, workspaceId])
+  @@map("workspace_members")
 }
 
-enum GroupMemberStatus {
+enum WorkspaceMemberStatus {
   PENDING
   ACTIVE
 
-  @@map("group_member_status")
+  @@map("workspace_member_status")
 }
 
-enum GroupMemberRole {
+enum WorkspaceMemberRole {
   OWNER
   ADMIN
   USER
 
-  @@map("group_member_role")
+  @@map("workspace_member_role")
 }
 
 model APIKey {
   id              String     @id @default(uuid())
   accessKeyId     String     @unique @db.VarChar(255)
   accessKeySecret String     @db.VarChar(255) /// @encrypted
-  role            APIKeyRole @default(GROUP_ADMIN)
+  role            APIKeyRole @default(WORKSPACE_ADMIN)
 
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(3)
   expiresAt DateTime? @map("expires_at") @db.Timestamptz(3)
 
   // Relations
-  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId String @map("group_id")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String    @map("workspace_id")
 
   // Indexes and maps
   @@index([accessKeyId], type: Hash)
@@ -100,7 +100,7 @@ model APIKey {
 }
 
 enum APIKeyRole {
-  GROUP_ADMIN
+  WORKSPACE_ADMIN
 
   @@map("api_key_role")
 }

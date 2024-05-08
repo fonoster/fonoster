@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[groups/getGroupById]", function () {
+describe("@identity[workspaces/createWorkspace]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should get a group by id", async function () {
+  it("should create a workspace", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -41,64 +41,79 @@ describe("@identity[groups/getGroupById]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        name: "My Workspace"
       }
-    };
-
-    const group = {
-      id: "123",
-      name: "My Group",
-      ownerId: "123",
-      createdAt: new Date(),
-      updatedAt: new Date()
     };
 
     const prisma = {
-      group: {
-        findUnique: sandbox.stub().resolves(group)
+      workspace: {
+        create: sandbox.stub().resolves({ id: "123" })
       }
     } as unknown as Prisma;
 
-    const { getGroupById } = await import("../../src/groups/getGroupById");
+    const { createWorkspace } = await import(
+      "../../src/workspaces/createWorkspace"
+    );
 
     // Act
-    const response = await new Promise((resolve, reject) => {
-      getGroupById(prisma)(call, (error, response) => {
-        if (error) return reject(error);
-        resolve(response);
-      });
+    await createWorkspace(prisma)(call, (_, response) => {
+      // Assert
+      expect(response).to.deep.equal({ id: "123" });
     });
-
-    // Assert
-    expect(response).to.deep.equal(group);
   });
 
-  it("should throw an error if group not found", async function () {
+  it("should throw an error if the workspace already exists", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-
     const call = {
       metadata,
       request: {
-        id: "123"
+        name: "My Workspace"
       }
     };
 
     const prisma = {
-      group: {
-        findUnique: sandbox.stub().resolves(null)
+      workspace: {
+        create: sandbox.stub().throws({ code: "P2002" })
       }
     } as unknown as Prisma;
 
-    const { getGroupById } = await import("../../src/groups/getGroupById");
+    const { createWorkspace } = await import(
+      "../../src/workspaces/createWorkspace"
+    );
 
     // Act
-    await getGroupById(prisma)(call, (error) => {
+    await createWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
-        code: grpc.status.NOT_FOUND,
-        message: "Group not found"
+        code: grpc.status.ALREADY_EXISTS,
+        message: "Duplicated resource"
+      });
+    });
+  });
+
+  it("should throw if a validation error occurs", async function () {
+    // Arrange
+    const call = {
+      request: {
+        name: "My"
+      }
+    };
+
+    // Doesn't matter because it will not be called
+    const prisma = {} as unknown as Prisma;
+
+    const { createWorkspace } = await import(
+      "../../src/workspaces/createWorkspace"
+    );
+
+    // Act
+    await createWorkspace(prisma)(call, (error) => {
+      // Assert
+      expect(error).to.deep.equal({
+        code: grpc.status.INVALID_ARGUMENT,
+        message: "Name must contain at least 3 characters"
       });
     });
   });

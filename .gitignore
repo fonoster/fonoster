@@ -8,3 +8,4 @@ coverage
 .nyc_output
 .keys
 *.tsbuildinfo
+tsconfig.tsbuildinfo

@@ -16,10 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum GroupRoleEnum {
-  OWNER = "OWNER",
-  ADMIN = "ADMIN",
-  USER = "USER"
+import { Prisma } from "../db";
+
+function isWorkspaceMember(prisma: Prisma) {
+  return async (workspaceId: string, userId: string) => {
+    const workspace = await prisma.workspace.findUnique({
+      where: {
+        id: workspaceId
+      }
+    });
+
+    const isMember = await prisma.workspaceMember.findFirst({
+      where: {
+        // Force userId to be an empty string to ensure that the query is not
+        // fillter by workspaceId only
+        userId: userId || "",
+        workspaceId
+      }
+    });
+
+    const isOwner = workspace?.ownerId === userId;
+
+    return !!(isMember || isOwner);
+  };
 }
 
-export { GroupRoleEnum };
+export { isWorkspaceMember };

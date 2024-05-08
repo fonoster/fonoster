@@ -26,66 +26,72 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[groups/isGroupMember]", function () {
+describe("@identity[workspaces/isWorkspaceMember]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should return true if user is the owner of the group", async function () {
+  it("should return true if user is the owner of the workspace", async function () {
     // Arrange
     const prisma = {
-      group: {
+      workspace: {
         findUnique: sandbox.stub().resolves({ ownerId: "123" })
       },
-      groupMember: {
+      workspaceMember: {
         findFirst: sandbox.stub().resolves()
       }
     } as unknown as Prisma;
 
-    const { isGroupMember } = await import("../../src/groups/isGroupMember");
+    const { isWorkspaceMember } = await import(
+      "../../src/workspaces/isWorkspaceMember"
+    );
 
     // Act
-    const result = await isGroupMember(prisma)("123", "123");
+    const result = await isWorkspaceMember(prisma)("123", "123");
 
     // Assert
     expect(result).to.be.true;
   });
 
-  it("should return true if user is a member of the group", async function () {
+  it("should return true if user is a member of the workspace", async function () {
     // Arrange
     const prisma = {
-      group: {
+      workspace: {
         findUnique: sandbox.stub().resolves()
       },
-      groupMember: {
+      workspaceMember: {
         findFirst: sandbox.stub().resolves({})
       }
     } as unknown as Prisma;
 
-    const { isGroupMember } = await import("../../src/groups/isGroupMember");
+    const { isWorkspaceMember } = await import(
+      "../../src/workspaces/isWorkspaceMember"
+    );
 
     // Act
-    const result = await isGroupMember(prisma)("123", "123");
+    const result = await isWorkspaceMember(prisma)("123", "123");
 
     // Assert
     expect(result).to.be.true;
   });
 
-  it("should return false if user is not a member of the group", async function () {
+  it("should return false if user is not a member of the workspace", async function () {
     // Arrange
     const prisma = {
-      group: {
+      workspace: {
         findUnique: sandbox.stub().resolves()
       },
-      groupMember: {
+      workspaceMember: {
         findFirst: sandbox.stub().resolves()
       }
     } as unknown as Prisma;
 
-    const { isGroupMember } = await import("../../src/groups/isGroupMember");
+    const { isWorkspaceMember } = await import(
+      "../../src/workspaces/isWorkspaceMember"
+    );
 
     // Act
-    const result = await isGroupMember(prisma)("123", "123");
+    const result = await isWorkspaceMember(prisma)("123", "123");
 
     // Assert
     expect(result).to.be.false;

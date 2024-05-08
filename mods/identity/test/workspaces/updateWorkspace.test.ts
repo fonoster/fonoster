@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[group/updateGroup]", function () {
+describe("@identity[workspace/updateWorkspace]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should update a group", async function () {
+  it("should update a workspace", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -42,25 +42,27 @@ describe("@identity[group/updateGroup]", function () {
       metadata,
       request: {
         id: "123",
-        name: "My Groupx"
+        name: "My Workspacex"
       }
     };
 
     const prisma = {
-      group: {
+      workspace: {
         update: sandbox.stub().resolves({ id: "123" }),
         findUnique: sandbox.stub().resolves({ ownerId: "123" })
       },
-      groupMember: {
+      workspaceMember: {
         findFirst: sandbox.stub().resolves({})
       }
     } as unknown as Prisma;
 
-    const { updateGroup } = await import("../../src/groups/updateGroup");
+    const { updateWorkspace } = await import(
+      "../../src/workspaces/updateWorkspace"
+    );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      updateGroup(prisma)(call, (error, response) => {
+      updateWorkspace(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });

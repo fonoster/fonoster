@@ -23,14 +23,14 @@ import { EmailTemplatesEnum } from "./EmailTemplatesEnum";
 function createInviteBody(params: {
   emailTemplateDir?: string;
   isExistingUser: boolean;
-  groupName: string;
+  workspaceName: string;
   oneTimePassword: string;
   inviteUrl: string;
 }) {
   const {
     emailTemplateDir,
     isExistingUser,
-    groupName,
+    workspaceName,
     oneTimePassword,
     inviteUrl
   } = params;
@@ -45,7 +45,7 @@ function createInviteBody(params: {
   return compileTemplate({
     filePath: templatePath,
     data: {
-      groupName,
+      workspaceName,
       oneTimePassword,
       inviteUrl
     }

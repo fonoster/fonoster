@@ -42,8 +42,8 @@ describe("@identity[apikeys/createAPIKey]", function () {
     const call = {
       metadata,
       request: {
-        groupId: "123",
-        role: APIRoleEnum.GROUP_ADMIN,
+        workspaceId: "123",
+        role: APIRoleEnum.WORKSPACE_ADMIN,
         expiresAt: new Date().getMilliseconds()
       }
     };
@@ -52,7 +52,7 @@ describe("@identity[apikeys/createAPIKey]", function () {
       id: "123",
       accessKeyId: "accessKeyId",
       accessKeySecret: "accessKeySecret",
-      role: APIRoleEnum.GROUP_ADMIN,
+      role: APIRoleEnum.WORKSPACE_ADMIN,
       expiresAt: 0,
       createdAt: new Date().getMilliseconds(),
       updatedAt: new Date().getMilliseconds()
@@ -73,15 +73,15 @@ describe("@identity[apikeys/createAPIKey]", function () {
     });
   });
 
-  it("should throw an error if the group already exists", async function () {
+  it("should throw an error if the workspace already exists", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
     const call = {
       metadata,
       request: {
-        groupId: "123",
-        role: APIRoleEnum.GROUP_ADMIN,
+        workspaceId: "123",
+        role: APIRoleEnum.WORKSPACE_ADMIN,
         expiresAt: new Date().getMilliseconds()
       }
     };

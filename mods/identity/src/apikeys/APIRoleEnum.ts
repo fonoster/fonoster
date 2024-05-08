@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 enum APIRoleEnum {
-  GROUP_ADMIN = "GROUP_ADMIN"
+  WORKSPACE_ADMIN = "WORKSPACE_ADMIN"
 }
 
 export { APIRoleEnum };

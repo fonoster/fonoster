@@ -34,7 +34,7 @@ describe("@identity[invites/createInviteBody]", function () {
     // Arrange
     const params = {
       isExistingUser: false,
-      groupName: "My Group",
+      workspaceName: "My Workspace",
       oneTimePassword: "123456",
       inviteUrl: "http://example.com?token=jwt"
     };
@@ -49,7 +49,7 @@ describe("@identity[invites/createInviteBody]", function () {
     // Assert
     expect(result).to.be.a("string");
     expect(result).to.contain("You have been invited to join the workspace");
-    expect(result).to.contain("My Group");
+    expect(result).to.contain("My Workspace");
     expect(result).to.contain("http://example.com?token&#x3D;jwt");
     expect(result).to.contain("123456");
   });
@@ -58,7 +58,7 @@ describe("@identity[invites/createInviteBody]", function () {
     // Arrange
     const params = {
       isExistingUser: true,
-      groupName: "My Group",
+      workspaceName: "My Workspace",
       inviteUrl: "http://example.com?token=jwt",
       oneTimePassword: "123456"
     };
@@ -72,7 +72,7 @@ describe("@identity[invites/createInviteBody]", function () {
     // Assert
     expect(result).to.be.a("string");
     expect(result).to.contain("Invitation to join the workspace");
-    expect(result).to.contain("My Group");
+    expect(result).to.contain("My Workspace");
     expect(result).to.contain("http://example.com?token&#x3D;jwt");
     expect(result).to.not.contain("123456");
   });

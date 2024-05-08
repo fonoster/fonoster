@@ -10,7 +10,7 @@
     "mods/*"
   ],
   "scripts": {
-    "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose LOGS_TRANSPORT=none nodemon --watch mods/apiserver --exec ts-node mods/apiserver/src/index.ts",
+    "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver --exec ts-node mods/apiserver/src/index.ts",
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr postgres adminer mailhog rtpengine asterisk01 asterisk02 simplephone -d --remove-orphans",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "build": "lerna run build",
@@ -22,7 +22,7 @@
     "db:migrate": "npx prisma migrate dev --schema ./mods/apiserver/schema.prisma --name init --preview-feature && npx prisma migrate dev --schema ./mods/identity/schema.prisma --name init --preview-feature",
     "generate:keypair": ".scripts/gen-keypair.sh",
     "check:updates": "lerna exec -- npx npm-check-updates",
-    "test": "cross-env NODE_ENV=dev LOGS_LEVEL=none LOGS_TRANSPORT=none mocha --require ts-node/register mods/**/*.test.ts"
+    "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.test.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",

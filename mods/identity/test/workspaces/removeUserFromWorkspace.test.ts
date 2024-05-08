@@ -22,19 +22,19 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
-import { GroupRoleEnum } from "../../src/groups/GroupRoleEnum";
+import { WorkspaceRoleEnum } from "../../src/workspaces/WorkspaceRoleEnum";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[group/removeUserFromGroup]", function () {
+describe("@identity[workspace/removeUserFromWorkspace]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should remove a user from a group", async function () {
+  it("should remove a user from a workspace", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -43,31 +43,31 @@ describe("@identity[group/removeUserFromGroup]", function () {
     const call = {
       metadata,
       request: {
-        groupId: "123",
+        workspaceId: "123",
         userId
       }
     };
 
     const prisma = {
-      groupMember: {
+      workspaceMember: {
         findFirst: sandbox.stub().resolves({ id: "123" }),
         delete: sandbox.stub().resolves({ id: "123" })
       },
-      group: {
+      workspace: {
         findUnique: sandbox.stub().resolves({
           ownerId: userId,
-          members: [{ userId: userId, role: GroupRoleEnum.ADMIN }]
+          members: [{ userId: userId, role: WorkspaceRoleEnum.ADMIN }]
         })
       }
     } as unknown as Prisma;
 
-    const { removeUserFromGroup } = await import(
-      "../../src/groups/removeUserFromGroup"
+    const { removeUserFromWorkspace } = await import(
+      "../../src/workspaces/removeUserFromWorkspace"
     );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      removeUserFromGroup(prisma)(call, (error, response) => {
+      removeUserFromWorkspace(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
@@ -86,34 +86,34 @@ describe("@identity[group/removeUserFromGroup]", function () {
     const call = {
       metadata,
       request: {
-        groupId: "123",
+        workspaceId: "123",
         userId
       }
     };
 
     const prisma = {
-      group: {
+      workspace: {
         findUnique: sandbox.stub().resolves({
           ownerId: "another-user-id",
-          members: [{ userId: "another-user-id", role: GroupRoleEnum.USER }]
+          members: [{ userId: "another-user-id", role: WorkspaceRoleEnum.USER }]
         })
       },
-      groupMember: {
+      workspaceMember: {
         findFirst: sandbox.stub().resolves({ id: "123" }),
         delete: sandbox.stub().resolves({ id: "123" })
       }
     } as unknown as Prisma;
 
-    const { removeUserFromGroup } = await import(
-      "../../src/groups/removeUserFromGroup"
+    const { removeUserFromWorkspace } = await import(
+      "../../src/workspaces/removeUserFromWorkspace"
     );
 
     // Act
-    removeUserFromGroup(prisma)(call, (error) => {
+    removeUserFromWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.PERMISSION_DENIED,
-        message: "Only admins or owners can remove users from a group"
+        message: "Only admins or owners can remove users from a workspace"
       });
     });
   });

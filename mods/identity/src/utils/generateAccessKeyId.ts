@@ -20,7 +20,7 @@ import { customAlphabet } from "nanoid";
 
 enum AccessKeyIdType {
   USER,
-  GROUP,
+  WORKSPACE,
   SERVICE,
   API_KEY
 }
@@ -28,9 +28,9 @@ enum AccessKeyIdType {
 function generateAccessKeyId(type: AccessKeyIdType) {
   const prefix = {
     [AccessKeyIdType.USER]: "US",
-    [AccessKeyIdType.GROUP]: "GR",
-    [AccessKeyIdType.SERVICE]: "SR",
-    [AccessKeyIdType.API_KEY]: "AK"
+    [AccessKeyIdType.WORKSPACE]: "WO",
+    [AccessKeyIdType.SERVICE]: "SE",
+    [AccessKeyIdType.API_KEY]: "AP"
   };
 
   return `${prefix[type]}${customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 32)()}`;

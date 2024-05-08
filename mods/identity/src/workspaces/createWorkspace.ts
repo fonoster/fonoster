@@ -18,62 +18,58 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { z } from "zod";
 import { Prisma } from "../db";
+import {
+  AccessKeyIdType,
+  generateAccessKeyId
+} from "../utils/generateAccessKeyId";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type GetGroupByIdRequest = {
+const CreateWorkspaceRequestSchema = z.object({
+  name: z.string().min(3, "Name must contain at least 3 characters").max(50)
+});
+
+type CreateWorkspaceRequest = z.infer<typeof CreateWorkspaceRequestSchema>;
+
+type CreateWorkspaceResponse = {
   id: string;
 };
 
-type GetGroupByIdResponse = {
-  id: string;
-  name: string;
-  ownerId: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-function getGroupById(prisma: Prisma) {
+function createWorkspace(prisma: Prisma) {
   return async (
-    call: { request: GetGroupByIdRequest },
-    callback: (error: GRPCErrors, response?: GetGroupByIdResponse) => void
+    call: { request: CreateWorkspaceRequest },
+    callback: (error: GRPCErrors, response?: CreateWorkspaceResponse) => void
   ) => {
     try {
-      const { id } = call.request;
+      const validatedRequest = CreateWorkspaceRequestSchema.parse(call.request);
+
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const ownerId = getUserIdFromToken(token);
 
-      logger.verbose("getting group by id", { id, ownerId });
+      const { name } = validatedRequest;
 
-      const group = await prisma.group.findUnique({
-        where: {
-          id,
+      logger.verbose("call to createWorkspace", { name, ownerId });
+
+      const workspace = await prisma.workspace.create({
+        data: {
+          name,
+          accessKeyId: generateAccessKeyId(AccessKeyIdType.WORKSPACE),
           ownerId
         }
       });
 
-      if (!group) {
-        callback({ code: GRPCStatus.NOT_FOUND, message: "Group not found" });
-        return;
-      }
-
-      const response: GetGroupByIdResponse = {
-        id: group.id,
-        name: group.name,
-        ownerId: group.ownerId,
-        createdAt: group.createdAt,
-        updatedAt: group.updatedAt
-      };
-
-      callback(null, response);
+      callback(null, {
+        id: workspace.id
+      });
     } catch (error) {
       handleError(error, callback);
     }
   };
 }
 
-export { getGroupById };
+export { createWorkspace };

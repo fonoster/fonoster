@@ -19,23 +19,23 @@
  */
 import { APIRoleEnum } from "./apikeys";
 import { Role } from "./exchanges/types";
-import { GroupRoleEnum } from "./groups/GroupRoleEnum";
+import { WorkspaceRoleEnum } from "./workspaces/WorkspaceRoleEnum";
 
 const roles = [
   {
-    name: GroupRoleEnum.OWNER,
+    name: WorkspaceRoleEnum.OWNER,
     description: "Access to all endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUserById",
       "/fonoster.identity.v1beta2.Identity/UpdateUser",
       "/fonoster.identity.v1beta2.Identity/DeleteUser",
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/GetGroupById",
-      "/fonoster.identity.v1beta2.Identity/UpdateGroup",
-      "/fonoster.identity.v1beta2.Identity/ListGroups",
-      "/fonoster.identity.v1beta2.Identity/InviteUserToGroup",
-      "/fonoster.identity.v1beta2.Identity/RemoveUserFromGroup",
-      "/fonoster.identity.v1beta2.Identity/ResendGroupMembershipInvitation",
+      "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
+      "/fonoster.identity.v1beta2.Identity/GetWorkspaceById",
+      "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
+      "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+      "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
+      "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
+      "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation",
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
       "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
       "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
@@ -49,19 +49,19 @@ const roles = [
     ]
   },
   {
-    name: GroupRoleEnum.ADMIN,
+    name: WorkspaceRoleEnum.ADMIN,
     description: "Access to all endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUserById",
       "/fonoster.identity.v1beta2.Identity/UpdateUser",
       "/fonoster.identity.v1beta2.Identity/DeleteUser",
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/GetGroupById",
-      "/fonoster.identity.v1beta2.Identity/UpdateGroup",
-      "/fonoster.identity.v1beta2.Identity/ListGroups",
-      "/fonoster.identity.v1beta2.Identity/InviteUserToGroup",
-      "/fonoster.identity.v1beta2.Identity/RemoveUserFromGroup",
-      "/fonoster.identity.v1beta2.Identity/ResendGroupMembershipInvitation",
+      "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
+      "/fonoster.identity.v1beta2.Identity/GetWorkspaceById",
+      "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
+      "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+      "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
+      "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
+      "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation",
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
       "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
       "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
@@ -75,19 +75,19 @@ const roles = [
     ]
   },
   {
-    name: APIRoleEnum.GROUP_ADMIN,
+    name: APIRoleEnum.WORKSPACE_ADMIN,
     description: "Access to all endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUserById",
       "/fonoster.identity.v1beta2.Identity/UpdateUser",
       "/fonoster.identity.v1beta2.Identity/DeleteUser",
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/GetGroupById",
-      "/fonoster.identity.v1beta2.Identity/UpdateGroup",
-      "/fonoster.identity.v1beta2.Identity/ListGroups",
-      "/fonoster.identity.v1beta2.Identity/InviteUserToGroup",
-      "/fonoster.identity.v1beta2.Identity/RemoveUserFromGroup",
-      "/fonoster.identity.v1beta2.Identity/ResendGroupMembershipInvitation",
+      "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
+      "/fonoster.identity.v1beta2.Identity/GetWorkspaceById",
+      "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
+      "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+      "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
+      "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
+      "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation",
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
       "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
       "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
@@ -101,16 +101,16 @@ const roles = [
     ]
   },
   {
-    name: GroupRoleEnum.USER,
+    name: WorkspaceRoleEnum.USER,
     description: "Access to User and Workspace endpoints",
     access: [
       "/fonoster.identity.v1beta2.Identity/GetUserById",
       "/fonoster.identity.v1beta2.Identity/UpdateUser",
       "/fonoster.identity.v1beta2.Identity/DeleteUser",
-      "/fonoster.identity.v1beta2.Identity/CreateGroup",
-      "/fonoster.identity.v1beta2.Identity/GetGroupById",
-      "/fonoster.identity.v1beta2.Identity/UpdateGroup",
-      "/fonoster.identity.v1beta2.Identity/ListGroups",
+      "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
+      "/fonoster.identity.v1beta2.Identity/GetWorkspaceById",
+      "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
+      "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
       "/fonoster.domains.v1beta2.Domains/CreateDomain",
       "/fonoster.domains.v1beta2.Domains/UpdateDomain",

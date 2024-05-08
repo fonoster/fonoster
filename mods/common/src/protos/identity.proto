@@ -21,15 +21,15 @@ syntax = "proto3";
 package fonoster.identity.v1beta2;
 
 service Identity {
-  // Group actions
-  rpc CreateGroup (CreateGroupRequest) returns (CreateGroupResponse) {}
-  rpc DeleteGroup (DeleteGroupRequest) returns (DeleteGroupResponse) {}
-  rpc GetGroupById (GetGroupByIdRequest) returns (GetGroupByIdResponse) {}
-  rpc ListGroups (ListGroupsRequest) returns (ListGroupsResponse) {}
-  rpc UpdateGroup (UpdateGroupRequest) returns (UpdateGroupResponse) {}
-  rpc InviteUserToGroup (InviteUserToGroupRequest) returns (InviteUserToGroupResponse) {}
-  rpc RemoveUserFromGroup (RemoveUserFromGroupRequest) returns (RemoveUserFromGroupResponse) {}
-  rpc ResendGroupMembershipInvitation (ResendGroupMembershipInvitationRequest) returns (ResendGroupMembershipInvitationResponse) {}
+  // Workspace actions
+  rpc CreateWorkspace (CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {}
+  rpc DeleteWorkspace (DeleteWorkspaceRequest) returns (DeleteWorkspaceResponse) {}
+  rpc GetWorkspaceById (GetWorkspaceByIdRequest) returns (GetWorkspaceByIdResponse) {}
+  rpc ListWorkspaces (ListWorkspacesRequest) returns (ListWorkspacesResponse) {}
+  rpc UpdateWorkspace (UpdateWorkspaceRequest) returns (UpdateWorkspaceResponse) {}
+  rpc InviteUserToWorkspace (InviteUserToWorkspaceRequest) returns (InviteUserToWorkspaceResponse) {}
+  rpc RemoveUserFromWorkspace (RemoveUserFromWorkspaceRequest) returns (RemoveUserFromWorkspaceResponse) {}
+  rpc ResendWorkspaceMembershipInvitation (ResendWorkspaceMembershipInvitationRequest) returns (ResendWorkspaceMembershipInvitationResponse) {}
   
   // User specific actions
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
@@ -51,29 +51,29 @@ service Identity {
   rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
 }
 
-// Group Resources
+// Workspace Resources
 
-message CreateGroupRequest {
+message CreateWorkspaceRequest {
   string name = 1;
 }
 
-message CreateGroupResponse {
+message CreateWorkspaceResponse {
   string id = 1;
 }
 
-message DeleteGroupRequest {
+message DeleteWorkspaceRequest {
   string id = 1;
 }
 
-message DeleteGroupResponse {
+message DeleteWorkspaceResponse {
   string id = 1;
 }
 
-message GetGroupByIdRequest {
+message GetWorkspaceByIdRequest {
   string id = 1;
 }
 
-message GetGroupByIdResponse {
+message GetWorkspaceByIdResponse {
   string id = 1;
   string name = 2;
   string owner_id = 3;
@@ -81,55 +81,55 @@ message GetGroupByIdResponse {
   int32 updated_at = 5;
 }
 
-message ListGroupsRequest {
+message ListWorkspacesRequest {
   string page_token = 1;
   int32 page_size = 2;
 }
 
-message ListGroupsResponse {
-  repeated Group groups = 1;
+message ListWorkspacesResponse {
+  repeated Workspace workspaces = 1;
   string next_page_token = 2;
 }
 
-message UpdateGroupRequest {
+message UpdateWorkspaceRequest {
   string id = 1;
   string name = 2;
 }
 
-message UpdateGroupResponse {
+message UpdateWorkspaceResponse {
   string id = 1;
 }
 
-message InviteUserToGroupRequest {
+message InviteUserToWorkspaceRequest {
   string email = 1;
-  string group_id = 2;
+  string workspace_id = 2;
   string role = 3;
   string name = 4;
 }
 
-message InviteUserToGroupResponse {
+message InviteUserToWorkspaceResponse {
   string user_id = 1;
-  string group_id = 2;
+  string workspace_id = 2;
 }
 
-message RemoveUserFromGroupRequest {
+message RemoveUserFromWorkspaceRequest {
   string user_id = 1;
-  string group_id = 2;
+  string workspace_id = 2;
 }
 
-message RemoveUserFromGroupResponse {
+message RemoveUserFromWorkspaceResponse {
   string user_id = 1;
-  string group_id = 2;
+  string workspace_id = 2;
 }
 
-message ResendGroupMembershipInvitationRequest {
+message ResendWorkspaceMembershipInvitationRequest {
   string user_id = 1;
-  string group_id = 2;
+  string workspace_id = 2;
 }
 
-message ResendGroupMembershipInvitationResponse {
+message ResendWorkspaceMembershipInvitationResponse {
   string user_id = 1;
-  string group_id = 2;
+  string workspace_id = 2;
 }
 
 // User Resources
@@ -177,7 +177,7 @@ message DeleteUserResponse {
   string id = 1;
 }
 
-message Group {
+message Workspace {
   string id = 1;
   string name = 2;
   string owner_id = 3;
@@ -188,7 +188,7 @@ message Group {
 // APIKey Resources
 
 message CreateAPIKeyRequest {
-  string group_id = 1;
+  string workspace_id = 1;
   string role = 2;
   int32 expires_at = 3;
 }
@@ -212,7 +212,7 @@ message DeleteAPIKeyResponse {
 }
 
 message ListAPIKeysRequest {
-  string group_id = 1;
+  string workspace_id = 1;
   string page_token = 2;
   int32 page_size = 3;
 }

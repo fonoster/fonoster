@@ -29,73 +29,77 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type ResendGroupMembershipInvitationRequest = {
-  groupId: string;
+type ResendWorkspaceMembershipInvitationRequest = {
+  workspaceId: string;
   userId: string;
 };
 
-type ResendGroupMembershipInvitationResponse = {
-  groupId: string;
+type ResendWorkspaceMembershipInvitationResponse = {
+  workspaceId: string;
   userId: string;
 };
 
-function resendGroupMembershipInvitation(
+function resendWorkspaceMembershipInvitation(
   prisma: Prisma,
   identityConfig: IdentityConfig,
   sendInvite: SendInvite
 ) {
   return async (
-    call: { request: ResendGroupMembershipInvitationRequest },
+    call: { request: ResendWorkspaceMembershipInvitationRequest },
     callback: (
       error: GRPCErrors,
-      response?: ResendGroupMembershipInvitationResponse
+      response?: ResendWorkspaceMembershipInvitationResponse
     ) => void
   ) => {
     try {
-      const { groupId, userId } = call.request;
+      const { workspaceId, userId } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const adminId = getUserIdFromToken(token);
 
-      logger.debug("removing group member", { groupId, userId, adminId });
+      logger.debug("removing workspace member", {
+        workspaceId,
+        userId,
+        adminId
+      });
 
-      const isAdmin = await isAdminMember(prisma)(groupId, adminId);
+      const isAdmin = await isAdminMember(prisma)(workspaceId, adminId);
 
       if (!isAdmin && adminId !== userId) {
         return callback({
           code: GRPCStatus.PERMISSION_DENIED,
-          message: "Only admins or owners can remove users from a group"
+          message: "Only admins or owners can remove users from a workspace"
         });
       }
 
-      const member = await prisma.groupMember.findFirst({
+      const member = await prisma.workspaceMember.findFirst({
         where: {
-          groupId,
+          workspaceId,
           userId
         },
         include: {
           user: true,
-          group: true
+          workspace: true
         }
       });
 
       if (!member) {
         return callback({
           code: GRPCStatus.NOT_FOUND,
-          message: "User not found in group"
+          message: "User not found in workspace"
         });
       }
 
       await sendInvite(createSendEmail(identityConfig), {
         recipient: member.user.email,
         oneTimePassword: member.user.password,
-        groupName: member.group.name,
+        workspaceName: member.workspace.name,
         isExistingUser: true,
         // TODO: Create inviteUrl with invite token
         inviteUrl: "https://placehold.it?token=jwt"
       });
 
       callback(null, {
-        groupId,
+        workspaceId,
         userId
       });
     } catch (error) {
@@ -104,4 +108,4 @@ function resendGroupMembershipInvitation(
   };
 }
 
-export { resendGroupMembershipInvitation };
+export { resendWorkspaceMembershipInvitation };

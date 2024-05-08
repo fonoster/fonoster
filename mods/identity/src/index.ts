@@ -21,7 +21,7 @@ export * from "./apikeys";
 export * from "./exchanges";
 export * from "./invites";
 export * from "./users";
-export * from "./groups";
+export * from "./workspaces";
 export * from "./utils";
 export * from "./service";
 export * from "./createAuthInterceptor";

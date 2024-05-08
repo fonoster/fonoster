@@ -27,7 +27,7 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type Group = {
+type Workspace = {
   id: string;
   name: string;
   ownerId: string;
@@ -35,31 +35,31 @@ type Group = {
   updatedAt: Date;
 };
 
-type ListGroupsResponse = {
-  groups: Group[];
+type ListWorkspacesResponse = {
+  workspaces: Workspace[];
 };
 
-function listGroups(prisma: Prisma) {
+function listWorkspaces(prisma: Prisma) {
   return async (
     call: { request: unknown },
-    callback: (error: GRPCErrors, response?: ListGroupsResponse) => void
+    callback: (error: GRPCErrors, response?: ListWorkspacesResponse) => void
   ) => {
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const userId = getUserIdFromToken(token);
     const access = decodeToken<TokenUseEnum.ACCESS>(token);
-    const groupsAccessKeyIds = access.access?.map((a) => a.accessKeyId);
+    const workspacesAccessKeyIds = access.access?.map((a) => a.accessKeyId);
 
-    logger.verbose("list groups for user or apikey", {
+    logger.verbose("list workspaces for user or apikey", {
       userId,
-      groupsAccessKeyIds
+      workspacesAccessKeyIds
     });
 
-    const groups = await prisma.group.findMany({
+    const workspaces = await prisma.workspace.findMany({
       where: {
         OR: [
           {
             accessKeyId: {
-              in: groupsAccessKeyIds
+              in: workspacesAccessKeyIds
             }
           },
           {
@@ -76,10 +76,10 @@ function listGroups(prisma: Prisma) {
       }
     });
 
-    if (!groups) return [];
+    if (!workspaces) return [];
 
-    callback(null, { groups });
+    callback(null, { workspaces });
   };
 }
 
-export { listGroups };
+export { listWorkspaces };

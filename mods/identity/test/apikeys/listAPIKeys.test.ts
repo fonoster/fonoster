@@ -41,7 +41,7 @@ describe("@identity[apikeys/listAPIKeys]", function () {
     const call = {
       metadata,
       request: {
-        groupId: "123"
+        workspaceId: "123"
       }
     };
 
@@ -81,7 +81,7 @@ describe("@identity[apikeys/listAPIKeys]", function () {
     const call = {
       metadata,
       request: {
-        groupId: "123"
+        workspaceId: "123"
       }
     };
 

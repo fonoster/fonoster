@@ -50,7 +50,7 @@ describe("@identity[apikeys/regenerateAPIKey]", function () {
       id: "123",
       accessKeyId: "accessKeyId",
       accessKeySecret: "accessKeySecret",
-      role: APIRoleEnum.GROUP_ADMIN,
+      role: APIRoleEnum.WORKSPACE_ADMIN,
       expiresAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()

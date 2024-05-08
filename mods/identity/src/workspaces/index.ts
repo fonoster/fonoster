@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createGroup";
-export * from "./deleteGroup";
-export * from "./getGroupById";
-export * from "./updateGroup";
-export * from "./listGroups";
-export * from "./inviteUserToGroup";
-export * from "./removeUserFromGroup";
-export * from "./resendGroupMembershipInvitation";
-export * from "./GroupRoleEnum";
+export * from "./createWorkspace";
+export * from "./deleteWorkspace";
+export * from "./getWorkspaceById";
+export * from "./updateWorkspace";
+export * from "./listWorkspaces";
+export * from "./inviteUserToWorkspace";
+export * from "./removeUserFromWorkspace";
+export * from "./resendWorkspaceMembershipInvitation";
+export * from "./WorkspaceRoleEnum";

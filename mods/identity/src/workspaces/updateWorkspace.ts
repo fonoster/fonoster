@@ -20,47 +20,47 @@ import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
-import { isGroupMember } from "./isGroupMember";
+import { isWorkspaceMember } from "./isWorkspaceMember";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const UpdateGroupRequestSchema = z.object({
+const UpdateWorkspaceRequestSchema = z.object({
   id: z.string(),
   name: z.string().min(3).max(50).or(z.string().optional().nullable())
 });
 
-type UpdateGroupRequest = z.infer<typeof UpdateGroupRequestSchema>;
+type UpdateWorkspaceRequest = z.infer<typeof UpdateWorkspaceRequestSchema>;
 
-type UpdateGroupResponse = {
+type UpdateWorkspaceResponse = {
   id: string;
 };
 
-function updateGroup(prisma: Prisma) {
+function updateWorkspace(prisma: Prisma) {
   return async (
-    call: { request: UpdateGroupRequest },
-    callback: (error: GRPCErrors, response?: UpdateGroupResponse) => void
+    call: { request: UpdateWorkspaceRequest },
+    callback: (error: GRPCErrors, response?: UpdateWorkspaceResponse) => void
   ) => {
     try {
-      const validatedRequest = UpdateGroupRequestSchema.parse(call.request);
+      const validatedRequest = UpdateWorkspaceRequestSchema.parse(call.request);
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const userId = getUserIdFromToken(token);
       const { id, name } = validatedRequest;
 
-      logger.verbose("call to updateGroup", { id, userId });
+      logger.verbose("call to updateWorkspace", { id, userId });
 
-      const isMember = await isGroupMember(prisma)(id, userId);
+      const isMember = await isWorkspaceMember(prisma)(id, userId);
 
       if (!isMember) {
         callback({
           code: GRPCStatus.PERMISSION_DENIED,
-          message: "User is not a member of the group"
+          message: "User is not a member of the workspace"
         });
       }
 
-      await prisma.group.update({
+      await prisma.workspace.update({
         where: {
           id
         },
@@ -69,7 +69,7 @@ function updateGroup(prisma: Prisma) {
         }
       });
 
-      const response: UpdateGroupResponse = {
+      const response: UpdateWorkspaceResponse = {
         id
       };
 
@@ -80,4 +80,4 @@ function updateGroup(prisma: Prisma) {
   };
 }
 
-export { updateGroup };
+export { updateWorkspace };

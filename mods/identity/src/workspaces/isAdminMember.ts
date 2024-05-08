@@ -16,29 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GroupRoleEnum } from "./GroupRoleEnum";
+import { WorkspaceRoleEnum } from "./WorkspaceRoleEnum";
 import { Prisma } from "../db";
 
 function isAdminMember(prisma: Prisma) {
-  return async (groupId: string, userId: string) => {
-    const group = await prisma.group.findUnique({
+  return async (workspaceId: string, userId: string) => {
+    const workspace = await prisma.workspace.findUnique({
       where: {
-        id: groupId
+        id: workspaceId
       },
       include: {
         members: true
       }
     });
 
-    if (group?.ownerId === userId) {
+    if (workspace?.ownerId === userId) {
       return true;
     }
 
-    const role = group?.members.find(
+    const role = workspace?.members.find(
       (member) => member.userId === userId
     )?.role;
 
-    return role === GroupRoleEnum.ADMIN || role === GroupRoleEnum.OWNER;
+    return role === WorkspaceRoleEnum.ADMIN || role === WorkspaceRoleEnum.OWNER;
   };
 }
 

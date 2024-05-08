@@ -29,12 +29,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[group/resendGroupMembershipInvitation]", function () {
+describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should resend a group membership invitation", async function () {
+  it("should resend a workspace membership invitation", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -43,7 +43,7 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
     const call = {
       metadata,
       request: {
-        groupId: "123",
+        workspaceId: "123",
         userId
       }
     };
@@ -59,7 +59,7 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
     } as IdentityConfig;
 
     const prisma = {
-      group: {
+      workspace: {
         findUnique: sandbox.stub().resolves({
           ownerId: userId,
           members: [
@@ -70,14 +70,14 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
           ]
         })
       },
-      groupMember: {
+      workspaceMember: {
         findFirst: sandbox.stub().resolves({
           user: {
             email: "john@example.com",
             password: "123456"
           },
-          group: {
-            name: "Test Group"
+          workspace: {
+            name: "Test Workspace"
           }
         })
       }
@@ -86,13 +86,13 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
     const sendInvite = sandbox.stub().resolves();
 
     // Act
-    const { resendGroupMembershipInvitation } = await import(
-      "../../src/groups/resendGroupMembershipInvitation"
+    const { resendWorkspaceMembershipInvitation } = await import(
+      "../../src/workspaces/resendWorkspaceMembershipInvitation"
     );
 
     const callback = sandbox.stub();
 
-    await resendGroupMembershipInvitation(
+    await resendWorkspaceMembershipInvitation(
       prisma,
       identityConfig,
       sendInvite
@@ -100,7 +100,7 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
 
     // Assert
     expect(callback).to.have.been.calledOnceWith(null, {
-      groupId: "123",
+      workspaceId: "123",
       userId
     });
   });
@@ -114,7 +114,7 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
     const call = {
       metadata,
       request: {
-        groupId: "123",
+        workspaceId: "123",
         userId
       }
     };
@@ -122,7 +122,7 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
     const identity = {} as IdentityConfig;
 
     const prisma = {
-      group: {
+      workspace: {
         findUnique: sandbox.stub().resolves({
           ownerId: "another-user",
           members: [
@@ -138,15 +138,15 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
     const sendInvite = sandbox.stub().resolves();
 
     // Act
-    const { resendGroupMembershipInvitation } = await import(
-      "../../src/groups/resendGroupMembershipInvitation"
+    const { resendWorkspaceMembershipInvitation } = await import(
+      "../../src/workspaces/resendWorkspaceMembershipInvitation"
     );
 
     // const callback = sandbox.stub();
 
-    // await resendGroupMembershipInvitation(prisma, identity, sendInvite)(call, callback);
+    // await resendWorkspaceMembershipInvitation(prisma, identity, sendInvite)(call, callback);
 
-    resendGroupMembershipInvitation(
+    resendWorkspaceMembershipInvitation(
       prisma,
       identity,
       sendInvite
@@ -154,7 +154,7 @@ describe("@identity[group/resendGroupMembershipInvitation]", function () {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.PERMISSION_DENIED,
-        message: "Only admins or owners can remove users from a group"
+        message: "Only admins or owners can remove users from a workspace"
       });
     });
   });

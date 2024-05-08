@@ -38,7 +38,7 @@ describe("@identity[invites/sendInvite]", function () {
       recipient: "user@example.com",
       inviteUrl: "http://example.com?token=jwt",
       oneTimePassword: "123456",
-      groupName: "My Group",
+      workspaceName: "My Workspace",
       isExistingUser: false
     };
 

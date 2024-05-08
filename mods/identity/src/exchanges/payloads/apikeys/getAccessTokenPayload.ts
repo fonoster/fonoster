@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Prisma } from "../../../db";
-import { GroupRoleEnum } from "../../../groups";
+import { WorkspaceRoleEnum } from "../../../workspaces";
 import { TokenUseEnum } from "../../TokenUseEnum";
 import { AccessToken, IdentityConfig } from "../../types";
 
@@ -28,7 +28,7 @@ function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
         accessKeyId
       },
       include: {
-        group: true
+        workspace: true
       }
     });
 
@@ -37,12 +37,12 @@ function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
     }
 
     const { issuer, audience } = identityConfig;
-    const { id, group } = apiKey;
+    const { id, workspace } = apiKey;
 
     const access = [
       {
-        accessKeyId: group.accessKeyId,
-        role: apiKey.role as GroupRoleEnum
+        accessKeyId: workspace.accessKeyId,
+        role: apiKey.role as WorkspaceRoleEnum
       }
     ];
 

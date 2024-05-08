@@ -16,29 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma } from "../db";
-
-function isGroupMember(prisma: Prisma) {
-  return async (groupId: string, userId: string) => {
-    const group = await prisma.group.findUnique({
-      where: {
-        id: groupId
-      }
-    });
-
-    const isMember = await prisma.groupMember.findFirst({
-      where: {
-        // Force userId to be an empty string to ensure that the query is not
-        // fillter by groupId only
-        userId: userId || "",
-        groupId
-      }
-    });
-
-    const isOwner = group?.ownerId === userId;
-
-    return !!(isMember || isOwner);
-  };
+enum WorkspaceRoleEnum {
+  OWNER = "OWNER",
+  ADMIN = "ADMIN",
+  USER = "USER"
 }
 
-export { isGroupMember };
+export { WorkspaceRoleEnum };

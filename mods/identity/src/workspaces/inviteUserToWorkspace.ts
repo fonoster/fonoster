@@ -22,9 +22,9 @@ import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { createSendEmail } from "./createSendEmail";
-import { GroupRoleEnum } from "./GroupRoleEnum";
 import { isAdminMember } from "./isAdminMember";
-import { isGroupMember } from "./isGroupMember";
+import { isWorkspaceMember } from "./isWorkspaceMember";
+import { WorkspaceRoleEnum } from "./WorkspaceRoleEnum";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites/sendInvite";
@@ -34,32 +34,34 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const InviteUserToGroupRequestSchema = z.object({
-  groupId: z.string(),
+const InviteUserToWorkspaceRequestSchema = z.object({
+  workspaceId: z.string(),
   email: z.string().email(),
   name: z.string().min(3, "Name must contain at least 3 characters").max(50),
-  role: z.enum([GroupRoleEnum.ADMIN, GroupRoleEnum.USER]),
+  role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
   password: z
     .string()
     .min(6, "Password must contain at least 8 characters")
     .or(z.undefined())
 });
 
-type InviteUserToGroupRequest = z.infer<typeof InviteUserToGroupRequestSchema>;
+type InviteUserToWorkspaceRequest = z.infer<
+  typeof InviteUserToWorkspaceRequestSchema
+>;
 
-type CreateGroupResponse = {
-  groupId: string;
+type CreateWorkspaceResponse = {
+  workspaceId: string;
   userId: string;
 };
 
 const userIsMemberError = {
   code: GRPCStatus.ALREADY_EXISTS,
-  message: "User is already a member of this group"
+  message: "User is already a member of this workspace"
 };
 
 const inviterIsNotAdminError = {
   code: GRPCStatus.PERMISSION_DENIED,
-  message: "Only admins or owners can invite users to a group"
+  message: "Only admins or owners can invite users to a workspace"
 };
 
 const findUserByEmail = async (prisma: Prisma, email: string) => {
@@ -71,7 +73,7 @@ const findUserByEmail = async (prisma: Prisma, email: string) => {
 };
 
 const createUser = (prisma: Prisma) => {
-  return async (request: InviteUserToGroupRequest) => {
+  return async (request: InviteUserToWorkspaceRequest) => {
     const { name, email, password } = request;
 
     return await prisma.user.create({
@@ -85,30 +87,30 @@ const createUser = (prisma: Prisma) => {
   };
 };
 
-enum GroupMemberStatus {
+enum WorkspaceMemberStatus {
   PENDING = "PENDING",
   ACTIVE = "ACTIVE"
 }
 
-function inviteUserToGroup(
+function inviteUserToWorkspace(
   prisma: Prisma,
   identityConfig: IdentityConfig,
   sendInvite: SendInvite
 ) {
   return async (
-    call: { request: InviteUserToGroupRequest },
-    callback: (error: GRPCErrors, response?: CreateGroupResponse) => void
+    call: { request: InviteUserToWorkspaceRequest },
+    callback: (error: GRPCErrors, response?: CreateWorkspaceResponse) => void
   ) => {
     try {
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const inviterId = getUserIdFromToken(token);
 
-      const { groupId, email, name, role } =
-        InviteUserToGroupRequestSchema.parse(call.request);
+      const { workspaceId, email, name, role } =
+        InviteUserToWorkspaceRequestSchema.parse(call.request);
 
-      logger.info("inviting user to group", { groupId, email });
+      logger.info("inviting user to workspace", { workspaceId, email });
 
-      const isAdmin = await isAdminMember(prisma)(groupId, inviterId);
+      const isAdmin = await isAdminMember(prisma)(workspaceId, inviterId);
 
       if (!isAdmin) {
         return callback(inviterIsNotAdminError);
@@ -116,7 +118,7 @@ function inviteUserToGroup(
 
       let user = await findUserByEmail(prisma, email);
 
-      const isMember = await isGroupMember(prisma)(groupId, user?.id);
+      const isMember = await isWorkspaceMember(prisma)(workspaceId, user?.id);
 
       if (isMember) {
         return callback(userIsMemberError);
@@ -136,22 +138,22 @@ function inviteUserToGroup(
         });
       }
 
-      const newMember = await prisma.groupMember.create({
+      const newMember = await prisma.workspaceMember.create({
         data: {
           userId: user.id,
-          groupId,
-          role: role as GroupRoleEnum,
-          status: GroupMemberStatus.PENDING
+          workspaceId,
+          role: role as WorkspaceRoleEnum,
+          status: WorkspaceMemberStatus.PENDING
         },
         include: {
-          group: true
+          workspace: true
         }
       });
 
       await sendInvite(createSendEmail(identityConfig), {
         recipient: email,
         oneTimePassword,
-        groupName: newMember.group.name,
+        workspaceName: newMember.workspace.name,
         isExistingUser,
         // TODO: Create inviteUrl with invite token
         inviteUrl: "https://placehold.it?token=jwt"
@@ -159,7 +161,7 @@ function inviteUserToGroup(
 
       callback(null, {
         userId: user?.id,
-        groupId
+        workspaceId
       });
     } catch (error) {
       handleError(error, callback);
@@ -167,4 +169,4 @@ function inviteUserToGroup(
   };
 }
 
-export { inviteUserToGroup };
+export { inviteUserToWorkspace };

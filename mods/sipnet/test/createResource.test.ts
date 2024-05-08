@@ -23,8 +23,7 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getExtendedFieldsHelper } from "./getExtendedFieldsHelper";
 import { TEST_TOKEN } from "./testToken";
-import { DomainsAPI } from "../dist/domains/client";
-import { Domain } from "../src/domains/client";
+import { Domain, DomainsAPI } from "../src/domains/client";
 import { CreateDomainRequest } from "../src/domains/types";
 
 chai.use(chaiAsPromised);

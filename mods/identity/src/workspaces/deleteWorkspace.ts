@@ -19,57 +19,49 @@
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { z } from "zod";
 import { Prisma } from "../db";
-import {
-  AccessKeyIdType,
-  generateAccessKeyId
-} from "../utils/generateAccessKeyId";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const CreateGroupRequestSchema = z.object({
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50)
-});
-
-type CreateGroupRequest = z.infer<typeof CreateGroupRequestSchema>;
-
-type CreateGroupResponse = {
+type DeleteWorkspaceRequest = {
   id: string;
 };
 
-function createGroup(prisma: Prisma) {
+type DeleteWorkspaceResponse = {
+  id: string;
+};
+
+function deleteWorkspace(prisma: Prisma) {
   return async (
-    call: { request: CreateGroupRequest },
-    callback: (error: GRPCErrors, response?: CreateGroupResponse) => void
+    call: { request: DeleteWorkspaceRequest },
+    callback: (error: GRPCErrors, response?: DeleteWorkspaceResponse) => void
   ) => {
     try {
-      const validatedRequest = CreateGroupRequestSchema.parse(call.request);
+      const { id } = call.request;
 
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const ownerId = getUserIdFromToken(token);
 
-      const { name } = validatedRequest;
+      logger.verbose("deleting workspace by id", { id, ownerId });
 
-      logger.verbose("call to createGroup", { name, ownerId });
-
-      const group = await prisma.group.create({
-        data: {
-          name,
-          accessKeyId: generateAccessKeyId(AccessKeyIdType.GROUP),
+      await prisma.workspace.delete({
+        where: {
+          id,
           ownerId
         }
       });
 
-      callback(null, {
-        id: group.id
-      });
+      const response: DeleteWorkspaceRequest = {
+        id
+      };
+
+      callback(null, response);
     } catch (error) {
       handleError(error, callback);
     }
   };
 }
 
-export { createGroup };
+export { deleteWorkspace };

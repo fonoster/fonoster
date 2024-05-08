@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[groups/listGroups]", function () {
+describe("@identity[workspaces/listWorkspaces]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should list groups", async function () {
+  it("should list workspaces", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -43,10 +43,10 @@ describe("@identity[groups/listGroups]", function () {
       request: {}
     };
 
-    const groups = [
+    const workspaces = [
       {
         id: "123",
-        name: "My Group",
+        name: "My Workspace",
         ownerId: "123",
         createdAt: new Date(),
         updatedAt: new Date()
@@ -54,26 +54,28 @@ describe("@identity[groups/listGroups]", function () {
     ];
 
     const prisma = {
-      group: {
-        findMany: sandbox.stub().resolves(groups)
+      workspace: {
+        findMany: sandbox.stub().resolves(workspaces)
       }
     } as unknown as Prisma;
 
-    const { listGroups } = await import("../../src/groups/listGroups");
+    const { listWorkspaces } = await import(
+      "../../src/workspaces/listWorkspaces"
+    );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      listGroups(prisma)(call, (error, response) => {
+      listWorkspaces(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
     });
 
     // Assert
-    expect(response).to.deep.equal({ groups });
+    expect(response).to.deep.equal({ workspaces });
   });
 
-  it("should return an empty array if no groups found", async function () {
+  it("should return an empty array if no workspaces found", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -84,22 +86,24 @@ describe("@identity[groups/listGroups]", function () {
     };
 
     const prisma = {
-      group: {
+      workspace: {
         findMany: sandbox.stub().resolves([])
       }
     } as unknown as Prisma;
 
-    const { listGroups } = await import("../../src/groups/listGroups");
+    const { listWorkspaces } = await import(
+      "../../src/workspaces/listWorkspaces"
+    );
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      listGroups(prisma)(call, (error, response) => {
+      listWorkspaces(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
     });
 
     // Assert
-    expect(response).to.deep.equal({ groups: [] });
+    expect(response).to.deep.equal({ workspaces: [] });
   });
 });

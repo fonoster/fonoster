@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { TokenUseEnum } from "./TokenUseEnum";
-import { GroupRoleEnum } from "../groups/GroupRoleEnum";
+import { WorkspaceRoleEnum } from "../workspaces/WorkspaceRoleEnum";
 
 type Role = {
   name: string;
@@ -27,7 +27,7 @@ type Role = {
 
 type Access = {
   accessKeyId: string;
-  role: GroupRoleEnum;
+  role: WorkspaceRoleEnum;
 };
 
 type BaseToken = {

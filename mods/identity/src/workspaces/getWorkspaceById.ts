@@ -19,66 +19,58 @@
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
-import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type RemoveUserFromGroupRequest = {
-  groupId: string;
-  userId: string;
+type GetWorkspaceByIdRequest = {
+  id: string;
 };
 
-type RemoveUserFromGroupResponse = {
-  groupId: string;
-  userId: string;
+type GetWorkspaceByIdResponse = {
+  id: string;
+  name: string;
+  ownerId: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-function removeUserFromGroup(prisma: Prisma) {
+function getWorkspaceById(prisma: Prisma) {
   return async (
-    call: { request: RemoveUserFromGroupRequest },
-    callback: (
-      error: GRPCErrors,
-      response?: RemoveUserFromGroupResponse
-    ) => void
+    call: { request: GetWorkspaceByIdRequest },
+    callback: (error: GRPCErrors, response?: GetWorkspaceByIdResponse) => void
   ) => {
     try {
-      const { groupId, userId } = call.request;
+      const { id } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const userIdFromToken = getUserIdFromToken(token);
+      const ownerId = getUserIdFromToken(token);
 
-      logger.debug("removing user from group", { groupId, userId });
+      logger.verbose("getting workspace by id", { id, ownerId });
 
-      const isAdmin = await isAdminMember(prisma)(groupId, userIdFromToken);
-
-      if (!isAdmin && userIdFromToken !== userId) {
-        return callback({
-          code: GRPCStatus.PERMISSION_DENIED,
-          message: "Only admins or owners can remove users from a group"
-        });
-      }
-
-      const memberId = await prisma.groupMember.findFirst({
+      const workspace = await prisma.workspace.findUnique({
         where: {
-          groupId,
-          userId
+          id,
+          ownerId
         }
       });
 
-      if (!memberId) {
-        return callback({
+      if (!workspace) {
+        callback({
           code: GRPCStatus.NOT_FOUND,
-          message: "User not found in group"
+          message: "Workspace not found"
         });
+        return;
       }
 
-      const response = await prisma.groupMember.delete({
-        where: {
-          id: memberId?.id
-        }
-      });
+      const response: GetWorkspaceByIdResponse = {
+        id: workspace.id,
+        name: workspace.name,
+        ownerId: workspace.ownerId,
+        createdAt: workspace.createdAt,
+        updatedAt: workspace.updatedAt
+      };
 
       callback(null, response);
     } catch (error) {
@@ -87,4 +79,4 @@ function removeUserFromGroup(prisma: Prisma) {
   };
 }
 
-export { removeUserFromGroup };
+export { getWorkspaceById };

@@ -20,25 +20,25 @@ import { prisma } from "./db";
 import { IdentityConfig } from "./exchanges/types";
 import {
   createAPIKey,
-  createGroup,
   createUser,
+  createWorkspace,
   deleteAPIKey,
-  deleteGroup,
   deleteUser,
+  deleteWorkspace,
   exchangeAPIKey,
   exchangeCredentials,
   exchangeRefreshToken,
-  getGroupById,
   getUserById,
-  inviteUserToGroup,
+  getWorkspaceById,
+  inviteUserToWorkspace,
   listAPIKeys,
-  listGroups,
+  listWorkspaces,
   regenerateAPIKey,
-  removeUserFromGroup,
-  resendGroupMembershipInvitation,
+  removeUserFromWorkspace,
+  resendWorkspaceMembershipInvitation,
   sendInvite,
-  updateGroup,
-  updateUser
+  updateUser,
+  updateWorkspace
 } from ".";
 
 function buildIdentityService(identityConfig: IdentityConfig) {
@@ -50,19 +50,23 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       proto: "identity.proto"
     },
     handlers: {
-      // Group operations
-      createGroup: createGroup(prisma),
-      deleteGroup: deleteGroup(prisma),
-      getGroupById: getGroupById(prisma),
-      updateGroup: updateGroup(prisma),
-      listGroups: listGroups(prisma),
-      inviteUserToGroup: inviteUserToGroup(prisma, identityConfig, sendInvite),
-      resendGroupMembershipInvitation: resendGroupMembershipInvitation(
+      // Workspace operations
+      createWorkspace: createWorkspace(prisma),
+      deleteWorkspace: deleteWorkspace(prisma),
+      getWorkspaceById: getWorkspaceById(prisma),
+      updateWorkspace: updateWorkspace(prisma),
+      listWorkspaces: listWorkspaces(prisma),
+      inviteUserToWorkspace: inviteUserToWorkspace(
         prisma,
         identityConfig,
         sendInvite
       ),
-      removeUserFromGroup: removeUserFromGroup(prisma),
+      resendWorkspaceMembershipInvitation: resendWorkspaceMembershipInvitation(
+        prisma,
+        identityConfig,
+        sendInvite
+      ),
+      removeUserFromWorkspace: removeUserFromWorkspace(prisma),
       // User operations
       createUser: createUser(prisma),
       getUserById: getUserById(prisma),
