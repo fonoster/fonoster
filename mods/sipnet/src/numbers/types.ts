@@ -18,37 +18,37 @@
  */
 import * as RTypes from "./client";
 
-type Agent = Omit<RTypes.Agent, "extended">;
+type INumber = Omit<RTypes.INumber, "extended">;
 
-type CreateAgentRequest = Omit<RTypes.CreateAgentRequest, "extended">;
+type CreateNumberRequest = Omit<RTypes.CreateNumberRequest, "extended">;
 
-type CreateAgentResponse = RTypes.CreateAgentResponse;
+type CreateNumberResponse = RTypes.CreateNumberResponse;
 
-type UpdateAgentRequest = RTypes.UpdateAgentRequest;
+type UpdateNumberRequest = RTypes.UpdateNumberRequest;
 
-type UpdateAgentResponse = RTypes.UpdateAgentResponse;
+type UpdateNumberResponse = RTypes.UpdateNumberResponse;
 
-type GetAgentRequest = RTypes.GetAgentRequest;
+type GetNumberRequest = RTypes.GetNumberRequest;
 
-type ListAgentsRequest = RTypes.ListAgentsRequest;
+type ListNumbersRequest = RTypes.ListNumbersRequest;
 
-type ListAgentsResponse = RTypes.ListAgentsResponse;
+type ListNumbersResponse = RTypes.ListNumbersResponse;
 
-type DeleteAgentRequest = RTypes.DeleteAgentRequest;
+type DeleteNumberRequest = RTypes.DeleteNumberRequest;
 
-type DeleteAgentResponse = {
+type DeleteNumberResponse = {
   ref: string;
 };
 
 export type {
-  Agent,
-  CreateAgentRequest,
-  CreateAgentResponse,
-  UpdateAgentRequest,
-  UpdateAgentResponse,
-  GetAgentRequest,
-  ListAgentsRequest,
-  ListAgentsResponse,
-  DeleteAgentRequest,
-  DeleteAgentResponse
+  INumber,
+  CreateNumberRequest,
+  CreateNumberResponse,
+  UpdateNumberRequest,
+  UpdateNumberResponse,
+  GetNumberRequest,
+  ListNumbersRequest,
+  ListNumbersResponse,
+  DeleteNumberRequest,
+  DeleteNumberResponse
 };

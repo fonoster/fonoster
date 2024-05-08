@@ -24,7 +24,7 @@ type CreateDomainRequest = Omit<RTypes.CreateDomainRequest, "extended">;
 
 type CreateDomainResponse = RTypes.CreateDomainResponse;
 
-type UpdateDomainRequest = Omit<RTypes.UpdateDomainRequest, "extended">;
+type UpdateDomainRequest = RTypes.UpdateDomainRequest;
 
 type UpdateDomainResponse = RTypes.UpdateDomainResponse;
 

@@ -17,89 +17,80 @@
  * limitations under the License.
  */
 import { JsonObject } from "@prisma/client/runtime/library";
-import { Domain } from "../domains/types";
 
-enum Privacy {
-  PRIVATE = "ID",
-  NONE = "NONE"
-}
-
-type Agent = {
+type Credentials = {
   ref: string;
   name: string;
   username: string;
-  privacy: Privacy;
-  enabled: boolean;
-  maxContacts?: number;
-  expires?: number;
-  domain?: Domain;
+  password: string;
   extended?: JsonObject;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
 };
 
-type CreateAgentRequest = {
+type CreateCredentialsRequest = {
   name: string;
   username: string;
-  privacy: Privacy;
-  enabled: boolean;
-  maxContacts: number;
-  expires?: number;
-  domainRef: string;
+  password: string;
   extended: {
     accessKeyId: string;
   };
 };
 
-type UpdateAgentRequest = {
+type UpdateCredentialsRequest = {
   ref: string;
-} & Omit<Partial<CreateAgentRequest>, "username" | "extended">;
+} & Omit<Partial<CreateCredentialsRequest>, "username" | "extended">;
 
-type CreateAgentResponse = {
-  ref: string;
-};
-
-type UpdateAgentResponse = {
+type CreateCredentialsResponse = {
   ref: string;
 };
 
-type GetAgentRequest = {
+type UpdateCredentialsResponse = {
   ref: string;
 };
 
-type DeleteAgentRequest = {
+type GetCredentialsRequest = {
   ref: string;
 };
 
-type ListAgentsRequest = {
+type DeleteCredentialsRequest = {
+  ref: string;
+};
+
+type ListCredentialsRequest = {
   pageSize: number;
   pageToken: string;
 };
 
-type ListAgentsResponse = {
-  items: Agent[];
+type ListCredentialsResponse = {
+  items: Credentials[];
   nextPageToken: string;
 };
 
-type AgentsAPI = {
-  createAgent(request: CreateAgentRequest): Promise<CreateAgentResponse>;
-  updateAgent(request: UpdateAgentRequest): Promise<UpdateAgentResponse>;
-  getAgent(ref: string): Promise<Agent>;
-  deleteAgent(ref: string): Promise<void>;
-  listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse>;
+type CredentialsAPI = {
+  createCredentials(
+    request: CreateCredentialsRequest
+  ): Promise<CreateCredentialsResponse>;
+  updateCredentials(
+    request: UpdateCredentialsRequest
+  ): Promise<UpdateCredentialsResponse>;
+  getCredentials(ref: string): Promise<Credentials>;
+  deleteCredentials(ref: string): Promise<void>;
+  listCredentials(
+    request: ListCredentialsRequest
+  ): Promise<ListCredentialsResponse>;
 };
 
 export {
-  Agent,
-  CreateAgentRequest,
-  UpdateAgentRequest,
-  CreateAgentResponse,
-  UpdateAgentResponse,
-  GetAgentRequest,
-  DeleteAgentRequest,
-  ListAgentsRequest,
-  ListAgentsResponse,
-  AgentsAPI,
-  Privacy
+  Credentials,
+  CreateCredentialsRequest,
+  UpdateCredentialsRequest,
+  CreateCredentialsResponse,
+  UpdateCredentialsResponse,
+  GetCredentialsRequest,
+  DeleteCredentialsRequest,
+  ListCredentialsRequest,
+  ListCredentialsResponse,
+  CredentialsAPI
 };

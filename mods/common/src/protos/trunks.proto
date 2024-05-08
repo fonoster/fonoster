@@ -1,0 +1,160 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.trunks.v1beta2;
+
+import "acl.proto";
+import "credentials.proto";
+
+// The Trunks service definition
+service Trunks {
+  // Create a new Trunk
+  rpc CreateTrunk (CreateTrunkRequest) returns (CreateTrunkResponse) {}
+  // UpdateTrunk an existing Trunk
+  rpc UpdateTrunk (UpdateTrunkRequest) returns (UpdateTrunkResponse) {}
+  // Get a Trunk by reference
+  rpc GetTrunk (GetTrunkRequest) returns (Trunk) {}
+  // Delete a Trunk by reference
+  rpc DeleteTrunk (DeleteTrunkRequest) returns (DeleteTrunkResponse) {}
+  // List all Trunks
+  rpc ListTrunks (ListTrunkRequest) returns (ListTrunksResponse) {}
+}
+
+// The message for the Trunk URIs
+message TrunkURI {
+  // The host name or IP address of the Trunk
+  string host = 1;
+  // The port number of the Trunk
+  int32 port = 2;
+  // The transport protocol of the Trunk
+  string transport = 3;
+  // The username to use when authenticating with the Trunk
+  string user = 4;
+  // The weight of the Trunk
+  int32 weight = 5;
+  // The priority of the Trunk
+  int32 priority = 6;
+  // The flag to enable or disable the Trunk
+  bool enabled = 7;
+} 
+
+// The message for the Trunk resource
+message Trunk {
+  // The reference of the Trunk
+  string ref = 1;
+  // The name of the Trunk
+  string name = 2;
+  // A flag to indicate if we should send a REGISTER request to the Trunk
+  bool send_register = 3;
+  // The URI for inbound requests
+  string inbound_uri = 4;
+  // The date and time when the Trunk was created
+  int32 created_at = 5;
+  // The date and time when the Trunk was last updated
+  int32 updated_at = 6;
+  // The list of IP addresses that are allowed to access the Trunks
+  fonoster.acl.v1beta2.AccessControlList access_control_list = 7;
+  // The credentials to use when authenticating with the Trunk
+  fonoster.credentials.v1beta2.Credentials inbound_credentials = 8;
+  // The credentials to use when authenticating with the Provider
+  fonoster.credentials.v1beta2.Credentials outbound_credentials = 9;
+  // The list of URIs for the Trunk
+  repeated TrunkURI uris = 10;
+}
+
+// The message for the Trunk.Create
+message CreateTrunkRequest {
+  // The name of the Trunk
+  string name = 1;
+  // A flag to indicate if we should send a REGISTER request to the Trunk
+  bool send_register = 2;
+  // The URI for inbound requests
+  string inbound_uri = 3;
+  // Reference to the AccessControlList
+  string access_control_list_ref = 4;
+  // Reference to the inbound Credentials
+  string inbound_credentials_ref = 5;
+  // Reference to the outbound Credentials
+  string outbound_credentials_ref = 6;
+  // The list of URIs for the Trunk
+  repeated TrunkURI uris = 7;
+}
+
+// The message for the Trunk.CreateTrunk response
+message CreateTrunkResponse {
+  // The reference of the Trunk
+  string ref = 1;
+}
+
+// The message for the Trunk.UpdateTrunk
+message UpdateTrunkRequest {
+  // The reference of the Trunk
+  string ref = 1;
+  // The name of the Trunk
+  string name = 2;
+  // A flag to indicate if we should send a REGISTER request to the Trunk
+  bool send_register = 3;
+  // The URI for inbound requests
+  string inbound_uri = 4;
+  // Reference to the AccessControlList
+  string access_control_list_ref = 5;
+  // Reference to the inbound Credentials
+  string inbound_credentials_ref = 6;
+  // Reference to the outbound Credentials
+  string outbound_credentials_ref = 7;
+  // The list of URIs for the Trunk
+  repeated TrunkURI uris = 8;
+}
+
+// The message for the Trunk.UpdateTrunk response
+
+// The message for the Trunk.GetTrunk
+message GetTrunkRequest {
+  // The reference of the Trunk
+  string ref = 1;
+}
+
+// The message for the Trunk.DeleteTrunk
+message DeleteTrunkRequest {
+  // The reference of the Trunk
+  string ref = 1;
+}
+
+// The message for the Trunk.DeleteTrunk response
+message DeleteTrunkResponse {
+  // The reference of the Trunk
+  string ref = 1;
+}
+
+// The message for the Trunk.ListTrunk request
+message ListTrunkRequest {
+  // The maximum number of items in the list
+  int32 page_size = 1;
+  // The next_page_token value returned from the previous request, if any
+  string page_token = 2;
+}
+
+// The message for the Trunk.ListTrunk response
+message ListTrunksResponse {
+  // List of Trunks
+  repeated Trunk items = 1;
+  // Token to retrieve the next page of results, or empty if there are no more results in the list
+  string next_page_token = 2;
+}

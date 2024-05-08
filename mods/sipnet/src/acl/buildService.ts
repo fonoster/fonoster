@@ -16,4 +16,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { buildService as buildAgentsService } from "./buildService";
+import SDK from "@routr/sdk";
+import {
+  createACL,
+  deleteACL,
+  getACL,
+  listACLs,
+  updateACL
+} from "./operations";
+import { ClientOptions } from "../types";
+
+function buildService(clientOptions: ClientOptions) {
+  const client = new SDK.ACL(clientOptions);
+
+  return {
+    definition: {
+      serviceName: "ACL",
+      pckg: "acl",
+      version: "v1beta2",
+      proto: "acl.proto"
+    },
+    handlers: {
+      createACL: createACL(client),
+      updateACL: updateACL(client),
+      getACL: getACL(client),
+      listACLs: listACLs(client),
+      deleteACL: deleteACL(client)
+    }
+  };
+}
+
+export { buildService };

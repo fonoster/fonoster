@@ -17,4 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./agents";
+export * from "./acl";
 export * from "./domains";
+export * from "./numbers";
+export * from "./trunks";
+export * from "./credentials";

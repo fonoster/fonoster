@@ -18,75 +18,73 @@
  */
 import { JsonObject } from "@prisma/client/runtime/library";
 
-type Domain = {
+type ACL = {
   ref: string;
   name: string;
-  domainUri: string;
-  accessControlListRef?: string;
-  egressPolicies?: { rule: string; numberRef: string }[];
+  allow: string[];
+  deny: string[];
   extended?: JsonObject;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
 };
 
-type CreateDomainRequest = {
+type CreateACLRequest = {
   name: string;
-  domainUri: string;
-  accessControlListRef?: string;
-  egressPolicies?: { rule: string; numberRef: string }[];
+  allow: string[];
+  deny: string[];
   extended: {
     accessKeyId: string;
   };
 };
 
-type UpdateDomainRequest = {
+type UpdateACLRequest = {
   ref: string;
-} & Omit<Partial<CreateDomainRequest>, "domainUri" | "extended">;
+} & Omit<Partial<CreateACLRequest>, "extended">;
 
-type CreateDomainResponse = {
-  ref: string;
-};
-
-type UpdateDomainResponse = {
+type CreateACLResponse = {
   ref: string;
 };
 
-type GetDomainRequest = {
+type UpdateACLResponse = {
   ref: string;
 };
 
-type DeleteDomainRequest = {
+type GetACLRequest = {
   ref: string;
 };
 
-type ListDomainsRequest = {
+type DeleteACLRequest = {
+  ref: string;
+};
+
+type ListACLsRequest = {
   pageSize: number;
   pageToken: string;
 };
 
-type ListDomainsResponse = {
-  items: Domain[];
+type ListACLsResponse = {
+  items: ACL[];
   nextPageToken: string;
 };
 
-type DomainsAPI = {
-  createDomain: (request: CreateDomainRequest) => Promise<CreateDomainResponse>;
-  updateDomain: (request: UpdateDomainRequest) => Promise<UpdateDomainResponse>;
-  getDomain: (ref: string) => Promise<Domain>;
-  listDomains: (request: ListDomainsRequest) => Promise<ListDomainsResponse>;
-  deleteDomain: (ref: string) => Promise<void>;
+type ACLsAPI = {
+  createACL(request: CreateACLRequest): Promise<CreateACLResponse>;
+  updateACL(request: UpdateACLRequest): Promise<UpdateACLResponse>;
+  getACL(ref: string): Promise<ACL>;
+  deleteACL(ref: string): Promise<void>;
+  listACLs(request: ListACLsRequest): Promise<ListACLsResponse>;
 };
 
 export {
-  DomainsAPI,
-  Domain,
-  CreateDomainRequest,
-  CreateDomainResponse,
-  UpdateDomainRequest,
-  UpdateDomainResponse,
-  GetDomainRequest,
-  DeleteDomainRequest,
-  ListDomainsRequest,
-  ListDomainsResponse
+  ACL,
+  CreateACLRequest,
+  UpdateACLRequest,
+  CreateACLResponse,
+  UpdateACLResponse,
+  GetACLRequest,
+  DeleteACLRequest,
+  ListACLsRequest,
+  ListACLsResponse,
+  ACLsAPI
 };

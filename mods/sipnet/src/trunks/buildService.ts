@@ -16,4 +16,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export { buildService as buildAgentsService } from "./buildService";
+import SDK from "@routr/sdk";
+import {
+  createTrunk,
+  deleteTrunk,
+  getTrunk,
+  listTrunk,
+  updateTrunk
+} from "./operations";
+import { ClientOptions } from "../types";
+
+function buildService(clientOptions: ClientOptions) {
+  const client = new SDK.Trunks(clientOptions);
+
+  return {
+    definition: {
+      serviceName: "Trunks",
+      pckg: "trunks",
+      version: "v1beta2",
+      proto: "trunks.proto"
+    },
+    handlers: {
+      createTrunk: createTrunk(client),
+      updateTrunk: updateTrunk(client),
+      getTrunk: getTrunk(client),
+      listTrunk: listTrunk(client),
+      deleteTrunk: deleteTrunk(client)
+    }
+  };
+}
+
+export { buildService };

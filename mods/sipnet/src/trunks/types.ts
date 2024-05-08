@@ -18,37 +18,37 @@
  */
 import * as RTypes from "./client";
 
-type Agent = Omit<RTypes.Agent, "extended">;
+type Trunk = Omit<RTypes.Trunk, "extended">;
 
-type CreateAgentRequest = Omit<RTypes.CreateAgentRequest, "extended">;
+type CreateTrunkRequest = Omit<RTypes.CreateTrunkRequest, "extended">;
 
-type CreateAgentResponse = RTypes.CreateAgentResponse;
+type CreateTrunkResponse = RTypes.CreateTrunkResponse;
 
-type UpdateAgentRequest = RTypes.UpdateAgentRequest;
+type UpdateTrunkRequest = RTypes.UpdateTrunkRequest;
 
-type UpdateAgentResponse = RTypes.UpdateAgentResponse;
+type UpdateTrunkResponse = RTypes.UpdateTrunkResponse;
 
-type GetAgentRequest = RTypes.GetAgentRequest;
+type GetTrunkRequest = RTypes.GetTrunkRequest;
 
-type ListAgentsRequest = RTypes.ListAgentsRequest;
+type ListTrunksRequest = RTypes.ListTrunksRequest;
 
-type ListAgentsResponse = RTypes.ListAgentsResponse;
+type ListTrunksResponse = RTypes.ListTrunksResponse;
 
-type DeleteAgentRequest = RTypes.DeleteAgentRequest;
+type DeleteTrunkRequest = RTypes.DeleteTrunkRequest;
 
-type DeleteAgentResponse = {
+type DeleteTrunkResponse = {
   ref: string;
 };
 
 export type {
-  Agent,
-  CreateAgentRequest,
-  CreateAgentResponse,
-  UpdateAgentRequest,
-  UpdateAgentResponse,
-  GetAgentRequest,
-  ListAgentsRequest,
-  ListAgentsResponse,
-  DeleteAgentRequest,
-  DeleteAgentResponse
+  Trunk,
+  CreateTrunkRequest,
+  CreateTrunkResponse,
+  UpdateTrunkRequest,
+  UpdateTrunkResponse,
+  GetTrunkRequest,
+  ListTrunksRequest,
+  ListTrunksResponse,
+  DeleteTrunkRequest,
+  DeleteTrunkResponse
 };

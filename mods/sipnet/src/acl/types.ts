@@ -18,37 +18,37 @@
  */
 import * as RTypes from "./client";
 
-type Agent = Omit<RTypes.Agent, "extended">;
+type ACL = Omit<RTypes.ACL, "extended">;
 
-type CreateAgentRequest = Omit<RTypes.CreateAgentRequest, "extended">;
+type CreateACLRequest = Omit<RTypes.CreateACLRequest, "extended">;
 
-type CreateAgentResponse = RTypes.CreateAgentResponse;
+type CreateACLResponse = RTypes.CreateACLResponse;
 
-type UpdateAgentRequest = RTypes.UpdateAgentRequest;
+type UpdateACLRequest = RTypes.UpdateACLRequest;
 
-type UpdateAgentResponse = RTypes.UpdateAgentResponse;
+type UpdateACLResponse = RTypes.UpdateACLResponse;
 
-type GetAgentRequest = RTypes.GetAgentRequest;
+type GetACLRequest = RTypes.GetACLRequest;
 
-type ListAgentsRequest = RTypes.ListAgentsRequest;
+type ListACLsRequest = RTypes.ListACLsRequest;
 
-type ListAgentsResponse = RTypes.ListAgentsResponse;
+type ListACLsResponse = RTypes.ListACLsResponse;
 
-type DeleteAgentRequest = RTypes.DeleteAgentRequest;
+type DeleteACLRequest = RTypes.DeleteACLRequest;
 
-type DeleteAgentResponse = {
+type DeleteACLResponse = {
   ref: string;
 };
 
 export type {
-  Agent,
-  CreateAgentRequest,
-  CreateAgentResponse,
-  UpdateAgentRequest,
-  UpdateAgentResponse,
-  GetAgentRequest,
-  ListAgentsRequest,
-  ListAgentsResponse,
-  DeleteAgentRequest,
-  DeleteAgentResponse
+  ACL,
+  CreateACLRequest,
+  CreateACLResponse,
+  UpdateACLRequest,
+  UpdateACLResponse,
+  GetACLRequest,
+  ListACLsRequest,
+  ListACLsResponse,
+  DeleteACLRequest,
+  DeleteACLResponse
 };
