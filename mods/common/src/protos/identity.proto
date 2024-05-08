@@ -24,7 +24,7 @@ service Identity {
   // Workspace actions
   rpc CreateWorkspace (CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {}
   rpc DeleteWorkspace (DeleteWorkspaceRequest) returns (DeleteWorkspaceResponse) {}
-  rpc GetWorkspaceById (GetWorkspaceByIdRequest) returns (GetWorkspaceByIdResponse) {}
+  rpc GetWorkspace (GetWorkspaceRequest) returns (GetWorkspaceResponse) {}
   rpc ListWorkspaces (ListWorkspacesRequest) returns (ListWorkspacesResponse) {}
   rpc UpdateWorkspace (UpdateWorkspaceRequest) returns (UpdateWorkspaceResponse) {}
   rpc InviteUserToWorkspace (InviteUserToWorkspaceRequest) returns (InviteUserToWorkspaceResponse) {}
@@ -33,7 +33,7 @@ service Identity {
   
   // User specific actions
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
-  rpc GetUserById (GetUserByIdRequest) returns (GetUserByIdResponse) {}
+  rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
   
@@ -69,11 +69,11 @@ message DeleteWorkspaceResponse {
   string id = 1;
 }
 
-message GetWorkspaceByIdRequest {
+message GetWorkspaceRequest {
   string id = 1;
 }
 
-message GetWorkspaceByIdResponse {
+message GetWorkspaceResponse {
   string id = 1;
   string name = 2;
   string owner_id = 3;
@@ -145,11 +145,11 @@ message CreateUserResponse {
   string id = 1;
 }
 
-message GetUserByIdRequest {
+message GetUserRequest {
   string id = 1;
 }
 
-message GetUserByIdResponse {
+message GetUserResponse {
   string id = 1;
   string email = 2;
   string name = 3;

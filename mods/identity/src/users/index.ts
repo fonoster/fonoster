@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 export * from "./createUser";
-export * from "./getUserById";
+export * from "./getUser";
 export * from "./deleteUser";
 export * from "./updateUser";
 export * from "./upsertDefaultUser";

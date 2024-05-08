@@ -28,8 +28,8 @@ import {
   exchangeAPIKey,
   exchangeCredentials,
   exchangeRefreshToken,
-  getUserById,
-  getWorkspaceById,
+  getUser,
+  getWorkspace,
   inviteUserToWorkspace,
   listAPIKeys,
   listWorkspaces,
@@ -53,7 +53,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       // Workspace operations
       createWorkspace: createWorkspace(prisma),
       deleteWorkspace: deleteWorkspace(prisma),
-      getWorkspaceById: getWorkspaceById(prisma),
+      getWorkspace: getWorkspace(prisma),
       updateWorkspace: updateWorkspace(prisma),
       listWorkspaces: listWorkspaces(prisma),
       inviteUserToWorkspace: inviteUserToWorkspace(
@@ -69,7 +69,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       removeUserFromWorkspace: removeUserFromWorkspace(prisma),
       // User operations
       createUser: createUser(prisma),
-      getUserById: getUserById(prisma),
+      getUser: getUser(prisma),
       deleteUser: deleteUser(prisma),
       updateUser: updateUser(prisma),
       // API Key operations

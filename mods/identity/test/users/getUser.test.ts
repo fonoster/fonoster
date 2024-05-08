@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[workspaces/getWorkspaceById]", function () {
+describe("@identity[users/getUser]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should get a workspace by id", async function () {
+  it("should get a user by id", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -45,37 +45,36 @@ describe("@identity[workspaces/getWorkspaceById]", function () {
       }
     };
 
-    const workspace = {
+    const user = {
       id: "123",
-      name: "My Workspace",
-      ownerId: "123",
+      email: "john@example.com",
+      name: "John Doe",
+      avatar: "https://example.com/avatar.jpg",
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
     const prisma = {
-      workspace: {
-        findUnique: sandbox.stub().resolves(workspace)
+      user: {
+        findUnique: sandbox.stub().resolves(user)
       }
     } as unknown as Prisma;
 
-    const { getWorkspaceById } = await import(
-      "../../src/workspaces/getWorkspaceById"
-    );
+    const { getUser } = await import("../../src/users/getUser");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      getWorkspaceById(prisma)(call, (error, response) => {
+      getUser(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
     });
 
     // Assert
-    expect(response).to.deep.equal(workspace);
+    expect(response).to.deep.equal(user);
   });
 
-  it("should throw an error if workspace not found", async function () {
+  it("should throw an error if user not found", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -88,21 +87,19 @@ describe("@identity[workspaces/getWorkspaceById]", function () {
     };
 
     const prisma = {
-      workspace: {
+      user: {
         findUnique: sandbox.stub().resolves(null)
       }
     } as unknown as Prisma;
 
-    const { getWorkspaceById } = await import(
-      "../../src/workspaces/getWorkspaceById"
-    );
+    const { getUser } = await import("../../src/users/getUser");
 
     // Act
-    await getWorkspaceById(prisma)(call, (error) => {
+    await getUser(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,
-        message: "Workspace not found"
+        message: "User not found"
       });
     });
   });

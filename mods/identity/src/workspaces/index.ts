@@ -18,7 +18,7 @@
  */
 export * from "./createWorkspace";
 export * from "./deleteWorkspace";
-export * from "./getWorkspaceById";
+export * from "./getWorkspace";
 export * from "./updateWorkspace";
 export * from "./listWorkspaces";
 export * from "./inviteUserToWorkspace";

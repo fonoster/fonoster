@@ -20,56 +20,55 @@ import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { getAccessKeyIdFromToken } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
-import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type GetWorkspaceByIdRequest = {
+type GetUserRequest = {
   id: string;
 };
 
-type GetWorkspaceByIdResponse = {
+type GetUserResponse = {
   id: string;
+  email: string;
   name: string;
-  ownerId: string;
+  avatar: string;
   createdAt: Date;
   updatedAt: Date;
 };
 
-function getWorkspaceById(prisma: Prisma) {
+function getUser(prisma: Prisma) {
   return async (
-    call: { request: GetWorkspaceByIdRequest },
-    callback: (error: GRPCErrors, response?: GetWorkspaceByIdResponse) => void
+    call: { request: GetUserRequest },
+    callback: (error: GRPCErrors, response?: GetUserResponse) => void
   ) => {
     try {
       const { id } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerId = getUserIdFromToken(token);
+      const accessKeyId = getAccessKeyIdFromToken(token);
 
-      logger.verbose("getting workspace by id", { id, ownerId });
+      logger.verbose("getting user by id", { id, accessKeyId });
 
-      const workspace = await prisma.workspace.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           id,
-          ownerId
+          accessKeyId
         }
       });
 
-      if (!workspace) {
-        callback({
-          code: GRPCStatus.NOT_FOUND,
-          message: "Workspace not found"
-        });
+      if (!user) {
+        callback({ code: GRPCStatus.NOT_FOUND, message: "User not found" });
         return;
       }
 
-      const response: GetWorkspaceByIdResponse = {
-        id: workspace.id,
-        name: workspace.name,
-        ownerId: workspace.ownerId,
-        createdAt: workspace.createdAt,
-        updatedAt: workspace.updatedAt
+      const response: GetUserResponse = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        avatar: user.avatar,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
       };
 
       callback(null, response);
@@ -79,4 +78,4 @@ function getWorkspaceById(prisma: Prisma) {
   };
 }
 
-export { getWorkspaceById };
+export { getUser };
