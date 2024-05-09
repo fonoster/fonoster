@@ -32,7 +32,7 @@ import { upsertDefaultPeer } from "./upsertDefaultPeer";
 async function main() {
   if (OWNER_EMAIL) {
     const user = {
-      id: OWNER_ID,
+      ref: OWNER_ID,
       name: OWNER_NAME,
       email: OWNER_EMAIL,
       password: OWNER_PASSWORD,

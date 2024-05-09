@@ -57,7 +57,7 @@ function createAPIKey(prisma: Prisma) {
 
       const { workspaceRef, role, expiresAt } = validatedRequest;
 
-      logger.info("creating APIKey", { workspaceRef, role, expiresAt });
+      logger.info("creating new APIKey", { workspaceRef, role, expiresAt });
 
       const response = await prisma.aPIKey.create({
         data: {
