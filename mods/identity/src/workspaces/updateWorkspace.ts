@@ -28,14 +28,14 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const UpdateWorkspaceRequestSchema = z.object({
-  id: z.string(),
+  ref: z.string(),
   name: z.string().min(3).max(50).or(z.string().optional().nullable())
 });
 
 type UpdateWorkspaceRequest = z.infer<typeof UpdateWorkspaceRequestSchema>;
 
 type UpdateWorkspaceResponse = {
-  id: string;
+  ref: string;
 };
 
 function updateWorkspace(prisma: Prisma) {
@@ -46,12 +46,12 @@ function updateWorkspace(prisma: Prisma) {
     try {
       const validatedRequest = UpdateWorkspaceRequestSchema.parse(call.request);
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const userId = getUserIdFromToken(token);
-      const { id, name } = validatedRequest;
+      const userRef = getUserIdFromToken(token);
+      const { ref, name } = validatedRequest;
 
-      logger.verbose("call to updateWorkspace", { id, userId });
+      logger.verbose("call to updateWorkspace", { ref, userRef });
 
-      const isMember = await isWorkspaceMember(prisma)(id, userId);
+      const isMember = await isWorkspaceMember(prisma)(ref, userRef);
 
       if (!isMember) {
         callback({
@@ -62,7 +62,7 @@ function updateWorkspace(prisma: Prisma) {
 
       await prisma.workspace.update({
         where: {
-          id
+          ref
         },
         data: {
           name
@@ -70,7 +70,7 @@ function updateWorkspace(prisma: Prisma) {
       });
 
       const response: UpdateWorkspaceResponse = {
-        id
+        ref
       };
 
       callback(null, response);

@@ -26,11 +26,11 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type DeleteWorkspaceRequest = {
-  id: string;
+  ref: string;
 };
 
 type DeleteWorkspaceResponse = {
-  id: string;
+  ref: string;
 };
 
 function deleteWorkspace(prisma: Prisma) {
@@ -39,22 +39,22 @@ function deleteWorkspace(prisma: Prisma) {
     callback: (error: GRPCErrors, response?: DeleteWorkspaceResponse) => void
   ) => {
     try {
-      const { id } = call.request;
+      const { ref } = call.request;
 
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerId = getUserIdFromToken(token);
+      const ownerRef = getUserIdFromToken(token);
 
-      logger.verbose("deleting workspace by id", { id, ownerId });
+      logger.verbose("deleting workspace from the system", { ref, ownerRef });
 
       await prisma.workspace.delete({
         where: {
-          id,
-          ownerId
+          ref,
+          ownerRef
         }
       });
 
       const response: DeleteWorkspaceRequest = {
-        id
+        ref
       };
 
       callback(null, response);

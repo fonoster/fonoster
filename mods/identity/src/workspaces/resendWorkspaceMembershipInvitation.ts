@@ -30,13 +30,13 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type ResendWorkspaceMembershipInvitationRequest = {
-  workspaceId: string;
-  userId: string;
+  workspaceRef: string;
+  userRef: string;
 };
 
 type ResendWorkspaceMembershipInvitationResponse = {
-  workspaceId: string;
-  userId: string;
+  workspaceRef: string;
+  userRef: string;
 };
 
 function resendWorkspaceMembershipInvitation(
@@ -52,19 +52,19 @@ function resendWorkspaceMembershipInvitation(
     ) => void
   ) => {
     try {
-      const { workspaceId, userId } = call.request;
+      const { workspaceRef, userRef } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const adminId = getUserIdFromToken(token);
 
       logger.debug("removing workspace member", {
-        workspaceId,
-        userId,
+        workspaceRef,
+        userRef,
         adminId
       });
 
-      const isAdmin = await isAdminMember(prisma)(workspaceId, adminId);
+      const isAdmin = await isAdminMember(prisma)(workspaceRef, adminId);
 
-      if (!isAdmin && adminId !== userId) {
+      if (!isAdmin && adminId !== userRef) {
         return callback({
           code: GRPCStatus.PERMISSION_DENIED,
           message: "Only admins or owners can remove users from a workspace"
@@ -73,8 +73,8 @@ function resendWorkspaceMembershipInvitation(
 
       const member = await prisma.workspaceMember.findFirst({
         where: {
-          workspaceId,
-          userId
+          workspaceRef,
+          userRef
         },
         include: {
           user: true,
@@ -99,8 +99,8 @@ function resendWorkspaceMembershipInvitation(
       });
 
       callback(null, {
-        workspaceId,
-        userId
+        workspaceRef,
+        userRef
       });
     } catch (error) {
       handleError(error, callback);

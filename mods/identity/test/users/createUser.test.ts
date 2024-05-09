@@ -47,16 +47,16 @@ describe("@identity[users/createUser]", function () {
 
     const prisma = {
       user: {
-        create: sandbox.stub().resolves({ id: "123" })
+        create: sandbox.stub().resolves({ ref: "123" })
       }
     } as unknown as Prisma;
 
     const { createUser } = await import("../../src/users/createUser");
 
     // Act
-    await createUser(prisma)(call, (_, response) => {
+    await createUser(prisma)(call, (error, response) => {
       // Assert
-      expect(response).to.deep.equal({ id: "123" });
+      expect(response).to.deep.equal({ ref: "123" });
     });
   });
 

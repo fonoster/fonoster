@@ -19,23 +19,23 @@
 import { Prisma } from "../db";
 
 function isWorkspaceMember(prisma: Prisma) {
-  return async (workspaceId: string, userId: string) => {
+  return async (workspaceRef: string, userRef: string) => {
     const workspace = await prisma.workspace.findUnique({
       where: {
-        id: workspaceId
+        ref: workspaceRef
       }
     });
 
     const isMember = await prisma.workspaceMember.findFirst({
       where: {
         // Force userId to be an empty string to ensure that the query is not
-        // fillter by workspaceId only
-        userId: userId || "",
-        workspaceId
+        // fillter by workspaceRef only
+        userRef: userRef || "",
+        workspaceRef
       }
     });
 
-    const isOwner = workspace?.ownerId === userId;
+    const isOwner = workspace?.ownerRef === userRef;
 
     return !!(isMember || isOwner);
   };

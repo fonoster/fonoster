@@ -38,13 +38,13 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-    const userId = "635c0cd8-8125-483d-b467-05c53ce2cd31";
+    const userRef = "635c0cd8-8125-483d-b467-05c53ce2cd31";
 
     const call = {
       metadata,
       request: {
-        workspaceId: "123",
-        userId
+        workspaceRef: "123",
+        userRef
       }
     };
 
@@ -61,10 +61,10 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     const prisma = {
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ownerId: userId,
+          ownerRef: userRef,
           members: [
             {
-              userId,
+              userRef,
               role: "ADMIN"
             }
           ]
@@ -100,8 +100,8 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
 
     // Assert
     expect(callback).to.have.been.calledOnceWith(null, {
-      workspaceId: "123",
-      userId
+      workspaceRef: "123",
+      userRef
     });
   });
 
@@ -109,13 +109,13 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-    const userId = "635c0cd8-8125-483d-b467-05c53ce2cd31";
+    const userRef = "635c0cd8-8125-483d-b467-05c53ce2cd31";
 
     const call = {
       metadata,
       request: {
-        workspaceId: "123",
-        userId
+        workspaceRef: "123",
+        userRef
       }
     };
 
@@ -124,10 +124,10 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     const prisma = {
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ownerId: "another-user",
+          ownerRef: "another-user",
           members: [
             {
-              userId,
+              userRef,
               role: "USER"
             }
           ]
@@ -141,10 +141,6 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     const { resendWorkspaceMembershipInvitation } = await import(
       "../../src/workspaces/resendWorkspaceMembershipInvitation"
     );
-
-    // const callback = sandbox.stub();
-
-    // await resendWorkspaceMembershipInvitation(prisma, identity, sendInvite)(call, callback);
 
     resendWorkspaceMembershipInvitation(
       prisma,

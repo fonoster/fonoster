@@ -41,14 +41,14 @@ describe("@identity[users/updateUser]", function () {
     const call = {
       metadata,
       request: {
-        id: "123",
+        ref: "123",
         name: "John Doex"
       }
     };
 
     const prisma = {
       user: {
-        update: sandbox.stub().resolves({ id: "123" })
+        update: sandbox.stub().resolves({ ref: "123" })
       }
     } as unknown as Prisma;
 
@@ -63,7 +63,7 @@ describe("@identity[users/updateUser]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal({ id: "123" });
+    expect(response).to.deep.equal({ ref: "123" });
   });
 
   it("should throw an error if the user does not exist", async function () {
@@ -74,7 +74,7 @@ describe("@identity[users/updateUser]", function () {
     const call = {
       metadata,
       request: {
-        id: "123",
+        ref: "123",
         name: "John Doex"
       }
     };

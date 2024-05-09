@@ -38,25 +38,25 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-    const userId = "635c0cd8-8125-483d-b467-05c53ce2cd31";
+    const userRef = "635c0cd8-8125-483d-b467-05c53ce2cd31";
 
     const call = {
       metadata,
       request: {
-        workspaceId: "123",
-        userId
+        workspaceRef: "123",
+        userRef
       }
     };
 
     const prisma = {
       workspaceMember: {
-        findFirst: sandbox.stub().resolves({ id: "123" }),
-        delete: sandbox.stub().resolves({ id: "123" })
+        findFirst: sandbox.stub().resolves({ ref: "123" }),
+        delete: sandbox.stub().resolves({ ref: "123" })
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ownerId: userId,
-          members: [{ userId: userId, role: WorkspaceRoleEnum.ADMIN }]
+          ownerRef: userRef,
+          members: [{ userRef, role: WorkspaceRoleEnum.ADMIN }]
         })
       }
     } as unknown as Prisma;
@@ -74,33 +74,33 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal({ id: "123" });
+    expect(response).to.deep.equal({ ref: "123" });
   });
 
   it("should throw a permission denied error", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-    const userId = "635c0cd8-8125-483d-b467-05c53ce2cd31";
+    const userRef = "635c0cd8-8125-483d-b467-05c53ce2cd31";
 
     const call = {
       metadata,
       request: {
-        workspaceId: "123",
-        userId
+        workspaceRef: "123",
+        userRef
       }
     };
 
     const prisma = {
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ownerId: "another-user-id",
+          ownerRef: "another-user-id",
           members: [{ userId: "another-user-id", role: WorkspaceRoleEnum.USER }]
         })
       },
       workspaceMember: {
-        findFirst: sandbox.stub().resolves({ id: "123" }),
-        delete: sandbox.stub().resolves({ id: "123" })
+        findFirst: sandbox.stub().resolves({ ref: "123" }),
+        delete: sandbox.stub().resolves({ ref: "123" })
       }
     } as unknown as Prisma;
 

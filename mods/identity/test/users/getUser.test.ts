@@ -41,12 +41,12 @@ describe("@identity[users/getUser]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 
     const user = {
-      id: "123",
+      ref: "123",
       email: "john@example.com",
       name: "John Doe",
       avatar: "https://example.com/avatar.jpg",
@@ -82,7 +82,7 @@ describe("@identity[users/getUser]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 

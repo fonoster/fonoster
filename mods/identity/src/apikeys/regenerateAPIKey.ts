@@ -26,13 +26,13 @@ import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const RegenerateAPIKeyRequestSchema = z.object({
-  id: z.string()
+  ref: z.string()
 });
 
 type RegenerateAPIKeyRequest = z.infer<typeof RegenerateAPIKeyRequestSchema>;
 
 type RegenerateAPIKeyResponse = {
-  id: string;
+  ref: string;
   accessKeyId: string;
   accessKeySecret: string;
   role: APIRoleEnum;
@@ -51,13 +51,13 @@ function regenerateAPIKey(prisma: Prisma) {
         call.request
       );
 
-      const { id } = validatedRequest;
+      const { ref } = validatedRequest;
 
-      logger.info("regenerating API Key", { id });
+      logger.info("regenerating APIKey", { ref });
 
       const response = await prisma.aPIKey.update({
         where: {
-          id
+          ref
         },
         data: {
           accessKeySecret: generateAccessKeySecret()
@@ -65,7 +65,7 @@ function regenerateAPIKey(prisma: Prisma) {
       });
 
       callback(null, {
-        id: response.id,
+        ref: response.ref,
         accessKeyId: response.accessKeyId,
         accessKeySecret: response.accessKeySecret,
         role: response.role as APIRoleEnum,

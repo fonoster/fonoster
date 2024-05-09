@@ -41,7 +41,7 @@ describe("@identity[users/deleteUser]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 
@@ -62,7 +62,7 @@ describe("@identity[users/deleteUser]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal({ id: "123" });
+    expect(response).to.deep.equal({ ref: "123" });
   });
 
   it("should throw an error if user not found", async function () {
@@ -73,7 +73,7 @@ describe("@identity[users/deleteUser]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 

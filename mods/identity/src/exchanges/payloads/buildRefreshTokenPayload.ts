@@ -22,14 +22,14 @@ import { IdentityConfig, RefreshToken } from "../types";
 function buildRefreshTokenPayload(params: {
   identityConfig: IdentityConfig;
   accessKeyId: string;
-  identityId: string;
+  identityRef: string;
 }) {
-  const { identityConfig, accessKeyId, identityId } = params;
+  const { identityConfig, accessKeyId, identityRef } = params;
   const { issuer, audience } = identityConfig;
 
   return {
     iss: issuer,
-    sub: identityId,
+    sub: identityRef,
     aud: audience,
     tokenUse: TokenUseEnum.REFRESH,
     accessKeyId

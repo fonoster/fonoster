@@ -41,14 +41,14 @@ describe("@identity[workspaces/getWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 
     const workspace = {
-      id: "123",
+      ref: "123",
       name: "My Workspace",
-      ownerId: "123",
+      ownerRef: "123",
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -81,7 +81,7 @@ describe("@identity[workspaces/getWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 

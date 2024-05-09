@@ -41,7 +41,7 @@ describe("@identity[workspaces/deleteWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 
@@ -64,7 +64,7 @@ describe("@identity[workspaces/deleteWorkspace]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal({ id: "123" });
+    expect(response).to.deep.equal({ ref: "123" });
   });
 
   it("should throw an error if workspace not found", async function () {
@@ -75,7 +75,7 @@ describe("@identity[workspaces/deleteWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 

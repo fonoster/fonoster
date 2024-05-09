@@ -41,15 +41,15 @@ describe("@identity[workspace/updateWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        id: "123",
+        ref: "123",
         name: "My Workspacex"
       }
     };
 
     const prisma = {
       workspace: {
-        update: sandbox.stub().resolves({ id: "123" }),
-        findUnique: sandbox.stub().resolves({ ownerId: "123" })
+        update: sandbox.stub().resolves({ ref: "123" }),
+        findUnique: sandbox.stub().resolves({ ownerRef: "123" })
       },
       workspaceMember: {
         findFirst: sandbox.stub().resolves({})
@@ -69,7 +69,7 @@ describe("@identity[workspace/updateWorkspace]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal({ id: "123" });
+    expect(response).to.deep.equal({ ref: "123" });
   });
 
   it("should throw an error if the user does not exist", async function () {
@@ -80,7 +80,7 @@ describe("@identity[workspace/updateWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        id: "123",
+        ref: "123",
         name: "John Doex"
       }
     };

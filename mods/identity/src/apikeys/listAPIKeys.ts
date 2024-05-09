@@ -25,13 +25,13 @@ import { Prisma } from "../db";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const ListAPIKeysRequestSchema = z.object({
-  workspaceId: z.string()
+  workspaceRef: z.string()
 });
 
 type ListAPIKeysRequest = z.infer<typeof ListAPIKeysRequestSchema>;
 
 type APIKey = {
-  id: string;
+  ref: string;
   accessKeyId: string;
   role: APIRoleEnum;
   expiresAt: Date;
@@ -50,13 +50,13 @@ function listAPIKeys(prisma: Prisma) {
   ) => {
     const validatedRequest = ListAPIKeysRequestSchema.parse(call.request);
 
-    const { workspaceId } = validatedRequest;
+    const { workspaceRef } = validatedRequest;
 
-    logger.verbose("list keys for workspace", { workspaceId });
+    logger.verbose("list keys for workspace", { workspaceRef });
 
     const apiKeys = await prisma.aPIKey.findMany({
       where: {
-        workspaceId
+        workspaceRef
       }
     });
 

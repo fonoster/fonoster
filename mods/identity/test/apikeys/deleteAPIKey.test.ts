@@ -41,12 +41,12 @@ describe("@identity[apikeys/deleteAPIKey]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 
     const res = {
-      id: "123"
+      ref: "123"
     };
 
     const prisma = {
@@ -60,7 +60,7 @@ describe("@identity[apikeys/deleteAPIKey]", function () {
     // Act
     await deleteAPIKey(prisma)(call, (error, response) => {
       // Assert
-      expect(response).to.have.property("id", "123");
+      expect(response).to.have.property("ref", "123");
     });
   });
 });

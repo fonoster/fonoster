@@ -27,13 +27,13 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type RemoveUserFromWorkspaceRequest = {
-  workspaceId: string;
-  userId: string;
+  workspaceRef: string;
+  userRef: string;
 };
 
 type RemoveUserFromWorkspaceResponse = {
-  workspaceId: string;
-  userId: string;
+  workspaceRef: string;
+  userRef: string;
 };
 
 function removeUserFromWorkspace(prisma: Prisma) {
@@ -45,29 +45,32 @@ function removeUserFromWorkspace(prisma: Prisma) {
     ) => void
   ) => {
     try {
-      const { workspaceId, userId } = call.request;
+      const { workspaceRef, userRef } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const userIdFromToken = getUserIdFromToken(token);
+      const userRefFromToken = getUserIdFromToken(token);
 
-      logger.debug("removing user from workspace", { workspaceId, userId });
+      logger.debug("removing user from workspace", { workspaceRef, userRef });
 
-      const isAdmin = await isAdminMember(prisma)(workspaceId, userIdFromToken);
+      const isAdmin = await isAdminMember(prisma)(
+        workspaceRef,
+        userRefFromToken
+      );
 
-      if (!isAdmin && userIdFromToken !== userId) {
+      if (!isAdmin && userRefFromToken !== userRef) {
         return callback({
           code: GRPCStatus.PERMISSION_DENIED,
           message: "Only admins or owners can remove users from a workspace"
         });
       }
 
-      const memberId = await prisma.workspaceMember.findFirst({
+      const memberRef = await prisma.workspaceMember.findFirst({
         where: {
-          workspaceId,
-          userId
+          workspaceRef,
+          userRef
         }
       });
 
-      if (!memberId) {
+      if (!memberRef) {
         return callback({
           code: GRPCStatus.NOT_FOUND,
           message: "User not found in workspace"
@@ -76,7 +79,7 @@ function removeUserFromWorkspace(prisma: Prisma) {
 
       const response = await prisma.workspaceMember.delete({
         where: {
-          id: memberId?.id
+          ref: memberRef?.ref
         }
       });
 

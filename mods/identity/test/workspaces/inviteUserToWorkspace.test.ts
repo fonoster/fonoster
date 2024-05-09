@@ -33,7 +33,7 @@ const sandbox = createSandbox();
 const workspaceName = "Test Workspace";
 const workspaceOwner = "635c0cd8-8125-483d-b467-05c53ce2cd31";
 const inviteRequest = {
-  workspaceId: "1",
+  workspaceRef: "1",
   email: "john@example.com",
   name: "John Doe",
   // Why ?
@@ -69,7 +69,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
     const prisma = {
       user: {
         findUnique: sandbox.stub().resolves(),
-        create: sandbox.stub().resolves({ id: "123" })
+        create: sandbox.stub().resolves({ ref: "123" })
       },
       workspaceMember: {
         create: sandbox.stub().resolves({ workspace: { name: workspaceName } }),
@@ -77,7 +77,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ownerId: workspaceOwner,
+          ownerRef: workspaceOwner,
           members: []
         })
       }
@@ -123,16 +123,16 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
 
     const prisma = {
       user: {
-        findUnique: sandbox.stub().resolves({ id: "123" }),
+        findUnique: sandbox.stub().resolves({ ref: "123" }),
         create: sandbox.stub().resolves()
       },
       workspaceMember: {
         create: sandbox.stub().resolves({ workspace: { name: workspaceName } }),
-        findFirst: sandbox.stub().resolves({ id: "123" })
+        findFirst: sandbox.stub().resolves({ ref: "123" })
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ownerId: workspaceOwner,
+          ownerRef: workspaceOwner,
           members: []
         })
       }
@@ -176,7 +176,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
     const prisma = {
       user: {
         findUnique: sandbox.stub().resolves(),
-        create: sandbox.stub().resolves({ id: "123" })
+        create: sandbox.stub().resolves({ ref: "123" })
       },
       workspaceMember: {
         create: sandbox.stub().resolves({ workspace: { name: workspaceName } }),
@@ -184,7 +184,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ownerId: "another-user-id",
+          ownerRef: "another-user-id",
           members: []
         })
       }

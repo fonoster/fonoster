@@ -26,11 +26,11 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type DeleteUserRequest = {
-  id: string;
+  ref: string;
 };
 
 type DeleteUserResponse = {
-  id: string;
+  ref: string;
 };
 
 function deleteUser(prisma: Prisma) {
@@ -39,21 +39,21 @@ function deleteUser(prisma: Prisma) {
     callback: (error: GRPCErrors, response?: DeleteUserResponse) => void
   ) => {
     try {
-      const { id } = call.request;
+      const { ref } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const accessKeyId = getAccessKeyIdFromToken(token);
 
-      logger.verbose("deleting user by id", { id, accessKeyId });
+      logger.verbose("deleting user from the system", { ref, accessKeyId });
 
       await prisma.user.delete({
         where: {
-          id,
+          ref,
           accessKeyId
         }
       });
 
       const response: DeleteUserRequest = {
-        id
+        ref
       };
 
       callback(null, response);

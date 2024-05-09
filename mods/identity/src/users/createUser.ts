@@ -37,7 +37,7 @@ const CreateUserRequestSchema = z.object({
 type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
 
 type CreateUserResponse = {
-  id: string;
+  ref: string;
 };
 
 function createUser(prisma: Prisma) {
@@ -63,7 +63,7 @@ function createUser(prisma: Prisma) {
       });
 
       callback(null, {
-        id: user.id
+        ref: user.ref
       });
     } catch (error) {
       handleError(error, callback);

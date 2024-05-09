@@ -35,7 +35,7 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const InviteUserToWorkspaceRequestSchema = z.object({
-  workspaceId: z.string(),
+  workspaceRef: z.string(),
   email: z.string().email(),
   name: z.string().min(3, "Name must contain at least 3 characters").max(50),
   role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
@@ -50,8 +50,8 @@ type InviteUserToWorkspaceRequest = z.infer<
 >;
 
 type CreateWorkspaceResponse = {
-  workspaceId: string;
-  userId: string;
+  workspaceRef: string;
+  userRef: string;
 };
 
 const userIsMemberError = {
@@ -105,12 +105,12 @@ function inviteUserToWorkspace(
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const inviterId = getUserIdFromToken(token);
 
-      const { workspaceId, email, name, role } =
+      const { workspaceRef, email, name, role } =
         InviteUserToWorkspaceRequestSchema.parse(call.request);
 
-      logger.info("inviting user to workspace", { workspaceId, email });
+      logger.info("inviting user to workspace", { workspaceRef, email });
 
-      const isAdmin = await isAdminMember(prisma)(workspaceId, inviterId);
+      const isAdmin = await isAdminMember(prisma)(workspaceRef, inviterId);
 
       if (!isAdmin) {
         return callback(inviterIsNotAdminError);
@@ -118,7 +118,7 @@ function inviteUserToWorkspace(
 
       let user = await findUserByEmail(prisma, email);
 
-      const isMember = await isWorkspaceMember(prisma)(workspaceId, user?.id);
+      const isMember = await isWorkspaceMember(prisma)(workspaceRef, user?.ref);
 
       if (isMember) {
         return callback(userIsMemberError);
@@ -140,8 +140,8 @@ function inviteUserToWorkspace(
 
       const newMember = await prisma.workspaceMember.create({
         data: {
-          userId: user.id,
-          workspaceId,
+          userRef: user.ref,
+          workspaceRef,
           role: role as WorkspaceRoleEnum,
           status: WorkspaceMemberStatus.PENDING
         },
@@ -160,8 +160,8 @@ function inviteUserToWorkspace(
       });
 
       callback(null, {
-        userId: user?.id,
-        workspaceId
+        userRef: user?.ref,
+        workspaceRef
       });
     } catch (error) {
       handleError(error, callback);

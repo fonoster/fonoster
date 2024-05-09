@@ -42,14 +42,14 @@ describe("@identity[apikeys/createAPIKey]", function () {
     const call = {
       metadata,
       request: {
-        workspaceId: "123",
+        workspaceRef: "123",
         role: APIRoleEnum.WORKSPACE_ADMIN,
         expiresAt: new Date().getMilliseconds()
       }
     };
 
     const res = {
-      id: "123",
+      ref: "123",
       accessKeyId: "accessKeyId",
       accessKeySecret: "accessKeySecret",
       role: APIRoleEnum.WORKSPACE_ADMIN,
@@ -80,7 +80,7 @@ describe("@identity[apikeys/createAPIKey]", function () {
     const call = {
       metadata,
       request: {
-        workspaceId: "123",
+        workspaceRef: "123",
         role: APIRoleEnum.WORKSPACE_ADMIN,
         expiresAt: new Date().getMilliseconds()
       }

@@ -37,7 +37,7 @@ function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
     }
 
     const { issuer, audience } = identityConfig;
-    const { id, workspace } = apiKey;
+    const { ref, workspace } = apiKey;
 
     const access = [
       {
@@ -48,7 +48,7 @@ function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
 
     return {
       iss: issuer,
-      sub: id,
+      sub: ref,
       aud: audience,
       tokenUse: TokenUseEnum.ACCESS,
       accessKeyId,

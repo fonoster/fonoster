@@ -24,13 +24,13 @@ import { Prisma } from "../db";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const DeleteAPIKeyRequestSchema = z.object({
-  id: z.string()
+  ref: z.string()
 });
 
 type DeleteAPIKeyRequest = z.infer<typeof DeleteAPIKeyRequestSchema>;
 
 type DeleteAPIKeyResponse = {
-  id: string;
+  ref: string;
 };
 
 function deleteAPIKey(prisma: Prisma) {
@@ -41,18 +41,18 @@ function deleteAPIKey(prisma: Prisma) {
     try {
       const validatedRequest = DeleteAPIKeyRequestSchema.parse(call.request);
 
-      const { id } = validatedRequest;
+      const { ref } = validatedRequest;
 
-      logger.info("deleting API Key", { id });
+      logger.info("deleting APIKey", { ref });
 
       const response = await prisma.aPIKey.delete({
         where: {
-          id
+          ref
         }
       });
 
       callback(null, {
-        id: response.id
+        ref: response.ref
       });
     } catch (error) {
       handleError(error, callback);

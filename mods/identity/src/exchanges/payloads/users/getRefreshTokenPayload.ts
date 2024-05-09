@@ -36,11 +36,11 @@ function getRefreshTokenPayload(
     }
 
     const { issuer, audience } = identityConfig;
-    const { id } = user;
+    const { ref } = user;
 
     return {
       iss: issuer,
-      sub: id,
+      sub: ref,
       aud: audience,
       tokenUse: TokenUseEnum.REFRESH,
       accessKeyId

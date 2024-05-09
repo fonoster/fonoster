@@ -27,7 +27,7 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const UpdateUserRequestSchema = z.object({
-  id: z.string(),
+  ref: z.string(),
   name: z.string().min(3).max(50).or(z.string().optional().nullable()),
   password: z.string().min(8).max(50).or(z.string().optional().nullable()),
   avatar: z.string().url().or(z.string().optional().nullable())
@@ -36,7 +36,7 @@ const UpdateUserRequestSchema = z.object({
 type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>;
 
 type UpdateUserResponse = {
-  id: string;
+  ref: string;
 };
 
 function updateUser(prisma: Prisma) {
@@ -48,13 +48,13 @@ function updateUser(prisma: Prisma) {
       const validatedRequest = UpdateUserRequestSchema.parse(call.request);
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const accessKeyId = getAccessKeyIdFromToken(token);
-      const { id, name, avatar, password } = validatedRequest;
+      const { ref, name, avatar, password } = validatedRequest;
 
-      logger.verbose("call to updateUser", { id, password });
+      logger.verbose("call to updateUser", { ref, password });
 
       await prisma.user.update({
         where: {
-          id,
+          ref,
           accessKeyId
         },
         data: {
@@ -66,7 +66,7 @@ function updateUser(prisma: Prisma) {
       });
 
       const response: UpdateUserResponse = {
-        id
+        ref
       };
 
       callback(null, response);

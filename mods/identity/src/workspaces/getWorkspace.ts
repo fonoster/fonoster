@@ -26,13 +26,13 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type GetWorkspaceRequest = {
-  id: string;
+  ref: string;
 };
 
 type GetWorkspaceResponse = {
-  id: string;
+  ref: string;
   name: string;
-  ownerId: string;
+  ownerRef: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -43,16 +43,16 @@ function getWorkspace(prisma: Prisma) {
     callback: (error: GRPCErrors, response?: GetWorkspaceResponse) => void
   ) => {
     try {
-      const { id } = call.request;
+      const { ref } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerId = getUserIdFromToken(token);
+      const ownerRef = getUserIdFromToken(token);
 
-      logger.verbose("getting workspace by id", { id, ownerId });
+      logger.verbose("getting workspace by id", { ref, ownerRef });
 
       const workspace = await prisma.workspace.findUnique({
         where: {
-          id,
-          ownerId
+          ref,
+          ownerRef
         }
       });
 
@@ -65,9 +65,9 @@ function getWorkspace(prisma: Prisma) {
       }
 
       const response: GetWorkspaceResponse = {
-        id: workspace.id,
+        ref: workspace.ref,
         name: workspace.name,
-        ownerId: workspace.ownerId,
+        ownerRef: workspace.ownerRef,
         createdAt: workspace.createdAt,
         updatedAt: workspace.updatedAt
       };

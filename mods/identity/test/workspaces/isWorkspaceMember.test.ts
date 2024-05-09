@@ -35,7 +35,7 @@ describe("@identity[workspaces/isWorkspaceMember]", function () {
     // Arrange
     const prisma = {
       workspace: {
-        findUnique: sandbox.stub().resolves({ ownerId: "123" })
+        findUnique: sandbox.stub().resolves({ ownerRef: "123" })
       },
       workspaceMember: {
         findFirst: sandbox.stub().resolves()

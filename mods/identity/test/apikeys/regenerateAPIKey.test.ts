@@ -42,12 +42,12 @@ describe("@identity[apikeys/regenerateAPIKey]", function () {
     const call = {
       metadata,
       request: {
-        id: "123"
+        ref: "123"
       }
     };
 
     const res = {
-      id: "123",
+      ref: "123",
       accessKeyId: "accessKeyId",
       accessKeySecret: "accessKeySecret",
       role: APIRoleEnum.WORKSPACE_ADMIN,

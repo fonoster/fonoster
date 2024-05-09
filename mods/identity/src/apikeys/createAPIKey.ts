@@ -30,7 +30,7 @@ import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const CreateAPIKeyRequestSchema = z.object({
-  workspaceId: z.string(),
+  workspaceRef: z.string(),
   role: z.enum([APIRoleEnum.WORKSPACE_ADMIN]),
   expiresAt: z.number().transform((value) => (value === 0 ? null : value))
 });
@@ -38,7 +38,7 @@ const CreateAPIKeyRequestSchema = z.object({
 type CreateAPIKeyRequest = z.infer<typeof CreateAPIKeyRequestSchema>;
 
 type CreateAPIKeyResponse = {
-  id: string;
+  ref: string;
   accessKeyId: string;
   accessKeySecret: string;
   role: APIRoleEnum;
@@ -55,13 +55,13 @@ function createAPIKey(prisma: Prisma) {
     try {
       const validatedRequest = CreateAPIKeyRequestSchema.parse(call.request);
 
-      const { workspaceId, role, expiresAt } = validatedRequest;
+      const { workspaceRef, role, expiresAt } = validatedRequest;
 
-      logger.info("creating API Key", { workspaceId, role, expiresAt });
+      logger.info("creating APIKey", { workspaceRef, role, expiresAt });
 
       const response = await prisma.aPIKey.create({
         data: {
-          workspaceId: validatedRequest.workspaceId,
+          workspaceRef: validatedRequest.workspaceRef,
           role: validatedRequest.role,
           accessKeyId: generateAccessKeyId(AccessKeyIdType.API_KEY),
           accessKeySecret: generateAccessKeySecret(),
@@ -70,7 +70,7 @@ function createAPIKey(prisma: Prisma) {
       });
 
       callback(null, {
-        id: response.id,
+        ref: response.ref,
         accessKeyId: response.accessKeyId,
         accessKeySecret: response.accessKeySecret,
         role: response.role as APIRoleEnum,

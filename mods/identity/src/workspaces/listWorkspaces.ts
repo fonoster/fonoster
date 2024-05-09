@@ -28,9 +28,9 @@ import { getUserIdFromToken } from "../utils/getUserIdFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type Workspace = {
-  id: string;
+  ref: string;
   name: string;
-  ownerId: string;
+  ownerRef: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -45,12 +45,12 @@ function listWorkspaces(prisma: Prisma) {
     callback: (error: GRPCErrors, response?: ListWorkspacesResponse) => void
   ) => {
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-    const userId = getUserIdFromToken(token);
+    const userRef = getUserIdFromToken(token);
     const access = decodeToken<TokenUseEnum.ACCESS>(token);
     const workspacesAccessKeyIds = access.access?.map((a) => a.accessKeyId);
 
     logger.verbose("list workspaces for user or apikey", {
-      userId,
+      userRef,
       workspacesAccessKeyIds
     });
 
@@ -65,12 +65,12 @@ function listWorkspaces(prisma: Prisma) {
           {
             members: {
               some: {
-                userId: userId
+                userRef
               }
             }
           },
           {
-            ownerId: userId
+            ownerRef: userRef
           }
         ]
       }

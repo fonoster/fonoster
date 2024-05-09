@@ -7,8 +7,100 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model App {
-  id String @id @default(uuid())
+model Application {
+  ref  String @id @default(uuid())
+  name String @db.VarChar(255)
 
-  @@map("apps")
+  // Relations
+  textToSpeech TextToSpeech?
+  speechToText SpeechToText?
+  conversation Conversation?
+
+  // Indexes and maps
+  @@map("applications")
+}
+
+model TextToSpeech {
+  ref    String @id @default(uuid())
+  config Json
+
+  // Relations
+  application    Application @relation(fields: [applicationRef], references: [ref], onDelete: Cascade)
+  applicationRef String      @unique @map("application_ref")
+  product        Product     @relation(fields: [productRef], references: [ref], onDelete: Cascade)
+  productRef     String      @map("product_ref")
+
+  // Indexes and maps
+  @@index([applicationRef], type: Hash)
+  @@index([productRef], type: Hash)
+  @@map("tts_services")
+}
+
+model SpeechToText {
+  ref    String @id @default(uuid())
+  config Json
+
+  // Relations
+  application    Application @relation(fields: [applicationRef], references: [ref], onDelete: Cascade)
+  applicationRef String      @unique @map("application_ref")
+  product        Product     @relation(fields: [productRef], references: [ref], onDelete: Cascade)
+  productRef     String      @map("product_ref")
+
+  // Indexes and maps
+  @@index([applicationRef], type: Hash)
+  @@index([productRef], type: Hash)
+  @@map("stt_services")
+}
+
+model Conversation {
+  ref    String @id @default(uuid())
+  config Json
+
+  // Relations
+  application    Application @relation(fields: [applicationRef], references: [ref], onDelete: Cascade)
+  applicationRef String      @unique @map("application_ref")
+  Product        Product     @relation(fields: [productRef], references: [ref], onDelete: Cascade)
+  productRef     String      @map("product_ref")
+
+  // Indexes and maps
+  @@index([applicationRef], type: Hash)
+  @@index([productRef], type: Hash)
+  @@map("conversation_services")
+}
+
+model Product {
+  ref    String        @id @default(uuid())
+  name   String
+  vendor ProductVendor
+  type   ProductType
+
+  // Relations
+  speechToText SpeechToText[]
+  sextToSpeech TextToSpeech[]
+  conversation Conversation[]
+
+  // Indexes and maps
+  @@map("products")
+}
+
+enum ProductType {
+  TTS
+  STT
+  NLU
+  ASSISTANT
+
+  // Maps
+  @@map("product_types")
+}
+
+enum ProductVendor {
+  GOOGLE
+  MICROSOFT
+  AMAZON
+  IBM
+  RASA
+  GENERIC
+
+  // Maps
+  @@map("product_vendors")
 }

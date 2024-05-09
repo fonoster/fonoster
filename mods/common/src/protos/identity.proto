@@ -58,25 +58,25 @@ message CreateWorkspaceRequest {
 }
 
 message CreateWorkspaceResponse {
-  string id = 1;
+  string ref = 1;
 }
 
 message DeleteWorkspaceRequest {
-  string id = 1;
+  string ref = 1;
 }
 
 message DeleteWorkspaceResponse {
-  string id = 1;
+  string ref = 1;
 }
 
 message GetWorkspaceRequest {
-  string id = 1;
+  string ref = 1;
 }
 
 message GetWorkspaceResponse {
-  string id = 1;
+  string ref = 1;
   string name = 2;
-  string owner_id = 3;
+  string owner_ref = 3;
   int32 created_at = 4;
   int32 updated_at = 5;
 }
@@ -92,44 +92,44 @@ message ListWorkspacesResponse {
 }
 
 message UpdateWorkspaceRequest {
-  string id = 1;
+  string ref = 1;
   string name = 2;
 }
 
 message UpdateWorkspaceResponse {
-  string id = 1;
+  string ref = 1;
 }
 
 message InviteUserToWorkspaceRequest {
   string email = 1;
-  string workspace_id = 2;
+  string workspace_ref = 2;
   string role = 3;
   string name = 4;
 }
 
 message InviteUserToWorkspaceResponse {
-  string user_id = 1;
-  string workspace_id = 2;
+  string user_ref = 1;
+  string workspace_ref = 2;
 }
 
 message RemoveUserFromWorkspaceRequest {
-  string user_id = 1;
-  string workspace_id = 2;
+  string user_ref = 1;
+  string workspace_ref = 2;
 }
 
 message RemoveUserFromWorkspaceResponse {
-  string user_id = 1;
-  string workspace_id = 2;
+  string user_ref = 1;
+  string workspace_ref = 2;
 }
 
 message ResendWorkspaceMembershipInvitationRequest {
-  string user_id = 1;
-  string workspace_id = 2;
+  string user_ref = 1;
+  string workspace_ref = 2;
 }
 
 message ResendWorkspaceMembershipInvitationResponse {
-  string user_id = 1;
-  string workspace_id = 2;
+  string user_ref = 1;
+  string workspace_ref = 2;
 }
 
 // User Resources
@@ -142,15 +142,15 @@ message CreateUserRequest {
 }
 
 message CreateUserResponse {
-  string id = 1;
+  string ref = 1;
 }
 
 message GetUserRequest {
-  string id = 1;
+  string ref = 1;
 }
 
 message GetUserResponse {
-  string id = 1;
+  string ref = 1;
   string email = 2;
   string name = 3;
   string avatar = 4;
@@ -159,28 +159,28 @@ message GetUserResponse {
 }
 
 message UpdateUserRequest {
-  string id = 1;
+  string ref = 1;
   string password = 2;
   string name = 3;
   string avatar = 4;
 }
 
 message UpdateUserResponse {
-  string id = 1;
+  string ref = 1;
 }
 
 message DeleteUserRequest {
-  string id = 1;
+  string ref = 1;
 }
 
 message DeleteUserResponse {
-  string id = 1;
+  string ref = 1;
 }
 
 message Workspace {
-  string id = 1;
+  string ref = 1;
   string name = 2;
-  string owner_id = 3;
+  string owner_ref = 3;
   int32 created_at = 4;
   int32 updated_at = 5;
 }
@@ -188,13 +188,13 @@ message Workspace {
 // APIKey Resources
 
 message CreateAPIKeyRequest {
-  string workspace_id = 1;
+  string workspace_ref = 1;
   string role = 2;
   int32 expires_at = 3;
 }
 
 message CreateAPIKeyResponse {
-  string id = 1;
+  string ref = 1;
   string access_key_id = 2;
   string access_key_secret = 3;
   string role = 4;
@@ -204,15 +204,15 @@ message CreateAPIKeyResponse {
 }
 
 message DeleteAPIKeyRequest {
-  string id = 1;
+  string ref = 1;
 }
 
 message DeleteAPIKeyResponse {
-  string id = 1;
+  string ref = 1;
 }
 
 message ListAPIKeysRequest {
-  string workspace_id = 1;
+  string workspace_ref = 1;
   string page_token = 2;
   int32 page_size = 3;
 }
@@ -223,11 +223,11 @@ message ListAPIKeysResponse {
 }
 
 message RegenerateAPIKeyRequest {
-  string id = 1;
+  string ref = 1;
 }
 
 message RegenerateAPIKeyResponse {
-  string id = 1;
+  string ref = 1;
   string access_key_id = 2;
   string access_key_secret = 3;
   string role = 4;
@@ -237,7 +237,7 @@ message RegenerateAPIKeyResponse {
 }
 
 message APIKey {
-  string id = 1;
+  string ref = 1;
   string access_key_id = 2;
   string role = 3;
   int32 expires_at = 4;

@@ -37,7 +37,7 @@ const CreateWorkspaceRequestSchema = z.object({
 type CreateWorkspaceRequest = z.infer<typeof CreateWorkspaceRequestSchema>;
 
 type CreateWorkspaceResponse = {
-  id: string;
+  ref: string;
 };
 
 function createWorkspace(prisma: Prisma) {
@@ -49,22 +49,22 @@ function createWorkspace(prisma: Prisma) {
       const validatedRequest = CreateWorkspaceRequestSchema.parse(call.request);
 
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerId = getUserIdFromToken(token);
+      const ownerRef = getUserIdFromToken(token);
 
       const { name } = validatedRequest;
 
-      logger.verbose("call to createWorkspace", { name, ownerId });
+      logger.verbose("call to createWorkspace", { name, ownerRef });
 
       const workspace = await prisma.workspace.create({
         data: {
           name,
           accessKeyId: generateAccessKeyId(AccessKeyIdType.WORKSPACE),
-          ownerId
+          ownerRef
         }
       });
 
       callback(null, {
-        id: workspace.id
+        ref: workspace.ref
       });
     } catch (error) {
       handleError(error, callback);

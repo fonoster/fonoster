@@ -26,11 +26,11 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type GetUserRequest = {
-  id: string;
+  ref: string;
 };
 
 type GetUserResponse = {
-  id: string;
+  ref: string;
   email: string;
   name: string;
   avatar: string;
@@ -44,15 +44,15 @@ function getUser(prisma: Prisma) {
     callback: (error: GRPCErrors, response?: GetUserResponse) => void
   ) => {
     try {
-      const { id } = call.request;
+      const { ref } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const accessKeyId = getAccessKeyIdFromToken(token);
 
-      logger.verbose("getting user by id", { id, accessKeyId });
+      logger.verbose("getting user by id", { ref, accessKeyId });
 
       const user = await prisma.user.findUnique({
         where: {
-          id,
+          ref,
           accessKeyId
         }
       });
@@ -63,7 +63,7 @@ function getUser(prisma: Prisma) {
       }
 
       const response: GetUserResponse = {
-        id: user.id,
+        ref: user.ref,
         email: user.email,
         name: user.name,
         avatar: user.avatar,

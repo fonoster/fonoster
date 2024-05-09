@@ -35,12 +35,12 @@ function getRefreshTokenPayload(
       return null;
     }
 
-    const { id: identityId } = apiKey;
+    const { ref: identityRef } = apiKey;
 
     return buildRefreshTokenPayload({
       identityConfig,
       accessKeyId,
-      identityId
+      identityRef
     });
   };
 }

@@ -27,7 +27,7 @@ import {
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const CreateUserRequestSchema = z.object({
-  id: z.string(),
+  ref: z.string(),
   name: z.string().min(3).max(50),
   email: z.string().email(),
   password: z.string().min(8).max(50).or(z.string().optional().nullable()),
@@ -40,7 +40,7 @@ async function upsertDefaultUser(request: CreateUserRequest) {
   try {
     const validatedRequest = CreateUserRequestSchema.parse(request);
 
-    const { id, name, email, password, accessKeyId } = validatedRequest;
+    const { ref, name, email, password, accessKeyId } = validatedRequest;
 
     const hereAccessKeyId =
       accessKeyId || generateAccessKeyId(AccessKeyIdType.USER);
@@ -48,7 +48,7 @@ async function upsertDefaultUser(request: CreateUserRequest) {
     logger.verbose("call to upsertDefaultUser", { email, accessKeyId });
 
     return await prisma.user.upsert({
-      where: { id },
+      where: { ref },
       update: {
         name,
         email,
@@ -57,7 +57,7 @@ async function upsertDefaultUser(request: CreateUserRequest) {
         updatedAt: new Date()
       },
       create: {
-        id,
+        ref,
         name,
         email,
         password,

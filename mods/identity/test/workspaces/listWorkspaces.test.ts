@@ -45,9 +45,9 @@ describe("@identity[workspaces/listWorkspaces]", function () {
 
     const workspaces = [
       {
-        id: "123",
+        ref: "123",
         name: "My Workspace",
-        ownerId: "123",
+        ownerRef: "123",
         createdAt: new Date(),
         updatedAt: new Date()
       }

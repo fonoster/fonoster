@@ -41,14 +41,14 @@ describe("@identity[apikeys/listAPIKeys]", function () {
     const call = {
       metadata,
       request: {
-        workspaceId: "123"
+        workspaceRef: "123"
       }
     };
 
     const res = {
       apiKeys: [
         {
-          id: "123",
+          ref: "123",
           accessKeyId: "123",
           role: "USER",
           expiresAt: new Date(),
@@ -81,7 +81,7 @@ describe("@identity[apikeys/listAPIKeys]", function () {
     const call = {
       metadata,
       request: {
-        workspaceId: "123"
+        workspaceRef: "123"
       }
     };
 

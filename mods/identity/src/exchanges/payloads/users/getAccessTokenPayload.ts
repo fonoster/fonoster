@@ -42,7 +42,7 @@ function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
     }
 
     const { issuer, audience } = identityConfig;
-    const { id, ownedWorkspaces, memberships } = user;
+    const { ref, ownedWorkspaces, memberships } = user;
 
     const access = ownedWorkspaces.map((workspace) => ({
       accessKeyId: workspace.accessKeyId,
@@ -58,7 +58,7 @@ function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
 
     return {
       iss: issuer,
-      sub: id,
+      sub: ref,
       aud: audience,
       tokenUse: TokenUseEnum.ACCESS,
       accessKeyId,

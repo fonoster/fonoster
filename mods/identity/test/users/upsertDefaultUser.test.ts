@@ -33,7 +33,7 @@ describe("@identity[users/updateUser]", function () {
   it.skip("should upsert the default user", async function () {
     // Arrange
     const user = {
-      id: "635c0cd8-8125-483d-b467-05c53ce2cd31",
+      ref: "635c0cd8-8125-483d-b467-05c53ce2cd31",
       name: "Admin",
       email: "admin@fonoster.local",
       password: "changeme"

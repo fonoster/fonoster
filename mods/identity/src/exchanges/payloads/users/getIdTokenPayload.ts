@@ -33,11 +33,12 @@ function getIdTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
     }
 
     const { issuer, audience } = identityConfig;
-    const { id, email, phoneNumber, emailVerified, phoneNumberVerified } = user;
+    const { ref, email, phoneNumber, emailVerified, phoneNumberVerified } =
+      user;
 
     return {
       iss: issuer,
-      sub: id,
+      sub: ref,
       aud: audience,
       tokenUse: TokenUseEnum.ID,
       accessKeyId,

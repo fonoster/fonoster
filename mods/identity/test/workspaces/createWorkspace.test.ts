@@ -47,7 +47,7 @@ describe("@identity[workspaces/createWorkspace]", function () {
 
     const prisma = {
       workspace: {
-        create: sandbox.stub().resolves({ id: "123" })
+        create: sandbox.stub().resolves({ ref: "123" })
       }
     } as unknown as Prisma;
 
@@ -58,7 +58,7 @@ describe("@identity[workspaces/createWorkspace]", function () {
     // Act
     await createWorkspace(prisma)(call, (_, response) => {
       // Assert
-      expect(response).to.deep.equal({ id: "123" });
+      expect(response).to.deep.equal({ ref: "123" });
     });
   });
 
