@@ -24,11 +24,13 @@ const logger = getLogger({ service: "sipnet", filePath: __filename });
 function deleteResource<T, R, U>(api: U, resource: string) {
   return withAccess(
     async (call: { request: R }): Promise<T> => {
-      const { request } = call;
+      const { request } = call as { request: { ref: string } };
 
-      logger.verbose(`call to delete${resource}`, { request });
+      logger.verbose(`call to delete${resource}`, { request, resource });
 
-      return await api[`delete${resource}`](request);
+      await api[`delete${resource}`](request.ref);
+
+      return { ref: request.ref } as T;
     },
     (ref: string) => api[`get${resource}`](ref)
   );
