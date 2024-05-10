@@ -22,8 +22,11 @@ import {
   decodeToken,
   getTokenFromCall
 } from "@fonoster/identity";
+import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { JsonObject } from "@prisma/client/runtime/library";
+
+const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 async function hasAccessToResource(
   call: unknown,
@@ -31,6 +34,11 @@ async function hasAccessToResource(
 ) {
   const { request } = call as { request: { ref: string } };
   const { extended } = await getFn(request.ref);
+
+  logger.verbose("call to hasAccessToResource", {
+    ref: request.ref,
+    accessKeyId: extended?.accessKeyId
+  });
 
   // If the resource doesn't exist, allow the operation
   if (!extended) return true;
