@@ -16,15 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Access,
-  TokenUseEnum,
-  decodeToken,
-  getTokenFromCall
-} from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { JsonObject } from "@prisma/client/runtime/library";
+import { decodeToken } from "./decodeToken";
+import { getTokenFromCall } from "./getTokenFromCall";
+import { Access, TokenUseEnum } from "../exchanges";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 

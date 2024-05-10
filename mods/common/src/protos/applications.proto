@@ -1,0 +1,196 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.applications.v1beta2;
+
+import "google/protobuf/struct.proto";
+
+// Applications service definition
+service Applications {
+  // Create a new application
+  rpc CreateApplication(CreateApplicationRequest) returns (CreateApplicationResponse) {}
+  // Get an application
+  rpc GetApplication(GetApplicationRequest) returns (Application) {}
+  // List applications
+  rpc ListApplications(ListApplicationsRequest) returns (ListApplicationsResponse) {}
+  // Update an application
+  rpc UpdateApplication(UpdateApplicationRequest) returns (UpdateApplicationResponse) {}
+  // Delete an application
+  rpc DeleteApplication(DeleteApplicationRequest) returns (DeleteApplicationResponse) {}
+}
+
+// The type of application
+enum ApplicationType {
+  // Programmable Voice
+  PROGRAMMABLE_VOICE = 0;
+  // Bi-directional streams
+  STREAMS = 1;
+  // Autopilot
+  AUTOPILOT = 2;
+  // Enhanced Autopilot
+  ENHANCED_AUTOPILOT = 3;
+}
+
+// Represents the types of services use by voice applications
+enum ProductType {
+  // Text to speech
+  TTS = 0;
+  // Speech to text
+  STT = 1;
+  // Natural Language Understanding
+  NLU = 2;
+  // Assistants such as OpenAI Assistants
+  ASSISTANT = 3;
+}
+
+// Represents the vendors of the services
+enum ProductVendor {
+  // Google Cloud
+  GOOGLE = 0;
+  // Amazon Web Services
+  AMAZON = 1;
+  // IBM Watson
+  IBM = 2;
+  // Microsoft Azure
+  MICROSOFT = 3;
+  // OpenAI
+  OPENAI = 4;
+  // Rasa
+  RASA = 5;
+  // Custom vendor
+  CUSTOM = 6;
+}
+
+// Speech to text configuration
+message SpeechToText {
+  // The configuration varies depending on the vendor
+  google.protobuf.Struct config = 1;
+}
+
+message Product {
+  // Name of the product
+  string name = 1;
+  // Vendor of the product
+  ProductVendor vendor = 2;
+  // Type of the product
+  ProductType type = 3;
+}
+
+// Application definition
+message Application {
+  // Reference to the application
+  string ref = 1;
+  // The application's resource name
+  string name = 2;
+  // Application type
+  ApplicationType type = 3;
+  // App URL for programmable voice
+  string appUrl = 4;
+  // Text to speech product
+  Product tts = 5;
+  // Speech to text product
+  Product stt = 6;
+  // Conversation product
+  Product conversation = 7;
+  // Creation time
+  int32 createdAt = 8;
+  // Update time
+  int32 updatedAt = 9;
+}
+
+// Request to create a new application
+message CreateApplicationRequest {
+  // Name of the application
+  string name = 1;
+  // Application type
+  ApplicationType type = 2;
+  // App URL for programmable voice
+  string appUrl = 3;
+  // Text to speech product
+  Product tts = 4;
+  // Speech to text product
+  Product stt = 5;
+  // Conversation product
+  Product conversation = 6;
+}
+
+// Response for create application
+message CreateApplicationResponse {
+  // Echo the reference of the application
+  string ref = 1;
+}
+
+// Request to get an application
+message GetApplicationRequest {
+  // The reference to the application
+  string ref = 1;
+}
+
+// Request to list applications
+message ListApplicationsRequest {
+  // The number of items to list
+  int32 pageSize = 1;
+  // The page token
+  string pageToken = 2;
+}
+
+// Response for list applications
+message ListApplicationsResponse {
+  // List of applications
+  repeated Application items = 1;
+  // The page token
+  string nextPageToken = 2;
+}
+
+// Request to update an application
+message UpdateApplicationRequest {
+  // Reference to the application
+  string ref = 1;
+  // Name of the application
+  string name = 2;
+  // Application type
+  ApplicationType type = 3;
+  // App URL for programmable voice
+  string appUrl = 4;
+  // Text to speech product
+  Product tts = 5;
+  // Speech to text product
+  Product stt = 6;
+  // Conversation product
+  Product conversation = 7;
+}
+
+// Response for update application
+message UpdateApplicationResponse {
+  // Echo the reference of the application
+  string ref = 1;
+}
+
+// Request to delete an application
+message DeleteApplicationRequest {
+  // The reference to the application
+  string ref = 1;
+}
+
+// Response for delete application
+message DeleteApplicationResponse {
+  // Echo the reference of the application
+  string ref = 1;
+}

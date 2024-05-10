@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { withAccess } from "../withAccess";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 

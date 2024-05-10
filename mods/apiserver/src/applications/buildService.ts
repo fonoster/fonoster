@@ -16,13 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./generateAccessKeyId";
-export * from "./decodeToken";
-export * from "./getAccessKeyIdFromToken";
-export * from "./getAccessKeyIdFromCall";
-export * from "./hasAccess";
-export * from "./isValidToken";
-export * from "./getTokenFromCall";
-export * from "./tokenHasAccessKeyId";
-export * from "./hasAccessToResource";
-export * from "./withAccess";
+import { createApplication } from "./createApplication";
+import { Prisma } from "../db";
+
+function buildService(prisma: Prisma) {
+  return {
+    definition: {
+      serviceName: "Applications",
+      pckg: "applications",
+      version: "v1beta2",
+      proto: "applications.proto"
+    },
+    handlers: {
+      createApplication: createApplication(prisma)
+    }
+  };
+}
+
+export { buildService };
