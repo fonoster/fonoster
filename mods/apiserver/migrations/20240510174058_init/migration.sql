@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "application_types" AS ENUM ('PROGRAMMABLE_VOICE', 'STREAMS', 'AUTOPILOT', 'ENHANCED_AUTOPILOT');
+
+-- CreateEnum
 CREATE TYPE "product_types" AS ENUM ('TTS', 'STT', 'NLU', 'ASSISTANT');
 
 -- CreateEnum
@@ -8,6 +11,8 @@ CREATE TYPE "product_vendors" AS ENUM ('GOOGLE', 'MICROSOFT', 'AMAZON', 'IBM', '
 CREATE TABLE "applications" (
     "ref" TEXT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
+    "type" "application_types" NOT NULL,
+    "appUrl" VARCHAR(255) NOT NULL,
 
     CONSTRAINT "applications_pkey" PRIMARY KEY ("ref")
 );

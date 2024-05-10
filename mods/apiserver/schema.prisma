@@ -8,8 +8,10 @@ datasource db {
 }
 
 model Application {
-  ref  String @id @default(uuid())
-  name String @db.VarChar(255)
+  ref    String          @id @default(uuid())
+  name   String          @db.VarChar(255)
+  type   ApplicationType
+  appUrl String          @db.VarChar(255)
 
   // Relations
   textToSpeech TextToSpeech?
@@ -81,6 +83,16 @@ model Product {
 
   // Indexes and maps
   @@map("products")
+}
+
+enum ApplicationType {
+  PROGRAMMABLE_VOICE
+  STREAMS
+  AUTOPILOT
+  ENHANCED_AUTOPILOT
+
+  // Maps
+  @@map("application_types")
 }
 
 enum ProductType {

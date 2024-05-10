@@ -20,7 +20,7 @@
     "prepare": "husky",
     "db:migrate": "npx prisma migrate dev --schema ./mods/apiserver/schema.prisma --name init --preview-feature && npx prisma migrate dev --schema ./mods/identity/schema.prisma --name init --preview-feature",
     "generate:keypair": ".scripts/gen-keypair.sh",
-    "generate:prisma-client": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",
+    "generate:prisma-clients": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",
     "check:updates": "lerna exec -- npx npm-check-updates",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.test.ts"
   },
