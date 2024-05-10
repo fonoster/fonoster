@@ -32,6 +32,9 @@ async function hasAccessToResource(
   const { request } = call as { request: { ref: string } };
   const { extended } = await getFn(request.ref);
 
+  // If the resource doesn't exist, allow the operation
+  if (!extended) return true;
+
   const token = getTokenFromCall(call as ServerInterceptingCall);
   const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token);
   const accessKeyIds = decodedToken.access?.map((a: Access) => a.accessKeyId);

@@ -124,6 +124,10 @@ message UpdateTrunkRequest {
 }
 
 // The message for the Trunk.UpdateTrunk response
+message UpdateTrunkResponse {
+  // The reference of the Trunk
+  string ref = 1;
+}
 
 // The message for the Trunk.GetTrunk
 message GetTrunkRequest {

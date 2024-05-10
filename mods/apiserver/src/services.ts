@@ -17,13 +17,33 @@
  * limitations under the License.
  */
 import { buildIdentityService } from "@fonoster/identity";
-import { buildDomainsService } from "@fonoster/sipnet";
+import {
+  buildACLService,
+  buildAgentsService,
+  buildCredentialsService,
+  buildDomainsService,
+  buildNumbersService,
+  buildTrunksService
+} from "@fonoster/sipnet";
 import { identityConfig } from "./identityConfig";
 import { routrConfig } from "./routrConfig";
 
-const identityService = buildIdentityService(identityConfig);
+const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
+const credentialsService = buildCredentialsService(routrConfig);
+const trunksService = buildTrunksService(routrConfig);
+const numbersService = buildNumbersService(routrConfig);
+const aclService = buildACLService(routrConfig);
+const identityService = buildIdentityService(identityConfig);
 
-const services = [identityService, domainsService];
+const services = [
+  identityService,
+  agentsService,
+  credentialsService,
+  aclService,
+  numbersService,
+  trunksService,
+  domainsService
+];
 
 export default services;

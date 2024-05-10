@@ -31,7 +31,7 @@ function buildService(clientOptions: ClientOptions) {
 
   return {
     definition: {
-      serviceName: "Credentials",
+      serviceName: "CredentialsService",
       pckg: "credentials",
       version: "v1beta2",
       proto: "credentials.proto"

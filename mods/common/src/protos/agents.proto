@@ -20,6 +20,9 @@ syntax = "proto3";
 
 package fonoster.agents.v1beta2;
 
+import "domains.proto";
+import "credentials.proto";
+
 // The Agents service definition
 service Agents {
   // Create a new Agent
