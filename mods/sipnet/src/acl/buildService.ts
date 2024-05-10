@@ -37,11 +37,11 @@ function buildService(clientOptions: ClientOptions) {
       proto: "acl.proto"
     },
     handlers: {
-      createACL: createACL(client),
-      updateACL: updateACL(client),
-      getACL: getACL(client),
-      listACLs: listACLs(client),
-      deleteACL: deleteACL(client)
+      createAcl: createACL(client),
+      updateAcl: updateACL(client),
+      getAcl: getACL(client),
+      listAcl: listACLs(client),
+      deleteAcl: deleteACL(client)
     }
   };
 }

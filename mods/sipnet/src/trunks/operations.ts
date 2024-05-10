@@ -45,7 +45,7 @@ function getTrunk(trunks: TrunkAPI) {
   return getResource<Trunk, GetTrunkRequest, TrunkAPI>(trunks, RESOURCE);
 }
 
-function listTrunk(trunks: TrunkAPI) {
+function listTrunks(trunks: TrunkAPI) {
   return listResources<Trunk, ListTrunksRequest, TrunkAPI>(trunks, RESOURCE);
 }
 
@@ -53,4 +53,4 @@ function deleteTrunk(trunks: TrunkAPI) {
   return deleteResource<Trunk, DeleteTrunkRequest, TrunkAPI>(trunks, RESOURCE);
 }
 
-export { createTrunk, updateTrunk, getTrunk, listTrunk, deleteTrunk };
+export { createTrunk, updateTrunk, getTrunk, listTrunks, deleteTrunk };

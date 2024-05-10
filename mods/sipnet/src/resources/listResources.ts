@@ -33,10 +33,12 @@ function listResources<T, R, U>(api: U, resource: string) {
   ) => {
     const { request } = call;
 
-    logger.verbose(`call to list${resource}s`, { request });
+    const res = resource === "Credentials" ? "Credential" : resource;
+
+    logger.verbose(`call to list${res}s`, { request });
 
     try {
-      const response = await api[`list${resource}s`](request);
+      const response = await api[`list${res}s`](request);
       callback(null, response);
     } catch (e) {
       handleError(e, callback);

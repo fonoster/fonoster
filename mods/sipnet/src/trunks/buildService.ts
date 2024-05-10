@@ -21,7 +21,7 @@ import {
   createTrunk,
   deleteTrunk,
   getTrunk,
-  listTrunk,
+  listTrunks,
   updateTrunk
 } from "./operations";
 import { ClientOptions } from "../types";
@@ -40,7 +40,7 @@ function buildService(clientOptions: ClientOptions) {
       createTrunk: createTrunk(client),
       updateTrunk: updateTrunk(client),
       getTrunk: getTrunk(client),
-      listTrunk: listTrunk(client),
+      listTrunks: listTrunks(client),
       deleteTrunk: deleteTrunk(client)
     }
   };

@@ -72,26 +72,24 @@ message ExtraHeader {
 
 // The request message for Numbers.CreateNumber
 message CreateNumberRequest {
-  // The version of the Number
-  string api_version = 1;
   // The name of the Number
-  string name = 2;
+  string name = 1;
   // The tel_url of the Number
-  string tel_url = 3;
+  string tel_url = 2;
   // The aor_link of the Number
-  string aor_link = 4;
+  string aor_link = 3;
   // The city of the Number
-  string city = 5;
+  string city = 4;
   // The country of the Number
-  string country = 6;
+  string country = 5;
   // The country_iso_code of the Number
-  string country_iso_code = 7;
+  string country_iso_code = 6;
   // The header to use for session affinity
-  string session_affinity_header = 8;
+  string session_affinity_header = 7;
   // Extra headers to send to the trunk
-  repeated ExtraHeader extra_headers = 9;
+  repeated ExtraHeader extra_headers = 8;
   // Reference to the trunk this number is associated with
-  string trunk_ref = 10;
+  string trunk_ref = 9;
 }
 
 // The response message for Numbers.CreateNumber

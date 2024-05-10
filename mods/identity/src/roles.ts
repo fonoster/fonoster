@@ -66,11 +66,11 @@ const roles = [
       "/fonoster.acl.v1beta2.ACL/GetACL",
       "/fonoster.acl.v1beta2.ACL/DeleteACL",
       "/fonoster.acl.v1beta2.ACL/ListACL",
-      "/fonoster.credentials.v1beta2.Credentials/CreateCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/UpdateCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/GetCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/DeleteCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/ListCredentials"
+      "/fonoster.credentials.v1beta2.CredentialsService/CreateCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/UpdateCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/GetCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/DeleteCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/ListCredentials"
     ]
   },
   {
@@ -117,11 +117,11 @@ const roles = [
       "/fonoster.acl.v1beta2.ACL/GetACL",
       "/fonoster.acl.v1beta2.ACL/DeleteACL",
       "/fonoster.acl.v1beta2.ACL/ListACL",
-      "/fonoster.credentials.v1beta2.Credentials/CreateCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/UpdateCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/GetCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/DeleteCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/ListCredentials"
+      "/fonoster.credentials.v1beta2.CredentialsService/CreateCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/UpdateCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/GetCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/DeleteCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/ListCredentials"
     ]
   },
   {
@@ -168,11 +168,11 @@ const roles = [
       "/fonoster.acl.v1beta2.ACL/GetACL",
       "/fonoster.acl.v1beta2.ACL/DeleteACL",
       "/fonoster.acl.v1beta2.ACL/ListACL",
-      "/fonoster.credentials.v1beta2.Credentials/CreateCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/UpdateCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/GetCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/DeleteCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/ListCredentials"
+      "/fonoster.credentials.v1beta2.CredentialsService/CreateCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/UpdateCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/GetCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/DeleteCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/ListCredentials"
     ]
   },
   {
@@ -212,11 +212,11 @@ const roles = [
       "/fonoster.acl.v1beta2.ACL/GetACL",
       "/fonoster.acl.v1beta2.ACL/DeleteACL",
       "/fonoster.acl.v1beta2.ACL/ListACL",
-      "/fonoster.credentials.v1beta2.Credentials/CreateCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/UpdateCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/GetCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/DeleteCredentials",
-      "/fonoster.credentials.v1beta2.Credentials/ListCredentials"
+      "/fonoster.credentials.v1beta2.CredentialsService/CreateCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/UpdateCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/GetCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/DeleteCredentials",
+      "/fonoster.credentials.v1beta2.CredentialsService/ListCredentials"
     ]
   }
 ] as Role[];
