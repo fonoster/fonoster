@@ -30,7 +30,7 @@ describe("@applications/applicationWithEncodedStruct", function () {
     return sandbox.restore();
   });
 
-  it.only("should return an application with encoded struct", async function () {
+  it("should return an application with encoded struct", async function () {
     // Arrange
     const { applicationWithEncodedStruct } = await import(
       "../../src/applications/utils/applicationWithEncodedStruct"

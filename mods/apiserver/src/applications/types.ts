@@ -54,7 +54,7 @@ type Application = {
 type ApplicationData = {
   ref?: string;
   name: string;
-  type: string;
+  type: ApplicationType;
   appUrl: string;
   textToSpeech?: {
     create: { productRef: string; config: Record<string, unknown> };
