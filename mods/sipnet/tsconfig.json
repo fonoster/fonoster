@@ -4,5 +4,16 @@
     "outDir": "dist",
     "rootDir": "src"
   },
+  "references": [
+    {
+      "path": "../identity",
+    },
+    {
+      "path": "../logger",
+    },
+    {
+      "path": "../common",
+    }
+  ],
   "exclude": ["node_modules", "dist", "test"]
 }

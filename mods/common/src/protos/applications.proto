@@ -48,49 +48,13 @@ enum ApplicationType {
   ENHANCED_AUTOPILOT = 3;
 }
 
-// Represents the types of services use by voice applications
-enum ProductType {
-  // Text to speech
-  TTS = 0;
-  // Speech to text
-  STT = 1;
-  // Natural Language Understanding
-  NLU = 2;
-  // Assistants such as OpenAI Assistants
-  ASSISTANT = 3;
-}
-
-// Represents the vendors of the services
-enum ProductVendor {
-  // Google Cloud
-  GOOGLE = 0;
-  // Amazon Web Services
-  AMAZON = 1;
-  // IBM Watson
-  IBM = 2;
-  // Microsoft Azure
-  MICROSOFT = 3;
-  // OpenAI
-  OPENAI = 4;
-  // Rasa
-  RASA = 5;
-  // Custom vendor
-  CUSTOM = 6;
-}
-
-// Speech to text configuration
-message SpeechToText {
-  // The configuration varies depending on the vendor
-  google.protobuf.Struct config = 1;
-}
-
-message Product {
-  // Name of the product
-  string name = 1;
-  // Vendor of the product
-  ProductVendor vendor = 2;
-  // Type of the product
-  ProductType type = 3;
+message ProductContainer {
+  // Product reference
+  string product_ref = 1;
+  // Secret reference
+  string secret_ref = 2;
+  // Product configuration
+  google.protobuf.Struct config = 3;
 }
 
 // Application definition
@@ -102,13 +66,13 @@ message Application {
   // Application type
   ApplicationType type = 3;
   // App URL for programmable voice
-  string appUrl = 4;
+  string app_url = 4;
   // Text to speech product
-  Product tts = 5;
+  ProductContainer text_to_speech = 5;
   // Speech to text product
-  Product stt = 6;
+  ProductContainer speech_to_text = 6;
   // Conversation product
-  Product conversation = 7;
+  ProductContainer conversation = 7;
   // Creation time
   int32 createdAt = 8;
   // Update time
@@ -122,13 +86,13 @@ message CreateApplicationRequest {
   // Application type
   ApplicationType type = 2;
   // App URL for programmable voice
-  string appUrl = 3;
+  string app_url = 3;
   // Text to speech product
-  Product tts = 4;
+  ProductContainer text_to_speech = 4;
   // Speech to text product
-  Product stt = 5;
+  ProductContainer speech_to_text = 5;
   // Conversation product
-  Product conversation = 6;
+  ProductContainer conversation = 6;
 }
 
 // Response for create application
@@ -146,9 +110,9 @@ message GetApplicationRequest {
 // Request to list applications
 message ListApplicationsRequest {
   // The number of items to list
-  int32 pageSize = 1;
+  int32 page_size = 1;
   // The page token
-  string pageToken = 2;
+  string page_token = 2;
 }
 
 // Response for list applications
@@ -156,7 +120,7 @@ message ListApplicationsResponse {
   // List of applications
   repeated Application items = 1;
   // The page token
-  string nextPageToken = 2;
+  string next_page_token = 2;
 }
 
 // Request to update an application
@@ -168,13 +132,14 @@ message UpdateApplicationRequest {
   // Application type
   ApplicationType type = 3;
   // App URL for programmable voice
-  string appUrl = 4;
+  string app_url = 4;
   // Text to speech product
-  Product tts = 5;
+  ProductContainer text_to_speech = 5;
   // Speech to text product
-  Product stt = 6;
+  ProductContainer speech_to_text = 6;
   // Conversation product
-  Product conversation = 7;
+  ProductContainer conversation = 7;
+
 }
 
 // Response for update application

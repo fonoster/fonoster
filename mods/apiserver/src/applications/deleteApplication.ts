@@ -19,29 +19,28 @@
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { GetApplicationRequest, GetApplicationResponse } from "./types";
-import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
+import { DeleteApplicationRequest, DeleteApplicationResponse } from "./types";
 import { Prisma } from "../db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function getApplication(prisma: Prisma) {
+function deleteApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
   return withAccess(
     async (call: {
-      request: GetApplicationRequest;
-    }): Promise<GetApplicationResponse> => {
+      request: DeleteApplicationRequest;
+    }): Promise<DeleteApplicationResponse> => {
       const { ref } = call.request;
 
-      logger.verbose("call to getApplication", { ref });
+      logger.verbose("call to deleteApplication", { ref });
 
-      const result = await getFn(ref);
+      prisma.application.delete({ where: { ref } });
 
-      return result ? applicationWithEncodedStruct(result) : null;
+      return { ref };
     },
     (ref: string) => getFn(ref)
   );
 }
 
-export { getApplication };
+export { deleteApplication };

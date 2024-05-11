@@ -4,5 +4,10 @@
     "outDir": "dist",
     "rootDir": "src"
   },
+  "references": [
+    {
+      "path": "../logger",
+    }
+  ],
   "exclude": ["node_modules", "dist", "test"]
 }

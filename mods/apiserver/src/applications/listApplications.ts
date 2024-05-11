@@ -16,47 +16,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCErrors } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { CreateApplicationRequest, CreateApplicationResponse } from "./types";
-import { convertToApplicationData } from "./utils/convertToApplicationData";
-import { validOrThrow } from "./utils/validOrThrow";
+import { ListApplicationsRequest, ListApplicationsResponse } from "./types";
+import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createApplication(prisma: Prisma) {
+function listApplications(prisma: Prisma) {
   return async (
-    call: { request: CreateApplicationRequest },
-    callback: (error: GRPCErrors, response?: CreateApplicationResponse) => void
+    call: {
+      request: ListApplicationsRequest;
+    },
+    callback: (error: GRPCErrors, response?: ListApplicationsResponse) => void
   ) => {
-    const { type } = call.request;
+    const { pageSize, pageToken } = call.request;
+
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
 
-    validOrThrow(call.request);
-
-    logger.verbose("call to createApplication", {
+    logger.verbose("call to getApplication", {
       accessKeyId,
-      type
+      pageSize,
+      pageToken
     });
 
-    try {
-      const result = await prisma.application.create({
-        data: {
-          ...convertToApplicationData(call.request),
-          accessKeyId
-        }
-      });
+    const result = await prisma.application.findMany({
+      where: { accessKeyId },
+      include: {
+        textToSpeech: true,
+        speechToText: true,
+        conversation: true
+      },
+      take: pageSize,
+      skip: pageToken ? 1 : 0,
+      cursor: pageToken ? { ref: pageToken } : undefined
+    });
 
-      return callback(null, { ref: result.ref });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    const items = result.map(applicationWithEncodedStruct);
+
+    callback(null, {
+      items,
+      nextPageToken: result[result.length - 1]?.ref
+    });
   };
 }
 
-export { createApplication };
+export { listApplications };

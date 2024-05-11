@@ -18,6 +18,7 @@
     "lint": "eslint mods --ext .ts --fix",
     "clean": "rimraf mods/**/dist mods/**/node_modules mods/**/package-lock.json node_modules package-lock.json",
     "prepare": "husky",
+    "seed": "ts-node ./mods/apiserver/src/seed.ts",
     "db:migrate": "npx prisma migrate dev --schema ./mods/apiserver/schema.prisma --name init --preview-feature && npx prisma migrate dev --schema ./mods/identity/schema.prisma --name init --preview-feature",
     "generate:keypair": ".scripts/gen-keypair.sh",
     "generate:prisma-clients": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",

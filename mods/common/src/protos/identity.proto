@@ -75,10 +75,6 @@ message GetWorkspaceRequest {
 
 message GetWorkspaceResponse {
   string ref = 1;
-  string name = 2;
-  string owner_ref = 3;
-  int32 created_at = 4;
-  int32 updated_at = 5;
 }
 
 message ListWorkspacesRequest {
@@ -195,12 +191,6 @@ message CreateAPIKeyRequest {
 
 message CreateAPIKeyResponse {
   string ref = 1;
-  string access_key_id = 2;
-  string access_key_secret = 3;
-  string role = 4;
-  int32 expires_at = 5;
-  int32 created_at = 6;
-  int32 updated_at = 7;
 }
 
 message DeleteAPIKeyRequest {
@@ -218,7 +208,7 @@ message ListAPIKeysRequest {
 }
 
 message ListAPIKeysResponse {
-  repeated APIKey api_keys = 1;
+  repeated APIKey items = 1;
   string next_page_token = 2;
 }
 
@@ -228,12 +218,6 @@ message RegenerateAPIKeyRequest {
 
 message RegenerateAPIKeyResponse {
   string ref = 1;
-  string access_key_id = 2;
-  string access_key_secret = 3;
-  string role = 4;
-  int32 expires_at = 5;
-  int32 created_at = 6;
-  int32 updated_at = 7;
 }
 
 message APIKey {

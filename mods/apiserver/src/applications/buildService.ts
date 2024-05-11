@@ -17,6 +17,10 @@
  * limitations under the License.
  */
 import { createApplication } from "./createApplication";
+import { deleteApplication } from "./deleteApplication";
+import { getApplication } from "./getApplication";
+import { listApplications } from "./listApplications";
+import { updateApplication } from "./updateApplication";
 import { Prisma } from "../db";
 
 function buildService(prisma: Prisma) {
@@ -28,7 +32,11 @@ function buildService(prisma: Prisma) {
       proto: "applications.proto"
     },
     handlers: {
-      createApplication: createApplication(prisma)
+      createApplication: createApplication(prisma),
+      getApplication: getApplication(prisma),
+      listApplications: listApplications(prisma),
+      deleteApplication: deleteApplication(prisma),
+      updateApplication: updateApplication(prisma)
     }
   };
 }

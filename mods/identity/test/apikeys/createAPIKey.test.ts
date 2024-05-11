@@ -69,7 +69,7 @@ describe("@identity[apikeys/createAPIKey]", function () {
     // Act
     await createAPIKey(prisma)(call, (_, response) => {
       // Assert
-      expect(response).to.deep.equal(res);
+      expect(response).to.deep.equal({ ref: "123" });
     });
   });
 

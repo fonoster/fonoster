@@ -6,7 +6,13 @@
   },
   "references": [
     {
-      "path": "../identity"
+      "path": "../identity",
+    },
+    {
+      "path": "../logger",
+    },
+    {
+      "path": "../common",
     }
   ],
   "exclude": ["node_modules", "dist", "test"]

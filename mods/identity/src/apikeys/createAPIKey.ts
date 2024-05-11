@@ -39,12 +39,6 @@ type CreateAPIKeyRequest = z.infer<typeof CreateAPIKeyRequestSchema>;
 
 type CreateAPIKeyResponse = {
   ref: string;
-  accessKeyId: string;
-  accessKeySecret: string;
-  role: APIRoleEnum;
-  expiresAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
 };
 
 function createAPIKey(prisma: Prisma) {
@@ -69,15 +63,7 @@ function createAPIKey(prisma: Prisma) {
         }
       });
 
-      callback(null, {
-        ref: response.ref,
-        accessKeyId: response.accessKeyId,
-        accessKeySecret: response.accessKeySecret,
-        role: response.role as APIRoleEnum,
-        expiresAt: response.expiresAt,
-        createdAt: response.createdAt,
-        updatedAt: response.updatedAt
-      });
+      callback(null, { ref: response.ref });
     } catch (error) {
       handleError(error, callback);
     }

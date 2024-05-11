@@ -42,7 +42,7 @@ async function getServerCredentials(config: CredentialsConfig) {
   });
 
   if (tlsOn) {
-    // TODO: Should assert that all the required fields are present
+    // TODO: Assert that all the required fields are present
     const cacert = verifyClientCert ? fs.readFileSync(caCert) : null;
 
     return grpc.ServerCredentials.createSsl(cacert, [
