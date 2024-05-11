@@ -51,6 +51,14 @@ function handleError(
     const message = "Failed precondition error (e.g., missing dependency)";
     logger.error("missing foreign key error:", { message });
     callback({ code: status.FAILED_PRECONDITION, message });
+  } else if (code === grpc.status.PERMISSION_DENIED) {
+    const message = "Permission denied";
+    logger.error("permission denied error:", { message });
+    callback({ code: status.PERMISSION_DENIED, message });
+  } else if (code === grpc.status.UNAUTHENTICATED) {
+    const message = "Unauthenticated";
+    logger.error("unauthenticated error:", { message });
+    callback({ code: status.UNAUTHENTICATED, message });
   } else {
     logger.error("unknown error:", error);
     callback({ code: status.UNKNOWN, message: "Unknown error" });

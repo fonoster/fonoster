@@ -16,32 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma } from "../db";
-import { notFoundError } from "../notFoundError";
+import { status } from "@grpc/grpc-js";
 
-function createGetFnUtil(prisma: Prisma) {
-  return async (ref: string) => {
-    const response = await prisma.application.findUnique({
-      where: { ref },
-      include: {
-        textToSpeech: true,
-        speechToText: true,
-        conversation: true
-      }
-    });
+const notFoundError = (message: string) => ({
+  code: status.NOT_FOUND,
+  message
+});
 
-    if (!response) {
-      throw notFoundError("Application not found");
-    }
-
-    return {
-      // NOTE: Adding extended to match the signature of withAccess
-      ...response,
-      extended: {
-        accessKeyId: response.accessKeyId
-      }
-    };
-  };
-}
-
-export { createGetFnUtil };
+export { notFoundError };

@@ -16,31 +16,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { JsonObject, struct } from "pb-util";
+import { struct } from "pb-util";
 import { Application } from "../types";
 
 function applicationWithEncodedStruct(application): Application {
-  return {
-    ...application,
-    textToSpeech: {
-      ...application.textToSpeech,
-      config: struct.encode(
-        application.textToSpeech.config as unknown as JsonObject
-      )
-    },
-    speechToText: {
-      ...application.speechToText,
-      config: struct.encode(
-        application.speechToText.config as unknown as JsonObject
-      )
-    },
-    conversation: {
-      ...application.conversation,
-      config: struct.encode(
-        application.conversation.config as unknown as JsonObject
-      )
-    }
+  const decodeConfig = (property) => {
+    return property && property.config ? struct.decode(property.config) : null;
   };
+
+  const result = { ...application };
+
+  if (application.textToSpeech) {
+    result.textToSpeech = {
+      ...application.textToSpeech,
+      config: decodeConfig(application.textToSpeech)
+    };
+  }
+
+  if (application.speechToText) {
+    result.speechToText = {
+      ...application.speechToText,
+      config: decodeConfig(application.speechToText)
+    };
+  }
+
+  if (application.conversation) {
+    result.conversation = {
+      ...application.conversation,
+      config: decodeConfig(application.conversation)
+    };
+  }
+
+  return result; // Return the modified object
 }
 
 export { applicationWithEncodedStruct };

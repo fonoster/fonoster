@@ -50,21 +50,38 @@ type Application = {
   updatedAt: Date;
 };
 
+// For Prisma schema
+type ApplicationData = {
+  ref?: string;
+  name: string;
+  type: string;
+  appUrl: string;
+  textToSpeech?: {
+    create: { productRef: string; config: Record<string, unknown> };
+  };
+  speechToText?: {
+    create: { productRef: string; config: Record<string, unknown> };
+  };
+  conversation?: {
+    create: { productRef: string; config: Record<string, unknown> };
+  };
+};
+
 type CreateApplicationRequest = {
   name: string;
   type: ApplicationType;
-  appUrl: string;
-  textToSpeech: {
+  appUrl?: string;
+  textToSpeech?: {
     productRef: string;
     secretRef: string;
     config: Record<string, unknown>;
   };
-  speechToText: {
+  speechToText?: {
     productRef: string;
     secretRef: string;
     config: Record<string, unknown>;
   };
-  conversation: {
+  conversation?: {
     productRef: string;
     secretRef: string;
     config: Record<string, unknown>;
@@ -97,6 +114,7 @@ type ListApplicationsResponse = {
 
 export {
   Application,
+  ApplicationData,
   CreateApplicationRequest,
   CreateApplicationResponse,
   UpdateApplicationRequest,

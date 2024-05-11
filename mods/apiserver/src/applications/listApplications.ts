@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors } from "@fonoster/common";
+import { GRPCErrors, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -45,24 +45,28 @@ function listApplications(prisma: Prisma) {
       pageToken
     });
 
-    const result = await prisma.application.findMany({
-      where: { accessKeyId },
-      include: {
-        textToSpeech: true,
-        speechToText: true,
-        conversation: true
-      },
-      take: pageSize,
-      skip: pageToken ? 1 : 0,
-      cursor: pageToken ? { ref: pageToken } : undefined
-    });
+    try {
+      const result = await prisma.application.findMany({
+        where: { accessKeyId },
+        include: {
+          textToSpeech: true,
+          speechToText: true,
+          conversation: true
+        },
+        take: pageSize,
+        skip: pageToken ? 1 : 0,
+        cursor: pageToken ? { ref: pageToken } : undefined
+      });
 
-    const items = result.map(applicationWithEncodedStruct);
+      const items = result.map(applicationWithEncodedStruct);
 
-    callback(null, {
-      items,
-      nextPageToken: result[result.length - 1]?.ref
-    });
+      callback(null, {
+        items,
+        nextPageToken: result[result.length - 1]?.ref
+      });
+    } catch (error) {
+      handleError(error, callback);
+    }
   };
 }
 

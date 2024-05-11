@@ -17,35 +17,46 @@
  * limitations under the License.
  */
 import { struct } from "pb-util";
-import { CreateApplicationRequest, UpdateApplicationRequest } from "../types";
+import {
+  ApplicationData,
+  CreateApplicationRequest,
+  UpdateApplicationRequest
+} from "../types";
 
 function convertToApplicationData(
   request: CreateApplicationRequest | UpdateApplicationRequest
 ) {
-  return {
-    ref: (request as UpdateApplicationRequest).ref,
+  const result = {
+    ref: (request as UpdateApplicationRequest).ref, // Only for UpdateApplicationRequest
     name: request.name,
     type: request.type,
-    appUrl: request.appUrl,
-    textToSpeech: {
-      create: {
-        productRef: request.textToSpeech?.productRef,
-        config: struct.decode(request.textToSpeech?.config)
-      }
-    },
-    speechToText: {
-      create: {
-        productRef: request.speechToText?.productRef,
-        config: struct.decode(request.speechToText?.config)
-      }
-    },
-    conversation: {
-      create: {
-        productRef: request.conversation?.productRef,
-        config: struct.decode(request.conversation?.config)
-      }
-    }
+    appUrl: request.appUrl
+  } as ApplicationData;
+
+  const createProperty = (property) => {
+    return property
+      ? {
+          create: {
+            productRef: property.productRef,
+            config: property.config ? struct.decode(property.config) : null
+          }
+        }
+      : undefined;
   };
+
+  if (request.textToSpeech) {
+    result.textToSpeech = createProperty(request.textToSpeech);
+  }
+
+  if (request.speechToText) {
+    result.speechToText = createProperty(request.speechToText);
+  }
+
+  if (request.conversation) {
+    result.conversation = createProperty(request.conversation);
+  }
+
+  return result;
 }
 
 export { convertToApplicationData };

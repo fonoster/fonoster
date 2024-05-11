@@ -34,8 +34,7 @@ function deleteApplication(prisma: Prisma) {
       const { ref } = call.request;
 
       logger.verbose("call to deleteApplication", { ref });
-
-      prisma.application.delete({ where: { ref } });
+      await prisma.application.delete({ where: { ref } });
 
       return { ref };
     },
