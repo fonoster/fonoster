@@ -50,7 +50,7 @@ function getNumber(numbers: NumberAPI) {
   return getResource<INumber, GetNumberRequest, NumberAPI>(numbers, RESOURCE);
 }
 
-function listNumber(numbers: NumberAPI) {
+function listNumbers(numbers: NumberAPI) {
   return listResources<INumber, ListNumbersRequest, NumberAPI>(
     numbers,
     RESOURCE
@@ -64,4 +64,4 @@ function deleteNumber(numbers: NumberAPI) {
   );
 }
 
-export { createNumber, updateNumber, getNumber, listNumber, deleteNumber };
+export { createNumber, updateNumber, getNumber, listNumbers, deleteNumber };

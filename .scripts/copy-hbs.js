@@ -19,8 +19,8 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-const sourceDir = './src/notifications';
-const destDir = './dist/notifications';
+const sourceDir = './mods/identity/src/invites/templates';
+const destDir = './mods/identity/dist/invites/templates';
 
 function copyHbsFiles(source, destination) {
   fs.readdir(source, { withFileTypes: true }, (err, files) => {

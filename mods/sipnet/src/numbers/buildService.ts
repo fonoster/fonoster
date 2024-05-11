@@ -21,7 +21,7 @@ import {
   createNumber,
   deleteNumber,
   getNumber,
-  listNumber,
+  listNumbers,
   updateNumber
 } from "./operations";
 import { ClientOptions } from "../types";
@@ -40,7 +40,7 @@ function buildService(clientOptions: ClientOptions) {
       createNumber: createNumber(client),
       updateNumber: updateNumber(client),
       getNumber: getNumber(client),
-      listNumber: listNumber(client),
+      listNumbers: listNumbers(client),
       deleteNumber: deleteNumber(client)
     }
   };

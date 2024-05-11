@@ -19,24 +19,16 @@
  */
 import { upsertDefaultUser } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import {
-  OWNER_ACCESS_KEY_ID,
-  OWNER_EMAIL,
-  OWNER_ID,
-  OWNER_NAME,
-  OWNER_PASSWORD
-} from "./envs";
+import { OWNER_EMAIL, OWNER_NAME, OWNER_PASSWORD } from "./envs";
 import runServices from "./runServices";
 import { upsertDefaultPeer } from "./upsertDefaultPeer";
 
 async function main() {
   if (OWNER_EMAIL) {
     const user = {
-      ref: OWNER_ID,
       name: OWNER_NAME,
       email: OWNER_EMAIL,
-      password: OWNER_PASSWORD,
-      accessKeyId: OWNER_ACCESS_KEY_ID
+      password: OWNER_PASSWORD
     };
     await upsertDefaultUser(user);
   }

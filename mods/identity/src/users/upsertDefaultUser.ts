@@ -19,49 +19,59 @@
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { prisma } from "../db";
-import {
-  AccessKeyIdType,
-  generateAccessKeyId
-} from "../utils/generateAccessKeyId";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const CreateUserRequestSchema = z.object({
-  ref: z.string(),
   name: z.string().min(3).max(50),
   email: z.string().email(),
-  password: z.string().min(8).max(50).or(z.string().optional().nullable()),
-  accessKeyId: z.string().min(32).max(32).or(z.string().optional().nullable())
+  password: z.string().min(8).max(50).or(z.string().optional().nullable())
 });
 
 type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
+
+const USER_REF = "00000000-0000-0000-0000-000000000000";
+const WORKSPACE_REF = "00000000-0000-0000-0000-000000000000";
+const USER_ACCESS_KEY_ID = "US00000000000000000000000000000000";
+const WORKSPACE_ACCESS_KEY_ID = "WO00000000000000000000000000000000";
 
 async function upsertDefaultUser(request: CreateUserRequest) {
   try {
     const validatedRequest = CreateUserRequestSchema.parse(request);
 
-    const { ref, name, email, password, accessKeyId } = validatedRequest;
+    const { name, email, password } = validatedRequest;
 
-    const hereAccessKeyId =
-      accessKeyId || generateAccessKeyId(AccessKeyIdType.USER);
+    logger.verbose("call to upsertDefaultUser", {
+      email,
+      accessKeyId: USER_ACCESS_KEY_ID
+    });
 
-    logger.verbose("call to upsertDefaultUser", { email, accessKeyId });
-
-    return await prisma.user.upsert({
-      where: { ref },
+    await prisma.user.upsert({
+      where: { ref: USER_REF },
       update: {
         name,
         email,
         password: password || undefined,
-        accessKeyId: hereAccessKeyId,
+        accessKeyId: USER_ACCESS_KEY_ID,
         updatedAt: new Date()
       },
       create: {
-        ref,
+        ref: USER_REF,
         name,
         email,
         password,
-        accessKeyId: hereAccessKeyId
+        accessKeyId: USER_ACCESS_KEY_ID
+      }
+    });
+
+    await prisma.workspace.upsert({
+      where: { ref: WORKSPACE_REF },
+      update: {},
+      create: {
+        ref: WORKSPACE_REF,
+        name: "Default Workspace",
+        ownerRef: USER_REF,
+        accessKeyId: WORKSPACE_ACCESS_KEY_ID
       }
     });
   } catch (error) {

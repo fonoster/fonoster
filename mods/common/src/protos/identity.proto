@@ -24,7 +24,7 @@ service Identity {
   // Workspace actions
   rpc CreateWorkspace (CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {}
   rpc DeleteWorkspace (DeleteWorkspaceRequest) returns (DeleteWorkspaceResponse) {}
-  rpc GetWorkspace (GetWorkspaceRequest) returns (GetWorkspaceResponse) {}
+  rpc GetWorkspace (GetWorkspaceRequest) returns (Workspace) {}
   rpc ListWorkspaces (ListWorkspacesRequest) returns (ListWorkspacesResponse) {}
   rpc UpdateWorkspace (UpdateWorkspaceRequest) returns (UpdateWorkspaceResponse) {}
   rpc InviteUserToWorkspace (InviteUserToWorkspaceRequest) returns (InviteUserToWorkspaceResponse) {}
@@ -70,10 +70,6 @@ message DeleteWorkspaceResponse {
 }
 
 message GetWorkspaceRequest {
-  string ref = 1;
-}
-
-message GetWorkspaceResponse {
   string ref = 1;
 }
 

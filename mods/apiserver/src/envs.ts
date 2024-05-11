@@ -75,14 +75,10 @@ export const SMTP_SENDER = e.SMTP_SENDER;
 // Custom email templates
 export const EMAIL_TEMPLATES_DIR = e.EMAIL_TEMPLATES_DIR;
 
-// Default owner configurations (If OWNER_EMAIL is set, the account will be created)
+// Default owner configurations (If OWNER_EMAIL is set, the system will create a default user and a workspace)
 export const OWNER_NAME = e.OWNER_NAME || "Admin";
-export const OWNER_ACCESS_KEY_ID = e.OWNER_ACCESS_KEY_ID
-  ? e.OWNER_ACCESS_KEY_ID
-  : "US14wj8q6qlirw331gfswusfblie6h78uz";
 export const OWNER_EMAIL = e.OWNER_EMAIL;
 export const OWNER_PASSWORD = e.OWNER_PASSWORD || "changeme";
-export const OWNER_ID = e.OWNER_ID || "635c0cd8-8125-483d-b467-05c53ce2cd31";
 
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = e.CLOAK_ENCRYPTION_KEY;

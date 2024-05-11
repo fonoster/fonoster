@@ -10,9 +10,12 @@ CREATE TYPE "product_vendors" AS ENUM ('GOOGLE', 'MICROSOFT', 'AMAZON', 'IBM', '
 -- CreateTable
 CREATE TABLE "applications" (
     "ref" TEXT NOT NULL,
+    "accessKeyId" TEXT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "type" "application_types" NOT NULL,
     "appUrl" VARCHAR(255) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "applications_pkey" PRIMARY KEY ("ref")
 );
