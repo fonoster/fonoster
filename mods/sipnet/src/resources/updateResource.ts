@@ -16,8 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withAccess } from "@fonoster/identity";
+import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
@@ -26,10 +27,18 @@ function updateResource<T, R, U>(api: U, resource: string) {
     async (call: { request: R }): Promise<T> => {
       const { request } = call;
 
+      const accessKeyId = getAccessKeyIdFromCall(
+        call as unknown as ServerInterceptingCall
+      );
+
       logger.verbose(`call to update${resource}`, { request });
 
       return await api[`update${resource}`]({
-        ...request
+        ...request,
+        // FIXME: We should not have to pass the accessKeyId here. Fix upstream!
+        extended: {
+          accessKeyId
+        }
       });
     },
     (ref: string) => api[`get${resource}`](ref)

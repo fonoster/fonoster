@@ -34,7 +34,7 @@ function createResource<T, R, U>(api: U, resource: string) {
       call as unknown as ServerInterceptingCall
     );
 
-    logger.verbose(`call to create${resource}`, { request });
+    logger.verbose(`call to create${resource}`, { request, accessKeyId });
 
     try {
       const response = await api[`create${resource}`]({

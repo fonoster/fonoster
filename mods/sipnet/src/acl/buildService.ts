@@ -18,11 +18,11 @@
  */
 import SDK from "@routr/sdk";
 import {
-  createACL,
-  deleteACL,
-  getACL,
-  listACLs,
-  updateACL
+  createAcl,
+  deleteAcl,
+  getAcl,
+  listAcls,
+  updateAcl
 } from "./operations";
 import { ClientOptions } from "../types";
 
@@ -37,11 +37,11 @@ function buildService(clientOptions: ClientOptions) {
       proto: "acl.proto"
     },
     handlers: {
-      createAcl: createACL(client),
-      updateAcl: updateACL(client),
-      getAcl: getACL(client),
-      listAcl: listACLs(client),
-      deleteAcl: deleteACL(client)
+      createAcl: createAcl(client),
+      updateAcl: updateAcl(client),
+      getAcl: getAcl(client),
+      listAcl: listAcls(client),
+      deleteAcl: deleteAcl(client)
     }
   };
 }

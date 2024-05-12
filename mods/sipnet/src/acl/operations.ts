@@ -32,24 +32,24 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "ACL";
 
-function createACL(acls: ACLsAPI) {
+function createAcl(acls: ACLsAPI) {
   return createResource<ACL, CreateACLRequest, ACLsAPI>(acls, RESOURCE);
 }
 
-function updateACL(acls: ACLsAPI) {
+function updateAcl(acls: ACLsAPI) {
   return updateResource<ACL, UpdateACLRequest, ACLsAPI>(acls, RESOURCE);
 }
 
-function getACL(acls: ACLsAPI) {
+function getAcl(acls: ACLsAPI) {
   return getResource<ACL, GetACLRequest, ACLsAPI>(acls, RESOURCE);
 }
 
-function listACLs(acls: ACLsAPI) {
+function listAcls(acls: ACLsAPI) {
   return listResources<ACL, ListACLsRequest, ACLsAPI>(acls, RESOURCE);
 }
 
-function deleteACL(acls: ACLsAPI) {
+function deleteAcl(acls: ACLsAPI) {
   return deleteResource<ACL, DeleteACLRequest, ACLsAPI>(acls, RESOURCE);
 }
 
-export { createACL, updateACL, getACL, listACLs, deleteACL };
+export { createAcl, updateAcl, getAcl, listAcls, deleteAcl };
