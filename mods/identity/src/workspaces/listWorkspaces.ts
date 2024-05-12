@@ -23,7 +23,7 @@ import { Prisma } from "../db";
 import { TokenUseEnum } from "../exchanges";
 import { decodeToken } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
-import { getUserIdFromToken } from "../utils/getUserIdFromToken";
+import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -45,7 +45,7 @@ function listWorkspaces(prisma: Prisma) {
     callback: (error: GRPCErrors, response?: ListWorkspacesResponse) => void
   ) => {
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-    const userRef = getUserIdFromToken(token);
+    const userRef = getUserRefFromToken(token);
     const access = decodeToken<TokenUseEnum.ACCESS>(token);
     const workspacesAccessKeyIds = access.access?.map((a) => a.accessKeyId);
 

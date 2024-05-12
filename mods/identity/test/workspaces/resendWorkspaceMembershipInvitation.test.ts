@@ -43,7 +43,6 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     const call = {
       metadata,
       request: {
-        workspaceRef: "123",
         userRef
       }
     };
@@ -61,6 +60,7 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
     const prisma = {
       workspace: {
         findUnique: sandbox.stub().resolves({
+          ref: "123",
           ownerRef: userRef,
           members: [
             {
@@ -100,7 +100,6 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
 
     // Assert
     expect(callback).to.have.been.calledOnceWith(null, {
-      workspaceRef: "123",
       userRef
     });
   });

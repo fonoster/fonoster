@@ -19,7 +19,7 @@
 import { decodeToken } from "./decodeToken";
 import { TokenUseEnum } from "../exchanges/TokenUseEnum";
 
-function getUserIdFromToken(token: string): string {
+function getUserRefFromToken(token: string): string {
   const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token);
 
   if (decodedToken.tokenUse !== TokenUseEnum.ACCESS) {
@@ -29,4 +29,4 @@ function getUserIdFromToken(token: string): string {
   return decodedToken.sub;
 }
 
-export { getUserIdFromToken };
+export { getUserRefFromToken };

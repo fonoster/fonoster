@@ -24,18 +24,17 @@ import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites/sendInvite";
+import { getAccessKeyIdFromCall } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
-import { getUserIdFromToken } from "../utils/getUserIdFromToken";
+import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type ResendWorkspaceMembershipInvitationRequest = {
-  workspaceRef: string;
   userRef: string;
 };
 
 type ResendWorkspaceMembershipInvitationResponse = {
-  workspaceRef: string;
   userRef: string;
 };
 
@@ -52,29 +51,39 @@ function resendWorkspaceMembershipInvitation(
     ) => void
   ) => {
     try {
-      const { workspaceRef, userRef } = call.request;
+      const { userRef: inviteeRef } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const adminId = getUserIdFromToken(token);
+      const adminRef = getUserRefFromToken(token);
+      const accessKeyId = getAccessKeyIdFromCall(
+        call as unknown as ServerInterceptingCall
+      );
 
-      logger.debug("removing workspace member", {
+      const workspace = await prisma.workspace.findUnique({
+        where: {
+          accessKeyId
+        }
+      });
+      const workspaceRef = workspace.ref;
+
+      logger.verbose("resending workspace membership invitation", {
         workspaceRef,
-        userRef,
-        adminId
+        inviteeRef,
+        adminRef
       });
 
-      const isAdmin = await isAdminMember(prisma)(workspaceRef, adminId);
+      const isAdmin = await isAdminMember(prisma)(workspace.ref, adminRef);
 
-      if (!isAdmin && adminId !== userRef) {
+      if (!isAdmin) {
         return callback({
           code: GRPCStatus.PERMISSION_DENIED,
-          message: "Only admins or owners can remove users from a workspace"
+          message: "Only admins and owners can resend workspace invitations"
         });
       }
 
       const member = await prisma.workspaceMember.findFirst({
         where: {
           workspaceRef,
-          userRef
+          userRef: inviteeRef
         },
         include: {
           user: true,
@@ -85,7 +94,7 @@ function resendWorkspaceMembershipInvitation(
       if (!member) {
         return callback({
           code: GRPCStatus.NOT_FOUND,
-          message: "User not found in workspace"
+          message: `Original invitation not found for userRef: ${inviteeRef}`
         });
       }
 
@@ -99,8 +108,7 @@ function resendWorkspaceMembershipInvitation(
       });
 
       callback(null, {
-        workspaceRef,
-        userRef
+        userRef: inviteeRef
       });
     } catch (error) {
       handleError(error, callback);

@@ -28,14 +28,17 @@ import { WorkspaceRoleEnum } from "./WorkspaceRoleEnum";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites/sendInvite";
-import { AccessKeyIdType, generateAccessKeyId } from "../utils";
+import {
+  AccessKeyIdType,
+  generateAccessKeyId,
+  getAccessKeyIdFromCall
+} from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
-import { getUserIdFromToken } from "../utils/getUserIdFromToken";
+import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const InviteUserToWorkspaceRequestSchema = z.object({
-  workspaceRef: z.string(),
   email: z.string().email(),
   name: z.string().min(3, "Name must contain at least 3 characters").max(50),
   role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
@@ -103,14 +106,30 @@ function inviteUserToWorkspace(
   ) => {
     try {
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const inviterId = getUserIdFromToken(token);
+      const adminRef = getUserRefFromToken(token);
+      const accessKeyId = getAccessKeyIdFromCall(
+        call as unknown as ServerInterceptingCall
+      );
 
-      const { workspaceRef, email, name, role } =
-        InviteUserToWorkspaceRequestSchema.parse(call.request);
+      const workspace = await prisma.workspace.findUnique({
+        where: {
+          accessKeyId
+        }
+      });
 
-      logger.info("inviting user to workspace", { workspaceRef, email });
+      const workspaceRef = workspace.ref;
 
-      const isAdmin = await isAdminMember(prisma)(workspaceRef, inviterId);
+      const { email, name, role } = InviteUserToWorkspaceRequestSchema.parse(
+        call.request
+      );
+
+      logger.verbose("inviting user to workspace", {
+        workspaceRef,
+        email,
+        role
+      });
+
+      const isAdmin = await isAdminMember(prisma)(workspaceRef, adminRef);
 
       if (!isAdmin) {
         return callback(inviterIsNotAdminError);

@@ -21,7 +21,7 @@ import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
-import { getUserIdFromToken } from "../utils/getUserIdFromToken";
+import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -45,7 +45,7 @@ function getWorkspace(prisma: Prisma) {
     try {
       const { ref } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerRef = getUserIdFromToken(token);
+      const ownerRef = getUserRefFromToken(token);
 
       logger.verbose("getting workspace by id", { ref, ownerRef });
 

@@ -43,7 +43,7 @@ describe("@secrets/createSecret", function () {
       secret: {
         create: sandbox.stub().resolves({ ref: "123" })
       }
-    } as unknown as unknown as Prisma;
+    } as unknown as Prisma;
 
     const call = {
       metadata,

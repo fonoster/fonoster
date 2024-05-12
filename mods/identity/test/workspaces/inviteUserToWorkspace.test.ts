@@ -77,6 +77,8 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
+          ref: "123",
+          accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
           ownerRef: workspaceOwner,
           members: []
         })
@@ -132,6 +134,8 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
+          ref: "123",
+          accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
           ownerRef: workspaceOwner,
           members: []
         })
@@ -184,6 +188,8 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
+          ref: "123",
+          accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
           ownerRef: "another-user-id",
           members: []
         })

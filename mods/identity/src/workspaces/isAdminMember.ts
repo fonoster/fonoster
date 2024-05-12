@@ -20,7 +20,11 @@ import { WorkspaceRoleEnum } from "./WorkspaceRoleEnum";
 import { Prisma } from "../db";
 
 function isAdminMember(prisma: Prisma) {
-  return async (workspaceRef: string, userRef: string) => {
+  return async (workspaceRef: string, adminRef: string) => {
+    if (!workspaceRef || !adminRef) {
+      return false;
+    }
+
     const workspace = await prisma.workspace.findUnique({
       where: {
         ref: workspaceRef
@@ -30,12 +34,12 @@ function isAdminMember(prisma: Prisma) {
       }
     });
 
-    if (workspace?.ownerRef === userRef) {
+    if (workspace?.ownerRef === adminRef) {
       return true;
     }
 
     const role = workspace?.members.find(
-      (member) => member.ref === userRef
+      (member) => member.ref === adminRef
     )?.role;
 
     return role === WorkspaceRoleEnum.ADMIN || role === WorkspaceRoleEnum.OWNER;

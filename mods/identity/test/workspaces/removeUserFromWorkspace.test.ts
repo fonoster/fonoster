@@ -55,6 +55,8 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
+          ref: "123",
+          accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
           ownerRef: userRef,
           members: [{ userRef, role: WorkspaceRoleEnum.ADMIN }]
         })
@@ -86,7 +88,6 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        workspaceRef: "123",
         userRef
       }
     };

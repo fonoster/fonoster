@@ -23,7 +23,7 @@ import { z } from "zod";
 import { isWorkspaceMember } from "./isWorkspaceMember";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
-import { getUserIdFromToken } from "../utils/getUserIdFromToken";
+import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -46,7 +46,7 @@ function updateWorkspace(prisma: Prisma) {
     try {
       const validatedRequest = UpdateWorkspaceRequestSchema.parse(call.request);
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const userRef = getUserIdFromToken(token);
+      const userRef = getUserRefFromToken(token);
       const { ref, name } = validatedRequest;
 
       logger.verbose("call to updateWorkspace", { ref, userRef });

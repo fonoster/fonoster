@@ -26,7 +26,7 @@ import {
   generateAccessKeyId
 } from "../utils/generateAccessKeyId";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
-import { getUserIdFromToken } from "../utils/getUserIdFromToken";
+import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -49,7 +49,7 @@ function createWorkspace(prisma: Prisma) {
       const validatedRequest = CreateWorkspaceRequestSchema.parse(call.request);
 
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerRef = getUserIdFromToken(token);
+      const ownerRef = getUserRefFromToken(token);
 
       const { name } = validatedRequest;
 

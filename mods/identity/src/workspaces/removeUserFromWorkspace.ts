@@ -21,18 +21,17 @@ import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../db";
+import { getAccessKeyIdFromCall } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
-import { getUserIdFromToken } from "../utils/getUserIdFromToken";
+import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 type RemoveUserFromWorkspaceRequest = {
-  workspaceRef: string;
   userRef: string;
 };
 
 type RemoveUserFromWorkspaceResponse = {
-  workspaceRef: string;
   userRef: string;
 };
 
@@ -45,21 +44,28 @@ function removeUserFromWorkspace(prisma: Prisma) {
     ) => void
   ) => {
     try {
-      const { workspaceRef, userRef } = call.request;
+      const { userRef } = call.request;
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const userRefFromToken = getUserIdFromToken(token);
-
-      logger.debug("removing user from workspace", { workspaceRef, userRef });
-
-      const isAdmin = await isAdminMember(prisma)(
-        workspaceRef,
-        userRefFromToken
+      const accessKeyId = getAccessKeyIdFromCall(
+        call as unknown as ServerInterceptingCall
       );
+      const adminRef = getUserRefFromToken(token);
+      const workspace = await prisma.workspace.findUnique({
+        where: {
+          accessKeyId
+        }
+      });
 
-      if (!isAdmin && userRefFromToken !== userRef) {
+      const workspaceRef = workspace?.ref;
+
+      logger.verbose("removing user from workspace", { workspaceRef, userRef });
+
+      const isAdmin = await isAdminMember(prisma)(workspaceRef, adminRef);
+
+      if (!isAdmin && adminRef !== userRef) {
         return callback({
           code: GRPCStatus.PERMISSION_DENIED,
-          message: "Only admins or owners can remove users from a workspace"
+          message: "Only admins and owners can remove users from a workspace"
         });
       }
 
@@ -85,6 +91,7 @@ function removeUserFromWorkspace(prisma: Prisma) {
 
       callback(null, response);
     } catch (error) {
+      console.log(error);
       handleError(error, callback);
     }
   };
