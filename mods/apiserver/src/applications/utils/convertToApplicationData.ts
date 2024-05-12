@@ -38,6 +38,7 @@ function convertToApplicationData(
       ? {
           create: {
             productRef: property.productRef,
+            secretRef: property.secretRef,
             config: property.config ? struct.decode(property.config) : null
           }
         }

@@ -22,6 +22,7 @@ model Application {
   conversation Conversation?
 
   // Indexes and maps
+  @@index([accessKeyId], type: Hash)
   @@map("applications")
 }
 
@@ -34,10 +35,13 @@ model TextToSpeech {
   applicationRef String      @unique @map("application_ref")
   product        Product     @relation(fields: [productRef], references: [ref], onDelete: Cascade)
   productRef     String      @map("product_ref")
+  secret         Secret      @relation(fields: [secretRef], references: [ref], onDelete: Cascade)
+  secretRef      String      @map("secret_ref")
 
   // Indexes and maps
   @@index([applicationRef], type: Hash)
   @@index([productRef], type: Hash)
+  @@index([secretRef], type: Hash)
   @@map("tts_services")
 }
 
@@ -50,10 +54,13 @@ model SpeechToText {
   applicationRef String      @unique @map("application_ref")
   product        Product     @relation(fields: [productRef], references: [ref], onDelete: Cascade)
   productRef     String      @map("product_ref")
+  secret         Secret      @relation(fields: [secretRef], references: [ref], onDelete: Cascade)
+  secretRef      String      @map("secret_ref")
 
   // Indexes and maps
   @@index([applicationRef], type: Hash)
   @@index([productRef], type: Hash)
+  @@index([secretRef], type: Hash)
   @@map("stt_services")
 }
 
@@ -66,10 +73,13 @@ model Conversation {
   applicationRef String      @unique @map("application_ref")
   Product        Product     @relation(fields: [productRef], references: [ref], onDelete: Cascade)
   productRef     String      @map("product_ref")
+  secret         Secret      @relation(fields: [secretRef], references: [ref], onDelete: Cascade)
+  secretRef      String      @map("secret_ref")
 
   // Indexes and maps
   @@index([applicationRef], type: Hash)
   @@index([productRef], type: Hash)
+  @@index([secretRef], type: Hash)
   @@map("conversation_services")
 }
 
@@ -86,6 +96,24 @@ model Product {
 
   // Indexes and maps
   @@map("products")
+}
+
+model Secret {
+  ref         String   @id @default(uuid())
+  accessKeyId String
+  name        String
+  secret      String   @map("secret_hash") /// @encrypted
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  textToSpeech TextToSpeech[]
+  speechToText SpeechToText[]
+  conversation Conversation[]
+
+  // Indexes and maps
+  @@index([accessKeyId], type: Hash)
+  @@map("secrets")
 }
 
 enum ApplicationType {

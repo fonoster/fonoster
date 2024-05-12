@@ -33,17 +33,17 @@ type Application = {
   appUrl: string;
   textToSpeech: {
     productRef: string;
-    // secretRef: string;
+    secretRef: string;
     config: Record<string, unknown>;
   };
   speechToText: {
     productRef: string;
-    // secretRef: string;
+    secretRef: string;
     config: Record<string, unknown>;
   };
   conversation: {
     productRef: string;
-    // secretRef: string;
+    secretRef: string;
     config: Record<string, unknown>;
   };
   createdAt: Date;
@@ -57,13 +57,25 @@ type ApplicationData = {
   type: ApplicationType;
   appUrl: string;
   textToSpeech?: {
-    create: { productRef: string; config: Record<string, unknown> };
+    create: {
+      productRef: string;
+      secretRef: string;
+      config: Record<string, unknown>;
+    };
   };
   speechToText?: {
-    create: { productRef: string; config: Record<string, unknown> };
+    create: {
+      productRef: string;
+      secretRef: string;
+      config: Record<string, unknown>;
+    };
   };
   conversation?: {
-    create: { productRef: string; config: Record<string, unknown> };
+    create: {
+      productRef: string;
+      secretRef: string;
+      config: Record<string, unknown>;
+    };
   };
 };
 

@@ -78,6 +78,7 @@ describe("@applications/convertToApplicationData", function () {
       textToSpeech: {
         create: {
           productRef: "123",
+          secretRef: "123",
           config: {
             voice: "angela"
           }
@@ -86,6 +87,7 @@ describe("@applications/convertToApplicationData", function () {
       speechToText: {
         create: {
           productRef: "123",
+          secretRef: "123",
           config: {
             languageCode: "en-US"
           }
