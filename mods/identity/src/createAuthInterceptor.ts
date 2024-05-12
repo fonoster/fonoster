@@ -20,6 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { permissionDeniedError, unauthenticatedError } from "./errors";
 import { Access, TokenUseEnum } from "./exchanges";
+import { workspaceAccess } from "./roles";
 import {
   decodeToken,
   getAccessKeyIdFromCall,
@@ -78,10 +79,17 @@ function createAuthInterceptor(
       accessKeyId: string;
     };
 
-    logger.verbose("checking access for accessKeyId", { accessKeyId, path });
+    logger.verbose("checking access for accessKeyId", {
+      accessKeyId,
+      path,
+      hasAccess: hasAccess(decodedToken.access, path),
+      pathIsWorkspacePath: workspaceAccess.includes(path),
+      tokenHasAccessKeyId: tokenHasAccessKeyId(token, accessKeyId)
+    });
 
     if (
-      !hasAccess(decodedToken.access, path) ||
+      !hasAccess(decodedToken.access, path) &&
+      workspaceAccess.includes(path) &&
       !tokenHasAccessKeyId(token, accessKeyId)
     ) {
       return permissionDeniedError(call);

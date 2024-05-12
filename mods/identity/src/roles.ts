@@ -115,4 +115,4 @@ const roles = [
   }
 ] as Role[];
 
-export default roles;
+export { roles, workspaceAccess };

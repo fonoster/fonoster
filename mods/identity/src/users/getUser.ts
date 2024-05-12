@@ -48,7 +48,10 @@ function getUser(prisma: Prisma) {
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const accessKeyId = getAccessKeyIdFromToken(token);
 
-      logger.verbose("getting user by id", { ref, accessKeyId });
+      logger.verbose("getting user with ref and accessKeyId", {
+        ref,
+        accessKeyId
+      });
 
       const user = await prisma.user.findUnique({
         where: {
@@ -58,20 +61,14 @@ function getUser(prisma: Prisma) {
       });
 
       if (!user) {
-        callback({ code: GRPCStatus.NOT_FOUND, message: "User not found" });
+        callback({
+          code: GRPCStatus.NOT_FOUND,
+          message: `User not found: ${ref}`
+        });
         return;
       }
 
-      const response: GetUserResponse = {
-        ref: user.ref,
-        email: user.email,
-        name: user.name,
-        avatar: user.avatar,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
-      };
-
-      callback(null, response);
+      callback(null, user);
     } catch (error) {
       handleError(error, callback);
     }

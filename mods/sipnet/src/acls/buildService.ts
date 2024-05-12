@@ -40,7 +40,7 @@ function buildService(clientOptions: ClientOptions) {
       createAcl: createAcl(client),
       updateAcl: updateAcl(client),
       getAcl: getAcl(client),
-      listAcl: listAcls(client),
+      listAcls: listAcls(client),
       deleteAcl: deleteAcl(client)
     }
   };

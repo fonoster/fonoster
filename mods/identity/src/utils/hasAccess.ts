@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Access, Role } from "../exchanges";
-import roles from "../roles";
+import { roles } from "../roles";
 
 // This method only checks if the role has access to the path
 function hasAccess(access: Access[], grpcPath: string) {
