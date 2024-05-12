@@ -57,9 +57,15 @@ function listApiKeys(prisma: Prisma) {
 
     logger.verbose("list keys for workspace", { accessKeyId });
 
-    const keys = await prisma.apiKey.findMany({
+    const workspace = await prisma.workspace.findUnique({
       where: {
         accessKeyId
+      }
+    });
+
+    const keys = await prisma.apiKey.findMany({
+      where: {
+        workspaceRef: workspace.ref
       },
       take: pageSize,
       skip: pageToken ? 1 : 0,

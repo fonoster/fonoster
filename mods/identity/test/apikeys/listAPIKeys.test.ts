@@ -61,6 +61,9 @@ describe("@identity[apikeys/listApiKeys]", function () {
     };
 
     const prisma = {
+      workspace: {
+        findUnique: sandbox.stub().resolves({ id: "123" })
+      },
       apiKey: {
         findMany: sandbox.stub().resolves(res.items)
       }
@@ -94,6 +97,9 @@ describe("@identity[apikeys/listApiKeys]", function () {
     };
 
     const prisma = {
+      workspace: {
+        findUnique: sandbox.stub().resolves({ id: "123" })
+      },
       apiKey: {
         findMany: sandbox.stub().resolves([])
       }
