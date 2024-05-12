@@ -42,18 +42,15 @@ describe("@identity[apikeys/regenerateApiKey]", function () {
     const call = {
       metadata,
       request: {
-        ref: "123"
+        ref: "123",
+        role: ApiRoleEnum.WORKSPACE_ADMIN
       }
     };
 
     const res = {
       ref: "123",
       accessKeyId: "accessKeyId",
-      accessKeySecret: "accessKeySecret",
-      role: ApiRoleEnum.WORKSPACE_ADMIN,
-      expiresAt: new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date()
+      accessKeySecret: "accessKeySecret"
     };
 
     const prisma = {

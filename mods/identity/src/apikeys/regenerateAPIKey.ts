@@ -19,7 +19,6 @@
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
-import { ApiRoleEnum } from "./ApiRoleEnum";
 import { Prisma } from "../db";
 import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 
@@ -35,10 +34,6 @@ type RegenerateApiKeyResponse = {
   ref: string;
   accessKeyId: string;
   accessKeySecret: string;
-  role: ApiRoleEnum;
-  expiresAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
 };
 
 function regenerateApiKey(prisma: Prisma) {
@@ -67,11 +62,7 @@ function regenerateApiKey(prisma: Prisma) {
       callback(null, {
         ref: response.ref,
         accessKeyId: response.accessKeyId,
-        accessKeySecret: response.accessKeySecret,
-        role: response.role as ApiRoleEnum,
-        expiresAt: response.expiresAt,
-        createdAt: response.createdAt,
-        updatedAt: response.updatedAt
+        accessKeySecret: response.accessKeySecret
       });
     } catch (error) {
       handleError(error, callback);

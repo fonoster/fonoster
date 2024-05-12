@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRoleEnum } from "./apikeys";
+import { ApiRoleEnum } from "./apikeys/ApiRoleEnum";
 import { Role } from "./exchanges/types";
 import { WorkspaceRoleEnum } from "./workspaces/WorkspaceRoleEnum";
 
@@ -93,11 +93,11 @@ const roles = [
     description: "Access to all endpoints",
     access: [...fullIdentityAccess, ...workspaceAccess]
   },
-  // {
-  //   name: ApiRoleEnum.WORKSPACE_ADMIN,
-  //   description: "Access to all endpoints",
-  //   access: [...fullIdentityAccess, ...workspaceAccess]
-  // },
+  {
+    name: ApiRoleEnum.WORKSPACE_ADMIN,
+    description: "Access to all endpoints",
+    access: [...fullIdentityAccess, ...workspaceAccess]
+  },
   {
     name: WorkspaceRoleEnum.USER,
     description: "Access to User and Workspace endpoints",

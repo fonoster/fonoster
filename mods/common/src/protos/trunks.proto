@@ -20,7 +20,7 @@ syntax = "proto3";
 
 package fonoster.trunks.v1beta2;
 
-import "acl.proto";
+import "acls.proto";
 import "credentials.proto";
 
 // The Trunks service definition
@@ -70,7 +70,7 @@ message Trunk {
   // The date and time when the Trunk was last updated
   int32 updated_at = 6;
   // The list of IP addresses that are allowed to access the Trunks
-  fonoster.acl.v1beta2.AccessControlList access_control_list = 7;
+  fonoster.acls.v1beta2.Acl access_control_list = 7;
   // The credentials to use when authenticating with the Trunk
   fonoster.credentials.v1beta2.Credentials inbound_credentials = 8;
   // The credentials to use when authenticating with the Provider

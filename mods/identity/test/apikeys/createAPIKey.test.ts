@@ -51,14 +51,13 @@ describe("@identity[apikeys/createApiKey]", function () {
     const res = {
       ref: "123",
       accessKeyId: "accessKeyId",
-      accessKeySecret: "accessKeySecret",
-      role: ApiRoleEnum.WORKSPACE_ADMIN,
-      expiresAt: 0,
-      createdAt: new Date().getMilliseconds(),
-      updatedAt: new Date().getMilliseconds()
+      accessKeySecret: "accessKeySecret"
     };
 
     const prisma = {
+      workspace: {
+        findUnique: sandbox.stub().resolves({ ref: "123" })
+      },
       apiKey: {
         create: sandbox.stub().resolves(res)
       }
@@ -69,7 +68,11 @@ describe("@identity[apikeys/createApiKey]", function () {
     // Act
     await createApiKey(prisma)(call, (_, response) => {
       // Assert
-      expect(response).to.deep.equal({ ref: "123" });
+      expect(response).has.property("ref").to.be.equal("123");
+      expect(response).has.property("accessKeyId").to.be.equal("accessKeyId");
+      expect(response)
+        .has.property("accessKeySecret")
+        .to.be.equal("accessKeySecret");
     });
   });
 
@@ -87,6 +90,9 @@ describe("@identity[apikeys/createApiKey]", function () {
     };
 
     const prisma = {
+      workspace: {
+        findUnique: sandbox.stub().resolves({ ref: "123" })
+      },
       apiKey: {
         create: sandbox.stub().throws({ code: "P2002" })
       }

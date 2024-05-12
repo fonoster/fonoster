@@ -180,6 +180,8 @@ message CreateApiKeyRequest {
 
 message CreateApiKeyResponse {
   string ref = 1;
+  string access_key_id = 2;
+  string access_key_secret = 3;
 }
 
 message DeleteApiKeyRequest {
@@ -206,6 +208,8 @@ message RegenerateApiKeyRequest {
 
 message RegenerateApiKeyResponse {
   string ref = 1;
+  string access_key_id = 2;
+  string access_key_secret = 3;
 }
 
 message ApiKey {

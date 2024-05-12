@@ -58,7 +58,7 @@ function exchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
 
       const key = await getApiKeyByAccessKeyId(prisma)(accessKeyId);
 
-      if (!key || key.accessKeySecret !== accessKeySecret?.trim()) {
+      if (key?.accessKeySecret !== accessKeySecret?.trim()) {
         return callback(invalidApiKeyError);
       }
 

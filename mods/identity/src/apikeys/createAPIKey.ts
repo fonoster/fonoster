@@ -18,9 +18,11 @@
  */
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { ApiRoleEnum } from "./ApiRoleEnum";
 import { Prisma } from "../db";
+import { getAccessKeyIdFromCall } from "../utils";
 import {
   AccessKeyIdType,
   generateAccessKeyId
@@ -30,7 +32,6 @@ import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const CreatApiKeyRequestSchema = z.object({
-  workspaceRef: z.string(),
   role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
   expiresAt: z.number().transform((value) => (value === 0 ? null : value))
 });
@@ -39,6 +40,8 @@ type CreateApiKeyRequest = z.infer<typeof CreatApiKeyRequestSchema>;
 
 type CreateApiKeyResponse = {
   ref: string;
+  accessKeyId: string;
+  accessKeySecret: string;
 };
 
 function createApiKey(prisma: Prisma) {
@@ -49,13 +52,21 @@ function createApiKey(prisma: Prisma) {
     try {
       const validatedRequest = CreatApiKeyRequestSchema.parse(call.request);
 
-      const { workspaceRef, role, expiresAt } = validatedRequest;
+      const accessKeyId = getAccessKeyIdFromCall(
+        call as unknown as ServerInterceptingCall
+      );
 
-      logger.info("creating new ApiKey", { workspaceRef, role, expiresAt });
+      const { role, expiresAt } = validatedRequest;
+
+      logger.info("creating new ApiKey", { accessKeyId, role, expiresAt });
+
+      const workspace = await prisma.workspace.findUnique({
+        where: { accessKeyId }
+      });
 
       const response = await prisma.apiKey.create({
         data: {
-          workspaceRef: validatedRequest.workspaceRef,
+          workspaceRef: workspace.ref,
           role: validatedRequest.role,
           accessKeyId: generateAccessKeyId(AccessKeyIdType.API_KEY),
           accessKeySecret: generateAccessKeySecret(),
@@ -63,7 +74,11 @@ function createApiKey(prisma: Prisma) {
         }
       });
 
-      callback(null, { ref: response.ref });
+      callback(null, {
+        ref: response.ref,
+        accessKeyId: response.accessKeyId,
+        accessKeySecret: response.accessKeySecret
+      });
     } catch (error) {
       handleError(error, callback);
     }
