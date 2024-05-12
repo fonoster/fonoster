@@ -43,11 +43,7 @@ describe("@applications/applicationWithEncodedStruct", function () {
       textToSpeech: {
         productRef: "123",
         config: {
-          fields: {
-            voice: {
-              stringValue: "angela"
-            }
-          }
+          voice: "angela"
         }
       },
       speechToText: {
@@ -67,7 +63,12 @@ describe("@applications/applicationWithEncodedStruct", function () {
       textToSpeech: {
         productRef: "123",
         config: {
-          voice: "angela"
+          fields: {
+            voice: {
+              kind: "stringValue",
+              stringValue: "angela"
+            }
+          }
         }
       },
       speechToText: {

@@ -20,8 +20,8 @@ import { struct } from "pb-util";
 import { Application } from "../types";
 
 function applicationWithEncodedStruct(application): Application {
-  const decodeConfig = (property) => {
-    return property && property.config ? struct.decode(property.config) : null;
+  const encodeConfig = (property) => {
+    return property?.config ? struct.encode(property.config) : null;
   };
 
   const result = { ...application };
@@ -29,21 +29,21 @@ function applicationWithEncodedStruct(application): Application {
   if (application.textToSpeech) {
     result.textToSpeech = {
       ...application.textToSpeech,
-      config: decodeConfig(application.textToSpeech)
+      config: encodeConfig(application.textToSpeech)
     };
   }
 
   if (application.speechToText) {
     result.speechToText = {
       ...application.speechToText,
-      config: decodeConfig(application.speechToText)
+      config: encodeConfig(application.speechToText)
     };
   }
 
   if (application.conversation) {
     result.conversation = {
       ...application.conversation,
-      config: decodeConfig(application.conversation)
+      config: encodeConfig(application.conversation)
     };
   }
 
