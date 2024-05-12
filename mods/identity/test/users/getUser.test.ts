@@ -99,7 +99,7 @@ describe("@identity[users/getUser]", function () {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,
-        message: "User not found"
+        message: "User not found: 123"
       });
     });
   });
