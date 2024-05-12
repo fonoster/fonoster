@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[apikeys/listAPIKeys]", function () {
+describe("@identity[apikeys/listApiKeys]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should list API Keys", async function () {
+  it("should list ApiKeys", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -41,12 +41,13 @@ describe("@identity[apikeys/listAPIKeys]", function () {
     const call = {
       metadata,
       request: {
-        workspaceRef: "123"
+        pageSize: 10,
+        pageToken: "123"
       }
     };
 
     const res = {
-      apiKeys: [
+      items: [
         {
           ref: "123",
           accessKeyId: "123",
@@ -55,19 +56,20 @@ describe("@identity[apikeys/listAPIKeys]", function () {
           createdAt: new Date(),
           updatedAt: new Date()
         }
-      ]
+      ],
+      nextPageToken: "123"
     };
 
     const prisma = {
-      aPIKey: {
-        findMany: sandbox.stub().resolves(res.apiKeys)
+      apiKey: {
+        findMany: sandbox.stub().resolves(res.items)
       }
     } as unknown as Prisma;
 
-    const { listAPIKeys } = await import("../../src/apikeys/listAPIKeys");
+    const { listApiKeys } = await import("../../src/apikeys/listApiKeys");
 
     // Act
-    await listAPIKeys(prisma)(call, (error, response) => {
+    await listApiKeys(prisma)(call, (_, response) => {
       // Assert
       expect(response).to.be.deep.equal(res);
     });
@@ -81,25 +83,27 @@ describe("@identity[apikeys/listAPIKeys]", function () {
     const call = {
       metadata,
       request: {
-        workspaceRef: "123"
+        pageSize: 10,
+        pageToken: "123"
       }
     };
 
     const res = {
-      apiKeys: []
+      items: [],
+      nextPageToken: undefined
     };
 
     const prisma = {
-      aPIKey: {
+      apiKey: {
         findMany: sandbox.stub().resolves([])
       }
     } as unknown as Prisma;
 
-    const { listAPIKeys } = await import("../../src/apikeys/listAPIKeys");
+    const { listApiKeys } = await import("../../src/apikeys/listApiKeys");
 
     // Act
 
-    await listAPIKeys(prisma)(call, (error, response) => {
+    await listApiKeys(prisma)(call, (error, response) => {
       // Assert
       expect(response).to.be.deep.equal(res);
     });

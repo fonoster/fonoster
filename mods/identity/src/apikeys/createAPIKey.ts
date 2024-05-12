@@ -19,7 +19,7 @@
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
-import { APIRoleEnum } from "./APIRoleEnum";
+import { ApiRoleEnum } from "./ApiRoleEnum";
 import { Prisma } from "../db";
 import {
   AccessKeyIdType,
@@ -29,31 +29,31 @@ import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const CreateAPIKeyRequestSchema = z.object({
+const CreatApiKeyRequestSchema = z.object({
   workspaceRef: z.string(),
-  role: z.enum([APIRoleEnum.WORKSPACE_ADMIN]),
+  role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
   expiresAt: z.number().transform((value) => (value === 0 ? null : value))
 });
 
-type CreateAPIKeyRequest = z.infer<typeof CreateAPIKeyRequestSchema>;
+type CreateApiKeyRequest = z.infer<typeof CreatApiKeyRequestSchema>;
 
-type CreateAPIKeyResponse = {
+type CreateApiKeyResponse = {
   ref: string;
 };
 
-function createAPIKey(prisma: Prisma) {
+function createApiKey(prisma: Prisma) {
   return async (
-    call: { request: CreateAPIKeyRequest },
-    callback: (error: GRPCErrors, response?: CreateAPIKeyResponse) => void
+    call: { request: CreateApiKeyRequest },
+    callback: (error: GRPCErrors, response?: CreateApiKeyResponse) => void
   ) => {
     try {
-      const validatedRequest = CreateAPIKeyRequestSchema.parse(call.request);
+      const validatedRequest = CreatApiKeyRequestSchema.parse(call.request);
 
       const { workspaceRef, role, expiresAt } = validatedRequest;
 
-      logger.info("creating new APIKey", { workspaceRef, role, expiresAt });
+      logger.info("creating new ApiKey", { workspaceRef, role, expiresAt });
 
-      const response = await prisma.aPIKey.create({
+      const response = await prisma.apiKey.create({
         data: {
           workspaceRef: validatedRequest.workspaceRef,
           role: validatedRequest.role,
@@ -70,4 +70,4 @@ function createAPIKey(prisma: Prisma) {
   };
 }
 
-export { createAPIKey };
+export { createApiKey };

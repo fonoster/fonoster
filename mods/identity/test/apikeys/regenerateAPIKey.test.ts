@@ -21,7 +21,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { APIRoleEnum } from "../../../identity";
+import { ApiRoleEnum } from "../../src/apikeys";
 import { Prisma } from "../../src/db";
 import { TEST_TOKEN } from "../testToken";
 
@@ -29,12 +29,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[apikeys/regenerateAPIKey]", function () {
+describe("@identity[apikeys/regenerateApiKey]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should regenerate an API Key", async function () {
+  it("should regenerate an ApiKey", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -50,24 +50,24 @@ describe("@identity[apikeys/regenerateAPIKey]", function () {
       ref: "123",
       accessKeyId: "accessKeyId",
       accessKeySecret: "accessKeySecret",
-      role: APIRoleEnum.WORKSPACE_ADMIN,
+      role: ApiRoleEnum.WORKSPACE_ADMIN,
       expiresAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
     const prisma = {
-      aPIKey: {
+      apiKey: {
         update: sandbox.stub().resolves(res)
       }
     } as unknown as Prisma;
 
-    const { regenerateAPIKey } = await import(
-      "../../src/apikeys/regenerateAPIKey"
+    const { regenerateApiKey } = await import(
+      "../../src/apikeys/regenerateApiKey"
     );
 
     // Act
-    await regenerateAPIKey(prisma)(call, (_, response) => {
+    await regenerateApiKey(prisma)(call, (_, response) => {
       // Assert
       expect(response).to.be.deep.equal(res);
     });

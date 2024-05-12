@@ -23,7 +23,7 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getExtendedFieldsHelper } from "./getExtendedFieldsHelper";
 import { TEST_TOKEN } from "./testToken";
-import { DomainsAPI } from "../src/domains/client";
+import { DomainsApi } from "../src/domains/client";
 import { DeleteDomainRequest, Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
@@ -44,7 +44,7 @@ describe("@sipnet[resources/deleteResource]", function () {
     const domains = {
       deleteDomain: sandbox.stub().resolves({ ref: "123" }),
       getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+    } as unknown as DomainsApi;
 
     const call = {
       metadata,
@@ -54,7 +54,7 @@ describe("@sipnet[resources/deleteResource]", function () {
     };
 
     const callback = sandbox.stub();
-    const deleteD = deleteResource<Domain, DeleteDomainRequest, DomainsAPI>(
+    const deleteD = deleteResource<Domain, DeleteDomainRequest, DomainsApi>(
       domains,
       "Domain"
     );

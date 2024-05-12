@@ -18,7 +18,7 @@
  */
 import { buildIdentityService } from "@fonoster/identity";
 import {
-  buildACLService,
+  buildAclsService,
   buildAgentsService,
   buildCredentialsService,
   buildDomainsService,
@@ -38,7 +38,7 @@ const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);
 const trunksService = buildTrunksService(routrConfig);
 const numbersService = buildNumbersService(routrConfig);
-const aclService = buildACLService(routrConfig);
+const aclsService = buildAclsService(routrConfig);
 const identityService = buildIdentityService(identityConfig);
 
 const services = [
@@ -47,7 +47,7 @@ const services = [
   identityService,
   agentsService,
   credentialsService,
-  aclService,
+  aclsService,
   numbersService,
   trunksService,
   domainsService

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GetNumberRequest, NumberAPI } from "./client";
+import { GetNumberRequest, NumberApi } from "./client";
 import {
   CreateNumberRequest,
   DeleteNumberRequest,
@@ -32,33 +32,33 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Number";
 
-function createNumber(numbers: NumberAPI) {
-  return createResource<INumber, CreateNumberRequest, NumberAPI>(
+function createNumber(numbers: NumberApi) {
+  return createResource<INumber, CreateNumberRequest, NumberApi>(
     numbers,
     RESOURCE
   );
 }
 
-function updateNumber(numbers: NumberAPI) {
-  return updateResource<INumber, UpdateNumberRequest, NumberAPI>(
+function updateNumber(numbers: NumberApi) {
+  return updateResource<INumber, UpdateNumberRequest, NumberApi>(
     numbers,
     RESOURCE
   );
 }
 
-function getNumber(numbers: NumberAPI) {
-  return getResource<INumber, GetNumberRequest, NumberAPI>(numbers, RESOURCE);
+function getNumber(numbers: NumberApi) {
+  return getResource<INumber, GetNumberRequest, NumberApi>(numbers, RESOURCE);
 }
 
-function listNumbers(numbers: NumberAPI) {
-  return listResources<INumber, ListNumbersRequest, NumberAPI>(
+function listNumbers(numbers: NumberApi) {
+  return listResources<INumber, ListNumbersRequest, NumberApi>(
     numbers,
     RESOURCE
   );
 }
 
-function deleteNumber(numbers: NumberAPI) {
-  return deleteResource<INumber, DeleteNumberRequest, NumberAPI>(
+function deleteNumber(numbers: NumberApi) {
+  return deleteResource<INumber, DeleteNumberRequest, NumberApi>(
     numbers,
     RESOURCE
   );

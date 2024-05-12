@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { APIRoleEnum } from "./apikeys";
+import { ApiRoleEnum } from "./apikeys";
 import { Role } from "./exchanges/types";
 import { WorkspaceRoleEnum } from "./workspaces/WorkspaceRoleEnum";
 
@@ -32,11 +32,11 @@ const workspaceAccess = [
   "/fonoster.agents.v1beta2.Agents/GetAgent",
   "/fonoster.agents.v1beta2.Agents/DeleteAgent",
   "/fonoster.agents.v1beta2.Agents/ListAgents",
-  "/fonoster.acl.v1beta2.ACL/CreateACL",
-  "/fonoster.acl.v1beta2.ACL/UpdateACL",
-  "/fonoster.acl.v1beta2.ACL/GetACL",
-  "/fonoster.acl.v1beta2.ACL/DeleteACL",
-  "/fonoster.acl.v1beta2.ACL/ListACL",
+  "/fonoster.acls.v1beta2.Acls/CreateAcl",
+  "/fonoster.acls.v1beta2.Acls/UpdateAcl",
+  "/fonoster.acls.v1beta2.Acls/ListAcls",
+  "/fonoster.acls.v1beta2.Acls/GetAcl",
+  "/fonoster.acls.v1beta2.Acls/DeleteAcl",
   "/fonoster.credentials.v1beta2.CredentialsService/CreateCredentials",
   "/fonoster.credentials.v1beta2.CredentialsService/UpdateCredentials",
   "/fonoster.credentials.v1beta2.CredentialsService/GetCredentials",
@@ -76,10 +76,10 @@ const fullIdentityAccess = [
   "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
   "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation",
   "/fonoster.identity.v1beta2.Identity/RefreshToken",
-  "/fonoster.identity.v1beta2.Identity/CreateAPIKey",
-  "/fonoster.identity.v1beta2.Identity/DeleteAPIKey",
-  "/fonoster.identity.v1beta2.Identity/ListAPIKeys",
-  "/fonoster.identity.v1beta2.Identity/RegenerateAPIKey"
+  "/fonoster.identity.v1beta2.Identity/CreateApiKey",
+  "/fonoster.identity.v1beta2.Identity/DeleteApiKey",
+  "/fonoster.identity.v1beta2.Identity/ListApiKeys",
+  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
 ];
 
 const roles = [
@@ -93,11 +93,11 @@ const roles = [
     description: "Access to all endpoints",
     access: [...fullIdentityAccess, ...workspaceAccess]
   },
-  {
-    name: APIRoleEnum.WORKSPACE_ADMIN,
-    description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceAccess]
-  },
+  // {
+  //   name: ApiRoleEnum.WORKSPACE_ADMIN,
+  //   description: "Access to all endpoints",
+  //   access: [...fullIdentityAccess, ...workspaceAccess]
+  // },
   {
     name: WorkspaceRoleEnum.USER,
     description: "Access to User and Workspace endpoints",

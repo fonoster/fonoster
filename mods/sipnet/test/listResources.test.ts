@@ -23,7 +23,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI, ListDomainsRequest } from "../src/domains/client";
+import { DomainsApi, ListDomainsRequest } from "../src/domains/client";
 import { Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
@@ -56,7 +56,7 @@ describe("@sipnet[resources/listResources]", function () {
         nextPageToken: ""
       }),
       getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+    } as unknown as DomainsApi;
 
     const call = {
       metadata,
@@ -66,7 +66,7 @@ describe("@sipnet[resources/listResources]", function () {
       }
     };
 
-    const list = listResources<Domain, ListDomainsRequest, DomainsAPI>(
+    const list = listResources<Domain, ListDomainsRequest, DomainsApi>(
       domains,
       "Domain"
     );

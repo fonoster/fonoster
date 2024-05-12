@@ -70,7 +70,7 @@ type ListDomainsResponse = {
   nextPageToken: string;
 };
 
-type DomainsAPI = {
+type DomainsApi = {
   createDomain: (request: CreateDomainRequest) => Promise<CreateDomainResponse>;
   updateDomain: (request: UpdateDomainRequest) => Promise<UpdateDomainResponse>;
   getDomain: (ref: string) => Promise<Domain>;
@@ -79,8 +79,8 @@ type DomainsAPI = {
 };
 
 export {
-  DomainsAPI,
   Domain,
+  DomainsApi,
   CreateDomainRequest,
   CreateDomainResponse,
   UpdateDomainRequest,

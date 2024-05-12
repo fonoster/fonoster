@@ -23,7 +23,7 @@ import { AccessToken, IdentityConfig } from "../../types";
 
 function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
   return async (accessKeyId: string): Promise<AccessToken> => {
-    const apiKey = await prisma.aPIKey.findFirst({
+    const apiKey = await prisma.apiKey.findFirst({
       where: {
         accessKeyId
       },

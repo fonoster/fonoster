@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 export * from "./agents";
-export * from "./acl";
+export * from "./acls";
 export * from "./domains";
 export * from "./numbers";
 export * from "./trunks";

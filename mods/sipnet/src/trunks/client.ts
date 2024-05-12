@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { JsonObject } from "@prisma/client/runtime/library";
-import { ACL } from "../acl/client";
+import { Acl } from "../acls/client";
 import { Credentials } from "../credentials/client";
 
 enum Transport {
@@ -44,7 +44,7 @@ type Trunk = {
   name: string;
   sendRegister: boolean;
   inboundUri?: string;
-  accessControlList?: ACL;
+  accessControlList?: Acl;
   inboundCredentials?: Credentials;
   outboundCredentials?: Credentials;
   uris?: TrunkURI[];
@@ -58,7 +58,7 @@ type CreateTrunkRequest = {
   name: string;
   sendRegister: boolean;
   inboundUri: string;
-  accessControlList?: ACL;
+  accessControlList?: Acl;
   inboundCredentials?: Credentials;
   outboundCredentials?: Credentials;
   uris?: TrunkURI[];
@@ -97,7 +97,7 @@ type ListTrunksResponse = {
   nextPageToken: string;
 };
 
-type TrunkAPI = {
+type TrunkApi = {
   createTrunk(request: CreateTrunkRequest): Promise<CreateTrunkResponse>;
   updateTrunk(request: UpdateTrunkRequest): Promise<UpdateTrunkResponse>;
   getTrunk(ref: string): Promise<Trunk>;
@@ -115,5 +115,5 @@ export {
   DeleteTrunkRequest,
   ListTrunksRequest,
   ListTrunksResponse,
-  TrunkAPI
+  TrunkApi
 };

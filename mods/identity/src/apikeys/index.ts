@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./createAPIKey";
-export * from "./deleteAPIKey";
-export * from "./listAPIKeys";
-export * from "./regenerateAPIKey";
-export * from "./APIRoleEnum";
+export * from "./createApiKey";
+export * from "./deleteApiKey";
+export * from "./listApiKeys";
+export * from "./regenerateApiKey";
+export * from "./ApiRoleEnum";

@@ -23,29 +23,29 @@ import { Prisma } from "../db";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const DeleteAPIKeyRequestSchema = z.object({
+const DeleteApiKeyRequestSchema = z.object({
   ref: z.string()
 });
 
-type DeleteAPIKeyRequest = z.infer<typeof DeleteAPIKeyRequestSchema>;
+type DeleteApiKeyRequest = z.infer<typeof DeleteApiKeyRequestSchema>;
 
-type DeleteAPIKeyResponse = {
+type DeleteApiKeyResponse = {
   ref: string;
 };
 
-function deleteAPIKey(prisma: Prisma) {
+function deleteApiKey(prisma: Prisma) {
   return async (
-    call: { request: DeleteAPIKeyRequest },
-    callback: (error: GRPCErrors, response?: DeleteAPIKeyResponse) => void
+    call: { request: DeleteApiKeyRequest },
+    callback: (error: GRPCErrors, response?: DeleteApiKeyResponse) => void
   ) => {
     try {
-      const validatedRequest = DeleteAPIKeyRequestSchema.parse(call.request);
+      const validatedRequest = DeleteApiKeyRequestSchema.parse(call.request);
 
       const { ref } = validatedRequest;
 
-      logger.info("deleting APIKey", { ref });
+      logger.info("deleting ApiKey", { ref });
 
-      const response = await prisma.aPIKey.delete({
+      const response = await prisma.apiKey.delete({
         where: {
           ref
         }
@@ -60,4 +60,4 @@ function deleteAPIKey(prisma: Prisma) {
   };
 }
 
-export { deleteAPIKey };
+export { deleteApiKey };

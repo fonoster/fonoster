@@ -19,43 +19,43 @@
 import { GRPCErrors, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
-import { APIRoleEnum } from "./APIRoleEnum";
+import { ApiRoleEnum } from "./ApiRoleEnum";
 import { Prisma } from "../db";
 import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const RegenerateAPIKeyRequestSchema = z.object({
+const RegenerateApiKeyRequestSchema = z.object({
   ref: z.string()
 });
 
-type RegenerateAPIKeyRequest = z.infer<typeof RegenerateAPIKeyRequestSchema>;
+type RegenerateApiKeyRequest = z.infer<typeof RegenerateApiKeyRequestSchema>;
 
-type RegenerateAPIKeyResponse = {
+type RegenerateApiKeyResponse = {
   ref: string;
   accessKeyId: string;
   accessKeySecret: string;
-  role: APIRoleEnum;
+  role: ApiRoleEnum;
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 };
 
-function regenerateAPIKey(prisma: Prisma) {
+function regenerateApiKey(prisma: Prisma) {
   return async (
-    call: { request: RegenerateAPIKeyRequest },
-    callback: (error: GRPCErrors, response?: RegenerateAPIKeyResponse) => void
+    call: { request: RegenerateApiKeyRequest },
+    callback: (error: GRPCErrors, response?: RegenerateApiKeyResponse) => void
   ) => {
     try {
-      const validatedRequest = RegenerateAPIKeyRequestSchema.parse(
+      const validatedRequest = RegenerateApiKeyRequestSchema.parse(
         call.request
       );
 
       const { ref } = validatedRequest;
 
-      logger.info("regenerating APIKey", { ref });
+      logger.info("regenerating ApiKey", { ref });
 
-      const response = await prisma.aPIKey.update({
+      const response = await prisma.apiKey.update({
         where: {
           ref
         },
@@ -68,7 +68,7 @@ function regenerateAPIKey(prisma: Prisma) {
         ref: response.ref,
         accessKeyId: response.accessKeyId,
         accessKeySecret: response.accessKeySecret,
-        role: response.role as APIRoleEnum,
+        role: response.role as ApiRoleEnum,
         expiresAt: response.expiresAt,
         createdAt: response.createdAt,
         updatedAt: response.updatedAt
@@ -79,4 +79,4 @@ function regenerateAPIKey(prisma: Prisma) {
   };
 }
 
-export { regenerateAPIKey };
+export { regenerateApiKey };

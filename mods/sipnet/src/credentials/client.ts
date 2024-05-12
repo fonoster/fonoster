@@ -68,7 +68,7 @@ type ListCredentialsResponse = {
   nextPageToken: string;
 };
 
-type CredentialsAPI = {
+type CredentialsApi = {
   createCredentials(
     request: CreateCredentialsRequest
   ): Promise<CreateCredentialsResponse>;
@@ -92,5 +92,5 @@ export {
   DeleteCredentialsRequest,
   ListCredentialsRequest,
   ListCredentialsResponse,
-  CredentialsAPI
+  CredentialsApi
 };

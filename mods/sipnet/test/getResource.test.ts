@@ -22,7 +22,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI, GetDomainRequest } from "../src/domains/client";
+import { DomainsApi, GetDomainRequest } from "../src/domains/client";
 import { Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
@@ -51,7 +51,7 @@ describe("@sipnet[resources/getResource]", function () {
 
     const domains = {
       getDomain: sandbox.stub().resolves(domain)
-    } as unknown as DomainsAPI;
+    } as unknown as DomainsApi;
 
     const call = {
       metadata,
@@ -60,7 +60,7 @@ describe("@sipnet[resources/getResource]", function () {
       }
     };
 
-    const get = getResource<Domain, GetDomainRequest, DomainsAPI>(
+    const get = getResource<Domain, GetDomainRequest, DomainsApi>(
       domains,
       "Domain"
     );
@@ -84,7 +84,7 @@ describe("@sipnet[resources/getResource]", function () {
         code: grpc.status.NOT_FOUND,
         message: "Domain not found"
       })
-    } as unknown as DomainsAPI;
+    } as unknown as DomainsApi;
 
     const call = {
       metadata,
@@ -94,7 +94,7 @@ describe("@sipnet[resources/getResource]", function () {
     };
 
     const callback = sandbox.stub();
-    const get = getResource<Domain, GetDomainRequest, DomainsAPI>(
+    const get = getResource<Domain, GetDomainRequest, DomainsApi>(
       domains,
       "Domain"
     );

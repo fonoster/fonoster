@@ -82,7 +82,7 @@ type ListAgentsResponse = {
   nextPageToken: string;
 };
 
-type AgentsAPI = {
+type AgentsApi = {
   createAgent(request: CreateAgentRequest): Promise<CreateAgentResponse>;
   updateAgent(request: UpdateAgentRequest): Promise<UpdateAgentResponse>;
   getAgent(ref: string): Promise<Agent>;
@@ -100,6 +100,6 @@ export {
   DeleteAgentRequest,
   ListAgentsRequest,
   ListAgentsResponse,
-  AgentsAPI,
+  AgentsApi,
   Privacy
 };

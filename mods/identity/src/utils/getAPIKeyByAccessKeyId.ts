@@ -18,9 +18,9 @@
  */
 import { Prisma } from "../db";
 
-function getAPIKeyByAccessKeyId(prisma: Prisma) {
+function getApiKeyByAccessKeyId(prisma: Prisma) {
   return async (accessKeyId: string) => {
-    const key = await prisma.aPIKey.findFirst({
+    const key = await prisma.apiKey.findFirst({
       where: {
         accessKeyId
       }
@@ -34,4 +34,4 @@ function getAPIKeyByAccessKeyId(prisma: Prisma) {
   };
 }
 
-export { getAPIKeyByAccessKeyId };
+export { getApiKeyByAccessKeyId };

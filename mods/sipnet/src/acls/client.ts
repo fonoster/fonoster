@@ -18,7 +18,7 @@
  */
 import { JsonObject } from "@prisma/client/runtime/library";
 
-type ACL = {
+type Acl = {
   ref: string;
   name: string;
   allow: string[];
@@ -29,7 +29,7 @@ type ACL = {
   updatedAt?: number;
 };
 
-type CreateACLRequest = {
+type CreateAclRequest = {
   name: string;
   allow: string[];
   deny: string[];
@@ -38,53 +38,54 @@ type CreateACLRequest = {
   };
 };
 
-type UpdateACLRequest = {
+type UpdateAclRequest = {
   ref: string;
-} & Omit<Partial<CreateACLRequest>, "extended">;
+} & Omit<Partial<CreateAclRequest>, "extended">;
 
-type CreateACLResponse = {
-  ref: string;
-};
-
-type UpdateACLResponse = {
+type CreateAclResponse = {
   ref: string;
 };
 
-type GetACLRequest = {
+type UpdateAclResponse = {
   ref: string;
 };
 
-type DeleteACLRequest = {
+type GetAclRequest = {
   ref: string;
 };
 
-type ListACLsRequest = {
+type DeleteAclRequest = {
+  ref: string;
+};
+
+type ListAclsRequest = {
   pageSize: number;
   pageToken: string;
 };
 
-type ListACLsResponse = {
-  items: ACL[];
+type ListAclsResponse = {
+  items: Acl[];
   nextPageToken: string;
 };
 
-type ACLsAPI = {
-  createACL(request: CreateACLRequest): Promise<CreateACLResponse>;
-  updateACL(request: UpdateACLRequest): Promise<UpdateACLResponse>;
-  getACL(ref: string): Promise<ACL>;
+// TODO: Rename ACL to Acl upstream
+type AclsApi = {
+  createACL(request: CreateAclRequest): Promise<CreateAclResponse>;
+  updateACL(request: UpdateAclRequest): Promise<UpdateAclResponse>;
+  getACL(ref: string): Promise<Acl>;
   deleteACL(ref: string): Promise<void>;
-  listACLs(request: ListACLsRequest): Promise<ListACLsResponse>;
+  listACLs(request: ListAclsRequest): Promise<ListAclsResponse>;
 };
 
 export {
-  ACL,
-  CreateACLRequest,
-  UpdateACLRequest,
-  CreateACLResponse,
-  UpdateACLResponse,
-  GetACLRequest,
-  DeleteACLRequest,
-  ListACLsRequest,
-  ListACLsResponse,
-  ACLsAPI
+  Acl,
+  CreateAclRequest,
+  UpdateAclRequest,
+  CreateAclResponse,
+  UpdateAclResponse,
+  GetAclRequest,
+  DeleteAclRequest,
+  ListAclsRequest,
+  ListAclsResponse,
+  AclsApi
 };

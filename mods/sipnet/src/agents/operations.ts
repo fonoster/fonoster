@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AgentsAPI, GetAgentRequest } from "./client";
+import { AgentsApi, GetAgentRequest } from "./client";
 import {
   Agent,
   CreateAgentRequest,
@@ -32,24 +32,24 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Agent";
 
-function createAgent(agents: AgentsAPI) {
-  return createResource<Agent, CreateAgentRequest, AgentsAPI>(agents, RESOURCE);
+function createAgent(agents: AgentsApi) {
+  return createResource<Agent, CreateAgentRequest, AgentsApi>(agents, RESOURCE);
 }
 
-function updateAgent(agents: AgentsAPI) {
-  return updateResource<Agent, UpdateAgentRequest, AgentsAPI>(agents, RESOURCE);
+function updateAgent(agents: AgentsApi) {
+  return updateResource<Agent, UpdateAgentRequest, AgentsApi>(agents, RESOURCE);
 }
 
-function getAgent(agents: AgentsAPI) {
-  return getResource<Agent, GetAgentRequest, AgentsAPI>(agents, RESOURCE);
+function getAgent(agents: AgentsApi) {
+  return getResource<Agent, GetAgentRequest, AgentsApi>(agents, RESOURCE);
 }
 
-function listAgents(agents: AgentsAPI) {
-  return listResources<Agent, ListAgentsRequest, AgentsAPI>(agents, RESOURCE);
+function listAgents(agents: AgentsApi) {
+  return listResources<Agent, ListAgentsRequest, AgentsApi>(agents, RESOURCE);
 }
 
-function deleteAgent(agents: AgentsAPI) {
-  return deleteResource<Agent, DeleteAgentRequest, AgentsAPI>(agents, RESOURCE);
+function deleteAgent(agents: AgentsApi) {
+  return deleteResource<Agent, DeleteAgentRequest, AgentsApi>(agents, RESOURCE);
 }
 
 export { createAgent, updateAgent, getAgent, listAgents, deleteAgent };

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CredentialsAPI, GetCredentialsRequest } from "./client";
+import { CredentialsApi, GetCredentialsRequest } from "./client";
 import {
   CreateCredentialsRequest,
   Credentials,
@@ -32,36 +32,36 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Credentials";
 
-function createCredentials(credentials: CredentialsAPI) {
-  return createResource<Credentials, CreateCredentialsRequest, CredentialsAPI>(
+function createCredentials(credentials: CredentialsApi) {
+  return createResource<Credentials, CreateCredentialsRequest, CredentialsApi>(
     credentials,
     RESOURCE
   );
 }
 
-function updateCredentials(credentials: CredentialsAPI) {
-  return updateResource<Credentials, UpdateCredentialsRequest, CredentialsAPI>(
+function updateCredentials(credentials: CredentialsApi) {
+  return updateResource<Credentials, UpdateCredentialsRequest, CredentialsApi>(
     credentials,
     RESOURCE
   );
 }
 
-function getCredentials(credentials: CredentialsAPI) {
-  return getResource<Credentials, GetCredentialsRequest, CredentialsAPI>(
+function getCredentials(credentials: CredentialsApi) {
+  return getResource<Credentials, GetCredentialsRequest, CredentialsApi>(
     credentials,
     RESOURCE
   );
 }
 
-function listCredentials(credentials: CredentialsAPI) {
-  return listResources<Credentials, ListCredentialsRequest, CredentialsAPI>(
+function listCredentials(credentials: CredentialsApi) {
+  return listResources<Credentials, ListCredentialsRequest, CredentialsApi>(
     credentials,
     RESOURCE
   );
 }
 
-function deleteCredentials(credentials: CredentialsAPI) {
-  return deleteResource<Credentials, DeleteCredentialsRequest, CredentialsAPI>(
+function deleteCredentials(credentials: CredentialsApi) {
+  return deleteResource<Credentials, DeleteCredentialsRequest, CredentialsApi>(
     credentials,
     RESOURCE
   );

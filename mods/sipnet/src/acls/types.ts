@@ -18,37 +18,37 @@
  */
 import * as RTypes from "./client";
 
-type ACL = Omit<RTypes.ACL, "extended">;
+type Acl = Omit<RTypes.Acl, "extended">;
 
-type CreateACLRequest = Omit<RTypes.CreateACLRequest, "extended">;
+type CreateAclRequest = Omit<RTypes.CreateAclRequest, "extended">;
 
-type CreateACLResponse = RTypes.CreateACLResponse;
+type CreateAclResponse = RTypes.CreateAclResponse;
 
-type UpdateACLRequest = RTypes.UpdateACLRequest;
+type UpdateAclRequest = RTypes.UpdateAclRequest;
 
-type UpdateACLResponse = RTypes.UpdateACLResponse;
+type UpdateAclResponse = RTypes.UpdateAclResponse;
 
-type GetACLRequest = RTypes.GetACLRequest;
+type GetAclRequest = RTypes.GetAclRequest;
 
-type ListACLsRequest = RTypes.ListACLsRequest;
+type ListAclsRequest = RTypes.ListAclsRequest;
 
-type ListACLsResponse = RTypes.ListACLsResponse;
+type ListAclsResponse = RTypes.ListAclsResponse;
 
-type DeleteACLRequest = RTypes.DeleteACLRequest;
+type DeleteAclRequest = RTypes.DeleteAclRequest;
 
-type DeleteACLResponse = {
+type DeleteAclResponse = {
   ref: string;
 };
 
 export type {
-  ACL,
-  CreateACLRequest,
-  CreateACLResponse,
-  UpdateACLRequest,
-  UpdateACLResponse,
-  GetACLRequest,
-  ListACLsRequest,
-  ListACLsResponse,
-  DeleteACLRequest,
-  DeleteACLResponse
+  Acl,
+  CreateAclRequest,
+  CreateAclResponse,
+  UpdateAclRequest,
+  UpdateAclResponse,
+  GetAclRequest,
+  ListAclsRequest,
+  ListAclsResponse,
+  DeleteAclRequest,
+  DeleteAclResponse
 };

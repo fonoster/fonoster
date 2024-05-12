@@ -21,7 +21,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { APIRoleEnum } from "../../../identity";
+import { ApiRoleEnum } from "../../src/apikeys";
 import { Prisma } from "../../src/db";
 import { TEST_TOKEN } from "../testToken";
 
@@ -29,12 +29,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[apikeys/createAPIKey]", function () {
+describe("@identity[apikeys/createApiKey]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should create a new API Key", async function () {
+  it("should create a new ApiKey", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -43,7 +43,7 @@ describe("@identity[apikeys/createAPIKey]", function () {
       metadata,
       request: {
         workspaceRef: "123",
-        role: APIRoleEnum.WORKSPACE_ADMIN,
+        role: ApiRoleEnum.WORKSPACE_ADMIN,
         expiresAt: new Date().getMilliseconds()
       }
     };
@@ -52,28 +52,28 @@ describe("@identity[apikeys/createAPIKey]", function () {
       ref: "123",
       accessKeyId: "accessKeyId",
       accessKeySecret: "accessKeySecret",
-      role: APIRoleEnum.WORKSPACE_ADMIN,
+      role: ApiRoleEnum.WORKSPACE_ADMIN,
       expiresAt: 0,
       createdAt: new Date().getMilliseconds(),
       updatedAt: new Date().getMilliseconds()
     };
 
     const prisma = {
-      aPIKey: {
+      apiKey: {
         create: sandbox.stub().resolves(res)
       }
     } as unknown as Prisma;
 
-    const { createAPIKey } = await import("../../src/apikeys/createAPIKey");
+    const { createApiKey } = await import("../../src/apikeys/createApiKey");
 
     // Act
-    await createAPIKey(prisma)(call, (_, response) => {
+    await createApiKey(prisma)(call, (_, response) => {
       // Assert
       expect(response).to.deep.equal({ ref: "123" });
     });
   });
 
-  it("should throw an error if the workspace already exists", async function () {
+  it("should throw an error if the ApiKey already exists", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -81,21 +81,21 @@ describe("@identity[apikeys/createAPIKey]", function () {
       metadata,
       request: {
         workspaceRef: "123",
-        role: APIRoleEnum.WORKSPACE_ADMIN,
+        role: ApiRoleEnum.WORKSPACE_ADMIN,
         expiresAt: new Date().getMilliseconds()
       }
     };
 
     const prisma = {
-      aPIKey: {
+      apiKey: {
         create: sandbox.stub().throws({ code: "P2002" })
       }
     } as unknown as Prisma;
 
-    const { createAPIKey } = await import("../../src/apikeys/createAPIKey");
+    const { createApiKey } = await import("../../src/apikeys/createApiKey");
 
     // Act
-    await createAPIKey(prisma)(call, (error) => {
+    await createApiKey(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.ALREADY_EXISTS,

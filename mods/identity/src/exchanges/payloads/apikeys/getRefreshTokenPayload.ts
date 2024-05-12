@@ -25,7 +25,7 @@ function getRefreshTokenPayload(
   identityConfig: IdentityConfig
 ) {
   return async (accessKeyId: string): Promise<RefreshToken> => {
-    const apiKey = await prisma.aPIKey.findFirst({
+    const apiKey = await prisma.apiKey.findFirst({
       where: {
         accessKeyId
       }

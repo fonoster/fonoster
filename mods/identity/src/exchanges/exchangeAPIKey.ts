@@ -23,43 +23,43 @@ import { z } from "zod";
 import { exchangeTokens } from "./exchangeTokens";
 import { IdentityConfig } from "./types";
 import { Prisma } from "../db";
-import { getAPIKeyByAccessKeyId } from "../utils/getAPIKeyByAccessKeyId";
+import { getApiKeyByAccessKeyId } from "../utils/getApiKeyByAccessKeyId";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const ExchangeAPIKeysRequestSchema = z.object({
+const ExchangeApiKeysRequestSchema = z.object({
   accessKeyId: z.string(),
   accessKeySecret: z.string()
 });
 
-type ExchangeAPIKeysRequest = z.infer<typeof ExchangeAPIKeysRequestSchema>;
+type ExchangeApiKeysRequest = z.infer<typeof ExchangeApiKeysRequestSchema>;
 
-type ExchangeAPIKeysResponse = {
+type ExchangeApiKeysResponse = {
   idToken: string;
   accessToken: string;
   refreshToken: string;
 };
 
-const invalidAPIKeyError = {
+const invalidApiKeyError = {
   code: grpc.status.PERMISSION_DENIED,
   message: "Invalid credentials"
 };
 
-function exchangeAPIKey(prisma: Prisma, identityConfig: IdentityConfig) {
+function exchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
   return async (
-    call: { request: ExchangeAPIKeysRequest },
-    callback: (error: GRPCErrors, response?: ExchangeAPIKeysResponse) => void
+    call: { request: ExchangeApiKeysRequest },
+    callback: (error: GRPCErrors, response?: ExchangeApiKeysResponse) => void
   ) => {
     try {
-      const validatedRequest = ExchangeAPIKeysRequestSchema.parse(call.request);
+      const validatedRequest = ExchangeApiKeysRequestSchema.parse(call.request);
       const { accessKeyId, accessKeySecret } = validatedRequest;
 
-      logger.verbose("call to exchangeAPIKey", { accessKeyId });
+      logger.verbose("call to exchangeApiKey", { accessKeyId });
 
-      const key = await getAPIKeyByAccessKeyId(prisma)(accessKeyId);
+      const key = await getApiKeyByAccessKeyId(prisma)(accessKeyId);
 
       if (!key || key.accessKeySecret !== accessKeySecret?.trim()) {
-        return callback(invalidAPIKeyError);
+        return callback(invalidApiKeyError);
       }
 
       return callback(
@@ -72,4 +72,4 @@ function exchangeAPIKey(prisma: Prisma, identityConfig: IdentityConfig) {
   };
 }
 
-export { exchangeAPIKey };
+export { exchangeApiKey };

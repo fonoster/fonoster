@@ -23,7 +23,7 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getExtendedFieldsHelper } from "./getExtendedFieldsHelper";
 import { TEST_TOKEN } from "./testToken";
-import { Domain, DomainsAPI } from "../src/domains/client";
+import { Domain, DomainsApi } from "../src/domains/client";
 import { CreateDomainRequest } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
@@ -44,7 +44,7 @@ describe("@sipnet[resources/createResource]", function () {
     const domains = {
       createDomain: sandbox.stub().resolves({ ref: "123" }),
       getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+    } as unknown as DomainsApi;
 
     const call = {
       metadata,
@@ -61,7 +61,7 @@ describe("@sipnet[resources/createResource]", function () {
 
     const callback = sandbox.stub();
 
-    const create = createResource<Domain, CreateDomainRequest, DomainsAPI>(
+    const create = createResource<Domain, CreateDomainRequest, DomainsApi>(
       domains,
       "Domain"
     );
@@ -85,7 +85,7 @@ describe("@sipnet[resources/createResource]", function () {
         message: "Domain already exists"
       }),
       getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+    } as unknown as DomainsApi;
 
     const call = {
       metadata,
@@ -99,7 +99,7 @@ describe("@sipnet[resources/createResource]", function () {
 
     const callback = sandbox.stub();
 
-    const create = createResource<Domain, CreateDomainRequest, DomainsAPI>(
+    const create = createResource<Domain, CreateDomainRequest, DomainsApi>(
       domains,
       "Domain"
     );

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DomainsAPI } from "./client";
+import { DomainsApi } from "./client";
 import {
   CreateDomainRequest,
   DeleteDomainRequest,
@@ -33,33 +33,33 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Domain";
 
-function createDomain(domains: DomainsAPI) {
-  return createResource<Domain, CreateDomainRequest, DomainsAPI>(
+function createDomain(domains: DomainsApi) {
+  return createResource<Domain, CreateDomainRequest, DomainsApi>(
     domains,
     RESOURCE
   );
 }
 
-function updateDomain(domains: DomainsAPI) {
-  return updateResource<Domain, UpdateDomainRequest, DomainsAPI>(
+function updateDomain(domains: DomainsApi) {
+  return updateResource<Domain, UpdateDomainRequest, DomainsApi>(
     domains,
     RESOURCE
   );
 }
 
-function getDomain(domains: DomainsAPI) {
-  return getResource<Domain, GetDomainRequest, DomainsAPI>(domains, RESOURCE);
+function getDomain(domains: DomainsApi) {
+  return getResource<Domain, GetDomainRequest, DomainsApi>(domains, RESOURCE);
 }
 
-function listDomains(domains: DomainsAPI) {
-  return listResources<Domain, ListDomainsRequest, DomainsAPI>(
+function listDomains(domains: DomainsApi) {
+  return listResources<Domain, ListDomainsRequest, DomainsApi>(
     domains,
     RESOURCE
   );
 }
 
-function deleteDomain(domains: DomainsAPI) {
-  return deleteResource<Domain, DeleteDomainRequest, DomainsAPI>(
+function deleteDomain(domains: DomainsApi) {
+  return deleteResource<Domain, DeleteDomainRequest, DomainsApi>(
     domains,
     RESOURCE
   );

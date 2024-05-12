@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ACLsAPI, GetACLRequest } from "./client";
+import { AclsApi, GetAclRequest } from "./client";
 import {
-  ACL,
-  CreateACLRequest,
-  DeleteACLRequest,
-  ListACLsRequest,
-  UpdateACLRequest
+  Acl,
+  CreateAclRequest,
+  DeleteAclRequest,
+  ListAclsRequest,
+  UpdateAclRequest
 } from "./types";
 import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
@@ -32,24 +32,24 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "ACL";
 
-function createAcl(acls: ACLsAPI) {
-  return createResource<ACL, CreateACLRequest, ACLsAPI>(acls, RESOURCE);
+function createAcl(acls: AclsApi) {
+  return createResource<Acl, CreateAclRequest, AclsApi>(acls, RESOURCE);
 }
 
-function updateAcl(acls: ACLsAPI) {
-  return updateResource<ACL, UpdateACLRequest, ACLsAPI>(acls, RESOURCE);
+function updateAcl(acls: AclsApi) {
+  return updateResource<Acl, UpdateAclRequest, AclsApi>(acls, RESOURCE);
 }
 
-function getAcl(acls: ACLsAPI) {
-  return getResource<ACL, GetACLRequest, ACLsAPI>(acls, RESOURCE);
+function getAcl(acls: AclsApi) {
+  return getResource<Acl, GetAclRequest, AclsApi>(acls, RESOURCE);
 }
 
-function listAcls(acls: ACLsAPI) {
-  return listResources<ACL, ListACLsRequest, ACLsAPI>(acls, RESOURCE);
+function listAcls(acls: AclsApi) {
+  return listResources<Acl, ListAclsRequest, AclsApi>(acls, RESOURCE);
 }
 
-function deleteAcl(acls: ACLsAPI) {
-  return deleteResource<ACL, DeleteACLRequest, ACLsAPI>(acls, RESOURCE);
+function deleteAcl(acls: AclsApi) {
+  return deleteResource<Acl, DeleteAclRequest, AclsApi>(acls, RESOURCE);
 }
 
 export { createAcl, updateAcl, getAcl, listAcls, deleteAcl };

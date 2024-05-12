@@ -19,21 +19,21 @@
 import { prisma } from "./db";
 import { IdentityConfig } from "./exchanges/types";
 import {
-  createAPIKey,
+  createApiKey,
   createUser,
   createWorkspace,
-  deleteAPIKey,
+  deleteApiKey,
   deleteUser,
   deleteWorkspace,
-  exchangeAPIKey,
+  exchangeApiKey,
   exchangeCredentials,
   exchangeRefreshToken,
   getUser,
   getWorkspace,
   inviteUserToWorkspace,
-  listAPIKeys,
+  listApiKeys,
   listWorkspaces,
-  regenerateAPIKey,
+  regenerateApiKey,
   removeUserFromWorkspace,
   resendWorkspaceMembershipInvitation,
   sendInvite,
@@ -72,13 +72,13 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       getUser: getUser(prisma),
       deleteUser: deleteUser(prisma),
       updateUser: updateUser(prisma),
-      // API Key operations
-      createApiKey: createAPIKey(prisma),
-      deleteApiKey: deleteAPIKey(prisma),
-      listApiKeys: listAPIKeys(prisma),
-      regenerateApiKey: regenerateAPIKey(prisma),
+      // ApiKey operations
+      createApiKey: createApiKey(prisma),
+      deleteApiKey: deleteApiKey(prisma),
+      listApiKeys: listApiKeys(prisma),
+      regenerateApiKey: regenerateApiKey(prisma),
       // Exchanges
-      exchangeApiKey: exchangeAPIKey(prisma, identityConfig),
+      exchangeApiKey: exchangeApiKey(prisma, identityConfig),
       exchangeCredentials: exchangeCredentials(prisma, identityConfig),
       exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig)
     }

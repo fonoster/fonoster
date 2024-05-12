@@ -18,52 +18,70 @@
  */
 import { GRPCErrors } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { z } from "zod";
-import { APIRoleEnum } from "./APIRoleEnum";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { ApiRoleEnum } from "./ApiRoleEnum";
 import { Prisma } from "../db";
+import { getAccessKeyIdFromCall } from "../utils";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const ListAPIKeysRequestSchema = z.object({
-  workspaceRef: z.string()
-});
+type ListApiKeysRequest = {
+  pageSize: number;
+  pageToken: string;
+};
 
-type ListAPIKeysRequest = z.infer<typeof ListAPIKeysRequestSchema>;
-
-type APIKey = {
+type ApiKey = {
   ref: string;
   accessKeyId: string;
-  role: APIRoleEnum;
+  role: ApiRoleEnum;
   expiresAt: Date;
   createdAt: Date;
   updatedAt: Date;
 };
 
-type ListAPIKeysResponse = {
-  apiKeys: APIKey[];
+type ListApiKeysResponse = {
+  items: ApiKey[];
+  nextPageToken?: string;
 };
 
-function listAPIKeys(prisma: Prisma) {
+function listApiKeys(prisma: Prisma) {
   return async (
-    call: { request: ListAPIKeysRequest },
-    callback: (error: GRPCErrors, response?: ListAPIKeysResponse) => void
+    call: { request: ListApiKeysRequest },
+    callback: (error: GRPCErrors, response?: ListApiKeysResponse) => void
   ) => {
-    const validatedRequest = ListAPIKeysRequestSchema.parse(call.request);
+    const { pageSize, pageToken } = call.request;
 
-    const { workspaceRef } = validatedRequest;
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-    logger.verbose("list keys for workspace", { workspaceRef });
+    logger.verbose("list keys for workspace", { accessKeyId });
 
-    const apiKeys = await prisma.aPIKey.findMany({
+    const keys = await prisma.apiKey.findMany({
       where: {
-        workspaceRef
-      }
+        accessKeyId
+      },
+      take: pageSize,
+      skip: pageToken ? 1 : 0,
+      cursor: pageToken ? { ref: pageToken } : undefined
     });
 
-    if (!apiKeys) return [];
+    const items = keys.map((key) => ({
+      ref: key.ref,
+      accessKeyId: key.accessKeyId,
+      role: key.role as ApiRoleEnum,
+      expiresAt: key.expiresAt,
+      createdAt: key.createdAt,
+      updatedAt: key.updatedAt
+    }));
 
-    callback(null, { apiKeys } as ListAPIKeysResponse);
+    const response: ListApiKeysResponse = {
+      items,
+      nextPageToken: items[items.length - 1]?.ref
+    };
+
+    callback(null, response);
   };
 }
 
-export { listAPIKeys };
+export { listApiKeys };

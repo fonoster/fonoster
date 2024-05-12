@@ -23,7 +23,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsAPI } from "../src/domains/client";
+import { DomainsApi } from "../src/domains/client";
 import { Domain, UpdateDomainRequest } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
@@ -44,7 +44,7 @@ describe("@sipnet[resources/updateResource]", function () {
     const domains = {
       updateDomain: sandbox.stub().resolves({ ref: "123" }),
       getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+    } as unknown as DomainsApi;
 
     const call = {
       metadata,
@@ -58,7 +58,7 @@ describe("@sipnet[resources/updateResource]", function () {
 
     const callback = sandbox.stub();
 
-    const update = updateResource<Domain, UpdateDomainRequest, DomainsAPI>(
+    const update = updateResource<Domain, UpdateDomainRequest, DomainsApi>(
       domains,
       "Domain"
     );
@@ -82,7 +82,7 @@ describe("@sipnet[resources/updateResource]", function () {
         message: "Domain not found"
       }),
       getDomain: getExtendedFieldsHelper(sandbox)
-    } as unknown as DomainsAPI;
+    } as unknown as DomainsApi;
 
     const call = {
       metadata,
@@ -96,7 +96,7 @@ describe("@sipnet[resources/updateResource]", function () {
 
     const callback = sandbox.stub();
 
-    const update = updateResource<Domain, UpdateDomainRequest, DomainsAPI>(
+    const update = updateResource<Domain, UpdateDomainRequest, DomainsApi>(
       domains,
       "Domain"
     );

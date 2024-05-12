@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GetTrunkRequest, TrunkAPI } from "./client";
+import { GetTrunkRequest, TrunkApi } from "./client";
 import {
   CreateTrunkRequest,
   DeleteTrunkRequest,
@@ -33,24 +33,24 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Trunk";
 
-function createTrunk(trunks: TrunkAPI) {
-  return createResource<Trunk, CreateTrunkRequest, TrunkAPI>(trunks, RESOURCE);
+function createTrunk(trunks: TrunkApi) {
+  return createResource<Trunk, CreateTrunkRequest, TrunkApi>(trunks, RESOURCE);
 }
 
-function updateTrunk(trunks: TrunkAPI) {
-  return updateResource<Trunk, UpdateTrunkRequest, TrunkAPI>(trunks, RESOURCE);
+function updateTrunk(trunks: TrunkApi) {
+  return updateResource<Trunk, UpdateTrunkRequest, TrunkApi>(trunks, RESOURCE);
 }
 
-function getTrunk(trunks: TrunkAPI) {
-  return getResource<Trunk, GetTrunkRequest, TrunkAPI>(trunks, RESOURCE);
+function getTrunk(trunks: TrunkApi) {
+  return getResource<Trunk, GetTrunkRequest, TrunkApi>(trunks, RESOURCE);
 }
 
-function listTrunks(trunks: TrunkAPI) {
-  return listResources<Trunk, ListTrunksRequest, TrunkAPI>(trunks, RESOURCE);
+function listTrunks(trunks: TrunkApi) {
+  return listResources<Trunk, ListTrunksRequest, TrunkApi>(trunks, RESOURCE);
 }
 
-function deleteTrunk(trunks: TrunkAPI) {
-  return deleteResource<Trunk, DeleteTrunkRequest, TrunkAPI>(trunks, RESOURCE);
+function deleteTrunk(trunks: TrunkApi) {
+  return deleteResource<Trunk, DeleteTrunkRequest, TrunkApi>(trunks, RESOURCE);
 }
 
 export { createTrunk, updateTrunk, getTrunk, listTrunks, deleteTrunk };

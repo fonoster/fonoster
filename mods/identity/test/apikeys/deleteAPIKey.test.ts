@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[apikeys/deleteAPIKey]", function () {
+describe("@identity[apikeys/deleteApiKey]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should delete an API Key", async function () {
+  it("should delete an ApiKey", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -50,15 +50,15 @@ describe("@identity[apikeys/deleteAPIKey]", function () {
     };
 
     const prisma = {
-      aPIKey: {
+      apiKey: {
         delete: sandbox.stub().resolves(res)
       }
     } as unknown as Prisma;
 
-    const { deleteAPIKey } = await import("../../src/apikeys/deleteAPIKey");
+    const { deleteApiKey } = await import("../../src/apikeys/deleteApiKey");
 
     // Act
-    await deleteAPIKey(prisma)(call, (error, response) => {
+    await deleteApiKey(prisma)(call, (error, response) => {
       // Assert
       expect(response).to.have.property("ref", "123");
     });
