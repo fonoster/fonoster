@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@applications/getApplication", function () {
+describe("@secrets/updateSecret", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should get an application by id", async function () {
+  it("should update a secret", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -41,47 +41,36 @@ describe("@applications/getApplication", function () {
     const call = {
       metadata,
       request: {
-        ref: "123"
+        ref: "123",
+        name: "My new secret name",
+        secret: "123456"
       }
-    };
-
-    const application = {
-      ref: "123",
-      name: "My Application",
-      applUrl: "https://example.com",
-      accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
-      createdAt: new Date(),
-      updatedAt: new Date()
     };
 
     const prisma = {
-      application: {
-        delete: sandbox.stub().resolves({ ref: application.ref }),
-        findUnique: sandbox.stub().resolves(application)
+      secret: {
+        update: sandbox.stub().resolves({ ref: "123" }),
+        findUnique: sandbox
+          .stub()
+          .resolves({ accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p" })
       }
     } as unknown as Prisma;
 
-    const { getApplication } = await import(
-      "../../src/applications/getApplication"
-    );
+    const { updateSecret } = await import("../../src/secrets/updateSecret");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      getApplication(prisma)(call, (error, response) => {
+      updateSecret(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
     });
 
     // Assert
-    expect(prisma.application.findUnique).to.have.been.calledTwice;
-    expect(response).have.property("ref", application.ref);
-    expect(response).have.property("name", application.name);
-    expect(response).have.property("applUrl", application.applUrl);
-    expect(response).have.property("accessKeyId", application.accessKeyId);
+    expect(response).to.deep.equal({ ref: "123" });
   });
 
-  it("should throw an error if the application is not found", async function () {
+  it("should throw an error if the secret does not exist", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -89,27 +78,32 @@ describe("@applications/getApplication", function () {
     const call = {
       metadata,
       request: {
-        ref: "123"
+        ref: "123",
+        name: "My new secret name",
+        secret: "123456"
       }
     };
 
     const prisma = {
-      application: {
+      secret: {
+        update: sandbox.stub().throws({ code: "P2025" }),
         findUnique: sandbox.stub().resolves(null)
       }
     } as unknown as Prisma;
 
-    const { getApplication } = await import(
-      "../../src/applications/getApplication"
-    );
+    const { updateSecret } = await import("../../src/secrets/updateSecret");
 
     // Act
-    await getApplication(prisma)(call, (error) => {
-      // Assert
-      expect(error).to.deep.equal({
-        code: grpc.status.NOT_FOUND,
-        message: "The requested resource was not found"
+    const response = new Promise((resolve, reject) => {
+      updateSecret(prisma)(call, (error, response) => {
+        if (error) return reject(error);
+        resolve(response);
       });
     });
+
+    // Assert
+    await expect(response).to.be.rejectedWith(
+      "The requested resource was not found"
+    );
   });
 });

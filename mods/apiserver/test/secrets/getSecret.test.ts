@@ -28,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@applications/getApplication", function () {
+describe("@secrets/getSecret", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should get an application by id", async function () {
+  it("should get a secret by id", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -45,43 +45,38 @@ describe("@applications/getApplication", function () {
       }
     };
 
-    const application = {
+    const secret = {
       ref: "123",
-      name: "My Application",
-      applUrl: "https://example.com",
       accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
-      createdAt: new Date(),
-      updatedAt: new Date()
+      name: "My Secret",
+      secret: "123456"
     };
 
     const prisma = {
-      application: {
-        delete: sandbox.stub().resolves({ ref: application.ref }),
-        findUnique: sandbox.stub().resolves(application)
+      secret: {
+        delete: sandbox.stub().resolves({ ref: secret.ref }),
+        findUnique: sandbox.stub().resolves(secret)
       }
     } as unknown as Prisma;
 
-    const { getApplication } = await import(
-      "../../src/applications/getApplication"
-    );
+    const { getSecret } = await import("../../src/secrets/getSecret");
 
     // Act
     const response = await new Promise((resolve, reject) => {
-      getApplication(prisma)(call, (error, response) => {
+      getSecret(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
     });
 
     // Assert
-    expect(prisma.application.findUnique).to.have.been.calledTwice;
-    expect(response).have.property("ref", application.ref);
-    expect(response).have.property("name", application.name);
-    expect(response).have.property("applUrl", application.applUrl);
-    expect(response).have.property("accessKeyId", application.accessKeyId);
+    expect(prisma.secret.findUnique).to.have.been.calledTwice;
+    expect(response).have.property("ref", secret.ref);
+    expect(response).have.property("name", secret.name);
+    expect(response).have.property("secret", secret.secret);
   });
 
-  it("should throw an error if the application is not found", async function () {
+  it("should throw an error if the secret is not found", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -94,17 +89,15 @@ describe("@applications/getApplication", function () {
     };
 
     const prisma = {
-      application: {
+      secret: {
         findUnique: sandbox.stub().resolves(null)
       }
     } as unknown as Prisma;
 
-    const { getApplication } = await import(
-      "../../src/applications/getApplication"
-    );
+    const { getSecret } = await import("../../src/secrets/getSecret");
 
     // Act
-    await getApplication(prisma)(call, (error) => {
+    await getSecret(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,

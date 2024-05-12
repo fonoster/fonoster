@@ -9,7 +9,7 @@ datasource db {
 
 model Application {
   ref         String          @id @default(uuid())
-  accessKeyId String
+  accessKeyId String          @map("access_key_id")
   name        String          @db.VarChar(255)
   type        ApplicationType
   appUrl      String          @db.VarChar(255)
@@ -100,7 +100,7 @@ model Product {
 
 model Secret {
   ref         String   @id @default(uuid())
-  accessKeyId String
+  accessKeyId String   @map("access_key_id")
   name        String
   secret      String   @map("secret_hash") /// @encrypted
   createdAt   DateTime @default(now()) @map("created_at")
@@ -113,6 +113,7 @@ model Secret {
 
   // Indexes and maps
   @@index([accessKeyId], type: Hash)
+  @@index([name], type: Hash)
   @@map("secrets")
 }
 

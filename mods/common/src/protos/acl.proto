@@ -34,7 +34,7 @@ service ACL {
   rpc ListACL (ListACLsRequest) returns (ListACLsResponse) {}
 }
 
-// The message for AccessControlList resource
+// The message for ACL resource
 message AccessControlList {
   // The ACL reference
   string ref = 1;
@@ -50,7 +50,7 @@ message AccessControlList {
   int32 updated_at = 6;
 }
 
-// The request message for the AccessControlList.CreateACL method
+// The request message for the ACL.CreateACL method
 message CreateACLRequest {
   // A friendly name for the ACL
   string name = 1;
@@ -60,13 +60,13 @@ message CreateACLRequest {
   repeated string deny = 3;
 }
 
-// The response message for the AccessControlList.CreateACL method
+// The response message for the ACL.CreateACL method
 message CreateACLResponse {
   // The ACL reference
   string ref = 1;
 }
 
-// The request message for the AccessControlList.UpdateACL method
+// The request message for the ACL.UpdateACL method
 message UpdateACLRequest {
   // The ACL reference
   string ref = 1;
@@ -78,31 +78,31 @@ message UpdateACLRequest {
   repeated string deny = 4;
 } 
 
-// The response message for the AccessControlList.UpdateACL method
+// The response message for the ACL.UpdateACL method
 message UpdateACLResponse {
   // The ACL reference
   string ref = 1;
 }
 
-// The request message for the AccessControlList.GetACL method
+// The request message for the ACL.GetACL method
 message GetACLRequest  {
   // The ACL reference
   string ref = 1;
 }
 
-// The request message for the AccessControlList.DeleteACL method
+// The request message for the ACL.DeleteACL method
 message DeleteACLRequest  {
   // The ACL reference
   string ref = 1;
 }
 
-// The response message for the AccessControlList.DeleteACL method
+// The response message for the ACL.DeleteACL method
 message DeleteACLResponse  {
   // The ACL reference
   string ref = 1;
 }
 
-// The request message for the AccessControlList.ListACL method
+// The request message for the ACL.ListACL method
 message ListACLsRequest {
   // The maximum number of items in the list
   int32 page_size = 1;
@@ -110,7 +110,7 @@ message ListACLsRequest {
   string page_token = 2;
 }
 
-// The response message for the AccessControlList.ListACL method
+// The response message for the ACL.ListACL method
 message ListACLsResponse {
   // List of items
   repeated AccessControlList items = 1;

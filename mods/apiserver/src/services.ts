@@ -29,8 +29,10 @@ import { buildApplicationsService } from "./applications";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
 import { routrConfig } from "./routrConfig";
+import { buildSecretsService } from "./secrets";
 
 const applicationsService = buildApplicationsService(prisma);
+const secretsService = buildSecretsService(prisma);
 const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);
@@ -41,6 +43,7 @@ const identityService = buildIdentityService(identityConfig);
 
 const services = [
   applicationsService,
+  secretsService,
   identityService,
   agentsService,
   credentialsService,

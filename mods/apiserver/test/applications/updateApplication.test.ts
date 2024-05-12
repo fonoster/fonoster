@@ -90,7 +90,7 @@ describe("@applications/updateApplication", function () {
       metadata,
       request: {
         ref: "123",
-        name: "John Doex"
+        name: "My new application name"
       }
     };
 

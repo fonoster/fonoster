@@ -1,0 +1,95 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import * as grpc from "@grpc/grpc-js";
+import chai, { expect } from "chai";
+import chaiAsPromised from "chai-as-promised";
+import { createSandbox } from "sinon";
+import sinonChai from "sinon-chai";
+import { Prisma } from "../../src/db";
+import { TEST_TOKEN } from "../testToken";
+
+chai.use(chaiAsPromised);
+chai.use(sinonChai);
+const sandbox = createSandbox();
+
+describe("@secrets/createSecret", function () {
+  afterEach(function () {
+    return sandbox.restore();
+  });
+
+  it("should create a secret", async function () {
+    // Arrange
+    const { createSecret } = await import("../../src/secrets/createSecret");
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const secrets = {
+      secret: {
+        create: sandbox.stub().resolves({ ref: "123" })
+      }
+    } as unknown as unknown as Prisma;
+
+    const call = {
+      metadata,
+      request: {
+        name: "My Secret",
+        secret: "My Secret"
+      }
+    };
+
+    const callback = sandbox.stub();
+
+    // Act
+    await createSecret(secrets)(call, callback);
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
+  });
+
+  it("should throw an error if the secret already exists", async function () {
+    // Arrange
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const call = {
+      metadata,
+      request: {
+        name: "My Secret",
+        secret: "My Secret"
+      }
+    };
+
+    const prisma = {
+      secret: {
+        create: sandbox.stub().throws({ code: "P2002" })
+      }
+    } as unknown as Prisma;
+
+    const { createSecret } = await import("../../src/secrets/createSecret");
+
+    // Act
+    await createSecret(prisma)(call, (error) => {
+      // Assert
+      expect(error).to.deep.equal({
+        code: grpc.status.ALREADY_EXISTS,
+        message: "Duplicated resource"
+      });
+    });
+  });
+});
