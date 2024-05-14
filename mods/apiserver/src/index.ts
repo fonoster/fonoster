@@ -19,7 +19,18 @@
  */
 import { upsertDefaultUser } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { OWNER_EMAIL, OWNER_NAME, OWNER_PASSWORD } from "./envs";
+import {
+  INFLUXDB_BUCKET,
+  INFLUXDB_ORG,
+  INFLUXDB_TOKEN,
+  INFLUXDB_URL,
+  NATS_URL,
+  OWNER_EMAIL,
+  OWNER_NAME,
+  OWNER_PASSWORD
+} from "./envs";
+import { createInfluxDbPub } from "./events/createInfluxDbPub";
+import { watchNats } from "./events/nats";
 import runServices from "./runServices";
 import { upsertDefaultPeer } from "./upsertDefaultPeer";
 
@@ -37,7 +48,25 @@ async function main() {
   await upsertDefaultPeer();
 
   // Start the gRPC server
-  await runServices();
+  runServices().catch(logger.error);
+
+  const pubToInfluxDb = createInfluxDbPub({
+    url: INFLUXDB_URL,
+    token: INFLUXDB_TOKEN,
+    org: INFLUXDB_ORG,
+    bucket: INFLUXDB_BUCKET
+  });
+
+  // Subscribe to NATs events
+  watchNats(NATS_URL, (event: Record<string, unknown>) => {
+    logger.info("Received event", { event });
+    const callRecord = event as { callId: string };
+    pubToInfluxDb({
+      name: "cdr",
+      tag: callRecord.callId,
+      data: event as Record<string, string>
+    });
+  });
 }
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });

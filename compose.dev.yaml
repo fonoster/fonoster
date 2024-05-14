@@ -28,6 +28,14 @@ services:
     ports:
       - 5432:5432
 
+  influxdb:
+    ports:
+      - 8086:8086
+
+  nats:
+    ports:
+      - 4222:4222
+
   adminer:
     image: adminer
     restart: always

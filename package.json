@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver --exec ts-node mods/apiserver/src/index.ts",
-    "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr postgres adminer mailhog rtpengine asterisk01 asterisk02 simplephone -d --remove-orphans",
+    "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats influxdb postgres adminer mailhog rtpengine asterisk01 asterisk02 simplephone -d --remove-orphans",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "build": "lerna run build",
     "postbuild": "npm run copy:hbstemplates",
