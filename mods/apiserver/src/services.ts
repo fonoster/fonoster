@@ -26,6 +26,8 @@ import {
   buildTrunksService
 } from "@fonoster/sipnet";
 import { buildApplicationsService } from "./applications";
+import { buildCallsService } from "./calls";
+import { influxdb } from "./calls/client";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
 import { routrConfig } from "./routrConfig";
@@ -33,17 +35,19 @@ import { buildSecretsService } from "./secrets";
 
 const applicationsService = buildApplicationsService(prisma);
 const secretsService = buildSecretsService(prisma);
+const callsService = buildCallsService(influxdb);
+const identityService = buildIdentityService(identityConfig);
 const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);
 const trunksService = buildTrunksService(routrConfig);
 const numbersService = buildNumbersService(routrConfig);
 const aclsService = buildAclsService(routrConfig);
-const identityService = buildIdentityService(identityConfig);
 
 const services = [
   applicationsService,
   secretsService,
+  callsService,
   identityService,
   agentsService,
   credentialsService,

@@ -19,6 +19,7 @@
  */
 import { upsertDefaultUser } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { CALL_DETAIL_RECORD_MEASUREMENT } from "./calls/types";
 import {
   INFLUXDB_BUCKET,
   INFLUXDB_ORG,
@@ -60,10 +61,12 @@ async function main() {
   // Subscribe to NATs events
   watchNats(NATS_URL, (event: Record<string, unknown>) => {
     logger.info("Received event", { event });
-    const callRecord = event as { callId: string };
+    // FIXME: Remember to re-map callRef from callId
+    const callRecord = event as { callRef: string };
+
     pubToInfluxDb({
-      name: "cdr",
-      tag: callRecord.callId,
+      name: CALL_DETAIL_RECORD_MEASUREMENT,
+      tag: callRecord.callRef,
       data: event as Record<string, string>
     });
   });

@@ -1,0 +1,100 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.calls.v1beta2;
+
+// Calls service definition
+service Calls {
+  // Get a list of Call Detail Records
+  rpc ListCalls (ListCallsRequest) returns (ListCallsResponse) {}
+}
+
+enum CallType {
+  PROGRAMMABLE = 0;
+  SIP_TRUNKING = 1;
+}
+
+enum CallStatus {
+  NORMAL_CLEARING = 0;
+  CALL_REJECTED = 1;
+  UNALLOCATED = 2;
+  NO_USER_RESPONSE = 3;
+  NO_ROUTE_DESTINATION = 4;
+  NO_ANSWER = 5;
+  USER_BUSY = 6;
+  NOT_ACCEPTABLE_HERE = 7;
+  SERVICE_UNAVAILABLE = 8;
+  INVALID_NUMBER_FORMAT = 9;
+}
+
+enum CallDirection {
+  INBOUND = 0;
+  OUTBOUND = 1;
+}
+
+// Message for a Call Detail Record
+message CallDetailRecord {
+  // The unique identifier of the Call
+  string ref = 1;
+  // The call type
+  CallType type = 2;
+  // The call status
+  CallStatus status = 3;
+  // Start time of the call
+  int64 started_at = 4;
+  // End time of the call
+  int64 ended_at = 5;
+  // The from number (E.164 format or SIP URI)
+  string from = 6;
+  // The to number (E.164 format or SIP URI)
+  string to = 7;
+  // The call duration in seconds
+  int32 duration = 8;
+  // The call direction
+  CallDirection direction = 9;
+}
+
+// The request message for Calls.ListCalls
+message ListCallsRequest {
+  // Optional start date
+  int32 after = 1;
+  // Optional end date
+  int32 before = 2;
+  // Optional call type
+  CallType type = 3;
+  // Optional call status
+  CallStatus status = 4;
+  // Optional from number (E.164 format or SIP URI)
+  string from = 5;
+  // Optional to number (E.164 format or SIP URI)
+  string to = 6;
+  // The page size
+  int32 page_size = 7;
+  // The page token
+  string page_token = 8;
+}
+
+// The response message for Calls.ListCalls
+message ListCallsResponse {
+  // The list of Call Detail Records
+  repeated CallDetailRecord items = 1;
+  // The token to retrieve the next page of results
+  string next_page_token = 2;
+}

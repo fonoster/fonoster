@@ -31,23 +31,34 @@ type FonosterEvent = {
   data: Record<string, string>;
 };
 
-function createInfluxDbPub(config: InfluxDbPub) {
+function createInfluxDbPub(config) {
   const { url, token, org, bucket } = config;
 
   const client = new InfluxDB({ url, token });
   const writeClient = client.getWriteApi(org, bucket, "ns");
 
-  return (event: FonosterEvent) => {
-    const point = new Point(event.name).tag("tag", event.tag);
+  return (event) => {
+    const point = new Point(event.name).tag("ref", event.tag);
 
-    // FIXME: To not use loops
-    // eslint-disable-next-line no-loops/no-loops, guard-for-in
-    for (const key in event.data) {
-      point.stringField(key, event.data[key]);
+    Object.entries(event.data).forEach(([key, value]) => {
+      if (typeof value === "number") {
+        point.intField(key, value); // Or floatField for floating-point numbers
+      } else if (typeof value === "boolean") {
+        point.booleanField(key, value);
+      } else if (key === "startedAt" || key === "endedAt") {
+        point.stringField(key, Date.parse(value as string));
+      } else {
+        point.stringField(key, value);
+      }
+    });
+
+    try {
+      writeClient.writePoint(point);
+      writeClient.flush();
+    } catch (error) {
+      // FIXME: Use logger
+      console.error("Error writing to InfluxDB:", error);
     }
-
-    writeClient.writePoint(point);
-    writeClient.flush();
   };
 }
 
