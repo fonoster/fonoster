@@ -20,3 +20,4 @@ export * from "./assertEnvsAreSet";
 export * from "./assertFileExists";
 export * from "./createService";
 export * from "./createInterceptingCall";
+export * from "./datesMapper";

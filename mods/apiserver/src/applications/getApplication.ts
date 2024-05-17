@@ -16,10 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { datesMapper } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { GetApplicationRequest, GetApplicationResponse } from "./types";
+import { Application, GetApplicationRequest } from "./types";
 import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../db";
 
@@ -29,20 +30,14 @@ function getApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
   return withAccess(
-    async (call: {
-      request: GetApplicationRequest;
-    }): Promise<GetApplicationResponse> => {
+    async (call: { request: GetApplicationRequest }): Promise<Application> => {
       const { ref } = call.request;
 
       logger.verbose("call to getApplication", { ref });
 
       const result = await getFn(ref);
 
-      const resultWithParsedDate = {
-        ...result,
-        createdAt: Date.parse(result.createdAt.toString()),
-        updatedAt: Date.parse(result.updatedAt.toString())
-      };
+      const resultWithParsedDate = datesMapper(result);
 
       return result ? applicationWithEncodedStruct(resultWithParsedDate) : null;
     },

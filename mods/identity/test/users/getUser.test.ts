@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { datesMapper } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -71,7 +72,7 @@ describe("@identity[users/getUser]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal(user);
+    expect(response).to.deep.equal(datesMapper(user));
   });
 
   it("should throw an error if user not found", async function () {

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { datesMapper } from "@fonoster/common";
 import { Prisma } from "../db";
 import { notFoundError } from "../notFoundError";
 
@@ -29,13 +30,13 @@ function createGetFnUtil(prisma: Prisma) {
       throw notFoundError(`Secret not found: ${ref}`);
     }
 
-    return {
+    return datesMapper({
       // NOTE: Adding extended to match the signature of withAccess
       ...response,
       extended: {
         accessKeyId: response.accessKeyId
       }
-    };
+    });
   };
 }
 

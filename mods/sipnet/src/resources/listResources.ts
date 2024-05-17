@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCErrors, datesMapper, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
@@ -39,7 +39,10 @@ function listResources<T, R, U>(api: U, resource: string) {
 
     try {
       const response = await api[`list${res}s`](request);
-      callback(null, response);
+      callback(null, {
+        items: response.items.map(datesMapper),
+        nextPageToken: response.nextPageToken
+      });
     } catch (e) {
       handleError(e, callback);
     }

@@ -106,8 +106,6 @@ type UpdateApplicationRequest = BaseRequest & Partial<CreateApplicationRequest>;
 
 type GetApplicationRequest = BaseRequest;
 
-type GetApplicationResponse = BaseResponse;
-
 type UpdateApplicationResponse = BaseResponse;
 
 type DeleteApplicationRequest = BaseRequest;
@@ -135,6 +133,5 @@ export {
   DeleteApplicationResponse,
   ListApplicationsRequest,
   ListApplicationsResponse,
-  GetApplicationRequest,
-  GetApplicationResponse
+  GetApplicationRequest
 };

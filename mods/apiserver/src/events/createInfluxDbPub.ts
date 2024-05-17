@@ -46,7 +46,7 @@ function createInfluxDbPub(config) {
       } else if (typeof value === "boolean") {
         point.booleanField(key, value);
       } else if (key === "startedAt" || key === "endedAt") {
-        point.stringField(key, Date.parse(value as string));
+        point.stringField(key, (value as Date).getTime());
       } else {
         point.stringField(key, value);
       }

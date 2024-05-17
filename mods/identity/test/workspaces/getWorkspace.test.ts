@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { datesMapper } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -70,7 +71,7 @@ describe("@identity[workspaces/getWorkspace]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal(workspace);
+    expect(response).to.deep.equal(datesMapper(workspace));
   });
 
   it("should throw an error if workspace not found", async function () {

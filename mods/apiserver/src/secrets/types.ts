@@ -28,8 +28,8 @@ type Secret = {
   ref: string;
   name: string;
   secret: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: number;
+  updatedAt: number;
 };
 
 type CreateSecretRequest = {
@@ -42,8 +42,6 @@ type CreateSecretResponse = BaseResponse;
 type UpdateSecretRequest = BaseRequest & Partial<CreateSecretRequest>;
 
 type GetSecretRequest = BaseRequest;
-
-type GetSecretResponse = BaseResponse;
 
 type UpdateSecretResponse = BaseResponse;
 
@@ -71,6 +69,5 @@ export {
   DeleteSecretResponse,
   ListSecretsRequest,
   ListSecretsResponse,
-  GetSecretRequest,
-  GetSecretResponse
+  GetSecretRequest
 };

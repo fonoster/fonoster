@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCErrors, datesMapper, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
@@ -29,7 +29,7 @@ type GetWorkspaceRequest = {
   ref: string;
 };
 
-type GetWorkspaceResponse = {
+type Workspace = {
   ref: string;
   name: string;
   ownerRef: string;
@@ -40,7 +40,7 @@ type GetWorkspaceResponse = {
 function getWorkspace(prisma: Prisma) {
   return async (
     call: { request: GetWorkspaceRequest },
-    callback: (error: GRPCErrors, response?: GetWorkspaceResponse) => void
+    callback: (error: GRPCErrors, response?: Workspace) => void
   ) => {
     try {
       const { ref } = call.request;
@@ -64,13 +64,7 @@ function getWorkspace(prisma: Prisma) {
         return;
       }
 
-      const response: GetWorkspaceResponse = {
-        ref: workspace.ref,
-        name: workspace.name,
-        ownerRef: workspace.ownerRef,
-        createdAt: workspace.createdAt,
-        updatedAt: workspace.updatedAt
-      };
+      const response = datesMapper(workspace);
 
       callback(null, response);
     } catch (error) {

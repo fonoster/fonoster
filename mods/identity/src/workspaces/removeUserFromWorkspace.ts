@@ -91,7 +91,6 @@ function removeUserFromWorkspace(prisma: Prisma) {
 
       callback(null, response);
     } catch (error) {
-      console.log(error);
       handleError(error, callback);
     }
   };

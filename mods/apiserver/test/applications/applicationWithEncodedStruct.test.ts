@@ -62,9 +62,7 @@ describe("@applications/applicationWithEncodedStruct", function () {
 
     // Assert
     chai.expect(result).to.deep.equal({
-      ref: "123",
-      name: "My Application",
-      appUrl: "http://localhost:3000",
+      ...application,
       textToSpeech: {
         productRef: "123",
         config: {
@@ -79,9 +77,7 @@ describe("@applications/applicationWithEncodedStruct", function () {
       speechToText: {
         productRef: "123",
         config: null
-      },
-      createdAt: Date.parse(createdAt.toString()),
-      updatedAt: Date.parse(updatedAt.toString())
+      }
     });
   });
 });

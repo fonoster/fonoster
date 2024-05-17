@@ -16,27 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withAccess } from "@fonoster/identity";
-import { getLogger } from "@fonoster/logger";
-import { createGetFnUtil } from "./createGetFnUtil";
-import { GetSecretRequest, Secret } from "./types";
-import { Prisma } from "../db";
+type ObjectWithDates = {
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const datesMapper = <T extends ObjectWithDates>(item: T) => ({
+  ...item,
+  createdAt: item?.createdAt?.getTime(),
+  updatedAt: item?.updatedAt?.getTime()
+});
 
-function getSecret(prisma: Prisma) {
-  const getFn = createGetFnUtil(prisma);
-
-  return withAccess(
-    async (call: { request: GetSecretRequest }): Promise<Secret> => {
-      const { ref } = call.request;
-
-      logger.verbose("call to getSecret", { ref });
-
-      return await getFn(ref);
-    },
-    (ref: string) => getFn(ref)
-  );
-}
-
-export { getSecret };
+export { datesMapper };

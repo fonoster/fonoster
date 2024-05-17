@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCErrors, datesMapper, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -45,12 +45,14 @@ function listSecrets(prisma: Prisma) {
     });
 
     try {
-      const result = await prisma.secret.findMany({
-        where: { accessKeyId },
-        take: pageSize,
-        skip: pageToken ? 1 : 0,
-        cursor: pageToken ? { ref: pageToken } : undefined
-      });
+      const result = (
+        await prisma.secret.findMany({
+          where: { accessKeyId },
+          take: pageSize,
+          skip: pageToken ? 1 : 0,
+          cursor: pageToken ? { ref: pageToken } : undefined
+        })
+      ).map(datesMapper);
 
       callback(null, {
         items: result,
