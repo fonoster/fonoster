@@ -57,9 +57,9 @@ message Number {
   // Extra headers to send to the trunk
   repeated ExtraHeader extra_headers = 9;
   // The date when the Number was created
-  int32 created_at = 10;
+  int64 created_at = 10;
   // The date when the Number was last updated
-  int32 updated_at = 11;
+  int64 updated_at = 11;
   // The trunk this number is associated with
   fonoster.trunks.v1beta2.Trunk trunk = 12;
 }

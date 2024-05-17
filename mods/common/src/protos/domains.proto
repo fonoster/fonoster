@@ -43,9 +43,9 @@ message Domain {
   // The URI of the Domain
   string domain_uri = 4;
   // The date of creation of the Domain
-  int32 created_at = 5;
+  int64 created_at = 5;
   // The date of the last update
-  int32 updated_at = 6;
+  int64 updated_at = 6;
 }
 
 // EgressPolicy defines the policy for egress traffic

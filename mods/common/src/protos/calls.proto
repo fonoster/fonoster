@@ -20,6 +20,9 @@ syntax = "proto3";
 
 package fonoster.calls.v1beta2;
 
+// TODO: Consider using Timestamp instead of int64
+// import "google/protobuf/timestamp.proto";
+
 // Calls service definition
 service Calls {
   // Get a list of Call Detail Records
@@ -73,10 +76,10 @@ message CallDetailRecord {
 
 // The request message for Calls.ListCalls
 message ListCallsRequest {
-  // Optional start date
-  int32 after = 1;
-  // Optional end date
-  int32 before = 2;
+  // Optional start date in RFC3339 format
+  string after = 1;
+  // Optional end date in RFC3339 format
+  string before = 2;
   // Optional call type
   CallType type = 3;
   // Optional call status

@@ -29,7 +29,7 @@ import { INFLUXDB_BUCKET } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createListCallsFromInfluxDB(influxdb: InfluxDBClient) {
+function createFetchCalls(influxdb: InfluxDBClient) {
   return async (
     accessKeyId: string,
     request: ListCallsRequest
@@ -55,10 +55,10 @@ function createListCallsFromInfluxDB(influxdb: InfluxDBClient) {
     const pageTokenFilter = pageToken
       ? flux`|> filter(fn: (r) => r.startedAtParsed < int(v: ${pageToken}))`
       : flux``;
-    const limit = flux`|> limit(n: ${pageSize})`;
+    const limit = flux`|> limit(n: ${pageSize || 50})`;
 
     const query = flux`from(bucket: "${INFLUXDB_BUCKET}")
-      |> range(start: ${after}h)
+      |> range(start: ${after}s)
       |> pivot(rowKey: ["ref"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with
@@ -92,4 +92,4 @@ function createListCallsFromInfluxDB(influxdb: InfluxDBClient) {
   };
 }
 
-export { createListCallsFromInfluxDB };
+export { createFetchCalls };

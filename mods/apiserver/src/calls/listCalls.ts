@@ -20,13 +20,13 @@ import { GRPCErrors, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { createListCallsFromInfluxDB } from "./createListCallsFromInfluxDB";
+import { createFetchCalls } from "./createFetchCalls";
 import { InfluxDBClient, ListCallsRequest, ListCallsResponse } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function listCalls(influx: InfluxDBClient) {
-  const listCallsFromInfluxDB = createListCallsFromInfluxDB(influx);
+  const fetchCalls = createFetchCalls(influx);
 
   return async (
     call: {
@@ -41,7 +41,7 @@ function listCalls(influx: InfluxDBClient) {
     logger.verbose("call to listCalls", { ...call.request, accessKeyId });
 
     try {
-      const result = await listCallsFromInfluxDB(accessKeyId, call.request);
+      const result = await fetchCalls(accessKeyId, call.request);
 
       callback(null, result);
     } catch (error) {

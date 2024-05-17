@@ -45,9 +45,9 @@ message Acl {
   // The list of denied IP addresses
   repeated string deny = 4;
   // The date the Acl was created
-  int32 created_at = 5;
+  int64 created_at = 5;
   // The date the Acl was last updated
-  int32 updated_at = 6;
+  int64 updated_at = 6;
 }
 
 // The request message for the Acl.CreateAcl method

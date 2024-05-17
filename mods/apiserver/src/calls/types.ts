@@ -1,5 +1,3 @@
-import { ParameterizedQuery } from "@influxdata/influxdb-client";
-
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,6 +16,8 @@ import { ParameterizedQuery } from "@influxdata/influxdb-client";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ParameterizedQuery } from "@influxdata/influxdb-client";
+
 const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
 
 enum CallType {
@@ -56,8 +56,8 @@ type CallDetailRecord = {
 };
 
 type ListCallsRequest = {
-  after?: number;
-  before?: number;
+  after?: string;
+  before?: string;
   type?: CallType;
   status?: CallStatus;
   from?: string;
