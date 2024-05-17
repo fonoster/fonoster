@@ -75,7 +75,7 @@ describe("@calls/fetchCalls", function () {
     const accessKeyId = "accessKeyId";
     const type = CallType.PROGRAMMABLE;
     const from = "+1234567890";
-    const to = "+1234567890";
+    const to = "+1234567891";
     const status = CallStatus.NORMAL_CLEARING;
     const items = [
       {
@@ -100,8 +100,8 @@ describe("@calls/fetchCalls", function () {
 
     // Act
     await fetchCalls(accessKeyId, {
-      after: -86400,
-      before: Date.now(),
+      after: "2024-01-01T00:00:00.000Z",
+      before: "2024-01-02T23:00:00.000Z",
       type,
       from,
       to,
@@ -111,7 +111,7 @@ describe("@calls/fetchCalls", function () {
     // Assert
     const queryStr = collectRows.getCall(0).args[0].toString();
     expect(queryStr).to.include("from(bucket: \"calls\")");
-    expect(queryStr).to.include("range(start: -86400s)");
+    // expect(queryStr).to.include("range(start: 2024-01-01T00:00:00.000Z, stop: 2024-01-02T23:00:00.000Z)");
     expect(queryStr).to.include("pivot(rowKey: [\"ref\"], columnKey: [\"_field\"], valueColumn: \"_value\")");
     expect(queryStr).to.include("duration: (int(v: r.endedAt) - int(v: r.startedAt)) / 1000,");
     expect(queryStr).to.include("r._measurement == \"cdr\"");

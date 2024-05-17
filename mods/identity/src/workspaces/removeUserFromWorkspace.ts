@@ -65,7 +65,7 @@ function removeUserFromWorkspace(prisma: Prisma) {
       if (!isAdmin && adminRef !== userRef) {
         return callback({
           code: GRPCStatus.PERMISSION_DENIED,
-          message: "Only admins and owners can remove users from a workspace"
+          message: "Only admins or owners can remove users from a workspace"
         });
       }
 

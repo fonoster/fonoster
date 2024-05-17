@@ -24,6 +24,9 @@ function applicationWithEncodedStruct(application): Application {
     return property?.config ? struct.encode(property.config) : null;
   };
 
+  application.createdAt = Date.parse(application.createdAt.toString());
+  application.updatedAt = Date.parse(application.updatedAt.toString());
+
   const result = { ...application };
 
   if (application.textToSpeech) {

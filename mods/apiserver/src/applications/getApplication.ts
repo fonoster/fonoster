@@ -38,7 +38,13 @@ function getApplication(prisma: Prisma) {
 
       const result = await getFn(ref);
 
-      return result ? applicationWithEncodedStruct(result) : null;
+      const resultWithParsedDate = {
+        ...result,
+        createdAt: Date.parse(result.createdAt.toString()),
+        updatedAt: Date.parse(result.updatedAt.toString())
+      };
+
+      return result ? applicationWithEncodedStruct(resultWithParsedDate) : null;
     },
     (ref: string) => getFn(ref)
   );

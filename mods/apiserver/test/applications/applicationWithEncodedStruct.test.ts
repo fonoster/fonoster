@@ -36,6 +36,9 @@ describe("@applications/applicationWithEncodedStruct", function () {
       "../../src/applications/utils/applicationWithEncodedStruct"
     );
 
+    const createdAt = new Date();
+    const updatedAt = new Date();
+
     const application = {
       ref: "123",
       name: "My Application",
@@ -49,7 +52,9 @@ describe("@applications/applicationWithEncodedStruct", function () {
       speechToText: {
         productRef: "123",
         config: null
-      }
+      },
+      createdAt,
+      updatedAt
     };
 
     // Act
@@ -74,7 +79,9 @@ describe("@applications/applicationWithEncodedStruct", function () {
       speechToText: {
         productRef: "123",
         config: null
-      }
+      },
+      createdAt: Date.parse(createdAt.toString()),
+      updatedAt: Date.parse(updatedAt.toString())
     });
   });
 });

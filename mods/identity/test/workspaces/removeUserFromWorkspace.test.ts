@@ -83,7 +83,7 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-    const userRef = "635c0cd8-8125-483d-b467-05c53ce2cd31";
+    const userRef = "635c0cd8-8125-483d-b467-05c53ce2cd31xxx";
 
     const call = {
       metadata,
@@ -110,7 +110,8 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
     );
 
     // Act
-    removeUserFromWorkspace(prisma)(call, (error) => {
+    // FIXME: This should be a promise
+    await removeUserFromWorkspace(prisma)(call, (error) => {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.PERMISSION_DENIED,
