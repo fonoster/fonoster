@@ -27,6 +27,8 @@ package fonoster.calls.v1beta2;
 service Calls {
   // Get a list of Call Detail Records
   rpc ListCalls (ListCallsRequest) returns (ListCallsResponse) {}
+  // Get a Call Detail Record
+  rpc GetCall (GetCallRequest) returns (CallDetailRecord) {}
 }
 
 enum CallType {
@@ -100,4 +102,10 @@ message ListCallsResponse {
   repeated CallDetailRecord items = 1;
   // The token to retrieve the next page of results
   string next_page_token = 2;
+}
+
+// The request message for Calls.GetCall
+message GetCallRequest {
+  // The unique identifier of the Call
+  string ref = 1;
 }

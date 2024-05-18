@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
 import { InfluxDBClient } from "./types";
 
@@ -28,7 +29,8 @@ function buildService(influxdb: InfluxDBClient) {
       proto: "calls.proto"
     },
     handlers: {
-      listCalls: listCalls(influxdb)
+      listCalls: listCalls(influxdb),
+      getCall: getCall(influxdb)
     }
   };
 }

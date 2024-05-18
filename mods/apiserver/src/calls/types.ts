@@ -71,6 +71,10 @@ type ListCallsResponse = {
   items: CallDetailRecord[];
 };
 
+type GetCallRequest = {
+  ref: string;
+};
+
 type InfluxDBClient = {
   collectRows(query: ParameterizedQuery): Promise<unknown[]>;
 };
@@ -80,6 +84,7 @@ export {
   CallDetailRecord,
   ListCallsRequest,
   ListCallsResponse,
+  GetCallRequest,
   CallType,
   CallStatus,
   CallDirection,
