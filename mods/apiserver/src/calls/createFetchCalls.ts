@@ -34,16 +34,8 @@ function createFetchCalls(influxdb: InfluxDBClient) {
     accessKeyId: string,
     request: ListCallsRequest
   ): Promise<ListCallsResponse> => {
-    const {
-      after = -86400,
-      before,
-      type,
-      from,
-      to,
-      status,
-      pageSize,
-      pageToken
-    } = request;
+    const { after, before, type, from, to, status, pageSize, pageToken } =
+      request;
 
     const accessKeyIdFilter = accessKeyId
       ? flux`and r.accessKeyId == "${accessKeyId}"`
@@ -56,18 +48,22 @@ function createFetchCalls(influxdb: InfluxDBClient) {
       ? flux`|> filter(fn: (r) => r.startedAtParsed < int(v: ${pageToken}))`
       : flux``;
     const limit = flux`|> limit(n: ${pageSize || 50})`;
+    const parsedAfter = after ? new Date(after).getTime() / 1000 : flux`-30d`;
+    const parsedBefore = before
+      ? new Date(before).getTime() / 1000
+      : new Date().getTime() / 1000;
 
     const query = flux`from(bucket: "${INFLUXDB_BUCKET}")
-      |> range(start: ${after}s)
+      |> range(start: ${parsedAfter})
       |> pivot(rowKey: ["ref"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with
           duration: (int(v: r.endedAt) - int(v: r.startedAt)) / 1000,
-          startedAtParsed: int(v: r.startedAt)
+          startedAtParsed: int(v: r.startedAt) / 1000,
         }))
       |> filter(fn: (r) =>
         r._measurement == "${CALL_DETAIL_RECORD_MEASUREMENT}"
-        and r.startedAtParsed < ${before || Date.now()}
+        and r.startedAtParsed < ${parsedBefore}
         ${accessKeyIdFilter}
         ${typeFilter}
         ${fromFilter}
