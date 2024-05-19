@@ -88,9 +88,9 @@ function createAuthInterceptor(
     });
 
     if (
-      !hasAccess(decodedToken.access, path) &&
-      workspaceAccess.includes(path) &&
-      !tokenHasAccessKeyId(token, accessKeyId)
+      !hasAccess(decodedToken.access, path) ||
+      (workspaceAccess.includes(path) &&
+        !tokenHasAccessKeyId(token, accessKeyId))
     ) {
       return permissionDeniedError(call);
     }

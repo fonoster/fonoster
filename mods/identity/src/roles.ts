@@ -79,7 +79,10 @@ const fullIdentityAccess = [
   "/fonoster.identity.v1beta2.Identity/CreateApiKey",
   "/fonoster.identity.v1beta2.Identity/DeleteApiKey",
   "/fonoster.identity.v1beta2.Identity/ListApiKeys",
-  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
+  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey",
+  "/fonoster.calls.v1beta2.Calls/ListCalls",
+  "/fonoster.calls.v1beta2.Calls/GetCall",
+  "/fonoster.calls.v1beta2.Calls/MakeCall"
 ];
 
 const roles = [

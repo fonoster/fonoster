@@ -29,6 +29,8 @@ service Calls {
   rpc ListCalls (ListCallsRequest) returns (ListCallsResponse) {}
   // Get a Call Detail Record
   rpc GetCall (GetCallRequest) returns (CallDetailRecord) {}
+  // Call a number and streams the call status
+  rpc MakeCall (CallRequest) returns (stream CallStatusResponse) {}
 }
 
 enum CallType {
@@ -108,4 +110,24 @@ message ListCallsResponse {
 message GetCallRequest {
   // The unique identifier of the Call
   string ref = 1;
+}
+
+// The request message for Calls.Call
+message CallRequest {
+  // The from number (E.164 format or SIP URI)
+  string from = 1;
+  // The to number (E.164 format or SIP URI)
+  string to = 2;
+  // The url of the application to handle the call
+  string app_url = 3;
+  // The call timeout in seconds (reserved for future use)
+  int32 timeout = 4;
+}
+
+// The response message for Calls.Call
+message CallStatusResponse {
+  // The refence of the call
+  string ref = 1;
+  // The call status
+  CallStatus status = 2;
 }

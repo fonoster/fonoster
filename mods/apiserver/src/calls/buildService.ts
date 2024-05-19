@@ -18,6 +18,7 @@
  */
 import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
+import { makeCall } from "./makeCall";
 import { InfluxDBClient } from "./types";
 
 function buildService(influxdb: InfluxDBClient) {
@@ -30,7 +31,8 @@ function buildService(influxdb: InfluxDBClient) {
     },
     handlers: {
       listCalls: listCalls(influxdb),
-      getCall: getCall(influxdb)
+      getCall: getCall(influxdb),
+      makeCall: makeCall()
     }
   };
 }
