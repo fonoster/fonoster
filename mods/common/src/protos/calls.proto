@@ -25,12 +25,14 @@ package fonoster.calls.v1beta2;
 
 // Calls service definition
 service Calls {
+  // Call a number and returns the call status
+  rpc CreateCall (CreateCallRequest) returns (CreateCallResponse) {}
   // Get a list of Call Detail Records
   rpc ListCalls (ListCallsRequest) returns (ListCallsResponse) {}
   // Get a Call Detail Record
   rpc GetCall (GetCallRequest) returns (CallDetailRecord) {}
-  // Call a number and streams the call status
-  rpc MakeCall (CallRequest) returns (stream CallStatusResponse) {}
+  // Stream call status
+  rpc TrackCall (TrackCallRequest) returns (stream TrackCallResponse) {}
 }
 
 enum CallType {
@@ -78,6 +80,24 @@ message CallDetailRecord {
   CallDirection direction = 9;
 }
 
+// The request message for Calls.Call
+message CreateCallRequest {
+  // The from number (E.164 format or SIP URI)
+  string from = 1;
+  // The to number (E.164 format or SIP URI)
+  string to = 2;
+  // The url of the application to handle the call
+  string app_url = 3;
+  // The call timeout in seconds (reserved for future use)
+  int32 timeout = 4;
+}
+
+// The response message for Calls.Call
+message CreateCallResponse {
+  // The refence of the call
+  string ref = 1;
+}
+
 // The request message for Calls.ListCalls
 message ListCallsRequest {
   // Optional start date in RFC3339 format
@@ -112,20 +132,14 @@ message GetCallRequest {
   string ref = 1;
 }
 
-// The request message for Calls.Call
-message CallRequest {
-  // The from number (E.164 format or SIP URI)
-  string from = 1;
-  // The to number (E.164 format or SIP URI)
-  string to = 2;
-  // The url of the application to handle the call
-  string app_url = 3;
-  // The call timeout in seconds (reserved for future use)
-  int32 timeout = 4;
+// The request message for Calls.TrackCall
+message TrackCallRequest {
+  // The unique identifier of the Call
+  string ref = 1;
 }
 
-// The response message for Calls.Call
-message CallStatusResponse {
+// The response message for Calls.TrackCall
+message TrackCallResponse {
   // The refence of the call
   string ref = 1;
   // The call status

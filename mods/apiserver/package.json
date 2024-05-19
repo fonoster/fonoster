@@ -37,6 +37,7 @@
     "nats": "^2.25.0",
     "pb-util": "^1.0.3",
     "prisma-field-encryption": "^1.5.2",
+    "uuid": "^9.0.1",
     "zod": "^3.23.4"
   },
   "files": [
@@ -53,6 +54,7 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.6"
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/uuid": "^9.0.8"
   }
 }

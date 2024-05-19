@@ -79,6 +79,20 @@ type InfluxDBClient = {
   collectRows(query: ParameterizedQuery): Promise<unknown[]>;
 };
 
+type CreateCallRequest = {
+  from: string;
+  to: string;
+  appUrl: string;
+};
+
+type CreateCallResponse = {
+  ref: string;
+};
+
+type CallPublisher = {
+  publishCall: (event: CreateCallRequest & { ref: string }) => void;
+};
+
 export {
   CALL_DETAIL_RECORD_MEASUREMENT,
   CallDetailRecord,
@@ -88,5 +102,8 @@ export {
   CallType,
   CallStatus,
   CallDirection,
-  InfluxDBClient
+  InfluxDBClient,
+  CreateCallRequest,
+  CreateCallResponse,
+  CallPublisher
 };

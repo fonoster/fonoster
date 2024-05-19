@@ -17,41 +17,25 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { z } from "zod";
-import { CallStatus } from "./types";
+import { connect } from "nats";
+import { CreateCallRequest } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const CallRequestSchema = z.object({
-  from: z.string(),
-  to: z.string(),
-  appUrl: z.string()
-});
+const CALLS_CREATE_SUBJECT = "calls.create";
 
-type CallRequest = z.infer<typeof CallRequestSchema>;
+function createCallPublisher(natsUrl: string) {
+  return {
+    publishCall: async (request: CreateCallRequest & { ref: string }) => {
+      logger.verbose("connecting to nats", { natsUrl });
 
-type CallResponse = {
-  ref: string;
-  status: CallStatus;
-};
+      const nc = await connect({ servers: natsUrl });
 
-type CallStream = {
-  write: (data: CallResponse) => void;
-  end: () => void;
-};
+      logger.verbose("publishing call", { ref: request.ref });
 
-function makeCall() {
-  return async (call: { request: CallRequest }) => {
-    const stream = call as unknown as CallStream;
-    const { from, to, appUrl } = call.request;
-
-    logger.verbose("call makeCall method", { from, to, appUrl });
-
-    stream.write({ ref: "123", status: CallStatus.USER_BUSY });
-    stream.write({ ref: "123", status: CallStatus.NO_ANSWER });
-
-    stream.end();
+      nc.publish(CALLS_CREATE_SUBJECT, JSON.stringify(request));
+    }
   };
 }
 
-export { makeCall };
+export { createCallPublisher };

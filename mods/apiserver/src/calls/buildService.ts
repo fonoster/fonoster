@@ -16,10 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createCall } from "./createCall";
+import { createCallPublisher } from "./createCallPublisher";
 import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
-import { makeCall } from "./makeCall";
+import { trackCall } from "./trackCall";
 import { InfluxDBClient } from "./types";
+import { NATS_URL } from "../envs";
 
 function buildService(influxdb: InfluxDBClient) {
   return {
@@ -30,9 +33,10 @@ function buildService(influxdb: InfluxDBClient) {
       proto: "calls.proto"
     },
     handlers: {
+      createCall: createCall(createCallPublisher(NATS_URL)),
       listCalls: listCalls(influxdb),
       getCall: getCall(influxdb),
-      makeCall: makeCall()
+      trackCall: trackCall()
     }
   };
 }

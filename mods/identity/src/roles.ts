@@ -61,7 +61,11 @@ const workspaceAccess = [
   "/fonoster.secrets.v1beta2.Secrets/UpdateSecret",
   "/fonoster.secrets.v1beta2.Secrets/GetSecret",
   "/fonoster.secrets.v1beta2.Secrets/DeleteSecret",
-  "/fonoster.secrets.v1beta2.Secrets/ListSecrets"
+  "/fonoster.secrets.v1beta2.Secrets/ListSecrets",
+  "/fonoster.calls.v1beta2.Calls/Call",
+  "/fonoster.calls.v1beta2.Calls/ListCalls",
+  "/fonoster.calls.v1beta2.Calls/GetCall",
+  "/fonoster.calls.v1beta2.Calls/TrackCall"
 ];
 
 const fullIdentityAccess = [
@@ -79,10 +83,7 @@ const fullIdentityAccess = [
   "/fonoster.identity.v1beta2.Identity/CreateApiKey",
   "/fonoster.identity.v1beta2.Identity/DeleteApiKey",
   "/fonoster.identity.v1beta2.Identity/ListApiKeys",
-  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey",
-  "/fonoster.calls.v1beta2.Calls/ListCalls",
-  "/fonoster.calls.v1beta2.Calls/GetCall",
-  "/fonoster.calls.v1beta2.Calls/MakeCall"
+  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
 ];
 
 const roles = [

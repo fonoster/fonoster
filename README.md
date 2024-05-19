@@ -1,4 +1,3 @@
-
 # Fonoster: The open-source alternative to Twilio
 
 [Fonoster Inc](https://fonoster.com) is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.
@@ -76,12 +75,12 @@ Example of originating a call with the SDK:
 
 ```typescript
 const Fonoster = require("@fonoster/sdk");
-const callManager = new Fonoster.CallManager();
+const client = new Fonoster.Call();
 
-callManager.call({
+client.call({
  from: "9842753574",
  to: "17853178070",
- webhook: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
+ appUrl: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
 })
  .then(console.log)
  .catch(console.error);
