@@ -57,7 +57,7 @@ async function runServices() {
   healthImpl.addToServer(server);
 
   // Load the remaining services
-  loadServices(server, services);
+  loadServices(server, await services);
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);

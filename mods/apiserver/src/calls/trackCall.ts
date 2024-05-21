@@ -18,7 +18,23 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
-import { CallStatus } from "./types";
+import {
+  CallStatus,
+  CallStream,
+  TrackCallResponse,
+  TrackCallSubscriber
+} from "./types";
+
+const FINAL_STATUSES = [
+  CallStatus.COMPLETED,
+  CallStatus.FAILED,
+  CallStatus.BUSY,
+  CallStatus.NO_ANSWER,
+  CallStatus.CANCELED,
+  CallStatus.REJECTED,
+  CallStatus.TIMEOUT,
+  CallStatus.UNKNOWN
+];
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -28,27 +44,27 @@ const TrackCallRequestSchema = z.object({
 
 type TrackCallRequest = z.infer<typeof TrackCallRequestSchema>;
 
-type CallResponse = {
-  ref: string;
-  status: CallStatus;
-};
-
-type CallStream = {
-  write: (data: CallResponse) => void;
-  end: () => void;
-};
-
-function trackCall() {
-  return async (call: { request: TrackCallRequest }) => {
+function trackCall(subs: TrackCallSubscriber) {
+  return (call: { request: TrackCallRequest }) => {
     const stream = call as unknown as CallStream;
+    const { events } = subs;
     const { ref } = call.request;
 
     logger.verbose("call to trackCall", { ref });
 
-    stream.write({ ref: "123", status: CallStatus.USER_BUSY });
-    stream.write({ ref: "123", status: CallStatus.NO_ANSWER });
+    stream.write({ ref, status: CallStatus.QUEUED });
 
-    stream.end();
+    events.on("status", (data: TrackCallResponse) => {
+      logger.verbose("tracked call status change", { ...data });
+
+      if (data.ref === ref) {
+        stream.write(data);
+
+        if (FINAL_STATUSES.includes(data.status)) {
+          stream.end();
+        }
+      }
+    });
   };
 }
 

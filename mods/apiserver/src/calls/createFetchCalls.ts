@@ -34,8 +34,17 @@ function createFetchCalls(influxdb: InfluxDBClient) {
     accessKeyId: string,
     request: ListCallsRequest
   ): Promise<ListCallsResponse> => {
-    const { after, before, type, from, to, status, pageSize, pageToken } =
-      request;
+    const {
+      after,
+      before,
+      type,
+      from,
+      to,
+      status,
+      hangupCause,
+      pageSize,
+      pageToken
+    } = request;
 
     const accessKeyIdFilter = accessKeyId
       ? flux`and r.accessKeyId == "${accessKeyId}"`
@@ -44,6 +53,9 @@ function createFetchCalls(influxdb: InfluxDBClient) {
     const fromFilter = from ? flux`and r.from == "${from}"` : flux``;
     const toFilter = to ? flux`and r.to == "${to}"` : flux``;
     const statusFilter = status ? flux`and r.status == "${status}"` : flux``;
+    const hangupCauseFilter = hangupCause
+      ? flux`and r.hangupCause == "${hangupCause}"`
+      : flux``;
     const pageTokenFilter = pageToken
       ? flux`|> filter(fn: (r) => r.startedAtParsed < int(v: ${pageToken}))`
       : flux``;
@@ -68,7 +80,8 @@ function createFetchCalls(influxdb: InfluxDBClient) {
         ${typeFilter}
         ${fromFilter}
         ${toFilter}
-        ${statusFilter})
+        ${statusFilter}
+        ${hangupCauseFilter})
       |> group()
       |> sort(columns: ["startedAtParsed"], desc: true)
       ${pageTokenFilter}

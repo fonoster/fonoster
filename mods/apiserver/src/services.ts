@@ -44,7 +44,7 @@ const trunksService = buildTrunksService(routrConfig);
 const numbersService = buildNumbersService(routrConfig);
 const aclsService = buildAclsService(routrConfig);
 
-const services = [
+const services = Promise.all([
   applicationsService,
   secretsService,
   callsService,
@@ -55,6 +55,6 @@ const services = [
   numbersService,
   trunksService,
   domainsService
-];
+]);
 
 export default services;

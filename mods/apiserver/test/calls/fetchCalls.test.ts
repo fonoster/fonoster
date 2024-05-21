@@ -21,7 +21,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { CallStatus, CallType, InfluxDBClient } from "../../src/calls/types";
+import { CallStatus, CallType, HangupCause, InfluxDBClient } from "../../src/calls/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -45,7 +45,7 @@ describe("@calls/fetchCalls", function () {
         endedAt: 1715869342759,
         from: "+1234567890",
         to: "+1234567891",
-        status: "status",
+        status: CallStatus.COMPLETED,
         accessKeyId,
         type: CallType.PROGRAMMABLE
       }
@@ -76,7 +76,8 @@ describe("@calls/fetchCalls", function () {
     const type = CallType.PROGRAMMABLE;
     const from = "+1234567890";
     const to = "+1234567891";
-    const status = CallStatus.NORMAL_CLEARING;
+    const status = CallStatus.COMPLETED;
+    const hangupCause = HangupCause.NORMAL_CLEARING;
     const items = [
       {
         ref: "01",
@@ -85,6 +86,7 @@ describe("@calls/fetchCalls", function () {
         from,
         to,
         status,
+        hangupCause,
         accessKeyId,
         type,
       }
@@ -106,6 +108,7 @@ describe("@calls/fetchCalls", function () {
       from,
       to,
       status,
+      hangupCause,
     });
 
     // Assert
@@ -122,6 +125,7 @@ describe("@calls/fetchCalls", function () {
     expect(queryStr).to.include(`and r.type == "${type}"`);
     expect(queryStr).to.include(`and r.from == "${from}"`);
     expect(queryStr).to.include(`and r.to == "${to}"`);
+    expect(queryStr).to.include(`and r.hangupCause == "${hangupCause}"`);
     expect(queryStr).to.include(`and r.status == "${status}"`);
   });
 });

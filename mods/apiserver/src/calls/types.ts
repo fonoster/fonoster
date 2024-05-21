@@ -25,7 +25,7 @@ enum CallType {
   SIP_TRUNKING = "SIP_TRUNKING"
 }
 
-enum CallStatus {
+enum HangupCause {
   NORMAL_CLEARING = "NORMAL_CLEARING",
   CALL_REJECTED = "CALL_REJECTED",
   UNALLOCATED = "UNALLOCATED",
@@ -35,7 +35,21 @@ enum CallStatus {
   USER_BUSY = "USER_BUSY",
   NOT_ACCEPTABLE_HERE = "NOT_ACCEPTABLE_HERE",
   SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE",
-  INVALID_NUMBER_FORMAT = "INVALID_NUMBER_FORMAT"
+  INVALID_NUMBER_FORMAT = "INVALID_NUMBER_FORMAT",
+}
+
+enum CallStatus {
+  QUEUED = "QUEUED",
+  RINGING = "RINGING",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  FAILED = "FAILED",
+  BUSY = "BUSY",
+  NO_ANSWER = "NO_ANSWER",
+  CANCELED = "CANCELED",
+  REJECTED = "REJECTED",
+  TIMEOUT = "TIMEOUT",
+  UNKNOWN = "UNKNOWN"
 }
 
 enum CallDirection {
@@ -47,6 +61,7 @@ type CallDetailRecord = {
   ref: string;
   type: CallType;
   status: CallStatus;
+  hangupCause: HangupCause;
   from: string;
   to: string;
   duration: number;
@@ -60,6 +75,7 @@ type ListCallsRequest = {
   before?: string;
   type?: CallType;
   status?: CallStatus;
+  hangupCause?: HangupCause;
   from?: string;
   to?: string;
   pageSize?: number;
@@ -93,6 +109,22 @@ type CallPublisher = {
   publishCall: (event: CreateCallRequest & { ref: string }) => void;
 };
 
+type TrackCallResponse = {
+  ref: string;
+  status: CallStatus;
+};
+
+type CallStream = {
+  write: (data: TrackCallResponse) => void;
+  end: () => void;
+};
+
+type TrackCallSubscriber = {
+  events: {
+    on: (event: string, cb: (data: TrackCallResponse) => void) => void;
+  };
+};
+
 export {
   CALL_DETAIL_RECORD_MEASUREMENT,
   CallDetailRecord,
@@ -105,5 +137,9 @@ export {
   InfluxDBClient,
   CreateCallRequest,
   CreateCallResponse,
-  CallPublisher
+  CallPublisher,
+  TrackCallResponse,
+  CallStream,
+  TrackCallSubscriber,
+  HangupCause
 };

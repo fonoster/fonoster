@@ -18,13 +18,16 @@
  */
 import { createCall } from "./createCall";
 import { createCallPublisher } from "./createCallPublisher";
+import { createTrackCallSubscriber } from "./createTrackCallSubscriber";
 import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
 import { trackCall } from "./trackCall";
 import { InfluxDBClient } from "./types";
 import { NATS_URL } from "../envs";
 
-function buildService(influxdb: InfluxDBClient) {
+async function buildService(influxdb: InfluxDBClient) {
+  const trackCallSubscriberImpl = await createTrackCallSubscriber(NATS_URL);
+
   return {
     definition: {
       serviceName: "Calls",
@@ -36,7 +39,7 @@ function buildService(influxdb: InfluxDBClient) {
       createCall: createCall(createCallPublisher(NATS_URL)),
       listCalls: listCalls(influxdb),
       getCall: getCall(influxdb),
-      trackCall: trackCall()
+      trackCall: trackCall(trackCallSubscriberImpl())
     }
   };
 }

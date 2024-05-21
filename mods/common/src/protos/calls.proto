@@ -40,7 +40,7 @@ enum CallType {
   SIP_TRUNKING = 1;
 }
 
-enum CallStatus {
+enum HangupCause {
   NORMAL_CLEARING = 0;
   CALL_REJECTED = 1;
   UNALLOCATED = 2;
@@ -51,6 +51,21 @@ enum CallStatus {
   NOT_ACCEPTABLE_HERE = 7;
   SERVICE_UNAVAILABLE = 8;
   INVALID_NUMBER_FORMAT = 9;
+  UNKNOWN = 10;
+}
+
+enum CallStatus {
+  QUEUED = 0;
+  RINGING = 1;
+  IN_PROGRESS = 2;
+  COMPLETED = 3;
+  FAILED = 4;
+  BUSY = 5;
+  NO_ANSWER = 6;
+  CANCELED = 7;
+  REJECTED = 8;
+  TIMEOUT = 9;
+  UNKNOWN = 10;
 }
 
 enum CallDirection {
@@ -66,18 +81,20 @@ message CallDetailRecord {
   CallType type = 2;
   // The call status
   CallStatus status = 3;
+  // Hangup cause
+  HangupCause hangup_cause = 4;
   // Start time of the call
-  int64 started_at = 4;
+  int64 started_at = 5;
   // End time of the call
-  int64 ended_at = 5;
+  int64 ended_at = 6;
   // The from number (E.164 format or SIP URI)
-  string from = 6;
+  string from = 7;
   // The to number (E.164 format or SIP URI)
-  string to = 7;
+  string to = 8;
   // The call duration in seconds
-  int32 duration = 8;
+  int32 duration = 9;
   // The call direction
-  CallDirection direction = 9;
+  CallDirection direction = 10;
 }
 
 // The request message for Calls.Call
