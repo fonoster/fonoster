@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCError, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
@@ -47,7 +47,7 @@ type CreateApiKeyResponse = {
 function createApiKey(prisma: Prisma) {
   return async (
     call: { request: CreateApiKeyRequest },
-    callback: (error: GRPCErrors, response?: CreateApiKeyResponse) => void
+    callback: (error: GRPCError, response?: CreateApiKeyResponse) => void
   ) => {
     try {
       const validatedRequest = CreatApiKeyRequestSchema.parse(call.request);

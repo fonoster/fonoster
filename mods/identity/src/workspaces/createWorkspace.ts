@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCError, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
@@ -43,7 +43,7 @@ type CreateWorkspaceResponse = {
 function createWorkspace(prisma: Prisma) {
   return async (
     call: { request: CreateWorkspaceRequest },
-    callback: (error: GRPCErrors, response?: CreateWorkspaceResponse) => void
+    callback: (error: GRPCError, response?: CreateWorkspaceResponse) => void
   ) => {
     try {
       const validatedRequest = CreateWorkspaceRequestSchema.parse(call.request);

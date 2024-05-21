@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCError, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -37,7 +37,7 @@ function createCall(publisher: CallPublisher) {
     call: {
       request: CreateCallRequest;
     },
-    callback: (error?: GRPCErrors, response?: CreateCallResponse) => void
+    callback: (error?: GRPCError, response?: CreateCallResponse) => void
   ) => {
     try {
       const { from, to, appUrl } = call.request;

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCError, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { z } from "zod";
@@ -48,7 +48,7 @@ const invalidApiKeyError = {
 function exchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
   return async (
     call: { request: ExchangeApiKeysRequest },
-    callback: (error: GRPCErrors, response?: ExchangeApiKeysResponse) => void
+    callback: (error: GRPCError, response?: ExchangeApiKeysResponse) => void
   ) => {
     try {
       const validatedRequest = ExchangeApiKeysRequestSchema.parse(call.request);

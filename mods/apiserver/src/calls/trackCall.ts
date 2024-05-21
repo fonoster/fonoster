@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
+import { status } from "@grpc/grpc-js";
 import { z } from "zod";
 import {
   CallStatus,
@@ -56,6 +57,15 @@ function trackCall(subs: TrackCallSubscriber) {
 
     events.on("status", (data: TrackCallResponse) => {
       logger.verbose("tracked call status change", { ...data });
+
+      if (data instanceof Error) {
+        logger.error("tracked call status change error", { ...data });
+
+        stream.write({ code: status.INTERNAL, message: data.message });
+        stream.end();
+
+        return;
+      }
 
       if (data.ref === ref) {
         stream.write(data);

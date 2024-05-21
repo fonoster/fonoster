@@ -23,14 +23,14 @@ import { z } from "zod";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-type GRPCErrors = {
+type GRPCError = {
   code: number;
   message: string;
 };
 
 function handleError(
   error: Error | { code: string },
-  callback: (error: GRPCErrors) => void
+  callback: (error: GRPCError) => void
 ) {
   const code = (error as { code: string | number }).code;
 
@@ -65,4 +65,4 @@ function handleError(
   }
 }
 
-export { handleError, GRPCErrors };
+export { handleError, GRPCError };

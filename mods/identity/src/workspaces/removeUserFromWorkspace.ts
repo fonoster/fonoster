@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCError, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { isAdminMember } from "./isAdminMember";
@@ -39,7 +39,7 @@ function removeUserFromWorkspace(prisma: Prisma) {
   return async (
     call: { request: RemoveUserFromWorkspaceRequest },
     callback: (
-      error: GRPCErrors,
+      error: GRPCError,
       response?: RemoveUserFromWorkspaceResponse
     ) => void
   ) => {

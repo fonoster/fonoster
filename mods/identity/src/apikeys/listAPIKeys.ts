@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors } from "@fonoster/common";
+import { GRPCError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { ApiRoleEnum } from "./ApiRoleEnum";
@@ -47,7 +47,7 @@ type ListApiKeysResponse = {
 function listApiKeys(prisma: Prisma) {
   return async (
     call: { request: ListApiKeysRequest },
-    callback: (error: GRPCErrors, response?: ListApiKeysResponse) => void
+    callback: (error: GRPCError, response?: ListApiKeysResponse) => void
   ) => {
     const { pageSize, pageToken } = call.request;
 

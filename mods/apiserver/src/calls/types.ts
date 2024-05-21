@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GRPCError } from "@fonoster/common";
 import { ParameterizedQuery } from "@influxdata/influxdb-client";
 
 const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
@@ -35,7 +36,7 @@ enum HangupCause {
   USER_BUSY = "USER_BUSY",
   NOT_ACCEPTABLE_HERE = "NOT_ACCEPTABLE_HERE",
   SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE",
-  INVALID_NUMBER_FORMAT = "INVALID_NUMBER_FORMAT",
+  INVALID_NUMBER_FORMAT = "INVALID_NUMBER_FORMAT"
 }
 
 enum CallStatus {
@@ -115,13 +116,13 @@ type TrackCallResponse = {
 };
 
 type CallStream = {
-  write: (data: TrackCallResponse) => void;
+  write: (data: TrackCallResponse | GRPCError) => void;
   end: () => void;
 };
 
 type TrackCallSubscriber = {
   events: {
-    on: (event: string, cb: (data: TrackCallResponse) => void) => void;
+    on: (event: string, cb: (data: TrackCallResponse | Error) => void) => void;
   };
 };
 

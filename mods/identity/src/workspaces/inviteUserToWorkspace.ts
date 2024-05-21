@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrors, handleError } from "@fonoster/common";
+import { GRPCError, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
@@ -102,7 +102,7 @@ function inviteUserToWorkspace(
 ) {
   return async (
     call: { request: InviteUserToWorkspaceRequest },
-    callback: (error: GRPCErrors, response?: CreateWorkspaceResponse) => void
+    callback: (error: GRPCError, response?: CreateWorkspaceResponse) => void
   ) => {
     try {
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
