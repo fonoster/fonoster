@@ -20,11 +20,16 @@ import { createAuthInterceptor } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
+import { createCreateCallSubscriber as runCallManager } from "./calls/runCallManager";
 import {
   APISERVER_BIND_ADDR,
+  ASTERISK_ARI_PROXY_URL,
+  ASTERISK_ARI_SECRET,
+  ASTERISK_ARI_USERNAME,
   GRPC_NOT_SERVING_STATUS,
   GRPC_SERVING_STATUS,
-  IDENTITY_PUBLIC_KEY
+  IDENTITY_PUBLIC_KEY,
+  NATS_URL
 } from "./envs";
 import loadServices from "./loadServices";
 import services from "./services";
@@ -59,9 +64,17 @@ async function runServices() {
   // Load the remaining services
   loadServices(server, await services);
 
-  server.bindAsync(APISERVER_BIND_ADDR, credentials, () => {
+  server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);
     logger.info(`apiserver running at ${APISERVER_BIND_ADDR}`);
+
+    // Additional Call Managers subscriber may be added here to handle call events
+    await runCallManager({
+      natsUrl: NATS_URL,
+      ariProxyUrl: ASTERISK_ARI_PROXY_URL,
+      ariUsername: ASTERISK_ARI_USERNAME,
+      ariPassword: ASTERISK_ARI_SECRET
+    });
   });
 }
 

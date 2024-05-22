@@ -26,7 +26,8 @@ import { InfluxDBClient } from "./types";
 import { NATS_URL } from "../envs";
 
 async function buildService(influxdb: InfluxDBClient) {
-  const trackCallSubscriberImpl = await createTrackCallSubscriber(NATS_URL);
+  const trackCallSubscriber = await createTrackCallSubscriber(NATS_URL);
+  const callPublisher = await createCallPublisher(NATS_URL);
 
   return {
     definition: {
@@ -36,10 +37,10 @@ async function buildService(influxdb: InfluxDBClient) {
       proto: "calls.proto"
     },
     handlers: {
-      createCall: createCall(createCallPublisher(NATS_URL)),
+      createCall: createCall(callPublisher),
       listCalls: listCalls(influxdb),
       getCall: getCall(influxdb),
-      trackCall: trackCall(trackCallSubscriberImpl())
+      trackCall: trackCall(trackCallSubscriber())
     }
   };
 }

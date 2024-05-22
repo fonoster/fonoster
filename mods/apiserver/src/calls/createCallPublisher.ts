@@ -19,18 +19,17 @@
 import { getLogger } from "@fonoster/logger";
 import { connect } from "nats";
 import { CreateCallRequest } from "./types";
+import { CALLS_CREATE_SUBJECT } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const CALLS_CREATE_SUBJECT = "calls.create";
+async function createCallPublisher(natsUrl: string) {
+  logger.verbose("connecting to nats", { natsUrl });
 
-function createCallPublisher(natsUrl: string) {
+  const nc = await connect({ servers: natsUrl });
+
   return {
     publishCall: async (request: CreateCallRequest & { ref: string }) => {
-      logger.verbose("connecting to nats", { natsUrl });
-
-      const nc = await connect({ servers: natsUrl });
-
       logger.verbose("publishing call", { ref: request.ref });
 
       nc.publish(CALLS_CREATE_SUBJECT, JSON.stringify(request));

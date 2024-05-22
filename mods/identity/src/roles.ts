@@ -62,7 +62,7 @@ const workspaceAccess = [
   "/fonoster.secrets.v1beta2.Secrets/GetSecret",
   "/fonoster.secrets.v1beta2.Secrets/DeleteSecret",
   "/fonoster.secrets.v1beta2.Secrets/ListSecrets",
-  "/fonoster.calls.v1beta2.Calls/Call",
+  "/fonoster.calls.v1beta2.Calls/CreateCall",
   "/fonoster.calls.v1beta2.Calls/ListCalls",
   "/fonoster.calls.v1beta2.Calls/GetCall",
   "/fonoster.calls.v1beta2.Calls/TrackCall"

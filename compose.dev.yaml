@@ -19,6 +19,9 @@ services:
       dockerfile: ./asterisk/Dockerfile
     volumes:
       - ./etc/hello-world.g722:/var/lib/asterisk/sounds/hello-world.g722
+    ports:
+      - 6060:6060
+      - 7890:8080 # TODO: Change to 9876 internally too
 
   asterisk02:
     volumes:
