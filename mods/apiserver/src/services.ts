@@ -27,7 +27,7 @@ import {
 } from "@fonoster/sipnet";
 import { buildApplicationsService } from "./applications";
 import { buildCallsService } from "./calls";
-import { influxdb } from "./calls/client";
+import { influxdb } from "./calls/influxdb";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
 import { routrConfig } from "./routrConfig";

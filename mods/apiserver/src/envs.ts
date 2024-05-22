@@ -115,6 +115,7 @@ export const GRPC_NOT_SERVING_STATUS = "NOT_SERVING" as ServingStatus;
 export const NATS_URL = e.NATS_URL;
 export const DEFAULT_NATS_QUEUE_GROUP = "apiserver";
 export const CALLS_CREATE_SUBJECT = "calls.create";
+export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
 export const ASTERISK_CONTEXT = "local-ctx";
 export const ASTERISK_EXTENSION = "voice";
 export const ASTERISK_TRUNK = "routr";

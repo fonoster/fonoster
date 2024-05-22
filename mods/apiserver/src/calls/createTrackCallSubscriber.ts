@@ -18,8 +18,7 @@
  */
 import EventEmitter from "events";
 import { connect } from "nats";
-
-const CALLS_TRACK_CALL_SUBJECT = "calls.track";
+import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
 
 async function createTrackCallSubscriber(natsUrl: string) {
   const nc = await connect({ servers: natsUrl });
