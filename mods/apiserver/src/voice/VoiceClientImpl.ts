@@ -24,12 +24,15 @@ class VoiceClientImpl implements VoiceClient {
     this.config = config;
   }
 
-  recvAnswerCommand: (cmd: { sessionId: string; }) => Promise<void>;
+  recvAnswerCommand: (cmd: { sessionId: string }) => Promise<void>;
   sendDtmfReceivedEvent: (digit: string) => void;
   sendPlaybackFinishedEvent: (playbackId: string) => void;
   sendRecordingFinishedEvent: (recording: {
-    name: string; duration: number //github.com/fonoster/fonoster
-    ; format: FileFormat; silence_duration: number; talking_duration: number;
+    name: string;
+    duration: number; // github.com/fonoster/fonoster
+    format: FileFormat;
+    silence_duration: number;
+    talking_duration: number;
   }) => void;
   sendRecordingFailedEvent: (cause: string) => void;
 
