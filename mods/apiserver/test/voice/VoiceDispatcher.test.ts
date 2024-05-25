@@ -129,7 +129,7 @@ describe("@voice/VoiceDispatcher", function () {
     };
 
     // Act
-    voiceDispatcher.handleStasisStart(event, channel);
+    await voiceDispatcher.handleStasisStart(event, channel);
 
     // Assert
     expect(createVoiceClient).to.have.been.calledOnce;
