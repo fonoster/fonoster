@@ -21,6 +21,7 @@ import {
   Channel,
   ChannelVar,
   StasisStartEvent,
+  VoiceClient,
   VoiceClientConfig
 } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
@@ -36,7 +37,10 @@ type FonosterSDK = {
 };
 
 function createVoiceClient(sdk: FonosterSDK) {
-  return async (event: StasisStartEvent, channel: Channel) => {
+  return async (
+    event: StasisStartEvent,
+    channel: Channel
+  ): Promise<VoiceClient> => {
     const getChannelVar = createGetChannelVar(channel);
 
     // Variables set by Asterisk's dialplan

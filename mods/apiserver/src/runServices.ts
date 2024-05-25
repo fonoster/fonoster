@@ -34,6 +34,7 @@ import {
 import loadServices from "./loadServices";
 import services from "./services";
 import getServerCredentials from "./utils/getServerCredentials";
+import { connectToAri } from "./voice/connectToAri";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -67,6 +68,9 @@ async function runServices() {
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);
     logger.info(`apiserver running at ${APISERVER_BIND_ADDR}`);
+
+    // Connecting to Asterisk ARI
+    await connectToAri();
 
     // Additional Call Managers subscriber may be added here to handle call events
     await runCallManager({

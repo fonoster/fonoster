@@ -33,14 +33,17 @@ const STATIS_APP_NAME = "mediacontroller";
 class VoiceDispatcher {
   voiceClients: Map<string, VoiceClient>;
   ari: AriClient;
-  createVoiceClient: (event: StasisStartEvent, channel: Channel) => VoiceClient;
+  createVoiceClient: (
+    event: StasisStartEvent,
+    channel: Channel
+  ) => Promise<VoiceClient>;
 
   constructor(
     ari: AriClient,
     createVoiceClient: (
       event: StasisStartEvent,
       channel: Channel
-    ) => VoiceClient
+    ) => Promise<VoiceClient>
   ) {
     this.ari = ari;
     this.voiceClients = new Map();
@@ -74,8 +77,8 @@ class VoiceDispatcher {
     // Register command handlers
   }
 
-  handleStasisStart(event: StasisStartEvent, channel: Channel) {
-    const voiceClient = this.createVoiceClient(event, channel);
+  async handleStasisStart(event: StasisStartEvent, channel: Channel) {
+    const voiceClient = await this.createVoiceClient(event, channel);
     this.voiceClients.set(event.channel.id, voiceClient);
   }
 

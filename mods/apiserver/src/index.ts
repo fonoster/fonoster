@@ -35,6 +35,8 @@ import { watchNats } from "./events/nats";
 import runServices from "./runServices";
 import { upsertDefaultPeer } from "./upsertDefaultPeer";
 
+import("./removeSwaggerNotice");
+
 async function main() {
   if (OWNER_EMAIL) {
     const user = {

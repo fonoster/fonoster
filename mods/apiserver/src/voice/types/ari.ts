@@ -23,7 +23,9 @@ enum AriEvent {
   CHANNEL_DTMF_RECEIVED = "ChannelDtmfReceived",
   PLAYBACK_FINISHED = "PlaybackFinished",
   RECORDING_FINISHED = "RecordingFinished",
-  RECORDING_FAILED = "RecordingFailed"
+  RECORDING_FAILED = "RecordingFailed",
+  WEB_SOCKET_RECONNECTING = "WebSocketReconnecting",
+  WEB_SOCKET_MAX_RETRIES = "WebSocketMaxRetries"
 }
 
 enum ChannelVar {
