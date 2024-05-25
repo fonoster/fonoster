@@ -96,10 +96,12 @@ type InfluxDBClient = {
   collectRows(query: ParameterizedQuery): Promise<unknown[]>;
 };
 
+// If appRef is not provided, we will use the application associated
+// with the 'from' number
 type CreateCallRequest = {
   from: string;
   to: string;
-  appUrl: string;
+  appRef?: string;
 };
 
 type CreateCallResponse = {

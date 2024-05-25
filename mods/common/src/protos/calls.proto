@@ -103,10 +103,8 @@ message CreateCallRequest {
   string from = 1;
   // The to number (E.164 format or SIP URI)
   string to = 2;
-  // The url of the application to handle the call
-  string app_url = 3;
-  // The call timeout in seconds (reserved for future use)
-  int32 timeout = 4;
+  // Optional application reference
+  string app_ref = 3;
 }
 
 // The response message for Calls.Call

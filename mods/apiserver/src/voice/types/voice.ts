@@ -19,9 +19,9 @@ import { RecordingFinishedEvent } from "./ari";
  * limitations under the License.
  */
 type VoiceClientConfig = {
+  appRef: string;
   accessKeyId: string;
   endpoint: string;
-  appRef?: string;
   ingressNumber: string;
   callerId: string;
   callerNumber: string;

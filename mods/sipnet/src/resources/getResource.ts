@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { datesMapper } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 
@@ -29,9 +28,7 @@ function getResource<T, R, U>(api: U, resource: string) {
 
       logger.verbose(`call to get${resource}`, { request, resource });
 
-      const result = await api[`get${resource}`](request.ref);
-
-      return datesMapper(result);
+      return await api[`get${resource}`](request.ref);
     },
     (ref: string) => api[`get${resource}`](ref)
   );

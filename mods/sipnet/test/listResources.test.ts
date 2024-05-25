@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { datesMapper } from "@fonoster/common";
 import { getExtendedFieldsHelper } from "@fonoster/sipnet/test/getExtendedFieldsHelper";
 import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
 import * as grpc from "@grpc/grpc-js";
@@ -79,7 +78,7 @@ describe("@sipnet[resources/listResources]", function () {
       // Assert
       expect(error).to.be.null;
       expect(response).to.deep.equal({
-        items: [datesMapper(domain)],
+        items: [domain],
         nextPageToken: ""
       });
     });

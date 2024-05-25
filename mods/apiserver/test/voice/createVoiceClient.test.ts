@@ -20,6 +20,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
+import { ChannelVar } from "../../src/voice/types";
 import { VoiceClientImpl } from "../../src/voice/VoiceClientImpl";
 
 chai.use(chaiAsPromised);
@@ -40,8 +41,8 @@ describe("@voice/createVoiceClient", function () {
     );
 
     const sdk = {
-      getAppToken: sandbox.stub().resolves("session-token"),
-      getAppByNumber: sandbox.stub().resolves({
+      createAppToken: sandbox.stub().resolves("session-token"),
+      getApp: sandbox.stub().resolves({
         ref: "app-ref",
         accessKeyId: "access-key-id",
         endpoint: "app-endpoint"
@@ -63,13 +64,11 @@ describe("@voice/createVoiceClient", function () {
       getChannelVar: sandbox
         .stub()
         .onFirstCall()
-        .resolves({ value: "caller-number" })
+        .resolves({ value: "ingress-number" })
         .onSecondCall()
-        .resolves({ value: "app-ref" })
-        .onThirdCall()
-        .resolves({ value: "app-endpoint" })
-        .onCall(3)
         .resolves({ value: "{}" })
+        .onThirdCall()
+        .resolves({ value: "app-ref" })
     };
 
     // Act
@@ -77,26 +76,20 @@ describe("@voice/createVoiceClient", function () {
 
     // Assert
     expect(voiceClient).to.be.an.instanceOf(VoiceClientImpl);
-    expect(sdk.getAppToken).to.have.been.calledOnceWith({
-      accessKeyId: "access-key-id"
-    });
-    expect(sdk.getAppByNumber).to.have.been.calledOnceWith("caller-number");
-    expect(channel.getChannelVar).to.have.been.called.callCount(4);
+    expect(sdk.createAppToken).to.have.been.calledOnceWith("app-ref");
+    expect(sdk.getApp).to.have.been.calledOnceWith("app-ref");
+    expect(channel.getChannelVar).to.have.been.calledThrice;
     expect(channel.getChannelVar).to.have.been.calledWith({
       channelId,
-      variable: "INGRESS_NUMBER"
+      variable: ChannelVar.APP_REF
     });
     expect(channel.getChannelVar).to.have.been.calledWith({
       channelId,
-      variable: "APP_REF"
+      variable: ChannelVar.METADATA
     });
     expect(channel.getChannelVar).to.have.been.calledWith({
       channelId,
-      variable: "APP_ENDPOINT"
-    });
-    expect(channel.getChannelVar).to.have.been.calledWith({
-      channelId,
-      variable: "METADATA"
+      variable: ChannelVar.INGRESS_NUMBER
     });
   });
 });

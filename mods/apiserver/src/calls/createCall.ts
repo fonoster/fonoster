@@ -29,7 +29,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 const CreateCallRequestSchema = z.object({
   from: z.string(),
   to: z.string(),
-  appUrl: z.string()
+  appRef: z.string()
 });
 
 function createCall(publisher: CallPublisher) {
@@ -40,7 +40,7 @@ function createCall(publisher: CallPublisher) {
     callback: (error?: GRPCError, response?: CreateCallResponse) => void
   ) => {
     try {
-      const { from, to, appUrl } = call.request;
+      const { from, to, appRef } = call.request;
 
       CreateCallRequestSchema.parse(call.request);
 
@@ -55,10 +55,10 @@ function createCall(publisher: CallPublisher) {
         ref,
         from,
         to,
-        appUrl
+        appRef
       });
 
-      publisher.publishCall({ ref, from, to, appUrl });
+      publisher.publishCall({ ref, from, to, appRef });
 
       callback(null, { ref });
     } catch (error) {

@@ -46,7 +46,7 @@ describe("@calls/createCall", function () {
       request: {
         from: "+1234567890",
         to: "+1234567891",
-        appUrl: "https://example.com/voiceapp"
+        appRef: "app-ref",
       }
     };
 
@@ -58,7 +58,7 @@ describe("@calls/createCall", function () {
     expect(publisher.publishCall).to.have.been.calledWithMatch({
       from: "+1234567890",
       to: "+1234567891",
-      appUrl: "https://example.com/voiceapp"
+      appRef: "app-ref",
     });
   });
 });

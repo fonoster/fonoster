@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { datesMapper } from "@fonoster/common";
 import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
@@ -72,7 +71,7 @@ describe("@sipnet[resources/getResource]", function () {
     await get(call, (error, response) => {
       // Assert
       expect(error).to.be.null;
-      expect(response).to.deep.equal(datesMapper(domain));
+      expect(response).to.deep.equal(domain);
     });
   });
 

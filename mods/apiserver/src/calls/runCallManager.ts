@@ -66,11 +66,14 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
         logger.error(err);
       }
 
-      const { ref, from, to, appUrl } = msg.json() as CreateCallRequest & {
+      const { ref, from, to, appRef } = msg.json() as CreateCallRequest & {
         ref: string;
       };
 
-      logger.info("received a new call request", { ...msg.json() });
+      logger.info("received a new call request", {
+        callRef: ref,
+        ...msg.json()
+      });
 
       // eslint-disable-next-line new-cap
       const channel = ariConn.Channel();
@@ -84,10 +87,8 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           extension: ASTERISK_EXTENSION,
           endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${domain}`,
           variables: {
-            REF: ref,
-            CALLER: from,
-            CALLEE: to,
-            APP_URL: appUrl
+            INGRESS_NUMBER: from,
+            APP_REF: appRef
           }
         })
         .catch((err) => {

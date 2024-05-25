@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getLogger } from "@fonoster/logger";
 import { createGetChannelVar } from "./createGetChannelVar";
 import {
   Channel,
@@ -27,45 +28,51 @@ import {
 import { VoiceClientImpl } from "./VoiceClientImpl";
 
 type FonosterSDK = {
-  getAppToken: (req: {
-    accessKeyId: string;
-    expires?: number;
-  }) => Promise<string>;
-  getAppByNumber: (
-    number: string
+  createAppToken: (ref: string) => Promise<string>;
+  getApp: (
+    ref: string
   ) => Promise<{ ref: string; accessKeyId: string; endpoint: string }>;
 };
 
+const logger = getLogger({ service: "apiserver", filePath: __filename });
+
+// Note: By the time the all arrives here the owner of the app MUST be authenticated
 function createVoiceClient(sdk: FonosterSDK) {
   return async (
     event: StasisStartEvent,
     channel: Channel
   ): Promise<VoiceClient> => {
+    const { id: sessionId, caller } = event.channel;
+    const { name: callerId, number: callerNumber } = caller;
+
     const getChannelVar = createGetChannelVar(channel);
 
     // Variables set by Asterisk's dialplan
-    const ingressNumber = (await getChannelVar(ChannelVar.INGRESS_NUMBER))
-      .value;
-    const appRef = (await getChannelVar(ChannelVar.APP_REF)).value;
-    const endpoint = (await getChannelVar(ChannelVar.APP_ENDPOINT)).value;
-    const metadataStr = (await getChannelVar(ChannelVar.METADATA)).value;
+    const ingressNumber =
+      (await getChannelVar(ChannelVar.INGRESS_NUMBER))?.value || "";
+    const metadataStr = (await getChannelVar(ChannelVar.METADATA))?.value;
+    const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
 
-    const result = await sdk.getAppByNumber(ingressNumber);
-    const sessionToken = await sdk.getAppToken({
-      accessKeyId: result.accessKeyId
-    });
+    // TODO: Should fail if appRef is not set
+    const { accessKeyId, endpoint } = await sdk.getApp(appRef);
+    const sessionToken = await sdk.createAppToken(appRef);
 
     const config: VoiceClientConfig = {
-      accessKeyId: result.accessKeyId,
-      endpoint: endpoint || result.endpoint,
-      appRef: appRef || result.ref,
+      appRef,
+      sessionId,
+      accessKeyId,
+      endpoint,
+      callerId,
+      callerNumber,
       ingressNumber,
-      callerId: event.channel.caller?.name,
-      callerNumber: event.channel.caller?.number,
-      sessionId: event.channel.id,
       sessionToken,
       metadata: metadataStr ? JSON.parse(metadataStr) : {}
     };
+
+    logger.verbose("creating voice client with config: ", {
+      callerNumber,
+      ingressNumber
+    });
 
     return new VoiceClientImpl(config);
   };
