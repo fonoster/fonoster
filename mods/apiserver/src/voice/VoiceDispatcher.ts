@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createVoiceClientConfig } from "./createVoiceClientConfig";
 import {
   AriClient,
   AriEvent,
@@ -26,8 +25,7 @@ import {
   RecordingFailedEvent,
   RecordingFinishedEvent,
   StasisStartEvent,
-  VoiceClient,
-  VoiceClientConfig
+  VoiceClient
 } from "./types";
 
 const STATIS_APP_NAME = "mediacontroller";
@@ -35,11 +33,14 @@ const STATIS_APP_NAME = "mediacontroller";
 class VoiceDispatcher {
   voiceClients: Map<string, VoiceClient>;
   ari: AriClient;
-  createVoiceClient: (config: VoiceClientConfig) => VoiceClient;
+  createVoiceClient: (event: StasisStartEvent, channel: Channel) => VoiceClient;
 
   constructor(
     ari: AriClient,
-    createVoiceClient: (config: VoiceClientConfig) => VoiceClient
+    createVoiceClient: (
+      event: StasisStartEvent,
+      channel: Channel
+    ) => VoiceClient
   ) {
     this.ari = ari;
     this.voiceClients = new Map();
@@ -74,8 +75,7 @@ class VoiceDispatcher {
   }
 
   handleStasisStart(event: StasisStartEvent, channel: Channel) {
-    const voiceClientConfig = createVoiceClientConfig(event, channel);
-    const voiceClient = this.createVoiceClient(voiceClientConfig);
+    const voiceClient = this.createVoiceClient(event, channel);
     this.voiceClients.set(event.channel.id, voiceClient);
   }
 

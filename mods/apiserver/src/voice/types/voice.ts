@@ -22,8 +22,7 @@ type VoiceClientConfig = {
   accessKeyId: string;
   endpoint: string;
   appRef?: string;
-  appUrl: string;
-  appNumber: string;
+  ingressNumber: string;
   callerId: string;
   callerNumber: string;
   sessionId: string;

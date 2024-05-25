@@ -16,10 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Channel, StasisStartEvent, VoiceClientConfig } from "./types";
+import { Channel, ChannelVar } from "./types";
 
-function createVoiceClientConfig(event: StasisStartEvent, channel: Channel) {
-  return {} as VoiceClientConfig;
+function createGetChannelVar(channel: Channel) {
+  return async (variable: ChannelVar) => {
+    return channel.getChannelVar({
+      channelId: channel.id,
+      variable
+    });
+  };
 }
 
-export { createVoiceClientConfig };
+export { createGetChannelVar };

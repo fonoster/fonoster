@@ -26,6 +26,13 @@ enum AriEvent {
   RECORDING_FAILED = "RecordingFailed"
 }
 
+enum ChannelVar {
+  INGRESS_NUMBER = "INGRESS_NUMBER",
+  APP_REF = "APP_REF",
+  APP_ENDPOINT = "APP_ENDPOINT",
+  METADATA = "METADATA"
+}
+
 enum FileFormat {
   SLIN16 = "slin16"
 }
@@ -86,6 +93,7 @@ type AriClient = {
 export {
   AriEvent,
   AriClient,
+  ChannelVar,
   Channel,
   FileFormat,
   StasisStartEvent,

@@ -31,10 +31,10 @@ message CreateSessionRequest {
   string access_key_id = 1;
   // Optional reference to an application living in the platform
   string app_ref = 2;
-  // URL associated with the session
-  string app_url = 3;
+  // gRPC endpoint for the voice service
+  string endpoint = 3;
   // PSTN number or SIP URI associated with the session
-  string app_number = 4;
+  string ingress_number = 4;
   // The caller ID for the phone calling from the
   string caller_id = 5;
   // The caller number for the phone calling from the
