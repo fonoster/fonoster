@@ -18,7 +18,6 @@
  */
 import {
   GRPC_SERVING_STATUS,
-  Plugin,
   getServerCredentials,
   statusMap
 } from "@fonoster/common";
@@ -31,7 +30,7 @@ import { createSession } from "./createSession";
 import { defaultServerConfig } from "./defaultServerConfig";
 import { IDENTITY_PUBLIC_KEY } from "./envs";
 import { serviceDefinition } from "./serviceDefinition";
-import { PluginsObject, ServerConfig, VoiceHandler } from "./types";
+import { ServerConfig, VoiceHandler } from "./types";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
@@ -43,20 +42,8 @@ const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, [
 
 export default class VoiceServer {
   config: ServerConfig;
-  plugins: PluginsObject;
   constructor(config: ServerConfig = defaultServerConfig) {
     this.config = merge(defaultServerConfig, config);
-    this.plugins = {} as PluginsObject;
-  }
-
-  /**
-   * Add tts or asr plugin.
-   *
-   * @param {Plugin} plugin - The plugin to add
-   */
-  use(plugin: Plugin) {
-    // Note: We only support registering one plugin per type
-    this.plugins[plugin.getType()] = plugin;
   }
 
   async listen(handler: VoiceHandler) {
@@ -68,7 +55,7 @@ export default class VoiceServer {
     });
 
     server.addService(serviceDefinition, {
-      createSession: createSession(handler, this.plugins)
+      createSession: createSession(handler)
     });
 
     // Add the health check service to the server
@@ -79,7 +66,7 @@ export default class VoiceServer {
     server.bindAsync(bindAddr, credentials, async () => {
       healthImpl.setStatus("", GRPC_SERVING_STATUS);
       logger.info(
-        `started voice server @ ${this.config.bind}, port=${this.config.port}, path=${this.config.base}`
+        `started voice server @ ${this.config.bind}, port=${this.config.port}`
       );
     });
   }

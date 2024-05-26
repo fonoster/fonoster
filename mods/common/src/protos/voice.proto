@@ -48,11 +48,6 @@ message CreateSessionRequest {
   map<string, string> metadata = 9;
 }
 
-// AudioChunk is the audio message for the voice service
-message AudioChunk {
-  bytes data = 1;
-}
-
 // Playback finished event
 message PlaybackFinishedEvent {
   string playback_id = 1;
@@ -123,25 +118,20 @@ message VoiceInStream {
   oneof content {
     // Initial request to create a new session
     CreateSessionRequest request = 1;
-    // Audio chunk to be processed
-    // Q: Why not just use bytes chunk = 2?
-    AudioChunk audio_chunk = 2;
     // Playback finished event
-    PlaybackFinishedEvent playback_finished = 3;
+    PlaybackFinishedEvent playback_finished = 2;
     // Recording finished event
-    RecordingFinishedEvent recording_finished = 4;
+    RecordingFinishedEvent recording_finished = 3;
     // DTMF finished event
-    DtmfFinishedEvent dtmf_finished = 5;
+    DtmfFinishedEvent dtmf_finished = 4;
     // Session closed event
-    SessionClosedEvent session_closed = 6;
+    SessionClosedEvent session_closed = 5;
   }
 }
 
 // VoiceOutStream is the output stream for the voice service
 message VoiceOutStream {
   oneof content {
-    // Audio chunk to be streamed
-    AudioChunk audio_chunk = 1;
     // Command to accept the call
     AnswerCommand answer_command = 2;
     // Command to play an audio file

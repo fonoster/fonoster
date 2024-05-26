@@ -17,29 +17,18 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import {
-  DATA,
-  END,
-  ERROR,
-  PluginsObject,
-  VoiceHandler,
-  VoiceSessionStream
-} from "./types";
+import { DATA, END, ERROR, VoiceHandler, VoiceSessionStream } from "./types";
 import { VoiceResponse } from "./VoiceResponse";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-function createSession(handler: VoiceHandler, plugins: PluginsObject) {
+function createSession(handler: VoiceHandler) {
   return (voice: VoiceSessionStream) => {
     voice.on(DATA, (params) => {
       const { request } = params;
 
       if (params.request) {
-        const response = new VoiceResponse({
-          voice,
-          request,
-          plugins
-        });
+        const response = new VoiceResponse(request, voice);
 
         handler(request, response);
       }

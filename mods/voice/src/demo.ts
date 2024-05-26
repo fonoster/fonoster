@@ -23,15 +23,9 @@ import VoiceServer from "./VoiceServer";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-const serverConfig = {
-  pathToFiles: `${process.cwd()}/sounds`
-};
-
-new VoiceServer(serverConfig).listen(
-  async (req: VoiceRequest, res: VoiceResponse) => {
-    logger.verbose(req);
-    await res.answer();
-    await res.play(`sound:${req.endpoint}/sounds/hello-world.sln16`);
-    // await res.hangup();
-  }
-);
+new VoiceServer().listen(async (req: VoiceRequest, res: VoiceResponse) => {
+  logger.verbose(req);
+  await res.answer();
+  await res.play("https://s3.fonoster.io/uuid/hello-world.sln16");
+  await res.hangup();
+});

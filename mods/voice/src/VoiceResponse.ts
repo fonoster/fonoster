@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Plugin } from "@fonoster/common";
-import { PluginsObject, VoiceRequest, VoiceSessionStream } from "./types";
+import { VoiceRequest, VoiceSessionStream } from "./types";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -39,37 +38,17 @@ import { PluginsObject, VoiceRequest, VoiceSessionStream } from "./types";
 class VoiceResponse {
   voice: VoiceSessionStream;
   request: VoiceRequest;
-  plugins: { [key: string]: Plugin };
 
   /**
    * Constructs a new VoiceResponse object.
    *
-   * @param {object} params - Parameters to initialize the object
-   * @param {VoiceRequest} params.request - Options to indicate the objects endpoint
-   * @param {VoiceSessionStream} params.voice - The voice session stream
-   * @param {Plugin} params.plugins - Optional plugins to attach to the object
+   * @param {VoiceRequest} request - Options to indicate the objects endpoint
+   * @param {VoiceSessionStream} voice - The voice session stream
    * @see module:core:APIClient
    */
-  constructor(params: {
-    voice: VoiceSessionStream;
-    request: VoiceRequest;
-    plugins?: PluginsObject;
-  }) {
-    const { voice, request, plugins } = params;
+  constructor(request: VoiceRequest, voice: VoiceSessionStream) {
     this.voice = voice;
     this.request = request;
-    this.plugins = plugins || {};
-  }
-
-  /**
-   * Adds a tts or asr plugin. Only one type of plugin can be attached.
-   *
-   * @param {Plugin} plugin - The plugin to add
-   * @see GoogleTTS
-   * @see GoogleASR
-   */
-  use(plugin: Plugin): void {
-    this.plugins[plugin.getType()] = plugin;
   }
 
   /**
@@ -85,6 +64,20 @@ class VoiceResponse {
   async answer(): Promise<void> {
     const { sessionId } = this.request;
     this.voice.write({ answerCommand: { sessionId } });
+  }
+
+  /**
+   * Hangup the communication channel.
+   *
+   * @example
+   *
+   * async function handler (request, response) {
+   *  await response.hangup();
+   * }
+   */
+  async hangup(): Promise<void> {
+    const { sessionId } = this.request;
+    this.voice.write({ hangupCommand: { sessionId } });
   }
 
   /**

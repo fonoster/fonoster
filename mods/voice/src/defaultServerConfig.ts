@@ -16,14 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import os from "os";
 import { ServerConfig } from "./types";
 
 const defaultServerConfig: ServerConfig = {
-  base: "/",
   port: 50061,
-  bind: "0.0.0.0",
-  pathToFiles: os.tmpdir()
+  bind: "0.0.0.0"
 };
 
 export { defaultServerConfig };

@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import { VoiceClientConfig } from "@fonoster/common";
-import { Plugin } from "@fonoster/common";
 import { VoiceResponse } from "./VoiceResponse";
 
 const DATA = "data" as const;
@@ -42,18 +41,13 @@ type VoiceSessionStream = {
 type ServerConfig = {
   bind?: string;
   port?: number;
-  base?: string;
-  pathToFiles?: string;
 };
-
-type PluginsObject = { [key: string]: Plugin };
 
 export {
   VoiceHandler,
   VoiceSessionStream,
   VoiceRequest,
   ServerConfig,
-  PluginsObject,
   DATA,
   END,
   ERROR
