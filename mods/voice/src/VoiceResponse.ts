@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { VoiceRequest, VoiceSessionStream } from "./types";
+import { Answer } from "./verbs";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -62,8 +63,7 @@ class VoiceResponse {
    * }
    */
   async answer(): Promise<void> {
-    const { sessionId } = this.request;
-    this.voice.write({ answerCommand: { sessionId } });
+    return new Answer(this.request, this.voice).run();
   }
 
   /**

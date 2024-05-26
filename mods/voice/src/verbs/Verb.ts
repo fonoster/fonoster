@@ -16,17 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
-import { VoiceRequest } from "./types";
-import { VoiceResponse } from "./VoiceResponse";
-import VoiceServer from "./VoiceServer";
+import { VoiceRequest, VoiceSessionStream } from "../types";
 
-const logger = getLogger({ service: "voice", filePath: __filename });
+class Verb {
+  request: VoiceRequest;
+  voice: VoiceSessionStream;
+  constructor(request: VoiceRequest, voice: VoiceSessionStream) {
+    this.request = request;
+    this.voice = voice;
+  }
+}
 
-new VoiceServer().listen(async (req: VoiceRequest, res: VoiceResponse) => {
-  logger.verbose("voice request", JSON.stringify(req, null, 2));
-
-  await res.answer();
-  await res.play("https://s3.fonoster.io/uuid/hello-world.sln16");
-  await res.hangup();
-});
+export { Verb };

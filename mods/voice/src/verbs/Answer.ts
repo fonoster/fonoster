@@ -17,16 +17,37 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { VoiceRequest } from "./types";
-import { VoiceResponse } from "./VoiceResponse";
-import VoiceServer from "./VoiceServer";
+import { Verb } from "./Verb";
+import { DATA } from "../types";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-new VoiceServer().listen(async (req: VoiceRequest, res: VoiceResponse) => {
-  logger.verbose("voice request", JSON.stringify(req, null, 2));
+class Answer extends Verb {
+  async run(): Promise<void> {
+    const { sessionId } = this.request;
 
-  await res.answer();
-  await res.play("https://s3.fonoster.io/uuid/hello-world.sln16");
-  await res.hangup();
-});
+    logger.verbose("sending answer request", { sessionId });
+
+    return new Promise((resolve, reject) => {
+      try {
+        this.voice.write({ sessionId });
+        this.voice.on(DATA, (payload) => {
+          const { answerResponse: response } = payload;
+
+          logger.verbose("received answer response", { sessionId });
+
+          if (response?.sessionId === sessionId) {
+            resolve();
+          } else {
+            // TODO: Should be a gRPC error
+            reject(new Error("invalid session id"));
+          }
+        });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+}
+
+export { Answer };

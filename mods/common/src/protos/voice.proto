@@ -48,69 +48,13 @@ message CreateSessionRequest {
   map<string, string> metadata = 9;
 }
 
-// Playback finished event
-message PlaybackFinishedEvent {
-  string playback_id = 1;
-}
-
-// Recording finished event
-message RecordingFinishedEvent {
-  string recording_id = 1;
-}
-
-// DTMF finished event
-message DtmfFinishedEvent {
-  string session_id = 1;
-}
-
-// Session closed event
-message SessionClosedEvent {
-  string session_id = 1;
-}
-
 // Answer command
-message AnswerCommand {
+message AnswerRequest {
   string session_id = 1;
 }
 
-// Hangup command
-message HangupCommand {
+message AnswerResponse {
   string session_id = 1;
-}
-
-// Play command
-message PlayCommand {
-  string session_id = 1;
-  string url = 2;
-}
-
-// Gather command
-message GatherCommand {
-  enum Source {
-    DTMF = 0;
-    SPEECH = 1;
-    DTMF_SPEECH = 2;
-    SPEECH_DTMF = 3;
-  }
-  string session_id = 1;
-  string finish_on_key = 2;
-  int32 num_digits = 3;
-  int32 timeout = 4;
-  Source source = 5;
-}
-
-// Mute command
-message MuteCommand {
-  string session_id = 1;
-  bool mute = 2;
-}
-
-// Dial command
-message DialCommand {
-  string session_id = 1;
-  string destination = 2;
-  string caller_id = 3;
-  string caller_number = 4;
 }
 
 // VoiceInStream is the input stream for the voice service
@@ -118,31 +62,15 @@ message VoiceInStream {
   oneof content {
     // Initial request to create a new session
     CreateSessionRequest request = 1;
-    // Playback finished event
-    PlaybackFinishedEvent playback_finished = 2;
-    // Recording finished event
-    RecordingFinishedEvent recording_finished = 3;
-    // DTMF finished event
-    DtmfFinishedEvent dtmf_finished = 4;
-    // Session closed event
-    SessionClosedEvent session_closed = 5;
+    // Command to accept the call
+    AnswerResponse answer_response = 2;
   }
 }
 
 // VoiceOutStream is the output stream for the voice service
 message VoiceOutStream {
   oneof content {
-    // Command to accept the call
-    AnswerCommand answer_command = 2;
-    // Command to play an audio file
-    PlayCommand play_command = 3;
-    // Command to hangup the call
-    HangupCommand hangup_command = 4;
-    // Command to gather DTMF or speech
-    GatherCommand gather_command = 5;
-    // Command to mute or unmute the call
-    MuteCommand mute_command = 6;
-    // Command to dial a number
-    DialCommand dial_command = 7;
+    // Request to accept the call
+    AnswerRequest answer_request = 1;
   }
 }
