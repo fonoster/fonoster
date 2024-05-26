@@ -127,13 +127,13 @@ message VoiceInStream {
     // Q: Why not just use bytes chunk = 2?
     AudioChunk audio_chunk = 2;
     // Playback finished event
-    PlaybackFinished playback_finished = 3;
+    PlaybackFinishedEvent playback_finished = 3;
     // Recording finished event
-    RecordingFinished recording_finished = 4;
+    RecordingFinishedEvent recording_finished = 4;
     // DTMF finished event
-    DTMFFinished dtmf_finished = 5;
+    DtmfFinishedEvent dtmf_finished = 5;
     // Session closed event
-    SessionClosed session_closed = 6;
+    SessionClosedEvent session_closed = 6;
   }
 }
 
