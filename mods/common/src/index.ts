@@ -21,3 +21,4 @@ export * from "./notifications";
 export * from "./errors";
 export * from "./constants";
 export * from "./grpcStatusMap";
+export * from "./types";

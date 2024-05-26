@@ -1,5 +1,3 @@
-import { RecordingFinishedEvent } from "./ari";
-
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,17 +16,8 @@ import { RecordingFinishedEvent } from "./ari";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type VoiceClientConfig = {
-  appRef: string;
-  accessKeyId: string;
-  endpoint: string;
-  ingressNumber: string;
-  callerId: string;
-  callerNumber: string;
-  sessionId: string;
-  sessionToken: string;
-  metadata: Record<string, string>;
-};
+import { VoiceClientConfig } from "@fonoster/common";
+import { RecordingFinishedEvent } from "./ari";
 
 type Recording = RecordingFinishedEvent["recording"];
 

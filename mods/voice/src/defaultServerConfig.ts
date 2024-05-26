@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,7 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import VoiceServer from "./VoiceServer";
+import os from "os";
+import { ServerConfig } from "./types";
 
-export default VoiceServer;
-export * from "./types";
+const defaultServerConfig: ServerConfig = {
+  base: "/",
+  port: 50061,
+  bind: "0.0.0.0",
+  pathToFiles: os.tmpdir()
+};
+
+export { defaultServerConfig };

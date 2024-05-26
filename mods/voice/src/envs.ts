@@ -16,9 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const e = process.env;
-
-const BIND_ADDR = e.BIND_ADDR || "0.0.0.0:50061";
 const IDENTITY_PUBLIC_KEY = "";
 
-export { BIND_ADDR, IDENTITY_PUBLIC_KEY };
+export { IDENTITY_PUBLIC_KEY };

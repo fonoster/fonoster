@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,7 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import VoiceServer from "./VoiceServer";
+type VoiceClientConfig = {
+  appRef: string;
+  accessKeyId: string;
+  endpoint: string;
+  ingressNumber: string;
+  callerId: string;
+  callerNumber: string;
+  sessionId: string;
+  sessionToken: string;
+  metadata: Record<string, string>;
+};
 
-export default VoiceServer;
-export * from "./types";
+export { VoiceClientConfig };

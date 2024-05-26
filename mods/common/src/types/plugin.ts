@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,7 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import VoiceServer from "./VoiceServer";
+abstract class Plugin {
+  type: string;
+  name: string;
+  // FIXME: The type should be an enum
+  constructor(type: string, name: string) {
+    this.name = name;
+    this.type = type;
+  }
 
-export default VoiceServer;
-export * from "./types";
+  getType() {
+    return this.type;
+  }
+}
+
+export { Plugin };

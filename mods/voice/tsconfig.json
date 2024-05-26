@@ -6,6 +6,9 @@
   },
   "references": [
     {
+      "path": "../identity",
+    },
+    {
       "path": "../logger",
     },
     {

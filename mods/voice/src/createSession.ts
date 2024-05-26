@@ -17,21 +17,43 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { VoiceRequest } from "./types";
+import {
+  DATA,
+  END,
+  ERROR,
+  PluginsObject,
+  VoiceHandler,
+  VoiceSessionStream
+} from "./types";
 import { VoiceResponse } from "./VoiceResponse";
-import { VoiceServer } from "./VoiceServer";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-const serverConfig = {
-  pathToFiles: `${process.cwd()}/sounds`
-};
+function createSession(handler: VoiceHandler, plugins: PluginsObject) {
+  return (voice: VoiceSessionStream) => {
+    voice.on(DATA, (params) => {
+      const { request } = params;
 
-new VoiceServer(serverConfig).listen(
-  async (req: VoiceRequest, res: VoiceResponse) => {
-    logger.verbose(req);
-    await res.answer();
-    await res.play(`sound:${req.endpoint}/sounds/hello-world.sln16`);
-    // await res.hangup();
-  }
-);
+      if (params.request) {
+        const response = new VoiceResponse({
+          voice,
+          request,
+          plugins
+        });
+
+        handler(request, response);
+      }
+    });
+
+    voice.on(END, () => {
+      logger.info("stream ended");
+      voice.end();
+    });
+
+    voice.on(ERROR, (error) => {
+      logger.error("stream error", error);
+    });
+  };
+}
+
+export { createSession };
