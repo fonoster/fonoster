@@ -19,7 +19,7 @@
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest } from "./types";
 import { VoiceResponse } from "./VoiceResponse";
-import { VoiceServer } from "./VoiceServer";
+import VoiceServer from "./VoiceServer";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
