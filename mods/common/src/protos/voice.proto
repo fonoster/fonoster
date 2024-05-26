@@ -29,7 +29,7 @@ service Voice {
 message CreateSessionRequest {
   // The account making the request on behalf of the caller
   string access_key_id = 1;
-  // Optional reference to an application living in the platform
+  // Reference to an application living in the platform
   string app_ref = 2;
   // gRPC endpoint for the voice service
   string endpoint = 3;

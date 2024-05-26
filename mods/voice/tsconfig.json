@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [
+    {
+      "path": "../logger",
+    },
+    {
+      "path": "../common",
+    }
+  ],
+  "exclude": ["node_modules", "dist", "test"]
+}

@@ -32,10 +32,5 @@
     "fluent-logger": "^3.4.1",
     "winston": "^3.13.0"
   },
-  "devDependencies": {
-    "@types/node": "^18.15.11",
-    "rimraf": "^3.0.2",
-    "typescript": "^4.1.3"
-  },
   "gitHead": "a7f9f9412e4fb9b32fb502932fd6098aa173c279"
 }

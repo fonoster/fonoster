@@ -30,10 +30,7 @@ type FonosterService = {
   handlers: grpc.UntypedServiceImplementation;
 };
 
-async function loadServices(
-  server: grpc.Server,
-  services: FonosterService[] = []
-) {
+async function loadServices(server: grpc.Server, services: FonosterService[]) {
   services.forEach((service) => {
     const serviceDefinition = createServiceDefiniton(service.definition);
     const { serviceName, pckg, version } = service.definition;

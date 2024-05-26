@@ -1,7 +1,7 @@
 {
-  "name": "@fonoster/common",
+  "name": "@fonoster/voice",
   "version": "0.6.0",
-  "description": "Common library for Fonoster projects",
+  "description": "Voice Server for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
@@ -14,16 +14,18 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "postbuild": "cp -a src/protos dist && node ../../.scripts/copy-hbs.js",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
+  "bin": {
+    "fonoster": "./dist/index.js"
+  },
   "dependencies": {
+    "@fonoster/common": "^0.6.0",
+    "@fonoster/identity": "^0.6.0",
     "@fonoster/logger": "^0.6.0",
     "@grpc/grpc-js": "^1.10.6",
-    "@grpc/proto-loader": "^0.7.12",
     "grpc-health-check": "^2.0.2",
-    "handlebars": "^4.7.8",
-    "nodemailer": "^6.9.13"
+    "zod": "^3.23.4"
   },
   "files": [
     "dist"
@@ -37,8 +39,5 @@
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
-  },
-  "devDependencies": {
-    "@types/nodemailer": "^6.4.14"
   }
 }

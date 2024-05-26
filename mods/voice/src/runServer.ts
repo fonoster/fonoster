@@ -25,52 +25,30 @@ import { createAuthInterceptor } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
-import { allowList } from "./allowList";
-import { createCreateCallSubscriber as runCallManager } from "./calls/runCallManager";
-import {
-  APISERVER_BIND_ADDR,
-  ASTERISK_ARI_PROXY_URL,
-  ASTERISK_ARI_SECRET,
-  ASTERISK_ARI_USERNAME,
-  IDENTITY_PUBLIC_KEY,
-  NATS_URL
-} from "./envs";
-import loadServices from "./loadServices";
-import services from "./services";
-import { connectToAri } from "./voice/connectToAri";
+import { BIND_ADDR, IDENTITY_PUBLIC_KEY } from "./envs";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const logger = getLogger({ service: "voice", filePath: __filename });
 
-const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, allowList);
+// const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, [
+//   "/grpc.health.v1.Health/Check"
+// ]);
 
-async function runServices() {
+async function runServer() {
   const healthImpl = new HealthImplementation(statusMap);
   const credentials = await getServerCredentials({});
-  const server = new grpc.Server({
-    interceptors: [authorization]
-  });
+  // const server = new grpc.Server({
+  //   interceptors: [authorization]
+  // });
+
+  const server = new grpc.Server();
 
   // Add the health check service to the server
   healthImpl.addToServer(server);
 
-  // Load the remaining services
-  loadServices(server, await services);
-
-  // Connecting to Asterisk ARI
-  await connectToAri();
-
-  // Additional Call Managers subscriber may be added here to handle call events
-  await runCallManager({
-    natsUrl: NATS_URL,
-    ariProxyUrl: ASTERISK_ARI_PROXY_URL,
-    ariUsername: ASTERISK_ARI_USERNAME,
-    ariPassword: ASTERISK_ARI_SECRET
-  });
-
-  server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
+  server.bindAsync(BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);
-    logger.info(`apiserver running at ${APISERVER_BIND_ADDR}`);
+    logger.info(`voice server running at ${BIND_ADDR}`);
   });
 }
 
-export default runServices;
+export { runServer };

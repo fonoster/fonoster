@@ -16,9 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./assertEnvsAreSet";
-export * from "./assertFileExists";
-export * from "./createService";
-export * from "./createInterceptingCall";
-export * from "./datesMapper";
-export * from "./getServerCredentials";
+import { ServingStatus } from "grpc-health-check";
+
+export const GRPC_SERVING_STATUS = "SERVING" as ServingStatus;
+export const GRPC_NOT_SERVING_STATUS = "NOT_SERVING" as ServingStatus;

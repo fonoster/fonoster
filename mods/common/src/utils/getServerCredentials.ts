@@ -20,7 +20,7 @@ import * as fs from "fs";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
+const logger = getLogger({ service: "common", filePath: __filename });
 
 type CredentialsConfig = {
   tlsOn?: boolean;
@@ -56,4 +56,4 @@ async function getServerCredentials(config: CredentialsConfig) {
   return grpc.ServerCredentials.createInsecure();
 }
 
-export { getServerCredentials as default, CredentialsConfig };
+export { getServerCredentials, CredentialsConfig };

@@ -20,7 +20,6 @@ import fs from "fs";
 import { join } from "path";
 import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
 import dotenv from "dotenv";
-import { ServingStatus } from "grpc-health-check";
 
 if (process.env.NODE_ENV === "dev") {
   dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
@@ -110,8 +109,6 @@ export const ROUTR_DEFAULT_PEER_AOR =
 export const ROUTR_DEFAULT_PEER_PASSWORD =
   e.ROUTR_DEFAULT_PEER_PASSWORD || "changeme";
 export const APISERVER_BIND_ADDR = "0.0.0.0:50051";
-export const GRPC_SERVING_STATUS = "SERVING" as ServingStatus;
-export const GRPC_NOT_SERVING_STATUS = "NOT_SERVING" as ServingStatus;
 export const NATS_URL = e.NATS_URL;
 export const DEFAULT_NATS_QUEUE_GROUP = "apiserver";
 export const CALLS_CREATE_SUBJECT = "calls.create";

@@ -16,9 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./assertEnvsAreSet";
-export * from "./assertFileExists";
-export * from "./createService";
-export * from "./createInterceptingCall";
-export * from "./datesMapper";
-export * from "./getServerCredentials";
+const allowList = [
+  "/grpc.health.v1.Health/Check",
+  "/fonoster.identity.v1beta2.Identity/CreateUser",
+  "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
+  "/fonoster.identity.v1beta2.Identity/ExchangeApiKey",
+  "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",
+  "/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken"
+];
+
+export { allowList };

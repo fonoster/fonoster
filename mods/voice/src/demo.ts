@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./assertEnvsAreSet";
-export * from "./assertFileExists";
-export * from "./createService";
-export * from "./createInterceptingCall";
-export * from "./datesMapper";
-export * from "./getServerCredentials";
+import { getLogger } from "@fonoster/logger";
+import { runServer } from "./runServer";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
+
+runServer().catch(logger.error);
