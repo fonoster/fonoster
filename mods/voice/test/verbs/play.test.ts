@@ -20,6 +20,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
+import { PlayRequest } from "../../src/verbs/types";
 import { getVoiceObject, sessionId, voiceRequest } from "../helpers";
 
 chai.use(chaiAsPromised);
@@ -61,7 +62,7 @@ describe("@voice/verbs/play", function () {
     const play = new Play(voiceRequest, voice);
 
     // Act
-    const promise = play.run({ invalid: "data" } as any);
+    const promise = play.run({ invalid: "data" } as unknown as PlayRequest);
 
     // Assert
     // eslint-disable-next-line prettier/prettier

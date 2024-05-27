@@ -20,7 +20,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { MuteDirection } from "../../src/verbs/types";
+import { MuteDirection, MuteRequest } from "../../src/verbs/types";
 import { getVoiceObject, sessionId, voiceRequest } from "../helpers";
 
 chai.use(chaiAsPromised);
@@ -62,7 +62,7 @@ describe("@voice/verbs/mute", function () {
     const mute = new Mute(voiceRequest, voice);
 
     // Act
-    const promise = mute.run({ direction: "south" } as any);
+    const promise = mute.run({ direction: "south" } as unknown as MuteRequest);
 
     // Assert
     // eslint-disable-next-line prettier/prettier

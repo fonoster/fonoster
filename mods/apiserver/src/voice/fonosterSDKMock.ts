@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,10 +18,10 @@
  * limitations under the License.
  */
 const fonosterSDKMock = {
-  createAppToken: async (appRef: string) => {
+  createAppToken: async (_appRef: string) => {
     return "fakeToken";
   },
-  getApp: async (appRef: string) => {
+  getApp: async (_appRef: string) => {
     return {
       ref: "fakeRef",
       accessKeyId: "WO00000000000000000000000000000000",

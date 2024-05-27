@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getLogger } from "@fonoster/logger";
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
 
 type InfluxDbPub = {
@@ -30,6 +31,8 @@ type FonosterEvent = {
   tag: string;
   data: Record<string, string>;
 };
+
+const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function createInfluxDbPub(config) {
   const { url, token, org, bucket } = config;
@@ -56,8 +59,7 @@ function createInfluxDbPub(config) {
       writeClient.writePoint(point);
       writeClient.flush();
     } catch (error) {
-      // FIXME: Use logger
-      console.error("Error writing to InfluxDB:", error);
+      logger.error("error writing to InfluxDB:", error);
     }
   };
 }
