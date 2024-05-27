@@ -25,7 +25,7 @@ type VoiceClientConfig = {
   callerNumber: string;
   sessionId: string;
   sessionToken: string;
-  metadata: Record<string, string>;
+  metadata?: Record<string, string>;
 };
 
 export { VoiceClientConfig };

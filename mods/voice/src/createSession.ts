@@ -16,33 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
-import { DATA, END, ERROR, VoiceHandler, VoiceSessionStream } from "./types";
+import { DATA, VoiceHandler, VoiceSessionStream } from "./types";
 import { VoiceResponse } from "./VoiceResponse";
 
-const logger = getLogger({ service: "voice", filePath: __filename });
-
 function createSession(handler: VoiceHandler) {
-  return (voice: VoiceSessionStream) => {
-    voice.on(DATA, (params) => {
-      const { request } = params;
+  return (voice: VoiceSessionStream) =>
+    new Promise((resolve) => {
+      voice.on(DATA, async (params) => {
+        const { request } = params;
 
-      if (params.request) {
-        const response = new VoiceResponse(request, voice);
+        if (params.request) {
+          const response = new VoiceResponse(request, voice);
 
-        handler(request, response);
-      }
+          await handler(request, response);
+
+          resolve({});
+        }
+      });
     });
-
-    voice.on(END, () => {
-      logger.info("stream ended");
-      voice.end();
-    });
-
-    voice.on(ERROR, (error) => {
-      logger.error("stream error", error);
-    });
-  };
 }
 
 export { createSession };

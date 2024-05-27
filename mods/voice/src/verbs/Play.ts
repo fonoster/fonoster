@@ -22,19 +22,19 @@ import { DATA } from "../types";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-class Answer extends Verb {
-  run(): Promise<void> {
+class Play extends Verb {
+  run(url: string): Promise<void> {
     const { sessionId } = this.request;
     const { voice } = this;
 
-    logger.verbose("sending answer request", { sessionId });
+    logger.verbose("sending play request", { sessionId });
 
     return new Promise((resolve, reject) => {
       try {
-        voice.write({ answerRequest: { sessionId } });
+        voice.write({ playRequest: { url, sessionId } });
 
         const dataListener = () => {
-          logger.verbose("received answer response", { sessionId });
+          logger.verbose("received play response", { sessionId });
 
           resolve();
 
@@ -49,4 +49,4 @@ class Answer extends Verb {
   }
 }
 
-export { Answer };
+export { Play };

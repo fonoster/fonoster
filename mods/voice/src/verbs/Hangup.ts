@@ -22,21 +22,23 @@ import { DATA } from "../types";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-class Answer extends Verb {
+class Hangup extends Verb {
   run(): Promise<void> {
     const { sessionId } = this.request;
     const { voice } = this;
 
-    logger.verbose("sending answer request", { sessionId });
+    logger.verbose("sending hangup request", { sessionId });
 
     return new Promise((resolve, reject) => {
       try {
-        voice.write({ answerRequest: { sessionId } });
+        voice.write({ hangupRequest: { sessionId } });
 
         const dataListener = () => {
-          logger.verbose("received answer response", { sessionId });
+          logger.verbose("received hangup response", { sessionId });
 
           resolve();
+
+          voice.end();
 
           voice.removeListener(DATA, dataListener);
         };
@@ -49,4 +51,4 @@ class Answer extends Verb {
   }
 }
 
-export { Answer };
+export { Hangup };

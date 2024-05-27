@@ -17,3 +17,5 @@
  * limitations under the License.
  */
 export * from "./Answer";
+export * from "./Hangup";
+export * from "./Play";

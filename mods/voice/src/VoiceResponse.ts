@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { VoiceRequest, VoiceSessionStream } from "./types";
-import { Answer } from "./verbs";
+import { Answer, Hangup, Play } from "./verbs";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -76,18 +76,13 @@ class VoiceResponse {
    * }
    */
   async hangup(): Promise<void> {
-    const { sessionId } = this.request;
-    this.voice.write({ hangupCommand: { sessionId } });
+    return new Hangup(this.request, this.voice).run();
   }
 
   /**
    * Play an audio in the channel.
    *
-   * @param {string} media - Sound name or uri with audio file
-   * @param {PlayOptions} options - Optional parameters to alter the command's normal
-   * behavior
-   * @param {string} options.offset - Milliseconds to skip before playing. Only applies to the first URI if multiple media URIs are specified
-   * @param {string} options.skip - Milliseconds to skip for forward/reverse operations
+   * @param {string} url - The URL of the media to play
    * @param {string} options.playbackId - Playback identifier to use in Playback operations
    * @see Playback
    * @example
@@ -97,8 +92,8 @@ class VoiceResponse {
    *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
-  async play(media: string): Promise<void> {
-    // Noop
+  async play(url: string): Promise<void> {
+    return new Play(this.request, this.voice).run(url);
   }
 }
 
