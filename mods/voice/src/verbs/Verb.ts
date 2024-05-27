@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { toCamelCase } from "@fonoster/common";
 import logger from "@fonoster/logger";
 import { z } from "zod";
 import { DATA, VerbRequest, VoiceRequest, VoiceSessionStream } from "./types";
@@ -45,7 +46,7 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
         validateRequest<T>(this.getValidationSchema(), fullRequest);
 
         voice.write({
-          [`${this.constructor.name.toLowerCase()}Request`]: fullRequest
+          [`${toCamelCase(this.constructor.name)}Request`]: fullRequest
         });
 
         const dataListener = () => {

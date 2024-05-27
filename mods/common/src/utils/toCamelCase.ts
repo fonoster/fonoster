@@ -16,18 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
-import { MuteDirection, MuteRequest } from "./types";
-import { Verb } from "./Verb";
+import { toPascalCase } from "./toPascalCase";
 
-const MuteRequestSchema = z.object({
-  direction: z.enum([MuteDirection.IN, MuteDirection.OUT, MuteDirection.BOTH])
-});
-
-class Mute extends Verb<MuteRequest> {
-  getValidationSchema(): z.Schema {
-    return MuteRequestSchema;
-  }
+function toCamelCase(str: string): string {
+  const pascalCase = toPascalCase(str);
+  return pascalCase.charAt(0).toLowerCase() + pascalCase.slice(1);
 }
 
-export { Mute };
+export { toCamelCase };

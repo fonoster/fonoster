@@ -17,17 +17,15 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { MuteDirection, MuteRequest } from "./types";
+import { PlayDtmfRequest } from "./types";
 import { Verb } from "./Verb";
 
-const MuteRequestSchema = z.object({
-  direction: z.enum([MuteDirection.IN, MuteDirection.OUT, MuteDirection.BOTH])
-});
-
-class Mute extends Verb<MuteRequest> {
+class PlayDtmf extends Verb<PlayDtmfRequest> {
   getValidationSchema(): z.Schema {
-    return MuteRequestSchema;
+    return z.object({
+      digits: z.string().regex(/^[0-9*#]+$/)
+    });
   }
 }
 
-export { Mute };
+export { PlayDtmf };

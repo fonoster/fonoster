@@ -47,12 +47,15 @@ type MuteRequest = VerbRequest & { direction: MuteDirection };
 
 type UnmuteRequest = VerbRequest & { direction: MuteDirection };
 
+type PlayDtmfRequest = VerbRequest & { digits: string };
+
 // TODO: Enforce that one of the responses fields is present
 type VoiceIn = {
   request?: VoiceRequest;
   answerResponse?: VerbResponse;
   hangupResponse?: VerbResponse;
   playResponse?: VerbResponse;
+  playDtmfResponse?: VerbResponse;
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
 };
@@ -62,6 +65,7 @@ type VoiceOut = {
   answerRequest?: VerbRequest;
   hangupRequest?: VerbRequest;
   playRequest?: PlayRequest;
+  playDtmfRequest?: PlayDtmfRequest;
   muteRequest?: MuteRequest;
   unmuteRequest?: UnmuteRequest;
 };
@@ -78,6 +82,7 @@ export {
   VoiceRequest,
   OnEvent,
   PlayRequest,
+  PlayDtmfRequest,
   VerbRequest,
   MuteRequest,
   UnmuteRequest,

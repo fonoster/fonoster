@@ -18,6 +18,7 @@
  */
 import { Answer, Hangup, Play } from "./verbs";
 import { Mute } from "./verbs/Mute";
+import { PlayDtmf } from "./verbs/PlayDtmf";
 import { MuteDirection, VoiceRequest, VoiceSessionStream } from "./verbs/types";
 import { Unmute } from "./verbs/Unmute";
 
@@ -96,6 +97,24 @@ class VoiceResponse {
     return new Play(this.request, this.voice).run({
       sessionId: this.request.sessionId,
       url
+    });
+  }
+
+  /**
+   * Play a series of DTMF digits in the channel.
+   *
+   * @param {string} digits -The DTMF digits to play (0-9, #, or *)
+   * @example
+   *
+   * async function handler (request, response) {
+   *  await response.answer();
+   *  await response.playDtmf("1234");
+   * }
+   */
+  async playDtmf(digits: string): Promise<void> {
+    return new PlayDtmf(this.request, this.voice).run({
+      sessionId: this.request.sessionId,
+      digits
     });
   }
 

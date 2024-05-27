@@ -28,10 +28,6 @@ class Play extends Verb<PlayRequest> {
   getValidationSchema(): z.Schema {
     return PlayRequestSchema;
   }
-
-  async run(req: PlayRequest): Promise<void> {
-    return super.run(req);
-  }
 }
 
 export { Play };

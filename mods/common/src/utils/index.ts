@@ -22,3 +22,5 @@ export * from "./createService";
 export * from "./createInterceptingCall";
 export * from "./datesMapper";
 export * from "./getServerCredentials";
+export * from "./toPascalCase";
+export * from "./toCamelCase";
