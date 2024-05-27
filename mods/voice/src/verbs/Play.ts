@@ -20,13 +20,12 @@ import { z } from "zod";
 import { PlayRequest } from "./types";
 import { Verb } from "./Verb";
 
-const PlayRequestSchema = z.object({
-  url: z.string().url()
-});
-
 class Play extends Verb<PlayRequest> {
   getValidationSchema(): z.Schema {
-    return PlayRequestSchema;
+    return z.object({
+      url: z.string().url(),
+      playbackRef: z.string().optional()
+    });
   }
 }
 

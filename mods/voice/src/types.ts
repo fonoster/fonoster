@@ -26,4 +26,8 @@ type ServerConfig = {
   port?: number;
 };
 
-export { VoiceHandler, VoiceRequest, ServerConfig };
+type PlayOptions = {
+  playbackRef?: string;
+};
+
+export { VoiceHandler, VoiceRequest, ServerConfig, PlayOptions };

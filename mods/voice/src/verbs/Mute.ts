@@ -20,13 +20,15 @@ import { z } from "zod";
 import { MuteDirection, MuteRequest } from "./types";
 import { Verb } from "./Verb";
 
-const MuteRequestSchema = z.object({
-  direction: z.enum([MuteDirection.IN, MuteDirection.OUT, MuteDirection.BOTH])
-});
-
 class Mute extends Verb<MuteRequest> {
   getValidationSchema(): z.Schema {
-    return MuteRequestSchema;
+    return z.object({
+      direction: z.enum([
+        MuteDirection.IN,
+        MuteDirection.OUT,
+        MuteDirection.BOTH
+      ])
+    });
   }
 }
 

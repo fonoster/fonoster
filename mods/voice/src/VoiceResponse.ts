@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { PlayOptions } from "./types";
 import { Answer, Hangup, Play } from "./verbs";
 import { Mute } from "./verbs/Mute";
 import { PlayDtmf } from "./verbs/PlayDtmf";
@@ -84,7 +85,8 @@ class VoiceResponse {
    * Play an audio in the channel.
    *
    * @param {string} url - The URL of the media to play
-   * @param {string} options.playbackId - Playback identifier to use in Playback operations
+   * @param {PlayOptions} options - Options to control the playback
+   * @param {string} options.playbackRef - Playback identifier to use in Playback operations
    * @see Playback
    * @example
    *
@@ -93,8 +95,9 @@ class VoiceResponse {
    *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
-  async play(url: string): Promise<void> {
+  async play(url: string, options?: PlayOptions): Promise<void> {
     return new Play(this.request, this.voice).run({
+      ...options,
       sessionId: this.request.sessionId,
       url
     });
