@@ -16,10 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { z } from "zod";
 import { PlayRequest } from "./types";
 import { Verb } from "./Verb";
 
+const PlayRequestSchema = z.object({
+  url: z.string().url(),
+  sessionId: z.string()
+});
+
 class Play extends Verb<PlayRequest> {
+  getValidationSchema(): z.Schema {
+    return PlayRequestSchema;
+  }
+
   async run(req: PlayRequest): Promise<void> {
     return super.run(req);
   }

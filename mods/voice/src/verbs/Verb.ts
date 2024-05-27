@@ -17,9 +17,11 @@
  * limitations under the License.
  */
 import logger from "@fonoster/logger";
+import { z } from "zod";
 import { DATA, VerbRequest, VoiceRequest, VoiceSessionStream } from "./types";
+import { validateRequest } from "./validateRequest";
 
-class Verb<T extends VerbRequest = VerbRequest> {
+abstract class Verb<T extends VerbRequest = VerbRequest> {
   request: VoiceRequest;
   voice: VoiceSessionStream;
   constructor(request: VoiceRequest, voice: VoiceSessionStream) {
@@ -35,11 +37,15 @@ class Verb<T extends VerbRequest = VerbRequest> {
 
     return new Promise((resolve, reject) => {
       try {
+        const fullRequest = {
+          ...params,
+          sessionId
+        };
+
+        validateRequest<T>(this.getValidationSchema(), fullRequest);
+
         voice.write({
-          [`${this.constructor.name.toLowerCase()}Request`]: {
-            ...params,
-            sessionId
-          }
+          [`${this.constructor.name.toLowerCase()}Request`]: fullRequest
         });
 
         const dataListener = () => {
@@ -56,6 +62,8 @@ class Verb<T extends VerbRequest = VerbRequest> {
       }
     });
   }
+
+  abstract getValidationSchema(): z.Schema;
 }
 
 export { Verb };

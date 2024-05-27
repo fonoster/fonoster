@@ -17,12 +17,14 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { Verb } from "./Verb";
+import { fromError } from "zod-validation-error";
 
-class Hangup extends Verb {
-  getValidationSchema(): z.Schema {
-    return z.object({});
+export function validateRequest<T>(schema: z.Schema<T>, data: unknown): T {
+  const parsedData = schema.safeParse(data);
+
+  if (!parsedData.success) {
+    throw fromError(parsedData.error);
   }
-}
 
-export { Hangup };
+  return parsedData.data;
+}

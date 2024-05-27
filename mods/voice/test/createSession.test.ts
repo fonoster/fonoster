@@ -20,6 +20,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
+import { sessionId, voiceRequest } from "./helpers";
 import { VoiceRequest } from "../src/types";
 import { DATA } from "../src/verbs/types";
 import { VoiceResponse } from "../src/VoiceResponse";
@@ -35,19 +36,6 @@ describe("@voice/createSession", function () {
 
   it("should create a session", async function () {
     // Arrange
-    const sessionId = "00000000-0000-0000-0000-000000000000";
-    const voiceRequest: VoiceRequest = {
-      appRef: "3861b08b-1602-45e4-b523-dc3036ba85e7",
-      sessionId,
-      accessKeyId: "WO00000000000000000000000000000000",
-      endpoint: "localhost:50061",
-      ingressNumber: "+1234567890",
-      callerId: "John Doe",
-      callerNumber: "+14345551234",
-      sessionToken: "jwt-token",
-      metadata: {}
-    };
-
     const onStub = sandbox
       .stub()
       .onFirstCall()
