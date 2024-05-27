@@ -17,21 +17,21 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { PlayRequest } from "./types";
+import { MuteDirection, MuteRequest } from "./types";
 import { Verb } from "./Verb";
 
-const PlayRequestSchema = z.object({
-  url: z.string().url()
+const MuteRequestSchema = z.object({
+  direction: z.enum([MuteDirection.IN, MuteDirection.OUT, MuteDirection.BOTH])
 });
 
-class Play extends Verb<PlayRequest> {
+class Mute extends Verb<MuteRequest> {
   getValidationSchema(): z.Schema {
-    return PlayRequestSchema;
+    return MuteRequestSchema;
   }
 
-  async run(req: PlayRequest): Promise<void> {
+  async run(req: MuteRequest): Promise<void> {
     return super.run(req);
   }
 }
 
-export { Play };
+export { Mute };

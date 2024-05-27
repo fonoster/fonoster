@@ -16,22 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
-import { PlayRequest } from "./types";
-import { Verb } from "./Verb";
+import { Mute } from "./Mute";
 
-const PlayRequestSchema = z.object({
-  url: z.string().url()
-});
+// Shares everything with Mute except the class name
+class Unmute extends Mute {}
 
-class Play extends Verb<PlayRequest> {
-  getValidationSchema(): z.Schema {
-    return PlayRequestSchema;
-  }
-
-  async run(req: PlayRequest): Promise<void> {
-    return super.run(req);
-  }
-}
-
-export { Play };
+export { Unmute };

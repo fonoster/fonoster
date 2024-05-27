@@ -22,6 +22,12 @@ const DATA = "data" as const;
 const END = "end" as const;
 const ERROR = "error" as const;
 
+enum MuteDirection {
+  IN = "IN",
+  OUT = "OUT",
+  BOTH = "BOTH"
+}
+
 type OnEvent = typeof DATA | typeof END | typeof ERROR;
 
 // Alias for VoiceClientConfig
@@ -37,12 +43,18 @@ type VerbResponse = {
 
 type PlayRequest = VerbRequest & { url: string };
 
+type MuteRequest = VerbRequest & { direction: MuteDirection };
+
+type UnmuteRequest = VerbRequest & { direction: MuteDirection };
+
 // TODO: Enforce that one of the responses fields is present
 type VoiceIn = {
   request?: VoiceRequest;
   answerResponse?: VerbResponse;
   hangupResponse?: VerbResponse;
   playResponse?: VerbResponse;
+  muteResponse?: VerbResponse;
+  unmuteResponse?: VerbResponse;
 };
 
 // TODO: Enforce that one of the requests fields is present
@@ -50,6 +62,8 @@ type VoiceOut = {
   answerRequest?: VerbRequest;
   hangupRequest?: VerbRequest;
   playRequest?: PlayRequest;
+  muteRequest?: MuteRequest;
+  unmuteRequest?: UnmuteRequest;
 };
 
 type VoiceSessionStream = {
@@ -65,6 +79,9 @@ export {
   OnEvent,
   PlayRequest,
   VerbRequest,
+  MuteRequest,
+  UnmuteRequest,
+  MuteDirection,
   DATA,
   END,
   ERROR

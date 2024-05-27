@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import { Answer, Hangup, Play } from "./verbs";
-import { VoiceRequest, VoiceSessionStream } from "./verbs/types";
+import { Mute } from "./verbs/Mute";
+import { MuteDirection, VoiceRequest, VoiceSessionStream } from "./verbs/types";
+import { Unmute } from "./verbs/Unmute";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -55,7 +57,6 @@ class VoiceResponse {
   /**
    * Answer the communication channel. Before running any other verb you
    * must run the anwer command.
-   *
    * @example
    *
    * async function handler (request, response) {
@@ -68,7 +69,6 @@ class VoiceResponse {
 
   /**
    * Hangup the communication channel.
-   *
    * @example
    *
    * async function handler (request, response) {
@@ -96,6 +96,44 @@ class VoiceResponse {
     return new Play(this.request, this.voice).run({
       sessionId: this.request.sessionId,
       url
+    });
+  }
+
+  /**
+   * Mutes a channel.
+   *
+   * @param {MuteDirection} direction - The direction to mute the channel (IN, OUT, BOTH). Default is BOTH
+   * @see unmute
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.answer();
+   *   await response.mute();       // Will mute both directions
+   * }
+   */
+  async mute(direction: MuteDirection = MuteDirection.BOTH): Promise<void> {
+    return new Mute(this.request, this.voice).run({
+      sessionId: this.request.sessionId,
+      direction
+    });
+  }
+
+  /**
+   * Unmutes a channel.
+   *
+   * @param {MuteDirection} direction - The direction to unmute the channel (IN, OUT, BOTH). Default is BOTH
+   * @see mute
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.answer();
+   *   await response.unmute();     // Will unmute both directions
+   * }
+   */
+  async unmute(direction: MuteDirection = MuteDirection.BOTH): Promise<void> {
+    return new Unmute(this.request, this.voice).run({
+      sessionId: this.request.sessionId,
+      direction
     });
   }
 }

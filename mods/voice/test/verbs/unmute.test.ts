@@ -20,27 +20,29 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
+import { MuteDirection } from "../../src/verbs/types";
 import { getVoiceObject, sessionId, voiceRequest } from "../helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@voice/verbs/play", function () {
+describe("@voice/verbs/unmute", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should play an audio", async function () {
+  // Only test neeed as it shares everything with Mute
+  it("should unmute a channel", async function () {
     // Arrange
-    const { Play } = await import("../../src/verbs/Play");
+    const { Unmute } = await import("../../src/verbs/Unmute");
 
     const voice = getVoiceObject(sandbox);
 
-    const play = new Play(voiceRequest, voice);
+    const unmute = new Unmute(voiceRequest, voice);
 
     // Act
-    await play.run({ sessionId, url: "http://example.com/audio.mp3" });
+    await unmute.run({ sessionId, direction: MuteDirection.IN });
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -48,23 +50,7 @@ describe("@voice/verbs/play", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      playRequest: { sessionId, url: "http://example.com/audio.mp3" }
+      unmuteRequest: { sessionId, direction: MuteDirection.IN }
     });
-  });
-
-  it("should throw an error if the request is invalid", async function () {
-    // Arrange
-    const { Play } = await import("../../src/verbs/Play");
-
-    const voice = getVoiceObject(sandbox);
-
-    const play = new Play(voiceRequest, voice);
-
-    // Act
-    const promise = play.run({ invalid: "data" } as any);
-
-    // Assert
-    // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Validation error: Required at \"url\"");
   });
 });
