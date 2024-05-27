@@ -20,7 +20,8 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { DATA, VoiceRequest } from "../src/types";
+import { VoiceRequest } from "../src/types";
+import { DATA } from "../src/verbs/types";
 import { VoiceResponse } from "../src/VoiceResponse";
 
 chai.use(chaiAsPromised);

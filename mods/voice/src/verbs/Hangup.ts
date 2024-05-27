@@ -16,39 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
 import { Verb } from "./Verb";
-import { DATA } from "../types";
 
-const logger = getLogger({ service: "voice", filePath: __filename });
-
-class Hangup extends Verb {
-  run(): Promise<void> {
-    const { sessionId } = this.request;
-    const { voice } = this;
-
-    logger.verbose("sending hangup request", { sessionId });
-
-    return new Promise((resolve, reject) => {
-      try {
-        voice.write({ hangupRequest: { sessionId } });
-
-        const dataListener = () => {
-          logger.verbose("received hangup response", { sessionId });
-
-          resolve();
-
-          voice.end();
-
-          voice.removeListener(DATA, dataListener);
-        };
-
-        voice.on(DATA, dataListener);
-      } catch (e) {
-        reject(e);
-      }
-    });
-  }
-}
+class Hangup extends Verb {}
 
 export { Hangup };

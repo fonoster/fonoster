@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest, VoiceSessionStream } from "./types";
 import { Answer, Hangup, Play } from "./verbs";
+import { VoiceRequest, VoiceSessionStream } from "./verbs/types";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -93,7 +93,10 @@ class VoiceResponse {
    * }
    */
   async play(url: string): Promise<void> {
-    return new Play(this.request, this.voice).run(url);
+    return new Play(this.request, this.voice).run({
+      sessionId: this.request.sessionId,
+      url
+    });
   }
 }
 

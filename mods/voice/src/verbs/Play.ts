@@ -16,36 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getLogger } from "@fonoster/logger";
+import { PlayRequest } from "./types";
 import { Verb } from "./Verb";
-import { DATA } from "../types";
 
-const logger = getLogger({ service: "voice", filePath: __filename });
-
-class Play extends Verb {
-  run(url: string): Promise<void> {
-    const { sessionId } = this.request;
-    const { voice } = this;
-
-    logger.verbose("sending play request", { sessionId });
-
-    return new Promise((resolve, reject) => {
-      try {
-        voice.write({ playRequest: { url, sessionId } });
-
-        const dataListener = () => {
-          logger.verbose("received play response", { sessionId });
-
-          resolve();
-
-          voice.removeListener(DATA, dataListener);
-        };
-
-        voice.on(DATA, dataListener);
-      } catch (e) {
-        reject(e);
-      }
-    });
+class Play extends Verb<PlayRequest> {
+  async run(req: PlayRequest): Promise<void> {
+    return super.run(req);
   }
 }
 

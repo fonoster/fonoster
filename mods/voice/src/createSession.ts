@@ -16,21 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DATA, VoiceHandler, VoiceSessionStream } from "./types";
+import { VoiceHandler } from "./types";
+import { DATA, VoiceSessionStream } from "./verbs/types";
 import { VoiceResponse } from "./VoiceResponse";
 
 function createSession(handler: VoiceHandler) {
-  return (voice: VoiceSessionStream) =>
+  return (voice: VoiceSessionStream): Promise<void> =>
     new Promise((resolve) => {
       voice.on(DATA, async (params) => {
         const { request } = params;
 
         if (params.request) {
           const response = new VoiceResponse(request, voice);
-
           await handler(request, response);
-
-          resolve({});
+          resolve();
         }
       });
     });

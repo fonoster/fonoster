@@ -16,14 +16,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest, VoiceSessionStream } from "../types";
+import logger from "@fonoster/logger";
+import { DATA, VerbRequest, VoiceRequest, VoiceSessionStream } from "./types";
 
-class Verb {
+class Verb<T extends VerbRequest = VerbRequest> {
   request: VoiceRequest;
   voice: VoiceSessionStream;
   constructor(request: VoiceRequest, voice: VoiceSessionStream) {
     this.request = request;
     this.voice = voice;
+  }
+
+  async run(params?: T): Promise<void> {
+    const { sessionId } = this.request;
+    const { voice } = this;
+
+    logger.verbose(`sending a ${this.constructor.name} request`, { sessionId });
+
+    return new Promise((resolve, reject) => {
+      try {
+        voice.write({
+          [`${this.constructor.name.toLowerCase()}Request`]: {
+            ...params,
+            sessionId
+          }
+        });
+
+        const dataListener = () => {
+          logger.verbose(`received ${this.constructor.name} response`, {
+            sessionId
+          });
+          resolve();
+          voice.removeListener(DATA, dataListener);
+        };
+
+        voice.on(DATA, dataListener);
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 }
 
