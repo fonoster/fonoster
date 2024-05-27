@@ -98,7 +98,7 @@ class VoiceResponse {
   async play(url: string, options?: PlayOptions): Promise<void> {
     return new Play(this.request, this.voice).run({
       ...options,
-      sessionId: this.request.sessionId,
+      sessionRef: this.request.sessionRef,
       url
     });
   }
@@ -116,7 +116,7 @@ class VoiceResponse {
    */
   async playDtmf(digits: string): Promise<void> {
     return new PlayDtmf(this.request, this.voice).run({
-      sessionId: this.request.sessionId,
+      sessionRef: this.request.sessionRef,
       digits
     });
   }
@@ -135,7 +135,7 @@ class VoiceResponse {
    */
   async mute(direction: MuteDirection = MuteDirection.BOTH): Promise<void> {
     return new Mute(this.request, this.voice).run({
-      sessionId: this.request.sessionId,
+      sessionRef: this.request.sessionRef,
       direction
     });
   }
@@ -154,7 +154,7 @@ class VoiceResponse {
    */
   async unmute(direction: MuteDirection = MuteDirection.BOTH): Promise<void> {
     return new Unmute(this.request, this.voice).run({
-      sessionId: this.request.sessionId,
+      sessionRef: this.request.sessionRef,
       direction
     });
   }

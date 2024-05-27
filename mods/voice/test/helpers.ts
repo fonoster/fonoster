@@ -19,15 +19,15 @@
 import { SinonSandbox } from "sinon";
 import { VoiceRequest } from "../src";
 
-const sessionId = "00000000-0000-0000-0000-000000000000";
+const sessionRef = "00000000-0000-0000-0000-000000000000";
 
 const voiceRequest: VoiceRequest = {
   appRef: "3861b08b-1602-45e4-b523-dc3036ba85e7",
-  sessionId,
+  sessionRef,
   accessKeyId: "WO00000000000000000000000000000000",
   endpoint: "localhost:50061",
   ingressNumber: "+1234567890",
-  callerId: "John Doe",
+  callerName: "John Doe",
   callerNumber: "+14345551234",
   sessionToken: "jwt-token",
   metadata: {}
@@ -46,4 +46,4 @@ function getVoiceObject(sandbox: SinonSandbox) {
   };
 }
 
-export { sessionId, voiceRequest, getVoiceObject };
+export { sessionRef, voiceRequest, getVoiceObject };

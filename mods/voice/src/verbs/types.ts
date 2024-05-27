@@ -34,11 +34,11 @@ type OnEvent = typeof DATA | typeof END | typeof ERROR;
 type VoiceRequest = VoiceClientConfig;
 
 type VerbRequest = {
-  sessionId: string;
+  sessionRef: string;
 };
 
 type VerbResponse = {
-  sessionId: string;
+  sessionRef: string;
 };
 
 type PlayRequest = VerbRequest & { url: string };

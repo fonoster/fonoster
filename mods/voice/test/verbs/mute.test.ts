@@ -21,7 +21,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { MuteDirection, MuteRequest } from "../../src/verbs/types";
-import { getVoiceObject, sessionId, voiceRequest } from "../helpers";
+import { getVoiceObject, sessionRef, voiceRequest } from "../helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -41,7 +41,7 @@ describe("@voice/verbs/mute", function () {
     const mute = new Mute(voiceRequest, voice);
 
     // Act
-    await mute.run({ sessionId, direction: MuteDirection.IN });
+    await mute.run({ sessionRef, direction: MuteDirection.IN });
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -49,7 +49,7 @@ describe("@voice/verbs/mute", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      muteRequest: { sessionId, direction: MuteDirection.IN }
+      muteRequest: { sessionRef, direction: MuteDirection.IN }
     });
   });
 

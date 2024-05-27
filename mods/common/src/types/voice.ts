@@ -21,9 +21,9 @@ type VoiceClientConfig = {
   accessKeyId: string;
   endpoint: string;
   ingressNumber: string;
-  callerId: string;
+  callerName: string;
   callerNumber: string;
-  sessionId: string;
+  sessionRef: string;
   sessionToken: string;
   metadata?: Record<string, string>;
 };

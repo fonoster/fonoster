@@ -42,8 +42,8 @@ function createVoiceClient(sdk: FonosterSDK) {
     event: StasisStartEvent,
     channel: Channel
   ): Promise<VoiceClient> => {
-    const { id: sessionId, caller } = event.channel;
-    const { name: callerId, number: callerNumber } = caller;
+    const { id: sessionRef, caller } = event.channel;
+    const { name: callerName, number: callerNumber } = caller;
 
     const getChannelVar = createGetChannelVar(channel);
 
@@ -59,10 +59,10 @@ function createVoiceClient(sdk: FonosterSDK) {
 
     const config: VoiceClientConfig = {
       appRef,
-      sessionId,
+      sessionRef,
       accessKeyId,
       endpoint,
-      callerId,
+      callerName,
       callerNumber,
       ingressNumber,
       sessionToken,

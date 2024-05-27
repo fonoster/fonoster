@@ -20,7 +20,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { getVoiceObject, sessionId, voiceRequest } from "../helpers";
+import { getVoiceObject, sessionRef, voiceRequest } from "../helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -47,7 +47,7 @@ describe("@voice/verbs/answer", function () {
     expect(voice.on).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      answerRequest: { sessionId }
+      answerRequest: { sessionRef }
     });
   });
 });
