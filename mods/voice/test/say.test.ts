@@ -18,35 +18,42 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { struct } from "pb-util";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
-import { PlayDtmfRequest } from "../src/verbs";
+import { SayRequest } from "../src/verbs";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@voice/verbs/playDtmf", function () {
+describe("@voice/verbs/play", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should play a series of dtmf digits", async function () {
+  it("should play an audio", async function () {
     // Arrange
-    const { PlayDtmf } = await import("../src/verbs/PlayDtmf");
+    const { Say } = await import("../src/verbs");
 
     const voice = getVoiceObject(sandbox);
 
-    const playDtmf = new PlayDtmf(voiceRequest, voice);
+    const say = new Say(voiceRequest, voice);
 
-    const playDtmfRequest: PlayDtmfRequest = {
+    const sayRequest: SayRequest = {
       sessionRef,
-      digits: "123"
+      text: "Hello World",
+      playbackRef: "playback-02",
+      ttsOptions: struct.encode({
+        voice: "en-US-Wavenet-D",
+        pitch: 100,
+        speakingRate: 1
+      })
     };
 
     // Act
-    await playDtmf.run(playDtmfRequest);
+    await say.run(sayRequest);
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -54,25 +61,23 @@ describe("@voice/verbs/playDtmf", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      playDtmfRequest
+      sayRequest
     });
   });
 
   it("should throw an error if the request is invalid", async function () {
     // Arrange
-    const { PlayDtmf } = await import("../src/verbs/PlayDtmf");
+    const { Say } = await import("../src/verbs");
 
     const voice = getVoiceObject(sandbox);
 
-    const playDtmf = new PlayDtmf(voiceRequest, voice);
+    const say = new Say(voiceRequest, voice);
 
     // Act
-    const promise = playDtmf.run({
-      invalid: "data"
-    } as unknown as PlayDtmfRequest);
+    const promise = say.run({ invalid: "data" } as unknown as SayRequest);
 
     // Assert
     // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Validation error: Required at \"digits\"");
+    return expect(promise).to.be.rejectedWith("Validation error: Required at \"text\"");
   });
 });

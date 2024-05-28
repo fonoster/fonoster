@@ -21,7 +21,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
-import { GatherSource } from "../src/verbs";
+import { GatherRequest, GatherSource } from "../src/verbs";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -40,13 +40,15 @@ describe("@voice/verbs/gather", function () {
 
     const gather = new Gather(voiceRequest, voice);
 
-    // Act
-    await gather.run({
+    const gatherRequest: GatherRequest = {
       sessionRef,
       timeout: 10,
       maxDigits: 1,
       source: GatherSource.SPEECH_AND_DTMF
-    });
+    };
+
+    // Act
+    await gather.run(gatherRequest);
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -54,12 +56,7 @@ describe("@voice/verbs/gather", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      gatherRequest: {
-        sessionRef,
-        timeout: 10,
-        maxDigits: 1,
-        source: "SPEECH_AND_DTMF"
-      }
+      gatherRequest
     });
   });
 });

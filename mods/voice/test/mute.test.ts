@@ -34,14 +34,19 @@ describe("@voice/verbs/mute", function () {
 
   it("should mute a channel", async function () {
     // Arrange
-    const { Mute } = await import("../src/verbs/Mute");
+    const { Mute } = await import("../src/verbs");
 
     const voice = getVoiceObject(sandbox);
 
     const mute = new Mute(voiceRequest, voice);
 
+    const muteRequest: MuteRequest = {
+      sessionRef,
+      direction: MuteDirection.IN
+    };
+
     // Act
-    await mute.run({ sessionRef, direction: MuteDirection.IN });
+    await mute.run(muteRequest);
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -49,13 +54,13 @@ describe("@voice/verbs/mute", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      muteRequest: { sessionRef, direction: MuteDirection.IN }
+      muteRequest
     });
   });
 
   it("should throw an error if the request is invalid", async function () {
     // Arrange
-    const { Mute } = await import("../src/verbs/Mute");
+    const { Mute } = await import("../src/verbs");
 
     const voice = getVoiceObject(sandbox);
 

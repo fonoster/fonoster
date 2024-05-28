@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { struct } from "pb-util";
 import {
   Answer,
   DATA,
@@ -30,11 +31,15 @@ import {
   Play,
   PlayDtmf,
   PlayOptions,
+  PlayResponse,
   PlaybackControl,
   PlaybackControlAction,
   SGather,
   SGatherOptions,
   SGatherStream,
+  Say,
+  SayOptions,
+  SayResponse,
   Unmute,
   VerbResponse,
   VoiceRequest,
@@ -117,14 +122,14 @@ class VoiceResponse {
    *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
-  async play(url: string, options?: PlayOptions): Promise<VerbResponse> {
-    await new Play(this.request, this.voice).run({
+  async play(url: string, options?: PlayOptions): Promise<PlayResponse> {
+    const response = await new Play(this.request, this.voice).run({
       ...options,
       sessionRef: this.request.sessionRef,
       url
     });
 
-    return { sessionRef: this.request.sessionRef };
+    return { playbackRef: response.playResponse.playbackRef };
   }
 
   /**
@@ -138,13 +143,11 @@ class VoiceResponse {
    *  await response.playDtmf("1234");
    * }
    */
-  async playDtmf(digits: string): Promise<VerbResponse> {
+  async playDtmf(digits: string): Promise<void> {
     await new PlayDtmf(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       digits
     });
-
-    return { sessionRef: this.request.sessionRef };
   }
 
   /**
@@ -204,6 +207,17 @@ class VoiceResponse {
     });
 
     return response.gatherResponse;
+  }
+
+  async say(text: string, options?: SayOptions): Promise<SayResponse> {
+    const response = await new Say(this.request, this.voice).run({
+      ...options,
+      ttsOptions: struct.encode(options?.ttsOptions),
+      sessionRef: this.request.sessionRef,
+      text
+    });
+
+    return { playbackRef: response.sayResponse.playbackRef };
   }
 
   /**
@@ -289,15 +303,13 @@ class VoiceResponse {
    */
   async mute(
     options: MuteOptions = { direction: MuteDirection.BOTH }
-  ): Promise<VerbResponse> {
+  ): Promise<void> {
     const { direction } = options;
 
     await new Mute(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       direction
     });
-
-    return { sessionRef: this.request.sessionRef };
   }
 
   /**
@@ -315,15 +327,13 @@ class VoiceResponse {
    */
   async unmute(
     options: MuteOptions = { direction: MuteDirection.BOTH }
-  ): Promise<VerbResponse> {
+  ): Promise<void> {
     const { direction } = options;
 
     await new Unmute(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       direction
     });
-
-    return { sessionRef: this.request.sessionRef };
   }
 }
 

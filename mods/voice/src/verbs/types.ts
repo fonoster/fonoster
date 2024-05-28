@@ -18,8 +18,9 @@
  */
 import { GatherRequest, GatherResponse } from "./Gather";
 import { MuteRequest } from "./Mute";
-import { PlayRequest } from "./Play";
+import { PlayRequest, PlayResponse } from "./Play";
 import { PlayDtmfRequest } from "./PlayDtmf";
+import { SayRequest, SayResponse } from "./Say";
 import { SGatherRequest } from "./SGather";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
 
@@ -34,12 +35,13 @@ type VoiceIn = {
   request?: VoiceRequest;
   answerResponse?: VerbResponse;
   hangupResponse?: VerbResponse;
-  playResponse?: VerbResponse;
+  playResponse?: PlayResponse;
   playDtmfResponse?: VerbResponse;
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
   gatherResponse?: GatherResponse;
   sgatherResponse?: GatherResponse;
+  sayResponse?: SayResponse;
 };
 
 // TODO: Enforce that one of the requests fields is present
@@ -52,6 +54,7 @@ type VoiceOut = {
   unmuteRequest?: MuteRequest;
   gatherRequest?: GatherRequest;
   sgatherRequest?: SGatherRequest;
+  sayRequest?: SayRequest;
 };
 
 type VoiceSessionStream = {

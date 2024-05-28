@@ -40,12 +40,14 @@ describe("@voice/verbs/playbackControl", function () {
 
     const playbackControl = new PlaybackControl(voiceRequest, voice);
 
-    // Act
-    await playbackControl.run({
+    const playbackControlRequest: PlaybackControlRequest = {
       sessionRef,
       playbackRef: "playback-01",
       action: PlaybackControlAction.STOP
-    });
+    };
+
+    // Act
+    await playbackControl.run(playbackControlRequest);
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -53,11 +55,7 @@ describe("@voice/verbs/playbackControl", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      playbackControlRequest: {
-        sessionRef,
-        playbackRef: "playback-01",
-        action: PlaybackControlAction.STOP
-      }
+      playbackControlRequest
     });
   });
 

@@ -16,26 +16,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Struct } from "pb-util";
 import { z } from "zod";
 import { Verb, VerbRequest } from "./Verb";
 
-type PlayRequest = VerbRequest & { url: string };
-
-type PlayOptions = {
-  playbackRef?: string;
+type TTSOptions = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 };
 
-type PlayResponse = {
+type SayRequest = VerbRequest & {
+  text: string;
+  playbackRef?: string;
+  ttsOptions?: Struct;
+};
+
+type SayResponse = {
   playbackRef: string;
 };
 
-class Play extends Verb<PlayRequest> {
+type SayOptions = {
+  playbackRef?: string;
+  ttsOptions?: TTSOptions;
+};
+
+class Say extends Verb<SayRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      url: z.string().url(),
+      text: z.string().min(1),
       playbackRef: z.string().optional()
     });
   }
 }
 
-export { Play, PlayRequest, PlayResponse, PlayOptions };
+export { Say, SayRequest, SayResponse, SayOptions, TTSOptions };

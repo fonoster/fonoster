@@ -26,6 +26,7 @@
     "@grpc/grpc-js": "^1.10.6",
     "deepmerge": "^4.3.1",
     "grpc-health-check": "^2.0.2",
+    "pb-util": "^1.0.3",
     "zod": "^3.23.8",
     "zod-validation-error": "^3.3.0"
   },

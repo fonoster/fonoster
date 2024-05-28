@@ -34,14 +34,19 @@ describe("@voice/verbs/play", function () {
 
   it("should play an audio", async function () {
     // Arrange
-    const { Play } = await import("../src/verbs/Play");
+    const { Play } = await import("../src/verbs");
 
     const voice = getVoiceObject(sandbox);
 
     const play = new Play(voiceRequest, voice);
 
+    const playRequest: PlayRequest = {
+      sessionRef,
+      url: "http://example.com/audio.mp3"
+    };
+
     // Act
-    await play.run({ sessionRef, url: "http://example.com/audio.mp3" });
+    await play.run(playRequest);
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -49,13 +54,13 @@ describe("@voice/verbs/play", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      playRequest: { sessionRef, url: "http://example.com/audio.mp3" }
+      playRequest
     });
   });
 
   it("should throw an error if the request is invalid", async function () {
     // Arrange
-    const { Play } = await import("../src/verbs/Play");
+    const { Play } = await import("../src/verbs");
 
     const voice = getVoiceObject(sandbox);
 
