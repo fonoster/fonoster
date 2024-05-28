@@ -144,6 +144,8 @@ message VoiceInStream {
     VerbResponse play_dtmf_response = 7;
     // Response to a gather request
     GatherResponse gather_response = 8;
+    // Response to a sgather request
+    GatherResponse sgather_response = 9; 
   }
 }
 
@@ -164,5 +166,7 @@ message VoiceOutStream {
     PlayDtmfRequest play_dtmf_request = 6;
     // Request to gather speech or DTMF
     GatherRequest gather_request = 7;
+    // Request return a stream of speech or DTMF
+    GatherRequest sgather_request = 8;
   }
 }

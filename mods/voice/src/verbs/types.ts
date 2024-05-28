@@ -77,6 +77,17 @@ type GatherResponse = VerbResponse & {
   digits?: string;
 };
 
+type SGatherOptions = {
+  source: GatherSource;
+};
+
+type SGatherStream = {
+  on: (event: "transcript" | "dtmf", cb: (data: string) => void) => void;
+  close: () => void;
+};
+
+type SGatherRequest = VerbRequest & SGatherOptions;
+
 // TODO: Enforce that one of the responses fields is present
 type VoiceIn = {
   request?: VoiceRequest;
@@ -87,6 +98,7 @@ type VoiceIn = {
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
   gatherResponse?: GatherResponse;
+  sgatherResponse?: GatherResponse;
 };
 
 // TODO: Enforce that one of the requests fields is present
@@ -98,6 +110,7 @@ type VoiceOut = {
   muteRequest?: MuteRequest;
   unmuteRequest?: UnmuteRequest;
   gatherRequest?: GatherRequest;
+  sgatherRequest?: SGatherRequest;
 };
 
 type VoiceSessionStream = {
@@ -114,11 +127,18 @@ export {
   PlayRequest,
   PlayDtmfRequest,
   VerbRequest,
+  VerbResponse,
+  VoiceIn,
+  VoiceOut,
   MuteRequest,
   UnmuteRequest,
   MuteDirection,
   GatherRequest,
+  GatherResponse,
   GatherSource,
+  SGatherRequest,
+  SGatherOptions,
+  SGatherStream,
   PlayOptions,
   GatherOptions,
   MuteOptions,

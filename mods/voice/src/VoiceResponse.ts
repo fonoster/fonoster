@@ -20,12 +20,18 @@ import { Answer, Hangup, Play } from "./verbs";
 import { Gather } from "./verbs/Gather";
 import { Mute } from "./verbs/Mute";
 import { PlayDtmf } from "./verbs/PlayDtmf";
+import { SGather } from "./verbs/SGather";
 import {
+  DATA,
   GatherOptions,
+  GatherResponse,
   GatherSource,
   MuteDirection,
   MuteOptions,
   PlayOptions,
+  SGatherOptions,
+  SGatherStream,
+  VerbResponse,
   VoiceRequest,
   VoiceSessionStream
 } from "./verbs/types";
@@ -73,8 +79,10 @@ class VoiceResponse {
    *   await response.answer();
    * }
    */
-  async answer(): Promise<void> {
-    return new Answer(this.request, this.voice).run();
+  async answer(): Promise<VerbResponse> {
+    await new Answer(this.request, this.voice).run();
+
+    return { sessionRef: this.request.sessionRef };
   }
 
   /**
@@ -85,8 +93,10 @@ class VoiceResponse {
    *  await response.hangup();
    * }
    */
-  async hangup(): Promise<void> {
-    return new Hangup(this.request, this.voice).run();
+  async hangup(): Promise<VerbResponse> {
+    await new Hangup(this.request, this.voice).run();
+
+    return { sessionRef: this.request.sessionRef };
   }
 
   /**
@@ -103,12 +113,14 @@ class VoiceResponse {
    *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
    * }
    */
-  async play(url: string, options?: PlayOptions): Promise<void> {
-    return new Play(this.request, this.voice).run({
+  async play(url: string, options?: PlayOptions): Promise<VerbResponse> {
+    await new Play(this.request, this.voice).run({
       ...options,
       sessionRef: this.request.sessionRef,
       url
     });
+
+    return { sessionRef: this.request.sessionRef };
   }
 
   /**
@@ -122,11 +134,13 @@ class VoiceResponse {
    *  await response.playDtmf("1234");
    * }
    */
-  async playDtmf(digits: string): Promise<void> {
-    return new PlayDtmf(this.request, this.voice).run({
+  async playDtmf(digits: string): Promise<VerbResponse> {
+    await new PlayDtmf(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       digits
     });
+
+    return { sessionRef: this.request.sessionRef };
   }
 
   /**
@@ -150,11 +164,81 @@ class VoiceResponse {
    */
   async gather(
     options: GatherOptions = { source: GatherSource.SPEECH_AND_DTMF }
-  ): Promise<void> {
-    return new Gather(this.request, this.voice).run({
+  ): Promise<GatherResponse> {
+    const response = await new Gather(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       ...options
     });
+
+    return response.gatherResponse;
+  }
+
+  /**
+   * Waits for data entry from the user's keypad or from a stream speech provider. This command is different from `gather`
+   * in that it returns a stream of results instead of a single result. You can think of it as active listening.
+   *
+   * @param {GatherOptions} options - Options object for the SGather verb
+   * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
+   * when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `speech,dtmf`
+   * @return {SGatherStream} The SGatherStream fires events via the `on` method for `transcription`, `dtmf`, and `error`. And the stream can be close
+   * with the `close` function.
+   * @see StreamSpeechProvider
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.answer();
+   *   const stream = await response.sgather({source: "dtmf,speech"});
+   *
+   *   stream.on("transcript", (text, isFinal) => {
+   *      console.log("transcript: %s", text);
+   *   })
+   *
+   *   stream.on("dtmf", digit => {
+   *      console.log("digit: " + digit);
+   *      if (digit === "#") stream.close();
+   *   })
+   * }
+   */
+  async sgather(
+    options: SGatherOptions = { source: GatherSource.SPEECH_AND_DTMF }
+  ): Promise<SGatherStream> {
+    const listeners: {
+      [event: string]: ((data: string) => void)[];
+    } = {
+      transcript: [],
+      dtmf: []
+    };
+
+    await new SGather(this.request, this.voice).run({
+      sessionRef: this.request.sessionRef,
+      ...options
+    });
+
+    this.voice.on(DATA, (result) => {
+      if (result.sgatherResponse?.digits) {
+        listeners.dtmf.forEach((callback) =>
+          callback(result.sgatherResponse.digits)
+        );
+      } else if (result.sgatherResponse?.speech) {
+        listeners.transcript.forEach((callback) =>
+          callback(result.sgatherResponse.speech)
+        );
+      }
+    });
+
+    return {
+      on(event: "transcript" | "dtmf", callback: (data: string) => void) {
+        if (!listeners[event]) {
+          throw new Error(`Invalid event: ${event}`);
+        }
+        listeners[event].push(callback);
+      },
+      close() {
+        listeners.transcript = [];
+        listeners.dtmf = [];
+        listeners.error = [];
+      }
+    };
   }
 
   /**
@@ -172,12 +256,15 @@ class VoiceResponse {
    */
   async mute(
     options: MuteOptions = { direction: MuteDirection.BOTH }
-  ): Promise<void> {
+  ): Promise<VerbResponse> {
     const { direction } = options;
-    return new Mute(this.request, this.voice).run({
+
+    await new Mute(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       direction
     });
+
+    return { sessionRef: this.request.sessionRef };
   }
 
   /**
@@ -195,12 +282,15 @@ class VoiceResponse {
    */
   async unmute(
     options: MuteOptions = { direction: MuteDirection.BOTH }
-  ): Promise<void> {
+  ): Promise<VerbResponse> {
     const { direction } = options;
-    return new Unmute(this.request, this.voice).run({
+
+    await new Unmute(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       direction
     });
+
+    return { sessionRef: this.request.sessionRef };
   }
 }
 

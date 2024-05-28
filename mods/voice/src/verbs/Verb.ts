@@ -19,7 +19,13 @@
 import { toCamelCase } from "@fonoster/common";
 import logger from "@fonoster/logger";
 import { z } from "zod";
-import { DATA, VerbRequest, VoiceRequest, VoiceSessionStream } from "./types";
+import {
+  DATA,
+  VerbRequest,
+  VoiceIn,
+  VoiceRequest,
+  VoiceSessionStream
+} from "./types";
 import { validateRequest } from "./validateRequest";
 
 abstract class Verb<T extends VerbRequest = VerbRequest> {
@@ -30,7 +36,7 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
     this.voice = voice;
   }
 
-  async run(params?: T): Promise<void> {
+  async run(params?: T): Promise<VoiceIn> {
     const { sessionRef } = this.request;
     const { voice } = this;
 
@@ -51,11 +57,11 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
           [`${toCamelCase(this.constructor.name)}Request`]: fullRequest
         });
 
-        const dataListener = () => {
+        const dataListener = (result: VoiceIn) => {
           logger.verbose(`received ${this.constructor.name} response`, {
             sessionRef
           });
-          resolve();
+          resolve(result);
           voice.removeListener(DATA, dataListener);
         };
 
