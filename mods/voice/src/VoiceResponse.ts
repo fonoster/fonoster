@@ -30,6 +30,8 @@ import {
   Play,
   PlayDtmf,
   PlayOptions,
+  PlaybackControl,
+  PlaybackControlAction,
   SGather,
   SGatherOptions,
   SGatherStream,
@@ -140,6 +142,35 @@ class VoiceResponse {
     await new PlayDtmf(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       digits
+    });
+
+    return { sessionRef: this.request.sessionRef };
+  }
+
+  /**
+   * Control the playback of the currently playing media.
+   *
+   * @param {string} playbackRef - The playback identifier
+   * @param {PlaybackControlAction} action - The action to perform (STOP, RESTART, PAUSE, UNPAUSE, FORWARD)
+   * @see play
+   * @example
+   *
+   * async function handler (request, response) {
+   *    await response.answer();
+   *    await response.play("https://s3.fonoster.io/uuid/hello-world.wav", { playbackRef: "playback-01" });
+   *
+   *    // Pause the media
+   *    await response.playbackControl("playback-01", PlaybackControlAction.PAUSE);
+   * }
+   */
+  async playbackControl(
+    playbackRef: string,
+    action: PlaybackControlAction
+  ): Promise<VerbResponse> {
+    await new PlaybackControl(this.request, this.voice).run({
+      sessionRef: this.request.sessionRef,
+      playbackRef,
+      action
     });
 
     return { sessionRef: this.request.sessionRef };

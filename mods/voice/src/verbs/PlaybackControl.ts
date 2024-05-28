@@ -16,15 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./Answer";
-export * from "./Gather";
-export * from "./Hangup";
-export * from "./Mute";
-export * from "./Play";
-export * from "./PlayDtmf";
-export * from "./PlaybackControl";
-export * from "./SGather";
-export * from "./Unmute";
-export * from "./validateRequest";
-export * from "./Verb";
-export * from "./types";
+import { z } from "zod";
+import { Verb, VerbRequest } from "./Verb";
+
+enum PlaybackControlAction {
+  STOP = "STOP",
+  RESTART = "RESTART",
+  PAUSE = "PAUSE",
+  UNPAUSE = "UNPAUSE",
+  FORWARD = "FORWARD"
+}
+
+type PlaybackControlRequest = VerbRequest & {
+  playbackRef: string;
+  action: PlaybackControlAction;
+};
+
+class PlaybackControl extends Verb<PlaybackControlRequest> {
+  getValidationSchema(): z.Schema {
+    return z.object({
+      playbackRef: z.string(),
+      action: z.nativeEnum(PlaybackControlAction)
+    });
+  }
+}
+
+export { PlaybackControl, PlaybackControlRequest, PlaybackControlAction };
