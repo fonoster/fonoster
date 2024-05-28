@@ -16,11 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PlayOptions } from "./types";
 import { Answer, Hangup, Play } from "./verbs";
+import { Gather } from "./verbs/Gather";
 import { Mute } from "./verbs/Mute";
 import { PlayDtmf } from "./verbs/PlayDtmf";
-import { MuteDirection, VoiceRequest, VoiceSessionStream } from "./verbs/types";
+import {
+  GatherOptions,
+  GatherSource,
+  MuteDirection,
+  MuteOptions,
+  PlayOptions,
+  VoiceRequest,
+  VoiceSessionStream
+} from "./verbs/types";
 import { Unmute } from "./verbs/Unmute";
 
 /**
@@ -57,7 +65,7 @@ class VoiceResponse {
   }
 
   /**
-   * Answer the communication channel. Before running any other verb you
+   * Answer the call. Before running any other verb you
    * must run the anwer command.
    * @example
    *
@@ -70,7 +78,7 @@ class VoiceResponse {
   }
 
   /**
-   * Hangup the communication channel.
+   * Hangup the call.
    * @example
    *
    * async function handler (request, response) {
@@ -82,7 +90,7 @@ class VoiceResponse {
   }
 
   /**
-   * Play an audio in the channel.
+   * Play an audio in the call.
    *
    * @param {string} url - The URL of the media to play
    * @param {PlayOptions} options - Options to control the playback
@@ -104,7 +112,7 @@ class VoiceResponse {
   }
 
   /**
-   * Play a series of DTMF digits in the channel.
+   * Play a series of DTMF digits in a call.
    *
    * @param {string} digits -The DTMF digits to play (0-9, #, or *)
    * @example
@@ -122,9 +130,38 @@ class VoiceResponse {
   }
 
   /**
-   * Mutes a channel.
+   * Waits for data entry from the user's keypad or from a speech provider.
    *
-   * @param {MuteDirection} direction - The direction to mute the channel (IN, OUT, BOTH). Default is BOTH
+   * @param {GatherOptions} options - Options to select the maximum number of digits, final character, and timeout
+   * @param {number} options.maxDigits - Maximum number of digits to collect. Defaults to 1
+   * @param {number} options.timeout - Milliseconds to wait before timeout. Defaults to 4000. Use zero for no timeout.
+   * @param {string} options.finishOnKey - Optional last character to wait for. Defaults to '#'. It will not be included in the returned digits
+   * @param {GatherSource} options.source - Where to listen as input source. This option accepts `DTMF` and `SPEECH`. A speech provider must be configure
+   * when including the `SPEECH` source. You might inclue both with `SPEECH_AND_DTMF`. Defaults to `SPEECH_AND_DTMF`
+   * @note When including `SPEECH` the default timeout is 10000 (10s).
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.answer();
+   *   const speech = await response.gather({ source: GatherSource.SPEECH, numDigits: 3 });
+   *   console.log("speech: " + speech);
+   *   await response.hangup();
+   * }
+   */
+  async gather(
+    options: GatherOptions = { source: GatherSource.SPEECH_AND_DTMF }
+  ): Promise<void> {
+    return new Gather(this.request, this.voice).run({
+      sessionRef: this.request.sessionRef,
+      ...options
+    });
+  }
+
+  /**
+   * Mutes a call.
+   *
+   * @param {MuteOptions} options - Options to control the mute operation
+   * @param {MuteDirection} options.direction - The direction to mute the channel (IN, OUT, BOTH). Default is BOTH
    * @see unmute
    * @example
    *
@@ -133,7 +170,10 @@ class VoiceResponse {
    *   await response.mute();       // Will mute both directions
    * }
    */
-  async mute(direction: MuteDirection = MuteDirection.BOTH): Promise<void> {
+  async mute(
+    options: MuteOptions = { direction: MuteDirection.BOTH }
+  ): Promise<void> {
+    const { direction } = options;
     return new Mute(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       direction
@@ -141,9 +181,10 @@ class VoiceResponse {
   }
 
   /**
-   * Unmutes a channel.
+   * Unmutes a call.
    *
-   * @param {MuteDirection} direction - The direction to unmute the channel (IN, OUT, BOTH). Default is BOTH
+   * @param {MuteOptions} options - Options to control the unmute operation
+   * @param {MuteDirection} options.direction - The direction to unmute the call (IN, OUT, BOTH). Default is BOTH
    * @see mute
    * @example
    *
@@ -152,7 +193,10 @@ class VoiceResponse {
    *   await response.unmute();     // Will unmute both directions
    * }
    */
-  async unmute(direction: MuteDirection = MuteDirection.BOTH): Promise<void> {
+  async unmute(
+    options: MuteOptions = { direction: MuteDirection.BOTH }
+  ): Promise<void> {
+    const { direction } = options;
     return new Unmute(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
       direction

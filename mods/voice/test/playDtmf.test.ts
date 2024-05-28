@@ -20,28 +20,28 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { PlayRequest } from "../../src/verbs/types";
-import { getVoiceObject, sessionRef, voiceRequest } from "../helpers";
+import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { PlayDtmfRequest } from "../src/verbs/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@voice/verbs/play", function () {
+describe("@voice/verbs/playDtmf", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should play an audio", async function () {
+  it("should play a series of dtmf digits", async function () {
     // Arrange
-    const { Play } = await import("../../src/verbs/Play");
+    const { PlayDtmf } = await import("../src/verbs/PlayDtmf");
 
     const voice = getVoiceObject(sandbox);
 
-    const play = new Play(voiceRequest, voice);
+    const playDtmf = new PlayDtmf(voiceRequest, voice);
 
     // Act
-    await play.run({ sessionRef, url: "http://example.com/audio.mp3" });
+    await playDtmf.run({ sessionRef, digits: "123" });
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
@@ -49,23 +49,25 @@ describe("@voice/verbs/play", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      playRequest: { sessionRef, url: "http://example.com/audio.mp3" }
+      playDtmfRequest: { sessionRef, digits: "123" }
     });
   });
 
   it("should throw an error if the request is invalid", async function () {
     // Arrange
-    const { Play } = await import("../../src/verbs/Play");
+    const { PlayDtmf } = await import("../src/verbs/PlayDtmf");
 
     const voice = getVoiceObject(sandbox);
 
-    const play = new Play(voiceRequest, voice);
+    const playDtmf = new PlayDtmf(voiceRequest, voice);
 
     // Act
-    const promise = play.run({ invalid: "data" } as unknown as PlayRequest);
+    const promise = playDtmf.run({
+      invalid: "data"
+    } as unknown as PlayDtmfRequest);
 
     // Assert
     // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Validation error: Required at \"url\"");
+    return expect(promise).to.be.rejectedWith("Validation error: Required at \"digits\"");
   });
 });

@@ -20,8 +20,8 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { MuteDirection } from "../../src/verbs/types";
-import { getVoiceObject, sessionRef, voiceRequest } from "../helpers";
+import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { MuteDirection } from "../src/verbs/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -35,7 +35,7 @@ describe("@voice/verbs/unmute", function () {
   // Only test neeed as it shares everything with Mute
   it("should unmute a channel", async function () {
     // Arrange
-    const { Unmute } = await import("../../src/verbs/Unmute");
+    const { Unmute } = await import("../src/verbs/Unmute");
 
     const voice = getVoiceObject(sandbox);
 

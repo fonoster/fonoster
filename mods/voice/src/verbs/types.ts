@@ -28,6 +28,12 @@ enum MuteDirection {
   BOTH = "BOTH"
 }
 
+enum GatherSource {
+  SPEECH = "SPEECH",
+  DTMF = "DTMF",
+  SPEECH_AND_DTMF = "SPEECH_AND_DTMF"
+}
+
 type OnEvent = typeof DATA | typeof END | typeof ERROR;
 
 // Alias for VoiceClientConfig
@@ -49,6 +55,28 @@ type UnmuteRequest = VerbRequest & { direction: MuteDirection };
 
 type PlayDtmfRequest = VerbRequest & { digits: string };
 
+type PlayOptions = {
+  playbackRef?: string;
+};
+
+type GatherOptions = {
+  finishOnKey?: string;
+  maxDigits?: number;
+  timeout?: number;
+  source?: GatherSource;
+};
+
+type MuteOptions = {
+  direction?: MuteDirection;
+};
+
+type GatherRequest = VerbRequest & GatherOptions;
+
+type GatherResponse = VerbResponse & {
+  speech?: string;
+  digits?: string;
+};
+
 // TODO: Enforce that one of the responses fields is present
 type VoiceIn = {
   request?: VoiceRequest;
@@ -58,6 +86,7 @@ type VoiceIn = {
   playDtmfResponse?: VerbResponse;
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
+  gatherResponse?: GatherResponse;
 };
 
 // TODO: Enforce that one of the requests fields is present
@@ -68,6 +97,7 @@ type VoiceOut = {
   playDtmfRequest?: PlayDtmfRequest;
   muteRequest?: MuteRequest;
   unmuteRequest?: UnmuteRequest;
+  gatherRequest?: GatherRequest;
 };
 
 type VoiceSessionStream = {
@@ -87,6 +117,11 @@ export {
   MuteRequest,
   UnmuteRequest,
   MuteDirection,
+  GatherRequest,
+  GatherSource,
+  PlayOptions,
+  GatherOptions,
+  MuteOptions,
   DATA,
   END,
   ERROR

@@ -18,43 +18,48 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
+import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
+import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
+import { GatherSource } from "../src/verbs/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[users/updateUser]", function () {
+describe("@voice/verbs/gather", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it.skip("should upsert the default user", async function () {
+  it("should gather speech or dtmf", async function () {
     // Arrange
-    const user = {
-      ref: "635c0cd8-8125-483d-b467-05c53ce2cd31",
-      name: "Admin",
-      email: "admin@fonoster.local",
-      password: "changeme"
-    };
+    const { Gather } = await import("../src/verbs/Gather");
+
+    const voice = getVoiceObject(sandbox);
+
+    const gather = new Gather(voiceRequest, voice);
 
     // Act
-    const { upsertDefaultUser } = await import(
-      "../../src/users/upsertDefaultUser"
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { prisma } = require("../../src/db");
-
-    const prismaStub = sandbox.stub(prisma, "user").returns({
-      upsert: sandbox.stub().returns(user)
+    await gather.run({
+      sessionRef,
+      timeout: 10,
+      maxDigits: 1,
+      source: GatherSource.SPEECH_AND_DTMF
     });
 
-    const response = await upsertDefaultUser(user);
-
     // Assert
-    expect(response).to.deep.equal(user);
-    expect(prismaStub).to.have.been.calledOnce;
+    expect(voice.removeListener).to.have.been.calledOnce;
+    expect(voice.on).to.have.been.calledOnce;
+    expect(voice.on).to.have.been.calledWith("data", match.func);
+    expect(voice.write).to.have.been.calledOnce;
+    expect(voice.write).to.have.been.calledWith({
+      gatherRequest: {
+        sessionRef,
+        timeout: 10,
+        maxDigits: 1,
+        source: "SPEECH_AND_DTMF"
+      }
+    });
   });
 });

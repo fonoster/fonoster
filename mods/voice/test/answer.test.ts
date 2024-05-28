@@ -18,54 +18,36 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox, match } from "sinon";
+import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { MuteDirection, MuteRequest } from "../../src/verbs/types";
-import { getVoiceObject, sessionRef, voiceRequest } from "../helpers";
+import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@voice/verbs/mute", function () {
+describe("@voice/verbs/answer", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should mute a channel", async function () {
+  it("should anwser a call", async function () {
     // Arrange
-    const { Mute } = await import("../../src/verbs/Mute");
-
     const voice = getVoiceObject(sandbox);
 
-    const mute = new Mute(voiceRequest, voice);
+    const { Answer } = await import("../src/verbs/Answer");
+
+    const answer = new Answer(voiceRequest, voice);
 
     // Act
-    await mute.run({ sessionRef, direction: MuteDirection.IN });
+    await answer.run();
 
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
     expect(voice.on).to.have.been.calledOnce;
-    expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      muteRequest: { sessionRef, direction: MuteDirection.IN }
+      answerRequest: { sessionRef }
     });
-  });
-
-  it("should throw an error if the request is invalid", async function () {
-    // Arrange
-    const { Mute } = await import("../../src/verbs/Mute");
-
-    const voice = getVoiceObject(sandbox);
-
-    const mute = new Mute(voiceRequest, voice);
-
-    // Act
-    const promise = mute.run({ direction: "south" } as unknown as MuteRequest);
-
-    // Assert
-    // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Invalid enum value. Expected 'IN' | 'OUT' | 'BOTH', received 'south' at \"direction\"");
   });
 });

@@ -16,14 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest } from "./verbs/types";
-import { VoiceResponse } from "./VoiceResponse";
+import { z } from "zod";
+import { GatherRequest, GatherSource } from "./types";
+import { Verb } from "./Verb";
 
-type VoiceHandler = (req: VoiceRequest, res: VoiceResponse) => Promise<void>;
+class Gather extends Verb<GatherRequest> {
+  getValidationSchema(): z.Schema {
+    return z.object({
+      source: z
+        .enum([
+          GatherSource.SPEECH,
+          GatherSource.DTMF,
+          GatherSource.SPEECH_AND_DTMF
+        ])
+        .optional(),
+      finishOnKey: z
+        .string()
+        .regex(/^[0-9*#]+$/)
+        .length(1)
+        .optional(),
+      timeout: z.number().int().positive().optional(),
+      maxDigits: z.number().int().positive().optional()
+    });
+  }
+}
 
-type ServerConfig = {
-  bind?: string;
-  port?: number;
-};
-
-export { VoiceHandler, VoiceRequest, ServerConfig };
+export { Gather };
