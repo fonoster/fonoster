@@ -17,5 +17,13 @@
  * limitations under the License.
  */
 export * from "./Answer";
+export * from "./Gather";
 export * from "./Hangup";
+export * from "./Mute";
 export * from "./Play";
+export * from "./PlayDtmf";
+export * from "./SGather";
+export * from "./Unmute";
+export * from "./validateRequest";
+export * from "./Verb";
+export * from "./types";

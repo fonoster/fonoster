@@ -21,7 +21,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
-import { GatherSource } from "../src/verbs/types";
+import { GatherSource } from "../src/verbs";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -34,7 +34,7 @@ describe("@voice/verbs/gather", function () {
 
   it("should gather speech or dtmf", async function () {
     // Arrange
-    const { Gather } = await import("../src/verbs/Gather");
+    const { Gather } = await import("../src/verbs");
 
     const voice = getVoiceObject(sandbox);
 

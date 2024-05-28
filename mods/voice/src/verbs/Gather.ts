@@ -17,8 +17,27 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { GatherRequest, GatherSource } from "./types";
-import { Verb } from "./Verb";
+import { Verb, VerbRequest, VerbResponse } from "./Verb";
+
+enum GatherSource {
+  SPEECH = "SPEECH",
+  DTMF = "DTMF",
+  SPEECH_AND_DTMF = "SPEECH_AND_DTMF"
+}
+
+type GatherOptions = {
+  finishOnKey?: string;
+  maxDigits?: number;
+  timeout?: number;
+  source?: GatherSource;
+};
+
+type GatherRequest = VerbRequest & GatherOptions;
+
+type GatherResponse = VerbResponse & {
+  speech?: string;
+  digits?: string;
+};
 
 class Gather extends Verb<GatherRequest> {
   getValidationSchema(): z.Schema {
@@ -41,4 +60,4 @@ class Gather extends Verb<GatherRequest> {
   }
 }
 
-export { Gather };
+export { Gather, GatherOptions, GatherRequest, GatherResponse, GatherSource };

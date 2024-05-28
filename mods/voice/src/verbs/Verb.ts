@@ -16,17 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { toCamelCase } from "@fonoster/common";
+import { VoiceClientConfig, toCamelCase } from "@fonoster/common";
 import logger from "@fonoster/logger";
 import { z } from "zod";
-import {
-  DATA,
-  VerbRequest,
-  VoiceIn,
-  VoiceRequest,
-  VoiceSessionStream
-} from "./types";
+import { DATA, VoiceIn, VoiceSessionStream } from "./types";
 import { validateRequest } from "./validateRequest";
+
+// Alias for VoiceClientConfig
+type VoiceRequest = VoiceClientConfig;
+
+type VerbRequest = {
+  sessionRef: string;
+};
+
+type VerbResponse = {
+  sessionRef: string;
+};
 
 abstract class Verb<T extends VerbRequest = VerbRequest> {
   request: VoiceRequest;
@@ -75,4 +80,4 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
   abstract getValidationSchema(): z.Schema;
 }
 
-export { Verb };
+export { Verb, VerbRequest, VerbResponse, VoiceRequest };

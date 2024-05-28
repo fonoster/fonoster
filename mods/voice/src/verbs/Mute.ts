@@ -17,8 +17,19 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { MuteDirection, MuteRequest } from "./types";
-import { Verb } from "./Verb";
+import { Verb, VerbRequest } from "./Verb";
+
+type MuteOptions = {
+  direction?: MuteDirection;
+};
+
+enum MuteDirection {
+  IN = "IN",
+  OUT = "OUT",
+  BOTH = "BOTH"
+}
+
+type MuteRequest = VerbRequest & { direction: MuteDirection };
 
 class Mute extends Verb<MuteRequest> {
   getValidationSchema(): z.Schema {
@@ -32,4 +43,4 @@ class Mute extends Verb<MuteRequest> {
   }
 }
 
-export { Mute };
+export { Mute, MuteDirection, MuteRequest, MuteOptions };

@@ -17,8 +17,9 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { PlayDtmfRequest } from "./types";
-import { Verb } from "./Verb";
+import { Verb, VerbRequest } from "./Verb";
+
+type PlayDtmfRequest = VerbRequest & { digits: string };
 
 class PlayDtmf extends Verb<PlayDtmfRequest> {
   getValidationSchema(): z.Schema {
@@ -28,4 +29,4 @@ class PlayDtmf extends Verb<PlayDtmfRequest> {
   }
 }
 
-export { PlayDtmf };
+export { PlayDtmf, PlayDtmfRequest };

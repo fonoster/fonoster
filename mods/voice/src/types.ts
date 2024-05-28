@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest } from "./verbs/types";
+import { VoiceRequest } from "./verbs";
 import { VoiceResponse } from "./VoiceResponse";
 
 type VoiceHandler = (req: VoiceRequest, res: VoiceResponse) => Promise<void>;
@@ -26,4 +26,4 @@ type ServerConfig = {
   port?: number;
 };
 
-export { VoiceHandler, VoiceRequest, ServerConfig };
+export { VoiceHandler, VoiceRequest, ServerConfig, VoiceResponse };

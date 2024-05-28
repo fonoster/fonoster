@@ -17,8 +17,13 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { PlayRequest } from "./types";
-import { Verb } from "./Verb";
+import { Verb, VerbRequest } from "./Verb";
+
+type PlayRequest = VerbRequest & { url: string };
+
+type PlayOptions = {
+  playbackRef?: string;
+};
 
 class Play extends Verb<PlayRequest> {
   getValidationSchema(): z.Schema {
@@ -29,4 +34,4 @@ class Play extends Verb<PlayRequest> {
   }
 }
 
-export { Play };
+export { Play, PlayRequest, PlayOptions };

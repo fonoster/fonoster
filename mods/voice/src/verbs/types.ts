@@ -16,77 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceClientConfig } from "@fonoster/common";
+import { GatherRequest, GatherResponse } from "./Gather";
+import { MuteRequest } from "./Mute";
+import { PlayRequest } from "./Play";
+import { PlayDtmfRequest } from "./PlayDtmf";
+import { SGatherRequest } from "./SGather";
+import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
 
 const DATA = "data" as const;
 const END = "end" as const;
 const ERROR = "error" as const;
 
-enum MuteDirection {
-  IN = "IN",
-  OUT = "OUT",
-  BOTH = "BOTH"
-}
-
-enum GatherSource {
-  SPEECH = "SPEECH",
-  DTMF = "DTMF",
-  SPEECH_AND_DTMF = "SPEECH_AND_DTMF"
-}
-
 type OnEvent = typeof DATA | typeof END | typeof ERROR;
-
-// Alias for VoiceClientConfig
-type VoiceRequest = VoiceClientConfig;
-
-type VerbRequest = {
-  sessionRef: string;
-};
-
-type VerbResponse = {
-  sessionRef: string;
-};
-
-type PlayRequest = VerbRequest & { url: string };
-
-type MuteRequest = VerbRequest & { direction: MuteDirection };
-
-type UnmuteRequest = VerbRequest & { direction: MuteDirection };
-
-type PlayDtmfRequest = VerbRequest & { digits: string };
-
-type PlayOptions = {
-  playbackRef?: string;
-};
-
-type GatherOptions = {
-  finishOnKey?: string;
-  maxDigits?: number;
-  timeout?: number;
-  source?: GatherSource;
-};
-
-type MuteOptions = {
-  direction?: MuteDirection;
-};
-
-type GatherRequest = VerbRequest & GatherOptions;
-
-type GatherResponse = VerbResponse & {
-  speech?: string;
-  digits?: string;
-};
-
-type SGatherOptions = {
-  source: GatherSource;
-};
-
-type SGatherStream = {
-  on: (event: "transcript" | "dtmf", cb: (data: string) => void) => void;
-  close: () => void;
-};
-
-type SGatherRequest = VerbRequest & SGatherOptions;
 
 // TODO: Enforce that one of the responses fields is present
 type VoiceIn = {
@@ -108,7 +49,7 @@ type VoiceOut = {
   playRequest?: PlayRequest;
   playDtmfRequest?: PlayDtmfRequest;
   muteRequest?: MuteRequest;
-  unmuteRequest?: UnmuteRequest;
+  unmuteRequest?: MuteRequest;
   gatherRequest?: GatherRequest;
   sgatherRequest?: SGatherRequest;
 };
@@ -120,29 +61,4 @@ type VoiceSessionStream = {
   end: () => void;
 };
 
-export {
-  VoiceSessionStream,
-  VoiceRequest,
-  OnEvent,
-  PlayRequest,
-  PlayDtmfRequest,
-  VerbRequest,
-  VerbResponse,
-  VoiceIn,
-  VoiceOut,
-  MuteRequest,
-  UnmuteRequest,
-  MuteDirection,
-  GatherRequest,
-  GatherResponse,
-  GatherSource,
-  SGatherRequest,
-  SGatherOptions,
-  SGatherStream,
-  PlayOptions,
-  GatherOptions,
-  MuteOptions,
-  DATA,
-  END,
-  ERROR
-};
+export { VoiceSessionStream, OnEvent, VoiceIn, VoiceOut, DATA, END, ERROR };

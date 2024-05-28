@@ -16,26 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Answer, Hangup, Play } from "./verbs";
-import { Gather } from "./verbs/Gather";
-import { Mute } from "./verbs/Mute";
-import { PlayDtmf } from "./verbs/PlayDtmf";
-import { SGather } from "./verbs/SGather";
 import {
+  Answer,
   DATA,
+  Gather,
   GatherOptions,
   GatherResponse,
   GatherSource,
+  Hangup,
+  Mute,
   MuteDirection,
   MuteOptions,
+  Play,
+  PlayDtmf,
   PlayOptions,
+  SGather,
   SGatherOptions,
   SGatherStream,
+  Unmute,
   VerbResponse,
   VoiceRequest,
   VoiceSessionStream
-} from "./verbs/types";
-import { Unmute } from "./verbs/Unmute";
+} from "./verbs";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive

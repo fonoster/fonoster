@@ -17,8 +17,19 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { GatherSource, SGatherRequest } from "./types";
-import { Verb } from "./Verb";
+import { GatherSource } from "./Gather";
+import { Verb, VerbRequest } from "./Verb";
+
+type SGatherOptions = {
+  source: GatherSource;
+};
+
+type SGatherStream = {
+  on: (event: "transcript" | "dtmf", cb: (data: string) => void) => void;
+  close: () => void;
+};
+
+type SGatherRequest = VerbRequest & SGatherOptions;
 
 class SGather extends Verb<SGatherRequest> {
   getValidationSchema(): z.Schema {
@@ -34,4 +45,4 @@ class SGather extends Verb<SGatherRequest> {
   }
 }
 
-export { SGather };
+export { SGather, SGatherRequest, SGatherStream, SGatherOptions };

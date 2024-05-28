@@ -21,7 +21,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
-import { MuteDirection, MuteRequest } from "../src/verbs/types";
+import { MuteDirection, MuteRequest } from "../src/verbs";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
