@@ -278,8 +278,8 @@ message VoiceInStream {
     // Response to a gather request
     GatherResponse gather_response = 8;
 
-    // Response to a sgather request
-    GatherResponse sgather_response = 9;
+    // Response to a streamGather request
+    GatherResponse stream_gather_response = 9;
 
     // Response to a playback control request
     VerbResponse playback_control_response = 10;
@@ -320,7 +320,7 @@ message VoiceOutStream {
     GatherRequest gather_request = 7;
 
     // Request return a stream of speech or DTMF
-    GatherRequest sgather_request = 8;
+    GatherRequest stream_gather_request = 8;
 
     // Request to control a playback
     PlaybackControlRequest playback_control_request = 9;

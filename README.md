@@ -36,12 +36,12 @@ The most notable features of Fonoster 0.6 are:
 A Voice Application is a server that takes control of the flow in a call. A Voice Application can use any combination of the following verbs:
 
 - `Answer` - Accepts an incoming call
+- `Dial` - Passes the call to an Agent or a Number at the PSTN
 - `Hangup` - Closes the call
 - `Play` - Takes a URL or file and streams the sound back to the calling party
 - `Say` - Takes a text, synthesizes the text into audio, and streams back the result
-- `Gather` - Waits for DTMF or speech events and returns back the result
-- `SGather` - Returns a stream for future DTMF and speech results
-- `Dial` - Passes the call to an Agent or a Number at the PSTN
+- `StreamGather` - Returns a stream for future DTMF and speech results
+- `Gather` - Waits for DTMF or speech events and returns back the result 
 - `Record` - It records the voice of the calling party and saves the audio on the Storage sub-system
 - `Mute` - It tells the channel to stop sending media, effectively muting the channel
 - `Unmute` - It tells the channel to allow media flow

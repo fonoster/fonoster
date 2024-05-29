@@ -21,32 +21,32 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
-import { GatherSource, SGatherRequest } from "../src/verbs";
+import { GatherSource, StreamGatherRequest } from "../src/verbs";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@voice/verbs/sgather", function () {
+describe("@voice/verbs/streamGather", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should create a new SGather instance", async function () {
+  it("should create a new StreamGather instance", async function () {
     // Arrange
-    const { SGather } = await import("../src/verbs/SGather");
+    const { StreamGather } = await import("../src/verbs/StreamGather");
 
     const voice = getVoiceObject(sandbox);
 
-    const sgather = new SGather(voiceRequest, voice);
+    const streamGather = new StreamGather(voiceRequest, voice);
 
-    const sgatherRequest: SGatherRequest = {
+    const streamGatherRequest: StreamGatherRequest = {
       sessionRef,
       source: GatherSource.SPEECH_AND_DTMF
     };
 
     // Act
-    await sgather.run({
+    await streamGather.run({
       sessionRef,
       source: GatherSource.SPEECH_AND_DTMF
     });
@@ -57,8 +57,7 @@ describe("@voice/verbs/sgather", function () {
     expect(voice.on).to.have.been.calledWith("data", match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
-      // FIXME: Should return "sgatherRequest" instead of "sGatherRequest"
-      sgatherRequest
+      streamGatherRequest
     });
   });
 
@@ -66,15 +65,35 @@ describe("@voice/verbs/sgather", function () {
     // Arrange
     const { VoiceResponse } = await import("../src/VoiceResponse");
 
-    const voice = getVoiceObject(sandbox);
+    const onStub = sandbox
+      .stub()
+      .onFirstCall()
+      .callsFake((_, cb) => {
+        cb({});
+      });
 
+    const voice = {
+      removeListener: sandbox.stub(),
+      on: onStub,
+      write: sandbox.stub(),
+      end: sandbox.stub()
+    };
     const voiceResponse = new VoiceResponse(voiceRequest, voice);
 
-    // Act
-    const stream = await voiceResponse.sgather();
+    const dummyCallback = sandbox.stub();
 
-    // // Assert
-    expect(stream).to.have.property("on");
-    expect(stream).to.have.property("close");
+    // Act
+    const stream = await voiceResponse.streamGather();
+
+    stream.on("transcript", dummyCallback);
+    stream.on("dtmf", dummyCallback);
+
+    voice.on.yield({ streamGatherResponse: { speech: "hello" } });
+    voice.on.yield({ streamGatherResponse: { speech: "world" } });
+    voice.on.yield({ streamGatherResponse: { digits: "1" } });
+    voice.on.yield({ streamGatherResponse: { digits: "2" } });
+
+    // Assert
+    expect(dummyCallback).to.have.been.callCount(4);
   });
 });

@@ -23,7 +23,7 @@ import { PlayRequest, PlayResponse } from "./Play";
 import { PlayDtmfRequest } from "./PlayDtmf";
 import { RecordRequest, RecordResponse } from "./Record";
 import { SayRequest, SayResponse } from "./Say";
-import { SGatherRequest } from "./SGather";
+import { StreamGatherRequest } from "./StreamGather";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
 
 const DATA = "data" as const;
@@ -42,7 +42,7 @@ type VoiceIn = {
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
   gatherResponse?: GatherResponse;
-  sgatherResponse?: GatherResponse;
+  streamGatherResponse?: GatherResponse;
   sayResponse?: SayResponse;
   recordResponse?: RecordResponse;
   dialResponse?: { status: DialStatus };
@@ -57,7 +57,7 @@ type VoiceOut = {
   muteRequest?: MuteRequest;
   unmuteRequest?: MuteRequest;
   gatherRequest?: GatherRequest;
-  sgatherRequest?: SGatherRequest;
+  streamGatherRequest?: StreamGatherRequest;
   sayRequest?: SayRequest;
   recordRequest?: RecordRequest;
   dialRequest?: DialRequest;

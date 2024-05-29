@@ -20,29 +20,28 @@ import { z } from "zod";
 import { GatherSource } from "./Gather";
 import { Verb, VerbRequest } from "./Verb";
 
-type SGatherOptions = {
+type StreamGatherOptions = {
   source: GatherSource;
 };
 
-type SGatherStream = {
+type StreamGatherStream = {
   on: (event: "transcript" | "dtmf", cb: (data: string) => void) => void;
   close: () => void;
 };
 
-type SGatherRequest = VerbRequest & SGatherOptions;
+type StreamGatherRequest = VerbRequest & StreamGatherOptions;
 
-class SGather extends Verb<SGatherRequest> {
+class StreamGather extends Verb<StreamGatherRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      source: z
-        .enum([
-          GatherSource.SPEECH,
-          GatherSource.DTMF,
-          GatherSource.SPEECH_AND_DTMF
-        ])
-        .optional()
+      source: z.nativeEnum(GatherSource).optional()
     });
   }
 }
 
-export { SGather, SGatherRequest, SGatherStream, SGatherOptions };
+export {
+  StreamGather,
+  StreamGatherRequest,
+  StreamGatherStream,
+  StreamGatherOptions
+};
