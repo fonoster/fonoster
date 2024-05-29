@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { createGetChannelVar } from "./createGetChannelVar";
 import {
@@ -26,15 +27,17 @@ import {
   VoiceClientConfig
 } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
+import { identityConfig } from "../identityConfig";
 
 type FonosterSDK = {
-  createAppToken: (ref: string) => Promise<string>;
   getApp: (
     ref: string
   ) => Promise<{ ref: string; accessKeyId: string; endpoint: string }>;
 };
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
+
+const createToken = createCallAccessToken(identityConfig);
 
 // Note: By the time the all arrives here the owner of the app MUST be authenticated
 function createVoiceClient(sdk: FonosterSDK) {
@@ -55,7 +58,7 @@ function createVoiceClient(sdk: FonosterSDK) {
 
     // TODO: Should fail if appRef is not set
     const { accessKeyId, endpoint } = await sdk.getApp(appRef);
-    const sessionToken = await sdk.createAppToken(appRef);
+    const sessionToken = await createToken({ accessKeyId, appRef });
 
     const config: VoiceClientConfig = {
       appRef,

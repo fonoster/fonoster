@@ -24,6 +24,7 @@ type VoiceHandler = (req: VoiceRequest, res: VoiceResponse) => Promise<void>;
 type ServerConfig = {
   bind?: string;
   port?: number;
+  identityAddress?: string;
 };
 
 export { VoiceHandler, VoiceRequest, ServerConfig, VoiceResponse };

@@ -26,3 +26,4 @@ export * from "./getTokenFromCall";
 export * from "./tokenHasAccessKeyId";
 export * from "./hasAccessToResource";
 export * from "./withAccess";
+export * from "./createCallAccessToken";

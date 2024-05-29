@@ -25,3 +25,4 @@ export * from "./workspaces";
 export * from "./utils";
 export * from "./service";
 export * from "./createAuthInterceptor";
+export * from "./getPublicKeyClient";

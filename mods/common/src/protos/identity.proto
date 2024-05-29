@@ -20,6 +20,8 @@ syntax = "proto3";
 
 package fonoster.identity.v1beta2;
 
+import "google/protobuf/empty.proto";
+
 service Identity {
   // Workspace actions
   rpc CreateWorkspace (CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {}
@@ -49,6 +51,9 @@ service Identity {
   rpc ExchangeOAuth2Code (ExchangeOAuth2CodeRequest) returns (ExchangeOAuth2CodeResponse) {}
   rpc ExchangeRefreshToken (ExchangeRefreshTokenRequest) returns (ExchangeRefreshTokenResponse) {}
   rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
+
+  // Get the public key for verifying JWTs
+  rpc GetPublicKey (google.protobuf.Empty) returns (GetPublicKeyResponse) {}
 }
 
 // Workspace Resources
@@ -273,4 +278,9 @@ message RevokeTokenRequest {
 
 message RevokeTokenResponse {
   string token = 1;
+}
+
+// Message with response with the public key
+message GetPublicKeyResponse {
+  string public_key = 1;
 }

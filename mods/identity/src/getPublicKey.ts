@@ -16,6 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const IDENTITY_PUBLIC_KEY = "";
+import { GRPCError } from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
 
-export { IDENTITY_PUBLIC_KEY };
+const logger = getLogger({ service: "identity", filePath: __filename });
+
+type GetPublicKeyResponse = {
+  publicKey: string;
+};
+
+function getPublicKey(publicKey: string) {
+  return async (
+    _: unknown,
+    callback: (error: GRPCError, response?: GetPublicKeyResponse) => void
+  ) => {
+    logger.verbose("getting public key for JWT verification");
+
+    callback(null, { publicKey });
+  };
+}
+
+export { getPublicKey };

@@ -21,6 +21,8 @@ import { ApiRoleEnum } from "./apikeys/ApiRoleEnum";
 import { Role } from "./exchanges/types";
 import { WorkspaceRoleEnum } from "./workspaces/WorkspaceRoleEnum";
 
+const VOICE_SERVICE_ROLE = "VOICE_SERVICE";
+
 const workspaceAccess = [
   "/fonoster.applications.v1beta2.Applications/CreateApplication",
   "/fonoster.applications.v1beta2.Applications/UpdateApplication",
@@ -65,7 +67,8 @@ const workspaceAccess = [
   "/fonoster.calls.v1beta2.Calls/CreateCall",
   "/fonoster.calls.v1beta2.Calls/ListCalls",
   "/fonoster.calls.v1beta2.Calls/GetCall",
-  "/fonoster.calls.v1beta2.Calls/TrackCall"
+  "/fonoster.calls.v1beta2.Calls/TrackCall",
+  "/fonoster.voice.v1beta2.Voice/CreateSession"
 ];
 
 const fullIdentityAccess = [
@@ -116,7 +119,12 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
       ...workspaceAccess
     ]
+  },
+  {
+    name: VOICE_SERVICE_ROLE,
+    description: "Role with access only to the Voice service endpoint",
+    access: ["/fonoster.calls.v1beta2.Voice/CreateSession"]
   }
 ] as Role[];
 
-export { roles, workspaceAccess };
+export { roles, workspaceAccess, VOICE_SERVICE_ROLE };

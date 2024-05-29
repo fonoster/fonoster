@@ -18,9 +18,6 @@
  * limitations under the License.
  */
 const fonosterSDKMock = {
-  createAppToken: async (_appRef: string) => {
-    return "fakeToken";
-  },
   getApp: async (_appRef: string) => {
     return {
       ref: "fakeRef",

@@ -41,7 +41,6 @@ describe("@voice/createVoiceClient", function () {
     );
 
     const sdk = {
-      createAppToken: sandbox.stub().resolves("session-token"),
       getApp: sandbox.stub().resolves({
         ref: "app-ref",
         accessKeyId: "access-key-id",
@@ -76,7 +75,6 @@ describe("@voice/createVoiceClient", function () {
 
     // Assert
     expect(voiceClient).to.be.an.instanceOf(VoiceClientImpl);
-    expect(sdk.createAppToken).to.have.been.calledOnceWith("app-ref");
     expect(sdk.getApp).to.have.been.calledOnceWith("app-ref");
     expect(channel.getChannelVar).to.have.been.calledThrice;
     expect(channel.getChannelVar).to.have.been.calledWith({

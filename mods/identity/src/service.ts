@@ -18,6 +18,7 @@
  */
 import { prisma } from "./db";
 import { IdentityConfig } from "./exchanges/types";
+import { getPublicKey } from "./getPublicKey";
 import {
   createApiKey,
   createUser,
@@ -41,14 +42,16 @@ import {
   updateWorkspace
 } from ".";
 
+const serviceDefinitionParams = {
+  serviceName: "Identity",
+  pckg: "identity",
+  proto: "identity.proto",
+  version: "v1beta2"
+};
+
 function buildIdentityService(identityConfig: IdentityConfig) {
   return {
-    definition: {
-      serviceName: "Identity",
-      pckg: "identity",
-      version: "v1beta2",
-      proto: "identity.proto"
-    },
+    definition: serviceDefinitionParams,
     handlers: {
       // Workspace operations
       createWorkspace: createWorkspace(prisma),
@@ -80,9 +83,10 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       // Exchanges
       exchangeApiKey: exchangeApiKey(prisma, identityConfig),
       exchangeCredentials: exchangeCredentials(prisma, identityConfig),
-      exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig)
+      exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig),
+      getPublicKey: getPublicKey(identityConfig.publicKey)
     }
   };
 }
 
-export { buildIdentityService };
+export { buildIdentityService, serviceDefinitionParams };

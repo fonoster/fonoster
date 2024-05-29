@@ -21,24 +21,17 @@ import {
   getServerCredentials,
   statusMap
 } from "@fonoster/common";
-import { createAuthInterceptor } from "@fonoster/identity";
+import { createAuthInterceptor, getPublicKeyClient } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import merge from "deepmerge";
 import { HealthImplementation } from "grpc-health-check";
 import { createSession } from "./createSession";
 import { defaultServerConfig } from "./defaultServerConfig";
-import { IDENTITY_PUBLIC_KEY } from "./envs";
 import { serviceDefinition } from "./serviceDefinition";
 import { ServerConfig, VoiceHandler } from "./types";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
-
-const authorization = createAuthInterceptor(IDENTITY_PUBLIC_KEY, [
-  "/grpc.health.v1.Health/Check",
-  // FIXME: Create limited token and remove this
-  "/fonoster.voice.v1beta2.Voice/CreateSession"
-]);
 
 export default class VoiceServer {
   config: ServerConfig;
@@ -49,6 +42,13 @@ export default class VoiceServer {
   async listen(handler: VoiceHandler) {
     const healthImpl = new HealthImplementation(statusMap);
     const credentials = await getServerCredentials({});
+
+    // Get the public key from the identity service
+    const response = await getPublicKeyClient(this.config.identityAddress);
+
+    const authorization = createAuthInterceptor(response.publicKey, [
+      "/grpc.health.v1.Health/Check"
+    ]);
 
     const server = new grpc.Server({
       interceptors: [authorization]

@@ -45,7 +45,7 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
     const { sessionRef } = this.request;
     const { voice } = this;
 
-    logger.verbose(`sending a ${this.constructor.name} request`, {
+    logger.verbose(`sending a request with the ${this.constructor.name} verb`, {
       sessionRef
     });
 

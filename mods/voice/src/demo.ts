@@ -23,10 +23,17 @@ import VoiceServer from "./VoiceServer";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
-new VoiceServer().listen(async (req: VoiceRequest, res: VoiceResponse) => {
-  logger.verbose("voice request", JSON.stringify(req, null, 2));
+const config = {
+  // Needed when not using the default identity service
+  identityAddress: "localhost:50051"
+};
 
-  await res.answer();
-  await res.play("https://s3.fonoster.io/uuid/hello-world.sln16");
-  await res.hangup();
-});
+new VoiceServer(config).listen(
+  async (req: VoiceRequest, res: VoiceResponse) => {
+    logger.verbose("voice request", JSON.stringify(req, null, 2));
+
+    await res.answer();
+    await res.play("https://s3.fonoster.io/uuid/hello-world.sln16");
+    await res.hangup();
+  }
+);
