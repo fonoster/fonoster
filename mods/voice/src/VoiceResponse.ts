@@ -247,7 +247,7 @@ class VoiceResponse {
   /**
    * Waits for data entry from the user's keypad or from a stream speech provider. This command is different from `gather`
    * in that it returns a stream of results instead of a single result. You can think of it as active listening.
-   * 
+   *
    * @param {GatherOptions} options - Options object for the StreamGather verb
    * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
    * when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `speech,dtmf`
