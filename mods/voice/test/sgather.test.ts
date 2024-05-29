@@ -32,7 +32,7 @@ describe("@voice/verbs/sgather", function () {
     return sandbox.restore();
   });
 
-  it.skip("should create a new SGather instance", async function () {
+  it("should create a new SGather instance", async function () {
     // Arrange
     const { SGather } = await import("../src/verbs/SGather");
 
@@ -58,11 +58,11 @@ describe("@voice/verbs/sgather", function () {
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
       // FIXME: Should return "sgatherRequest" instead of "sGatherRequest"
-      sgatherRequest: sgatherRequest
+      sgatherRequest
     });
   });
 
-  it.skip("should return a stream of gather speech or dtmf", async function () {
+  it("should return a stream of gather speech or dtmf", async function () {
     // Arrange
     const { VoiceResponse } = await import("../src/VoiceResponse");
 

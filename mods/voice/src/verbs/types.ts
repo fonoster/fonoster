@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DialRequest, DialStatus } from "./Dial";
 import { GatherRequest, GatherResponse } from "./Gather";
 import { MuteRequest } from "./Mute";
 import { PlayRequest, PlayResponse } from "./Play";
@@ -44,6 +45,7 @@ type VoiceIn = {
   sgatherResponse?: GatherResponse;
   sayResponse?: SayResponse;
   recordResponse?: RecordResponse;
+  dialResponse?: { status: DialStatus };
 };
 
 // TODO: Enforce that one of the requests fields is present
@@ -58,6 +60,7 @@ type VoiceOut = {
   sgatherRequest?: SGatherRequest;
   sayRequest?: SayRequest;
   recordRequest?: RecordRequest;
+  dialRequest?: DialRequest;
 };
 
 type VoiceSessionStream = {

@@ -20,6 +20,9 @@ import { struct } from "pb-util";
 import {
   Answer,
   DATA,
+  Dial,
+  DialOptions,
+  DialStatusStream,
   Gather,
   GatherOptions,
   GatherResponse,
@@ -333,6 +336,36 @@ class VoiceResponse {
     });
 
     return response.recordResponse;
+  }
+
+  /**
+   * Dials a destination and returns a stream of status.
+   *
+   * @param {string} destination - The destination to dial
+   * @param {DialOptions} options - Options to control the dial operation
+   * @param {number} options.timeout - The timeout in seconds. Default is 60
+   * @param {RecordDirection} options.recordDirection - The direction to record the call (IN, OUT, BOTH). Default is BOTH
+   * @return {Promise<DialStatusStream>} The dial status stream
+   */
+  async dial(
+    destination: string,
+    options?: DialOptions
+  ): Promise<DialStatusStream> {
+    const stream = new DialStatusStream();
+
+    await new Dial(this.request, this.voice).run({
+      sessionRef: this.request.sessionRef,
+      destination,
+      ...options
+    });
+
+    this.voice.on(DATA, (result) => {
+      if (result.dialResponse) {
+        stream.emit(result.dialResponse.status);
+      }
+    });
+
+    return stream;
   }
 
   /**

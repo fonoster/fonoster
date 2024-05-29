@@ -20,6 +20,7 @@ export * from "./Answer";
 export * from "./Gather";
 export * from "./Hangup";
 export * from "./Mute";
+export * from "./Dial";
 export * from "./Play";
 export * from "./PlayDtmf";
 export * from "./PlaybackControl";
