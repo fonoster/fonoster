@@ -23,6 +23,12 @@ import { PlayRequest, PlayResponse } from "./Play";
 import { PlayDtmfRequest } from "./PlayDtmf";
 import { RecordRequest, RecordResponse } from "./Record";
 import { SayRequest, SayResponse } from "./Say";
+import {
+  StartStreamRequest,
+  StartStreamResponse,
+  StopStreamRequest,
+  StreamPayload
+} from "./Stream";
 import { StreamGatherRequest } from "./StreamGather";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
 
@@ -46,6 +52,8 @@ type VoiceIn = {
   sayResponse?: SayResponse;
   recordResponse?: RecordResponse;
   dialResponse?: { status: DialStatus };
+  startStreamResponse?: StartStreamResponse;
+  streamPayload?: StreamPayload;
 };
 
 // TODO: Enforce that one of the requests fields is present
@@ -61,6 +69,9 @@ type VoiceOut = {
   sayRequest?: SayRequest;
   recordRequest?: RecordRequest;
   dialRequest?: DialRequest;
+  startStreamRequest?: StartStreamRequest;
+  stopStreamRequest?: StopStreamRequest;
+  streamPayload?: StreamPayload;
 };
 
 type VoiceSessionStream = {

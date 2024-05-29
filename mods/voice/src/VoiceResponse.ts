@@ -43,9 +43,13 @@ import {
   Say,
   SayOptions,
   SayResponse,
+  StartStream,
+  StopStream,
+  Stream,
   StreamGather,
   StreamGatherOptions,
   StreamGatherStream,
+  StreamOptions,
   Unmute,
   VerbResponse,
   VoiceRequest,
@@ -344,6 +348,67 @@ class VoiceResponse {
       if (result.dialResponse) {
         stream.emit(result.dialResponse.status);
       }
+    });
+
+    return stream;
+  }
+
+  /**
+   * Starts a bidirectional audio stream between the call and the application.
+   *
+   * @param {StreamOptions} options - Options to control the stream operation
+   * @param {StreamDirection} options.direction - The direction to stream the audio (IN, OUT, BOTH). Default is BOTH
+   * @param {StreamAudioFormat} options.format - The audio format to stream (WAV). Default is WAV
+   * @param {boolean} options.enableVad - Enable voice activity detection. Default is false
+   * @return {Promise<Stream>} The stream object
+   * @see Stream
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.answer();
+   *
+   *   const stream = await response.stream({
+   *     direction: StreamDirection.BOTH,
+   *     format: StreamAudioFormat.WAV,
+   *     enableVad: true
+   *   });
+   *
+   *   stream.onPayload((payload) => {
+   *     // Use the payload
+   *   });
+   *
+   *   // Or write to the stream
+   *   // stream.write({ type: StreamMessageType.AUDIO_OUT, payload: "\x00\x01\x02" });
+   * }
+   */
+  async stream(options: StreamOptions): Promise<Stream> {
+    const stream = new Stream();
+
+    const startStream = new StartStream(this.request, this.voice);
+    const stopStream = new StopStream(this.request, this.voice);
+
+    const { startStreamResponse } = await startStream.run({
+      sessionRef: this.request.sessionRef,
+      ...options
+    });
+
+    this.voice.on(DATA, (result) => {
+      if (result.streamPayload) {
+        stream.emit("payloadOut", result.streamPayload);
+      }
+    });
+
+    stream.onPayloadIn((payload) => {
+      this.voice.write({
+        streamPayload: payload
+      });
+    });
+
+    stream.cleanup(() => {
+      stopStream.run({
+        sessionRef: this.request.sessionRef,
+        streamRef: startStreamResponse?.streamRef
+      });
     });
 
     return stream;
