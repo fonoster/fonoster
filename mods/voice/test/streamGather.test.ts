@@ -85,8 +85,8 @@ describe("@voice/verbs/streamGather", function () {
     // Act
     const stream = await voiceResponse.streamGather();
 
-    stream.on("transcript", dummyCallback);
-    stream.on("dtmf", dummyCallback);
+    stream.on("speech", dummyCallback);
+    stream.on("digits", dummyCallback);
 
     voice.on.yield({ streamGatherResponse: { speech: "hello" } });
     voice.on.yield({ streamGatherResponse: { speech: "world" } });

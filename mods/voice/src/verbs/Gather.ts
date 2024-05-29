@@ -42,13 +42,7 @@ type GatherResponse = VerbResponse & {
 class Gather extends Verb<GatherRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      source: z
-        .enum([
-          GatherSource.SPEECH,
-          GatherSource.DTMF,
-          GatherSource.SPEECH_AND_DTMF
-        ])
-        .optional(),
+      source: z.nativeEnum(GatherSource).optional(),
       finishOnKey: z
         .string()
         .regex(/^[0-9*#]+$/)

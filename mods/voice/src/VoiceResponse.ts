@@ -249,9 +249,8 @@ class VoiceResponse {
    * in that it returns a stream of results instead of a single result. You can think of it as active listening.
    *
    * @param {GatherOptions} options - Options object for the StreamGather verb
-   * @param {string} options.source - Where to listen as input source. This option accepts `dtmf` and `speech`. A speech provider must be configure
-   * when including the `speech` source. You might inclue both with `dtmf,speech`. Defaults to `speech,dtmf`
-   * @return {StreamGatherStream} The StreamGatherStream fires events via the `on` method for `transcription`, `dtmf`, and `error`. And the stream can be close
+   * @param {string} options.source - Where to listen as input source. This option accepts `DTMF` and `SPEECH`. A speech provider must be configure
+   * @return {StreamGatherStream} The StreamGatherStream fires events via the `on` method for `speech` and `digits`. And the stream can be close
    * with the `close` function.
    * @see StreamSpeechProvider
    * @example
@@ -260,25 +259,23 @@ class VoiceResponse {
    *   await response.answer();
    *   const stream = await response.streamGather({ source: GatherSource.SPEECH_AND_DTMF });
    *
-   *   stream.on("transcript", (text, isFinal) => {
-   *      console.log("transcript: %s", text);
+   *   stream.on("speech", (speech: string) => {
+   *      console.log("speech: %s", speech);
    *   })
    *
-   *   stream.on("dtmf", digit => {
-   *      console.log("digit: " + digit);
-   *      if (digit === "#") stream.close();
+   *   stream.on("digits", (digits: string) => {
+   *     console.log("digits: " + digits);
+   *
+   *     if (digits.includes("#")) {
+   *       stream.close();
+   *     }
    *   })
    * }
    */
   async streamGather(
     options: StreamGatherOptions = { source: GatherSource.SPEECH_AND_DTMF }
   ): Promise<StreamGatherStream> {
-    const listeners: {
-      [event: string]: ((data: string) => void)[];
-    } = {
-      transcript: [],
-      dtmf: []
-    };
+    const stream = new StreamGatherStream();
 
     await new StreamGather(this.request, this.voice).run({
       sessionRef: this.request.sessionRef,
@@ -287,29 +284,13 @@ class VoiceResponse {
 
     this.voice.on(DATA, (result) => {
       if (result.streamGatherResponse?.digits) {
-        listeners.dtmf.forEach((callback) =>
-          callback(result.streamGatherResponse.digits)
-        );
+        stream.emit("digits", result.streamGatherResponse.digits);
       } else if (result.streamGatherResponse?.speech) {
-        listeners.transcript.forEach((callback) =>
-          callback(result.streamGatherResponse.speech)
-        );
+        stream.emit("speech", result.streamGatherResponse.speech);
       }
     });
 
-    return {
-      on(event: "transcript" | "dtmf", callback: (data: string) => void) {
-        if (!listeners[event]) {
-          throw new Error(`Invalid event: ${event}`);
-        }
-        listeners[event].push(callback);
-      },
-      close() {
-        listeners.transcript = [];
-        listeners.dtmf = [];
-        listeners.error = [];
-      }
-    };
+    return stream;
   }
 
   /**

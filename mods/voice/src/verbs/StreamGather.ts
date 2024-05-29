@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Stream } from "stream";
 import { z } from "zod";
 import { GatherSource } from "./Gather";
 import { Verb, VerbRequest } from "./Verb";
@@ -24,10 +25,26 @@ type StreamGatherOptions = {
   source: GatherSource;
 };
 
-type StreamGatherStream = {
-  on: (event: "transcript" | "dtmf", cb: (data: string) => void) => void;
-  close: () => void;
-};
+class StreamGatherStream {
+  stream: Stream;
+  constructor() {
+    this.stream = new Stream();
+  }
+
+  close() {
+    this.stream.removeAllListeners();
+  }
+
+  on(event: "speech" | "digits", callback: (data: string) => void) {
+    this.stream.on(event, (data) => {
+      callback(data);
+    });
+  }
+
+  emit(event: "speech" | "digits", data: string) {
+    this.stream.emit(event, data);
+  }
+}
 
 type StreamGatherRequest = VerbRequest & StreamGatherOptions;
 
