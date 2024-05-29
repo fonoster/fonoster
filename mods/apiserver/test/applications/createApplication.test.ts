@@ -53,7 +53,7 @@ describe("@applications/createApplication", function () {
       request: {
         name: "My Application",
         type: "AUTOPILOT" as ApplicationType,
-        appUrl: "http://localhost:3000"
+        appEndpoint: "localhost:50061"
       }
     };
 
@@ -76,7 +76,7 @@ describe("@applications/createApplication", function () {
       request: {
         name: "My Application",
         type: "AUTOPILOT" as ApplicationType,
-        appUrl: "http://localhost:3000"
+        appEndpoint: "localhost:50061"
       }
     };
 

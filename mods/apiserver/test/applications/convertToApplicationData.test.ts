@@ -41,7 +41,7 @@ describe("@applications/convertToApplicationData", function () {
       ref: "123",
       name: "My Application",
       type: "STREAMS" as ApplicationType,
-      appUrl: "http://localhost:3000",
+      appEndpoint: "localhost:50061",
       textToSpeech: {
         productRef: "123",
         secretRef: "123",
@@ -74,7 +74,7 @@ describe("@applications/convertToApplicationData", function () {
       ref: "123",
       name: "My Application",
       type: "STREAMS",
-      appUrl: "http://localhost:3000",
+      appEndpoint: "localhost:50061",
       textToSpeech: {
         create: {
           productRef: "123",

@@ -30,7 +30,7 @@ function convertToApplicationData(
     ref: (request as UpdateApplicationRequest).ref, // Only for UpdateApplicationRequest
     name: request.name,
     type: request.type,
-    appUrl: request.appUrl
+    appEndpoint: request.appEndpoint
   } as ApplicationData;
 
   const createProperty = (property) => {

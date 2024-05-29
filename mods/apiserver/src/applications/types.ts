@@ -30,7 +30,7 @@ type Application = {
   ref: string;
   name: string;
   type: ApplicationType;
-  appUrl: string;
+  appEndpoint: string;
   textToSpeech: {
     productRef: string;
     secretRef: string;
@@ -55,7 +55,7 @@ type ApplicationData = {
   ref?: string;
   name: string;
   type: ApplicationType;
-  appUrl: string;
+  appEndpoint: string;
   textToSpeech?: {
     create: {
       productRef: string;
@@ -82,7 +82,7 @@ type ApplicationData = {
 type CreateApplicationRequest = {
   name: string;
   type: ApplicationType;
-  appUrl?: string;
+  appEndpoint?: string;
   textToSpeech?: {
     productRef: string;
     secretRef: string;

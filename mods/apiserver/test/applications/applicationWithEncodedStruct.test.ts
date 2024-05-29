@@ -42,7 +42,7 @@ describe("@applications/applicationWithEncodedStruct", function () {
     const application = {
       ref: "123",
       name: "My Application",
-      appUrl: "http://localhost:3000",
+      appEndpoint: "localhost:50061",
       textToSpeech: {
         productRef: "123",
         config: {

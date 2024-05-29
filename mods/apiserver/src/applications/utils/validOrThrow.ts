@@ -25,7 +25,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 // Validation should:
 //  - Check that the name is not empty
 //  - Check that has a valid type
-//  - Check that the appUrl is not empty if the type is PROGRAMMABLE_VOICE
+//  - Check that the appEndpoint is not empty if the type is PROGRAMMABLE_VOICE
 //  - Check that textToSpeech complies with the vendor requirements (Each vendor will have different requirements)
 //  - Check that speechToText complies with the vendor requirements (Each vendor will have different requirements)
 //  - Check that conversation complies with the vendor requirements (Each vendor will different requirements)

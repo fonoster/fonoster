@@ -80,7 +80,7 @@ const client = new Fonoster.Call();
 client.call({
  from: "9842753574",
  to: "17853178070",
- appUrl: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
+ appRef: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
 })
  .then(console.log)
  .catch(console.error);
