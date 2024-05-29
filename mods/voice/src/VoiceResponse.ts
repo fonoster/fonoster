@@ -34,6 +34,9 @@ import {
   PlayResponse,
   PlaybackControl,
   PlaybackControlAction,
+  Record,
+  RecordOptions,
+  RecordResponse,
   SGather,
   SGatherOptions,
   SGatherStream,
@@ -209,6 +212,24 @@ class VoiceResponse {
     return response.gatherResponse;
   }
 
+  /**
+   * Send a text for a TTS engine to convert to speech.
+   *
+   * @param {string} text - The text to convert to speech
+   * @param {SayOptions} options - Options to control the TTS engine
+   * @param {string} options.playbackRef - Playback identifier to use in Playback operations
+   * @param {TTSOptions} options.ttsOptions - Options to control the TTS engine (specific to the TTS engine)
+   * @see Say
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.answer();
+   *   const playbackRef = await response.say("Hello World");
+   *
+   *   // Like the play verb, you can control the playback
+   *   await response.playbackControl(playbackRef, PlaybackControlAction.STOP);
+   * }
+   */
   async say(text: string, options?: SayOptions): Promise<SayResponse> {
     const response = await new Say(this.request, this.voice).run({
       ...options,
@@ -286,6 +307,32 @@ class VoiceResponse {
         listeners.error = [];
       }
     };
+  }
+
+  /**
+   * Record the audio of the call.
+   *
+   * @param {RecordOptions} options - Options to control the record operation
+   * @param {number} options.maxDuration - The maximum duration of the recording in seconds. Default is 60
+   * @param {number} options.maxSilence - The maximum duration of silence in seconds. Default is 5
+   * @param {boolean} options.beep - Play a beep before recording. Default is true
+   * @param {string} options.finishOnKey - Stop recording when a DTMF digit is received. Default is '#'
+   * @return {RecordResponse} The record response
+   * @example
+   *
+   * async function handler (request, response) {
+   *   await response.answer();
+   *   const record = await response.record();
+   *   console.log("Recording: %s", record.name);
+   * }
+   */
+  async record(options?: RecordOptions): Promise<RecordResponse> {
+    const response = await new Record(this.request, this.voice).run({
+      sessionRef: this.request.sessionRef,
+      ...options
+    });
+
+    return response.recordResponse;
   }
 
   /**

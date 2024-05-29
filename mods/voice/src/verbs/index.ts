@@ -23,6 +23,7 @@ export * from "./Mute";
 export * from "./Play";
 export * from "./PlayDtmf";
 export * from "./PlaybackControl";
+export * from "./Record";
 export * from "./Say";
 export * from "./SGather";
 export * from "./Unmute";
