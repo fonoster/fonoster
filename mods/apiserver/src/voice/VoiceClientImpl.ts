@@ -18,13 +18,14 @@
  */
 import { Stream } from "stream";
 import {
+  StreamEvent,
   VoiceClientConfig,
-  VoiceOut,
-  VoiceSessionStream,
+  VoiceIn,
+  VoiceSessionStreamClient,
   createServiceDefiniton
 } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
-import { RequestType, VoiceClient, VoiceRequest } from "./types";
+import { VoiceClient } from "./types";
 
 const VoiceServiceClient = grpc.makeGenericClientConstructor(
   createServiceDefiniton({
@@ -40,7 +41,7 @@ const VoiceServiceClient = grpc.makeGenericClientConstructor(
 class VoiceClientImpl implements VoiceClient {
   config: VoiceClientConfig;
   stream: Stream;
-  voiceSession: VoiceSessionStream;
+  voice: VoiceSessionStreamClient;
 
   constructor(config: VoiceClientConfig) {
     this.config = config;
@@ -57,24 +58,23 @@ class VoiceClientImpl implements VoiceClient {
     metadata.add("accessKeyId", this.config.accessKeyId);
     metadata.add("token", this.config.sessionToken);
 
-    this.voiceSession = grpcClient.createSession(metadata);
+    this.voice = grpcClient.createSession(metadata);
 
-    // Listen for events
-    this.voiceSession.on("data", (data: unknown) => {
+    this.voice.on(StreamEvent.DATA, (data: VoiceIn) => {
       this.stream.emit(data.content, data);
     });
 
-    this.voiceSession.write({ request: this.config });
+    this.voice.write({ request: this.config });
   }
 
-  on(type: RequestType, callback: (data: VoiceRequest) => void) {
-    this.stream.on(type.toString(), (data: VoiceRequest) => {
+  on(type: string, callback: (data: VoiceIn) => void) {
+    this.stream.on(type.toString(), (data: VoiceIn) => {
       callback(data[type]);
     });
   }
 
-  sendResponse(response: VoiceOut): void {
-    this.voiceSession.write(response);
+  sendResponse(response: VoiceIn): void {
+    this.voice.write(response);
   }
 
   // Fixme: Implement

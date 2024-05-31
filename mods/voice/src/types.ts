@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceRequest } from "./verbs";
+import { VoiceRequest } from "@fonoster/common";
 import { VoiceResponse } from "./VoiceResponse";
 
 type VoiceHandler = (req: VoiceRequest, res: VoiceResponse) => Promise<void>;
@@ -27,4 +27,4 @@ type ServerConfig = {
   identityAddress?: string;
 };
 
-export { VoiceHandler, VoiceRequest, ServerConfig, VoiceResponse };
+export { VoiceHandler, ServerConfig, VoiceRequest };

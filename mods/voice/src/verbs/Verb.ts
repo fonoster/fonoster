@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import {
-  DATA,
+  StreamEvent,
   VerbRequest,
   VoiceIn,
   VoiceRequest,
-  VoiceSessionStream,
+  VoiceSessionStreamServer,
   toCamelCase
 } from "@fonoster/common";
 import logger from "@fonoster/logger";
@@ -30,8 +30,8 @@ import { validateRequest } from "./validateRequest";
 
 abstract class Verb<T extends VerbRequest = VerbRequest> {
   request: VoiceRequest;
-  voice: VoiceSessionStream;
-  constructor(request: VoiceRequest, voice: VoiceSessionStream) {
+  voice: VoiceSessionStreamServer;
+  constructor(request: VoiceRequest, voice: VoiceSessionStreamServer) {
     this.request = request;
     this.voice = voice;
   }
@@ -62,10 +62,10 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
             sessionRef
           });
           resolve(result);
-          voice.removeListener(DATA, dataListener);
+          voice.removeListener(StreamEvent.DATA, dataListener);
         };
 
-        voice.on(DATA, dataListener);
+        voice.on(StreamEvent.DATA, dataListener);
       } catch (e) {
         reject(e);
       }

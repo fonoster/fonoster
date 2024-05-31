@@ -16,16 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PlayRequest, VerbRequest } from "@fonoster/common";
+import {
+  PlayRequest,
+  StreamContent as SC,
+  VerbRequest
+} from "@fonoster/common";
 import {
   AriClient,
   AriEvent,
   Channel,
-  ChannelDtmfReceivedEvent,
-  PlaybackFinishedEvent,
-  RecordingFailedEvent,
-  RecordingFinishedEvent,
-  RequestType,
   StasisStartEvent,
   VoiceClient
 } from "./types";
@@ -86,8 +85,8 @@ class VoiceDispatcher {
     voiceClient.connect();
 
     this.voiceClients.set(event.channel.id, voiceClient);
-    voiceClient.on(RequestType.ANSWER, this.handleAnswerRequest.bind(this));
-    voiceClient.on(RequestType.PLAY, this.handlePlayRequest.bind(this));
+    voiceClient.on(SC.ANSWER_REQUEST, this.handleAnswerRequest.bind(this));
+    voiceClient.on(SC.PLAY_REQUEST, this.handlePlayRequest.bind(this));
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {

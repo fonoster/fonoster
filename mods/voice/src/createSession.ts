@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { StreamEvent, VoiceSessionStreamServer } from "@fonoster/common";
 import { VoiceHandler } from "./types";
-import { DATA, VoiceSessionStream } from "./verbs/types";
 import { VoiceResponse } from "./VoiceResponse";
 
 function createSession(handler: VoiceHandler) {
-  return (voice: VoiceSessionStream): Promise<void> =>
+  return (voice: VoiceSessionStreamServer): Promise<void> =>
     new Promise((resolve) => {
-      voice.on(DATA, async (params) => {
+      voice.on(StreamEvent.DATA, async (params) => {
         const { request } = params;
 
         if (params.request) {

@@ -16,32 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceClientConfig, VoiceOut } from "@fonoster/common";
-
-enum RequestType {
-  ANSWER = "answerRequest",
-  PLAY = "playRequest"
-}
-
-enum ResponseType {
-  ANSWER = "answerResponse",
-  PLAY = "playResponse"
-}
-
-type VoiceRequest = {
-  sessionRef: string;
-};
-
-type VoiceResponse = {
-  [key in ResponseType]?: Record<string, string> & { sessionRef: string };
-};
+import { StreamContent, VoiceClientConfig, VoiceIn } from "@fonoster/common";
 
 type VoiceClient = {
   config: VoiceClientConfig;
-  sendResponse: (command: VoiceOut) => void;
-  on: (type: RequestType, callback: (data: VoiceRequest) => void) => void;
+  sendResponse: (command: VoiceIn) => void;
+  on: (type: StreamContent, callback: (data: VoiceIn) => void) => void;
   connect: () => void;
   close: () => void;
 };
 
-export { VoiceClient, VoiceRequest, VoiceResponse, RequestType };
+export { VoiceClient };

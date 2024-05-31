@@ -16,6 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  DialOptions,
+  GatherOptions,
+  GatherResponse,
+  GatherSource,
+  MuteDirection,
+  MuteOptions,
+  PlayOptions,
+  PlayResponse,
+  PlaybackControlAction,
+  RecordOptions,
+  RecordResponse,
+  SayOptions,
+  SayResponse,
+  StreamEvent,
+  StreamGatherOptions,
+  StreamOptions,
+  VerbResponse,
+  VoiceRequest,
+  VoiceSessionStreamServer
+} from "@fonoster/common";
 import { struct } from "pb-util";
 import {
   Answer,
@@ -36,7 +57,6 @@ import {
   StreamGatherStream,
   Unmute
 } from "./verbs";
-import { DATA, GatherOptions, GatherResponse, GatherSource, MuteDirection, MuteOptions, PlayOptions, PlayResponse, PlaybackControlAction, RecordOptions, RecordResponse, SayOptions, SayResponse, StreamGatherOptions, StreamOptions, VerbResponse, VoiceRequest, VoiceSessionStream } from "@fonoster/common";
 
 /**
  * @classdesc Use the VoiceResponse object, to construct advance Interactive
@@ -56,7 +76,7 @@ import { DATA, GatherOptions, GatherResponse, GatherSource, MuteDirection, MuteO
  * voiceServer.listen(handler, { port: 3000 })
  */
 class VoiceResponse {
-  voice: VoiceSessionStream;
+  voice: VoiceSessionStreamServer;
   request: VoiceRequest;
 
   /**
@@ -66,7 +86,7 @@ class VoiceResponse {
    * @param {VoiceSessionStream} voice - The voice session stream
    * @see module:core:APIClient
    */
-  constructor(request: VoiceRequest, voice: VoiceSessionStream) {
+  constructor(request: VoiceRequest, voice: VoiceSessionStreamServer) {
     this.voice = voice;
     this.request = request;
   }
@@ -121,7 +141,7 @@ class VoiceResponse {
       url
     });
 
-    return { playbackRef: response.playResponse.playbackRef };
+    return response.playResponse;
   }
 
   /**
@@ -268,7 +288,7 @@ class VoiceResponse {
       ...options
     });
 
-    this.voice.on(DATA, (result) => {
+    this.voice.on(StreamEvent.DATA, (result) => {
       if (result.streamGatherResponse?.digits) {
         stream.emit("digits", result.streamGatherResponse.digits);
       } else if (result.streamGatherResponse?.speech) {
@@ -326,7 +346,7 @@ class VoiceResponse {
       ...options
     });
 
-    this.voice.on(DATA, (result) => {
+    this.voice.on(StreamEvent.DATA, (result) => {
       if (result.dialResponse) {
         stream.emit(result.dialResponse.status);
       }
@@ -374,7 +394,7 @@ class VoiceResponse {
       ...options
     });
 
-    this.voice.on(DATA, (result) => {
+    this.voice.on(StreamEvent.DATA, (result) => {
       if (result.streamPayload) {
         stream.emit("payloadOut", result.streamPayload);
       }

@@ -25,6 +25,7 @@ type PlayOptions = {
 type PlayRequest = VerbRequest & { url: string } & PlayOptions;
 
 type PlayResponse = {
+  sessionRef: string;
   playbackRef: string;
 };
 

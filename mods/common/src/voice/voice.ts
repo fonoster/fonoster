@@ -42,6 +42,35 @@ enum StreamEvent {
   ERROR = "error"
 }
 
+enum StreamContent {
+  ANSWER_REQUEST = "answerRequest",
+  ANSWER_RESPONSE = "answerResponse",
+  HANGUP_REQUEST = "hangupRequest",
+  HANGUP_RESPONSE = "hangupResponse",
+  PLAY_REQUEST = "playRequest",
+  PLAY_RESPONSE = "playResponse",
+  PLAY_DTMF_REQUEST = "playDtmfRequest",
+  PLAY_DTMF_RESPONSE = "playDtmfResponse",
+  MUTE_REQUEST = "muteRequest",
+  MUTE_RESPONSE = "muteResponse",
+  UNMUTE_REQUEST = "unmuteRequest",
+  UNMUTE_RESPONSE = "unmuteResponse",
+  GATHER_REQUEST = "gatherRequest",
+  GATHER_RESPONSE = "gatherResponse",
+  STREAM_GATHER_REQUEST = "streamGatherRequest",
+  STREAM_GATHER_RESPONSE = "streamGatherResponse",
+  SAY_REQUEST = "sayRequest",
+  SAY_RESPONSE = "sayResponse",
+  RECORD_REQUEST = "recordRequest",
+  RECORD_RESPONSE = "recordResponse",
+  DIAL_REQUEST = "dialRequest",
+  DIAL_RESPONSE = "dialResponse",
+  START_STREAM_REQUEST = "startStreamRequest",
+  START_STREAM_RESPONSE = "startStreamResponse",
+  STOP_STREAM_REQUEST = "stopStreamRequest",
+  STREAM_PAYLOAD = "streamPayload"
+}
+
 type VoiceClientConfig = {
   appRef: string;
   accessKeyId: string;
@@ -57,6 +86,7 @@ type VoiceClientConfig = {
 // TODO: Enforce that one of the responses fields is present
 type VoiceIn = {
   request?: VoiceRequest;
+  content?: StreamContent;
   answerResponse?: VerbResponse;
   hangupResponse?: VerbResponse;
   playResponse?: PlayResponse;
@@ -98,13 +128,14 @@ type BaseVoiceStream<T, W> = {
 };
 
 type VoiceSessionStreamServer = BaseVoiceStream<VoiceIn, VoiceOut>;
-type VoiceServerStreamClient = BaseVoiceStream<VoiceOut, VoiceIn>;
+type VoiceSessionStreamClient = BaseVoiceStream<VoiceOut, VoiceIn>;
 
 export {
   VoiceClientConfig,
   VoiceSessionStreamServer,
-  VoiceServerStreamClient,
+  VoiceSessionStreamClient,
   StreamEvent,
+  StreamContent,
   VoiceIn,
   VoiceOut,
   DATA,
