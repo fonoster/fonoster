@@ -16,9 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
-export * from "./errors";
-export * from "./constants";
-export * from "./grpcStatusMap";
-export * from "./voice";
+import { VerbRequest, VerbResponse } from "./Verb";
+
+enum GatherSource {
+  SPEECH = "SPEECH",
+  DTMF = "DTMF",
+  SPEECH_AND_DTMF = "SPEECH_AND_DTMF"
+}
+
+type GatherOptions = {
+  finishOnKey?: string;
+  maxDigits?: number;
+  timeout?: number;
+  source?: GatherSource;
+};
+
+type GatherRequest = VerbRequest & GatherOptions;
+
+type GatherResponse = VerbResponse & {
+  speech?: string;
+  digits?: string;
+};
+
+export { GatherOptions, GatherRequest, GatherResponse, GatherSource };

@@ -1,3 +1,5 @@
+import { VerbRequest } from "./Verb";
+
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,9 +18,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
-export * from "./errors";
-export * from "./constants";
-export * from "./grpcStatusMap";
-export * from "./voice";
+type MuteOptions = {
+  direction?: MuteDirection;
+};
+
+enum MuteDirection {
+  IN = "IN",
+  OUT = "OUT",
+  BOTH = "BOTH"
+}
+
+type MuteRequest = VerbRequest & { direction: MuteDirection };
+
+export { MuteOptions, MuteRequest, MuteDirection };

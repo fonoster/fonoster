@@ -16,16 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type VoiceClientConfig = {
-  appRef: string;
-  accessKeyId: string;
-  endpoint: string;
-  ingressNumber: string;
-  callerName: string;
-  callerNumber: string;
-  sessionRef: string;
-  sessionToken: string;
-  metadata?: Record<string, string>;
+import { VerbRequest } from "./Verb";
+
+enum PlaybackControlAction {
+  STOP = "STOP",
+  RESTART = "RESTART",
+  PAUSE = "PAUSE",
+  UNPAUSE = "UNPAUSE",
+  FORWARD = "FORWARD"
+}
+
+type PlaybackControlRequest = VerbRequest & {
+  playbackRef: string;
+  action: PlaybackControlAction;
 };
 
-export { VoiceClientConfig };
+export { PlaybackControlRequest, PlaybackControlAction };

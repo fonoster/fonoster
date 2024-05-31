@@ -16,9 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
-export * from "./errors";
-export * from "./constants";
-export * from "./grpcStatusMap";
-export * from "./voice";
+import { Struct } from "pb-util";
+import { VerbRequest } from "./Verb";
+
+type TTSOptions = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+};
+
+type SayRequest = VerbRequest & {
+  text: string;
+  playbackRef?: string;
+  ttsOptions?: Struct;
+};
+
+type SayResponse = {
+  playbackRef: string;
+};
+
+type SayOptions = {
+  playbackRef?: string;
+  ttsOptions?: TTSOptions;
+};
+
+export { SayRequest, SayResponse, SayOptions };

@@ -16,9 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
-export * from "./errors";
-export * from "./constants";
-export * from "./grpcStatusMap";
-export * from "./voice";
+import { VerbRequest } from "./Verb";
+
+enum DialRecordDirection {
+  IN = "IN",
+  OUT = "OUT",
+  BOTH = "BOTH"
+}
+
+enum DialStatus {
+  CANCEL = 0,
+  ANSWER = 1,
+  BUSY = 2,
+  PROGRESS = 3,
+  NOANSWER = 4
+}
+
+type DialOptions = {
+  timeout?: number;
+  recordDirection?: DialRecordDirection;
+};
+
+type DialRequest = VerbRequest &
+  DialOptions & {
+    destination: string;
+  };
+
+export { DialRequest, DialStatus, DialRecordDirection };

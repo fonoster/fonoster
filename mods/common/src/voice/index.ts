@@ -16,9 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
-export * from "./errors";
-export * from "./constants";
-export * from "./grpcStatusMap";
 export * from "./voice";
+export * from "./Dial";
+export * from "./Gather";
+export * from "./Verb";
+export * from "./Mute";
+export * from "./Play";
+export * from "./PlaybackControl";
+export * from "./PlayDtmf";
+export * from "./Record";
+export * from "./Say";
+export * from "./Stream";
+export * from "./StreamGather";

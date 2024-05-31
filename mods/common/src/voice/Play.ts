@@ -16,9 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
-export * from "./errors";
-export * from "./constants";
-export * from "./grpcStatusMap";
-export * from "./voice";
+import { VerbRequest } from "./Verb";
+
+type PlayOptions = {
+  playbackRef?: string;
+};
+
+type PlayRequest = VerbRequest & { url: string } & PlayOptions;
+
+type PlayResponse = {
+  playbackRef: string;
+};
+
+export { PlayRequest, PlayResponse, PlayOptions };

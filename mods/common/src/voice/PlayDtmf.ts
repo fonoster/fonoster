@@ -16,4 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./voice";
+import { VerbRequest } from "./Verb";
+
+type PlayDtmfRequest = VerbRequest & { digits: string };
+
+export { PlayDtmfRequest };

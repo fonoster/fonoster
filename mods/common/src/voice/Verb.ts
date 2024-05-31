@@ -16,9 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
-export * from "./errors";
-export * from "./constants";
-export * from "./grpcStatusMap";
-export * from "./voice";
+
+import { VoiceClientConfig } from "./voice";
+
+// Alias for VoiceClientConfig
+type VoiceRequest = VoiceClientConfig;
+
+type VerbRequest = {
+  sessionRef: string;
+};
+
+type VerbResponse = {
+  sessionRef: string;
+};
+
+export { VerbRequest, VerbResponse, VoiceRequest };

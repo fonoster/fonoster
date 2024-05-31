@@ -16,9 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./utils";
-export * from "./notifications";
-export * from "./errors";
-export * from "./constants";
-export * from "./grpcStatusMap";
-export * from "./voice";
+import { VerbRequest } from "./Verb";
+
+enum RecordFormat {
+  WAV = "WAV"
+}
+
+type RecordOptions = {
+  maxDuration?: number;
+  maxSilence?: number;
+  beep?: boolean;
+  finishOnKey?: string;
+};
+
+type RecordRequest = VerbRequest & RecordOptions;
+
+type RecordResponse = {
+  name: string;
+  duration: number;
+  format: RecordFormat;
+};
+
+export { RecordOptions, RecordRequest, RecordResponse, RecordFormat };
