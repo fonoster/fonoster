@@ -20,10 +20,14 @@ import { Channel, ChannelVar } from "./types";
 
 function createGetChannelVar(channel: Channel) {
   return async (variable: ChannelVar) => {
-    return channel.getChannelVar({
-      channelId: channel.id,
-      variable
-    });
+    try {
+      return await channel.getChannelVar({
+        channelId: channel.id,
+        variable
+      });
+    } catch (e) {
+      return null;
+    }
   };
 }
 

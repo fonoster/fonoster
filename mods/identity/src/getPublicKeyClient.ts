@@ -24,7 +24,7 @@ type GetPublicKeyResponse = {
   publicKey: string;
 };
 
-const VoiceServiceClient = grpc.makeGenericClientConstructor(
+const IdentityServiceClient = grpc.makeGenericClientConstructor(
   createServiceDefiniton(serviceDefinitionParams),
   "",
   {}
@@ -32,7 +32,7 @@ const VoiceServiceClient = grpc.makeGenericClientConstructor(
 
 function getPublicKeyClient(endpoint: string) {
   return new Promise<GetPublicKeyResponse>((resolve, reject) => {
-    const client = new VoiceServiceClient(
+    const client = new IdentityServiceClient(
       endpoint,
       grpc.credentials.createInsecure()
     );

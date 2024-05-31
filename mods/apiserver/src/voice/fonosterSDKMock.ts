@@ -22,7 +22,7 @@ const fonosterSDKMock = {
     return {
       ref: "fakeRef",
       accessKeyId: "WO00000000000000000000000000000000",
-      endpoint: "localhost:50051"
+      endpoint: "localhost:50061"
     };
   }
 };

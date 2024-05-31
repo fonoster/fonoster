@@ -17,26 +17,31 @@
  * limitations under the License.
  */
 import { VoiceClientConfig } from "@fonoster/common";
-import { RecordingFinishedEvent } from "./ari";
 
-type Recording = RecordingFinishedEvent["recording"];
+enum RequestType {
+  ANSWER = "answerRequest",
+  PLAY = "playRequest"
+}
 
-type VoiceCommand = {
-  sessionId: string;
+enum ResponseType {
+  ANSWER = "answerResponse",
+  PLAY = "playResponse"
+}
+
+type VoiceRequest = {
+  sessionRef: string;
 };
 
-type AnswerCommand = {
-  sessionId: string;
+type VoiceResponse = {
+  [key in ResponseType]?: Record<string, string> & { sessionRef: string };
 };
 
 type VoiceClient = {
   config: VoiceClientConfig;
-  recvAnswerCommand: (cmd: AnswerCommand) => Promise<void>;
-  sendDtmfReceivedEvent: (digit: string) => void;
-  sendPlaybackFinishedEvent: (playbackId: string) => void;
-  sendRecordingFinishedEvent: (recording: Recording) => void;
-  sendRecordingFailedEvent: (cause: string) => void;
+  sendResponse: (command: VoiceResponse) => void;
+  on: (type: RequestType, callback: (data: VoiceRequest) => void) => void;
+  connect: () => void;
   close: () => void;
 };
 
-export { VoiceClient, VoiceCommand, VoiceClientConfig };
+export { VoiceClient, VoiceRequest, VoiceResponse, RequestType };

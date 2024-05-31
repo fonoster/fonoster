@@ -19,13 +19,7 @@
 import { createCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { createGetChannelVar } from "./createGetChannelVar";
-import {
-  Channel,
-  ChannelVar,
-  StasisStartEvent,
-  VoiceClient,
-  VoiceClientConfig
-} from "./types";
+import { Channel, ChannelVar, StasisStartEvent, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
 import { identityConfig } from "../identityConfig";
 
@@ -60,7 +54,7 @@ function createVoiceClient(sdk: FonosterSDK) {
     const { accessKeyId, endpoint } = await sdk.getApp(appRef);
     const sessionToken = await createToken({ accessKeyId, appRef });
 
-    const config: VoiceClientConfig = {
+    const config = {
       appRef,
       sessionRef,
       accessKeyId,
@@ -73,6 +67,7 @@ function createVoiceClient(sdk: FonosterSDK) {
     };
 
     logger.verbose("creating voice client with config: ", {
+      endpoint,
       callerNumber,
       ingressNumber
     });

@@ -123,7 +123,7 @@ const roles = [
   {
     name: VOICE_SERVICE_ROLE,
     description: "Role with access only to the Voice service endpoint",
-    access: ["/fonoster.calls.v1beta2.Voice/CreateSession"]
+    access: ["/fonoster.voice.v1beta2.Voice/CreateSession"]
   }
 ] as Role[];
 
