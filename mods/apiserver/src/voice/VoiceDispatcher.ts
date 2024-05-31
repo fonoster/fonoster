@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { PlayRequest, VerbRequest } from "@fonoster/common";
 import {
   AriClient,
   AriEvent,
@@ -24,6 +25,7 @@ import {
   PlaybackFinishedEvent,
   RecordingFailedEvent,
   RecordingFinishedEvent,
+  RequestType,
   StasisStartEvent,
   VoiceClient
 } from "./types";
@@ -52,34 +54,40 @@ class VoiceDispatcher {
 
   start() {
     // Initialize the ARI client
+    this.ari.start(STATIS_APP_NAME);
     this.ari.on(AriEvent.STASIS_START, this.handleStasisStart.bind(this));
     this.ari.on(AriEvent.STASIS_END, this.handleStasisEnd.bind(this));
-    this.ari.start(STATIS_APP_NAME);
 
     // Register event handlers
-    this.ari.on(
-      AriEvent.CHANNEL_DTMF_RECEIVED,
-      this.handleChannelDtmfReceived.bind(this)
-    );
-    this.ari.on(
-      AriEvent.PLAYBACK_FINISHED,
-      this.handlePlaybackFinished.bind(this)
-    );
-    this.ari.on(
-      AriEvent.RECORDING_FINISHED,
-      this.handleRecordingFinished.bind(this)
-    );
-    this.ari.on(
-      AriEvent.RECORDING_FAILED,
-      this.handleRecordingFailed.bind(this)
-    );
+    // this.ari.on(
+    //   AriEvent.CHANNEL_DTMF_RECEIVED,
+    //   this.handleChannelDtmfReceived.bind(this)
+    // );
+    // this.ari.on(
+    //   AriEvent.PLAYBACK_FINISHED,
+    //   this.handlePlaybackFinished.bind(this)
+    // );
+    // this.ari.on(
+    //   AriEvent.RECORDING_FINISHED,
+    //   this.handleRecordingFinished.bind(this)
+    // );
+    // this.ari.on(
+    //   AriEvent.RECORDING_FAILED,
+    //   this.handleRecordingFailed.bind(this)
+    // );
 
     // Register command handlers
   }
 
   async handleStasisStart(event: StasisStartEvent, channel: Channel) {
     const voiceClient = await this.createVoiceClient(event, channel);
+
+    // Connect to voice server
+    voiceClient.connect();
+
     this.voiceClients.set(event.channel.id, voiceClient);
+    voiceClient.on(RequestType.ANSWER, this.handleAnswerRequest.bind(this));
+    voiceClient.on(RequestType.PLAY, this.handlePlayRequest.bind(this));
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {
@@ -90,31 +98,40 @@ class VoiceDispatcher {
     }
   }
 
-  handleChannelDtmfReceived(event: ChannelDtmfReceivedEvent, channel: Channel) {
-    const voiceClient = this.voiceClients.get(channel.id);
+  handleAnswerRequest(answerReq: VerbRequest) {
+    const { sessionRef } = answerReq;
+    const voiceClient = this.voiceClients.get(sessionRef);
+
     if (voiceClient) {
-      voiceClient.sendDtmfReceivedEvent(event.digit);
+      this.ari.channels.answer({ channelId: sessionRef });
+
+      voiceClient.sendResponse({
+        answerResponse: {
+          sessionRef: answerReq.sessionRef
+        }
+      });
     }
   }
 
-  handlePlaybackFinished(event: PlaybackFinishedEvent, channel: Channel) {
-    const voiceClient = this.voiceClients.get(channel.id);
-    if (voiceClient) {
-      voiceClient.sendPlaybackFinishedEvent(event.playback.id);
-    }
-  }
+  async handlePlayRequest(playReq: PlayRequest) {
+    const { sessionRef } = playReq;
+    const voiceClient = this.voiceClients.get(sessionRef);
 
-  handleRecordingFinished(event: RecordingFinishedEvent, channel: Channel) {
-    const voiceClient = this.voiceClients.get(channel.id);
     if (voiceClient) {
-      voiceClient.sendRecordingFinishedEvent(event.recording);
-    }
-  }
+      // FIXME: Generate a unique playbackRef if none was provided
+      const playbackRef = playReq.playbackRef || "123";
+      this.ari.channels.play({
+        channelId: sessionRef,
+        media: `sound:${playReq.url}`,
+        playback: playbackRef
+      });
 
-  handleRecordingFailed(event: RecordingFailedEvent, channel: Channel) {
-    const voiceClient = this.voiceClients.get(channel.id);
-    if (voiceClient) {
-      voiceClient.sendRecordingFailedEvent(event.recording.cause);
+      voiceClient.sendResponse({
+        playResponse: {
+          sessionRef: playReq.sessionRef,
+          playbackRef
+        }
+      });
     }
   }
 }

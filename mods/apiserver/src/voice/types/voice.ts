@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceClientConfig } from "@fonoster/common";
+import { VoiceClientConfig, VoiceOut } from "@fonoster/common";
 
 enum RequestType {
   ANSWER = "answerRequest",
@@ -38,7 +38,7 @@ type VoiceResponse = {
 
 type VoiceClient = {
   config: VoiceClientConfig;
-  sendResponse: (command: VoiceResponse) => void;
+  sendResponse: (command: VoiceOut) => void;
   on: (type: RequestType, callback: (data: VoiceRequest) => void) => void;
   connect: () => void;
   close: () => void;
