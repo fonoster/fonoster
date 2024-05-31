@@ -16,27 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { RecordRequest } from "@fonoster/common";
 import { z } from "zod";
-import { Verb, VerbRequest } from "./Verb";
-
-enum RecordFormat {
-  WAV = "WAV"
-}
-
-type RecordOptions = {
-  maxDuration?: number;
-  maxSilence?: number;
-  beep?: boolean;
-  finishOnKey?: string;
-};
-
-type RecordRequest = VerbRequest & RecordOptions;
-
-type RecordResponse = {
-  name: string;
-  duration: number;
-  format: RecordFormat;
-};
+import { Verb } from "./Verb";
 
 class Record extends Verb<RecordRequest> {
   getValidationSchema(): z.Schema {
@@ -53,4 +35,4 @@ class Record extends Verb<RecordRequest> {
   }
 }
 
-export { Record, RecordRequest, RecordResponse, RecordOptions };
+export { Record };

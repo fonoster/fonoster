@@ -17,54 +17,15 @@
  * limitations under the License.
  */
 import { Stream as StreamObj } from "stream";
+import {
+  StartStreamRequest,
+  StopStreamRequest,
+  StreamAudioFormat,
+  StreamDirection,
+  StreamPayload
+} from "@fonoster/common";
 import { z } from "zod";
-import { Verb, VerbRequest, VerbResponse } from "./Verb";
-
-enum StreamDirection {
-  IN = "IN",
-  OUT = "OUT",
-  BOTH = "BOTH"
-}
-
-enum StreamAudioFormat {
-  WAV = "WAV"
-}
-
-enum StreamMessageType {
-  AUDIO_IN = "AUDIO_IN",
-  AUDIO_OUT = "AUDIO_OUT",
-  ERROR = "ERROR",
-  VOICE_ACTIVITY_START = "VOICE_ACTIVITY_START",
-  VOICE_ACTIVITY_STOP = "VOICE_ACTIVITY_STOP"
-}
-
-type StreamOptions = {
-  direction: StreamDirection;
-  format: StreamAudioFormat;
-  enableVad: boolean;
-};
-
-type StartStreamRequest = VerbRequest & StreamOptions;
-
-type StartStreamResponse = VerbResponse & {
-  streamRef: string;
-};
-
-type StopStreamRequest = VerbRequest & {
-  streamRef: string;
-};
-
-type StreamPayload = {
-  sessionRef: string;
-  streamRef: string;
-  direction: StreamDirection;
-  format: StreamAudioFormat;
-  type: StreamMessageType;
-  enableVad?: boolean;
-  data?: Buffer;
-  code?: string;
-  message?: string;
-};
+import { Verb } from "./Verb";
 
 class StartStream extends Verb<StartStreamRequest> {
   getValidationSchema(): z.Schema {
@@ -124,16 +85,4 @@ class Stream {
   }
 }
 
-export {
-  StartStream,
-  StartStreamRequest,
-  StartStreamResponse,
-  StopStreamRequest,
-  StreamOptions,
-  StopStream,
-  StreamMessageType,
-  StreamDirection,
-  StreamAudioFormat,
-  StreamPayload,
-  Stream
-};
+export { StartStream, StopStream, Stream };

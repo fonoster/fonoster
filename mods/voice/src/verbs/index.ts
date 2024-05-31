@@ -31,4 +31,3 @@ export * from "./StreamGather";
 export * from "./Unmute";
 export * from "./validateRequest";
 export * from "./Verb";
-export * from "./types";

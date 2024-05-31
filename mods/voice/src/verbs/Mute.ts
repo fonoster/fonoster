@@ -16,20 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { MuteDirection, MuteRequest } from "@fonoster/common";
 import { z } from "zod";
-import { Verb, VerbRequest } from "./Verb";
-
-type MuteOptions = {
-  direction?: MuteDirection;
-};
-
-enum MuteDirection {
-  IN = "IN",
-  OUT = "OUT",
-  BOTH = "BOTH"
-}
-
-type MuteRequest = VerbRequest & { direction: MuteDirection };
+import { Verb } from "./Verb";
 
 class Mute extends Verb<MuteRequest> {
   getValidationSchema(): z.Schema {
@@ -43,4 +32,4 @@ class Mute extends Verb<MuteRequest> {
   }
 }
 
-export { Mute, MuteDirection, MuteRequest, MuteOptions };
+export { Mute };

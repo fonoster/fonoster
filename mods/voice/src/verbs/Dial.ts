@@ -17,39 +17,16 @@
  * limitations under the License.
  */
 import { Stream } from "stream";
+import { DialRecordDirection, DialRequest, DialStatus } from "@fonoster/common";
 import { z } from "zod";
-import { Verb, VerbRequest } from "./Verb";
-
-enum RecordDirection {
-  IN = "IN",
-  OUT = "OUT",
-  BOTH = "BOTH"
-}
-
-enum DialStatus {
-  CANCEL = 0,
-  ANSWER = 1,
-  BUSY = 2,
-  PROGRESS = 3,
-  NOANSWER = 4
-}
-
-type DialOptions = {
-  timeout?: number;
-  recordDirection?: RecordDirection;
-};
-
-type DialRequest = VerbRequest &
-  DialOptions & {
-    destination: string;
-  };
+import { Verb } from "./Verb";
 
 class Dial extends Verb<DialRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
       destination: z.string(),
       timeout: z.number().int().positive().optional(),
-      recordDirection: z.nativeEnum(RecordDirection).optional()
+      recordDirection: z.nativeEnum(DialRecordDirection).optional()
     });
   }
 }
@@ -75,11 +52,4 @@ class DialStatusStream {
   }
 }
 
-export {
-  Dial,
-  DialOptions,
-  DialRequest,
-  DialStatus,
-  RecordDirection,
-  DialStatusStream
-};
+export { Dial, DialStatusStream };

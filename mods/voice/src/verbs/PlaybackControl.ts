@@ -16,21 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  PlaybackControlAction,
+  PlaybackControlRequest
+} from "@fonoster/common";
 import { z } from "zod";
-import { Verb, VerbRequest } from "./Verb";
-
-enum PlaybackControlAction {
-  STOP = "STOP",
-  RESTART = "RESTART",
-  PAUSE = "PAUSE",
-  UNPAUSE = "UNPAUSE",
-  FORWARD = "FORWARD"
-}
-
-type PlaybackControlRequest = VerbRequest & {
-  playbackRef: string;
-  action: PlaybackControlAction;
-};
+import { Verb } from "./Verb";
 
 class PlaybackControl extends Verb<PlaybackControlRequest> {
   getValidationSchema(): z.Schema {
@@ -41,4 +32,4 @@ class PlaybackControl extends Verb<PlaybackControlRequest> {
   }
 }
 
-export { PlaybackControl, PlaybackControlRequest, PlaybackControlAction };
+export { PlaybackControl };

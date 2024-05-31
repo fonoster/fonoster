@@ -17,13 +17,9 @@
  * limitations under the License.
  */
 import { Stream } from "stream";
+import { GatherSource, StreamGatherRequest } from "@fonoster/common";
 import { z } from "zod";
-import { GatherSource } from "./Gather";
-import { Verb, VerbRequest } from "./Verb";
-
-type StreamGatherOptions = {
-  source: GatherSource;
-};
+import { Verb } from "./Verb";
 
 class StreamGatherStream {
   stream: Stream;
@@ -46,8 +42,6 @@ class StreamGatherStream {
   }
 }
 
-type StreamGatherRequest = VerbRequest & StreamGatherOptions;
-
 class StreamGather extends Verb<StreamGatherRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
@@ -56,9 +50,4 @@ class StreamGather extends Verb<StreamGatherRequest> {
   }
 }
 
-export {
-  StreamGather,
-  StreamGatherRequest,
-  StreamGatherStream,
-  StreamGatherOptions
-};
+export { StreamGather, StreamGatherStream };

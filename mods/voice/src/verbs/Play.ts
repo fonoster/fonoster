@@ -16,18 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { PlayRequest } from "@fonoster/common";
 import { z } from "zod";
-import { Verb, VerbRequest } from "./Verb";
-
-type PlayRequest = VerbRequest & { url: string };
-
-type PlayOptions = {
-  playbackRef?: string;
-};
-
-type PlayResponse = {
-  playbackRef: string;
-};
+import { Verb } from "./Verb";
 
 class Play extends Verb<PlayRequest> {
   getValidationSchema(): z.Schema {
@@ -38,4 +29,4 @@ class Play extends Verb<PlayRequest> {
   }
 }
 
-export { Play, PlayRequest, PlayResponse, PlayOptions };
+export { Play };

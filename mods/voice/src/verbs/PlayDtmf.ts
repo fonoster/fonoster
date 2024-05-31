@@ -16,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { PlayDtmfRequest } from "@fonoster/common";
 import { z } from "zod";
-import { Verb, VerbRequest } from "./Verb";
-
-type PlayDtmfRequest = VerbRequest & { digits: string };
+import { Verb } from "./Verb";
 
 class PlayDtmf extends Verb<PlayDtmfRequest> {
   getValidationSchema(): z.Schema {
@@ -29,4 +28,4 @@ class PlayDtmf extends Verb<PlayDtmfRequest> {
   }
 }
 
-export { PlayDtmf, PlayDtmfRequest };
+export { PlayDtmf };
