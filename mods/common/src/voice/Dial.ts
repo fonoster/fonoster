@@ -19,9 +19,9 @@
 import { VerbRequest } from "./Verb";
 
 enum DialRecordDirection {
-  IN = "IN",
-  OUT = "OUT",
-  BOTH = "BOTH"
+  IN = "in",
+  OUT = "out",
+  BOTH = "both"
 }
 
 enum DialStatus {

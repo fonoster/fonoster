@@ -23,9 +23,9 @@ type MuteOptions = {
 };
 
 enum MuteDirection {
-  IN = "IN",
-  OUT = "OUT",
-  BOTH = "BOTH"
+  IN = "in",
+  OUT = "out",
+  BOTH = "both"
 }
 
 type MuteRequest = VerbRequest & { direction: MuteDirection };

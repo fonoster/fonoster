@@ -19,9 +19,9 @@
 import { VerbRequest, VerbResponse } from "./Verb";
 
 enum GatherSource {
-  SPEECH = "SPEECH",
-  DTMF = "DTMF",
-  SPEECH_AND_DTMF = "SPEECH_AND_DTMF"
+  SPEECH = "speech",
+  DTMF = "dtmf",
+  SPEECH_AND_DTMF = "speech,dtmf"
 }
 
 type GatherOptions = {

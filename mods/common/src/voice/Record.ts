@@ -19,7 +19,7 @@
 import { VerbRequest } from "./Verb";
 
 enum RecordFormat {
-  WAV = "WAV"
+  WAV = "wav"
 }
 
 type RecordOptions = {

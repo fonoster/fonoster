@@ -32,6 +32,16 @@ import {
 import { StreamGatherRequest } from "./StreamGather";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
 
+const DATA = "data" as const;
+const END = "end" as const;
+const ERROR = "error" as const;
+
+enum StreamEvent {
+  DATA = "data",
+  END = "end",
+  ERROR = "error"
+}
+
 type VoiceClientConfig = {
   appRef: string;
   accessKeyId: string;
@@ -80,25 +90,21 @@ type VoiceOut = {
   streamPayload?: StreamPayload;
 };
 
-type VoiceSessionStream = {
-  removeListener: (e: OnEvent, cb: (voice: VoiceIn) => void) => void;
-  on: (e: OnEvent, cb: (voice: VoiceOut | VoiceIn) => void) => void;
-  write: (voice: VoiceOut | VoiceIn) => void;
+type BaseVoiceStream<T, W> = {
+  removeListener: (e: StreamEvent, cb: (voice: T) => void) => void;
+  on: (e: StreamEvent, cb: (voice: T) => void) => void;
+  write: (voice: W) => void;
   end: () => void;
 };
 
-
-
-const DATA = "data" as const;
-const END = "end" as const;
-const ERROR = "error" as const;
-
-type OnEvent = typeof DATA | typeof END | typeof ERROR;
+type VoiceSessionStreamServer = BaseVoiceStream<VoiceIn, VoiceOut>;
+type VoiceServerStreamClient = BaseVoiceStream<VoiceOut, VoiceIn>;
 
 export {
   VoiceClientConfig,
-  VoiceSessionStream,
-  OnEvent,
+  VoiceSessionStreamServer,
+  VoiceServerStreamClient,
+  StreamEvent,
   VoiceIn,
   VoiceOut,
   DATA,

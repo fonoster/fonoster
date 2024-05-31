@@ -19,21 +19,21 @@ import { VerbRequest, VerbResponse } from "./Verb";
  * limitations under the License.
  */
 enum StreamDirection {
-  IN = "IN",
-  OUT = "OUT",
-  BOTH = "BOTH"
+  IN = "in",
+  OUT = "out",
+  BOTH = "both"
 }
 
 enum StreamAudioFormat {
-  WAV = "WAV"
+  WAV = "wav"
 }
 
 enum StreamMessageType {
-  AUDIO_IN = "AUDIO_IN",
-  AUDIO_OUT = "AUDIO_OUT",
-  ERROR = "ERROR",
-  VOICE_ACTIVITY_START = "VOICE_ACTIVITY_START",
-  VOICE_ACTIVITY_STOP = "VOICE_ACTIVITY_STOP"
+  AUDIO_IN = "audioIn",
+  AUDIO_OUT = "audioOut",
+  ERROR = "error",
+  VOICE_ACTIVITY_START = "voiceActivityStart",
+  VOICE_ACTIVITY_STOP = "voiceActivityStop"
 }
 
 type StreamOptions = {
