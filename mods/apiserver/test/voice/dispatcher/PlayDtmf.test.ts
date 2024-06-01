@@ -28,12 +28,12 @@ const sandbox = createSandbox();
 
 const channelId = "channel-id";
 
-describe("@voice/dispatcher/Play", function () {
+describe("@voice/dispatcher/PlayDtmf", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle a Play command", async function () {
+  it("should handle a PlayDtmf command", async function () {
     // Arrange
     const { VoiceDispatcher } = await import(
       "../../../src/voice/VoiceDispatcher"
@@ -45,30 +45,27 @@ describe("@voice/dispatcher/Play", function () {
 
     const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
-    const playRequest = {
-      playbackRef: "playbackRef",
+    const playDtmfRequest = {
       sessionRef: channelId,
-      url: "url"
+      digits: "123"
     };
 
     voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
 
     // Act
-    voiceDispatcher.handlePlayRequest(playRequest);
+    voiceDispatcher.handlePlayDtmfRequest(playDtmfRequest);
 
     // Assert
-    expect(ari.channels.play).to.have.been.calledOnce;
+    expect(ari.channels.sendDTMF).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledWith({
-      playResponse: {
-        playbackRef: playRequest.playbackRef,
-        sessionRef: playRequest.sessionRef
+      playDtmfResponse: {
+        sessionRef: channelId
       }
     });
-    expect(ari.channels.play).to.have.been.calledWith({
+    expect(ari.channels.sendDTMF).to.have.been.calledWith({
       channelId,
-      media: `sound:${playRequest.url}`,
-      playback: playRequest.playbackRef
+      dtmf: playDtmfRequest.digits
     });
   });
 });

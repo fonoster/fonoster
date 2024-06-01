@@ -27,7 +27,8 @@ function getAriStub(sandbox: SinonSandbox) {
       play: sandbox.stub(),
       hangup: sandbox.stub(),
       mute: sandbox.stub(),
-      unmute: sandbox.stub()
+      unmute: sandbox.stub(),
+      sendDTMF: sandbox.stub()
     }
   };
 }

@@ -98,6 +98,7 @@ type AriClient = {
       media: string;
       playback?: string;
     }) => void;
+    sendDTMF: (req: { channelId: string; dtmf: string }) => void;
     mute: (req: { channelId: string; direction: string }) => void;
     unmute: (req: { channelId: string; direction: string }) => void;
   };

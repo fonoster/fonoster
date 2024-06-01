@@ -18,6 +18,7 @@
  */
 import {
   MuteRequest,
+  PlayDtmfRequest,
   PlayRequest,
   StreamContent as SC,
   VerbRequest
@@ -92,6 +93,7 @@ class VoiceDispatcher {
     voiceClient.on(SC.PLAY_REQUEST, this.handlePlayRequest.bind(this));
     voiceClient.on(SC.MUTE_REQUEST, this.handleMuteRequest.bind(this));
     voiceClient.on(SC.UNMUTE_REQUEST, this.handleUnmuteRequest.bind(this));
+    voiceClient.on(SC.PLAY_DTMF_REQUEST, this.handlePlayDtmfRequest.bind(this));
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {
@@ -184,6 +186,24 @@ class VoiceDispatcher {
       voiceClient.sendResponse({
         unmuteResponse: {
           sessionRef: unmuteReq.sessionRef
+        }
+      });
+    }
+  }
+
+  handlePlayDtmfRequest(playDtmfReq: PlayDtmfRequest) {
+    const { sessionRef, digits } = playDtmfReq;
+    const voiceClient = this.voiceClients.get(sessionRef);
+
+    if (voiceClient) {
+      this.ari.channels.sendDTMF({
+        channelId: sessionRef,
+        dtmf: digits
+      });
+
+      voiceClient.sendResponse({
+        playDtmfResponse: {
+          sessionRef: playDtmfReq.sessionRef
         }
       });
     }
