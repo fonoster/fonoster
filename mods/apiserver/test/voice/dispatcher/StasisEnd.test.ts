@@ -20,6 +20,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
+import { getAriStub, getCreateVoiceClient } from "./helper";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -38,17 +39,9 @@ describe("@voice/dispatcher/StasisEnd", function () {
       "../../../src/voice/VoiceDispatcher"
     );
 
-    const ari = {
-      on: sandbox.stub(),
-      start: sandbox.stub()
-    };
+    const ari = getAriStub(sandbox);
 
-    const createVoiceClient = sandbox.stub().returns({
-      config: {
-        sessionId: channelId
-      },
-      close: sandbox.stub()
-    });
+    const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 

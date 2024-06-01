@@ -91,12 +91,15 @@ type AriClient = {
   ) => void;
   start: (appName: string) => void;
   channels?: {
+    hangup: (req: { channelId: string }) => void;
     answer: (req: { channelId: string }) => void;
     play: (req: {
       channelId: string;
       media: string;
       playback?: string;
     }) => void;
+    mute: (req: { channelId: string; direction: string }) => void;
+    unmute: (req: { channelId: string; direction: string }) => void;
   };
 };
 

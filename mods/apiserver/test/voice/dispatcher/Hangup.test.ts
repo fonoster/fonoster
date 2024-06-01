@@ -28,12 +28,12 @@ const sandbox = createSandbox();
 
 const channelId = "channel-id";
 
-describe("@voice/dispatcher/Play", function () {
+describe("@voice/dispatcher/Hangup", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle an Play command", async function () {
+  it("should handle a Hangup command", async function () {
     // Arrange
     const { VoiceDispatcher } = await import(
       "../../../src/voice/VoiceDispatcher"
@@ -45,30 +45,19 @@ describe("@voice/dispatcher/Play", function () {
 
     const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
-    const playRequest = {
-      playbackRef: "playbackRef",
-      sessionRef: channelId,
-      url: "url"
+    const hangupRequest = {
+      sessionRef: channelId
     };
 
     voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
 
     // Act
-    voiceDispatcher.handlePlayRequest(playRequest);
+    voiceDispatcher.handleHangupRequest(hangupRequest);
 
     // Assert
-    expect(ari.channels.play).to.have.been.calledOnce;
-    expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
-    expect(createVoiceClient().sendResponse).to.have.been.calledWith({
-      playResponse: {
-        playbackRef: playRequest.playbackRef,
-        sessionRef: playRequest.sessionRef
-      }
-    });
-    expect(ari.channels.play).to.have.been.calledWith({
-      channelId,
-      media: `sound:${playRequest.url}`,
-      playback: playRequest.playbackRef
-    });
+    expect(createVoiceClient().close).to.have.been.calledOnce;
+    expect(voiceDispatcher.voiceClients.get(channelId)).to.not.exist;
+    expect(ari.channels.hangup).to.have.been.calledOnce;
+    expect(ari.channels.hangup).to.have.been.calledWith({ channelId });
   });
 });

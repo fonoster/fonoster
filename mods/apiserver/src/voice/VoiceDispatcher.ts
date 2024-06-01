@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  MuteRequest,
   PlayRequest,
   StreamContent as SC,
   VerbRequest
@@ -87,7 +88,10 @@ class VoiceDispatcher {
 
     this.voiceClients.set(event.channel.id, voiceClient);
     voiceClient.on(SC.ANSWER_REQUEST, this.handleAnswerRequest.bind(this));
+    voiceClient.on(SC.HANGUP_REQUEST, this.handleHangupRequest.bind(this));
     voiceClient.on(SC.PLAY_REQUEST, this.handlePlayRequest.bind(this));
+    voiceClient.on(SC.MUTE_REQUEST, this.handleMuteRequest.bind(this));
+    voiceClient.on(SC.UNMUTE_REQUEST, this.handleUnmuteRequest.bind(this));
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {
@@ -95,6 +99,21 @@ class VoiceDispatcher {
     if (voiceClient) {
       voiceClient.close();
       this.voiceClients.delete(channel.id);
+    }
+  }
+
+  handleHangupRequest(hangupReq: VerbRequest) {
+    const { sessionRef } = hangupReq;
+    const voiceClient = this.voiceClients.get(sessionRef);
+    if (voiceClient) {
+      this.ari.channels.hangup({ channelId: sessionRef });
+      voiceClient.sendResponse({
+        hangupResponse: {
+          sessionRef
+        }
+      });
+      voiceClient.close();
+      this.voiceClients.delete(sessionRef);
     }
   }
 
@@ -113,7 +132,7 @@ class VoiceDispatcher {
     }
   }
 
-  async handlePlayRequest(playReq: PlayRequest) {
+  handlePlayRequest(playReq: PlayRequest) {
     const { sessionRef } = playReq;
     const voiceClient = this.voiceClients.get(sessionRef);
 
@@ -129,6 +148,42 @@ class VoiceDispatcher {
         playResponse: {
           sessionRef: playReq.sessionRef,
           playbackRef
+        }
+      });
+    }
+  }
+
+  handleMuteRequest(muteReq: MuteRequest) {
+    const { sessionRef, direction } = muteReq;
+    const voiceClient = this.voiceClients.get(sessionRef);
+
+    if (voiceClient) {
+      this.ari.channels.mute({
+        channelId: sessionRef,
+        direction
+      });
+
+      voiceClient.sendResponse({
+        muteResponse: {
+          sessionRef: muteReq.sessionRef
+        }
+      });
+    }
+  }
+
+  handleUnmuteRequest(unmuteReq: MuteRequest) {
+    const { sessionRef, direction } = unmuteReq;
+    const voiceClient = this.voiceClients.get(sessionRef);
+
+    if (voiceClient) {
+      this.ari.channels.unmute({
+        channelId: sessionRef,
+        direction
+      });
+
+      voiceClient.sendResponse({
+        unmuteResponse: {
+          sessionRef: unmuteReq.sessionRef
         }
       });
     }
