@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import chai, { expect } from "chai";
+import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
@@ -24,8 +24,6 @@ import sinonChai from "sinon-chai";
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
-
-const channelId = "channel-id";
 
 describe("@voice/VoiceDispatcher", function () {
   afterEach(function () {
