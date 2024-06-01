@@ -24,9 +24,11 @@ import {
   VoiceSessionStreamServer,
   toCamelCase
 } from "@fonoster/common";
-import logger from "@fonoster/logger";
+import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { validateRequest } from "./validateRequest";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 abstract class Verb<T extends VerbRequest = VerbRequest> {
   request: VoiceRequest;

@@ -40,34 +40,41 @@ export default class VoiceServer {
   }
 
   async listen(handler: VoiceHandler) {
-    const healthImpl = new HealthImplementation(statusMap);
-    const credentials = await getServerCredentials({});
+    try {
+      const healthImpl = new HealthImplementation(statusMap);
+      const credentials = await getServerCredentials({});
 
-    // Get the public key from the identity service
-    const response = await getPublicKeyClient(this.config.identityAddress);
+      // Get the public key from the identity service
+      const response = await getPublicKeyClient(this.config.identityAddress);
 
-    const authorization = createAuthInterceptor(response.publicKey, [
-      "/grpc.health.v1.Health/Check"
-    ]);
+      const authorization = createAuthInterceptor(response.publicKey, [
+        "/grpc.health.v1.Health/Check"
+      ]);
 
-    const server = new grpc.Server({
-      interceptors: [authorization]
-    });
+      const server = new grpc.Server({
+        interceptors: [authorization]
+      });
 
-    server.addService(serviceDefinition, {
-      createSession: createSession(handler)
-    });
+      server.addService(serviceDefinition, {
+        createSession: createSession(handler)
+      });
 
-    // Add the health check service to the server
-    healthImpl.addToServer(server);
+      // Add the health check service to the server
+      healthImpl.addToServer(server);
 
-    const bindAddr = `${this.config.bind}:${this.config.port}`;
+      const bindAddr = `${this.config.bind}:${this.config.port}`;
 
-    server.bindAsync(bindAddr, credentials, async () => {
-      healthImpl.setStatus("", GRPC_SERVING_STATUS);
-      logger.info(
-        `started voice server @ ${this.config.bind}, port=${this.config.port}`
-      );
-    });
+      server.bindAsync(bindAddr, credentials, async () => {
+        healthImpl.setStatus("", GRPC_SERVING_STATUS);
+        logger.info(
+          `started voice server @ ${this.config.bind}, port=${this.config.port}`
+        );
+      });
+    } catch (err) {
+      if (err.code === grpc.status.UNAVAILABLE) {
+        logger.error("failed to connect to identity service");
+        process.exit(1);
+      }
+    }
   }
 }
