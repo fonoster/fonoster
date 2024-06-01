@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DialRecordDirection, DialRequest, DialStatus } from "@fonoster/common";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
-import { DialRequest, DialStatus, RecordDirection } from "../src/verbs";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -43,7 +43,7 @@ describe("@voice/verbs/dial", function () {
     const dialRequest: DialRequest = {
       sessionRef,
       destination: "+1234567890",
-      recordDirection: RecordDirection.BOTH
+      recordDirection: DialRecordDirection.BOTH
     };
 
     // Act

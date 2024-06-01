@@ -90,7 +90,7 @@ type AriClient = {
     callback: (event: StasisStartEvent, channel: Channel) => void
   ) => void;
   start: (appName: string) => void;
-  channels: {
+  channels?: {
     answer: (req: { channelId: string }) => void;
     play: (req: {
       channelId: string;

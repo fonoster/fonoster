@@ -21,6 +21,7 @@ import {
   StreamContent as SC,
   VerbRequest
 } from "@fonoster/common";
+import { nanoid } from "nanoid";
 import {
   AriClient,
   AriEvent,
@@ -117,8 +118,7 @@ class VoiceDispatcher {
     const voiceClient = this.voiceClients.get(sessionRef);
 
     if (voiceClient) {
-      // FIXME: Generate a unique playbackRef if none was provided
-      const playbackRef = playReq.playbackRef || "123";
+      const playbackRef = playReq.playbackRef || nanoid(10);
       this.ari.channels.play({
         channelId: sessionRef,
         media: `sound:${playReq.url}`,

@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { MuteDirection, MuteRequest, StreamEvent } from "@fonoster/common";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
-import { MuteDirection, MuteRequest } from "../src/verbs";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -51,7 +51,7 @@ describe("@voice/verbs/mute", function () {
     // Assert
     expect(voice.removeListener).to.have.been.calledOnce;
     expect(voice.on).to.have.been.calledOnce;
-    expect(voice.on).to.have.been.calledWith("data", match.func);
+    expect(voice.on).to.have.been.calledWith(StreamEvent.DATA, match.func);
     expect(voice.write).to.have.been.calledOnce;
     expect(voice.write).to.have.been.calledWith({
       muteRequest
@@ -71,6 +71,6 @@ describe("@voice/verbs/mute", function () {
 
     // Assert
     // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Invalid enum value. Expected 'IN' | 'OUT' | 'BOTH', received 'south' at \"direction\"");
+    return expect(promise).to.be.rejectedWith("Invalid enum value. Expected 'in' | 'out' | 'both', received 'south' at \"direction\"");
   });
 });

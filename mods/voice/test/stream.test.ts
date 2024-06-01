@@ -16,17 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import chai, { expect } from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { createSandbox, match } from "sinon";
-import sinonChai from "sinon-chai";
-import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
 import {
   StartStreamRequest,
   StreamAudioFormat,
   StreamDirection,
   StreamMessageType
-} from "../src/verbs";
+} from "@fonoster/common";
+import chai, { expect } from "chai";
+import chaiAsPromised from "chai-as-promised";
+import { createSandbox, match } from "sinon";
+import sinonChai from "sinon-chai";
+import { getVoiceObject, sessionRef, voiceRequest } from "./helpers";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

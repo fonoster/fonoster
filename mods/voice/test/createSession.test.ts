@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { StreamEvent } from "@fonoster/common";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { sessionRef, voiceRequest } from "./helpers";
 import { VoiceRequest } from "../src/types";
-import { DATA } from "../src/verbs/types";
 import { VoiceResponse } from "../src/VoiceResponse";
 
 chai.use(chaiAsPromised);
@@ -79,7 +79,7 @@ describe("@voice/createSession", function () {
     await createSession(handler)(voice);
 
     // Assert
-    expect(voice.on).to.have.been.calledWith(DATA, match.func);
+    expect(voice.on).to.have.been.calledWith(StreamEvent.DATA, match.func);
     expect(voice.on).to.have.been.called.callCount(4);
     expect(voice.write).to.have.been.calledThrice;
     expect(voice.write).to.have.been.calledWith({
