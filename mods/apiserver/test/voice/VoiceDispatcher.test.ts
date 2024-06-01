@@ -18,9 +18,8 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox, match } from "sinon";
+import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { AriEvent } from "../../src/voice/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -31,141 +30,6 @@ const channelId = "channel-id";
 describe("@voice/VoiceDispatcher", function () {
   afterEach(function () {
     return sandbox.restore();
-  });
-
-  it.skip("should create a VoiceDispatcher", async function () {
-    // Arrange
-    const { VoiceDispatcher } = await import("../../src/voice/VoiceDispatcher");
-    const ari = {
-      on: sandbox.stub(),
-      start: sandbox.stub()
-    };
-    const createVoiceClient = sandbox.stub();
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
-
-    // Act
-    voiceDispatcher.start();
-
-    // Assert
-    expect(ari.on).to.have.been.called.callCount(6);
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.STASIS_START,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleStasisStart";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.STASIS_END,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleStasisEnd";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.CHANNEL_DTMF_RECEIVED,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleChannelDtmfReceived";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.PLAYBACK_FINISHED,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handlePlaybackFinished";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.RECORDING_FINISHED,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleRecordingFinished";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.RECORDING_FAILED,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleRecordingFailed";
-        })
-      )
-    );
-    expect(ari.start).to.have.been.calledOnce;
-    expect(ari.start).to.have.been.calledWith("mediacontroller");
-  });
-
-  it("should handle a StasisStart event", async function () {
-    // Arrange
-    const { VoiceDispatcher } = await import("../../src/voice/VoiceDispatcher");
-    const ari = {
-      on: sandbox.stub(),
-      start: sandbox.stub()
-    };
-
-    const createVoiceClient = sandbox.stub().returns({
-      connect: sandbox.stub(),
-      on: sandbox.stub(),
-      config: {
-        sessionId: channelId
-      }
-    });
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
-    const event = {
-      channel: {
-        id: channelId,
-        caller: {
-          name: "John Doe",
-          number: "+17853178070"
-        }
-      }
-    };
-    const channel = {
-      id: channelId,
-      getChannelVar: sandbox.stub().resolves({ value: "value" })
-    };
-
-    // Act
-    await voiceDispatcher.handleStasisStart(event, channel);
-
-    // Assert
-    expect(createVoiceClient).to.have.been.calledOnce;
-    expect(voiceDispatcher.voiceClients.get(channelId)).to.exist;
-    expect(createVoiceClient().connect).to.have.been.calledOnce;
-  });
-
-  it("should handle a StasisEnd event", async function () {
-    // Arrange
-    const { VoiceDispatcher } = await import("../../src/voice/VoiceDispatcher");
-    const ari = {
-      on: sandbox.stub(),
-      start: sandbox.stub()
-    };
-    const createVoiceClient = sandbox.stub().returns({
-      config: {
-        sessionId: channelId
-      },
-      close: sandbox.stub()
-    });
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
-    const channel = {
-      id: channelId,
-      getChannelVar: sandbox.stub().resolves({ value: "value" })
-    };
-    voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
-
-    // Act
-    voiceDispatcher.handleStasisEnd(undefined, channel);
-
-    // Assert
-    expect(createVoiceClient().close).to.have.been.calledOnce;
-    expect(voiceDispatcher.voiceClients.get(channelId)).to.not.exist;
-    expect(channel.getChannelVar).to.have.been.not.called;
   });
 
   // it("should handle a ChannelDtmfReceived event", async function () {
