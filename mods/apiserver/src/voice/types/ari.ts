@@ -1,3 +1,5 @@
+import { MuteDirection, PlaybackControlAction } from "@fonoster/common";
+
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -99,8 +101,14 @@ type AriClient = {
       playback?: string;
     }) => void;
     sendDTMF: (req: { channelId: string; dtmf: string }) => void;
-    mute: (req: { channelId: string; direction: string }) => void;
-    unmute: (req: { channelId: string; direction: string }) => void;
+    mute: (req: { channelId: string; direction: MuteDirection }) => void;
+    unmute: (req: { channelId: string; direction: MuteDirection }) => void;
+  };
+  playbacks?: {
+    control: (req: {
+      playbackId: string;
+      operation: PlaybackControlAction;
+    }) => void;
   };
 };
 

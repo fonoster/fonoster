@@ -29,6 +29,9 @@ function getAriStub(sandbox: SinonSandbox) {
       mute: sandbox.stub(),
       unmute: sandbox.stub(),
       sendDTMF: sandbox.stub()
+    },
+    playbacks: {
+      control: sandbox.stub()
     }
   };
 }

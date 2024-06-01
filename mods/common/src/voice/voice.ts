@@ -51,6 +51,8 @@ enum StreamContent {
   PLAY_RESPONSE = "playResponse",
   PLAY_DTMF_REQUEST = "playDtmfRequest",
   PLAY_DTMF_RESPONSE = "playDtmfResponse",
+  PLAYBACK_CONTROL_REQUEST = "playbackControlRequest",
+  PLAYBACK_CONTROL_RESPONSE = "playbackControlResponse",
   MUTE_REQUEST = "muteRequest",
   MUTE_RESPONSE = "muteResponse",
   UNMUTE_REQUEST = "unmuteRequest",
@@ -91,6 +93,7 @@ type VoiceIn = {
   hangupResponse?: VerbResponse;
   playResponse?: PlayResponse;
   playDtmfResponse?: VerbResponse;
+  playbackControlResponse?: VerbResponse;
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
   gatherResponse?: GatherResponse;
@@ -108,6 +111,7 @@ type VoiceOut = {
   hangupRequest?: VerbRequest;
   playRequest?: PlayRequest;
   playDtmfRequest?: PlayDtmfRequest;
+  playbackControlRequest?: VerbRequest;
   muteRequest?: MuteRequest;
   unmuteRequest?: MuteRequest;
   gatherRequest?: GatherRequest;

@@ -20,6 +20,7 @@ import {
   MuteRequest,
   PlayDtmfRequest,
   PlayRequest,
+  PlaybackControlRequest,
   StreamContent as SC,
   VerbRequest
 } from "@fonoster/common";
@@ -94,6 +95,10 @@ class VoiceDispatcher {
     voiceClient.on(SC.MUTE_REQUEST, this.handleMuteRequest.bind(this));
     voiceClient.on(SC.UNMUTE_REQUEST, this.handleUnmuteRequest.bind(this));
     voiceClient.on(SC.PLAY_DTMF_REQUEST, this.handlePlayDtmfRequest.bind(this));
+    voiceClient.on(
+      SC.PLAYBACK_CONTROL_REQUEST,
+      this.handlePlaybackControlRequest.bind(this)
+    );
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {
@@ -204,6 +209,24 @@ class VoiceDispatcher {
       voiceClient.sendResponse({
         playDtmfResponse: {
           sessionRef: playDtmfReq.sessionRef
+        }
+      });
+    }
+  }
+
+  handlePlaybackControlRequest(playbackControlReq: PlaybackControlRequest) {
+    const { sessionRef, action } = playbackControlReq;
+    const voiceClient = this.voiceClients.get(sessionRef);
+
+    if (voiceClient) {
+      this.ari.playbacks.control({
+        playbackId: playbackControlReq.playbackRef,
+        operation: action
+      });
+
+      voiceClient.sendResponse({
+        playbackControlResponse: {
+          sessionRef: playbackControlReq.sessionRef
         }
       });
     }
