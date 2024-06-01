@@ -67,7 +67,7 @@ function createVoiceClient(sdk: FonosterSDK) {
     };
 
     logger.verbose("creating voice client with config: ", {
-      endpoint,
+      appRef,
       callerNumber,
       ingressNumber
     });
