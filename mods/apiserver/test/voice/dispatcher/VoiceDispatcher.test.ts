@@ -20,6 +20,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
+import { getAriStub } from "./helper";
 import { AriEvent } from "../../../src/voice/types";
 
 chai.use(chaiAsPromised);
@@ -36,10 +37,7 @@ describe("@voice/dispatcher/VoiceDispatcher", function () {
     const { VoiceDispatcher } = await import(
       "../../../src/voice/VoiceDispatcher"
     );
-    const ari = {
-      on: sandbox.stub(),
-      start: sandbox.stub()
-    };
+    const ari = getAriStub(sandbox);
     const createVoiceClient = sandbox.stub();
     const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
