@@ -18,7 +18,7 @@ cd fonoster
 Next, copy the .env.example from the repository to the current directory and rename it to .env. This file contains all the environment variables that the services need to run. You can use the following command to copy the file:
 
 ```bash
-curl -o .env https://raw.githubusercontent.com/fonoster/fonos/main/.env.example
+curl -o .env https://raw.githubusercontent.com/fonoster/fonoster/main/.env.example
 curl -o ./etc/fluent.conf https://raw.githubusercontent.com/fonoster/fonoster/main/etc/fluent.conf
 curl -o ./etc/vault.json https://raw.githubusercontent.com/fonoster/fonoster/main/etc/vault.json
 curl -o ./etc/rbac.json https://raw.githubusercontent.com/fonoster/fonoster/main/mods/apiserver/etc/rbac.json
