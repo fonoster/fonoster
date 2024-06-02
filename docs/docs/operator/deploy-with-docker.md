@@ -22,6 +22,7 @@ curl -o .env https://raw.githubusercontent.com/fonoster/fonos/main/.env.example
 curl -o ./etc/fluent.conf https://raw.githubusercontent.com/fonoster/fonos/main/etc/fluent.conf
 curl -o ./etc/vault.json https://raw.githubusercontent.com/fonoster/fonos/main/etc/vault.json
 curl -o ./etc/rbac.json https://raw.githubusercontent.com/fonoster/fonos/main/mods/apiserver/etc/rbac.json
+curl -o ./etc/log4j2.yml https://raw.githubusercontent.com/fonoster/fonos/main/etc/log4j2.yml
 ```
 
 Then, open the .env file with your favorite editor and update the following variables:
