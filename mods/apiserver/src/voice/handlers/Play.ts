@@ -41,10 +41,11 @@ function playHandler(ari: AriClient, voiceClient: VoiceClient) {
 
     if (voiceClient) {
       const playbackRef = playReq.playbackRef || nanoid(10);
+
       await ari.channels.play({
         channelId: sessionRef,
         media: `sound:${playReq.url}`,
-        playback: playbackRef
+        playbackId: playbackRef
       });
 
       await awaitForPlaybackFinished(ari, playbackRef);

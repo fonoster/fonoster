@@ -33,7 +33,7 @@ new VoiceServer(config).listen(
     logger.verbose("voice request", JSON.stringify(req, null, 2));
 
     await res.answer();
-    await res.play("https://s3.fonoster.io/uuid/hello-world.sln16");
+    await res.play("https://storage.googleapis.com/fonoster/tt-monkeys.g722");
     await res.hangup();
   }
 );

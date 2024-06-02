@@ -98,7 +98,7 @@ type AriClient = {
     play: (req: {
       channelId: string;
       media: string;
-      playback?: string;
+      playbackId?: string;
     }) => Promise<void>;
     sendDTMF: (req: { channelId: string; dtmf: string }) => Promise<void>;
     mute: (req: {
