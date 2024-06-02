@@ -16,35 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SinonSandbox } from "sinon";
+import { MuteRequest } from "@fonoster/common";
+import { AriClient, VoiceClient } from "../types";
 
-function getAriStub(sandbox: SinonSandbox) {
-  return {
-    on: sandbox.stub(),
-    start: sandbox.stub(),
-    removeListener: sandbox.stub(),
-    channels: {
-      answer: sandbox.stub(),
-      play: sandbox.stub(),
-      hangup: sandbox.stub(),
-      mute: sandbox.stub(),
-      unmute: sandbox.stub(),
-      sendDTMF: sandbox.stub()
-    },
-    playbacks: {
-      control: sandbox.stub()
+function muteHandler(ari: AriClient, voiceClient: VoiceClient) {
+  return async (muteReq: MuteRequest) => {
+    const { sessionRef, direction } = muteReq;
+
+    if (voiceClient) {
+      ari.channels.mute({
+        channelId: sessionRef,
+        direction
+      });
+
+      voiceClient.sendResponse({
+        muteResponse: {
+          sessionRef: muteReq.sessionRef
+        }
+      });
     }
   };
 }
 
-function getCreateVoiceClient(sandbox: SinonSandbox) {
-  return sandbox.stub().returns({
-    config: {
-      sessionId: "channelId"
-    },
-    close: sandbox.stub(),
-    sendResponse: sandbox.stub()
-  });
-}
-
-export { getAriStub, getCreateVoiceClient };
+export { muteHandler };

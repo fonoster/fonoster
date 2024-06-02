@@ -93,16 +93,22 @@ type AriClient = {
   ) => void;
   start: (appName: string) => void;
   channels?: {
-    hangup: (req: { channelId: string }) => void;
-    answer: (req: { channelId: string }) => void;
+    hangup: (req: { channelId: string }) => Promise<void>;
+    answer: (req: { channelId: string }) => Promise<void>;
     play: (req: {
       channelId: string;
       media: string;
       playback?: string;
-    }) => void;
-    sendDTMF: (req: { channelId: string; dtmf: string }) => void;
-    mute: (req: { channelId: string; direction: MuteDirection }) => void;
-    unmute: (req: { channelId: string; direction: MuteDirection }) => void;
+    }) => Promise<void>;
+    sendDTMF: (req: { channelId: string; dtmf: string }) => Promise<void>;
+    mute: (req: {
+      channelId: string;
+      direction: MuteDirection;
+    }) => Promise<void>;
+    unmute: (req: {
+      channelId: string;
+      direction: MuteDirection;
+    }) => Promise<void>;
   };
   playbacks?: {
     control: (req: {
@@ -110,6 +116,10 @@ type AriClient = {
       operation: PlaybackControlAction;
     }) => void;
   };
+  removeListener: (
+    event: AriEvent,
+    callback: (event: StasisStartEvent, channel: Channel) => void
+  ) => void;
 };
 
 export {

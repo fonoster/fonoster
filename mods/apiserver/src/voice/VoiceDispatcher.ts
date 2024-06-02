@@ -16,15 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  MuteRequest,
-  PlayDtmfRequest,
-  PlayRequest,
-  PlaybackControlRequest,
-  StreamContent as SC,
-  VerbRequest
-} from "@fonoster/common";
-import { nanoid } from "nanoid";
+import { StreamContent as SC } from "@fonoster/common";
+import { answerHandler } from "./handlers/Answer";
+import { hangupHandler } from "./handlers/Hangup";
+import { muteHandler } from "./handlers/Mute";
+import { playHandler } from "./handlers/Play";
+import { playbackControlHandler } from "./handlers/PlaybackControl";
+import { playDtmfHandler } from "./handlers/PlayDtmf";
+import { unmuteHandler } from "./handlers/Unmute";
 import {
   AriClient,
   AriEvent,
@@ -60,44 +59,25 @@ class VoiceDispatcher {
     this.ari.start(STATIS_APP_NAME);
     this.ari.on(AriEvent.STASIS_START, this.handleStasisStart.bind(this));
     this.ari.on(AriEvent.STASIS_END, this.handleStasisEnd.bind(this));
-
-    // Register event handlers
-    // this.ari.on(
-    //   AriEvent.CHANNEL_DTMF_RECEIVED,
-    //   this.handleChannelDtmfReceived.bind(this)
-    // );
-    // this.ari.on(
-    //   AriEvent.PLAYBACK_FINISHED,
-    //   this.handlePlaybackFinished.bind(this)
-    // );
-    // this.ari.on(
-    //   AriEvent.RECORDING_FINISHED,
-    //   this.handleRecordingFinished.bind(this)
-    // );
-    // this.ari.on(
-    //   AriEvent.RECORDING_FAILED,
-    //   this.handleRecordingFailed.bind(this)
-    // );
-
-    // Register command handlers
   }
 
   async handleStasisStart(event: StasisStartEvent, channel: Channel) {
-    const voiceClient = await this.createVoiceClient(event, channel);
+    const vc = await this.createVoiceClient(event, channel);
 
     // Connect to voice server
-    voiceClient.connect();
+    vc.connect();
 
-    this.voiceClients.set(event.channel.id, voiceClient);
-    voiceClient.on(SC.ANSWER_REQUEST, this.handleAnswerRequest.bind(this));
-    voiceClient.on(SC.HANGUP_REQUEST, this.handleHangupRequest.bind(this));
-    voiceClient.on(SC.PLAY_REQUEST, this.handlePlayRequest.bind(this));
-    voiceClient.on(SC.MUTE_REQUEST, this.handleMuteRequest.bind(this));
-    voiceClient.on(SC.UNMUTE_REQUEST, this.handleUnmuteRequest.bind(this));
-    voiceClient.on(SC.PLAY_DTMF_REQUEST, this.handlePlayDtmfRequest.bind(this));
-    voiceClient.on(
+    this.voiceClients.set(channel.id, vc);
+
+    vc.on(SC.ANSWER_REQUEST, answerHandler(this.ari, vc).bind(this));
+    vc.on(SC.HANGUP_REQUEST, hangupHandler(this.ari, vc).bind(this));
+    vc.on(SC.PLAY_REQUEST, playHandler(this.ari, vc).bind(this));
+    vc.on(SC.MUTE_REQUEST, muteHandler(this.ari, vc).bind(this));
+    vc.on(SC.UNMUTE_REQUEST, unmuteHandler(this.ari, vc).bind(this));
+    vc.on(SC.PLAY_DTMF_REQUEST, playDtmfHandler(this.ari, vc).bind(this));
+    vc.on(
       SC.PLAYBACK_CONTROL_REQUEST,
-      this.handlePlaybackControlRequest.bind(this)
+      playbackControlHandler(this.ari, vc).bind(this)
     );
   }
 
@@ -106,129 +86,6 @@ class VoiceDispatcher {
     if (voiceClient) {
       voiceClient.close();
       this.voiceClients.delete(channel.id);
-    }
-  }
-
-  handleHangupRequest(hangupReq: VerbRequest) {
-    const { sessionRef } = hangupReq;
-    const voiceClient = this.voiceClients.get(sessionRef);
-    if (voiceClient) {
-      this.ari.channels.hangup({ channelId: sessionRef });
-      voiceClient.sendResponse({
-        hangupResponse: {
-          sessionRef
-        }
-      });
-      voiceClient.close();
-      this.voiceClients.delete(sessionRef);
-    }
-  }
-
-  handleAnswerRequest(answerReq: VerbRequest) {
-    const { sessionRef } = answerReq;
-    const voiceClient = this.voiceClients.get(sessionRef);
-
-    if (voiceClient) {
-      this.ari.channels.answer({ channelId: sessionRef });
-
-      voiceClient.sendResponse({
-        answerResponse: {
-          sessionRef: answerReq.sessionRef
-        }
-      });
-    }
-  }
-
-  handlePlayRequest(playReq: PlayRequest) {
-    const { sessionRef } = playReq;
-    const voiceClient = this.voiceClients.get(sessionRef);
-
-    if (voiceClient) {
-      const playbackRef = playReq.playbackRef || nanoid(10);
-      this.ari.channels.play({
-        channelId: sessionRef,
-        media: `sound:${playReq.url}`,
-        playback: playbackRef
-      });
-
-      voiceClient.sendResponse({
-        playResponse: {
-          sessionRef: playReq.sessionRef,
-          playbackRef
-        }
-      });
-    }
-  }
-
-  handleMuteRequest(muteReq: MuteRequest) {
-    const { sessionRef, direction } = muteReq;
-    const voiceClient = this.voiceClients.get(sessionRef);
-
-    if (voiceClient) {
-      this.ari.channels.mute({
-        channelId: sessionRef,
-        direction
-      });
-
-      voiceClient.sendResponse({
-        muteResponse: {
-          sessionRef: muteReq.sessionRef
-        }
-      });
-    }
-  }
-
-  handleUnmuteRequest(unmuteReq: MuteRequest) {
-    const { sessionRef, direction } = unmuteReq;
-    const voiceClient = this.voiceClients.get(sessionRef);
-
-    if (voiceClient) {
-      this.ari.channels.unmute({
-        channelId: sessionRef,
-        direction
-      });
-
-      voiceClient.sendResponse({
-        unmuteResponse: {
-          sessionRef: unmuteReq.sessionRef
-        }
-      });
-    }
-  }
-
-  handlePlayDtmfRequest(playDtmfReq: PlayDtmfRequest) {
-    const { sessionRef, digits } = playDtmfReq;
-    const voiceClient = this.voiceClients.get(sessionRef);
-
-    if (voiceClient) {
-      this.ari.channels.sendDTMF({
-        channelId: sessionRef,
-        dtmf: digits
-      });
-
-      voiceClient.sendResponse({
-        playDtmfResponse: {
-          sessionRef: playDtmfReq.sessionRef
-        }
-      });
-    }
-  }
-
-  handlePlaybackControlRequest(playbackControlReq: PlaybackControlRequest) {
-    const { sessionRef, action } = playbackControlReq;
-    const voiceClient = this.voiceClients.get(sessionRef);
-
-    if (voiceClient) {
-      this.ari.playbacks.control({
-        playbackId: playbackControlReq.playbackRef,
-        operation: action
-      });
-
-      voiceClient.sendResponse({
-        playbackControlResponse: {
-          sessionRef: playbackControlReq.sessionRef
-        }
-      });
     }
   }
 }

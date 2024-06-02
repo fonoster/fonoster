@@ -21,6 +21,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
+import { answerHandler } from "../../../src/voice/handlers/Answer";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -35,24 +36,17 @@ describe("@voice/dispatcher/Answer", function () {
 
   it("should handle an Answer command", async function () {
     // Arrange
-    const { VoiceDispatcher } = await import(
-      "../../../src/voice/VoiceDispatcher"
-    );
-
     const ari = getAriStub(sandbox);
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
-
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
     const verbRequest = {
       sessionRef: channelId
     };
 
-    voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
-
     // Act
-    voiceDispatcher.handleAnswerRequest(verbRequest);
+    // voiceDispatcher.handleAnswerRequest(verbRequest);
+    await answerHandler(ari, createVoiceClient())(verbRequest);
 
     // Assert
     expect(ari.channels.answer).to.have.been.calledOnce;

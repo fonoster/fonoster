@@ -22,6 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
+import { playbackControlHandler } from "../../../src/voice/handlers/PlaybackControl";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -36,15 +37,9 @@ describe("@voice/dispatcher/PlaybackControl", function () {
 
   it("should handle a PlaybackControl command", async function () {
     // Arrange
-    const { VoiceDispatcher } = await import(
-      "../../../src/voice/VoiceDispatcher"
-    );
-
     const ari = getAriStub(sandbox);
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
-
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
     const playbackControlRequest = {
       playbackRef: "playback-id",
@@ -52,10 +47,11 @@ describe("@voice/dispatcher/PlaybackControl", function () {
       action: PlaybackControlAction.FORWARD
     };
 
-    voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
-
     // Act
-    voiceDispatcher.handlePlaybackControlRequest(playbackControlRequest);
+    await playbackControlHandler(
+      ari,
+      createVoiceClient()
+    )(playbackControlRequest);
 
     // Assert
     expect(ari.playbacks.control).to.have.been.calledOnce;

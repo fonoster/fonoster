@@ -21,6 +21,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
+import { hangupHandler } from "../../../src/voice/handlers/Hangup";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -35,28 +36,19 @@ describe("@voice/dispatcher/Hangup", function () {
 
   it("should handle a Hangup command", async function () {
     // Arrange
-    const { VoiceDispatcher } = await import(
-      "../../../src/voice/VoiceDispatcher"
-    );
-
     const ari = getAriStub(sandbox);
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
-
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
     const hangupRequest = {
       sessionRef: channelId
     };
 
-    voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
-
     // Act
-    voiceDispatcher.handleHangupRequest(hangupRequest);
+    await hangupHandler(ari, createVoiceClient())(hangupRequest);
 
     // Assert
     expect(createVoiceClient().close).to.have.been.calledOnce;
-    expect(voiceDispatcher.voiceClients.get(channelId)).to.not.exist;
     expect(ari.channels.hangup).to.have.been.calledOnce;
     expect(ari.channels.hangup).to.have.been.calledWith({ channelId });
   });

@@ -21,6 +21,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
+import { playDtmfHandler } from "../../../src/voice/handlers/PlayDtmf";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -35,25 +36,17 @@ describe("@voice/dispatcher/PlayDtmf", function () {
 
   it("should handle a PlayDtmf command", async function () {
     // Arrange
-    const { VoiceDispatcher } = await import(
-      "../../../src/voice/VoiceDispatcher"
-    );
-
     const ari = getAriStub(sandbox);
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
-
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
     const playDtmfRequest = {
       sessionRef: channelId,
       digits: "123"
     };
 
-    voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
-
     // Act
-    voiceDispatcher.handlePlayDtmfRequest(playDtmfRequest);
+    await playDtmfHandler(ari, createVoiceClient())(playDtmfRequest);
 
     // Assert
     expect(ari.channels.sendDTMF).to.have.been.calledOnce;

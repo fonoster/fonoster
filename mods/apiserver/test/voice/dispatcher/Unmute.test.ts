@@ -22,6 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
+import { unmuteHandler } from "../../../src/voice/handlers/Unmute";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -36,29 +37,20 @@ describe("@voice/dispatcher/Unmute", function () {
 
   it("should handle a Mute command", async function () {
     // Arrange
-    const { VoiceDispatcher } = await import(
-      "../../../src/voice/VoiceDispatcher"
-    );
-
     const ari = getAriStub(sandbox);
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
-
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
     const unmuteRequest = {
       sessionRef: channelId,
       direction: MuteDirection.BOTH
     };
 
-    voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
-
     // Act
-    voiceDispatcher.handleUnmuteRequest(unmuteRequest);
+    await unmuteHandler(ari, createVoiceClient())(unmuteRequest);
 
     // Assert
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
-    expect(voiceDispatcher.voiceClients.get(channelId)).to.exist;
     expect(ari.channels.unmute).to.have.been.calledOnce;
     expect(ari.channels.unmute).to.have.been.calledWith({
       channelId,
