@@ -31,6 +31,7 @@ const awaitForPlaybackFinished = async (
         resolve();
       }
     };
+
     ari.on(AriEvent.PLAYBACK_FINISHED, listener);
   });
 };

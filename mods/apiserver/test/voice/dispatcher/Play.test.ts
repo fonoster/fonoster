@@ -22,6 +22,7 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { playHandler } from "../../../src/voice/handlers/Play";
+import { AriEvent } from "../../../src/voice/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -37,6 +38,9 @@ describe("@voice/dispatcher/Play", function () {
   it("should handle a Play command", async function () {
     // Arrange
     const ari = getAriStub(sandbox);
+    ari.on.withArgs(AriEvent.PLAYBACK_FINISHED).callsFake((_, cb) => {
+      cb({}, { id: playRequest.playbackRef });
+    });
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
@@ -61,7 +65,7 @@ describe("@voice/dispatcher/Play", function () {
     expect(ari.channels.play).to.have.been.calledWith({
       channelId,
       media: `sound:${playRequest.url}`,
-      playback: playRequest.playbackRef
+      playbackId: playRequest.playbackRef
     });
   });
 });
