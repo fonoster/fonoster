@@ -17,10 +17,13 @@
  * limitations under the License.
  */
 import {
+  DialRecordDirection,
   MuteDirection,
   PlaybackControlAction,
-  RecordFormat
+  RecordFormat,
+  STASIS_APP_NAME
 } from "@fonoster/common";
+import { Bridge } from "ari-client";
 
 enum AriEvent {
   STASIS_START = "StasisStart",
@@ -54,6 +57,16 @@ type Channel = {
     channelId: string;
     variable: string;
   }) => Promise<{ value: string }>;
+  originate: (req: {
+    app: typeof STASIS_APP_NAME;
+    endpoint: string;
+    timeout: number;
+  }) => Promise<void>;
+  on: (
+    event: AriEvent,
+    callback: (event: Events, channel: Channel) => void
+  ) => void;
+  hangup: () => Promise<void>;
 };
 
 type StasisStartEvent = {
@@ -93,24 +106,30 @@ type RecordingFailedEvent = {
   };
 };
 
+type DialStatusEvent = {
+  dialstatus: string;
+};
+
+type Events = DialStatusEvent | StasisStartEvent | RecordingFinishedEvent;
+
+// Temporary fix for ari-client types
 type AriClient = {
+  Channel: () => Channel;
   on: (
     event: AriEvent,
-    callback: (
-      event: StasisStartEvent | RecordingFinishedEvent,
-      channel: Channel
-    ) => void
+    callback: (event: Events, channel: Channel) => void
   ) => void;
   start: (appName: string) => void;
   channels?: {
+    get: (req: { channelId: string }) => Promise<Channel>;
     record: (req: {
       channelId: string;
       format: RecordFormat;
       name: string;
-      beep: boolean;
-      maxDurationSeconds: number;
-      maxSilenceSeconds: number;
-      terminateOn: string;
+      beep?: boolean;
+      maxDurationSeconds?: number;
+      maxSilenceSeconds?: number;
+      terminateOn?: string;
     }) => Promise<void>;
     hangup: (req: { channelId: string }) => Promise<void>;
     answer: (req: { channelId: string }) => Promise<void>;
@@ -128,6 +147,15 @@ type AriClient = {
       channelId: string;
       direction: MuteDirection;
     }) => Promise<void>;
+    snoopChannel: (req: {
+      app: string;
+      channelId: string;
+      spy: DialRecordDirection.IN | DialRecordDirection.OUT;
+    }) => Promise<Channel>;
+  };
+  bridges?: {
+    get: (req: { bridgeId: string }) => Promise<Bridge>;
+    create: (req: { type: "mixing" }) => Promise<Bridge>;
   };
   playbacks?: {
     control: (req: {

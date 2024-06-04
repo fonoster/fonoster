@@ -20,20 +20,27 @@ import { SinonSandbox } from "sinon";
 
 function getAriStub(sandbox: SinonSandbox) {
   return {
+    Channel: sandbox.stub(),
     on: sandbox.stub(),
     start: sandbox.stub(),
     removeListener: sandbox.stub(),
     channels: {
+      get: sandbox.stub(),
       record: sandbox.stub(),
       answer: sandbox.stub(),
       play: sandbox.stub(),
       hangup: sandbox.stub(),
       mute: sandbox.stub(),
       unmute: sandbox.stub(),
-      sendDTMF: sandbox.stub()
+      sendDTMF: sandbox.stub(),
+      snoopChannel: sandbox.stub()
     },
     playbacks: {
       control: sandbox.stub()
+    },
+    bridges: {
+      get: sandbox.stub(),
+      create: sandbox.stub()
     }
   };
 }

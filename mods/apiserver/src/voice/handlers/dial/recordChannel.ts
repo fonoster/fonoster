@@ -16,34 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerbRequest } from "./Verb";
+import {
+  DialRecordDirection,
+  RecordFormat,
+  STASIS_APP_NAME
+} from "@fonoster/common";
+import { AriClient } from "../../types";
 
-enum DialRecordDirection {
-  IN = "in",
-  OUT = "out",
-  BOTH = "both"
+async function recordChannel(
+  ari: AriClient,
+  direction: DialRecordDirection.IN | DialRecordDirection.OUT,
+  sessionRef: string
+) {
+  const channel = await ari.channels.snoopChannel({
+    app: STASIS_APP_NAME,
+    channelId: sessionRef,
+    spy: direction
+  });
+
+  return ari.channels.record({
+    channelId: channel.id,
+    format: RecordFormat.WAV,
+    name: `${sessionRef}_${direction}`
+  });
 }
 
-enum DialStatus {
-  TRYING = 0,
-  CANCEL = 1,
-  ANSWER = 2,
-  BUSY = 3,
-  PROGRESS = 4,
-  NOANSWER = 5
-}
-
-type DialOptions = {
-  timeout?: number;
-  recordDirection?: DialRecordDirection;
-};
-
-type DialRequest = VerbRequest &
-  DialOptions & {
-    destination: string;
-    record?: {
-      direction: DialRecordDirection;
-    };
-  };
-
-export { DialRequest, DialOptions, DialStatus, DialRecordDirection };
+export { recordChannel };

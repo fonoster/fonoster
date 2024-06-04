@@ -60,6 +60,9 @@ describe("@voice/createVoiceClient", function () {
 
     const channel = {
       id: channelId,
+      originate: sandbox.stub(),
+      hangup: sandbox.stub(),
+      on: sandbox.stub(),
       getChannelVar: sandbox
         .stub()
         .onFirstCall()

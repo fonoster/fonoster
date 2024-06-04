@@ -63,7 +63,11 @@ describe("@voice/dispatcher/StasisStart", function () {
 
     const channel = {
       id: channelId,
-      getChannelVar: sandbox.stub().resolves({ value: "value" })
+      getChannelVar: sandbox.stub().resolves({ value: "value" }),
+      Channel: sandbox.stub(),
+      originate: sandbox.stub(),
+      on: sandbox.stub(),
+      hangup: sandbox.stub()
     };
 
     // Act
@@ -72,6 +76,6 @@ describe("@voice/dispatcher/StasisStart", function () {
     // Assert
     expect(createVoiceClient).to.have.been.calledOnce;
     expect(voiceDispatcher.voiceClients.get(channelId)).to.exist;
-    // expect(createVoiceClient().connect).to.have.been.calledOnce;
+    expect(createVoiceClient().connect).to.have.been.calledOnce;
   });
 });

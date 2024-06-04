@@ -16,34 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerbRequest } from "./Verb";
+import { Bridge } from "ari-client";
+import { Channel } from "../../types";
 
-enum DialRecordDirection {
-  IN = "in",
-  OUT = "out",
-  BOTH = "both"
-}
+function handleChannelLeftBridge(params: { bridge: Bridge; dialed: Channel }) {
+  const { dialed, bridge } = params;
 
-enum DialStatus {
-  TRYING = 0,
-  CANCEL = 1,
-  ANSWER = 2,
-  BUSY = 3,
-  PROGRESS = 4,
-  NOANSWER = 5
-}
+  return async () => {
+    try {
+      dialed.hangup();
+    } catch (e) {
+      /** We can only try */
+    }
 
-type DialOptions = {
-  timeout?: number;
-  recordDirection?: DialRecordDirection;
-};
-
-type DialRequest = VerbRequest &
-  DialOptions & {
-    destination: string;
-    record?: {
-      direction: DialRecordDirection;
-    };
+    try {
+      await bridge.destroy();
+    } catch (e) {
+      /* Ignore because the bridge might not exist anymore */
+    }
   };
+}
 
-export { DialRequest, DialOptions, DialStatus, DialRecordDirection };
+export { handleChannelLeftBridge };

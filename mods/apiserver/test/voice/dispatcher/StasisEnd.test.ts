@@ -47,7 +47,11 @@ describe("@voice/dispatcher/StasisEnd", function () {
 
     const channel = {
       id: channelId,
-      getChannelVar: sandbox.stub().resolves({ value: "value" })
+      getChannelVar: sandbox.stub().resolves({ value: "value" }),
+      Channel: sandbox.stub(),
+      originate: sandbox.stub(),
+      on: sandbox.stub(),
+      hangup: sandbox.stub()
     };
 
     voiceDispatcher.voiceClients.set(channelId, createVoiceClient());

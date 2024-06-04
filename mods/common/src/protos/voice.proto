@@ -242,11 +242,12 @@ message DialStatus {
 
   // The status of the dial
   enum Status {
-    CANCEL = 0;
-    ANSWER = 1;
-    BUSY = 2;
-    PROGRESS = 3;
-    NOANSWER = 4;
+    TRYING = 0;
+    CANCEL = 1;
+    ANSWER = 2;
+    BUSY = 3;
+    PROGRESS = 4;
+    NOANSWER = 5;
   }
   Status status = 2;
 }

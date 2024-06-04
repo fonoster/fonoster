@@ -16,34 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerbRequest } from "./Verb";
-
-enum DialRecordDirection {
-  IN = "in",
-  OUT = "out",
-  BOTH = "both"
-}
-
-enum DialStatus {
-  TRYING = 0,
-  CANCEL = 1,
-  ANSWER = 2,
-  BUSY = 3,
-  PROGRESS = 4,
-  NOANSWER = 5
-}
-
-type DialOptions = {
-  timeout?: number;
-  recordDirection?: DialRecordDirection;
-};
-
-type DialRequest = VerbRequest &
-  DialOptions & {
-    destination: string;
-    record?: {
-      direction: DialRecordDirection;
-    };
+function handleStasisEnd(_) {
+  return async () => {
+    // Fixme: Should upload the recording to the storage service
+    // no-op
   };
+}
 
-export { DialRequest, DialOptions, DialStatus, DialRecordDirection };
+export { handleStasisEnd };

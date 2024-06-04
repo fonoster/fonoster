@@ -16,34 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerbRequest } from "./Verb";
+import { DialStatus } from "@fonoster/common";
+import { VoiceClient } from "../../types";
 
-enum DialRecordDirection {
-  IN = "in",
-  OUT = "out",
-  BOTH = "both"
-}
+function handleDialEvents(voiceClient: VoiceClient) {
+  return async (event: { dialstatus: string }) => {
+    let status = event.dialstatus.toLowerCase();
 
-enum DialStatus {
-  TRYING = 0,
-  CANCEL = 1,
-  ANSWER = 2,
-  BUSY = 3,
-  PROGRESS = 4,
-  NOANSWER = 5
-}
+    if (
+      !["cancel", "answer", "busy", "progress", "noanswer"].includes(status)
+    ) {
+      return;
+    } else if (status === "chanunavail" || status === "congestion") {
+      status = "failed";
+    }
 
-type DialOptions = {
-  timeout?: number;
-  recordDirection?: DialRecordDirection;
-};
-
-type DialRequest = VerbRequest &
-  DialOptions & {
-    destination: string;
-    record?: {
-      direction: DialRecordDirection;
-    };
+    voiceClient.sendResponse({
+      dialResponse: {
+        // Fixme: Map to DialStatus
+        status: DialStatus.ANSWER
+      }
+    });
   };
+}
 
-export { DialRequest, DialOptions, DialStatus, DialRecordDirection };
+export { handleDialEvents };
