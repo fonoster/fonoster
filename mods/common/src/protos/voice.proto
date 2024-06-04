@@ -248,6 +248,7 @@ message DialStatus {
     BUSY = 3;
     PROGRESS = 4;
     NOANSWER = 5;
+    FAILED = 6;
   }
   Status status = 2;
 }

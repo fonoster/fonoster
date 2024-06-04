@@ -32,8 +32,7 @@ import {
 
 function dialHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (request: DialRequest) => {
-    const { sessionRef, destination } = request;
-    const timeout = 30000;
+    const { sessionRef, destination, timeout } = request;
 
     const channel = await ari.channels.get({ channelId: sessionRef });
     const getChannelVar = createGetChannelVar(channel);

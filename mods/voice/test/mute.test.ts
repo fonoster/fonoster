@@ -71,6 +71,6 @@ describe("@voice/verbs/mute", function () {
 
     // Assert
     // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Invalid enum value. Expected 'in' | 'out' | 'both', received 'south' at \"direction\"");
+    return expect(promise).to.be.rejectedWith("Invalid enum value. Expected 'IN' | 'OUT' | 'BOTH', received 'south' at \"direction\"");
   });
 });

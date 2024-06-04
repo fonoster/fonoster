@@ -28,22 +28,22 @@ function handleStasisStart(params: {
   dialed: Channel;
 }) {
   const { ari, request, dialed, bridge } = params;
-  const { record } = request;
+  const { recordDirection } = request;
 
   return async (_: undefined, channel: Channel) => {
     try {
       await bridge.addChannel({ channel: dialed.id });
 
       if (
-        record?.direction === DialRecordDirection.IN ||
-        record?.direction === DialRecordDirection.BOTH
+        recordDirection === DialRecordDirection.IN ||
+        recordDirection === DialRecordDirection.BOTH
       ) {
         recordChannel(ari, DialRecordDirection.IN, channel.id);
       }
 
       if (
-        record?.direction === DialRecordDirection.OUT ||
-        record?.direction === DialRecordDirection.BOTH
+        recordDirection === DialRecordDirection.OUT ||
+        recordDirection === DialRecordDirection.BOTH
       ) {
         recordChannel(ari, DialRecordDirection.OUT, dialed.id);
       }

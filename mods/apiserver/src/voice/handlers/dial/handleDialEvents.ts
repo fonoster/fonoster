@@ -19,22 +19,28 @@
 import { DialStatus } from "@fonoster/common";
 import { VoiceClient } from "../../types";
 
+const FailedStatus = ["CHANUNAVAIL", "CONGESTION"];
+
 function handleDialEvents(voiceClient: VoiceClient) {
   return async (event: { dialstatus: string }) => {
-    let status = event.dialstatus.toLowerCase();
+    const status = event.dialstatus.toUpperCase();
+    const dialStatusArray = Object.keys(DialStatus).map(
+      (key) => DialStatus[key]
+    );
+    let mappedStatus: DialStatus;
 
-    if (
-      !["cancel", "answer", "busy", "progress", "noanswer"].includes(status)
-    ) {
+    if (FailedStatus.includes(status)) {
+      mappedStatus = DialStatus.FAILED;
+    } else if (dialStatusArray.includes(status)) {
+      mappedStatus = DialStatus[status];
+    } else {
+      // If the status is not in the DialStatus enum, we ignore the event
       return;
-    } else if (status === "chanunavail" || status === "congestion") {
-      status = "failed";
     }
 
     voiceClient.sendResponse({
       dialResponse: {
-        // Fixme: Map to DialStatus
-        status: DialStatus.ANSWER
+        status: mappedStatus
       }
     });
   };

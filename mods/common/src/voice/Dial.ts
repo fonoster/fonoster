@@ -19,18 +19,19 @@
 import { VerbRequest } from "./Verb";
 
 enum DialRecordDirection {
-  IN = "in",
-  OUT = "out",
-  BOTH = "both"
+  IN = "IN",
+  OUT = "OUT",
+  BOTH = "BOTH"
 }
 
 enum DialStatus {
-  TRYING = 0,
-  CANCEL = 1,
-  ANSWER = 2,
-  BUSY = 3,
-  PROGRESS = 4,
-  NOANSWER = 5
+  TRYING = "TRYING",
+  CANCEL = "CANCEL",
+  ANSWER = "ANSWER",
+  BUSY = "BUSY",
+  PROGRESS = "PROGRESS",
+  NOANSWER = "NOANSWER",
+  FAILED = "FAILED"
 }
 
 type DialOptions = {
@@ -41,9 +42,6 @@ type DialOptions = {
 type DialRequest = VerbRequest &
   DialOptions & {
     destination: string;
-    record?: {
-      direction: DialRecordDirection;
-    };
   };
 
 export { DialRequest, DialOptions, DialStatus, DialRecordDirection };
