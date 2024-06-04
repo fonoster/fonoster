@@ -24,6 +24,7 @@ function getAriStub(sandbox: SinonSandbox) {
     start: sandbox.stub(),
     removeListener: sandbox.stub(),
     channels: {
+      record: sandbox.stub(),
       answer: sandbox.stub(),
       play: sandbox.stub(),
       hangup: sandbox.stub(),

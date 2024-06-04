@@ -1,5 +1,3 @@
-import { MuteDirection, PlaybackControlAction } from "@fonoster/common";
-
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,6 +16,12 @@ import { MuteDirection, PlaybackControlAction } from "@fonoster/common";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  MuteDirection,
+  PlaybackControlAction,
+  RecordFormat
+} from "@fonoster/common";
+
 enum AriEvent {
   STASIS_START = "StasisStart",
   STASIS_END = "StasisEnd",
@@ -89,10 +93,22 @@ type RecordingFailedEvent = {
 type AriClient = {
   on: (
     event: AriEvent,
-    callback: (event: StasisStartEvent, channel: Channel) => void
+    callback: (
+      event: StasisStartEvent | RecordingFinishedEvent,
+      channel: Channel
+    ) => void
   ) => void;
   start: (appName: string) => void;
   channels?: {
+    record: (req: {
+      channelId: string;
+      format: RecordFormat;
+      name: string;
+      beep: boolean;
+      maxDurationSeconds: number;
+      maxSilenceSeconds: number;
+      terminateOn: string;
+    }) => Promise<void>;
     hangup: (req: { channelId: string }) => Promise<void>;
     answer: (req: { channelId: string }) => Promise<void>;
     play: (req: {
@@ -118,7 +134,10 @@ type AriClient = {
   };
   removeListener: (
     event: AriEvent,
-    callback: (event: StasisStartEvent, channel: Channel) => void
+    callback: (
+      event: StasisStartEvent | RecordingFinishedEvent,
+      channel: Channel
+    ) => void
   ) => void;
 };
 

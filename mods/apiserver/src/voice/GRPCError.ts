@@ -16,26 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerbRequest } from "./Verb";
+class GRPCError extends Error {
+  code: number;
 
-enum RecordFormat {
-  WAV = "wav"
+  constructor(code: number, message: string) {
+    super(message);
+    this.code = code;
+    Object.setPrototypeOf(this, GRPCError.prototype);
+  }
 }
 
-type RecordOptions = {
-  maxDuration?: number;
-  maxSilence?: number;
-  beep?: boolean;
-  finishOnKey?: string;
-};
-
-type RecordRequest = VerbRequest & RecordOptions;
-
-type RecordResponse = {
-  sessionRef: string;
-  name: string;
-  duration: number;
-  format: RecordFormat;
-};
-
-export { RecordOptions, RecordRequest, RecordResponse, RecordFormat };
+export { GRPCError };
