@@ -40,24 +40,22 @@ function playHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (playReq: PlayRequest) => {
     const { sessionRef } = playReq;
 
-    if (voiceClient) {
-      const playbackRef = playReq.playbackRef || nanoid(10);
+    const playbackRef = playReq.playbackRef || nanoid(10);
 
-      await ari.channels.play({
-        channelId: sessionRef,
-        media: `sound:${playReq.url}`,
-        playbackId: playbackRef
-      });
+    await ari.channels.play({
+      channelId: sessionRef,
+      media: `sound:${playReq.url}`,
+      playbackId: playbackRef
+    });
 
-      await awaitForPlaybackFinished(ari, playbackRef);
+    await awaitForPlaybackFinished(ari, playbackRef);
 
-      voiceClient.sendResponse({
-        playResponse: {
-          sessionRef: playReq.sessionRef,
-          playbackRef
-        }
-      });
-    }
+    voiceClient.sendResponse({
+      playResponse: {
+        sessionRef: playReq.sessionRef,
+        playbackRef
+      }
+    });
   };
 }
 

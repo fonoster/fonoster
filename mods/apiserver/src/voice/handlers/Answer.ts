@@ -23,15 +23,13 @@ function answerHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (answerReq: VerbRequest) => {
     const { sessionRef } = answerReq;
 
-    if (voiceClient) {
-      await ari.channels.answer({ channelId: sessionRef });
+    await ari.channels.answer({ channelId: sessionRef });
 
-      voiceClient.sendResponse({
-        answerResponse: {
-          sessionRef: answerReq.sessionRef
-        }
-      });
-    }
+    voiceClient.sendResponse({
+      answerResponse: {
+        sessionRef: answerReq.sessionRef
+      }
+    });
   };
 }
 

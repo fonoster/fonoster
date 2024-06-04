@@ -23,18 +23,16 @@ function muteHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (muteReq: MuteRequest) => {
     const { sessionRef, direction } = muteReq;
 
-    if (voiceClient) {
-      ari.channels.mute({
-        channelId: sessionRef,
-        direction
-      });
+    await ari.channels.mute({
+      channelId: sessionRef,
+      direction
+    });
 
-      voiceClient.sendResponse({
-        muteResponse: {
-          sessionRef: muteReq.sessionRef
-        }
-      });
-    }
+    voiceClient.sendResponse({
+      muteResponse: {
+        sessionRef: muteReq.sessionRef
+      }
+    });
   };
 }
 

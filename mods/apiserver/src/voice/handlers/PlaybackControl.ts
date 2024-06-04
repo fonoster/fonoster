@@ -23,18 +23,16 @@ function playbackControlHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (playbackControlReq: PlaybackControlRequest) => {
     const { sessionRef, playbackRef, action } = playbackControlReq;
 
-    if (voiceClient) {
-      ari.playbacks.control({
-        playbackId: playbackRef,
-        operation: action
-      });
+    await ari.playbacks.control({
+      playbackId: playbackRef,
+      operation: action
+    });
 
-      voiceClient.sendResponse({
-        playbackControlResponse: {
-          sessionRef
-        }
-      });
-    }
+    voiceClient.sendResponse({
+      playbackControlResponse: {
+        sessionRef
+      }
+    });
   };
 }
 

@@ -54,28 +54,26 @@ function recordHandler(ari: AriClient, voiceClient: VoiceClient) {
     const { sessionRef, maxDuration, maxSilence, beep, finishOnKey } = request;
     const name = nanoid(10);
 
-    if (voiceClient) {
-      await ari.channels.record({
-        channelId: sessionRef,
-        format: RecordFormat.WAV,
+    await ari.channels.record({
+      channelId: sessionRef,
+      format: RecordFormat.WAV,
+      name,
+      beep,
+      maxDurationSeconds: maxDuration,
+      maxSilenceSeconds: maxSilence,
+      terminateOn: finishOnKey
+    });
+
+    const { duration } = await awaitForRecordingFinished(ari, name);
+
+    voiceClient.sendResponse({
+      recordResponse: {
+        sessionRef,
         name,
-        beep,
-        maxDurationSeconds: maxDuration,
-        maxSilenceSeconds: maxSilence,
-        terminateOn: finishOnKey
-      });
-
-      const { duration } = await awaitForRecordingFinished(ari, name);
-
-      voiceClient.sendResponse({
-        recordResponse: {
-          sessionRef,
-          name,
-          format: RecordFormat.WAV,
-          duration
-        }
-      });
-    }
+        format: RecordFormat.WAV,
+        duration
+      }
+    });
   };
 }
 

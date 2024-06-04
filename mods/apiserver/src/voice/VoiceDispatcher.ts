@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StreamContent as SC } from "@fonoster/common";
+import { StreamContent as SC, STASIS_APP_NAME } from "@fonoster/common";
 import { answerHandler } from "./handlers/Answer";
 import { hangupHandler } from "./handlers/Hangup";
 import { muteHandler } from "./handlers/Mute";
@@ -31,8 +31,6 @@ import {
   StasisStartEvent,
   VoiceClient
 } from "./types";
-
-const STATIS_APP_NAME = "mediacontroller";
 
 class VoiceDispatcher {
   voiceClients: Map<string, VoiceClient>;
@@ -56,7 +54,7 @@ class VoiceDispatcher {
 
   start() {
     // Initialize the ARI client
-    this.ari.start(STATIS_APP_NAME);
+    this.ari.start(STASIS_APP_NAME);
     this.ari.on(AriEvent.STASIS_START, this.handleStasisStart.bind(this));
     this.ari.on(AriEvent.STASIS_END, this.handleStasisEnd.bind(this));
   }
@@ -79,6 +77,7 @@ class VoiceDispatcher {
       SC.PLAYBACK_CONTROL_REQUEST,
       playbackControlHandler(this.ari, vc).bind(this)
     );
+    // vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {

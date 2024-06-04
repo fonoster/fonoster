@@ -31,14 +31,17 @@ enum AriEvent {
   RECORDING_FINISHED = "RecordingFinished",
   RECORDING_FAILED = "RecordingFailed",
   WEB_SOCKET_RECONNECTING = "WebSocketReconnecting",
-  WEB_SOCKET_MAX_RETRIES = "WebSocketMaxRetries"
+  WEB_SOCKET_MAX_RETRIES = "WebSocketMaxRetries",
+  CHANNEL_LEFT_BRIDGE = "ChannelLeftBridge",
+  DIAL = "Dial"
 }
 
 enum ChannelVar {
   INGRESS_NUMBER = "INGRESS_NUMBER",
   APP_REF = "APP_REF",
   APP_ENDPOINT = "APP_ENDPOINT",
-  METADATA = "METADATA"
+  METADATA = "METADATA",
+  CURRENT_BRIDGE = "CURRENT_BRIDGE"
 }
 
 enum FileFormat {
@@ -130,7 +133,7 @@ type AriClient = {
     control: (req: {
       playbackId: string;
       operation: PlaybackControlAction;
-    }) => void;
+    }) => Promise<void>;
   };
   removeListener: (
     event: AriEvent,

@@ -23,18 +23,16 @@ function playDtmfHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (playDtmfReq: PlayDtmfRequest) => {
     const { sessionRef, digits } = playDtmfReq;
 
-    if (voiceClient) {
-      ari.channels.sendDTMF({
-        channelId: sessionRef,
-        dtmf: digits
-      });
+    await ari.channels.sendDTMF({
+      channelId: sessionRef,
+      dtmf: digits
+    });
 
-      voiceClient.sendResponse({
-        playDtmfResponse: {
-          sessionRef
-        }
-      });
-    }
+    voiceClient.sendResponse({
+      playDtmfResponse: {
+        sessionRef
+      }
+    });
   };
 }
 

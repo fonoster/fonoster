@@ -23,18 +23,16 @@ function unmuteHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (unmuteReq: MuteRequest) => {
     const { sessionRef, direction } = unmuteReq;
 
-    if (voiceClient) {
-      ari.channels.unmute({
-        channelId: sessionRef,
-        direction
-      });
+    await ari.channels.unmute({
+      channelId: sessionRef,
+      direction
+    });
 
-      voiceClient.sendResponse({
-        muteResponse: {
-          sessionRef: unmuteReq.sessionRef
-        }
-      });
-    }
+    voiceClient.sendResponse({
+      muteResponse: {
+        sessionRef: unmuteReq.sessionRef
+      }
+    });
   };
 }
 

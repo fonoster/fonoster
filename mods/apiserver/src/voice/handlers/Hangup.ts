@@ -23,17 +23,15 @@ function hangupHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (hangupReq: VerbRequest) => {
     const { sessionRef } = hangupReq;
 
-    if (voiceClient) {
-      ari.channels.hangup({ channelId: sessionRef });
+    await ari.channels.hangup({ channelId: sessionRef });
 
-      voiceClient.sendResponse({
-        hangupResponse: {
-          sessionRef
-        }
-      });
+    voiceClient.sendResponse({
+      hangupResponse: {
+        sessionRef
+      }
+    });
 
-      voiceClient.close();
-    }
+    voiceClient.close();
   };
 }
 
