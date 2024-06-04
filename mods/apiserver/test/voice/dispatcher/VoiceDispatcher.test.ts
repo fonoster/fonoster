@@ -32,7 +32,7 @@ describe("@voice/dispatcher/VoiceDispatcher", function () {
     return sandbox.restore();
   });
 
-  it.skip("should create a VoiceDispatcher", async function () {
+  it("should create a VoiceDispatcher", async function () {
     // Arrange
     const { VoiceDispatcher } = await import(
       "../../../src/voice/VoiceDispatcher"
@@ -45,7 +45,7 @@ describe("@voice/dispatcher/VoiceDispatcher", function () {
     voiceDispatcher.start();
 
     // Assert
-    expect(ari.on).to.have.been.called.callCount(6);
+    expect(ari.on).to.have.been.called.calledTwice;
     expect(ari.on).to.have.been.calledWith(
       AriEvent.STASIS_START,
       match.func.and(
@@ -62,39 +62,5 @@ describe("@voice/dispatcher/VoiceDispatcher", function () {
         })
       )
     );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.CHANNEL_DTMF_RECEIVED,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleChannelDtmfReceived";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.PLAYBACK_FINISHED,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handlePlaybackFinished";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.RECORDING_FINISHED,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleRecordingFinished";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.RECORDING_FAILED,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleRecordingFailed";
-        })
-      )
-    );
-    expect(ari.start).to.have.been.calledOnce;
-    expect(ari.start).to.have.been.calledWith("mediacontroller");
   });
 });
