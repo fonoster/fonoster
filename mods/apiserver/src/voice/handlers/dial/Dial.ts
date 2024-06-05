@@ -22,33 +22,20 @@ import { handleDialEvents } from "./handleDialEvents";
 import { handleStasisEnd } from "./handleStasisEnd";
 import { handleStasisStart } from "./handleStasisStart";
 import { ASTERISK_TRUNK } from "../../../envs";
-import { createGetChannelVar } from "../../createGetChannelVar";
-import {
-  AriEvent as AE,
-  AriClient,
-  ChannelVar,
-  VoiceClient
-} from "../../types";
+import { AriEvent as AE, AriClient, VoiceClient } from "../../types";
 
 function dialHandler(ari: AriClient, voiceClient: VoiceClient) {
   return async (request: DialRequest) => {
     const { sessionRef, destination, timeout } = request;
 
-    const channel = await ari.channels.get({ channelId: sessionRef });
-    const getChannelVar = createGetChannelVar(channel);
-    const { value: bridgeId } = await getChannelVar(ChannelVar.CURRENT_BRIDGE);
-
-    let bridge = await ari.bridges.get({ bridgeId });
-
-    if (!bridge) {
-      bridge = await ari.bridges.create({
-        type: "mixing"
-      });
-      await bridge.addChannel({ channel: sessionRef });
-    }
+    const bridge = await ari.bridges.create({
+      type: "mixing"
+    });
 
     // eslint-disable-next-line new-cap
     const dialed = ari.Channel();
+
+    await bridge.addChannel({ channel: sessionRef });
 
     // FIXME: Hardcoded value
     const domain = "sip.local";
