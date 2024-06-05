@@ -25,8 +25,7 @@ import {
 import { Bridge, Client } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
-import sinon from "sinon";
+import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { sessionRef } from "../../../../voice/test/helpers";
