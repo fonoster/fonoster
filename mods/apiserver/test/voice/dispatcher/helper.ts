@@ -20,7 +20,11 @@ import { SinonSandbox } from "sinon";
 
 function getAriStub(sandbox: SinonSandbox) {
   return {
-    Channel: sandbox.stub(),
+    Channel: sandbox.stub().returns({
+      originate: sandbox.stub(),
+      on: sandbox.stub(),
+      hangup: sandbox.stub()
+    }),
     on: sandbox.stub(),
     start: sandbox.stub(),
     removeListener: sandbox.stub(),
@@ -40,7 +44,10 @@ function getAriStub(sandbox: SinonSandbox) {
     },
     bridges: {
       get: sandbox.stub(),
-      create: sandbox.stub()
+      create: sandbox.stub().resolves({
+        addChannel: sandbox.stub(),
+        destroy: sandbox.stub()
+      })
     }
   };
 }

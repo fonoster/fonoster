@@ -45,7 +45,6 @@ describe("@voice/dispatcher/Answer", function () {
     };
 
     // Act
-    // voiceDispatcher.handleAnswerRequest(verbRequest);
     await answerHandler(ari, createVoiceClient())(verbRequest);
 
     // Assert
