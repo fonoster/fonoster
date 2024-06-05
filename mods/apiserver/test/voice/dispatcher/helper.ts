@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Client } from "ari-client";
 import { SinonSandbox } from "sinon";
 
 function getAriStub(sandbox: SinonSandbox) {
@@ -49,7 +50,7 @@ function getAriStub(sandbox: SinonSandbox) {
         destroy: sandbox.stub()
       })
     }
-  };
+  } as unknown as Client;
 }
 
 function getCreateVoiceClient(sandbox: SinonSandbox) {

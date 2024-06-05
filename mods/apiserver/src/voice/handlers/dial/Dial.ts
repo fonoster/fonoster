@@ -17,14 +17,15 @@
  * limitations under the License.
  */
 import { DialRequest, DialStatus, STASIS_APP_NAME } from "@fonoster/common";
+import { Client } from "ari-client";
 import { handleChannelLeftBridge } from "./handleChannelLeftBridge";
 import { handleDialEvents } from "./handleDialEvents";
 import { handleStasisEnd } from "./handleStasisEnd";
 import { handleStasisStart } from "./handleStasisStart";
 import { ASTERISK_TRUNK } from "../../../envs";
-import { AriEvent as AE, AriClient, VoiceClient } from "../../types";
+import { AriEvent as AE, VoiceClient } from "../../types";
 
-function dialHandler(ari: AriClient, voiceClient: VoiceClient) {
+function dialHandler(ari: Client, voiceClient: VoiceClient) {
   return async (request: DialRequest) => {
     const { sessionRef, destination, timeout } = request;
 

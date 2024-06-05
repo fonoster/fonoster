@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Channel, StasisStart } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
@@ -56,7 +57,7 @@ describe("@voice/createVoiceClient", function () {
           number: "+17853178070"
         }
       }
-    };
+    } as unknown as StasisStart;
 
     const channel = {
       id: channelId,
@@ -71,7 +72,7 @@ describe("@voice/createVoiceClient", function () {
         .resolves({ value: "{}" })
         .onThirdCall()
         .resolves({ value: "app-ref" })
-    };
+    } as unknown as Channel;
 
     // Act
     const voiceClient = await createVoiceClient(sdk)(event, channel);
@@ -81,15 +82,12 @@ describe("@voice/createVoiceClient", function () {
     expect(sdk.getApp).to.have.been.calledOnceWith("app-ref");
     expect(channel.getChannelVar).to.have.been.calledThrice;
     expect(channel.getChannelVar).to.have.been.calledWith({
-      channelId,
       variable: ChannelVar.APP_REF
     });
     expect(channel.getChannelVar).to.have.been.calledWith({
-      channelId,
       variable: ChannelVar.METADATA
     });
     expect(channel.getChannelVar).to.have.been.calledWith({
-      channelId,
       variable: ChannelVar.INGRESS_NUMBER
     });
   });

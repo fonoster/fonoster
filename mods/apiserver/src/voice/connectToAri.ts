@@ -21,7 +21,7 @@ import ariClient from "ari-client";
 import wait from "wait-port";
 import { createVoiceClient } from "./createVoiceClient";
 import { fonosterSDKMock } from "./fonosterSDKMock";
-import { AriClient, AriEvent } from "./types";
+import { AriEvent } from "./types";
 import { VoiceDispatcher } from "./VoiceDispatcher";
 import {
   ASTERISK_ARI_PROXY_URL,
@@ -60,7 +60,7 @@ async function connectToAri() {
     logger.info("asterisk is ready");
 
     const dispatcher = new VoiceDispatcher(
-      ari as unknown as AriClient,
+      ari,
       createVoiceClient(fonosterSDKMock)
     );
 

@@ -17,11 +17,12 @@
  * limitations under the License.
  */
 import { VerbRequest } from "@fonoster/common";
-import { AriClient, VoiceClient } from "../types";
+import { Client } from "ari-client";
+import { VoiceClient } from "../types";
 
-function hangupHandler(ari: AriClient, voiceClient: VoiceClient) {
-  return async (hangupReq: VerbRequest) => {
-    const { sessionRef } = hangupReq;
+function hangupHandler(ari: Client, voiceClient: VoiceClient) {
+  return async (request: VerbRequest) => {
+    const { sessionRef } = request;
 
     await ari.channels.hangup({ channelId: sessionRef });
 

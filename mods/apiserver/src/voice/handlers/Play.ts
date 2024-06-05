@@ -17,11 +17,12 @@
  * limitations under the License.
  */
 import { PlayRequest } from "@fonoster/common";
+import { Client } from "ari-client";
 import { nanoid } from "nanoid";
-import { AriClient, AriEvent, VoiceClient } from "../types";
+import { AriEvent, VoiceClient } from "../types";
 
 const awaitForPlaybackFinished = async (
-  ari: AriClient,
+  ari: Client,
   playbackRef: string
 ): Promise<void> => {
   return new Promise((resolve) => {
@@ -36,15 +37,15 @@ const awaitForPlaybackFinished = async (
   });
 };
 
-function playHandler(ari: AriClient, voiceClient: VoiceClient) {
-  return async (playReq: PlayRequest) => {
-    const { sessionRef } = playReq;
+function playHandler(ari: Client, voiceClient: VoiceClient) {
+  return async (request: PlayRequest) => {
+    const { sessionRef } = request;
 
-    const playbackRef = playReq.playbackRef || nanoid(10);
+    const playbackRef = request.playbackRef || nanoid(10);
 
     await ari.channels.play({
       channelId: sessionRef,
-      media: `sound:${playReq.url}`,
+      media: `sound:${request.url}`,
       playbackId: playbackRef
     });
 
@@ -52,7 +53,7 @@ function playHandler(ari: AriClient, voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       playResponse: {
-        sessionRef: playReq.sessionRef,
+        sessionRef,
         playbackRef
       }
     });

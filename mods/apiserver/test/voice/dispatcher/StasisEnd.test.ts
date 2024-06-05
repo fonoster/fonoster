@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Channel } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
@@ -52,7 +53,7 @@ describe("@voice/dispatcher/StasisEnd", function () {
       originate: sandbox.stub(),
       on: sandbox.stub(),
       hangup: sandbox.stub()
-    };
+    } as unknown as Channel;
 
     voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
 

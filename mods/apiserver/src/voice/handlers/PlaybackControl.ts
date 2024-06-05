@@ -17,9 +17,10 @@
  * limitations under the License.
  */
 import { PlaybackControlRequest } from "@fonoster/common";
-import { AriClient, VoiceClient } from "../types";
+import { Client } from "ari-client";
+import { VoiceClient } from "../types";
 
-function playbackControlHandler(ari: AriClient, voiceClient: VoiceClient) {
+function playbackControlHandler(ari: Client, voiceClient: VoiceClient) {
   return async (playbackControlReq: PlaybackControlRequest) => {
     const { sessionRef, playbackRef, action } = playbackControlReq;
 

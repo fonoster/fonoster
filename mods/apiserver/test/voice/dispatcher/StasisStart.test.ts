@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Channel, StasisStart } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
@@ -59,7 +60,7 @@ describe("@voice/dispatcher/StasisStart", function () {
           number: "+17853178070"
         }
       }
-    };
+    } as unknown as StasisStart;
 
     const channel = {
       id: channelId,
@@ -68,7 +69,7 @@ describe("@voice/dispatcher/StasisStart", function () {
       originate: sandbox.stub(),
       on: sandbox.stub(),
       hangup: sandbox.stub()
-    };
+    } as unknown as Channel;
 
     // Act
     await voiceDispatcher.handleStasisStart(event, channel);

@@ -18,7 +18,7 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
+import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { recordHandler } from "../../../src/voice/handlers/Record";
@@ -36,6 +36,7 @@ describe("@voice/dispatcher/Record", function () {
   it("should handle the Record command", async function () {
     // Arrange
     const ari = getAriStub(sandbox);
+
     const recordingName = "recordingName";
     const sessionRef = "sessionRef";
 
@@ -43,7 +44,9 @@ describe("@voice/dispatcher/Record", function () {
     const nanoid = require("nanoid");
     sandbox.stub(nanoid, "nanoid").returns(recordingName);
 
-    ari.on.withArgs(AriEvent.RECORDING_FINISHED).callsFake((_, cb) => {
+    const onStub = ari.on as sinon.SinonStub;
+
+    onStub.withArgs(AriEvent.RECORDING_FINISHED).callsFake((_, cb) => {
       cb({ recording: { name: recordingName } });
     });
 
@@ -67,6 +70,7 @@ describe("@voice/dispatcher/Record", function () {
   it("should handle the Record command with a failed recording", async function () {
     // Arrange
     const ari = getAriStub(sandbox);
+
     const recordingName = "recordingName";
     const sessionRef = "sessionRef";
 
@@ -74,7 +78,9 @@ describe("@voice/dispatcher/Record", function () {
     const nanoid = require("nanoid");
     sandbox.stub(nanoid, "nanoid").returns(recordingName);
 
-    ari.on.withArgs(AriEvent.RECORDING_FAILED).callsFake((_, cb) => {
+    const onStub = ari.on as sinon.SinonStub;
+
+    onStub.withArgs(AriEvent.RECORDING_FAILED).callsFake((_, cb) => {
       cb({ recording: { name: recordingName, cause: "cause" } });
     });
 

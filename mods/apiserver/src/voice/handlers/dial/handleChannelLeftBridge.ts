@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Bridge } from "ari-client";
-import { Channel } from "../../types";
+import { Bridge, Channel } from "ari-client";
 
 function handleChannelLeftBridge(params: { bridge: Bridge; dialed: Channel }) {
   const { dialed, bridge } = params;

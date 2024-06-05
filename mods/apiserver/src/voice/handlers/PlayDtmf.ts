@@ -17,11 +17,12 @@
  * limitations under the License.
  */
 import { PlayDtmfRequest } from "@fonoster/common";
-import { AriClient, VoiceClient } from "../types";
+import { Client } from "ari-client";
+import { VoiceClient } from "../types";
 
-function playDtmfHandler(ari: AriClient, voiceClient: VoiceClient) {
-  return async (playDtmfReq: PlayDtmfRequest) => {
-    const { sessionRef, digits } = playDtmfReq;
+function playDtmfHandler(ari: Client, voiceClient: VoiceClient) {
+  return async (request: PlayDtmfRequest) => {
+    const { sessionRef, digits } = request;
 
     await ari.channels.sendDTMF({
       channelId: sessionRef,

@@ -18,7 +18,7 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
+import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { playHandler } from "../../../src/voice/handlers/Play";
@@ -38,7 +38,10 @@ describe("@voice/dispatcher/Play", function () {
   it("should handle a Play command", async function () {
     // Arrange
     const ari = getAriStub(sandbox);
-    ari.on.withArgs(AriEvent.PLAYBACK_FINISHED).callsFake((_, cb) => {
+
+    const onStub = ari.on as sinon.SinonStub;
+
+    onStub.withArgs(AriEvent.PLAYBACK_FINISHED).callsFake((_, cb) => {
       cb({}, { id: playRequest.playbackRef });
     });
 

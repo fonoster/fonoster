@@ -17,12 +17,11 @@
  * limitations under the License.
  */
 import { DialRecordDirection, DialRequest } from "@fonoster/common";
-import { Bridge } from "ari-client";
+import { Bridge, Channel, Client } from "ari-client";
 import { recordChannel } from "./recordChannel";
-import { AriClient, Channel } from "../../types";
 
 function handleStasisStart(params: {
-  ari: AriClient;
+  ari: Client;
   request: DialRequest;
   bridge: Bridge;
   dialed: Channel;

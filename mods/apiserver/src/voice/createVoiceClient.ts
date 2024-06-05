@@ -18,8 +18,9 @@
  */
 import { createCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { Channel, StasisStart } from "ari-client";
 import { createGetChannelVar } from "./createGetChannelVar";
-import { Channel, ChannelVar, StasisStartEvent, VoiceClient } from "./types";
+import { ChannelVar, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
 import { identityConfig } from "../identityConfig";
 
@@ -35,10 +36,7 @@ const createToken = createCallAccessToken(identityConfig);
 
 // Note: By the time the all arrives here the owner of the app MUST be authenticated
 function createVoiceClient(sdk: FonosterSDK) {
-  return async (
-    event: StasisStartEvent,
-    channel: Channel
-  ): Promise<VoiceClient> => {
+  return async (event: StasisStart, channel: Channel): Promise<VoiceClient> => {
     const { id: sessionRef, caller } = event.channel;
     const { name: callerName, number: callerNumber } = caller;
 

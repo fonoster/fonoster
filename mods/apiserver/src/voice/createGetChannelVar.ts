@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Channel, ChannelVar } from "./types";
+import { Channel } from "ari-client";
+import { ChannelVar } from "./types";
 
 function createGetChannelVar(channel: Channel) {
   return async (variable: ChannelVar) => {
     try {
       return await channel.getChannelVar({
-        channelId: channel.id,
         variable
       });
     } catch (e) {

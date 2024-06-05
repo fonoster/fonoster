@@ -17,33 +17,29 @@
  * limitations under the License.
  */
 import { StreamContent as SC, STASIS_APP_NAME } from "@fonoster/common";
+import { Channel, Client, StasisStart } from "ari-client";
 import { answerHandler } from "./handlers/Answer";
+import { dialHandler } from "./handlers/dial/Dial";
 import { hangupHandler } from "./handlers/Hangup";
 import { muteHandler } from "./handlers/Mute";
 import { playHandler } from "./handlers/Play";
 import { playbackControlHandler } from "./handlers/PlaybackControl";
 import { playDtmfHandler } from "./handlers/PlayDtmf";
 import { unmuteHandler } from "./handlers/Unmute";
-import {
-  AriClient,
-  AriEvent,
-  Channel,
-  StasisStartEvent,
-  VoiceClient
-} from "./types";
+import { AriEvent, VoiceClient } from "./types";
 
 class VoiceDispatcher {
   voiceClients: Map<string, VoiceClient>;
-  ari: AriClient;
+  ari: Client;
   createVoiceClient: (
-    event: StasisStartEvent,
+    event: StasisStart,
     channel: Channel
   ) => Promise<VoiceClient>;
 
   constructor(
-    ari: AriClient,
+    ari: Client,
     createVoiceClient: (
-      event: StasisStartEvent,
+      event: StasisStart,
       channel: Channel
     ) => Promise<VoiceClient>
   ) {
@@ -59,7 +55,7 @@ class VoiceDispatcher {
     this.ari.on(AriEvent.STASIS_END, this.handleStasisEnd.bind(this));
   }
 
-  async handleStasisStart(event: StasisStartEvent, channel: Channel) {
+  async handleStasisStart(event: StasisStart, channel: Channel) {
     const vc = await this.createVoiceClient(event, channel);
 
     // Connect to voice server
@@ -77,7 +73,7 @@ class VoiceDispatcher {
       SC.PLAYBACK_CONTROL_REQUEST,
       playbackControlHandler(this.ari, vc).bind(this)
     );
-    // vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
+    vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {

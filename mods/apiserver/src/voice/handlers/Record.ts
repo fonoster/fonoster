@@ -18,21 +18,17 @@
  */
 import { RecordFormat, RecordRequest } from "@fonoster/common";
 import { status } from "@grpc/grpc-js";
+import { Client, RecordingFinished } from "ari-client";
 import { nanoid } from "nanoid";
 import { GRPCError } from "../GRPCError";
-import {
-  AriClient,
-  AriEvent,
-  RecordingFinishedEvent,
-  VoiceClient
-} from "../types";
+import { AriEvent, VoiceClient } from "../types";
 
 const awaitForRecordingFinished = async (
-  ari: AriClient,
+  ari: Client,
   name: string
 ): Promise<{ duration: number }> => {
   return new Promise((resolve, reject) => {
-    const listener = (event: RecordingFinishedEvent) => {
+    const listener = (event: RecordingFinished) => {
       if ("cause" in event.recording) {
         ari.removeListener(AriEvent.RECORDING_FINISHED, listener);
         ari.removeListener(AriEvent.RECORDING_FAILED, listener);
@@ -49,7 +45,7 @@ const awaitForRecordingFinished = async (
   });
 };
 
-function recordHandler(ari: AriClient, voiceClient: VoiceClient) {
+function recordHandler(ari: Client, voiceClient: VoiceClient) {
   return async (request: RecordRequest) => {
     const { sessionRef, maxDuration, maxSilence, beep, finishOnKey } = request;
     const name = nanoid(10);

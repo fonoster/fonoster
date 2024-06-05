@@ -21,10 +21,10 @@ import {
   RecordFormat,
   STASIS_APP_NAME
 } from "@fonoster/common";
-import { AriClient } from "../../types";
+import { Client } from "ari-client";
 
 async function recordChannel(
-  ari: AriClient,
+  ari: Client,
   direction: DialRecordDirection.IN | DialRecordDirection.OUT,
   sessionRef: string
 ) {

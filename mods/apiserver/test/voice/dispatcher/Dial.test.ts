@@ -22,10 +22,11 @@ import {
   DialStatus,
   STASIS_APP_NAME
 } from "@fonoster/common";
-import { Bridge } from "ari-client";
+import { Bridge, Client } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
+import sinon from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { sessionRef } from "../../../../voice/test/helpers";
@@ -47,6 +48,7 @@ describe("@voice/dispatcher/dial/Dial", function () {
   });
 
   it("should dial a number", async function () {
+    // Arrange
     const ari = getAriStub(sandbox);
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
@@ -58,24 +60,26 @@ describe("@voice/dispatcher/dial/Dial", function () {
 
     await dialHandler(ari, createVoiceClient())(request);
 
+    const channelStub = ari.Channel as unknown as sinon.SinonStub;
+
     expect(ari.bridges.create).to.have.been.calledOnce;
     expect(ari.Channel).to.have.been.calledOnce;
-    expect(ari.Channel.returnValues[0].originate).to.have.been.calledOnce;
-    expect(ari.Channel.returnValues[0].originate).to.have.been.calledWith({
+    expect(channelStub.returnValues[0].originate).to.have.been.calledOnce;
+    expect(channelStub.returnValues[0].originate).to.have.been.calledWith({
       app: STASIS_APP_NAME,
       endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${request.destination}@sip.local`,
       timeout: request.timeout
     });
-    expect(ari.Channel.returnValues[0].on).to.have.been.calledWith(
+    expect(channelStub.returnValues[0].on).to.have.been.calledWith(
       AriEvent.STASIS_START
     );
-    expect(ari.Channel.returnValues[0].on).to.have.been.calledWith(
+    expect(channelStub.returnValues[0].on).to.have.been.calledWith(
       AriEvent.CHANNEL_LEFT_BRIDGE
     );
-    expect(ari.Channel.returnValues[0].on).to.have.been.calledWith(
+    expect(channelStub.returnValues[0].on).to.have.been.calledWith(
       AriEvent.STASIS_END
     );
-    expect(ari.Channel.returnValues[0].on).to.have.been.calledWith(
+    expect(channelStub.returnValues[0].on).to.have.been.calledWith(
       AriEvent.DIAL
     );
     expect(createVoiceClient().sendResponse).to.have.been.calledWith({
@@ -167,7 +171,7 @@ describe("@voice/dispatcher/dial/Dial", function () {
 
   it("should handle stasis start", async function () {
     // Arrange
-    const ari = getAriStub(sandbox);
+    const ari = getAriStub(sandbox) as unknown as Client;
 
     const request = {
       sessionRef,

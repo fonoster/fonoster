@@ -17,11 +17,12 @@
  * limitations under the License.
  */
 import { MuteRequest } from "@fonoster/common";
-import { AriClient, VoiceClient } from "../types";
+import { Client } from "ari-client";
+import { VoiceClient } from "../types";
 
-function unmuteHandler(ari: AriClient, voiceClient: VoiceClient) {
-  return async (unmuteReq: MuteRequest) => {
-    const { sessionRef, direction } = unmuteReq;
+function unmuteHandler(ari: Client, voiceClient: VoiceClient) {
+  return async (request: MuteRequest) => {
+    const { sessionRef, direction } = request;
 
     await ari.channels.unmute({
       channelId: sessionRef,
@@ -30,7 +31,7 @@ function unmuteHandler(ari: AriClient, voiceClient: VoiceClient) {
 
     voiceClient.sendResponse({
       muteResponse: {
-        sessionRef: unmuteReq.sessionRef
+        sessionRef
       }
     });
   };
