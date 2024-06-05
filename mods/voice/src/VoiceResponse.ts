@@ -241,8 +241,8 @@ class VoiceResponse {
    */
   async say(text: string, options?: SayOptions): Promise<SayResponse> {
     const response = await new Say(this.request, this.voice).run({
-      ...options,
-      ttsOptions: struct.encode(options?.ttsOptions),
+      playbackRef: options?.playbackRef,
+      options: struct.encode(options?.tts),
       sessionRef: this.request.sessionRef,
       text
     });

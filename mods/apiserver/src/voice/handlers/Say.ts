@@ -16,33 +16,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PlayRequest } from "@fonoster/common";
+import { SayRequest } from "@fonoster/common";
 import { Client } from "ari-client";
 import { nanoid } from "nanoid";
 import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
 import { VoiceClient } from "../types";
 
-function playHandler(ari: Client, voiceClient: VoiceClient) {
-  return async (request: PlayRequest) => {
+function sayHandler(ari: Client, voiceClient: VoiceClient) {
+  return async (request: SayRequest) => {
     const { sessionRef } = request;
 
     const playbackRef = request.playbackRef || nanoid(10);
 
+    // Update the voiceClient to contain the synthesized speech function
+    // The final implementation of the synthesized speech must validate the options
+    //   based on the TTS engine selected.
+    const filename = "tt-monkeys";
+
     await ari.channels.play({
       channelId: sessionRef,
-      media: `sound:${request.url}`,
+      media: `sound:${filename}`,
       playbackId: playbackRef
     });
 
     await awaitForPlaybackFinished(ari, playbackRef);
 
     voiceClient.sendResponse({
-      playResponse: {
-        sessionRef,
+      sayResponse: {
         playbackRef
       }
     });
   };
 }
 
-export { playHandler };
+export { sayHandler };

@@ -16,27 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Struct } from "pb-util";
-import { VerbRequest } from "./Verb";
+function isSsml(text: string) {
+  const v = text.trim();
+  return v.startsWith("<") && v.endsWith(">");
+}
 
-type TTSOptions = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-};
-
-type SayRequest = VerbRequest & {
-  text: string;
-  playbackRef?: string;
-  options?: Struct;
-};
-
-type SayResponse = {
-  playbackRef: string;
-};
-
-type SayOptions = {
-  playbackRef?: string;
-  tts?: TTSOptions;
-};
-
-export { SayRequest, SayResponse, SayOptions };
+export { isSsml };

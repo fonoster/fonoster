@@ -45,7 +45,7 @@ describe("@voice/verbs/play", function () {
       sessionRef,
       text: "Hello World",
       playbackRef: "playback-02",
-      ttsOptions: struct.encode({
+      options: struct.encode({
         voice: "en-US-Wavenet-D",
         pitch: 100,
         speakingRate: 1

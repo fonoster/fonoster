@@ -25,6 +25,7 @@ import { muteHandler } from "./handlers/Mute";
 import { playHandler } from "./handlers/Play";
 import { playbackControlHandler } from "./handlers/PlaybackControl";
 import { playDtmfHandler } from "./handlers/PlayDtmf";
+import { sayHandler } from "./handlers/Say";
 import { unmuteHandler } from "./handlers/Unmute";
 import { AriEvent, VoiceClient } from "./types";
 
@@ -65,14 +66,15 @@ class VoiceDispatcher {
 
     vc.on(SC.ANSWER_REQUEST, answerHandler(this.ari, vc).bind(this));
     vc.on(SC.HANGUP_REQUEST, hangupHandler(this.ari, vc).bind(this));
-    vc.on(SC.PLAY_REQUEST, playHandler(this.ari, vc).bind(this));
     vc.on(SC.MUTE_REQUEST, muteHandler(this.ari, vc).bind(this));
     vc.on(SC.UNMUTE_REQUEST, unmuteHandler(this.ari, vc).bind(this));
+    vc.on(SC.PLAY_REQUEST, playHandler(this.ari, vc).bind(this));
     vc.on(SC.PLAY_DTMF_REQUEST, playDtmfHandler(this.ari, vc).bind(this));
     vc.on(
       SC.PLAYBACK_CONTROL_REQUEST,
       playbackControlHandler(this.ari, vc).bind(this)
     );
+    vc.on(SC.SAY_REQUEST, sayHandler(this.ari, vc).bind(this));
     vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
   }
 

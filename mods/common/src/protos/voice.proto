@@ -209,7 +209,7 @@ message SayRequest {
   string playback_ref = 3;
 
   // TTS options
-  map<string, string> ttsOptions = 4;
+  map<string, string> options = 4;
 }
 
 // Dial request message
@@ -357,8 +357,8 @@ message VoiceInStream {
     // Response to a playback control request
     VerbResponse playback_control_response = 10;
 
-    // Response to a say request
-    VerbResponse say_response = 11;
+    // Response to a say request (It shares the same response as play)
+    PlayResponse say_response = 11;
 
     // Response to a record request
     RecordResponse record_response = 12;

@@ -16,27 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Struct } from "pb-util";
-import { VerbRequest } from "./Verb";
+import { Client } from "ari-client";
+import { AriEvent } from "../types";
 
-type TTSOptions = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+const awaitForPlaybackFinished = async (
+  ari: Client,
+  playbackRef: string
+): Promise<void> => {
+  return new Promise((resolve) => {
+    const listener = (_: unknown, playback: { id: string }) => {
+      if (playbackRef === playback.id) {
+        ari.removeListener(AriEvent.PLAYBACK_FINISHED, listener);
+        resolve();
+      }
+    };
+
+    ari.on(AriEvent.PLAYBACK_FINISHED, listener);
+  });
 };
 
-type SayRequest = VerbRequest & {
-  text: string;
-  playbackRef?: string;
-  options?: Struct;
-};
-
-type SayResponse = {
-  playbackRef: string;
-};
-
-type SayOptions = {
-  playbackRef?: string;
-  tts?: TTSOptions;
-};
-
-export { SayRequest, SayResponse, SayOptions };
+export { awaitForPlaybackFinished };
