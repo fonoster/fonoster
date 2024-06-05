@@ -242,7 +242,7 @@ class VoiceResponse {
   async say(text: string, options?: SayOptions): Promise<SayResponse> {
     const response = await new Say(this.request, this.voice).run({
       playbackRef: options?.playbackRef,
-      options: struct.encode(options?.tts),
+      options: options?.tts ? struct.encode(options?.tts) : undefined,
       sessionRef: this.request.sessionRef,
       text
     });
