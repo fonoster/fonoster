@@ -46,7 +46,9 @@ describe("@voice/createVoiceClient", function () {
         ref: "app-ref",
         accessKeyId: "access-key-id",
         endpoint: "app-endpoint",
-        ttsConfig: {}
+        ttsConfig: {
+          engine: "google"
+        }
       })
     };
 

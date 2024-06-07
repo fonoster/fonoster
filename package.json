@@ -37,6 +37,7 @@
     "@types/node": "^20.12.7",
     "@types/sinon": "^17.0.3",
     "@types/sinon-chai": "^3.2.12",
+    "@types/webrtc": "^0.0.43",
     "@typescript-eslint/eslint-plugin": "^7.7.0",
     "@typescript-eslint/parser": "^7.7.0",
     "chai-as-promised": "^7.1.1",
