@@ -34,7 +34,9 @@ type FonosterSDK = {
     ttsConfig: {
       engine: string;
       options: Record<string, unknown>;
-      credentials: { client_email: string; private_key: string };
+      credentials:
+        | { client_email: string; private_key: string }
+        | { subscriptionKey: string; serviceRegion: string };
     };
   }>;
 };

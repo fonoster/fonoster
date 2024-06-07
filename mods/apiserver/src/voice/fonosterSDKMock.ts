@@ -18,9 +18,33 @@
  * limitations under the License.
  */
 import {
+  EXPERIMENTAL_AZURE_TTS_REGION,
+  EXPERIMENTAL_AZURE_TTS_SUBSCRIPTION_KEY,
   EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,
   EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY
 } from "../envs";
+
+const azureTTSConfig = {
+  engine: "azure",
+  options: {
+    voice: "en-US-LunaNeural"
+  },
+  credentials: {
+    subscriptionKey: EXPERIMENTAL_AZURE_TTS_SUBSCRIPTION_KEY,
+    serviceRegion: EXPERIMENTAL_AZURE_TTS_REGION
+  }
+};
+
+const googleTTSConfig = {
+  engine: "google",
+  options: {
+    voice: "en-US-Wavenet-D"
+  },
+  credentials: {
+    client_email: EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,
+    private_key: EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY
+  }
+};
 
 const fonosterSDKMock = {
   getApp: async (_appRef: string) => {
@@ -28,16 +52,7 @@ const fonosterSDKMock = {
       ref: "fakeRef",
       accessKeyId: "WO00000000000000000000000000000000",
       endpoint: "localhost:50061",
-      ttsConfig: {
-        engine: "google",
-        options: {
-          voice: "en-US-Wavenet-D"
-        },
-        credentials: {
-          client_email: EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,
-          private_key: EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY
-        }
-      }
+      ttsConfig: azureTTSConfig
     };
   }
 };

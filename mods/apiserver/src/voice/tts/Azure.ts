@@ -24,7 +24,7 @@ import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
 
 const ENGINE_NAME = "azure";
-const OUTPUT_FORMAT = "sln16";
+const OUTPUT_FORMAT = "wav";
 const CACHING_FIELDS = ["voice"];
 
 type AzureTTSConfig = TtsConfig & {
