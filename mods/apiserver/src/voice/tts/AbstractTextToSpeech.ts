@@ -16,17 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SynthOptions } from "./types";
+import { getLogger } from "@fonoster/logger";
+import { SynthOptions, TtsConfig } from "./types";
 
-type EngineName = string;
+const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 abstract class AbstractTextToSpeech<
-  O extends SynthOptions,
-  E extends EngineName
+  E,
+  T extends TtsConfig = TtsConfig,
+  S extends SynthOptions = SynthOptions
 > {
   abstract readonly engineName: E;
 
-  abstract synthesize(text: string, options: O): Promise<string>;
+  constructor(config: T) {
+    logger.silly("tts pathToFiles", { engine: config.pathToFiles });
+  }
+
+  abstract synthesize(text: string, options: S): Promise<string>;
 
   getName(): E {
     return this.engineName;

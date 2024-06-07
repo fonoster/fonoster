@@ -20,7 +20,7 @@ import { createCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { Channel, StasisStart } from "ari-client";
 import { createGetChannelVar } from "./createGetChannelVar";
-import { Google } from "./tts/Google";
+import { TextToSpeechFactory } from "./tts/TextToSpeechFactory";
 import { ChannelVar, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
 import { TTS_PATH_TO_FILES } from "../envs";
@@ -32,6 +32,7 @@ type FonosterSDK = {
     accessKeyId: string;
     endpoint: string;
     ttsConfig: {
+      engine: string;
       options: Record<string, unknown>;
       credentials: { client_email: string; private_key: string };
     };
@@ -60,8 +61,7 @@ function createVoiceClient(sdk: FonosterSDK) {
     const { accessKeyId, endpoint, ttsConfig } = await sdk.getApp(appRef);
     const sessionToken = await createToken({ accessKeyId, appRef });
 
-    // Get TTS Engine and TTS Options from the app
-    const tts = new Google({
+    const tts = TextToSpeechFactory.getEngine(ttsConfig.engine, {
       ...ttsConfig,
       pathToFiles: TTS_PATH_TO_FILES
     });

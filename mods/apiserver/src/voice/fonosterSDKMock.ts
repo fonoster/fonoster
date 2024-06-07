@@ -29,6 +29,7 @@ const fonosterSDKMock = {
       accessKeyId: "WO00000000000000000000000000000000",
       endpoint: "localhost:50061",
       ttsConfig: {
+        engine: "google",
         options: {
           voice: "en-US-Wavenet-D"
         },

@@ -18,14 +18,15 @@
  */
 import * as fs from "fs";
 import * as util from "util";
+import { getLogger } from "@fonoster/logger";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { computeFilename } from "./computeFilename";
 import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
 
-const ENGINE_NAME = "google" as const;
-const OUTPUT_FORMAT = "sln16" as const;
+const ENGINE_NAME = "google";
+const OUTPUT_FORMAT = "sln16";
 const AUDIO_ENCODING = "LINEAR16" as const;
 const SAMPLE_RATE_HERTZ = 16000;
 const CACHING_FIELDS = ["voice"];
@@ -37,19 +38,27 @@ type GoogleTtsConfig = TtsConfig & {
   };
 };
 
-class Google extends AbstractTextToSpeech<SynthOptions, typeof ENGINE_NAME> {
+const logger = getLogger({ service: "apiserver", filePath: __filename });
+
+class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   client: TextToSpeechClient;
-  pathToFiles: string;
+  config: GoogleTtsConfig;
   readonly engineName = ENGINE_NAME;
 
   constructor(config: GoogleTtsConfig) {
-    super();
+    super(config);
     this.client = new TextToSpeechClient(config);
-    this.pathToFiles = config.pathToFiles;
+    this.config = config;
   }
 
   async synthesize(text: string, options: SynthOptions): Promise<string> {
+    logger.verbose(
+      `synthesize [input: ${text}, isSsml=${isSsml(
+        text
+      )} options: ${JSON.stringify(options)}]`
+    );
     const lang = `${options.voice.split("-")[0]}-${options.voice.split("-")[1]}`;
+
     const filename = computeFilename({
       text,
       options,
@@ -69,10 +78,13 @@ class Google extends AbstractTextToSpeech<SynthOptions, typeof ENGINE_NAME> {
       }
     };
 
+    const { pathToFiles } = this.config;
     const [response] = await this.client.synthesizeSpeech(request);
+
     const writeFile = util.promisify(fs.writeFile);
+
     await writeFile(
-      `${this.pathToFiles}/${filename}`,
+      `${pathToFiles}/${filename}`,
       response.audioContent,
       "binary"
     );
@@ -81,4 +93,4 @@ class Google extends AbstractTextToSpeech<SynthOptions, typeof ENGINE_NAME> {
   }
 }
 
-export { Google };
+export { Google, ENGINE_NAME };
