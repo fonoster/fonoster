@@ -30,6 +30,7 @@ const voiceRequest: VoiceRequest = {
   callerName: "John Doe",
   callerNumber: "+14345551234",
   sessionToken: "jwt-token",
+  ttsOptions: {},
   metadata: {}
 };
 

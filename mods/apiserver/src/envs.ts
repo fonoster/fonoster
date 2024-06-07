@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import fs from "fs";
+import os from "os";
 import { join } from "path";
 import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
 import dotenv from "dotenv";
@@ -119,3 +120,10 @@ export const ASTERISK_TRUNK = "routr";
 export const ASTERISK_ARI_PROXY_URL = e.ASTERISK_ARI_PROXY_URL;
 export const ASTERISK_ARI_USERNAME = e.ASTERISK_ARI_USERNAME;
 export const ASTERISK_ARI_SECRET = e.ASTERISK_ARI_SECRET;
+
+// TTS configurations
+export const TTS_PATH_TO_FILES = e.TTS_PATH_TO_FILES || os.tmpdir();
+export const EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL =
+  e.EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL;
+export const EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY =
+  e.EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY;

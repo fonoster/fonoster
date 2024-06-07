@@ -28,10 +28,7 @@ function sayHandler(ari: Client, voiceClient: VoiceClient) {
 
     const playbackRef = request.playbackRef || nanoid(10);
 
-    // Update the voiceClient to contain the synthesized speech function
-    // The final implementation of the synthesized speech must validate the options
-    //   based on the TTS engine selected.
-    const filename = "https://storage.googleapis.com/fonoster/tt-monkeys.g722";
+    const filename = await voiceClient.synthesize(request.text);
 
     await ari.channels.play({
       channelId: sessionRef,

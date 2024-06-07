@@ -38,14 +38,23 @@ const VoiceServiceClient = grpc.makeGenericClientConstructor(
   {}
 );
 
+type TextToSpeech = {
+  synthesize: (
+    text: string,
+    options: Record<string, unknown>
+  ) => Promise<string>;
+};
+
 class VoiceClientImpl implements VoiceClient {
   config: VoiceClientConfig;
   stream: Stream;
   voice: VoiceSessionStreamClient;
+  tts: TextToSpeech;
 
-  constructor(config: VoiceClientConfig) {
+  constructor(config: VoiceClientConfig, tts: TextToSpeech) {
     this.config = config;
     this.stream = new Stream();
+    this.tts = tts;
   }
 
   connect() {
@@ -75,6 +84,10 @@ class VoiceClientImpl implements VoiceClient {
 
   sendResponse(response: VoiceIn): void {
     this.voice.write(response);
+  }
+
+  async synthesize(text: string): Promise<string> {
+    return await this.tts.synthesize(text, this.config.ttsOptions);
   }
 
   // Fixme: Implement

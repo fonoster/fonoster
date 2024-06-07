@@ -16,15 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StreamContent, VoiceClientConfig, VoiceIn } from "@fonoster/common";
+import crypto from "crypto";
+import { flattenObject } from "./flattenObject";
 
-type VoiceClient = {
-  config: VoiceClientConfig;
-  sendResponse: (command: VoiceIn) => void;
-  on: (type: StreamContent, callback: (data: VoiceIn) => void) => void;
-  connect: () => void;
-  close: () => void;
-  synthesize: (text: string) => Promise<string>;
-};
+function computeFilename(params: {
+  text: string;
+  options: Record<string, unknown>;
+  format: "wav" | "sln16";
+  cachingFields?: string[];
+}) {
+  const { text, options, format } = params;
+  const { cachingFields } = options as { cachingFields: string[] };
+  let c = "";
 
-export { VoiceClient };
+  if (cachingFields?.length > 0) {
+    const flatObj = flattenObject(options);
+    c = cachingFields
+      .map((opt: string) => flatObj[opt])
+      .sort()
+      .join();
+  }
+
+  return (
+    crypto.createHash("md5").update(`${text}${c}`).digest("hex") + "." + format
+  );
+}
+
+export { computeFilename };

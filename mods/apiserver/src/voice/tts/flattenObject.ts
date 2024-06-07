@@ -16,15 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StreamContent, VoiceClientConfig, VoiceIn } from "@fonoster/common";
+function flattenObject(obj, parentKey = "", result = {}) {
+  // eslint-disable-next-line no-loops/no-loops
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const newKey = parentKey ? `${parentKey}.${key}` : key;
+      if (
+        typeof obj[key] === "object" &&
+        obj[key] !== null &&
+        !Array.isArray(obj[key])
+      ) {
+        flattenObject(obj[key], newKey, result);
+      } else {
+        result[newKey] = obj[key];
+      }
+    }
+  }
+  return result;
+}
 
-type VoiceClient = {
-  config: VoiceClientConfig;
-  sendResponse: (command: VoiceIn) => void;
-  on: (type: StreamContent, callback: (data: VoiceIn) => void) => void;
-  connect: () => void;
-  close: () => void;
-  synthesize: (text: string) => Promise<string>;
-};
-
-export { VoiceClient };
+export { flattenObject };

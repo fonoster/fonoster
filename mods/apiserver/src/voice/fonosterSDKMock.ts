@@ -17,12 +17,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,
+  EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY
+} from "../envs";
+
 const fonosterSDKMock = {
   getApp: async (_appRef: string) => {
     return {
       ref: "fakeRef",
       accessKeyId: "WO00000000000000000000000000000000",
-      endpoint: "localhost:50061"
+      endpoint: "localhost:50061",
+      ttsConfig: {
+        options: {
+          voice: "en-US-Wavenet-D"
+        },
+        credentials: {
+          client_email: EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,
+          private_key: EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY
+        }
+      }
     };
   }
 };

@@ -20,14 +20,22 @@ import { createCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { Channel, StasisStart } from "ari-client";
 import { createGetChannelVar } from "./createGetChannelVar";
+import { Google } from "./tts/Google";
 import { ChannelVar, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
+import { TTS_PATH_TO_FILES } from "../envs";
 import { identityConfig } from "../identityConfig";
 
 type FonosterSDK = {
-  getApp: (
-    ref: string
-  ) => Promise<{ ref: string; accessKeyId: string; endpoint: string }>;
+  getApp: (ref: string) => Promise<{
+    ref: string;
+    accessKeyId: string;
+    endpoint: string;
+    ttsConfig: {
+      options: Record<string, unknown>;
+      credentials: { client_email: string; private_key: string };
+    };
+  }>;
 };
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -49,8 +57,14 @@ function createVoiceClient(sdk: FonosterSDK) {
     const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
 
     // TODO: Should fail if appRef is not set
-    const { accessKeyId, endpoint } = await sdk.getApp(appRef);
+    const { accessKeyId, endpoint, ttsConfig } = await sdk.getApp(appRef);
     const sessionToken = await createToken({ accessKeyId, appRef });
+
+    // Get TTS Engine and TTS Options from the app
+    const tts = new Google({
+      ...ttsConfig,
+      pathToFiles: TTS_PATH_TO_FILES
+    });
 
     const config = {
       appRef,
@@ -61,6 +75,7 @@ function createVoiceClient(sdk: FonosterSDK) {
       callerNumber,
       ingressNumber,
       sessionToken,
+      ttsOptions: ttsConfig.options,
       metadata: metadataStr ? JSON.parse(metadataStr) : {}
     };
 
@@ -70,7 +85,7 @@ function createVoiceClient(sdk: FonosterSDK) {
       ingressNumber
     });
 
-    return new VoiceClientImpl(config);
+    return new VoiceClientImpl(config, tts);
   };
 }
 

@@ -82,6 +82,7 @@ type VoiceClientConfig = {
   callerNumber: string;
   sessionRef: string;
   sessionToken: string;
+  ttsOptions: Record<string, unknown>;
   metadata?: Record<string, string>;
 };
 

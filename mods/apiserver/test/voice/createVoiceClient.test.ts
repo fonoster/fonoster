@@ -45,7 +45,8 @@ describe("@voice/createVoiceClient", function () {
       getApp: sandbox.stub().resolves({
         ref: "app-ref",
         accessKeyId: "access-key-id",
-        endpoint: "app-endpoint"
+        endpoint: "app-endpoint",
+        ttsConfig: {}
       })
     };
 
