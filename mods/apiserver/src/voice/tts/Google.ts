@@ -19,44 +19,48 @@
 import * as fs from "fs";
 import * as util from "util";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
+import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { computeFilename } from "./computeFilename";
+import { SynthOptions, TtsConfig } from "./types";
 
-type SynthOptions = {
-  voice: string;
-};
+const ENGINE_NAME = "google" as const;
+const OUTPUT_FORMAT = "sln16" as const;
+const AUDIO_ENCODING = "LINEAR16" as const;
+const SAMPLE_RATE_HERTZ = 16000;
+const CACHING_FIELDS = ["voice"];
 
-type GoogleTtsConfig = {
-  pathToFiles: string;
+type GoogleTtsConfig = TtsConfig & {
   credentials: {
     client_email: string;
     private_key: string;
   };
 };
 
-const CACHING_FIELDS = ["voice"];
-
-class Google {
+class Google extends AbstractTextToSpeech<SynthOptions, typeof ENGINE_NAME> {
   client: TextToSpeechClient;
   pathToFiles: string;
+  readonly engineName = ENGINE_NAME;
+
   constructor(config: GoogleTtsConfig) {
+    super();
     this.client = new TextToSpeechClient(config);
     this.pathToFiles = config.pathToFiles;
   }
 
-  async synthesize(text: string, options: SynthOptions) {
+  async synthesize(text: string, options: SynthOptions): Promise<string> {
     const lang = `${options.voice.split("-")[0]}-${options.voice.split("-")[1]}`;
     const filename = computeFilename({
       text,
       options,
       cachingFields: CACHING_FIELDS,
-      format: "sln16"
+      format: OUTPUT_FORMAT
     });
 
     const request = {
       input: { text },
       audioConfig: {
-        audioEncoding: "LINEAR16" as const,
-        sampleRateHertz: 16000
+        audioEncoding: AUDIO_ENCODING,
+        sampleRateHertz: SAMPLE_RATE_HERTZ
       },
       voice: {
         languageCode: lang,
@@ -72,7 +76,7 @@ class Google {
       "binary"
     );
 
-    return filename.replace(".sln16", "");
+    return filename.replace(`.${OUTPUT_FORMAT}`, "");
   }
 }
 
