@@ -21,6 +21,7 @@ import * as util from "util";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { computeFilename } from "./computeFilename";
+import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
 
 const ENGINE_NAME = "google" as const;
@@ -57,7 +58,7 @@ class Google extends AbstractTextToSpeech<SynthOptions, typeof ENGINE_NAME> {
     });
 
     const request = {
-      input: { text },
+      input: isSsml(text) ? { ssml: text } : { text },
       audioConfig: {
         audioEncoding: AUDIO_ENCODING,
         sampleRateHertz: SAMPLE_RATE_HERTZ
