@@ -19,11 +19,6 @@
 import { Struct } from "pb-util";
 import { VerbRequest } from "./Verb";
 
-type TTSOptions = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-};
-
 type SayRequest = VerbRequest & {
   text: string;
   playbackRef?: string;
@@ -36,7 +31,8 @@ type SayResponse = {
 
 type SayOptions = {
   playbackRef?: string;
-  tts?: TTSOptions;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 };
 
 export { SayRequest, SayResponse, SayOptions };

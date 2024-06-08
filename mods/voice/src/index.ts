@@ -17,7 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GoogleVoice, GoogleVoiceDetails } from "@fonoster/common";
 import VoiceServer from "./VoiceServer";
 
 export default VoiceServer;
 export * from "./types";
+export { GoogleVoice, GoogleVoiceDetails };

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GoogleVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest } from "./types";
 import { VoiceResponse } from "./VoiceResponse";
@@ -33,7 +34,9 @@ new VoiceServer(config).listen(
     logger.verbose("voice request", JSON.stringify(req, null, 2));
 
     await res.answer();
-    await res.say("Let's bring this application home. Looking real good!");
+    await res.say("Let's bring this application home. Looking real good!", {
+      voice: GoogleVoice.AF_ZA_STANDARD_A
+    });
     await res.play("https://storage.googleapis.com/fonoster/tt-monkeys.g722");
     await res.hangup();
   }
