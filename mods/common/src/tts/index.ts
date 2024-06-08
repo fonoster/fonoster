@@ -17,3 +17,4 @@
  * limitations under the License.
  */
 export * from "./GoogleVoices";
+export * from "./AzureVoices";
