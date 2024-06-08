@@ -21,15 +21,12 @@ import * as util from "util";
 import { getLogger } from "@fonoster/logger";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
-import { computeFilename } from "./computeFilename";
 import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
 
 const ENGINE_NAME = "google";
-const OUTPUT_FORMAT = "sln16";
 const AUDIO_ENCODING = "LINEAR16" as const;
 const SAMPLE_RATE_HERTZ = 16000;
-const CACHING_FIELDS = ["voice"];
 
 type GoogleTtsConfig = TtsConfig & {
   credentials: {
@@ -44,6 +41,9 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   client: TextToSpeechClient;
   config: GoogleTtsConfig;
   readonly engineName = ENGINE_NAME;
+  protected readonly OUTPUT_FORMAT = "sln16";
+  protected readonly CACHING_FIELDS = ["voice"];
+  protected readonly AUDIO_ENCODING = "LINEAR16";
 
   constructor(config: GoogleTtsConfig) {
     super(config);
@@ -57,14 +57,14 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
         text
       )} options: ${JSON.stringify(options)}]`
     );
+
     const lang = `${options.voice.split("-")[0]}-${options.voice.split("-")[1]}`;
 
-    const filename = computeFilename({
-      text,
-      options,
-      cachingFields: CACHING_FIELDS,
-      format: OUTPUT_FORMAT
-    });
+    const filename = this.createFilename(text, options);
+
+    if (this.fileExists(this.getFullPathToFile(filename))) {
+      return this.getFilenameWithoutExtension(filename);
+    }
 
     const request = {
       input: isSsml(text) ? { ssml: text } : { text },
@@ -78,18 +78,17 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       }
     };
 
-    const { pathToFiles } = this.config;
     const [response] = await this.client.synthesizeSpeech(request);
 
     const writeFile = util.promisify(fs.writeFile);
 
     await writeFile(
-      `${pathToFiles}/${filename}`,
+      this.getFullPathToFile(filename),
       response.audioContent,
       "binary"
     );
 
-    return filename.replace(`.${OUTPUT_FORMAT}`, "");
+    return this.getFilenameWithoutExtension(filename);
   }
 }
 

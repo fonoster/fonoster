@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as fs from "fs";
 import { getLogger } from "@fonoster/logger";
+import { computeFilename } from "./computeFilename";
 import { SynthOptions, TtsConfig } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -27,9 +29,34 @@ abstract class AbstractTextToSpeech<
   S extends SynthOptions = SynthOptions
 > {
   abstract readonly engineName: E;
+  protected abstract OUTPUT_FORMAT: "wav" | "sln16";
+  protected abstract CACHING_FIELDS: string[];
+  config: T;
 
   constructor(config: T) {
     logger.silly("tts pathToFiles", { engine: config.pathToFiles });
+    this.config = config;
+  }
+
+  protected createFilename(text: string, options: SynthOptions): string {
+    return computeFilename({
+      text,
+      options,
+      cachingFields: this.CACHING_FIELDS,
+      format: this.OUTPUT_FORMAT
+    });
+  }
+
+  protected fileExists(filename: string): boolean {
+    return fs.existsSync(filename);
+  }
+
+  protected getFilenameWithoutExtension(filename: string): string {
+    return filename.replace(`.${this.OUTPUT_FORMAT}`, "");
+  }
+
+  protected getFullPathToFile(filename: string): string {
+    return `${this.config.pathToFiles}/${filename}`;
   }
 
   abstract synthesize(text: string, options: S): Promise<string>;

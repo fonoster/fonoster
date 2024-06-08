@@ -19,13 +19,10 @@
 import { getLogger } from "@fonoster/logger";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
-import { computeFilename } from "./computeFilename";
 import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
 
 const ENGINE_NAME = "azure";
-const OUTPUT_FORMAT = "wav";
-const CACHING_FIELDS = ["voice"];
 
 type AzureTTSConfig = TtsConfig & {
   credentials: {
@@ -37,13 +34,15 @@ type AzureTTSConfig = TtsConfig & {
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
-  cfg: AzureTTSConfig;
+  config: AzureTTSConfig;
   pathToFiles: string;
   readonly engineName = ENGINE_NAME;
+  protected readonly OUTPUT_FORMAT = "sln16";
+  protected readonly CACHING_FIELDS = ["voice"];
 
   constructor(config: AzureTTSConfig) {
     super(config);
-    this.cfg = config;
+    this.config = config;
   }
 
   async synthesize(text: string, options: SynthOptions): Promise<string> {
@@ -53,30 +52,31 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       )} options: ${JSON.stringify(options)}]`
     );
 
+    const filename = this.createFilename(text, options);
+
+    if (this.fileExists(this.getFullPathToFile(filename))) {
+      return this.getFilenameWithoutExtension(filename);
+    }
+
+    const { subscriptionKey, serviceRegion } = this.config.credentials;
+
     const speechConfig = sdk.SpeechConfig.fromSubscription(
-      this.cfg.credentials.subscriptionKey,
-      this.cfg.credentials.serviceRegion
+      subscriptionKey,
+      serviceRegion
     );
 
     speechConfig.speechSynthesisVoiceName = options.voice;
     speechConfig.speechSynthesisOutputFormat =
       sdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm;
 
-    const filename = computeFilename({
-      text,
-      options,
-      cachingFields: CACHING_FIELDS,
-      format: OUTPUT_FORMAT
-    });
-
     await this.doSynthesize({
       text,
-      filename: `${this.cfg.pathToFiles}/${filename}`,
+      filename: this.getFullPathToFile(filename),
       speechConfig,
       isSSML: isSsml(text)
     });
 
-    return filename.replace(`.${OUTPUT_FORMAT}`, "");
+    return this.getFilenameWithoutExtension(filename);
   }
 
   async doSynthesize(params: {
@@ -88,6 +88,10 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     const { text, filename, speechConfig } = params;
     const audioConfig = sdk.AudioConfig.fromAudioFileOutput(filename);
     const synthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
+
+    console.log("hhhh text", text);
+    console.log("hhhh filename", filename);
+    console.log("hhhh speechConfig", speechConfig);
 
     // FIXME: Let's turn this into constants
     const func = params.isSSML ? "speakSsmlAsync" : "speakTextAsync";
