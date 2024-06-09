@@ -163,6 +163,7 @@ enum VoiceLanguage {
   VI_VN = "vi-VN",
   WUU_CN = "wuu-CN",
   YUE_CN = "yue-CN",
+  YUE_HK = "yue-HK",
   ZH_CN = "zh-CN",
   ZH_CN_GUANGXI = "zh-CN-guangxi",
   ZH_CN_HENAN = "zh-CN-henan",

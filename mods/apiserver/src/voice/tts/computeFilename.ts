@@ -25,8 +25,7 @@ function computeFilename(params: {
   format: "wav" | "sln16";
   cachingFields?: string[];
 }) {
-  const { text, options, format } = params;
-  const { cachingFields } = options as { cachingFields: string[] };
+  const { text, options, format, cachingFields } = params;
   let c = "";
 
   if (cachingFields?.length > 0) {

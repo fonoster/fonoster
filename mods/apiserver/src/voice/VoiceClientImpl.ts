@@ -18,6 +18,7 @@
  */
 import { Stream } from "stream";
 import {
+  SayOptions,
   StreamEvent,
   VoiceClientConfig,
   VoiceIn,
@@ -86,8 +87,12 @@ class VoiceClientImpl implements VoiceClient {
     this.voice.write(response);
   }
 
-  async synthesize(text: string): Promise<string> {
-    return await this.tts.synthesize(text, this.config.ttsOptions);
+  async synthesize(text: string, options: SayOptions): Promise<string> {
+    const opts = {
+      ...this.config.ttsOptions,
+      ...options
+    };
+    return await this.tts.synthesize(text, opts);
   }
 
   // Fixme: Implement

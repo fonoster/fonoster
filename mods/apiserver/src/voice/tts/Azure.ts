@@ -89,10 +89,6 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     const audioConfig = sdk.AudioConfig.fromAudioFileOutput(filename);
     const synthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
 
-    console.log("hhhh text", text);
-    console.log("hhhh filename", filename);
-    console.log("hhhh speechConfig", speechConfig);
-
     // FIXME: Let's turn this into constants
     const func = params.isSSML ? "speakSsmlAsync" : "speakTextAsync";
 

@@ -19,6 +19,7 @@
 import { SayRequest } from "@fonoster/common";
 import { Client } from "ari-client";
 import { nanoid } from "nanoid";
+import { struct } from "pb-util";
 import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
 import { VoiceClient } from "../types";
 
@@ -28,7 +29,10 @@ function sayHandler(ari: Client, voiceClient: VoiceClient) {
 
     const playbackRef = request.playbackRef || nanoid(10);
 
-    const filename = await voiceClient.synthesize(request.text);
+    const filename = await voiceClient.synthesize(
+      request.text,
+      request.options ? struct.decode(request.options) : {}
+    );
 
     await ari.channels.play({
       channelId: sessionRef,

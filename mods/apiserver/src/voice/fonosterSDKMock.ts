@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AzureVoice, GoogleVoice } from "@fonoster/common";
 import {
   EXPERIMENTAL_AZURE_TTS_REGION,
   EXPERIMENTAL_AZURE_TTS_SUBSCRIPTION_KEY,
@@ -27,7 +28,7 @@ import {
 const azureTTSConfig = {
   engine: "azure",
   options: {
-    voice: "en-US-LunaNeural"
+    voice: AzureVoice.EN_AU_ANNETTE_NEURAL
   },
   credentials: {
     subscriptionKey: EXPERIMENTAL_AZURE_TTS_SUBSCRIPTION_KEY,
@@ -38,7 +39,7 @@ const azureTTSConfig = {
 const googleTTSConfig = {
   engine: "google",
   options: {
-    voice: "en-US-Wavenet-D"
+    voice: GoogleVoice.EN_US_STUDIO_O
   },
   credentials: {
     client_email: EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,

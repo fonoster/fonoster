@@ -16,7 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StreamContent, VoiceClientConfig, VoiceIn } from "@fonoster/common";
+import {
+  SayOptions,
+  StreamContent,
+  VoiceClientConfig,
+  VoiceIn
+} from "@fonoster/common";
 
 type VoiceClient = {
   config: VoiceClientConfig;
@@ -24,7 +29,7 @@ type VoiceClient = {
   on: (type: StreamContent, callback: (data: VoiceIn) => void) => void;
   connect: () => void;
   close: () => void;
-  synthesize: (text: string) => Promise<string>;
+  synthesize: (text: string, options: SayOptions) => Promise<string>;
 };
 
 export { VoiceClient };

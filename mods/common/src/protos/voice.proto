@@ -20,6 +20,8 @@ syntax = "proto3";
 
 package fonoster.voice.v1beta2;
 
+import "google/protobuf/struct.proto";
+
 // The voice service definition
 service Voice {
   rpc CreateSession(stream VoiceInStream) returns (stream VoiceOutStream) {}
@@ -209,7 +211,7 @@ message SayRequest {
   string playback_ref = 3;
 
   // TTS options
-  map<string, string> options = 4;
+  google.protobuf.Struct options = 4;
 }
 
 // Dial request message
