@@ -21,10 +21,11 @@ import { Client } from "ari-client";
 import { nanoid } from "nanoid";
 import { struct } from "pb-util";
 import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
+import { withErrorHandling } from "./witthErrorHandling";
 import { VoiceClient } from "../types";
 
 function sayHandler(ari: Client, voiceClient: VoiceClient) {
-  return async (request: SayRequest) => {
+  return withErrorHandling(async (request: SayRequest) => {
     const { sessionRef } = request;
 
     const playbackRef = request.playbackRef || nanoid(10);
@@ -47,7 +48,7 @@ function sayHandler(ari: Client, voiceClient: VoiceClient) {
         playbackRef
       }
     });
-  };
+  });
 }
 
 export { sayHandler };

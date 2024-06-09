@@ -31,6 +31,7 @@ import {
 } from "./Stream";
 import { StreamGatherRequest } from "./StreamGather";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
+import { GRPCError } from "../errors";
 
 const DATA = "data" as const;
 const END = "end" as const;
@@ -133,7 +134,11 @@ type BaseVoiceStream<T, W> = {
 };
 
 type VoiceSessionStreamServer = BaseVoiceStream<VoiceIn, VoiceOut>;
-type VoiceSessionStreamClient = BaseVoiceStream<VoiceOut, VoiceIn>;
+
+type VoiceSessionStreamClient = BaseVoiceStream<
+  VoiceOut | GRPCError,
+  VoiceIn | GRPCError
+>;
 
 export {
   VoiceClientConfig,

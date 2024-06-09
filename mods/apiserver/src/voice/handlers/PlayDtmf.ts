@@ -18,10 +18,11 @@
  */
 import { PlayDtmfRequest } from "@fonoster/common";
 import { Client } from "ari-client";
+import { withErrorHandling } from "./witthErrorHandling";
 import { VoiceClient } from "../types";
 
 function playDtmfHandler(ari: Client, voiceClient: VoiceClient) {
-  return async (request: PlayDtmfRequest) => {
+  return withErrorHandling(async (request: PlayDtmfRequest) => {
     const { sessionRef, digits } = request;
 
     await ari.channels.sendDTMF({
@@ -34,7 +35,7 @@ function playDtmfHandler(ari: Client, voiceClient: VoiceClient) {
         sessionRef
       }
     });
-  };
+  });
 }
 
 export { playDtmfHandler };

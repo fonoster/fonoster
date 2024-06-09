@@ -18,23 +18,26 @@
  */
 import { PlaybackControlRequest } from "@fonoster/common";
 import { Client } from "ari-client";
+import { withErrorHandling } from "./witthErrorHandling";
 import { VoiceClient } from "../types";
 
 function playbackControlHandler(ari: Client, voiceClient: VoiceClient) {
-  return async (playbackControlReq: PlaybackControlRequest) => {
-    const { sessionRef, playbackRef, action } = playbackControlReq;
+  return withErrorHandling(
+    async (playbackControlReq: PlaybackControlRequest) => {
+      const { sessionRef, playbackRef, action } = playbackControlReq;
 
-    await ari.playbacks.control({
-      playbackId: playbackRef,
-      operation: action
-    });
+      await ari.playbacks.control({
+        playbackId: playbackRef,
+        operation: action
+      });
 
-    voiceClient.sendResponse({
-      playbackControlResponse: {
-        sessionRef
-      }
-    });
-  };
+      voiceClient.sendResponse({
+        playbackControlResponse: {
+          sessionRef
+        }
+      });
+    }
+  );
 }
 
 export { playbackControlHandler };

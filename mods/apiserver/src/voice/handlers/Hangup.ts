@@ -18,10 +18,11 @@
  */
 import { VerbRequest } from "@fonoster/common";
 import { Client } from "ari-client";
+import { withErrorHandling } from "./witthErrorHandling";
 import { VoiceClient } from "../types";
 
 function hangupHandler(ari: Client, voiceClient: VoiceClient) {
-  return async (request: VerbRequest) => {
+  return withErrorHandling(async (request: VerbRequest) => {
     const { sessionRef } = request;
 
     await ari.channels.hangup({ channelId: sessionRef });
@@ -33,7 +34,7 @@ function hangupHandler(ari: Client, voiceClient: VoiceClient) {
     });
 
     voiceClient.close();
-  };
+  });
 }
 
 export { hangupHandler };

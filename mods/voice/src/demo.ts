@@ -40,7 +40,7 @@ new VoiceServer(config).listen(
         voice: AzureVoice.EN_GB_MIA_NEURAL
       }
     );
-    await res.play("https://storage.googleapis.com/fonoster/tt-monkeys.g722");
+    // await res.play("https://storage.googleapis.com/fonoster/tt-monkeys.g722");
     await res.hangup();
   }
 );

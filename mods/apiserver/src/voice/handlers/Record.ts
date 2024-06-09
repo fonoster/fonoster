@@ -17,36 +17,14 @@
  * limitations under the License.
  */
 import { RecordFormat, RecordRequest } from "@fonoster/common";
-import { status } from "@grpc/grpc-js";
-import { Client, RecordingFinished } from "ari-client";
+import { Client } from "ari-client";
 import { nanoid } from "nanoid";
-import { GRPCError } from "../GRPCError";
-import { AriEvent, VoiceClient } from "../types";
-
-const awaitForRecordingFinished = async (
-  ari: Client,
-  name: string
-): Promise<{ duration: number }> => {
-  return new Promise((resolve, reject) => {
-    const listener = (event: RecordingFinished) => {
-      if ("cause" in event.recording) {
-        ari.removeListener(AriEvent.RECORDING_FINISHED, listener);
-        ari.removeListener(AriEvent.RECORDING_FAILED, listener);
-        reject(new GRPCError(status.INTERNAL, "Recording failed"));
-      } else if (name === event.recording.name) {
-        ari.removeListener(AriEvent.RECORDING_FINISHED, listener);
-        ari.removeListener(AriEvent.RECORDING_FAILED, listener);
-        resolve({ duration: event.recording.duration });
-      }
-    };
-
-    ari.on(AriEvent.RECORDING_FINISHED, listener);
-    ari.on(AriEvent.RECORDING_FAILED, listener);
-  });
-};
+import { awaitForRecordingFinished } from "./awaitForRecordingFinished";
+import { withErrorHandling } from "./witthErrorHandling";
+import { VoiceClient } from "../types";
 
 function recordHandler(ari: Client, voiceClient: VoiceClient) {
-  return async (request: RecordRequest) => {
+  return withErrorHandling(async (request: RecordRequest) => {
     const { sessionRef, maxDuration, maxSilence, beep, finishOnKey } = request;
     const name = nanoid(10);
 
@@ -70,7 +48,7 @@ function recordHandler(ari: Client, voiceClient: VoiceClient) {
         duration
       }
     });
-  };
+  });
 }
 
 export { recordHandler };

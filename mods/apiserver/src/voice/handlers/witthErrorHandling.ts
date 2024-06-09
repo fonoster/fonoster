@@ -16,26 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MuteRequest } from "@fonoster/common";
-import { Client } from "ari-client";
-import { withErrorHandling } from "./witthErrorHandling";
-import { VoiceClient } from "../types";
+import { VerbRequest } from "@fonoster/common";
 
-function unmuteHandler(ari: Client, voiceClient: VoiceClient) {
-  return withErrorHandling(async (request: MuteRequest) => {
-    const { sessionRef, direction } = request;
+type VerbHandler = (request: VerbRequest) => Promise<void>;
 
-    await ari.channels.unmute({
-      channelId: sessionRef,
-      direction
-    });
-
-    voiceClient.sendResponse({
-      muteResponse: {
-        sessionRef
+function withErrorHandling(fn: VerbHandler) {
+  return async (request: VerbRequest) => {
+    try {
+      return await fn(request);
+    } catch (err) {
+      if (err.message !== "Channel not found") {
+        // FIXME: Implement sending error to the client
+        // FIXME: This is good place to log application errors
+        // voiceClient.sendResponse({
+        //   error: {
+        //     message: err.message,
+        //     stack: err.stack
+        //   }
+        // });
+        throw err;
       }
-    });
-  });
+    }
+  };
 }
 
-export { unmuteHandler };
+export { withErrorHandling };

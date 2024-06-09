@@ -18,6 +18,7 @@
  */
 import { Stream } from "stream";
 import {
+  GRPCError,
   SayOptions,
   StreamEvent,
   VoiceClientConfig,
@@ -46,11 +47,17 @@ type TextToSpeech = {
   ) => Promise<string>;
 };
 
+type GRPCClient = {
+  createSession: (metadata: grpc.Metadata) => VoiceSessionStreamClient;
+  close: () => void;
+};
+
 class VoiceClientImpl implements VoiceClient {
   config: VoiceClientConfig;
   stream: Stream;
   voice: VoiceSessionStreamClient;
   tts: TextToSpeech;
+  grpcClient: GRPCClient;
 
   constructor(config: VoiceClientConfig, tts: TextToSpeech) {
     this.config = config;
@@ -59,22 +66,33 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   connect() {
-    const grpcClient = new VoiceServiceClient(
+    this.grpcClient = new VoiceServiceClient(
       this.config.endpoint,
       grpc.credentials.createInsecure()
-    );
+    ) as unknown as GRPCClient;
 
     const metadata = new grpc.Metadata();
     metadata.add("accessKeyId", this.config.accessKeyId);
     metadata.add("token", this.config.sessionToken);
 
-    this.voice = grpcClient.createSession(metadata);
+    this.voice = this.grpcClient.createSession(metadata);
 
     this.voice.on(StreamEvent.DATA, (data: VoiceIn) => {
       this.stream.emit(data.content, data);
     });
 
     this.voice.write({ request: this.config });
+
+    this.voice.on(StreamEvent.ERROR, (error: GRPCError) => {
+      if (error.code === grpc.status.UNAVAILABLE) {
+        this.stream.emit(
+          StreamEvent.ERROR,
+          new Error(`voice server not available at "${this.config.endpoint}"`)
+        );
+        return;
+      }
+      this.stream.emit(StreamEvent.ERROR, error);
+    });
   }
 
   on(type: string, callback: (data: VoiceIn) => void) {
@@ -96,7 +114,13 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   // Fixme: Implement
-  close() {}
+  close() {
+    try {
+      this.grpcClient.close();
+    } catch (e) {
+      // Just trying to close the connection
+    }
+  }
 }
 
 export { VoiceClientImpl };

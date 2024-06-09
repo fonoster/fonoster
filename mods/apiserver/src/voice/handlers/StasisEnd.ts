@@ -18,10 +18,11 @@
  */
 import { MuteRequest } from "@fonoster/common";
 import { Client } from "ari-client";
+import { withErrorHandling } from "./witthErrorHandling";
 import { VoiceClient } from "../types";
 
 function muteHandler(ari: Client, voiceClient: VoiceClient) {
-  return async (request: MuteRequest) => {
+  return withErrorHandling(async (request: MuteRequest) => {
     const { sessionRef, direction } = request;
 
     await ari.channels.mute({
@@ -34,7 +35,7 @@ function muteHandler(ari: Client, voiceClient: VoiceClient) {
         sessionRef
       }
     });
-  };
+  });
 }
 
 export { muteHandler };
