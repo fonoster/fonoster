@@ -35,7 +35,7 @@ new VoiceServer(config).listen(
 
     await res.answer();
     await res.say(
-      "Let's bring this application home, shaould we. Looking real good!",
+      "Let's bring this application home, shall we? It's looking really good.",
       {
         voice: AzureVoice.EN_GB_MIA_NEURAL
       }

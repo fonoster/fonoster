@@ -17,23 +17,26 @@
  * limitations under the License.
  */
 import { VerbRequest } from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
+import { z } from "zod";
+import { fromError } from "zod-validation-error";
 
 type VerbHandler = (request: VerbRequest) => Promise<void>;
 
+const logger = getLogger({ service: "apiserver", filePath: __filename });
+
+// TODO: Send error to the client and to the log system
 function withErrorHandling(fn: VerbHandler) {
   return async (request: VerbRequest) => {
     try {
       return await fn(request);
     } catch (err) {
-      if (err.message !== "Channel not found") {
-        // FIXME: Implement sending error to the client
-        // FIXME: This is good place to log application errors
-        // voiceClient.sendResponse({
-        //   error: {
-        //     message: err.message,
-        //     stack: err.stack
-        //   }
-        // });
+      if (err instanceof z.ZodError) {
+        const validationError = fromError(err);
+        logger.error("validation error:", {
+          message: validationError.toString()
+        });
+      } else if (err.message !== "Channel not found") {
         throw err;
       }
     }

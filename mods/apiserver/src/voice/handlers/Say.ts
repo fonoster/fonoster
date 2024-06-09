@@ -20,13 +20,24 @@ import { SayRequest } from "@fonoster/common";
 import { Client } from "ari-client";
 import { nanoid } from "nanoid";
 import { struct } from "pb-util";
+import { z } from "zod";
 import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
 import { withErrorHandling } from "./witthErrorHandling";
 import { VoiceClient } from "../types";
 
+const sayRequestSchema = z.object({
+  text: z.string(),
+  sessionRef: z.string(),
+  playbackRef: z.string().optional().nullable(),
+  options: z.record(z.unknown()).optional().nullable()
+});
+
 function sayHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: SayRequest) => {
     const { sessionRef } = request;
+
+    // Error handled by withErrorHandling
+    sayRequestSchema.parse(request);
 
     const playbackRef = request.playbackRef || nanoid(10);
 
