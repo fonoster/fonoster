@@ -1,3 +1,4 @@
+/* eslint-disable no-dupe-class-members */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -69,11 +70,22 @@ class AudioSocket {
     });
   }
 
-  listen(port: number, callback?: () => void) {
-    // FIXME: Fix hardcode IP
-    this.server.listen(port, "0.0.0.0", callback);
-  }
+  // Overload signatures
+  listen(port: number, callback?: () => void): void;
+  listen(port: number, bind: string, callback?: () => void): void;
 
+  listen(
+    port: number,
+    bindOrCallback?: string | (() => void),
+    callback?: () => void
+  ) {
+    if (typeof bindOrCallback === "string") {
+      this.server.listen(port, bindOrCallback, callback);
+    } else {
+      // Default to "0.0.0.0" if no bind address is provided
+      this.server.listen(port, "0.0.0.0", bindOrCallback);
+    }
+  }
   onConnection(handler: (req: StreamRequest, stream: AudioStream) => void) {
     this.connectionHandler = handler;
   }

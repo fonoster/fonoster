@@ -18,24 +18,22 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { AudioSocket } from "./AudioSocket";
+import { AudioStream } from "./AudioStream";
+import { StreamRequest } from "./types";
+
+const logger = getLogger({ service: "streams", filePath: __filename });
 
 const PORT = 9092;
 
 const audioSocket = new AudioSocket();
 
-const logger = getLogger({ service: "streams", filePath: __filename });
+async function connectionHandler(req: StreamRequest, stream: AudioStream) {
+  const { ref } = req;
+  logger.verbose("new connection", { ref });
 
-audioSocket.listen(PORT, () => {
-  logger.info(`audiosocket listening on port ${PORT}`);
-});
-
-audioSocket.onConnection((req, stream) => {
-  logger.verbose("new connection", { ...req });
-
-  // stream.onData((data) => {
-  //   console.log("data received", data);
-  //   // Add here a transcription service to see the text spoken
-  // });
+  stream.onData((data) => {
+    // Do something with the data
+  });
 
   stream.onClose(() => {
     logger.verbose("stream closed");
@@ -45,9 +43,21 @@ audioSocket.onConnection((req, stream) => {
     logger.error("tream error", err);
   });
 
-  setTimeout(() => {
-    const filePath = process.cwd() + "/etc/demo-congrats.sln";
-    logger.verbose("playing sound", { filePath });
-    stream.play(filePath);
-  }, 1500);
+  const filePath = process.cwd() + "/etc/demo-congrats.sln";
+
+  logger.verbose("playing sound", { filePath });
+
+  await stream.play(filePath);
+
+  // Hangup the stream after 10 seconds
+  setTimeout(async () => {
+    logger.verbose("hangin up the stream", { ref });
+    stream.hangup();
+  }, 10000);
+}
+
+audioSocket.listen(PORT, "192.168.1.7", () => {
+  logger.info(`audiosocket listening on port ${PORT}`);
 });
+
+audioSocket.onConnection(connectionHandler);

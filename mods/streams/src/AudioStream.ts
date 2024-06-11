@@ -20,11 +20,8 @@ import * as fs from "fs";
 import * as net from "net";
 import { setTimeout } from "node:timers/promises";
 import { Readable } from "stream";
-import { getLogger } from "@fonoster/logger";
 import { Message } from "./Message";
 import { EventType } from "./types";
-
-const logger = getLogger({ service: "streams", filePath: __filename });
 
 const MAX_CHUNK_SIZE = 320;
 
@@ -48,35 +45,24 @@ class AudioStream {
     this.socket.end();
   }
 
-  play(filePath: string) {
-    const fileStream = fs.createReadStream(filePath);
+  async play(filePath: string) {
+    const fileStream = fs.readFileSync(filePath);
 
-    fileStream.on("data", async (chunk) => {
-      const chunkSize = chunk.length;
-      let offset = 0;
+    const chunkSize = fileStream.length;
+    let offset = 0;
 
-      await setTimeout(20, "result");
+    // eslint-disable-next-line no-loops/no-loops
+    while (offset < chunkSize) {
+      const remaining = chunkSize - offset;
+      const sliceSize = Math.min(remaining, MAX_CHUNK_SIZE);
+      const slicedChunk = fileStream.slice(offset, offset + sliceSize);
+      const buffer = Message.createSlinMessage(slicedChunk as Buffer);
+      this.socket.write(buffer);
+      offset += sliceSize;
 
-      // eslint-disable-next-line no-loops/no-loops
-      while (offset < chunkSize) {
-        const remaining = chunkSize - offset;
-        const sliceSize = Math.min(remaining, MAX_CHUNK_SIZE);
-        const slicedChunk = chunk.slice(offset, offset + sliceSize);
-        const buffer = Message.createSlinMessage(slicedChunk as Buffer);
-        this.socket.write(buffer);
-        offset += sliceSize;
-
-        console.log("chunk sent", { offset, sliceSize, remaining });
-      }
-    });
-
-    fileStream.on("end", () => {
-      logger.verbose("file playback completed");
-    });
-
-    fileStream.on("error", (err) => {
-      logger.error("error playing file:", err);
-    });
+      // Wait for 20ms to match the sample rate
+      await setTimeout(20);
+    }
   }
 
   onData(callback: (data: Buffer) => void): this {
