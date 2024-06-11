@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { parse as uuidParse, stringify as uuidStringify } from "uuid";
-import { ErrorCodes, MessageType } from "./types";
+import { ErrorCode, MessageType } from "./types";
 
 class Message {
   private data: Buffer;
@@ -33,15 +33,15 @@ class Message {
   }
 
   // Get the type of the message
-  getKind(): number {
+  getKind(): MessageType {
     if (this.data.length < 1) return MessageType.ERROR;
     return this.data[0];
   }
 
   // Get error code from the message, if present
-  getErrorCode(): number {
-    if (this.getKind() !== MessageType.ERROR) return ErrorCodes.NONE;
-    if (this.data.length < 4) return ErrorCodes.UNKNOWN;
+  getErrorCode(): ErrorCode {
+    if (this.getKind() !== MessageType.ERROR) return ErrorCode.NONE;
+    if (this.data.length < 4) return ErrorCode.UNKNOWN;
     return this.data[3];
   }
 

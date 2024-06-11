@@ -16,30 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum MessageType {
-  HANGUP = 0x00,
-  ID = 0x01,
-  SILENCE = 0x02,
-  SLIN = 0x10,
-  ERROR = 0xff
+import { ErrorCode } from "./types";
+
+class AudioSocketError {
+  private errorCode: ErrorCode;
+
+  constructor(errorCode: ErrorCode) {
+    this.errorCode = errorCode;
+  }
+
+  getMessage(): string {
+    switch (this.errorCode) {
+      case ErrorCode.NONE:
+        return "No error";
+      case ErrorCode.AST_HANGUP:
+        return "Asterisk hangup";
+      case ErrorCode.AST_FRAME_FORWARDING:
+        return "Asterisk frame forwarding";
+      case ErrorCode.AST_MEMORY:
+        return "Asterisk memory";
+      default:
+        return "Unknown error";
+    }
+  }
 }
 
-enum ErrorCode {
-  NONE = 0x00,
-  AST_HANGUP = 0x01,
-  AST_FRAME_FORWARDING = 0x02,
-  AST_MEMORY = 0x04,
-  UNKNOWN = 0xff
-}
-
-enum EventType {
-  DATA = "data",
-  END = "end",
-  ERROR = "error"
-}
-
-type StreamRequest = {
-  ref: string;
-};
-
-export { StreamRequest, MessageType, EventType, ErrorCode };
+export { AudioSocketError };

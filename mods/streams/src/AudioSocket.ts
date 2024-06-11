@@ -20,6 +20,7 @@
 import net from "net";
 import { Readable } from "stream";
 import { getLogger } from "@fonoster/logger";
+import { AudioSocketError } from "./AudioSocketError";
 import { AudioStream } from "./AudioStream";
 import { nextMessage } from "./nextMessage";
 import { EventType, MessageType, StreamRequest } from "./types";
@@ -47,25 +48,38 @@ class AudioSocket {
         try {
           const message = await nextMessage(stream);
 
-          if (message.getKind() === MessageType.ID && this.connectionHandler) {
-            this.connectionHandler({ ref: message.getId() }, audioStream);
-          } else if (
-            message.getKind() === MessageType.SLIN ||
-            message.getKind() === MessageType.SILENCE
-          ) {
-            asStream.emit(EventType.DATA, message.getPayload());
+          switch (message.getKind()) {
+            case MessageType.ID:
+              if (this.connectionHandler) {
+                this.connectionHandler({ ref: message.getId() }, audioStream);
+              }
+              break;
+            case MessageType.SLIN:
+            case MessageType.SILENCE:
+              asStream.emit(EventType.DATA, message.getPayload());
+              break;
+            case MessageType.HANGUP:
+              asStream.emit(EventType.END);
+              break;
+            case MessageType.ERROR:
+              asStream.emit(
+                EventType.ERROR,
+                new AudioSocketError(message.getErrorCode())
+              );
+              break;
+            default:
+              break;
           }
         } catch (err) {
           logger.error("error processing message:", err);
         }
       });
 
-      socket.on(EventType.END, () => {
-        logger.verbose("client disconnected");
-      });
+      socket.on(EventType.END, () => asStream.emit(EventType.END));
 
       socket.on(EventType.ERROR, (err) => {
         logger.error("socket error:", err);
+        asStream.emit(EventType.ERROR, err);
       });
     });
   }

@@ -31,16 +31,15 @@ async function connectionHandler(req: StreamRequest, stream: AudioStream) {
   const { ref } = req;
   logger.verbose("new connection", { ref });
 
-  stream.onData((data) => {
-    // Do something with the data
-  });
+  // Do something with the data (e.g. save it to a file, or send it to a transcription service)
+  // stream.onData((_data) => {});
 
   stream.onClose(() => {
     logger.verbose("stream closed");
   });
 
   stream.onError((err) => {
-    logger.error("tream error", err);
+    logger.error("stream error", err);
   });
 
   const filePath = process.cwd() + "/etc/sounds/test.sln";
@@ -56,7 +55,7 @@ async function connectionHandler(req: StreamRequest, stream: AudioStream) {
   }, 10000);
 }
 
-audioSocket.listen(PORT, "192.168.1.7", () => {
+audioSocket.listen(PORT, () => {
   logger.info(`audiosocket listening on port ${PORT}`);
 });
 
