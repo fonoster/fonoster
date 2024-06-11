@@ -113,12 +113,11 @@ class VoiceClientImpl implements VoiceClient {
     return await this.tts.synthesize(text, opts);
   }
 
-  // Fixme: Implement
   close() {
     try {
       this.grpcClient.close();
     } catch (e) {
-      // Just trying to close the connection
+      // Do nothing
     }
   }
 }
