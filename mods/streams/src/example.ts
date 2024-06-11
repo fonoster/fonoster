@@ -43,7 +43,7 @@ async function connectionHandler(req: StreamRequest, stream: AudioStream) {
     logger.error("tream error", err);
   });
 
-  const filePath = process.cwd() + "/etc/demo-congrats.sln";
+  const filePath = process.cwd() + "/etc/sounds/test.sln";
 
   logger.verbose("playing sound", { filePath });
 

@@ -35,9 +35,9 @@ new VoiceServer(config).listen(
 
     await res.answer();
     await res.say(
-      "Let's bring this application home, shall we? It's looking really good.",
+      "Welcome to Fonoster Streams, the future of real-time voice and Voice AI.",
       {
-        voice: AzureVoice.EN_GB_MIA_NEURAL
+        voice: AzureVoice.EN_US_MONICA_NEURAL
       }
     );
     // await res.play("https://storage.googleapis.com/fonoster/tt-monkeys.g722");
