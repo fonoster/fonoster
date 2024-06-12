@@ -34,13 +34,14 @@ new VoiceServer(config).listen(
     logger.verbose("voice request", JSON.stringify(req, null, 2));
 
     await res.answer();
+
     await res.say(
-      "Welcome to Fonoster Streams, the future of real-time voice and Voice AI.",
+      "Welcome to Fonoster Voice, the future of real-time voice and Voice AI.",
       {
         voice: AzureVoice.EN_US_MONICA_NEURAL
       }
     );
-    // await res.play("https://storage.googleapis.com/fonoster/tt-monkeys.g722");
+
     await res.hangup();
   }
 );
