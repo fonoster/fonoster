@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { parse as uuidParse, stringify as uuidStringify } from "uuid";
-import { ErrorCode, MessageType } from "./types";
+import {
+  ErrorCode,
+  MAXIMUM_MESSAGE_LENGTH,
+  MINIMUM_MESSAGE_LENGTH,
+  MessageType
+} from "./types";
 
 class Message {
   private data: Buffer;
@@ -27,7 +32,9 @@ class Message {
   }
 
   getContentLength(): number {
-    return this.data.length >= 3 ? this.data.readUInt16BE(1) : 0;
+    return this.data.length >= MINIMUM_MESSAGE_LENGTH
+      ? this.data.readUInt16BE(1)
+      : 0;
   }
 
   getKind(): MessageType {
@@ -36,12 +43,14 @@ class Message {
 
   getErrorCode(): ErrorCode {
     if (this.getKind() !== MessageType.ERROR) return ErrorCode.NONE;
-    return this.data.length >= 4 ? this.data[3] : ErrorCode.UNKNOWN;
+    return this.data.length >= 4
+      ? this.data[MINIMUM_MESSAGE_LENGTH]
+      : ErrorCode.UNKNOWN;
   }
 
   getPayload(): Buffer | null {
     const size = this.getContentLength();
-    return size > 0 ? this.data.slice(3) : null;
+    return size > 0 ? this.data.subarray(MINIMUM_MESSAGE_LENGTH) : null;
   }
 
   getId(): string {
@@ -52,11 +61,13 @@ class Message {
   }
 
   private static createMessage(type: MessageType, data: Buffer): Buffer {
-    if (data.length > 65535) throw new Error("Message too large");
-    const out = Buffer.alloc(3 + data.length);
+    if (data.length > MAXIMUM_MESSAGE_LENGTH) {
+      throw new Error("Message too large");
+    }
+    const out = Buffer.alloc(MINIMUM_MESSAGE_LENGTH + data.length);
     out[0] = type;
     out.writeUInt16BE(data.length, 1);
-    data.copy(out, 3);
+    data.copy(out, MINIMUM_MESSAGE_LENGTH);
     return out;
   }
 

@@ -54,7 +54,7 @@ class AudioStream {
     // eslint-disable-next-line no-loops/no-loops
     while (offset < fileStream.length) {
       const sliceSize = Math.min(fileStream.length - offset, MAX_CHUNK_SIZE);
-      const slicedChunk = fileStream.slice(offset, offset + sliceSize);
+      const slicedChunk = fileStream.subarray(offset, offset + sliceSize);
       const buffer = Message.createSlinMessage(slicedChunk);
       this.socket.write(buffer);
       offset += sliceSize;

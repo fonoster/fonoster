@@ -18,13 +18,13 @@
  */
 import { Readable } from "stream";
 import { Message } from "./Message";
+import { MINIMUM_MESSAGE_LENGTH } from "./types";
 
 async function nextMessage(stream: Readable): Promise<Message> {
-  const hdr = Buffer.alloc(3);
-  const bytesRead = (await stream.read(3)) as Buffer;
+  const hdr = Buffer.alloc(MINIMUM_MESSAGE_LENGTH);
+  const bytesRead = (await stream.read(MINIMUM_MESSAGE_LENGTH)) as Buffer;
 
-  // This would happen if, for example, the stream was closed
-  if (bytesRead.length !== 3) {
+  if (bytesRead.length !== MINIMUM_MESSAGE_LENGTH) {
     throw new Error(
       `Read wrong number of bytes (${bytesRead.length}) for header`
     );

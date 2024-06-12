@@ -16,6 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const MINIMUM_MESSAGE_LENGTH = 3;
+const MAXIMUM_MESSAGE_LENGTH = 65535;
+
 enum MessageType {
   HANGUP = 0x00,
   ID = 0x01,
@@ -42,4 +45,11 @@ type StreamRequest = {
   ref: string;
 };
 
-export { StreamRequest, MessageType, EventType, ErrorCode };
+export {
+  StreamRequest,
+  MessageType,
+  EventType,
+  ErrorCode,
+  MINIMUM_MESSAGE_LENGTH,
+  MAXIMUM_MESSAGE_LENGTH
+};
