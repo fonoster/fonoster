@@ -32,7 +32,7 @@ async function connectionHandler(req: StreamRequest, stream: AudioStream) {
   logger.verbose("new connection", { ref });
 
   // Do something with the data (e.g. save it to a file, or send it to a transcription service)
-  // stream.onData((_data) => {});
+  // stream.onData((_data) => { /* save on a file or send to a transcription service */ });
 
   stream.onClose(() => {
     logger.verbose("stream closed");

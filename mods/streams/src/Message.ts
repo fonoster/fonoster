@@ -26,34 +26,24 @@ class Message {
     this.data = data;
   }
 
-  // Get content length of the message
   getContentLength(): number {
-    if (this.data.length < 3) return 0;
-    return this.data.readUInt16BE(1);
+    return this.data.length >= 3 ? this.data.readUInt16BE(1) : 0;
   }
 
-  // Get the type of the message
   getKind(): MessageType {
-    if (this.data.length < 1) return MessageType.ERROR;
-    return this.data[0];
+    return this.data.length > 0 ? this.data[0] : MessageType.ERROR;
   }
 
-  // Get error code from the message, if present
   getErrorCode(): ErrorCode {
     if (this.getKind() !== MessageType.ERROR) return ErrorCode.NONE;
-    if (this.data.length < 4) return ErrorCode.UNKNOWN;
-    return this.data[3];
+    return this.data.length >= 4 ? this.data[3] : ErrorCode.UNKNOWN;
   }
 
-  // Get the payload of the message
   getPayload(): Buffer | null {
     const size = this.getContentLength();
-    if (size === 0) return null;
-    // Why slice(3) here?
-    return this.data.slice(3);
+    return size > 0 ? this.data.slice(3) : null;
   }
 
-  // Get the unique ID from the message if it is an ID message
   getId(): string {
     if (this.getKind() !== MessageType.ID) {
       throw new Error(`Wrong message type ${this.getKind()}`);
@@ -61,30 +51,26 @@ class Message {
     return uuidStringify(this.getPayload());
   }
 
-  // Static method to create a Hangup message
-  static createHangupMessage(): Buffer {
-    // The minimum message length is three bytes
-    return Buffer.from([MessageType.HANGUP, 0x00, 0x00]);
-  }
-
-  // WARNING: Here to match the go implementation but so far not used
-  static createIDMessage(id: string): Buffer {
-    const idBuffer = Buffer.from(uuidParse(id));
-    const out = Buffer.alloc(3 + idBuffer.length);
-    out[0] = MessageType.ID;
-    out.writeUInt16BE(idBuffer.length, 1);
-    idBuffer.copy(out, 3);
-    return out;
-  }
-
-  // Static method to create a Slin message
-  static createSlinMessage(data: Buffer): Buffer {
+  private static createMessage(type: MessageType, data: Buffer): Buffer {
     if (data.length > 65535) throw new Error("Message too large");
     const out = Buffer.alloc(3 + data.length);
-    out[0] = MessageType.SLIN;
+    out[0] = type;
     out.writeUInt16BE(data.length, 1);
     data.copy(out, 3);
     return out;
+  }
+
+  static createHangupMessage(): Buffer {
+    return Buffer.from([MessageType.HANGUP, 0x00, 0x00]);
+  }
+
+  static createIDMessage(id: string): Buffer {
+    const idBuffer = Buffer.from(uuidParse(id));
+    return this.createMessage(MessageType.ID, idBuffer);
+  }
+
+  static createSlinMessage(data: Buffer): Buffer {
+    return this.createMessage(MessageType.SLIN, data);
   }
 }
 

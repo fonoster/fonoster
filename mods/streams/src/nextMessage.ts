@@ -21,10 +21,10 @@ import { Message } from "./Message";
 
 async function nextMessage(stream: Readable): Promise<Message> {
   const hdr = Buffer.alloc(3);
-
   const bytesRead = (await stream.read(3)) as Buffer;
 
-  if (bytesRead.length !== hdr.length) {
+  // This would happen if, for example, the stream was closed
+  if (bytesRead.length !== 3) {
     throw new Error(
       `Read wrong number of bytes (${bytesRead.length}) for header`
     );
@@ -39,7 +39,7 @@ async function nextMessage(stream: Readable): Promise<Message> {
   const payload = Buffer.alloc(payloadLen);
   const payloadRead = (await stream.read(payloadLen)) as Buffer;
 
-  if (payloadRead.length !== payload.length) {
+  if (payloadRead.length !== payloadLen) {
     throw new Error(
       `Read wrong number of bytes (${payloadRead.length}) for payload`
     );

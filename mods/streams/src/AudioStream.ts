@@ -23,6 +23,7 @@ import { Readable } from "stream";
 import { Message } from "./Message";
 import { EventType } from "./types";
 
+// TODO: Update this file to support slin16 format
 const MAX_CHUNK_SIZE = 320;
 
 class AudioStream {
@@ -48,15 +49,13 @@ class AudioStream {
   async play(filePath: string) {
     const fileStream = fs.readFileSync(filePath);
 
-    const chunkSize = fileStream.length;
     let offset = 0;
 
     // eslint-disable-next-line no-loops/no-loops
-    while (offset < chunkSize) {
-      const remaining = chunkSize - offset;
-      const sliceSize = Math.min(remaining, MAX_CHUNK_SIZE);
+    while (offset < fileStream.length) {
+      const sliceSize = Math.min(fileStream.length - offset, MAX_CHUNK_SIZE);
       const slicedChunk = fileStream.slice(offset, offset + sliceSize);
-      const buffer = Message.createSlinMessage(slicedChunk as Buffer);
+      const buffer = Message.createSlinMessage(slicedChunk);
       this.socket.write(buffer);
       offset += sliceSize;
 

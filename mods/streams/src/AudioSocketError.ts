@@ -18,15 +18,14 @@
  */
 import { ErrorCode } from "./types";
 
-class AudioSocketError {
-  private errorCode: ErrorCode;
-
-  constructor(errorCode: ErrorCode) {
-    this.errorCode = errorCode;
+class AudioSocketError extends Error {
+  constructor(public errorCode: ErrorCode) {
+    super(AudioSocketError.getMessageFromCode(errorCode));
+    this.name = "AudioSocketError";
   }
 
-  getMessage(): string {
-    switch (this.errorCode) {
+  static getMessageFromCode(errorCode: ErrorCode): string {
+    switch (errorCode) {
       case ErrorCode.NONE:
         return "No error";
       case ErrorCode.AST_HANGUP:

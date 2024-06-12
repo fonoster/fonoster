@@ -34,54 +34,61 @@ class AudioSocket {
     | null = null;
 
   constructor() {
-    this.server = net.createServer((socket) => {
-      logger.info("client connected");
+    this.server = net.createServer(this.handleConnection.bind(this));
+  }
 
-      const asStream = new Readable();
-      const audioStream = new AudioStream(asStream, socket);
+  private handleConnection(socket: net.Socket) {
+    logger.info("client connected");
 
-      socket.on(EventType.DATA, async (data) => {
-        const stream = new Readable();
-        stream.push(data);
-        stream.push(null); // End of the stream
+    const asStream = new Readable({ read() {} });
+    const audioStream = new AudioStream(asStream, socket);
 
-        try {
-          const message = await nextMessage(stream);
-
-          switch (message.getKind()) {
-            case MessageType.ID:
-              if (this.connectionHandler) {
-                this.connectionHandler({ ref: message.getId() }, audioStream);
-              }
-              break;
-            case MessageType.SLIN:
-            case MessageType.SILENCE:
-              asStream.emit(EventType.DATA, message.getPayload());
-              break;
-            case MessageType.HANGUP:
-              asStream.emit(EventType.END);
-              break;
-            case MessageType.ERROR:
-              asStream.emit(
-                EventType.ERROR,
-                new AudioSocketError(message.getErrorCode())
-              );
-              break;
-            default:
-              break;
-          }
-        } catch (err) {
-          logger.error("error processing message:", err);
-        }
-      });
-
-      socket.on(EventType.END, () => asStream.emit(EventType.END));
-
-      socket.on(EventType.ERROR, (err) => {
-        logger.error("socket error:", err);
-        asStream.emit(EventType.ERROR, err);
-      });
+    socket.on(EventType.DATA, (data) =>
+      this.handleData(data, asStream, audioStream)
+    );
+    socket.on(EventType.END, () => asStream.emit(EventType.END));
+    socket.on(EventType.ERROR, (err) => {
+      logger.error("socket error:", err);
+      asStream.emit(EventType.ERROR, err);
     });
+  }
+
+  private async handleData(
+    data: Buffer,
+    asStream: Readable,
+    audioStream: AudioStream
+  ) {
+    const stream = new Readable({ read() {} });
+    stream.push(data);
+    stream.push(null); // End of the stream
+
+    try {
+      const message = await nextMessage(stream);
+
+      switch (message.getKind()) {
+        case MessageType.ID:
+          this.connectionHandler?.({ ref: message.getId() }, audioStream);
+          break;
+        case MessageType.SLIN:
+        case MessageType.SILENCE:
+          asStream.emit(EventType.DATA, message.getPayload());
+          break;
+        case MessageType.HANGUP:
+          asStream.emit(EventType.END);
+          break;
+        case MessageType.ERROR:
+          asStream.emit(
+            EventType.ERROR,
+            new AudioSocketError(message.getErrorCode())
+          );
+          break;
+        default:
+          logger.warn("unknown message type");
+          break;
+      }
+    } catch (err) {
+      logger.error("error processing message:", err);
+    }
   }
 
   // Overload signatures
@@ -93,13 +100,13 @@ class AudioSocket {
     bindOrCallback?: string | (() => void),
     callback?: () => void
   ) {
-    if (typeof bindOrCallback === "string") {
-      this.server.listen(port, bindOrCallback, callback);
-    } else {
-      // Default to "0.0.0.0" if no bind address is provided
-      this.server.listen(port, "0.0.0.0", bindOrCallback);
-    }
+    const bind =
+      typeof bindOrCallback === "string" ? bindOrCallback : "0.0.0.0";
+    const cb = typeof bindOrCallback === "function" ? bindOrCallback : callback;
+
+    this.server.listen(port, bind, cb);
   }
+
   onConnection(handler: (req: StreamRequest, stream: AudioStream) => void) {
     this.connectionHandler = handler;
   }
