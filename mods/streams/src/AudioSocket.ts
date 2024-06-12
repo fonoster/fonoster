@@ -27,6 +27,23 @@ import { EventType, MessageType, StreamRequest } from "./types";
 
 const logger = getLogger({ service: "streams", filePath: __filename });
 
+/**
+ * @classdesc Use the VoiceResponse object, to construct advance Interactive
+ * Voice Response (IVR) applications.
+ *
+ * @extends Verb
+ * @example
+ *
+ * import { VoiceServer } from "@fonoster/voice";
+ *
+ * async function handler (request, response) {
+ *   await response.answer();
+ *   await response.play("sound:hello-world");
+ * }
+ *
+ * const voiceServer = new VoiceServer({base: '/voiceapp'})
+ * voiceServer.listen(handler, { port: 3000 })
+ */
 class AudioSocket {
   private server: net.Server;
   private connectionHandler:

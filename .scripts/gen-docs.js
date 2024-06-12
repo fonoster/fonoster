@@ -1,10 +1,12 @@
+#!/usr/bin/node
+
 "use strict";
 
 const fs = require("fs");
 const jsdoc2md = require("jsdoc-to-markdown");
 const path = require("path");
 
-const outputDir = path.join(__dirname, "../docs/docs/reference");
+const outputDir = path.join(__dirname, "../docs/reference");
 
 function generate(inputFile) {
   const templateData = jsdoc2md.getTemplateDataSync({ files: inputFile });
@@ -28,4 +30,4 @@ function generate(inputFile) {
   }
 }
 
-generate(path.join(__dirname, "../mods/sdk/dist/client/*.js"))
+generate(path.join(__dirname, "../mods/voice/dist/*.js"))
