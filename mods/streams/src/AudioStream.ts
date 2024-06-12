@@ -44,6 +44,7 @@ class AudioStream {
     const buffer = Message.createHangupMessage();
     this.socket.write(buffer);
     this.socket.end();
+    this.stream.emit(EventType.END);
   }
 
   async play(filePath: string) {

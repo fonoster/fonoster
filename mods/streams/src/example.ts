@@ -17,9 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { AudioSocket } from "./AudioSocket";
-import { AudioStream } from "./AudioStream";
-import { StreamRequest } from "./types";
+import { AudioSocket, AudioStream, StreamRequest } from ".";
 
 const logger = getLogger({ service: "streams", filePath: __filename });
 
