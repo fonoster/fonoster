@@ -28,21 +28,38 @@ import { EventType, MessageType, StreamRequest } from "./types";
 const logger = getLogger({ service: "streams", filePath: __filename });
 
 /**
- * @classdesc Use the VoiceResponse object, to construct advance Interactive
- * Voice Response (IVR) applications.
+ * @classdesc A NodeJS implementation of the AudioSocket protocol. The AudioSocket protocol is
+ * a simple protocol for streaming audio from Asterisk to a NodeJS application. The protocol is
+ * based on the I/O multiplexing model and uses
  *
- * @extends Verb
  * @example
  *
- * import { VoiceServer } from "@fonoster/voice";
+ * const { AudioSocket } = require("@fonoster/streams");
  *
- * async function handler (request, response) {
- *   await response.answer();
- *   await response.play("sound:hello-world");
- * }
+ * const audioSocket = new AudioSocket();
  *
- * const voiceServer = new VoiceServer({base: '/voiceapp'})
- * voiceServer.listen(handler, { port: 3000 })
+ * audioSocket.onConnection(async (req, res) => {
+ *   console.log("new connection from:", req.ref);
+ *
+ *   res.on("data", (data) => {
+ *      // Do something with the audio data
+ *   );
+ *
+ *   res.on("end", () => {
+ *      // Do something when the stream ends
+ *   });
+ *
+ *   res.on("error", (err) => {
+ *      // Do something when an error occurs
+ *   });
+ *
+ *   // Utility for playing audio files
+ *   await res.play("/path/to/audio/file");
+ * });
+ *
+ * audioSocket.listen(9092, () => {
+ *   console.log("server listening on port 9092");
+ * });
  */
 class AudioSocket {
   private server: net.Server;
@@ -50,6 +67,11 @@ class AudioSocket {
     | ((req: StreamRequest, stream: AudioStream) => void)
     | null = null;
 
+  /**
+   * Constructs a new AudioSocket instance.
+   *
+   * @see AudioStream
+   */
   constructor() {
     this.server = net.createServer(this.handleConnection.bind(this));
   }
@@ -108,8 +130,21 @@ class AudioSocket {
     }
   }
 
-  // Overload signatures
+  /**
+   * Starts the server listening for connections on the specified port.
+   *
+   * @param {number} port - The port to listen on
+   * @param {() => void} callback - The callback to invoke when the server is listening
+   */
   listen(port: number, callback?: () => void): void;
+
+  /**
+   * Starts the server listening for connections on the specified port and bind address.
+   *
+   * @param {number} port - The port to listen on
+   * @param {string} bind - The address to bind to
+   * @param {() => void} callback - The callback to invoke when the server is listening
+   */
   listen(port: number, bind: string, callback?: () => void): void;
 
   listen(
@@ -124,10 +159,25 @@ class AudioSocket {
     this.server.listen(port, bind, cb);
   }
 
+  /**
+   * Sets the handler to be called when a new connection is established.
+   *
+   * @param {function(StreamRequest, AudioStream): void} handler - The handler to call when a new connection is established
+   * @example
+   *
+   * audioSocket.onConnection(async (req, res) => {
+   *   console.log("new connection from:", req.ref);
+   *
+   *   await res.play("/path/to/audio/file");
+   * });
+   */
   onConnection(handler: (req: StreamRequest, stream: AudioStream) => void) {
     this.connectionHandler = handler;
   }
 
+  /**
+   * Closes the server and stops listening for connections.
+   */
   close() {
     this.server.close();
   }
