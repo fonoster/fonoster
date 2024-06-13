@@ -127,6 +127,10 @@ class AudioSocket {
   onConnection(handler: (req: StreamRequest, stream: AudioStream) => void) {
     this.connectionHandler = handler;
   }
+
+  close() {
+    this.server.close();
+  }
 }
 
 export { AudioSocket };
