@@ -1,3 +1,5 @@
+import { VoiceLanguage } from "@fonoster/common/src/tts/types";
+
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,24 +18,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GatherRequest } from "@fonoster/common";
-import { Client } from "ari-client";
-import { withErrorHandling } from "./witthErrorHandling";
-import { VoiceClient } from "../types";
+type SttConfig = {
+  languageCode: VoiceLanguage;
+};
 
-function gatherHandler(ari: Client, voiceClient: VoiceClient) {
-  return withErrorHandling(async (request: GatherRequest) => {
-    const { sessionRef } = request;
+type SpeechResult = {
+  speech: string;
+  isFinal: boolean;
+};
 
-    const { speech } = await voiceClient.transcribe();
+type StreamSpeechResult = {
+  on(events: string, callback: (result: SpeechResult) => void): void;
+  close: () => void;
+};
 
-    voiceClient.sendResponse({
-      gatherResponse: {
-        sessionRef,
-        speech
-      }
-    });
-  });
-}
-
-export { gatherHandler };
+export { SttConfig, SpeechResult, StreamSpeechResult };

@@ -18,3 +18,4 @@
  */
 export * from "./GoogleVoices";
 export * from "./AzureVoices";
+export * from "./types";

@@ -106,7 +106,11 @@ class AudioSocket {
 
       switch (message.getKind()) {
         case MessageType.ID:
-          this.connectionHandler?.({ ref: message.getId() }, audioStream);
+          if (this.connectionHandler) {
+            this.connectionHandler({ ref: message.getId() }, audioStream);
+          } else {
+            logger.warn("no connection handler set");
+          }
           break;
         case MessageType.SLIN:
         case MessageType.SILENCE:

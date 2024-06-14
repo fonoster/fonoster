@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AzureVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest } from "./types";
 import { VoiceResponse } from "./VoiceResponse";
@@ -35,12 +34,11 @@ new VoiceServer(config).listen(
 
     await res.answer();
 
-    await res.say(
-      "Welcome to Fonoster Voice, the future of real-time voice and Voice AI.",
-      {
-        voice: AzureVoice.EN_US_MONICA_NEURAL
-      }
-    );
+    await res.say("Hi there! What's your name?");
+
+    const name = await res.gather();
+
+    await res.say(`Hello ${name}.`);
 
     await res.hangup();
   }

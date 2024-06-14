@@ -43,7 +43,7 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   readonly engineName = ENGINE_NAME;
   protected readonly OUTPUT_FORMAT = "sln16";
   protected readonly CACHING_FIELDS = ["voice"];
-  protected readonly AUDIO_ENCODING = "LINEAR16";
+  protected readonly AUDIO_ENCODING = AUDIO_ENCODING;
 
   constructor(config: GoogleTtsConfig) {
     super(config);

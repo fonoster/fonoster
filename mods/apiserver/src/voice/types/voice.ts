@@ -22,6 +22,7 @@ import {
   VoiceClientConfig,
   VoiceIn
 } from "@fonoster/common";
+import { SpeechResult } from "../stt/types";
 
 type VoiceClient = {
   config: VoiceClientConfig;
@@ -30,6 +31,7 @@ type VoiceClient = {
   connect: () => void;
   close: () => void;
   synthesize: (text: string, options: SayOptions) => Promise<string>;
+  transcribe: () => Promise<SpeechResult>;
 };
 
 export { VoiceClient };
