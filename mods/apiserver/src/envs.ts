@@ -29,6 +29,7 @@ if (process.env.NODE_ENV === "dev") {
 const e = process.env;
 
 assertEnvsAreSet([
+  "TTS_PATH_TO_FILES",
   "APP_URL",
   "CLOAK_ENCRYPTION_KEY",
   "SMTP_HOST",
@@ -123,6 +124,9 @@ export const ASTERISK_ARI_SECRET = e.ASTERISK_ARI_SECRET;
 
 // TTS configurations
 export const TTS_PATH_TO_FILES = e.TTS_PATH_TO_FILES || os.tmpdir();
+export const FILES_SERVER_PORT = e.FILES_SERVER_PORT
+  ? parseInt(e.FILES_SERVER_PORT)
+  : 3000;
 export const EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL =
   e.EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL;
 export const EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY =
