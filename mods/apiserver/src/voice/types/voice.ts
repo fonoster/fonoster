@@ -16,12 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Stream } from "stream";
 import {
   SayOptions,
   StreamContent,
   VoiceClientConfig,
-  VoiceIn
+  VoiceIn,
+  VoiceSessionStreamClient
 } from "@fonoster/common";
+import * as grpc from "@grpc/grpc-js";
 import { SpeechResult } from "../stt/types";
 
 type VoiceClient = {
@@ -34,4 +37,20 @@ type VoiceClient = {
   transcribe: () => Promise<SpeechResult>;
 };
 
-export { VoiceClient };
+type TextToSpeech = {
+  synthesize: (
+    text: string,
+    options: Record<string, unknown>
+  ) => Promise<string>;
+};
+
+type SpeechToText = {
+  transcribe: (stream: Stream) => Promise<SpeechResult>;
+};
+
+type GRPCClient = {
+  createSession: (metadata: grpc.Metadata) => VoiceSessionStreamClient;
+  close: () => void;
+};
+
+export { VoiceClient, TextToSpeech, SpeechToText, GRPCClient };

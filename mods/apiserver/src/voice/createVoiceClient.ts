@@ -16,10 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { VoiceLanguage } from "@fonoster/common";
 import { createCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { Channel, StasisStart } from "ari-client";
+import { Channel, Client, StasisStart } from "ari-client";
 import { createGetChannelVar } from "./createGetChannelVar";
+import { SpeechToTextFactory } from "./stt/SpeechToTextFactory";
 import { TextToSpeechFactory } from "./tts/TextToSpeechFactory";
 import { ChannelVar, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
@@ -38,6 +40,14 @@ type FonosterSDK = {
         | { client_email: string; private_key: string }
         | { subscriptionKey: string; serviceRegion: string };
     };
+    sttConfig: {
+      engine: string;
+      languageCode: VoiceLanguage;
+      options: Record<string, unknown>;
+      credentials:
+        | { client_email: string; private_key: string }
+        | { subscriptionKey: string; serviceRegion: string };
+    };
   }>;
 };
 
@@ -47,7 +57,12 @@ const createToken = createCallAccessToken(identityConfig);
 
 // Note: By the time the all arrives here the owner of the app MUST be authenticated
 function createVoiceClient(sdk: FonosterSDK) {
-  return async (event: StasisStart, channel: Channel): Promise<VoiceClient> => {
+  return async (params: {
+    ari: Client;
+    event: StasisStart;
+    channel: Channel;
+  }): Promise<VoiceClient> => {
+    const { ari, event, channel } = params;
     const { id: sessionRef, caller } = event.channel;
     const { name: callerName, number: callerNumber } = caller;
 
@@ -60,13 +75,10 @@ function createVoiceClient(sdk: FonosterSDK) {
     const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
 
     // TODO: Should fail if appRef is not set
-    const { accessKeyId, endpoint, ttsConfig } = await sdk.getApp(appRef);
-    const sessionToken = await createToken({ accessKeyId, appRef });
+    const { accessKeyId, endpoint, ttsConfig, sttConfig } =
+      await sdk.getApp(appRef);
 
-    const tts = TextToSpeechFactory.getEngine(ttsConfig.engine, {
-      ...ttsConfig,
-      pathToFiles: TTS_PATH_TO_FILES
-    });
+    const sessionToken = await createToken({ accessKeyId, appRef });
 
     const config = {
       appRef,
@@ -87,7 +99,16 @@ function createVoiceClient(sdk: FonosterSDK) {
       ingressNumber
     });
 
-    return new VoiceClientImpl(config, tts);
+    const tts = TextToSpeechFactory.getEngine(ttsConfig.engine, {
+      ...ttsConfig,
+      pathToFiles: TTS_PATH_TO_FILES
+    });
+
+    const sst = SpeechToTextFactory.getEngine(sttConfig.engine, {
+      ...sttConfig
+    });
+
+    return new VoiceClientImpl({ ari, config, tts, sst });
   };
 }
 

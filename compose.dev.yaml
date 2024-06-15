@@ -22,6 +22,8 @@ services:
     ports:
       - 6060:6060
       - 8088:8088 # TODO: Change to 9876 internally too
+    extra_hosts:
+      - apiserver:${DOCKER_HOST_ADDRESS}
 
   asterisk02:
     volumes:

@@ -23,6 +23,7 @@ import { struct } from "pb-util";
 import { z } from "zod";
 import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
 import { withErrorHandling } from "./witthErrorHandling";
+import { APISERVER_HOST, FILES_SERVER_PORT } from "../../envs";
 import { VoiceClient } from "../types";
 
 const sayRequestSchema = z.object({
@@ -31,6 +32,9 @@ const sayRequestSchema = z.object({
   playbackRef: z.string().optional().nullable(),
   options: z.record(z.unknown()).optional().nullable()
 });
+
+const getMediaUrl = (filename: string) =>
+  `sound:http://${APISERVER_HOST}:${FILES_SERVER_PORT}/sounds/${filename}.sln16`;
 
 function sayHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: SayRequest) => {
@@ -48,7 +52,7 @@ function sayHandler(ari: Client, voiceClient: VoiceClient) {
 
     await ari.channels.play({
       channelId: sessionRef,
-      media: `sound:${filename}`,
+      media: getMediaUrl(filename),
       playbackId: playbackRef
     });
 

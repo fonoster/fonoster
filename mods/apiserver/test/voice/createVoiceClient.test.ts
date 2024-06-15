@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Channel, StasisStart } from "ari-client";
+import { Channel, Client, StasisStart } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
@@ -48,6 +48,9 @@ describe("@voice/createVoiceClient", function () {
         endpoint: "app-endpoint",
         ttsConfig: {
           engine: "google"
+        },
+        sttConfig: {
+          engine: "google"
         }
       })
     };
@@ -78,7 +81,11 @@ describe("@voice/createVoiceClient", function () {
     } as unknown as Channel;
 
     // Act
-    const voiceClient = await createVoiceClient(sdk)(event, channel);
+    const voiceClient = await createVoiceClient(sdk)({
+      ari: {} as Client,
+      event,
+      channel
+    });
 
     // Assert
     expect(voiceClient).to.be.an.instanceOf(VoiceClientImpl);
