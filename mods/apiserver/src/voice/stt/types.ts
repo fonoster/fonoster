@@ -1,5 +1,3 @@
-import { VoiceLanguage } from "@fonoster/common/src/tts/types";
-
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,6 +16,8 @@ import { VoiceLanguage } from "@fonoster/common/src/tts/types";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { VoiceLanguage } from "@fonoster/common/src/tts/types";
+
 type SttConfig = {
   languageCode: VoiceLanguage;
 };
@@ -32,4 +32,17 @@ type StreamSpeechResult = {
   close: () => void;
 };
 
-export { SttConfig, SpeechResult, StreamSpeechResult };
+type GoogleSttConfig = SttConfig & {
+  config: {
+    encoding: "LINEAR16";
+    sampleRateHertz: 16000;
+    interimResults: boolean;
+    languageCode: VoiceLanguage;
+  };
+  credentials: {
+    client_email: string;
+    private_key: string;
+  };
+};
+
+export { SttConfig, SpeechResult, StreamSpeechResult, GoogleSttConfig };

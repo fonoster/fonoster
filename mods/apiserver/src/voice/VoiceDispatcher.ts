@@ -33,23 +33,18 @@ import { AriEvent, VoiceClient } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
+type CreateVoiceClient = (params: {
+  ari: Client;
+  event: StasisStart;
+  channel: Channel;
+}) => Promise<VoiceClient>;
+
 class VoiceDispatcher {
   voiceClients: Map<string, VoiceClient>;
   ari: Client;
-  createVoiceClient: (
-    ari: Client,
-    event: StasisStart,
-    channel: Channel
-  ) => Promise<VoiceClient>;
+  createVoiceClient: CreateVoiceClient;
 
-  constructor(
-    ari: Client,
-    createVoiceClient: (
-      ari: Client,
-      event: StasisStart,
-      channel: Channel
-    ) => Promise<VoiceClient>
-  ) {
+  constructor(ari: Client, createVoiceClient: CreateVoiceClient) {
     this.ari = ari;
     this.voiceClients = new Map();
     this.createVoiceClient = createVoiceClient;
@@ -70,7 +65,7 @@ class VoiceDispatcher {
       });
       return;
     }
-    const vc = await this.createVoiceClient(this.ari, event, channel);
+    const vc = await this.createVoiceClient({ ari: this.ari, event, channel });
 
     // Connect to voice server
     vc.connect();
