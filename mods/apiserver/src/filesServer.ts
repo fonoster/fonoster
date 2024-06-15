@@ -23,6 +23,8 @@ import express, { Request, Response } from "express";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
+const CONTENT_TYPE = "audio/L16;rate=16000;channels=1";
+
 function filesServer(params: { pathToFiles: string; port: number }) {
   const { pathToFiles, port } = params;
   const app = express();
@@ -30,9 +32,9 @@ function filesServer(params: { pathToFiles: string; port: number }) {
   app.get("/sounds/:file", (req: Request, res: Response) => {
     fs.readFile(join(pathToFiles, req.params.file), function (err, data) {
       if (err) {
-        res.send("unable to find or open file");
+        res.status(404).send("file not found!");
       } else {
-        res.setHeader("content-type", "audio/L16;rate=16000;channels=1");
+        res.setHeader("content-type", CONTENT_TYPE);
         res.send(data);
       }
       res.end();

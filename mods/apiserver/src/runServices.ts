@@ -32,9 +32,12 @@ import {
   ASTERISK_ARI_PROXY_URL,
   ASTERISK_ARI_SECRET,
   ASTERISK_ARI_USERNAME,
+  FILES_SERVER_PORT,
   IDENTITY_PUBLIC_KEY,
-  NATS_URL
+  NATS_URL,
+  TTS_PATH_TO_FILES
 } from "./envs";
+import { filesServer } from "./filesServer";
 import loadServices from "./loadServices";
 import services from "./services";
 import { connectToAri } from "./voice/connectToAri";
@@ -66,6 +69,8 @@ async function runServices() {
     ariUsername: ASTERISK_ARI_USERNAME,
     ariPassword: ASTERISK_ARI_SECRET
   });
+
+  filesServer({ pathToFiles: TTS_PATH_TO_FILES, port: FILES_SERVER_PORT });
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);
