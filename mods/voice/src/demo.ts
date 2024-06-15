@@ -36,7 +36,7 @@ new VoiceServer(config).listen(
 
     await res.say("Hi there! What's your name?");
 
-    const name = await res.gather();
+    const { speech: name } = await res.gather();
 
     await res.say(`Hello ${name}.`);
 

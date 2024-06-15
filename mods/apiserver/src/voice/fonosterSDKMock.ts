@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AzureVoice, GoogleVoice } from "@fonoster/common";
+import { AzureVoice, GoogleVoice, VoiceLanguage } from "@fonoster/common";
 import {
   EXPERIMENTAL_AZURE_TTS_REGION,
   EXPERIMENTAL_AZURE_TTS_SUBSCRIPTION_KEY,
@@ -25,7 +25,7 @@ import {
   EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY
 } from "../envs";
 
-const azureTTSConfig = {
+const azureTtsConfig = {
   engine: "azure",
   options: {
     voice: AzureVoice.EN_AU_ANNETTE_NEURAL
@@ -36,10 +36,22 @@ const azureTTSConfig = {
   }
 };
 
-const googleTTSConfig = {
+const googleTtsConfig = {
   engine: "google",
   options: {
     voice: GoogleVoice.EN_US_STUDIO_O
+  },
+  credentials: {
+    client_email: EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,
+    private_key: EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY
+  }
+};
+
+const googleSttConfig = {
+  engine: "google",
+  languageCode: VoiceLanguage.EN_US,
+  options: {
+    languageCode: VoiceLanguage.EN_US
   },
   credentials: {
     client_email: EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,
@@ -53,7 +65,8 @@ const fonosterSDKMock = {
       ref: "fakeRef",
       accessKeyId: "WO00000000000000000000000000000000",
       endpoint: "localhost:50061",
-      ttsConfig: azureTTSConfig
+      ttsConfig: googleTtsConfig,
+      sttConfig: googleSttConfig
     };
   }
 };
