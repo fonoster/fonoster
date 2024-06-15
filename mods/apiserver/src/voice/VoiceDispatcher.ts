@@ -17,9 +17,11 @@
  * limitations under the License.
  */
 import { StreamContent as SC, STASIS_APP_NAME } from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
 import { Channel, Client, StasisStart } from "ari-client";
 import { answerHandler } from "./handlers/Answer";
 import { dialHandler } from "./handlers/dial/Dial";
+import { gatherHandler } from "./handlers/Gather";
 import { hangupHandler } from "./handlers/Hangup";
 import { muteHandler } from "./handlers/Mute";
 import { playHandler } from "./handlers/Play";
@@ -29,10 +31,13 @@ import { sayHandler } from "./handlers/Say";
 import { unmuteHandler } from "./handlers/Unmute";
 import { AriEvent, VoiceClient } from "./types";
 
+const logger = getLogger({ service: "apiserver", filePath: __filename });
+
 class VoiceDispatcher {
   voiceClients: Map<string, VoiceClient>;
   ari: Client;
   createVoiceClient: (
+    ari: Client,
     event: StasisStart,
     channel: Channel
   ) => Promise<VoiceClient>;
@@ -40,6 +45,7 @@ class VoiceDispatcher {
   constructor(
     ari: Client,
     createVoiceClient: (
+      ari: Client,
       event: StasisStart,
       channel: Channel
     ) => Promise<VoiceClient>
@@ -57,7 +63,14 @@ class VoiceDispatcher {
   }
 
   async handleStasisStart(event: StasisStart, channel: Channel) {
-    const vc = await this.createVoiceClient(event, channel);
+    // TODO: This is a temporary fix. We need to find a better way to handle external media channels
+    if (channel.id.length > 15) {
+      logger.verbose("skipping statis start for external media channel", {
+        channel: channel.id
+      });
+      return;
+    }
+    const vc = await this.createVoiceClient(this.ari, event, channel);
 
     // Connect to voice server
     vc.connect();
@@ -75,6 +88,7 @@ class VoiceDispatcher {
       playbackControlHandler(this.ari, vc).bind(this)
     );
     vc.on(SC.SAY_REQUEST, sayHandler(this.ari, vc).bind(this));
+    vc.on(SC.GATHER_REQUEST, gatherHandler(this.ari, vc).bind(this));
     vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
   }
 
