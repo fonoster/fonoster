@@ -166,28 +166,49 @@ class VoiceClientImpl implements VoiceClient {
     sessionRef: string;
     finishOnKey: string;
     maxDigits: number;
+    timeout: number;
     onDigitReceived: () => void;
   }): Promise<{ digits: string }> {
-    const { onDigitReceived, sessionRef, finishOnKey, maxDigits } = params;
+    const { onDigitReceived, sessionRef, finishOnKey, maxDigits, timeout } =
+      params;
+
     let result = "";
+    let timeoutId = null;
 
     const channel = await this.ari.channels.get({ channelId: sessionRef });
 
     return new Promise((resolve) => {
-      channel.on(AriEvent.CHANNEL_DTMF_RECEIVED, (event) => {
+      const resetTimer = () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
+        timeoutId = setTimeout(() => {
+          channel.removeListener(AriEvent.CHANNEL_DTMF_RECEIVED, dtmfListener);
+          resolve({ digits: result });
+        }, timeout);
+      };
+
+      const dtmfListener = (event) => {
         const { digit } = event;
 
+        // Stops the global timeout
         onDigitReceived();
+        resetTimer();
 
-        if (digit != finishOnKey) {
+        if (digit !== finishOnKey) {
           result += digit;
         }
 
         if (result.length >= maxDigits || digit === finishOnKey) {
-          channel.removeListener(AriEvent.CHANNEL_DTMF_RECEIVED, () => {});
+          clearTimeout(timeoutId);
+          channel.removeListener(AriEvent.CHANNEL_DTMF_RECEIVED, dtmfListener);
           resolve({ digits: result });
         }
-      });
+      };
+
+      channel.on(AriEvent.CHANNEL_DTMF_RECEIVED, dtmfListener);
+      resetTimer(); // Start the initial timeout
     });
   }
 

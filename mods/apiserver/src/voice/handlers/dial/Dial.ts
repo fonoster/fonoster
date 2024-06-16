@@ -22,7 +22,7 @@ import { handleChannelLeftBridge } from "./handleChannelLeftBridge";
 import { handleDialEvents } from "./handleDialEvents";
 import { handleStasisEnd } from "./handleStasisEnd";
 import { handleStasisStart } from "./handleStasisStart";
-import { ASTERISK_TRUNK } from "../../../envs";
+import { ASTERISK_TRUNK } from "../../../core/envs";
 import { AriEvent as AE, VoiceClient } from "../../types";
 
 function dialHandler(ari: Client, voiceClient: VoiceClient) {

@@ -27,7 +27,7 @@ import {
   ROUTR_DEFAULT_PEER_NAME,
   ROUTR_DEFAULT_PEER_PASSWORD,
   ROUTR_DEFAULT_PEER_USERNAME
-} from "../envs";
+} from "./envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

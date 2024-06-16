@@ -22,7 +22,7 @@ import {
   CallDetailRecord,
   InfluxDBClient
 } from "./types";
-import { INFLUXDB_BUCKET } from "../envs";
+import { INFLUXDB_BUCKET } from "../core/envs";
 
 function createFetchSingleCall(influxdb: InfluxDBClient) {
   return async (

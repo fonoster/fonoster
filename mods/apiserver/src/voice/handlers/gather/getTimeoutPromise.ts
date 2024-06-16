@@ -19,33 +19,27 @@
 import { GatherSource } from "@fonoster/common";
 
 interface PromiseWithResetTimer<T> extends Promise<T> {
-  resetTimer?: () => void;
+  cancelGlobalTimer?: () => void;
 }
 
 function getTimeoutPromise(source: GatherSource, timeout: number) {
-  const defaultTimeout = source?.includes(GatherSource.SPEECH) ? 4000 : 10000;
-  const effectiveTimeout = timeout || defaultTimeout;
+  const effectiveTimeout = timeout || 5000;
 
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  let rejectTimeout: (reason?: Error) => void;
 
-  const timeoutPromise = new Promise<string>((_, reject) => {
-    rejectTimeout = reject;
+  const timeoutPromise = new Promise<string>((resolve) => {
     timeoutId = setTimeout(() => {
-      reject(new Error("Gather timeout"));
+      resolve("");
     }, effectiveTimeout);
   }) as PromiseWithResetTimer<string>;
 
-  timeoutPromise.resetTimer = () => {
+  timeoutPromise.cancelGlobalTimer = () => {
     if (timeoutId) {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        rejectTimeout(new Error("Gather timeout"));
-      }, effectiveTimeout);
     }
   };
 
-  return timeoutPromise;
+  return { timeoutPromise, effectiveTimeout };
 }
 
 export { getTimeoutPromise };

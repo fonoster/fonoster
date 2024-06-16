@@ -19,7 +19,7 @@
 import { getLogger } from "@fonoster/logger";
 import { connect } from "nats";
 import { CreateCallRequest } from "./types";
-import { CALLS_CREATE_SUBJECT } from "../envs";
+import { CALLS_CREATE_SUBJECT } from "../core/envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

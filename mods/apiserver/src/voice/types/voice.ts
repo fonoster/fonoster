@@ -39,6 +39,7 @@ type VoiceClient = {
     sessionRef: string;
     finishOnKey: string;
     maxDigits: number;
+    timeout: number;
     onDigitReceived: () => void;
   }) => Promise<{ digits: string }>;
 };

@@ -36,7 +36,11 @@ function gatherHandler(voiceClient: VoiceClient) {
     // Error handled by withErrorHandling
     gatherRequestSchema.parse(request);
 
-    const timeoutPromise = getTimeoutPromise(source, timeout);
+    const { timeoutPromise, effectiveTimeout } = getTimeoutPromise(
+      source,
+      timeout
+    );
+
     const effectiveSource = source || GatherSource.SPEECH_AND_DTMF;
 
     const promises = [timeoutPromise];
@@ -52,7 +56,8 @@ function gatherHandler(voiceClient: VoiceClient) {
             sessionRef,
             finishOnKey,
             maxDigits,
-            onDigitReceived: timeoutPromise.resetTimer
+            timeout: effectiveTimeout,
+            onDigitReceived: timeoutPromise.cancelGlobalTimer
           })
           .then(({ digits }) => digits)
       );

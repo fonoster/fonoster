@@ -26,7 +26,7 @@ import {
   ASTERISK_TRUNK,
   CALLS_CREATE_SUBJECT,
   DEFAULT_NATS_QUEUE_GROUP
-} from "../envs";
+} from "../core/envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
