@@ -23,7 +23,7 @@ import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
 import { trackCall } from "./trackCall";
 import { InfluxDBClient } from "./types";
-import { NATS_URL } from "../core/envs";
+import { NATS_URL } from "../envs";
 
 async function buildService(influxdb: InfluxDBClient) {
   const trackCallSubscriber = await createTrackCallSubscriber(NATS_URL);

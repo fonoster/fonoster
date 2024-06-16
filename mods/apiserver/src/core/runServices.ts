@@ -35,7 +35,7 @@ import {
   IDENTITY_PUBLIC_KEY,
   NATS_URL,
   TTS_PATH_TO_FILES
-} from "./envs";
+} from "../envs";
 import { filesServer } from "./filesServer";
 import loadServices from "./loadServices";
 import services from "./services";

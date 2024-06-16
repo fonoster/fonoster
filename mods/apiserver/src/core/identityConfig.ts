@@ -31,7 +31,7 @@ import {
   SMTP_PORT,
   SMTP_SECURE,
   SMTP_SENDER
-} from "./envs";
+} from "../envs";
 
 const identityConfig = {
   issuer: IDENTITY_ISSUER,

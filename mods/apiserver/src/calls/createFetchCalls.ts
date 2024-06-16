@@ -25,7 +25,7 @@ import {
   ListCallsRequest,
   ListCallsResponse
 } from "./types";
-import { INFLUXDB_BUCKET } from "../core/envs";
+import { INFLUXDB_BUCKET } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

@@ -29,7 +29,7 @@ import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { sessionRef } from "../../../../voice/test/helpers";
-import { ASTERISK_TRUNK } from "../../../src/core/envs";
+import { ASTERISK_TRUNK } from "../../../src/envs";
 import { dialHandler } from "../../../src/voice/handlers/dial/Dial";
 import { handleChannelLeftBridge } from "../../../src/voice/handlers/dial/handleChannelLeftBridge";
 import { handleDialEvents } from "../../../src/voice/handlers/dial/handleDialEvents";

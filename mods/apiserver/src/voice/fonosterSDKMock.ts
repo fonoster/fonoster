@@ -23,7 +23,7 @@ import {
   EXPERIMENTAL_AZURE_TTS_SUBSCRIPTION_KEY,
   EXPERIMENTAL_GOOGLE_TTS_CLIENT_EMAIL,
   EXPERIMENTAL_GOOGLE_TTS_PRIVATE_KEY
-} from "../core/envs";
+} from "../envs";
 
 const azureTtsConfig = {
   engine: "azure",

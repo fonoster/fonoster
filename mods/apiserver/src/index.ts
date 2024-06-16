@@ -29,7 +29,7 @@ import {
   OWNER_EMAIL,
   OWNER_NAME,
   OWNER_PASSWORD
-} from "./core/envs";
+} from "./envs";
 import runServices from "./core/runServices";
 import { upsertDefaultPeer } from "./core/upsertDefaultPeer";
 import { createInfluxDbPub } from "./events/createInfluxDbPub";

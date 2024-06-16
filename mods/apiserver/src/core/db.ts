@@ -18,7 +18,7 @@
  */
 import { PrismaClient } from "@prisma/client";
 import { fieldEncryptionExtension } from "prisma-field-encryption";
-import { CLOAK_ENCRYPTION_KEY } from "./envs";
+import { CLOAK_ENCRYPTION_KEY } from "../envs";
 
 // We encrypt all fields marked with /// encrypted in the schema
 const prisma = new PrismaClient().$extends(

@@ -18,7 +18,7 @@
  */
 import { STASIS_APP_NAME } from "@fonoster/common";
 import { v4 as uuidv4 } from "uuid";
-import { APISERVER_HOST } from "../core/envs";
+import { APISERVER_HOST } from "../envs";
 
 function createExternalMediaConfig(port: number) {
   return {

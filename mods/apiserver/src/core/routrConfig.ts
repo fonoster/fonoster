@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ROUTR_API_ENDPOINT } from "./envs";
+import { ROUTR_API_ENDPOINT } from "../envs";
 
 const routrConfig = {
   endpoint: ROUTR_API_ENDPOINT,

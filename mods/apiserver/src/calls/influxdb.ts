@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { InfluxDB } from "@influxdata/influxdb-client";
-import { INFLUXDB_ORG, INFLUXDB_TOKEN, INFLUXDB_URL } from "../core/envs";
+import { INFLUXDB_ORG, INFLUXDB_TOKEN, INFLUXDB_URL } from "../envs";
 
 const client = new InfluxDB({
   url: INFLUXDB_URL,

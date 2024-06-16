@@ -23,7 +23,7 @@ import { struct } from "pb-util";
 import { z } from "zod";
 import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
 import { withErrorHandling } from "./witthErrorHandling";
-import { APISERVER_HOST, FILES_SERVER_PORT } from "../../core/envs";
+import { APISERVER_HOST, FILES_SERVER_PORT } from "../../envs";
 import { VoiceClient } from "../types";
 
 const sayRequestSchema = z.object({

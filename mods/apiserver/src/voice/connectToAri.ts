@@ -27,7 +27,7 @@ import {
   ASTERISK_ARI_PROXY_URL,
   ASTERISK_ARI_SECRET,
   ASTERISK_ARI_USERNAME
-} from "../core/envs";
+} from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
