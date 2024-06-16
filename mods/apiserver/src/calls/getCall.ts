@@ -23,7 +23,7 @@ import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { createFetchSingleCall } from "./createFetchSingleCall";
 import { CallDetailRecord, GetCallRequest, InfluxDBClient } from "./types";
-import { notFoundError } from "../notFoundError";
+import { notFoundError } from "../core/notFoundError";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

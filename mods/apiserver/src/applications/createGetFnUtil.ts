@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Prisma } from "../core/db";
-import { notFoundError } from "../notFoundError";
+import { notFoundError } from "../core/notFoundError";
 
 function createGetFnUtil(prisma: Prisma) {
   return async (ref: string) => {
