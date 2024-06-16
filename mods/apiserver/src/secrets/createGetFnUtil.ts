@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { datesMapper } from "@fonoster/common";
-import { Prisma } from "../db";
-import { notFoundError } from "../notFoundError";
+import { Prisma } from "../core/db";
+import { notFoundError } from "../core/notFoundError";
 
 function createGetFnUtil(prisma: Prisma) {
   return async (ref: string) => {

@@ -23,7 +23,7 @@ import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { CreateApplicationRequest, CreateApplicationResponse } from "./types";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./utils/validOrThrow";
-import { Prisma } from "../db";
+import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

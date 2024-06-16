@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma } from "../db";
+import { Prisma } from "../core/db";
 import { notFoundError } from "../notFoundError";
 
 function createGetFnUtil(prisma: Prisma) {

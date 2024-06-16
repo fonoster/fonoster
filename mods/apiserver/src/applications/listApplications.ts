@@ -22,7 +22,7 @@ import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { ListApplicationsRequest, ListApplicationsResponse } from "./types";
 import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
-import { Prisma } from "../db";
+import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

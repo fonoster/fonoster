@@ -162,6 +162,35 @@ class VoiceClientImpl implements VoiceClient {
     }
   }
 
+  async waitForDtmf(params: {
+    sessionRef: string;
+    finishOnKey: string;
+    maxDigits: number;
+    onDigitReceived: () => void;
+  }): Promise<{ digits: string }> {
+    const { onDigitReceived, sessionRef, finishOnKey, maxDigits } = params;
+    let result = "";
+
+    const channel = await this.ari.channels.get({ channelId: sessionRef });
+
+    return new Promise((resolve) => {
+      channel.on(AriEvent.CHANNEL_DTMF_RECEIVED, (event) => {
+        const { digit } = event;
+
+        onDigitReceived();
+
+        if (digit != finishOnKey) {
+          result += digit;
+        }
+
+        if (result.length >= maxDigits || digit === finishOnKey) {
+          channel.removeListener(AriEvent.CHANNEL_DTMF_RECEIVED, () => {});
+          resolve({ digits: result });
+        }
+      });
+    });
+  }
+
   close() {
     try {
       this.grpcClient.close();

@@ -21,7 +21,7 @@ import { deleteSecret } from "./deleteSecret";
 import { getSecret } from "./getSecret";
 import { listSecrets } from "./listSecrets";
 import { updateSecret } from "./updateSecret";
-import { Prisma } from "../db";
+import { Prisma } from "../core/db";
 
 function buildService(prisma: Prisma) {
   return {

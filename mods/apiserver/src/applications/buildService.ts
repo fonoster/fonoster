@@ -21,7 +21,7 @@ import { deleteApplication } from "./deleteApplication";
 import { getApplication } from "./getApplication";
 import { listApplications } from "./listApplications";
 import { updateApplication } from "./updateApplication";
-import { Prisma } from "../db";
+import { Prisma } from "../core/db";
 
 function buildService(prisma: Prisma) {
   return {

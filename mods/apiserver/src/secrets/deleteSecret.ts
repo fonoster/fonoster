@@ -20,7 +20,7 @@ import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { DeleteSecretRequest, DeleteSecretResponse } from "./types";
-import { Prisma } from "../db";
+import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

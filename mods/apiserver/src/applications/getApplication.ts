@@ -22,7 +22,7 @@ import { getLogger } from "@fonoster/logger";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { Application, GetApplicationRequest } from "./types";
 import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
-import { Prisma } from "../db";
+import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

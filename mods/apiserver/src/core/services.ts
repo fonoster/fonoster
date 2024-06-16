@@ -25,13 +25,13 @@ import {
   buildNumbersService,
   buildTrunksService
 } from "@fonoster/sipnet";
-import { buildApplicationsService } from "./applications";
-import { buildCallsService } from "./calls";
-import { influxdb } from "./calls/influxdb";
 import { prisma } from "./db";
 import { identityConfig } from "./identityConfig";
 import { routrConfig } from "./routrConfig";
-import { buildSecretsService } from "./secrets";
+import { buildApplicationsService } from "../applications";
+import { buildCallsService } from "../calls";
+import { influxdb } from "../calls/influxdb";
+import { buildSecretsService } from "../secrets";
 
 const applicationsService = buildApplicationsService(prisma);
 const secretsService = buildSecretsService(prisma);

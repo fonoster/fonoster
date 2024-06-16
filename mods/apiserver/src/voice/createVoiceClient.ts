@@ -26,7 +26,7 @@ import { TextToSpeechFactory } from "./tts/TextToSpeechFactory";
 import { ChannelVar, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
 import { TTS_PATH_TO_FILES } from "../envs";
-import { identityConfig } from "../identityConfig";
+import { identityConfig } from "../core/identityConfig";
 
 type FonosterSDK = {
   getApp: (ref: string) => Promise<{

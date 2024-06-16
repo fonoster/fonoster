@@ -21,7 +21,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { Prisma } from "../../src/db";
+import { Prisma } from "../../src/core/db";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
