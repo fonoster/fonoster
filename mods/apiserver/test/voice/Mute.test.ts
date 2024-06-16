@@ -22,7 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
-import { unmuteHandler } from "../../../src/voice/handlers/Unmute";
+import { muteHandler } from "../../src/voice/handlers/Mute";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -30,7 +30,7 @@ const sandbox = createSandbox();
 
 const channelId = "channel-id";
 
-describe("@voice/dispatcher/Unmute", function () {
+describe("@voice/handler/Mute", function () {
   afterEach(function () {
     return sandbox.restore();
   });
@@ -41,21 +41,20 @@ describe("@voice/dispatcher/Unmute", function () {
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
-    const unmuteRequest = {
+    const muteRequest = {
       sessionRef: channelId,
       direction: MuteDirection.BOTH
     };
 
     // Act
-    await unmuteHandler(ari, createVoiceClient())(unmuteRequest);
+    await muteHandler(ari, createVoiceClient())(muteRequest);
 
     // Assert
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
-    expect(ari.channels.unmute).to.have.been.calledOnce;
-    expect(ari.channels.unmute).to.have.been.calledWith({
+    expect(ari.channels.mute).to.have.been.calledOnce;
+    expect(ari.channels.mute).to.have.been.calledWith({
       channelId,
-      direction: unmuteRequest.direction
+      direction: muteRequest.direction
     });
-    expect(ari.channels.mute).to.not.have.been.called;
   });
 });

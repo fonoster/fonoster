@@ -20,6 +20,8 @@
 import { upsertDefaultUser } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { CALL_DETAIL_RECORD_MEASUREMENT } from "./calls/types";
+import runServices from "./core/runServices";
+import { upsertDefaultPeer } from "./core/upsertDefaultPeer";
 import {
   INFLUXDB_BUCKET,
   INFLUXDB_ORG,
@@ -30,8 +32,6 @@ import {
   OWNER_NAME,
   OWNER_PASSWORD
 } from "./envs";
-import runServices from "./core/runServices";
-import { upsertDefaultPeer } from "./core/upsertDefaultPeer";
 import { createInfluxDbPub } from "./events/createInfluxDbPub";
 import { watchNats } from "./events/nats";
 

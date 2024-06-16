@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,44 +17,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import chai, { expect } from "chai";
+import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { getAriStub, getCreateVoiceClient } from "./helper";
-import { answerHandler } from "../../../src/voice/handlers/Answer";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-const channelId = "channel-id";
-
-describe("@voice/dispatcher/Answer", function () {
+describe("@voice/handler/Gather", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle an Answer command", async function () {
-    // Arrange
-    const ari = getAriStub(sandbox);
-
-    const createVoiceClient = getCreateVoiceClient(sandbox);
-
-    const verbRequest = {
-      sessionRef: channelId
-    };
-
-    // Act
-    await answerHandler(ari, createVoiceClient())(verbRequest);
-
-    // Assert
-    expect(ari.channels.answer).to.have.been.calledOnce;
-    expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
-    expect(createVoiceClient().sendResponse).to.have.been.calledWith({
-      answerResponse: {
-        sessionRef: verbRequest.sessionRef
-      }
-    });
+  it.skip("needs tests", async function () {
+    // Noop
   });
 });

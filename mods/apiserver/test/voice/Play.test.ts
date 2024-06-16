@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PlaybackControlAction } from "@fonoster/common";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
+import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
-import { playbackControlHandler } from "../../../src/voice/handlers/PlaybackControl";
+import { playHandler } from "../../src/voice/handlers/Play";
+import { AriEvent } from "../../src/voice/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -30,40 +30,45 @@ const sandbox = createSandbox();
 
 const channelId = "channel-id";
 
-describe("@voice/dispatcher/PlaybackControl", function () {
+describe("@voice/handler/Play", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle a PlaybackControl command", async function () {
+  it("should handle a Play command", async function () {
     // Arrange
     const ari = getAriStub(sandbox);
 
+    const onStub = ari.on as sinon.SinonStub;
+
+    onStub.withArgs(AriEvent.PLAYBACK_FINISHED).callsFake((_, cb) => {
+      cb({}, { id: playRequest.playbackRef });
+    });
+
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
-    const playbackControlRequest = {
-      playbackRef: "playback-id",
+    const playRequest = {
+      playbackRef: "playbackRef",
       sessionRef: channelId,
-      action: PlaybackControlAction.FORWARD
+      url: "url"
     };
 
     // Act
-    await playbackControlHandler(
-      ari,
-      createVoiceClient()
-    )(playbackControlRequest);
+    await playHandler(ari, createVoiceClient())(playRequest);
 
     // Assert
-    expect(ari.playbacks.control).to.have.been.calledOnce;
+    expect(ari.channels.play).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledWith({
-      playbackControlResponse: {
-        sessionRef: playbackControlRequest.sessionRef
+      playResponse: {
+        playbackRef: playRequest.playbackRef,
+        sessionRef: playRequest.sessionRef
       }
     });
-    expect(ari.playbacks.control).to.have.been.calledWith({
-      playbackId: playbackControlRequest.playbackRef,
-      operation: playbackControlRequest.action
+    expect(ari.channels.play).to.have.been.calledWith({
+      channelId,
+      media: `sound:${playRequest.url}`,
+      playbackId: playRequest.playbackRef
     });
   });
 });

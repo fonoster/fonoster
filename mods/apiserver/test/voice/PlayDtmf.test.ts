@@ -21,7 +21,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
-import { hangupHandler } from "../../../src/voice/handlers/Hangup";
+import { playDtmfHandler } from "../../src/voice/handlers/PlayDtmf";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -29,27 +29,36 @@ const sandbox = createSandbox();
 
 const channelId = "channel-id";
 
-describe("@voice/dispatcher/Hangup", function () {
+describe("@voice/handler/PlayDtmf", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle a Hangup command", async function () {
+  it("should handle a PlayDtmf command", async function () {
     // Arrange
     const ari = getAriStub(sandbox);
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
-    const hangupRequest = {
-      sessionRef: channelId
+    const playDtmfRequest = {
+      sessionRef: channelId,
+      digits: "123"
     };
 
     // Act
-    await hangupHandler(ari, createVoiceClient())(hangupRequest);
+    await playDtmfHandler(ari, createVoiceClient())(playDtmfRequest);
 
     // Assert
-    expect(createVoiceClient().close).to.have.been.calledOnce;
-    expect(ari.channels.hangup).to.have.been.calledOnce;
-    expect(ari.channels.hangup).to.have.been.calledWith({ channelId });
+    expect(ari.channels.sendDTMF).to.have.been.calledOnce;
+    expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
+    expect(createVoiceClient().sendResponse).to.have.been.calledWith({
+      playDtmfResponse: {
+        sessionRef: channelId
+      }
+    });
+    expect(ari.channels.sendDTMF).to.have.been.calledWith({
+      channelId,
+      dtmf: playDtmfRequest.digits
+    });
   });
 });

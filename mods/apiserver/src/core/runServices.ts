@@ -26,6 +26,10 @@ import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
 import { allowList } from "./allowList";
+import { filesServer } from "./filesServer";
+import loadServices from "./loadServices";
+import services from "./services";
+import { createCreateCallSubscriber as runCallManager } from "../calls/runCallManager";
 import {
   APISERVER_BIND_ADDR,
   ASTERISK_ARI_PROXY_URL,
@@ -36,10 +40,6 @@ import {
   NATS_URL,
   TTS_PATH_TO_FILES
 } from "../envs";
-import { filesServer } from "./filesServer";
-import loadServices from "./loadServices";
-import services from "./services";
-import { createCreateCallSubscriber as runCallManager } from "../calls/runCallManager";
 import { connectToAri } from "../voice/connectToAri";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });

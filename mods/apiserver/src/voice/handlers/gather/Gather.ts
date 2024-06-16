@@ -26,6 +26,7 @@ const isDtmf = (digit: string) => /^[0-9*#]+$/.test(digit);
 
 const gatherRequestSchema = z.object({
   maxDigits: z.number().optional().nullable(),
+  // TODO: Ensure it is a dtmf character
   finishOnKey: z.string().max(1).optional().nullable()
 });
 
@@ -36,10 +37,7 @@ function gatherHandler(voiceClient: VoiceClient) {
     // Error handled by withErrorHandling
     gatherRequestSchema.parse(request);
 
-    const { timeoutPromise, effectiveTimeout } = getTimeoutPromise(
-      source,
-      timeout
-    );
+    const { timeoutPromise, effectiveTimeout } = getTimeoutPromise(timeout);
 
     const effectiveSource = source || GatherSource.SPEECH_AND_DTMF;
 

@@ -18,49 +18,38 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox, match } from "sinon";
+import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { getAriStub } from "./helper";
-import { AriEvent } from "../../../src/voice/types";
+import { getAriStub, getCreateVoiceClient } from "./helper";
+import { hangupHandler } from "../../src/voice/handlers/Hangup";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@voice/dispatcher/VoiceDispatcher", function () {
+const channelId = "channel-id";
+
+describe("@voice/handler/Hangup", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should create a VoiceDispatcher", async function () {
+  it("should handle a Hangup command", async function () {
     // Arrange
-    const { VoiceDispatcher } = await import(
-      "../../../src/voice/VoiceDispatcher"
-    );
     const ari = getAriStub(sandbox);
-    const createVoiceClient = sandbox.stub();
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
+
+    const createVoiceClient = getCreateVoiceClient(sandbox);
+
+    const hangupRequest = {
+      sessionRef: channelId
+    };
 
     // Act
-    voiceDispatcher.start();
+    await hangupHandler(ari, createVoiceClient())(hangupRequest);
 
     // Assert
-    expect(ari.on).to.have.been.called.calledTwice;
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.STASIS_START,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleStasisStart";
-        })
-      )
-    );
-    expect(ari.on).to.have.been.calledWith(
-      AriEvent.STASIS_END,
-      match.func.and(
-        match(function (fn) {
-          return fn.name === "bound handleStasisEnd";
-        })
-      )
-    );
+    expect(createVoiceClient().close).to.have.been.calledOnce;
+    expect(ari.channels.hangup).to.have.been.calledOnce;
+    expect(ari.channels.hangup).to.have.been.calledWith({ channelId });
   });
 });

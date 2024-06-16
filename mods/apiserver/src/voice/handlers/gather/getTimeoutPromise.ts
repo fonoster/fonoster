@@ -16,13 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GatherSource } from "@fonoster/common";
-
 interface PromiseWithResetTimer<T> extends Promise<T> {
   cancelGlobalTimer?: () => void;
 }
 
-function getTimeoutPromise(source: GatherSource, timeout: number) {
+function getTimeoutPromise(timeout: number) {
   const effectiveTimeout = timeout || 5000;
 
   let timeoutId: ReturnType<typeof setTimeout> | null = null;

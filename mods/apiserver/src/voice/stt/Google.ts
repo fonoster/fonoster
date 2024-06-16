@@ -46,6 +46,7 @@ class Google extends AbstractSpeechToText<typeof ENGINE_NAME> {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   streamTranscribe(_: Stream): StreamSpeechResult {
     // Not implemented
     return null as unknown as StreamSpeechResult;

@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Channel, StasisStart } from "ari-client";
+import { Channel } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { getAriStub } from "./helper";
+import { getAriStub, getCreateVoiceClient } from "./helper";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -29,38 +29,20 @@ const sandbox = createSandbox();
 
 const channelId = "channel-id";
 
-describe("@voice/dispatcher/StasisStart", function () {
+describe("@voice/handler/StasisEnd", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle a StasisStart event", async function () {
+  it("should handle a StasisEnd event", async function () {
     // Arrange
-    const { VoiceDispatcher } = await import(
-      "../../../src/voice/VoiceDispatcher"
-    );
+    const { VoiceDispatcher } = await import("../../src/voice/VoiceDispatcher");
 
     const ari = getAriStub(sandbox);
 
-    const createVoiceClient = sandbox.stub().returns({
-      connect: sandbox.stub(),
-      on: sandbox.stub(),
-      config: {
-        sessionId: channelId
-      }
-    });
+    const createVoiceClient = getCreateVoiceClient(sandbox);
 
     const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
-
-    const event = {
-      channel: {
-        id: channelId,
-        caller: {
-          name: "John Doe",
-          number: "+17853178070"
-        }
-      }
-    } as unknown as StasisStart;
 
     const channel = {
       id: channelId,
@@ -71,12 +53,14 @@ describe("@voice/dispatcher/StasisStart", function () {
       hangup: sandbox.stub()
     } as unknown as Channel;
 
+    voiceDispatcher.voiceClients.set(channelId, createVoiceClient());
+
     // Act
-    await voiceDispatcher.handleStasisStart(event, channel);
+    voiceDispatcher.handleStasisEnd(undefined, channel);
 
     // Assert
-    expect(createVoiceClient).to.have.been.calledOnce;
-    expect(voiceDispatcher.voiceClients.get(channelId)).to.exist;
-    expect(createVoiceClient().connect).to.have.been.calledOnce;
+    expect(createVoiceClient().close).to.have.been.calledOnce;
+    expect(voiceDispatcher.voiceClients.get(channelId)).to.not.exist;
+    expect(channel.getChannelVar).to.have.been.not.called;
   });
 });

@@ -18,47 +18,47 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
+import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
-import { getAriStub, getCreateVoiceClient } from "./helper";
-import { playDtmfHandler } from "../../../src/voice/handlers/PlayDtmf";
+import { getAriStub } from "./helper";
+import { AriEvent } from "../../src/voice/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-const channelId = "channel-id";
-
-describe("@voice/dispatcher/PlayDtmf", function () {
+describe("@voice/handler/VoiceDispatcher", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle a PlayDtmf command", async function () {
+  it("should create a VoiceDispatcher", async function () {
     // Arrange
+    const { VoiceDispatcher } = await import("../../src/voice/VoiceDispatcher");
     const ari = getAriStub(sandbox);
-
-    const createVoiceClient = getCreateVoiceClient(sandbox);
-
-    const playDtmfRequest = {
-      sessionRef: channelId,
-      digits: "123"
-    };
+    const createVoiceClient = sandbox.stub();
+    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
 
     // Act
-    await playDtmfHandler(ari, createVoiceClient())(playDtmfRequest);
+    voiceDispatcher.start();
 
     // Assert
-    expect(ari.channels.sendDTMF).to.have.been.calledOnce;
-    expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
-    expect(createVoiceClient().sendResponse).to.have.been.calledWith({
-      playDtmfResponse: {
-        sessionRef: channelId
-      }
-    });
-    expect(ari.channels.sendDTMF).to.have.been.calledWith({
-      channelId,
-      dtmf: playDtmfRequest.digits
-    });
+    expect(ari.on).to.have.been.called.calledTwice;
+    expect(ari.on).to.have.been.calledWith(
+      AriEvent.STASIS_START,
+      match.func.and(
+        match(function (fn) {
+          return fn.name === "bound handleStasisStart";
+        })
+      )
+    );
+    expect(ari.on).to.have.been.calledWith(
+      AriEvent.STASIS_END,
+      match.func.and(
+        match(function (fn) {
+          return fn.name === "bound handleStasisEnd";
+        })
+      )
+    );
   });
 });

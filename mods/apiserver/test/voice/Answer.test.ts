@@ -16,13 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MuteDirection } from "@fonoster/common";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
-import { muteHandler } from "../../../src/voice/handlers/Mute";
+import { answerHandler } from "../../src/voice/handlers/Answer";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -30,31 +29,31 @@ const sandbox = createSandbox();
 
 const channelId = "channel-id";
 
-describe("@voice/dispatcher/Mute", function () {
+describe("@voice/handler/Answer", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle a Mute command", async function () {
+  it("should handle an Answer command", async function () {
     // Arrange
     const ari = getAriStub(sandbox);
 
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
-    const muteRequest = {
-      sessionRef: channelId,
-      direction: MuteDirection.BOTH
+    const verbRequest = {
+      sessionRef: channelId
     };
 
     // Act
-    await muteHandler(ari, createVoiceClient())(muteRequest);
+    await answerHandler(ari, createVoiceClient())(verbRequest);
 
     // Assert
+    expect(ari.channels.answer).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
-    expect(ari.channels.mute).to.have.been.calledOnce;
-    expect(ari.channels.mute).to.have.been.calledWith({
-      channelId,
-      direction: muteRequest.direction
+    expect(createVoiceClient().sendResponse).to.have.been.calledWith({
+      answerResponse: {
+        sessionRef: verbRequest.sessionRef
+      }
     });
   });
 });

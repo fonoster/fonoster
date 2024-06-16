@@ -21,14 +21,14 @@ import chaiAsPromised from "chai-as-promised";
 import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
-import { recordHandler } from "../../../src/voice/handlers/Record";
-import { AriEvent } from "../../../src/voice/types";
+import { recordHandler } from "../../src/voice/handlers/Record";
+import { AriEvent } from "../../src/voice/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@voice/dispatcher/Record", function () {
+describe("@voice/handler/Record", function () {
   afterEach(function () {
     return sandbox.restore();
   });

@@ -16,13 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { MuteDirection } from "@fonoster/common";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import sinon, { createSandbox } from "sinon";
+import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
-import { playHandler } from "../../../src/voice/handlers/Play";
-import { AriEvent } from "../../../src/voice/types";
+import { unmuteHandler } from "../../src/voice/handlers/Unmute";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -30,45 +30,32 @@ const sandbox = createSandbox();
 
 const channelId = "channel-id";
 
-describe("@voice/dispatcher/Play", function () {
+describe("@voice/handler/Unmute", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should handle a Play command", async function () {
+  it("should handle a Mute command", async function () {
     // Arrange
     const ari = getAriStub(sandbox);
 
-    const onStub = ari.on as sinon.SinonStub;
-
-    onStub.withArgs(AriEvent.PLAYBACK_FINISHED).callsFake((_, cb) => {
-      cb({}, { id: playRequest.playbackRef });
-    });
-
     const createVoiceClient = getCreateVoiceClient(sandbox);
 
-    const playRequest = {
-      playbackRef: "playbackRef",
+    const unmuteRequest = {
       sessionRef: channelId,
-      url: "url"
+      direction: MuteDirection.BOTH
     };
 
     // Act
-    await playHandler(ari, createVoiceClient())(playRequest);
+    await unmuteHandler(ari, createVoiceClient())(unmuteRequest);
 
     // Assert
-    expect(ari.channels.play).to.have.been.calledOnce;
     expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
-    expect(createVoiceClient().sendResponse).to.have.been.calledWith({
-      playResponse: {
-        playbackRef: playRequest.playbackRef,
-        sessionRef: playRequest.sessionRef
-      }
-    });
-    expect(ari.channels.play).to.have.been.calledWith({
+    expect(ari.channels.unmute).to.have.been.calledOnce;
+    expect(ari.channels.unmute).to.have.been.calledWith({
       channelId,
-      media: `sound:${playRequest.url}`,
-      playbackId: playRequest.playbackRef
+      direction: unmuteRequest.direction
     });
+    expect(ari.channels.mute).to.not.have.been.called;
   });
 });
