@@ -17,15 +17,24 @@
  * limitations under the License.
  */
 import { GatherRequest, GatherSource } from "@fonoster/common";
+import { z } from "zod";
 import { getTimeoutPromise } from "./getTimeoutPromise";
 import { VoiceClient } from "../../types";
 import { withErrorHandling } from "../witthErrorHandling";
 
 const isDtmf = (digit: string) => /^[0-9*#]+$/.test(digit);
 
+const gatherRequestSchema = z.object({
+  maxDigits: z.number().optional().nullable(),
+  finishOnKey: z.string().max(1).optional().nullable()
+});
+
 function gatherHandler(voiceClient: VoiceClient) {
   return withErrorHandling(async (request: GatherRequest) => {
     const { sessionRef, source, timeout, finishOnKey, maxDigits } = request;
+
+    // Error handled by withErrorHandling
+    gatherRequestSchema.parse(request);
 
     const timeoutPromise = getTimeoutPromise(source, timeout);
     const effectiveSource = source || GatherSource.SPEECH_AND_DTMF;

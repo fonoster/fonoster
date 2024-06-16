@@ -29,13 +29,12 @@ import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { sessionRef } from "../../../../voice/test/helpers";
-import { VoiceClient } from "../../../dist/voice/types";
 import { ASTERISK_TRUNK } from "../../../src/envs";
 import { dialHandler } from "../../../src/voice/handlers/dial/Dial";
 import { handleChannelLeftBridge } from "../../../src/voice/handlers/dial/handleChannelLeftBridge";
 import { handleDialEvents } from "../../../src/voice/handlers/dial/handleDialEvents";
 import { handleStasisStart } from "../../../src/voice/handlers/dial/handleStasisStart";
-import { AriEvent } from "../../../src/voice/types";
+import { AriEvent, VoiceClient } from "../../../src/voice/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
