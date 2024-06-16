@@ -21,7 +21,7 @@ import { getLogger } from "@fonoster/logger";
 import { Channel, Client, StasisStart } from "ari-client";
 import { answerHandler } from "./handlers/Answer";
 import { dialHandler } from "./handlers/dial/Dial";
-import { gatherHandler } from "./handlers/Gather";
+import { gatherHandler } from "./handlers/gather/Gather";
 import { hangupHandler } from "./handlers/Hangup";
 import { muteHandler } from "./handlers/Mute";
 import { playHandler } from "./handlers/Play";
@@ -83,7 +83,7 @@ class VoiceDispatcher {
       playbackControlHandler(this.ari, vc).bind(this)
     );
     vc.on(SC.SAY_REQUEST, sayHandler(this.ari, vc).bind(this));
-    vc.on(SC.GATHER_REQUEST, gatherHandler(this.ari, vc).bind(this));
+    vc.on(SC.GATHER_REQUEST, gatherHandler(vc).bind(this));
     vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
   }
 

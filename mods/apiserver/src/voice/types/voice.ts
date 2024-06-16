@@ -35,6 +35,12 @@ type VoiceClient = {
   close: () => void;
   synthesize: (text: string, options: SayOptions) => Promise<string>;
   transcribe: () => Promise<SpeechResult>;
+  waitForDtmf: (params: {
+    sessionRef: string;
+    finishOnKey: string;
+    maxDigits: number;
+    onDigitReceived: () => void;
+  }) => Promise<{ digits: string }>;
 };
 
 type TextToSpeech = {

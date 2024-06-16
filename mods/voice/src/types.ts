@@ -25,6 +25,7 @@ type ServerConfig = {
   bind?: string;
   port?: number;
   identityAddress?: string;
+  skipIdentity?: boolean;
 };
 
 export { VoiceHandler, ServerConfig, VoiceRequest };

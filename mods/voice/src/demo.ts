@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GatherSource } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest } from "./types";
 import { VoiceResponse } from "./VoiceResponse";
@@ -24,8 +25,8 @@ import VoiceServer from "./VoiceServer";
 const logger = getLogger({ service: "voice", filePath: __filename });
 
 const config = {
-  // Needed when not using the default identity service
-  identityAddress: "localhost:50051"
+  // Only do this for testing
+  skipIdentity: true
 };
 
 new VoiceServer(config).listen(
@@ -36,9 +37,20 @@ new VoiceServer(config).listen(
 
     await res.say("Hi there! What's your name?");
 
-    const { speech: name } = await res.gather();
+    const { speech: name } = await res.gather({
+      source: GatherSource.SPEECH
+    });
 
-    await res.say(`Hello ${name}.`);
+    await res.say("Nice to meet you " + name + "!");
+
+    await res.say("Please enter your 4 digit pin.");
+
+    const { digits } = await res.gather({
+      maxDigits: 4,
+      finishOnKey: "#"
+    });
+
+    await res.say("Your pin is " + digits);
 
     await res.hangup();
   }

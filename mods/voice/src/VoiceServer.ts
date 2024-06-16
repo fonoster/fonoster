@@ -44,16 +44,22 @@ export default class VoiceServer {
       const healthImpl = new HealthImplementation(statusMap);
       const credentials = await getServerCredentials({});
 
-      // Get the public key from the identity service
-      const response = await getPublicKeyClient(this.config.identityAddress);
+      let server: grpc.Server;
 
-      const authorization = createAuthInterceptor(response.publicKey, [
-        "/grpc.health.v1.Health/Check"
-      ]);
+      if (this.config.skipIdentity) {
+        server = new grpc.Server();
+      } else {
+        // Get the public key from the identity service
+        const response = await getPublicKeyClient(this.config.identityAddress);
 
-      const server = new grpc.Server({
-        interceptors: [authorization]
-      });
+        const authorization = createAuthInterceptor(response.publicKey, [
+          "/grpc.health.v1.Health/Check"
+        ]);
+
+        server = new grpc.Server({
+          interceptors: [authorization]
+        });
+      }
 
       server.addService(serviceDefinition, {
         createSession: createSession(handler)
