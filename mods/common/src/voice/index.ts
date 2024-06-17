@@ -27,4 +27,3 @@ export * from "./PlayDtmf";
 export * from "./Record";
 export * from "./Say";
 export * from "./Stream";
-export * from "./StreamGather";

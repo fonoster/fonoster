@@ -38,15 +38,4 @@ type GatherResponse = VerbResponse & {
   digits?: string;
 };
 
-type StreamGatherResponse = VerbResponse & {
-  speech?: string;
-  digit?: string;
-};
-
-export {
-  GatherOptions,
-  GatherRequest,
-  GatherResponse,
-  GatherSource,
-  StreamGatherResponse
-};
+export { GatherOptions, GatherRequest, GatherResponse, GatherSource };

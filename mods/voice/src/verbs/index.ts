@@ -27,7 +27,6 @@ export * from "./PlaybackControl";
 export * from "./Record";
 export * from "./Say";
 export * from "./Stream";
-export * from "./StreamGather";
 export * from "./Unmute";
 export * from "./validateRequest";
 export * from "./Verb";

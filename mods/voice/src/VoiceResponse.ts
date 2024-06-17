@@ -31,7 +31,6 @@ import {
   SayOptions,
   SayResponse,
   StreamEvent,
-  StreamGatherOptions,
   StreamOptions,
   VerbResponse,
   VoiceRequest,
@@ -53,8 +52,6 @@ import {
   StartStream,
   StopStream,
   Stream,
-  StreamGather,
-  StreamGatherStream,
   Unmute
 } from "./verbs";
 
@@ -248,55 +245,6 @@ class VoiceResponse {
     });
 
     return { playbackRef: response.sayResponse.playbackRef };
-  }
-
-  /**
-   * Waits for data entry from the user's keypad or from a stream speech provider. This command is different from `gather`
-   * in that it returns a stream of results instead of a single result. You can think of it as active listening.
-   *
-   * @param {GatherOptions} options - Options object for the StreamGather verb
-   * @param {string} options.source - Where to listen as input source. This option accepts `DTMF` and `SPEECH`. A speech provider must be configure
-   * @return {StreamGatherStream} The StreamGatherStream fires events via the `on` method for `speech` and `digits`. And the stream can be close
-   * with the `close` function.
-   * @see StreamSpeechProvider
-   * @example
-   *
-   * async function handler (request, response) {
-   *   await response.answer();
-   *   const stream = await response.streamGather({ source: GatherSource.SPEECH_AND_DTMF });
-   *
-   *   stream.on("speech", (speech: string) => {
-   *      console.log("speech: %s", speech);
-   *   })
-   *
-   *   stream.on("digit", (value: string) => {
-   *     console.log("digit: " + value);
-   *
-   *     if (value === "#") {
-   *       stream.close();
-   *     }
-   *   })
-   * }
-   */
-  async streamGather(
-    options: StreamGatherOptions = { source: GatherSource.SPEECH_AND_DTMF }
-  ): Promise<StreamGatherStream> {
-    const stream = new StreamGatherStream();
-
-    await new StreamGather(this.request, this.voice).run({
-      sessionRef: this.request.sessionRef,
-      ...options
-    });
-
-    this.voice.on(StreamEvent.DATA, (result) => {
-      if (result.streamGatherResponse?.digit) {
-        stream.emit("digit", result.streamGatherResponse.digit);
-      } else if (result.streamGatherResponse?.speech) {
-        stream.emit("speech", result.streamGatherResponse.speech);
-      }
-    });
-
-    return stream;
   }
 
   /**

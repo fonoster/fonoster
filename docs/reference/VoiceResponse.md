@@ -17,7 +17,6 @@ Voice Response (IVR) applications.
     * [.playbackControl(playbackRef, action)](#VoiceResponse+playbackControl)
     * [.gather(options)](#VoiceResponse+gather)
     * [.say(text, options)](#VoiceResponse+say)
-    * [.streamGather(options)](#VoiceResponse+streamGather) ⇒ <code>StreamGatherStream</code>
     * [.record(options)](#VoiceResponse+record) ⇒ <code>RecordResponse</code>
     * [.dial(destination, options)](#VoiceResponse+dial) ⇒ <code>Promise.&lt;DialStatusStream&gt;</code>
     * [.stream(options)](#VoiceResponse+stream) ⇒ <code>Promise.&lt;Stream&gt;</code>
@@ -182,41 +181,6 @@ async function handler (request, response) {
 
   // Like the play verb, you can control the playback
   await response.playbackControl(playbackRef, PlaybackControlAction.STOP);
-}
-```
-<a name="VoiceResponse+streamGather"></a>
-
-### voiceResponse.streamGather(options) ⇒ <code>StreamGatherStream</code>
-Waits for data entry from the user's keypad or from a stream speech provider. This command is different from `gather`
-in that it returns a stream of results instead of a single result. You can think of it as active listening.
-
-**Kind**: instance method of [<code>VoiceResponse</code>](#VoiceResponse)  
-**Returns**: <code>StreamGatherStream</code> - The StreamGatherStream fires events via the `on` method for `speech` and `digits`. And the stream can be close
-with the `close` function.  
-**See**: StreamSpeechProvider  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| options | <code>GatherOptions</code> | Options object for the StreamGather verb |
-| options.source | <code>string</code> | Where to listen as input source. This option accepts `DTMF` and `SPEECH`. A speech provider must be configure |
-
-**Example**  
-```js
-async function handler (request, response) {
-  await response.answer();
-  const stream = await response.streamGather({ source: GatherSource.SPEECH_AND_DTMF });
-
-  stream.on("speech", (speech: string) => {
-     console.log("speech: %s", speech);
-  })
-
-  stream.on("digits", (digits: string) => {
-    console.log("digits: " + digits);
-
-    if (digits.includes("#")) {
-      stream.close();
-    }
-  })
 }
 ```
 <a name="VoiceResponse+record"></a>

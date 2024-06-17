@@ -1,12 +1,12 @@
 streams
 =================
 
-[![fonoster](https://img.shields.io/badge/goodtok-sdk-brightgreen.svg)](https://fonoster.com)
+[![Streams](https://img.shields.io/badge/streams-api-brightgreen.svg)](https://fonoster.com)
 [![Version](https://img.shields.io/npm/v/@fonoster/streams.svg)](https://npmjs.org/package/@fonoster/streams)
 [![Downloads/week](https://img.shields.io/npm/dw/@fonoster/streams.svg)](https://npmjs.org/package/@fonoster/streams)
 [![License](https://img.shields.io/npm/l/@fonoster/streams.svg)](https://github.com/fonoster/fonoster/blob/main/package.json)
 
-This is a NodeJS implementation of the AudioSocket protocol. The AudioSocket protocol is a simple protocol for accessing bidirectional audio streams from Asterisk.
+This is a NodeJS implementation of the AudioSocket protocol, which is a simple protocol for accessing bidirectional audio streams from Asterisk.
 
 * [Installation](#installation)
 * [Example](#example)
@@ -29,7 +29,7 @@ exten = 100,1,Verbose("Call to AudioSocket via Dialplan Application")
  same = n,Hangup()
 ```
 
-or with the `Dial` application:
+Ir with the `Dial` application:
 
 ```
 exten = 100,1,Verbose("Call to AudioSocket via Dialplan Application")

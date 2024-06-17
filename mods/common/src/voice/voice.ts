@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { DialRequest, DialStatus } from "./Dial";
-import { GatherRequest, GatherResponse, StreamGatherResponse } from "./Gather";
+import { GatherRequest, GatherResponse } from "./Gather";
 import { MuteRequest } from "./Mute";
 import { PlayRequest, PlayResponse } from "./Play";
 import { PlayDtmfRequest } from "./PlayDtmf";
@@ -29,7 +29,6 @@ import {
   StopStreamRequest,
   StreamPayload
 } from "./Stream";
-import { StreamGatherRequest } from "./StreamGather";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
 import { GRPCError } from "../errors";
 
@@ -60,8 +59,6 @@ enum StreamContent {
   UNMUTE_RESPONSE = "unmuteResponse",
   GATHER_REQUEST = "gatherRequest",
   GATHER_RESPONSE = "gatherResponse",
-  STREAM_GATHER_REQUEST = "streamGatherRequest",
-  STREAM_GATHER_RESPONSE = "streamGatherResponse",
   SAY_REQUEST = "sayRequest",
   SAY_RESPONSE = "sayResponse",
   RECORD_REQUEST = "recordRequest",
@@ -99,7 +96,6 @@ type VoiceIn = {
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
   gatherResponse?: GatherResponse;
-  streamGatherResponse?: StreamGatherResponse;
   sayResponse?: SayResponse;
   recordResponse?: RecordResponse;
   dialResponse?: { status: DialStatus };
@@ -117,7 +113,6 @@ type VoiceOut = {
   muteRequest?: MuteRequest;
   unmuteRequest?: MuteRequest;
   gatherRequest?: GatherRequest;
-  streamGatherRequest?: StreamGatherRequest;
   sayRequest?: SayRequest;
   recordRequest?: RecordRequest;
   dialRequest?: DialRequest;
