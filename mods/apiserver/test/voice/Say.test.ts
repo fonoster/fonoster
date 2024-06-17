@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,37 +17,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VerbRequest, VerbResponse } from "./Verb";
+import chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+import { createSandbox } from "sinon";
+import sinonChai from "sinon-chai";
 
-enum GatherSource {
-  SPEECH = "speech",
-  DTMF = "dtmf",
-  SPEECH_AND_DTMF = "speech,dtmf"
-}
+chai.use(chaiAsPromised);
+chai.use(sinonChai);
+const sandbox = createSandbox();
 
-type GatherOptions = {
-  finishOnKey?: string;
-  maxDigits?: number;
-  timeout?: number;
-  source?: GatherSource;
-};
+describe("@voice/handler/Say", function () {
+  afterEach(function () {
+    return sandbox.restore();
+  });
 
-type GatherRequest = VerbRequest & GatherOptions;
-
-type GatherResponse = VerbResponse & {
-  speech?: string;
-  digits?: string;
-};
-
-type StreamGatherResponse = VerbResponse & {
-  speech?: string;
-  digit?: string;
-};
-
-export {
-  GatherOptions,
-  GatherRequest,
-  GatherResponse,
-  GatherSource,
-  StreamGatherResponse
-};
+  it.skip("needs tests", async function () {
+    // Noop
+  });
+});

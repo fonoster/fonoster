@@ -269,10 +269,10 @@ class VoiceResponse {
    *      console.log("speech: %s", speech);
    *   })
    *
-   *   stream.on("digits", (digits: string) => {
-   *     console.log("digits: " + digits);
+   *   stream.on("digit", (value: string) => {
+   *     console.log("digit: " + value);
    *
-   *     if (digits.includes("#")) {
+   *     if (value === "#") {
    *       stream.close();
    *     }
    *   })
@@ -289,8 +289,8 @@ class VoiceResponse {
     });
 
     this.voice.on(StreamEvent.DATA, (result) => {
-      if (result.streamGatherResponse?.digits) {
-        stream.emit("digits", result.streamGatherResponse.digits);
+      if (result.streamGatherResponse?.digit) {
+        stream.emit("digit", result.streamGatherResponse.digit);
       } else if (result.streamGatherResponse?.speech) {
         stream.emit("speech", result.streamGatherResponse.speech);
       }

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { DialRequest, DialStatus } from "./Dial";
-import { GatherRequest, GatherResponse } from "./Gather";
+import { GatherRequest, GatherResponse, StreamGatherResponse } from "./Gather";
 import { MuteRequest } from "./Mute";
 import { PlayRequest, PlayResponse } from "./Play";
 import { PlayDtmfRequest } from "./PlayDtmf";
@@ -99,7 +99,7 @@ type VoiceIn = {
   muteResponse?: VerbResponse;
   unmuteResponse?: VerbResponse;
   gatherResponse?: GatherResponse;
-  streamGatherResponse?: GatherResponse;
+  streamGatherResponse?: StreamGatherResponse;
   sayResponse?: SayResponse;
   recordResponse?: RecordResponse;
   dialResponse?: { status: DialStatus };

@@ -86,12 +86,12 @@ describe("@voice/verbs/streamGather", function () {
     const stream = await voiceResponse.streamGather();
 
     stream.on("speech", dummyCallback);
-    stream.on("digits", dummyCallback);
+    stream.on("digit", dummyCallback);
 
     voice.on.yield({ streamGatherResponse: { speech: "hello" } });
     voice.on.yield({ streamGatherResponse: { speech: "world" } });
-    voice.on.yield({ streamGatherResponse: { digits: "1" } });
-    voice.on.yield({ streamGatherResponse: { digits: "2" } });
+    voice.on.yield({ streamGatherResponse: { digit: "1" } });
+    voice.on.yield({ streamGatherResponse: { digit: "2" } });
 
     // Assert
     expect(dummyCallback).to.have.been.callCount(4);

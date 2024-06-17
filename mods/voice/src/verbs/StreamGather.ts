@@ -21,8 +21,17 @@ import { GatherSource, StreamGatherRequest } from "@fonoster/common";
 import { z } from "zod";
 import { Verb } from "./Verb";
 
+class StreamGather extends Verb<StreamGatherRequest> {
+  getValidationSchema(): z.Schema {
+    return z.object({
+      source: z.nativeEnum(GatherSource).optional()
+    });
+  }
+}
+
 class StreamGatherStream {
   stream: Stream;
+
   constructor() {
     this.stream = new Stream();
   }
@@ -31,22 +40,14 @@ class StreamGatherStream {
     this.stream.removeAllListeners();
   }
 
-  on(event: "speech" | "digits", callback: (data: string) => void) {
+  on(event: "speech" | "digit", callback: (data: string) => void) {
     this.stream.on(event, (data) => {
       callback(data);
     });
   }
 
-  emit(event: "speech" | "digits", data: string) {
+  emit(event: "speech" | "digit", data: string) {
     this.stream.emit(event, data);
-  }
-}
-
-class StreamGather extends Verb<StreamGatherRequest> {
-  getValidationSchema(): z.Schema {
-    return z.object({
-      source: z.nativeEnum(GatherSource).optional()
-    });
   }
 }
 
