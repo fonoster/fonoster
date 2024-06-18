@@ -23,6 +23,7 @@ import { CreateCallRequest } from "./types";
 import {
   ASTERISK_CONTEXT,
   ASTERISK_EXTENSION,
+  ASTERISK_SYSTEM_DOMAIN,
   ASTERISK_TRUNK,
   CALLS_CREATE_SUBJECT,
   DEFAULT_NATS_QUEUE_GROUP
@@ -78,15 +79,13 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
       // eslint-disable-next-line new-cap
       const channel = ariConn.Channel();
 
-      // FIXME: Hardcoded values
-      const domain = "sip.local";
-
       channel
         .originate({
           context: ASTERISK_CONTEXT,
           extension: ASTERISK_EXTENSION,
-          endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${domain}`,
+          endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${ASTERISK_SYSTEM_DOMAIN}`,
           variables: {
+            "PJSIP_HEADER(add,X-DOD-Number)": from,
             INGRESS_NUMBER: from,
             APP_REF: appRef
           }

@@ -22,9 +22,11 @@ import { handleChannelLeftBridge } from "./handleChannelLeftBridge";
 import { handleDialEvents } from "./handleDialEvents";
 import { handleStasisEnd } from "./handleStasisEnd";
 import { handleStasisStart } from "./handleStasisStart";
-import { ASTERISK_TRUNK } from "../../../envs";
-import { AriEvent as AE, VoiceClient } from "../../types";
+import { ASTERISK_SYSTEM_DOMAIN, ASTERISK_TRUNK } from "../../../envs";
+import { createGetChannelVar } from "../../createGetChannelVar";
+import { AriEvent as AE, ChannelVar, VoiceClient } from "../../types";
 
+// TODO: Needs request validation
 function dialHandler(ari: Client, voiceClient: VoiceClient) {
   return async (request: DialRequest) => {
     const { sessionRef, destination, timeout } = request;
@@ -38,13 +40,19 @@ function dialHandler(ari: Client, voiceClient: VoiceClient) {
 
     await bridge.addChannel({ channel: sessionRef });
 
-    // FIXME: Hardcoded value
-    const domain = "sip.local";
+    const callerChannel = await ari.channels.get({ channelId: sessionRef });
+    const getChannelVar = createGetChannelVar(callerChannel);
+
+    const ingressNumber = (await getChannelVar(ChannelVar.INGRESS_NUMBER))
+      .value;
 
     await dialed.originate({
       app: STASIS_APP_NAME,
-      endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${destination}@${domain}`,
-      timeout
+      endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${destination}@${ASTERISK_SYSTEM_DOMAIN}`,
+      timeout,
+      variables: {
+        "PJSIP_HEADER(add,X-DOD-Number)": ingressNumber
+      }
     });
 
     dialed.on(

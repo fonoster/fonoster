@@ -29,7 +29,7 @@ import sinon, { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { sessionRef } from "../../../voice/test/helpers";
-import { ASTERISK_TRUNK } from "../../src/envs";
+import { ASTERISK_SYSTEM_DOMAIN, ASTERISK_TRUNK } from "../../src/envs";
 import { dialHandler } from "../../src/voice/handlers/dial/Dial";
 import { handleChannelLeftBridge } from "../../src/voice/handlers/dial/handleChannelLeftBridge";
 import { handleDialEvents } from "../../src/voice/handlers/dial/handleDialEvents";
@@ -65,7 +65,7 @@ describe("@voice/handler/Dial", function () {
     expect(channelStub.returnValues[0].originate).to.have.been.calledOnce;
     expect(channelStub.returnValues[0].originate).to.have.been.calledWith({
       app: STASIS_APP_NAME,
-      endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${request.destination}@sip.local`,
+      endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${request.destination}@${ASTERISK_SYSTEM_DOMAIN}`,
       timeout: request.timeout
     });
     expect(channelStub.returnValues[0].on).to.have.been.calledWith(

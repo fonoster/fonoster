@@ -122,6 +122,7 @@ export const ASTERISK_TRUNK = "routr";
 export const ASTERISK_ARI_PROXY_URL = e.ASTERISK_ARI_PROXY_URL;
 export const ASTERISK_ARI_USERNAME = e.ASTERISK_ARI_USERNAME;
 export const ASTERISK_ARI_SECRET = e.ASTERISK_ARI_SECRET;
+export const ASTERISK_SYSTEM_DOMAIN = e.ASTERISK_SYSTEM_DOMAIN || "sip.invalid";
 
 // TTS configurations
 export const TTS_PATH_TO_FILES = e.TTS_PATH_TO_FILES || os.tmpdir();
