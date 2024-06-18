@@ -311,7 +311,6 @@ class VoiceResponse {
    * @param {StreamAudioFormat} options.format - The audio format to stream (WAV). Default is WAV
    * @param {boolean} options.enableVad - Enable voice activity detection. Default is false
    * @return {Promise<Stream>} The stream object
-   * @see Stream
    * @example
    *
    * async function handler (request, response) {
