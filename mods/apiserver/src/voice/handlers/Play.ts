@@ -20,7 +20,7 @@ import { PlayRequest } from "@fonoster/common";
 import { Client } from "ari-client";
 import { nanoid } from "nanoid";
 import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
-import { withErrorHandling } from "./witthErrorHandling";
+import { withErrorHandling } from "./withErrorHandling";
 import { VoiceClient } from "../types";
 
 function playHandler(ari: Client, voiceClient: VoiceClient) {

@@ -20,7 +20,7 @@ import { GatherRequest, GatherSource } from "@fonoster/common";
 import { z } from "zod";
 import { getTimeoutPromise } from "./getTimeoutPromise";
 import { VoiceClient } from "../../types";
-import { withErrorHandling } from "../witthErrorHandling";
+import { withErrorHandling } from "../withErrorHandling";
 
 const isDtmf = (digit: string) => /^[0-9*#]+$/.test(digit);
 
