@@ -40,21 +40,15 @@ service Applications {
 enum ApplicationType {
   // Programmable Voice
   PROGRAMMABLE_VOICE = 0;
-  // Bi-directional streams
-  STREAMS = 1;
-  // Autopilot
-  AUTOPILOT = 2;
-  // Enhanced Autopilot
-  ENHANCED_AUTOPILOT = 3;
 }
 
 message ProductContainer {
   // Product reference
   string product_ref = 1;
-  // Secret reference
-  string secret_ref = 2;
   // Product configuration
-  google.protobuf.Struct config = 3;
+  google.protobuf.Struct config = 2;
+  // Product credentials
+  google.protobuf.Struct credentials = 3;
 }
 
 // Application definition
@@ -65,8 +59,8 @@ message Application {
   string name = 2;
   // Application type
   ApplicationType type = 3;
-  // App URL for programmable voice
-  string app_url = 4;
+  // Endpoint for programmable voice
+  string app_endpoint = 4;
   // Text to speech product
   ProductContainer text_to_speech = 5;
   // Speech to text product
@@ -92,7 +86,7 @@ message CreateApplicationRequest {
   // Speech to text product
   ProductContainer speech_to_text = 5;
   // Conversation product
-  ProductContainer conversation = 6;
+  ProductContainer intelligence = 6;
 }
 
 // Response for create application
@@ -138,8 +132,7 @@ message UpdateApplicationRequest {
   // Speech to text product
   ProductContainer speech_to_text = 6;
   // Conversation product
-  ProductContainer conversation = 7;
-
+  ProductContainer intelligence = 7;
 }
 
 // Response for update application

@@ -38,7 +38,9 @@ function convertToApplicationData(
       ? {
           create: {
             productRef: property.productRef,
-            secretRef: property.secretRef,
+            credentials: property.credentials
+              ? JSON.stringify(struct.decode(property.credentials))
+              : undefined,
             config: property.config ? struct.decode(property.config) : null
           }
         }
@@ -53,8 +55,8 @@ function convertToApplicationData(
     result.speechToText = createProperty(request.speechToText);
   }
 
-  if (request.conversation) {
-    result.conversation = createProperty(request.conversation);
+  if (request.intelligence) {
+    result.intelligence = createProperty(request.intelligence);
   }
 
   return result;

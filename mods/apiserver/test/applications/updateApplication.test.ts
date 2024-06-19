@@ -60,7 +60,7 @@ describe("@applications/updateApplication", function () {
       speechToText: {
         deleteMany: sandbox.stub().resolves()
       },
-      conversation: {
+      intelligence: {
         deleteMany: sandbox.stub().resolves()
       }
     } as unknown as Prisma;

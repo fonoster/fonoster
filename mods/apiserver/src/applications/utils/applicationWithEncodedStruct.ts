@@ -40,10 +40,13 @@ function applicationWithEncodedStruct(application): Application {
     };
   }
 
-  if (application.conversation) {
-    result.conversation = {
-      ...application.conversation,
-      config: encodeConfig(application.conversation)
+  if (application.intelligence) {
+    const intelligenceCopy = application.intelligence;
+    delete intelligenceCopy.credentials;
+
+    result.intelligence = {
+      ...intelligenceCopy,
+      config: encodeConfig(intelligenceCopy)
     };
   }
 

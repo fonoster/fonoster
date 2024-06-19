@@ -51,7 +51,7 @@ function listApplications(prisma: Prisma) {
         include: {
           textToSpeech: true,
           speechToText: true,
-          conversation: true
+          intelligence: true
         },
         take: pageSize,
         skip: pageToken ? 1 : 0,

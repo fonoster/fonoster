@@ -56,7 +56,7 @@ function updateApplication(prisma: Prisma) {
             applicationRef: call.request.ref
           }
         }),
-        prisma.conversation.deleteMany({
+        prisma.intelligence.deleteMany({
           where: {
             applicationRef: call.request.ref
           }

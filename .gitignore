@@ -9,3 +9,4 @@ coverage
 .keys
 *.tsbuildinfo
 tsconfig.tsbuildinfo
+integrations.json

@@ -26,6 +26,7 @@ type BaseResponse = {
   ref: string;
 };
 
+// For API response
 type Application = {
   ref: string;
   name: string;
@@ -33,17 +34,14 @@ type Application = {
   appEndpoint: string;
   textToSpeech: {
     productRef: string;
-    secretRef: string;
     config: Record<string, unknown>;
   };
   speechToText: {
     productRef: string;
-    secretRef: string;
     config: Record<string, unknown>;
   };
-  conversation: {
+  intelligence: {
     productRef: string;
-    secretRef: string;
     config: Record<string, unknown>;
   };
   createdAt: Date;
@@ -59,21 +57,19 @@ type ApplicationData = {
   textToSpeech?: {
     create: {
       productRef: string;
-      secretRef: string;
       config: Record<string, unknown>;
     };
   };
   speechToText?: {
     create: {
       productRef: string;
-      secretRef: string;
       config: Record<string, unknown>;
     };
   };
-  conversation?: {
+  intelligence?: {
     create: {
       productRef: string;
-      secretRef: string;
+      credentials: string;
       config: Record<string, unknown>;
     };
   };
@@ -85,17 +81,15 @@ type CreateApplicationRequest = {
   appEndpoint?: string;
   textToSpeech?: {
     productRef: string;
-    secretRef: string;
     config: Record<string, unknown>;
   };
   speechToText?: {
     productRef: string;
-    secretRef: string;
     config: Record<string, unknown>;
   };
-  conversation?: {
+  intelligence?: {
     productRef: string;
-    secretRef: string;
+    credentials: Record<string, unknown>;
     config: Record<string, unknown>;
   };
 };

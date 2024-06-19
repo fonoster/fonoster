@@ -1,17 +1,11 @@
 -- CreateEnum
-CREATE TYPE "application_types" AS ENUM ('PROGRAMMABLE_VOICE', 'STREAMS', 'AUTOPILOT', 'ENHANCED_AUTOPILOT');
+CREATE TYPE "application_types" AS ENUM ('PROGRAMMABLE_VOICE');
 
 -- CreateEnum
 CREATE TYPE "product_types" AS ENUM ('TTS', 'STT', 'NLU', 'ASSISTANT');
 
 -- CreateEnum
 CREATE TYPE "product_vendors" AS ENUM ('GOOGLE', 'MICROSOFT', 'AMAZON', 'IBM', 'RASA', 'GENERIC');
-
--- CreateEnum
-CREATE TYPE "stream_directions" AS ENUM ('IN', 'OUT', 'BOTH');
-
--- CreateEnum
-CREATE TYPE "stream_audio_formats" AS ENUM ('WAV');
 
 -- CreateTable
 CREATE TABLE "applications" (
@@ -27,23 +21,11 @@ CREATE TABLE "applications" (
 );
 
 -- CreateTable
-CREATE TABLE "application_streams" (
-    "ref" TEXT NOT NULL,
-    "direction" "stream_directions" NOT NULL,
-    "format" "stream_audio_formats" NOT NULL,
-    "enableVad" BOOLEAN NOT NULL,
-    "application_ref" TEXT NOT NULL,
-
-    CONSTRAINT "application_streams_pkey" PRIMARY KEY ("ref")
-);
-
--- CreateTable
 CREATE TABLE "tts_services" (
     "ref" TEXT NOT NULL,
     "config" JSONB NOT NULL,
     "application_ref" TEXT NOT NULL,
     "product_ref" TEXT NOT NULL,
-    "secret_ref" TEXT NOT NULL,
 
     CONSTRAINT "tts_services_pkey" PRIMARY KEY ("ref")
 );
@@ -54,20 +36,19 @@ CREATE TABLE "stt_services" (
     "config" JSONB NOT NULL,
     "application_ref" TEXT NOT NULL,
     "product_ref" TEXT NOT NULL,
-    "secret_ref" TEXT NOT NULL,
 
     CONSTRAINT "stt_services_pkey" PRIMARY KEY ("ref")
 );
 
 -- CreateTable
-CREATE TABLE "conversation_services" (
+CREATE TABLE "intelligence_services" (
     "ref" TEXT NOT NULL,
     "config" JSONB NOT NULL,
+    "credentials_hash" TEXT NOT NULL,
     "application_ref" TEXT NOT NULL,
     "product_ref" TEXT NOT NULL,
-    "secret_ref" TEXT NOT NULL,
 
-    CONSTRAINT "conversation_services_pkey" PRIMARY KEY ("ref")
+    CONSTRAINT "intelligence_services_pkey" PRIMARY KEY ("ref")
 );
 
 -- CreateTable
@@ -96,12 +77,6 @@ CREATE TABLE "secrets" (
 CREATE INDEX "applications_access_key_id_idx" ON "applications" USING HASH ("access_key_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "application_streams_application_ref_key" ON "application_streams"("application_ref");
-
--- CreateIndex
-CREATE INDEX "application_streams_application_ref_idx" ON "application_streams" USING HASH ("application_ref");
-
--- CreateIndex
 CREATE UNIQUE INDEX "tts_services_application_ref_key" ON "tts_services"("application_ref");
 
 -- CreateIndex
@@ -109,9 +84,6 @@ CREATE INDEX "tts_services_application_ref_idx" ON "tts_services" USING HASH ("a
 
 -- CreateIndex
 CREATE INDEX "tts_services_product_ref_idx" ON "tts_services" USING HASH ("product_ref");
-
--- CreateIndex
-CREATE INDEX "tts_services_secret_ref_idx" ON "tts_services" USING HASH ("secret_ref");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "stt_services_application_ref_key" ON "stt_services"("application_ref");
@@ -123,19 +95,13 @@ CREATE INDEX "stt_services_application_ref_idx" ON "stt_services" USING HASH ("a
 CREATE INDEX "stt_services_product_ref_idx" ON "stt_services" USING HASH ("product_ref");
 
 -- CreateIndex
-CREATE INDEX "stt_services_secret_ref_idx" ON "stt_services" USING HASH ("secret_ref");
+CREATE UNIQUE INDEX "intelligence_services_application_ref_key" ON "intelligence_services"("application_ref");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "conversation_services_application_ref_key" ON "conversation_services"("application_ref");
+CREATE INDEX "intelligence_services_application_ref_idx" ON "intelligence_services" USING HASH ("application_ref");
 
 -- CreateIndex
-CREATE INDEX "conversation_services_application_ref_idx" ON "conversation_services" USING HASH ("application_ref");
-
--- CreateIndex
-CREATE INDEX "conversation_services_product_ref_idx" ON "conversation_services" USING HASH ("product_ref");
-
--- CreateIndex
-CREATE INDEX "conversation_services_secret_ref_idx" ON "conversation_services" USING HASH ("secret_ref");
+CREATE INDEX "intelligence_services_product_ref_idx" ON "intelligence_services" USING HASH ("product_ref");
 
 -- CreateIndex
 CREATE INDEX "secrets_access_key_id_idx" ON "secrets" USING HASH ("access_key_id");
@@ -144,16 +110,10 @@ CREATE INDEX "secrets_access_key_id_idx" ON "secrets" USING HASH ("access_key_id
 CREATE INDEX "secrets_name_idx" ON "secrets" USING HASH ("name");
 
 -- AddForeignKey
-ALTER TABLE "application_streams" ADD CONSTRAINT "application_streams_application_ref_fkey" FOREIGN KEY ("application_ref") REFERENCES "applications"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "tts_services" ADD CONSTRAINT "tts_services_application_ref_fkey" FOREIGN KEY ("application_ref") REFERENCES "applications"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tts_services" ADD CONSTRAINT "tts_services_product_ref_fkey" FOREIGN KEY ("product_ref") REFERENCES "products"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "tts_services" ADD CONSTRAINT "tts_services_secret_ref_fkey" FOREIGN KEY ("secret_ref") REFERENCES "secrets"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "stt_services" ADD CONSTRAINT "stt_services_application_ref_fkey" FOREIGN KEY ("application_ref") REFERENCES "applications"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -162,13 +122,7 @@ ALTER TABLE "stt_services" ADD CONSTRAINT "stt_services_application_ref_fkey" FO
 ALTER TABLE "stt_services" ADD CONSTRAINT "stt_services_product_ref_fkey" FOREIGN KEY ("product_ref") REFERENCES "products"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "stt_services" ADD CONSTRAINT "stt_services_secret_ref_fkey" FOREIGN KEY ("secret_ref") REFERENCES "secrets"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "intelligence_services" ADD CONSTRAINT "intelligence_services_application_ref_fkey" FOREIGN KEY ("application_ref") REFERENCES "applications"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "conversation_services" ADD CONSTRAINT "conversation_services_application_ref_fkey" FOREIGN KEY ("application_ref") REFERENCES "applications"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "conversation_services" ADD CONSTRAINT "conversation_services_product_ref_fkey" FOREIGN KEY ("product_ref") REFERENCES "products"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "conversation_services" ADD CONSTRAINT "conversation_services_secret_ref_fkey" FOREIGN KEY ("secret_ref") REFERENCES "secrets"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "intelligence_services" ADD CONSTRAINT "intelligence_services_product_ref_fkey" FOREIGN KEY ("product_ref") REFERENCES "products"("ref") ON DELETE CASCADE ON UPDATE CASCADE;

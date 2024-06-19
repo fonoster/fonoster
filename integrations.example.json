@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Google TTS",
+    "productRef": "tts.google",
+    "type": "tts",
+    "credentials": {
+      "client_email": "projectacct@REDACTED-g2.iam.gserviceaccount.com",
+      "private_key": "REDACTED"
+    }
+  },
+  {
+    "name": "Google SST",
+    "productRef": "stt.google",
+    "type": "stt",
+    "credentials": {
+      "client_email": "projectacct@REDACTED-g2.iam.gserviceaccount.com",
+      "private_key": "REDACTED"
+    }
+  },
+  {
+    "name": "Azure TTS",
+    "productRef": "tts.azure",
+    "type": "tts",
+    "credentials": {
+      "subscriptionKey": "REDACTED",
+      "region": "eastus"
+    }
+  }
+]

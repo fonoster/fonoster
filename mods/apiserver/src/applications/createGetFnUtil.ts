@@ -26,7 +26,7 @@ function createGetFnUtil(prisma: Prisma) {
       include: {
         textToSpeech: true,
         speechToText: true,
-        conversation: true
+        intelligence: true
       }
     });
 

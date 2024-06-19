@@ -44,7 +44,6 @@ describe("@applications/convertToApplicationData", function () {
       appEndpoint: "localhost:50061",
       textToSpeech: {
         productRef: "123",
-        secretRef: "123",
         config: {
           fields: {
             voice: {
@@ -55,11 +54,27 @@ describe("@applications/convertToApplicationData", function () {
       },
       speechToText: {
         productRef: "123",
-        secretRef: "123",
         config: {
           fields: {
             languageCode: {
               stringValue: "en-US"
+            }
+          }
+        }
+      },
+      intelligence: {
+        productRef: "123",
+        credentials: {
+          fields: {
+            apiKey: {
+              stringValue: "1234"
+            }
+          }
+        },
+        config: {
+          fields: {
+            agentRef: {
+              stringValue: "1234"
             }
           }
         }
@@ -78,7 +93,7 @@ describe("@applications/convertToApplicationData", function () {
       textToSpeech: {
         create: {
           productRef: "123",
-          secretRef: "123",
+          credentials: undefined,
           config: {
             voice: "angela"
           }
@@ -87,9 +102,19 @@ describe("@applications/convertToApplicationData", function () {
       speechToText: {
         create: {
           productRef: "123",
-          secretRef: "123",
+          credentials: undefined,
           config: {
             languageCode: "en-US"
+          }
+        }
+      },
+      intelligence: {
+        create: {
+          productRef: "123",
+          // eslint-disable-next-line prettier/prettier
+          credentials: "{\"apiKey\":\"1234\"}",
+          config: {
+            agentRef: "1234"
           }
         }
       }
