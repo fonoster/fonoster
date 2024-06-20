@@ -22,7 +22,7 @@ import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
 
-const ENGINE_NAME = "azure";
+const ENGINE_NAME = "tts.azure";
 
 type AzureTTSConfig = TtsConfig & {
   credentials: {

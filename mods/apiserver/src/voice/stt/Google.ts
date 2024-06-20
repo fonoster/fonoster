@@ -21,7 +21,7 @@ import { SpeechClient } from "@google-cloud/speech";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
 import { GoogleSttConfig, SpeechResult, StreamSpeechResult } from "./types";
 
-const ENGINE_NAME = "google";
+const ENGINE_NAME = "stt.google";
 const AUDIO_ENCODING = "LINEAR16";
 const SAMPLE_RATE_HERTZ = 16000;
 

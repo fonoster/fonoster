@@ -24,7 +24,7 @@ import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
 
-const ENGINE_NAME = "google";
+const ENGINE_NAME = "tts.google";
 const AUDIO_ENCODING = "LINEAR16" as const;
 const SAMPLE_RATE_HERTZ = 16000;
 
