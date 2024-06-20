@@ -16,22 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbstractSpeechToText } from "../stt/AbstractSpeechToText";
-import { AbstractTextToSpeech } from "../tts/AbstractTextToSpeech";
+import { VoiceLanguage } from "@fonoster/common";
+import { findIntegrationsCredentials } from "./findIntegrationsCredentials";
+import { IntegrationConfig } from "./types";
+import { Application } from "../../applications/types";
 
-type IntegrationConfig = {
-  productRef: string;
-  credentials: Record<string, unknown>;
-};
+function getSttConfig(integrations: IntegrationConfig[], app: Application) {
+  const config = app.speechToText.config as { languageCode: VoiceLanguage };
+  const credentials = findIntegrationsCredentials(
+    integrations,
+    app.speechToText.productRef
+  );
 
-type IntegrationsContainer = {
-  ref: string;
-  accessKeyId: string;
-  appEndpoint: string;
-  tts: AbstractTextToSpeech<unknown>;
-  stt: AbstractSpeechToText<unknown>;
-};
+  return {
+    ...config,
+    credentials
+  };
+}
 
-type CreateContainer = (appRef: string) => Promise<IntegrationsContainer>;
-
-export { IntegrationConfig, IntegrationsContainer, CreateContainer };
+export { getSttConfig };

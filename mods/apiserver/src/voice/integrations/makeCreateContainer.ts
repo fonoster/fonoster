@@ -18,30 +18,24 @@
  */
 import fs from "fs";
 import { getLogger } from "@fonoster/logger";
-import { Prisma as PrismaType } from "@prisma/client";
+import { getSttConfig } from "./getSttConfig";
+import { getTtsConfig } from "./getTtsConfig";
 import { IntegrationsContainer } from "./types";
+import { Application } from "../../applications/types";
 import { Prisma } from "../../core/db";
-import { TTS_PATH_TO_FILES } from "../../envs";
 import { SpeechToTextFactory } from "../stt/SpeechToTextFactory";
 import { TextToSpeechFactory } from "../tts/TextToSpeechFactory";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function makeCreateContainer(prisma: Prisma, pathToIntegrations: string) {
-  logger.verbose("loading integrations foundation", { pathToIntegrations });
+  logger.verbose("loading integrations config", { pathToIntegrations });
 
   const integrationsFile = fs.readFileSync(pathToIntegrations, "utf8");
   const integrations = JSON.parse(integrationsFile);
 
-  // Create lambda to find the credentials for the integrations
-  const findCredentials = (productRef: string) => {
-    return integrations.find(
-      (i: { productRef: string }) => i.productRef === productRef
-    );
-  };
-
   return async (appRef: string): Promise<IntegrationsContainer> => {
-    logger.verbose("creating container for", { appRef });
+    logger.verbose("creating integrations container", { appRef });
 
     const app = await prisma.application.findUnique({
       where: { ref: appRef },
@@ -52,20 +46,8 @@ function makeCreateContainer(prisma: Prisma, pathToIntegrations: string) {
       }
     });
 
-    const ttsConfig = {
-      ...(app.textToSpeech.config as PrismaType.JsonObject),
-      credentials: findCredentials(app.textToSpeech.productRef).credentials,
-      pathToFiles: TTS_PATH_TO_FILES
-    };
-
-    const sttConfig = {
-      ...(app.speechToText.config as PrismaType.JsonObject),
-      languageCode: "en-US" as any,
-      config: {
-        languageCode: "en-US" as any,
-      },
-      credentials: findCredentials(app.speechToText.productRef).credentials
-    };
+    const ttsConfig = getTtsConfig(integrations, app as Application);
+    const sttConfig = getSttConfig(integrations, app as Application);
 
     const tts = TextToSpeechFactory.getEngine(
       app.textToSpeech.productRef,

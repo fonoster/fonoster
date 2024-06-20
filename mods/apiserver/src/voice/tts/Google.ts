@@ -29,8 +29,7 @@ const AUDIO_ENCODING = "LINEAR16" as const;
 const SAMPLE_RATE_HERTZ = 16000;
 
 type GoogleTtsConfig = TtsConfig & {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
+  [key: string]: Record<string, string>;
   credentials: {
     client_email: string;
     private_key: string;
@@ -61,7 +60,7 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     );
 
     const effectiveOptions = {
-      ...this.config.options,
+      ...this.config,
       ...options
     };
 

@@ -16,22 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AbstractSpeechToText } from "../stt/AbstractSpeechToText";
-import { AbstractTextToSpeech } from "../tts/AbstractTextToSpeech";
+import { findIntegrationsCredentials } from "./findIntegrationsCredentials";
+import { IntegrationConfig } from "./types";
+import { Application } from "../../applications/types";
+import { TTS_PATH_TO_FILES } from "../../envs";
 
-type IntegrationConfig = {
-  productRef: string;
-  credentials: Record<string, unknown>;
-};
+function getTtsConfig(integrations: IntegrationConfig[], app: Application) {
+  const config = app.textToSpeech.config;
+  const credentials = findIntegrationsCredentials(
+    integrations,
+    app.textToSpeech.productRef
+  );
 
-type IntegrationsContainer = {
-  ref: string;
-  accessKeyId: string;
-  appEndpoint: string;
-  tts: AbstractTextToSpeech<unknown>;
-  stt: AbstractSpeechToText<unknown>;
-};
+  return {
+    ...config,
+    credentials,
+    pathToFiles: TTS_PATH_TO_FILES
+  };
+}
 
-type CreateContainer = (appRef: string) => Promise<IntegrationsContainer>;
-
-export { IntegrationConfig, IntegrationsContainer, CreateContainer };
+export { getTtsConfig };
