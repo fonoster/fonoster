@@ -16,19 +16,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Channel } from "ari-client";
-import { ChannelVar } from "./types";
-
-function createGetChannelVar(channel: Channel) {
-  return async (variable: ChannelVar) => {
-    try {
-      return await channel.getChannelVar({
-        variable
-      });
-    } catch (e) {
-      return null;
-    }
-  };
-}
-
-export { createGetChannelVar };
+export * from "./makeCreateContainer";

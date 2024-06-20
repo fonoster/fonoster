@@ -21,6 +21,8 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
+import { CreateContainer } from "../../src/voice/integrations/types";
+import { AbstractTextToSpeech } from "../../src/voice/tts/AbstractTextToSpeech";
 import { ChannelVar } from "../../src/voice/types";
 import { VoiceClientImpl } from "../../src/voice/VoiceClientImpl";
 
@@ -37,22 +39,18 @@ describe("@voice/createVoiceClient", function () {
 
   it("should create a voice client", async function () {
     // Arrange
-    const { createVoiceClient } = await import(
-      "../../src/voice/createVoiceClient"
+    const { makeCreateVoiceClient } = await import(
+      "../../src/voice/makeCreateVoiceClient"
     );
 
-    const sdk = {
-      getApp: sandbox.stub().resolves({
-        ref: "app-ref",
+    const createContainer = async (appRef: string) => {
+      return {
+        ref: appRef,
         accessKeyId: "access-key-id",
-        endpoint: "app-endpoint",
-        ttsConfig: {
-          engine: "google"
-        },
-        sttConfig: {
-          engine: "google"
-        }
-      })
+        appEndpoint: "app-endpoint",
+        tts: {} as unknown as AbstractTextToSpeech<unknown>,
+        stt: {} as unknown as AbstractTextToSpeech<unknown>
+      };
     };
 
     const event = {
@@ -81,7 +79,9 @@ describe("@voice/createVoiceClient", function () {
     } as unknown as Channel;
 
     // Act
-    const voiceClient = await createVoiceClient(sdk)({
+    const voiceClient = await makeCreateVoiceClient(
+      createContainer as unknown as CreateContainer
+    )({
       ari: {} as Client,
       event,
       channel
@@ -89,7 +89,6 @@ describe("@voice/createVoiceClient", function () {
 
     // Assert
     expect(voiceClient).to.be.an.instanceOf(VoiceClientImpl);
-    expect(sdk.getApp).to.have.been.calledOnceWith("app-ref");
     expect(channel.getChannelVar).to.have.been.calledThrice;
     expect(channel.getChannelVar).to.have.been.calledWith({
       variable: ChannelVar.APP_REF

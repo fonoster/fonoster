@@ -50,7 +50,7 @@ class VoiceClientImpl implements VoiceClient {
   stream: Stream;
   voice: VoiceSessionStreamClient;
   tts: TextToSpeech;
-  sst: SpeechToText;
+  stt: SpeechToText;
   grpcClient: GRPCClient;
   audioSocket: AudioSocket;
   asStream: Stream;
@@ -60,19 +60,19 @@ class VoiceClientImpl implements VoiceClient {
     ari: Client;
     config: VoiceClientConfig;
     tts: TextToSpeech;
-    sst: SpeechToText;
+    stt: SpeechToText;
   }) {
-    const { config, tts, sst, ari } = params;
+    const { config, tts, stt, ari } = params;
     this.config = config;
     this.stream = new Stream();
     this.tts = tts;
-    this.sst = sst;
+    this.stt = stt;
     this.ari = ari;
   }
 
   async connect() {
     this.grpcClient = new VoiceServiceClient(
-      this.config.endpoint,
+      this.config.appEndpoint,
       grpc.credentials.createInsecure()
     ) as unknown as GRPCClient;
 
@@ -92,7 +92,9 @@ class VoiceClientImpl implements VoiceClient {
       if (error.code === grpc.status.UNAVAILABLE) {
         this.stream.emit(
           StreamEvent.ERROR,
-          new Error(`voice server not available at "${this.config.endpoint}"`)
+          new Error(
+            `voice server not available at "${this.config.appEndpoint}"`
+          )
         );
         return;
       }
@@ -146,16 +148,12 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async synthesize(text: string, options: SayOptions): Promise<string> {
-    const opts = {
-      ...this.config.ttsOptions,
-      ...options
-    };
-    return await this.tts.synthesize(text, opts);
+    return await this.tts.synthesize(text, options);
   }
 
   async transcribe(): Promise<SpeechResult> {
     try {
-      return await this.sst.transcribe(this.stream);
+      return await this.stt.transcribe(this.stream);
     } catch (e) {
       logger.warn("transcription error", e);
       return {} as unknown as SpeechResult;

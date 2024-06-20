@@ -29,6 +29,8 @@ const AUDIO_ENCODING = "LINEAR16" as const;
 const SAMPLE_RATE_HERTZ = 16000;
 
 type GoogleTtsConfig = TtsConfig & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
   credentials: {
     client_email: string;
     private_key: string;
@@ -58,9 +60,16 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       )} options: ${JSON.stringify(options)}]`
     );
 
-    const lang = `${options.voice.split("-")[0]}-${options.voice.split("-")[1]}`;
+    const effectiveOptions = {
+      ...this.config.options,
+      ...options
+    };
 
-    const filename = this.createFilename(text, options);
+    const { voice } = effectiveOptions;
+
+    const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
+
+    const filename = this.createFilename(text, effectiveOptions);
 
     if (this.fileExists(this.getFullPathToFile(filename))) {
       return this.getFilenameWithoutExtension(filename);
@@ -74,7 +83,7 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       },
       voice: {
         languageCode: lang,
-        name: options.voice
+        name: voice
       }
     };
 

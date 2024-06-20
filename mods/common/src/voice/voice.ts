@@ -74,13 +74,12 @@ enum StreamContent {
 type VoiceClientConfig = {
   appRef: string;
   accessKeyId: string;
-  endpoint: string;
+  appEndpoint: string;
   ingressNumber: string;
   callerName: string;
   callerNumber: string;
   sessionRef: string;
   sessionToken: string;
-  ttsOptions: Record<string, unknown>;
   metadata?: Record<string, string>;
 };
 

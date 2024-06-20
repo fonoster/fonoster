@@ -19,14 +19,16 @@
 import { getLogger } from "@fonoster/logger";
 import ariClient from "ari-client";
 import wait from "wait-port";
-import { createVoiceClient } from "./createVoiceClient";
-import { fonosterSDKMock } from "./fonosterSDKMock";
+import { makeCreateContainer } from "./integrations";
+import { makeCreateVoiceClient } from "./makeCreateVoiceClient";
 import { AriEvent } from "./types";
 import { VoiceDispatcher } from "./VoiceDispatcher";
+import { prisma } from "../core/db";
 import {
   ASTERISK_ARI_PROXY_URL,
   ASTERISK_ARI_SECRET,
-  ASTERISK_ARI_USERNAME
+  ASTERISK_ARI_USERNAME,
+  INTEGRATIONS_FILE
 } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -59,9 +61,11 @@ async function connectToAri() {
 
     logger.info("asterisk is ready");
 
+    const createContainer = makeCreateContainer(prisma, INTEGRATIONS_FILE);
+
     const dispatcher = new VoiceDispatcher(
       ari,
-      createVoiceClient(fonosterSDKMock)
+      makeCreateVoiceClient(createContainer)
     );
 
     dispatcher.start();

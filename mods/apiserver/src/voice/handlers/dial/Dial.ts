@@ -23,7 +23,7 @@ import { handleDialEvents } from "./handleDialEvents";
 import { handleStasisEnd } from "./handleStasisEnd";
 import { handleStasisStart } from "./handleStasisStart";
 import { ASTERISK_SYSTEM_DOMAIN, ASTERISK_TRUNK } from "../../../envs";
-import { createGetChannelVar } from "../../createGetChannelVar";
+import { makeGetChannelVar } from "../../makeGetChannelVar";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "../../types";
 
 // TODO: Needs request validation
@@ -41,7 +41,7 @@ function dialHandler(ari: Client, voiceClient: VoiceClient) {
     await bridge.addChannel({ channel: sessionRef });
 
     const callerChannel = await ari.channels.get({ channelId: sessionRef });
-    const getChannelVar = createGetChannelVar(callerChannel);
+    const getChannelVar = makeGetChannelVar(callerChannel);
 
     const ingressNumber = (await getChannelVar(ChannelVar.INGRESS_NUMBER))
       .value;

@@ -16,47 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceLanguage } from "@fonoster/common";
 import { createCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { Channel, Client, StasisStart } from "ari-client";
-import { createGetChannelVar } from "./createGetChannelVar";
-import { SpeechToTextFactory } from "./stt/SpeechToTextFactory";
-import { TextToSpeechFactory } from "./tts/TextToSpeechFactory";
+import { CreateContainer } from "./integrations/types";
+import { makeGetChannelVar } from "./makeGetChannelVar";
 import { ChannelVar, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
 import { identityConfig } from "../core/identityConfig";
-import { TTS_PATH_TO_FILES } from "../envs";
-
-type FonosterSDK = {
-  getApp: (ref: string) => Promise<{
-    ref: string;
-    accessKeyId: string;
-    endpoint: string;
-    ttsConfig: {
-      engine: string;
-      options: Record<string, unknown>;
-      credentials:
-        | { client_email: string; private_key: string }
-        | { subscriptionKey: string; serviceRegion: string };
-    };
-    sttConfig: {
-      engine: string;
-      languageCode: VoiceLanguage;
-      options: Record<string, unknown>;
-      credentials:
-        | { client_email: string; private_key: string }
-        | { subscriptionKey: string; serviceRegion: string };
-    };
-  }>;
-};
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 const createToken = createCallAccessToken(identityConfig);
 
-// Note: By the time the all arrives here the owner of the app MUST be authenticated
-function createVoiceClient(sdk: FonosterSDK) {
+// Note: By the time the call arrives here the owner of the app MUST be authenticated
+function makeCreateVoiceClient(createContainer: CreateContainer) {
   return async (params: {
     ari: Client;
     event: StasisStart;
@@ -66,7 +40,7 @@ function createVoiceClient(sdk: FonosterSDK) {
     const { id: sessionRef, caller } = event.channel;
     const { name: callerName, number: callerNumber } = caller;
 
-    const getChannelVar = createGetChannelVar(channel);
+    const getChannelVar = makeGetChannelVar(channel);
 
     // Variables set by Asterisk's dialplan
     const ingressNumber =
@@ -75,8 +49,8 @@ function createVoiceClient(sdk: FonosterSDK) {
     const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
 
     // TODO: Should fail if appRef is not set
-    const { accessKeyId, endpoint, ttsConfig, sttConfig } =
-      await sdk.getApp(appRef);
+    const { accessKeyId, appEndpoint, tts, stt } =
+      await createContainer(appRef);
 
     const sessionToken = await createToken({ accessKeyId, appRef });
 
@@ -84,12 +58,11 @@ function createVoiceClient(sdk: FonosterSDK) {
       appRef,
       sessionRef,
       accessKeyId,
-      endpoint,
+      appEndpoint,
       callerName,
       callerNumber,
       ingressNumber,
       sessionToken,
-      ttsOptions: ttsConfig.options,
       metadata: metadataStr ? JSON.parse(metadataStr) : {}
     };
 
@@ -99,17 +72,8 @@ function createVoiceClient(sdk: FonosterSDK) {
       ingressNumber
     });
 
-    const tts = TextToSpeechFactory.getEngine(ttsConfig.engine, {
-      ...ttsConfig,
-      pathToFiles: TTS_PATH_TO_FILES
-    });
-
-    const sst = SpeechToTextFactory.getEngine(sttConfig.engine, {
-      ...sttConfig
-    });
-
-    return new VoiceClientImpl({ ari, config, tts, sst });
+    return new VoiceClientImpl({ ari, config, tts, stt });
   };
 }
 
-export { createVoiceClient };
+export { makeCreateVoiceClient };
