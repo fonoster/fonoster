@@ -18,6 +18,8 @@
  */
 import fs from "fs";
 import { getLogger } from "@fonoster/logger";
+import { z } from "zod";
+import { fromError } from "zod-validation-error";
 import { ApplicationNotFoundError } from "./ApplicationNotFoundError";
 import { getSttConfig } from "./getSttConfig";
 import { getTtsConfig } from "./getTtsConfig";
@@ -29,11 +31,29 @@ import { TextToSpeechFactory } from "../tts/TextToSpeechFactory";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
+const integrationsConfigSchema = z.array(
+  z.object({
+    name: z.string(),
+    productRef: z.string(),
+    type: z.enum(["tts", "stt"]),
+    credentials: z.record(z.unknown())
+  })
+);
+
 function makeCreateContainer(prisma: Prisma, pathToIntegrations: string) {
   logger.verbose("loading integrations config", { pathToIntegrations });
 
   const integrationsFile = fs.readFileSync(pathToIntegrations, "utf8");
   const integrations = JSON.parse(integrationsFile);
+
+  try {
+    integrationsConfigSchema.parse(integrations);
+  } catch (e) {
+    // fatal error
+    const message = fromError(e);
+    logger.error("integrations config is invalid", { message });
+    process.exit(1);
+  }
 
   return async (appRef: string): Promise<IntegrationsContainer> => {
     logger.verbose("creating integrations container", { appRef });

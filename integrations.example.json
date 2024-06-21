@@ -9,7 +9,7 @@
     }
   },
   {
-    "name": "Google SST",
+    "name": "Google STT",
     "productRef": "stt.google",
     "type": "stt",
     "credentials": {
