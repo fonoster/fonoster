@@ -16,20 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Channel } from "ari-client";
-import { ChannelVarNotFoundError } from "./ChannelVarNotFoundError";
-import { ChannelVar } from "./types";
+import { z } from "zod";
 
-function makeGetChannelVar(channel: Channel) {
-  return async (variable: ChannelVar) => {
-    try {
-      return await channel.getChannelVar({
-        variable
-      });
-    } catch (e) {
-      throw new ChannelVarNotFoundError(variable);
-    }
-  };
-}
+const hostOrHostPortSchema = z.string().refine(
+  (value) => {
+    const hostRegex =
+      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)*|(\d{1,3}\.){3}\d{1,3})$/;
+    const hostPortRegex =
+      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)*|(\d{1,3}\.){3}\d{1,3}):\d{1,5}$/;
 
-export { makeGetChannelVar };
+    return hostRegex.test(value) || hostPortRegex.test(value);
+  },
+  {
+    message: "Invalid format. Expected 'host' or 'host:port'"
+  }
+);
+
+export { hostOrHostPortSchema };

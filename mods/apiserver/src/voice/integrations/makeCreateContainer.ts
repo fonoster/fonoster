@@ -18,6 +18,7 @@
  */
 import fs from "fs";
 import { getLogger } from "@fonoster/logger";
+import { ApplicationNotFoundError } from "./ApplicationNotFoundError";
 import { getSttConfig } from "./getSttConfig";
 import { getTtsConfig } from "./getTtsConfig";
 import { IntegrationsContainer } from "./types";
@@ -45,6 +46,10 @@ function makeCreateContainer(prisma: Prisma, pathToIntegrations: string) {
         intelligence: true
       }
     });
+
+    if (!app) {
+      throw new ApplicationNotFoundError(appRef);
+    }
 
     const ttsConfig = getTtsConfig(integrations, app as Application);
     const sttConfig = getSttConfig(integrations, app as Application);

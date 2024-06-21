@@ -90,15 +90,13 @@ class VoiceClientImpl implements VoiceClient {
 
     this.voice.on(StreamEvent.ERROR, (error: GRPCError) => {
       if (error.code === grpc.status.UNAVAILABLE) {
-        this.stream.emit(
-          StreamEvent.ERROR,
-          new Error(
-            `voice server not available at "${this.config.appEndpoint}"`
-          )
+        // FIXME: This error should be sent back to the user
+        logger.error(
+          `voice server not available at "${this.config.appEndpoint}"`
         );
         return;
       }
-      this.stream.emit(StreamEvent.ERROR, error);
+      logger.error(error.message);
     });
 
     const externalMediaPort = await pickPort({ type: "tcp" });

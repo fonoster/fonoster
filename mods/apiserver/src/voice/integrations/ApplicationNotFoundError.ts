@@ -16,20 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Channel } from "ari-client";
-import { ChannelVarNotFoundError } from "./ChannelVarNotFoundError";
-import { ChannelVar } from "./types";
-
-function makeGetChannelVar(channel: Channel) {
-  return async (variable: ChannelVar) => {
-    try {
-      return await channel.getChannelVar({
-        variable
-      });
-    } catch (e) {
-      throw new ChannelVarNotFoundError(variable);
-    }
-  };
+class ApplicationNotFoundError extends Error {
+  constructor(appRef: string) {
+    super(`Application not found: ${appRef}`);
+    this.name = this.constructor.name;
+  }
 }
 
-export { makeGetChannelVar };
+export { ApplicationNotFoundError };

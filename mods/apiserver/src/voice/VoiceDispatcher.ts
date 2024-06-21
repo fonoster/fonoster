@@ -65,26 +65,35 @@ class VoiceDispatcher {
       });
       return;
     }
-    const vc = await this.createVoiceClient({ ari: this.ari, event, channel });
 
-    // Connect to voice server
-    vc.connect();
+    try {
+      const vc = await this.createVoiceClient({
+        ari: this.ari,
+        event,
+        channel
+      });
 
-    this.voiceClients.set(channel.id, vc);
+      // Connect to voice server
+      vc.connect();
 
-    vc.on(SC.ANSWER_REQUEST, answerHandler(this.ari, vc).bind(this));
-    vc.on(SC.HANGUP_REQUEST, hangupHandler(this.ari, vc).bind(this));
-    vc.on(SC.MUTE_REQUEST, muteHandler(this.ari, vc).bind(this));
-    vc.on(SC.UNMUTE_REQUEST, unmuteHandler(this.ari, vc).bind(this));
-    vc.on(SC.PLAY_REQUEST, playHandler(this.ari, vc).bind(this));
-    vc.on(SC.PLAY_DTMF_REQUEST, playDtmfHandler(this.ari, vc).bind(this));
-    vc.on(
-      SC.PLAYBACK_CONTROL_REQUEST,
-      playbackControlHandler(this.ari, vc).bind(this)
-    );
-    vc.on(SC.SAY_REQUEST, sayHandler(this.ari, vc).bind(this));
-    vc.on(SC.GATHER_REQUEST, gatherHandler(vc).bind(this));
-    vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
+      this.voiceClients.set(channel.id, vc);
+
+      vc.on(SC.ANSWER_REQUEST, answerHandler(this.ari, vc).bind(this));
+      vc.on(SC.HANGUP_REQUEST, hangupHandler(this.ari, vc).bind(this));
+      vc.on(SC.MUTE_REQUEST, muteHandler(this.ari, vc).bind(this));
+      vc.on(SC.UNMUTE_REQUEST, unmuteHandler(this.ari, vc).bind(this));
+      vc.on(SC.PLAY_REQUEST, playHandler(this.ari, vc).bind(this));
+      vc.on(SC.PLAY_DTMF_REQUEST, playDtmfHandler(this.ari, vc).bind(this));
+      vc.on(
+        SC.PLAYBACK_CONTROL_REQUEST,
+        playbackControlHandler(this.ari, vc).bind(this)
+      );
+      vc.on(SC.SAY_REQUEST, sayHandler(this.ari, vc).bind(this));
+      vc.on(SC.GATHER_REQUEST, gatherHandler(vc).bind(this));
+      vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
+    } catch (err) {
+      logger.error("error handling stasis start", { error: err.message });
+    }
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {

@@ -43,16 +43,22 @@ function makeCreateVoiceClient(createContainer: CreateContainer) {
     const getChannelVar = makeGetChannelVar(channel);
 
     // Variables set by Asterisk's dialplan
+    const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
     const ingressNumber =
       (await getChannelVar(ChannelVar.INGRESS_NUMBER))?.value || "";
-    const metadataStr = (await getChannelVar(ChannelVar.METADATA))?.value;
-    const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
 
-    // TODO: Should fail if appRef is not set
     const { accessKeyId, appEndpoint, tts, stt } =
       await createContainer(appRef);
 
     const sessionToken = await createToken({ accessKeyId, appRef });
+
+    let metadataStr: string;
+
+    try {
+      metadataStr = (await getChannelVar(ChannelVar.METADATA))?.value;
+    } catch (e) {
+      // Do nothing
+    }
 
     const config = {
       appRef,

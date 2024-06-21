@@ -21,6 +21,7 @@ import { z } from "zod";
 import { Google as GoogleStt } from "../../voice/stt/Google";
 import { Azure as AzureTts } from "../../voice/tts/Azure";
 import { Google as GoogleTts } from "../../voice/tts/Google";
+import { hostOrHostPortSchema } from "../hostOrHostPortSchema";
 
 const validators = {
   ttsConfigValidators: {
@@ -48,8 +49,7 @@ function getApplicationValidationSchema(request: {
   return z.object({
     name: z.string(),
     type: z.nativeEnum(ApplicationType),
-    // TODO: Ensure is host or host:port
-    appEndpoint: z.string(),
+    appEndpoint: hostOrHostPortSchema,
     textToSpeech: z.object({
       productRef: z.string(),
       config: validators.ttsConfigValidators[ttsEngineName]()
