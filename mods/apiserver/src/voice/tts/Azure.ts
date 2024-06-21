@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AzureVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import * as z from "zod";
@@ -26,6 +27,7 @@ import { SynthOptions, TtsConfig } from "./types";
 const ENGINE_NAME = "tts.azure";
 
 type AzureTTSConfig = TtsConfig & {
+  [key: string]: Record<string, string>;
   credentials: {
     subscriptionKey: string;
     serviceRegion: string;
@@ -53,7 +55,12 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       )} options: ${JSON.stringify(options)}]`
     );
 
-    const filename = this.createFilename(text, options);
+    const effectiveOptions = {
+      ...this.config,
+      ...options
+    };
+
+    const filename = this.createFilename(text, effectiveOptions);
 
     if (this.fileExists(this.getFullPathToFile(filename))) {
       return this.getFilenameWithoutExtension(filename);
@@ -115,7 +122,9 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   }
 
   getConfigValidationSchema(): z.Schema {
-    return z.object({});
+    return z.object({
+      voice: z.nativeEnum(AzureVoice)
+    });
   }
 
   getCredentialsValidationSchema(): z.Schema {
