@@ -18,8 +18,10 @@
  */
 import * as fs from "fs";
 import * as util from "util";
+import { GoogleVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
+import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
@@ -97,6 +99,19 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     );
 
     return this.getFilenameWithoutExtension(filename);
+  }
+
+  static getConfigValidationSchema(): z.Schema {
+    return z.object({
+      voice: z.nativeEnum(GoogleVoice)
+    });
+  }
+
+  static getCredentialsValidationSchema(): z.Schema {
+    return z.object({
+      client_email: z.string(),
+      private_key: z.string()
+    });
   }
 }
 

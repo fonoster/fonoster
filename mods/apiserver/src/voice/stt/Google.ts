@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import { Stream } from "stream";
+import { VoiceLanguage } from "@fonoster/common";
 import { SpeechClient } from "@google-cloud/speech";
+import * as z from "zod";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
 import { GoogleSttConfig, SpeechResult, StreamSpeechResult } from "./types";
 
@@ -70,6 +72,19 @@ class Google extends AbstractSpeechToText<typeof ENGINE_NAME> {
           recognizeStream.destroy();
         });
       stream.pipe(recognizeStream);
+    });
+  }
+
+  static getConfigValidationSchema(): z.Schema {
+    return z.object({
+      languageCode: z.nativeEnum(VoiceLanguage)
+    });
+  }
+
+  static getCredentialsValidationSchema(): z.Schema {
+    return z.object({
+      client_email: z.string(),
+      private_key: z.string()
     });
   }
 }

@@ -32,7 +32,7 @@ function updateApplication(prisma: Prisma) {
 
   return withAccess(
     async (call: { request: UpdateApplicationRequest }) => {
-      const { type } = call.request;
+      const { type, ref: applicationRef } = call.request;
       const accessKeyId = getAccessKeyIdFromCall(
         call as unknown as ServerInterceptingCall
       );
@@ -48,29 +48,29 @@ function updateApplication(prisma: Prisma) {
       await prisma.$transaction([
         prisma.textToSpeech.deleteMany({
           where: {
-            applicationRef: call.request.ref
+            applicationRef
           }
         }),
         prisma.speechToText.deleteMany({
           where: {
-            applicationRef: call.request.ref
+            applicationRef
           }
         }),
         prisma.intelligence.deleteMany({
           where: {
-            applicationRef: call.request.ref
+            applicationRef
           }
         }),
         prisma.application.update({
           where: {
-            ref: call.request.ref,
+            ref: applicationRef,
             accessKeyId
           },
           data: convertToApplicationData(call.request)
         })
       ]);
 
-      return { ref: call.request.ref };
+      return { ref: applicationRef };
     },
     (ref: string) => getFn(ref)
   );

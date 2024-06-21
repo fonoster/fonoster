@@ -18,8 +18,10 @@
  */
 import * as fs from "fs";
 import { getLogger } from "@fonoster/logger";
+import * as z from "zod";
 import { computeFilename } from "./computeFilename";
 import { SynthOptions, TtsConfig } from "./types";
+import { MethodNotImplementedError } from "../MethodNotImplementedError";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -60,6 +62,14 @@ abstract class AbstractTextToSpeech<
   }
 
   abstract synthesize(text: string, options: S): Promise<string>;
+
+  static getConfigValidationSchema(): z.Schema {
+    throw new MethodNotImplementedError();
+  }
+
+  static getCredentialsValidationSchema(): z.Schema {
+    throw new MethodNotImplementedError();
+  }
 
   getName(): E {
     return this.engineName;

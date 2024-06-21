@@ -16,20 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getApplicationValidationSchema } from "./getApplicationValidationSchema";
-import { prepareForValidation } from "./prepareForValidation";
-import { CreateApplicationRequest, UpdateApplicationRequest } from "../types";
-
-function validOrThrow(
-  request: CreateApplicationRequest | UpdateApplicationRequest
-) {
-  const data = prepareForValidation(request);
-  const schema = getApplicationValidationSchema({
-    ttsEngineName: request.textToSpeech?.productRef,
-    sttEngineName: request.speechToText?.productRef
-  });
-
-  schema.parse(data);
+class MethodNotImplementedError extends Error {
+  constructor() {
+    super("Method not implemented! Use derived class");
+  }
 }
 
-export { validOrThrow };
+export { MethodNotImplementedError };

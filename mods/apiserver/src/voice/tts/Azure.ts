@@ -18,6 +18,7 @@
  */
 import { getLogger } from "@fonoster/logger";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
+import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
@@ -110,6 +111,17 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
           reject(new Error(err));
         }
       );
+    });
+  }
+
+  getConfigValidationSchema(): z.Schema {
+    return z.object({});
+  }
+
+  getCredentialsValidationSchema(): z.Schema {
+    return z.object({
+      subscriptionKey: z.string(),
+      serviceRegion: z.string()
     });
   }
 }

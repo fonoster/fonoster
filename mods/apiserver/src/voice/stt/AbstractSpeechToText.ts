@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import { Stream } from "stream";
+import * as z from "zod";
 import { SpeechResult, StreamSpeechResult, SttConfig } from "./types";
+import { MethodNotImplementedError } from "../MethodNotImplementedError";
 
 abstract class AbstractSpeechToText<E, T extends SttConfig = SttConfig> {
   abstract readonly engineName: E;
@@ -33,6 +35,14 @@ abstract class AbstractSpeechToText<E, T extends SttConfig = SttConfig> {
 
   getName(): E {
     return this.engineName;
+  }
+
+  static getConfigValidationSchema(): z.Schema {
+    throw new MethodNotImplementedError();
+  }
+
+  static getCredentialsValidationSchema(): z.Schema {
+    throw new MethodNotImplementedError();
   }
 }
 
