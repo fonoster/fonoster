@@ -20,6 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { status } from "@grpc/grpc-js";
 import { z } from "zod";
+import { fromError } from "zod-validation-error";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -35,9 +36,14 @@ function handleError(
   const code = (error as { code: string | number }).code;
 
   if (error instanceof z.ZodError) {
-    const firstError = error.issues[0];
-    logger.error("validation error:", { message: firstError.message });
-    callback({ code: status.INVALID_ARGUMENT, message: firstError.message });
+    const validationError = fromError(error);
+
+    logger.error("validation error", { message: validationError.toString() });
+
+    callback({
+      code: status.INVALID_ARGUMENT,
+      message: validationError.toString()
+    });
   } else if (code === "P2002" || code === grpc.status.ALREADY_EXISTS) {
     const message = "Duplicated resource";
     logger.error("duplicated entity error:", { message });
