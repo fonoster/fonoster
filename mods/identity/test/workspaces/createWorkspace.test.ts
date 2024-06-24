@@ -113,7 +113,9 @@ describe("@identity[workspaces/createWorkspace]", function () {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.INVALID_ARGUMENT,
-        message: "Name must contain at least 3 characters"
+        message:
+          // eslint-disable-next-line prettier/prettier
+          "Validation error: Name must contain at least 3 characters at \"name\""
       });
     });
   });

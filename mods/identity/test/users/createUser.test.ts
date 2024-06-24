@@ -110,7 +110,8 @@ describe("@identity[users/createUser]", function () {
       // Assert
       expect(error).to.deep.equal({
         code: status.INVALID_ARGUMENT,
-        message: "Invalid email"
+        // eslint-disable-next-line prettier/prettier
+        message: "Validation error: Invalid email at \"email\""
       });
     });
   });
