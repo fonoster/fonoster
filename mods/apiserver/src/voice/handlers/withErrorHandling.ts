@@ -33,7 +33,7 @@ function withErrorHandling(fn: VerbHandler) {
     } catch (err) {
       if (err instanceof z.ZodError) {
         const validationError = fromError(err);
-        logger.error("validation error:", {
+        logger.error("Validation error:", {
           message: validationError.toString()
         });
       } else if (err.message !== "Channel not found") {
