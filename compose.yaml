@@ -14,6 +14,8 @@ services:
     image: fonoster/routr-one:latest
     restart: unless-stopped
     environment:
+      DATABASE_URL: ${ROUTR_DATABASE_URL}
+      START_LOCAL_DB: "false"
       EXTERNAL_ADDRS: ${DOCKER_HOST_ADDRESS}
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
