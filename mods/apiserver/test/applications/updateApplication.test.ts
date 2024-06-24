@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import * as grpc from "@grpc/grpc-js";
+import { ApplicationType } from "@prisma/client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
@@ -42,7 +43,9 @@ describe("@applications/updateApplication", function () {
       metadata,
       request: {
         ref: "123",
-        name: "My new application name"
+        name: "My new application name",
+        appEndpoint: "localhost:8765",
+        type: ApplicationType.PROGRAMMABLE_VOICE
       }
     };
 

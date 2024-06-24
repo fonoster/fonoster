@@ -52,7 +52,7 @@ describe("@applications/createApplication", function () {
       metadata,
       request: {
         name: "My Application",
-        type: "AUTOPILOT" as ApplicationType,
+        type: ApplicationType.PROGRAMMABLE_VOICE,
         appEndpoint: "localhost:50061"
       }
     };
@@ -75,7 +75,7 @@ describe("@applications/createApplication", function () {
       metadata,
       request: {
         name: "My Application",
-        type: "AUTOPILOT" as ApplicationType,
+        type: ApplicationType.PROGRAMMABLE_VOICE,
         appEndpoint: "localhost:50061"
       }
     };

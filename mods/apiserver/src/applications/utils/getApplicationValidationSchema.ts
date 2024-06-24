@@ -50,14 +50,18 @@ function getApplicationValidationSchema(request: {
     name: z.string(),
     type: z.nativeEnum(ApplicationType),
     appEndpoint: hostOrHostPortSchema,
-    textToSpeech: z.object({
-      productRef: z.string(),
-      config: validators.ttsConfigValidators[ttsEngineName]()
-    }),
-    speechToText: z.object({
-      productRef: z.string(),
-      config: validators.sttConfigValidators[sttEngineName]()
-    })
+    textToSpeech: ttsEngineName
+      ? z.object({
+          productRef: z.string(),
+          config: validators.ttsConfigValidators[ttsEngineName]()
+        })
+      : z.undefined(),
+    speechToText: sttEngineName
+      ? z.object({
+          productRef: z.string(),
+          config: validators.sttConfigValidators[sttEngineName]()
+        })
+      : z.undefined()
   });
 }
 
