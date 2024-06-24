@@ -71,11 +71,11 @@ describe("@voice/createVoiceClient", function () {
       getChannelVar: sandbox
         .stub()
         .onFirstCall()
-        .resolves({ value: "ingress-number" })
-        .onSecondCall()
-        .resolves({ value: "{}" })
-        .onThirdCall()
         .resolves({ value: "app-ref" })
+        .onSecondCall()
+        .resolves({ value: "ingress-number" })
+        .onThirdCall()
+        .resolves({ value: "{}" })
     } as unknown as Channel;
 
     // Act
