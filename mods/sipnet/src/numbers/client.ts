@@ -42,8 +42,8 @@ type CreateNumberRequest = {
   aorLink: string;
   city: string;
   country: string;
-  // FIXME: The field should match the name in INumber
-  countryISOCode: string;
+  countryIsoCode: string;
+  // FIXME: Fix upstream this should be an optional field
   sessionAffinityHeader: string;
   extraHeaders: { name: string; value: string }[];
   extended: {
@@ -55,7 +55,7 @@ type UpdateNumberRequest = {
   ref: string;
 } & Omit<
   Partial<CreateNumberRequest>,
-  "telUrl" | "city" | "country" | "countryISOCode" | "extended"
+  "telUrl" | "city" | "country" | "countryIsoCode" | "extended"
 >;
 
 type CreateNumberResponse = {
