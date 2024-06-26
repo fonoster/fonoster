@@ -20,13 +20,13 @@ import { GRPCError, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { CreateNumberResponse, NumberApi } from "./client";
+import { CreateNumberResponse, NumbersApi } from "./client";
 import { convertToRoutrNumber } from "./convertToRoutrNumber";
 import { FCreateNumberRequest } from "./types";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function createNumber(api: NumberApi) {
+function createNumber(api: NumbersApi) {
   return async (
     call: { request: FCreateNumberRequest },
     callback: (error?: GRPCError, response?: CreateNumberResponse) => void
@@ -40,7 +40,9 @@ function createNumber(api: NumberApi) {
     logger.verbose("call to createNumber", { request, accessKeyId });
 
     try {
-      const response = await api.createNumber(convertToRoutrNumber(request));
+      const response = await api.createNumber(
+        convertToRoutrNumber(request, accessKeyId)
+      );
 
       callback(null, response);
     } catch (e) {

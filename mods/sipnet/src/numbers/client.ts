@@ -84,7 +84,7 @@ type ListNumbersResponse = {
   nextPageToken: string;
 };
 
-type NumberApi = {
+type NumbersApi = {
   createNumber(request: CreateNumberRequest): Promise<CreateNumberResponse>;
   updateNumber(request: UpdateNumberRequest): Promise<UpdateNumberResponse>;
   getNumber(ref: string): Promise<INumber>;
@@ -94,7 +94,7 @@ type NumberApi = {
 
 export {
   INumber,
-  NumberApi,
+  NumbersApi,
   CreateNumberRequest,
   UpdateNumberRequest,
   CreateNumberResponse,

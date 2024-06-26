@@ -17,19 +17,19 @@
  * limitations under the License.
  */
 import { FCreateNumberRequest } from "./types";
+import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "../constants";
 
-const APP_REF_HEADER = "x-app-ref";
-
-// TODO: Needs unit test and the accessKeyId is missing.
-function convertToRoutrNumber(number: FCreateNumberRequest) {
+function convertToRoutrNumber(
+  number: FCreateNumberRequest,
+  accessKeyId: string
+) {
   return {
     name: number.name,
     telUrl: number.telUrl,
-    aorLink: number.agentAor,
+    aorLink: number.agentAor || ROUTR_DEFAULT_PEER_AOR,
     city: number.city,
     country: number.country,
     countryIsoCode: number.countryIsoCode,
-    appRef: number.appRef,
     extraHeaders: [
       {
         name: APP_REF_HEADER,
@@ -37,8 +37,9 @@ function convertToRoutrNumber(number: FCreateNumberRequest) {
       }
     ],
     extended: {
-      accessKeyId: ""
+      accessKeyId
     },
+    // TODO: Make this optional upstream in Routr
     sessionAffinityHeader: ""
   };
 }

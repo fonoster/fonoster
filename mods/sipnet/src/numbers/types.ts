@@ -46,8 +46,8 @@ type FCreateNumberRequest = {
   city: string;
   country: string;
   countryIsoCode: string;
-  appRef: string;
-  agentAor: string;
+  appRef?: string;
+  agentAor?: string;
 };
 
 export type {
