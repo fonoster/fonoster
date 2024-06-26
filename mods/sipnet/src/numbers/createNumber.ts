@@ -23,6 +23,7 @@ import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { CreateNumberResponse, NumbersApi } from "./client";
 import { convertToRoutrNumber } from "./convertToRoutrNumber";
 import { FCreateNumberRequest } from "./types";
+import { createNumberRequestSchema } from "./validation";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
@@ -33,13 +34,15 @@ function createNumber(api: NumbersApi) {
   ) => {
     const { request } = call;
 
-    const accessKeyId = getAccessKeyIdFromCall(
-      call as unknown as ServerInterceptingCall
-    );
-
-    logger.verbose("call to createNumber", { request, accessKeyId });
-
     try {
+      createNumberRequestSchema.parse(request);
+
+      const accessKeyId = getAccessKeyIdFromCall(
+        call as unknown as ServerInterceptingCall
+      );
+
+      logger.verbose("call to createNumber", { request, accessKeyId });
+
       const response = await api.createNumber(
         convertToRoutrNumber(request, accessKeyId)
       );

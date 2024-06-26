@@ -33,9 +33,13 @@ function handleError(
   error: Error | { code: string },
   callback: (error: GRPCError) => void
 ) {
-  const code = (error as { code: string | number }).code;
+  const code = (error as { code: string | number })?.code;
 
-  if (error instanceof z.ZodError) {
+  if (error instanceof z.ZodError && error?.issues[0].code === "custom") {
+    const message = error?.issues[0].message;
+    logger.error("custom validation error", { message });
+    callback({ code: status.INVALID_ARGUMENT, message });
+  } else if (error instanceof z.ZodError) {
     const validationError = fromError(error);
 
     logger.error("validation error", { message: validationError.toString() });

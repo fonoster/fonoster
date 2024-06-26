@@ -29,6 +29,8 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
+const TELEPHONE_NUMBER = "+1234567890";
+
 describe("@sipnet[sipnet/createNumber]", function () {
   afterEach(function () {
     return sandbox.restore();
@@ -50,7 +52,7 @@ describe("@sipnet[sipnet/createNumber]", function () {
       metadata,
       request: {
         name: "My Number",
-        telUrl: "tel:+1234567890",
+        telUrl: TELEPHONE_NUMBER,
         city: "New York",
         country: "USA",
         countryIsoCode: "US",
@@ -78,5 +80,116 @@ describe("@sipnet[sipnet/createNumber]", function () {
       extended: { accessKeyId },
       sessionAffinityHeader: ""
     });
+  });
+
+  it("should throw a validation error if the country ISO code is invalid", async function () {
+    // Arrange
+    const { createNumber } = await import("../src/numbers/createNumber");
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const numbers = {
+      createNumber: sandbox.stub().resolves({ ref: "123" })
+    } as unknown as NumbersApi;
+
+    const call = {
+      metadata,
+      request: {
+        name: "My Number",
+        telUrl: TELEPHONE_NUMBER,
+        city: "New York",
+        country: "USA",
+        countryIsoCode: "USA",
+        appRef: "123"
+      }
+    };
+
+    const callback = sandbox.stub();
+
+    const create = createNumber(numbers);
+
+    // Act
+    await create(call, callback);
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly({
+      code: grpc.status.INVALID_ARGUMENT,
+      message: "Invalid country ISO code"
+    });
+    expect(numbers.createNumber).to.not.have.been.called;
+  });
+
+  it("should throw a validation error if the SIP URI is invalid", async function () {
+    // Arrange
+    const { createNumber } = await import("../src/numbers/createNumber");
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const numbers = {
+      createNumber: sandbox.stub().resolves({ ref: "123" })
+    } as unknown as NumbersApi;
+
+    const call = {
+      metadata,
+      request: {
+        name: "My Number",
+        telUrl: TELEPHONE_NUMBER,
+        city: "New York",
+        country: "USA",
+        countryIsoCode: "US",
+        agentAor: "sip:123"
+      }
+    };
+
+    const callback = sandbox.stub();
+
+    const create = createNumber(numbers);
+
+    // Act
+    await create(call, callback);
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly({
+      code: grpc.status.INVALID_ARGUMENT,
+      // eslint-disable-next-line prettier/prettier
+      message: "Validation error: Invalid SIP URI at \"agentAor\""
+    });
+  });
+
+  it("should throw a validation error if the request is missing the agentAor or appRef", async function () {
+    // Arrange
+    const { createNumber } = await import("../src/numbers/createNumber");
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const numbers = {
+      createNumber: sandbox.stub().resolves({ ref: "123" })
+    } as unknown as NumbersApi;
+
+    const call = {
+      metadata,
+      request: {
+        name: "My Number",
+        telUrl: TELEPHONE_NUMBER,
+        city: "New York",
+        country: "USA",
+        countryIsoCode: "US"
+      }
+    };
+
+    const callback = sandbox.stub();
+
+    const create = createNumber(numbers);
+
+    // Act
+    await create(call, callback);
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly({
+      code: grpc.status.INVALID_ARGUMENT,
+      message:
+        "You must provide at least one, and only one, of the following: agentAor, appRef"
+    });
+    expect(numbers.createNumber).to.not.have.been.called;
   });
 });

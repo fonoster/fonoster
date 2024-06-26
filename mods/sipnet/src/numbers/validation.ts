@@ -23,11 +23,12 @@ const sipUriRegex = /^sip:[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+$/;
 const sipUriSchema = z.string().regex(sipUriRegex, "Invalid SIP URI");
 
 const countryIsoCodeSchema = z.string().refine((val) => isISO31661Alpha2(val), {
-  message: "Invalid ISO country code"
+  message: "Invalid country ISO code"
 });
 
 const createNumberRequestSchema = z
   .object({
+    // TODO: Add validation for telUrl (perhaps using the "phone" package)
     agentAor: sipUriSchema.optional(),
     appRef: z.string().optional(),
     countryIsoCode: countryIsoCodeSchema
@@ -36,7 +37,8 @@ const createNumberRequestSchema = z
     (data) =>
       (data.agentAor && !data.appRef) || (!data.agentAor && data.appRef),
     {
-      message: "Either 'agentAor' or 'appRef' must be present, but not both"
+      message:
+        "You must provide at least one, and only one, of the following: agentAor, appRef"
     }
   );
 
