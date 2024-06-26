@@ -17,27 +17,19 @@
  * limitations under the License.
  */
 import { GetNumberRequest, NumberApi } from "./client";
+import { createNumber } from "./createNumber";
 import {
-  CreateNumberRequest,
   DeleteNumberRequest,
   INumber,
   ListNumbersRequest,
   UpdateNumberRequest
 } from "./types";
-import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
 import { listResources } from "../resources/listResources";
 import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Number";
-
-function createNumber(numbers: NumberApi) {
-  return createResource<INumber, CreateNumberRequest, NumberApi>(
-    numbers,
-    RESOURCE
-  );
-}
 
 function updateNumber(numbers: NumberApi) {
   return updateResource<INumber, UpdateNumberRequest, NumberApi>(

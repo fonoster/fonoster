@@ -44,30 +44,25 @@ message Number {
   string name = 2;
   // The tel_url of the Number
   string tel_url = 3;
-  // The aor_link of the Number
-  string aor_link = 4;
   // The city of the Number
-  string city = 5;
+  string city = 4;
   // The country of the Number
-  string country = 6;
+  string country = 5;
   // The country_iso_code of the Number
-  string country_iso_code = 7;
-  // The header to use for session affinity
-  string session_affinity_header = 8;
-  // Extra headers to send to the trunk
-  repeated ExtraHeader extra_headers = 9;
+  string country_iso_code = 6;
   // The date when the Number was created
-  int64 created_at = 10;
+  int64 created_at = 7;
   // The date when the Number was last updated
-  int64 updated_at = 11;
+  int64 updated_at = 8;
   // The trunk this number is associated with
-  fonoster.trunks.v1beta2.Trunk trunk = 12;
-}
-
-// The message for the ExtraHeader field
-message ExtraHeader {
-  string name = 1;
-  string value = 2;
+  fonoster.trunks.v1beta2.Trunk trunk = 9;
+  // This dictates how the number will handle incoming calls
+  oneof ingress_handler {
+    // The call will be forwarded to this agent
+    string agent_aor = 10;
+    // The call will be forward to this application
+    string app_ref = 11;
+  }
 }
 
 // The request message for Numbers.CreateNumber
@@ -76,20 +71,21 @@ message CreateNumberRequest {
   string name = 1;
   // The tel_url of the Number
   string tel_url = 2;
-  // The aor_link of the Number
-  string aor_link = 3;
   // The city of the Number
-  string city = 4;
+  string city = 3;
   // The country of the Number
-  string country = 5;
+  string country = 4;
   // The country_iso_code of the Number
-  string country_iso_code = 6;
-  // The header to use for session affinity
-  string session_affinity_header = 7;
-  // Extra headers to send to the trunk
-  repeated ExtraHeader extra_headers = 8;
+  string country_iso_code = 5;
   // Reference to the trunk this number is associated with
-  string trunk_ref = 9;
+  string trunk_ref = 6;
+  // This dictates how the number will handle incoming calls
+  oneof ingress_handler {
+    // The call will be forwarded to this agent
+    string agent_aor = 7;
+    // The call will be forward to this application
+    string app_ref = 8;
+  }
 }
 
 // The response message for Numbers.CreateNumber
@@ -104,14 +100,15 @@ message UpdateNumberRequest {
   string ref = 1;
   // The name of the Number
   string name = 2;
-  // The aor_link of the Number
-  string aor_link = 4;
-  // The header to use for session affinity
-  string session_affinity_header = 8;
-  // Extra headers to send to the trunk
-  repeated ExtraHeader extra_headers = 9;
   // Reference to the trunk this number is associated with
-  string trunk_ref = 10;
+  string trunk_ref = 3;
+  // This dictates how the number will handle incoming calls
+  oneof ingress_handler {
+    // The call will be forwarded to this agent
+    string agent_aor = 4;
+    // The call will be forward to this application
+    string app_ref = 5;
+  }
 }
 
 // The response message for Numbers.UpdateNumber

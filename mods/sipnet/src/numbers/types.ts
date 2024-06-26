@@ -40,10 +40,21 @@ type DeleteNumberResponse = {
   ref: string;
 };
 
+type FCreateNumberRequest = {
+  name: string;
+  telUrl: string;
+  city: string;
+  country: string;
+  countryIsoCode: string;
+  appRef: string;
+  agentAor: string;
+};
+
 export type {
   INumber,
   CreateNumberRequest,
   CreateNumberResponse,
+  FCreateNumberRequest,
   UpdateNumberRequest,
   UpdateNumberResponse,
   GetNumberRequest,
