@@ -16,13 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function checkNumberPreconditions(params: {
-  appRef?: string;
-  agentAor?: string;
-}) {
-  if (!params.appRef && !params.agentAor) {
-    throw new Error("appRef or agentAor is required");
-  }
+import { GRPCError } from "@fonoster/common";
+import { status } from "@grpc/grpc-js";
+import { Prisma } from "../core/db";
+
+function makeCheckNumberPreconditions(prisma: Prisma) {
+  return async function checkNumberPreconditions({ appRef, accessKeyId }) {
+    const app = await prisma.application.findUnique({
+      where: { ref: appRef, accessKeyId }
+    });
+
+    if (!app) {
+      throw new GRPCError(
+        status.NOT_FOUND,
+        "Application not found for ref: " + appRef
+      );
+    }
+  };
 }
 
-export { checkNumberPreconditions };
+export { makeCheckNumberPreconditions };

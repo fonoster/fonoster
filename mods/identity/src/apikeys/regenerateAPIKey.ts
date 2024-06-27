@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { Prisma } from "../db";
@@ -39,7 +39,7 @@ type RegenerateApiKeyResponse = {
 function regenerateApiKey(prisma: Prisma) {
   return async (
     call: { request: RegenerateApiKeyRequest },
-    callback: (error: GRPCError, response?: RegenerateApiKeyResponse) => void
+    callback: (error: GRPCErrorMessage, response?: RegenerateApiKeyResponse) => void
   ) => {
     try {
       const validatedRequest = RegenerateApiKeyRequestSchema.parse(

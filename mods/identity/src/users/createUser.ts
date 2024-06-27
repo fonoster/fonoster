@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { Prisma } from "../db";
@@ -43,7 +43,7 @@ type CreateUserResponse = {
 function createUser(prisma: Prisma) {
   return async (
     call: { request: CreateUserRequest },
-    callback: (error: GRPCError, response?: CreateUserResponse) => void
+    callback: (error: GRPCErrorMessage, response?: CreateUserResponse) => void
   ) => {
     try {
       const validatedRequest = CreateUserRequestSchema.parse(call.request);

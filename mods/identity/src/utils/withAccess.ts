@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { JsonObject } from "@prisma/client/runtime/library";
@@ -28,7 +28,7 @@ function withAccess<T, A>(
 ) {
   return async (
     call: T,
-    callback: (error?: GRPCError, response?: A) => void
+    callback: (error?: GRPCErrorMessage, response?: A) => void
   ) => {
     try {
       const typedCall = call as unknown as ServerInterceptingCall;

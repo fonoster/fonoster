@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
@@ -36,7 +36,7 @@ type DeleteUserResponse = {
 function deleteUser(prisma: Prisma) {
   return async (
     call: { request: DeleteUserRequest },
-    callback: (error: GRPCError, response?: DeleteUserResponse) => void
+    callback: (error: GRPCErrorMessage, response?: DeleteUserResponse) => void
   ) => {
     try {
       const { ref } = call.request;

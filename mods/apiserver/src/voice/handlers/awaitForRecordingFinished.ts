@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { GRPCError } from "@fonoster/common";
 import { status } from "@grpc/grpc-js";
 import { Client, RecordingFinished } from "ari-client";
-import { GRPCError } from "../GRPCError";
 import { AriEvent } from "../types";
 
 async function awaitForRecordingFinished(

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
@@ -42,7 +42,7 @@ type UpdateUserResponse = {
 function updateUser(prisma: Prisma) {
   return async (
     call: { request: UpdateUserRequest },
-    callback: (error: GRPCError, response?: UpdateUserResponse) => void
+    callback: (error: GRPCErrorMessage, response?: UpdateUserResponse) => void
   ) => {
     try {
       const validatedRequest = UpdateUserRequestSchema.parse(call.request);

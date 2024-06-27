@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
@@ -45,7 +45,7 @@ const SIGN_ALGORITHM = "RS256";
 function exchangeRefreshToken(prisma: Prisma, identityConfig: IdentityConfig) {
   return async (
     call: { request: ExchangeRefreshTokenRequest },
-    callback: (error: GRPCError, response?: ExchangeCredentialsResponse) => void
+    callback: (error: GRPCErrorMessage, response?: ExchangeCredentialsResponse) => void
   ) => {
     try {
       const validatedRequest = ExchangeRefreshTokenRequestSchema.parse(

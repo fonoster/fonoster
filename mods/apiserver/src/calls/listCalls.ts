@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -33,7 +33,7 @@ function listCalls(influx: InfluxDBClient) {
     call: {
       request: ListCallsRequest;
     },
-    callback: (error: GRPCError, response?: ListCallsResponse) => void
+    callback: (error: GRPCErrorMessage, response?: ListCallsResponse) => void
   ) => {
     try {
       const parsedRequest = ListCallsRequestSchema.parse(call.request);

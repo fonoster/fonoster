@@ -30,7 +30,7 @@ import {
   StreamPayload
 } from "./Stream";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
-import { GRPCError } from "../errors";
+import { GRPCError } from "../GRPCError";
 
 const DATA = "data" as const;
 const END = "end" as const;

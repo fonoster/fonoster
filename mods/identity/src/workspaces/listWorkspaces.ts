@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError } from "@fonoster/common";
+import { GRPCErrorMessage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
@@ -42,7 +42,10 @@ type ListWorkspacesResponse = {
 function listWorkspaces(prisma: Prisma) {
   return async (
     call: { request: unknown },
-    callback: (error: GRPCError, response?: ListWorkspacesResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: ListWorkspacesResponse
+    ) => void
   ) => {
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const userRef = getUserRefFromToken(token);

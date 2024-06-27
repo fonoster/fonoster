@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError } from "@fonoster/common";
+import { GRPCErrorMessage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
@@ -28,7 +28,7 @@ type GetPublicKeyResponse = {
 function getPublicKey(publicKey: string) {
   return async (
     _: unknown,
-    callback: (error: GRPCError, response?: GetPublicKeyResponse) => void
+    callback: (error: GRPCErrorMessage, response?: GetPublicKeyResponse) => void
   ) => {
     logger.verbose("getting public key for JWT verification");
 

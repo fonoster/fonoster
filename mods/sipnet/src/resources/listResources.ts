@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
@@ -29,7 +29,7 @@ type ListResourcesResponse<T> = {
 function listResources<T, R, U>(api: U, resource: string) {
   return async (
     call: { request: R },
-    callback: (error?: GRPCError, response?: ListResourcesResponse<T>) => void
+    callback: (error?: GRPCErrorMessage, response?: ListResourcesResponse<T>) => void
   ) => {
     const { request } = call;
 

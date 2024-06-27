@@ -24,14 +24,14 @@ import { fromError } from "zod-validation-error";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-type GRPCError = {
+type GRPCErrorMessage = {
   code: number;
   message: string;
 };
 
 function handleError(
   error: Error | { code: string },
-  callback: (error: GRPCError) => void
+  callback: (error: GRPCErrorMessage) => void
 ) {
   const code = (error as { code: string | number })?.code;
 
@@ -77,4 +77,4 @@ function handleError(
   }
 }
 
-export { handleError, GRPCError };
+export { handleError, GRPCErrorMessage };

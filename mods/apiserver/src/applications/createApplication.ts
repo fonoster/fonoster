@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import { GRPCErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -30,7 +30,10 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function createApplication(prisma: Prisma) {
   return async (
     call: { request: CreateApplicationRequest },
-    callback: (error: GRPCError, response?: CreateApplicationResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: CreateApplicationResponse
+    ) => void
   ) => {
     const { type } = call.request;
     const accessKeyId = getAccessKeyIdFromCall(
