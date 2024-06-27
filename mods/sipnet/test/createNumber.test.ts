@@ -159,44 +159,6 @@ describe("@sipnet[sipnet/createNumber]", function () {
     });
   });
 
-  it("should throw a validation error if the request is missing the agentAor or appRef", async function () {
-    // Arrange
-    const { createNumber } = await import("../src/numbers/createNumber");
-    const metadata = new grpc.Metadata();
-    metadata.set("token", TEST_TOKEN);
-
-    const numbers = {
-      createNumber: sandbox.stub().resolves({ ref: "123" })
-    } as unknown as NumbersApi;
-
-    const call = {
-      metadata,
-      request: {
-        name: "My Number",
-        telUrl: TELEPHONE_NUMBER,
-        city: "New York",
-        country: "USA",
-        countryIsoCode: "US"
-      }
-    };
-
-    const callback = sandbox.stub();
-    const checkNumberPreconditions = sandbox.stub();
-
-    const create = createNumber(numbers, checkNumberPreconditions);
-
-    // Act
-    await create(call, callback);
-
-    // Assert
-    expect(callback).to.have.been.calledOnceWithExactly({
-      code: grpc.status.INVALID_ARGUMENT,
-      message:
-        "You must provide at least one, and only one, of the following: agentAor, appRef"
-    });
-    expect(numbers.createNumber).to.not.have.been.called;
-  });
-
   it("should throw a precondition error if the appRef does not exist", async function () {
     // Arrange
     const { createNumber } = await import("../src/numbers/createNumber");

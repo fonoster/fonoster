@@ -17,26 +17,12 @@
  * limitations under the License.
  */
 import { GetNumberRequest, NumbersApi } from "./client";
-import { createNumber } from "./createNumber";
-import {
-  DeleteNumberRequest,
-  INumber,
-  ListNumbersRequest,
-  UpdateNumberRequest
-} from "./types";
+import { DeleteNumberRequest, INumber, ListNumbersRequest } from "./types";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
 import { listResources } from "../resources/listResources";
-import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Number";
-
-function updateNumber(numbers: NumbersApi) {
-  return updateResource<INumber, UpdateNumberRequest, NumbersApi>(
-    numbers,
-    RESOURCE
-  );
-}
 
 function getNumber(numbers: NumbersApi) {
   return getResource<INumber, GetNumberRequest, NumbersApi>(numbers, RESOURCE);
@@ -56,4 +42,4 @@ function deleteNumber(numbers: NumbersApi) {
   );
 }
 
-export { createNumber, updateNumber, getNumber, listNumbers, deleteNumber };
+export { getNumber, listNumbers, deleteNumber };

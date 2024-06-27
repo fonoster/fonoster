@@ -22,6 +22,11 @@ import { Prisma } from "../core/db";
 
 function makeCheckNumberPreconditions(prisma: Prisma) {
   return async function checkNumberPreconditions({ appRef, accessKeyId }) {
+    if (!appRef) {
+      // Not needed to check for the precondition
+      return;
+    }
+
     const app = await prisma.application.findUnique({
       where: { ref: appRef, accessKeyId }
     });

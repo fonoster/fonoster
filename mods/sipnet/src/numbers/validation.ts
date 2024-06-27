@@ -34,12 +34,21 @@ const createNumberRequestSchema = z
     countryIsoCode: countryIsoCodeSchema
   })
   .refine(
-    (data) =>
-      (data.agentAor && !data.appRef) || (!data.agentAor && data.appRef),
+    ({ agentAor, appRef }) => !(agentAor !== undefined && appRef !== undefined),
     {
       message:
-        "You must provide at least one, and only one, of the following: agentAor, appRef"
+        "You can only provide one of the following fields: 'agentAor' or 'appRef'"
     }
   );
 
-export { createNumberRequestSchema };
+const updateNumberRequestSchema = z
+  .object({
+    agentAor: sipUriSchema.optional(),
+    appRef: z.string().optional()
+  })
+  .refine((data) => data.agentAor && data.appRef, {
+    message:
+      "You can only provide one of the following fields: 'agentAor' or 'appRef'"
+  });
+
+export { createNumberRequestSchema, updateNumberRequestSchema };

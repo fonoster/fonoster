@@ -18,13 +18,9 @@
  */
 import { NumberPreconditionsCheck } from "@fonoster/common";
 import SDK from "@routr/sdk";
-import {
-  createNumber,
-  deleteNumber,
-  getNumber,
-  listNumbers,
-  updateNumber
-} from "./operations";
+import { createNumber } from "./createNumber";
+import { deleteNumber, getNumber, listNumbers } from "./operations";
+import { updateNumber } from "./updateNumber";
 import { ClientOptions } from "../types";
 
 function buildService(
@@ -42,7 +38,7 @@ function buildService(
     },
     handlers: {
       createNumber: createNumber(client, checkNumberPreconditions),
-      updateNumber: updateNumber(client),
+      updateNumber: updateNumber(client, checkNumberPreconditions),
       getNumber: getNumber(client),
       listNumbers: listNumbers(client),
       deleteNumber: deleteNumber(client)

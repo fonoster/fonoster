@@ -50,11 +50,19 @@ type FCreateNumberRequest = {
   agentAor?: string;
 };
 
+type FUpdateNumberRequest = {
+  ref: string;
+  name?: string;
+  appRef?: string;
+  agentAor?: string;
+};
+
 export type {
   INumber,
   CreateNumberRequest,
   CreateNumberResponse,
   FCreateNumberRequest,
+  FUpdateNumberRequest,
   UpdateNumberRequest,
   UpdateNumberResponse,
   GetNumberRequest,
