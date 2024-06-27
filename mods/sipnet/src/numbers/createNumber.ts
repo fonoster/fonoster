@@ -48,7 +48,7 @@ function createNumber(
       createNumberRequestSchema.parse(request);
 
       // Validates that the appRef or agentAor exists in the system
-      checkNumberPreconditions(request);
+      await checkNumberPreconditions(request);
 
       const accessKeyId = getAccessKeyIdFromCall(
         call as unknown as ServerInterceptingCall

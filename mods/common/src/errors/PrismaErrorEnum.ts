@@ -16,9 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type NumberPreconditionsCheck = (request: {
-  appRef?: string;
-  agentAor?: string;
-}) => Promise<void>;
+enum PrismaErrorEnum {
+  RECORD_ALREADY_EXISTS = "P2002",
+  RECORD_NOT_FOUND = "P2025",
+  FAILED_PRECONDITION = "P2003"
+}
 
-export { NumberPreconditionsCheck };
+export { PrismaErrorEnum };
