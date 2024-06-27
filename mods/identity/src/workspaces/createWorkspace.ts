@@ -43,7 +43,10 @@ type CreateWorkspaceResponse = {
 function createWorkspace(prisma: Prisma) {
   return async (
     call: { request: CreateWorkspaceRequest },
-    callback: (error: GRPCErrorMessage, response?: CreateWorkspaceResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: CreateWorkspaceResponse
+    ) => void
   ) => {
     try {
       const validatedRequest = CreateWorkspaceRequestSchema.parse(call.request);

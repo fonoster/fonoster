@@ -45,7 +45,10 @@ const SIGN_ALGORITHM = "RS256";
 function exchangeRefreshToken(prisma: Prisma, identityConfig: IdentityConfig) {
   return async (
     call: { request: ExchangeRefreshTokenRequest },
-    callback: (error: GRPCErrorMessage, response?: ExchangeCredentialsResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: ExchangeCredentialsResponse
+    ) => void
   ) => {
     try {
       const validatedRequest = ExchangeRefreshTokenRequestSchema.parse(

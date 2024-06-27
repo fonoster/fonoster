@@ -48,7 +48,10 @@ const invalidApiKeyError = {
 function exchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
   return async (
     call: { request: ExchangeApiKeysRequest },
-    callback: (error: GRPCErrorMessage, response?: ExchangeApiKeysResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: ExchangeApiKeysResponse
+    ) => void
   ) => {
     try {
       const validatedRequest = ExchangeApiKeysRequestSchema.parse(call.request);

@@ -39,7 +39,10 @@ type RegenerateApiKeyResponse = {
 function regenerateApiKey(prisma: Prisma) {
   return async (
     call: { request: RegenerateApiKeyRequest },
-    callback: (error: GRPCErrorMessage, response?: RegenerateApiKeyResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: RegenerateApiKeyResponse
+    ) => void
   ) => {
     try {
       const validatedRequest = RegenerateApiKeyRequestSchema.parse(

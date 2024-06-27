@@ -50,7 +50,10 @@ const invalidCredentialsError = {
 function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
   return async (
     call: { request: ExchangeCredentialsRequest },
-    callback: (error: GRPCErrorMessage, response?: ExchangeCredentialsResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: ExchangeCredentialsResponse
+    ) => void
   ) => {
     try {
       const validatedRequest = ExchangeCredentialsRequestSchema.parse(

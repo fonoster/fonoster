@@ -41,7 +41,10 @@ type UpdateWorkspaceResponse = {
 function updateWorkspace(prisma: Prisma) {
   return async (
     call: { request: UpdateWorkspaceRequest },
-    callback: (error: GRPCErrorMessage, response?: UpdateWorkspaceResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: UpdateWorkspaceResponse
+    ) => void
   ) => {
     try {
       const validatedRequest = UpdateWorkspaceRequestSchema.parse(call.request);

@@ -102,7 +102,10 @@ function inviteUserToWorkspace(
 ) {
   return async (
     call: { request: InviteUserToWorkspaceRequest },
-    callback: (error: GRPCErrorMessage, response?: CreateWorkspaceResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: CreateWorkspaceResponse
+    ) => void
   ) => {
     try {
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);

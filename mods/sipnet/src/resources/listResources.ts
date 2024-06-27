@@ -29,7 +29,10 @@ type ListResourcesResponse<T> = {
 function listResources<T, R, U>(api: U, resource: string) {
   return async (
     call: { request: R },
-    callback: (error?: GRPCErrorMessage, response?: ListResourcesResponse<T>) => void
+    callback: (
+      error?: GRPCErrorMessage,
+      response?: ListResourcesResponse<T>
+    ) => void
   ) => {
     const { request } = call;
 

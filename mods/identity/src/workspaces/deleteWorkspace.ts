@@ -36,7 +36,10 @@ type DeleteWorkspaceResponse = {
 function deleteWorkspace(prisma: Prisma) {
   return async (
     call: { request: DeleteWorkspaceRequest },
-    callback: (error: GRPCErrorMessage, response?: DeleteWorkspaceResponse) => void
+    callback: (
+      error: GRPCErrorMessage,
+      response?: DeleteWorkspaceResponse
+    ) => void
   ) => {
     try {
       const { ref } = call.request;
