@@ -16,21 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// eslint-disable-next-line no-console
-const originalLog = console.log;
+type NumberPreconditionsCheck = (request: {
+  appRef?: string;
+  agentAor?: string;
+}) => void;
 
-const containsDeprecationWarning = (str: string) => {
-  const deprecationWarning =
-    "This API is using a deprecated version of Swagger!  Please see http://github.com/wordnik/swagger-core/wiki for more info";
-  return str.includes(deprecationWarning);
-};
-
-// eslint-disable-next-line no-console
-console.log = (...args) => {
-  const logString = args.join(" ");
-  if (!containsDeprecationWarning(logString)) {
-    originalLog(...args);
-  }
-};
-
-export default {};
+export { NumberPreconditionsCheck };

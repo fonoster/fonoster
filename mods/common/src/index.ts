@@ -23,3 +23,4 @@ export * from "./constants";
 export * from "./grpcStatusMap";
 export * from "./voice";
 export * from "./tts";
+export * from "./types";

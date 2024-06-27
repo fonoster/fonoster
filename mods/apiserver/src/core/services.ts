@@ -32,6 +32,7 @@ import { buildApplicationsService } from "../applications";
 import { buildCallsService } from "../calls";
 import { influxdb } from "../calls/influxdb";
 import { buildSecretsService } from "../secrets";
+import { checkNumberPreconditions } from "../utils";
 
 const applicationsService = buildApplicationsService(prisma);
 const secretsService = buildSecretsService(prisma);
@@ -41,7 +42,10 @@ const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);
 const trunksService = buildTrunksService(routrConfig);
-const numbersService = buildNumbersService(routrConfig);
+const numbersService = buildNumbersService(
+  routrConfig,
+  checkNumberPreconditions
+);
 const aclsService = buildAclsService(routrConfig);
 
 const services = Promise.all([

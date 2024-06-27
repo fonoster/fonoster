@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError, handleError } from "@fonoster/common";
+import {
+  GRPCError,
+  NumberPreconditionsCheck,
+  handleError
+} from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -27,7 +31,10 @@ import { createNumberRequestSchema } from "./validation";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function createNumber(api: NumbersApi) {
+function createNumber(
+  api: NumbersApi,
+  checkNumberPreconditions: NumberPreconditionsCheck
+) {
   return async (
     call: { request: FCreateNumberRequest },
     callback: (error?: GRPCError, response?: CreateNumberResponse) => void
@@ -36,6 +43,9 @@ function createNumber(api: NumbersApi) {
 
     try {
       createNumberRequestSchema.parse(request);
+
+      // Validates that the appRef or agentAor exists in the system
+      checkNumberPreconditions(request);
 
       const accessKeyId = getAccessKeyIdFromCall(
         call as unknown as ServerInterceptingCall

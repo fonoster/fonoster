@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { NumberPreconditionsCheck } from "@fonoster/common";
 import SDK from "@routr/sdk";
 import {
   createNumber,
@@ -26,7 +27,10 @@ import {
 } from "./operations";
 import { ClientOptions } from "../types";
 
-function buildService(clientOptions: ClientOptions) {
+function buildService(
+  clientOptions: ClientOptions,
+  checkNumberPreconditions: NumberPreconditionsCheck
+) {
   const client = new SDK.Numbers(clientOptions);
 
   return {
@@ -37,7 +41,7 @@ function buildService(clientOptions: ClientOptions) {
       proto: "numbers.proto"
     },
     handlers: {
-      createNumber: createNumber(client),
+      createNumber: createNumber(client, checkNumberPreconditions),
       updateNumber: updateNumber(client),
       getNumber: getNumber(client),
       listNumbers: listNumbers(client),

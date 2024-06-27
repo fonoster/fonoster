@@ -61,8 +61,9 @@ describe("@sipnet[sipnet/createNumber]", function () {
     };
 
     const callback = sandbox.stub();
+    const checkNumberPreconditions = sandbox.stub();
 
-    const create = createNumber(numbers);
+    const create = createNumber(numbers, checkNumberPreconditions);
 
     // Act
     await create(call, callback);
@@ -105,8 +106,9 @@ describe("@sipnet[sipnet/createNumber]", function () {
     };
 
     const callback = sandbox.stub();
+    const checkNumberPreconditions = sandbox.stub();
 
-    const create = createNumber(numbers);
+    const create = createNumber(numbers, checkNumberPreconditions);
 
     // Act
     await create(call, callback);
@@ -142,8 +144,9 @@ describe("@sipnet[sipnet/createNumber]", function () {
     };
 
     const callback = sandbox.stub();
+    const checkNumberPreconditions = sandbox.stub();
 
-    const create = createNumber(numbers);
+    const create = createNumber(numbers, checkNumberPreconditions);
 
     // Act
     await create(call, callback);
@@ -178,8 +181,9 @@ describe("@sipnet[sipnet/createNumber]", function () {
     };
 
     const callback = sandbox.stub();
+    const checkNumberPreconditions = sandbox.stub();
 
-    const create = createNumber(numbers);
+    const create = createNumber(numbers, checkNumberPreconditions);
 
     // Act
     await create(call, callback);
