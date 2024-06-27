@@ -110,7 +110,7 @@ describe("@sipnet[resources/createResource]", function () {
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly({
       code: grpc.status.ALREADY_EXISTS,
-      message: "Duplicated resource"
+      message: "Domain already exists"
     });
   });
 });

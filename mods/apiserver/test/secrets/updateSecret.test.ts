@@ -103,7 +103,7 @@ describe("@secrets/updateSecret", function () {
 
     // Assert
     await expect(response).to.be.rejectedWith(
-      "The requested resource was not found"
+      `Secret not found: ${call.request.ref}`
     );
   });
 });

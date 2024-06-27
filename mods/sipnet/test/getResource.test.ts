@@ -108,7 +108,7 @@ describe("@sipnet[resources/getResource]", function () {
     expect(callback).to.have.been.calledOnce;
     expect(callback).to.have.been.calledWithMatch({
       code: grpc.status.NOT_FOUND,
-      message: "The requested resource was not found"
+      message: "Domain not found"
     });
   });
 });
