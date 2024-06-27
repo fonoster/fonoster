@@ -196,4 +196,46 @@ describe("@sipnet[sipnet/createNumber]", function () {
     });
     expect(numbers.createNumber).to.not.have.been.called;
   });
+
+  it("should throw a precondition error if the appRef does not exist", async function () {
+    // Arrange
+    const { createNumber } = await import("../src/numbers/createNumber");
+    const metadata = new grpc.Metadata();
+    metadata.set("token", TEST_TOKEN);
+
+    const numbers = {
+      createNumber: sandbox.stub().resolves({ ref: "123" })
+    } as unknown as NumbersApi;
+
+    const call = {
+      metadata,
+      request: {
+        name: "My Number",
+        telUrl: TELEPHONE_NUMBER,
+        city: "New York",
+        country: "USA",
+        countryIsoCode: "US",
+        appRef: "123"
+      }
+    };
+
+    const callback = sandbox.stub();
+
+    const checkNumberPreconditions = sandbox.stub().throws({
+      code: grpc.status.FAILED_PRECONDITION,
+      message: `Application not found for ref: ${call.request.appRef}`
+    });
+
+    const create = createNumber(numbers, checkNumberPreconditions);
+
+    // Act
+    await create(call, callback);
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly({
+      code: grpc.status.FAILED_PRECONDITION,
+      message: `Application not found for ref: ${call.request.appRef}`
+    });
+    expect(numbers.createNumber).to.not.have.been.called;
+  });
 });

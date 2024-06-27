@@ -58,7 +58,9 @@ function handleError(
     callback({ code: status.NOT_FOUND, message });
   } else if (code === "P2003" || code === grpc.status.FAILED_PRECONDITION) {
     // FIXME: Improve for clarity
-    const message = "Failed precondition error (e.g., missing dependency)";
+    const message =
+      (error as { message: string }).message ||
+      "Failed precondition error (e.g., missing dependency)";
     logger.error("missing foreign key error:", { message });
     callback({ code: status.FAILED_PRECONDITION, message });
   } else if (code === grpc.status.PERMISSION_DENIED) {
