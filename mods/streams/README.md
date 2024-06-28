@@ -29,7 +29,7 @@ exten = 100,1,Verbose("Call to AudioSocket via Dialplan Application")
  same = n,Hangup()
 ```
 
-Ir with the `Dial` application:
+Or with the `Dial` application:
 
 ```
 exten = 100,1,Verbose("Call to AudioSocket via Dialplan Application")
