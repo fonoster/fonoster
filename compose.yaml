@@ -115,6 +115,14 @@ services:
     volumes:
       - influxdb:/var/lib/influxdb2
 
+  envoy:
+    image: envoyproxy/envoy:v1.22.0
+    restart: unless-stopped
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - 7171:7171
+
   nats:
     image: nats:latest
     restart: unless-stopped

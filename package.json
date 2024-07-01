@@ -12,7 +12,7 @@
   "scripts": {
     "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver --exec ts-node mods/apiserver/src/index.ts",
     "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice --exec ts-node mods/voice/src/demo.ts",
-    "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats influxdb postgres adminer mailhog rtpengine asterisk01 simplephone -d --remove-orphans",
+    "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk01 simplephone -d --remove-orphans",
     "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams --exec ts-node mods/streams/src/example.ts",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "build": "lerna run build",

@@ -37,6 +37,13 @@ services:
     ports:
       - 8086:8086
 
+  envoy:
+    volumes:
+      - ./envoy.dev.yaml:/etc/envoy/envoy.yaml:ro
+    ports:
+      - 7171:7171
+      - 9901:9901
+
   nats:
     ports:
       - 4222:4222
