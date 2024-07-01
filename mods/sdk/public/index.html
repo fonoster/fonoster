@@ -1,5 +1,16 @@
-<script src="https://www.unpkg.com/@fonoster/sdk@0.6.0"></script>
+<script src="./fonoster.min.js"></script>
 <script>
-  const sdk = new Fonoster();
-  sdk.printHello()
+  const accessKeyId = "WO00000000000000000000000000000000";
+  const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...";
+
+  const sdk = new Fonoster({
+    baseUrl: "http://localhost:7171",
+    token,
+    accessKeyId
+  });
+
+  sdk.createDomain()
+    .then((res) => {
+      console.log(res);
+    })
 </script>

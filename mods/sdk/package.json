@@ -17,8 +17,8 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "rollup -c rollup.config.mjs",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "start:web": "npx serve -s public -l 8080"
+    "postbuild": "cp dist/fonoster.min.js public/fonoster.min.js",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "keywords": [
     "sdk",
@@ -27,7 +27,8 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.10.6",
     "@grpc/proto-loader": "^0.7.12",
-    "google-protobuf": "^3.21.2"
+    "google-protobuf": "^3.21.2",
+    "grpc-web": "^1.5.0"
   },
   "files": [
     "dist"

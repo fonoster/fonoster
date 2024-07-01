@@ -16,17 +16,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import printHello from "./printHello";
+import { CreateDomainRequest } from "./generated/domains_pb";
+import { DomainsClient } from "./generated/DomainsServiceClientPb";
 
 class Fonoster {
-  private baseUrl: string;
+  private client: DomainsClient;
+  token: string;
+  accessKeyId: string;
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+  constructor(config: { baseUrl: string; token: string; accessKeyId: string }) {
+    const { baseUrl, token, accessKeyId } = config;
+
+    this.token = token;
+    this.accessKeyId = accessKeyId;
+    this.client = new DomainsClient(baseUrl);
+    this.client = new DomainsClient(baseUrl, null, null);
   }
 
-  printHello() {
-    printHello();
+  async createDomain() {
+    const request = new CreateDomainRequest();
+    request.setName("test.com");
+    request.setDomainUri("sip.local");
+
+    return await this.client.createDomain(request, {
+      token: this.token,
+      accessKeyId: this.accessKeyId
+    });
   }
 }
 
