@@ -18,38 +18,69 @@
  */
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 
-export default [
-  {
-    input: "src/index.ts",
-    output: [
-      {
-        file: "dist/index.js",
-        format: "cjs",
-        exports: "default"
-      },
-      {
-        file: "dist/index.esm.js",
-        format: "es"
-      },
-      {
-        file: "dist/fonoster.min.js",
-        format: "umd",
-        name: "Fonoster",
-        exports: "auto"
+const nodeConfig = {
+  input: "src/node.ts",
+  output: [
+    {
+      file: "dist/node/index.js",
+      format: "cjs",
+      exports: "auto"
+    },
+    {
+      file: "dist/node/index.esm.js",
+      format: "es"
+    }
+  ],
+  plugins: [
+    replace({
+      "process.env.NODE_ENV": JSON.stringify("node"),
+      preventAssignment: true
+    }),
+    typescript({ tsconfig: "./tsconfig.node.json" }),
+    commonjs(),
+    resolve(),
+    terser({
+      format: {
+        comments: false
       }
-    ],
-    plugins: [
-      typescript(),
-      commonjs(),
-      resolve(),
-      terser({
-        format: {
-          comments: false
-        }
-      })
-    ]
-  }
-];
+    })
+  ]
+};
+
+const webConfig = {
+  input: "src/web.ts",
+  output: [
+    {
+      file: "dist/web/fonoster.min.js",
+      format: "umd",
+      name: "SDK",
+      exports: "auto"
+    },
+    {
+      file: "dist/web/index.esm.js",
+      format: "es"
+    }
+  ],
+  plugins: [
+    replace({
+      "process.env.NODE_ENV": JSON.stringify("browser"),
+      preventAssignment: true
+    }),
+    typescript({ tsconfig: "./tsconfig.web.json" }),
+    commonjs(),
+    resolve({
+      browser: true
+    }),
+    terser({
+      format: {
+        comments: false
+      }
+    })
+  ]
+};
+
+export default [nodeConfig, webConfig];

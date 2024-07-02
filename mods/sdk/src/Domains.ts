@@ -1,3 +1,5 @@
+import { CreateDomainRequest } from "./generated/web/domains_pb";
+
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,33 +18,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CreateDomainRequest } from "./generated/domains_pb";
-import { DomainsClient } from "./generated/DomainsServiceClientPb";
+interface FonosterClient {
+  getTokens(): string;
+  getAccessKeyId(): string;
+  getDomainsClient(): any;
+}
 
-class Fonoster {
-  private client: DomainsClient;
-  token: string;
-  accessKeyId: string;
+class Domains {
+  private client: FonosterClient;
 
-  constructor(config: { baseUrl: string; token: string; accessKeyId: string }) {
-    const { baseUrl, token, accessKeyId } = config;
-
-    this.token = token;
-    this.accessKeyId = accessKeyId;
-    this.client = new DomainsClient(baseUrl);
-    this.client = new DomainsClient(baseUrl, null, null);
+  constructor(client: FonosterClient) {
+    this.client = client;
   }
 
   async createDomain() {
     const request = new CreateDomainRequest();
-    request.setName("test.com");
-    request.setDomainUri("sip.local");
+    request.setName("example.com");
+    request.setDomainUri("sip.example.com");
 
-    return await this.client.createDomain(request, {
-      token: this.token,
-      accessKeyId: this.accessKeyId
+    const domainsClient = this.client.getDomainsClient();
+
+    return await domainsClient.createDomain(request, {
+      token: this.client.getTokens(),
+      accessKeyId: this.client.getAccessKeyId()
     });
   }
 }
 
-export default Fonoster;
+export { Domains };
