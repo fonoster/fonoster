@@ -10,10 +10,6 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/web/**/*",
-    "src/generated/web/**/*",
-    "src/web.ts",
-    "src/client/WebClient.ts",
-    "src/Domains.ts"
-  ],
+    "src/**/*.ts"
+  ]
 }

@@ -1,23 +1,28 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es6",
-    "module": "esnext",
-    "lib": ["es6", "dom"],
-    "declaration": true,
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "strict": true,
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["esnext"],
+    "rootDir": ".",
+    "outDir": "./dist/node",
+    "strict": false,
+    "noImplicitAny": false, 
+    "strictNullChecks": false,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
   },
   "include": [
-    "src/node/**/*",
-    "src/generated/node/**/*",
-    "src/node.ts",
-    "src/client/Client.ts",
-    "src/Domains.ts"
+    "src/**/*.ts"
   ],
-  "exclude": ["node_modules", "dist", "test"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "src/client/WebClient.ts",
+    "src/web.ts"
+  ]
 }

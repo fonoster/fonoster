@@ -16,23 +16,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DomainsClient } from "../generated/node/domains_pb";
+import { credentials } from "@grpc/grpc-js";
+import { DomainsClient } from "../generated/node/domains_grpc_pb";
 
 const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
 
 export class Client {
   private endpoint: string;
+  private token: string;
+  private accessKeyId: string;
+  credentials: any;
 
-  constructor(config: { endpoint?: string }) {
-    this.endpoint = config.endpoint || DEFAULT_ENDPOINT;
+  constructor(config: { endpoint?: string; accessKeyId: string }) {
+    this.endpoint = config?.endpoint || DEFAULT_ENDPOINT;
+    this.accessKeyId = config.accessKeyId;
+    this.token = "";
+    this.credentials = credentials.createInsecure();
+  }
+
+  getTokens() {
+    return this.token;
+  }
+
+  getAccessKeyId() {
+    return this.accessKeyId;
   }
 
   login(username: string, password: string) {
-    // Implement login logic using Node.js gRPC client
-    console.log(`Login with ${username} and ${password}`);
+    // Nyi
+  }
+
+  loginWithToken(token: string) {
+    this.token = token;
   }
 
   getDomainsClient() {
-    return new DomainsClient(this.endpoint, null);
+    return new DomainsClient(this.endpoint, credentials.createInsecure());
   }
 }

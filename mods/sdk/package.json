@@ -5,7 +5,7 @@
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
-  "main": "dist/node/index.js",
+  "main": "dist/node/node.js",
   "module": "dist/node/index.esm.js",
   "unpkg": "dist/web/fonoster.min.js",
   "types": "dist/node/node.d.ts",
@@ -15,8 +15,8 @@
   },
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "rollup -c rollup.config.mjs",
-    "postbuild": "cp dist/web/fonoster.min.js public/fonoster.min.js",
+    "build": "rollup -c rollup.config.mjs && tsc --project tsconfig.node.json",
+    "postbuild": "mv dist/node/src/* dist/node && cp -a src/generated/node dist/node/generated/ && cp dist/web/fonoster.min.js public/fonoster.min.js",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "keywords": [

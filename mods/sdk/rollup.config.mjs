@@ -22,34 +22,35 @@ import replace from "@rollup/plugin-replace";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 
-const nodeConfig = {
-  input: "src/node.ts",
-  output: [
-    {
-      file: "dist/node/index.js",
-      format: "cjs",
-      exports: "auto"
-    },
-    {
-      file: "dist/node/index.esm.js",
-      format: "es"
-    }
-  ],
-  plugins: [
-    replace({
-      "process.env.NODE_ENV": JSON.stringify("node"),
-      preventAssignment: true
-    }),
-    typescript({ tsconfig: "./tsconfig.node.json" }),
-    commonjs(),
-    resolve(),
-    terser({
-      format: {
-        comments: false
-      }
-    })
-  ]
-};
+// const nodeConfig = {
+//   input: "src/node.ts",
+//   output: [
+//     {
+//       file: "dist/node/index.js",
+//       format: "cjs",
+//       exports: "auto"
+//     },
+//     {
+//       file: "dist/node/index.esm.js",
+//       format: "es"
+//     }
+//   ],
+//   external: [],
+//   plugins: [
+//     replace({
+//       "process.env.NODE_ENV": JSON.stringify("node"),
+//       preventAssignment: true
+//     }),
+//     typescript({ tsconfig: "./tsconfig.node.json" }),
+//     commonjs(),
+//     resolve(),
+//     terser({
+//       format: {
+//         comments: false
+//       }
+//     })
+//   ]
+// };
 
 const webConfig = {
   input: "src/web.ts",
@@ -83,4 +84,4 @@ const webConfig = {
   ]
 };
 
-export default [nodeConfig, webConfig];
+export default [webConfig];

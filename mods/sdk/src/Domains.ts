@@ -1,5 +1,3 @@
-import { CreateDomainRequest } from "./generated/web/domains_pb";
-
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,6 +16,8 @@ import { CreateDomainRequest } from "./generated/web/domains_pb";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CreateDomainRequest } from "./generated/node/domains_pb";
+
 interface FonosterClient {
   getTokens(): string;
   getAccessKeyId(): string;
@@ -38,10 +38,20 @@ class Domains {
 
     const domainsClient = this.client.getDomainsClient();
 
-    return await domainsClient.createDomain(request, {
-      token: this.client.getTokens(),
-      accessKeyId: this.client.getAccessKeyId()
-    });
+    domainsClient.createDomain(
+      request,
+      {
+        token: this.client.getTokens(),
+        accessKeyId: this.client.getAccessKeyId()
+      },
+      (err, response) => {
+        if (err) {
+          throw new Error(err);
+        }
+
+        return response;
+      }
+    );
   }
 }
 

@@ -3,13 +3,16 @@
   const accessKeyId = "WO00000000000000000000000000000000";
   const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...";
 
-  const sdk = new Fonoster({
-    baseUrl: "http://localhost:7171",
-    token,
-    accessKeyId
-  });
+  const client = new SDK.WebClient({
+    url: "http://localhost:7171",
+    accessKeyId: accessKeyId,
+  })
+    
+  client.loginWithToken(token)
 
-  sdk.createDomain()
+  const domains = new SDK.Domains(client);
+
+  domains.createDomain()
     .then((res) => {
       console.log(res);
     })
