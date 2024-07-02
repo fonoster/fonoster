@@ -61,11 +61,13 @@ enum CallStatus {
   COMPLETED = 3;
   FAILED = 4;
   BUSY = 5;
-  NO_ANSWER = 6;
+  // TODO: Refactor to avoid clash with HangupCause
+  // NO_ANSWER = 6;
   CANCELED = 7;
   REJECTED = 8;
   TIMEOUT = 9;
-  UNKNOWN = 10;
+  // TODO: Refactor to avoid clash with HangupCause
+  // UNKNOWN = 10;
 }
 
 enum CallDirection {
