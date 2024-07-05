@@ -19,7 +19,7 @@
 interface FonosterClient {
   getAccessToken(): string;
   getAccessKeyId(): string;
-  getDomainsClient();
+  getDomainsClient(): unknown;
   getMetadata(): unknown;
 }
 

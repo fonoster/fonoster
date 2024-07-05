@@ -26,11 +26,14 @@ export class WebClient extends AbstractClient {
   private url: string;
 
   constructor(config: { url?: string; accessKeyId: string }) {
+    const { url, accessKeyId } = config;
+
     super({
-      accessKeyId: config.accessKeyId,
-      identityClient: new IdentityClient(config.url)
+      accessKeyId,
+      identityClient: new IdentityClient(url || DEFAULT_URL)
     });
-    this.url = config?.url || DEFAULT_URL;
+
+    this.url = url || DEFAULT_URL;
   }
 
   getMetadata() {

@@ -16,17 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { exchangeToken } from "./exchangeToken";
 import { FonosterClient } from "./types";
 import {
   ExchangeApiKeyRequest,
   ExchangeCredentialsRequest,
   ExchangeRefreshTokenRequest
 } from "../generated/node/identity_pb";
-
-type ExchangeRequest =
-  | ExchangeApiKeyRequest
-  | ExchangeCredentialsRequest
-  | ExchangeRefreshTokenRequest;
 
 abstract class AbstractClient implements FonosterClient {
   protected accessKeyId: string;
@@ -38,24 +34,7 @@ abstract class AbstractClient implements FonosterClient {
     this.accessKeyId = config.accessKeyId;
     this.identityClient = config.identityClient;
     this.accessToken = "";
-  }
-
-  private async exchangeToken(
-    request: ExchangeRequest,
-    exchangeMethod: (req, meta, callback) => void
-  ): Promise<void> {
-    return new Promise((resolve, reject) => {
-      exchangeMethod(request, {}, (err, response) => {
-        if (err) {
-          reject(err);
-        }
-
-        this.accessToken = response?.getAccessToken();
-        this._refreshToken = response?.getRefreshToken();
-
-        resolve();
-      });
-    });
+    this._refreshToken = "";
   }
 
   async login(username: string, password: string): Promise<void> {
@@ -63,30 +42,38 @@ abstract class AbstractClient implements FonosterClient {
     exchangeCredentialsRequest.setUsername(username);
     exchangeCredentialsRequest.setPassword(password);
 
-    await this.exchangeToken(
+    const { refreshToken, accessToken } = await exchangeToken(
       exchangeCredentialsRequest,
       this.identityClient.exchangeCredentials.bind(this.identityClient)
     );
+
+    this._refreshToken = refreshToken;
+    this.accessToken = accessToken;
   }
 
   async loginWithRefreshToken(refreshToken: string): Promise<void> {
     const exchangeRefreshTokenRequest = new ExchangeRefreshTokenRequest();
     exchangeRefreshTokenRequest.setRefreshToken(refreshToken);
 
-    await this.exchangeToken(
+    const { accessToken } = await exchangeToken(
       exchangeRefreshTokenRequest,
       this.identityClient.exchangeRefreshToken.bind(this.identityClient)
     );
+
+    this.accessToken = accessToken;
   }
 
   async loginWithApiKey(apiKey: string): Promise<void> {
     const exchangeApiKeyRequest = new ExchangeApiKeyRequest();
     exchangeApiKeyRequest.setApiKey(apiKey);
 
-    await this.exchangeToken(
+    const { refreshToken, accessToken } = await exchangeToken(
       exchangeApiKeyRequest,
       this.identityClient.exchangeApiKey.bind(this.identityClient)
     );
+
+    this._refreshToken = refreshToken;
+    this.accessToken = accessToken;
   }
 
   protected async refreshToken(): Promise<void> {

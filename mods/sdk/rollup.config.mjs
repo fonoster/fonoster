@@ -71,7 +71,10 @@ const webConfig = {
       "process.env.NODE_ENV": JSON.stringify("browser"),
       preventAssignment: true
     }),
-    typescript({ tsconfig: "./tsconfig.web.json" }),
+    typescript({
+      tsconfig: "./tsconfig.web.json",
+      exclude: ["src/client/Client.ts"]
+    }),
     commonjs(),
     resolve({
       browser: true
