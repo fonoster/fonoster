@@ -1,19 +1,17 @@
 <script src="./fonoster.min.js"></script>
 <script>
+  const url = "http://localhost:7171";
   const accessKeyId = "WO00000000000000000000000000000000";
-  const token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...";
+  const username = "admin@fonoster.local";
+  const password = "changeme";
 
-  const client = new SDK.WebClient({
-    url: "http://localhost:7171",
-    accessKeyId: accessKeyId,
-  })
+  const client = new SDK.WebClient({ url, accessKeyId });
     
-  client.loginWithToken(token)
-
-  const domains = new SDK.Domains(client);
-
-  domains.createDomain()
-    .then((res) => {
-      console.log(res);
+  client.login(username, password)
+    .then(async(res) => {
+      const domains = new SDK.Domains(client);
+      const response = await domains.createDomain();
+      console.log(response.getRef());
     })
+    .catch(console.error);
 </script>

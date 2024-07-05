@@ -16,41 +16,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { credentials } from "@grpc/grpc-js";
+import { ChannelCredentials, Metadata, credentials } from "@grpc/grpc-js";
+import { AbstractClient } from "./AbstractClient";
 import { DomainsClient } from "../generated/node/domains_grpc_pb";
+import { IdentityClient } from "../generated/node/identity_grpc_pb";
 
 const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
 
-export class Client {
+export class Client extends AbstractClient {
   private endpoint: string;
-  private token: string;
-  private accessKeyId: string;
-  credentials: any;
+  channelCredentials: ChannelCredentials;
 
-  constructor(config: { endpoint?: string; accessKeyId: string }) {
+  constructor(config: {
+    endpoint?: string;
+    accessKeyId: string;
+    allowInsecure?: boolean;
+  }) {
+    const channelCredentials = config.allowInsecure
+      ? credentials.createInsecure()
+      : credentials.createSsl();
+
+    super({
+      accessKeyId: config.accessKeyId,
+      identityClient: new IdentityClient(config.endpoint, channelCredentials)
+    });
+
+    this.channelCredentials = channelCredentials;
     this.endpoint = config?.endpoint || DEFAULT_ENDPOINT;
-    this.accessKeyId = config.accessKeyId;
-    this.token = "";
-    this.credentials = credentials.createInsecure();
   }
 
-  getTokens() {
-    return this.token;
-  }
-
-  getAccessKeyId() {
-    return this.accessKeyId;
-  }
-
-  login(username: string, password: string) {
-    // Nyi
-  }
-
-  loginWithToken(token: string) {
-    this.token = token;
+  getMetadata(): Metadata {
+    const metadata = new Metadata();
+    metadata.set("token", this.getAccessToken());
+    metadata.set("accessKeyId", this.getAccessKeyId());
+    return metadata;
   }
 
   getDomainsClient() {
-    return new DomainsClient(this.endpoint, credentials.createInsecure());
+    return new DomainsClient(this.endpoint, this.channelCredentials);
+  }
+
+  getIdentityClient() {
+    return new IdentityClient(this.endpoint, this.channelCredentials);
   }
 }

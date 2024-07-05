@@ -16,13 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { FonosterClient } from "./client/types";
 import { CreateDomainRequest } from "./generated/node/domains_pb";
-
-interface FonosterClient {
-  getTokens(): string;
-  getAccessKeyId(): string;
-  getDomainsClient(): any;
-}
 
 class Domains {
   private client: FonosterClient;
@@ -34,24 +29,20 @@ class Domains {
   async createDomain() {
     const request = new CreateDomainRequest();
     request.setName("example.com");
-    request.setDomainUri("sip.example.com");
+    request.setDomainUri("sip4.example.com");
 
     const domainsClient = this.client.getDomainsClient();
+    const metadata = this.client.getMetadata();
 
-    domainsClient.createDomain(
-      request,
-      {
-        token: this.client.getTokens(),
-        accessKeyId: this.client.getAccessKeyId()
-      },
-      (err, response) => {
+    return new Promise((resolve, reject) => {
+      domainsClient.createDomain(request, metadata, (err, response) => {
         if (err) {
-          throw new Error(err);
+          reject(err);
         }
 
-        return response;
-      }
-    );
+        resolve(response);
+      });
+    });
   }
 }
 

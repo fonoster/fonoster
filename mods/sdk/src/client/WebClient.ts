@@ -16,38 +16,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AbstractClient } from "./AbstractClient";
 import { DomainsClient } from "../generated/web/DomainsServiceClientPb";
+import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
 
 const DEFAULT_URL = "https://api.fonoster.io/v1beta2";
 
-export class WebClient {
+export class WebClient extends AbstractClient {
   private url: string;
-  private token: string;
-  private accessKeyId: string;
 
   constructor(config: { url?: string; accessKeyId: string }) {
+    super({
+      accessKeyId: config.accessKeyId,
+      identityClient: new IdentityClient(config.url)
+    });
     this.url = config?.url || DEFAULT_URL;
-    this.accessKeyId = config.accessKeyId;
-    this.token = "";
   }
 
-  getTokens() {
-    return this.token;
-  }
-
-  getAccessKeyId() {
-    return this.accessKeyId;
-  }
-
-  login(username: string, password: string) {
-    // Nyi
-  }
-
-  loginWithToken(token: string) {
-    this.token = token;
+  getMetadata() {
+    return {
+      token: this.getAccessToken(),
+      accessKeyId: this.getAccessKeyId()
+    };
   }
 
   getDomainsClient() {
-    return new DomainsClient(this.url, null);
+    return new DomainsClient(this.url);
+  }
+
+  getIdentityClient() {
+    return new IdentityClient(this.url);
   }
 }
