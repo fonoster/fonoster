@@ -16,21 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { exchangeToken } from "./exchangeToken";
-import { FonosterClient } from "./types";
+
+import { makeRpcRequest } from "./makeRpcRequest";
+import { DomainsClient, FonosterClient, IdentityClient } from "./types";
 import {
-  ExchangeApiKeyRequest,
-  ExchangeCredentialsRequest,
-  ExchangeRefreshTokenRequest
+  ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
+  ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
+  ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
+  ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB
 } from "../generated/node/identity_pb";
 
 abstract class AbstractClient implements FonosterClient {
   protected accessKeyId: string;
   protected accessToken: string;
   protected _refreshToken: string;
-  protected identityClient;
+  protected identityClient: IdentityClient;
 
-  constructor(config: { accessKeyId: string; identityClient }) {
+  constructor(config: { accessKeyId: string; identityClient: IdentityClient }) {
     this.accessKeyId = config.accessKeyId;
     this.identityClient = config.identityClient;
     this.accessToken = "";
@@ -38,13 +40,19 @@ abstract class AbstractClient implements FonosterClient {
   }
 
   async login(username: string, password: string): Promise<void> {
-    const exchangeCredentialsRequest = new ExchangeCredentialsRequest();
-    exchangeCredentialsRequest.setUsername(username);
-    exchangeCredentialsRequest.setPassword(password);
-
-    const { refreshToken, accessToken } = await exchangeToken(
-      exchangeCredentialsRequest,
-      this.identityClient.exchangeCredentials.bind(this.identityClient)
+    const { refreshToken, accessToken } = await makeRpcRequest<
+      ExchangeCredentialsRequestPB,
+      ExchangeCredentialsResponsePB,
+      { username: string; password: string },
+      { refreshToken: string; accessToken: string }
+    >(
+      this.identityClient.exchangeCredentials.bind(this.identityClient),
+      ExchangeCredentialsRequestPB,
+      {},
+      {
+        username,
+        password
+      }
     );
 
     this._refreshToken = refreshToken;
@@ -52,24 +60,36 @@ abstract class AbstractClient implements FonosterClient {
   }
 
   async loginWithRefreshToken(refreshToken: string): Promise<void> {
-    const exchangeRefreshTokenRequest = new ExchangeRefreshTokenRequest();
-    exchangeRefreshTokenRequest.setRefreshToken(refreshToken);
-
-    const { accessToken } = await exchangeToken(
-      exchangeRefreshTokenRequest,
-      this.identityClient.exchangeRefreshToken.bind(this.identityClient)
+    const { accessToken } = await makeRpcRequest<
+      ExchangeRefreshTokenRequestPB,
+      ExchangeCredentialsResponsePB,
+      { refreshToken: string },
+      { accessToken: string }
+    >(
+      this.identityClient.exchangeRefreshToken,
+      ExchangeRefreshTokenRequestPB,
+      {},
+      {
+        refreshToken
+      }
     );
 
     this.accessToken = accessToken;
   }
 
   async loginWithApiKey(apiKey: string): Promise<void> {
-    const exchangeApiKeyRequest = new ExchangeApiKeyRequest();
-    exchangeApiKeyRequest.setApiKey(apiKey);
-
-    const { refreshToken, accessToken } = await exchangeToken(
-      exchangeApiKeyRequest,
-      this.identityClient.exchangeApiKey.bind(this.identityClient)
+    const { refreshToken, accessToken } = await makeRpcRequest<
+      ExchangeApiKeyRequestPB,
+      ExchangeCredentialsResponsePB,
+      { apiKey: string },
+      { refreshToken: string; accessToken: string }
+    >(
+      this.identityClient.exchangeApiKey,
+      ExchangeApiKeyRequestPB,
+      {},
+      {
+        apiKey
+      }
     );
 
     this._refreshToken = refreshToken;
@@ -89,7 +109,7 @@ abstract class AbstractClient implements FonosterClient {
   }
 
   abstract getMetadata(): unknown;
-  abstract getDomainsClient(): unknown;
+  abstract getDomainsClient(): DomainsClient;
 }
 
 export { AbstractClient };

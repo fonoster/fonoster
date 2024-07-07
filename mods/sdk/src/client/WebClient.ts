@@ -17,6 +17,10 @@
  * limitations under the License.
  */
 import { AbstractClient } from "./AbstractClient";
+import {
+  DomainsClient as TDomainsClient,
+  IdentityClient as TIdentityClient
+} from "./types";
 import { DomainsClient } from "../generated/web/DomainsServiceClientPb";
 import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
 
@@ -30,7 +34,7 @@ export class WebClient extends AbstractClient {
 
     super({
       accessKeyId,
-      identityClient: new IdentityClient(url || DEFAULT_URL)
+      identityClient: new IdentityClient(url || DEFAULT_URL) as TIdentityClient
     });
 
     this.url = url || DEFAULT_URL;
@@ -44,10 +48,10 @@ export class WebClient extends AbstractClient {
   }
 
   getDomainsClient() {
-    return new DomainsClient(this.url);
+    return new DomainsClient(this.url) as TDomainsClient;
   }
 
   getIdentityClient() {
-    return new IdentityClient(this.url);
+    return new IdentityClient(this.url) as TIdentityClient;
   }
 }

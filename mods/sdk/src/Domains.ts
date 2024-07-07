@@ -16,8 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CreateDomainRequest, CreateDomainResponse } from "@fonoster/common";
+import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
-import { CreateDomainRequest } from "./generated/node/domains_pb";
+import {
+  CreateDomainRequest as CreateDomainRequestPB,
+  CreateDomainResponse as CreateDomainResponsePB
+} from "./generated/node/domains_pb";
 
 class Domains {
   private client: FonosterClient;
@@ -26,23 +31,21 @@ class Domains {
     this.client = client;
   }
 
-  async createDomain() {
-    const request = new CreateDomainRequest();
-    request.setName("example.com");
-    request.setDomainUri("sip4.example.com");
-
+  async createDomain(
+    request: CreateDomainRequest
+  ): Promise<CreateDomainResponse> {
     const domainsClient = this.client.getDomainsClient();
-    const metadata = this.client.getMetadata();
-
-    return new Promise((resolve, reject) => {
-      domainsClient.createDomain(request, metadata, (err, response) => {
-        if (err) {
-          reject(err);
-        }
-
-        resolve(response);
-      });
-    });
+    return await makeRpcRequest<
+      CreateDomainRequestPB,
+      CreateDomainResponsePB,
+      CreateDomainRequest,
+      CreateDomainResponse
+    >(
+      domainsClient.createDomain.bind(domainsClient),
+      CreateDomainRequestPB,
+      this.client.getMetadata(),
+      request
+    );
   }
 }
 
