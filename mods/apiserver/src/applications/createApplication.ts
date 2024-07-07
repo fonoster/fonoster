@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -31,7 +31,7 @@ function createApplication(prisma: Prisma) {
   return async (
     call: { request: CreateApplicationRequest },
     callback: (
-      error: GRPCErrorMessage,
+      error: GrpcErrorMessage,
       response?: CreateApplicationResponse
     ) => void
   ) => {

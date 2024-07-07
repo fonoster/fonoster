@@ -10,7 +10,7 @@
   client.login(username, password)
     .then(async(res) => {
       const domains = new SDK.Domains(client);
-      const response = await domains.createDomain();
+      const response = await domains.createDomain({ name: "test.com", domainUri: "test.com" });
       console.log(response.getRef());
     })
     .catch(console.error);

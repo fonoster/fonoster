@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage, datesMapper, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, datesMapper, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -30,7 +30,7 @@ function listSecrets(prisma: Prisma) {
     call: {
       request: ListSecretsRequest;
     },
-    callback: (error: GRPCErrorMessage, response?: ListSecretsResponse) => void
+    callback: (error: GrpcErrorMessage, response?: ListSecretsResponse) => void
   ) => {
     const { pageSize, pageToken } = call.request;
 

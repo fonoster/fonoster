@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError } from "@fonoster/common";
+import { GrpcError } from "@fonoster/common";
 import { status } from "@grpc/grpc-js";
 import { Client, RecordingFinished } from "ari-client";
 import { AriEvent } from "../types";
@@ -30,7 +30,7 @@ async function awaitForRecordingFinished(
       if ("cause" in event.recording) {
         ari.removeListener(AriEvent.RECORDING_FINISHED, listener);
         ari.removeListener(AriEvent.RECORDING_FAILED, listener);
-        reject(new GRPCError(status.INTERNAL, "Recording failed"));
+        reject(new GrpcError(status.INTERNAL, "Recording failed"));
       } else if (name === event.recording.name) {
         ari.removeListener(AriEvent.RECORDING_FINISHED, listener);
         ari.removeListener(AriEvent.RECORDING_FAILED, listener);

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
@@ -103,7 +103,7 @@ function inviteUserToWorkspace(
   return async (
     call: { request: InviteUserToWorkspaceRequest },
     callback: (
-      error: GRPCErrorMessage,
+      error: GrpcErrorMessage,
       response?: CreateWorkspaceResponse
     ) => void
   ) => {

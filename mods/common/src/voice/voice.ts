@@ -30,7 +30,7 @@ import {
   StreamPayload
 } from "./Stream";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
-import { GRPCError } from "../GRPCError";
+import { GrpcError } from "../GrpcError";
 
 const DATA = "data" as const;
 const END = "end" as const;
@@ -130,8 +130,8 @@ type BaseVoiceStream<T, W> = {
 type VoiceSessionStreamServer = BaseVoiceStream<VoiceIn, VoiceOut>;
 
 type VoiceSessionStreamClient = BaseVoiceStream<
-  VoiceOut | GRPCError,
-  VoiceIn | GRPCError
+  VoiceOut | GrpcError,
+  VoiceIn | GrpcError
 >;
 
 export {

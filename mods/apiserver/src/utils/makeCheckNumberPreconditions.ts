@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCError } from "@fonoster/common";
+import { GrpcError } from "@fonoster/common";
 import { status } from "@grpc/grpc-js";
 import { Prisma } from "../core/db";
 
@@ -32,7 +32,7 @@ function makeCheckNumberPreconditions(prisma: Prisma) {
     });
 
     if (!app) {
-      throw new GRPCError(
+      throw new GrpcError(
         status.NOT_FOUND,
         "Application not found for ref: " + appRef
       );

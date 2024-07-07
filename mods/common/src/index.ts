@@ -23,5 +23,6 @@ export * from "./constants";
 export * from "./grpcStatusMap";
 export * from "./voice";
 export * from "./tts";
+export * from "./types/";
 export * from "./types";
-export * from "./GRPCError";
+export * from "./GrpcError";

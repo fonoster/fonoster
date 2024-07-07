@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type GRPCErrorMessage = {
+type GrpcErrorMessage = {
   code: number;
   message: string;
 };
 
-export { GRPCErrorMessage };
+export { GrpcErrorMessage };

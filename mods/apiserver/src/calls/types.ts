@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage } from "@fonoster/common";
+import { GrpcErrorMessage } from "@fonoster/common";
 import { ParameterizedQuery } from "@influxdata/influxdb-client";
 
 const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
@@ -118,7 +118,7 @@ type TrackCallResponse = {
 };
 
 type CallStream = {
-  write: (data: TrackCallResponse | GRPCErrorMessage) => void;
+  write: (data: TrackCallResponse | GrpcErrorMessage) => void;
   end: () => void;
 };
 

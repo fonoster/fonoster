@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class GRPCError extends Error {
+class GrpcError extends Error {
   code: number;
 
   constructor(code: number, message: string) {
     super(message);
     this.code = code;
-    Object.setPrototypeOf(this, GRPCError.prototype);
+    Object.setPrototypeOf(this, GrpcError.prototype);
   }
 }
 
-export { GRPCError };
+export { GrpcError };

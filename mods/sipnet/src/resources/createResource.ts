@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -26,7 +26,7 @@ const logger = getLogger({ service: "sipnet", filePath: __filename });
 function createResource<T, R, U>(api: U, resource: string) {
   return async (
     call: { request: R },
-    callback: (error?: GRPCErrorMessage, response?: T) => void
+    callback: (error?: GrpcErrorMessage, response?: T) => void
   ) => {
     const { request } = call;
 

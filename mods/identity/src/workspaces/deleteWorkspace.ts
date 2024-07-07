@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
@@ -37,7 +37,7 @@ function deleteWorkspace(prisma: Prisma) {
   return async (
     call: { request: DeleteWorkspaceRequest },
     callback: (
-      error: GRPCErrorMessage,
+      error: GrpcErrorMessage,
       response?: DeleteWorkspaceResponse
     ) => void
   ) => {

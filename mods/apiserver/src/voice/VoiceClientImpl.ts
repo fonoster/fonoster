@@ -19,7 +19,7 @@
  */
 import { Stream } from "stream";
 import {
-  GRPCError,
+  GrpcError,
   SayOptions,
   StreamEvent,
   VoiceClientConfig,
@@ -88,7 +88,7 @@ class VoiceClientImpl implements VoiceClient {
 
     this.voice.write({ request: this.config });
 
-    this.voice.on(StreamEvent.ERROR, (error: GRPCError) => {
+    this.voice.on(StreamEvent.ERROR, (error: GrpcError) => {
       if (error.code === grpc.status.UNAVAILABLE) {
         // FIXME: This error should be sent back to the user
         logger.error(

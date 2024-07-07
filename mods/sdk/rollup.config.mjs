@@ -22,36 +22,6 @@ import replace from "@rollup/plugin-replace";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 
-// const nodeConfig = {
-//   input: "src/node.ts",
-//   output: [
-//     {
-//       file: "dist/node/index.js",
-//       format: "cjs",
-//       exports: "auto"
-//     },
-//     {
-//       file: "dist/node/index.esm.js",
-//       format: "es"
-//     }
-//   ],
-//   external: [],
-//   plugins: [
-//     replace({
-//       "process.env.NODE_ENV": JSON.stringify("node"),
-//       preventAssignment: true
-//     }),
-//     typescript({ tsconfig: "./tsconfig.node.json" }),
-//     commonjs(),
-//     resolve(),
-//     terser({
-//       format: {
-//         comments: false
-//       }
-//     })
-//   ]
-// };
-
 const webConfig = {
   input: "src/web.ts",
   output: [
@@ -73,7 +43,7 @@ const webConfig = {
     }),
     typescript({
       tsconfig: "./tsconfig.web.json",
-      exclude: ["src/client/Client.ts"]
+      exclude: ["src/client/Client.ts", "src/generated/node/*"]
     }),
     commonjs(),
     resolve({

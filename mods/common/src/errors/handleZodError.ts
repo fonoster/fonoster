@@ -20,13 +20,13 @@ import { getLogger } from "@fonoster/logger";
 import { status } from "@grpc/grpc-js";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
-import { GRPCErrorMessage } from "../errors";
+import { GrpcErrorMessage } from "../errors";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function handleZodError(
   error: z.ZodError,
-  callback: (error: GRPCErrorMessage) => void
+  callback: (error: GrpcErrorMessage) => void
 ) {
   if (error?.issues[0].code === "custom") {
     const message = error?.issues[0].message;

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
@@ -42,7 +42,7 @@ function updateWorkspace(prisma: Prisma) {
   return async (
     call: { request: UpdateWorkspaceRequest },
     callback: (
-      error: GRPCErrorMessage,
+      error: GrpcErrorMessage,
       response?: UpdateWorkspaceResponse
     ) => void
   ) => {

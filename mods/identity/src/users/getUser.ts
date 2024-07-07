@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage, datesMapper, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, datesMapper, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
@@ -41,7 +41,7 @@ type User = {
 function getUser(prisma: Prisma) {
   return async (
     call: { request: GetUserRequest },
-    callback: (error: GRPCErrorMessage, response?: User) => void
+    callback: (error: GrpcErrorMessage, response?: User) => void
   ) => {
     try {
       const { ref } = call.request;

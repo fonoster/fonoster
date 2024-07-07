@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {
-  GRPCErrorMessage,
+  GrpcErrorMessage,
   NumberPreconditionsCheck,
   handleError
 } from "@fonoster/common";
@@ -35,7 +35,7 @@ function updateNumber(
   return async (
     call: { request: FUpdateNumberRequest },
     callback: (
-      error?: GRPCErrorMessage,
+      error?: GrpcErrorMessage,
       response?: UpdateNumberResponse
     ) => void
   ) => {

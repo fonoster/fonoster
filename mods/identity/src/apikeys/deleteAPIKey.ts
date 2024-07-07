@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GRPCErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { Prisma } from "../db";
@@ -36,7 +36,7 @@ type DeleteApiKeyResponse = {
 function deleteApiKey(prisma: Prisma) {
   return async (
     call: { request: DeleteApiKeyRequest },
-    callback: (error: GRPCErrorMessage, response?: DeleteApiKeyResponse) => void
+    callback: (error: GrpcErrorMessage, response?: DeleteApiKeyResponse) => void
   ) => {
     try {
       const validatedRequest = DeleteApiKeyRequestSchema.parse(call.request);

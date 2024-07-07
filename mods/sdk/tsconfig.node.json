@@ -24,5 +24,10 @@
     "test",
     "src/client/WebClient.ts",
     "src/web.ts"
+  ],
+  "references": [
+    {
+      "path": "../common",
+    }
   ]
 }

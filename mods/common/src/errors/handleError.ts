@@ -22,13 +22,13 @@ import { status } from "@grpc/grpc-js";
 import { z } from "zod";
 import { handleZodError } from "./handleZodError";
 import { PrismaErrorEnum } from "./PrismaErrorEnum";
-import { GRPCErrorMessage } from "./types";
+import { GrpcErrorMessage } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function handleError(
   error: Error | { code: string; message: string },
-  callback: (error: GRPCErrorMessage) => void
+  callback: (error: GrpcErrorMessage) => void
 ) {
   if (error instanceof z.ZodError) {
     handleZodError(error, callback);

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {
-  GRPCErrorMessage,
+  GrpcErrorMessage,
   NumberPreconditionsCheck,
   handleError
 } from "@fonoster/common";
@@ -38,7 +38,7 @@ function createNumber(
   return async (
     call: { request: FCreateNumberRequest },
     callback: (
-      error?: GRPCErrorMessage,
+      error?: GrpcErrorMessage,
       response?: CreateNumberResponse
     ) => void
   ) => {
