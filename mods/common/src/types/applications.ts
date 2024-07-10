@@ -19,7 +19,7 @@
 import { BaseApiObject } from "../types";
 
 enum ApplicationType {
-  PROGRAMMABLE_VOICE = 0
+  PROGRAMMABLE_VOICE = "PROGRAMMABLE_VOICE"
 }
 
 // For API response

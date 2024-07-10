@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ApplicationType } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
-import { ApplicationType } from "@prisma/client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";

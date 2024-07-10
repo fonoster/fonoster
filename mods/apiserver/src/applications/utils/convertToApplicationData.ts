@@ -20,6 +20,7 @@ import {
   CreateApplicationRequest,
   UpdateApplicationRequest
 } from "@fonoster/common";
+import { ApplicationType } from "@prisma/client";
 import { struct } from "pb-util";
 import { ApplicationData } from "../types";
 
@@ -29,9 +30,9 @@ function convertToApplicationData(
   const result = {
     ref: (request as UpdateApplicationRequest).ref, // Only for UpdateApplicationRequest
     name: request.name,
-    type: request.type,
+    type: request.type as unknown as ApplicationType,
     appEndpoint: request.appEndpoint
-  } as ApplicationData;
+  } as unknown as ApplicationData;
 
   const createProperty = (property) => {
     return property
