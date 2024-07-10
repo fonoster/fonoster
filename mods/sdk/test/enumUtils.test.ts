@@ -53,4 +53,15 @@ describe("@sdk[client/enumUtils]", function () {
     // Assert
     expect(result).to.be.equal(ExampleEnum.VALUE1);
   });
+
+  it("should return the enum key", async function () {
+    // Arrange
+    const { getEnumKey } = await import("../src/client/enumsUtil");
+
+    // Act
+    const result = getEnumKey("test", ExampleEnum.VALUE1, enumMapping);
+
+    // Assert
+    expect(result).to.be.equal("VALUE1");
+  });
 });

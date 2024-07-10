@@ -31,4 +31,14 @@ function getEnumValue(
   return (tuple ? tuple[1][value] : 0) as number;
 }
 
-export { isEnum, getEnumValue };
+function getEnumKey(
+  key: string,
+  value: number,
+  enumMapping: EnumMapping<unknown>
+): string {
+  const tuple = enumMapping.find((tuple) => tuple[0] === key);
+  // Take the value of the tuple and find the key
+  return Object.keys(tuple[1]).find((k) => tuple[1][k] === value) || "";
+}
+
+export { isEnum, getEnumValue, getEnumKey };

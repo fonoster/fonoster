@@ -18,21 +18,22 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
-const sandbox = createSandbox();
 
 describe("@sdk[client/objectToJson]", function () {
-  afterEach(function () {
-    return sandbox.restore();
-  });
-
   it("should return a object from a json", async function () {
     // Arrange
     const { objectToJson } = await import("../src/client/objectToJson");
+
+    enum ExampleEnum {
+      FOO = 0,
+      BAR = 1,
+      BAZ = 2
+    }
+
     class Example {
       public getFoo(): string {
         return "foo";
@@ -42,8 +43,8 @@ describe("@sdk[client/objectToJson]", function () {
         return "bar";
       }
 
-      public getBaz(): string {
-        return "baz";
+      public getBaz(): ExampleEnum {
+        return ExampleEnum.BAZ;
       }
     }
 
@@ -52,17 +53,19 @@ describe("@sdk[client/objectToJson]", function () {
     type CreateExampleRequest = {
       foo: string;
       bar: string;
-      baz: string;
+      baz: ExampleEnum;
     };
 
     // Act
-    const result = objectToJson<CreateExampleRequest>(obj);
+    const result = objectToJson<CreateExampleRequest>(obj, [
+      ["baz", ExampleEnum]
+    ]);
 
     // Assert
     expect(result).to.deep.equal({
       foo: "foo",
       bar: "bar",
-      baz: "baz"
+      baz: "BAZ"
     });
   });
 });

@@ -16,8 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getEnumKey, isEnum } from "./enumsUtil";
+import { EnumMapping } from "./types";
+
 function objectToJson<J extends Record<string, unknown>>(
-  obj: new () => unknown
+  obj: new () => unknown,
+  enumMapping?: EnumMapping<unknown>
 ): J {
   const json: Record<string, unknown> = {};
 
@@ -30,7 +34,10 @@ function objectToJson<J extends Record<string, unknown>>(
       const propName = key.charAt(3).toLowerCase() + key.slice(4);
       try {
         const value = obj[key]();
-        if (value !== undefined) {
+
+        if (isEnum(propName, enumMapping)) {
+          json[propName] = getEnumKey(propName, value as number, enumMapping);
+        } else if (value !== undefined) {
           json[propName] = value;
         }
       } catch (error) {
