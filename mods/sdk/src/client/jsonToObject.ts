@@ -16,17 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getEnumValue, isEnum } from "./enumsUtil";
+import { EnumMapping } from "./types";
+
 // When converting to repeated fields, the incoming fields
 // must be appended with "List"
 function jsonToObject<J extends Record<string, unknown>, T>(
   json: J,
-  ObjectConstructor: new () => T
+  ObjectConstructor: new () => T,
+  enumMapping?: EnumMapping<unknown>
 ): T {
   const instance = new ObjectConstructor();
 
   Object.keys(json).forEach((key) => {
     const setterName = `set${key.charAt(0).toUpperCase() + key.slice(1)}`;
-    if (typeof instance[setterName] === "function") {
+
+    if (isEnum(key, enumMapping)) {
+      const enumValue = getEnumValue(key, json[key] as string, enumMapping);
+      instance[setterName](enumValue);
+    } else if (typeof instance[setterName] === "function") {
       instance[setterName](json[key]);
     }
   });

@@ -30,6 +30,8 @@ import {
   ExchangeRefreshTokenResponse
 } from "../generated/node/identity_pb";
 
+type EnumMapping<T> = Array<[string, T]>;
+
 type ClientFunction<T, U> = (
   request: T,
   metadata: Metadata | unknown | null,
@@ -62,4 +64,10 @@ interface FonosterClient {
   getMetadata(): Metadata | unknown | null;
 }
 
-export { FonosterClient, ClientFunction, IdentityClient, ApplicationsClient };
+export {
+  FonosterClient,
+  EnumMapping,
+  ClientFunction,
+  IdentityClient,
+  ApplicationsClient
+};

@@ -14,9 +14,9 @@
       const response = await domains.createApplication({
         name: "test",
         type: "PROGRAMMABLE_VOICE",
-        appEndpoint: "http://localhost:3000"
+        appEndpoint: "localhost:3000"
       });
-      console.log(response.getRef());
+      console.log(response);
     })
     .catch(console.error);
 </script>

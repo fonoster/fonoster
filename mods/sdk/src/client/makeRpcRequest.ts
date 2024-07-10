@@ -19,7 +19,7 @@
  */
 import { jsonToObject } from "./jsonToObject";
 import { objectToJson } from "./objectToJson";
-import { ClientFunction } from "./types";
+import { ClientFunction, EnumMapping } from "./types";
 
 function makeRpcRequest<
   RequestPB,
@@ -30,11 +30,13 @@ function makeRpcRequest<
   method: ClientFunction<RequestPB, ResponsePB>,
   RequestPBObjectConstructor: new () => RequestPB,
   metadata: unknown,
-  request: Request
+  request: Request,
+  enumMapping?: EnumMapping<unknown>
 ): Promise<Response> {
   const reqPB = jsonToObject<Request, RequestPB>(
     request,
-    RequestPBObjectConstructor
+    RequestPBObjectConstructor,
+    enumMapping
   );
 
   return new Promise((resolve, reject) => {

@@ -33,9 +33,16 @@ describe("@sdk[client/jsonToObject]", function () {
   it("should return a new instance of the object", async function () {
     // Arrange
     const { jsonToObject } = await import("../src/client/jsonToObject");
+
+    enum ExampleEnum {
+      VALUE1 = 0,
+      VALUE2 = 1
+    }
+
     class CreateExampleRequest {
       private name: string;
       private marray: string[];
+      private enumValue: ExampleEnum;
 
       public setName(name: string): void {
         this.name = name;
@@ -52,22 +59,33 @@ describe("@sdk[client/jsonToObject]", function () {
       public getMarray(): string[] {
         return this.marray;
       }
+
+      public setEnumValue(enumValue: ExampleEnum): void {
+        this.enumValue = enumValue;
+      }
+
+      public getEnumValue(): ExampleEnum {
+        return this.enumValue;
+      }
     }
 
     const jsonObj = {
       name: "test",
-      marray: ["test1", "test2"]
+      marray: ["test1", "test2"],
+      enumValue: "VALUE1"
     };
 
     // Act
     const result = jsonToObject<{ name: string }, CreateExampleRequest>(
       jsonObj,
-      CreateExampleRequest
+      CreateExampleRequest,
+      [["enumValue", ExampleEnum]]
     );
 
     // Assert
     expect(result).to.be.an.instanceOf(Object);
     expect(result.getName()).to.be.equal(jsonObj.name);
     expect(result.getMarray()).to.be.eql(jsonObj.marray);
+    expect(result.getEnumValue()).to.be.equal(ExampleEnum.VALUE1);
   });
 });

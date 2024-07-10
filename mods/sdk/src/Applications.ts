@@ -26,6 +26,7 @@ import {
   CreateApplicationRequest as CreateApplicationRequestPB,
   CreateApplicationResponse as CreateApplicationResponsePB
 } from "./generated/node/applications_pb";
+import { ApplicationType } from "./generated/web/applications_pb";
 
 class Applications {
   private client: FonosterClient;
@@ -47,7 +48,8 @@ class Applications {
       applicationsClient.createApplication.bind(applicationsClient),
       CreateApplicationRequestPB,
       this.client.getMetadata(),
-      request
+      request,
+      [["type", ApplicationType]]
     );
   }
 }
