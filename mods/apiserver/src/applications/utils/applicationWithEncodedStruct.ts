@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Application } from "@fonoster/common";
 import { struct } from "pb-util";
-import { Application } from "../types";
 
 function applicationWithEncodedStruct(application): Application {
   const encodeConfig = (property) => {

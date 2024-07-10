@@ -18,13 +18,9 @@
  */
 import { Metadata } from "grpc-web";
 import {
-  CreateDomainRequest,
-  CreateDomainResponse,
-  Domain,
-  GetDomainRequest,
-  UpdateDomainRequest,
-  UpdateDomainResponse
-} from "../generated/web/domains_pb";
+  CreateApplicationRequest,
+  CreateApplicationResponse
+} from "../generated/node/applications_pb";
 import {
   ExchangeApiKeyRequest,
   ExchangeApiKeyResponse,
@@ -32,7 +28,7 @@ import {
   ExchangeCredentialsResponse,
   ExchangeRefreshTokenRequest,
   ExchangeRefreshTokenResponse
-} from "../generated/web/identity_pb";
+} from "../generated/node/identity_pb";
 
 type ClientFunction<T, U> = (
   request: T,
@@ -52,17 +48,18 @@ type IdentityClient = {
   >;
 };
 
-type DomainsClient = {
-  createDomain: ClientFunction<CreateDomainRequest, CreateDomainResponse>;
-  updateDomain: ClientFunction<UpdateDomainRequest, UpdateDomainResponse>;
-  getDomain: ClientFunction<GetDomainRequest, Domain>;
+type ApplicationsClient = {
+  createApplication: ClientFunction<
+    CreateApplicationRequest,
+    CreateApplicationResponse
+  >;
 };
 
 interface FonosterClient {
   getAccessToken(): string;
   getAccessKeyId(): string;
-  getDomainsClient(): DomainsClient;
+  getApplicationsClient(): ApplicationsClient;
   getMetadata(): Metadata | unknown | null;
 }
 
-export { FonosterClient, ClientFunction, IdentityClient, DomainsClient };
+export { FonosterClient, ClientFunction, IdentityClient, ApplicationsClient };

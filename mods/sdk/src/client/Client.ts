@@ -18,7 +18,7 @@
  */
 import { ChannelCredentials, Metadata, credentials } from "@grpc/grpc-js";
 import { AbstractClient } from "./AbstractClient";
-import { DomainsClient } from "../generated/node/domains_grpc_pb";
+import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
 import { IdentityClient } from "../generated/node/identity_grpc_pb";
 
 const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
@@ -52,8 +52,8 @@ export class Client extends AbstractClient {
     return metadata;
   }
 
-  getDomainsClient() {
-    return new DomainsClient(this.endpoint, this.channelCredentials);
+  getApplicationsClient() {
+    return new ApplicationsClient(this.endpoint, this.channelCredentials);
   }
 
   getIdentityClient() {

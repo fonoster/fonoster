@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Application } from "@fonoster/common";
 import { findIntegrationsCredentials } from "./findIntegrationsCredentials";
 import { IntegrationConfig } from "./types";
-import { Application } from "../../applications/types";
 import { TTS_PATH_TO_FILES } from "../../envs";
 
 function getTtsConfig(integrations: IntegrationConfig[], app: Application) {

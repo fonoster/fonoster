@@ -18,7 +18,7 @@
  */
 
 import { makeRpcRequest } from "./makeRpcRequest";
-import { DomainsClient, FonosterClient, IdentityClient } from "./types";
+import { ApplicationsClient, FonosterClient, IdentityClient } from "./types";
 import {
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
   ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
@@ -27,6 +27,7 @@ import {
 } from "../generated/node/identity_pb";
 
 abstract class AbstractClient implements FonosterClient {
+  protected idToken: string;
   protected accessKeyId: string;
   protected accessToken: string;
   protected _refreshToken: string;
@@ -109,7 +110,7 @@ abstract class AbstractClient implements FonosterClient {
   }
 
   abstract getMetadata(): unknown;
-  abstract getDomainsClient(): DomainsClient;
+  abstract getApplicationsClient(): ApplicationsClient;
 }
 
 export { AbstractClient };

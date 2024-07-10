@@ -16,9 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+type BaseApiObject = {
+  ref: string;
+};
+
 type NumberPreconditionsCheck = (request: {
   appRef?: string;
   agentAor?: string;
 }) => Promise<void>;
 
-export { NumberPreconditionsCheck };
+export { NumberPreconditionsCheck, BaseApiObject };

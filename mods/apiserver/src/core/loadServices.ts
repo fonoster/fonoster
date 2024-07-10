@@ -18,7 +18,7 @@
  */
 import {
   ServiceDefinitionParams,
-  createServiceDefiniton
+  createServiceDefinition
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
@@ -32,7 +32,7 @@ type FonosterService = {
 
 async function loadServices(server: grpc.Server, services: FonosterService[]) {
   services.forEach((service) => {
-    const serviceDefinition = createServiceDefiniton(service.definition);
+    const serviceDefinition = createServiceDefinition(service.definition);
     const { serviceName, pckg, version } = service.definition;
     server.addService(serviceDefinition, service.handlers);
 

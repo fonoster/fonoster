@@ -18,10 +18,10 @@
  */
 import { AbstractClient } from "./AbstractClient";
 import {
-  DomainsClient as TDomainsClient,
+  ApplicationsClient as TApplicationsClient,
   IdentityClient as TIdentityClient
 } from "./types";
-import { DomainsClient } from "../generated/web/DomainsServiceClientPb";
+import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
 import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
 
 const DEFAULT_URL = "https://api.fonoster.io/v1beta2";
@@ -47,8 +47,8 @@ export class WebClient extends AbstractClient {
     };
   }
 
-  getDomainsClient() {
-    return new DomainsClient(this.url) as TDomainsClient;
+  getApplicationsClient() {
+    return new ApplicationsClient(this.url) as TApplicationsClient;
   }
 
   getIdentityClient() {

@@ -17,4 +17,4 @@
  * limitations under the License.
  */
 export * from "./client/Client";
-export * from "./Domains";
+export * from "./Applications";

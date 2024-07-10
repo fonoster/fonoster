@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import fs from "fs";
+import { Application } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
@@ -24,7 +25,6 @@ import { ApplicationNotFoundError } from "./ApplicationNotFoundError";
 import { getSttConfig } from "./getSttConfig";
 import { getTtsConfig } from "./getTtsConfig";
 import { IntegrationsContainer } from "./types";
-import { Application } from "../../applications/types";
 import { Prisma } from "../../core/db";
 import { SpeechToTextFactory } from "../stt/SpeechToTextFactory";
 import { TextToSpeechFactory } from "../tts/TextToSpeechFactory";

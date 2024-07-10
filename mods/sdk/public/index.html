@@ -6,11 +6,16 @@
   const password = "changeme";
 
   const client = new SDK.WebClient({ url, accessKeyId });
-    
-  client.login(username, password)
-    .then(async(res) => {
-      const domains = new SDK.Domains(client);
-      const response = await domains.createDomain({ name: "test.com", domainUri: "test.com" });
+
+  client
+    .login(username, password)
+    .then(async () => {
+      const domains = new SDK.Applications(client);
+      const response = await domains.createApplication({
+        name: "test",
+        type: "PROGRAMMABLE_VOICE",
+        appEndpoint: "http://localhost:3000"
+      });
       console.log(response.getRef());
     })
     .catch(console.error);

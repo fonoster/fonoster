@@ -16,9 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  CreateApplicationRequest,
+  UpdateApplicationRequest
+} from "@fonoster/common";
 import { getApplicationValidationSchema } from "./getApplicationValidationSchema";
 import { prepareForValidation } from "./prepareForValidation";
-import { CreateApplicationRequest, UpdateApplicationRequest } from "../types";
 
 function validOrThrow(
   request: CreateApplicationRequest | UpdateApplicationRequest

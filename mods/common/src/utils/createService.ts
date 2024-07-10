@@ -30,11 +30,11 @@ const loadOptions = {
   keepCase: false,
   longs: String,
   enums: String,
-  defaults: false,
+  defaults: true,
   oneofs: true
 };
 
-function createServiceDefiniton(
+function createServiceDefinition(
   params: ServiceDefinitionParams
 ): grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
   const pathToProto = `${__dirname}/../protos/${params.proto}`;
@@ -45,4 +45,4 @@ function createServiceDefiniton(
   ][params.serviceName].service;
 }
 
-export { createServiceDefiniton, ServiceDefinitionParams };
+export { createServiceDefinition, ServiceDefinitionParams };

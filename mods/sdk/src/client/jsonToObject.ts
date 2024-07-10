@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// When converting to repeated fields, the inconming fields
+// When converting to repeated fields, the incoming fields
 // must be appended with "List"
 function jsonToObject<J extends Record<string, unknown>, T>(
   json: J,

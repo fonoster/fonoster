@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createServiceDefiniton } from "@fonoster/common";
+import { createServiceDefinition } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 import { serviceDefinitionParams } from "./service";
 
@@ -25,7 +25,7 @@ type GetPublicKeyResponse = {
 };
 
 const IdentityServiceClient = grpc.makeGenericClientConstructor(
-  createServiceDefiniton(serviceDefinitionParams),
+  createServiceDefinition(serviceDefinitionParams),
   "",
   {}
 );

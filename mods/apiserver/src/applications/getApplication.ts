@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import { datesMapper } from "@fonoster/common";
+import { Application, GetApplicationRequest } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { Application, GetApplicationRequest } from "./types";
 import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../core/db";
 

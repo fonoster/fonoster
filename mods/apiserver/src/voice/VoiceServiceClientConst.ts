@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createServiceDefiniton } from "@fonoster/common";
+import { createServiceDefinition } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 
 const VoiceServiceClient = grpc.makeGenericClientConstructor(
-  createServiceDefiniton({
+  createServiceDefinition({
     serviceName: "Voice",
     pckg: "voice",
     proto: "voice.proto",

@@ -16,37 +16,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CreateDomainRequest, CreateDomainResponse } from "@fonoster/common";
+import {
+  CreateApplicationRequest,
+  CreateApplicationResponse
+} from "@fonoster/common";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
-  CreateDomainRequest as CreateDomainRequestPB,
-  CreateDomainResponse as CreateDomainResponsePB
-} from "./generated/node/domains_pb";
+  CreateApplicationRequest as CreateApplicationRequestPB,
+  CreateApplicationResponse as CreateApplicationResponsePB
+} from "./generated/node/applications_pb";
 
-class Domains {
+class Applications {
   private client: FonosterClient;
 
   constructor(client: FonosterClient) {
     this.client = client;
   }
 
-  async createDomain(
-    request: CreateDomainRequest
-  ): Promise<CreateDomainResponse> {
-    const domainsClient = this.client.getDomainsClient();
+  async createApplication(
+    request: CreateApplicationRequest
+  ): Promise<CreateApplicationResponse> {
+    const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<
-      CreateDomainRequestPB,
-      CreateDomainResponsePB,
-      CreateDomainRequest,
-      CreateDomainResponse
+      CreateApplicationRequestPB,
+      CreateApplicationResponsePB,
+      CreateApplicationRequest,
+      CreateApplicationResponse
     >(
-      domainsClient.createDomain.bind(domainsClient),
-      CreateDomainRequestPB,
+      applicationsClient.createApplication.bind(applicationsClient),
+      CreateApplicationRequestPB,
       this.client.getMetadata(),
       request
     );
   }
 }
 
-export { Domains };
+export { Applications };

@@ -25,7 +25,8 @@ protoc -I=. $DIRNAME/../mods/common/src/protos/acls.proto \
   -I=$DIRNAME/../mods/common/src/protos/ \
   --js_out=import_style=commonjs,binary:$OUT_DIR_NODE \
   --grpc_out=grpc_js:$OUT_DIR_NODE \
-  --plugin=protoc-gen-grpc=$(which grpc_tools_node_protoc_plugin)
+  --plugin=protoc-gen-grpc=$(which grpc_tools_node_protoc_plugin) \
+  --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts
 
 # Browser
 protoc -I=. $DIRNAME/../mods/common/src/protos/acls.proto \
@@ -40,4 +41,5 @@ protoc -I=. $DIRNAME/../mods/common/src/protos/acls.proto \
   -I=. $DIRNAME/../mods/common/src/protos/trunks.proto \
   -I=$DIRNAME/../mods/common/src/protos/ \
   --js_out=import_style=commonjs:$OUT_DIR_WEB \
-  --grpc-web_out=import_style=typescript,mode=grpcwebtext:$OUT_DIR_WEB
+  --grpc-web_out=import_style=typescript,mode=grpcwebtext:$OUT_DIR_WEB \
+  --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts

@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { UpdateApplicationRequest } from "@fonoster/common";
 import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { UpdateApplicationRequest } from "./types";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./utils/validOrThrow";
 import { Prisma } from "../core/db";
