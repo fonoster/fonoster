@@ -49,6 +49,8 @@
     "@rollup/plugin-replace": "^5.0.7",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@types/mustache": "^4.2.5",
+    "mustache": "^4.2.0",
     "rollup": "^4.18.0",
     "serve": "^14.2.3"
   }

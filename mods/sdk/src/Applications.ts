@@ -17,14 +17,18 @@
  * limitations under the License.
  */
 import {
+  BaseApiObject,
   CreateApplicationRequest,
-  CreateApplicationResponse
+  CreateApplicationResponse,
+  GetApplicationRequest
 } from "@fonoster/common";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
   CreateApplicationRequest as CreateApplicationRequestPB,
-  CreateApplicationResponse as CreateApplicationResponsePB
+  CreateApplicationResponse as CreateApplicationResponsePB,
+  GetApplicationRequest as GetApplicationRequestPB,
+  GetApplicationResponse as GetApplicationResponsePB
 } from "./generated/node/applications_pb";
 import { ApplicationType } from "./generated/web/applications_pb";
 
@@ -50,6 +54,21 @@ class Applications {
       this.client.getMetadata(),
       request,
       [["type", ApplicationType]]
+    );
+  }
+
+  async getApplication(request: GetApplicationRequest): Promise<BaseApiObject> {
+    const applicationsClient = this.client.getApplicationsClient();
+    return await makeRpcRequest<
+      GetApplicationRequestPB,
+      GetApplicationResponsePB,
+      GetApplicationRequest,
+      BaseApiObject
+    >(
+      applicationsClient.getApplication.bind(applicationsClient),
+      GetApplicationRequestPB,
+      this.client.getMetadata(),
+      request
     );
   }
 }

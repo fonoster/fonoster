@@ -19,7 +19,9 @@
 import { Metadata } from "grpc-web";
 import {
   CreateApplicationRequest,
-  CreateApplicationResponse
+  CreateApplicationResponse,
+  GetApplicationRequest,
+  GetApplicationResponse
 } from "../generated/node/applications_pb";
 import {
   ExchangeApiKeyRequest,
@@ -55,6 +57,7 @@ type ApplicationsClient = {
     CreateApplicationRequest,
     CreateApplicationResponse
   >;
+  getApplication: ClientFunction<GetApplicationRequest, GetApplicationResponse>;
 };
 
 interface FonosterClient {
