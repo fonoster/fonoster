@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import {
+  Application,
   BaseApiObject,
   CreateApplicationRequest,
   CreateApplicationResponse,
   DeleteApplicationRequest,
-  DeleteApplicationResponse,
   GetApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
@@ -41,13 +41,122 @@ import {
 } from "./generated/node/applications_pb";
 import { ApplicationType } from "./generated/web/applications_pb";
 
+/**
+ * @classdesc Fonoster Applications, part of the Fonoster Voice Subsystem,
+ * allow you to create, update, retrieve, and delete Voice Applications.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * const request = {
+ *   name: "My application",
+ *   type: "PROGRAMMABLE_VOICE",
+ *   appEndpoint: "myapp.mydomain.com",
+ *   textToSpeech: {
+ *     productRef: "tts.google",
+ *     config: {
+ *       voice: "en-US-Casual-K"
+ *     }
+ *   },
+ *   speechToText: {
+ *     productRef: "stt.google",
+ *     config: {
+ *      languageCode: "en-US"
+ *     }
+ *   },
+ *   intelligence: {
+ *     productRef: "nlu.dialogflowcx",
+ *     credentials: {
+ *        apiKey: "your-api-key"
+ *     },
+ *     config: {
+ *       agentId: "your-agent-id"
+ *     }
+ *   }
+ * };
+ *
+ * const username = "admin@fonoster.local";
+ * const password = "changeme";
+ * const accessKeyId = "WO00000000000000000000000000000000";
+ *
+ * const client = new SDK.Client({ accessKeyId });
+ *
+ * client.login(username, password)
+ *  .then(async () => {
+ *    const apps = new SDK.Applications(client);
+ *    const result = await apps.createApplication(request);
+ *    console.log(result);  // successful response
+ *  }).catch(console.error); // an error occurred
+ */
 class Applications {
   private client: FonosterClient;
 
+  /**
+   * Constructs a new Applications object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
 
+  /**
+   * Creates a new Application in Fonoster. The only required fields are the name and type of the application.
+   *
+   * @param {CreateApplicationRequest} request - The request object that contains the necessary information to create a new application
+   * @param {string} request.name - The name of the application
+   * @param {ApplicationType} request.type - The type of application (e.g., PROGRAMMABLE_VOICE)
+   * @param {string} request.appEndpoint - The endpoint where the application is hosted
+   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
+   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.google)
+   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" })
+   * @param {SpeechToText} request.speechToText - The speech-to-text configuration
+   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.google)
+   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" })
+   * @param {Intelligence} request.intelligence - The intelligence configuration
+   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., nlu.dialogflowcx)
+   * @param {object} request.intelligence.credentials - The credentials object for the intelligence engine (e.g., { apiKey: "your-api-key" })
+   * @param {object} request.intelligence.config - The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" })
+   * @return {Promise<CreateAppResponse>} - The response object that contains the reference to the newly created application
+   * @example
+   *
+   * const request = {
+   *   name: "My application",
+   *   type: "PROGRAMMABLE_VOICE",
+   *   appEndpoint: "myapp.mydomain.com",
+   *   textToSpeech: {
+   *     productRef: "tts.google",
+   *     config: {
+   *       voice: "en-US-Casual-K"
+   *     }
+   *   },
+   *   speechToText: {
+   *     productRef: "stt.google",
+   *     config: {
+   *      languageCode: "en-US"
+   *     }
+   *   },
+   *   intelligence: {
+   *     productRef: "nlu.dialogflowcx",
+   *     credentials: {
+   *        apiKey: "your-api-key"
+   *     },
+   *     config: {
+   *       agentId: "your-agent-id"
+   *     }
+   *   }
+   * };
+   *
+   * const apps = new SDK.Applications(client); // Existing client object
+   *
+   * apps.createApplication(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createApplication(
     request: CreateApplicationRequest
   ): Promise<CreateApplicationResponse> {
@@ -66,13 +175,31 @@ class Applications {
     );
   }
 
-  async getApplication(request: GetApplicationRequest): Promise<BaseApiObject> {
+  /**
+   * Retrieves an existing application from Fonoster.
+   *
+   * @param {GetApplicationRequest} request - The request object that contains the necessary information to retrieve an application
+   * @param {string} request.ref - The reference of the application to retrieve
+   * @return {Promise<Application>} - The response object that contains the application information
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const apps = new SDK.Applications(client); // Existing client object
+   *
+   * apps.getApplication(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
+  async getApplication(request: GetApplicationRequest): Promise<Application> {
     const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<
       GetApplicationRequestPB,
       GetApplicationResponsePB,
       GetApplicationRequest,
-      BaseApiObject
+      Application
     >(
       applicationsClient.getApplication.bind(applicationsClient),
       GetApplicationRequestPB,
@@ -81,6 +208,38 @@ class Applications {
     );
   }
 
+  /**
+   * Updates an existing application in Fonoster.
+   *
+   * @param {UpdateApplicationRequest} request - The request object that contains the necessary information to update an application
+   * @param {string} request.ref - The reference of the application to update
+   * @param {string} request.name - The name of the application
+   * @param {string} request.appEndpoint - The endpoint where the application is hosted
+   * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
+   * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.google)
+   * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" })
+   * @param {SpeechToText} request.speechToText - The speech-to-text configuration
+   * @param {string} request.speechToText.productRef - The product reference of the speech-to-text engine (e.g., stt.google)
+   * @param {object} request.speechToText.config - The configuration object for the speech-to-text engine (e.g., { languageCode: "en-US" })
+   * @param {Intelligence} request.intelligence - The intelligence configuration
+   * @param {string} request.intelligence.productRef - The product reference of the intelligence engine (e.g., nlu.dialogflowcx)
+   * @param {object} request.intelligence.credentials - The credentials object for the intelligence engine (e.g., { apiKey: "your-api-key" })
+   * @param {object} request.intelligence.config - The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" })
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated application
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  name: "My application",
+   *  appEndpoint: "myapp.mydomain.com"
+   * }
+   *
+   * const apps = new SDK.Applications(client); // Existing client object
+   *
+   * apps.updateApplication(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateApplication(
     request: UpdateApplicationRequest
   ): Promise<BaseApiObject> {
@@ -98,6 +257,26 @@ class Applications {
     );
   }
 
+  /**
+   * Retrieves a list of applications from Fonoster.
+   *
+   * @param {ListApplicationsRequest} request - The request object that contains the necessary information to retrieve a list of applications
+   * @param {number} request.pageSize - The number of applications to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of applications
+   * @return {Promise<ListApplicationsResponse>} - The response object that contains the list of applications
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const apps = new SDK.Applications(client); // Existing client object
+   *
+   * apps.listApplications(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listApplications(
     request: ListApplicationsRequest
   ): Promise<ListApplicationsResponse> {
@@ -115,15 +294,34 @@ class Applications {
     );
   }
 
+  /**
+   * Deletes an existing application from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {DeleteApplicationRequest} request - The request object that contains the necessary information to delete an application
+   * @param {string} request.ref - The reference of the application to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted application
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const apps = new SDK.Applications(client); // Existing client object
+   *
+   * apps.deleteApplication(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteApplication(
     request: DeleteApplicationRequest
-  ): Promise<DeleteApplicationResponse> {
+  ): Promise<BaseApiObject> {
     const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<
       GetApplicationRequestPB,
       GetApplicationResponsePB,
       GetApplicationRequest,
-      DeleteApplicationResponse
+      BaseApiObject
     >(
       applicationsClient.getApplication.bind(applicationsClient),
       GetApplicationRequestPB,

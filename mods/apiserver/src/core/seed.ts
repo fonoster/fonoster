@@ -51,7 +51,7 @@ async function main() {
     update: {},
     create: {
       ref: "nlu.dialogflowcx",
-      name: "Dialogflow ES",
+      name: "Dialogflow CX",
       vendor: "GOOGLE",
       type: "NLU"
     }
