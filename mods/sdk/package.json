@@ -17,7 +17,8 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "rollup -c rollup.config.mjs && tsc --project tsconfig.node.json",
     "postbuild": "mv dist/node/src/* dist/node && rm -rf dist/node/generated && cp -a src/generated dist/node/generated/ && cp dist/web/fonoster.min.js public/fonoster.min.js",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
+    "generate:readme": "node ../../.scripts/gen-readme.js"
   },
   "keywords": [
     "sdk",

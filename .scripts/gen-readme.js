@@ -27,6 +27,8 @@ const allJSFiles = getJSFiles(path.join(process.cwd(), "dist"));
 let fullDocumentation = ''; // Store the entire documentation here
 
 for (const file of allJSFiles) {
+  if (file.includes("/generated/")) continue; // Skip generated files
+
   const templateData = jsdoc2md.getTemplateDataSync({ files: file });
 
   /* reduce templateData to an array of class names */
