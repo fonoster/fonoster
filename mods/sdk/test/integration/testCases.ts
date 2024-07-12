@@ -52,6 +52,37 @@ const testCases = [
         },
         grpcCode: status.OK,
         needsResultFrom: "fnstr000"
+      },
+      {
+        id: "fnstr003",
+        name: "should update the name of the application",
+        method: "updateApplication",
+        request: {
+          ref: "{{ref}}",
+          name: "My renamed Application"
+        },
+        grpcCode: status.OK,
+        needsResultFrom: "fnstr000"
+      },
+      {
+        id: "fnstr004",
+        name: "should list at least ten applications",
+        method: "listApplications",
+        request: {
+          pageSize: 10,
+          pageToken: null
+        },
+        grpcCode: status.OK
+      },
+      {
+        id: "fnstr005",
+        name: "should delete the application",
+        method: "deleteApplication",
+        request: {
+          ref: "{{ref}}"
+        },
+        grpcCode: status.OK,
+        needsResultFrom: "fnstr000"
       }
     ]
   }

@@ -16,12 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  DeleteApplicationRequest,
+  DeleteApplicationResponse
+} from "@fonoster/common";
 import { Metadata } from "grpc-web";
 import {
   CreateApplicationRequest,
   CreateApplicationResponse,
   GetApplicationRequest,
-  GetApplicationResponse
+  GetApplicationResponse,
+  ListApplicationsRequest,
+  ListApplicationsResponse,
+  UpdateApplicationRequest,
+  UpdateApplicationResponse
 } from "../generated/node/applications_pb";
 import {
   ExchangeApiKeyRequest,
@@ -58,6 +66,18 @@ type ApplicationsClient = {
     CreateApplicationResponse
   >;
   getApplication: ClientFunction<GetApplicationRequest, GetApplicationResponse>;
+  updateApplication: ClientFunction<
+    UpdateApplicationRequest,
+    UpdateApplicationResponse
+  >;
+  listApplications: ClientFunction<
+    ListApplicationsRequest,
+    ListApplicationsResponse
+  >;
+  deleteApplication: ClientFunction<
+    DeleteApplicationRequest,
+    DeleteApplicationResponse
+  >;
 };
 
 interface FonosterClient {
