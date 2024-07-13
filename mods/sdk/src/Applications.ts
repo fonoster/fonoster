@@ -21,7 +21,6 @@ import {
   BaseApiObject,
   CreateApplicationRequest,
   CreateApplicationResponse,
-  DeleteApplicationRequest,
   GetApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
@@ -30,16 +29,18 @@ import {
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
+  Application as ApplicationPB,
+  ApplicationType,
   CreateApplicationRequest as CreateApplicationRequestPB,
   CreateApplicationResponse as CreateApplicationResponsePB,
+  DeleteApplicationRequest as DeleteApplicationRequestPB,
+  DeleteApplicationResponse as DeleteApplicationResponsePB,
   GetApplicationRequest as GetApplicationRequestPB,
-  GetApplicationResponse as GetApplicationResponsePB,
   ListApplicationsRequest as ListApplicationsRequestPB,
   ListApplicationsResponse as ListApplicationsResponsePB,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
 } from "./generated/node/applications_pb";
-import { ApplicationType } from "./generated/web/applications_pb";
 
 /**
  * @classdesc Fonoster Applications, part of the Fonoster Voice Subsystem,
@@ -197,7 +198,7 @@ class Applications {
     const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<
       GetApplicationRequestPB,
-      GetApplicationResponsePB,
+      ApplicationPB,
       GetApplicationRequest,
       Application
     >(
@@ -298,35 +299,30 @@ class Applications {
    * Deletes an existing application from Fonoster.
    * Note that this operation is irreversible.
    *
-   * @param {DeleteApplicationRequest} request - The request object that contains the necessary information to delete an application
-   * @param {string} request.ref - The reference of the application to delete
+   * @param {string} ref - The reference of the application to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted application
    * @example
    *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000"
-   * };
+   * const ref =  "00000000-0000-0000-0000-000000000000"
    *
    * const apps = new SDK.Applications(client); // Existing client object
    *
-   * apps.deleteApplication(request)
+   * apps.deleteApplication(ref)
    *  .then(console.log) // successful response
    *  .catch(console.error); // an error occurred
    */
-  async deleteApplication(
-    request: DeleteApplicationRequest
-  ): Promise<BaseApiObject> {
+  async deleteApplication(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<
-      GetApplicationRequestPB,
-      GetApplicationResponsePB,
+      DeleteApplicationRequestPB,
+      DeleteApplicationResponsePB,
       GetApplicationRequest,
       BaseApiObject
     >(
       applicationsClient.getApplication.bind(applicationsClient),
       GetApplicationRequestPB,
       this.client.getMetadata(),
-      request
+      { ref }
     );
   }
 }
