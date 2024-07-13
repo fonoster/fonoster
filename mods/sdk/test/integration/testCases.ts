@@ -30,8 +30,7 @@ const testCases = [
           name: "My Application",
           type: "PROGRAMMABLE_VOICE",
           appEndpoint: "localhost:3000"
-        },
-        grpcCode: status.OK
+        }
       },
       {
         id: "fnstr001",
@@ -47,10 +46,7 @@ const testCases = [
         id: "fnstr002",
         name: "should failed to find the application",
         method: "getApplication",
-        request: {
-          ref: "{{ref}}"
-        },
-        grpcCode: status.OK,
+        request: "{{ref}}",
         needsResultFrom: "fnstr000"
       },
       {
@@ -61,7 +57,6 @@ const testCases = [
           ref: "{{ref}}",
           name: "My renamed Application"
         },
-        grpcCode: status.OK,
         needsResultFrom: "fnstr000"
       },
       {
@@ -71,17 +66,13 @@ const testCases = [
         request: {
           pageSize: 10,
           pageToken: null
-        },
-        grpcCode: status.OK
+        }
       },
       {
         id: "fnstr005",
         name: "should delete the application",
         method: "deleteApplication",
-        request: {
-          ref: "{{ref}}"
-        },
-        grpcCode: status.OK,
+        request: "{{ref}}",
         needsResultFrom: "fnstr000"
       }
     ]

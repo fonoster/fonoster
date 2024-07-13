@@ -44,14 +44,14 @@ function createApplication(prisma: Prisma) {
       call as unknown as ServerInterceptingCall
     );
 
-    validOrThrow(call.request);
-
-    logger.verbose("call to createApplication", {
-      accessKeyId,
-      type
-    });
-
     try {
+      logger.verbose("call to createApplication", {
+        accessKeyId,
+        type
+      });
+
+      validOrThrow(call.request);
+
       const result = await prisma.application.create({
         data: {
           ...convertToApplicationData(call.request),

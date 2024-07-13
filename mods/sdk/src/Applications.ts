@@ -179,8 +179,7 @@ class Applications {
   /**
    * Retrieves an existing application from Fonoster.
    *
-   * @param {GetApplicationRequest} request - The request object that contains the necessary information to retrieve an application
-   * @param {string} request.ref - The reference of the application to retrieve
+   * @param {string} ref - The reference of the application to retrieve
    * @return {Promise<Application>} - The response object that contains the application information
    * @example
    *
@@ -194,7 +193,7 @@ class Applications {
    *  .then(console.log) // successful response
    *  .catch(console.error); // an error occurred
    */
-  async getApplication(request: GetApplicationRequest): Promise<Application> {
+  async getApplication(ref: string): Promise<Application> {
     const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<
       GetApplicationRequestPB,
@@ -205,7 +204,7 @@ class Applications {
       applicationsClient.getApplication.bind(applicationsClient),
       GetApplicationRequestPB,
       this.client.getMetadata(),
-      request
+      { ref }
     );
   }
 
@@ -316,11 +315,11 @@ class Applications {
     return await makeRpcRequest<
       DeleteApplicationRequestPB,
       DeleteApplicationResponsePB,
-      GetApplicationRequest,
+      BaseApiObject,
       BaseApiObject
     >(
-      applicationsClient.getApplication.bind(applicationsClient),
-      GetApplicationRequestPB,
+      applicationsClient.deleteApplication.bind(applicationsClient),
+      DeleteApplicationRequestPB,
       this.client.getMetadata(),
       { ref }
     );
