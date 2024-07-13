@@ -21,15 +21,19 @@ import {
   CreateApplicationRequest,
   UpdateApplicationRequest
 } from "@fonoster/common";
+import { ApplicationType } from "@prisma/client";
 import { struct } from "pb-util";
 
 function prepareForValidation(
   request: CreateApplicationRequest | UpdateApplicationRequest
 ) {
+  const type =
+    (request.type as ApplicationType) || ApplicationType.PROGRAMMABLE_VOICE;
+
   const result = {
     ref: (request as UpdateApplicationRequest).ref, // Only for UpdateApplicationRequest
     name: request.name,
-    type: request.type,
+    type,
     appEndpoint: request.appEndpoint
   } as Application;
 

@@ -27,10 +27,13 @@ import { ApplicationData } from "../types";
 function convertToApplicationData(
   request: CreateApplicationRequest | UpdateApplicationRequest
 ) {
+  const type =
+    (request.type as ApplicationType) || ApplicationType.PROGRAMMABLE_VOICE;
+
   const result = {
     ref: (request as UpdateApplicationRequest).ref, // Only for UpdateApplicationRequest
     name: request.name,
-    type: request.type as unknown as ApplicationType,
+    type,
     appEndpoint: request.appEndpoint
   } as unknown as ApplicationData;
 
