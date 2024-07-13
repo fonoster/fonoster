@@ -69,21 +69,31 @@ const accessKeyId = "WO00000000000000000000000000000000";
 const client = new SDK.WebClient({ accessKeyId });
 ```
 
-### Logging in and making requests
+### Initializing the client
 
 ```typescript
 const username = "admin@fonoster.local";
 const password = "changeme";
 
 client.login(username, password)
- .then(async () => {
-    const applications = new SDK.Applications(client);
-    await applications.createApplication({
-      name: "MyApp",
-      type: "PROGRAMMABLE_VOICE",
-      appEndpoint: "localhost:3000" // Your app endpoint
- });
- })
+ .then(console.log)
+ .catch(console.error);
+```
+
+### Making a request
+
+```typescript
+// Requires an initialized client object
+const applications = new SDK.Applications(client);
+
+const request = {
+  name: "MyApp",
+  type: "PROGRAMMABLE_VOICE",
+  appEndpoint: "localhost:3000" // Your app endpoint
+};
+
+applications.createApplication(request)
+ .then(console.log)
  .catch(console.error);
 ```
 
