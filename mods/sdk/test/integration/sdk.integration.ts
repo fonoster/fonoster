@@ -58,18 +58,25 @@ describe("@sdk[integration]", async function () {
   }) {
     describe(params.api, async function () {
       params.cases.forEach(async function (testCase: TestCase) {
-        const { id, name, method, request, grpcCode, needsResultFrom } =
-          testCase;
+        const {
+          id,
+          name,
+          method,
+          request,
+          grpcCode,
+          dependsOn,
+          responseValidator
+        } = testCase;
 
         await new Promise<void>((resolve) => {
           it(name, async function () {
-            if (needsResultFrom) {
-              expect(resultStore[needsResultFrom]).to.be.not.undefined;
+            if (dependsOn) {
+              expect(resultStore[dependsOn]).to.be.not.undefined;
             }
 
             const computedRequest = Mustache.render(
               JSON.stringify(request),
-              resultStore[needsResultFrom]
+              resultStore[dependsOn]
             );
 
             const response = await runTestCase(client, params.api, {
@@ -78,7 +85,8 @@ describe("@sdk[integration]", async function () {
               method,
               request: JSON.parse(computedRequest),
               grpcCode,
-              needsResultFrom
+              dependsOn,
+              responseValidator
             });
 
             if (response) {

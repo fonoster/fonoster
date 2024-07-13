@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { expect } from "chai";
+import { AssertionError, expect } from "chai";
 import { FonosterClient } from "../../src/client/types";
 import * as SDK from "../../src/node";
 
@@ -27,7 +27,8 @@ type TestCase = {
   method: string;
   request: unknown;
   grpcCode?: number;
-  needsResultFrom?: string;
+  dependsOn?: string;
+  responseValidator?: (response: unknown) => void;
 };
 
 async function runTestCase(
@@ -35,8 +36,7 @@ async function runTestCase(
   api: string,
   testCase: TestCase
 ) {
-  const { method, request, grpcCode } = testCase;
-
+  const { method, request, grpcCode, responseValidator } = testCase;
   const apiInstance = new SDK[api](client);
   const clientMethod = apiInstance[method].bind(apiInstance);
 
@@ -45,10 +45,15 @@ async function runTestCase(
 
     expect(response).to.not.be.undefined;
 
+    if (responseValidator) {
+      responseValidator(response);
+    }
+
     if (grpcCode) expect.fail(`Expected error code ${grpcCode}`);
 
     return response;
   } catch (error) {
+    if (error instanceof AssertionError) throw error;
     expect(error.code).to.be.equal(grpcCode);
   }
 }

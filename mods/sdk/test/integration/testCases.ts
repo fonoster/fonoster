@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { status } from "@grpc/grpc-js";
+import { expect } from "chai";
 
 const testCases = [
   {
@@ -30,6 +31,9 @@ const testCases = [
           name: "My Application",
           type: "PROGRAMMABLE_VOICE",
           appEndpoint: "localhost:3000"
+        },
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
         }
       },
       {
@@ -47,7 +51,10 @@ const testCases = [
         name: "should failed to find the application",
         method: "getApplication",
         request: "{{ref}}",
-        needsResultFrom: "fnstr000"
+        dependsOn: "fnstr000",
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
       },
       {
         id: "fnstr003",
@@ -57,7 +64,10 @@ const testCases = [
           ref: "{{ref}}",
           name: "My renamed Application"
         },
-        needsResultFrom: "fnstr000"
+        dependsOn: "fnstr000",
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
       },
       {
         id: "fnstr004",
@@ -66,6 +76,14 @@ const testCases = [
         request: {
           pageSize: 10,
           pageToken: null
+        },
+        responseValidator: (response: {
+          itemsList: unknown[];
+          nextPageToken: string;
+        }) => {
+          expect(response).has.property("itemsList");
+          expect(response).has.property("nextPageToken");
+          expect(response.itemsList.length).to.be.greaterThan(0);
         }
       },
       {
@@ -73,7 +91,10 @@ const testCases = [
         name: "should delete the application",
         method: "deleteApplication",
         request: "{{ref}}",
-        needsResultFrom: "fnstr000"
+        dependsOn: "fnstr000",
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
       }
     ]
   }
