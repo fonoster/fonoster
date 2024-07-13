@@ -26,7 +26,7 @@ type TestCase = {
   name: string;
   method: string;
   request: unknown;
-  grpcCode: number;
+  grpcCode?: number;
   needsResultFrom?: string;
 };
 
@@ -42,7 +42,11 @@ async function runTestCase(
 
   try {
     const response = await clientMethod(request);
+
     expect(response).to.not.be.undefined;
+
+    if (grpcCode) expect.fail(`Expected error code ${grpcCode}`);
+
     return response;
   } catch (error) {
     expect(error.code).to.be.equal(grpcCode);

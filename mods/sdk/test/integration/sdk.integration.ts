@@ -24,8 +24,8 @@ import chaiAsPromised from "chai-as-promised";
 import dotenv from "dotenv";
 import Mustache from "mustache";
 import sinonChai from "sinon-chai";
+import { TestCase, runTestCase } from "./runTestCase";
 import { testCases } from "./testCases";
-import { TestCase, runTestCase } from "./testUtils";
 import * as SDK from "../../src/node";
 
 // Load environment variables
