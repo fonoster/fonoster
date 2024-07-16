@@ -36,7 +36,7 @@ async function main() {
   });
 
   await prisma.product.upsert({
-    where: { ref: "sst.google" },
+    where: { ref: "stt.google" },
     update: {},
     create: {
       ref: "stt.google",
