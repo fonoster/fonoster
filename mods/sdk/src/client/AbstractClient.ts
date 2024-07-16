@@ -29,14 +29,14 @@ import {
 abstract class AbstractClient implements FonosterClient {
   protected idToken: string;
   protected accessKeyId: string;
-  protected accessToken: string;
+  protected _accessToken: string;
   protected _refreshToken: string;
   protected identityClient: IdentityClient;
 
   constructor(config: { accessKeyId: string; identityClient: IdentityClient }) {
     this.accessKeyId = config.accessKeyId;
     this.identityClient = config.identityClient;
-    this.accessToken = "";
+    this._accessToken = "";
     this._refreshToken = "";
   }
 
@@ -57,17 +57,17 @@ abstract class AbstractClient implements FonosterClient {
     );
 
     this._refreshToken = refreshToken;
-    this.accessToken = accessToken;
+    this._accessToken = accessToken;
   }
 
   async loginWithRefreshToken(refreshToken: string): Promise<void> {
-    const { accessToken } = await makeRpcRequest<
+    const { accessToken, refreshToken: newRefreshToken } = await makeRpcRequest<
       ExchangeRefreshTokenRequestPB,
       ExchangeCredentialsResponsePB,
       { refreshToken: string },
-      { accessToken: string }
+      { accessToken: string; refreshToken: string }
     >(
-      this.identityClient.exchangeRefreshToken,
+      this.identityClient.exchangeRefreshToken.bind(this.identityClient),
       ExchangeRefreshTokenRequestPB,
       {},
       {
@@ -75,7 +75,8 @@ abstract class AbstractClient implements FonosterClient {
       }
     );
 
-    this.accessToken = accessToken;
+    this._refreshToken = newRefreshToken;
+    this._accessToken = accessToken;
   }
 
   async loginWithApiKey(apiKey: string): Promise<void> {
@@ -94,10 +95,10 @@ abstract class AbstractClient implements FonosterClient {
     );
 
     this._refreshToken = refreshToken;
-    this.accessToken = accessToken;
+    this._accessToken = accessToken;
   }
 
-  protected async refreshToken(): Promise<void> {
+  async refreshToken(): Promise<void> {
     return await this.loginWithRefreshToken(this._refreshToken);
   }
 
@@ -106,7 +107,11 @@ abstract class AbstractClient implements FonosterClient {
   }
 
   getAccessToken(): string {
-    return this.accessToken;
+    return this._accessToken;
+  }
+
+  getRefreshToken(): string {
+    return this._refreshToken;
   }
 
   abstract getMetadata(): unknown;

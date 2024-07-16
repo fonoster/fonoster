@@ -16,8 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ChannelCredentials, Metadata, credentials } from "@grpc/grpc-js";
+import {
+  ChannelCredentials,
+  Interceptor,
+  Metadata,
+  credentials
+} from "@grpc/grpc-js";
 import { AbstractClient } from "./AbstractClient";
+import { TokenRefresherNode } from "./TokenRefresherNode";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
 import { IdentityClient } from "../generated/node/identity_grpc_pb";
 
@@ -25,7 +31,8 @@ const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
 
 export class Client extends AbstractClient {
   private endpoint: string;
-  channelCredentials: ChannelCredentials;
+  private tokenRefresherInterceptor: Interceptor;
+  private channelCredentials: ChannelCredentials;
 
   constructor(config: {
     endpoint?: string;
@@ -43,6 +50,9 @@ export class Client extends AbstractClient {
 
     this.channelCredentials = channelCredentials;
     this.endpoint = config?.endpoint || DEFAULT_ENDPOINT;
+    this.tokenRefresherInterceptor = new TokenRefresherNode(this)
+      .createInterceptor()
+      .bind(this);
   }
 
   getMetadata(): Metadata {
@@ -53,7 +63,9 @@ export class Client extends AbstractClient {
   }
 
   getApplicationsClient() {
-    return new ApplicationsClient(this.endpoint, this.channelCredentials);
+    return new ApplicationsClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
   }
 
   getIdentityClient() {
