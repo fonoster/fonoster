@@ -1,4 +1,4 @@
-<script src="./fonoster.min.js"></script>
+<script src="./fonoster.min.js?ts=2"></script>
 <script>
   const url = "http://localhost:7171";
   const accessKeyId = "WO00000000000000000000000000000000";
@@ -12,7 +12,7 @@
     .then(async () => {
       const domains = new SDK.Applications(client);
       const response = await domains.createApplication({
-        name: "test",
+        name: "MyApp",
         type: "PROGRAMMABLE_VOICE",
         appEndpoint: "localhost:3000"
       });
