@@ -85,6 +85,7 @@ interface FonosterClient {
   getAccessKeyId(): string;
   getApplicationsClient(): ApplicationsClient;
   getMetadata(): Metadata | unknown | null;
+  refreshToken(): Promise<void>;
 }
 
 export {

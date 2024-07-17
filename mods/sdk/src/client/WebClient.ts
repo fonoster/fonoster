@@ -17,10 +17,8 @@
  * limitations under the License.
  */
 import { AbstractClient } from "./AbstractClient";
-import {
-  ApplicationsClient as TApplicationsClient,
-  IdentityClient as TIdentityClient
-} from "./types";
+import { TokenRefresherWeb } from "./TokenRefresherWeb";
+import { ApplicationsClient as TApplicationsClient } from "./types";
 import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
 import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
 
@@ -34,7 +32,7 @@ export class WebClient extends AbstractClient {
 
     super({
       accessKeyId,
-      identityClient: new IdentityClient(url || DEFAULT_URL) as TIdentityClient
+      identityClient: new IdentityClient(url || DEFAULT_URL, null, null)
     });
 
     this.url = url || DEFAULT_URL;
@@ -48,10 +46,12 @@ export class WebClient extends AbstractClient {
   }
 
   getApplicationsClient() {
-    return new ApplicationsClient(this.url) as TApplicationsClient;
+    return new ApplicationsClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    }) as unknown as TApplicationsClient;
   }
 
   getIdentityClient() {
-    return new IdentityClient(this.url) as TIdentityClient;
+    return new IdentityClient(this.url, null, null);
   }
 }
