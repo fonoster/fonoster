@@ -38,9 +38,11 @@ import {
   GetApplicationRequest as GetApplicationRequestPB,
   ListApplicationsRequest as ListApplicationsRequestPB,
   ListApplicationsResponse as ListApplicationsResponsePB,
+  ProductContainer as ProductContainerPB,
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
 } from "./generated/node/applications_pb";
+import { buildStructOverride } from "./utils";
 
 /**
  * @classdesc Fonoster Applications, part of the Fonoster Voice Subsystem,
@@ -161,7 +163,9 @@ class Applications {
   async createApplication(
     request: CreateApplicationRequest
   ): Promise<CreateApplicationResponse> {
+    const reqWithStructOverride = buildStructOverride(request);
     const applicationsClient = this.client.getApplicationsClient();
+
     return await makeRpcRequest<
       CreateApplicationRequestPB,
       CreateApplicationResponsePB,
@@ -171,8 +175,13 @@ class Applications {
       applicationsClient.createApplication.bind(applicationsClient),
       CreateApplicationRequestPB,
       this.client.getMetadata(),
-      request,
-      [["type", ApplicationType]]
+      reqWithStructOverride,
+      [["type", ApplicationType]],
+      [
+        ["textToSpeech", ProductContainerPB],
+        ["speechToText", ProductContainerPB],
+        ["intelligence", ProductContainerPB]
+      ]
     );
   }
 
@@ -243,6 +252,8 @@ class Applications {
   async updateApplication(
     request: UpdateApplicationRequest
   ): Promise<BaseApiObject> {
+    const reqWithStructOverride = buildStructOverride(request);
+
     const applicationsClient = this.client.getApplicationsClient();
     return await makeRpcRequest<
       UpdateApplicationRequestPB,
@@ -253,7 +264,13 @@ class Applications {
       applicationsClient.updateApplication.bind(applicationsClient),
       UpdateApplicationRequestPB,
       this.client.getMetadata(),
-      request
+      reqWithStructOverride,
+      [["type", ApplicationType]],
+      [
+        ["textToSpeech", ProductContainerPB],
+        ["speechToText", ProductContainerPB],
+        ["intelligence", ProductContainerPB]
+      ]
     );
   }
 

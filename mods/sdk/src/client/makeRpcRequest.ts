@@ -19,7 +19,7 @@
  */
 import { jsonToObject } from "./jsonToObject";
 import { objectToJson } from "./objectToJson";
-import { ClientFunction, EnumMapping } from "./types";
+import { ClientFunction, EnumMapping, ObjectMapping } from "./types";
 
 function makeRpcRequest<
   RequestPB,
@@ -31,13 +31,15 @@ function makeRpcRequest<
   RequestPBObjectConstructor: new () => RequestPB,
   metadata: unknown,
   request: Request,
-  enumMapping?: EnumMapping<unknown>
+  enumMapping?: EnumMapping<unknown>,
+  objectMapping?: ObjectMapping<unknown>
 ): Promise<Response> {
-  const reqPB = jsonToObject<Request, RequestPB>(
-    request,
-    RequestPBObjectConstructor,
-    enumMapping
-  );
+  const reqPB = jsonToObject<Request, RequestPB>({
+    json: request,
+    ObjectConstructor: RequestPBObjectConstructor,
+    enumMapping,
+    objectMapping
+  });
 
   return new Promise((resolve, reject) => {
     // TODO: Update error to use GrpcError

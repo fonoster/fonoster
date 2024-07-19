@@ -17,23 +17,39 @@
  * limitations under the License.
  */
 import { getEnumValue, isEnum } from "./enumsUtil";
-import { EnumMapping } from "./types";
+import { isObjectMapping } from "./objectsUtil";
+import { EnumMapping, ObjectMapping } from "./types";
 
-// When converting to repeated fields, the incoming fields
-// must be appended with "List"
-function jsonToObject<J extends Record<string, unknown>, T>(
-  json: J,
-  ObjectConstructor: new () => T,
-  enumMapping?: EnumMapping<unknown>
-): T {
+function jsonToObject<J extends Record<string, unknown>, T>(params: {
+  json: J;
+  ObjectConstructor: new () => T;
+  enumMapping?: EnumMapping<unknown>;
+  objectMapping?: ObjectMapping<unknown>;
+}): T {
+  const { json, ObjectConstructor, enumMapping, objectMapping } = params;
   const instance = new ObjectConstructor();
 
   Object.keys(json).forEach((key) => {
     const setterName = `set${key.charAt(0).toUpperCase() + key.slice(1)}`;
 
+    if (!json[key]) {
+      return;
+    }
+
     if (isEnum(key, enumMapping)) {
       const enumValue = getEnumValue(key, json[key] as string, enumMapping);
       instance[setterName](enumValue);
+    } else if (isObjectMapping(key, objectMapping)) {
+      const objectValue = jsonToObject({
+        json: json[key] as Record<string, unknown>,
+        ObjectConstructor: objectMapping.find(
+          (tuple) => tuple[0] === key
+        )[1] as new () => unknown,
+        enumMapping,
+        objectMapping
+      });
+
+      instance[setterName](objectValue);
     } else if (typeof instance[setterName] === "function") {
       instance[setterName](json[key]);
     }

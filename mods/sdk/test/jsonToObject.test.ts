@@ -39,10 +39,23 @@ describe("@sdk[client/jsonToObject]", function () {
       VALUE2 = 1
     }
 
+    class EmbeddedObject {
+      private name: string;
+
+      public setName(name: string): void {
+        this.name = name;
+      }
+
+      public getName(): string {
+        return this.name;
+      }
+    }
+
     class CreateExampleRequest {
       private name: string;
       private marray: string[];
       private enumValue: ExampleEnum;
+      private embeddedObject: EmbeddedObject;
 
       public setName(name: string): void {
         this.name = name;
@@ -67,25 +80,41 @@ describe("@sdk[client/jsonToObject]", function () {
       public getEnumValue(): ExampleEnum {
         return this.enumValue;
       }
+
+      public setEmbeddedObject(embeddedObject: EmbeddedObject): void {
+        this.embeddedObject = embeddedObject;
+      }
+
+      public getEmbeddedObject(): EmbeddedObject {
+        return this.embeddedObject;
+      }
     }
 
     const jsonObj = {
       name: "test",
       marray: ["test1", "test2"],
-      enumValue: "VALUE1"
+      enumValue: "VALUE1",
+      embeddedObject: {
+        name: "embedded"
+      }
     };
 
     // Act
-    const result = jsonToObject<{ name: string }, CreateExampleRequest>(
-      jsonObj,
-      CreateExampleRequest,
-      [["enumValue", ExampleEnum]]
-    );
+    const result = jsonToObject<{ name: string }, CreateExampleRequest>({
+      json: jsonObj,
+      ObjectConstructor: CreateExampleRequest,
+      enumMapping: [["enumValue", ExampleEnum]],
+      objectMapping: [["embeddedObject", EmbeddedObject]]
+    });
 
     // Assert
     expect(result).to.be.an.instanceOf(Object);
     expect(result.getName()).to.be.equal(jsonObj.name);
     expect(result.getMarray()).to.be.eql(jsonObj.marray);
     expect(result.getEnumValue()).to.be.equal(ExampleEnum.VALUE1);
+    expect(result.getEmbeddedObject()).to.be.an.instanceOf(EmbeddedObject);
+    expect(result.getEmbeddedObject().getName()).to.be.equal(
+      jsonObj.embeddedObject.name
+    );
   });
 });
