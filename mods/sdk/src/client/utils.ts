@@ -16,16 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EnumMapping } from "./types";
+import { MappingTuple } from "./types";
 
-function isEnum(key: string, enumMapping: EnumMapping<unknown>): boolean {
-  return enumMapping?.some((tuple) => tuple[0] === key);
+function isMapping(key: string, objectMapping: MappingTuple<unknown>): boolean {
+  return objectMapping?.some((tuple) => tuple[0] === key);
 }
 
 function getEnumValue(
   key: string,
   value: string,
-  enumMapping: EnumMapping<unknown>
+  enumMapping: MappingTuple<unknown>
 ): number {
   const tuple = enumMapping.find((tuple) => tuple[0] === key);
   return (tuple ? tuple[1][value] : 0) as number;
@@ -34,11 +34,11 @@ function getEnumValue(
 function getEnumKey(
   key: string,
   value: number,
-  enumMapping: EnumMapping<unknown>
+  enumMapping: MappingTuple<unknown>
 ): string {
   const tuple = enumMapping.find((tuple) => tuple[0] === key);
   // Take the value of the tuple and find the key
   return Object.keys(tuple[1]).find((k) => tuple[1][k] === value) || "";
 }
 
-export { isEnum, getEnumValue, getEnumKey };
+export { isMapping, getEnumValue, getEnumKey };

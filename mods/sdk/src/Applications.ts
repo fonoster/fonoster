@@ -307,7 +307,8 @@ class Applications {
       method: applicationsClient.listApplications.bind(applicationsClient),
       requestPBObjectConstructor: ListApplicationsRequestPB,
       metadata: this.client.getMetadata(),
-      request
+      request,
+      repeatableObjectMapping: [["itemsList", ApplicationPB]]
     });
   }
 

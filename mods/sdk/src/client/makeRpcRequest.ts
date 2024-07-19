@@ -19,7 +19,7 @@
  */
 import { jsonToObject } from "./jsonToObject";
 import { objectToJson } from "./objectToJson";
-import { ClientFunction, EnumMapping, ObjectMapping } from "./types";
+import { ClientFunction, MappingTuple } from "./types";
 
 function makeRpcRequest<
   RequestPB,
@@ -31,8 +31,9 @@ function makeRpcRequest<
   requestPBObjectConstructor: new () => RequestPB;
   metadata: unknown;
   request: Request;
-  enumMapping?: EnumMapping<unknown>;
-  objectMapping?: ObjectMapping<unknown>;
+  enumMapping?: MappingTuple<unknown>;
+  objectMapping?: MappingTuple<unknown>;
+  repeatableObjectMapping?: MappingTuple<unknown>;
 }): Promise<Response> {
   const {
     method,
@@ -40,7 +41,8 @@ function makeRpcRequest<
     metadata,
     request,
     enumMapping,
-    objectMapping
+    objectMapping,
+    repeatableObjectMapping
   } = params;
 
   const reqPB = jsonToObject<Request, RequestPB>({
@@ -59,7 +61,9 @@ function makeRpcRequest<
       }
 
       const json = objectToJson<Response>(
-        responsePB as unknown as new () => unknown
+        responsePB as unknown as new () => unknown,
+        null,
+        repeatableObjectMapping
       );
 
       resolve(json);

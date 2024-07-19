@@ -16,15 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getEnumValue, isEnum } from "./enumsUtil";
-import { isObjectMapping } from "./objectsUtil";
-import { EnumMapping, ObjectMapping } from "./types";
+import { MappingTuple } from "./types";
+import { getEnumValue, isMapping } from "./utils";
 
 function jsonToObject<J extends Record<string, unknown>, T>(params: {
   json: J;
   objectConstructor: new () => T;
-  enumMapping?: EnumMapping<unknown>;
-  objectMapping?: ObjectMapping<unknown>;
+  enumMapping?: MappingTuple<unknown>;
+  objectMapping?: MappingTuple<unknown>;
 }): T {
   const {
     json,
@@ -41,10 +40,10 @@ function jsonToObject<J extends Record<string, unknown>, T>(params: {
       return;
     }
 
-    if (isEnum(key, enumMapping)) {
+    if (isMapping(key, enumMapping)) {
       const enumValue = getEnumValue(key, json[key] as string, enumMapping);
       instance[setterName](enumValue);
-    } else if (isObjectMapping(key, objectMapping)) {
+    } else if (isMapping(key, objectMapping)) {
       const objectValue = jsonToObject({
         json: json[key] as Record<string, unknown>,
         objectConstructor: objectMapping.find(

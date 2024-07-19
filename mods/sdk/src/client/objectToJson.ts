@@ -16,12 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getEnumKey, isEnum } from "./enumsUtil";
-import { EnumMapping } from "./types";
+import { MappingTuple } from "./types";
+import { getEnumKey, isMapping } from "./utils";
 
 function objectToJson<J extends Record<string, unknown>>(
   obj: new () => unknown,
-  enumMapping?: EnumMapping<unknown>
+  enumMapping?: MappingTuple<unknown>,
+  repeatableObjectMapping?: MappingTuple<unknown>
 ): J {
   const json: Record<string, unknown> = {};
 
@@ -35,8 +36,15 @@ function objectToJson<J extends Record<string, unknown>>(
       try {
         const value = obj[key]();
 
-        if (isEnum(propName, enumMapping)) {
+        if (isMapping(propName, enumMapping)) {
           json[propName] = getEnumKey(propName, value as number, enumMapping);
+        } else if (isMapping(propName, repeatableObjectMapping)) {
+          // Remove the "List" ending from the key
+          const repeatableKey = propName.slice(0, -4);
+
+          json[repeatableKey] = (value as unknown[]).map((item) =>
+            objectToJson(item as new () => unknown)
+          );
         } else if (value !== undefined) {
           json[propName] = value;
         }

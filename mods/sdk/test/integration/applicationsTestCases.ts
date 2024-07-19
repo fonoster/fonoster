@@ -98,12 +98,15 @@ const applicationsTestCases = {
         pageToken: null
       },
       responseValidator: (response: {
-        itemsList: unknown[];
+        items: unknown[];
         nextPageToken: string;
       }) => {
-        expect(response).has.property("itemsList");
+        expect(response).has.property("items");
         expect(response).has.property("nextPageToken");
-        expect(response.itemsList.length).to.be.greaterThan(0);
+        expect(response.items.length).to.be.greaterThan(0);
+        expect(response.items[0]).to.have.property("ref").to.not.be.null;
+        expect(response.items[0]).to.have.property("name").to.not.be.null;
+        expect(response.items[0]).to.have.property("type").to.not.be.null;
       }
     },
     {

@@ -40,8 +40,7 @@ import {
   ExchangeRefreshTokenResponse
 } from "../generated/node/identity_pb";
 
-type EnumMapping<T> = Array<[string, T]>;
-type ObjectMapping<T> = Array<[string, T]>;
+type MappingTuple<T> = Array<[string, T]>;
 
 type ClientFunction<T, U> = (
   request: T,
@@ -91,8 +90,7 @@ interface FonosterClient {
 
 export {
   FonosterClient,
-  EnumMapping,
-  ObjectMapping,
+  MappingTuple,
   ClientFunction,
   IdentityClient,
   ApplicationsClient

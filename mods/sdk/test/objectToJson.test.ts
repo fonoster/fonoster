@@ -34,6 +34,18 @@ describe("@sdk[client/objectToJson]", function () {
       BAZ = 2
     }
 
+    class RepeatableObject {
+      private value: string;
+
+      public getValue(): string {
+        return this.value;
+      }
+
+      public setValue(value: string): void {
+        this.value = value;
+      }
+    }
+
     class Example {
       public getFoo(): string {
         return "foo";
@@ -46,26 +58,49 @@ describe("@sdk[client/objectToJson]", function () {
       public getBaz(): ExampleEnum {
         return ExampleEnum.BAZ;
       }
+
+      public getItemsList(): Array<RepeatableObject> {
+        const items = ["foo", "bar", "baz"];
+        return items.map((item) => {
+          const obj = new RepeatableObject();
+          obj.setValue(item);
+          return obj;
+        });
+      }
     }
 
     const obj = new Example() as unknown as new () => unknown;
 
-    type CreateExampleRequest = {
+    type CreateExampleResponse = {
       foo: string;
       bar: string;
       baz: ExampleEnum;
+      items: Array<{ value: string }>;
     };
 
     // Act
-    const result = objectToJson<CreateExampleRequest>(obj, [
-      ["baz", ExampleEnum]
-    ]);
+    const result = objectToJson<CreateExampleResponse>(
+      obj,
+      [["baz", ExampleEnum]],
+      [["itemsList", RepeatableObject]]
+    );
 
     // Assert
     expect(result).to.deep.equal({
       foo: "foo",
       bar: "bar",
-      baz: "BAZ"
+      baz: "BAZ",
+      items: [
+        {
+          value: "foo"
+        },
+        {
+          value: "bar"
+        },
+        {
+          value: "baz"
+        }
+      ]
     });
   });
 });
