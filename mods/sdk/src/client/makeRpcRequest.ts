@@ -26,17 +26,26 @@ function makeRpcRequest<
   ResponsePB,
   Request extends Record<string, unknown>,
   Response extends Record<string, unknown>
->(
-  method: ClientFunction<RequestPB, ResponsePB>,
-  RequestPBObjectConstructor: new () => RequestPB,
-  metadata: unknown,
-  request: Request,
-  enumMapping?: EnumMapping<unknown>,
-  objectMapping?: ObjectMapping<unknown>
-): Promise<Response> {
+>(params: {
+  method: ClientFunction<RequestPB, ResponsePB>;
+  requestPBObjectConstructor: new () => RequestPB;
+  metadata: unknown;
+  request: Request;
+  enumMapping?: EnumMapping<unknown>;
+  objectMapping?: ObjectMapping<unknown>;
+}): Promise<Response> {
+  const {
+    method,
+    requestPBObjectConstructor: RequestPBObjectConstructor,
+    metadata,
+    request,
+    enumMapping,
+    objectMapping
+  } = params;
+
   const reqPB = jsonToObject<Request, RequestPB>({
     json: request,
-    ObjectConstructor: RequestPBObjectConstructor,
+    objectConstructor: RequestPBObjectConstructor,
     enumMapping,
     objectMapping
   });

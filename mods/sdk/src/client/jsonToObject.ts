@@ -22,11 +22,16 @@ import { EnumMapping, ObjectMapping } from "./types";
 
 function jsonToObject<J extends Record<string, unknown>, T>(params: {
   json: J;
-  ObjectConstructor: new () => T;
+  objectConstructor: new () => T;
   enumMapping?: EnumMapping<unknown>;
   objectMapping?: ObjectMapping<unknown>;
 }): T {
-  const { json, ObjectConstructor, enumMapping, objectMapping } = params;
+  const {
+    json,
+    objectConstructor: ObjectConstructor,
+    enumMapping,
+    objectMapping
+  } = params;
   const instance = new ObjectConstructor();
 
   Object.keys(json).forEach((key) => {
@@ -42,7 +47,7 @@ function jsonToObject<J extends Record<string, unknown>, T>(params: {
     } else if (isObjectMapping(key, objectMapping)) {
       const objectValue = jsonToObject({
         json: json[key] as Record<string, unknown>,
-        ObjectConstructor: objectMapping.find(
+        objectConstructor: objectMapping.find(
           (tuple) => tuple[0] === key
         )[1] as new () => unknown,
         enumMapping,

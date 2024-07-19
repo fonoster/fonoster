@@ -45,15 +45,15 @@ abstract class AbstractClient implements FonosterClient {
       ExchangeCredentialsResponsePB,
       { username: string; password: string },
       { refreshToken: string; accessToken: string }
-    >(
-      this.identityClient.exchangeCredentials.bind(this.identityClient),
-      ExchangeCredentialsRequestPB,
-      {},
-      {
+    >({
+      method: this.identityClient.exchangeCredentials.bind(this.identityClient),
+      requestPBObjectConstructor: ExchangeCredentialsRequestPB,
+      metadata: {},
+      request: {
         username,
         password
       }
-    );
+    });
 
     this._refreshToken = refreshToken;
     this._accessToken = accessToken;
@@ -65,14 +65,16 @@ abstract class AbstractClient implements FonosterClient {
       ExchangeCredentialsResponsePB,
       { refreshToken: string },
       { accessToken: string; refreshToken: string }
-    >(
-      this.identityClient.exchangeRefreshToken.bind(this.identityClient),
-      ExchangeRefreshTokenRequestPB,
-      {},
-      {
+    >({
+      method: this.identityClient.exchangeRefreshToken.bind(
+        this.identityClient
+      ),
+      requestPBObjectConstructor: ExchangeRefreshTokenRequestPB,
+      metadata: {},
+      request: {
         refreshToken
       }
-    );
+    });
 
     this._refreshToken = newRefreshToken;
     this._accessToken = accessToken;
@@ -84,14 +86,14 @@ abstract class AbstractClient implements FonosterClient {
       ExchangeCredentialsResponsePB,
       { apiKey: string },
       { refreshToken: string; accessToken: string }
-    >(
-      this.identityClient.exchangeApiKey,
-      ExchangeApiKeyRequestPB,
-      {},
-      {
+    >({
+      method: this.identityClient.exchangeApiKey,
+      requestPBObjectConstructor: ExchangeApiKeyRequestPB,
+      metadata: {},
+      request: {
         apiKey
       }
-    );
+    });
 
     this._refreshToken = refreshToken;
     this._accessToken = accessToken;

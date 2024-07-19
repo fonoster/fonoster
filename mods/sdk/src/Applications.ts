@@ -171,18 +171,18 @@ class Applications {
       CreateApplicationResponsePB,
       CreateApplicationRequest,
       CreateApplicationResponse
-    >(
-      applicationsClient.createApplication.bind(applicationsClient),
-      CreateApplicationRequestPB,
-      this.client.getMetadata(),
-      reqWithStructOverride,
-      [["type", ApplicationType]],
-      [
+    >({
+      method: applicationsClient.createApplication.bind(applicationsClient),
+      requestPBObjectConstructor: CreateApplicationRequestPB,
+      metadata: this.client.getMetadata(),
+      request: reqWithStructOverride,
+      enumMapping: [["type", ApplicationType]],
+      objectMapping: [
         ["textToSpeech", ProductContainerPB],
         ["speechToText", ProductContainerPB],
         ["intelligence", ProductContainerPB]
       ]
-    );
+    });
   }
 
   /**
@@ -209,12 +209,12 @@ class Applications {
       ApplicationPB,
       GetApplicationRequest,
       Application
-    >(
-      applicationsClient.getApplication.bind(applicationsClient),
-      GetApplicationRequestPB,
-      this.client.getMetadata(),
-      { ref }
-    );
+    >({
+      method: applicationsClient.getApplication.bind(applicationsClient),
+      requestPBObjectConstructor: GetApplicationRequestPB,
+      metadata: this.client.getMetadata(),
+      request: { ref }
+    });
   }
 
   /**
@@ -260,18 +260,18 @@ class Applications {
       UpdateApplicationResponsePB,
       UpdateApplicationRequest,
       BaseApiObject
-    >(
-      applicationsClient.updateApplication.bind(applicationsClient),
-      UpdateApplicationRequestPB,
-      this.client.getMetadata(),
-      reqWithStructOverride,
-      [["type", ApplicationType]],
-      [
+    >({
+      method: applicationsClient.updateApplication.bind(applicationsClient),
+      requestPBObjectConstructor: UpdateApplicationRequestPB,
+      metadata: this.client.getMetadata(),
+      request: reqWithStructOverride,
+      enumMapping: [["type", ApplicationType]],
+      objectMapping: [
         ["textToSpeech", ProductContainerPB],
         ["speechToText", ProductContainerPB],
         ["intelligence", ProductContainerPB]
       ]
-    );
+    });
   }
 
   /**
@@ -303,12 +303,12 @@ class Applications {
       ListApplicationsResponsePB,
       ListApplicationsRequest,
       ListApplicationsResponse
-    >(
-      applicationsClient.listApplications.bind(applicationsClient),
-      ListApplicationsRequestPB,
-      this.client.getMetadata(),
+    >({
+      method: applicationsClient.listApplications.bind(applicationsClient),
+      requestPBObjectConstructor: ListApplicationsRequestPB,
+      metadata: this.client.getMetadata(),
       request
-    );
+    });
   }
 
   /**
@@ -334,12 +334,12 @@ class Applications {
       DeleteApplicationResponsePB,
       BaseApiObject,
       BaseApiObject
-    >(
-      applicationsClient.deleteApplication.bind(applicationsClient),
-      DeleteApplicationRequestPB,
-      this.client.getMetadata(),
-      { ref }
-    );
+    >({
+      method: applicationsClient.deleteApplication.bind(applicationsClient),
+      requestPBObjectConstructor: DeleteApplicationRequestPB,
+      metadata: this.client.getMetadata(),
+      request: { ref }
+    });
   }
 }
 

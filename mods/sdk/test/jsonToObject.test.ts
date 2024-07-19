@@ -102,7 +102,7 @@ describe("@sdk[client/jsonToObject]", function () {
     // Act
     const result = jsonToObject<{ name: string }, CreateExampleRequest>({
       json: jsonObj,
-      ObjectConstructor: CreateExampleRequest,
+      objectConstructor: CreateExampleRequest,
       enumMapping: [["enumValue", ExampleEnum]],
       objectMapping: [["embeddedObject", EmbeddedObject]]
     });
