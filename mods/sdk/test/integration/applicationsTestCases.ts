@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { status } from "@grpc/grpc-js";
-import { expect } from "chai";
+import { getChai } from "./envUtils";
 
 const idBase = "applications";
 
@@ -45,7 +44,8 @@ const applicationsTestCases = {
           }
         }
       },
-      responseValidator: (response: { ref: string }) => {
+      responseValidator: async (response: { ref: string }) => {
+        const { expect } = await getChai();
         expect(response).has.property("ref");
       }
     },
@@ -57,7 +57,7 @@ const applicationsTestCases = {
         type: "PROGRAMMABLE_VOICE",
         appEndpoint: "localhost:3000"
       },
-      grpcCode: status.INVALID_ARGUMENT
+      grpcCode: 3
     },
     {
       id: `${idBase}-02`,
@@ -65,7 +65,8 @@ const applicationsTestCases = {
       method: "getApplication",
       request: "{{ref}}",
       dependsOn: `${idBase}-00`,
-      responseValidator: (response: { ref: string }) => {
+      responseValidator: async (response: { ref: string }) => {
+        const { expect } = await getChai();
         expect(response).has.property("ref");
       }
     },
@@ -85,7 +86,8 @@ const applicationsTestCases = {
         }
       },
       dependsOn: `${idBase}-00`,
-      responseValidator: (response: { ref: string }) => {
+      responseValidator: async (response: { ref: string }) => {
+        const { expect } = await getChai();
         expect(response).has.property("ref");
       }
     },
@@ -97,10 +99,11 @@ const applicationsTestCases = {
         pageSize: 10,
         pageToken: null
       },
-      responseValidator: (response: {
+      responseValidator: async (response: {
         items: unknown[];
         nextPageToken: string;
       }) => {
+        const { expect } = await getChai();
         expect(response).has.property("items");
         expect(response).has.property("nextPageToken");
         expect(response.items.length).to.be.greaterThan(0);
@@ -115,7 +118,8 @@ const applicationsTestCases = {
       method: "deleteApplication",
       request: "{{ref}}",
       dependsOn: `${idBase}-00`,
-      responseValidator: (response: { ref: string }) => {
+      responseValidator: async (response: { ref: string }) => {
+        const { expect } = await getChai();
         expect(response).has.property("ref");
       }
     }

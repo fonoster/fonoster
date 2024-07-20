@@ -17,9 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AssertionError, expect } from "chai";
+import { getChai, getSdk } from "./envUtils";
 import { FonosterClient } from "../../src/client/types";
-import * as SDK from "../../src/node";
 
 type TestCase = {
   id: string;
@@ -36,6 +35,9 @@ async function runTestCase(
   api: string,
   testCase: TestCase
 ) {
+  const { AssertionError, expect } = await getChai();
+  const SDK = await getSdk();
+
   const { method, request, grpcCode, responseValidator } = testCase;
   const apiInstance = new SDK[api](client);
   const clientMethod = apiInstance[method].bind(apiInstance);

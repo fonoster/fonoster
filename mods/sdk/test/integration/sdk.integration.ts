@@ -1,5 +1,4 @@
 /* eslint-disable mocha/no-setup-in-describe */
-/* eslint-disable no-loops/no-loops */
 /* eslint-disable mocha/no-async-describe */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
@@ -19,33 +18,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import chai, { expect } from "chai";
-import chaiAsPromised from "chai-as-promised";
-import dotenv from "dotenv";
 import Mustache from "mustache";
-import sinonChai from "sinon-chai";
+import { getChai, getSdk, isBrowser } from "./envUtils";
 import { TestCase, runTestCase } from "./runTestCase";
 import { testCases } from "./testCases";
-import * as SDK from "../../src/node";
 
-// Load environment variables
-dotenv.config();
-
-chai.use(chaiAsPromised);
-chai.use(sinonChai);
-
+const url = "http://localhost:7171";
 const endpoint = "localhost:50051";
 const accessKeyId = "WO00000000000000000000000000000000";
-const username = process.env.OWNER_EMAIL;
-const password = process.env.OWNER_PASSWORD;
+const username = "admin@fonoster.local";
+const password = "changeme";
 
 describe("@sdk[integration]", async function () {
+  const { expect } = await getChai();
+  const SDK = await getSdk();
   const resultStore = {};
-  let client: SDK.Client;
+  let client
 
   before(async function () {
-    client = new SDK.Client({
+    const ClientConstructor = isBrowser() ? SDK.WebClient : SDK.Client;
+
+    client = new ClientConstructor({
       endpoint,
+      url,
       accessKeyId,
       allowInsecure: true
     });

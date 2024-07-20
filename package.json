@@ -10,7 +10,7 @@
     "mods/*"
   ],
   "scripts": {
-    "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver --exec ts-node mods/apiserver/src/index.ts",
+    "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver mods/apiserver/src/index.ts",
     "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice --exec ts-node mods/voice/src/demo.ts",
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk01 simplephone -d --remove-orphans",
     "start:sdk-test": "npx serve -s mods/sdk/public -l 9000",
@@ -31,7 +31,8 @@
     "generate:prisma-clients": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",
     "check:updates": "lerna exec -- npx npm-check-updates",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.test.ts",
-    "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.integration.ts"
+    "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.integration.ts",
+    "integration:browser": "web-test-runner"
   },
   "prisma": {
     "seed": "ts-node ./mods/apiserver/src/core/seed.ts"
