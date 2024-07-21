@@ -16,114 +16,109 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getChai } from "./envUtils";
+function createApplicationTestCases(expect) {
+  const idBase = "applications";
 
-const idBase = "applications";
-
-const applicationsTestCases = {
-  api: "Applications",
-  cases: [
-    {
-      id: `${idBase}-00`,
-      name: "should create an application",
-      method: "createApplication",
-      request: {
-        name: "My Application",
-        type: "PROGRAMMABLE_VOICE",
-        appEndpoint: "localhost:3000",
-        textToSpeech: {
-          productRef: "tts.google",
-          config: {
-            voice: "en-US-Casual-K"
+  return {
+    api: "Applications",
+    cases: [
+      {
+        id: `${idBase}-00`,
+        name: "should create an application",
+        method: "createApplication",
+        request: {
+          name: "My Application",
+          type: "PROGRAMMABLE_VOICE",
+          appEndpoint: "localhost:3000",
+          textToSpeech: {
+            productRef: "tts.google",
+            config: {
+              voice: "en-US-Casual-K"
+            }
+          },
+          speechToText: {
+            productRef: "stt.google",
+            config: {
+              languageCode: "en-US"
+            }
           }
         },
-        speechToText: {
-          productRef: "stt.google",
-          config: {
-            languageCode: "en-US"
-          }
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
         }
       },
-      responseValidator: async (response: { ref: string }) => {
-        const { expect } = await getChai();
-        expect(response).has.property("ref");
-      }
-    },
-    {
-      id: `${idBase}-01`,
-      name: "should failed to create an application (missing name)",
-      method: "createApplication",
-      request: {
-        type: "PROGRAMMABLE_VOICE",
-        appEndpoint: "localhost:3000"
+      {
+        id: `${idBase}-01`,
+        name: "should failed to create an application (missing name)",
+        method: "createApplication",
+        request: {
+          type: "PROGRAMMABLE_VOICE",
+          appEndpoint: "localhost:3000"
+        },
+        grpcCode: 3
       },
-      grpcCode: 3
-    },
-    {
-      id: `${idBase}-02`,
-      name: "should failed to find the application",
-      method: "getApplication",
-      request: "{{ref}}",
-      dependsOn: `${idBase}-00`,
-      responseValidator: async (response: { ref: string }) => {
-        const { expect } = await getChai();
-        expect(response).has.property("ref");
-      }
-    },
-    {
-      id: `${idBase}-03`,
-      name: "should update the name of the application",
-      method: "updateApplication",
-      request: {
-        ref: "{{ref}}",
-        name: "My renamed Application",
-        intelligence: {
-          productRef: "nlu.dialogflowcx",
-          credentials: "xxx",
-          config: {
-            agent: "yyy"
-          }
+      {
+        id: `${idBase}-02`,
+        name: "should failed to find the application",
+        method: "getApplication",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
         }
       },
-      dependsOn: `${idBase}-00`,
-      responseValidator: async (response: { ref: string }) => {
-        const { expect } = await getChai();
-        expect(response).has.property("ref");
-      }
-    },
-    {
-      id: `${idBase}-04`,
-      name: "should list at least ten applications",
-      method: "listApplications",
-      request: {
-        pageSize: 10,
-        pageToken: null
+      {
+        id: `${idBase}-03`,
+        name: "should update the name of the application",
+        method: "updateApplication",
+        request: {
+          ref: "{{ref}}",
+          name: "My renamed Application",
+          intelligence: {
+            productRef: "nlu.dialogflowcx",
+            credentials: "xxx",
+            config: {
+              agent: "yyy"
+            }
+          }
+        },
+        dependsOn: `${idBase}-00`,
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
       },
-      responseValidator: async (response: {
-        items: unknown[];
-        nextPageToken: string;
-      }) => {
-        const { expect } = await getChai();
-        expect(response).has.property("items");
-        expect(response).has.property("nextPageToken");
-        expect(response.items.length).to.be.greaterThan(0);
-        expect(response.items[0]).to.have.property("ref").to.not.be.null;
-        expect(response.items[0]).to.have.property("name").to.not.be.null;
-        expect(response.items[0]).to.have.property("type").to.not.be.null;
+      {
+        id: `${idBase}-04`,
+        name: "should list at least ten applications",
+        method: "listApplications",
+        request: {
+          pageSize: 10,
+          pageToken: null
+        },
+        responseValidator: (response: {
+          items: unknown[];
+          nextPageToken: string;
+        }) => {
+          expect(response).has.property("items");
+          expect(response).has.property("nextPageToken");
+          expect(response.items.length).to.be.greaterThan(0);
+          expect(response.items[0]).to.have.property("ref").to.not.be.null;
+          expect(response.items[0]).to.have.property("name").to.not.be.null;
+          expect(response.items[0]).to.have.property("type").to.not.be.null;
+        }
+      },
+      {
+        id: `${idBase}-05`,
+        name: "should delete the application",
+        method: "deleteApplication",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
       }
-    },
-    {
-      id: `${idBase}-05`,
-      name: "should delete the application",
-      method: "deleteApplication",
-      request: "{{ref}}",
-      dependsOn: `${idBase}-00`,
-      responseValidator: async (response: { ref: string }) => {
-        const { expect } = await getChai();
-        expect(response).has.property("ref");
-      }
-    }
-  ]
-};
+    ]
+  };
+}
 
-export { applicationsTestCases };
+export { createApplicationTestCases };

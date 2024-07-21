@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getChai, getSdk } from "./envUtils";
 import { FonosterClient } from "../../src/client/types";
 
 type TestCase = {
@@ -30,13 +29,14 @@ type TestCase = {
   responseValidator?: (response: unknown) => void;
 };
 
-async function runTestCase(
-  client: FonosterClient,
-  api: string,
-  testCase: TestCase
-) {
-  const { AssertionError, expect } = await getChai();
-  const SDK = await getSdk();
+async function runTestCase(params: {
+  client: FonosterClient;
+  api: string;
+  testCase: TestCase;
+  tooling: { expect; SDK };
+}) {
+  const { expect, SDK } = params.tooling;
+  const { client, api, testCase } = params;
 
   const { method, request, grpcCode, responseValidator } = testCase;
   const apiInstance = new SDK[api](client);
@@ -55,7 +55,9 @@ async function runTestCase(
 
     return response;
   } catch (error) {
-    if (error instanceof AssertionError) throw error;
+    if ("ERR_ASSERTION" in error) {
+      throw error;
+    }
     expect(error.code).to.be.equal(grpcCode);
   }
 }

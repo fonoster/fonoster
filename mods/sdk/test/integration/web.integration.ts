@@ -18,28 +18,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { expect } from "@esm-bundle/chai";
 import Mustache from "mustache";
-import { getChai, getSdk, isBrowser } from "./envUtils";
 import { TestCase, runTestCase } from "./runTestCase";
-import { testCases } from "./testCases";
+import { createTestCases } from "./testCases";
+import * as SDK from "../../dist/web/index.esm.js";
 
 const url = "http://localhost:7171";
-const endpoint = "localhost:50051";
 const accessKeyId = "WO00000000000000000000000000000000";
 const username = "admin@fonoster.local";
 const password = "changeme";
 
+/**
+ * This test is exactly the same as the one in the node.integration.ts file.
+ * The only difference are the imports and the client initialization.
+ */
 describe("@sdk[integration]", async function () {
-  const { expect } = await getChai();
-  const SDK = await getSdk();
   const resultStore = {};
-  let client
+  let client: SDK.WebClient;
 
   before(async function () {
-    const ClientConstructor = isBrowser() ? SDK.WebClient : SDK.Client;
-
-    client = new ClientConstructor({
-      endpoint,
+    client = new SDK.WebClient({
       url,
       accessKeyId,
       allowInsecure: true
@@ -47,7 +46,7 @@ describe("@sdk[integration]", async function () {
     await client.login(username, password);
   });
 
-  testCases.forEach(async function (params: {
+  createTestCases(expect).forEach(async function (params: {
     api: string;
     cases: TestCase[];
   }) {
@@ -74,14 +73,19 @@ describe("@sdk[integration]", async function () {
               resultStore[dependsOn]
             );
 
-            const response = await runTestCase(client, params.api, {
-              id,
-              name,
-              method,
-              request: JSON.parse(computedRequest),
-              grpcCode,
-              dependsOn,
-              responseValidator
+            const response = await runTestCase({
+              client,
+              api: params.api,
+              testCase: {
+                id,
+                name,
+                method,
+                request: JSON.parse(computedRequest),
+                grpcCode,
+                dependsOn,
+                responseValidator
+              },
+              tooling: { expect, SDK }
             });
 
             if (response) {
