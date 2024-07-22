@@ -14,13 +14,13 @@ RUN apk add --no-cache --update git \
   && npm run build \
   && cd mods/apiserver \
   && npm pack \
-  && npm install -g apiserver-*.tgz \
+  && npm install -g fonoster-apiserver-*.tgz \
   && cp schema.prisma /usr/local/lib/node_modules/@fonoster/apiserver/ \
   && cd /usr/local/lib/node_modules/@fonoster/apiserver/ \
   && npx prisma generate \
   && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
   && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz apiserver-*
+  && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz fonoster-apiserver-*
 
 ##
 # Run stage

@@ -84,7 +84,7 @@ message ListWorkspacesRequest {
 }
 
 message ListWorkspacesResponse {
-  repeated Workspace workspaces = 1;
+  repeated Workspace items = 1;
   string next_page_token = 2;
 }
 

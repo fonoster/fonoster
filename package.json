@@ -32,7 +32,8 @@
     "check:updates": "lerna exec -- npx npm-check-updates",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.test.ts",
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/node.integration.ts",
-    "integration:browser": "web-test-runner"
+    "integration:browser": "web-test-runner",
+    "publish:prerelease": "lerna publish prerelease --dist-tag next"
   },
   "prisma": {
     "seed": "ts-node ./mods/apiserver/src/core/seed.ts"
