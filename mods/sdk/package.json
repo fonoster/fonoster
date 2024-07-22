@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/sdk",
-  "version": "0.6.0",
+  "version": "0.6.1-alpha.0",
   "description": "Web and Node.js SDK for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -25,7 +25,7 @@
     "fonoster"
   ],
   "dependencies": {
-    "@fonoster/common": "^0.6.0",
+    "@fonoster/common": "^0.6.1-alpha.0",
     "@grpc/grpc-js": "^1.10.6",
     "@grpc/proto-loader": "^0.7.12",
     "google-protobuf": "^3.21.2",
@@ -45,6 +45,7 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "devDependencies": {
+    "@esm-bundle/chai": "^4.3.4-fix.0",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
@@ -54,7 +55,6 @@
     "@types/mustache": "^4.2.5",
     "@web/dev-server-esbuild": "^1.0.2",
     "@web/test-runner": "^0.18.2",
-    "@esm-bundle/chai": "^4.3.4-fix.0",
     "mustache": "^4.2.0",
     "rollup": "^4.18.0",
     "serve": "^14.2.3"
