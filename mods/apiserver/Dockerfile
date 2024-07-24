@@ -9,18 +9,25 @@ COPY . .
 
 ENV DOCKERIZE_VERSION v0.7.0
 
+# Manually install rollup and nx for arm64 for compatibility
 RUN apk add --no-cache --update git \
   && npm install \
+  && npm install @rollup/rollup-linux-arm64-musl \ 
+  && npm install @nx/nx-linux-arm64-musl \
+  && npm run generate:prisma-clients \
   && npm run build \
   && cd mods/apiserver \
   && npm pack \
-  && npm install -g fonoster-apiserver-*.tgz \
+  && npm install -g $(ls *.tgz) \
   && cp schema.prisma /usr/local/lib/node_modules/@fonoster/apiserver/ \
+  && cp /work/mods/identity/schema.prisma /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/ \
   && cd /usr/local/lib/node_modules/@fonoster/apiserver/ \
+  && npx prisma generate \
+  && cd /usr/local/lib/node_modules/@fonoster/apiserver/node_modules/@fonoster/identity/ \
   && npx prisma generate \
   && wget https://github.com/jwilder/dockerize/releases/download/"$DOCKERIZE_VERSION"/dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
   && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz \
-  && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz fonoster-apiserver-*
+  && rm -rf dockerize-alpine-linux-amd64-"$DOCKERIZE_VERSION".tar.gz $(ls *.tgz)
 
 ##
 # Run stage
@@ -34,6 +41,8 @@ WORKDIR /service
 COPY --from=builder --chown=appuser:appuser /usr/local/lib/node_modules/@fonoster/apiserver /usr/local/lib/node_modules/@fonoster/apiserver
 COPY --from=builder --chown=appuser:appuser /usr/local/bin/dockerize /usr/local/bin/dockerize
 COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/schema.prisma .
+COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma ./identity-schema.prisma
+COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/migrations ./migrations
 
 RUN npm install -g prisma@5.12.1 npm@latest 
 
@@ -41,5 +50,6 @@ USER appuser
 
 # TODO: Fix hardcode host for db
 CMD sh -c "dockerize -wait tcp://postgres:5432 -timeout 30s && \
-  npx prisma migrate deploy && \
+  npx prisma migrate deploy --schema schema.prisma && \
+  npx prisma migrate deploy --schema identity-schema.prisma && \
   node /usr/local/lib/node_modules/@fonoster/apiserver/dist/index.js"

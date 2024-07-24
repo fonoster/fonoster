@@ -3,12 +3,31 @@ services:
     image: fonoster/apiserver:latest
     restart: unless-stopped
     environment:
+      APP_URL: ${APP_URL}
       DATABASE_URL: ${DATABASE_URL}
       CLOAK_ENCRYPTION_KEY: ${CLOAK_ENCRYPTION_KEY}
+      IDENTITY_DATABASE_URL: ${IDENTITY_DATABASE_URL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_SENDER: ${SMTP_SENDER}
+      SMTP_AUTH_USER: ${SMTP_AUTH_USER}
+      SMTP_AUTH_PASS: ${SMTP_AUTH_PASS}
+      INFLUXDB_URL: ${INFLUXDB_URL}
+      INFLUXDB_INIT_USERNAME: ${INFLUXDB_INIT_USERNAME}
+      INFLUXDB_INIT_PASSWORD: ${INFLUXDB_INIT_PASSWORD}
+      INFLUXDB_INIT_ORG: ${INFLUXDB_INIT_ORG}
+      INFLUXDB_INIT_BUCKET: ${INFLUXDB_INIT_BUCKET}
+      INFLUXDB_INIT_TOKEN: ${INFLUXDB_INIT_TOKEN}
+      ASTERISK_ARI_PROXY_URL: ${ASTERISK_ARI_PROXY_URL}
+      ASTERISK_ARI_USERNAME: ${ASTERISK_ARI_USERNAME}
+      ASTERISK_ARI_SECRET: ${ASTERISK_ARI_SECRET}
+      NATS_URL: ${NATS_URL}
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
     ports:
       - 6789:6789
+    volumes:
+      - ./keys:/opt/fonoster/keys
+      - ./integrations.json:/opt/fonoster/integrations.json
 
   routr:
     image: fonoster/routr-one:latest

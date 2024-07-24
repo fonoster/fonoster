@@ -29,17 +29,14 @@ if (process.env.NODE_ENV === "dev") {
 const e = process.env;
 
 assertEnvsAreSet([
-  "INTEGRATIONS_FILE",
-  "TTS_PATH_TO_FILES",
   "APP_URL",
   "CLOAK_ENCRYPTION_KEY",
   "SMTP_HOST",
   "SMTP_SENDER",
   "SMTP_AUTH_USER",
   "SMTP_AUTH_PASS",
-  "IDENTITY_ISSUER",
-  "IDENTITY_PRIVATE_KEY_PATH",
-  "IDENTITY_PUBLIC_KEY_PATH",
+  "IDENTITY_DATABASE_URL",
+  "DATABASE_URL",
   "INFLUXDB_URL",
   "INFLUXDB_INIT_USERNAME",
   "INFLUXDB_INIT_PASSWORD",
@@ -52,21 +49,26 @@ assertEnvsAreSet([
   "NATS_URL"
 ]);
 
-assertFileExists(e.IDENTITY_PRIVATE_KEY_PATH);
-assertFileExists(e.IDENTITY_PUBLIC_KEY_PATH);
+const IDENTITY_PRIVATE_KEY_PATH =
+  e.IDENTITY_PRIVATE_KEY_PATH || "/opt/fonoster/keys/private.pem";
+const IDENTITY_PUBLIC_KEY_PATH =
+  e.IDENTITY_PUBLIC_KEY_PATH || "/opt/fonoster/keys/public.pem";
+
+assertFileExists(IDENTITY_PRIVATE_KEY_PATH);
+assertFileExists(IDENTITY_PUBLIC_KEY_PATH);
 
 // Frontend configurations
 export const APP_URL = e.APP_URL;
 
 // Identity configurations
-export const IDENTITY_ISSUER = e.IDENTITY_ISSUER;
+export const IDENTITY_ISSUER = e.IDENTITY_ISSUER || "https://fonoster.local";
 export const IDENTITY_AUDIENCE = e.IDENTITY_AUDIENCE || "api";
 export const IDENTITY_PRIVATE_KEY = fs.readFileSync(
-  e.IDENTITY_PRIVATE_KEY_PATH,
+  IDENTITY_PRIVATE_KEY_PATH,
   "utf8"
 );
 export const IDENTITY_PUBLIC_KEY = fs.readFileSync(
-  e.IDENTITY_PUBLIC_KEY_PATH,
+  IDENTITY_PUBLIC_KEY_PATH,
   "utf8"
 );
 export const IDENTITY_ID_TOKEN_EXPIRES_IN =
@@ -128,4 +130,5 @@ export const TTS_PATH_TO_FILES = e.TTS_PATH_TO_FILES || os.tmpdir();
 export const FILES_SERVER_PORT = e.FILES_SERVER_PORT
   ? parseInt(e.FILES_SERVER_PORT)
   : 9876;
-export const INTEGRATIONS_FILE = e.INTEGRATIONS_FILE;
+export const INTEGRATIONS_FILE =
+  e.INTEGRATIONS_FILE || "/opt/fonoster/integrations.json";
