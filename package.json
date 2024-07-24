@@ -33,7 +33,8 @@
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.test.ts",
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/node.integration.ts",
     "integration:browser": "web-test-runner",
-    "publish:prerelease": "lerna publish prerelease --dist-tag next"
+    "publish:prerelease": "lerna publish prerelease --dist-tag next",
+    "publish:frompackages": "lerna publish from-package"
   },
   "prisma": {
     "seed": "ts-node ./mods/apiserver/src/core/seed.ts"
