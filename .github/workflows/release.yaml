@@ -12,9 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    concurrency: 
-      group: build
-      cancel-in-progress: true
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -33,7 +30,7 @@ jobs:
         npm run build
 
     - name: Run unit tests
-      run:
+      run: |
         cp .env.example.dev .env 
         npm run test
 
