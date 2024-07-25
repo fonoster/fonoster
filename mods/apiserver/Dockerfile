@@ -12,8 +12,6 @@ ENV DOCKERIZE_VERSION v0.7.0
 # Manually install rollup and nx for arm64 for compatibility
 RUN apk add --no-cache --update git \
   && npm install \
-  && npm install @rollup/rollup-linux-arm64-musl \ 
-  && npm install @nx/nx-linux-arm64-musl \
   && npm run generate:prisma-clients \
   && npm run build \
   && cd mods/apiserver \
