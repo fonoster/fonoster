@@ -106,5 +106,11 @@
   },
   "dependencies": {
     "@prisma/client": "^5.14.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-arm64-gnu": "^4.19.0",
+    "@rollup/rollup-linux-arm64-musl": "^4.19.0",
+    "@rollup/rollup-linux-x64-gnu": "^4.19.0",
+    "@rollup/rollup-linux-x64-musl": "^4.19.0"
   }
 }
