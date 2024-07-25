@@ -21,7 +21,6 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { ApiRoleEnum } from "../../src/apikeys";
 import { Prisma } from "../../src/db";
 import { TEST_TOKEN } from "../testToken";
 
@@ -29,12 +28,12 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@identity[apikeys/regenerateApiKey]", function () {
+describe("@identity[apikeys/deleteApiKey]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
 
-  it("should regenerate an ApiKey", async function () {
+  it("should delete an ApiKey", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -42,31 +41,26 @@ describe("@identity[apikeys/regenerateApiKey]", function () {
     const call = {
       metadata,
       request: {
-        ref: "123",
-        role: ApiRoleEnum.WORKSPACE_ADMIN
+        ref: "123"
       }
     };
 
     const res = {
-      ref: "123",
-      accessKeyId: "accessKeyId",
-      accessKeySecret: "accessKeySecret"
+      ref: "123"
     };
 
     const prisma = {
       apiKey: {
-        update: sandbox.stub().resolves(res)
+        delete: sandbox.stub().resolves(res)
       }
     } as unknown as Prisma;
 
-    const { regenerateApiKey } = await import(
-      "../../src/apikeys/regenerateApiKey_"
-    );
+    const { deleteApiKey } = await import("../../src/apikeys/deleteApiKey_");
 
     // Act
-    await regenerateApiKey(prisma)(call, (_, response) => {
+    await deleteApiKey(prisma)(call, (error, response) => {
       // Assert
-      expect(response).to.be.deep.equal(res);
+      expect(response).to.have.property("ref", "123");
     });
   });
 });
