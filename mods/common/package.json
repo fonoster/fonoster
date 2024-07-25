@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@fonoster/logger": "^0.6.1-alpha.0",
-    "@grpc/grpc-js": "^1.10.6",
+    "@grpc/grpc-js": "~1.10.6",
     "@grpc/proto-loader": "^0.7.12",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",

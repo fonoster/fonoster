@@ -22,7 +22,7 @@
   "dependencies": {
     "@fonoster/common": "^0.6.1-alpha.0",
     "@fonoster/logger": "^0.6.1-alpha.0",
-    "@grpc/grpc-js": "^1.10.6",
+    "@grpc/grpc-js": "~1.10.6",
     "@prisma/client": "^5.14.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
