@@ -27,6 +27,8 @@ jobs:
     - name: Install dependencies and build
       run: |
         npm install
+        npm install @rollup/rollup-linux-x64-gnu
+        npm install @nx/nx-linux-x64-gnu
         npm run build
 
     - name: Run unit tests
