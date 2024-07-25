@@ -26,7 +26,6 @@ jobs:
 
     - name: Install dependencies and build
       run: |
-        echo "NX_NON_NATIVE_HASHER=true" >> $GITHUB_ENV 
         npm install
         npm run build
 
