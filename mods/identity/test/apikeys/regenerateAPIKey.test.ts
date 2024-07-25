@@ -60,7 +60,7 @@ describe("@identity[apikeys/regenerateApiKey]", function () {
     } as unknown as Prisma;
 
     const { regenerateApiKey } = await import(
-      "../../src/apikeys/regenerateApiKey_"
+      "../../src/apikeys/regenerateApiKey"
     );
 
     // Act

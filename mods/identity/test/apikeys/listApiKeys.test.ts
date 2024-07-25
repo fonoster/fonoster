@@ -69,7 +69,7 @@ describe("@identity[apikeys/listApiKeys]", function () {
       }
     } as unknown as Prisma;
 
-    const { listApiKeys } = await import("../../src/apikeys/listApiKeys_");
+    const { listApiKeys } = await import("../../src/apikeys/listApiKeys");
 
     // Act
     await listApiKeys(prisma)(call, (_, response) => {
@@ -105,7 +105,7 @@ describe("@identity[apikeys/listApiKeys]", function () {
       }
     } as unknown as Prisma;
 
-    const { listApiKeys } = await import("../../src/apikeys/listApiKeys_");
+    const { listApiKeys } = await import("../../src/apikeys/listApiKeys");
 
     // Act
 

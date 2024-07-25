@@ -63,7 +63,7 @@ describe("@identity[apikeys/createApiKey]", function () {
       }
     } as unknown as Prisma;
 
-    const { createApiKey } = await import("../../src/apikeys/createApiKey_");
+    const { createApiKey } = await import("../../src/apikeys/createApiKey");
 
     // Act
     await createApiKey(prisma)(call, (_, response) => {
@@ -98,7 +98,7 @@ describe("@identity[apikeys/createApiKey]", function () {
       }
     } as unknown as Prisma;
 
-    const { createApiKey } = await import("../../src/apikeys/createApiKey_");
+    const { createApiKey } = await import("../../src/apikeys/createApiKey");
 
     // Act
     await createApiKey(prisma)(call, (error) => {

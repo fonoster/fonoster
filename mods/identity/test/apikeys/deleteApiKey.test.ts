@@ -55,7 +55,7 @@ describe("@identity[apikeys/deleteApiKey]", function () {
       }
     } as unknown as Prisma;
 
-    const { deleteApiKey } = await import("../../src/apikeys/deleteApiKey_");
+    const { deleteApiKey } = await import("../../src/apikeys/deleteApiKey");
 
     // Act
     await deleteApiKey(prisma)(call, (error, response) => {
