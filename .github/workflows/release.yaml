@@ -29,6 +29,9 @@ jobs:
         npm install
         npm run build
 
+    - name: Run unit tests
+      run: npm run test
+
     - name: Check for next release
       run: |
         release=$(.scripts/next-release.sh)
@@ -76,6 +79,17 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
+
+    - name: Publish the APIServer to Docker Hub
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        name: fonoster/apiserver
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        context: .
+        dockerfile: mods/apiserver/Dockerfile     
+        tags: "latest, 20"
+        platforms: linux/amd64,linux/arm64
 
     - name: Publish Asterisk to Docker Hub
       uses: elgohr/Publish-Docker-Github-Action@v5

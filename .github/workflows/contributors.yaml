@@ -16,7 +16,7 @@ jobs:
       with:
         CONTRIBUTOR: "<!--contributors-->"
         COLUMN_PER_ROW: "6"
-        ACCESS_TOKEN: ${{secrets.GH_PAT}}
+        ACCESS_TOKEN: ${{ secrets.GH_PAT }}
         IMG_WIDTH: "100"
         FONT_SIZE: "14"
         PATH: "/README.md"
