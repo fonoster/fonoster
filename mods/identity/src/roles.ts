@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRoleEnum } from "./apikeys/ApiRoleEnum";
+import { ApiRoleEnum } from "./apikeys/ApiRoleEnum_";
 import { Role } from "./exchanges/types";
 import { WorkspaceRoleEnum } from "./workspaces/WorkspaceRoleEnum";
 

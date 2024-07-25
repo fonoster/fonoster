@@ -23,7 +23,7 @@ import { z } from "zod";
 import { exchangeTokens } from "./exchangeTokens";
 import { IdentityConfig } from "./types";
 import { Prisma } from "../db";
-import { getApiKeyByAccessKeyId } from "../utils/getApiKeyByAccessKeyId";
+import { getApiKeyByAccessKeyId } from "../utils/getApiKeyByAccessKeyId_";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
