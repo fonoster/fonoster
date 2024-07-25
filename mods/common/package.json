@@ -14,7 +14,7 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "postbuild": "cp -a src/protos dist && node ../../.scripts/copy-hbs.js",
+    "postbuild": "cp -a src/protos dist",
     "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {
