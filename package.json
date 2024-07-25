@@ -17,7 +17,7 @@
     "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams --exec ts-node mods/streams/src/example.ts",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "prebuild": "npm run generate:prisma-clients",
-    "build": "lerna run build",
+    "build": "lerna run build --concurrency 1 --loglevel debug",
     "postbuild": "npm run copy:hbstemplates",
     "format": "prettier --write mods/**/src",
     "lint": "eslint mods --ext .ts --fix",
