@@ -1,6 +1,7 @@
 node_modules/
 .env*
 !.env.example
+!.env.example.dev
 *.log
 reporting/*
 out/*
