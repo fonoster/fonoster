@@ -30,7 +30,9 @@ jobs:
         npm run build
 
     - name: Run unit tests
-      run: npm run test
+      run:
+        cp .env.example.dev .env 
+        npm run test
 
     - name: Check for next release
       run: |
