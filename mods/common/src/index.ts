@@ -25,4 +25,4 @@ export * from "./voice";
 export * from "./tts";
 export * from "./types/";
 export * from "./types";
-export * from "./GrpcErrorx";
+export * from "./GrpcError";
