@@ -104,7 +104,7 @@ export const INFLUXDB_TOKEN = e.INFLUXDB_INIT_TOKEN;
 
 // Other configurations
 export const CLOAK_ENCRYPTION_KEY = e.CLOAK_ENCRYPTION_KEY;
-export const ROUTR_API_ENDPOINT = e.ROUTR_API_ENDPOINT || "localhost:51908";
+export const ROUTR_API_ENDPOINT = e.ROUTR_API_ENDPOINT || "routr:51908";
 export const ROUTR_DEFAULT_PEER_NAME =
   e.ROUTR_DEFAULT_PEER_NAME || "Voice Server";
 export const ROUTR_DEFAULT_PEER_USERNAME =

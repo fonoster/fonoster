@@ -23,8 +23,9 @@ services:
       NATS_URL: ${NATS_URL}
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
+      LOGS_FORMAT: ${LOGS_FORMAT}
     ports:
-      - 6789:6789
+      - 50051:50051
     volumes:
       - ./keys:/opt/fonoster/keys
       - ./integrations.json:/opt/fonoster/integrations.json

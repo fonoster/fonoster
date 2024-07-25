@@ -21,8 +21,8 @@ import { getLogger } from "@fonoster/logger";
 import { CommonTypes as CT } from "@routr/common";
 import SDK from "@routr/sdk";
 import { CreatePeerRequest } from "@routr/sdk/dist/peers/types";
+import { routrConfig } from "./routrConfig";
 import {
-  ROUTR_API_ENDPOINT,
   ROUTR_DEFAULT_PEER_AOR,
   ROUTR_DEFAULT_PEER_NAME,
   ROUTR_DEFAULT_PEER_PASSWORD,
@@ -31,13 +31,8 @@ import {
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const clientOptions = {
-  endpoint: ROUTR_API_ENDPOINT,
-  insecure: true
-};
-
 function createCredentialsForDefaultPeer() {
-  const credentials = new SDK.Credentials(clientOptions);
+  const credentials = new SDK.Credentials(routrConfig);
 
   const request = {
     name: ROUTR_DEFAULT_PEER_NAME,
@@ -49,7 +44,7 @@ function createCredentialsForDefaultPeer() {
 }
 
 async function upsertDefaultPeer() {
-  const peers = new SDK.Peers(clientOptions);
+  const peers = new SDK.Peers(routrConfig);
 
   logger.info("creating default peer");
 

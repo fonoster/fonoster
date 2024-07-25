@@ -40,8 +40,7 @@ describe("@sdk[integration]", async function () {
   before(async function () {
     client = new SDK.WebClient({
       url,
-      accessKeyId,
-      allowInsecure: true
+      accessKeyId
     });
     await client.login(username, password);
   });

@@ -6,6 +6,8 @@ services:
     volumes:
       - ./.keys:/opt/fonoster/keys
       - ./integrations.json:/opt/fonoster/integrations.json
+    environment:
+      ROUTR_API_ENDPOINT: ${ROUTR_API_ENDPOINT}
 
   routr:
     ports:
