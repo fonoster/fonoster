@@ -103,3 +103,20 @@ jobs:
         dockerfile: asterisk/Dockerfile     
         tags: "latest, 20"
         platforms: linux/amd64,linux/arm64
+
+    - name: Starting services for integration tests
+      run: |
+        cp .env.example .env
+        echo "INTEGRATIONS_FILE=./integrations.json" >> .env
+        docker-compose -f compose.yaml -f compose.dev.yaml up postgres apiserver -d
+
+    - name: Waiting for services to be ready
+      run: |
+        while ! curl -s http://localhost:7171; do sleep 1; done
+
+    - name: Run integration tests (Node SDK)
+      run: npm run integration
+
+    - name: Run integration tests (Web SDK)
+      run: npm run integration:browser
+    
