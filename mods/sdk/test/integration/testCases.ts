@@ -17,9 +17,10 @@
  * limitations under the License.
  */
 import { createApplicationTestCases } from "./applicationsTestCases";
+import { createCallsTestCases } from "./callsTestCases";
 
 function createTestCases(expect) {
-  return [createApplicationTestCases(expect)];
+  return [createApplicationTestCases(expect), createCallsTestCases(expect)];
 }
 
 export { createTestCases };

@@ -55,10 +55,11 @@ async function runTestCase(params: {
 
     return response;
   } catch (error) {
-    if ("ERR_ASSERTION" in error) {
-      throw error;
+    if (grpcCode) {
+      expect(error.code).to.equal(grpcCode);
+      return;
     }
-    expect(error.code).to.be.equal(grpcCode);
+    throw error;
   }
 }
 

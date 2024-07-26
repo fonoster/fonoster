@@ -16,6 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./client/WebClient";
-export * from "./Applications";
-export * from "./Calls";
+import {
+  ExchangeApiKeyRequest,
+  ExchangeApiKeyResponse,
+  ExchangeCredentialsRequest,
+  ExchangeCredentialsResponse,
+  ExchangeRefreshTokenRequest,
+  ExchangeRefreshTokenResponse
+} from "../../generated/web/identity_pb";
+import { ClientFunction } from "../types";
+
+type IdentityClient = {
+  exchangeApiKey: ClientFunction<ExchangeApiKeyRequest, ExchangeApiKeyResponse>;
+  exchangeCredentials: ClientFunction<
+    ExchangeCredentialsRequest,
+    ExchangeCredentialsResponse
+  >;
+  exchangeRefreshToken: ClientFunction<
+    ExchangeRefreshTokenRequest,
+    ExchangeRefreshTokenResponse
+  >;
+};
+
+export { IdentityClient };

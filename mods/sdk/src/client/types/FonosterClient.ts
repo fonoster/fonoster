@@ -16,6 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./client/WebClient";
-export * from "./Applications";
-export * from "./Calls";
+import { Metadata } from "grpc-web";
+import { ApplicationsClient } from "./ApplicationsClient";
+import { CallsClient } from "./CallsClient";
+
+interface FonosterClient {
+  getAccessToken(): string;
+  getAccessKeyId(): string;
+  getApplicationsClient(): ApplicationsClient;
+  getCallsClient(): CallsClient;
+  getMetadata(): Metadata | unknown | null;
+  refreshToken(): Promise<void>;
+}
+
+export { FonosterClient };

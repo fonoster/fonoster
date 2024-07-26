@@ -18,3 +18,4 @@
  */
 export * from "./client/Client";
 export * from "./Applications";
+export * from "./Calls";

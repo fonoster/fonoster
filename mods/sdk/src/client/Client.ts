@@ -25,6 +25,7 @@ import {
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherNode } from "./TokenRefresherNode";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
+import { CallsClient } from "../generated/node/calls_grpc_pb";
 import { IdentityClient } from "../generated/node/identity_grpc_pb";
 
 const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
@@ -64,6 +65,12 @@ export class Client extends AbstractClient {
 
   getApplicationsClient() {
     return new ApplicationsClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getCallsClient() {
+    return new CallsClient(this.endpoint, this.channelCredentials, {
       interceptors: [this.tokenRefresherInterceptor]
     });
   }

@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./client/WebClient";
-export * from "./Applications";
-export * from "./Calls";
+export * from "./common";
+export * from "./FonosterClient";
+export * from "./ApplicationsClient";
+export * from "./IdentityClient";
+export * from "./CallsClient";

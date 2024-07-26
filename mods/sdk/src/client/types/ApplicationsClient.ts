@@ -16,49 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  DeleteApplicationRequest,
-  DeleteApplicationResponse
-} from "@fonoster/common";
-import { Metadata } from "grpc-web";
+import { ClientFunction } from "./common";
 import {
   CreateApplicationRequest,
   CreateApplicationResponse,
+  DeleteApplicationRequest,
+  DeleteApplicationResponse,
   GetApplicationRequest,
   GetApplicationResponse,
   ListApplicationsRequest,
   ListApplicationsResponse,
   UpdateApplicationRequest,
   UpdateApplicationResponse
-} from "../generated/node/applications_pb";
-import {
-  ExchangeApiKeyRequest,
-  ExchangeApiKeyResponse,
-  ExchangeCredentialsRequest,
-  ExchangeCredentialsResponse,
-  ExchangeRefreshTokenRequest,
-  ExchangeRefreshTokenResponse
-} from "../generated/node/identity_pb";
-
-type MappingTuple<T> = Array<[string, T]>;
-
-type ClientFunction<T, U> = (
-  request: T,
-  metadata: Metadata | unknown | null,
-  callback: (err: Error | null, response: U | null) => void
-) => void;
-
-type IdentityClient = {
-  exchangeApiKey: ClientFunction<ExchangeApiKeyRequest, ExchangeApiKeyResponse>;
-  exchangeCredentials: ClientFunction<
-    ExchangeCredentialsRequest,
-    ExchangeCredentialsResponse
-  >;
-  exchangeRefreshToken: ClientFunction<
-    ExchangeRefreshTokenRequest,
-    ExchangeRefreshTokenResponse
-  >;
-};
+} from "../../generated/node/applications_pb";
 
 type ApplicationsClient = {
   createApplication: ClientFunction<
@@ -80,18 +50,4 @@ type ApplicationsClient = {
   >;
 };
 
-interface FonosterClient {
-  getAccessToken(): string;
-  getAccessKeyId(): string;
-  getApplicationsClient(): ApplicationsClient;
-  getMetadata(): Metadata | unknown | null;
-  refreshToken(): Promise<void>;
-}
-
-export {
-  FonosterClient,
-  MappingTuple,
-  ClientFunction,
-  IdentityClient,
-  ApplicationsClient
-};
+export { ApplicationsClient };

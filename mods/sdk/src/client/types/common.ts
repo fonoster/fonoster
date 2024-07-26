@@ -16,6 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./client/WebClient";
-export * from "./Applications";
-export * from "./Calls";
+import { Metadata } from "grpc-web";
+
+type MappingTuple<T> = Array<[string, T]>;
+
+type ClientFunction<T, U> = (
+  request: T,
+  metadata: Metadata | unknown | null,
+  callback: (err: Error | null, response: U | null) => void
+) => void;
+
+export { MappingTuple, ClientFunction };

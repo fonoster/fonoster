@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { makeRpcRequest } from "./makeRpcRequest";
-import { ApplicationsClient, FonosterClient, IdentityClient } from "./types";
+import {
+  ApplicationsClient,
+  CallsClient,
+  FonosterClient,
+  IdentityClient
+} from "./types";
 import {
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
   ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
@@ -117,6 +122,7 @@ abstract class AbstractClient implements FonosterClient {
 
   abstract getMetadata(): unknown;
   abstract getApplicationsClient(): ApplicationsClient;
+  abstract getCallsClient(): CallsClient;
 }
 
 export { AbstractClient };
