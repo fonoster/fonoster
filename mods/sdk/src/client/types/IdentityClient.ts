@@ -17,6 +17,8 @@
  * limitations under the License.
  */
 import {
+  CreateApiKeyRequest,
+  CreateApiKeyResponse,
   ExchangeApiKeyRequest,
   ExchangeApiKeyResponse,
   ExchangeCredentialsRequest,
@@ -27,6 +29,7 @@ import {
 import { ClientFunction } from "../types";
 
 type IdentityClient = {
+  createApiKey: ClientFunction<CreateApiKeyRequest, CreateApiKeyResponse>;
   exchangeApiKey: ClientFunction<ExchangeApiKeyRequest, ExchangeApiKeyResponse>;
   exchangeCredentials: ClientFunction<
     ExchangeCredentialsRequest,

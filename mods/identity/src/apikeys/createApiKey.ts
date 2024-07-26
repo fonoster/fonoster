@@ -88,4 +88,4 @@ function createApiKey(prisma: Prisma) {
   };
 }
 
-export { createApiKey };
+export { createApiKey, CreateApiKeyRequest, CreateApiKeyResponse };

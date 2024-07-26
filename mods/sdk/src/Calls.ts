@@ -48,7 +48,7 @@ class Calls {
   }
 
   async createCall(request: CreateCallRequest): Promise<CreateCallResponse> {
-    const CallsClient = this.client.getCallsClient();
+    const client = this.client.getCallsClient();
 
     return await makeRpcRequest<
       CreateCallRequestPB,
@@ -56,7 +56,7 @@ class Calls {
       CreateCallRequest,
       CreateCallResponse
     >({
-      method: CallsClient.createCall.bind(CallsClient),
+      method: client.createCall.bind(client),
       requestPBObjectConstructor: CreateCallRequestPB,
       metadata: this.client.getMetadata(),
       request,
@@ -65,14 +65,14 @@ class Calls {
   }
 
   async getCall(ref: string) {
-    const CallsClient = this.client.getCallsClient();
+    const client = this.client.getCallsClient();
     return await makeRpcRequest<
       GetCallRequestPB,
       GetCallResponsePB,
       GetCallRequest,
       CallDetailRecord
     >({
-      method: CallsClient.getCall.bind(CallsClient),
+      method: client.getCall.bind(client),
       requestPBObjectConstructor: GetCallRequestPB,
       metadata: this.client.getMetadata(),
       request: { ref },
@@ -86,14 +86,14 @@ class Calls {
   }
 
   async listCalls(request: ListCallsRequest): Promise<ListCallsResponse> {
-    const CallsClient = this.client.getCallsClient();
+    const client = this.client.getCallsClient();
     return await makeRpcRequest<
       ListCallsRequestPB,
       ListCallsResponsePB,
       ListCallsRequest,
       ListCallsResponse
     >({
-      method: CallsClient.listCalls.bind(CallsClient),
+      method: client.listCalls.bind(client),
       requestPBObjectConstructor: ListCallsRequestPB,
       metadata: this.client.getMetadata(),
       request,

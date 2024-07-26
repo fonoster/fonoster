@@ -16,19 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Metadata } from "grpc-web";
-import { ApplicationsClient } from "./ApplicationsClient";
-import { CallsClient } from "./CallsClient";
-import { IdentityClient } from "./IdentityClient";
+function createApiKeysTestCases(expect) {
+  const idBase = "keys";
 
-interface FonosterClient {
-  getAccessToken(): string;
-  getAccessKeyId(): string;
-  getApplicationsClient(): ApplicationsClient;
-  getCallsClient(): CallsClient;
-  getIdentityClient(): IdentityClient;
-  getMetadata(): Metadata | unknown | null;
-  refreshToken(): Promise<void>;
+  return {
+    api: "ApiKeys",
+    cases: [
+      {
+        id: `${idBase}-00`,
+        name: "should create an api key",
+        method: "createApiKey",
+        request: {
+          role: "WORKSPACE_ADMIN"
+        },
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
+      }
+    ]
+  };
 }
 
-export { FonosterClient };
+export { createApiKeysTestCases };
