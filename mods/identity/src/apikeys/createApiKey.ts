@@ -33,7 +33,10 @@ const logger = getLogger({ service: "identity", filePath: __filename });
 
 const CreatApiKeyRequestSchema = z.object({
   role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
-  expiresAt: z.number().transform((value) => (value === 0 ? null : value))
+  expiresAt: z
+    .number()
+    .transform((value) => (value === 0 ? null : value))
+    .optional()
 });
 
 type CreateApiKeyRequest = z.infer<typeof CreatApiKeyRequestSchema>;
