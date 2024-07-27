@@ -18,24 +18,24 @@
  */
 import { ClientFunction } from "./common";
 import {
+  Application,
   CreateApplicationRequest,
   CreateApplicationResponse,
   DeleteApplicationRequest,
   DeleteApplicationResponse,
   GetApplicationRequest,
-  GetApplicationResponse,
   ListApplicationsRequest,
   ListApplicationsResponse,
   UpdateApplicationRequest,
   UpdateApplicationResponse
-} from "../../generated/node/applications_pb";
+} from "../../generated/web/applications_pb";
 
 type ApplicationsClient = {
   createApplication: ClientFunction<
     CreateApplicationRequest,
     CreateApplicationResponse
   >;
-  getApplication: ClientFunction<GetApplicationRequest, GetApplicationResponse>;
+  getApplication: ClientFunction<GetApplicationRequest, Application>;
   updateApplication: ClientFunction<
     UpdateApplicationRequest,
     UpdateApplicationResponse

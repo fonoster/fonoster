@@ -18,11 +18,6 @@
  */
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherWeb } from "./TokenRefresherWeb";
-import {
-  ApplicationsClient as TApplicationsClient,
-  CallsClient as TCallsClient,
-  SecretsClient as TSecretsClient
-} from "./types";
 import { AclsClient } from "../generated/web/AclsServiceClientPb";
 import { AgentsClient } from "../generated/web/AgentsServiceClientPb";
 import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
@@ -60,13 +55,13 @@ export class WebClient extends AbstractClient {
   getApplicationsClient() {
     return new ApplicationsClient(this.url, null, {
       streamInterceptors: [new TokenRefresherWeb(this)]
-    }) as unknown as TApplicationsClient;
+    });
   }
 
   getCallsClient() {
     return new CallsClient(this.url, null, {
       streamInterceptors: [new TokenRefresherWeb(this)]
-    }) as unknown as TCallsClient;
+    });
   }
 
   getIdentityClient() {
@@ -76,7 +71,7 @@ export class WebClient extends AbstractClient {
   getSecretsClient() {
     return new SecretsClient(this.url, null, {
       streamInterceptors: [new TokenRefresherWeb(this)]
-    }) as unknown as TSecretsClient;
+    });
   }
 
   getAgentsClient() {
