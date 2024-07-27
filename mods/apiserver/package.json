@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@fonoster/common": "^0.6.1",
+    "@fonoster/types": "^0.6.1",
     "@fonoster/identity": "^0.6.1",
     "@fonoster/logger": "^0.6.1",
     "@fonoster/sipnet": "^0.6.1",

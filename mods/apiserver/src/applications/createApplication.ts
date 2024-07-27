@@ -16,14 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  CreateApplicationRequest,
-  CreateApplicationResponse,
-  GrpcErrorMessage,
-  handleError
-} from "@fonoster/common";
+import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import {
+  CreateApplicationRequest,
+  CreateApplicationResponse
+} from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./utils/validOrThrow";

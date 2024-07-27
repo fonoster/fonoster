@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { withAccess } from "@fonoster/identity";
+import { getLogger } from "@fonoster/logger";
 import {
   DeleteApplicationRequest,
   DeleteApplicationResponse
-} from "@fonoster/common";
-import { withAccess } from "@fonoster/identity";
-import { getLogger } from "@fonoster/logger";
+} from "@fonoster/types";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { Prisma } from "../core/db";
 

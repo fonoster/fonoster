@@ -122,6 +122,7 @@ abstract class AbstractClient implements FonosterClient {
 
   abstract getMetadata(): unknown;
   abstract getApplicationsClient(): ApplicationsClient;
+  abstract getIdentityClient(): IdentityClient;
   abstract getCallsClient(): CallsClient;
 }
 

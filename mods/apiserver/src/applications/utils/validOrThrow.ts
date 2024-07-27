@@ -19,7 +19,7 @@
 import {
   CreateApplicationRequest,
   UpdateApplicationRequest
-} from "@fonoster/common";
+} from "@fonoster/types";
 import { getApplicationValidationSchema } from "./getApplicationValidationSchema";
 import { prepareForValidation } from "./prepareForValidation";
 

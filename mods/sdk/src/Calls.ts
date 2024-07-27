@@ -27,7 +27,7 @@ import {
   HangupCause,
   ListCallsRequest,
   ListCallsResponse
-} from "@fonoster/common";
+} from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {

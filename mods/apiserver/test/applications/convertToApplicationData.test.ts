@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApplicationType } from "@fonoster/common";
+import { ApplicationType } from "@fonoster/types";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";

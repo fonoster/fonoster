@@ -16,5 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./Applications";
-export * from "./Calls";
+export * from "./common";
+export * from "./calls.types";
+export * from "./applications.types";

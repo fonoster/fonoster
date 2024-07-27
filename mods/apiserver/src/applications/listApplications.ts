@@ -16,14 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  GrpcErrorMessage,
-  ListApplicationsRequest,
-  ListApplicationsResponse,
-  handleError
-} from "@fonoster/common";
+import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import {
+  ListApplicationsRequest,
+  ListApplicationsResponse
+} from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../core/db";

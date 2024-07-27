@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import fs from "fs";
-import { Application } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { Application } from "@fonoster/types";
 import { z } from "zod";
 import { fromError } from "zod-validation-error";
 import { ApplicationNotFoundError } from "./ApplicationNotFoundError";

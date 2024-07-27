@@ -16,23 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Application } from "@fonoster/types";
-import { findIntegrationsCredentials } from "./findIntegrationsCredentials";
-import { IntegrationConfig } from "./types";
-import { TTS_PATH_TO_FILES } from "../../envs";
+type BaseApiObject = {
+  ref: string;
+};
 
-function getTtsConfig(integrations: IntegrationConfig[], app: Application) {
-  const config = app.textToSpeech.config;
-  const credentials = findIntegrationsCredentials(
-    integrations,
-    app.textToSpeech.productRef
-  );
+type NumberPreconditionsCheck = (request: {
+  appRef?: string;
+  agentAor?: string;
+}) => Promise<void>;
 
-  return {
-    ...config,
-    credentials,
-    pathToFiles: TTS_PATH_TO_FILES
-  };
-}
-
-export { getTtsConfig };
+export { NumberPreconditionsCheck, BaseApiObject };
