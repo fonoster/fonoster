@@ -290,22 +290,22 @@ export namespace DeleteTrunkResponse {
   }
 }
 
-export class ListTrunkRequest extends jspb.Message {
+export class ListTrunksRequest extends jspb.Message {
   getPageSize(): number;
-  setPageSize(value: number): ListTrunkRequest;
+  setPageSize(value: number): ListTrunksRequest;
 
   getPageToken(): string;
-  setPageToken(value: string): ListTrunkRequest;
+  setPageToken(value: string): ListTrunksRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ListTrunkRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: ListTrunkRequest): ListTrunkRequest.AsObject;
-  static serializeBinaryToWriter(message: ListTrunkRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ListTrunkRequest;
-  static deserializeBinaryFromReader(message: ListTrunkRequest, reader: jspb.BinaryReader): ListTrunkRequest;
+  toObject(includeInstance?: boolean): ListTrunksRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ListTrunksRequest): ListTrunksRequest.AsObject;
+  static serializeBinaryToWriter(message: ListTrunksRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ListTrunksRequest;
+  static deserializeBinaryFromReader(message: ListTrunksRequest, reader: jspb.BinaryReader): ListTrunksRequest;
 }
 
-export namespace ListTrunkRequest {
+export namespace ListTrunksRequest {
   export type AsObject = {
     pageSize: number,
     pageToken: string,

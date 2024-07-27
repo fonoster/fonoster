@@ -1834,7 +1834,7 @@ proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.toObject = func
  */
 proto.fonoster.identity.v1beta2.ListWorkspacesResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    workspacesList: jspb.Message.toObjectList(msg.getWorkspacesList(),
+    itemsList: jspb.Message.toObjectList(msg.getItemsList(),
     proto.fonoster.identity.v1beta2.Workspace.toObject, includeInstance),
     nextPageToken: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
@@ -1876,7 +1876,7 @@ proto.fonoster.identity.v1beta2.ListWorkspacesResponse.deserializeBinaryFromRead
     case 1:
       var value = new proto.fonoster.identity.v1beta2.Workspace;
       reader.readMessage(value,proto.fonoster.identity.v1beta2.Workspace.deserializeBinaryFromReader);
-      msg.addWorkspaces(value);
+      msg.addItems(value);
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
@@ -1911,7 +1911,7 @@ proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.serializeBinary
  */
 proto.fonoster.identity.v1beta2.ListWorkspacesResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getWorkspacesList();
+  f = message.getItemsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
       1,
@@ -1930,10 +1930,10 @@ proto.fonoster.identity.v1beta2.ListWorkspacesResponse.serializeBinaryToWriter =
 
 
 /**
- * repeated Workspace workspaces = 1;
+ * repeated Workspace items = 1;
  * @return {!Array<!proto.fonoster.identity.v1beta2.Workspace>}
  */
-proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.getWorkspacesList = function() {
+proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.getItemsList = function() {
   return /** @type{!Array<!proto.fonoster.identity.v1beta2.Workspace>} */ (
     jspb.Message.getRepeatedWrapperField(this, proto.fonoster.identity.v1beta2.Workspace, 1));
 };
@@ -1943,7 +1943,7 @@ proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.getWorkspacesLi
  * @param {!Array<!proto.fonoster.identity.v1beta2.Workspace>} value
  * @return {!proto.fonoster.identity.v1beta2.ListWorkspacesResponse} returns this
 */
-proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.setWorkspacesList = function(value) {
+proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.setItemsList = function(value) {
   return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 
@@ -1953,7 +1953,7 @@ proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.setWorkspacesLi
  * @param {number=} opt_index
  * @return {!proto.fonoster.identity.v1beta2.Workspace}
  */
-proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.addWorkspaces = function(opt_value, opt_index) {
+proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.addItems = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.fonoster.identity.v1beta2.Workspace, opt_index);
 };
 
@@ -1962,8 +1962,8 @@ proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.addWorkspaces =
  * Clears the list making it empty but non-null.
  * @return {!proto.fonoster.identity.v1beta2.ListWorkspacesResponse} returns this
  */
-proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.clearWorkspacesList = function() {
-  return this.setWorkspacesList([]);
+proto.fonoster.identity.v1beta2.ListWorkspacesResponse.prototype.clearItemsList = function() {
+  return this.setItemsList([]);
 };
 
 

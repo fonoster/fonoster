@@ -79,15 +79,15 @@ function deserialize_fonoster_trunks_v1beta2_GetTrunkRequest(buffer_arg) {
   return trunks_pb.GetTrunkRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_trunks_v1beta2_ListTrunkRequest(arg) {
-  if (!(arg instanceof trunks_pb.ListTrunkRequest)) {
-    throw new Error('Expected argument of type fonoster.trunks.v1beta2.ListTrunkRequest');
+function serialize_fonoster_trunks_v1beta2_ListTrunksRequest(arg) {
+  if (!(arg instanceof trunks_pb.ListTrunksRequest)) {
+    throw new Error('Expected argument of type fonoster.trunks.v1beta2.ListTrunksRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonoster_trunks_v1beta2_ListTrunkRequest(buffer_arg) {
-  return trunks_pb.ListTrunkRequest.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonoster_trunks_v1beta2_ListTrunksRequest(buffer_arg) {
+  return trunks_pb.ListTrunksRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonoster_trunks_v1beta2_ListTrunksResponse(arg) {
@@ -190,10 +190,10 @@ listTrunks: {
     path: '/fonoster.trunks.v1beta2.Trunks/ListTrunks',
     requestStream: false,
     responseStream: false,
-    requestType: trunks_pb.ListTrunkRequest,
+    requestType: trunks_pb.ListTrunksRequest,
     responseType: trunks_pb.ListTrunksResponse,
-    requestSerialize: serialize_fonoster_trunks_v1beta2_ListTrunkRequest,
-    requestDeserialize: deserialize_fonoster_trunks_v1beta2_ListTrunkRequest,
+    requestSerialize: serialize_fonoster_trunks_v1beta2_ListTrunksRequest,
+    requestDeserialize: deserialize_fonoster_trunks_v1beta2_ListTrunksRequest,
     responseSerialize: serialize_fonoster_trunks_v1beta2_ListTrunksResponse,
     responseDeserialize: deserialize_fonoster_trunks_v1beta2_ListTrunksResponse,
   },

@@ -24,6 +24,12 @@ import {
   IdentityClient,
   SecretsClient
 } from "./types";
+import { AclsClient } from "./types/AclsClient";
+import { AgentsClient } from "./types/AgentsClient";
+import { CredentialsClient } from "./types/CredentialsClient";
+import { DomainsClient } from "./types/DomainsClient";
+import { NumbersClient } from "./types/NumbersClient";
+import { TrunksClient } from "./types/TrunksClient";
 import {
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
   ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
@@ -125,6 +131,12 @@ abstract class AbstractClient implements FonosterClient {
   abstract getApplicationsClient(): ApplicationsClient;
   abstract getIdentityClient(): IdentityClient;
   abstract getSecretsClient(): SecretsClient;
+  abstract getAgentsClient(): AgentsClient;
+  abstract getNumbersClient(): NumbersClient;
+  abstract getCredentialsClient(): CredentialsClient;
+  abstract getDomainsClient(): DomainsClient;
+  abstract getTrunksClient(): TrunksClient;
+  abstract getAclsClient(): AclsClient;
   abstract getCallsClient(): CallsClient;
 }
 

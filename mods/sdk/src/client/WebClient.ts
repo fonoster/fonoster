@@ -23,10 +23,16 @@ import {
   CallsClient as TCallsClient,
   SecretsClient as TSecretsClient
 } from "./types";
+import { AclsClient } from "../generated/web/AclsServiceClientPb";
+import { AgentsClient } from "../generated/web/AgentsServiceClientPb";
 import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
 import { CallsClient } from "../generated/web/CallsServiceClientPb";
+import { CredentialsServiceClient } from "../generated/web/CredentialsServiceClientPb";
+import { DomainsClient } from "../generated/web/DomainsServiceClientPb";
 import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
+import { NumbersClient } from "../generated/web/NumbersServiceClientPb";
 import { SecretsClient } from "../generated/web/SecretsServiceClientPb";
+import { TrunksClient } from "../generated/web/TrunksServiceClientPb";
 
 const DEFAULT_URL = "https://api.fonoster.io/v1beta2";
 
@@ -71,5 +77,41 @@ export class WebClient extends AbstractClient {
     return new SecretsClient(this.url, null, {
       streamInterceptors: [new TokenRefresherWeb(this)]
     }) as unknown as TSecretsClient;
+  }
+
+  getAgentsClient() {
+    return new AgentsClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  getAclsClient() {
+    return new AclsClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  getDomainsClient() {
+    return new DomainsClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  getTrunksClient() {
+    return new TrunksClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  getNumbersClient() {
+    return new NumbersClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  getCredentialsClient() {
+    return new CredentialsServiceClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
   }
 }

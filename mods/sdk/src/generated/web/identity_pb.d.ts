@@ -116,10 +116,10 @@ export namespace ListWorkspacesRequest {
 }
 
 export class ListWorkspacesResponse extends jspb.Message {
-  getWorkspacesList(): Array<Workspace>;
-  setWorkspacesList(value: Array<Workspace>): ListWorkspacesResponse;
-  clearWorkspacesList(): ListWorkspacesResponse;
-  addWorkspaces(value?: Workspace, index?: number): Workspace;
+  getItemsList(): Array<Workspace>;
+  setItemsList(value: Array<Workspace>): ListWorkspacesResponse;
+  clearItemsList(): ListWorkspacesResponse;
+  addItems(value?: Workspace, index?: number): Workspace;
 
   getNextPageToken(): string;
   setNextPageToken(value: string): ListWorkspacesResponse;
@@ -134,7 +134,7 @@ export class ListWorkspacesResponse extends jspb.Message {
 
 export namespace ListWorkspacesResponse {
   export type AsObject = {
-    workspacesList: Array<Workspace.AsObject>,
+    itemsList: Array<Workspace.AsObject>,
     nextPageToken: string,
   }
 }

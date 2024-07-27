@@ -34,7 +34,7 @@ service Trunks {
   // Delete a Trunk by reference
   rpc DeleteTrunk (DeleteTrunkRequest) returns (DeleteTrunkResponse) {}
   // List all Trunks
-  rpc ListTrunks (ListTrunkRequest) returns (ListTrunksResponse) {}
+  rpc ListTrunks (ListTrunksRequest) returns (ListTrunksResponse) {}
 }
 
 // The message for the Trunk URIs
@@ -148,7 +148,7 @@ message DeleteTrunkResponse {
 }
 
 // The message for the Trunk.ListTrunk request
-message ListTrunkRequest {
+message ListTrunksRequest {
   // The maximum number of items in the list
   int32 page_size = 1;
   // The next_page_token value returned from the previous request, if any

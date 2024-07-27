@@ -214,26 +214,26 @@ export class TrunksClient {
   methodDescriptorListTrunks = new grpcWeb.MethodDescriptor(
     '/fonoster.trunks.v1beta2.Trunks/ListTrunks',
     grpcWeb.MethodType.UNARY,
-    trunks_pb.ListTrunkRequest,
+    trunks_pb.ListTrunksRequest,
     trunks_pb.ListTrunksResponse,
-    (request: trunks_pb.ListTrunkRequest) => {
+    (request: trunks_pb.ListTrunksRequest) => {
       return request.serializeBinary();
     },
     trunks_pb.ListTrunksResponse.deserializeBinary
   );
 
   listTrunks(
-    request: trunks_pb.ListTrunkRequest,
+    request: trunks_pb.ListTrunksRequest,
     metadata?: grpcWeb.Metadata | null): Promise<trunks_pb.ListTrunksResponse>;
 
   listTrunks(
-    request: trunks_pb.ListTrunkRequest,
+    request: trunks_pb.ListTrunksRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
                response: trunks_pb.ListTrunksResponse) => void): grpcWeb.ClientReadableStream<trunks_pb.ListTrunksResponse>;
 
   listTrunks(
-    request: trunks_pb.ListTrunkRequest,
+    request: trunks_pb.ListTrunksRequest,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
                response: trunks_pb.ListTrunksResponse) => void) {

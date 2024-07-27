@@ -24,10 +24,16 @@ import {
 } from "@grpc/grpc-js";
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherNode } from "./TokenRefresherNode";
+import { AclsClient } from "../generated/node/acls_grpc_pb";
+import { AgentsClient } from "../generated/node/agents_grpc_pb";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
 import { CallsClient } from "../generated/node/calls_grpc_pb";
+import { CredentialsClient } from "../generated/node/credentials_grpc_pb";
+import { DomainsClient } from "../generated/node/domains_grpc_pb";
 import { IdentityClient } from "../generated/node/identity_grpc_pb";
+import { NumbersClient } from "../generated/node/numbers_grpc_pb";
 import { SecretsClient } from "../generated/node/secrets_grpc_pb";
+import { TrunksClient } from "../generated/node/trunks_grpc_pb";
 
 const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
 
@@ -81,6 +87,44 @@ export class Client extends AbstractClient {
   }
 
   getSecretsClient() {
-    return new SecretsClient(this.endpoint, this.channelCredentials);
+    return new SecretsClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getAgentsClient() {
+    return new AgentsClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getAclsClient() {
+    return new AclsClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getDomainsClient() {
+    return new DomainsClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getTrunksClient() {
+    return new TrunksClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getNumbersClient() {
+    return new NumbersClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getCredentialsClient() {
+    return new CredentialsClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
   }
 }
