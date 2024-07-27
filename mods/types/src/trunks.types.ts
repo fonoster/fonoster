@@ -16,9 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { JsonObject } from "@prisma/client/runtime/library";
-import { Acl } from "../acls/client";
-import { Credentials } from "../credentials/client";
+import { Acl } from "./acls.types";
+import { CredentialsExtended } from "./credentials.types";
 
 enum Transport {
   UDP = "UDP",
@@ -39,28 +38,28 @@ type TrunkURI = {
   enabled: boolean;
 };
 
-type Trunk = {
+type TrunkExtended = {
   ref: string;
   name: string;
   sendRegister: boolean;
   inboundUri?: string;
   accessControlList?: Acl;
-  inboundCredentials?: Credentials;
-  outboundCredentials?: Credentials;
+  inboundCredentials?: CredentialsExtended;
+  outboundCredentials?: CredentialsExtended;
   uris?: TrunkURI[];
-  extended?: JsonObject;
+  extended?: unknown;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
 };
 
-type CreateTrunkRequest = {
+type CreateTrunkRequestExtended = {
   name: string;
   sendRegister: boolean;
   inboundUri: string;
   accessControlList?: Acl;
-  inboundCredentials?: Credentials;
-  outboundCredentials?: Credentials;
+  inboundCredentials?: CredentialsExtended;
+  outboundCredentials?: CredentialsExtended;
   uris?: TrunkURI[];
   extended?: {
     accessKeyId: string;
@@ -97,6 +96,10 @@ type ListTrunksResponse = {
   nextPageToken: string;
 };
 
+type Trunk = Omit<TrunkExtended, "extended">;
+
+type CreateTrunkRequest = Omit<CreateTrunkRequestExtended, "extended">;
+
 type TrunkApi = {
   createTrunk(request: CreateTrunkRequest): Promise<CreateTrunkResponse>;
   updateTrunk(request: UpdateTrunkRequest): Promise<UpdateTrunkResponse>;
@@ -107,7 +110,9 @@ type TrunkApi = {
 
 export {
   Trunk,
+  TrunkExtended,
   CreateTrunkRequest,
+  CreateTrunkRequestExtended,
   UpdateTrunkRequest,
   CreateTrunkResponse,
   UpdateTrunkResponse,

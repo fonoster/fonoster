@@ -22,8 +22,11 @@ import {
   handleError
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { NumbersApi, UpdateNumberResponse } from "./client";
-import { FUpdateNumberRequest } from "./types";
+import {
+  BaseApiObject,
+  FUpdateNumberRequest,
+  NumbersApi
+} from "@fonoster/types";
 import { updateNumberRequestSchema } from "./validation";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
@@ -34,10 +37,7 @@ function updateNumber(
 ) {
   return async (
     call: { request: FUpdateNumberRequest },
-    callback: (
-      error?: GrpcErrorMessage,
-      response?: UpdateNumberResponse
-    ) => void
+    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
 

@@ -16,20 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { JsonObject } from "@prisma/client/runtime/library";
+import { BaseApiObject } from "./common";
 
-type Credentials = {
+type CredentialsExtended = {
   ref: string;
   name: string;
   username: string;
   password: string;
-  extended?: JsonObject;
+  extended?: Record<string, unknown>;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
 };
 
-type CreateCredentialsRequest = {
+type CreateCredentialsRequestExtended = {
   name: string;
   username: string;
   password: string;
@@ -38,25 +38,8 @@ type CreateCredentialsRequest = {
   };
 };
 
-type UpdateCredentialsRequest = {
-  ref: string;
-} & Omit<Partial<CreateCredentialsRequest>, "username" | "extended">;
-
-type CreateCredentialsResponse = {
-  ref: string;
-};
-
-type UpdateCredentialsResponse = {
-  ref: string;
-};
-
-type GetCredentialsRequest = {
-  ref: string;
-};
-
-type DeleteCredentialsRequest = {
-  ref: string;
-};
+type UpdateCredentialsRequest = BaseApiObject &
+  Omit<Partial<CreateCredentialsRequest>, "username" | "extended">;
 
 type ListCredentialsRequest = {
   pageSize: number;
@@ -70,26 +53,29 @@ type ListCredentialsResponse = {
 
 type CredentialsApi = {
   createCredentials(
-    request: CreateCredentialsRequest
-  ): Promise<CreateCredentialsResponse>;
-  updateCredentials(
-    request: UpdateCredentialsRequest
-  ): Promise<UpdateCredentialsResponse>;
-  getCredentials(ref: string): Promise<Credentials>;
+    request: CreateCredentialsRequestExtended
+  ): Promise<BaseApiObject>;
+  updateCredentials(request: UpdateCredentialsRequest): Promise<BaseApiObject>;
+  getCredentials(ref: string): Promise<CredentialsExtended>;
   deleteCredentials(ref: string): Promise<void>;
   listCredentials(
     request: ListCredentialsRequest
   ): Promise<ListCredentialsResponse>;
 };
 
+type Credentials = Omit<CredentialsExtended, "extended">;
+
+type CreateCredentialsRequest = Omit<
+  CreateCredentialsRequestExtended,
+  "extended"
+>;
+
 export {
   Credentials,
+  CredentialsExtended,
   CreateCredentialsRequest,
+  CreateCredentialsRequestExtended,
   UpdateCredentialsRequest,
-  CreateCredentialsResponse,
-  UpdateCredentialsResponse,
-  GetCredentialsRequest,
-  DeleteCredentialsRequest,
   ListCredentialsRequest,
   ListCredentialsResponse,
   CredentialsApi

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BaseApiObject, Domain, DomainsApi } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -23,8 +24,6 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getExtendedFieldsHelper } from "./getExtendedFieldsHelper";
 import { TEST_TOKEN } from "./testToken";
-import { DomainsApi } from "../src/domains/client";
-import { DeleteDomainRequest, Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -54,7 +53,7 @@ describe("@sipnet[resources/deleteResource]", function () {
     };
 
     const callback = sandbox.stub();
-    const deleteD = deleteResource<Domain, DeleteDomainRequest, DomainsApi>(
+    const deleteD = deleteResource<Domain, BaseApiObject, DomainsApi>(
       domains,
       "Domain"
     );

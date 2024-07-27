@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CredentialsApi, GetCredentialsRequest } from "./client";
 import {
-  CreateCredentialsRequest,
-  Credentials,
-  DeleteCredentialsRequest,
+  BaseApiObject,
+  CreateCredentialsRequestExtended,
+  CredentialsApi,
+  CredentialsExtended,
   ListCredentialsRequest,
   UpdateCredentialsRequest
-} from "./types";
+} from "@fonoster/types";
 import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
@@ -33,35 +33,38 @@ import { updateResource } from "../resources/updateResource";
 const RESOURCE = "Credentials";
 
 function createCredentials(credentials: CredentialsApi) {
-  return createResource<Credentials, CreateCredentialsRequest, CredentialsApi>(
-    credentials,
-    RESOURCE
-  );
+  return createResource<
+    CredentialsExtended,
+    CreateCredentialsRequestExtended,
+    CredentialsApi
+  >(credentials, RESOURCE);
 }
 
 function updateCredentials(credentials: CredentialsApi) {
-  return updateResource<Credentials, UpdateCredentialsRequest, CredentialsApi>(
-    credentials,
-    RESOURCE
-  );
+  return updateResource<
+    CredentialsExtended,
+    UpdateCredentialsRequest,
+    CredentialsApi
+  >(credentials, RESOURCE);
 }
 
 function getCredentials(credentials: CredentialsApi) {
-  return getResource<Credentials, GetCredentialsRequest, CredentialsApi>(
+  return getResource<CredentialsExtended, BaseApiObject, CredentialsApi>(
     credentials,
     RESOURCE
   );
 }
 
 function listCredentials(credentials: CredentialsApi) {
-  return listResources<Credentials, ListCredentialsRequest, CredentialsApi>(
-    credentials,
-    RESOURCE
-  );
+  return listResources<
+    CredentialsExtended,
+    ListCredentialsRequest,
+    CredentialsApi
+  >(credentials, RESOURCE);
 }
 
 function deleteCredentials(credentials: CredentialsApi) {
-  return deleteResource<Credentials, DeleteCredentialsRequest, CredentialsApi>(
+  return deleteResource<CredentialsExtended, BaseApiObject, CredentialsApi>(
     credentials,
     RESOURCE
   );

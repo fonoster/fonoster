@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { JsonObject } from "@prisma/client/runtime/library";
-import { Domain } from "../domains/types";
+import { BaseApiObject } from "./common";
+import { Domain } from "./domains.types";
 
 enum Privacy {
   PRIVATE = "ID",
   NONE = "NONE"
 }
 
-type Agent = {
+type AgentExtended = {
   ref: string;
   name: string;
   username: string;
@@ -33,13 +33,13 @@ type Agent = {
   maxContacts?: number;
   expires?: number;
   domain?: Domain;
-  extended?: JsonObject;
+  extended?: Record<string, unknown>;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
 };
 
-type CreateAgentRequest = {
+type CreateAgentRequestExtended = {
   name: string;
   username: string;
   privacy: Privacy;
@@ -52,25 +52,8 @@ type CreateAgentRequest = {
   };
 };
 
-type UpdateAgentRequest = {
-  ref: string;
-} & Omit<Partial<CreateAgentRequest>, "username" | "extended">;
-
-type CreateAgentResponse = {
-  ref: string;
-};
-
-type UpdateAgentResponse = {
-  ref: string;
-};
-
-type GetAgentRequest = {
-  ref: string;
-};
-
-type DeleteAgentRequest = {
-  ref: string;
-};
+type UpdateAgentRequest = BaseApiObject &
+  Omit<Partial<CreateAgentRequestExtended>, "username" | "extended">;
 
 type ListAgentsRequest = {
   pageSize: number;
@@ -83,21 +66,23 @@ type ListAgentsResponse = {
 };
 
 type AgentsApi = {
-  createAgent(request: CreateAgentRequest): Promise<CreateAgentResponse>;
-  updateAgent(request: UpdateAgentRequest): Promise<UpdateAgentResponse>;
-  getAgent(ref: string): Promise<Agent>;
+  createAgent(request: CreateAgentRequestExtended): Promise<BaseApiObject>;
+  updateAgent(request: UpdateAgentRequest): Promise<BaseApiObject>;
+  getAgent(ref: string): Promise<AgentExtended>;
   deleteAgent(ref: string): Promise<void>;
   listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse>;
 };
 
+type Agent = Omit<AgentExtended, "extended">;
+
+type CreateAgentRequest = Omit<CreateAgentRequestExtended, "extended">;
+
 export {
+  AgentExtended,
   Agent,
+  CreateAgentRequestExtended,
   CreateAgentRequest,
   UpdateAgentRequest,
-  CreateAgentResponse,
-  UpdateAgentResponse,
-  GetAgentRequest,
-  DeleteAgentRequest,
   ListAgentsRequest,
   ListAgentsResponse,
   AgentsApi,

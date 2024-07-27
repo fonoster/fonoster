@@ -17,14 +17,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GetTrunkRequest, TrunkApi } from "./client";
 import {
-  CreateTrunkRequest,
+  CreateTrunkRequestExtended,
   DeleteTrunkRequest,
+  GetTrunkRequest,
   ListTrunksRequest,
-  Trunk,
+  TrunkApi,
+  TrunkExtended,
   UpdateTrunkRequest
-} from "./types";
+} from "@fonoster/types";
 import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
@@ -34,23 +35,38 @@ import { updateResource } from "../resources/updateResource";
 const RESOURCE = "Trunk";
 
 function createTrunk(trunks: TrunkApi) {
-  return createResource<Trunk, CreateTrunkRequest, TrunkApi>(trunks, RESOURCE);
+  return createResource<TrunkExtended, CreateTrunkRequestExtended, TrunkApi>(
+    trunks,
+    RESOURCE
+  );
 }
 
 function updateTrunk(trunks: TrunkApi) {
-  return updateResource<Trunk, UpdateTrunkRequest, TrunkApi>(trunks, RESOURCE);
+  return updateResource<TrunkExtended, UpdateTrunkRequest, TrunkApi>(
+    trunks,
+    RESOURCE
+  );
 }
 
 function getTrunk(trunks: TrunkApi) {
-  return getResource<Trunk, GetTrunkRequest, TrunkApi>(trunks, RESOURCE);
+  return getResource<TrunkExtended, GetTrunkRequest, TrunkApi>(
+    trunks,
+    RESOURCE
+  );
 }
 
 function listTrunks(trunks: TrunkApi) {
-  return listResources<Trunk, ListTrunksRequest, TrunkApi>(trunks, RESOURCE);
+  return listResources<TrunkExtended, ListTrunksRequest, TrunkApi>(
+    trunks,
+    RESOURCE
+  );
 }
 
 function deleteTrunk(trunks: TrunkApi) {
-  return deleteResource<Trunk, DeleteTrunkRequest, TrunkApi>(trunks, RESOURCE);
+  return deleteResource<TrunkExtended, DeleteTrunkRequest, TrunkApi>(
+    trunks,
+    RESOURCE
+  );
 }
 
 export { createTrunk, updateTrunk, getTrunk, listTrunks, deleteTrunk };

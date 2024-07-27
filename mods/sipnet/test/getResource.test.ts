@@ -17,13 +17,12 @@
  * limitations under the License.
  */
 import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
+import { BaseApiObject, Domain, DomainsApi } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsApi, GetDomainRequest } from "../src/domains/client";
-import { Domain } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -62,7 +61,7 @@ describe("@sipnet[resources/getResource]", function () {
       }
     };
 
-    const get = getResource<Domain, GetDomainRequest, DomainsApi>(
+    const get = getResource<Domain, BaseApiObject, DomainsApi>(
       domains,
       "Domain"
     );
@@ -96,7 +95,7 @@ describe("@sipnet[resources/getResource]", function () {
     };
 
     const callback = sandbox.stub();
-    const get = getResource<Domain, GetDomainRequest, DomainsApi>(
+    const get = getResource<Domain, BaseApiObject, DomainsApi>(
       domains,
       "Domain"
     );

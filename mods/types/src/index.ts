@@ -16,8 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./agents.types";
+export * from "./acls.types";
+export * from "./credentials.types";
+export * from "./domains.types";
+export * from "./trunks.types";
+export * from "./numbers.types";
+export * from "./applications.types";
 export * from "./common";
 export * from "./calls.types";
-export * from "./applications.types";
 export * from "./identity.types";
 export * from "./secrets.types";

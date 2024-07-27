@@ -16,15 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DomainsApi } from "./client";
 import {
-  CreateDomainRequest,
-  DeleteDomainRequest,
-  Domain,
-  GetDomainRequest,
+  BaseApiObject,
+  CreateDomainRequestExtended,
+  DomainExtended,
+  DomainsApi,
   ListDomainsRequest,
   UpdateDomainRequest
-} from "./types";
+} from "@fonoster/types";
 import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
@@ -34,32 +33,36 @@ import { updateResource } from "../resources/updateResource";
 const RESOURCE = "Domain";
 
 function createDomain(domains: DomainsApi) {
-  return createResource<Domain, CreateDomainRequest, DomainsApi>(
-    domains,
-    RESOURCE
-  );
+  return createResource<
+    DomainExtended,
+    CreateDomainRequestExtended,
+    DomainsApi
+  >(domains, RESOURCE);
 }
 
 function updateDomain(domains: DomainsApi) {
-  return updateResource<Domain, UpdateDomainRequest, DomainsApi>(
+  return updateResource<DomainExtended, UpdateDomainRequest, DomainsApi>(
     domains,
     RESOURCE
   );
 }
 
 function getDomain(domains: DomainsApi) {
-  return getResource<Domain, GetDomainRequest, DomainsApi>(domains, RESOURCE);
+  return getResource<DomainExtended, BaseApiObject, DomainsApi>(
+    domains,
+    RESOURCE
+  );
 }
 
 function listDomains(domains: DomainsApi) {
-  return listResources<Domain, ListDomainsRequest, DomainsApi>(
+  return listResources<DomainExtended, ListDomainsRequest, DomainsApi>(
     domains,
     RESOURCE
   );
 }
 
 function deleteDomain(domains: DomainsApi) {
-  return deleteResource<Domain, DeleteDomainRequest, DomainsApi>(
+  return deleteResource<DomainExtended, BaseApiObject, DomainsApi>(
     domains,
     RESOURCE
   );

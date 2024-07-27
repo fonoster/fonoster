@@ -16,21 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { JsonObject } from "@prisma/client/runtime/library";
+import { BaseApiObject } from "./common";
 
-type Domain = {
+type DomainExtended = {
   ref: string;
   name: string;
   domainUri: string;
   accessControlListRef?: string;
   egressPolicies?: { rule: string; numberRef: string }[];
-  extended?: JsonObject;
+  extended?: Record<string, unknown>;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
 };
 
-type CreateDomainRequest = {
+type CreateDomainRequestExtended = {
   name: string;
   domainUri: string;
   accessControlListRef?: string;
@@ -40,25 +40,8 @@ type CreateDomainRequest = {
   };
 };
 
-type UpdateDomainRequest = {
-  ref: string;
-} & Omit<Partial<CreateDomainRequest>, "domainUri" | "extended">;
-
-type CreateDomainResponse = {
-  ref: string;
-};
-
-type UpdateDomainResponse = {
-  ref: string;
-};
-
-type GetDomainRequest = {
-  ref: string;
-};
-
-type DeleteDomainRequest = {
-  ref: string;
-};
+type UpdateDomainRequest = BaseApiObject &
+  Omit<Partial<CreateDomainRequest>, "domainUri" | "extended">;
 
 type ListDomainsRequest = {
   pageSize: number;
@@ -71,22 +54,24 @@ type ListDomainsResponse = {
 };
 
 type DomainsApi = {
-  createDomain: (request: CreateDomainRequest) => Promise<CreateDomainResponse>;
-  updateDomain: (request: UpdateDomainRequest) => Promise<UpdateDomainResponse>;
+  createDomain: (request: CreateDomainRequest) => Promise<BaseApiObject>;
+  updateDomain: (request: UpdateDomainRequest) => Promise<BaseApiObject>;
   getDomain: (ref: string) => Promise<Domain>;
   listDomains: (request: ListDomainsRequest) => Promise<ListDomainsResponse>;
   deleteDomain: (ref: string) => Promise<void>;
 };
 
+type Domain = Omit<DomainExtended, "extended">;
+
+type CreateDomainRequest = Omit<CreateDomainRequestExtended, "extended">;
+
 export {
   Domain,
+  DomainExtended,
   DomainsApi,
+  CreateDomainRequestExtended,
   CreateDomainRequest,
-  CreateDomainResponse,
   UpdateDomainRequest,
-  UpdateDomainResponse,
-  GetDomainRequest,
-  DeleteDomainRequest,
   ListDomainsRequest,
   ListDomainsResponse
 };

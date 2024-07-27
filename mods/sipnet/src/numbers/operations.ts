@@ -16,8 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GetNumberRequest, NumbersApi } from "./client";
-import { DeleteNumberRequest, INumber, ListNumbersRequest } from "./types";
+import {
+  BaseApiObject,
+  INumberExtended,
+  ListNumbersRequest,
+  NumbersApi
+} from "@fonoster/types";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
 import { listResources } from "../resources/listResources";
@@ -25,18 +29,21 @@ import { listResources } from "../resources/listResources";
 const RESOURCE = "Number";
 
 function getNumber(numbers: NumbersApi) {
-  return getResource<INumber, GetNumberRequest, NumbersApi>(numbers, RESOURCE);
+  return getResource<INumberExtended, BaseApiObject, NumbersApi>(
+    numbers,
+    RESOURCE
+  );
 }
 
 function listNumbers(numbers: NumbersApi) {
-  return listResources<INumber, ListNumbersRequest, NumbersApi>(
+  return listResources<INumberExtended, ListNumbersRequest, NumbersApi>(
     numbers,
     RESOURCE
   );
 }
 
 function deleteNumber(numbers: NumbersApi) {
-  return deleteResource<INumber, DeleteNumberRequest, NumbersApi>(
+  return deleteResource<INumberExtended, BaseApiObject, NumbersApi>(
     numbers,
     RESOURCE
   );

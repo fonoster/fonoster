@@ -16,20 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { JsonObject } from "@prisma/client/runtime/library";
+import { BaseApiObject } from "./common";
 
-type Acl = {
+type AclExtended = {
   ref: string;
   name: string;
   allow: string[];
   deny: string[];
-  extended?: JsonObject;
+  extended?: Record<string, unknown>;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
 };
 
-type CreateAclRequest = {
+type CreateAclRequestExtended = {
   name: string;
   allow: string[];
   deny: string[];
@@ -38,25 +38,8 @@ type CreateAclRequest = {
   };
 };
 
-type UpdateAclRequest = {
-  ref: string;
-} & Omit<Partial<CreateAclRequest>, "extended">;
-
-type CreateAclResponse = {
-  ref: string;
-};
-
-type UpdateAclResponse = {
-  ref: string;
-};
-
-type GetAclRequest = {
-  ref: string;
-};
-
-type DeleteAclRequest = {
-  ref: string;
-};
+type UpdateAclRequest = BaseApiObject &
+  Omit<Partial<CreateAclRequestExtended>, "extended">;
 
 type ListAclsRequest = {
   pageSize: number;
@@ -68,23 +51,25 @@ type ListAclsResponse = {
   nextPageToken: string;
 };
 
+type Acl = Omit<AclExtended, "extended">;
+
+type CreateAclRequest = Omit<CreateAclRequestExtended, "extended">;
+
 // TODO: Rename ACL to Acl upstream
 type AclsApi = {
-  createACL(request: CreateAclRequest): Promise<CreateAclResponse>;
-  updateACL(request: UpdateAclRequest): Promise<UpdateAclResponse>;
-  getACL(ref: string): Promise<Acl>;
+  createACL(request: CreateAclRequestExtended): Promise<BaseApiObject>;
+  updateACL(request: UpdateAclRequest): Promise<BaseApiObject>;
+  getACL(ref: string): Promise<AclExtended>;
   deleteACL(ref: string): Promise<void>;
   listACLs(request: ListAclsRequest): Promise<ListAclsResponse>;
 };
 
 export {
   Acl,
+  AclExtended,
   CreateAclRequest,
+  CreateAclRequestExtended,
   UpdateAclRequest,
-  CreateAclResponse,
-  UpdateAclResponse,
-  GetAclRequest,
-  DeleteAclRequest,
   ListAclsRequest,
   ListAclsResponse,
   AclsApi

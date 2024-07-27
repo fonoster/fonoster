@@ -23,10 +23,13 @@ import {
 } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import {
+  BaseApiObject,
+  FCreateNumberRequest,
+  NumbersApi
+} from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { CreateNumberResponse, NumbersApi } from "./client";
 import { convertToRoutrNumber } from "./convertToRoutrNumber";
-import { FCreateNumberRequest } from "./types";
 import { createNumberRequestSchema } from "./validation";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
@@ -37,10 +40,7 @@ function createNumber(
 ) {
   return async (
     call: { request: FCreateNumberRequest },
-    callback: (
-      error?: GrpcErrorMessage,
-      response?: CreateNumberResponse
-    ) => void
+    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
 

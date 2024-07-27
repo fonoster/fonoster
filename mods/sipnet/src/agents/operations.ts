@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AgentsApi, GetAgentRequest } from "./client";
 import {
-  Agent,
-  CreateAgentRequest,
-  DeleteAgentRequest,
+  AgentExtended,
+  AgentsApi,
+  BaseApiObject,
+  CreateAgentRequestExtended,
   ListAgentsRequest,
   UpdateAgentRequest
-} from "./types";
+} from "@fonoster/types";
 import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
@@ -33,23 +33,35 @@ import { updateResource } from "../resources/updateResource";
 const RESOURCE = "Agent";
 
 function createAgent(agents: AgentsApi) {
-  return createResource<Agent, CreateAgentRequest, AgentsApi>(agents, RESOURCE);
+  return createResource<AgentExtended, CreateAgentRequestExtended, AgentsApi>(
+    agents,
+    RESOURCE
+  );
 }
 
 function updateAgent(agents: AgentsApi) {
-  return updateResource<Agent, UpdateAgentRequest, AgentsApi>(agents, RESOURCE);
+  return updateResource<AgentExtended, UpdateAgentRequest, AgentsApi>(
+    agents,
+    RESOURCE
+  );
 }
 
 function getAgent(agents: AgentsApi) {
-  return getResource<Agent, GetAgentRequest, AgentsApi>(agents, RESOURCE);
+  return getResource<AgentExtended, BaseApiObject, AgentsApi>(agents, RESOURCE);
 }
 
 function listAgents(agents: AgentsApi) {
-  return listResources<Agent, ListAgentsRequest, AgentsApi>(agents, RESOURCE);
+  return listResources<AgentExtended, ListAgentsRequest, AgentsApi>(
+    agents,
+    RESOURCE
+  );
 }
 
 function deleteAgent(agents: AgentsApi) {
-  return deleteResource<Agent, DeleteAgentRequest, AgentsApi>(agents, RESOURCE);
+  return deleteResource<AgentExtended, BaseApiObject, AgentsApi>(
+    agents,
+    RESOURCE
+  );
 }
 
 export { createAgent, updateAgent, getAgent, listAgents, deleteAgent };

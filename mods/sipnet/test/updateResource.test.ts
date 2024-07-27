@@ -18,13 +18,12 @@
  */
 import { getExtendedFieldsHelper } from "@fonoster/sipnet/test/getExtendedFieldsHelper";
 import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
+import { Domain, DomainsApi, UpdateDomainRequest } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { DomainsApi } from "../src/domains/client";
-import { Domain, UpdateDomainRequest } from "../src/domains/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

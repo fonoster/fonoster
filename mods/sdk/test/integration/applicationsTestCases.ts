@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function createApplicationTestCases(expect) {
+function createApplicationsTestCases(expect) {
   const idBase = "applications";
 
   return {
@@ -121,4 +121,4 @@ function createApplicationTestCases(expect) {
   };
 }
 
-export { createApplicationTestCases };
+export { createApplicationsTestCases };

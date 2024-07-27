@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { NumbersApi } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -23,7 +24,6 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { TEST_TOKEN } from "./testToken";
 import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "../src/constants";
-import { NumbersApi } from "../src/numbers/client";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
