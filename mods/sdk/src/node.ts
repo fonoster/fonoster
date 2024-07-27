@@ -26,3 +26,4 @@ export * from "./Agents";
 export * from "./Domains";
 export * from "./Trunks";
 export * from "./Credentials";
+export * from "./Acls";
