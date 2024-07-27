@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Metadata } from "grpc-web";
 import { ApplicationsClient } from "./ApplicationsClient";
 import { CallsClient } from "./CallsClient";
 import { IdentityClient } from "./IdentityClient";
+import { SecretsClient } from "./SecretsClient";
 
 interface FonosterClient {
   getAccessToken(): string;
@@ -27,7 +27,8 @@ interface FonosterClient {
   getApplicationsClient(): ApplicationsClient;
   getCallsClient(): CallsClient;
   getIdentityClient(): IdentityClient;
-  getMetadata(): Metadata | unknown | null;
+  getSecretsClient(): SecretsClient;
+  getMetadata(): unknown;
   refreshToken(): Promise<void>;
 }
 

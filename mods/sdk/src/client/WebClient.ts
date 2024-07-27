@@ -20,11 +20,13 @@ import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherWeb } from "./TokenRefresherWeb";
 import {
   ApplicationsClient as TApplicationsClient,
-  CallsClient as TCallsClient
+  CallsClient as TCallsClient,
+  SecretsClient as TSecretsClient
 } from "./types";
 import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
 import { CallsClient } from "../generated/web/CallsServiceClientPb";
 import { IdentityClient } from "../generated/web/IdentityServiceClientPb";
+import { SecretsClient } from "../generated/web/SecretsServiceClientPb";
 
 const DEFAULT_URL = "https://api.fonoster.io/v1beta2";
 
@@ -63,5 +65,11 @@ export class WebClient extends AbstractClient {
 
   getIdentityClient() {
     return new IdentityClient(this.url, null, null);
+  }
+
+  getSecretsClient() {
+    return new SecretsClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    }) as unknown as TSecretsClient;
   }
 }

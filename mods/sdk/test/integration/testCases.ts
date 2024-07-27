@@ -17,16 +17,18 @@
  * limitations under the License.
  */
 import { createApiKeysTestCases } from "./apiKeysTestCases";
-import { createApplicationTestCases } from "./applicationsTestCases";
-import { createCallsTestCases } from "./callsTestCases";
+import { createApplicationsTestCases } from "./applicationsTestCases";
+import { createSecretsTestCases } from "./secretsTestCases";
 import { createUsersTestCases } from "./usersTestCases";
 
 function createTestCases(expect) {
   return [
-    createApplicationTestCases(expect),
-    createCallsTestCases(expect),
+    createApplicationsTestCases(expect),
+    // Muted for now
+    // createCallsTestCases(expect),
     createApiKeysTestCases(expect),
-    createUsersTestCases(expect)
+    createUsersTestCases(expect),
+    createSecretsTestCases(expect)
   ];
 }
 

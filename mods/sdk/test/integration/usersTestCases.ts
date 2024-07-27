@@ -59,7 +59,7 @@ function createUsersTestCases(expect) {
         request: {
           ref: "00000000-0000-0000-0000-000000000000",
           name: "Jane Doe",
-          password: "password",
+          password: "changeme",
           avatar: "https://example.com/avatar.jpg"
         },
         responseValidator: (response: { ref: string }) => {

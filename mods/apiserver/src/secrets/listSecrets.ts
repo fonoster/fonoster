@@ -19,8 +19,8 @@
 import { GrpcErrorMessage, datesMapper, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { ListSecretsRequest, ListSecretsResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { ListSecretsRequest, ListSecretsResponse } from "./types";
 import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });

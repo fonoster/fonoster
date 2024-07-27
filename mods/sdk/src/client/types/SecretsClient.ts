@@ -16,58 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type BaseRequest = {
-  ref: string;
-};
-
-type BaseResponse = {
-  ref: string;
-};
-
-type Secret = {
-  ref: string;
-  name: string;
-  secret: string;
-  createdAt: number;
-  updatedAt: number;
-};
-
-type CreateSecretRequest = {
-  name: string;
-  secret: string;
-};
-
-type CreateSecretResponse = BaseResponse;
-
-type UpdateSecretRequest = BaseRequest & Partial<CreateSecretRequest>;
-
-type GetSecretRequest = BaseRequest;
-
-type UpdateSecretResponse = BaseResponse;
-
-type DeleteSecretRequest = BaseRequest;
-
-type DeleteSecretResponse = BaseResponse;
-
-type ListSecretsRequest = {
-  pageSize: number;
-  pageToken: string;
-};
-
-type ListSecretsResponse = {
-  nextPageToken?: string;
-  items: Secret[];
-};
-
-export {
-  Secret,
+import { ClientFunction } from "./common";
+import {
   CreateSecretRequest,
   CreateSecretResponse,
-  UpdateSecretRequest,
-  UpdateSecretResponse,
   DeleteSecretRequest,
   DeleteSecretResponse,
+  GetSecretRequest,
   ListSecretsRequest,
   ListSecretsResponse,
-  GetSecretRequest
+  Secret,
+  UpdateSecretRequest,
+  UpdateSecretResponse
+} from "../../generated/web/secrets_pb";
+
+type SecretsClient = {
+  createSecret: ClientFunction<CreateSecretRequest, CreateSecretResponse>;
+  getSecret: ClientFunction<GetSecretRequest, Secret>;
+  updateSecret: ClientFunction<UpdateSecretRequest, UpdateSecretResponse>;
+  listSecrets: ClientFunction<ListSecretsRequest, ListSecretsResponse>;
+  deleteSecret: ClientFunction<DeleteSecretRequest, DeleteSecretResponse>;
 };
+
+export { SecretsClient };

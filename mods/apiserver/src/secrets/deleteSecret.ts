@@ -18,8 +18,8 @@
  */
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject } from "@fonoster/types";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { DeleteSecretRequest, DeleteSecretResponse } from "./types";
 import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -28,9 +28,7 @@ function deleteSecret(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
   return withAccess(
-    async (call: {
-      request: DeleteSecretRequest;
-    }): Promise<DeleteSecretResponse> => {
+    async (call: { request: BaseApiObject }): Promise<BaseApiObject> => {
       const { ref } = call.request;
 
       logger.verbose("call to deleteSecret", { ref });

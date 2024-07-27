@@ -16,8 +16,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./common";
-export * from "./calls.types";
-export * from "./applications.types";
-export * from "./identity.types";
-export * from "./secrets.types";
+import { BaseApiObject } from "./common";
+
+type Secret = {
+  ref: string;
+  name: string;
+  secret: string;
+  createdAt: number;
+  updatedAt: number;
+};
+
+type CreateSecretRequest = {
+  name: string;
+  secret: string;
+};
+
+type UpdateSecretRequest = BaseApiObject & Partial<CreateSecretRequest>;
+
+type ListSecretsRequest = {
+  pageSize: number;
+  pageToken: string;
+};
+
+type ListSecretsResponse = {
+  nextPageToken?: string;
+  items: Secret[];
+};
+
+export {
+  Secret,
+  CreateSecretRequest,
+  UpdateSecretRequest,
+  ListSecretsRequest,
+  ListSecretsResponse
+};

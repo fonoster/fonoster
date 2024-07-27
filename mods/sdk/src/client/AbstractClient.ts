@@ -21,7 +21,8 @@ import {
   ApplicationsClient,
   CallsClient,
   FonosterClient,
-  IdentityClient
+  IdentityClient,
+  SecretsClient
 } from "./types";
 import {
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
@@ -123,6 +124,7 @@ abstract class AbstractClient implements FonosterClient {
   abstract getMetadata(): unknown;
   abstract getApplicationsClient(): ApplicationsClient;
   abstract getIdentityClient(): IdentityClient;
+  abstract getSecretsClient(): SecretsClient;
   abstract getCallsClient(): CallsClient;
 }
 

@@ -19,8 +19,8 @@
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, CreateSecretRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { CreateSecretRequest, CreateSecretResponse } from "./types";
 import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -28,7 +28,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function createSecret(prisma: Prisma) {
   return async (
     call: { request: CreateSecretRequest },
-    callback: (error: GrpcErrorMessage, response?: CreateSecretResponse) => void
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { name, secret } = call.request;
     const accessKeyId = getAccessKeyIdFromCall(

@@ -27,6 +27,7 @@ import { TokenRefresherNode } from "./TokenRefresherNode";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
 import { CallsClient } from "../generated/node/calls_grpc_pb";
 import { IdentityClient } from "../generated/node/identity_grpc_pb";
+import { SecretsClient } from "../generated/node/secrets_grpc_pb";
 
 const DEFAULT_ENDPOINT = "api.fonoster.io:50051";
 
@@ -77,5 +78,9 @@ export class Client extends AbstractClient {
 
   getIdentityClient() {
     return new IdentityClient(this.endpoint, this.channelCredentials);
+  }
+
+  getSecretsClient() {
+    return new SecretsClient(this.endpoint, this.channelCredentials);
   }
 }

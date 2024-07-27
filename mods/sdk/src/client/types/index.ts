@@ -21,3 +21,4 @@ export * from "./FonosterClient";
 export * from "./ApplicationsClient";
 export * from "./IdentityClient";
 export * from "./CallsClient";
+export * from "./SecretsClient";

@@ -18,9 +18,9 @@
  */
 import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { UpdateSecretRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { UpdateSecretRequest } from "./types";
 import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });

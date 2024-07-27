@@ -18,8 +18,8 @@
  */
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, Secret } from "@fonoster/types";
 import { createGetFnUtil } from "./createGetFnUtil";
-import { GetSecretRequest, Secret } from "./types";
 import { Prisma } from "../core/db";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -28,7 +28,7 @@ function getSecret(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
   return withAccess(
-    async (call: { request: GetSecretRequest }): Promise<Secret> => {
+    async (call: { request: BaseApiObject }): Promise<Secret> => {
       const { ref } = call.request;
 
       logger.verbose("call to getSecret", { ref });
