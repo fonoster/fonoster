@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, UpdateUserRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { Prisma } from "../db";
@@ -33,16 +34,10 @@ const UpdateUserRequestSchema = z.object({
   avatar: z.string().url().or(z.string().optional().nullable())
 });
 
-type UpdateUserRequest = z.infer<typeof UpdateUserRequestSchema>;
-
-type UpdateUserResponse = {
-  ref: string;
-};
-
 function updateUser(prisma: Prisma) {
   return async (
     call: { request: UpdateUserRequest },
-    callback: (error: GrpcErrorMessage, response?: UpdateUserResponse) => void
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
       const validatedRequest = UpdateUserRequestSchema.parse(call.request);
@@ -65,7 +60,7 @@ function updateUser(prisma: Prisma) {
         }
       });
 
-      const response: UpdateUserResponse = {
+      const response: BaseApiObject = {
         ref
       };
 

@@ -20,4 +20,3 @@ export * from "./createApiKey";
 export * from "./deleteApiKey";
 export * from "./listApiKeys";
 export * from "./regenerateApiKey";
-export * from "./ApiRoleEnum";

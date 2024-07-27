@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { BaseApiObject, GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
@@ -25,18 +25,10 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type DeleteUserRequest = {
-  ref: string;
-};
-
-type DeleteUserResponse = {
-  ref: string;
-};
-
 function deleteUser(prisma: Prisma) {
   return async (
-    call: { request: DeleteUserRequest },
-    callback: (error: GrpcErrorMessage, response?: DeleteUserResponse) => void
+    call: { request: BaseApiObject },
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
       const { ref } = call.request;
@@ -52,7 +44,7 @@ function deleteUser(prisma: Prisma) {
         }
       });
 
-      const response: DeleteUserRequest = {
+      const response: BaseApiObject = {
         ref
       };
 

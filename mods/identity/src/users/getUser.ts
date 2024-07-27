@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, datesMapper, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, User } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromToken } from "../utils";
@@ -25,22 +26,9 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type GetUserRequest = {
-  ref: string;
-};
-
-type User = {
-  ref: string;
-  email: string;
-  name: string;
-  avatar: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 function getUser(prisma: Prisma) {
   return async (
-    call: { request: GetUserRequest },
+    call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: User) => void
   ) => {
     try {

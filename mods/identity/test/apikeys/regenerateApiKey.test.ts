@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ApiRoleEnum } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { ApiRoleEnum } from "../../src/apikeys";
 import { Prisma } from "../../src/db";
 import { TEST_TOKEN } from "../testToken";
 

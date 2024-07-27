@@ -20,3 +20,4 @@ export * from "./client/WebClient";
 export * from "./Applications";
 export * from "./Calls";
 export * from "./ApiKeys";
+export * from "./Users";

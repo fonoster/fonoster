@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, CreateUserRequest } from "@fonoster/types";
 import { z } from "zod";
 import { Prisma } from "../db";
 import {
@@ -34,16 +35,10 @@ const CreateUserRequestSchema = z.object({
   avatar: z.string().url()
 });
 
-type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
-
-type CreateUserResponse = {
-  ref: string;
-};
-
 function createUser(prisma: Prisma) {
   return async (
     call: { request: CreateUserRequest },
-    callback: (error: GrpcErrorMessage, response?: CreateUserResponse) => void
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
       const validatedRequest = CreateUserRequestSchema.parse(call.request);

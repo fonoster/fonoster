@@ -1,0 +1,73 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Here we update and get the default system user because we don't have
+// a way to get the user we just created unless we login which
+// is not possible in this test environment.
+//
+// Additionally, we are not testing the delete user method because
+// we don't want to delete the default system user.
+function createUsersTestCases(expect) {
+  const idBase = "users";
+
+  return {
+    api: "Users",
+    cases: [
+      {
+        id: `${idBase}-00`,
+        name: "should create a user",
+        method: "createUser",
+        request: {
+          name: "John Doe",
+          email: `john${Math.floor(Math.random() * 100000)}@example.com`,
+          password: "password",
+          avatar: "https://example.com/avatar.jpg"
+        },
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
+      },
+      {
+        id: `${idBase}-01`,
+        name: "should get the user",
+        method: "getUser",
+        request: "00000000-0000-0000-0000-000000000000",
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
+      },
+      {
+        id: `${idBase}-02`,
+        name: "should update the user",
+        method: "updateUser",
+        request: {
+          ref: "00000000-0000-0000-0000-000000000000",
+          name: "Jane Doe",
+          password: "password",
+          avatar: "https://example.com/avatar.jpg"
+        },
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
+      }
+    ]
+  };
+}
+
+export { createUsersTestCases };

@@ -20,10 +20,33 @@ enum ApiRoleEnum {
   WORKSPACE_ADMIN = "WORKSPACE_ADMIN"
 }
 
+type User = {
+  ref: string;
+  email: string;
+  name: string;
+  avatar: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type CreateUserRequest = {
+  name: string;
+  email: string;
+  password: string;
+  avatar: string;
+};
+
 type CreateApiKeyResponse = {
   ref: string;
   accessKeyId: string;
   accessKeySecret: string;
+};
+
+type UpdateUserRequest = {
+  ref: string;
+  name?: string;
+  password?: string;
+  avatar?: string;
 };
 
 type CreateApiKeyRequest = {
@@ -58,6 +81,9 @@ type ListApiKeysResponse = {
 
 export {
   ApiRoleEnum,
+  User,
+  CreateUserRequest,
+  UpdateUserRequest,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
   RegenerateApiKeyResponse,

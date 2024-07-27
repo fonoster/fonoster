@@ -19,12 +19,14 @@
 import { createApiKeysTestCases } from "./apiKeysTestCases";
 import { createApplicationTestCases } from "./applicationsTestCases";
 import { createCallsTestCases } from "./callsTestCases";
+import { createUsersTestCases } from "./usersTestCases";
 
 function createTestCases(expect) {
   return [
     createApplicationTestCases(expect),
     createCallsTestCases(expect),
-    createApiKeysTestCases(expect)
+    createApiKeysTestCases(expect),
+    createUsersTestCases(expect)
   ];
 }
 

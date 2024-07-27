@@ -18,10 +18,13 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { CreateApiKeyRequest, CreateApiKeyResponse } from "@fonoster/types";
+import {
+  ApiRoleEnum,
+  CreateApiKeyRequest,
+  CreateApiKeyResponse
+} from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
-import { ApiRoleEnum } from "./ApiRoleEnum";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromCall } from "../utils";
 import {
