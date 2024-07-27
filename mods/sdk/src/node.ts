@@ -23,3 +23,4 @@ export * from "./ApiKeys";
 export * from "./Users";
 export * from "./Secrets";
 export * from "./Agents";
+export * from "./Domains";
