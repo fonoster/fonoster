@@ -19,17 +19,31 @@
 import {
   CreateApiKeyRequest,
   CreateApiKeyResponse,
+  DeleteApiKeyRequest,
+  DeleteApiKeyResponse,
   ExchangeApiKeyRequest,
   ExchangeApiKeyResponse,
   ExchangeCredentialsRequest,
   ExchangeCredentialsResponse,
   ExchangeRefreshTokenRequest,
-  ExchangeRefreshTokenResponse
+  ExchangeRefreshTokenResponse,
+  ListApiKeysRequest,
+  ListApiKeysResponse,
+  RegenerateApiKeyRequest,
+  RegenerateApiKeyResponse
 } from "../../generated/web/identity_pb";
 import { ClientFunction } from "../types";
 
 type IdentityClient = {
+  // ApiKeys
   createApiKey: ClientFunction<CreateApiKeyRequest, CreateApiKeyResponse>;
+  regenerateApiKey: ClientFunction<
+    RegenerateApiKeyRequest,
+    RegenerateApiKeyResponse
+  >;
+  listApiKeys: ClientFunction<ListApiKeysRequest, ListApiKeysResponse>;
+  deleteApiKey: ClientFunction<DeleteApiKeyRequest, DeleteApiKeyResponse>;
+  // Exchanges
   exchangeApiKey: ClientFunction<ExchangeApiKeyRequest, ExchangeApiKeyResponse>;
   exchangeCredentials: ClientFunction<
     ExchangeCredentialsRequest,

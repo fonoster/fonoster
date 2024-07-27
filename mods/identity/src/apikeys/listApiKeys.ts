@@ -18,31 +18,13 @@
  */
 import { GrpcErrorMessage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { ListApiKeysRequest, ListApiKeysResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { ApiRoleEnum } from "./ApiRoleEnum";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromCall } from "../utils";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-type ListApiKeysRequest = {
-  pageSize: number;
-  pageToken: string;
-};
-
-type ApiKey = {
-  ref: string;
-  accessKeyId: string;
-  role: ApiRoleEnum;
-  expiresAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type ListApiKeysResponse = {
-  items: ApiKey[];
-  nextPageToken?: string;
-};
 
 function listApiKeys(prisma: Prisma) {
   return async (

@@ -16,11 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createApiKeysTestCases } from "./apiKeysTestCases";
 import { createApplicationTestCases } from "./applicationsTestCases";
 import { createCallsTestCases } from "./callsTestCases";
 
 function createTestCases(expect) {
-  return [createApplicationTestCases(expect), createCallsTestCases(expect)];
+  return [
+    createApplicationTestCases(expect),
+    createCallsTestCases(expect),
+    createApiKeysTestCases(expect)
+  ];
 }
 
 export { createTestCases };

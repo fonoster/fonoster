@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject } from "@fonoster/types";
 import { z } from "zod";
 import { Prisma } from "../db";
 
@@ -27,16 +28,10 @@ const DeleteApiKeyRequestSchema = z.object({
   ref: z.string()
 });
 
-type DeleteApiKeyRequest = z.infer<typeof DeleteApiKeyRequestSchema>;
-
-type DeleteApiKeyResponse = {
-  ref: string;
-};
-
 function deleteApiKey(prisma: Prisma) {
   return async (
-    call: { request: DeleteApiKeyRequest },
-    callback: (error: GrpcErrorMessage, response?: DeleteApiKeyResponse) => void
+    call: { request: BaseApiObject },
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
       const validatedRequest = DeleteApiKeyRequestSchema.parse(call.request);

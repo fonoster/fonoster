@@ -32,6 +32,49 @@ function createApiKeysTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         }
+      },
+      {
+        id: `${idBase}-01`,
+        name: "should regenerate an api key",
+        method: "regenerateApiKey",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+          expect(response).has.property("accessKeyId");
+          expect(response).has.property("accessKeySecret");
+        }
+      },
+      {
+        id: `${idBase}-02`,
+        name: "should list at least ten keys",
+        method: "listApiKeys",
+        request: {
+          pageSize: 10,
+          pageToken: null
+        },
+        responseValidator: (response: {
+          items: unknown[];
+          nextPageToken: string;
+        }) => {
+          expect(response).has.property("items");
+          expect(response).has.property("nextPageToken");
+          expect(response.items.length).to.be.greaterThan(0);
+          expect(response.items[0]).to.have.property("ref").to.not.be.null;
+          expect(response.items[0]).to.have.property("accessKeyId").to.not.be
+            .null;
+          expect(response.items[0]).to.have.property("role").to.not.be.null;
+        }
+      },
+      {
+        id: `${idBase}-03`,
+        name: "should delete the key",
+        method: "deleteApiKey",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
       }
     ]
   };

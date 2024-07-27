@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { CreateApiKeyRequest, CreateApiKeyResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { ApiRoleEnum } from "./ApiRoleEnum";
@@ -38,14 +39,6 @@ const CreateApiKeyRequestSchema = z.object({
     .transform((value) => (value === 0 ? null : value))
     .optional()
 });
-
-type CreateApiKeyRequest = z.infer<typeof CreateApiKeyRequestSchema>;
-
-type CreateApiKeyResponse = {
-  ref: string;
-  accessKeyId: string;
-  accessKeySecret: string;
-};
 
 function createApiKey(prisma: Prisma) {
   return async (

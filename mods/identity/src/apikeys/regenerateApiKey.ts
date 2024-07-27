@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, RegenerateApiKeyResponse } from "@fonoster/types";
 import { z } from "zod";
 import { Prisma } from "../db";
 import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
@@ -28,17 +29,9 @@ const RegenerateApiKeyRequestSchema = z.object({
   ref: z.string()
 });
 
-type RegenerateApiKeyRequest = z.infer<typeof RegenerateApiKeyRequestSchema>;
-
-type RegenerateApiKeyResponse = {
-  ref: string;
-  accessKeyId: string;
-  accessKeySecret: string;
-};
-
 function regenerateApiKey(prisma: Prisma) {
   return async (
-    call: { request: RegenerateApiKeyRequest },
+    call: { request: BaseApiObject },
     callback: (
       error: GrpcErrorMessage,
       response?: RegenerateApiKeyResponse

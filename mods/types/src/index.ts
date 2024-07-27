@@ -19,3 +19,4 @@
 export * from "./common";
 export * from "./calls.types";
 export * from "./applications.types";
+export * from "./identity.types";
