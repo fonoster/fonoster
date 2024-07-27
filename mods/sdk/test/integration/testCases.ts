@@ -34,7 +34,7 @@ function createTestCases(expect) {
     createSecretsTestCases(expect),
     createAgentsTestCases(expect),
     createDomainsTestCases(expect),
-    createCredentialsTestCases(expect),
+    createCredentialsTestCases(expect)
   ];
 }
 
