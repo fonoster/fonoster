@@ -35,7 +35,6 @@ import {
   GetDomainRequest as GetDomainRequestPB,
   ListDomainsRequest as ListDomainsRequestPB,
   ListDomainsResponse as ListDomainsResponsePB,
-  Privacy,
   UpdateDomainRequest as UpdateDomainRequestPB,
   UpdateDomainResponse as UpdateDomainResponsePB
 } from "./generated/node/domains_pb";
@@ -58,8 +57,7 @@ class Domains {
       method: client.createDomain.bind(client),
       requestPBObjectConstructor: CreateDomainRequestPB,
       metadata: this.client.getMetadata(),
-      request,
-      enumMapping: [["privacy", Privacy]]
+      request
     });
   }
 
@@ -89,8 +87,7 @@ class Domains {
       method: client.updateDomain.bind(client),
       requestPBObjectConstructor: UpdateDomainRequestPB,
       metadata: this.client.getMetadata(),
-      request,
-      enumMapping: [["privacy", Privacy]]
+      request
     });
   }
 

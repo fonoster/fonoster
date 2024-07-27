@@ -24,3 +24,5 @@ export * from "./Users";
 export * from "./Secrets";
 export * from "./Agents";
 export * from "./Domains";
+export * from "./Trunks";
+export * from "./Credentials";

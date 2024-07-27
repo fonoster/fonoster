@@ -19,6 +19,7 @@
 import { createAgentsTestCases } from "./agentsTestCases";
 import { createApiKeysTestCases } from "./apiKeysTestCases";
 import { createApplicationsTestCases } from "./applicationsTestCases";
+import { createCredentialsTestCases } from "./credentialsTestCases";
 import { createDomainsTestCases } from "./domainsTestCases";
 import { createSecretsTestCases } from "./secretsTestCases";
 import { createUsersTestCases } from "./usersTestCases";
@@ -32,7 +33,8 @@ function createTestCases(expect) {
     createUsersTestCases(expect),
     createSecretsTestCases(expect),
     createAgentsTestCases(expect),
-    createDomainsTestCases(expect)
+    createDomainsTestCases(expect),
+    createCredentialsTestCases(expect),
   ];
 }
 

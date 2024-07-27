@@ -28,7 +28,7 @@ import { AclsClient } from "../generated/node/acls_grpc_pb";
 import { AgentsClient } from "../generated/node/agents_grpc_pb";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
 import { CallsClient } from "../generated/node/calls_grpc_pb";
-import { CredentialsClient } from "../generated/node/credentials_grpc_pb";
+import { CredentialsServiceClient } from "../generated/node/credentials_grpc_pb";
 import { DomainsClient } from "../generated/node/domains_grpc_pb";
 import { IdentityClient } from "../generated/node/identity_grpc_pb";
 import { NumbersClient } from "../generated/node/numbers_grpc_pb";
@@ -123,8 +123,12 @@ export class Client extends AbstractClient {
   }
 
   getCredentialsClient() {
-    return new CredentialsClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
-    });
+    return new CredentialsServiceClient(
+      this.endpoint,
+      this.channelCredentials,
+      {
+        interceptors: [this.tokenRefresherInterceptor]
+      }
+    );
   }
 }
