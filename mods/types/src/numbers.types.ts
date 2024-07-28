@@ -70,7 +70,10 @@ type ListNumbersResponse = {
 
 type INumber = Omit<INumberExtended, "extended">;
 
-type CreateNumberRequest = Omit<CreateNumberRequestExtended, "extended">;
+type CreateNumberRequest = Omit<
+  CreateNumberRequestExtended,
+  "extended" | "sessionAffinityHeader"
+>;
 
 type FCreateNumberRequest = {
   name: string;
