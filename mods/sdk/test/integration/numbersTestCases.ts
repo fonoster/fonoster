@@ -83,7 +83,8 @@ function createNumbersTestCases(expect) {
           expect(response.items[0]).to.have.property("telUrl").to.not.be.null;
           expect(response.items[0]).to.have.property("city").to.not.be.null;
           expect(response.items[0]).to.have.property("country").to.not.be.null;
-          expect(response.items[0]).to.have.property("countryIsoCode").to.not.be.null;
+          expect(response.items[0]).to.have.property("countryIsoCode").to.not.be
+            .null;
           expect(response.items[0]).to.not.have.property("trunk");
         }
       },
