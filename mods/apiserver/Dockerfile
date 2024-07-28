@@ -38,10 +38,10 @@ WORKDIR /service
 
 COPY --from=builder --chown=appuser:appuser /usr/local/lib/node_modules/@fonoster/apiserver /usr/local/lib/node_modules/@fonoster/apiserver
 COPY --from=builder --chown=appuser:appuser /usr/local/bin/dockerize /usr/local/bin/dockerize
-COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/schema.prisma .
-COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma ./identity-schema.prisma
-COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/migrations ./migrations
-COPY --from=builder --chown=appuser:appuser /work/mods/identity/migrations ./identity-migrations
+COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/migrations ./core/migrations
+COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/schema.prisma ./core/schema.prisma
+COPY --from=builder --chown=appuser:appuser /work/mods/identity/migrations ./identity/migrations
+COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma ./identity/schema.prisma
 
 RUN npm install -g prisma@5.12.1 npm@latest 
 
@@ -49,8 +49,9 @@ USER appuser
 
 # TODO: Fix hardcode host for db
 CMD sh -c "dockerize -wait tcp://postgres:5432 -timeout 30s && \
-  npx prisma migrate deploy --schema schema.prisma && \
-  rm -rf migrations && \
-  mv identity-migrations migrations && \
-  npx prisma migrate deploy --schema identity-schema.prisma && \
+  cd /service/core && \
+  npx prisma migrate deploy && \
+  cd /service/identity && \
+  npx prisma migrate deploy && \
+  node /usr/local/lib/node_modules/@fonoster/apiserver/dist/core/seed.js && \
   node /usr/local/lib/node_modules/@fonoster/apiserver/dist/index.js"
