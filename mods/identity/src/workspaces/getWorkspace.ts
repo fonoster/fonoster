@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, datesMapper, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, Workspace } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
@@ -25,21 +26,9 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type GetWorkspaceRequest = {
-  ref: string;
-};
-
-type Workspace = {
-  ref: string;
-  name: string;
-  ownerRef: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 function getWorkspace(prisma: Prisma) {
   return async (
-    call: { request: GetWorkspaceRequest },
+    call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: Workspace) => void
   ) => {
     try {

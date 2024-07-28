@@ -29,7 +29,7 @@ function isWorkspaceMember(prisma: Prisma) {
     const isMember = await prisma.workspaceMember.findFirst({
       where: {
         // Force userId to be an empty string to ensure that the query is not
-        // fillter by workspaceRef only
+        // filter by workspaceRef only
         userRef: userRef || "",
         workspaceRef
       }

@@ -18,13 +18,18 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import {
+  InviteUserToWorkspaceRequest,
+  InviteUserToWorkspaceResponse,
+  WorkspaceMemberStatus,
+  WorkspaceRoleEnum
+} from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
 import { z } from "zod";
 import { createSendEmail } from "./createSendEmail";
 import { isAdminMember } from "./isAdminMember";
 import { isWorkspaceMember } from "./isWorkspaceMember";
-import { WorkspaceRoleEnum } from "./WorkspaceRoleEnum";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites/sendInvite";
@@ -47,15 +52,6 @@ const InviteUserToWorkspaceRequestSchema = z.object({
     .min(6, "Password must contain at least 8 characters")
     .or(z.undefined())
 });
-
-type InviteUserToWorkspaceRequest = z.infer<
-  typeof InviteUserToWorkspaceRequestSchema
->;
-
-type CreateWorkspaceResponse = {
-  workspaceRef: string;
-  userRef: string;
-};
 
 const userIsMemberError = {
   code: GRPCStatus.ALREADY_EXISTS,
@@ -90,11 +86,6 @@ const createUser = (prisma: Prisma) => {
   };
 };
 
-enum WorkspaceMemberStatus {
-  PENDING = "PENDING",
-  ACTIVE = "ACTIVE"
-}
-
 function inviteUserToWorkspace(
   prisma: Prisma,
   identityConfig: IdentityConfig,
@@ -104,7 +95,7 @@ function inviteUserToWorkspace(
     call: { request: InviteUserToWorkspaceRequest },
     callback: (
       error: GrpcErrorMessage,
-      response?: CreateWorkspaceResponse
+      response?: InviteUserToWorkspaceResponse
     ) => void
   ) => {
     try {
@@ -156,7 +147,8 @@ function inviteUserToWorkspace(
         user = await createUser(prisma)({
           name,
           email,
-          password: oneTimePassword
+          password: oneTimePassword,
+          role
         });
       }
 

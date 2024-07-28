@@ -18,6 +18,10 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import {
+  RemoveUserFromWorkspaceRequest,
+  RemoveUserFromWorkspaceResponse
+} from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../db";
@@ -26,14 +30,6 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-type RemoveUserFromWorkspaceRequest = {
-  userRef: string;
-};
-
-type RemoveUserFromWorkspaceResponse = {
-  userRef: string;
-};
 
 function removeUserFromWorkspace(prisma: Prisma) {
   return async (

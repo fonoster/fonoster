@@ -17,9 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRoleEnum } from "@fonoster/types";
+import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
 import { Role } from "./exchanges/types";
-import { WorkspaceRoleEnum } from "./workspaces/WorkspaceRoleEnum";
 
 const VOICE_SERVICE_ROLE = "VOICE_SERVICE";
 

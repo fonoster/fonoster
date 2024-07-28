@@ -24,4 +24,3 @@ export * from "./listWorkspaces";
 export * from "./inviteUserToWorkspace";
 export * from "./removeUserFromWorkspace";
 export * from "./resendWorkspaceMembershipInvitation";
-export * from "./WorkspaceRoleEnum";

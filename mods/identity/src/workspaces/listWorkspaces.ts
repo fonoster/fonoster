@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { ListWorkspacesResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { TokenUseEnum } from "../exchanges";
@@ -26,18 +27,6 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-type Workspace = {
-  ref: string;
-  name: string;
-  ownerRef: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type ListWorkspacesResponse = {
-  workspaces: Workspace[];
-};
 
 function listWorkspaces(prisma: Prisma) {
   return async (

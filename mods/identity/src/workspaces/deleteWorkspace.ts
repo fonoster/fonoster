@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
@@ -25,21 +26,10 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-type DeleteWorkspaceRequest = {
-  ref: string;
-};
-
-type DeleteWorkspaceResponse = {
-  ref: string;
-};
-
 function deleteWorkspace(prisma: Prisma) {
   return async (
-    call: { request: DeleteWorkspaceRequest },
-    callback: (
-      error: GrpcErrorMessage,
-      response?: DeleteWorkspaceResponse
-    ) => void
+    call: { request: BaseApiObject },
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
       const { ref } = call.request;
@@ -56,11 +46,7 @@ function deleteWorkspace(prisma: Prisma) {
         }
       });
 
-      const response: DeleteWorkspaceRequest = {
-        ref
-      };
-
-      callback(null, response);
+      callback(null, { ref });
     } catch (error) {
       handleError(error, callback);
     }

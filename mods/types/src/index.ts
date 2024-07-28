@@ -27,3 +27,4 @@ export * from "./common";
 export * from "./calls.types";
 export * from "./identity.types";
 export * from "./secrets.types";
+export * from "./workspaces.types";

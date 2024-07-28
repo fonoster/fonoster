@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, UpdateWorkspaceRequest } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { isWorkspaceMember } from "./isWorkspaceMember";
@@ -32,19 +33,10 @@ const UpdateWorkspaceRequestSchema = z.object({
   name: z.string().min(3).max(50).or(z.string().optional().nullable())
 });
 
-type UpdateWorkspaceRequest = z.infer<typeof UpdateWorkspaceRequestSchema>;
-
-type UpdateWorkspaceResponse = {
-  ref: string;
-};
-
 function updateWorkspace(prisma: Prisma) {
   return async (
     call: { request: UpdateWorkspaceRequest },
-    callback: (
-      error: GrpcErrorMessage,
-      response?: UpdateWorkspaceResponse
-    ) => void
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
       const validatedRequest = UpdateWorkspaceRequestSchema.parse(call.request);
@@ -72,11 +64,7 @@ function updateWorkspace(prisma: Prisma) {
         }
       });
 
-      const response: UpdateWorkspaceResponse = {
-        ref
-      };
-
-      callback(null, response);
+      callback(null, { ref });
     } catch (error) {
       handleError(error, callback);
     }

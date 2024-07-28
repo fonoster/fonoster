@@ -18,6 +18,7 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { BaseApiObject, CreateWorkspaceRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
 import { Prisma } from "../db";
@@ -34,19 +35,10 @@ const CreateWorkspaceRequestSchema = z.object({
   name: z.string().min(3, "Name must contain at least 3 characters").max(50)
 });
 
-type CreateWorkspaceRequest = z.infer<typeof CreateWorkspaceRequestSchema>;
-
-type CreateWorkspaceResponse = {
-  ref: string;
-};
-
 function createWorkspace(prisma: Prisma) {
   return async (
     call: { request: CreateWorkspaceRequest },
-    callback: (
-      error: GrpcErrorMessage,
-      response?: CreateWorkspaceResponse
-    ) => void
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
       const validatedRequest = CreateWorkspaceRequestSchema.parse(call.request);

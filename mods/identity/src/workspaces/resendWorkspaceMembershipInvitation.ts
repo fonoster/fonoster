@@ -18,6 +18,10 @@
  */
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import {
+  ResendWorkspaceMembershipInvitationRequest,
+  ResendWorkspaceMembershipInvitationResponse
+} from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { createSendEmail } from "./createSendEmail";
 import { isAdminMember } from "./isAdminMember";
@@ -29,14 +33,6 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-type ResendWorkspaceMembershipInvitationRequest = {
-  userRef: string;
-};
-
-type ResendWorkspaceMembershipInvitationResponse = {
-  userRef: string;
-};
 
 function resendWorkspaceMembershipInvitation(
   prisma: Prisma,

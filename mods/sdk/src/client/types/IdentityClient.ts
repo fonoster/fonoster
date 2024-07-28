@@ -21,10 +21,13 @@ import {
   CreateApiKeyResponse,
   CreateUserRequest,
   CreateUserResponse,
+  CreateWorkspaceRequest,
   DeleteApiKeyRequest,
   DeleteApiKeyResponse,
   DeleteUserRequest,
   DeleteUserResponse,
+  DeleteWorkspaceRequest,
+  DeleteWorkspaceResponse,
   ExchangeApiKeyRequest,
   ExchangeApiKeyResponse,
   ExchangeCredentialsRequest,
@@ -33,11 +36,23 @@ import {
   ExchangeRefreshTokenResponse,
   GetUserRequest,
   GetUserResponse,
+  GetWorkspaceRequest,
+  InviteUserToWorkspaceRequest,
+  InviteUserToWorkspaceResponse,
   ListApiKeysRequest,
   ListApiKeysResponse,
+  ListWorkspacesRequest,
+  ListWorkspacesResponse,
   RegenerateApiKeyRequest,
   RegenerateApiKeyResponse,
-  UpdateUserRequest
+  RemoveUserFromWorkspaceRequest,
+  RemoveUserFromWorkspaceResponse,
+  ResendWorkspaceMembershipInvitationRequest,
+  ResendWorkspaceMembershipInvitationResponse,
+  UpdateUserRequest,
+  UpdateWorkspaceRequest,
+  UpdateWorkspaceResponse,
+  Workspace
 } from "../../generated/web/identity_pb";
 import { ClientFunction } from "../types";
 
@@ -65,6 +80,30 @@ type IdentityClient = {
   getUser: ClientFunction<GetUserRequest, GetUserResponse>;
   updateUser: ClientFunction<UpdateUserRequest, CreateUserResponse>;
   deleteUser: ClientFunction<DeleteUserRequest, DeleteUserResponse>;
+  // Workspaces
+  createWorkspace: ClientFunction<CreateWorkspaceRequest, CreateUserResponse>;
+  getWorkspace: ClientFunction<GetWorkspaceRequest, Workspace>;
+  listWorkspaces: ClientFunction<ListWorkspacesRequest, ListWorkspacesResponse>;
+  updateWorkspace: ClientFunction<
+    UpdateWorkspaceRequest,
+    UpdateWorkspaceResponse
+  >;
+  inviteUserToWorkspace: ClientFunction<
+    InviteUserToWorkspaceRequest,
+    InviteUserToWorkspaceResponse
+  >;
+  resendWorkspaceMembershipInvitation: ClientFunction<
+    ResendWorkspaceMembershipInvitationRequest,
+    ResendWorkspaceMembershipInvitationResponse
+  >;
+  removeUserFromWorkspace: ClientFunction<
+    RemoveUserFromWorkspaceRequest,
+    RemoveUserFromWorkspaceResponse
+  >;
+  deleteWorkspace: ClientFunction<
+    DeleteWorkspaceRequest,
+    DeleteWorkspaceResponse
+  >;
 };
 
 export { IdentityClient };
