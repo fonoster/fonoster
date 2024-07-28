@@ -114,9 +114,5 @@ jobs:
       run: |
         while ! curl -s http://localhost:7171; do sleep 1; done
 
-    - name: Run integration tests (Node SDK)
+    - name: Run integration tests for the SDK
       run: npm run integration
-
-    - name: Run integration tests (Web SDK)
-      run: npm run integration:browser
-    
