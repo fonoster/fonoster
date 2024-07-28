@@ -28,3 +28,4 @@ export * from "./Trunks";
 export * from "./Credentials";
 export * from "./Acls";
 export * from "./Numbers";
+export * from "./Workspaces";

@@ -19,6 +19,12 @@
 import {
   BaseApiObject,
   CreateWorkspaceRequest,
+  InviteUserToWorkspaceRequest,
+  ListWorkspacesResponse,
+  RemoveUserFromWorkspaceRequest,
+  RemoveUserFromWorkspaceResponse,
+  ResendWorkspaceMembershipInvitationRequest,
+  ResendWorkspaceMembershipInvitationResponse,
   UpdateWorkspaceRequest,
   Workspace
 } from "@fonoster/types";
@@ -30,9 +36,17 @@ import {
   DeleteWorkspaceRequest as DeleteWorkspaceRequestPB,
   DeleteWorkspaceResponse as DeleteWorkspaceResponsePB,
   GetWorkspaceRequest as GetWorkspaceRequestPB,
-  GetWorkspaceResponse as GetWorkspaceResponsePB,
+  InviteUserToWorkspaceRequest as InviteUserToWorkspaceRequestPB,
+  InviteUserToWorkspaceResponse as InviteUserToWorkspaceResponsePB,
+  ListWorkspacesRequest as ListWorkspacesRequestPB,
+  ListWorkspacesResponse as ListWorkspacesResponsePB,
+  RemoveUserFromWorkspaceRequest as RemoveUserFromWorkspaceRequestPB,
+  RemoveUserFromWorkspaceResponse as RemoveUserFromWorkspaceResponsePB,
+  ResendWorkspaceMembershipInvitationRequest as ResendWorkspaceMembershipInvitationRequestPB,
+  ResendWorkspaceMembershipInvitationResponse as ResendWorkspaceMembershipInvitationResponsePB,
   UpdateWorkspaceRequest as UpdateWorkspaceRequestPB,
-  UpdateWorkspaceResponse as UpdateWorkspaceResponsePB
+  UpdateWorkspaceResponse as UpdateWorkspaceResponsePB,
+  Workspace as WorkspacePB
 } from "./generated/node/identity_pb";
 
 class Workspaces {
@@ -63,8 +77,8 @@ class Workspaces {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
       GetWorkspaceRequestPB,
-      GetWorkspaceResponsePB,
-      { ref: string },
+      WorkspacePB,
+      BaseApiObject,
       Workspace
     >({
       method: client.getWorkspace.bind(client),
@@ -103,6 +117,73 @@ class Workspaces {
       requestPBObjectConstructor: DeleteWorkspaceRequestPB,
       metadata: this.client.getMetadata(),
       request: { ref }
+    });
+  }
+
+  async listWorkspaces(): Promise<ListWorkspacesResponse> {
+    const applicationsClient = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      ListWorkspacesRequestPB,
+      ListWorkspacesResponsePB,
+      Record<string, never>,
+      ListWorkspacesResponse
+    >({
+      method: applicationsClient.listWorkspaces.bind(applicationsClient),
+      requestPBObjectConstructor: ListWorkspacesRequestPB,
+      metadata: this.client.getMetadata(),
+      request: {},
+      repeatableObjectMapping: [["itemsList", WorkspacePB]]
+    });
+  }
+
+  async inviteUserToWorkspace(
+    request: InviteUserToWorkspaceRequest
+  ): Promise<BaseApiObject> {
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      InviteUserToWorkspaceRequestPB,
+      InviteUserToWorkspaceResponsePB,
+      InviteUserToWorkspaceRequest,
+      BaseApiObject
+    >({
+      method: client.inviteUserToWorkspace.bind(client),
+      requestPBObjectConstructor: InviteUserToWorkspaceRequestPB,
+      metadata: this.client.getMetadata(),
+      request
+    });
+  }
+
+  async resendWorkspaceMembershipInvitation(
+    request: ResendWorkspaceMembershipInvitationRequest
+  ): Promise<ResendWorkspaceMembershipInvitationResponse> {
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      ResendWorkspaceMembershipInvitationRequestPB,
+      ResendWorkspaceMembershipInvitationResponsePB,
+      ResendWorkspaceMembershipInvitationRequest,
+      ResendWorkspaceMembershipInvitationResponse
+    >({
+      method: client.resendWorkspaceMembershipInvitation.bind(client),
+      requestPBObjectConstructor: ResendWorkspaceMembershipInvitationRequestPB,
+      metadata: this.client.getMetadata(),
+      request
+    });
+  }
+
+  async removeUserFromWorkspace(
+    request: RemoveUserFromWorkspaceRequest
+  ): Promise<RemoveUserFromWorkspaceResponse> {
+    const client = this.client.getIdentityClient();
+    return await makeRpcRequest<
+      RemoveUserFromWorkspaceRequestPB,
+      RemoveUserFromWorkspaceResponsePB,
+      RemoveUserFromWorkspaceRequest,
+      RemoveUserFromWorkspaceResponse
+    >({
+      method: client.removeUserFromWorkspace.bind(client),
+      requestPBObjectConstructor: RemoveUserFromWorkspaceRequestPB,
+      metadata: this.client.getMetadata(),
+      request
     });
   }
 }
