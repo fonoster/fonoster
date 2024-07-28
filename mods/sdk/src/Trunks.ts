@@ -21,23 +21,18 @@ import {
   CreateTrunkRequest,
   ListTrunksRequest,
   ListTrunksResponse,
-  Trunk,
   UpdateTrunkRequest
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
   CreateTrunkRequest as CreateTrunkRequestPB,
-  CreateTrunkResponse as CreateTrunkResponsePB,
   DeleteTrunkRequest as DeleteTrunkRequestPB,
   DeleteTrunkResponse as DeleteTrunkResponsePB,
   GetTrunkRequest as GetTrunkRequestPB,
   ListTrunksRequest as ListTrunksRequestPB,
-  ListTrunksResponse as ListTrunksResponsePB,
-  Trunk as TrunkPB,
-  UpdateTrunkRequest as UpdateTrunkRequestPB,
-  UpdateTrunkResponse as UpdateTrunkResponsePB
-} from "./generated/web/trunks_pb";
+  UpdateTrunkRequest as UpdateTrunkRequestPB
+} from "./generated/node/trunks_pb";
 
 class Trunks {
   private client: FonosterClient;
@@ -48,62 +43,110 @@ class Trunks {
 
   async createTrunk(request: CreateTrunkRequest): Promise<BaseApiObject> {
     const client = this.client.getTrunksClient();
-    return await makeRpcRequest<
-      CreateTrunkRequestPB,
-      CreateTrunkResponsePB,
-      CreateTrunkRequest,
-      BaseApiObject
-    >({
-      method: client.createTrunk.bind(client),
-      requestPBObjectConstructor: CreateTrunkRequestPB,
-      metadata: this.client.getMetadata(),
-      request
+    const createTrunkRequest = new CreateTrunkRequestPB();
+    createTrunkRequest.setName(request.name);
+    createTrunkRequest.setInboundUri(request.inboundUri);
+    createTrunkRequest.setSendRegister(request.sendRegister);
+    // createAclRequest.setAccessControlListRef(?);
+    // createAclRequest.setInboundCredentialsRef(?);
+    // createAclRequest.setOutboundCredentialsRef(?);
+    // request.uris.forEach(uri => {
+    //   const uri = new CreateTrunkRequestPB.Uris();
+    //   createTrunkRequest.addUris(uri);
+    // }
+
+    return new Promise((resolve, reject) => {
+      client.createTrunk(
+        createTrunkRequest,
+        this.client.getMetadata(),
+        (err, response) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(response.toObject());
+        }
+      );
     });
   }
 
   async getTrunk(ref: string) {
     const client = this.client.getTrunksClient();
-    return await makeRpcRequest<
-      GetTrunkRequestPB,
-      TrunkPB,
-      BaseApiObject,
-      Trunk
-    >({
-      method: client.getTrunk.bind(client),
-      requestPBObjectConstructor: GetTrunkRequestPB,
-      metadata: this.client.getMetadata(),
-      request: { ref }
+    const getTrunkRequest = new GetTrunkRequestPB();
+    getTrunkRequest.setRef(ref);
+
+    return new Promise((resolve, reject) => {
+      client.getTrunk(
+        getTrunkRequest,
+        this.client.getMetadata(),
+        (err, response) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(response.toObject());
+        }
+      );
     });
   }
 
   async updateTrunk(request: UpdateTrunkRequest): Promise<BaseApiObject> {
     const client = this.client.getTrunksClient();
-    return await makeRpcRequest<
-      UpdateTrunkRequestPB,
-      UpdateTrunkResponsePB,
-      UpdateTrunkRequest,
-      BaseApiObject
-    >({
-      method: client.updateTrunk.bind(client),
-      requestPBObjectConstructor: UpdateTrunkRequestPB,
-      metadata: this.client.getMetadata(),
-      request
+    const updateTrunkRequest = new UpdateTrunkRequestPB();
+    updateTrunkRequest.setRef(request.ref);
+    updateTrunkRequest.setName(request.name);
+    updateTrunkRequest.setSendRegister(request.sendRegister);
+    // updateAclRequest.setAccessControlListRef(?);
+    // updateAclRequest.setInboundCredentialsRef(?);
+    // updateAclRequest.setOutboundCredentialsRef(?);
+    // request.uris.forEach(uri => {
+    //   const uri = new UpdateTrunkRequestPB.Uris();
+    //   updateTrunkRequest.addUris(uri);
+    // }
+    return new Promise((resolve, reject) => {
+      client.updateTrunk(
+        updateTrunkRequest,
+        this.client.getMetadata(),
+        (err, response) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(response.toObject());
+        }
+      );
     });
   }
 
   async listTrunks(request: ListTrunksRequest): Promise<ListTrunksResponse> {
     const client = this.client.getTrunksClient();
-    return await makeRpcRequest<
-      ListTrunksRequestPB,
-      ListTrunksResponsePB,
-      ListTrunksRequest,
-      ListTrunksResponse
-    >({
-      method: client.listTrunks.bind(client),
-      requestPBObjectConstructor: ListTrunksRequestPB,
-      metadata: this.client.getMetadata(),
-      request,
-      repeatableObjectMapping: [["itemsList", TrunkPB]]
+    const listTrunksRequest = new ListTrunksRequestPB();
+    listTrunksRequest.setPageSize(request.pageSize);
+    listTrunksRequest.setPageToken(request.pageToken);
+
+    return new Promise((resolve, reject) => {
+      client.listTrunks(
+        listTrunksRequest,
+        this.client.getMetadata(),
+        (err, response) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          const items = response.getItemsList().map((item) => {
+            const obj = item.toObject();
+            return {
+              ...obj
+            };
+          });
+
+          resolve({
+            items: items as any,
+            nextPageToken: response.getNextPageToken()
+          });
+        }
+      );
     });
   }
 
