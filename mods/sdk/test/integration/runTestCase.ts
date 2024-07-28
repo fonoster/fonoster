@@ -27,6 +27,8 @@ type TestCase = {
   grpcCode?: number;
   dependsOn?: string;
   responseValidator?: (response: unknown) => void;
+  skip?: boolean;
+  only?: boolean;
 };
 
 async function runTestCase(params: {

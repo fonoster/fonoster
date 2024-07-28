@@ -30,15 +30,15 @@ function convertToRoutrNumber(
     city: number.city,
     country: number.country,
     countryIsoCode: number.countryIsoCode,
-    extraHeaders: [
-      {
-        name: APP_REF_HEADER,
-        value: number.appRef
-      }
-    ],
-    extended: {
-      accessKeyId
-    },
+    extraHeaders: number.appRef
+      ? [
+          {
+            name: APP_REF_HEADER,
+            value: number.appRef
+          }
+        ]
+      : [],
+    extended: { accessKeyId },
     // TODO: Make this optional upstream in Routr
     sessionAffinityHeader: ""
   };

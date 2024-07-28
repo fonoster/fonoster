@@ -59,11 +59,15 @@ describe("@sdk[integration]", async function () {
           request,
           grpcCode,
           dependsOn,
-          responseValidator
+          responseValidator,
+          only,
+          skip
         } = testCase;
 
         await new Promise<void>((resolve) => {
-          it(name, async function () {
+          const itFn = only ? it.only : skip ? it.skip : it;
+
+          itFn(name, async function () {
             if (dependsOn) {
               expect(resultStore[dependsOn]).to.be.not.undefined;
             }

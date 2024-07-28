@@ -43,7 +43,8 @@ function createCallsTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        }
+        },
+        skip: true
       },
       {
         id: `${idBase}-03`,
@@ -63,7 +64,8 @@ function createCallsTestCases(expect) {
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0]).to.have.property("type").to.not.be.null;
-        }
+        },
+        skip: true
       }
     ]
   };

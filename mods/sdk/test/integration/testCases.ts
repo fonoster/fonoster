@@ -20,6 +20,7 @@ import { createAclsTestCases } from "./aclsTestCases";
 import { createAgentsTestCases } from "./agentsTestCases";
 import { createApiKeysTestCases } from "./apiKeysTestCases";
 import { createApplicationsTestCases } from "./applicationsTestCases";
+import { createCallsTestCases } from "./callsTestCases";
 import { createCredentialsTestCases } from "./credentialsTestCases";
 import { createDomainsTestCases } from "./domainsTestCases";
 import { createNumbersTestCases } from "./numbersTestCases";
@@ -29,8 +30,7 @@ import { createUsersTestCases } from "./usersTestCases";
 function createTestCases(expect) {
   return [
     createApplicationsTestCases(expect),
-    // Muted for now
-    // createCallsTestCases(expect),
+    createCallsTestCases(expect),
     createApiKeysTestCases(expect),
     createUsersTestCases(expect),
     createSecretsTestCases(expect),

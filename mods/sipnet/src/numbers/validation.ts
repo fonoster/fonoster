@@ -46,9 +46,12 @@ const updateNumberRequestSchema = z
     agentAor: sipUriSchema.optional(),
     appRef: z.string().optional()
   })
-  .refine((data) => data.agentAor && data.appRef, {
-    message:
-      "You can only provide one of the following fields: 'agentAor' or 'appRef'"
-  });
+  .refine(
+    ({ agentAor, appRef }) => !(agentAor !== undefined && appRef !== undefined),
+    {
+      message:
+        "You can only provide one of the following fields: 'agentAor' or 'appRef'"
+    }
+  );
 
 export { createNumberRequestSchema, updateNumberRequestSchema };

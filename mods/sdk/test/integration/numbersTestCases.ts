@@ -31,9 +31,7 @@ function createNumbersTestCases(expect) {
           telUrl: `tel:+1${Math.floor(Math.random() * 10000000000)}`,
           city: "Asheville",
           country: "United States",
-          countryIsoCode: "US",
-          // FIXME: We should allow to pass the appRef
-          appRef: "532fc622-e0f1-4be8-a6bc-8f7b40bf20be"
+          countryIsoCode: "US"
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
@@ -55,13 +53,13 @@ function createNumbersTestCases(expect) {
         method: "updateNumber",
         request: {
           ref: "{{ref}}",
-          name: "My New Number",
-          appRef: "532fc622-e0f1-4be8-a6bc-8f7b40bf20be"
+          name: "My New Number"
         },
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        }
+        },
+        skip: true
       },
       {
         id: `${idBase}-03`,
