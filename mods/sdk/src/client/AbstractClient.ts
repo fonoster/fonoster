@@ -38,7 +38,6 @@ import {
 } from "../generated/node/identity_pb";
 
 abstract class AbstractClient implements FonosterClient {
-  protected idToken: string;
   protected accessKeyId: string;
   protected _accessToken: string;
   protected _refreshToken: string;
