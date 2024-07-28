@@ -10,6 +10,9 @@
     },
     {
       "path": "../common",
+    },
+    {
+      "path": "../types",
     }
   ],
   "exclude": ["node_modules", "dist", "test"]

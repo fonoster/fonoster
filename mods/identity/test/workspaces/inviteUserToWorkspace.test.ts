@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { WorkspaceRoleEnum } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -23,7 +24,6 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
 import { IdentityConfig } from "../../src/exchanges/types";
-import { WorkspaceRoleEnum } from "../../src/workspaces/WorkspaceRoleEnum";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
@@ -36,8 +36,8 @@ const inviteRequest = {
   workspaceRef: "1",
   email: "john@example.com",
   name: "John Doe",
-  // Why ?
-  role: WorkspaceRoleEnum.ADMIN as WorkspaceRoleEnum.ADMIN
+  role: WorkspaceRoleEnum.ADMIN,
+  password: "123456"
 };
 
 describe("@identity[workspace/inviteUserToWorkspace]", function () {
