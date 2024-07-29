@@ -64,7 +64,7 @@ In Node.js:
 ```typescript
 const SDK = require("@fonoster/sdk");
 const accessKeyId = "WO00000000000000000000000000000000";
-const endpoint = "https://api.fonoster.io";
+const endpoint = "api.fonoster.io";
 const client = new SDK.Client({ accessKeyId, endpoint });
 ```
 
