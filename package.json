@@ -36,7 +36,8 @@
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/node.integration.ts && web-test-runner",
     "publish": "lerna publish --yes --no-git-reset --dist-tag next $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
     "publish:prerelease": "lerna publish prerelease --dist-tag next",
-    "publish:frompackages": "lerna publish from-package"
+    "publish:frompackages": "lerna publish from-package",
+    "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM"
   },
   "prisma": {
     "seed": "ts-node ./mods/apiserver/src/core/seed.ts"

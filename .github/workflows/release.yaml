@@ -107,6 +107,8 @@ jobs:
     - name: Starting services for integration tests
       run: |
         cp .env.example .env
+        sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=127.0.0.1|g" .env 
+        sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env 
         echo "INTEGRATIONS_FILE=./integrations.json" >> .env
         docker-compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver
 
