@@ -35,6 +35,7 @@ service Identity {
   
   // User specific actions
   rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {}
+  // TODO: Should get the User instead of GetUserResponse (renaming)
   rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
