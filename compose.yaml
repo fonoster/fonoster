@@ -30,8 +30,8 @@ services:
     ports:
       - 50051:50051
     volumes:
-      - ./keys:/opt/fonoster/keys
-      - ./integrations.json:/opt/fonoster/integrations.json
+      - ./config/keys:/opt/fonoster/keys
+      - ./config/integrations.json:/opt/fonoster/integrations.json
 
   routr:
     image: fonoster/routr-one:latest
@@ -43,7 +43,7 @@ services:
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
       RTPENGINE_HOST: ${ROUTR_RTPENGINE_HOST}
-      # TODO: We should't have to set this; please fix at Routr
+      # TODO: We should't have to set this; please fix upstream
       LOG4J2: /etc/routr/log4j2.yaml
     ports:
       - 5060:5060/udp
