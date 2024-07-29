@@ -152,6 +152,26 @@ class Agents {
     });
   }
 
+  /**
+   * Retrieves a list of Agents from a Workspace.
+   *
+   * @param {ListAgentsRequest} request - The request object that contains the necessary information to retrieve a list of Agents
+   * @param {number} request.pageSize - The number of Agents to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of Agents
+   * @return {Promise<ListAgentsResponse>} - The response object that contains the list of Agents
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const agents = new SDK.Agents(client); // Existing client object
+   *
+   * agents.listAgents(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse> {
     const client = this.client.getAgentsClient();
     return await makeRpcRequest<

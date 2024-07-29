@@ -150,6 +150,26 @@ class Credentials {
     });
   }
 
+  /**
+   * Retrieves a list of Credentials from a Workspace.
+   *
+   * @param {ListCredentialsRequest} request - The request object that contains the necessary information to retrieve a list of Credentials
+   * @param {number} request.pageSize - The number of Credentials to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of Credentials
+   * @return {Promise<ListCredentialsResponse>} - The response object that contains the list of Credentials
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const credentials = new SDK.Credentials(client); // Existing client object
+   *
+   * credentials.listCredentials(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listCredentials(
     request: ListCredentialsRequest
   ): Promise<ListCredentialsResponse> {

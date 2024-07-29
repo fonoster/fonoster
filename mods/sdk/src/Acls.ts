@@ -153,6 +153,26 @@ class Acls {
     });
   }
 
+  /**
+   * Retrieves a list of Acls from a Workspace.
+   *
+   * @param {ListAclsRequest} request - The request object that contains the necessary information to retrieve a list of Acls
+   * @param {number} request.pageSize - The number of Acls to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of Acls
+   * @return {Promise<ListAclsResponse>} - The response object that contains the list of Acls
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const acls = new SDK.Acls(client); // Existing client object
+   *
+   * acls.listAcls(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listAcls(request: ListAclsRequest): Promise<ListAclsResponse> {
     const client = this.client.getAclsClient();
     const listAclsRequest = new ListAclsRequestPB();

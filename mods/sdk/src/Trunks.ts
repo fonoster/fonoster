@@ -172,6 +172,26 @@ class Trunks {
     });
   }
 
+  /**
+   * Retrieves a list of Trunks from a Workspace.
+   *
+   * @param {ListTrunksRequest} request - The request object that contains the necessary information to retrieve a list of Trunks
+   * @param {number} request.pageSize - The trunk of Trunks to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of Trunks
+   * @return {Promise<ListTrunksResponse>} - The response object that contains the list of Trunks
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const trunks = new SDK.Trunks(client); // Existing client object
+   *
+   * trunks.listTrunks(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listTrunks(request: ListTrunksRequest): Promise<ListTrunksResponse> {
     const client = this.client.getTrunksClient();
     const listTrunksRequest = new ListTrunksRequestPB();

@@ -145,6 +145,26 @@ class Domains {
     });
   }
 
+  /**
+   * Retrieves a list of Domains from a Workspace.
+   *
+   * @param {ListDomainsRequest} request - The request object that contains the necessary information to retrieve a list of Domains
+   * @param {number} request.pageSize - The number of Domains to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of Domains
+   * @return {Promise<ListDomainsResponse>} - The response object that contains the list of Domains
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const domains = new SDK.Domains(client); // Existing client object
+   *
+   * domains.listDomains(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listDomains(request: ListDomainsRequest): Promise<ListDomainsResponse> {
     const client = this.client.getDomainsClient();
     return await makeRpcRequest<

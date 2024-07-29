@@ -148,6 +148,26 @@ class Numbers {
     });
   }
 
+  /**
+   * Retrieves a list of Numbers from a Workspace.
+   *
+   * @param {ListNumbersRequest} request - The request object that contains the necessary information to retrieve a list of Numbers
+   * @param {number} request.pageSize - The number of Numbers to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of Numbers
+   * @return {Promise<ListNumbersResponse>} - The response object that contains the list of Numbers
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const numbers = new SDK.Numbers(client); // Existing client object
+   *
+   * numbers.listNumbers(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listNumbers(request: ListNumbersRequest): Promise<ListNumbersResponse> {
     const client = this.client.getNumbersClient();
     return await makeRpcRequest<

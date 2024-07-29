@@ -145,6 +145,26 @@ class Secrets {
     });
   }
 
+  /**
+   * Retrieves a list of Secrets from a Workspace.
+   *
+   * @param {ListSecretsRequest} request - The request object that contains the necessary information to retrieve a list of Secrets
+   * @param {number} request.pageSize - The secret of Secrets to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of Secrets
+   * @return {Promise<ListSecretsResponse>} - The response object that contains the list of Secrets
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const secrets = new SDK.Secrets(client); // Existing client object
+   *
+   * secrets.listSecrets(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listSecrets(request: ListSecretsRequest): Promise<ListSecretsResponse> {
     const client = this.client.getSecretsClient();
     return await makeRpcRequest<

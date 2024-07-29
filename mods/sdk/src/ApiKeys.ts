@@ -117,6 +117,26 @@ class ApiKeys {
     });
   }
 
+  /**
+   * Retrieves a list of ApiKeys from a Workspace.
+   *
+   * @param {ListApiKeysRequest} request - The request object that contains the necessary information to retrieve a list of ApiKeys
+   * @param {number} request.pageSize - The number of ApiKeys to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of ApiKeys
+   * @return {Promise<ListApiKeysResponse>} - The response object that contains the list of ApiKeys
+   * @example
+   *
+   * const request = {
+   *  pageSize: 10,
+   *  pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const apiKeys = new SDK.ApiKeys(client); // Existing client object
+   *
+   * apiKeys.listApiKeys(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async listApiKeys(request: ListApiKeysRequest): Promise<ListApiKeysResponse> {
     const applicationsClient = this.client.getIdentityClient();
     return await makeRpcRequest<
