@@ -85,6 +85,30 @@ class Domains {
     this.client = client;
   }
 
+  /**
+   * Creates a new Domain in the Workspace.
+   *
+   * @param {CreateDomainRequest} request - The request object that contains the necessary information to create a new Domain
+   * @param {string} request.name - The name of the Domain
+   * @param {string} request.domainUri - The URI of the Domain
+   * @param {AccessControlListRef} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain
+   * @param {EgressPolicy[]} request.egressPolicy - The egress policy of the Domain
+   * @param {string} request.egressPolicy[].rule - A regular expression that defines which calls to send to the PSTN
+   * @param {string} request.egressPolicy[].numberRef - The Number that will be used to send the call to the PSTN
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Domain
+   * @example
+   *
+   * const request = {
+   *  name: "My Domain",
+   *  domainUri: "sip.project.fonoster.io"
+   * };
+   *
+   * const domains = new SDK.Domains(client); // Existing client object
+   *
+   * domains.createDomain(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createDomain(request: CreateDomainRequest): Promise<BaseApiObject> {
     const client = this.client.getDomainsClient();
     return await makeRpcRequest<
@@ -130,6 +154,31 @@ class Domains {
     });
   }
 
+  /**
+   * Updates an existing Domain in the Workspace.
+   *
+   * @param {UpdateDomainRequest} request - The request object that contains the necessary information to update an existing Domain
+   * @param {string} request.ref - The reference of the Domain to update
+   * @param {string} request.name - The name of the Domain
+   * @param {string} request.domainUri - The URI of the Domain
+   * @param {AccessControlListRef} request.accessControlListRef - The reference to the Access Control List (ACL) to associate with the Domain
+   * @param {EgressPolicy[]} request.egressPolicy - The egress policy of the Domain
+   * @param {string} request.egressPolicy[].rule - A regular expression that defines which calls to send to the PSTN
+   * @param {string} request.egressPolicy[].numberRef - The Number that will be used to send the call to the PSTN
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Domain
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  accessControlListRef: "00000000-0000-0000-0000-000000000001"
+   * };
+   *
+   * const domains = new SDK.Domains(client); // Existing client object
+   *
+   * domains.updateDomain(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateDomain(request: UpdateDomainRequest): Promise<BaseApiObject> {
     const client = this.client.getDomainsClient();
     return await makeRpcRequest<

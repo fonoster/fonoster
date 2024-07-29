@@ -84,6 +84,24 @@ class ApiKeys {
     this.client = client;
   }
 
+  /**
+   * Creates a new ApiKey for a Workspace.
+   *
+   * @param {CreateApiKeyRequest} request - The request object that contains the necessary information to create a new ApiKey
+   * @param {ApiRoleEnum} request.role - The role of the ApiKey
+   * @return {Promise<CreateApiKeyResponse>} - The response object that contains the reference to the created ApiKey
+   * @example
+   *
+   * const request = {
+   *  role: "WORKSPACE_ADMIN"
+   * };
+   *
+   * const apiKeys = new SDK.ApiKeys(client); // Existing client object
+   *
+   * apiKeys.createApiKey(request)
+   * .then(console.log) // successful response
+   * .catch(console.error); // an error occurred
+   */
   async createApiKey(
     request: CreateApiKeyRequest
   ): Promise<CreateApiKeyResponse> {
@@ -102,6 +120,22 @@ class ApiKeys {
     });
   }
 
+  /**
+   * Regenerates an existing ApiKey for a Workspace.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the ApiKey to regenerate
+   * @return {Promise<CreateApiKeyResponse>} - The response object that contains the reference to the regenerated ApiKey
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const apiKeys = new SDK.ApiKeys(client); // Existing client object
+   *
+   * apiKeys.regenerateApiKey(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async regenerateApiKey(ref: string): Promise<CreateApiKeyResponse> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<

@@ -68,7 +68,7 @@ import {
  *
  * const request = {
  *   name: "John Doe",
- *   username: `1001`,
+ *   username: "1001",
  *   privacy: "PRIVATE",
  *   enabled: true,
  *   maxContacts: 3
@@ -90,6 +90,34 @@ class Agents {
     this.client = client;
   }
 
+  /**
+   * Creates a new Agent in the Workspace.
+   *
+   * @param {CreateAgentRequest} request - The request object that contains the necessary information to create a new Agent
+   * @param {string} request.name - The name of the Agent
+   * @param {string} request.username - The username of the Agent
+   * @param {Privacy} request.privacy - The privacy of the Agent
+   * @param {boolean} request.enabled - The status of the Agent
+   * @param {number} request.maxContacts - The maximum number of contacts the Agent can have
+   * @param {string} request.domainRef - The reference of the Domain to associate the Agent
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Agent
+   * @example
+   *
+   * const request = {
+   *  name: "John Doe",
+   *  username: "1001",
+   *  privacy: "PRIVATE",
+   *  enabled: true,
+   *  maxContacts: 3
+   *  domainRef: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const agents = new SDK.Agents(client); // Existing client object
+   *
+   * agents.createAgent(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createAgent(request: CreateAgentRequest): Promise<BaseApiObject> {
     const client = this.client.getAgentsClient();
     return await makeRpcRequest<
@@ -136,6 +164,34 @@ class Agents {
     });
   }
 
+  /**
+   * Updates an existing Agent in the Workspace.
+   *
+   * @param {UpdateAgentRequest} request - The request object that contains the necessary information to update an existing Agent
+   * @param {string} request.ref - The reference of the Agent to update
+   * @param {string} request.name - The name of the Agent
+   * @param {Privacy} request.privacy - The privacy of the Agent
+   * @param {boolean} request.enabled - The status of the Agent
+   * @param {number} request.maxContacts - The maximum number of contacts the Agent can have
+   * @param {string} request.domainRef - The reference of the Domain to associate the Agent
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Agent
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  name: "John Doe",
+   *  privacy: "PRIVATE",
+   *  enabled: true,
+   *  maxContacts: 3
+   *  domainRef: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const agents = new SDK.Agents(client); // Existing client object
+   *
+   * agents.updateAgent(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateAgent(request: UpdateAgentRequest): Promise<BaseApiObject> {
     const client = this.client.getAgentsClient();
     return await makeRpcRequest<

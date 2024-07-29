@@ -88,6 +88,28 @@ class Calls {
     this.client = client;
   }
 
+  /**
+   * Creates a new Call in the Workspace.
+   *
+   * @param {CreateCallRequest} request - The request object that contains the necessary information to create a new Call
+   * @param {string} request.from - The number that originated the call
+   * @param {string} request.to - The number that received the call
+   * @param {string} request.appRef - The reference of the App that will handle the call
+   * @return {Promise<CreateCallResponse>} - The response object that contains the reference to the created Call
+   * @example
+   *
+   * const request = {
+   *  from: "8287854037",
+   *  to: "+17853178070",
+   *  appRef: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * const calls = new SDK.Calls(client); // Existing client object
+   *
+   * calls.createCall(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createCall(request: CreateCallRequest): Promise<CreateCallResponse> {
     const client = this.client.getCallsClient();
 

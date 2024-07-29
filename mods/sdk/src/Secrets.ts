@@ -85,6 +85,26 @@ class Secrets {
     this.client = client;
   }
 
+  /**
+   * Creates a new Secret in the Workspace.
+   *
+   * @param {CreateSecretRequest} request - The request object that contains the necessary information to create a new Secret
+   * @param {string} request.name - The name of the Secret
+   * @param {string} request.secret - The secret of the Secret
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Secret
+   * @example
+   *
+   * const request = {
+   *  name: "FRIENDLY_NAME",
+   *  secret: "mysecret"
+   * };
+   *
+   * const secrets = new SDK.Secrets(client); // Existing client object
+   *
+   * secrets.createSecret(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createSecret(request: CreateSecretRequest): Promise<BaseApiObject> {
     const client = this.client.getSecretsClient();
     return await makeRpcRequest<
@@ -130,6 +150,27 @@ class Secrets {
     });
   }
 
+  /**
+   * Updates an existing Secret in the Workspace.
+   *
+   * @param {UpdateSecretRequest} request - The request object that contains the necessary information to update an existing Secret
+   * @param {string} request.ref - The reference of the Secret to update
+   * @param {string} request.name - The name of the Secret
+   * @param {string} request.secret - The secret of the Secret
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Secret
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  secret: "mysecret"
+   * };
+   *
+   * const secrets = new SDK.Secrets(client); // Existing client object
+   *
+   * secrets.updateSecret(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateSecret(request: UpdateSecretRequest): Promise<BaseApiObject> {
     const client = this.client.getSecretsClient();
     return await makeRpcRequest<

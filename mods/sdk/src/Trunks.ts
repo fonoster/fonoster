@@ -80,6 +80,48 @@ class Trunks {
     this.client = client;
   }
 
+  /**
+   * Creates a new Trunk in the Workspace.
+   *
+   * @param {CreateTrunkRequest} request - The request object that contains the necessary information to create a new Trunk
+   * @param {string} request.name - The name of the Trunk
+   * @param {string} request.inboundUri - The inboundUri of the Trunk
+   * @param {boolean} request.sendRegister - The sendRegister of the Trunk
+   * @param {string} request.accessControlListRef - The accessControlListRef of the Trunk
+   * @param {string} request.inboundCredentialsRef - The inboundCredentialsRef of the Trunk
+   * @param {string} request.outboundCredentialsRef - The outboundCredentialsRef of the Trunk
+   * @param {TrunkUri[]} request.uris - The uris of the Trunk
+   * @param {string} request.uris[].host - The host of the Trunk
+   * @param {number} request.uris[].port - The port of the Trunk
+   * @param {Transport} request.uris[].transport - The transport of the Trunk
+   * @param {string} request.uris[].user - Optional user of the Trunk
+   * @param {number} request.uris[].weight - Optional weight of the Trunk
+   * @param {number} request.uris[].priority - Optional priority of the Trunk
+   * @param {boolean} request.uris[].enabled - Optional enabled of the Trunk
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Trunk
+   * @example
+   *
+   * const request = {
+   *  name: "My Trunk",
+   *  inboundUri: "sip.company.fonoster.io"
+   *  sendRegister: true
+   *  uris: [{
+   *    host: "sip.company.fonoster.io",
+   *    port: 5060,
+   *    transport: "UDP",
+   *    user: "user",
+   *    weight: 0,
+   *    priority: 0,
+   *    enabled: true
+   *  }]
+   * };
+   *
+   * const trunks = new SDK.Trunks(client); // Existing client object
+   *
+   * trunks.createTrunk(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createTrunk(request: CreateTrunkRequest): Promise<BaseApiObject> {
     const client = this.client.getTrunksClient();
     const createTrunkRequest = new CreateTrunkRequestPB();
@@ -144,6 +186,42 @@ class Trunks {
     });
   }
 
+  /**
+   * Updates an existing Trunk in the Workspace.
+   *
+   * @param {UpdateTrunkRequest} request - The request object that contains the necessary information to update an existing Trunk
+   * @param {string} request.ref - The reference of the Trunk to update
+   * @param {string} request.name - The name of the Trunk
+   * @param {boolean} request.sendRegister - The sendRegister of the Trunk
+   * @param {string} request.accessControlListRef - The accessControlListRef of the Trunk
+   * @param {string} request.inboundCredentialsRef - The inboundCredentialsRef of the Trunk
+   * @param {string} request.outboundCredentialsRef - The outboundCredentialsRef of the Trunk
+   * @param {TrunkUri[]} request.uris - The uris of the Trunk
+   * @param {string} request.uris[].host - The host of the Trunk
+   * @param {number} request.uris[].port - The port of the Trunk
+   * @param {Transport} request.uris[].transport - The transport of the Trunk
+   * @param {string} request.uris[].user - Optional user of the Trunk
+   * @param {number} request.uris[].weight - Optional weight of the Trunk
+   * @param {number} request.uris[].priority - Optional priority of the Trunk
+   * @param {boolean} request.uris[].enabled - Optional enabled of the Trunk
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Trunk
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  name: "My Trunk",
+   *  sendRegister: true
+   *  uris: [{
+   *    host: "sip.company.fonoster.io",
+   *    port: 5060,
+   *    transport: "UDP",
+   *    user: "user",
+   *    weight: 0,
+   *    priority: 0,
+   *    enabled: true
+   *  }]
+   * };
+   */
   async updateTrunk(request: UpdateTrunkRequest): Promise<BaseApiObject> {
     const client = this.client.getTrunksClient();
     const updateTrunkRequest = new UpdateTrunkRequestPB();

@@ -86,6 +86,28 @@ class Credentials {
     this.client = client;
   }
 
+  /**
+   * Creates a new set of Credentials in the Workspace.
+   *
+   * @param {CreateCredentialsRequest} request - The request object that contains the necessary information to create a new set of Credentials
+   * @param {string} request.name - The name of the Credentials
+   * @param {string} request.username - The username of the Credentials
+   * @param {string} request.password - The password of the Credentials
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Credentials
+   * @example
+   *
+   * const request = {
+   *  name: "My Credentials",
+   *  username: "myusername",
+   *  password: "mysecret"
+   * };
+   *
+   * const credentials = new SDK.Credentials(client); // Existing client object
+   *
+   * credentials.createCredentials(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createCredentials(
     request: CreateCredentialsRequest
   ): Promise<BaseApiObject> {
@@ -133,6 +155,28 @@ class Credentials {
     });
   }
 
+  /**
+   * Updates an existing set of Credentials in the Workspace.
+   *
+   * @param {UpdateCredentialsRequest} request - The request object that contains the necessary information to update an existing set of Credentials
+   * @param {string} request.ref - The reference of the Credentials to update
+   * @param {string} request.name - The name of the Credentials
+   * @param {string} request.password - The password of the Credentials
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Credentials
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  name: "My Credentials",
+   *  password: "mysecret"
+   * };
+   *
+   * const credentials = new SDK.Credentials(client); // Existing client object
+   *
+   * credentials.updateCredentials(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateCredentials(
     request: UpdateCredentialsRequest
   ): Promise<BaseApiObject> {

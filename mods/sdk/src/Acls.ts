@@ -83,6 +83,28 @@ class Acls {
     this.client = client;
   }
 
+  /**
+   * Creates a new Acl in the Workspace.
+   *
+   * @param {CreateAclRequest} request - The request object that contains the necessary information to create a new Acl
+   * @param {string} request.name - The name of the Acl
+   * @param {string[]} request.allow - The list of IPs to allow
+   * @param {string[]} request.deny - The list of IPs to deny
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Acl
+   * @example
+   *
+   * const request = {
+   *  name: "My ACL",
+   *  allow: ["47.132.130.31"], // Allow only this IP
+   *  deny: ["0.0.0.0/0"] // Deny all other IPs
+   * };
+   *
+   * const acls = new SDK.Acls(client); // Existing client object
+   *
+   * acls.createAcl(request)
+   * .then(console.log) // successful response
+   * .catch(console.error); // an error occurred
+   */
   async createAcl(request: CreateAclRequest): Promise<BaseApiObject> {
     const client = this.client.getAclsClient();
     const createAclRequest = new CreateAclRequestPB();
@@ -130,6 +152,30 @@ class Acls {
     });
   }
 
+  /**
+   * Updates an existing Acl in the Workspace.
+   *
+   * @param {UpdateAclRequest} request - The request object that contains the necessary information to update an existing Acl
+   * @param {string} request.ref - The reference of the Acl to update
+   * @param {string} request.name - The name of the Acl
+   * @param {string[]} request.allow - The list of IPs to allow
+   * @param {string[]} request.deny - The list of IPs to deny
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Acl
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  name: "My ACL",
+   *  allow: ["47.132.130.31"] // Allow only this IP
+   *  deny: ["0.0.0.0/0"] // Deny all other IPs
+   * };
+   *
+   * const acls = new SDK.Acls(client); // Existing client object
+   *
+   * acl.updateAcl(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateAcl(request: UpdateAclRequest): Promise<BaseApiObject> {
     const client = this.client.getAclsClient();
     const updateAclRequest = new UpdateAclRequestPB();

@@ -94,6 +94,24 @@ class Workspaces {
     this.client = client;
   }
 
+  /**
+   * Creates a new Workspace in the system.
+   *
+   * @param {CreateWorkspaceRequest} request - The request object that contains the necessary information to create a new Workspace
+   * @param {string} request.name - The name of the Workspace
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Workspace
+   * @example
+   *
+   * const request = {
+   *  name: "My Workspace"
+   * };
+   *
+   * const workspaces = new SDK.Workspaces(client); // Existing client object
+   *
+   * workspaces.createWorkspace(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createWorkspace(
     request: CreateWorkspaceRequest
   ): Promise<BaseApiObject> {
@@ -141,6 +159,26 @@ class Workspaces {
     });
   }
 
+  /**
+   * Updates an existing Workspace in the system.
+   *
+   * @param {UpdateWorkspaceRequest} request - The request object that contains the necessary information to update a Workspace
+   * @param {string} request.ref - The reference of the Workspace to update
+   * @param {string} request.name - The name of the Workspace
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Workspace
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  name: "My Workspace"
+   * };
+   *
+   * const workspaces = new SDK.Workspaces(client); // Existing client object
+   *
+   * workspaces.updateWorkspace(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateWorkspace(
     request: UpdateWorkspaceRequest
   ): Promise<BaseApiObject> {
@@ -225,6 +263,28 @@ class Workspaces {
     });
   }
 
+  /**
+   * Invites a User to a Workspace.
+   *
+   * @param {InviteUserToWorkspaceRequest} request - The request object that contains the necessary information to invite a User to a Workspace
+   * @param {string} request.workspaceRef - The reference of the Workspace to invite the User to
+   * @param {string} request.email - The email of the User to invite
+   * @param {string} request.password - Temporary password for the User. Leave empty to generate a random password
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the invitation
+   * @example
+   *
+   * const request = {
+   *  workspaceRef: "00000000-0000-0000-0000-000000000000",
+   *  email: "jane.doe@example.com",
+   *  role: "WORKSPACE_MEMBER",
+   * };
+   *
+   * const workspaces = new SDK.Workspaces(client); // Existing client object
+   *
+   * workspaces.inviteUserToWorkspace(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async inviteUserToWorkspace(
     request: InviteUserToWorkspaceRequest
   ): Promise<BaseApiObject> {
@@ -242,8 +302,23 @@ class Workspaces {
     });
   }
 
+  /**
+   * Resend a Workspace membership invitation.
+   *
+   * @param {string} userRef - The reference to the user to resend the invitation
+   * @return {Promise<ResendWorkspaceMembershipInvitationResponse>} - The response object that contains the reference to the invitation
+   * @example
+   *
+   * const userRef: "00000000-0000-0000-0000-000000000000";
+   *
+   * const workspaces = new SDK.Workspaces(client); // Existing client object
+   *
+   * workspaces.resendWorkspaceMembershipInvitation(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async resendWorkspaceMembershipInvitation(
-    request: ResendWorkspaceMembershipInvitationRequest
+    userRef: string
   ): Promise<ResendWorkspaceMembershipInvitationResponse> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
@@ -255,12 +330,27 @@ class Workspaces {
       method: client.resendWorkspaceMembershipInvitation.bind(client),
       requestPBObjectConstructor: ResendWorkspaceMembershipInvitationRequestPB,
       metadata: this.client.getMetadata(),
-      request
+      request: { userRef }
     });
   }
 
+  /**
+   * Removes a User from a Workspace.
+   *
+   * @param {string} userRef - The reference of the User to remove from the Workspace
+   * @return {Promise<RemoveUserFromWorkspaceResponse>} - The response object that contains the reference to the removed User
+   * @example
+   *
+   * const userRef = "00000000-0000-0000-0000-000000000000";
+   *
+   * const workspaces = new SDK.Workspaces(client); // Existing client object
+   *
+   * workspaces.removeUserFromWorkspace(userRef)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async removeUserFromWorkspace(
-    request: RemoveUserFromWorkspaceRequest
+    userRef: string
   ): Promise<RemoveUserFromWorkspaceResponse> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
@@ -272,7 +362,7 @@ class Workspaces {
       method: client.removeUserFromWorkspace.bind(client),
       requestPBObjectConstructor: RemoveUserFromWorkspaceRequestPB,
       metadata: this.client.getMetadata(),
-      request
+      request: { userRef }
     });
   }
 }

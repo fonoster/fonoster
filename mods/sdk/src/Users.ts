@@ -83,6 +83,30 @@ class Users {
     this.client = client;
   }
 
+  /**
+   * Creates a new User in the Workspace.
+   *
+   * @param {CreateUserRequest} request - The request object that contains the necessary information to create a new User
+   * @param {string} request.name - The name of the User
+   * @param {string} request.email - The email of the User
+   * @param {string} request.password - The password of the User
+   * @param {string} request.avatar - The avatar of the User
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created User
+   * @example
+   *
+   * const request = {
+   *  name: "John Doe",
+   *  email: "john.doe@example.com",
+   *  password: "password",
+   *  avatar: "https://example.com/avatar.jpg"
+   * };
+   *
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * users.createUser(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createUser(request: CreateUserRequest): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
@@ -128,6 +152,30 @@ class Users {
     });
   }
 
+  /**
+   * Updates an existing User in the Workspace.
+   *
+   * @param {UpdateUserRequest} request - The request object that contains the necessary information to update a User
+   * @param {string} request.ref - The reference of the User to update
+   * @param {string} request.name - The name of the User
+   * @param {string} request.password - The password of the User
+   * @param {string} request.avatar - The avatar of the User
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated User
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  name: "John Doe",
+   *  password: "password",
+   *  avatar: "https://example.com/avatar.jpg"
+   * };
+   *
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * users.updateUser(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateUser(request: UpdateUserRequest): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<

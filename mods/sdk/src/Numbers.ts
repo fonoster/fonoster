@@ -67,7 +67,7 @@ import {
  *
  * const request = {
  *   name: "My Number",
- *   domainUri: "tel:+17853178070",
+ *   telUrl: "tel:+17853178070",
  *   city: "Asheville",
  *   country: "United States",
  *   countryIsoCode: "US"
@@ -88,6 +88,32 @@ class Numbers {
     this.client = client;
   }
 
+  /**
+   * Creates a new Number in the Workspace.
+   *
+   * @param {CreateNumberRequest} request - The request object that contains the necessary information to create a new Number
+   * @param {string} request.name - The name of the Number
+   * @param {string} request.telUrl - The telUrl of the Number
+   * @param {string} request.city - The city of the Number
+   * @param {string} request.country - The country of the Number
+   * @param {string} request.countryIsoCode - The countryIsoCode of the Number
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Number
+   * @example
+   *
+   * const request = {
+   *  name: "My Number",
+   *  telUrl: "tel:+17853178070",
+   *  city: "Asheville",
+   *  country: "United States",
+   *  countryIsoCode: "US"
+   * };
+   *
+   * const numbers = new SDK.Numbers(client); // Existing client object
+   *
+   * numbers.createNumber(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async createNumber(request: CreateNumberRequest): Promise<BaseApiObject> {
     const client = this.client.getNumbersClient();
     return await makeRpcRequest<
@@ -133,6 +159,26 @@ class Numbers {
     });
   }
 
+  /**
+   * Updates an existing Number in the Workspace.
+   *
+   * @param {UpdateNumberRequest} request - The request object that contains the necessary information to update an existing Number
+   * @param {string} request.ref - The reference of the Number to update
+   * @param {string} request.name - The name of the Number
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Number
+   * @example
+   *
+   * const request = {
+   *  ref: "00000000-0000-0000-0000-000000000000",
+   *  name: "My Number"
+   * };
+   *
+   * const numbers = new SDK.Numbers(client); // Existing client object
+   *
+   * numbers.updateNumber(request)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async updateNumber(request: UpdateNumberRequest): Promise<BaseApiObject> {
     const client = this.client.getNumbersClient();
     return await makeRpcRequest<

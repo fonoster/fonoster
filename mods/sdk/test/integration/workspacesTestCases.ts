@@ -24,7 +24,7 @@ function createWorkspacesTestCases(expect) {
     cases: [
       {
         id: `${idBase}-00`,
-        name: "should create an workspace",
+        name: "should create a workspace",
         method: "createWorkspace",
         request: {
           name: "My Workspace"
@@ -75,8 +75,6 @@ function createWorkspacesTestCases(expect) {
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
-          expect(response.items[0]).to.have.property("workspaceUri").to.not.be
-            .null;
         },
         skip: true
       },
@@ -95,45 +93,34 @@ function createWorkspacesTestCases(expect) {
         id: `${idBase}-04`,
         name: "should send invite to the workspace",
         method: "inviteUserToWorkspace",
-        request: "{{ref}}",
-        dependsOn: `${idBase}-00`,
-        responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
+        request: {
+          name: "Any doe",
+          email: `any.doe.${Date.now()}@example.com`,
+          role: "USER"
         },
-        skip: true
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("userRef");
+        }
       },
       {
         id: `${idBase}-04`,
         name: "should resend the workspace membership invitation",
         method: "resendWorkspaceMembershipInvitation",
-        request: "{{ref}}",
-        dependsOn: `${idBase}-00`,
+        request: "{{userRef}}",
+        dependsOn: `${idBase}-04`,
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
-        },
-        skip: true
+          expect(response).has.property("userRef");
+        }
       },
       {
         id: `${idBase}-04`,
         name: "should remove user from the workspace",
         method: "removeUserFromWorkspace",
-        request: "{{ref}}",
-        dependsOn: `${idBase}-00`,
+        request: "{{userRef}}",
+        dependsOn: `${idBase}-04`,
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
-        },
-        skip: true
-      },
-      {
-        id: `${idBase}-04`,
-        name: "should delete the workspace",
-        method: "deleteWorkspace",
-        request: "{{ref}}",
-        dependsOn: `${idBase}-00`,
-        responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
-        },
-        skip: true
+          expect(response).has.property("userRef");
+        }
       }
     ]
   };
