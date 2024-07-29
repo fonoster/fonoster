@@ -40,9 +40,50 @@ import {
   ListCallsResponse as ListCallsResponsePB
 } from "./generated/node/calls_pb";
 
+/**
+ * @classdesc Fonoster Calls, part of the Fonoster Media subsystem,
+ * allows you to create, list, and track calls in your deployment.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const username = "admin";
+ *  const password = "yourpassword";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.login({ username, password });
+ *
+ *     const calls = new SDK.Calls(client);
+ *     const response = await apiKeys.createCall(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   from: "8287854037",
+ *   to: "+17853178070",
+ *   appRef: "00000000-0000-0000-0000-000000000000"
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class Calls {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new Calls object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -64,6 +105,21 @@ class Calls {
     });
   }
 
+  /**
+   * Retrieves an existing Call in the Workspace.
+   *
+   * @param {string} ref - The reference of the Call to retrieve
+   * @return {Promise<Acl>} - The response object that contains the Call detail
+   * @example
+   *
+   * const ref = "00000000-0000-0000-0000-000000000000"
+   *
+   * const calls = new SDK.Calls(client); // Existing client object
+   *
+   * calls.getCall(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async getCall(ref: string) {
     const client = this.client.getCallsClient();
     return await makeRpcRequest<

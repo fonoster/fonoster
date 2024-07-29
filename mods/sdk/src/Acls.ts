@@ -36,9 +36,49 @@ import {
   UpdateAclRequest as UpdateAclRequestPB
 } from "./generated/node/acls_pb";
 
+/**
+ * @classdesc Fonoster Acls, part of the Fonoster SIP Proxy subsystem,
+ * allows you to create, update, retrieve, and delete Access Control Lists (ACLs) rules for your deployment.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const acls = new SDK.Acls(client);
+ *     const response = await acls.createAcl(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   name: "My ACL",
+ *   allow: ["47.132.130.31"], // Allow only this IP
+ *   deny: ["0.0.0.0/0"] // Deny all other IPs
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class Acls {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new Acls object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -65,6 +105,21 @@ class Acls {
     });
   }
 
+  /**
+   * Retrieves an existing Acl in the Workspace.
+   *
+   * @param {string} ref - The reference of the Acl to retrieve
+   * @return {Promise<Acl>} - The response object that contains the Acl information
+   * @example
+   *
+   * const ref = "00000000-0000-0000-0000-000000000000"
+   *
+   * const acls = new SDK.Acls(client); // Existing client object
+   *
+   * acls.getAcl(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async getAcl(ref: string) {
     const client = this.client.getAclsClient();
     return await makeRpcRequest<GetAclRequestPB, AclPB, BaseApiObject, Acl>({
@@ -132,15 +187,31 @@ class Acls {
     });
   }
 
+  /**
+   * Deletes an existing Acl from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the Acl to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Acl
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const acls = new SDK.Acls(client); // Existing client object
+   *
+   * acls.deleteAcl(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteAcl(ref: string): Promise<BaseApiObject> {
-    const applicationsClient = this.client.getAclsClient();
+    const client = this.client.getAclsClient();
     return await makeRpcRequest<
       DeleteAclRequestPB,
       DeleteAclResponsePB,
       BaseApiObject,
       BaseApiObject
     >({
-      method: applicationsClient.deleteAcl.bind(applicationsClient),
+      method: client.deleteAcl.bind(client),
       requestPBObjectConstructor: DeleteAclRequestPB,
       metadata: this.client.getMetadata(),
       request: { ref }

@@ -49,9 +49,47 @@ import {
   Workspace as WorkspacePB
 } from "./generated/node/identity_pb";
 
+/**
+ * @classdesc Fonoster Workspaces, part of the Fonoster Identity subsystem,
+ * allows you to create, update, retrieve, and delete Workspaces in the system.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const workspaces = new SDK.Workspaces(client);
+ *     const response = await workspaces.createWorkspace(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   name: "My Workspace"
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class Workspaces {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new Workspaces object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -73,6 +111,21 @@ class Workspaces {
     });
   }
 
+  /**
+   * Retrieves an existing Workspace in the system.
+   *
+   * @param {string} ref - The reference of the Workspace to retrieve
+   * @return {Promise<Acl>} - The response object that contains the Workspace
+   * @example
+   *
+   * const ref = "00000000-0000-0000-0000-000000000000"
+   *
+   * const workspaces = new SDK.Workspaces(client); // Existing client object
+   *
+   * workspaces.getWorkspace(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async getWorkspace(ref: string): Promise<Workspace> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
@@ -105,6 +158,22 @@ class Workspaces {
     });
   }
 
+  /**
+   * Deletes an existing Workspace from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the Workspace to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Workspace
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const workspaces = new SDK.Workspaces(client); // Existing client object
+   *
+   * workspaces.deleteWorkspace(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteWorkspace(ref: string): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<

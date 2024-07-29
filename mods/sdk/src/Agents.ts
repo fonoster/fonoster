@@ -40,9 +40,52 @@ import {
   UpdateAgentResponse as UpdateAgentResponsePB
 } from "./generated/node/agents_pb";
 
+/**
+ * @classdesc Fonoster Agents, part of the Fonoster SIP Proxy subsystem,
+ * allows you to create, update, retrieve, and delete SIP Agents for your deployment.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const agents = new SDK.Agents(client);
+ *     const response = await agents.createAgent(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   name: "John Doe",
+ *   username: `1001`,
+ *   privacy: "PRIVATE",
+ *   enabled: true,
+ *   maxContacts: 3
+ *   domainRef: "00000000-0000-0000-0000-000000000000"
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class Agents {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new Agents object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -63,6 +106,21 @@ class Agents {
     });
   }
 
+  /**
+   * Retrieves an existing Agent in the Workspace.
+   *
+   * @param {string} ref - The reference of the Agent to retrieve
+   * @return {Promise<Acl>} - The response object that contains the Agent information
+   * @example
+   *
+   * const ref = "00000000-0000-0000-0000-000000000000"
+   *
+   * const agents = new SDK.Agents(client); // Existing client object
+   *
+   * agents.getAgent(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async getAgent(ref: string) {
     const client = this.client.getAgentsClient();
     return await makeRpcRequest<
@@ -110,6 +168,22 @@ class Agents {
     });
   }
 
+  /**
+   * Deletes an existing Agent from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the Agent to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Agent
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const agents = new SDK.Agents(client); // Existing client object
+   *
+   * agents.deleteAgent(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteAgent(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getAgentsClient();
     return await makeRpcRequest<

@@ -53,6 +53,23 @@ import { buildStructOverride } from "./utils";
  *
  * const SDK = require("@fonoster/sdk");
  *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const apps = new SDK.Applications(client);
+ *     const response = await apps.createApplication(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
  * const request = {
  *   name: "My application",
  *   type: "PROGRAMMABLE_VOICE",
@@ -80,22 +97,10 @@ import { buildStructOverride } from "./utils";
  *   }
  * };
  *
- * const username = "admin@fonoster.local";
- * const password = "changeme";
- * const accessKeyId = "WO00000000000000000000000000000000";
- *
- * const client = new SDK.Client({ accessKeyId });
- *
- * client.login(username, password)
- *  .then(async () => {
- *    const apps = new SDK.Applications(client);
- *    const result = await apps.createApplication(request);
- *    console.log(result);  // successful response
- *  }).catch(console.error); // an error occurred
+ * main(request).catch(console.error);
  */
 class Applications {
   private client: FonosterClient;
-
   /**
    * Constructs a new Applications object.
    *
@@ -186,19 +191,17 @@ class Applications {
   }
 
   /**
-   * Retrieves an existing application from Fonoster.
+   * Retrieves an existing Application in the Workspace.
    *
-   * @param {string} ref - The reference of the application to retrieve
-   * @return {Promise<Application>} - The response object that contains the application information
+   * @param {string} ref - The reference of the Application to retrieve
+   * @return {Promise<Application>} - The response object that contains the Application information
    * @example
    *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000"
-   * };
+   * const ref = "00000000-0000-0000-0000-000000000000"
    *
    * const apps = new SDK.Applications(client); // Existing client object
    *
-   * apps.getApplication(request)
+   * apps.getApplication(ref)
    *  .then(console.log) // successful response
    *  .catch(console.error); // an error occurred
    */
@@ -275,12 +278,12 @@ class Applications {
   }
 
   /**
-   * Retrieves a list of applications from Fonoster.
+   * Retrieves a list of Applications from Fonoster.
    *
-   * @param {ListApplicationsRequest} request - The request object that contains the necessary information to retrieve a list of applications
-   * @param {number} request.pageSize - The number of applications to retrieve
-   * @param {string} request.pageToken - The token to retrieve the next page of applications
-   * @return {Promise<ListApplicationsResponse>} - The response object that contains the list of applications
+   * @param {ListApplicationsRequest} request - The request object that contains the necessary information to retrieve a list of Applications
+   * @param {number} request.pageSize - The number of Applications to retrieve
+   * @param {string} request.pageToken - The token to retrieve the next page of Applications
+   * @return {Promise<ListApplicationsResponse>} - The response object that contains the list of Applications
    * @example
    *
    * const request = {
@@ -313,10 +316,10 @@ class Applications {
   }
 
   /**
-   * Deletes an existing application from Fonoster.
+   * Deletes an existing Application from Fonoster.
    * Note that this operation is irreversible.
    *
-   * @param {string} ref - The reference of the application to delete
+   * @param {string} ref - The reference of the Application to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted application
    * @example
    *

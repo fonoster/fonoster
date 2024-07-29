@@ -34,9 +34,48 @@ import {
   UpdateTrunkRequest as UpdateTrunkRequestPB
 } from "./generated/node/trunks_pb";
 
+/**
+ * @classdesc Fonoster Trunks, part of the Fonoster SIP Proxy subsystem,
+ * allows you to create, update, retrieve, and delete SIP Trunks for your deployment.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const trunks = new SDK.Trunks(client);
+ *     const response = await trunks.createTrunk(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   name: "My Trunk",
+ *   inboundUri: "sip.company.fonoster.io"
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class Trunks {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new Trunks object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -70,6 +109,21 @@ class Trunks {
     });
   }
 
+  /**
+   * Retrieves an existing Trunk in the Workspace.
+   *
+   * @param {string} ref - The reference of the Trunk to retrieve
+   * @return {Promise<Acl>} - The response object that contains the Trunk
+   * @example
+   *
+   * const ref = "00000000-0000-0000-0000-000000000000"
+   *
+   * const trunks = new SDK.Trunks(client); // Existing client object
+   *
+   * trunks.getTrunk(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async getTrunk(ref: string) {
     const client = this.client.getTrunksClient();
     const getTrunkRequest = new GetTrunkRequestPB();
@@ -150,6 +204,22 @@ class Trunks {
     });
   }
 
+  /**
+   * Deletes an existing Trunk from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the Trunk to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Trunk
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const trunks = new SDK.Trunks(client); // Existing client object
+   *
+   * trunks.deleteTrunk(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteTrunk(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getTrunksClient();
     return await makeRpcRequest<

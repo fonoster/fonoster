@@ -39,9 +39,48 @@ import {
   UpdateDomainResponse as UpdateDomainResponsePB
 } from "./generated/node/domains_pb";
 
+/**
+ * @classdesc Fonoster Domains, part of the Fonoster SIP Proxy subsystem,
+ * allows you to create, update, retrieve, and delete SIP Domain for your deployment.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const domains = new SDK.Domains(client);
+ *     const response = await domains.createDomain(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   name: "My Domain",
+ *   domainUri: "sip.project.fonoster.io"
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class Domains {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new Domains object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -61,6 +100,21 @@ class Domains {
     });
   }
 
+  /**
+   * Retrieves an existing Domain in the Workspace.
+   *
+   * @param {string} ref - The reference of the Domain to retrieve
+   * @return {Promise<Acl>} - The response object that contains the Domain
+   * @example
+   *
+   * const ref = "00000000-0000-0000-0000-000000000000"
+   *
+   * const domains = new SDK.Domains(client); // Existing client object
+   *
+   * domains.getDomain(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async getDomain(ref: string) {
     const client = this.client.getDomainsClient();
     return await makeRpcRequest<
@@ -107,6 +161,22 @@ class Domains {
     });
   }
 
+  /**
+   * Deletes an existing Domain from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the Domain to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Domain
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const domains = new SDK.Domains(client); // Existing client object
+   *
+   * domains.deleteDomain(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteDomain(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getDomainsClient();
     return await makeRpcRequest<

@@ -35,9 +35,50 @@ import {
   UpdateUserResponse as UpdateUserResponsePB
 } from "./generated/node/identity_pb";
 
+/**
+ * @classdesc Fonoster Users, part of the Fonoster Identity subsystem,
+ * allows you to create, update, retrieve, and delete a Users in the system.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const users = new SDK.Users(client);
+ *     const response = await users.createUser(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   name: "John Doe",
+ *   email: "john.doe@example.com",
+ *   password: "password",
+ *   avatar: "https://example.com/avatar.jpg"
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class Users {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new Users object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -57,6 +98,21 @@ class Users {
     });
   }
 
+  /**
+   * Retrieves an existing User in the Workspace.
+   *
+   * @param {string} ref - The reference of the User to retrieve
+   * @return {Promise<Acl>} - The response object that contains the User
+   * @example
+   *
+   * const ref = "00000000-0000-0000-0000-000000000000"
+   *
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * users.getUser(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async getUser(ref: string): Promise<User> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
@@ -87,6 +143,22 @@ class Users {
     });
   }
 
+  /**
+   * Deletes an existing User from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the User to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted User
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const users = new SDK.Users(client); // Existing client object
+   *
+   * users.deleteUser(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteUser(ref: string): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<

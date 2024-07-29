@@ -39,9 +39,48 @@ import {
   UpdateSecretResponse as UpdateSecretResponsePB
 } from "./generated/node/secrets_pb";
 
+/**
+ * @classdesc Fonoster Secrets, part of the Fonoster Core,
+ * allows you to create, update, retrieve, and delete Secrets for your deployment.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const secrets = new SDK.Secrets(client);
+ *     const response = await secrets.creteSecret(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   name: "FRIENDLY_NAME",
+ *   secret: "mysecret"
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class Secrets {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new Secrets object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -61,6 +100,21 @@ class Secrets {
     });
   }
 
+  /**
+   * Retrieves an existing Secret in the Workspace.
+   *
+   * @param {string} ref - The reference of the Secret to retrieve
+   * @return {Promise<Acl>} - The response object that contains the Secret
+   * @example
+   *
+   * const ref = "00000000-0000-0000-0000-000000000000"
+   *
+   * const secrets = new SDK.Secrets(client); // Existing client object
+   *
+   * secrets.getSecret(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async getSecret(ref: string) {
     const client = this.client.getSecretsClient();
     return await makeRpcRequest<
@@ -107,6 +161,22 @@ class Secrets {
     });
   }
 
+  /**
+   * Deletes an existing Secret from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the Secret to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Secret
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const secrets = new SDK.Secrets(client); // Existing client object
+   *
+   * secrets.deleteSecret(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteSecret(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getSecretsClient();
     return await makeRpcRequest<

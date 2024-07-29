@@ -28,7 +28,7 @@ function createAgentsTestCases(expect) {
         method: "createAgent",
         request: {
           name: "John Doe",
-          username: `john.doe.${Date.now()}@example.com`,
+          username: `john.doe.${Date.now()}`,
           privacy: "PRIVATE",
           enabled: true,
           maxContacts: 3

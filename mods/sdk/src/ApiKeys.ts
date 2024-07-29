@@ -39,9 +39,47 @@ import {
   RegenerateApiKeyResponse as RegenerateApiKeyResponsePB
 } from "./generated/node/identity_pb";
 
+/**
+ * @classdesc Fonoster ApiKeys, part of the Fonoster Identity subsystem,
+ * allows you to create, update, retrieve, and delete ApiKeys for your deployment.
+ * Note that an active Fonoster deployment is required.
+ *
+ * @example
+ *
+ * const SDK = require("@fonoster/sdk");
+ *
+ * async function main(request) {
+ *  const apiKey = "your-api-key";
+ *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *
+ *  try {
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey);
+ *
+ *     const apiKeys = new SDK.ApiKeys(client);
+ *     const response = await apiKeys.createApiKey(request);
+ *
+ *     console.log(response); // successful response
+ *   } catch (e) {
+ *     console.error(e); // an error occurred
+ *   }
+ * }
+ *
+ * const request = {
+ *   role: "WORKSPACE_ADMIN"
+ * };
+ *
+ * main(request).catch(console.error);
+ */
 class ApiKeys {
   private client: FonosterClient;
-
+  /**
+   * Constructs a new ApiKeys object.
+   *
+   * @param {FonosterClient} client - Client object with underlying implementations to make requests to Fonoster's API
+   * @see AbstractClient
+   * @see FonosterClient
+   */
   constructor(client: FonosterClient) {
     this.client = client;
   }
@@ -95,6 +133,22 @@ class ApiKeys {
     });
   }
 
+  /**
+   * Deletes an existing ApiKey from Fonoster.
+   * Note that this operation is irreversible.
+   *
+   * @param {string} ref - The reference of the ApiKey to delete
+   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted ApiKey
+   * @example
+   *
+   * const ref =  "00000000-0000-0000-0000-000000000000"
+   *
+   * const apiKeys = new SDK.ApiKeys(client); // Existing client object
+   *
+   * apiKeys.deleteApiKey(ref)
+   *  .then(console.log) // successful response
+   *  .catch(console.error); // an error occurred
+   */
   async deleteApiKey(ref: string): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
