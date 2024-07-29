@@ -15,13 +15,19 @@ This package provides a set of utilities for working with Fonoster services. It 
 ## Installation
 
 ```sh-session
-$ npm install --save @fonoster/sdk
+$ npm install --save @fonoster/sdk@next
+```
+
+Or using yarn:
+
+```sh-session
+$ yarn add @fonoster/sdk@next
 ```
 
 Or in the browser:
 
 ```html
-<script src="https://unpkg.com/@fonoster/sdk"></script>
+<script src="https://unpkg.com/@fonoster/sdk@next"></script>
 ```
 
 ### Importing the library
@@ -41,7 +47,7 @@ import * as SDK from "@fonoster/sdk";
 Directly in the browser:
 
 ```html
-<script src="https://unpkg.com/@fonoster/sdk"></script>
+<script src="https://unpkg.com/@fonoster/sdk@next"></script>
 <script>
    // You can now use the SDK
 </script>
@@ -58,20 +64,22 @@ In Node.js:
 ```typescript
 const SDK = require("@fonoster/sdk");
 const accessKeyId = "WO00000000000000000000000000000000";
-const client = new SDK.Client({ accessKeyId });
+const endpoint = "https://api.fonoster.io";
+const client = new SDK.Client({ accessKeyId, endpoint });
 ```
 
-By default, the Client object will point to Fonoster's cloud services. If you are running your own instance of Fonoster, you can specify the `endpoint` parameter to point to it.
+When connecting to Fonoster's cloud services, you can omit the `endpoint` parameter.
 
 In the browser:
 
 ```typescript
 const SDK = require("@fonoster/sdk");
 const accessKeyId = "WO00000000000000000000000000000000";
-const client = new SDK.WebClient({ accessKeyId });
+const url = "https://api.fonoster.io/v1beta2";
+const client = new SDK.WebClient({ accessKeyId, url });
 ```
 
-By default, the WebClient object points to Fonoster's cloud services. If you are running your own instance of Fonoster, you can specify the `url` parameter to point to it.
+When connecting to Fonoster's cloud services, you can omit the `url` parameter.
 
 ### Login in and making requests
 

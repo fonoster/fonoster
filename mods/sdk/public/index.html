@@ -1,4 +1,4 @@
-<script src="./fonoster.min.js"></script>
+<script src="https://unpkg.com/@fonoster/sdk@next"></script>
 <script>
   const url = "http://localhost:7171";
   const accessKeyId = "WO00000000000000000000000000000000";
@@ -7,9 +7,9 @@
 
   const client = new SDK.WebClient({ url, accessKeyId });
 
-  client
-    .login(username, password)
-    .then(async () => {
+  async function main() {
+    try {
+      await client.login(username, password);
       const domains = new SDK.Applications(client);
       const response = await domains.createApplication({
         name: "MyApp",
@@ -17,6 +17,12 @@
         appEndpoint: "localhost:3000"
       });
       console.log(response);
-    })
-    .catch(console.error);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  main().catch(console.error);
 </script>
+
+<h1>Check the console for the response!</h1>
