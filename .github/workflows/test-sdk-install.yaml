@@ -1,4 +1,4 @@
-name: test-sdk-install
+name: test sdk install
 
 on:
   push:
