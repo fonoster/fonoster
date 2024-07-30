@@ -62,7 +62,7 @@ function createAuthInterceptor(
     logger.verbose("intercepting api call to path", { accessKeyId, path });
 
     if (publicPath.includes(methodDefinition.path)) {
-      logger.verbose("skipping auth for public path", { path });
+      logger.verbose("passing auth control to edge function", { path });
       return call;
     }
 

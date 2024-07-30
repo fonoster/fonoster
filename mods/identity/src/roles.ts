@@ -78,6 +78,7 @@ const fullIdentityAccess = [
   "/fonoster.identity.v1beta2.Identity/GetWorkspace",
   "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
   "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+  "/fonoster.identity.v1beta2.Identity/DeleteWorkspace",
   "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
   "/fonoster.identity.v1beta2.Identity/RemoveUserFromWorkspace",
   "/fonoster.identity.v1beta2.Identity/ResendWorkspaceMembershipInvitation",
@@ -100,11 +101,6 @@ const roles = [
     access: [...fullIdentityAccess, ...workspaceAccess]
   },
   {
-    name: ApiRoleEnum.WORKSPACE_ADMIN,
-    description: "Access to all endpoints",
-    access: [...fullIdentityAccess, ...workspaceAccess]
-  },
-  {
     name: WorkspaceRoleEnum.USER,
     description: "Access to User and Workspace endpoints",
     access: [
@@ -118,6 +114,11 @@ const roles = [
       "/fonoster.identity.v1beta2.Identity/RefreshToken",
       ...workspaceAccess
     ]
+  },
+  {
+    name: ApiRoleEnum.WORKSPACE_ADMIN,
+    description: "Access to all endpoints",
+    access: [...fullIdentityAccess, ...workspaceAccess]
   },
   {
     name: VOICE_SERVICE_ROLE,
