@@ -289,11 +289,11 @@ proto.fonoster.domains.v1beta2.Domain.prototype.toObject = function(opt_includeI
  */
 proto.fonoster.domains.v1beta2.Domain.toObject = function(includeInstance, msg) {
   var f, obj = {
-    ref: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    domainUri: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
+    ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    domainUri: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -330,23 +330,23 @@ proto.fonoster.domains.v1beta2.Domain.deserializeBinaryFromReader = function(msg
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 2:
+    case 1:
       var value = /** @type {string} */ (reader.readString());
       msg.setRef(value);
       break;
-    case 3:
+    case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setName(value);
       break;
-    case 4:
+    case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setDomainUri(value);
       break;
-    case 5:
+    case 4:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setCreatedAt(value);
       break;
-    case 6:
+    case 5:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setUpdatedAt(value);
       break;
@@ -382,35 +382,35 @@ proto.fonoster.domains.v1beta2.Domain.serializeBinaryToWriter = function(message
   f = message.getRef();
   if (f.length > 0) {
     writer.writeString(
-      2,
+      1,
       f
     );
   }
   f = message.getName();
   if (f.length > 0) {
     writer.writeString(
-      3,
+      2,
       f
     );
   }
   f = message.getDomainUri();
   if (f.length > 0) {
     writer.writeString(
-      4,
+      3,
       f
     );
   }
   f = message.getCreatedAt();
   if (f !== 0) {
     writer.writeInt64(
-      5,
+      4,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
     writer.writeInt64(
-      6,
+      5,
       f
     );
   }
@@ -418,11 +418,11 @@ proto.fonoster.domains.v1beta2.Domain.serializeBinaryToWriter = function(message
 
 
 /**
- * optional string ref = 2;
+ * optional string ref = 1;
  * @return {string}
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.getRef = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
 };
 
 
@@ -431,16 +431,16 @@ proto.fonoster.domains.v1beta2.Domain.prototype.getRef = function() {
  * @return {!proto.fonoster.domains.v1beta2.Domain} returns this
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.setRef = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
 /**
- * optional string name = 3;
+ * optional string name = 2;
  * @return {string}
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.getName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
@@ -449,16 +449,16 @@ proto.fonoster.domains.v1beta2.Domain.prototype.getName = function() {
  * @return {!proto.fonoster.domains.v1beta2.Domain} returns this
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.setName = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional string domain_uri = 4;
+ * optional string domain_uri = 3;
  * @return {string}
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.getDomainUri = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
@@ -467,16 +467,16 @@ proto.fonoster.domains.v1beta2.Domain.prototype.getDomainUri = function() {
  * @return {!proto.fonoster.domains.v1beta2.Domain} returns this
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.setDomainUri = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
 /**
- * optional int64 created_at = 5;
+ * optional int64 created_at = 4;
  * @return {number}
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.getCreatedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
@@ -485,16 +485,16 @@ proto.fonoster.domains.v1beta2.Domain.prototype.getCreatedAt = function() {
  * @return {!proto.fonoster.domains.v1beta2.Domain} returns this
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.setCreatedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 5, value);
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional int64 updated_at = 6;
+ * optional int64 updated_at = 5;
  * @return {number}
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.getUpdatedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
@@ -503,7 +503,7 @@ proto.fonoster.domains.v1beta2.Domain.prototype.getUpdatedAt = function() {
  * @return {!proto.fonoster.domains.v1beta2.Domain} returns this
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.setUpdatedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 

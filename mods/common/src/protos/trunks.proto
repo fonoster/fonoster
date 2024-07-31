@@ -20,9 +20,6 @@ syntax = "proto3";
 
 package fonoster.trunks.v1beta2;
 
-import "acls.proto";
-import "credentials.proto";
-
 // The Trunks service definition
 service Trunks {
   // Create a new Trunk
@@ -57,6 +54,24 @@ message TrunkURI {
 
 // The message for the Trunk resource
 message Trunk {
+  message Acl {
+    // The reference of the AccessControlList
+    string ref = 1;
+    // The name of the AccessControlList
+    string name = 2;
+    // The list of IP addresses that are allowed to access the Trunks
+    repeated string allow = 3;
+    // The list of IP addresses that are denied to access the Trunks
+    repeated string deny = 4;
+  }
+  message Credentials {
+    // The reference of the Credentials
+    string ref = 1;
+    // The name of the Credentials
+    string name = 2;
+    // The username of the Credentials
+    string username = 3;
+  }
   // The reference of the Trunk
   string ref = 1;
   // The name of the Trunk
@@ -70,11 +85,11 @@ message Trunk {
   // The date and time when the Trunk was last updated
   int64 updated_at = 6;
   // The list of IP addresses that are allowed to access the Trunks
-  fonoster.acls.v1beta2.Acl access_control_list = 7;
+  Acl access_control_list = 7;
   // The credentials to use when authenticating with the Trunk
-  fonoster.credentials.v1beta2.Credentials inbound_credentials = 8;
+  Credentials inbound_credentials = 8;
   // The credentials to use when authenticating with the Provider
-  fonoster.credentials.v1beta2.Credentials outbound_credentials = 9;
+  Credentials outbound_credentials = 9;
   // The list of URIs for the Trunk
   repeated TrunkURI uris = 10;
 }

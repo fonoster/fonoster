@@ -20,8 +20,6 @@ syntax = "proto3";
 
 package fonoster.numbers.v1beta2;
 
-import "trunks.proto";
-
 // The Numbers service definition
 service Numbers {
   // Create a new Number
@@ -38,6 +36,12 @@ service Numbers {
 
 // The message for the Number resource
 message Number {
+  message Trunk {
+    // The unique identifier of the Trunk
+    string ref = 1;
+    // The name of the Trunk
+    string name = 2;
+  }
   // The unique identifier of the Number
   string ref = 1;
   // The name of the Number
@@ -55,7 +59,7 @@ message Number {
   // The date when the Number was last updated
   int64 updated_at = 8;
   // The trunk this number is associated with
-  fonoster.trunks.v1beta2.Trunk trunk = 9;
+  Trunk trunk = 9;
   // This dictates how the number will handle incoming calls
   oneof ingress_handler {
     // The call will be forwarded to this agent

@@ -58,8 +58,7 @@ function createTrunksTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        },
-        skip: true
+        }
       },
       {
         id: `${idBase}-03`,

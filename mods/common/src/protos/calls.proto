@@ -111,7 +111,7 @@ message CreateCallRequest {
 
 // The response message for Calls.Call
 message CreateCallResponse {
-  // The refence of the call
+  // The reference of the call
   string ref = 1;
 }
 
@@ -157,7 +157,7 @@ message TrackCallRequest {
 
 // The response message for Calls.TrackCall
 message TrackCallResponse {
-  // The refence of the call
+  // The reference of the call
   string ref = 1;
   // The call status
   CallStatus status = 2;

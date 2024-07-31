@@ -21,7 +21,6 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var numbers_pb = require('./numbers_pb.js');
-var trunks_pb = require('./trunks_pb.js');
 
 function serialize_fonoster_numbers_v1beta2_CreateNumberRequest(arg) {
   if (!(arg instanceof numbers_pb.CreateNumberRequest)) {

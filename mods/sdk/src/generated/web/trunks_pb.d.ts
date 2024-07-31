@@ -1,7 +1,5 @@
 import * as jspb from 'google-protobuf'
 
-import * as acls_pb from './acls_pb'; // proto import: "acls.proto"
-import * as credentials_pb from './credentials_pb'; // proto import: "credentials.proto"
 
 
 export class TrunkURI extends jspb.Message {
@@ -65,18 +63,18 @@ export class Trunk extends jspb.Message {
   getUpdatedAt(): number;
   setUpdatedAt(value: number): Trunk;
 
-  getAccessControlList(): acls_pb.Acl | undefined;
-  setAccessControlList(value?: acls_pb.Acl): Trunk;
+  getAccessControlList(): Trunk.Acl | undefined;
+  setAccessControlList(value?: Trunk.Acl): Trunk;
   hasAccessControlList(): boolean;
   clearAccessControlList(): Trunk;
 
-  getInboundCredentials(): credentials_pb.Credentials | undefined;
-  setInboundCredentials(value?: credentials_pb.Credentials): Trunk;
+  getInboundCredentials(): Trunk.Credentials | undefined;
+  setInboundCredentials(value?: Trunk.Credentials): Trunk;
   hasInboundCredentials(): boolean;
   clearInboundCredentials(): Trunk;
 
-  getOutboundCredentials(): credentials_pb.Credentials | undefined;
-  setOutboundCredentials(value?: credentials_pb.Credentials): Trunk;
+  getOutboundCredentials(): Trunk.Credentials | undefined;
+  setOutboundCredentials(value?: Trunk.Credentials): Trunk;
   hasOutboundCredentials(): boolean;
   clearOutboundCredentials(): Trunk;
 
@@ -101,11 +99,73 @@ export namespace Trunk {
     inboundUri: string,
     createdAt: number,
     updatedAt: number,
-    accessControlList?: acls_pb.Acl.AsObject,
-    inboundCredentials?: credentials_pb.Credentials.AsObject,
-    outboundCredentials?: credentials_pb.Credentials.AsObject,
+    accessControlList?: Trunk.Acl.AsObject,
+    inboundCredentials?: Trunk.Credentials.AsObject,
+    outboundCredentials?: Trunk.Credentials.AsObject,
     urisList: Array<TrunkURI.AsObject>,
   }
+
+  export class Acl extends jspb.Message {
+    getRef(): string;
+    setRef(value: string): Acl;
+
+    getName(): string;
+    setName(value: string): Acl;
+
+    getAllowList(): Array<string>;
+    setAllowList(value: Array<string>): Acl;
+    clearAllowList(): Acl;
+    addAllow(value: string, index?: number): Acl;
+
+    getDenyList(): Array<string>;
+    setDenyList(value: Array<string>): Acl;
+    clearDenyList(): Acl;
+    addDeny(value: string, index?: number): Acl;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Acl.AsObject;
+    static toObject(includeInstance: boolean, msg: Acl): Acl.AsObject;
+    static serializeBinaryToWriter(message: Acl, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Acl;
+    static deserializeBinaryFromReader(message: Acl, reader: jspb.BinaryReader): Acl;
+  }
+
+  export namespace Acl {
+    export type AsObject = {
+      ref: string,
+      name: string,
+      allowList: Array<string>,
+      denyList: Array<string>,
+    }
+  }
+
+
+  export class Credentials extends jspb.Message {
+    getRef(): string;
+    setRef(value: string): Credentials;
+
+    getName(): string;
+    setName(value: string): Credentials;
+
+    getUsername(): string;
+    setUsername(value: string): Credentials;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Credentials.AsObject;
+    static toObject(includeInstance: boolean, msg: Credentials): Credentials.AsObject;
+    static serializeBinaryToWriter(message: Credentials, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Credentials;
+    static deserializeBinaryFromReader(message: Credentials, reader: jspb.BinaryReader): Credentials;
+  }
+
+  export namespace Credentials {
+    export type AsObject = {
+      ref: string,
+      name: string,
+      username: string,
+    }
+  }
+
 }
 
 export class CreateTrunkRequest extends jspb.Message {

@@ -20,9 +20,6 @@ syntax = "proto3";
 
 package fonoster.agents.v1beta2;
 
-import "domains.proto";
-import "credentials.proto";
-
 // The Agents service definition
 service Agents {
   // Create a new Agent
@@ -39,6 +36,22 @@ service Agents {
 
 // The message for a new Agent
 message Agent {
+  message Domain {
+    // The unique identifier of the Domain
+    string ref = 1;
+    // The name of the Domain
+    string name = 2;
+    // The domain of the Domain
+    string domain_uri = 3;
+  }
+  message Credentials {
+    // The unique identifier of the Credentials
+    string ref = 1;
+    // The friendly name of the Credentials
+    string name = 2;
+    // The username of the Credentials
+    string username = 3;
+  }
   // The unique identifier of the Agent
   string ref = 1;
   // The name of the Agent
@@ -58,9 +71,9 @@ message Agent {
   // Value to override the expires requested by the Agent
   int32 expires = 9;
   // The domain of the Agent
-  fonoster.domains.v1beta2.Domain domain = 10;
+  Domain domain = 10;
   // The credentials of the Agent
-  fonoster.credentials.v1beta2.Credentials credentials = 11;
+  Credentials credentials = 11;
 }
 
 // The request message for Agents.CreateAgent

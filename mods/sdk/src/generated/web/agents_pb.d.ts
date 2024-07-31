@@ -1,7 +1,5 @@
 import * as jspb from 'google-protobuf'
 
-import * as domains_pb from './domains_pb'; // proto import: "domains.proto"
-import * as credentials_pb from './credentials_pb'; // proto import: "credentials.proto"
 
 
 export class Agent extends jspb.Message {
@@ -32,13 +30,13 @@ export class Agent extends jspb.Message {
   getExpires(): number;
   setExpires(value: number): Agent;
 
-  getDomain(): domains_pb.Domain | undefined;
-  setDomain(value?: domains_pb.Domain): Agent;
+  getDomain(): Agent.Domain | undefined;
+  setDomain(value?: Agent.Domain): Agent;
   hasDomain(): boolean;
   clearDomain(): Agent;
 
-  getCredentials(): credentials_pb.Credentials | undefined;
-  setCredentials(value?: credentials_pb.Credentials): Agent;
+  getCredentials(): Agent.Credentials | undefined;
+  setCredentials(value?: Agent.Credentials): Agent;
   hasCredentials(): boolean;
   clearCredentials(): Agent;
 
@@ -61,9 +59,63 @@ export namespace Agent {
     updatedAt: number,
     maxContacts: number,
     expires: number,
-    domain?: domains_pb.Domain.AsObject,
-    credentials?: credentials_pb.Credentials.AsObject,
+    domain?: Agent.Domain.AsObject,
+    credentials?: Agent.Credentials.AsObject,
   }
+
+  export class Domain extends jspb.Message {
+    getRef(): string;
+    setRef(value: string): Domain;
+
+    getName(): string;
+    setName(value: string): Domain;
+
+    getDomainUri(): string;
+    setDomainUri(value: string): Domain;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Domain.AsObject;
+    static toObject(includeInstance: boolean, msg: Domain): Domain.AsObject;
+    static serializeBinaryToWriter(message: Domain, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Domain;
+    static deserializeBinaryFromReader(message: Domain, reader: jspb.BinaryReader): Domain;
+  }
+
+  export namespace Domain {
+    export type AsObject = {
+      ref: string,
+      name: string,
+      domainUri: string,
+    }
+  }
+
+
+  export class Credentials extends jspb.Message {
+    getRef(): string;
+    setRef(value: string): Credentials;
+
+    getName(): string;
+    setName(value: string): Credentials;
+
+    getUsername(): string;
+    setUsername(value: string): Credentials;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Credentials.AsObject;
+    static toObject(includeInstance: boolean, msg: Credentials): Credentials.AsObject;
+    static serializeBinaryToWriter(message: Credentials, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Credentials;
+    static deserializeBinaryFromReader(message: Credentials, reader: jspb.BinaryReader): Credentials;
+  }
+
+  export namespace Credentials {
+    export type AsObject = {
+      ref: string,
+      name: string,
+      username: string,
+    }
+  }
+
 }
 
 export class CreateAgentRequest extends jspb.Message {

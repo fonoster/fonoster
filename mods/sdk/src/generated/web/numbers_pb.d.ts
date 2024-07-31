@@ -1,6 +1,5 @@
 import * as jspb from 'google-protobuf'
 
-import * as trunks_pb from './trunks_pb'; // proto import: "trunks.proto"
 
 
 export class Number extends jspb.Message {
@@ -28,8 +27,8 @@ export class Number extends jspb.Message {
   getUpdatedAt(): number;
   setUpdatedAt(value: number): Number;
 
-  getTrunk(): trunks_pb.Trunk | undefined;
-  setTrunk(value?: trunks_pb.Trunk): Number;
+  getTrunk(): Number.Trunk | undefined;
+  setTrunk(value?: Number.Trunk): Number;
   hasTrunk(): boolean;
   clearTrunk(): Number;
 
@@ -59,10 +58,33 @@ export namespace Number {
     countryIsoCode: string,
     createdAt: number,
     updatedAt: number,
-    trunk?: trunks_pb.Trunk.AsObject,
+    trunk?: Number.Trunk.AsObject,
     agentAor: string,
     appRef: string,
   }
+
+  export class Trunk extends jspb.Message {
+    getRef(): string;
+    setRef(value: string): Trunk;
+
+    getName(): string;
+    setName(value: string): Trunk;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Trunk.AsObject;
+    static toObject(includeInstance: boolean, msg: Trunk): Trunk.AsObject;
+    static serializeBinaryToWriter(message: Trunk, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Trunk;
+    static deserializeBinaryFromReader(message: Trunk, reader: jspb.BinaryReader): Trunk;
+  }
+
+  export namespace Trunk {
+    export type AsObject = {
+      ref: string,
+      name: string,
+    }
+  }
+
 
   export enum IngressHandlerCase { 
     INGRESS_HANDLER_NOT_SET = 0,

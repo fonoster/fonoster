@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import { BaseApiObject } from "./common";
-import { Domain } from "./domains.types";
 
 enum Privacy {
   PRIVATE = "ID",
@@ -32,8 +31,17 @@ type AgentExtended = {
   enabled: boolean;
   maxContacts?: number;
   expires?: number;
-  domain?: Domain;
-  extended?: Record<string, unknown>;
+  domain?: {
+    ref: string;
+    name: string;
+    domainUri: string;
+  };
+  credentials?: {
+    ref: string;
+    name: string;
+    username: string;
+  };
+  extended: Record<string, unknown>;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
@@ -42,11 +50,12 @@ type AgentExtended = {
 type CreateAgentRequestExtended = {
   name: string;
   username: string;
-  privacy: Privacy;
-  enabled: boolean;
-  maxContacts: number;
+  privacy?: Privacy;
+  enabled?: boolean;
+  maxContacts?: number;
   expires?: number;
-  domainRef: string;
+  domainRef?: string;
+  credentialsRef?: string;
   extended: {
     accessKeyId: string;
   };

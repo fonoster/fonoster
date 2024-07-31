@@ -21,8 +21,6 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var trunks_pb = require('./trunks_pb.js');
-var acls_pb = require('./acls_pb.js');
-var credentials_pb = require('./credentials_pb.js');
 
 function serialize_fonoster_trunks_v1beta2_CreateTrunkRequest(arg) {
   if (!(arg instanceof trunks_pb.CreateTrunkRequest)) {

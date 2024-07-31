@@ -21,8 +21,6 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var agents_pb = require('./agents_pb.js');
-var domains_pb = require('./domains_pb.js');
-var credentials_pb = require('./credentials_pb.js');
 
 function serialize_fonoster_agents_v1beta2_Agent(arg) {
   if (!(arg instanceof agents_pb.Agent)) {
