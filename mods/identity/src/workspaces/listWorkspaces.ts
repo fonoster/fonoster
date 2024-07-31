@@ -46,7 +46,7 @@ function listWorkspaces(prisma: Prisma) {
       workspacesAccessKeyIds
     });
 
-    const workspaces = await prisma.workspace.findMany({
+    const items = await prisma.workspace.findMany({
       where: {
         OR: [
           {
@@ -68,9 +68,10 @@ function listWorkspaces(prisma: Prisma) {
       }
     });
 
-    if (!workspaces) return [];
-
-    callback(null, { workspaces });
+    callback(null, {
+      items,
+      nextPageToken: items[items.length - 1]?.ref
+    });
   };
 }
 

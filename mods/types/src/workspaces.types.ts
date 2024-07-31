@@ -45,7 +45,8 @@ type UpdateWorkspaceRequest = {
 };
 
 type ListWorkspacesResponse = {
-  workspaces: Workspace[];
+  items: Workspace[];
+  nextPageToken: string;
 };
 
 type InviteUserToWorkspaceResponse = {

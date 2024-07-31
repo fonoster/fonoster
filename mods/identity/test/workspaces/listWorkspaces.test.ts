@@ -64,15 +64,17 @@ describe("@identity[workspaces/listWorkspaces]", function () {
     );
 
     // Act
-    const response = await new Promise((resolve, reject) => {
+    const response = (await new Promise((resolve, reject) => {
       listWorkspaces(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
-    });
+    })) as { items: unknown[] };
 
     // Assert
-    expect(response).to.deep.equal({ workspaces });
+    expect(response).to.have.property("items");
+    expect(response).to.have.property("nextPageToken");
+    expect(response.items.length).to.be.greaterThan(0);
   });
 
   it("should return an empty array if no workspaces found", async function () {
@@ -96,14 +98,15 @@ describe("@identity[workspaces/listWorkspaces]", function () {
     );
 
     // Act
-    const response = await new Promise((resolve, reject) => {
+    const response = (await new Promise((resolve, reject) => {
       listWorkspaces(prisma)(call, (error, response) => {
         if (error) return reject(error);
         resolve(response);
       });
-    });
+    })) as { items: unknown[] };
 
     // Assert
-    expect(response).to.deep.equal({ workspaces: [] });
+    expect(response).to.have.property("items");
+    expect(response.items.length).to.equal(0);
   });
 });

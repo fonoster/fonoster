@@ -58,12 +58,8 @@ function listApiKeys(prisma: Prisma) {
     });
 
     const items = keys.map((key) => ({
-      ref: key.ref,
-      accessKeyId: key.accessKeyId,
-      role: key.role as ApiRoleEnum,
-      expiresAt: key.expiresAt,
-      createdAt: key.createdAt,
-      updatedAt: key.updatedAt
+      ...key,
+      role: key.role as ApiRoleEnum
     }));
 
     const response: ListApiKeysResponse = {

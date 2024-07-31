@@ -75,8 +75,7 @@ function createWorkspacesTestCases(expect) {
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
-        },
-        skip: true
+        }
       },
       {
         id: `${idBase}-04`,
@@ -86,8 +85,7 @@ function createWorkspacesTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        },
-        skip: true
+        }
       },
       {
         id: `${idBase}-04`,
