@@ -19,7 +19,7 @@
 import { datesMapper } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import { Application, GetApplicationRequest } from "@fonoster/types";
+import { Application, BaseApiObject } from "@fonoster/types";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../core/db";
@@ -30,7 +30,7 @@ function getApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
   return withAccess(
-    async (call: { request: GetApplicationRequest }): Promise<Application> => {
+    async (call: { request: BaseApiObject }): Promise<Application> => {
       const { ref } = call.request;
 
       logger.verbose("call to getApplication", { ref });

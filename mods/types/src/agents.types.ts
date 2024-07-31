@@ -41,7 +41,7 @@ type AgentExtended = {
     name: string;
     username: string;
   };
-  extended: Record<string, unknown>;
+  extended?: Record<string, unknown>;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
@@ -50,10 +50,10 @@ type AgentExtended = {
 type CreateAgentRequestExtended = {
   name: string;
   username: string;
-  privacy?: Privacy;
-  enabled?: boolean;
-  maxContacts?: number;
-  expires?: number;
+  privacy: Privacy;
+  enabled: boolean;
+  maxContacts: number;
+  expires: number;
   domainRef?: string;
   credentialsRef?: string;
   extended: {

@@ -21,7 +21,6 @@ import {
   BaseApiObject,
   CreateApplicationRequest,
   CreateApplicationResponse,
-  GetApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
   UpdateApplicationRequest
@@ -210,7 +209,7 @@ class Applications {
     return await makeRpcRequest<
       GetApplicationRequestPB,
       ApplicationPB,
-      GetApplicationRequest,
+      BaseApiObject,
       Application
     >({
       method: applicationsClient.getApplication.bind(applicationsClient),

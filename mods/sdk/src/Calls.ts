@@ -17,13 +17,12 @@
  * limitations under the License.
  */
 import {
+  BaseApiObject,
   CallDetailRecord,
   CallDirection,
   CallStatus,
   CallType,
   CreateCallRequest,
-  CreateCallResponse,
-  GetCallRequest,
   HangupCause,
   ListCallsRequest,
   ListCallsResponse
@@ -110,14 +109,14 @@ class Calls {
    *  .then(console.log) // successful response
    *  .catch(console.error); // an error occurred
    */
-  async createCall(request: CreateCallRequest): Promise<CreateCallResponse> {
+  async createCall(request: CreateCallRequest): Promise<BaseApiObject> {
     const client = this.client.getCallsClient();
 
     return await makeRpcRequest<
       CreateCallRequestPB,
       CreateCallResponsePB,
       CreateCallRequest,
-      CreateCallResponse
+      BaseApiObject
     >({
       method: client.createCall.bind(client),
       requestPBObjectConstructor: CreateCallRequestPB,
@@ -147,7 +146,7 @@ class Calls {
     return await makeRpcRequest<
       GetCallRequestPB,
       GetCallResponsePB,
-      GetCallRequest,
+      BaseApiObject,
       CallDetailRecord
     >({
       method: client.getCall.bind(client),

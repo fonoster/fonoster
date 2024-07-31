@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BaseApiObject } from ".";
+
 const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
 
 enum CallType {
@@ -64,6 +66,7 @@ type CallDetailRecord = {
   to: string;
   duration: number;
   direction: CallDirection;
+  // FIXME: This should be a Date
   startedAt: number;
   endedAt: number;
 };
@@ -85,10 +88,6 @@ type ListCallsResponse = {
   items: CallDetailRecord[];
 };
 
-type GetCallRequest = {
-  ref: string;
-};
-
 // If appRef is not provided, we will use the application associated
 // with the 'from' number
 type CreateCallRequest = {
@@ -97,12 +96,8 @@ type CreateCallRequest = {
   appRef?: string;
 };
 
-type CreateCallResponse = {
-  ref: string;
-};
-
 type CallPublisher = {
-  publishCall: (event: CreateCallRequest & { ref: string }) => void;
+  publishCall: (event: CreateCallRequest & BaseApiObject) => void;
 };
 
 type TrackCallResponse = {
@@ -121,12 +116,10 @@ export {
   CallDetailRecord,
   ListCallsRequest,
   ListCallsResponse,
-  GetCallRequest,
   CallType,
   CallStatus,
   CallDirection,
   CreateCallRequest,
-  CreateCallResponse,
   CallPublisher,
   TrackCallResponse,
   TrackCallSubscriber,

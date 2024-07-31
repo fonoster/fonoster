@@ -47,7 +47,7 @@ type TrunkExtended = {
   inboundCredentials?: CredentialsExtended;
   outboundCredentials?: CredentialsExtended;
   uris?: TrunkURI[];
-  extended?: unknown;
+  extended?: Record<string, unknown>;
   // FIXME: Should be a Date
   createdAt?: number;
   updatedAt?: number;
@@ -61,9 +61,7 @@ type CreateTrunkRequestExtended = {
   inboundCredentials?: CredentialsExtended;
   outboundCredentials?: CredentialsExtended;
   uris?: TrunkURI[];
-  extended?: {
-    accessKeyId: string;
-  };
+  extended?: Record<string, unknown>;
 };
 
 type UpdateTrunkRequest = {

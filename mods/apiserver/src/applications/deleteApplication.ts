@@ -18,10 +18,7 @@
  */
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import {
-  DeleteApplicationRequest,
-  DeleteApplicationResponse
-} from "@fonoster/types";
+import { BaseApiObject } from "@fonoster/types";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { Prisma } from "../core/db";
 
@@ -31,9 +28,7 @@ function deleteApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
   return withAccess(
-    async (call: {
-      request: DeleteApplicationRequest;
-    }): Promise<DeleteApplicationResponse> => {
+    async (call: { request: BaseApiObject }): Promise<BaseApiObject> => {
       const { ref } = call.request;
 
       logger.verbose("call to deleteApplication", { ref });

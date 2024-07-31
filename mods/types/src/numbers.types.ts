@@ -46,9 +46,7 @@ type CreateNumberRequestExtended = {
   // FIXME: Fix upstream this should be an optional field
   sessionAffinityHeader: string;
   extraHeaders: { name: string; value: string }[];
-  extended: {
-    accessKeyId: string;
-  };
+  extended?: Record<string, unknown>;
 };
 
 type UpdateNumberRequest = {
