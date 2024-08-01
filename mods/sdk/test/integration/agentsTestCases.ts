@@ -90,6 +90,14 @@ function createAgentsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         }
+      },
+      {
+        id: `${idBase}-05`,
+        name: "should fail to delete the agent (not found)",
+        method: "deleteAgent",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        grpcCode: 5
       }
     ]
   };

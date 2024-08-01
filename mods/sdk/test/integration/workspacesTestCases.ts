@@ -79,16 +79,6 @@ function createWorkspacesTestCases(expect) {
       },
       {
         id: `${idBase}-04`,
-        name: "should delete the workspace",
-        method: "deleteWorkspace",
-        request: "{{ref}}",
-        dependsOn: `${idBase}-00`,
-        responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
-        }
-      },
-      {
-        id: `${idBase}-04`,
         name: "should send invite to the workspace",
         method: "inviteUserToWorkspace",
         request: {
@@ -101,24 +91,42 @@ function createWorkspacesTestCases(expect) {
         }
       },
       {
-        id: `${idBase}-04`,
+        id: `${idBase}-05`,
         name: "should resend the workspace membership invitation",
         method: "resendWorkspaceMembershipInvitation",
         request: "{{userRef}}",
-        dependsOn: `${idBase}-04`,
+        dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("userRef");
         }
       },
       {
-        id: `${idBase}-04`,
+        id: `${idBase}-06`,
         name: "should remove user from the workspace",
         method: "removeUserFromWorkspace",
         request: "{{userRef}}",
-        dependsOn: `${idBase}-04`,
+        dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("userRef");
         }
+      },
+      {
+        id: `${idBase}-07`,
+        name: "should delete the workspace",
+        method: "deleteWorkspace",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        responseValidator: (response: { ref: string }) => {
+          expect(response).has.property("ref");
+        }
+      },
+      {
+        id: `${idBase}-08`,
+        name: "should fail to delete the workspace (not found)",
+        method: "deleteWorkspace",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        grpcCode: 5
       }
     ]
   };

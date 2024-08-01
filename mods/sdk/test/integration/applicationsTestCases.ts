@@ -59,12 +59,20 @@ function createApplicationsTestCases(expect) {
       },
       {
         id: `${idBase}-02`,
-        name: "should failed to find the application",
+        name: "should find the application",
         method: "getApplication",
         request: "{{ref}}",
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
+          expect(response).has.property("ref").to.be.not.null;
+          expect(response).has.property("name").to.be.not.null;
+          expect(response).has.property("type").to.be.not.null;
+          expect(response).has.property("appEndpoint").to.be.not.null;
+          expect(response).has.property("textToSpeech").to.be.not.null;
+          expect(response).has.property("speechToText").to.be.not.null;
+          expect(response).does.not.have.property("intelligence");
+          expect(response).has.property("createdAt").to.be.not.null;
+          expect(response).has.property("updatedAt").to.be.not.null;
         }
       },
       {
@@ -89,7 +97,7 @@ function createApplicationsTestCases(expect) {
       },
       {
         id: `${idBase}-04`,
-        name: "should list at least ten applications",
+        name: "should list at least one application (xxx needs fixing)",
         method: "listApplications",
         request: {
           pageSize: 10,
@@ -105,6 +113,17 @@ function createApplicationsTestCases(expect) {
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0]).to.have.property("type").to.not.be.null;
+          expect(response.items[0]).to.have.property("appEndpoint").to.not.be
+            .null;
+          expect(response.items[0]).to.have.property("textToSpeech").to.not.be
+            .null;
+          expect(response.items[0]).to.have.property("speechToText").to.not.be
+            .null;
+          expect(response.items[0]).to.not.have.property("intelligence");
+          expect(response.items[0]).to.have.property("createdAt").to.not.be
+            .null;
+          expect(response.items[0]).to.have.property("updatedAt").to.not.be
+            .null;
         }
       },
       {
@@ -116,6 +135,14 @@ function createApplicationsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         }
+      },
+      {
+        id: `${idBase}-06`,
+        name: "should failed to delete the application (not found)",
+        method: "deleteApplication",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        grpcCode: 5
       }
     ]
   };

@@ -75,6 +75,14 @@ function createApiKeysTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         }
+      },
+      {
+        id: `${idBase}-04`,
+        name: "should fail to delete the key (not found)",
+        method: "deleteApiKey",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        grpcCode: 5
       }
     ]
   };

@@ -88,6 +88,14 @@ function createAclsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         }
+      },
+      {
+        id: `${idBase}-05`,
+        name: "should fail to delete the acl (not found)",
+        method: "deleteAcl",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        grpcCode: 5
       }
     ]
   };

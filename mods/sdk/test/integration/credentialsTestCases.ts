@@ -90,6 +90,14 @@ function createCredentialsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         }
+      },
+      {
+        id: `${idBase}-05`,
+        name: "should fail to delete the credentials (not found)",
+        method: "deleteCredentials",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        grpcCode: 5
       }
     ]
   };

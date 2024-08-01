@@ -85,6 +85,14 @@ function createSecretsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         }
+      },
+      {
+        id: `${idBase}-05`,
+        name: "should fail to delete the secret (not found)",
+        method: "deleteSecret",
+        request: "{{ref}}",
+        dependsOn: `${idBase}-00`,
+        grpcCode: 5
       }
     ]
   };
