@@ -16,14 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject } from "./common";
+import { BaseApiObject, ListRequest, ListResponse } from "./common";
+import { Flatten } from "./utils";
 
 enum Privacy {
   PRIVATE = "ID",
   NONE = "NONE"
 }
 
-type AgentExtended = {
+type Agent = {
   ref: string;
   name: string;
   username: string;
@@ -41,13 +42,15 @@ type AgentExtended = {
     name: string;
     username: string;
   };
-  extended?: Record<string, unknown>;
-  // FIXME: Should be a Date
-  createdAt?: number;
-  updatedAt?: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-type CreateAgentRequestExtended = {
+type AgentExtended = Agent & {
+  extended?: Record<string, unknown>;
+};
+
+type CreateAgentRequest = {
   name: string;
   username: string;
   privacy: Privacy;
@@ -56,23 +59,19 @@ type CreateAgentRequestExtended = {
   expires: number;
   domainRef?: string;
   credentialsRef?: string;
-  extended: {
-    accessKeyId: string;
-  };
 };
 
-type UpdateAgentRequest = BaseApiObject &
-  Omit<Partial<CreateAgentRequestExtended>, "username" | "extended">;
-
-type ListAgentsRequest = {
-  pageSize: number;
-  pageToken: string;
+type CreateAgentRequestExtended = CreateAgentRequest & {
+  extended?: Record<string, unknown>;
 };
 
-type ListAgentsResponse = {
-  items: Agent[];
-  nextPageToken: string;
-};
+type UpdateAgentRequest = Flatten<
+  BaseApiObject & Omit<Partial<CreateAgentRequest>, "username" | "extended">
+>;
+
+type ListAgentsRequest = ListRequest;
+
+type ListAgentsResponse = ListResponse<Agent>;
 
 type AgentsApi = {
   createAgent(request: CreateAgentRequestExtended): Promise<BaseApiObject>;
@@ -81,10 +80,6 @@ type AgentsApi = {
   deleteAgent(ref: string): Promise<void>;
   listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse>;
 };
-
-type Agent = Omit<AgentExtended, "extended">;
-
-type CreateAgentRequest = Omit<CreateAgentRequestExtended, "extended">;
 
 export {
   AgentExtended,

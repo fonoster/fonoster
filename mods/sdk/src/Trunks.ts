@@ -21,6 +21,7 @@ import {
   CreateTrunkRequest,
   ListTrunksRequest,
   ListTrunksResponse,
+  Trunk,
   UpdateTrunkRequest
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
@@ -294,8 +295,7 @@ class Trunks {
           });
 
           resolve({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            items: items as any,
+            items: items as unknown as Trunk[],
             nextPageToken: response.getNextPageToken()
           });
         }

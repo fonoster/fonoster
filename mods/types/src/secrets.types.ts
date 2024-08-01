@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject } from "./common";
+import { BaseApiObject, ListRequest, ListResponse } from "./common";
 
 type Secret = {
   ref: string;
@@ -33,15 +33,9 @@ type CreateSecretRequest = {
 
 type UpdateSecretRequest = BaseApiObject & Partial<CreateSecretRequest>;
 
-type ListSecretsRequest = {
-  pageSize: number;
-  pageToken: string;
-};
+type ListSecretsRequest = ListRequest;
 
-type ListSecretsResponse = {
-  nextPageToken?: string;
-  items: Secret[];
-};
+type ListSecretsResponse = ListResponse<Secret>;
 
 export {
   Secret,

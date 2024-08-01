@@ -1,3 +1,5 @@
+import { ListResponse } from "./common";
+
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -44,10 +46,7 @@ type UpdateWorkspaceRequest = {
   name: string;
 };
 
-type ListWorkspacesResponse = {
-  items: Workspace[];
-  nextPageToken: string;
-};
+type ListWorkspacesResponse = ListResponse<Workspace>;
 
 type InviteUserToWorkspaceResponse = {
   workspaceRef: string;

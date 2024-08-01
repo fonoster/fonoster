@@ -19,10 +19,7 @@
 import { GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
-import {
-  CreateApplicationRequest,
-  CreateApplicationResponse
-} from "@fonoster/types";
+import { BaseApiObject, CreateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./utils/validOrThrow";
@@ -33,10 +30,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function createApplication(prisma: Prisma) {
   return async (
     call: { request: CreateApplicationRequest },
-    callback: (
-      error: GrpcErrorMessage,
-      response?: CreateApplicationResponse
-    ) => void
+    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { type } = call.request;
     const accessKeyId = getAccessKeyIdFromCall(

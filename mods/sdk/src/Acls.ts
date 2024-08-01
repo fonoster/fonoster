@@ -245,7 +245,7 @@ class Acls {
           });
 
           resolve({
-            items,
+            items: items as unknown as Acl[],
             nextPageToken: response.getNextPageToken()
           });
         }

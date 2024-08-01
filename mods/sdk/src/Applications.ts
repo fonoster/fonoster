@@ -20,7 +20,6 @@ import {
   Application,
   BaseApiObject,
   CreateApplicationRequest,
-  CreateApplicationResponse,
   ListApplicationsRequest,
   ListApplicationsResponse,
   UpdateApplicationRequest
@@ -166,7 +165,7 @@ class Applications {
    */
   async createApplication(
     request: CreateApplicationRequest
-  ): Promise<CreateApplicationResponse> {
+  ): Promise<BaseApiObject> {
     const reqWithStructOverride = buildStructOverride(request);
     const applicationsClient = this.client.getApplicationsClient();
 
@@ -174,7 +173,7 @@ class Applications {
       CreateApplicationRequestPB,
       CreateApplicationResponsePB,
       CreateApplicationRequest,
-      CreateApplicationResponse
+      BaseApiObject
     >({
       method: applicationsClient.createApplication.bind(applicationsClient),
       requestPBObjectConstructor: CreateApplicationRequestPB,

@@ -38,7 +38,7 @@ function convertToRoutrNumber(
           }
         ]
       : [],
-    extended: { accessKeyId },
+    extended: { accessKeyId } as Record<string, unknown>,
     // TODO: Make this optional upstream in Routr
     sessionAffinityHeader: ""
   };

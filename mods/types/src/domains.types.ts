@@ -16,42 +16,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject } from "./common";
+import { BaseApiObject, ListRequest, ListResponse } from "./common";
+import { Flatten } from "./utils";
 
-type DomainExtended = {
+type Domain = {
   ref: string;
   name: string;
   domainUri: string;
   accessControlListRef?: string;
   egressPolicies?: { rule: string; numberRef: string }[];
-  extended?: Record<string, unknown>;
-  // FIXME: Should be a Date
-  createdAt?: number;
-  updatedAt?: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-type CreateDomainRequestExtended = {
+type DomainExtended = Domain & { extended?: Record<string, unknown> };
+
+type CreateDomainRequest = {
   name: string;
   domainUri: string;
   accessControlListRef?: string;
   egressPolicies?: { rule: string; numberRef: string }[];
-  extended: {
-    accessKeyId: string;
-  };
 };
 
-type UpdateDomainRequest = BaseApiObject &
-  Omit<Partial<CreateDomainRequest>, "domainUri" | "extended">;
-
-type ListDomainsRequest = {
-  pageSize: number;
-  pageToken: string;
+type CreateDomainRequestExtended = CreateDomainRequest & {
+  extended?: Record<string, unknown>;
 };
 
-type ListDomainsResponse = {
-  items: Domain[];
-  nextPageToken: string;
-};
+type UpdateDomainRequest = Flatten<
+  BaseApiObject & Omit<Partial<CreateDomainRequest>, "domainUri">
+>;
+
+type ListDomainsRequest = ListRequest;
+
+type ListDomainsResponse = ListResponse<Domain>;
 
 type DomainsApi = {
   createDomain: (request: CreateDomainRequest) => Promise<BaseApiObject>;
@@ -60,10 +57,6 @@ type DomainsApi = {
   listDomains: (request: ListDomainsRequest) => Promise<ListDomainsResponse>;
   deleteDomain: (ref: string) => Promise<void>;
 };
-
-type Domain = Omit<DomainExtended, "extended">;
-
-type CreateDomainRequest = Omit<CreateDomainRequestExtended, "extended">;
 
 export {
   Domain,

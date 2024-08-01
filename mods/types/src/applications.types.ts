@@ -16,27 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject } from "./common";
+import { BaseApiObject, ListRequest, ListResponse } from "./common";
+import { Flatten } from "./utils";
 
 enum ApplicationType {
   PROGRAMMABLE_VOICE = "PROGRAMMABLE_VOICE"
 }
 
-// For API response
 type Application = {
   ref: string;
   name: string;
   type: ApplicationType;
-  appEndpoint: string;
-  textToSpeech: {
+  appEndpoint?: string;
+  textToSpeech?: {
     productRef: string;
     config: Record<string, unknown>;
   };
-  speechToText: {
+  speechToText?: {
     productRef: string;
     config: Record<string, unknown>;
   };
-  intelligence: {
+  intelligence?: {
     productRef: string;
     config: Record<string, unknown>;
   };
@@ -63,39 +63,19 @@ type CreateApplicationRequest = {
   };
 };
 
-type CreateApplicationResponse = BaseApiObject;
+type UpdateApplicationRequest = Flatten<
+  BaseApiObject & Partial<CreateApplicationRequest>
+>;
 
-type UpdateApplicationRequest = BaseApiObject &
-  Partial<CreateApplicationRequest>;
+type ListApplicationsRequest = ListRequest;
 
-type GetApplicationRequest = BaseApiObject;
-
-type UpdateApplicationResponse = BaseApiObject;
-
-type DeleteApplicationRequest = BaseApiObject;
-
-type DeleteApplicationResponse = BaseApiObject;
-
-type ListApplicationsRequest = {
-  pageSize: number;
-  pageToken: string;
-};
-
-type ListApplicationsResponse = {
-  nextPageToken?: string;
-  items: Application[];
-};
+type ListApplicationsResponse = ListResponse<Application>;
 
 export {
   Application,
   CreateApplicationRequest,
-  CreateApplicationResponse,
   UpdateApplicationRequest,
-  UpdateApplicationResponse,
-  DeleteApplicationRequest,
-  DeleteApplicationResponse,
   ListApplicationsRequest,
   ListApplicationsResponse,
-  GetApplicationRequest,
   ApplicationType
 };

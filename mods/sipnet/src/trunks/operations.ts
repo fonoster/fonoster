@@ -18,9 +18,8 @@
  * limitations under the License.
  */
 import {
+  BaseApiObject,
   CreateTrunkRequestExtended,
-  DeleteTrunkRequest,
-  GetTrunkRequest,
   ListTrunksRequest,
   TrunkApi,
   TrunkExtended,
@@ -49,10 +48,7 @@ function updateTrunk(trunks: TrunkApi) {
 }
 
 function getTrunk(trunks: TrunkApi) {
-  return getResource<TrunkExtended, GetTrunkRequest, TrunkApi>(
-    trunks,
-    RESOURCE
-  );
+  return getResource<TrunkExtended, BaseApiObject, TrunkApi>(trunks, RESOURCE);
 }
 
 function listTrunks(trunks: TrunkApi) {
@@ -63,7 +59,7 @@ function listTrunks(trunks: TrunkApi) {
 }
 
 function deleteTrunk(trunks: TrunkApi) {
-  return deleteResource<TrunkExtended, DeleteTrunkRequest, TrunkApi>(
+  return deleteResource<TrunkExtended, BaseApiObject, TrunkApi>(
     trunks,
     RESOURCE
   );

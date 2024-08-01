@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ListRequest, ListResponse } from "./common";
+
 enum ApiRoleEnum {
   WORKSPACE_ADMIN = "WORKSPACE_ADMIN"
 }
@@ -60,11 +62,6 @@ type RegenerateApiKeyResponse = {
   accessKeySecret: string;
 };
 
-type ListApiKeysRequest = {
-  pageSize: number;
-  pageToken: string;
-};
-
 type ApiKey = {
   ref: string;
   accessKeyId: string;
@@ -74,10 +71,9 @@ type ApiKey = {
   updatedAt: Date;
 };
 
-type ListApiKeysResponse = {
-  items: ApiKey[];
-  nextPageToken?: string;
-};
+type ListApiKeysRequest = ListRequest;
+
+type ListApiKeysResponse = ListResponse<ApiKey>;
 
 export {
   ApiRoleEnum,

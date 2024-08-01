@@ -25,4 +25,14 @@ type NumberPreconditionsCheck = (request: {
   agentAor?: string;
 }) => Promise<void>;
 
-export { NumberPreconditionsCheck, BaseApiObject };
+type ListRequest = {
+  pageSize?: number;
+  pageToken?: string;
+};
+
+type ListResponse<R> = {
+  items: R[];
+  nextPageToken?: string;
+};
+
+export { NumberPreconditionsCheck, BaseApiObject, ListRequest, ListResponse };

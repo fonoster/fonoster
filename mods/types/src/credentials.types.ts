@@ -16,40 +16,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject } from "./common";
+import { BaseApiObject, ListRequest, ListResponse } from "./common";
+import { Flatten } from "./utils";
 
-type CredentialsExtended = {
+type Credentials = {
   ref: string;
   name: string;
   username: string;
   password: string;
-  extended?: Record<string, unknown>;
-  // FIXME: Should be a Date
-  createdAt?: number;
-  updatedAt?: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-type CreateCredentialsRequestExtended = {
+type CredentialsExtended = Credentials & {
+  extended?: Record<string, unknown>;
+};
+
+type CreateCredentialsRequest = {
   name: string;
   username: string;
   password: string;
-  extended: {
-    accessKeyId: string;
-  };
+  extended?: Record<string, unknown>;
 };
 
-type UpdateCredentialsRequest = BaseApiObject &
-  Omit<Partial<CreateCredentialsRequest>, "username" | "extended">;
-
-type ListCredentialsRequest = {
-  pageSize: number;
-  pageToken: string;
+type CreateCredentialsRequestExtended = CreateCredentialsRequest & {
+  extended?: Record<string, unknown>;
 };
 
-type ListCredentialsResponse = {
-  items: Credentials[];
-  nextPageToken: string;
-};
+type UpdateCredentialsRequest = Flatten<BaseApiObject & { name: string }>;
+
+type ListCredentialsRequest = ListRequest;
+
+type ListCredentialsResponse = ListResponse<Credentials>;
 
 type CredentialsApi = {
   createCredentials(
@@ -62,13 +60,6 @@ type CredentialsApi = {
     request: ListCredentialsRequest
   ): Promise<ListCredentialsResponse>;
 };
-
-type Credentials = Omit<CredentialsExtended, "extended">;
-
-type CreateCredentialsRequest = Omit<
-  CreateCredentialsRequestExtended,
-  "extended"
->;
 
 export {
   Credentials,

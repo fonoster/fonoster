@@ -16,10 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject } from "./common";
+import { BaseApiObject, ListRequest, ListResponse } from "./common";
 import { TrunkExtended } from "./trunks.types";
+import { Flatten } from "./utils";
 
-type INumberExtended = {
+type INumber = {
   ref: string;
   name: string;
   telUrl: string;
@@ -30,48 +31,40 @@ type INumberExtended = {
   sessionAffinityHeader: string;
   extraHeaders: { name: string; value: string }[];
   trunk?: TrunkExtended;
+  createdAt: Date;
+  updatedAt: Date;
   extended?: Record<string, unknown>;
-  // FIXME: Should be a Date
-  createdAt?: number;
-  updatedAt?: number;
 };
 
-type CreateNumberRequestExtended = {
+type INumberExtended = INumber & { extended?: Record<string, unknown> };
+
+type CreateNumberRequest = {
   name: string;
   telUrl: string;
   aorLink: string;
   city: string;
   country: string;
   countryIsoCode: string;
-  // FIXME: Fix upstream this should be an optional field
+};
+
+type CreateNumberRequestExtended = CreateNumberRequest & {
   sessionAffinityHeader: string;
-  extraHeaders: { name: string; value: string }[];
+  trunkRef?: string;
   extended?: Record<string, unknown>;
+  extraHeaders?: { name: string; value: string }[];
 };
 
-type UpdateNumberRequest = {
-  ref: string;
-} & Omit<
-  Partial<CreateNumberRequest>,
-  "telUrl" | "city" | "country" | "countryIsoCode" | "extended"
+type UpdateNumberRequest = Flatten<
+  BaseApiObject &
+    Omit<
+      Partial<CreateNumberRequest>,
+      "telUrl" | "city" | "country" | "countryIsoCode"
+    >
 >;
 
-type ListNumbersRequest = {
-  pageSize: number;
-  pageToken: string;
-};
+type ListNumbersRequest = ListRequest;
 
-type ListNumbersResponse = {
-  items: INumber[];
-  nextPageToken: string;
-};
-
-type INumber = Omit<INumberExtended, "extended">;
-
-type CreateNumberRequest = Omit<
-  CreateNumberRequestExtended,
-  "extended" | "sessionAffinityHeader"
->;
+type ListNumbersResponse = ListResponse<INumber>;
 
 type FCreateNumberRequest = {
   name: string;
@@ -79,6 +72,7 @@ type FCreateNumberRequest = {
   city: string;
   country: string;
   countryIsoCode: string;
+  trunkRef?: string;
   appRef?: string;
   agentAor?: string;
 };

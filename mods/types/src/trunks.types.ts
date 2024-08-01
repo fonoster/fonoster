@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import { Acl } from "./acls.types";
+import { BaseApiObject, ListRequest, ListResponse } from "./common";
 import { CredentialsExtended } from "./credentials.types";
+import { Flatten } from "./utils";
 
 enum Transport {
   UDP = "UDP",
@@ -38,7 +40,7 @@ type TrunkURI = {
   enabled: boolean;
 };
 
-type TrunkExtended = {
+type Trunk = {
   ref: string;
   name: string;
   sendRegister: boolean;
@@ -47,13 +49,15 @@ type TrunkExtended = {
   inboundCredentials?: CredentialsExtended;
   outboundCredentials?: CredentialsExtended;
   uris?: TrunkURI[];
-  extended?: Record<string, unknown>;
-  // FIXME: Should be a Date
-  createdAt?: number;
-  updatedAt?: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-type CreateTrunkRequestExtended = {
+type TrunkExtended = Trunk & {
+  extended?: Record<string, unknown>;
+};
+
+type CreateTrunkRequest = {
   name: string;
   sendRegister: boolean;
   inboundUri: string;
@@ -61,46 +65,21 @@ type CreateTrunkRequestExtended = {
   inboundCredentials?: CredentialsExtended;
   outboundCredentials?: CredentialsExtended;
   uris?: TrunkURI[];
+};
+
+type CreateTrunkRequestExtended = CreateTrunkRequest & {
   extended?: Record<string, unknown>;
 };
 
-type UpdateTrunkRequest = {
-  ref: string;
-} & Omit<Partial<CreateTrunkRequest>, "extended">;
+type UpdateTrunkRequest = Flatten<BaseApiObject & Partial<CreateTrunkRequest>>;
 
-type CreateTrunkResponse = {
-  ref: string;
-};
+type ListTrunksRequest = ListRequest;
 
-type UpdateTrunkResponse = {
-  ref: string;
-};
-
-type GetTrunkRequest = {
-  ref: string;
-};
-
-type DeleteTrunkRequest = {
-  ref: string;
-};
-
-type ListTrunksRequest = {
-  pageSize: number;
-  pageToken: string;
-};
-
-type ListTrunksResponse = {
-  items: Trunk[];
-  nextPageToken: string;
-};
-
-type Trunk = Omit<TrunkExtended, "extended">;
-
-type CreateTrunkRequest = Omit<CreateTrunkRequestExtended, "extended">;
+type ListTrunksResponse = ListResponse<Trunk>;
 
 type TrunkApi = {
-  createTrunk(request: CreateTrunkRequest): Promise<CreateTrunkResponse>;
-  updateTrunk(request: UpdateTrunkRequest): Promise<UpdateTrunkResponse>;
+  createTrunk(request: CreateTrunkRequest): Promise<BaseApiObject>;
+  updateTrunk(request: UpdateTrunkRequest): Promise<BaseApiObject>;
   getTrunk(ref: string): Promise<Trunk>;
   deleteTrunk(ref: string): Promise<void>;
   listTrunks(request: ListTrunksRequest): Promise<ListTrunksResponse>;
@@ -112,10 +91,6 @@ export {
   CreateTrunkRequest,
   CreateTrunkRequestExtended,
   UpdateTrunkRequest,
-  CreateTrunkResponse,
-  UpdateTrunkResponse,
-  GetTrunkRequest,
-  DeleteTrunkRequest,
   ListTrunksRequest,
   ListTrunksResponse,
   TrunkApi

@@ -16,52 +16,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject } from "./common";
+import { BaseApiObject, ListRequest, ListResponse } from "./common";
+import { Flatten } from "./utils";
 
-type AclExtended = {
+type Acl = {
   ref: string;
   name: string;
   allow: string[];
   deny: string[];
-  extended?: Record<string, unknown>;
-  // FIXME: Should be a Date
-  createdAt?: number;
-  updatedAt?: number;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-type CreateAclRequestExtended = {
+type AclExtended = Acl & { extended?: Record<string, unknown> };
+
+type CreateAclRequest = {
   name: string;
   allow: string[];
   deny: string[];
-  extended: {
-    accessKeyId: string;
-  };
 };
 
-type UpdateAclRequest = BaseApiObject &
-  Omit<Partial<CreateAclRequestExtended>, "extended">;
-
-type ListAclsRequest = {
-  pageSize: number;
-  pageToken: string;
+type CreateAclRequestExtended = CreateAclRequest & {
+  extended?: Record<string, unknown>;
 };
 
-type ListAclsResponse = {
-  items: Acl[];
-  nextPageToken: string;
-};
+type UpdateAclRequest = Flatten<BaseApiObject & Partial<CreateAclRequest>>;
 
-type Acl = Omit<AclExtended, "extended">;
+type ListAclsRequest = ListRequest;
 
-type CreateAclRequest = Omit<CreateAclRequestExtended, "extended">;
+type ListAclsResponse = ListResponse<Acl>;
 
-// TODO: Rename ACL to Acl upstream
 type AclsApi = {
-  createACL(request: CreateAclRequestExtended): Promise<BaseApiObject>;
-  updateACL(request: UpdateAclRequest): Promise<BaseApiObject>;
-  getACL(ref: string): Promise<AclExtended>;
-  deleteACL(ref: string): Promise<void>;
-  listACLs(request: ListAclsRequest): Promise<ListAclsResponse>;
+  createAcl(request: CreateAclRequestExtended): Promise<BaseApiObject>;
+  updateAcl(request: UpdateAclRequest): Promise<BaseApiObject>;
+  getAcl(ref: string): Promise<AclExtended>;
+  deleteAcl(ref: string): Promise<void>;
+  listAcls(request: ListAclsRequest): Promise<ListAclsResponse>;
 };
 
 export {

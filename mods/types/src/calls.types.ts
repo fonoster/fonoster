@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject } from ".";
+import { BaseApiObject, ListResponse } from "./common";
 
 const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
 
@@ -66,9 +66,8 @@ type CallDetailRecord = {
   to: string;
   duration: number;
   direction: CallDirection;
-  // FIXME: This should be a Date
-  startedAt: number;
-  endedAt: number;
+  startedAt: Date;
+  endedAt: Date;
 };
 
 type ListCallsRequest = {
@@ -83,10 +82,7 @@ type ListCallsRequest = {
   pageToken?: string;
 };
 
-type ListCallsResponse = {
-  nextPageToken?: string;
-  items: CallDetailRecord[];
-};
+type ListCallsResponse = ListResponse<CallDetailRecord>;
 
 // If appRef is not provided, we will use the application associated
 // with the 'from' number
