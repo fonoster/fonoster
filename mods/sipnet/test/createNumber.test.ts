@@ -78,8 +78,7 @@ describe("@sipnet[sipnet/createNumber]", function () {
       country: call.request.country,
       countryIsoCode: call.request.countryIsoCode,
       extraHeaders: [{ name: APP_REF_HEADER, value: call.request.appRef }],
-      extended: { accessKeyId },
-      sessionAffinityHeader: ""
+      extended: { accessKeyId }
     });
   });
 

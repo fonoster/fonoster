@@ -28,8 +28,7 @@ type INumber = {
   city: string;
   country: string;
   countryIsoCode: string;
-  sessionAffinityHeader: string;
-  extraHeaders: { name: string; value: string }[];
+  extraHeaders?: { name: string; value: string }[];
   trunk?: TrunkExtended;
   createdAt: Date;
   updatedAt: Date;
@@ -48,7 +47,6 @@ type CreateNumberRequest = {
 };
 
 type CreateNumberRequestExtended = CreateNumberRequest & {
-  sessionAffinityHeader: string;
   trunkRef?: string;
   extended?: Record<string, unknown>;
   extraHeaders?: { name: string; value: string }[];
