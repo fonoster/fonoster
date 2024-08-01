@@ -30,7 +30,7 @@ import { getResource } from "../resources/getResource";
 import { listResources } from "../resources/listResources";
 import { updateResource } from "../resources/updateResource";
 
-const RESOURCE = "ACL";
+const RESOURCE = "Acl";
 
 function createAcl(acls: AclsApi) {
   return createResource<AclExtended, CreateAclRequest, AclsApi>(acls, RESOURCE);

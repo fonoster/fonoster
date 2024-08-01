@@ -27,7 +27,7 @@ import {
 import { ClientOptions } from "../types";
 
 function buildService(clientOptions: ClientOptions) {
-  const client = new SDK.ACL(clientOptions);
+  const client = new SDK.Acls(clientOptions);
 
   return {
     definition: {
