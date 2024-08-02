@@ -32,6 +32,7 @@ import {
   DeleteTrunkResponse as DeleteTrunkResponsePB,
   GetTrunkRequest as GetTrunkRequestPB,
   ListTrunksRequest as ListTrunksRequestPB,
+  TrunkURI,
   UpdateTrunkRequest as UpdateTrunkRequestPB
 } from "./generated/node/trunks_pb";
 
@@ -129,13 +130,22 @@ class Trunks {
     createTrunkRequest.setName(request.name);
     createTrunkRequest.setInboundUri(request.inboundUri);
     createTrunkRequest.setSendRegister(request.sendRegister);
-    // createAclRequest.setAccessControlListRef(?);
-    // createAclRequest.setInboundCredentialsRef(?);
-    // createAclRequest.setOutboundCredentialsRef(?);
-    // request.uris.forEach(uri => {
-    //   const uri = new CreateTrunkRequestPB.Uris();
-    //   createTrunkRequest.addUris(uri);
-    // }
+    createTrunkRequest.setAccessControlListRef(request.accessControlListRef);
+    createTrunkRequest.setInboundCredentialsRef(request.inboundCredentialsRef);
+    createTrunkRequest.setOutboundCredentialsRef(
+      request.outboundCredentialsRef
+    );
+    request.uris?.forEach((uri) => {
+      const current = new TrunkURI();
+      current.setHost(uri.host);
+      current.setPort(uri.port);
+      current.setTransport(uri.transport);
+      current.setUser(uri.user);
+      current.setWeight(uri.weight);
+      current.setPriority(uri.priority);
+      current.setEnabled(uri.enabled);
+      createTrunkRequest.addUris(current);
+    });
 
     return new Promise((resolve, reject) => {
       client.createTrunk(
@@ -181,7 +191,15 @@ class Trunks {
             reject(err);
             return;
           }
-          resolve(response.toObject());
+
+          const obj = response.toObject();
+          const outObj = {
+            ...obj,
+            uris: obj.urisList
+          };
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { urisList, ...rest } = outObj;
+          resolve(rest);
         }
       );
     });
@@ -235,13 +253,23 @@ class Trunks {
     updateTrunkRequest.setRef(request.ref);
     updateTrunkRequest.setName(request.name);
     updateTrunkRequest.setSendRegister(request.sendRegister);
-    // updateAclRequest.setAccessControlListRef(?);
-    // updateAclRequest.setInboundCredentialsRef(?);
-    // updateAclRequest.setOutboundCredentialsRef(?);
-    // request.uris.forEach(uri => {
-    //   const uri = new UpdateTrunkRequestPB.Uris();
-    //   updateTrunkRequest.addUris(uri);
-    // }
+    updateTrunkRequest.setAccessControlListRef(request.accessControlListRef);
+    updateTrunkRequest.setInboundCredentialsRef(request.inboundCredentialsRef);
+    updateTrunkRequest.setOutboundCredentialsRef(
+      request.outboundCredentialsRef
+    );
+    request.uris?.forEach((uri) => {
+      const current = new TrunkURI();
+      current.setHost(uri.host);
+      current.setPort(uri.port);
+      current.setTransport(uri.transport);
+      current.setUser(uri.user);
+      current.setWeight(uri.weight);
+      current.setPriority(uri.priority);
+      current.setEnabled(uri.enabled);
+      updateTrunkRequest.addUris(current);
+    });
+
     return new Promise((resolve, reject) => {
       client.updateTrunk(
         updateTrunkRequest,
@@ -295,9 +323,13 @@ class Trunks {
 
           const items = response.getItemsList().map((item) => {
             const obj = item.toObject();
-            return {
-              ...obj
+            const outObj = {
+              ...obj,
+              uris: obj.urisList
             };
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { urisList, ...rest } = outObj;
+            return rest;
           });
 
           resolve({

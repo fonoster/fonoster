@@ -45,15 +45,18 @@ type Trunk = {
   name: string;
   sendRegister: boolean;
   inboundUri?: string;
-  accessControlList?: Acl;
-  inboundCredentials?: CredentialsExtended;
-  outboundCredentials?: CredentialsExtended;
+  accessControlListRef?: string;
+  inboundCredentialsRef?: string;
+  outboundCredentialsRef?: string;
   uris?: TrunkURI[];
   createdAt: Date;
   updatedAt: Date;
 };
 
 type TrunkExtended = Trunk & {
+  accessControlList?: Acl;
+  inboundCredentials?: CredentialsExtended;
+  outboundCredentials?: CredentialsExtended;
   extended?: Record<string, unknown>;
 };
 
@@ -61,9 +64,9 @@ type CreateTrunkRequest = {
   name: string;
   sendRegister: boolean;
   inboundUri: string;
-  accessControlList?: Acl;
-  inboundCredentials?: CredentialsExtended;
-  outboundCredentials?: CredentialsExtended;
+  accessControlListRef?: string;
+  inboundCredentialsRef?: string;
+  outboundCredentialsRef?: string;
   uris?: TrunkURI[];
 };
 
