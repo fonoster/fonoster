@@ -49,11 +49,11 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
  *     await client.loginWithApiKey(apiKey);
  *
  *     const apiKeys = new SDK.ApiKeys(client);
@@ -91,16 +91,16 @@ class ApiKeys {
    * @param {ApiRoleEnum} request.role - The role of the ApiKey
    * @return {Promise<CreateApiKeyResponse>} - The response object that contains the reference to the created ApiKey
    * @example
-   *
-   * const request = {
-   *  role: "WORKSPACE_ADMIN"
-   * };
-   *
    * const apiKeys = new SDK.ApiKeys(client); // Existing client object
    *
-   * apiKeys.createApiKey(request)
-   * .then(console.log) // successful response
-   * .catch(console.error); // an error occurred
+   * const request = {
+   *   role: "WORKSPACE_ADMIN"
+   * };
+   *
+   * apiKeys
+   *   .createApiKey(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createApiKey(
     request: CreateApiKeyRequest
@@ -127,14 +127,14 @@ class ApiKeys {
    * @param {string} ref - The reference of the ApiKey to regenerate
    * @return {Promise<CreateApiKeyResponse>} - The response object that contains the reference to the regenerated ApiKey
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const apiKeys = new SDK.ApiKeys(client); // Existing client object
    *
-   * apiKeys.regenerateApiKey(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * apiKeys
+   *   .regenerateApiKey(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async regenerateApiKey(ref: string): Promise<CreateApiKeyResponse> {
     const client = this.client.getIdentityClient();
@@ -159,17 +159,17 @@ class ApiKeys {
    * @param {string} request.pageToken - The token to retrieve the next page of ApiKeys
    * @return {Promise<ListApiKeysResponse>} - The response object that contains the list of ApiKeys
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const apiKeys = new SDK.ApiKeys(client); // Existing client object
    *
-   * apiKeys.listApiKeys(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * apiKeys
+   *   .listApiKeys(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listApiKeys(request: ListApiKeysRequest): Promise<ListApiKeysResponse> {
     const applicationsClient = this.client.getIdentityClient();
@@ -194,14 +194,14 @@ class ApiKeys {
    * @param {string} ref - The reference of the ApiKey to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted ApiKey
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const apiKeys = new SDK.ApiKeys(client); // Existing client object
    *
-   * apiKeys.deleteApiKey(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * apiKeys
+   *   .deleteApiKey(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteApiKey(ref: string): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();

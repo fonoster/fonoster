@@ -63,9 +63,9 @@ In Node.js:
 
 ```typescript
 const SDK = require("@fonoster/sdk");
-const accessKeyId = "WO00000000000000000000000000000000";
-const endpoint = "api.fonoster.io";
-const client = new SDK.Client({ accessKeyId, endpoint });
+const ACCESS_KEY_ID = "WO00000000000000000000000000000000";
+const ENDPOINT = "api.fonoster.io";
+const client = new SDK.Client({ accessKeyId: ACCESS_KEY_ID, endpoint: ENDPOINT });
 ```
 
 When connecting to Fonoster's cloud services, you can omit the `endpoint` parameter.
@@ -74,9 +74,9 @@ In the browser:
 
 ```typescript
 const SDK = require("@fonoster/sdk");
-const accessKeyId = "WO00000000000000000000000000000000";
-const url = "https://api.fonoster.io/v1beta2";
-const client = new SDK.WebClient({ accessKeyId, url });
+const ACCESS_KEY_ID = "WO00000000000000000000000000000000";
+const URL = "https://api.fonoster.io/v1beta2";
+const client = new SDK.WebClient({ accessKeyId: ACCESS_KEY_ID, url: URL });
 ```
 
 When connecting to Fonoster's cloud services, you can omit the `url` parameter.
@@ -157,12 +157,12 @@ Constructs a new Acls object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
-    await client.loginWithApiKey(apiKey);
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
+    await client.loginWithApiKey(API_KEY);
 
     const acls = new SDK.Acls(client);
     const response = await acls.createAcl(request);
@@ -198,17 +198,18 @@ Creates a new Acl in the Workspace.
 
 **Example**  
 ```js
-const request = {
- name: "My ACL",
- allow: ["47.132.130.31"], // Allow only this IP
- deny: ["0.0.0.0/0"] // Deny all other IPs
-};
-
 const acls = new SDK.Acls(client); // Existing client object
 
-acls.createAcl(request)
-.then(console.log) // successful response
-.catch(console.error); // an error occurred
+const request = {
+  name: "My ACL",
+  allow: ["47.132.130.31"], // Allow only this IP
+  deny: ["0.0.0.0/0"] // Deny all other IPs
+};
+
+acls
+  .createAcl(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Acls+getAcl"></a>
 
@@ -224,13 +225,14 @@ Retrieves an existing Acl in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const acls = new SDK.Acls(client); // Existing client object
 
-acls.getAcl(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+acls
+  .getAcl(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Acls+updateAcl"></a>
 
@@ -250,18 +252,19 @@ Updates an existing Acl in the Workspace.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- name: "My ACL",
- allow: ["47.132.130.31"] // Allow only this IP
- deny: ["0.0.0.0/0"] // Deny all other IPs
-};
-
 const acls = new SDK.Acls(client); // Existing client object
 
-acl.updateAcl(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "My ACL",
+  allow: ["47.132.130.31"] // Allow only this IP
+  deny: ["0.0.0.0/0"] // Deny all other IPs
+};
+
+acls
+  .updateAcl(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Acls+listAcls"></a>
 
@@ -279,16 +282,17 @@ Retrieves a list of Acls from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const acls = new SDK.Acls(client); // Existing client object
 
-acls.listAcls(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+acls
+  .listAcls(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Acls+deleteAcl"></a>
 
@@ -305,13 +309,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const acls = new SDK.Acls(client); // Existing client object
 
-acls.deleteAcl(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+acls
+  .deleteAcl(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Agents"></a>
@@ -351,12 +356,12 @@ Constructs a new Agents object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
-    await client.loginWithApiKey(apiKey);
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
+    await client.loginWithApiKey(API_KEY);
 
     const agents = new SDK.Agents(client);
     const response = await agents.createAgent(request);
@@ -398,20 +403,21 @@ Creates a new Agent in the Workspace.
 
 **Example**  
 ```js
-const request = {
- name: "John Doe",
- username: "1001",
- privacy: "PRIVATE",
- enabled: true,
- maxContacts: 3
- domainRef: "00000000-0000-0000-0000-000000000000"
-};
-
 const agents = new SDK.Agents(client); // Existing client object
 
-agents.createAgent(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  name: "John Doe",
+  username: "1001",
+  privacy: "PRIVATE",
+  enabled: true,
+  maxContacts: 3
+  domainRef: "00000000-0000-0000-0000-000000000000"
+};
+
+agents
+  .createAgent(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Agents+getAgent"></a>
 
@@ -427,13 +433,14 @@ Retrieves an existing Agent in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const agents = new SDK.Agents(client); // Existing client object
 
-agents.getAgent(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+agents
+  .getAgent(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Agents+updateAgent"></a>
 
@@ -455,20 +462,21 @@ Updates an existing Agent in the Workspace.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- name: "John Doe",
- privacy: "PRIVATE",
- enabled: true,
- maxContacts: 3
- domainRef: "00000000-0000-0000-0000-000000000000"
-};
-
 const agents = new SDK.Agents(client); // Existing client object
 
-agents.updateAgent(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "John Doe",
+  privacy: "PRIVATE",
+  enabled: true,
+  maxContacts: 3
+  domainRef: "00000000-0000-0000-0000-000000000000"
+};
+
+agents
+  .updateAgent(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Agents+listAgents"></a>
 
@@ -486,16 +494,17 @@ Retrieves a list of Agents from a Workspace.
 
 **Example**  
 ```js
+const agents = new SDK.Agents(client); // Existing client object
+
 const request = {
  pageSize: 10,
  pageToken: "00000000-0000-0000-0000-000000000000"
 };
 
-const agents = new SDK.Agents(client); // Existing client object
-
-agents.listAgents(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+agents
+  .listAgents(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Agents+deleteAgent"></a>
 
@@ -512,13 +521,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const agents = new SDK.Agents(client); // Existing client object
 
-agents.deleteAgent(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+agents
+  .deleteAgent(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="ApiKeys"></a>
@@ -557,11 +567,11 @@ Constructs a new ApiKeys object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const apiKeys = new SDK.ApiKeys(client);
@@ -594,15 +604,16 @@ Creates a new ApiKey for a Workspace.
 
 **Example**  
 ```js
-const request = {
- role: "WORKSPACE_ADMIN"
-};
-
 const apiKeys = new SDK.ApiKeys(client); // Existing client object
 
-apiKeys.createApiKey(request)
-.then(console.log) // successful response
-.catch(console.error); // an error occurred
+const request = {
+  role: "WORKSPACE_ADMIN"
+};
+
+apiKeys
+  .createApiKey(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="ApiKeys+regenerateApiKey"></a>
 
@@ -619,13 +630,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const apiKeys = new SDK.ApiKeys(client); // Existing client object
 
-apiKeys.regenerateApiKey(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+apiKeys
+  .regenerateApiKey(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="ApiKeys+listApiKeys"></a>
 
@@ -643,16 +655,17 @@ Retrieves a list of ApiKeys from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const apiKeys = new SDK.ApiKeys(client); // Existing client object
 
-apiKeys.listApiKeys(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+apiKeys
+  .listApiKeys(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="ApiKeys+deleteApiKey"></a>
 
@@ -669,13 +682,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const apiKeys = new SDK.ApiKeys(client); // Existing client object
 
-apiKeys.deleteApiKey(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+apiKeys
+  .deleteApiKey(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Applications"></a>
@@ -715,11 +729,11 @@ Constructs a new Applications object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const apps = new SDK.Applications(client);
@@ -787,6 +801,8 @@ Creates a new Application in Fonoster. The only required fields are the name and
 
 **Example**  
 ```js
+const apps = new SDK.Applications(client); // Existing client object
+
 const request = {
   name: "My application",
   type: "PROGRAMMABLE_VOICE",
@@ -814,11 +830,10 @@ const request = {
   }
 };
 
-const apps = new SDK.Applications(client); // Existing client object
-
-apps.createApplication(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+apps
+  .createApplication(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Applications+getApplication"></a>
 
@@ -834,13 +849,14 @@ Retrieves an existing Application in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const apps = new SDK.Applications(client); // Existing client object
 
-apps.getApplication(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+apps
+  .getApplication(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Applications+updateApplication"></a>
 
@@ -869,17 +885,18 @@ Updates an existing application in Fonoster.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- name: "My application",
- appEndpoint: "myapp.mydomain.com"
-}
-
 const apps = new SDK.Applications(client); // Existing client object
 
-apps.updateApplication(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "My application",
+  appEndpoint: "myapp.mydomain.com"
+};
+
+apps
+  .updateApplication(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Applications+listApplications"></a>
 
@@ -897,16 +914,17 @@ Retrieves a list of Applications from Fonoster.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const apps = new SDK.Applications(client); // Existing client object
 
-apps.listApplications(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+apps
+  .listApplications(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Applications+deleteApplication"></a>
 
@@ -923,13 +941,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const apps = new SDK.Applications(client); // Existing client object
 
-apps.deleteApplication(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+apps
+  .deleteApplication(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Calls"></a>
@@ -967,13 +986,12 @@ Constructs a new Calls object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const username = "admin";
- const password = "yourpassword";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
-    await client.login({ username, password });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
+    await client.loginWithApiKey(apiKey);
 
     const calls = new SDK.Calls(client);
     const response = await apiKeys.createCall(request);
@@ -1009,17 +1027,18 @@ Creates a new Call in the Workspace.
 
 **Example**  
 ```js
-const request = {
- from: "8287854037",
- to: "+17853178070",
- appRef: "00000000-0000-0000-0000-000000000000"
-};
-
 const calls = new SDK.Calls(client); // Existing client object
 
-calls.createCall(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  from: "8287854037",
+  to: "+17853178070",
+  appRef: "00000000-0000-0000-0000-000000000000"
+};
+
+calls
+  .createCall(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Calls+getCall"></a>
 
@@ -1035,13 +1054,14 @@ Retrieves an existing Call in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const calls = new SDK.Calls(client); // Existing client object
 
-calls.getCall(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+calls
+  .getCall(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Calls+listCalls"></a>
 
@@ -1059,16 +1079,17 @@ Retrieves a list of Calls from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const calls = new SDK.Calls(client); // Existing client object
 
-calls.listCalls(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+calls
+  .listCalls(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Credentials"></a>
@@ -1108,11 +1129,11 @@ Constructs a new Credentials object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const credentials = new SDK.Credentials(client);
@@ -1149,17 +1170,18 @@ Creates a new set of Credentials in the Workspace.
 
 **Example**  
 ```js
-const request = {
- name: "My Credentials",
- username: "myusername",
- password: "mysecret"
-};
-
 const credentials = new SDK.Credentials(client); // Existing client object
 
-credentials.createCredentials(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  name: "My Credentials",
+  username: "myusername",
+  password: "mysecret"
+};
+
+credentials
+  .createCredentials(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Credentials+getCredentials"></a>
 
@@ -1175,13 +1197,14 @@ Retrieves an existing set of Credentials in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const credentials = new SDK.Credentials(client); // Existing client object
 
-credentials.getCredentials(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+credentials
+  .getCredentials(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Credentials+updateCredentials"></a>
 
@@ -1200,17 +1223,18 @@ Updates an existing set of Credentials in the Workspace.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- name: "My Credentials",
- password: "mysecret"
-};
-
 const credentials = new SDK.Credentials(client); // Existing client object
 
-credentials.updateCredentials(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "My Credentials",
+  password: "mysecret"
+};
+
+credentials
+   .updateCredentials(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Credentials+listCredentials"></a>
 
@@ -1228,16 +1252,17 @@ Retrieves a list of Credentials from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const credentials = new SDK.Credentials(client); // Existing client object
 
-credentials.listCredentials(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+credentials
+  .listCredentials(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Credentials+deleteCredentials"></a>
 
@@ -1254,13 +1279,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const credentials = new SDK.Credentials(client); // Existing client object
 
-credentials.deleteCredentials(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+credentials
+  .deleteCredentials(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Domains"></a>
@@ -1300,11 +1326,11 @@ Constructs a new Domains object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const domains = new SDK.Domains(client);
@@ -1343,16 +1369,17 @@ Creates a new Domain in the Workspace.
 
 **Example**  
 ```js
-const request = {
- name: "My Domain",
- domainUri: "sip.project.fonoster.io"
-};
-
 const domains = new SDK.Domains(client); // Existing client object
 
-domains.createDomain(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  name: "My Domain",
+  domainUri: "sip.project.fonoster.io"
+};
+
+domains
+  .createDomain(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Domains+getDomain"></a>
 
@@ -1368,13 +1395,14 @@ Retrieves an existing Domain in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const domains = new SDK.Domains(client); // Existing client object
 
-domains.getDomain(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+domains
+  .getDomain(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Domains+updateDomain"></a>
 
@@ -1397,16 +1425,17 @@ Updates an existing Domain in the Workspace.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- accessControlListRef: "00000000-0000-0000-0000-000000000001"
-};
-
 const domains = new SDK.Domains(client); // Existing client object
 
-domains.updateDomain(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  accessControlListRef: "00000000-0000-0000-0000-000000000001"
+};
+
+domains
+  .updateDomain(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Domains+listDomains"></a>
 
@@ -1424,16 +1453,17 @@ Retrieves a list of Domains from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const domains = new SDK.Domains(client); // Existing client object
 
-domains.listDomains(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+domains
+  .listDomains(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Domains+deleteDomain"></a>
 
@@ -1450,13 +1480,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const domains = new SDK.Domains(client); // Existing client object
 
-domains.deleteDomain(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+domains
+  .deleteDomain(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Numbers"></a>
@@ -1496,11 +1527,11 @@ Constructs a new Numbers object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const numbers = new SDK.Numbers(client);
@@ -1541,19 +1572,20 @@ Creates a new Number in the Workspace.
 
 **Example**  
 ```js
-const request = {
- name: "My Number",
- telUrl: "tel:+17853178070",
- city: "Asheville",
- country: "United States",
- countryIsoCode: "US"
-};
-
 const numbers = new SDK.Numbers(client); // Existing client object
 
-numbers.createNumber(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  name: "My Number",
+  telUrl: "tel:+17853178070",
+  city: "Asheville",
+  country: "United States",
+  countryIsoCode: "US"
+};
+
+numbers
+  .createNumber(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Numbers+getNumber"></a>
 
@@ -1569,13 +1601,14 @@ Retrieves an existing Number in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const numbers = new SDK.Numbers(client); // Existing client object
 
-numbers.getNumber(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+numbers
+  .getNumber(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Numbers+updateNumber"></a>
 
@@ -1593,16 +1626,17 @@ Updates an existing Number in the Workspace.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- name: "My Number"
-};
-
 const numbers = new SDK.Numbers(client); // Existing client object
 
-numbers.updateNumber(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "My Number"
+};
+
+numbers
+  .updateNumber(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Numbers+listNumbers"></a>
 
@@ -1620,16 +1654,17 @@ Retrieves a list of Numbers from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const numbers = new SDK.Numbers(client); // Existing client object
 
-numbers.listNumbers(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+numbers
+  .listNumbers(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Numbers+deleteNumber"></a>
 
@@ -1646,13 +1681,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const numbers = new SDK.Numbers(client); // Existing client object
 
-numbers.deleteDomain(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+numbers
+  .deleteNumber(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Secrets"></a>
@@ -1692,11 +1728,11 @@ Constructs a new Secrets object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const secrets = new SDK.Secrets(client);
@@ -1731,16 +1767,17 @@ Creates a new Secret in the Workspace.
 
 **Example**  
 ```js
-const request = {
- name: "FRIENDLY_NAME",
- secret: "mysecret"
-};
-
 const secrets = new SDK.Secrets(client); // Existing client object
 
-secrets.createSecret(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  name: "FRIENDLY_NAME",
+  secret: "mysecret"
+};
+
+secrets
+  .createSecret(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Secrets+getSecret"></a>
 
@@ -1756,13 +1793,14 @@ Retrieves an existing Secret in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const secrets = new SDK.Secrets(client); // Existing client object
 
-secrets.getSecret(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+secrets
+  .getSecret(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Secrets+updateSecret"></a>
 
@@ -1781,16 +1819,17 @@ Updates an existing Secret in the Workspace.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- secret: "mysecret"
-};
-
 const secrets = new SDK.Secrets(client); // Existing client object
 
-secrets.updateSecret(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  secret: "mysecret"
+};
+
+secrets
+  .updateSecret(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Secrets+listSecrets"></a>
 
@@ -1808,16 +1847,17 @@ Retrieves a list of Secrets from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const secrets = new SDK.Secrets(client); // Existing client object
 
-secrets.listSecrets(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+secrets
+  .listSecrets(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Secrets+deleteSecret"></a>
 
@@ -1834,13 +1874,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const secrets = new SDK.Secrets(client); // Existing client object
 
-secrets.deleteSecret(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+secrets
+  .deleteSecret(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Trunks"></a>
@@ -1880,11 +1921,11 @@ Constructs a new Trunks object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const trunks = new SDK.Trunks(client);
@@ -1931,26 +1972,27 @@ Creates a new Trunk in the Workspace.
 
 **Example**  
 ```js
-const request = {
- name: "My Trunk",
- inboundUri: "sip.company.fonoster.io"
- sendRegister: true
- uris: [{
-   host: "sip.company.fonoster.io",
-   port: 5060,
-   transport: "UDP",
-   user: "user",
-   weight: 0,
-   priority: 0,
-   enabled: true
- }]
-};
-
 const trunks = new SDK.Trunks(client); // Existing client object
 
-trunks.createTrunk(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  name: "My Trunk",
+  inboundUri: "sip.company.fonoster.io"
+  sendRegister: true
+  uris: [{
+    host: "sip.company.fonoster.io",
+    port: 5060,
+    transport: "UDP",
+    user: "user",
+    weight: 0,
+    priority: 0,
+    enabled: true
+  }]
+};
+
+trunks
+  .createTrunk(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Trunks+getTrunk"></a>
 
@@ -1966,13 +2008,14 @@ Retrieves an existing Trunk in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const trunks = new SDK.Trunks(client); // Existing client object
 
-trunks.getTrunk(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+trunks
+  .getTrunk(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Trunks+updateTrunk"></a>
 
@@ -2002,20 +2045,27 @@ Updates an existing Trunk in the Workspace.
 
 **Example**  
 ```js
+const trunks = new SDK.Trunks(client); // Existing client object
+
 const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- name: "My Trunk",
- sendRegister: true
- uris: [{
-   host: "sip.company.fonoster.io",
-   port: 5060,
-   transport: "UDP",
-   user: "user",
-   weight: 0,
-   priority: 0,
-   enabled: true
- }]
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "My Trunk",
+  sendRegister: true
+  uris: [{
+    host: "sip.company.fonoster.io",
+    port: 5060,
+    transport: "UDP",
+    user: "user",
+    weight: 0,
+    priority: 0,
+    enabled: true
+  }]
 };
+
+trunks
+  .updateTrunk(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Trunks+listTrunks"></a>
 
@@ -2033,16 +2083,17 @@ Retrieves a list of Trunks from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const trunks = new SDK.Trunks(client); // Existing client object
 
-trunks.listTrunks(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+trunks
+  .listTrunks(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Trunks+deleteTrunk"></a>
 
@@ -2059,13 +2110,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const trunks = new SDK.Trunks(client); // Existing client object
 
-trunks.deleteTrunk(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+trunks
+   .deleteTrunk(ref)
+   .then(console.log) // successful response
+   .catch(console.error); // an error occurred
 ```
 
 <a name="Users"></a>
@@ -2104,11 +2156,11 @@ Constructs a new Users object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const users = new SDK.Users(client);
@@ -2147,18 +2199,19 @@ Creates a new User in the Workspace.
 
 **Example**  
 ```js
-const request = {
- name: "John Doe",
- email: "john.doe@example.com",
- password: "password",
- avatar: "https://example.com/avatar.jpg"
-};
-
 const users = new SDK.Users(client); // Existing client object
 
-users.createUser(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  name: "John Doe",
+  email: "john.doe@example.com",
+  password: "password",
+  avatar: "https://example.com/avatar.jpg"
+};
+
+users
+  .createUser(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Users+getUser"></a>
 
@@ -2174,13 +2227,14 @@ Retrieves an existing User in the Workspace.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const users = new SDK.Users(client); // Existing client object
 
-users.getUser(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+users
+  .getUser(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Users+updateUser"></a>
 
@@ -2200,18 +2254,19 @@ Updates an existing User in the Workspace.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- name: "John Doe",
- password: "password",
- avatar: "https://example.com/avatar.jpg"
-};
-
 const users = new SDK.Users(client); // Existing client object
 
-users.updateUser(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "John Doe",
+  password: "password",
+  avatar: "https://example.com/avatar.jpg"
+};
+
+users
+  .updateUser(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Users+deleteUser"></a>
 
@@ -2228,13 +2283,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const users = new SDK.Users(client); // Existing client object
 
-users.deleteUser(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+users
+  .deleteUser(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 
 <a name="Workspaces"></a>
@@ -2277,11 +2333,11 @@ Constructs a new Workspaces object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
- const apiKey = "your-api-key";
- const accessKeyId = "00000000-0000-0000-0000-000000000000";
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
 
- try {
-    const client = SDK.Client({ accessKeyId });
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
     await client.loginWithApiKey(apiKey);
 
     const workspaces = new SDK.Workspaces(client);
@@ -2314,15 +2370,16 @@ Creates a new Workspace in the system.
 
 **Example**  
 ```js
-const request = {
- name: "My Workspace"
-};
-
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-workspaces.createWorkspace(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  name: "My Workspace"
+};
+
+workspaces
+  .createWorkspace(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Workspaces+getWorkspace"></a>
 
@@ -2338,13 +2395,14 @@ Retrieves an existing Workspace in the system.
 
 **Example**  
 ```js
-const ref = "00000000-0000-0000-0000-000000000000"
-
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-workspaces.getWorkspace(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+workspaces
+  .getWorkspace(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Workspaces+updateWorkspace"></a>
 
@@ -2362,16 +2420,17 @@ Updates an existing Workspace in the system.
 
 **Example**  
 ```js
-const request = {
- ref: "00000000-0000-0000-0000-000000000000",
- name: "My Workspace"
-};
-
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-workspaces.updateWorkspace(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "My Workspace"
+};
+
+workspaces
+  .updateWorkspace(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Workspaces+deleteWorkspace"></a>
 
@@ -2388,13 +2447,14 @@ Note that this operation is irreversible.
 
 **Example**  
 ```js
-const ref =  "00000000-0000-0000-0000-000000000000"
-
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-workspaces.deleteWorkspace(ref)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const ref = "00000000-0000-0000-0000-000000000000";
+
+workspaces
+  .deleteWorkspace(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Workspaces+listWorkspaces"></a>
 
@@ -2412,16 +2472,17 @@ Retrieves a list of Workspaces from a Workspace.
 
 **Example**  
 ```js
-const request = {
- pageSize: 10,
- pageToken: "00000000-0000-0000-0000-000000000000"
-};
-
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-workspaces.listWorkspaces(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+workspaces
+  .listWorkspaces(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Workspaces+inviteUserToWorkspace"></a>
 
@@ -2440,17 +2501,19 @@ Invites a User to a Workspace.
 
 **Example**  
 ```js
-const request = {
- workspaceRef: "00000000-0000-0000-0000-000000000000",
- email: "jane.doe@example.com",
- role: "WORKSPACE_MEMBER",
-};
-
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-workspaces.inviteUserToWorkspace(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const request = {
+  workspaceRef: "00000000-0000-0000-0000-000000000000",
+  email: "jane.doe@example.com",
+  role: "WORKSPACE_MEMBER",
+  password: "password" // Temporary password for the User. Leave empty to generate a random password
+};
+
+workspaces
+  .inviteUserToWorkspace(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Workspaces+resendWorkspaceMembershipInvitation"></a>
 
@@ -2466,13 +2529,14 @@ Resend a Workspace membership invitation.
 
 **Example**  
 ```js
-const userRef: "00000000-0000-0000-0000-000000000000";
-
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-workspaces.resendWorkspaceMembershipInvitation(request)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const userRef: "00000000-0000-0000-0000-000000000000";
+
+workspaces
+  .resendWorkspaceMembershipInvitation(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 <a name="Workspaces+removeUserFromWorkspace"></a>
 
@@ -2488,12 +2552,13 @@ Removes a User from a Workspace.
 
 **Example**  
 ```js
-const userRef = "00000000-0000-0000-0000-000000000000";
-
 const workspaces = new SDK.Workspaces(client); // Existing client object
 
-workspaces.removeUserFromWorkspace(userRef)
- .then(console.log) // successful response
- .catch(console.error); // an error occurred
+const userRef = "00000000-0000-0000-0000-000000000000";
+
+workspaces
+  .removeUserFromWorkspace(userRef)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
 ```
 

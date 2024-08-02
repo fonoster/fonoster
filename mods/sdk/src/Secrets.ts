@@ -49,11 +49,11 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
  *     await client.loginWithApiKey(apiKey);
  *
  *     const secrets = new SDK.Secrets(client);
@@ -93,17 +93,17 @@ class Secrets {
    * @param {string} request.secret - The secret of the Secret
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Secret
    * @example
-   *
-   * const request = {
-   *  name: "FRIENDLY_NAME",
-   *  secret: "mysecret"
-   * };
-   *
    * const secrets = new SDK.Secrets(client); // Existing client object
    *
-   * secrets.createSecret(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   name: "FRIENDLY_NAME",
+   *   secret: "mysecret"
+   * };
+   *
+   * secrets
+   *   .createSecret(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createSecret(request: CreateSecretRequest): Promise<BaseApiObject> {
     const client = this.client.getSecretsClient();
@@ -126,14 +126,14 @@ class Secrets {
    * @param {string} ref - The reference of the Secret to retrieve
    * @return {Promise<Acl>} - The response object that contains the Secret
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const secrets = new SDK.Secrets(client); // Existing client object
    *
-   * secrets.getSecret(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * secrets
+   *   .getSecret(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getSecret(ref: string) {
     const client = this.client.getSecretsClient();
@@ -159,17 +159,17 @@ class Secrets {
    * @param {string} request.secret - The secret of the Secret
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Secret
    * @example
-   *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  secret: "mysecret"
-   * };
-   *
    * const secrets = new SDK.Secrets(client); // Existing client object
    *
-   * secrets.updateSecret(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   secret: "mysecret"
+   * };
+   *
+   * secrets
+   *   .updateSecret(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateSecret(request: UpdateSecretRequest): Promise<BaseApiObject> {
     const client = this.client.getSecretsClient();
@@ -194,17 +194,17 @@ class Secrets {
    * @param {string} request.pageToken - The token to retrieve the next page of Secrets
    * @return {Promise<ListSecretsResponse>} - The response object that contains the list of Secrets
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const secrets = new SDK.Secrets(client); // Existing client object
    *
-   * secrets.listSecrets(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * secrets
+   *   .listSecrets(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listSecrets(request: ListSecretsRequest): Promise<ListSecretsResponse> {
     const client = this.client.getSecretsClient();
@@ -229,14 +229,14 @@ class Secrets {
    * @param {string} ref - The reference of the Secret to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Secret
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const secrets = new SDK.Secrets(client); // Existing client object
    *
-   * secrets.deleteSecret(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * secrets
+   *   .deleteSecret(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteSecret(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getSecretsClient();

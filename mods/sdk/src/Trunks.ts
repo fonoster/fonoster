@@ -45,11 +45,11 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
  *     await client.loginWithApiKey(apiKey);
  *
  *     const trunks = new SDK.Trunks(client);
@@ -101,27 +101,27 @@ class Trunks {
    * @param {boolean} request.uris[].enabled - Optional enabled of the Trunk
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Trunk
    * @example
-   *
-   * const request = {
-   *  name: "My Trunk",
-   *  inboundUri: "sip.company.fonoster.io"
-   *  sendRegister: true
-   *  uris: [{
-   *    host: "sip.company.fonoster.io",
-   *    port: 5060,
-   *    transport: "UDP",
-   *    user: "user",
-   *    weight: 0,
-   *    priority: 0,
-   *    enabled: true
-   *  }]
-   * };
-   *
    * const trunks = new SDK.Trunks(client); // Existing client object
    *
-   * trunks.createTrunk(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   name: "My Trunk",
+   *   inboundUri: "sip.company.fonoster.io"
+   *   sendRegister: true
+   *   uris: [{
+   *     host: "sip.company.fonoster.io",
+   *     port: 5060,
+   *     transport: "UDP",
+   *     user: "user",
+   *     weight: 0,
+   *     priority: 0,
+   *     enabled: true
+   *   }]
+   * };
+   *
+   * trunks
+   *   .createTrunk(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createTrunk(request: CreateTrunkRequest): Promise<BaseApiObject> {
     const client = this.client.getTrunksClient();
@@ -158,14 +158,14 @@ class Trunks {
    * @param {string} ref - The reference of the Trunk to retrieve
    * @return {Promise<Acl>} - The response object that contains the Trunk
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const trunks = new SDK.Trunks(client); // Existing client object
    *
-   * trunks.getTrunk(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * trunks
+   *   .getTrunk(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getTrunk(ref: string) {
     const client = this.client.getTrunksClient();
@@ -207,21 +207,27 @@ class Trunks {
    * @param {boolean} request.uris[].enabled - Optional enabled of the Trunk
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Trunk
    * @example
+   * const trunks = new SDK.Trunks(client); // Existing client object
    *
    * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  name: "My Trunk",
-   *  sendRegister: true
-   *  uris: [{
-   *    host: "sip.company.fonoster.io",
-   *    port: 5060,
-   *    transport: "UDP",
-   *    user: "user",
-   *    weight: 0,
-   *    priority: 0,
-   *    enabled: true
-   *  }]
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   name: "My Trunk",
+   *   sendRegister: true
+   *   uris: [{
+   *     host: "sip.company.fonoster.io",
+   *     port: 5060,
+   *     transport: "UDP",
+   *     user: "user",
+   *     weight: 0,
+   *     priority: 0,
+   *     enabled: true
+   *   }]
    * };
+   *
+   * trunks
+   *   .updateTrunk(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateTrunk(request: UpdateTrunkRequest): Promise<BaseApiObject> {
     const client = this.client.getTrunksClient();
@@ -259,17 +265,17 @@ class Trunks {
    * @param {string} request.pageToken - The token to retrieve the next page of Trunks
    * @return {Promise<ListTrunksResponse>} - The response object that contains the list of Trunks
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const trunks = new SDK.Trunks(client); // Existing client object
    *
-   * trunks.listTrunks(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * trunks
+   *   .listTrunks(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listTrunks(request: ListTrunksRequest): Promise<ListTrunksResponse> {
     const client = this.client.getTrunksClient();
@@ -310,14 +316,14 @@ class Trunks {
    * @param {string} ref - The reference of the Trunk to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Trunk
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const trunks = new SDK.Trunks(client); // Existing client object
    *
-   * trunks.deleteTrunk(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * trunks
+   *    .deleteTrunk(ref)
+   *    .then(console.log) // successful response
+   *    .catch(console.error); // an error occurred
    */
   async deleteTrunk(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getTrunksClient();

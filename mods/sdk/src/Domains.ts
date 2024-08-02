@@ -49,11 +49,11 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
  *     await client.loginWithApiKey(apiKey);
  *
  *     const domains = new SDK.Domains(client);
@@ -97,17 +97,17 @@ class Domains {
    * @param {string} request.egressPolicy[].numberRef - The Number that will be used to send the call to the PSTN
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Domain
    * @example
-   *
-   * const request = {
-   *  name: "My Domain",
-   *  domainUri: "sip.project.fonoster.io"
-   * };
-   *
    * const domains = new SDK.Domains(client); // Existing client object
    *
-   * domains.createDomain(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   name: "My Domain",
+   *   domainUri: "sip.project.fonoster.io"
+   * };
+   *
+   * domains
+   *   .createDomain(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createDomain(request: CreateDomainRequest): Promise<BaseApiObject> {
     const client = this.client.getDomainsClient();
@@ -130,14 +130,14 @@ class Domains {
    * @param {string} ref - The reference of the Domain to retrieve
    * @return {Promise<Acl>} - The response object that contains the Domain
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const domains = new SDK.Domains(client); // Existing client object
    *
-   * domains.getDomain(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * domains
+   *   .getDomain(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getDomain(ref: string) {
     const client = this.client.getDomainsClient();
@@ -167,17 +167,17 @@ class Domains {
    * @param {string} request.egressPolicy[].numberRef - The Number that will be used to send the call to the PSTN
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Domain
    * @example
-   *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  accessControlListRef: "00000000-0000-0000-0000-000000000001"
-   * };
-   *
    * const domains = new SDK.Domains(client); // Existing client object
    *
-   * domains.updateDomain(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   accessControlListRef: "00000000-0000-0000-0000-000000000001"
+   * };
+   *
+   * domains
+   *   .updateDomain(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateDomain(request: UpdateDomainRequest): Promise<BaseApiObject> {
     const client = this.client.getDomainsClient();
@@ -202,17 +202,17 @@ class Domains {
    * @param {string} request.pageToken - The token to retrieve the next page of Domains
    * @return {Promise<ListDomainsResponse>} - The response object that contains the list of Domains
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const domains = new SDK.Domains(client); // Existing client object
    *
-   * domains.listDomains(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * domains
+   *   .listDomains(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listDomains(request: ListDomainsRequest): Promise<ListDomainsResponse> {
     const client = this.client.getDomainsClient();
@@ -237,14 +237,14 @@ class Domains {
    * @param {string} ref - The reference of the Domain to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Domain
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const domains = new SDK.Domains(client); // Existing client object
    *
-   * domains.deleteDomain(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * domains
+   *   .deleteDomain(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteDomain(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getDomainsClient();

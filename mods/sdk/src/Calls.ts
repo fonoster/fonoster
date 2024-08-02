@@ -49,13 +49,12 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const username = "admin";
- *  const password = "yourpassword";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
- *     await client.login({ username, password });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
+ *     await client.loginWithApiKey(apiKey);
  *
  *     const calls = new SDK.Calls(client);
  *     const response = await apiKeys.createCall(request);
@@ -96,18 +95,18 @@ class Calls {
    * @param {string} request.appRef - The reference of the App that will handle the call
    * @return {Promise<CreateCallResponse>} - The response object that contains the reference to the created Call
    * @example
-   *
-   * const request = {
-   *  from: "8287854037",
-   *  to: "+17853178070",
-   *  appRef: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const calls = new SDK.Calls(client); // Existing client object
    *
-   * calls.createCall(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   from: "8287854037",
+   *   to: "+17853178070",
+   *   appRef: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * calls
+   *   .createCall(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createCall(request: CreateCallRequest): Promise<BaseApiObject> {
     const client = this.client.getCallsClient();
@@ -132,14 +131,14 @@ class Calls {
    * @param {string} ref - The reference of the Call to retrieve
    * @return {Promise<Acl>} - The response object that contains the Call detail
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const calls = new SDK.Calls(client); // Existing client object
    *
-   * calls.getCall(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * calls
+   *   .getCall(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getCall(ref: string) {
     const client = this.client.getCallsClient();
@@ -170,17 +169,17 @@ class Calls {
    * @param {string} request.pageToken - The token to retrieve the next page of Calls
    * @return {Promise<ListCallsResponse>} - The response object that contains the list of Calls
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const calls = new SDK.Calls(client); // Existing client object
    *
-   * calls.listCalls(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * calls
+   *   .listCalls(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listCalls(request: ListCallsRequest): Promise<ListCallsResponse> {
     const client = this.client.getCallsClient();

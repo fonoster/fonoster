@@ -22,6 +22,7 @@ import {
   CreateAgentRequest,
   ListAgentsRequest,
   ListAgentsResponse,
+  Privacy,
   UpdateAgentRequest
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
@@ -35,7 +36,7 @@ import {
   GetAgentRequest as GetAgentRequestPB,
   ListAgentsRequest as ListAgentsRequestPB,
   ListAgentsResponse as ListAgentsResponsePB,
-  Privacy,
+  Privacy as PrivacyPB,
   UpdateAgentRequest as UpdateAgentRequestPB,
   UpdateAgentResponse as UpdateAgentResponsePB
 } from "./generated/node/agents_pb";
@@ -46,16 +47,15 @@ import {
  * Note that an active Fonoster deployment is required.
  *
  * @example
- *
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
- *     await client.loginWithApiKey(apiKey);
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
+ *     await client.loginWithApiKey(API_KEY);
  *
  *     const agents = new SDK.Agents(client);
  *     const response = await agents.createAgent(request);
@@ -102,21 +102,21 @@ class Agents {
    * @param {string} request.domainRef - The reference of the Domain to associate the Agent
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Agent
    * @example
-   *
-   * const request = {
-   *  name: "John Doe",
-   *  username: "1001",
-   *  privacy: "PRIVATE",
-   *  enabled: true,
-   *  maxContacts: 3
-   *  domainRef: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const agents = new SDK.Agents(client); // Existing client object
    *
-   * agents.createAgent(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   name: "John Doe",
+   *   username: "1001",
+   *   privacy: "PRIVATE",
+   *   enabled: true,
+   *   maxContacts: 3
+   *   domainRef: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * agents
+   *   .createAgent(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createAgent(request: CreateAgentRequest): Promise<BaseApiObject> {
     const client = this.client.getAgentsClient();
@@ -130,7 +130,7 @@ class Agents {
       requestPBObjectConstructor: CreateAgentRequestPB,
       metadata: this.client.getMetadata(),
       request,
-      enumMapping: [["privacy", Privacy]]
+      enumMapping: [["privacy", PrivacyPB]]
     });
   }
 
@@ -140,14 +140,14 @@ class Agents {
    * @param {string} ref - The reference of the Agent to retrieve
    * @return {Promise<Acl>} - The response object that contains the Agent information
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const agents = new SDK.Agents(client); // Existing client object
    *
-   * agents.getAgent(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * agents
+   *   .getAgent(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getAgent(ref: string) {
     const client = this.client.getAgentsClient();
@@ -160,7 +160,8 @@ class Agents {
       method: client.getAgent.bind(client),
       requestPBObjectConstructor: GetAgentRequestPB,
       metadata: this.client.getMetadata(),
-      request: { ref }
+      request: { ref },
+      enumMapping: [["privacy", Privacy]]
     });
   }
 
@@ -176,21 +177,21 @@ class Agents {
    * @param {string} request.domainRef - The reference of the Domain to associate the Agent
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Agent
    * @example
-   *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  name: "John Doe",
-   *  privacy: "PRIVATE",
-   *  enabled: true,
-   *  maxContacts: 3
-   *  domainRef: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const agents = new SDK.Agents(client); // Existing client object
    *
-   * agents.updateAgent(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   name: "John Doe",
+   *   privacy: "PRIVATE",
+   *   enabled: true,
+   *   maxContacts: 3
+   *   domainRef: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * agents
+   *   .updateAgent(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateAgent(request: UpdateAgentRequest): Promise<BaseApiObject> {
     const client = this.client.getAgentsClient();
@@ -204,7 +205,7 @@ class Agents {
       requestPBObjectConstructor: UpdateAgentRequestPB,
       metadata: this.client.getMetadata(),
       request,
-      enumMapping: [["privacy", Privacy]]
+      enumMapping: [["privacy", PrivacyPB]]
     });
   }
 
@@ -216,17 +217,17 @@ class Agents {
    * @param {string} request.pageToken - The token to retrieve the next page of Agents
    * @return {Promise<ListAgentsResponse>} - The response object that contains the list of Agents
    * @example
+   * const agents = new SDK.Agents(client); // Existing client object
    *
    * const request = {
    *  pageSize: 10,
    *  pageToken: "00000000-0000-0000-0000-000000000000"
    * };
    *
-   * const agents = new SDK.Agents(client); // Existing client object
-   *
-   * agents.listAgents(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * agents
+   *   .listAgents(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse> {
     const client = this.client.getAgentsClient();
@@ -251,14 +252,14 @@ class Agents {
    * @param {string} ref - The reference of the Agent to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Agent
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const agents = new SDK.Agents(client); // Existing client object
    *
-   * agents.deleteAgent(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * agents
+   *   .deleteAgent(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteAgent(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getAgentsClient();

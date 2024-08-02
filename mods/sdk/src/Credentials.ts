@@ -49,11 +49,11 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
  *     await client.loginWithApiKey(apiKey);
  *
  *     const credentials = new SDK.Credentials(client);
@@ -95,18 +95,18 @@ class Credentials {
    * @param {string} request.password - The password of the Credentials
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Credentials
    * @example
-   *
-   * const request = {
-   *  name: "My Credentials",
-   *  username: "myusername",
-   *  password: "mysecret"
-   * };
-   *
    * const credentials = new SDK.Credentials(client); // Existing client object
    *
-   * credentials.createCredentials(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   name: "My Credentials",
+   *   username: "myusername",
+   *   password: "mysecret"
+   * };
+   *
+   * credentials
+   *   .createCredentials(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createCredentials(
     request: CreateCredentialsRequest
@@ -131,14 +131,14 @@ class Credentials {
    * @param {string} ref - The reference of the Credentials to retrieve
    * @return {Promise<Acl>} - The response object that contains the Credentials
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const credentials = new SDK.Credentials(client); // Existing client object
    *
-   * credentials.getCredentials(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * credentials
+   *   .getCredentials(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getCredentials(ref: string) {
     const client = this.client.getCredentialsClient();
@@ -164,18 +164,18 @@ class Credentials {
    * @param {string} request.password - The password of the Credentials
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Credentials
    * @example
-   *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  name: "My Credentials",
-   *  password: "mysecret"
-   * };
-   *
    * const credentials = new SDK.Credentials(client); // Existing client object
    *
-   * credentials.updateCredentials(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   name: "My Credentials",
+   *   password: "mysecret"
+   * };
+   *
+   * credentials
+   *    .updateCredentials(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateCredentials(
     request: UpdateCredentialsRequest
@@ -202,17 +202,17 @@ class Credentials {
    * @param {string} request.pageToken - The token to retrieve the next page of Credentials
    * @return {Promise<ListCredentialsResponse>} - The response object that contains the list of Credentials
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const credentials = new SDK.Credentials(client); // Existing client object
    *
-   * credentials.listCredentials(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * credentials
+   *   .listCredentials(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listCredentials(
     request: ListCredentialsRequest
@@ -239,14 +239,14 @@ class Credentials {
    * @param {string} ref - The reference of the Credentials to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Credentials
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const credentials = new SDK.Credentials(client); // Existing client object
    *
-   * credentials.deleteCredentials(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * credentials
+   *   .deleteCredentials(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteCredentials(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getCredentialsClient();

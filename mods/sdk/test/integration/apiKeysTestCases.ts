@@ -63,7 +63,9 @@ function createApiKeysTestCases(expect) {
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("accessKeyId").to.not.be
             .null;
-          expect(response.items[0]).to.have.property("role").to.not.be.null;
+          expect(response.items[0])
+            .to.have.property("role")
+            .to.be.equal("WORKSPACE_ADMIN");
         }
       },
       {

@@ -52,11 +52,11 @@ import { buildStructOverride } from "./utils";
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
  *     await client.loginWithApiKey(apiKey);
  *
  *     const apps = new SDK.Applications(client);
@@ -129,6 +129,7 @@ class Applications {
    * @param {object} request.intelligence.config - The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" })
    * @return {Promise<CreateAppResponse>} - The response object that contains the reference to the newly created application
    * @example
+   * const apps = new SDK.Applications(client); // Existing client object
    *
    * const request = {
    *   name: "My application",
@@ -157,11 +158,10 @@ class Applications {
    *   }
    * };
    *
-   * const apps = new SDK.Applications(client); // Existing client object
-   *
-   * apps.createApplication(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * apps
+   *   .createApplication(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createApplication(
     request: CreateApplicationRequest
@@ -194,14 +194,14 @@ class Applications {
    * @param {string} ref - The reference of the Application to retrieve
    * @return {Promise<Application>} - The response object that contains the Application information
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const apps = new SDK.Applications(client); // Existing client object
    *
-   * apps.getApplication(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * apps
+   *   .getApplication(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getApplication(ref: string): Promise<Application> {
     const applicationsClient = this.client.getApplicationsClient();
@@ -237,18 +237,18 @@ class Applications {
    * @param {object} request.intelligence.config - The configuration object for the intelligence engine (e.g., { agentId: "your-agent-id" })
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated application
    * @example
-   *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  name: "My application",
-   *  appEndpoint: "myapp.mydomain.com"
-   * }
-   *
    * const apps = new SDK.Applications(client); // Existing client object
    *
-   * apps.updateApplication(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   name: "My application",
+   *   appEndpoint: "myapp.mydomain.com"
+   * };
+   *
+   * apps
+   *   .updateApplication(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateApplication(
     request: UpdateApplicationRequest
@@ -283,17 +283,17 @@ class Applications {
    * @param {string} request.pageToken - The token to retrieve the next page of Applications
    * @return {Promise<ListApplicationsResponse>} - The response object that contains the list of Applications
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const apps = new SDK.Applications(client); // Existing client object
    *
-   * apps.listApplications(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * apps
+   *   .listApplications(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listApplications(
     request: ListApplicationsRequest
@@ -320,14 +320,14 @@ class Applications {
    * @param {string} ref - The reference of the Application to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted application
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const apps = new SDK.Applications(client); // Existing client object
    *
-   * apps.deleteApplication(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * apps
+   *   .deleteApplication(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteApplication(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getApplicationsClient();

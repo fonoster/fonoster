@@ -49,11 +49,11 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
  *     await client.loginWithApiKey(apiKey);
  *
  *     const numbers = new SDK.Numbers(client);
@@ -99,20 +99,20 @@ class Numbers {
    * @param {string} request.countryIsoCode - The countryIsoCode of the Number
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Number
    * @example
-   *
-   * const request = {
-   *  name: "My Number",
-   *  telUrl: "tel:+17853178070",
-   *  city: "Asheville",
-   *  country: "United States",
-   *  countryIsoCode: "US"
-   * };
-   *
    * const numbers = new SDK.Numbers(client); // Existing client object
    *
-   * numbers.createNumber(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   name: "My Number",
+   *   telUrl: "tel:+17853178070",
+   *   city: "Asheville",
+   *   country: "United States",
+   *   countryIsoCode: "US"
+   * };
+   *
+   * numbers
+   *   .createNumber(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createNumber(request: CreateNumberRequest): Promise<BaseApiObject> {
     const client = this.client.getNumbersClient();
@@ -135,14 +135,14 @@ class Numbers {
    * @param {string} ref - The reference of the Number to retrieve
    * @return {Promise<Acl>} - The response object that contains the Number
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const numbers = new SDK.Numbers(client); // Existing client object
    *
-   * numbers.getNumber(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * numbers
+   *   .getNumber(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getNumber(ref: string) {
     const client = this.client.getNumbersClient();
@@ -167,17 +167,17 @@ class Numbers {
    * @param {string} request.name - The name of the Number
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Number
    * @example
-   *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  name: "My Number"
-   * };
-   *
    * const numbers = new SDK.Numbers(client); // Existing client object
    *
-   * numbers.updateNumber(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   name: "My Number"
+   * };
+   *
+   * numbers
+   *   .updateNumber(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateNumber(request: UpdateNumberRequest): Promise<BaseApiObject> {
     const client = this.client.getNumbersClient();
@@ -202,17 +202,17 @@ class Numbers {
    * @param {string} request.pageToken - The token to retrieve the next page of Numbers
    * @return {Promise<ListNumbersResponse>} - The response object that contains the list of Numbers
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const numbers = new SDK.Numbers(client); // Existing client object
    *
-   * numbers.listNumbers(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * numbers
+   *   .listNumbers(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listNumbers(request: ListNumbersRequest): Promise<ListNumbersResponse> {
     const client = this.client.getNumbersClient();
@@ -237,14 +237,14 @@ class Numbers {
    * @param {string} ref - The reference of the Number to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Number
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const numbers = new SDK.Numbers(client); // Existing client object
    *
-   * numbers.deleteDomain(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * numbers
+   *   .deleteNumber(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteNumber(ref: string): Promise<BaseApiObject> {
     const applicationsClient = this.client.getNumbersClient();

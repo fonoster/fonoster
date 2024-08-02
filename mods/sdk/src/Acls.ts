@@ -27,7 +27,6 @@ import {
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
-  Acl as AclPB,
   CreateAclRequest as CreateAclRequestPB,
   DeleteAclRequest as DeleteAclRequestPB,
   DeleteAclResponse as DeleteAclResponsePB,
@@ -42,16 +41,15 @@ import {
  * Note that an active Fonoster deployment is required.
  *
  * @example
- *
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
- *     await client.loginWithApiKey(apiKey);
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
+ *     await client.loginWithApiKey(API_KEY);
  *
  *     const acls = new SDK.Acls(client);
  *     const response = await acls.createAcl(request);
@@ -92,18 +90,18 @@ class Acls {
    * @param {string[]} request.deny - The list of IPs to deny
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Acl
    * @example
-   *
-   * const request = {
-   *  name: "My ACL",
-   *  allow: ["47.132.130.31"], // Allow only this IP
-   *  deny: ["0.0.0.0/0"] // Deny all other IPs
-   * };
-   *
    * const acls = new SDK.Acls(client); // Existing client object
    *
-   * acls.createAcl(request)
-   * .then(console.log) // successful response
-   * .catch(console.error); // an error occurred
+   * const request = {
+   *   name: "My ACL",
+   *   allow: ["47.132.130.31"], // Allow only this IP
+   *   deny: ["0.0.0.0/0"] // Deny all other IPs
+   * };
+   *
+   * acls
+   *   .createAcl(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createAcl(request: CreateAclRequest): Promise<BaseApiObject> {
     const client = this.client.getAclsClient();
@@ -133,22 +131,38 @@ class Acls {
    * @param {string} ref - The reference of the Acl to retrieve
    * @return {Promise<Acl>} - The response object that contains the Acl information
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const acls = new SDK.Acls(client); // Existing client object
    *
-   * acls.getAcl(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * acls
+   *   .getAcl(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getAcl(ref: string) {
+    const updateAclRequest = new GetAclRequestPB();
+    updateAclRequest.setRef(ref);
     const client = this.client.getAclsClient();
-    return await makeRpcRequest<GetAclRequestPB, AclPB, BaseApiObject, Acl>({
-      method: client.getAcl.bind(client),
-      requestPBObjectConstructor: GetAclRequestPB,
-      metadata: this.client.getMetadata(),
-      request: { ref }
+
+    return new Promise((resolve, reject) => {
+      client.getAcl(
+        updateAclRequest,
+        this.client.getMetadata(),
+        (err, response) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+
+          const obj = response.toObject();
+          resolve({
+            ...obj,
+            allow: obj.allowList,
+            deny: obj.denyList
+          });
+        }
+      );
     });
   }
 
@@ -162,19 +176,19 @@ class Acls {
    * @param {string[]} request.deny - The list of IPs to deny
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Acl
    * @example
-   *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  name: "My ACL",
-   *  allow: ["47.132.130.31"] // Allow only this IP
-   *  deny: ["0.0.0.0/0"] // Deny all other IPs
-   * };
-   *
    * const acls = new SDK.Acls(client); // Existing client object
    *
-   * acl.updateAcl(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   name: "My ACL",
+   *   allow: ["47.132.130.31"] // Allow only this IP
+   *   deny: ["0.0.0.0/0"] // Deny all other IPs
+   * };
+   *
+   * acls
+   *   .updateAcl(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateAcl(request: UpdateAclRequest): Promise<BaseApiObject> {
     const client = this.client.getAclsClient();
@@ -207,17 +221,17 @@ class Acls {
    * @param {string} request.pageToken - The token to retrieve the next page of Acls
    * @return {Promise<ListAclsResponse>} - The response object that contains the list of Acls
    * @example
-   *
-   * const request = {
-   *  pageSize: 10,
-   *  pageToken: "00000000-0000-0000-0000-000000000000"
-   * };
-   *
    * const acls = new SDK.Acls(client); // Existing client object
    *
-   * acls.listAcls(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   pageSize: 10,
+   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   * };
+   *
+   * acls
+   *   .listAcls(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async listAcls(request: ListAclsRequest): Promise<ListAclsResponse> {
     const client = this.client.getAclsClient();
@@ -260,14 +274,14 @@ class Acls {
    * @param {string} ref - The reference of the Acl to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted Acl
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const acls = new SDK.Acls(client); // Existing client object
    *
-   * acls.deleteAcl(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * acls
+   *   .deleteAcl(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteAcl(ref: string): Promise<BaseApiObject> {
     const client = this.client.getAclsClient();

@@ -43,11 +43,20 @@ function createAclsTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
+          expect(response).has.property("name");
+          expect(response)
+            .has.property("allow")
+            .to.be.an("array")
+            .to.have.lengthOf(1);
+          expect(response)
+            .has.property("deny")
+            .to.be.an("array")
+            .to.have.lengthOf(1);
         }
       },
       {
         id: `${idBase}-02`,
-        name: "should update the the acl",
+        name: "should update the acl",
         method: "updateAcl",
         request: {
           ref: "{{ref}}",
@@ -61,7 +70,7 @@ function createAclsTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten acls",
+        name: "should list at least one acls",
         method: "listAcls",
         request: {
           pageSize: 10,
@@ -75,8 +84,16 @@ function createAclsTestCases(expect) {
           expect(response).has.property("nextPageToken");
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
-          expect(response.items[0]).to.have.property("allow").to.not.be.null;
-          expect(response.items[0]).to.have.property("deny").to.not.be.null;
+          expect(response.items[0]).to.have.property("name").to.not.be.null;
+          expect(response.items[0])
+            .to.have.property("allow")
+            .to.be.an("array")
+            .to.have.lengthOf(1);
+          // FIXME: It is failing here
+          expect(response.items[0])
+            .to.have.property("deny")
+            .to.be.an("array")
+            .to.have.lengthOf(1);
         }
       },
       {

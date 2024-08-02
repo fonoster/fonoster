@@ -66,7 +66,10 @@ function createApplicationsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref").to.be.not.null;
           expect(response).has.property("name").to.be.not.null;
-          expect(response).has.property("type").to.be.not.null;
+          // FIXME: This is failing
+          expect(response)
+            .has.property("type")
+            .to.be.equal("PROGRAMMABLE_VOICE");
           expect(response).has.property("appEndpoint").to.be.not.null;
           expect(response).has.property("textToSpeech").to.be.not.null;
           expect(response).has.property("speechToText").to.be.not.null;
@@ -112,7 +115,9 @@ function createApplicationsTestCases(expect) {
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
-          expect(response.items[0]).to.have.property("type").to.not.be.null;
+          expect(response.items[0])
+            .to.have.property("type")
+            .to.be.equal("PROGRAMMABLE_VOICE");
           expect(response.items[0]).to.have.property("appEndpoint").to.not.be
             .null;
           expect(response.items[0]).to.have.property("textToSpeech").to.not.be

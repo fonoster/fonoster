@@ -45,11 +45,11 @@ import {
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *  const apiKey = "your-api-key";
- *  const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const API_KEY = "your-api-key";
+ *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
  *
- *  try {
- *     const client = SDK.Client({ accessKeyId });
+ *   try {
+ *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
  *     await client.loginWithApiKey(apiKey);
  *
  *     const users = new SDK.Users(client);
@@ -93,19 +93,19 @@ class Users {
    * @param {string} request.avatar - The avatar of the User
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created User
    * @example
-   *
-   * const request = {
-   *  name: "John Doe",
-   *  email: "john.doe@example.com",
-   *  password: "password",
-   *  avatar: "https://example.com/avatar.jpg"
-   * };
-   *
    * const users = new SDK.Users(client); // Existing client object
    *
-   * users.createUser(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   name: "John Doe",
+   *   email: "john.doe@example.com",
+   *   password: "password",
+   *   avatar: "https://example.com/avatar.jpg"
+   * };
+   *
+   * users
+   *   .createUser(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async createUser(request: CreateUserRequest): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
@@ -128,14 +128,14 @@ class Users {
    * @param {string} ref - The reference of the User to retrieve
    * @return {Promise<Acl>} - The response object that contains the User
    * @example
-   *
-   * const ref = "00000000-0000-0000-0000-000000000000"
-   *
    * const users = new SDK.Users(client); // Existing client object
    *
-   * users.getUser(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * users
+   *   .getUser(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async getUser(ref: string): Promise<User> {
     const client = this.client.getIdentityClient();
@@ -162,19 +162,19 @@ class Users {
    * @param {string} request.avatar - The avatar of the User
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated User
    * @example
-   *
-   * const request = {
-   *  ref: "00000000-0000-0000-0000-000000000000",
-   *  name: "John Doe",
-   *  password: "password",
-   *  avatar: "https://example.com/avatar.jpg"
-   * };
-   *
    * const users = new SDK.Users(client); // Existing client object
    *
-   * users.updateUser(request)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const request = {
+   *   ref: "00000000-0000-0000-0000-000000000000",
+   *   name: "John Doe",
+   *   password: "password",
+   *   avatar: "https://example.com/avatar.jpg"
+   * };
+   *
+   * users
+   *   .updateUser(request)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async updateUser(request: UpdateUserRequest): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
@@ -198,14 +198,14 @@ class Users {
    * @param {string} ref - The reference of the User to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted User
    * @example
-   *
-   * const ref =  "00000000-0000-0000-0000-000000000000"
-   *
    * const users = new SDK.Users(client); // Existing client object
    *
-   * users.deleteUser(ref)
-   *  .then(console.log) // successful response
-   *  .catch(console.error); // an error occurred
+   * const ref = "00000000-0000-0000-0000-000000000000";
+   *
+   * users
+   *   .deleteUser(ref)
+   *   .then(console.log) // successful response
+   *   .catch(console.error); // an error occurred
    */
   async deleteUser(ref: string): Promise<BaseApiObject> {
     const client = this.client.getIdentityClient();
