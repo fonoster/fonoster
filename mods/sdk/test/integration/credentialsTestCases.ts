@@ -77,8 +77,7 @@ function createCredentialsTestCases(expect) {
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0]).to.have.property("username").to.not.be.null;
-          // WARNING: Revision this, password should not be returned
-          // expect(response.items[0]).to.have.property("password").to.be.null;
+          expect(response.items[0]).to.not.have.property("password");
         }
       },
       {

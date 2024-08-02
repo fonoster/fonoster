@@ -12,9 +12,6 @@ export class Credentials extends jspb.Message {
   getUsername(): string;
   setUsername(value: string): Credentials;
 
-  getPassword(): string;
-  setPassword(value: string): Credentials;
-
   getCreatedAt(): number;
   setCreatedAt(value: number): Credentials;
 
@@ -34,7 +31,6 @@ export namespace Credentials {
     ref: string,
     name: string,
     username: string,
-    password: string,
     createdAt: number,
     updatedAt: number,
   }

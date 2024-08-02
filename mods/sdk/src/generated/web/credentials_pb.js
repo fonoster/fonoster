@@ -270,9 +270,8 @@ proto.fonoster.credentials.v1beta2.Credentials.toObject = function(includeInstan
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     username: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
+    createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -322,14 +321,10 @@ proto.fonoster.credentials.v1beta2.Credentials.deserializeBinaryFromReader = fun
       msg.setUsername(value);
       break;
     case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setPassword(value);
-      break;
-    case 5:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setCreatedAt(value);
       break;
-    case 6:
+    case 5:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setUpdatedAt(value);
       break;
@@ -383,24 +378,17 @@ proto.fonoster.credentials.v1beta2.Credentials.serializeBinaryToWriter = functio
       f
     );
   }
-  f = message.getPassword();
-  if (f.length > 0) {
-    writer.writeString(
-      4,
-      f
-    );
-  }
   f = message.getCreatedAt();
   if (f !== 0) {
     writer.writeInt64(
-      5,
+      4,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
     writer.writeInt64(
-      6,
+      5,
       f
     );
   }
@@ -462,29 +450,11 @@ proto.fonoster.credentials.v1beta2.Credentials.prototype.setUsername = function(
 
 
 /**
- * optional string password = 4;
- * @return {string}
- */
-proto.fonoster.credentials.v1beta2.Credentials.prototype.getPassword = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonoster.credentials.v1beta2.Credentials} returns this
- */
-proto.fonoster.credentials.v1beta2.Credentials.prototype.setPassword = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
-};
-
-
-/**
- * optional int64 created_at = 5;
+ * optional int64 created_at = 4;
  * @return {number}
  */
 proto.fonoster.credentials.v1beta2.Credentials.prototype.getCreatedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
@@ -493,16 +463,16 @@ proto.fonoster.credentials.v1beta2.Credentials.prototype.getCreatedAt = function
  * @return {!proto.fonoster.credentials.v1beta2.Credentials} returns this
  */
 proto.fonoster.credentials.v1beta2.Credentials.prototype.setCreatedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 5, value);
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional int64 updated_at = 6;
+ * optional int64 updated_at = 5;
  * @return {number}
  */
 proto.fonoster.credentials.v1beta2.Credentials.prototype.getUpdatedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
@@ -511,7 +481,7 @@ proto.fonoster.credentials.v1beta2.Credentials.prototype.getUpdatedAt = function
  * @return {!proto.fonoster.credentials.v1beta2.Credentials} returns this
  */
 proto.fonoster.credentials.v1beta2.Credentials.prototype.setUpdatedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
