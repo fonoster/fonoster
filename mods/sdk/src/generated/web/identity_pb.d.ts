@@ -361,34 +361,34 @@ export namespace GetUserRequest {
   }
 }
 
-export class GetUserResponse extends jspb.Message {
+export class User extends jspb.Message {
   getRef(): string;
-  setRef(value: string): GetUserResponse;
+  setRef(value: string): User;
 
   getEmail(): string;
-  setEmail(value: string): GetUserResponse;
+  setEmail(value: string): User;
 
   getName(): string;
-  setName(value: string): GetUserResponse;
+  setName(value: string): User;
 
   getAvatar(): string;
-  setAvatar(value: string): GetUserResponse;
+  setAvatar(value: string): User;
 
   getCreatedAt(): number;
-  setCreatedAt(value: number): GetUserResponse;
+  setCreatedAt(value: number): User;
 
   getUpdatedAt(): number;
-  setUpdatedAt(value: number): GetUserResponse;
+  setUpdatedAt(value: number): User;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): GetUserResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: GetUserResponse): GetUserResponse.AsObject;
-  static serializeBinaryToWriter(message: GetUserResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): GetUserResponse;
-  static deserializeBinaryFromReader(message: GetUserResponse, reader: jspb.BinaryReader): GetUserResponse;
+  toObject(includeInstance?: boolean): User.AsObject;
+  static toObject(includeInstance: boolean, msg: User): User.AsObject;
+  static serializeBinaryToWriter(message: User, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): User;
+  static deserializeBinaryFromReader(message: User, reader: jspb.BinaryReader): User;
 }
 
-export namespace GetUserResponse {
+export namespace User {
   export type AsObject = {
     ref: string,
     email: string,

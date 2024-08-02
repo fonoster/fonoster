@@ -431,28 +431,28 @@ export class IdentityClient {
     '/fonoster.identity.v1beta2.Identity/GetUser',
     grpcWeb.MethodType.UNARY,
     identity_pb.GetUserRequest,
-    identity_pb.GetUserResponse,
+    identity_pb.User,
     (request: identity_pb.GetUserRequest) => {
       return request.serializeBinary();
     },
-    identity_pb.GetUserResponse.deserializeBinary
+    identity_pb.User.deserializeBinary
   );
 
   getUser(
     request: identity_pb.GetUserRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.GetUserResponse>;
+    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.User>;
 
   getUser(
     request: identity_pb.GetUserRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: identity_pb.GetUserResponse) => void): grpcWeb.ClientReadableStream<identity_pb.GetUserResponse>;
+               response: identity_pb.User) => void): grpcWeb.ClientReadableStream<identity_pb.User>;
 
   getUser(
     request: identity_pb.GetUserRequest,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: identity_pb.GetUserResponse) => void) {
+               response: identity_pb.User) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +

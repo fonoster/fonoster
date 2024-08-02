@@ -30,9 +30,9 @@ import {
   DeleteUserRequest as DeleteUserRequestPB,
   DeleteUserResponse as DeleteUserResponsePB,
   GetUserRequest as GetUserRequestPB,
-  GetUserResponse as GetUserResponsePB,
   UpdateUserRequest as UpdateUserRequestPB,
-  UpdateUserResponse as UpdateUserResponsePB
+  UpdateUserResponse as UpdateUserResponsePB,
+  User as UserPB
 } from "./generated/node/identity_pb";
 
 /**
@@ -141,7 +141,7 @@ class Users {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
       GetUserRequestPB,
-      GetUserResponsePB,
+      UserPB,
       { ref: string },
       User
     >({

@@ -35,7 +35,6 @@ import {
   ExchangeRefreshTokenRequest,
   ExchangeRefreshTokenResponse,
   GetUserRequest,
-  GetUserResponse,
   GetWorkspaceRequest,
   InviteUserToWorkspaceRequest,
   InviteUserToWorkspaceResponse,
@@ -52,6 +51,7 @@ import {
   UpdateUserRequest,
   UpdateWorkspaceRequest,
   UpdateWorkspaceResponse,
+  User,
   Workspace
 } from "../../generated/web/identity_pb";
 import { ClientFunction } from "../types";
@@ -77,7 +77,7 @@ type IdentityClient = {
   >;
   // User
   createUser: ClientFunction<CreateUserRequest, CreateUserResponse>;
-  getUser: ClientFunction<GetUserRequest, GetUserResponse>;
+  getUser: ClientFunction<GetUserRequest, User>;
   updateUser: ClientFunction<UpdateUserRequest, CreateUserResponse>;
   deleteUser: ClientFunction<DeleteUserRequest, DeleteUserResponse>;
   // Workspaces

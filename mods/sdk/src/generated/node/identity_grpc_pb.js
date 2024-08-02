@@ -265,17 +265,6 @@ function deserialize_fonoster_identity_v1beta2_GetUserRequest(buffer_arg) {
   return identity_pb.GetUserRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_identity_v1beta2_GetUserResponse(arg) {
-  if (!(arg instanceof identity_pb.GetUserResponse)) {
-    throw new Error('Expected argument of type fonoster.identity.v1beta2.GetUserResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonoster_identity_v1beta2_GetUserResponse(buffer_arg) {
-  return identity_pb.GetUserResponse.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_fonoster_identity_v1beta2_GetWorkspaceRequest(arg) {
   if (!(arg instanceof identity_pb.GetWorkspaceRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.GetWorkspaceRequest');
@@ -485,6 +474,17 @@ function deserialize_fonoster_identity_v1beta2_UpdateWorkspaceResponse(buffer_ar
   return identity_pb.UpdateWorkspaceResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_User(arg) {
+  if (!(arg instanceof identity_pb.User)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.User');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_User(buffer_arg) {
+  return identity_pb.User.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_Workspace(arg) {
   if (!(arg instanceof identity_pb.Workspace)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.Workspace');
@@ -616,11 +616,11 @@ getUser: {
     requestStream: false,
     responseStream: false,
     requestType: identity_pb.GetUserRequest,
-    responseType: identity_pb.GetUserResponse,
+    responseType: identity_pb.User,
     requestSerialize: serialize_fonoster_identity_v1beta2_GetUserRequest,
     requestDeserialize: deserialize_fonoster_identity_v1beta2_GetUserRequest,
-    responseSerialize: serialize_fonoster_identity_v1beta2_GetUserResponse,
-    responseDeserialize: deserialize_fonoster_identity_v1beta2_GetUserResponse,
+    responseSerialize: serialize_fonoster_identity_v1beta2_User,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_User,
   },
   updateUser: {
     path: '/fonoster.identity.v1beta2.Identity/UpdateUser',
