@@ -63,7 +63,9 @@ function createCallsTestCases(expect) {
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
-          expect(response.items[0]).to.have.property("type").to.be.equal("call");
+          expect(response.items[0])
+            .to.have.property("type")
+            .to.be.equal("call");
         },
         skip: true
       }
