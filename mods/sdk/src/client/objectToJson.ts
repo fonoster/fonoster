@@ -43,7 +43,11 @@ function objectToJson<J extends Record<string, unknown>>(
           const repeatableKey = propName.slice(0, -4);
 
           json[repeatableKey] = (value as unknown[]).map((item) =>
-            objectToJson(item as new () => unknown)
+            objectToJson(
+              item as new () => unknown,
+              enumMapping,
+              repeatableObjectMapping
+            )
           );
         } else if (value !== undefined) {
           json[propName] = value;

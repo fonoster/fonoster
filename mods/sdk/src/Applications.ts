@@ -214,7 +214,8 @@ class Applications {
       method: applicationsClient.getApplication.bind(applicationsClient),
       requestPBObjectConstructor: GetApplicationRequestPB,
       metadata: this.client.getMetadata(),
-      request: { ref }
+      request: { ref },
+      enumMapping: [["type", ApplicationType]]
     });
   }
 
@@ -309,6 +310,7 @@ class Applications {
       requestPBObjectConstructor: ListApplicationsRequestPB,
       metadata: this.client.getMetadata(),
       request,
+      enumMapping: [["type", ApplicationType]],
       repeatableObjectMapping: [["itemsList", ApplicationPB]]
     });
   }

@@ -37,8 +37,9 @@ function getEnumKey(
   enumMapping: MappingTuple<unknown>
 ): string {
   const tuple = enumMapping.find((tuple) => tuple[0] === key);
-  // Take the value of the tuple and find the key
-  return Object.keys(tuple[1]).find((k) => tuple[1][k] === value) || "";
+  const result = Object.keys(tuple[1]).find((k) => tuple[1][k] === value) || "";
+  // Added to support the edge case of "PRIVATE" being returned as "ID"
+  return result === "PRIVATE" ? "ID" : result;
 }
 
 export { isMapping, getEnumValue, getEnumKey };

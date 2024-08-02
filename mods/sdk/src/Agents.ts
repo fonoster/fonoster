@@ -22,7 +22,6 @@ import {
   CreateAgentRequest,
   ListAgentsRequest,
   ListAgentsResponse,
-  Privacy,
   UpdateAgentRequest
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
@@ -161,7 +160,7 @@ class Agents {
       requestPBObjectConstructor: GetAgentRequestPB,
       metadata: this.client.getMetadata(),
       request: { ref },
-      enumMapping: [["privacy", Privacy]]
+      enumMapping: [["privacy", PrivacyPB]]
     });
   }
 
@@ -241,6 +240,7 @@ class Agents {
       requestPBObjectConstructor: ListAgentsRequestPB,
       metadata: this.client.getMetadata(),
       request,
+      enumMapping: [["privacy", PrivacyPB]],
       repeatableObjectMapping: [["itemsList", AgentPB]]
     });
   }

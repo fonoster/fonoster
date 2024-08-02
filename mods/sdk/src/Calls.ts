@@ -193,6 +193,12 @@ class Calls {
       requestPBObjectConstructor: ListCallsRequestPB,
       metadata: this.client.getMetadata(),
       request,
+      enumMapping: [
+        ["type", CallType],
+        ["callStatus", CallStatus],
+        ["hangupCause", HangupCause],
+        ["callDirection", CallDirection]
+      ],
       repeatableObjectMapping: [["itemsList", CallPB]]
     });
   }

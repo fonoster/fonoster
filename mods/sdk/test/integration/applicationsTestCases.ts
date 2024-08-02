@@ -66,7 +66,6 @@ function createApplicationsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref").to.be.not.null;
           expect(response).has.property("name").to.be.not.null;
-          // FIXME: This is failing
           expect(response)
             .has.property("type")
             .to.be.equal("PROGRAMMABLE_VOICE");
