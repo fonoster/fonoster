@@ -24,8 +24,8 @@ import {
 import { getLogger } from "@fonoster/logger";
 import {
   BaseApiObject,
-  FUpdateNumberRequest,
-  NumbersApi
+  NumbersApi,
+  UpdateNumberRequest
 } from "@fonoster/types";
 import { updateNumberRequestSchema } from "./validation";
 
@@ -36,7 +36,7 @@ function updateNumber(
   checkNumberPreconditions: NumberPreconditionsCheck
 ) {
   return async (
-    call: { request: FUpdateNumberRequest },
+    call: { request: UpdateNumberRequest },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
@@ -49,6 +49,7 @@ function updateNumber(
 
       logger.verbose("call to updateNumber", { request });
 
+      // FIXME: Need to convert to Routr INumber
       const response = await api.updateNumber(request);
 
       callback(null, response);

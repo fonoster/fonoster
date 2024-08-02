@@ -25,7 +25,7 @@ import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import {
   BaseApiObject,
-  FCreateNumberRequest,
+  CreateNumberRequest,
   NumbersApi
 } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -39,7 +39,7 @@ function createNumber(
   checkNumberPreconditions: NumberPreconditionsCheck
 ) {
   return async (
-    call: { request: FCreateNumberRequest },
+    call: { request: CreateNumberRequest },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;

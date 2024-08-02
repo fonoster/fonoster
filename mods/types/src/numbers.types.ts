@@ -24,32 +24,25 @@ type INumber = {
   ref: string;
   name: string;
   telUrl: string;
-  aorLink: string;
+  appRef?: string;
+  agentAor?: string;
   city: string;
   country: string;
   countryIsoCode: string;
-  extraHeaders?: { name: string; value: string }[];
-  trunk?: TrunkExtended;
+  trunkRef?: string;
   createdAt: Date;
   updatedAt: Date;
-  extended?: Record<string, unknown>;
 };
-
-type INumberExtended = INumber & { extended?: Record<string, unknown> };
 
 type CreateNumberRequest = {
   name: string;
   telUrl: string;
-  aorLink: string;
   city: string;
   country: string;
   countryIsoCode: string;
-};
-
-type CreateNumberRequestExtended = CreateNumberRequest & {
   trunkRef?: string;
-  extended?: Record<string, unknown>;
-  extraHeaders?: { name: string; value: string }[];
+  appRef?: string;
+  agentAor?: string;
 };
 
 type UpdateNumberRequest = Flatten<
@@ -60,27 +53,21 @@ type UpdateNumberRequest = Flatten<
     >
 >;
 
+type INumberExtended = Omit<INumber, "appRef" | "trunkRef"> & {
+  aorLink?: string;
+  trunk?: TrunkExtended;
+  extended?: Record<string, unknown>;
+};
+
+type CreateNumberRequestExtended = CreateNumberRequest & {
+  trunkRef?: string;
+  extended?: Record<string, unknown>;
+  extraHeaders?: { name: string; value: string }[];
+};
+
 type ListNumbersRequest = ListRequest;
 
 type ListNumbersResponse = ListResponse<INumber>;
-
-type FCreateNumberRequest = {
-  name: string;
-  telUrl: string;
-  city: string;
-  country: string;
-  countryIsoCode: string;
-  trunkRef?: string;
-  appRef?: string;
-  agentAor?: string;
-};
-
-type FUpdateNumberRequest = {
-  ref: string;
-  name?: string;
-  appRef?: string;
-  agentAor?: string;
-};
 
 type NumbersApi = {
   createNumber(request: CreateNumberRequestExtended): Promise<BaseApiObject>;
@@ -98,7 +85,5 @@ export {
   CreateNumberRequestExtended,
   UpdateNumberRequest,
   ListNumbersRequest,
-  ListNumbersResponse,
-  FCreateNumberRequest,
-  FUpdateNumberRequest
+  ListNumbersResponse
 };

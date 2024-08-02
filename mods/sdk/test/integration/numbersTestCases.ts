@@ -18,6 +18,7 @@
  */
 function createNumbersTestCases(expect) {
   const idBase = "numbers";
+  const country = "United States";
 
   return {
     api: "Numbers",
@@ -30,8 +31,9 @@ function createNumbersTestCases(expect) {
           name: "My Number",
           telUrl: `tel:+1${Math.floor(Math.random() * 10000000000)}`,
           city: "Asheville",
-          country: "United States",
-          countryIsoCode: "US"
+          country,
+          countryIsoCode: "US",
+          agentAor: "sip:1002@sip.local"
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
@@ -39,6 +41,20 @@ function createNumbersTestCases(expect) {
       },
       {
         id: `${idBase}-01`,
+        name: "should failed to create a number (application not found)",
+        method: "createNumber",
+        request: {
+          name: "My Number",
+          telUrl: `tel:+1${Math.floor(Math.random() * 10000000000)}`,
+          city: "Asheville",
+          country,
+          countryIsoCode: "US",
+          appRef: "00000000-0000-0000-0000-000000000000"
+        },
+        grpcCode: 5
+      },
+      {
+        id: `${idBase}-02`,
         name: "should get the number by ref",
         method: "getNumber",
         request: "{{ref}}",
@@ -48,12 +64,17 @@ function createNumbersTestCases(expect) {
           expect(response).has.property("name").to.be.equal("My Number");
           expect(response).has.property("telUrl").to.be.a("string");
           expect(response).has.property("city").to.be.equal("Asheville");
-          expect(response).has.property("country").to.be.equal("United States");
+          expect(response).has.property("country").to.be.equal(country);
           expect(response).has.property("countryIsoCode").to.be.equal("US");
+          expect(response)
+            .has.property("agentAor")
+            .to.be.equal("sip:1002@sip.local");
+          expect(response).to.not.have.property("trunk");
+          expect(response).to.not.have.property("appRef");
         }
       },
       {
-        id: `${idBase}-02`,
+        id: `${idBase}-03`,
         name: "should update the friendly name of the number",
         method: "updateNumber",
         request: {
@@ -67,7 +88,7 @@ function createNumbersTestCases(expect) {
         skip: true
       },
       {
-        id: `${idBase}-03`,
+        id: `${idBase}-04`,
         name: "should list at least one number",
         method: "listNumbers",
         request: {
@@ -82,17 +103,28 @@ function createNumbersTestCases(expect) {
           expect(response).has.property("nextPageToken");
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
-          expect(response.items[0]).to.have.property("name").to.not.be.null;
+          expect(response.items[0])
+            .to.have.property("name")
+            .to.be.equal("My Number");
           expect(response.items[0]).to.have.property("telUrl").to.not.be.null;
-          expect(response.items[0]).to.have.property("city").to.not.be.null;
-          expect(response.items[0]).to.have.property("country").to.not.be.null;
-          expect(response.items[0]).to.have.property("countryIsoCode").to.not.be
-            .null;
+          expect(response.items[0])
+            .to.have.property("city")
+            .to.be.equal("Asheville");
+          expect(response.items[0])
+            .to.have.property("country")
+            .to.be.equal(country);
+          expect(response.items[0])
+            .to.have.property("countryIsoCode")
+            .to.be.equal("US");
+          expect(response.items[0])
+            .to.have.property("agentAor")
+            .to.be.equal("sip:1001@sip.local");
           expect(response.items[0]).to.not.have.property("trunk");
+          expect(response.items[0]).to.not.have.property("appRef");
         }
       },
       {
-        id: `${idBase}-04`,
+        id: `${idBase}-05`,
         name: "should delete the number",
         method: "deleteNumber",
         request: "{{ref}}",
@@ -102,7 +134,7 @@ function createNumbersTestCases(expect) {
         }
       },
       {
-        id: `${idBase}-05`,
+        id: `${idBase}-06`,
         name: "should fail to delete the number (not found)",
         method: "deleteNumber",
         request: "{{ref}}",
