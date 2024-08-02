@@ -95,7 +95,7 @@ function createWorkspacesTestCases(expect) {
         name: "should resend the workspace membership invitation",
         method: "resendWorkspaceMembershipInvitation",
         request: "{{userRef}}",
-        dependsOn: `${idBase}-00`,
+        dependsOn: `${idBase}-04`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("userRef");
         }
@@ -105,7 +105,7 @@ function createWorkspacesTestCases(expect) {
         name: "should remove user from the workspace",
         method: "removeUserFromWorkspace",
         request: "{{userRef}}",
-        dependsOn: `${idBase}-00`,
+        dependsOn: `${idBase}-04`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("userRef");
         }

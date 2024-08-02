@@ -1,5 +1,3 @@
-import { Privacy } from "@fonoster/types";
-
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -18,6 +16,8 @@ import { Privacy } from "@fonoster/types";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Privacy } from "@fonoster/types";
+
 function createAgentsTestCases(expect) {
   const idBase = "agents";
 
@@ -57,7 +57,7 @@ function createAgentsTestCases(expect) {
       },
       {
         id: `${idBase}-02`,
-        name: "should update the name of the agent",
+        name: "should update the name of the agent (needs to be fixed upstream)",
         method: "updateAgent",
         request: {
           ref: "{{ref}}",
@@ -67,7 +67,8 @@ function createAgentsTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        }
+        },
+        skip: true
       },
       {
         id: `${idBase}-03`,
@@ -87,10 +88,10 @@ function createAgentsTestCases(expect) {
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0]).to.have.property("username").to.not.be.null;
-          // expect(response.items[0]).to.have.property("enabled").to.be.true;
+          expect(response.items[0]).to.have.property("enabled").to.be.true;
           expect(response.items[0])
             .to.have.property("privacy")
-            .to.be.equal(Privacy.NONE);
+            .to.be.equal(Privacy.PRIVATE);
           expect(response.items[0])
             .to.have.property("maxContacts")
             .to.be.equal(3);

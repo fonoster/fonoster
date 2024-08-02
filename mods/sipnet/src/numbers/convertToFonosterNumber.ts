@@ -16,16 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject, INumberExtended, NumbersApi } from "@fonoster/types";
-import { deleteResource } from "../resources/deleteResource";
+import { INumber, INumberExtended } from "@fonoster/types";
+import { APP_REF_HEADER } from "../constants";
 
-const RESOURCE = "Number";
+function convertToFonosterNumber(number: INumberExtended): INumber {
+  const appRef = number.extraHeaders?.find(
+    (header) => header.name === APP_REF_HEADER
+  )?.value;
 
-function deleteNumber(numbers: NumbersApi) {
-  return deleteResource<INumberExtended, BaseApiObject, NumbersApi>(
-    numbers,
-    RESOURCE
-  );
+  return {
+    ref: number.ref,
+    name: number.name,
+    telUrl: number.telUrl,
+    appRef,
+    agentAor: appRef ? undefined : number.aorLink,
+    city: number.city,
+    country: number.country,
+    countryIsoCode: number.countryIsoCode,
+    trunkRef: number.trunk?.ref || undefined,
+    createdAt: number.createdAt,
+    updatedAt: number.updatedAt
+  };
 }
 
-export { deleteNumber };
+export { convertToFonosterNumber };

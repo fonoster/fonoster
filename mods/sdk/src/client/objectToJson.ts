@@ -36,6 +36,10 @@ function objectToJson<J extends Record<string, unknown>>(
       try {
         const value = obj[key]();
 
+        if (value === null || value === undefined || value === "") {
+          return;
+        }
+
         if (isMapping(propName, enumMapping)) {
           json[propName] = getEnumKey(propName, value as number, enumMapping);
         } else if (isMapping(propName, repeatableObjectMapping)) {

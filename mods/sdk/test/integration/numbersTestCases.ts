@@ -19,6 +19,7 @@
 function createNumbersTestCases(expect) {
   const idBase = "numbers";
   const country = "United States";
+  const agentAor = "sip:1001@sip.local";
 
   return {
     api: "Numbers",
@@ -33,7 +34,7 @@ function createNumbersTestCases(expect) {
           city: "Asheville",
           country,
           countryIsoCode: "US",
-          agentAor: "sip:1002@sip.local"
+          agentAor
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
@@ -66,9 +67,7 @@ function createNumbersTestCases(expect) {
           expect(response).has.property("city").to.be.equal("Asheville");
           expect(response).has.property("country").to.be.equal(country);
           expect(response).has.property("countryIsoCode").to.be.equal("US");
-          expect(response)
-            .has.property("agentAor")
-            .to.be.equal("sip:1002@sip.local");
+          expect(response).has.property("agentAor").to.be.equal(agentAor);
           expect(response).to.not.have.property("trunk");
           expect(response).to.not.have.property("appRef");
         }
@@ -118,7 +117,7 @@ function createNumbersTestCases(expect) {
             .to.be.equal("US");
           expect(response.items[0])
             .to.have.property("agentAor")
-            .to.be.equal("sip:1001@sip.local");
+            .to.be.equal(agentAor);
           expect(response.items[0]).to.not.have.property("trunk");
           expect(response.items[0]).to.not.have.property("appRef");
         }

@@ -53,10 +53,11 @@ type UpdateNumberRequest = Flatten<
     >
 >;
 
-type INumberExtended = Omit<INumber, "appRef" | "trunkRef"> & {
+type INumberExtended = Omit<INumber, "appRef" | "agentAor" | "trunkRef"> & {
   aorLink?: string;
   trunk?: TrunkExtended;
   extended?: Record<string, unknown>;
+  extraHeaders?: { name: string; value: string }[];
 };
 
 type CreateNumberRequestExtended = CreateNumberRequest & {

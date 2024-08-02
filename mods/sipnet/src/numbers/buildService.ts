@@ -19,7 +19,9 @@
 import { NumberPreconditionsCheck } from "@fonoster/common";
 import SDK from "@routr/sdk";
 import { createNumber } from "./createNumber";
-import { deleteNumber, getNumber, listNumbers } from "./operations";
+import { getNumber } from "./getNumber";
+import { listNumbers } from "./listNumbers";
+import { deleteNumber } from "./operations";
 import { updateNumber } from "./updateNumber";
 import { ClientOptions } from "../types";
 
