@@ -47,7 +47,7 @@ function createApiKeysTestCases(expect) {
       },
       {
         id: `${idBase}-02`,
-        name: "should list at least ten keys",
+        name: "should list at least one key",
         method: "listApiKeys",
         request: {
           pageSize: 10,

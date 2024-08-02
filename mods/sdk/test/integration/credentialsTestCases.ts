@@ -61,7 +61,7 @@ function createCredentialsTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten credentials",
+        name: "should list at least one set of credentials",
         method: "listCredentials",
         request: {
           pageSize: 10,

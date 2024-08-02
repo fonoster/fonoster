@@ -62,7 +62,7 @@ function createTrunksTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten trunks",
+        name: "should list at least one trunk",
         method: "listTrunks",
         request: {
           pageSize: 10,

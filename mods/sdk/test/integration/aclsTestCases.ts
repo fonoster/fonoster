@@ -70,7 +70,7 @@ function createAclsTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least one acls",
+        name: "should list at least one acl",
         method: "listAcls",
         request: {
           pageSize: 10,

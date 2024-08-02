@@ -71,7 +71,7 @@ function createAgentsTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten agents",
+        name: "should list at least one agent",
         method: "listAgents",
         request: {
           pageSize: 10,

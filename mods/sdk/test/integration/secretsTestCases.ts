@@ -41,7 +41,9 @@ function createSecretsTestCases(expect) {
         request: "{{ref}}",
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
+          expect(response).has.property("ref").to.not.be.null;
+          expect(response).has.property("name").to.be.equal("MY_SECRET");
+          expect(response).has.property("secret").to.be.equal("MY_SECRET");
         }
       },
       {
@@ -59,7 +61,7 @@ function createSecretsTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten secrets",
+        name: "should list at least one secret",
         method: "listSecrets",
         request: {
           pageSize: 10,
@@ -73,7 +75,12 @@ function createSecretsTestCases(expect) {
           expect(response).has.property("nextPageToken");
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
-          expect(response.items[0]).to.have.property("name").to.not.be.null;
+          expect(response.items[0])
+            .to.have.property("name")
+            .to.be.equal("MY_SECRET");
+          expect(response.items[0])
+            .to.have.property("secret")
+            .to.be.equal("MY_SECRET_UPDATED");
         }
       },
       {

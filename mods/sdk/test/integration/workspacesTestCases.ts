@@ -60,7 +60,7 @@ function createWorkspacesTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten workspaces",
+        name: "should list at least one workspace",
         method: "listWorkspaces",
         request: {
           pageSize: 10,

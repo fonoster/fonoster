@@ -44,7 +44,12 @@ function createNumbersTestCases(expect) {
         request: "{{ref}}",
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
+          expect(response).has.property("ref").to.not.be.null;
+          expect(response).has.property("name").to.be.equal("My Number");
+          expect(response).has.property("telUrl").to.be.a("string");
+          expect(response).has.property("city").to.be.equal("Asheville");
+          expect(response).has.property("country").to.be.equal("United States");
+          expect(response).has.property("countryIsoCode").to.be.equal("US");
         }
       },
       {
@@ -63,7 +68,7 @@ function createNumbersTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten numbers",
+        name: "should list at least one number",
         method: "listNumbers",
         request: {
           pageSize: 10,

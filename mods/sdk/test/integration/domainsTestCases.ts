@@ -42,6 +42,8 @@ function createDomainsTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
+          expect(response).has.property("name");
+          expect(response).has.property("domainUri");
         }
       },
       {
@@ -59,7 +61,7 @@ function createDomainsTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten domains",
+        name: "should list at least one domain",
         method: "listDomains",
         request: {
           pageSize: 10,

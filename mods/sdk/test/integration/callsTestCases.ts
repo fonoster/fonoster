@@ -48,7 +48,7 @@ function createCallsTestCases(expect) {
       },
       {
         id: `${idBase}-03`,
-        name: "should list at least ten calls",
+        name: "should list at least one call",
         method: "listCalls",
         request: {
           pageSize: 10,
