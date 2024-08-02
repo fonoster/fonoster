@@ -40,7 +40,7 @@ import {
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
 } from "./generated/node/applications_pb";
-import { buildStructOverride } from "./utils";
+import { buildStructOverride, buildStructOverrideReverse } from "./utils";
 
 /**
  * @classdesc Fonoster Applications, part of the Fonoster Voice Subsystem,
@@ -205,7 +205,8 @@ class Applications {
    */
   async getApplication(ref: string): Promise<Application> {
     const applicationsClient = this.client.getApplicationsClient();
-    return await makeRpcRequest<
+
+    const response = await makeRpcRequest<
       GetApplicationRequestPB,
       ApplicationPB,
       BaseApiObject,
@@ -215,8 +216,15 @@ class Applications {
       requestPBObjectConstructor: GetApplicationRequestPB,
       metadata: this.client.getMetadata(),
       request: { ref },
-      enumMapping: [["type", ApplicationType]]
+      enumMapping: [["type", ApplicationType]],
+      objectMapping: [
+        ["textToSpeech", ProductContainerPB],
+        ["speechToText", ProductContainerPB],
+        ["intelligence", ProductContainerPB]
+      ]
     });
+
+    return buildStructOverrideReverse(response);
   }
 
   /**
@@ -255,8 +263,8 @@ class Applications {
     request: UpdateApplicationRequest
   ): Promise<BaseApiObject> {
     const reqWithStructOverride = buildStructOverride(request);
-
     const applicationsClient = this.client.getApplicationsClient();
+
     return await makeRpcRequest<
       UpdateApplicationRequestPB,
       UpdateApplicationResponsePB,
@@ -300,7 +308,7 @@ class Applications {
     request: ListApplicationsRequest
   ): Promise<ListApplicationsResponse> {
     const applicationsClient = this.client.getApplicationsClient();
-    return await makeRpcRequest<
+    const response = await makeRpcRequest<
       ListApplicationsRequestPB,
       ListApplicationsResponsePB,
       ListApplicationsRequest,
@@ -313,6 +321,11 @@ class Applications {
       enumMapping: [["type", ApplicationType]],
       repeatableObjectMapping: [["itemsList", ApplicationPB]]
     });
+
+    return {
+      items: response.items.map(buildStructOverrideReverse),
+      nextPageToken: response.nextPageToken
+    };
   }
 
   /**

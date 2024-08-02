@@ -18,7 +18,7 @@
  */
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 
-type CreateOrUpdateRequest = {
+type PartialApplicationInput = {
   textToSpeech?: {
     config: { [key: string]: unknown };
   } | null;
@@ -31,7 +31,7 @@ type CreateOrUpdateRequest = {
   } | null;
 };
 
-function buildStructOverride<T extends CreateOrUpdateRequest>(request: T): T {
+function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
   return {
     ...request,
     textToSpeech: request.textToSpeech
@@ -64,4 +64,44 @@ function buildStructOverride<T extends CreateOrUpdateRequest>(request: T): T {
   };
 }
 
-export { buildStructOverride };
+// TODO: Improve type safety
+function buildStructOverrideReverse(request) {
+  const result = {
+    ...request,
+    textToSpeech: request.textToSpeech
+      ? {
+          ...request.textToSpeech,
+          config: request.textToSpeech.config
+            ? request.textToSpeech.config.toJavaScript()
+            : undefined
+        }
+      : undefined,
+    speechToText: request.speechToText
+      ? {
+          ...request.speechToText,
+          config: request.speechToText.config
+            ? request.speechToText.config.toJavaScript()
+            : undefined
+        }
+      : undefined,
+    intelligence: request.intelligence
+      ? {
+          ...request.intelligence,
+          credentials: request.intelligence.credentials
+            ? request.intelligence.credentials.toJavaScript()
+            : undefined,
+          config: request.intelligence.config
+            ? request.intelligence.config.toJavaScript()
+            : undefined
+        }
+      : undefined
+  };
+
+  Object.keys(result).forEach(
+    (key) => result[key] === undefined && delete result[key]
+  );
+
+  return result;
+}
+
+export { buildStructOverride, buildStructOverrideReverse };

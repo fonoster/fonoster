@@ -99,7 +99,7 @@ function createApplicationsTestCases(expect) {
       },
       {
         id: `${idBase}-04`,
-        name: "should list at least one application (xxx needs fixing)",
+        name: "should list at least one application",
         method: "listApplications",
         request: {
           pageSize: 10,

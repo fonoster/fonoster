@@ -63,6 +63,7 @@ function makeRpcRequest<
       const json = objectToJson<Response>(
         responsePB as unknown as new () => unknown,
         enumMapping,
+        objectMapping,
         repeatableObjectMapping
       );
 

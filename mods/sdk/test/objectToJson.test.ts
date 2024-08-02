@@ -82,6 +82,7 @@ describe("@sdk[client/objectToJson]", function () {
     const result = objectToJson<CreateExampleResponse>(
       obj,
       [["baz", ExampleEnum]],
+      null,
       [["itemsList", RepeatableObject]]
     );
 

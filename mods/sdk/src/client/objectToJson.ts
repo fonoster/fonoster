@@ -22,6 +22,7 @@ import { getEnumKey, isMapping } from "./utils";
 function objectToJson<J extends Record<string, unknown>>(
   obj: new () => unknown,
   enumMapping?: MappingTuple<unknown>,
+  objectMapping?: MappingTuple<unknown>,
   repeatableObjectMapping?: MappingTuple<unknown>
 ): J {
   const json: Record<string, unknown> = {};
@@ -42,6 +43,13 @@ function objectToJson<J extends Record<string, unknown>>(
 
         if (isMapping(propName, enumMapping)) {
           json[propName] = getEnumKey(propName, value as number, enumMapping);
+        } else if (isMapping(propName, objectMapping)) {
+          json[propName] = objectToJson(
+            value as new () => unknown,
+            enumMapping,
+            objectMapping,
+            repeatableObjectMapping
+          );
         } else if (isMapping(propName, repeatableObjectMapping)) {
           // Remove the "List" ending from the key
           const repeatableKey = propName.slice(0, -4);
@@ -50,6 +58,7 @@ function objectToJson<J extends Record<string, unknown>>(
             objectToJson(
               item as new () => unknown,
               enumMapping,
+              objectMapping,
               repeatableObjectMapping
             )
           );

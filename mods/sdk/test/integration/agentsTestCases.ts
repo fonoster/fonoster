@@ -16,8 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Privacy } from "@fonoster/types";
-
 function createAgentsTestCases(expect) {
   const idBase = "agents";
 
@@ -48,7 +46,7 @@ function createAgentsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref").to.not.be.null;
           expect(response).has.property("name").to.not.be.null;
-          expect(response).has.property("privacy").to.be.equal(Privacy.PRIVATE);
+          expect(response).has.property("privacy").to.be.equal("ID");
           expect(response).has.property("enabled").to.be.true;
           expect(response).has.property("maxContacts").to.be.equal(3);
           expect(response).has.property("username").to.not.be.null;
@@ -91,7 +89,7 @@ function createAgentsTestCases(expect) {
           expect(response.items[0]).to.have.property("enabled").to.be.true;
           expect(response.items[0])
             .to.have.property("privacy")
-            .to.be.equal(Privacy.PRIVATE);
+            .to.be.equal("ID");
           expect(response.items[0])
             .to.have.property("maxContacts")
             .to.be.equal(3);
