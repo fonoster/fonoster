@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CreateNumberRequest } from "@fonoster/types";
+import { CreateNumberRequest, UpdateNumberRequest } from "@fonoster/types";
 import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "../constants";
 
 function convertToRoutrNumber(
@@ -42,4 +42,20 @@ function convertToRoutrNumber(
   };
 }
 
-export { convertToRoutrNumber };
+function convertToRoutrNumberUpdate(number: UpdateNumberRequest) {
+  return {
+    ref: number.ref,
+    name: number.name,
+    aorLink: number.agentAor,
+    extraHeaders: number.appRef
+      ? [
+          {
+            name: APP_REF_HEADER,
+            value: number.appRef
+          }
+        ]
+      : []
+  };
+}
+
+export { convertToRoutrNumber, convertToRoutrNumberUpdate };

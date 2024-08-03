@@ -27,6 +27,7 @@ import {
   NumbersApi,
   UpdateNumberRequest
 } from "@fonoster/types";
+import { convertToRoutrNumberUpdate } from "./convertToRoutrNumber";
 import { updateNumberRequestSchema } from "./validation";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
@@ -47,10 +48,11 @@ function updateNumber(
       // Validates that the appRef or agentAor exists in the system
       await checkNumberPreconditions(request);
 
-      logger.verbose("call to updateNumber", { request });
+      logger.verbose("call to updateNumber", { ...request });
 
-      // FIXME: Need to convert to Routr INumber
-      const response = await api.updateNumber(request);
+      const response = await api.updateNumber(
+        convertToRoutrNumberUpdate(request)
+      );
 
       callback(null, response);
     } catch (e) {

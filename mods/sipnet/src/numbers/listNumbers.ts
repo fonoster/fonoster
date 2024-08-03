@@ -34,7 +34,7 @@ function listNumbers(api: NumbersApi) {
   ) => {
     const { request } = call;
 
-    logger.verbose("call to listNumbers", { request });
+    logger.verbose("call to listNumbers", { ...request });
 
     try {
       const response = await api.listNumbers(request);

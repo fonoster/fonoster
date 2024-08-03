@@ -47,7 +47,7 @@ function createCredentialsTestCases(expect) {
       },
       {
         id: `${idBase}-02`,
-        name: "should update the name of the credential (needs fixing upstream)",
+        name: "should update the name of the credential",
         method: "updateCredentials",
         request: {
           ref: "{{ref}}",
@@ -57,8 +57,7 @@ function createCredentialsTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        },
-        skip: true
+        }
       },
       {
         id: `${idBase}-03`,

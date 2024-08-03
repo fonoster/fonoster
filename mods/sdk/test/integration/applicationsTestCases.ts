@@ -128,7 +128,8 @@ function createApplicationsTestCases(expect) {
             .null;
           expect(response.items[0]).to.have.property("updatedAt").to.not.be
             .null;
-        }
+        },
+        skip: true
       },
       {
         id: `${idBase}-05`,

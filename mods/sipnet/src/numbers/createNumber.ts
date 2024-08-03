@@ -54,7 +54,7 @@ function createNumber(
         call as unknown as ServerInterceptingCall
       );
 
-      logger.verbose("call to createNumber", { request, accessKeyId });
+      logger.verbose("call to createNumber", { ...request, accessKeyId });
 
       const response = await api.createNumber(
         convertToRoutrNumber(request, accessKeyId)

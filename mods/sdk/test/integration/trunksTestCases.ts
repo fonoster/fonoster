@@ -75,17 +75,27 @@ function createTrunksTestCases(expect) {
       },
       {
         id: `${idBase}-02`,
-        name: "should update the name of the trunk (needs to be fixed upstream)",
+        name: "should update the name of the trunk",
         method: "updateTrunk",
         request: {
           ref: "{{ref}}",
-          name: "My New Trunk"
+          name: "My New Trunk",
+          uris: [
+            {
+              host: exampleHost,
+              port: 5060,
+              transport: "TCP",
+              user: "1001",
+              weight: 1,
+              priority: 1,
+              enabled: true
+            }
+          ]
         },
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        },
-        skip: true
+        }
       },
       {
         id: `${idBase}-03`,
@@ -119,7 +129,7 @@ function createTrunksTestCases(expect) {
             .to.be.equal(5060);
           expect(response.items[0].uris[0])
             .has.property("transport")
-            .to.be.equal("UDP");
+            .to.be.equal("TCP");
           expect(response.items[0].uris[0])
             .has.property("user")
             .to.be.equal("1001");

@@ -83,8 +83,7 @@ function createNumbersTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        },
-        skip: true
+        }
       },
       {
         id: `${idBase}-04`,
@@ -104,7 +103,7 @@ function createNumbersTestCases(expect) {
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0])
             .to.have.property("name")
-            .to.be.equal("My Number");
+            .to.be.equal("My New Number");
           expect(response.items[0]).to.have.property("telUrl").to.not.be.null;
           expect(response.items[0])
             .to.have.property("city")
