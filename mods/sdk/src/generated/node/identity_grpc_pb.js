@@ -610,8 +610,7 @@ createUser: {
     responseSerialize: serialize_fonoster_identity_v1beta2_CreateUserResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_CreateUserResponse,
   },
-  // TODO: Should get the User instead of GetUserResponse (renaming)
-getUser: {
+  getUser: {
     path: '/fonoster.identity.v1beta2.Identity/GetUser',
     requestStream: false,
     responseStream: false,
