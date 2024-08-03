@@ -347,6 +347,6 @@ export namespace ListAgentsResponse {
 }
 
 export enum Privacy { 
-  PRIVATE = 0,
-  NONE = 1,
+  NONE = 0,
+  PRIVATE = 1,
 }

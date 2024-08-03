@@ -2816,8 +2816,8 @@ proto.fonoster.agents.v1beta2.ListAgentsResponse.prototype.setNextPageToken = fu
  * @enum {number}
  */
 proto.fonoster.agents.v1beta2.Privacy = {
-  PRIVATE: 0,
-  NONE: 1
+  NONE: 0,
+  PRIVATE: 1
 };
 
 goog.object.extend(exports, proto.fonoster.agents.v1beta2);

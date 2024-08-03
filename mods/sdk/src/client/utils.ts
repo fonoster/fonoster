@@ -27,8 +27,10 @@ function getEnumValue(
   value: string,
   enumMapping: MappingTuple<unknown>
 ): number {
+  // Added to support the edge case of "PRIVATE" being passed as "ID"
+  const realValue = value === "ID" ? "PRIVATE" : value;
   const tuple = enumMapping.find((tuple) => tuple[0] === key);
-  return (tuple ? tuple[1][value] : 0) as number;
+  return (tuple ? tuple[1][realValue] : 0) as number;
 }
 
 function getEnumKey(

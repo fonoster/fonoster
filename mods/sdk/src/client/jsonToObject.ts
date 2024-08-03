@@ -36,7 +36,7 @@ function jsonToObject<J extends Record<string, unknown>, T>(params: {
   Object.keys(json).forEach((key) => {
     const setterName = `set${key.charAt(0).toUpperCase() + key.slice(1)}`;
 
-    if (!json[key]) {
+    if (json[key] === null || json[key] === undefined) {
       return;
     }
 

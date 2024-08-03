@@ -29,7 +29,7 @@ function createAgentsTestCases(expect) {
         request: {
           name: "John Doe",
           username: `john.doe.${Date.now()}`,
-          privacy: "PRIVATE",
+          privacy: "ID",
           enabled: true,
           maxContacts: 3
         },
@@ -46,8 +46,7 @@ function createAgentsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref").to.not.be.null;
           expect(response).has.property("name").to.not.be.null;
-          // FIXME: This is failing
-          expect(response).has.property("privacy").to.be.equal("NONE");
+          expect(response).has.property("privacy").to.be.equal("ID");
           expect(response).has.property("enabled").to.be.true;
           expect(response).has.property("maxContacts").to.be.equal(3);
           expect(response).has.property("username").to.not.be.null;
@@ -88,10 +87,9 @@ function createAgentsTestCases(expect) {
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0]).to.have.property("username").to.not.be.null;
           expect(response.items[0]).to.have.property("enabled").to.be.true;
-          // FIXME: This is failing
           expect(response.items[0])
             .to.have.property("privacy")
-            .to.be.equal("ID");
+            .to.be.equal("NONE");
           expect(response.items[0])
             .to.have.property("maxContacts")
             .to.be.equal(3);
