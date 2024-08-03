@@ -56,7 +56,7 @@ function createAclsTestCases(expect) {
       },
       {
         id: `${idBase}-02`,
-        name: "should update the acl (needs to be fixed upstream)",
+        name: "should update the acl",
         method: "updateAcl",
         request: {
           ref: "{{ref}}",
@@ -66,8 +66,7 @@ function createAclsTestCases(expect) {
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        },
-        skip: true
+        }
       },
       {
         id: `${idBase}-03`,
@@ -90,7 +89,6 @@ function createAclsTestCases(expect) {
             .to.have.property("allow")
             .to.be.an("array")
             .to.have.lengthOf(1);
-          // FIXME: It is failing here
           expect(response.items[0])
             .to.have.property("deny")
             .to.be.an("array")
