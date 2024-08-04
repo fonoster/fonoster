@@ -18,7 +18,7 @@
  */
 import { BaseApiObject, ListRequest, ListResponse } from "./common";
 import { TrunkExtended } from "./trunks.types";
-import { Flatten } from "./utils";
+import { Flatten, RenameAndConvertToTimestamp } from "./utils";
 
 type INumber = {
   ref: string;
@@ -53,7 +53,9 @@ type UpdateNumberRequest = Flatten<
     >
 >;
 
-type INumberExtended = Omit<INumber, "appRef" | "agentAor" | "trunkRef"> & {
+type INumberExtended = RenameAndConvertToTimestamp<
+  Omit<INumber, "appRef" | "agentAor" | "trunkRef">
+> & {
   aorLink?: string;
   trunk?: TrunkExtended;
   extended?: Record<string, unknown>;
@@ -70,12 +72,16 @@ type ListNumbersRequest = ListRequest;
 
 type ListNumbersResponse = ListResponse<INumber>;
 
+type ListNumbersResponseExtended = ListResponse<INumberExtended>;
+
 type NumbersApi = {
   createNumber(request: CreateNumberRequestExtended): Promise<BaseApiObject>;
   updateNumber(request: UpdateNumberRequest): Promise<BaseApiObject>;
   getNumber(ref: string): Promise<INumberExtended>;
   deleteNumber(ref: string): Promise<void>;
-  listNumbers(request: ListNumbersRequest): Promise<ListNumbersResponse>;
+  listNumbers(
+    request: ListNumbersRequest
+  ): Promise<ListNumbersResponseExtended>;
 };
 
 export {

@@ -20,9 +20,6 @@ syntax = "proto3";
 
 package fonoster.calls.v1beta2;
 
-// TODO: Consider using Timestamp instead of int64
-// import "google/protobuf/timestamp.proto";
-
 // Calls service definition
 service Calls {
   // Call a number and returns the call status
@@ -86,9 +83,9 @@ message CallDetailRecord {
   // Hangup cause
   HangupCause hangup_cause = 4;
   // Start time of the call
-  int64 started_at = 5;
+  int32 started_at = 5;
   // End time of the call
-  int64 ended_at = 6;
+  int32 ended_at = 6;
   // The from number (E.164 format or SIP URI)
   string from = 7;
   // The to number (E.164 format or SIP URI)

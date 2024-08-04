@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { BaseApiObject, ListRequest, ListResponse } from "./common";
-import { Flatten } from "./utils";
+import { Flatten, RenameAndConvertToTimestamp } from "./utils";
 
 type Credentials = {
   ref: string;
@@ -27,7 +27,7 @@ type Credentials = {
   updatedAt: Date;
 };
 
-type CredentialsExtended = Credentials & {
+type CredentialsExtended = RenameAndConvertToTimestamp<Credentials> & {
   extended?: Record<string, unknown>;
 };
 
@@ -48,6 +48,8 @@ type ListCredentialsRequest = ListRequest;
 
 type ListCredentialsResponse = ListResponse<Credentials>;
 
+type ListCredentialsResponseExtended = ListResponse<CredentialsExtended>;
+
 type CredentialsApi = {
   createCredentials(
     request: CreateCredentialsRequestExtended
@@ -57,7 +59,7 @@ type CredentialsApi = {
   deleteCredentials(ref: string): Promise<void>;
   listCredentials(
     request: ListCredentialsRequest
-  ): Promise<ListCredentialsResponse>;
+  ): Promise<ListCredentialsResponseExtended>;
 };
 
 export {

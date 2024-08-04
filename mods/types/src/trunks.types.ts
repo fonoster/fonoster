@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Acl } from "./acls.types";
+import { AclExtended } from "./acls.types";
 import { BaseApiObject, ListRequest, ListResponse } from "./common";
 import { CredentialsExtended } from "./credentials.types";
-import { Flatten } from "./utils";
+import { Flatten, RenameAndConvertToTimestamp } from "./utils";
 
 enum Transport {
   UDP = "UDP",
@@ -53,8 +53,8 @@ type Trunk = {
   updatedAt: Date;
 };
 
-type TrunkExtended = Trunk & {
-  accessControlList?: Acl;
+type TrunkExtended = RenameAndConvertToTimestamp<Trunk> & {
+  accessControlList?: AclExtended;
   inboundCredentials?: CredentialsExtended;
   outboundCredentials?: CredentialsExtended;
   extended?: Record<string, unknown>;
@@ -80,12 +80,14 @@ type ListTrunksRequest = ListRequest;
 
 type ListTrunksResponse = ListResponse<Trunk>;
 
+type ListTrunksResponseExtended = ListResponse<TrunkExtended>;
+
 type TrunkApi = {
   createTrunk(request: CreateTrunkRequest): Promise<BaseApiObject>;
   updateTrunk(request: UpdateTrunkRequest): Promise<BaseApiObject>;
-  getTrunk(ref: string): Promise<Trunk>;
+  getTrunk(ref: string): Promise<TrunkExtended>;
   deleteTrunk(ref: string): Promise<void>;
-  listTrunks(request: ListTrunksRequest): Promise<ListTrunksResponse>;
+  listTrunks(request: ListTrunksRequest): Promise<ListTrunksResponseExtended>;
 };
 
 export {

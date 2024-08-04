@@ -601,11 +601,11 @@ proto.fonoster.applications.v1beta2.Application.deserializeBinaryFromReader = fu
       msg.setConversation(value);
       break;
     case 8:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 9:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     default:
@@ -691,14 +691,14 @@ proto.fonoster.applications.v1beta2.Application.serializeBinaryToWriter = functi
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       8,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       9,
       f
     );
@@ -890,7 +890,7 @@ proto.fonoster.applications.v1beta2.Application.prototype.hasConversation = func
 
 
 /**
- * optional int64 created_at = 8;
+ * optional int32 created_at = 8;
  * @return {number}
  */
 proto.fonoster.applications.v1beta2.Application.prototype.getCreatedAt = function() {
@@ -908,7 +908,7 @@ proto.fonoster.applications.v1beta2.Application.prototype.setCreatedAt = functio
 
 
 /**
- * optional int64 updated_at = 9;
+ * optional int32 updated_at = 9;
  * @return {number}
  */
 proto.fonoster.applications.v1beta2.Application.prototype.getUpdatedAt = function() {

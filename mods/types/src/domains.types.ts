@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { BaseApiObject, ListRequest, ListResponse } from "./common";
-import { Flatten } from "./utils";
+import { Flatten, RenameAndConvertToTimestamp } from "./utils";
 
 type Domain = {
   ref: string;
@@ -29,7 +29,9 @@ type Domain = {
   updatedAt: Date;
 };
 
-type DomainExtended = Domain & { extended?: Record<string, unknown> };
+type DomainExtended = RenameAndConvertToTimestamp<Domain> & {
+  extended?: Record<string, unknown>;
+};
 
 type CreateDomainRequest = {
   name: string;
@@ -50,11 +52,15 @@ type ListDomainsRequest = ListRequest;
 
 type ListDomainsResponse = ListResponse<Domain>;
 
+type ListDomainsResponseExtended = ListResponse<DomainExtended>;
+
 type DomainsApi = {
   createDomain: (request: CreateDomainRequest) => Promise<BaseApiObject>;
   updateDomain: (request: UpdateDomainRequest) => Promise<BaseApiObject>;
-  getDomain: (ref: string) => Promise<Domain>;
-  listDomains: (request: ListDomainsRequest) => Promise<ListDomainsResponse>;
+  getDomain: (ref: string) => Promise<DomainExtended>;
+  listDomains: (
+    request: ListDomainsRequest
+  ) => Promise<ListDomainsResponseExtended>;
   deleteDomain: (ref: string) => Promise<void>;
 };
 

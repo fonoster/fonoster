@@ -52,6 +52,8 @@ function createAclsTestCases(expect) {
             .has.property("deny")
             .to.be.an("array")
             .to.have.lengthOf(1);
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -93,6 +95,12 @@ function createAclsTestCases(expect) {
             .to.have.property("deny")
             .to.be.an("array")
             .to.have.lengthOf(1);
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

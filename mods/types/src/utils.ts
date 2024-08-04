@@ -18,4 +18,9 @@
  */
 type Flatten<T> = { [K in keyof T]: T[K] };
 
-export { Flatten };
+type RenameAndConvertToTimestamp<T> = Omit<T, "createdAt" | "updatedAt"> & {
+  createdAt: number;
+  updatedAt: number;
+};
+
+export { Flatten, RenameAndConvertToTimestamp };

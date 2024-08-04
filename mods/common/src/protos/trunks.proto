@@ -81,9 +81,9 @@ message Trunk {
   // The URI for inbound requests
   string inbound_uri = 4;
   // The date and time when the Trunk was created
-  int64 created_at = 5;
+  int32 created_at = 5;
   // The date and time when the Trunk was last updated
-  int64 updated_at = 6;
+  int32 updated_at = 6;
   // The list of IP addresses that are allowed to access the Trunks
   Acl access_control_list = 7;
   // The credentials to use when authenticating with the Trunk

@@ -70,6 +70,8 @@ function createNumbersTestCases(expect) {
           expect(response).has.property("agentAor").to.be.equal(agentAor);
           expect(response).to.not.have.property("trunk");
           expect(response).to.not.have.property("appRef");
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -119,6 +121,12 @@ function createNumbersTestCases(expect) {
             .to.be.equal(agentAor);
           expect(response.items[0]).to.not.have.property("trunk");
           expect(response.items[0]).to.not.have.property("appRef");
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

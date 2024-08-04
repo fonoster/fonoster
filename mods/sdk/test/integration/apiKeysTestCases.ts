@@ -66,6 +66,12 @@ function createApiKeysTestCases(expect) {
           expect(response.items[0])
             .to.have.property("role")
             .to.be.equal("WORKSPACE_ADMIN");
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

@@ -70,11 +70,11 @@ function createApplicationsTestCases(expect) {
             .has.property("type")
             .to.be.equal("PROGRAMMABLE_VOICE");
           expect(response).has.property("appEndpoint").to.be.not.null;
-          expect(response).has.property("textToSpeech").to.be.not.null;
-          expect(response).has.property("speechToText").to.be.not.null;
+          expect(response).has.property("textToSpeech").to.be.a("object");
+          expect(response).has.property("speechToText").to.be.a("object");
           expect(response).does.not.have.property("intelligence");
-          expect(response).has.property("createdAt").to.be.not.null;
-          expect(response).has.property("updatedAt").to.be.not.null;
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -109,6 +109,7 @@ function createApplicationsTestCases(expect) {
           items: unknown[];
           nextPageToken: string;
         }) => {
+
           expect(response).has.property("items");
           expect(response).has.property("nextPageToken");
           expect(response.items.length).to.be.greaterThan(0);
@@ -124,10 +125,12 @@ function createApplicationsTestCases(expect) {
           expect(response.items[0]).to.have.property("speechToText").to.not.be
             .null;
           expect(response.items[0]).to.not.have.property("intelligence");
-          expect(response.items[0]).to.have.property("createdAt").to.not.be
-            .null;
-          expect(response.items[0]).to.have.property("updatedAt").to.not.be
-            .null;
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         },
         skip: true
       },

@@ -195,7 +195,9 @@ class Trunks {
           const obj = response.toObject();
           const outObj = {
             ...obj,
-            uris: obj.urisList
+            uris: obj.urisList,
+            createdAt: new Date(obj.createdAt * 1000),
+            updatedAt: new Date(obj.updatedAt * 1000)
           };
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { urisList, ...rest } = outObj;
@@ -325,7 +327,9 @@ class Trunks {
             const obj = item.toObject();
             const outObj = {
               ...obj,
-              uris: obj.urisList
+              uris: obj.urisList,
+              createdAt: new Date(obj.createdAt * 1000),
+              updatedAt: new Date(obj.updatedAt * 1000)
             };
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { urisList, ...rest } = outObj;

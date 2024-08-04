@@ -49,7 +49,12 @@ function createUsersTestCases(expect) {
         method: "getUser",
         request: "00000000-0000-0000-0000-000000000000",
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
+          expect(response).has.property("ref").to.not.be.null;
+          expect(response).has.property("name").to.not.be.null;
+          expect(response).has.property("email").to.not.be.null;
+          expect(response).has.property("avatar").to.not.be.null;
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {

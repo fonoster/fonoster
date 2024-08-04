@@ -40,9 +40,11 @@ function createWorkspacesTestCases(expect) {
         request: "{{ref}}",
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
-          expect(response).has.property("name");
-          expect(response).has.property("ownerRef");
+          expect(response).has.property("ref").to.not.be.null;
+          expect(response).has.property("name").to.not.be.null;
+          expect(response).has.property("ownerRef").to.not.be.null;
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -75,6 +77,13 @@ function createWorkspacesTestCases(expect) {
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
           expect(response.items[0]).to.have.property("name").to.not.be.null;
+          expect(response.items[0]).to.have.property("ownerRef").to.not.be.null;
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

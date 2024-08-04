@@ -159,7 +159,9 @@ class Acls {
           resolve({
             ...obj,
             allow: obj.allowList,
-            deny: obj.denyList
+            deny: obj.denyList,
+            createdAt: new Date(obj.createdAt * 1000),
+            updatedAt: new Date(obj.updatedAt * 1000)
           });
         }
       );
@@ -254,7 +256,9 @@ class Acls {
             return {
               ...obj,
               allow: obj.allowList,
-              deny: obj.denyList
+              deny: obj.denyList,
+              createdAt: new Date(obj.createdAt * 1000),
+              updatedAt: new Date(obj.updatedAt * 1000)
             };
           });
 

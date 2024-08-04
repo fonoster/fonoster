@@ -68,9 +68,9 @@ message Application {
   // Conversation product
   ProductContainer conversation = 7;
   // Creation time
-  int64 created_at = 8;
+  int32 created_at = 8;
   // Update time
-  int64 updated_at = 9;
+  int32 updated_at = 9;
 }
 
 // Request to create a new application

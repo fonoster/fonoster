@@ -50,8 +50,8 @@ function createAgentsTestCases(expect) {
           expect(response).has.property("enabled").to.be.true;
           expect(response).has.property("maxContacts").to.be.equal(3);
           expect(response).has.property("username").to.not.be.null;
-          expect(response).has.property("createdAt").to.not.be.null;
-          expect(response).has.property("updatedAt").to.not.be.null;
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -93,6 +93,12 @@ function createAgentsTestCases(expect) {
           expect(response.items[0])
             .to.have.property("maxContacts")
             .to.be.equal(3);
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

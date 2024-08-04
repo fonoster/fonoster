@@ -42,7 +42,12 @@ function createCredentialsTestCases(expect) {
         request: "{{ref}}",
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
+          expect(response).has.property("ref").to.not.be.null;
+          expect(response).has.property("name").to.not.be.null;
+          expect(response).has.property("username").to.not.be.null;
+          expect(response).to.not.have.property("password");
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -78,6 +83,12 @@ function createCredentialsTestCases(expect) {
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0]).to.have.property("username").to.not.be.null;
           expect(response.items[0]).to.not.have.property("password");
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

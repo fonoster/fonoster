@@ -44,6 +44,8 @@ function createSecretsTestCases(expect) {
           expect(response).has.property("ref").to.not.be.null;
           expect(response).has.property("name").to.be.equal("MY_SECRET");
           expect(response).has.property("secret").to.be.equal("MY_SECRET");
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -81,6 +83,12 @@ function createSecretsTestCases(expect) {
           expect(response.items[0])
             .to.have.property("secret")
             .to.be.equal("MY_SECRET_UPDATED");
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

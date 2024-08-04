@@ -63,9 +63,9 @@ message Agent {
   // The enabled status of the Agent
   bool enabled = 5;
   // The created_at timestamp of the Agent
-  int64 created_at = 6;
+  int32 created_at = 6;
   // The updated_at timestamp of the Agent
-  int64 updated_at = 7;
+  int32 updated_at = 7;
   // The maximum number of contacts that can be created for this Agent
   int32 max_contacts = 8;
   // Value to override the expires requested by the Agent

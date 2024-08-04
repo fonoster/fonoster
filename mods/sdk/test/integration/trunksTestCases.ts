@@ -71,6 +71,8 @@ function createTrunksTestCases(expect) {
           expect(response.uris[0]).has.property("weight").to.be.equal(1);
           expect(response.uris[0]).has.property("priority").to.be.equal(1);
           expect(response.uris[0]).has.property("enabled").to.be.true;
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -140,6 +142,12 @@ function createTrunksTestCases(expect) {
             .has.property("priority")
             .to.be.equal(1);
           expect(response.items[0].uris[0]).has.property("enabled").to.be.true;
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

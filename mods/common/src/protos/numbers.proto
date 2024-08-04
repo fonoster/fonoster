@@ -55,9 +55,9 @@ message Number {
   // The country_iso_code of the Number
   string country_iso_code = 6;
   // The date when the Number was created
-  int64 created_at = 7;
+  int32 created_at = 7;
   // The date when the Number was last updated
-  int64 updated_at = 8;
+  int32 updated_at = 8;
   // The trunk this number is associated with
   Trunk trunk = 9;
   // This dictates how the number will handle incoming calls

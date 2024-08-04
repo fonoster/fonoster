@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { BaseApiObject, ListRequest, ListResponse } from "./common";
-import { Flatten } from "./utils";
+import { Flatten, RenameAndConvertToTimestamp } from "./utils";
 
 enum Privacy {
   PRIVATE = "ID",
@@ -46,7 +46,7 @@ type Agent = {
   updatedAt: Date;
 };
 
-type AgentExtended = Agent & {
+type AgentExtended = RenameAndConvertToTimestamp<Agent> & {
   extended?: Record<string, unknown>;
 };
 
@@ -73,12 +73,14 @@ type ListAgentsRequest = ListRequest;
 
 type ListAgentsResponse = ListResponse<Agent>;
 
+type ListAgentsResponseExtended = ListResponse<AgentExtended>;
+
 type AgentsApi = {
   createAgent(request: CreateAgentRequestExtended): Promise<BaseApiObject>;
   updateAgent(request: UpdateAgentRequest): Promise<BaseApiObject>;
   getAgent(ref: string): Promise<AgentExtended>;
   deleteAgent(ref: string): Promise<void>;
-  listAgents(request: ListAgentsRequest): Promise<ListAgentsResponse>;
+  listAgents(request: ListAgentsRequest): Promise<ListAgentsResponseExtended>;
 };
 
 export {

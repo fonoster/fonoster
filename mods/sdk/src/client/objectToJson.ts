@@ -63,6 +63,14 @@ function objectToJson<J extends Record<string, unknown>>(
             )
           );
         } else if (value !== undefined) {
+          if (
+            ["createdAt", "updatedAt", "startedAt", "endedAt"].includes(
+              propName
+            )
+          ) {
+            json[propName] = new Date(value * 1000);
+            return;
+          }
           json[propName] = value;
         }
       } catch (error) {

@@ -44,6 +44,8 @@ function createDomainsTestCases(expect) {
           expect(response).has.property("ref");
           expect(response).has.property("name");
           expect(response).has.property("domainUri");
+          expect(response).has.property("createdAt").to.be.a("date");
+          expect(response).has.property("updatedAt").to.be.a("date");
         }
       },
       {
@@ -78,6 +80,12 @@ function createDomainsTestCases(expect) {
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0]).to.have.property("domainUri").to.not.be
             .null;
+          expect(response.items[0])
+            .to.have.property("createdAt")
+            .to.be.a("date");
+          expect(response.items[0])
+            .to.have.property("updatedAt")
+            .to.be.a("date");
         }
       },
       {

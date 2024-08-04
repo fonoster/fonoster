@@ -34,8 +34,8 @@ function convertToFonosterNumber(number: INumberExtended): INumber {
     country: number.country,
     countryIsoCode: number.countryIsoCode,
     trunkRef: number.trunk?.ref || undefined,
-    createdAt: number.createdAt,
-    updatedAt: number.updatedAt
+    createdAt: new Date(number.createdAt * 1000),
+    updatedAt: new Date(number.updatedAt * 1000)
   };
 }
 
