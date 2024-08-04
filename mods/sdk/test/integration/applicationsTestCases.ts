@@ -109,7 +109,6 @@ function createApplicationsTestCases(expect) {
           items: unknown[];
           nextPageToken: string;
         }) => {
-
           expect(response).has.property("items");
           expect(response).has.property("nextPageToken");
           expect(response.items.length).to.be.greaterThan(0);
