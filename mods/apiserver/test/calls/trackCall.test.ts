@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DialStatus } from "@fonoster/common";
 import { status } from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { CallStatus } from "../../src/calls/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -54,15 +54,13 @@ describe("@calls/trackCall", function () {
 
     trackCallHandler(call);
 
-    events.on.callArgWith(1, { ref: callRef, status: CallStatus.RINGING });
-    events.on.callArgWith(1, { ref: callRef, status: CallStatus.IN_PROGRESS });
-    events.on.callArgWith(1, { ref: callRef, status: CallStatus.COMPLETED });
+    events.on.callArgWith(1, { ref: callRef, status: DialStatus.PROGRESS });
+    events.on.callArgWith(1, { ref: callRef, status: DialStatus.ANSWER });
 
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: CallStatus.QUEUED });
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: CallStatus.RINGING });
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: CallStatus.IN_PROGRESS });
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: CallStatus.COMPLETED });
-    expect(call.write).to.have.been.called.callCount(4)
+    expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.TRYING });
+    expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.PROGRESS });
+    expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.ANSWER });
+    expect(call.write).to.have.been.called.callCount(3)
     expect(call.end).to.have.been.calledOnce;
   });
 
@@ -89,7 +87,7 @@ describe("@calls/trackCall", function () {
 
     events.on.callArgWith(1, new Error("error"));
 
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: CallStatus.QUEUED });
+    expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.TRYING });
     expect(call.write).to.have.been.calledWith({ code: status.INTERNAL, message: "error" });
     expect(call.write).to.have.been.calledTwice;
     expect(call.end).to.have.been.calledOnce;

@@ -91,6 +91,11 @@ async function main() {
       event.type = CallType.PROGRAMMABLE;
     }
 
+    if (event.hangupCause) {
+      event.status = event.hangupCause;
+      delete event.hangupCause;
+    }
+
     const tag = event.callId as string;
 
     // Delete the extra headers as they may contain sensitive information

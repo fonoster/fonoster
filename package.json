@@ -33,7 +33,7 @@
     "check:updates": "lerna exec -- npx npm-check-updates",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.test.ts",
     "pretest": "npm run generate:keypair",
-    "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/node.integration.ts && web-test-runner",
+    "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --slow 50000 --timeout 10000 --require ts-node/register mods/**/node.integration.ts && web-test-runner",
     "publish": "lerna publish --yes --no-git-reset --dist-tag next $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
     "publish:prerelease": "lerna publish --dist-tag next",
     "publish:frompackages": "lerna publish from-package",

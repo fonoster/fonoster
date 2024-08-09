@@ -25,7 +25,7 @@ enum CallType {
   SIP_TRUNKING = "SIP_TRUNKING"
 }
 
-enum HangupCause {
+enum CallStatus {
   NORMAL_CLEARING = "NORMAL_CLEARING",
   CALL_REJECTED = "CALL_REJECTED",
   UNALLOCATED = "UNALLOCATED",
@@ -38,20 +38,6 @@ enum HangupCause {
   INVALID_NUMBER_FORMAT = "INVALID_NUMBER_FORMAT"
 }
 
-enum CallStatus {
-  QUEUED = "QUEUED",
-  RINGING = "RINGING",
-  IN_PROGRESS = "IN_PROGRESS",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
-  BUSY = "BUSY",
-  NO_ANSWER = "NO_ANSWER",
-  CANCELED = "CANCELED",
-  REJECTED = "REJECTED",
-  TIMEOUT = "TIMEOUT",
-  UNKNOWN = "UNKNOWN"
-}
-
 enum CallDirection {
   INBOUND = "INBOUND",
   OUTBOUND = "OUTBOUND"
@@ -59,9 +45,8 @@ enum CallDirection {
 
 type CallDetailRecord = {
   ref: string;
-  type: CallType;
   status: CallStatus;
-  hangupCause: HangupCause;
+  type: CallType;
   from: string;
   to: string;
   duration: number;
@@ -75,7 +60,6 @@ type ListCallsRequest = {
   before?: string;
   type?: CallType;
   status?: CallStatus;
-  hangupCause?: HangupCause;
   from?: string;
   to?: string;
   pageSize?: number;
@@ -118,6 +102,5 @@ export {
   CreateCallRequest,
   CallPublisher,
   TrackCallResponse,
-  TrackCallSubscriber,
-  HangupCause
+  TrackCallSubscriber
 };

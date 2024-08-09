@@ -22,7 +22,6 @@ goog.exportSymbol('proto.fonoster.calls.v1beta2.CallType', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CreateCallRequest', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.CreateCallResponse', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.GetCallRequest', null, global);
-goog.exportSymbol('proto.fonoster.calls.v1beta2.HangupCause', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.ListCallsRequest', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.ListCallsResponse', null, global);
 goog.exportSymbol('proto.fonoster.calls.v1beta2.TrackCallRequest', null, global);
@@ -231,13 +230,12 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.toObject = function(includeInstanc
     callId: jspb.Message.getFieldWithDefault(msg, 2, ""),
     type: jspb.Message.getFieldWithDefault(msg, 3, 0),
     status: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    hangupCause: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    startedAt: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    endedAt: jspb.Message.getFieldWithDefault(msg, 7, 0),
-    from: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    to: jspb.Message.getFieldWithDefault(msg, 9, ""),
-    duration: jspb.Message.getFieldWithDefault(msg, 10, 0),
-    direction: jspb.Message.getFieldWithDefault(msg, 11, 0)
+    startedAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    endedAt: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    from: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    to: jspb.Message.getFieldWithDefault(msg, 8, ""),
+    duration: jspb.Message.getFieldWithDefault(msg, 9, 0),
+    direction: jspb.Message.getFieldWithDefault(msg, 10, 0)
   };
 
   if (includeInstance) {
@@ -291,30 +289,26 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.deserializeBinaryFromReader = func
       msg.setStatus(value);
       break;
     case 5:
-      var value = /** @type {!proto.fonoster.calls.v1beta2.HangupCause} */ (reader.readEnum());
-      msg.setHangupCause(value);
-      break;
-    case 6:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setStartedAt(value);
       break;
-    case 7:
+    case 6:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setEndedAt(value);
       break;
-    case 8:
+    case 7:
       var value = /** @type {string} */ (reader.readString());
       msg.setFrom(value);
       break;
-    case 9:
+    case 8:
       var value = /** @type {string} */ (reader.readString());
       msg.setTo(value);
       break;
-    case 10:
+    case 9:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setDuration(value);
       break;
-    case 11:
+    case 10:
       var value = /** @type {!proto.fonoster.calls.v1beta2.CallDirection} */ (reader.readEnum());
       msg.setDirection(value);
       break;
@@ -375,52 +369,45 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.serializeBinaryToWriter = function
       f
     );
   }
-  f = message.getHangupCause();
-  if (f !== 0.0) {
-    writer.writeEnum(
-      5,
-      f
-    );
-  }
   f = message.getStartedAt();
   if (f !== 0) {
     writer.writeInt32(
-      6,
+      5,
       f
     );
   }
   f = message.getEndedAt();
   if (f !== 0) {
     writer.writeInt32(
-      7,
+      6,
       f
     );
   }
   f = message.getFrom();
   if (f.length > 0) {
     writer.writeString(
-      8,
+      7,
       f
     );
   }
   f = message.getTo();
   if (f.length > 0) {
     writer.writeString(
-      9,
+      8,
       f
     );
   }
   f = message.getDuration();
   if (f !== 0) {
     writer.writeInt32(
-      10,
+      9,
       f
     );
   }
   f = message.getDirection();
   if (f !== 0.0) {
     writer.writeEnum(
-      11,
+      10,
       f
     );
   }
@@ -500,29 +487,11 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setStatus = function(val
 
 
 /**
- * optional HangupCause hangup_cause = 5;
- * @return {!proto.fonoster.calls.v1beta2.HangupCause}
- */
-proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getHangupCause = function() {
-  return /** @type {!proto.fonoster.calls.v1beta2.HangupCause} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
-};
-
-
-/**
- * @param {!proto.fonoster.calls.v1beta2.HangupCause} value
- * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
- */
-proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setHangupCause = function(value) {
-  return jspb.Message.setProto3EnumField(this, 5, value);
-};
-
-
-/**
- * optional int32 started_at = 6;
+ * optional int32 started_at = 5;
  * @return {number}
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getStartedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
@@ -531,16 +500,16 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getStartedAt = function(
  * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setStartedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
 /**
- * optional int32 ended_at = 7;
+ * optional int32 ended_at = 6;
  * @return {number}
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getEndedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 7, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
 };
 
 
@@ -549,16 +518,16 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getEndedAt = function() 
  * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setEndedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 7, value);
+  return jspb.Message.setProto3IntField(this, 6, value);
 };
 
 
 /**
- * optional string from = 8;
+ * optional string from = 7;
  * @return {string}
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getFrom = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
 
@@ -567,16 +536,16 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getFrom = function() {
  * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setFrom = function(value) {
-  return jspb.Message.setProto3StringField(this, 8, value);
+  return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
 /**
- * optional string to = 9;
+ * optional string to = 8;
  * @return {string}
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getTo = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
 };
 
 
@@ -585,16 +554,16 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getTo = function() {
  * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setTo = function(value) {
-  return jspb.Message.setProto3StringField(this, 9, value);
+  return jspb.Message.setProto3StringField(this, 8, value);
 };
 
 
 /**
- * optional int32 duration = 10;
+ * optional int32 duration = 9;
  * @return {number}
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getDuration = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 10, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 9, 0));
 };
 
 
@@ -603,16 +572,16 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getDuration = function()
  * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setDuration = function(value) {
-  return jspb.Message.setProto3IntField(this, 10, value);
+  return jspb.Message.setProto3IntField(this, 9, value);
 };
 
 
 /**
- * optional CallDirection direction = 11;
+ * optional CallDirection direction = 10;
  * @return {!proto.fonoster.calls.v1beta2.CallDirection}
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getDirection = function() {
-  return /** @type {!proto.fonoster.calls.v1beta2.CallDirection} */ (jspb.Message.getFieldWithDefault(this, 11, 0));
+  return /** @type {!proto.fonoster.calls.v1beta2.CallDirection} */ (jspb.Message.getFieldWithDefault(this, 10, 0));
 };
 
 
@@ -621,7 +590,7 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getDirection = function(
  * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setDirection = function(value) {
-  return jspb.Message.setProto3EnumField(this, 11, value);
+  return jspb.Message.setProto3EnumField(this, 10, value);
 };
 
 
@@ -1906,33 +1875,18 @@ proto.fonoster.calls.v1beta2.CallType = {
 /**
  * @enum {number}
  */
-proto.fonoster.calls.v1beta2.HangupCause = {
-  NORMAL_CLEARING: 0,
-  CALL_REJECTED: 1,
-  UNALLOCATED: 2,
-  NO_USER_RESPONSE: 3,
-  NO_ROUTE_DESTINATION: 4,
-  NO_ANSWER: 5,
-  USER_BUSY: 6,
-  NOT_ACCEPTABLE_HERE: 7,
-  SERVICE_UNAVAILABLE: 8,
-  INVALID_NUMBER_FORMAT: 9,
-  UNKNOWN: 10
-};
-
-/**
- * @enum {number}
- */
 proto.fonoster.calls.v1beta2.CallStatus = {
-  QUEUED: 0,
-  RINGING: 1,
-  IN_PROGRESS: 2,
-  COMPLETED: 3,
-  FAILED: 4,
-  BUSY: 5,
-  CANCELED: 7,
-  REJECTED: 8,
-  TIMEOUT: 9
+  UNKNOWN: 0,
+  NORMAL_CLEARING: 1,
+  CALL_REJECTED: 2,
+  UNALLOCATED: 3,
+  NO_USER_RESPONSE: 4,
+  NO_ROUTE_DESTINATION: 5,
+  NO_ANSWER: 6,
+  USER_BUSY: 7,
+  NOT_ACCEPTABLE_HERE: 8,
+  SERVICE_UNAVAILABLE: 9,
+  INVALID_NUMBER_FORMAT: 10
 };
 
 /**

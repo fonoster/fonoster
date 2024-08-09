@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage } from "@fonoster/common";
+import { DialStatus, GrpcErrorMessage } from "@fonoster/common";
 import { ParameterizedQuery } from "@influxdata/influxdb-client";
 
 const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
@@ -26,7 +26,7 @@ enum CallType {
   SIP_TRUNKING = "SIP_TRUNKING"
 }
 
-enum HangupCause {
+enum CallStatus {
   NORMAL_CLEARING = "NORMAL_CLEARING",
   CALL_REJECTED = "CALL_REJECTED",
   UNALLOCATED = "UNALLOCATED",
@@ -39,20 +39,6 @@ enum HangupCause {
   INVALID_NUMBER_FORMAT = "INVALID_NUMBER_FORMAT"
 }
 
-enum CallStatus {
-  QUEUED = "QUEUED",
-  RINGING = "RINGING",
-  IN_PROGRESS = "IN_PROGRESS",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
-  BUSY = "BUSY",
-  NO_ANSWER = "NO_ANSWER",
-  CANCELED = "CANCELED",
-  REJECTED = "REJECTED",
-  TIMEOUT = "TIMEOUT",
-  UNKNOWN = "UNKNOWN"
-}
-
 enum CallDirection {
   INBOUND = "INBOUND",
   OUTBOUND = "OUTBOUND"
@@ -61,9 +47,8 @@ enum CallDirection {
 type CallDetailRecord = {
   ref: string;
   callId: string;
-  type: CallType;
   status: CallStatus;
-  hangupCause: HangupCause;
+  type: CallType;
   from: string;
   to: string;
   duration: number;
@@ -77,7 +62,6 @@ type ListCallsRequest = {
   before?: string;
   type?: CallType;
   status?: CallStatus;
-  hangupCause?: HangupCause;
   from?: string;
   to?: string;
   pageSize?: number;
@@ -117,7 +101,7 @@ type CallPublisher = {
 
 type TrackCallResponse = {
   ref: string;
-  status: CallStatus;
+  status: DialStatus;
 };
 
 type CallStream = {
@@ -146,6 +130,5 @@ export {
   CallPublisher,
   TrackCallResponse,
   CallStream,
-  TrackCallSubscriber,
-  HangupCause
+  TrackCallSubscriber
 };

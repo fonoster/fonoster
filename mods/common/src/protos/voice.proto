@@ -250,6 +250,7 @@ message DialStatus {
     BUSY = 3;
     PROGRESS = 4;
     NOANSWER = 5;
+    // Maps from Asterisk's CHANUNAVAIL and CONGESTION
     FAILED = 6;
   }
   Status status = 2;

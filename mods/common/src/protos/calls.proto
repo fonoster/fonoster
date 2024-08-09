@@ -33,38 +33,22 @@ service Calls {
 }
 
 enum CallType {
-  PROGRAMMABLE = 0;
-  SIP_TRUNKING = 1;
-}
-
-enum HangupCause {
-  NORMAL_CLEARING = 0;
-  CALL_REJECTED = 1;
-  UNALLOCATED = 2;
-  NO_USER_RESPONSE = 3;
-  NO_ROUTE_DESTINATION = 4;
-  NO_ANSWER = 5;
-  USER_BUSY = 6;
-  NOT_ACCEPTABLE_HERE = 7;
-  SERVICE_UNAVAILABLE = 8;
-  INVALID_NUMBER_FORMAT = 9;
-  UNKNOWN = 10;
+  SIP_TRUNKING = 0;
+  PROGRAMMABLE = 1;
 }
 
 enum CallStatus {
-  QUEUED = 0;
-  RINGING = 1;
-  IN_PROGRESS = 2;
-  COMPLETED = 3;
-  FAILED = 4;
-  BUSY = 5;
-  // TODO: Refactor to avoid clash with HangupCause
-  // NO_ANSWER = 6;
-  CANCELED = 7;
-  REJECTED = 8;
-  TIMEOUT = 9;
-  // TODO: Refactor to avoid clash with HangupCause
-  // UNKNOWN = 10;
+  UNKNOWN = 0;
+  NORMAL_CLEARING = 1;
+  CALL_REJECTED = 2;
+  UNALLOCATED = 3;
+  NO_USER_RESPONSE = 4;
+  NO_ROUTE_DESTINATION = 5;
+  NO_ANSWER = 6;
+  USER_BUSY = 7;
+  NOT_ACCEPTABLE_HERE = 8;
+  SERVICE_UNAVAILABLE = 9;
+  INVALID_NUMBER_FORMAT = 10;
 }
 
 enum CallDirection {
@@ -76,12 +60,12 @@ enum CallDirection {
 message CallDetailRecord {
   // The unique identifier of the Call
   string ref = 1;
+  // Call identifier from the SIP stack
+  string call_id = 2;
   // The call type
-  CallType type = 2;
+  CallType type = 3;
   // The call status
-  CallStatus status = 3;
-  // Hangup cause
-  HangupCause hangup_cause = 4;
+  CallStatus status = 4;
   // Start time of the call
   int32 started_at = 5;
   // End time of the call

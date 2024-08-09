@@ -27,13 +27,14 @@ function createCallsTestCases(expect) {
         name: "should create a call",
         method: "createCall",
         request: {
-          from: "8287854037",
-          to: "8287854037",
+          from: "8287854033",
+          to: "+17853178070",
           appRef: "938235c9-ad8c-475a-ae8f-11b1c0a6ff67"
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
-        }
+        },
+        afterTestDelay: 2000
       },
       {
         id: `${idBase}-01`,
@@ -42,9 +43,19 @@ function createCallsTestCases(expect) {
         request: "{{ref}}",
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
-          expect(response).has.property("ref");
-        },
-        skip: true
+          expect(response).has.property("ref").to.not.be.null;
+          expect(response).has.property("callId").to.not.be.null;
+          expect(response).has.property("type").to.be.equal("PROGRAMMABLE");
+          expect(response)
+            .has.property("status")
+            .to.be.oneOf(["UNKNOWN", "FAILED"]);
+          expect(response).has.property("startedAt").to.be.a("date");
+          expect(response).has.property("endedAt").to.be.a("date");
+          expect(response).has.property("from").to.not.be.null;
+          expect(response).has.property("to").to.not.be.null;
+          expect(response).has.property("duration").to.be.a("number");
+          expect(response).has.property("direction").to.be.equal("OUTBOUND");
+        }
       },
       {
         id: `${idBase}-03`,
@@ -62,12 +73,26 @@ function createCallsTestCases(expect) {
           expect(response).has.property("nextPageToken");
           expect(response.items.length).to.be.greaterThan(0);
           expect(response.items[0]).to.have.property("ref").to.not.be.null;
-          expect(response.items[0]).to.have.property("name").to.not.be.null;
+          expect(response.items[0]).to.have.property("callId").to.not.be.null;
           expect(response.items[0])
             .to.have.property("type")
-            .to.be.equal("call");
-        },
-        skip: true
+            .to.be.equal("PROGRAMMABLE");
+          expect(response.items[0])
+            .to.have.property("status")
+            .to.be.oneOf(["UNKNOWN", "FAILED"]);
+          expect(response.items[0])
+            .to.have.property("startedAt")
+            .to.be.a("date");
+          expect(response.items[0]).to.have.property("endedAt").to.be.a("date");
+          expect(response.items[0]).to.have.property("from").to.not.be.null;
+          expect(response.items[0]).to.have.property("to").to.not.be.null;
+          expect(response.items[0])
+            .to.have.property("duration")
+            .to.be.a("number");
+          expect(response.items[0])
+            .to.have.property("direction")
+            .to.be.equal("OUTBOUND");
+        }
       }
     ]
   };

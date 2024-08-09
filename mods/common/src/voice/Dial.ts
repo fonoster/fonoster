@@ -31,6 +31,7 @@ enum DialStatus {
   BUSY = "BUSY",
   PROGRESS = "PROGRESS",
   NOANSWER = "NOANSWER",
+  // Maps from Asterisk's CHANUNAVAIL and CONGESTION
   FAILED = "FAILED"
 }
 

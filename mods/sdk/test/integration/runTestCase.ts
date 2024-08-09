@@ -29,6 +29,7 @@ type TestCase = {
   responseValidator?: (response: unknown) => void;
   skip?: boolean;
   only?: boolean;
+  afterTestDelay?: number;
 };
 
 async function runTestCase(params: {
@@ -40,7 +41,8 @@ async function runTestCase(params: {
   const { expect, SDK } = params.tooling;
   const { client, api, testCase } = params;
 
-  const { method, request, grpcCode, responseValidator } = testCase;
+  const { method, request, grpcCode, responseValidator, afterTestDelay } =
+    testCase;
   const apiInstance = new SDK[api](client);
   const clientMethod = apiInstance[method].bind(apiInstance);
 
@@ -54,6 +56,10 @@ async function runTestCase(params: {
     }
 
     if (grpcCode) expect.fail(`Expected error code ${grpcCode}`);
+
+    if (afterTestDelay) {
+      await new Promise((resolve) => setTimeout(resolve, afterTestDelay));
+    }
 
     return response;
   } catch (error) {

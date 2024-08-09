@@ -19,18 +19,17 @@
 import {
   BaseApiObject,
   CallDetailRecord,
-  CallDirection,
-  CallStatus,
-  CallType,
   CreateCallRequest,
-  HangupCause,
   ListCallsRequest,
   ListCallsResponse
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
 import {
+  CallDirection,
   Call as CallPB,
+  CallStatus,
+  CallType,
   CreateCallRequest as CreateCallRequestPB,
   CreateCallResponse as CreateCallResponsePB,
   GetCallRequest as GetCallRequestPB,
@@ -120,8 +119,7 @@ class Calls {
       method: client.createCall.bind(client),
       requestPBObjectConstructor: CreateCallRequestPB,
       metadata: this.client.getMetadata(),
-      request,
-      enumMapping: [["type", CallType]]
+      request
     });
   }
 
@@ -154,9 +152,8 @@ class Calls {
       request: { ref },
       enumMapping: [
         ["type", CallType],
-        ["callStatus", CallStatus],
-        ["hangupCause", HangupCause],
-        ["callDirection", CallDirection]
+        ["status", CallStatus],
+        ["direction", CallDirection]
       ]
     });
   }
@@ -195,9 +192,8 @@ class Calls {
       request,
       enumMapping: [
         ["type", CallType],
-        ["callStatus", CallStatus],
-        ["hangupCause", HangupCause],
-        ["callDirection", CallDirection]
+        ["status", CallStatus],
+        ["direction", CallDirection]
       ],
       repeatableObjectMapping: [["itemsList", CallPB]]
     });

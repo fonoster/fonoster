@@ -40,6 +40,7 @@ function convertToRoutrNumber(
           }
         ]
       : [],
+    trunkRef: number.trunkRef,
     extended: { accessKeyId } as Record<string, unknown>
   };
 }
@@ -63,7 +64,8 @@ function convertToRoutrNumberUpdate(number: UpdateNumberRequest) {
     ref: number.ref,
     name: number.name,
     aorLink,
-    extraHeaders
+    extraHeaders,
+    trunkRef: number.trunkRef
   };
 }
 

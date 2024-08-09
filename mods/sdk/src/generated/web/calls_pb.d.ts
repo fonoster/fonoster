@@ -15,9 +15,6 @@ export class CallDetailRecord extends jspb.Message {
   getStatus(): CallStatus;
   setStatus(value: CallStatus): CallDetailRecord;
 
-  getHangupCause(): HangupCause;
-  setHangupCause(value: HangupCause): CallDetailRecord;
-
   getStartedAt(): number;
   setStartedAt(value: number): CallDetailRecord;
 
@@ -50,7 +47,6 @@ export namespace CallDetailRecord {
     callId: string,
     type: CallType,
     status: CallStatus,
-    hangupCause: HangupCause,
     startedAt: number,
     endedAt: number,
     from: string,
@@ -236,29 +232,18 @@ export enum CallType {
   SIP_TRUNKING = 0,
   PROGRAMMABLE = 1,
 }
-export enum HangupCause { 
-  NORMAL_CLEARING = 0,
-  CALL_REJECTED = 1,
-  UNALLOCATED = 2,
-  NO_USER_RESPONSE = 3,
-  NO_ROUTE_DESTINATION = 4,
-  NO_ANSWER = 5,
-  USER_BUSY = 6,
-  NOT_ACCEPTABLE_HERE = 7,
-  SERVICE_UNAVAILABLE = 8,
-  INVALID_NUMBER_FORMAT = 9,
-  UNKNOWN = 10,
-}
 export enum CallStatus { 
-  QUEUED = 0,
-  RINGING = 1,
-  IN_PROGRESS = 2,
-  COMPLETED = 3,
-  FAILED = 4,
-  BUSY = 5,
-  CANCELED = 7,
-  REJECTED = 8,
-  TIMEOUT = 9,
+  UNKNOWN = 0,
+  NORMAL_CLEARING = 1,
+  CALL_REJECTED = 2,
+  UNALLOCATED = 3,
+  NO_USER_RESPONSE = 4,
+  NO_ROUTE_DESTINATION = 5,
+  NO_ANSWER = 6,
+  USER_BUSY = 7,
+  NOT_ACCEPTABLE_HERE = 8,
+  SERVICE_UNAVAILABLE = 9,
+  INVALID_NUMBER_FORMAT = 10,
 }
 export enum CallDirection { 
   INBOUND = 0,

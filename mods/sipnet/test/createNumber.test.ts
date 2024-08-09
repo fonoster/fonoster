@@ -56,7 +56,8 @@ describe("@sipnet[sipnet/createNumber]", function () {
         city: "New York",
         country: "USA",
         countryIsoCode: "US",
-        appRef: "123"
+        appRef: "123",
+        trunkRef: "456"
       }
     };
 
@@ -78,7 +79,8 @@ describe("@sipnet[sipnet/createNumber]", function () {
       country: call.request.country,
       countryIsoCode: call.request.countryIsoCode,
       extraHeaders: [{ name: APP_REF_HEADER, value: call.request.appRef }],
-      extended: { accessKeyId }
+      extended: { accessKeyId },
+      trunkRef: call.request.trunkRef
     });
   });
 

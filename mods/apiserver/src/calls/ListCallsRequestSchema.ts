@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { CallStatus, CallType, HangupCause } from "./types";
+import { CallStatus, CallType } from "./types";
 
 const ListCallsRequestSchema = z.object({
   after: z
@@ -38,10 +38,6 @@ const ListCallsRequestSchema = z.object({
     .nativeEnum(CallType, {
       message: "Invalid call type"
     })
-    .optional()
-    .nullable(),
-  hangupCause: z
-    .nativeEnum(HangupCause, { message: "Invalid hangup cause" })
     .optional()
     .nullable(),
   status: z

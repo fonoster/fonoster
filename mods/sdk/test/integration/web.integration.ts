@@ -60,7 +60,8 @@ describe("@sdk[integration]", async function () {
           dependsOn,
           responseValidator,
           skip,
-          only
+          only,
+          afterTestDelay
         } = testCase;
 
         await new Promise<void>((resolve) => {
@@ -86,6 +87,7 @@ describe("@sdk[integration]", async function () {
                 request: JSON.parse(computedRequest),
                 grpcCode,
                 dependsOn,
+                afterTestDelay,
                 responseValidator
               },
               tooling: { expect, SDK }

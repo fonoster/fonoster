@@ -16,25 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DialStatus } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { status } from "@grpc/grpc-js";
 import { z } from "zod";
-import {
-  CallStatus,
-  CallStream,
-  TrackCallResponse,
-  TrackCallSubscriber
-} from "./types";
+import { CallStream, TrackCallResponse, TrackCallSubscriber } from "./types";
 
 const FINAL_STATUSES = [
-  CallStatus.COMPLETED,
-  CallStatus.FAILED,
-  CallStatus.BUSY,
-  CallStatus.NO_ANSWER,
-  CallStatus.CANCELED,
-  CallStatus.REJECTED,
-  CallStatus.TIMEOUT,
-  CallStatus.UNKNOWN
+  DialStatus.ANSWER,
+  DialStatus.BUSY,
+  DialStatus.FAILED,
+  DialStatus.NOANSWER
 ];
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -53,7 +45,7 @@ function trackCall(subs: TrackCallSubscriber) {
 
     logger.verbose("call to trackCall", { ref });
 
-    stream.write({ ref, status: CallStatus.QUEUED });
+    stream.write({ ref, status: DialStatus.TRYING });
 
     events.on("status", (data: TrackCallResponse) => {
       logger.verbose("tracked call status change", { ...data });
