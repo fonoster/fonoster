@@ -343,11 +343,11 @@ proto.fonoster.domains.v1beta2.Domain.deserializeBinaryFromReader = function(msg
       msg.setDomainUri(value);
       break;
     case 4:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     default:
@@ -402,14 +402,14 @@ proto.fonoster.domains.v1beta2.Domain.serializeBinaryToWriter = function(message
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       4,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       5,
       f
     );
@@ -472,7 +472,7 @@ proto.fonoster.domains.v1beta2.Domain.prototype.setDomainUri = function(value) {
 
 
 /**
- * optional int64 created_at = 4;
+ * optional int32 created_at = 4;
  * @return {number}
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.getCreatedAt = function() {
@@ -490,7 +490,7 @@ proto.fonoster.domains.v1beta2.Domain.prototype.setCreatedAt = function(value) {
 
 
 /**
- * optional int64 updated_at = 5;
+ * optional int32 updated_at = 5;
  * @return {number}
  */
 proto.fonoster.domains.v1beta2.Domain.prototype.getUpdatedAt = function() {

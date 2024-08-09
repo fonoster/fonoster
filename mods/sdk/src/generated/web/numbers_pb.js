@@ -390,11 +390,11 @@ proto.fonoster.numbers.v1beta2.Number.deserializeBinaryFromReader = function(msg
       msg.setCountryIsoCode(value);
       break;
     case 7:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 8:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     case 9:
@@ -483,14 +483,14 @@ proto.fonoster.numbers.v1beta2.Number.serializeBinaryToWriter = function(message
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       7,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       8,
       f
     );
@@ -789,7 +789,7 @@ proto.fonoster.numbers.v1beta2.Number.prototype.setCountryIsoCode = function(val
 
 
 /**
- * optional int64 created_at = 7;
+ * optional int32 created_at = 7;
  * @return {number}
  */
 proto.fonoster.numbers.v1beta2.Number.prototype.getCreatedAt = function() {
@@ -807,7 +807,7 @@ proto.fonoster.numbers.v1beta2.Number.prototype.setCreatedAt = function(value) {
 
 
 /**
- * optional int64 updated_at = 8;
+ * optional int32 updated_at = 8;
  * @return {number}
  */
 proto.fonoster.numbers.v1beta2.Number.prototype.getUpdatedAt = function() {

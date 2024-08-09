@@ -321,11 +321,11 @@ proto.fonoster.credentials.v1beta2.Credentials.deserializeBinaryFromReader = fun
       msg.setUsername(value);
       break;
     case 4:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     default:
@@ -380,14 +380,14 @@ proto.fonoster.credentials.v1beta2.Credentials.serializeBinaryToWriter = functio
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       4,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       5,
       f
     );
@@ -450,7 +450,7 @@ proto.fonoster.credentials.v1beta2.Credentials.prototype.setUsername = function(
 
 
 /**
- * optional int64 created_at = 4;
+ * optional int32 created_at = 4;
  * @return {number}
  */
 proto.fonoster.credentials.v1beta2.Credentials.prototype.getCreatedAt = function() {
@@ -468,7 +468,7 @@ proto.fonoster.credentials.v1beta2.Credentials.prototype.setCreatedAt = function
 
 
 /**
- * optional int64 updated_at = 5;
+ * optional int32 updated_at = 5;
  * @return {number}
  */
 proto.fonoster.credentials.v1beta2.Credentials.prototype.getUpdatedAt = function() {

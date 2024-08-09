@@ -6,6 +6,9 @@ export class CallDetailRecord extends jspb.Message {
   getRef(): string;
   setRef(value: string): CallDetailRecord;
 
+  getCallId(): string;
+  setCallId(value: string): CallDetailRecord;
+
   getType(): CallType;
   setType(value: CallType): CallDetailRecord;
 
@@ -44,6 +47,7 @@ export class CallDetailRecord extends jspb.Message {
 export namespace CallDetailRecord {
   export type AsObject = {
     ref: string,
+    callId: string,
     type: CallType,
     status: CallStatus,
     hangupCause: HangupCause,

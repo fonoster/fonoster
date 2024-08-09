@@ -111,9 +111,6 @@ function deserialize_fonoster_calls_v1beta2_TrackCallResponse(buffer_arg) {
 }
 
 
-// TODO: Consider using Timestamp instead of int64
-// import "google/protobuf/timestamp.proto";
-//
 // Calls service definition
 var CallsService = exports.CallsService = {
   // Call a number and returns the call status

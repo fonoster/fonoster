@@ -380,11 +380,11 @@ proto.fonoster.agents.v1beta2.Agent.deserializeBinaryFromReader = function(msg, 
       msg.setEnabled(value);
       break;
     case 6:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 7:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     case 8:
@@ -471,14 +471,14 @@ proto.fonoster.agents.v1beta2.Agent.serializeBinaryToWriter = function(message, 
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       6,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       7,
       f
     );
@@ -987,7 +987,7 @@ proto.fonoster.agents.v1beta2.Agent.prototype.setEnabled = function(value) {
 
 
 /**
- * optional int64 created_at = 6;
+ * optional int32 created_at = 6;
  * @return {number}
  */
 proto.fonoster.agents.v1beta2.Agent.prototype.getCreatedAt = function() {
@@ -1005,7 +1005,7 @@ proto.fonoster.agents.v1beta2.Agent.prototype.setCreatedAt = function(value) {
 
 
 /**
- * optional int64 updated_at = 7;
+ * optional int32 updated_at = 7;
  * @return {number}
  */
 proto.fonoster.agents.v1beta2.Agent.prototype.getUpdatedAt = function() {

@@ -333,11 +333,11 @@ proto.fonoster.acls.v1beta2.Acl.deserializeBinaryFromReader = function(msg, read
       msg.addDeny(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 6:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     default:
@@ -399,14 +399,14 @@ proto.fonoster.acls.v1beta2.Acl.serializeBinaryToWriter = function(message, writ
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       5,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       6,
       f
     );
@@ -525,7 +525,7 @@ proto.fonoster.acls.v1beta2.Acl.prototype.clearDenyList = function() {
 
 
 /**
- * optional int64 created_at = 5;
+ * optional int32 created_at = 5;
  * @return {number}
  */
 proto.fonoster.acls.v1beta2.Acl.prototype.getCreatedAt = function() {
@@ -543,7 +543,7 @@ proto.fonoster.acls.v1beta2.Acl.prototype.setCreatedAt = function(value) {
 
 
 /**
- * optional int64 updated_at = 6;
+ * optional int32 updated_at = 6;
  * @return {number}
  */
 proto.fonoster.acls.v1beta2.Acl.prototype.getUpdatedAt = function() {

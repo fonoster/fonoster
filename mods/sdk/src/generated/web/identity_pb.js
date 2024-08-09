@@ -3686,11 +3686,11 @@ proto.fonoster.identity.v1beta2.User.deserializeBinaryFromReader = function(msg,
       msg.setAvatar(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 6:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     default:
@@ -3752,14 +3752,14 @@ proto.fonoster.identity.v1beta2.User.serializeBinaryToWriter = function(message,
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       5,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       6,
       f
     );
@@ -3840,7 +3840,7 @@ proto.fonoster.identity.v1beta2.User.prototype.setAvatar = function(value) {
 
 
 /**
- * optional int64 created_at = 5;
+ * optional int32 created_at = 5;
  * @return {number}
  */
 proto.fonoster.identity.v1beta2.User.prototype.getCreatedAt = function() {
@@ -3858,7 +3858,7 @@ proto.fonoster.identity.v1beta2.User.prototype.setCreatedAt = function(value) {
 
 
 /**
- * optional int64 updated_at = 6;
+ * optional int32 updated_at = 6;
  * @return {number}
  */
 proto.fonoster.identity.v1beta2.User.prototype.getUpdatedAt = function() {
@@ -4571,11 +4571,11 @@ proto.fonoster.identity.v1beta2.Workspace.deserializeBinaryFromReader = function
       msg.setOwnerRef(value);
       break;
     case 4:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     default:
@@ -4630,14 +4630,14 @@ proto.fonoster.identity.v1beta2.Workspace.serializeBinaryToWriter = function(mes
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       4,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       5,
       f
     );
@@ -4700,7 +4700,7 @@ proto.fonoster.identity.v1beta2.Workspace.prototype.setOwnerRef = function(value
 
 
 /**
- * optional int64 created_at = 4;
+ * optional int32 created_at = 4;
  * @return {number}
  */
 proto.fonoster.identity.v1beta2.Workspace.prototype.getCreatedAt = function() {
@@ -4718,7 +4718,7 @@ proto.fonoster.identity.v1beta2.Workspace.prototype.setCreatedAt = function(valu
 
 
 /**
- * optional int64 updated_at = 5;
+ * optional int32 updated_at = 5;
  * @return {number}
  */
 proto.fonoster.identity.v1beta2.Workspace.prototype.getUpdatedAt = function() {
@@ -6106,11 +6106,11 @@ proto.fonoster.identity.v1beta2.ApiKey.deserializeBinaryFromReader = function(ms
       msg.setExpiresAt(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
     case 6:
-      var value = /** @type {number} */ (reader.readInt64());
+      var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
     default:
@@ -6172,14 +6172,14 @@ proto.fonoster.identity.v1beta2.ApiKey.serializeBinaryToWriter = function(messag
   }
   f = message.getCreatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       5,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
-    writer.writeInt64(
+    writer.writeInt32(
       6,
       f
     );
@@ -6260,7 +6260,7 @@ proto.fonoster.identity.v1beta2.ApiKey.prototype.setExpiresAt = function(value) 
 
 
 /**
- * optional int64 created_at = 5;
+ * optional int32 created_at = 5;
  * @return {number}
  */
 proto.fonoster.identity.v1beta2.ApiKey.prototype.getCreatedAt = function() {
@@ -6278,7 +6278,7 @@ proto.fonoster.identity.v1beta2.ApiKey.prototype.setCreatedAt = function(value) 
 
 
 /**
- * optional int64 updated_at = 6;
+ * optional int32 updated_at = 6;
  * @return {number}
  */
 proto.fonoster.identity.v1beta2.ApiKey.prototype.getUpdatedAt = function() {
