@@ -67,7 +67,7 @@ function createFetchCalls(influxdb: InfluxDBClient) {
 
     const query = flux`from(bucket: "${INFLUXDB_BUCKET}")
       |> range(start: ${parsedAfter})
-      |> pivot(rowKey: ["ref"], columnKey: ["_field"], valueColumn: "_value")
+      |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({
           r with
           duration: (int(v: r.endedAt) - int(v: r.startedAt)) / 1000,

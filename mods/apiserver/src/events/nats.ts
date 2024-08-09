@@ -22,8 +22,8 @@ import { NatsEventCallback } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const ROUTR_SUBJECT = "routr.endpoint.registered";
-const FONOSTER_SUBJECT = "fonoster.events";
+const ROUTR_REGISTRATION_SUBJECT = "routr.endpoint.registered";
+const ROUTR_CALL_SUBJECT = "routr.call.*";
 
 async function streamEvents(subscription, callback: NatsEventCallback) {
   // eslint-disable-next-line no-loops/no-loops
@@ -44,15 +44,15 @@ function watchNats(natsUrl: string, callback: NatsEventCallback) {
   (async () => {
     const nc = await connect({ servers: natsUrl });
 
-    const r = nc.subscribe(ROUTR_SUBJECT);
-    const f = nc.subscribe("foo");
+    const a = nc.subscribe(ROUTR_REGISTRATION_SUBJECT);
+    const b = nc.subscribe(ROUTR_CALL_SUBJECT);
 
     logger.verbose("connected to nats", { natsUrl });
     logger.verbose("subscribed to subjects", {
-      subjects: [ROUTR_SUBJECT, FONOSTER_SUBJECT]
+      subjects: [ROUTR_REGISTRATION_SUBJECT, ROUTR_CALL_SUBJECT]
     });
 
-    await Promise.all([streamEvents(r, callback), streamEvents(f, callback)]);
+    await Promise.all([streamEvents(a, callback), streamEvents(b, callback)]);
   })();
 }
 

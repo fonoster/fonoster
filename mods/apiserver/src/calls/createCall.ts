@@ -58,7 +58,7 @@ function createCall(publisher: CallPublisher) {
         appRef
       });
 
-      publisher.publishCall({ ref, from, to, appRef });
+      publisher.publishCall({ ref, from, to, appRef, accessKeyId });
 
       callback(null, { ref });
     } catch (error) {

@@ -43,7 +43,7 @@ function createInfluxDbPub(config) {
   const writeClient = client.getWriteApi(org, bucket, "ns");
 
   return (event) => {
-    const point = new Point(event.name).tag("ref", event.tag);
+    const point = new Point(event.name).tag("callId", event.tag);
 
     Object.entries(event.data).forEach(([key, value]) => {
       if (typeof value === "number") {

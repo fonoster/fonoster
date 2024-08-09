@@ -67,12 +67,13 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
         logger.error(err);
       }
 
-      const { ref, from, to, appRef } = msg.json() as CreateCallRequest & {
-        ref: string;
-      };
+      const { ref, from, to, appRef, accessKeyId } =
+        msg.json() as CreateCallRequest & {
+          ref: string;
+          accessKeyId: string;
+        };
 
       logger.verbose("received a new call request", {
-        callRef: ref,
         ...msg.json()
       });
 
@@ -85,7 +86,10 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           extension: ASTERISK_EXTENSION,
           endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${ASTERISK_SYSTEM_DOMAIN}`,
           variables: {
+            "PJSIP_HEADER(add,X-Call-Ref)": ref,
             "PJSIP_HEADER(add,X-DOD-Number)": from,
+            "PJSIP_HEADER(add,X-Access-Key-Id)": accessKeyId,
+            "PJSIP_HEADER(add,X-Is-Programmable-Type)": "true",
             INGRESS_NUMBER: from,
             APP_REF: appRef
           }

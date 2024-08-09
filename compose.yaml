@@ -43,6 +43,8 @@ services:
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
       RTPENGINE_HOST: ${ROUTR_RTPENGINE_HOST}
+      NATS_PUBLISHER_ENABLED: "true"
+      NATS_PUBLISHER_URL: ${NATS_URL}
       # TODO: We should't have to set this; please fix upstream
       LOG4J2: /etc/routr/log4j2.yaml
     ports:

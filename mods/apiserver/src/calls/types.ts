@@ -60,6 +60,7 @@ enum CallDirection {
 
 type CallDetailRecord = {
   ref: string;
+  callId: string;
   type: CallType;
   status: CallStatus;
   hangupCause: HangupCause;
@@ -109,7 +110,9 @@ type CreateCallResponse = {
 };
 
 type CallPublisher = {
-  publishCall: (event: CreateCallRequest & { ref: string }) => void;
+  publishCall: (
+    event: CreateCallRequest & { ref: string; accessKeyId: string }
+  ) => void;
 };
 
 type TrackCallResponse = {

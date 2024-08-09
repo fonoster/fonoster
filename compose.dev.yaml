@@ -15,6 +15,12 @@ services:
       - 51908:51908
       - 5060:5060/udp
       - 5060-5063:5060-5063
+    environment:
+      # In development this environment variable points to an
+      # address not accessible from the container. Therefore, we
+      # need to manually point to the NAT's container address here.
+      NATS_PUBLISHER_URL: nats://nats:4222
+      CONSOLE_PUBLISHER_ENABLED: "true"
     volumes:
       - ./etc/log4j2.yaml:/etc/routr/log4j2.yaml
 
