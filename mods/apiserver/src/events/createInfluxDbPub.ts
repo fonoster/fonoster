@@ -37,6 +37,8 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function createInfluxDbPub(config) {
   const { url, token, org, bucket } = config;
 
+  logger.info("creating influxdb client", { url, org, bucket });
+
   const client = new InfluxDB({ url, token });
   const writeClient = client.getWriteApi(org, bucket, "ns");
 

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getLogger } from "@fonoster/logger";
 import { flux } from "@influxdata/influxdb-client";
 import {
   CALL_DETAIL_RECORD_MEASUREMENT,
@@ -23,6 +24,8 @@ import {
   InfluxDBClient
 } from "./types";
 import { INFLUXDB_BUCKET } from "../envs";
+
+const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function createFetchSingleCall(influxdb: InfluxDBClient) {
   return async (
@@ -37,6 +40,8 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
       |> filter(fn: (r) => r.ref == ${ref} and r.accessKeyId == "${accessKeyId}")
       |> sort(columns: ["_time"], desc: true)
       |> limit(n: 1)`;
+
+    logger.verbose("fetch single call request", { accessKeyId, ref });
 
     const items = (await influxdb.collectRows(query)) as CallDetailRecord[];
 

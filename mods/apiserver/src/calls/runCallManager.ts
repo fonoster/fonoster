@@ -71,7 +71,7 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
         ref: string;
       };
 
-      logger.info("received a new call request", {
+      logger.verbose("received a new call request", {
         callRef: ref,
         ...msg.json()
       });
