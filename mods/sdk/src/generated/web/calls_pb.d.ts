@@ -233,8 +233,8 @@ export namespace TrackCallResponse {
 }
 
 export enum CallType { 
-  PROGRAMMABLE = 0,
-  SIP_TRUNKING = 1,
+  SIP_TRUNKING = 0,
+  PROGRAMMABLE = 1,
 }
 export enum HangupCause { 
   NORMAL_CLEARING = 0,
