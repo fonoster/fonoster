@@ -48,6 +48,11 @@ function transformEvent(
     delete transformedEvent.hangupCause;
   }
 
+  if (event.to) {
+    const to = event.to as string;
+    transformedEvent.to = to.split("@")[0].replace("sip:", "");
+  }
+
   const extraHeaders = event.extraHeaders as Record<string, string>;
   if (extraHeaders) {
     if (extraHeaders[ACCESS_KEY_ID_HEADER]) {
