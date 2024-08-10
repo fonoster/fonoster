@@ -24,6 +24,8 @@ import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { CallPublisher } from "./types";
+import { Prisma } from "../core/db";
+import { notFoundError } from "../core/notFoundError";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -34,7 +36,7 @@ const CreateCallRequestSchema = z.object({
   timeout: z.number().optional()
 });
 
-function createCall(publisher: CallPublisher) {
+function createCall(prisma: Prisma, publisher: CallPublisher) {
   return async (
     call: {
       request: CreateCallRequest;
@@ -44,15 +46,25 @@ function createCall(publisher: CallPublisher) {
     try {
       const { from, to, appRef, timeout } = call.request;
 
-      CreateCallRequestSchema.parse(call.request);
-
       const ref = uuidv4();
+
+      logger.verbose("call to createCall", { ...call.request, ref });
+
+      CreateCallRequestSchema.parse(call.request);
 
       const accessKeyId = getAccessKeyIdFromCall(
         call as unknown as ServerInterceptingCall
       );
 
-      logger.verbose("call to createCall", { ...call.request, ref });
+      const app = await prisma.application.findUnique({
+        where: { ref: appRef, accessKeyId }
+      });
+
+      if (!app) {
+        throw notFoundError(`Application with ref ${appRef} not found`);
+      }
+
+      // TODO: Must validate that the from number exists and is owned by the user
 
       publisher.publishCall({
         ref,

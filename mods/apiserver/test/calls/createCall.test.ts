@@ -22,6 +22,7 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
+import { Prisma } from "../../src/core/db";
 import { TEST_TOKEN } from "../testToken";
 
 chai.use(chaiAsPromised);
@@ -50,11 +51,27 @@ describe("@calls/createCall", function () {
       }
     };
 
+    const application = {
+      ref: "123",
+      name: "My Application",
+      appEndpoint: "example.com:50051",
+      accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    const applications = {
+      application: {
+        findUnique: sandbox.stub().resolves(application)
+      }
+    } as unknown as Prisma;
+
     // Act
-    await createCall(publisher)(call, sandbox.stub());
+    await createCall(applications, publisher)(call, sandbox.stub());
 
     // Assert
     expect(publisher.publishCall).to.have.been.calledOnce;
+    expect(applications.application.findUnique).to.have.been.calledOnce;
     expect(publisher.publishCall).to.have.been.calledWithMatch({
       from: "+1234567890",
       to: "+1234567891",

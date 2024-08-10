@@ -48,7 +48,7 @@ describe("@applications/getApplication", function () {
     const application = {
       ref: "123",
       name: "My Application",
-      applUrl: "https://example.com",
+      appEndpoint: "example.com:50051",
       accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
       createdAt: new Date(),
       updatedAt: new Date()
@@ -77,7 +77,7 @@ describe("@applications/getApplication", function () {
     expect(prisma.application.findUnique).to.have.been.calledTwice;
     expect(response).have.property("ref", application.ref);
     expect(response).have.property("name", application.name);
-    expect(response).have.property("applUrl", application.applUrl);
+    expect(response).have.property("appEndpoint", application.appEndpoint);
     expect(response).have.property("accessKeyId", application.accessKeyId);
   });
 

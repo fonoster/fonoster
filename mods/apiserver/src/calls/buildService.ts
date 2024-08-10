@@ -23,6 +23,7 @@ import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
 import { trackCall } from "./trackCall";
 import { InfluxDBClient } from "./types";
+import { prisma } from "../core/db";
 import { NATS_URL } from "../envs";
 
 async function buildService(influxdb: InfluxDBClient) {
@@ -37,7 +38,7 @@ async function buildService(influxdb: InfluxDBClient) {
       proto: "calls.proto"
     },
     handlers: {
-      createCall: createCall(callPublisher),
+      createCall: createCall(prisma, callPublisher),
       listCalls: listCalls(influxdb),
       getCall: getCall(influxdb),
       trackCall: trackCall(trackCallSubscriber())
