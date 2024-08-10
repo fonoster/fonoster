@@ -18,6 +18,7 @@
  */
 import { DialRequest, DialStatus, STASIS_APP_NAME } from "@fonoster/common";
 import { Client } from "ari-client";
+import { v4 as uuidv4 } from "uuid";
 import { handleChannelLeftBridge } from "./handleChannelLeftBridge";
 import { handleDialEvents } from "./handleDialEvents";
 import { handleStasisEnd } from "./handleStasisEnd";
@@ -46,11 +47,14 @@ function dialHandler(ari: Client, voiceClient: VoiceClient) {
     const ingressNumber = (await getChannelVar(ChannelVar.INGRESS_NUMBER))
       .value;
 
+    const ref = uuidv4();
+
     await dialed.originate({
       app: STASIS_APP_NAME,
       endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${destination}@${ASTERISK_SYSTEM_DOMAIN}`,
       timeout,
       variables: {
+        "PJSIP_HEADER(add,X-Call-Ref)": ref,
         "PJSIP_HEADER(add,X-Dod-Number)": ingressNumber,
         "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true"
       }

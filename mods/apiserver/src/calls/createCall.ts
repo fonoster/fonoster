@@ -29,7 +29,8 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 const CreateCallRequestSchema = z.object({
   from: z.string(),
   to: z.string(),
-  appRef: z.string()
+  appRef: z.string(),
+  timeout: z.number().optional()
 });
 
 function createCall(publisher: CallPublisher) {
@@ -40,7 +41,7 @@ function createCall(publisher: CallPublisher) {
     callback: (error?: GrpcErrorMessage, response?: CreateCallResponse) => void
   ) => {
     try {
-      const { from, to, appRef } = call.request;
+      const { from, to, appRef, timeout } = call.request;
 
       CreateCallRequestSchema.parse(call.request);
 
@@ -50,15 +51,16 @@ function createCall(publisher: CallPublisher) {
         call as unknown as ServerInterceptingCall
       );
 
-      logger.verbose("call to createCall", {
-        accessKeyId,
+      logger.verbose("call to createCall", { ...call.request, ref });
+
+      publisher.publishCall({
         ref,
         from,
         to,
-        appRef
+        appRef,
+        accessKeyId,
+        timeout: timeout || 60
       });
-
-      publisher.publishCall({ ref, from, to, appRef, accessKeyId });
 
       callback(null, { ref });
     } catch (error) {

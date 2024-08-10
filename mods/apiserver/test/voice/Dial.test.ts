@@ -25,7 +25,7 @@ import {
 import { Bridge, Client } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
-import sinon, { createSandbox } from "sinon";
+import sinon, { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { sessionRef } from "../../../voice/test/helpers";
@@ -68,6 +68,7 @@ describe("@voice/handler/Dial", function () {
       endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${request.destination}@${ASTERISK_SYSTEM_DOMAIN}`,
       timeout: request.timeout,
       variables: {
+        "PJSIP_HEADER(add,X-Call-Ref)": match.string,
         "PJSIP_HEADER(add,X-Dod-Number)": "value",
         "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true"
       }

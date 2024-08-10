@@ -67,7 +67,7 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
         logger.error(err);
       }
 
-      const { ref, from, to, appRef, accessKeyId } =
+      const { ref, from, to, appRef, accessKeyId, timeout } =
         msg.json() as CreateCallRequest & {
           ref: string;
           accessKeyId: string;
@@ -85,6 +85,7 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           context: ASTERISK_CONTEXT,
           extension: ASTERISK_EXTENSION,
           endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${ASTERISK_SYSTEM_DOMAIN}`,
+          timeout,
           variables: {
             "PJSIP_HEADER(add,X-Call-Ref)": ref,
             "PJSIP_HEADER(add,X-Dod-Number)": from,
