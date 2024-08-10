@@ -16,13 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { STASIS_APP_NAME } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import ariClient from "ari-client";
 import { connect } from "nats";
 import { CreateCallRequest } from "./types";
 import {
-  ASTERISK_CONTEXT,
-  ASTERISK_EXTENSION,
   ASTERISK_SYSTEM_DOMAIN,
   ASTERISK_TRUNK,
   CALLS_CREATE_SUBJECT,
@@ -77,30 +76,23 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
         ...msg.json()
       });
 
-      // eslint-disable-next-line new-cap
-      const dialed = ariConn.Channel();
-
-      await dialed
-        .originate({
-          context: ASTERISK_CONTEXT,
-          extension: ASTERISK_EXTENSION,
-          endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${ASTERISK_SYSTEM_DOMAIN}`,
-          timeout,
-          variables: {
-            "PJSIP_HEADER(add,X-Call-Ref)": ref,
-            "PJSIP_HEADER(add,X-Dod-Number)": from,
-            "PJSIP_HEADER(add,X-Access-Key-Id)": accessKeyId,
-            "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true",
-            INGRESS_NUMBER: from,
-            APP_REF: appRef
-          }
-        })
-        .catch((err) => {
-          logger.error("error creating call", { err });
-        });
+      await ariConn.channels.originateWithId({
+        channelId: `call-${ref}`,
+        app: STASIS_APP_NAME,
+        endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${ASTERISK_SYSTEM_DOMAIN}`,
+        timeout,
+        variables: {
+          "PJSIP_HEADER(add,X-Call-Ref)": ref,
+          "PJSIP_HEADER(add,X-Dod-Number)": from,
+          "PJSIP_HEADER(add,X-Access-Key-Id)": accessKeyId,
+          "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true",
+          INGRESS_NUMBER: from,
+          APP_REF: appRef
+        }
+      });
     };
   } catch (e) {
-    logger.error("error connecting to ari", { e });
+    logger.error("error connecting to ari", e);
   }
 }
 

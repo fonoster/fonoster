@@ -59,7 +59,7 @@ class VoiceDispatcher {
 
   async handleStasisStart(event: StasisStart, channel: Channel) {
     // TODO: This is a temporary fix. We need to find a better way to handle external media channels
-    if (channel.id.length > 15) {
+    if (channel.id.length > 15 && !channel.id.includes("call-")) {
       logger.verbose("skipping stasis start for external media channel", {
         channel: channel.id
       });
