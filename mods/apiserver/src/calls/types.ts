@@ -68,10 +68,6 @@ type CreateCallRequest = {
   timeout?: number;
 };
 
-type CreateCallResponse = {
-  ref: string;
-};
-
 type CallPublisher = {
   publishCall: (
     event: CreateCallRequest & { ref: string; accessKeyId: string }
@@ -105,7 +101,6 @@ export {
   CallDirection,
   InfluxDBClient,
   CreateCallRequest,
-  CreateCallResponse,
   CallPublisher,
   TrackCallResponse,
   CallStream,

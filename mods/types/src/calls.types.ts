@@ -75,6 +75,7 @@ type CreateCallRequest = {
   from: string;
   to: string;
   appRef?: string;
+  timeout?: number;
 };
 
 type CallPublisher = {

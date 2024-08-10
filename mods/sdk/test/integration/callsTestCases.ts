@@ -34,7 +34,7 @@ function createCallsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         },
-        afterTestDelay: 2000
+        afterTestDelay: 1000
       },
       {
         id: `${idBase}-01`,
@@ -45,16 +45,28 @@ function createCallsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref").to.not.be.null;
           expect(response).has.property("callId").to.not.be.null;
-          expect(response).has.property("type").to.be.equal("PROGRAMMABLE");
+          expect(response).has.property("type").to.be.equal("API_ORIGINATED");
           expect(response)
             .has.property("status")
-            .to.be.oneOf(["UNKNOWN", "FAILED"]);
+            .to.be.oneOf([
+              "UNKNOWN",
+              "NORMAL_CLEARING",
+              "CALL_REJECTED",
+              "UNALLOCATED",
+              "NO_USER_RESPONSE",
+              "NO_ROUTE_DESTINATION",
+              "NO_ANSWER",
+              "USER_BUSY",
+              "NOT_ACCEPTABLE_HERE",
+              "SERVICE_UNAVAILABLE",
+              "INVALID_NUMBER_FORMAT"
+            ]);
           expect(response).has.property("startedAt").to.be.a("date");
           expect(response).has.property("endedAt").to.be.a("date");
           expect(response).has.property("from").to.not.be.null;
           expect(response).has.property("to").to.not.be.null;
           expect(response).has.property("duration").to.be.a("number");
-          expect(response).has.property("direction").to.be.equal("OUTBOUND");
+          expect(response).has.property("direction").to.be.equal("TO_PSTN");
         }
       },
       {
@@ -76,10 +88,22 @@ function createCallsTestCases(expect) {
           expect(response.items[0]).to.have.property("callId").to.not.be.null;
           expect(response.items[0])
             .to.have.property("type")
-            .to.be.equal("PROGRAMMABLE");
+            .to.be.equal("API_ORIGINATED");
           expect(response.items[0])
             .to.have.property("status")
-            .to.be.oneOf(["UNKNOWN", "FAILED"]);
+            .to.be.oneOf([
+              "UNKNOWN",
+              "NORMAL_CLEARING",
+              "CALL_REJECTED",
+              "UNALLOCATED",
+              "NO_USER_RESPONSE",
+              "NO_ROUTE_DESTINATION",
+              "NO_ANSWER",
+              "USER_BUSY",
+              "NOT_ACCEPTABLE_HERE",
+              "SERVICE_UNAVAILABLE",
+              "INVALID_NUMBER_FORMAT"
+            ]);
           expect(response.items[0])
             .to.have.property("startedAt")
             .to.be.a("date");
@@ -91,7 +115,7 @@ function createCallsTestCases(expect) {
             .to.be.a("number");
           expect(response.items[0])
             .to.have.property("direction")
-            .to.be.equal("OUTBOUND");
+            .to.be.equal("TO_PSTN");
         }
       }
     ]

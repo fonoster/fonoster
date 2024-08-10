@@ -16,13 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { BaseApiObject, GrpcErrorMessage, handleError } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { CreateCallRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
-import { CallPublisher, CreateCallRequest, CreateCallResponse } from "./types";
+import { CallPublisher } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -38,7 +39,7 @@ function createCall(publisher: CallPublisher) {
     call: {
       request: CreateCallRequest;
     },
-    callback: (error?: GrpcErrorMessage, response?: CreateCallResponse) => void
+    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
       const { from, to, appRef, timeout } = call.request;
