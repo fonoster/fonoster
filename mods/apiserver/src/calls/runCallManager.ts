@@ -78,9 +78,9 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
       });
 
       // eslint-disable-next-line new-cap
-      const channel = ariConn.Channel();
+      const dialed = ariConn.Channel();
 
-      channel
+      await dialed
         .originate({
           context: ASTERISK_CONTEXT,
           extension: ASTERISK_EXTENSION,
