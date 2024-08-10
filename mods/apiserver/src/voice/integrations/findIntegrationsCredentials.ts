@@ -24,7 +24,7 @@ function findIntegrationsCredentials(
 ) {
   return integrations.find(
     (i: { productRef: string }) => i.productRef === engine
-  );
+  )?.credentials;
 }
 
 export { findIntegrationsCredentials };
