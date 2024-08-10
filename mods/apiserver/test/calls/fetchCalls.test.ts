@@ -17,11 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CallType } from "@fonoster/types";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
-import { CallStatus, CallType, InfluxDBClient } from "../../src/calls/types";
+import { CallStatus, InfluxDBClient } from "../../src/calls/types";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -46,7 +47,7 @@ describe("@calls/fetchCalls", function () {
         from: "+1234567890",
         to: "+1234567891",
         status: CallStatus.NORMAL_CLEARING,
-        type: CallType.PROGRAMMABLE,
+        type: CallType.API_ORIGINATED,
         accessKeyId
       }
     ];
@@ -73,7 +74,7 @@ describe("@calls/fetchCalls", function () {
       "../../src/calls/createFetchCalls"
     );
     const accessKeyId = "accessKeyId";
-    const type = CallType.PROGRAMMABLE;
+    const type = CallType.API_ORIGINATED;
     const from = "+1234567890";
     const to = "+1234567891";
     const status = CallStatus.NORMAL_CLEARING;

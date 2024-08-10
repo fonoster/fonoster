@@ -67,7 +67,10 @@ describe("@voice/handler/Dial", function () {
       app: STASIS_APP_NAME,
       endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${request.destination}@${ASTERISK_SYSTEM_DOMAIN}`,
       timeout: request.timeout,
-      variables: { "PJSIP_HEADER(add,X-DOD-Number)": "value" }
+      variables: {
+        "PJSIP_HEADER(add,X-Dod-Number)": "value",
+        "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true"
+      }
     });
     expect(channelStub.returnValues[0].on).to.have.been.calledWith(
       AriEvent.STASIS_START
