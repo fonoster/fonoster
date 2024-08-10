@@ -66,6 +66,9 @@ export class CreateCallRequest extends jspb.Message {
   getAppRef(): string;
   setAppRef(value: string): CreateCallRequest;
 
+  getTimeout(): number;
+  setTimeout(value: number): CreateCallRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateCallRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateCallRequest): CreateCallRequest.AsObject;
@@ -79,6 +82,7 @@ export namespace CreateCallRequest {
     from: string,
     to: string,
     appRef: string,
+    timeout: number,
   }
 }
 

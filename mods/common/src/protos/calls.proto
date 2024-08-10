@@ -89,6 +89,8 @@ message CreateCallRequest {
   string to = 2;
   // Optional application reference
   string app_ref = 3;
+  // Optional timeout in seconds
+  int32 timeout = 4;
 }
 
 // The response message for Calls.Call

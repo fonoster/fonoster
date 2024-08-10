@@ -34,7 +34,7 @@ function createCallsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         },
-        afterTestDelay: 1000
+        afterTestDelay: 3000
       },
       {
         id: `${idBase}-01`,

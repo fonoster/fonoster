@@ -628,7 +628,8 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.toObject = function(includeInstan
   var f, obj = {
     from: jspb.Message.getFieldWithDefault(msg, 1, ""),
     to: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    appRef: jspb.Message.getFieldWithDefault(msg, 3, "")
+    appRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    timeout: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -677,6 +678,10 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.deserializeBinaryFromReader = fun
       var value = /** @type {string} */ (reader.readString());
       msg.setAppRef(value);
       break;
+    case 4:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setTimeout(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -724,6 +729,13 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.serializeBinaryToWriter = functio
   if (f.length > 0) {
     writer.writeString(
       3,
+      f
+    );
+  }
+  f = message.getTimeout();
+  if (f !== 0) {
+    writer.writeInt32(
+      4,
       f
     );
   }
@@ -781,6 +793,24 @@ proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.getAppRef = function() 
  */
 proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.setAppRef = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional int32 timeout = 4;
+ * @return {number}
+ */
+proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.getTimeout = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonoster.calls.v1beta2.CreateCallRequest} returns this
+ */
+proto.fonoster.calls.v1beta2.CreateCallRequest.prototype.setTimeout = function(value) {
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
