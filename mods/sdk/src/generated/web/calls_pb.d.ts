@@ -229,8 +229,8 @@ export namespace TrackCallResponse {
 }
 
 export enum CallType { 
-  SIP_TRUNKING = 0,
-  PROGRAMMABLE = 1,
+  SIP_ORIGINATED = 0,
+  API_ORIGINATED = 1,
 }
 export enum CallStatus { 
   UNKNOWN = 0,

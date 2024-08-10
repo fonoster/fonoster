@@ -87,9 +87,9 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${ASTERISK_SYSTEM_DOMAIN}`,
           variables: {
             "PJSIP_HEADER(add,X-Call-Ref)": ref,
-            "PJSIP_HEADER(add,X-DOD-Number)": from,
+            "PJSIP_HEADER(add,X-Dod-Number)": from,
             "PJSIP_HEADER(add,X-Access-Key-Id)": accessKeyId,
-            "PJSIP_HEADER(add,X-Is-Programmable-Type)": "true",
+            "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true",
             INGRESS_NUMBER: from,
             APP_REF: appRef
           }

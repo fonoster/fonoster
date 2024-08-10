@@ -1868,8 +1868,8 @@ proto.fonoster.calls.v1beta2.TrackCallResponse.prototype.setStatus = function(va
  * @enum {number}
  */
 proto.fonoster.calls.v1beta2.CallType = {
-  SIP_TRUNKING: 0,
-  PROGRAMMABLE: 1
+  SIP_ORIGINATED: 0,
+  API_ORIGINATED: 1
 };
 
 /**

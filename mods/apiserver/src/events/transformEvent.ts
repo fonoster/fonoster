@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CallType } from "@fonoster/types";
 import { mapCallDirectionToEnum } from "./mapCallDirectionToEnum";
-import { CallType } from "../calls/types";
 
 const ACCESS_KEY_ID_HEADER = "X-Access-Key-Id";
 const CALL_REF_HEADER = "X-Call-Ref";
 const CALL_DIRECTION_HEADER = "X-Call-Direction";
-const DOD_NUMBER_HEADER = "X-DOD-Number";
-const PROGRAMMABLE_TYPE_HEADER = "X-Is-Programmable-Type";
+const DOD_NUMBER_HEADER = "X-Dod-Number";
+const API_ORIGINATED_TYPE_HEADER = "X-Is-Api-Originated-Type";
 
 function transformEvent(
   event: Record<string, unknown>
@@ -67,8 +67,8 @@ function transformEvent(
       transformedEvent.from = extraHeaders[DOD_NUMBER_HEADER];
     }
 
-    if (extraHeaders[PROGRAMMABLE_TYPE_HEADER]) {
-      transformedEvent.type = CallType.PROGRAMMABLE;
+    if (extraHeaders[API_ORIGINATED_TYPE_HEADER]) {
+      transformedEvent.type = CallType.API_ORIGINATED;
     }
 
     if (extraHeaders[CALL_DIRECTION_HEADER]) {

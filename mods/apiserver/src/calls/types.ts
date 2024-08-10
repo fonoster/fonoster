@@ -17,33 +17,10 @@
  * limitations under the License.
  */
 import { DialStatus, GrpcErrorMessage } from "@fonoster/common";
+import { CallDirection, CallStatus, CallType } from "@fonoster/types";
 import { ParameterizedQuery } from "@influxdata/influxdb-client";
 
 const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
-
-enum CallType {
-  PROGRAMMABLE = "PROGRAMMABLE",
-  SIP_TRUNKING = "SIP_TRUNKING"
-}
-
-enum CallStatus {
-  NORMAL_CLEARING = "NORMAL_CLEARING",
-  CALL_REJECTED = "CALL_REJECTED",
-  UNALLOCATED = "UNALLOCATED",
-  NO_USER_RESPONSE = "NO_USER_RESPONSE",
-  NO_ROUTE_DESTINATION = "NO_ROUTE_DESTINATION",
-  NO_ANSWER = "NO_ANSWER",
-  USER_BUSY = "USER_BUSY",
-  NOT_ACCEPTABLE_HERE = "NOT_ACCEPTABLE_HERE",
-  SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE",
-  INVALID_NUMBER_FORMAT = "INVALID_NUMBER_FORMAT"
-}
-
-enum CallDirection {
-  FROM_PSTN = "FROM_PSTN",
-  TO_PSTN = "TO_PSTN",
-  INTRA_NETWORK = "INTRA_NETWORK"
-}
 
 type CallDetailRecord = {
   ref: string;

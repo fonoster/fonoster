@@ -21,8 +21,8 @@ import { BaseApiObject, ListResponse } from "./common";
 const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
 
 enum CallType {
-  PROGRAMMABLE = "PROGRAMMABLE",
-  SIP_TRUNKING = "SIP_TRUNKING"
+  SIP_ORIGINATED = "SIP_ORIGINATED",
+  API_ORIGINATED = "API_ORIGINATED"
 }
 
 enum CallStatus {
@@ -39,8 +39,9 @@ enum CallStatus {
 }
 
 enum CallDirection {
-  INBOUND = "INBOUND",
-  OUTBOUND = "OUTBOUND"
+  FROM_PSTN = "FROM_PSTN",
+  TO_PSTN = "TO_PSTN",
+  INTRA_NETWORK = "INTRA_NETWORK"
 }
 
 type CallDetailRecord = {

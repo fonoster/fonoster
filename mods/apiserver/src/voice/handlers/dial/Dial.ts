@@ -51,8 +51,8 @@ function dialHandler(ari: Client, voiceClient: VoiceClient) {
       endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${destination}@${ASTERISK_SYSTEM_DOMAIN}`,
       timeout,
       variables: {
-        "PJSIP_HEADER(add,X-DOD-Number)": ingressNumber,
-        "PJSIP_HEADER(add,X-Is-Programmable-Type)": "true"
+        "PJSIP_HEADER(add,X-Dod-Number)": ingressNumber,
+        "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true"
       }
     });
 
