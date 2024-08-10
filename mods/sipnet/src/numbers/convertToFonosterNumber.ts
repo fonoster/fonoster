@@ -33,7 +33,7 @@ function convertToFonosterNumber(number: INumberExtended): INumber {
     city: number.city,
     country: number.country,
     countryIsoCode: number.countryIsoCode,
-    trunkRef: number.trunk?.ref || undefined,
+    trunk: number.trunk,
     createdAt: new Date(number.createdAt * 1000),
     updatedAt: new Date(number.updatedAt * 1000)
   };

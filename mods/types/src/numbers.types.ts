@@ -29,7 +29,10 @@ type INumber = {
   city: string;
   country: string;
   countryIsoCode: string;
-  trunkRef?: string;
+  trunk?: {
+    ref: string;
+    name: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 };
@@ -54,7 +57,7 @@ type UpdateNumberRequest = Flatten<
 >;
 
 type INumberExtended = RenameAndConvertToTimestamp<
-  Omit<INumber, "appRef" | "agentAor" | "trunkRef">
+  Omit<INumber, "appRef" | "agentAor" | "trunk">
 > & {
   aorLink?: string;
   trunk?: TrunkExtended;
