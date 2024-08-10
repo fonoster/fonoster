@@ -1893,8 +1893,9 @@ proto.fonoster.calls.v1beta2.CallStatus = {
  * @enum {number}
  */
 proto.fonoster.calls.v1beta2.CallDirection = {
-  INBOUND: 0,
-  OUTBOUND: 1
+  FROM_PSTN: 0,
+  TO_PSTN: 1,
+  INTRA_NETWORK: 2
 };
 
 goog.object.extend(exports, proto.fonoster.calls.v1beta2);

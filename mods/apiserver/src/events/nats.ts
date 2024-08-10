@@ -22,7 +22,7 @@ import { NatsEventCallback } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const ROUTR_REGISTRATION_SUBJECT = "routr.endpoint.registered";
+// const ROUTR_REGISTRATION_SUBJECT = "routr.endpoint.registered";
 const ROUTR_CALL_SUBJECT = "routr.call.*";
 
 async function streamEvents(subscription, callback: NatsEventCallback) {
@@ -44,15 +44,14 @@ function watchNats(natsUrl: string, callback: NatsEventCallback) {
   (async () => {
     const nc = await connect({ servers: natsUrl });
 
-    const a = nc.subscribe(ROUTR_REGISTRATION_SUBJECT);
-    const b = nc.subscribe(ROUTR_CALL_SUBJECT);
+    const a = nc.subscribe(ROUTR_CALL_SUBJECT);
 
     logger.verbose("connected to nats", { natsUrl });
     logger.verbose("subscribed to subjects", {
-      subjects: [ROUTR_REGISTRATION_SUBJECT, ROUTR_CALL_SUBJECT]
+      subjects: [ROUTR_CALL_SUBJECT]
     });
 
-    await Promise.all([streamEvents(a, callback), streamEvents(b, callback)]);
+    await Promise.all([streamEvents(a, callback)]);
   })();
 }
 

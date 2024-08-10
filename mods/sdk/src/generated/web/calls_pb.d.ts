@@ -246,6 +246,7 @@ export enum CallStatus {
   INVALID_NUMBER_FORMAT = 10,
 }
 export enum CallDirection { 
-  INBOUND = 0,
-  OUTBOUND = 1,
+  FROM_PSTN = 0,
+  TO_PSTN = 1,
+  INTRA_NETWORK = 2,
 }

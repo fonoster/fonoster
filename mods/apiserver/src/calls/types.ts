@@ -40,8 +40,9 @@ enum CallStatus {
 }
 
 enum CallDirection {
-  INBOUND = "INBOUND",
-  OUTBOUND = "OUTBOUND"
+  FROM_PSTN = "FROM_PSTN",
+  TO_PSTN = "TO_PSTN",
+  INTRA_NETWORK = "INTRA_NETWORK"
 }
 
 type CallDetailRecord = {

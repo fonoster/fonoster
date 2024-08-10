@@ -32,10 +32,14 @@ function createFetchSingleCall(influxdb: InfluxDBClient) {
     accessKeyId: string,
     ref: string
   ): Promise<CallDetailRecord> => {
-    // TODO: Look into best practices for range and limit
     const query = flux`from(bucket: "${INFLUXDB_BUCKET}")
       |> range(start: -360d)
-      |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+      |> pivot(rowKey: ["callId"], columnKey: ["_field"], valueColumn: "_value")
+      |> map(fn: (r) => ({
+          r with
+          duration: (int(v: r.endedAt) - int(v: r.startedAt)) / 1000,
+          startedAtParsed: int(v: r.startedAt) / 1000,
+        }))
       |> filter(fn: (r) => r._measurement == "${CALL_DETAIL_RECORD_MEASUREMENT}")
       |> filter(fn: (r) => r.ref == ${ref} and r.accessKeyId == "${accessKeyId}")
       |> sort(columns: ["_time"], desc: true)
