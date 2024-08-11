@@ -16,27 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DialStatus } from "@fonoster/common";
-import { VoiceClient } from "../../types";
+import { mapDialStatus } from "./mapDialStatus";
+import { VoiceClient } from "../voice/types";
 
-const FailedStatus = ["CHANUNAVAIL", "CONGESTION"];
-
-function handleDialEvents(voiceClient: VoiceClient) {
+function makeHandleDialEventsWithVoiceClient(voiceClient: VoiceClient) {
   return async (event: { dialstatus: string }) => {
-    const status = event.dialstatus.toUpperCase();
-    const dialStatusArray = Object.keys(DialStatus).map(
-      (key) => DialStatus[key]
-    );
-    let mappedStatus: DialStatus;
-
-    if (FailedStatus.includes(status)) {
-      mappedStatus = DialStatus.FAILED;
-    } else if (dialStatusArray.includes(status)) {
-      mappedStatus = DialStatus[status];
-    } else {
-      // If the status is not in the DialStatus enum, we ignore the event
-      return;
-    }
+    const mappedStatus = mapDialStatus(event.dialstatus);
+    if (!mappedStatus) return; // Ignore the event if status is not mapped
 
     voiceClient.sendResponse({
       dialResponse: {
@@ -46,4 +32,4 @@ function handleDialEvents(voiceClient: VoiceClient) {
   };
 }
 
-export { handleDialEvents };
+export { makeHandleDialEventsWithVoiceClient };

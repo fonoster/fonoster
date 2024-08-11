@@ -16,22 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { STASIS_APP_NAME } from "@fonoster/common";
-import { v4 as uuidv4 } from "uuid";
-import { APISERVER_HOST } from "../envs";
+import { DialStatus } from "@fonoster/common";
 
-function createExternalMediaConfig(port: number) {
-  return {
-    app: STASIS_APP_NAME,
-    external_host: `${APISERVER_HOST}:${port}`,
-    format: "slin16",
-    transport: "tcp",
-    data: uuidv4(),
-    encapsulation: "audiosocket",
-    variables: {
-      FROM_EXTERNAL_MEDIA: "true"
-    }
-  };
+const FailedStatus = ["CHANUNAVAIL", "CONGESTION"];
+
+function mapDialStatus(status: string): DialStatus | undefined {
+  const normalizedStatus = status.toUpperCase();
+  const dialStatusArray = Object.keys(DialStatus).map((key) => DialStatus[key]);
+
+  if (FailedStatus.includes(normalizedStatus)) {
+    return DialStatus.FAILED;
+  } else if (dialStatusArray.includes(normalizedStatus)) {
+    return DialStatus[normalizedStatus];
+  }
+  // If the status is not in the DialStatus enum, return undefined
+  return undefined;
 }
 
-export { createExternalMediaConfig };
+export { mapDialStatus };

@@ -18,7 +18,8 @@
  */
 import { StreamContent as SC, STASIS_APP_NAME } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { Channel, Client, StasisStart } from "ari-client";
+import { Channel, Client, Dial, StasisStart } from "ari-client";
+import { NatsConnection } from "nats";
 import { answerHandler } from "./handlers/Answer";
 import { dialHandler } from "./handlers/dial/Dial";
 import { gatherHandler } from "./handlers/gather/Gather";
@@ -29,7 +30,9 @@ import { playbackControlHandler } from "./handlers/PlaybackControl";
 import { playDtmfHandler } from "./handlers/PlayDtmf";
 import { sayHandler } from "./handlers/Say";
 import { unmuteHandler } from "./handlers/Unmute";
-import { AriEvent, VoiceClient } from "./types";
+import { makeGetChannelVarWithoutThrow } from "./makeGetChannelVar";
+import { AriEvent as AE, ChannelVar, VoiceClient } from "./types";
+import { makeHandleDialEventsWithNats } from "../utils";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -42,10 +45,16 @@ type CreateVoiceClient = (params: {
 class VoiceDispatcher {
   voiceClients: Map<string, VoiceClient>;
   ari: Client;
+  nc: NatsConnection;
   createVoiceClient: CreateVoiceClient;
 
-  constructor(ari: Client, createVoiceClient: CreateVoiceClient) {
+  constructor(
+    ari: Client,
+    nc: NatsConnection,
+    createVoiceClient: CreateVoiceClient
+  ) {
     this.ari = ari;
+    this.nc = nc;
     this.voiceClients = new Map();
     this.createVoiceClient = createVoiceClient;
   }
@@ -53,16 +62,13 @@ class VoiceDispatcher {
   start() {
     // Initialize the ARI client
     this.ari.start(STASIS_APP_NAME);
-    this.ari.on(AriEvent.STASIS_START, this.handleStasisStart.bind(this));
-    this.ari.on(AriEvent.STASIS_END, this.handleStasisEnd.bind(this));
+    this.ari.on(AE.STASIS_START, this.handleStasisStart.bind(this));
+    this.ari.on(AE.STASIS_END, this.handleStasisEnd.bind(this));
+    this.ari.on(AE.DIAL, this.handleDial.bind(this));
   }
 
   async handleStasisStart(event: StasisStart, channel: Channel) {
-    // TODO: This is a temporary fix. We need to find a better way to handle external media channels
-    if (channel.id.length > 15 && !channel.id.includes("call-")) {
-      logger.verbose("skipping stasis start for external media channel", {
-        channel: channel.id
-      });
+    if (await this.isHandledElsewhere(channel)) {
       return;
     }
 
@@ -102,6 +108,20 @@ class VoiceDispatcher {
       voiceClient.close();
       this.voiceClients.delete(channel.id);
     }
+  }
+
+  async handleDial(event: Dial, channel: Channel) {
+    makeHandleDialEventsWithNats(this.nc)(channel.id, event);
+  }
+
+  async isHandledElsewhere(channel: Channel) {
+    return (
+      (
+        await makeGetChannelVarWithoutThrow(channel)(
+          ChannelVar.FROM_EXTERNAL_MEDIA
+        )
+      )?.value === "true"
+    );
   }
 }
 

@@ -18,6 +18,7 @@
  */
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { NatsConnection } from "nats";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub } from "./helper";
@@ -36,14 +37,15 @@ describe("@voice/handler/VoiceDispatcher", function () {
     // Arrange
     const { VoiceDispatcher } = await import("../../src/voice/VoiceDispatcher");
     const ari = getAriStub(sandbox);
+    const nc = {} as unknown as NatsConnection;
     const createVoiceClient = sandbox.stub();
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
+    const voiceDispatcher = new VoiceDispatcher(ari, nc, createVoiceClient);
 
     // Act
     voiceDispatcher.start();
 
     // Assert
-    expect(ari.on).to.have.been.called.calledTwice;
+    expect(ari.on).to.have.been.called.calledThrice;
     expect(ari.on).to.have.been.calledWith(
       AriEvent.STASIS_START,
       match.func.and(

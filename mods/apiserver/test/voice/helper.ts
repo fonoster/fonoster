@@ -24,10 +24,12 @@ function getAriStub(sandbox: SinonSandbox) {
     Channel: sandbox.stub().returns({
       originate: sandbox.stub(),
       on: sandbox.stub(),
+      once: sandbox.stub(),
       hangup: sandbox.stub(),
       getChannelVar: sandbox.stub().resolves({ value: "value" })
     }),
     on: sandbox.stub(),
+    once: sandbox.stub(),
     start: sandbox.stub(),
     removeListener: sandbox.stub(),
     channels: {

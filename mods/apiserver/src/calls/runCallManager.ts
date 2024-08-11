@@ -77,7 +77,7 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
       });
 
       await ariConn.channels.originateWithId({
-        channelId: `call-${ref}`,
+        channelId: ref,
         app: STASIS_APP_NAME,
         endpoint: `PJSIP/${ASTERISK_TRUNK}/sip:${to}@${ASTERISK_SYSTEM_DOMAIN}`,
         timeout,

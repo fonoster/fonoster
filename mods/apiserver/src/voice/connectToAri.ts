@@ -18,6 +18,7 @@
  */
 import { getLogger } from "@fonoster/logger";
 import ariClient from "ari-client";
+import { connect } from "nats";
 import wait from "wait-port";
 import { makeCreateContainer } from "./integrations";
 import { makeCreateVoiceClient } from "./makeCreateVoiceClient";
@@ -28,7 +29,8 @@ import {
   ASTERISK_ARI_PROXY_URL,
   ASTERISK_ARI_SECRET,
   ASTERISK_ARI_USERNAME,
-  INTEGRATIONS_FILE
+  INTEGRATIONS_FILE,
+  NATS_URL
 } from "../envs";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -63,8 +65,11 @@ async function connectToAri() {
 
     const createContainer = makeCreateContainer(prisma, INTEGRATIONS_FILE);
 
+    const nats = await connect({ servers: NATS_URL });
+
     const dispatcher = new VoiceDispatcher(
       ari,
+      nats,
       makeCreateVoiceClient(createContainer)
     );
 

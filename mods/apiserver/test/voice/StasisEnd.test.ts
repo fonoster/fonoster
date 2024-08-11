@@ -19,6 +19,7 @@
 import { Channel } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { NatsConnection } from "nats";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
@@ -39,10 +40,9 @@ describe("@voice/handler/StasisEnd", function () {
     const { VoiceDispatcher } = await import("../../src/voice/VoiceDispatcher");
 
     const ari = getAriStub(sandbox);
-
+    const nc = {} as unknown as NatsConnection;
     const createVoiceClient = getCreateVoiceClient(sandbox);
-
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
+    const voiceDispatcher = new VoiceDispatcher(ari, nc, createVoiceClient);
 
     const channel = {
       id: channelId,

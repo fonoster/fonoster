@@ -77,7 +77,7 @@ class AudioSocket {
   }
 
   private handleConnection(socket: net.Socket) {
-    logger.info("client connected");
+    logger.verbose("client connected");
 
     const asStream = new Readable({ read() {} });
     const audioStream = new AudioStream(asStream, socket);

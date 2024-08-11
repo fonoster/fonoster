@@ -30,9 +30,9 @@ import sinonChai from "sinon-chai";
 import { getAriStub, getCreateVoiceClient } from "./helper";
 import { sessionRef } from "../../../voice/test/helpers";
 import { ASTERISK_SYSTEM_DOMAIN, ASTERISK_TRUNK } from "../../src/envs";
+import { makeHandleDialEventsWithVoiceClient } from "../../src/utils";
 import { dialHandler } from "../../src/voice/handlers/dial/Dial";
 import { handleChannelLeftBridge } from "../../src/voice/handlers/dial/handleChannelLeftBridge";
-import { handleDialEvents } from "../../src/voice/handlers/dial/handleDialEvents";
 import { handleStasisStart } from "../../src/voice/handlers/dial/handleStasisStart";
 import { AriEvent, VoiceClient } from "../../src/voice/types";
 
@@ -73,13 +73,13 @@ describe("@voice/handler/Dial", function () {
         "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true"
       }
     });
-    expect(channelStub.returnValues[0].on).to.have.been.calledWith(
+    expect(channelStub.returnValues[0].once).to.have.been.calledWith(
       AriEvent.STASIS_START
     );
-    expect(channelStub.returnValues[0].on).to.have.been.calledWith(
+    expect(channelStub.returnValues[0].once).to.have.been.calledWith(
       AriEvent.CHANNEL_LEFT_BRIDGE
     );
-    expect(channelStub.returnValues[0].on).to.have.been.calledWith(
+    expect(channelStub.returnValues[0].once).to.have.been.calledWith(
       AriEvent.STASIS_END
     );
     expect(channelStub.returnValues[0].on).to.have.been.calledWith(
@@ -122,7 +122,9 @@ describe("@voice/handler/Dial", function () {
     };
 
     // Act
-    await handleDialEvents(voiceClient as unknown as VoiceClient)(event);
+    await makeHandleDialEventsWithVoiceClient(
+      voiceClient as unknown as VoiceClient
+    )(event);
 
     // Assert
     expect(voiceClient.sendResponse).to.have.been.calledOnce;
@@ -144,7 +146,9 @@ describe("@voice/handler/Dial", function () {
     };
 
     // Act
-    await handleDialEvents(voiceClient as unknown as VoiceClient)(event);
+    await makeHandleDialEventsWithVoiceClient(
+      voiceClient as unknown as VoiceClient
+    )(event);
 
     // Assert
     expect(voiceClient.sendResponse).to.have.been.calledOnce;
@@ -166,7 +170,9 @@ describe("@voice/handler/Dial", function () {
     };
 
     // Act
-    await handleDialEvents(voiceClient as unknown as VoiceClient)(event);
+    await makeHandleDialEventsWithVoiceClient(
+      voiceClient as unknown as VoiceClient
+    )(event);
 
     // Assert
     expect(voiceClient.sendResponse).to.not.have.been.called;

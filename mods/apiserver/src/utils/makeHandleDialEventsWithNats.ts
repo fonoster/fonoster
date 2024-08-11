@@ -16,32 +16,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Channel } from "ari-client";
-import { ChannelVarNotFoundError } from "./ChannelVarNotFoundError";
-import { ChannelVar } from "./types";
+import { NatsConnection } from "nats";
+import { mapDialStatus } from "./mapDialStatus";
+import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
 
-function makeGetChannelVar(channel: Channel) {
-  return async (variable: ChannelVar) => {
-    try {
-      return await channel.getChannelVar({
-        variable
-      });
-    } catch (e) {
-      throw new ChannelVarNotFoundError(variable);
-    }
+function makeHandleDialEventsWithNats(nc: NatsConnection) {
+  return async (callRef: string, event: { dialstatus: string }) => {
+    const mappedStatus = mapDialStatus(event.dialstatus);
+    if (!mappedStatus) return; // Ignore the event if status is not mapped
+
+    nc.publish(
+      CALLS_TRACK_CALL_SUBJECT,
+      JSON.stringify({ ref: callRef, status: mappedStatus })
+    );
   };
 }
 
-function makeGetChannelVarWithoutThrow(channel: Channel) {
-  return async (variable: ChannelVar) => {
-    try {
-      return await channel.getChannelVar({
-        variable
-      });
-    } catch (e) {
-      return null;
-    }
-  };
-}
-
-export { makeGetChannelVar, makeGetChannelVarWithoutThrow };
+export { makeHandleDialEventsWithNats };

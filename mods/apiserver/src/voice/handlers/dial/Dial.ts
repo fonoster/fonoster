@@ -20,10 +20,10 @@ import { DialRequest, DialStatus, STASIS_APP_NAME } from "@fonoster/common";
 import { Client } from "ari-client";
 import { v4 as uuidv4 } from "uuid";
 import { handleChannelLeftBridge } from "./handleChannelLeftBridge";
-import { handleDialEvents } from "./handleDialEvents";
 import { handleStasisEnd } from "./handleStasisEnd";
 import { handleStasisStart } from "./handleStasisStart";
 import { ASTERISK_SYSTEM_DOMAIN, ASTERISK_TRUNK } from "../../../envs";
+import { makeHandleDialEventsWithVoiceClient } from "../../../utils";
 import { makeGetChannelVar } from "../../makeGetChannelVar";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "../../types";
 
@@ -60,19 +60,19 @@ function dialHandler(ari: Client, voiceClient: VoiceClient) {
       }
     });
 
-    dialed.on(
+    dialed.once(
       AE.STASIS_START,
       handleStasisStart({ ari, request, bridge, dialed })
     );
 
-    dialed.on(
+    dialed.once(
       AE.CHANNEL_LEFT_BRIDGE,
       handleChannelLeftBridge({ bridge, dialed })
     );
 
-    dialed.on(AE.STASIS_END, handleStasisEnd(request));
+    dialed.once(AE.STASIS_END, handleStasisEnd(request));
 
-    dialed.on(AE.DIAL, handleDialEvents(voiceClient));
+    dialed.on(AE.DIAL, makeHandleDialEventsWithVoiceClient(voiceClient));
 
     voiceClient.sendResponse({
       dialResponse: {

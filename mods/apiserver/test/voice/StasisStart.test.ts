@@ -19,6 +19,7 @@
 import { Channel, StasisStart } from "ari-client";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { NatsConnection } from "nats";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { getAriStub } from "./helper";
@@ -39,7 +40,7 @@ describe("@voice/handler/StasisStart", function () {
     const { VoiceDispatcher } = await import("../../src/voice/VoiceDispatcher");
 
     const ari = getAriStub(sandbox);
-
+    const nc = {} as unknown as NatsConnection;
     const createVoiceClient = sandbox.stub().returns({
       connect: sandbox.stub(),
       on: sandbox.stub(),
@@ -48,7 +49,7 @@ describe("@voice/handler/StasisStart", function () {
       }
     });
 
-    const voiceDispatcher = new VoiceDispatcher(ari, createVoiceClient);
+    const voiceDispatcher = new VoiceDispatcher(ari, nc, createVoiceClient);
 
     const event = {
       channel: {

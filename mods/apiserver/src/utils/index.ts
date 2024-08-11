@@ -17,3 +17,5 @@
  * limitations under the License.
  */
 export * from "./makeCheckNumberPreconditions";
+export * from "./makeHandleDialEventsWithNats";
+export * from "./makeHandleDialEventsWithVoiceClient";
