@@ -211,11 +211,8 @@ export namespace TrackCallRequest {
 }
 
 export class TrackCallResponse extends jspb.Message {
-  getRef(): string;
-  setRef(value: string): TrackCallResponse;
-
-  getStatus(): CallStatus;
-  setStatus(value: CallStatus): TrackCallResponse;
+  getStatus(): TrackCallResponse.Status;
+  setStatus(value: TrackCallResponse.Status): TrackCallResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): TrackCallResponse.AsObject;
@@ -227,8 +224,17 @@ export class TrackCallResponse extends jspb.Message {
 
 export namespace TrackCallResponse {
   export type AsObject = {
-    ref: string,
-    status: CallStatus,
+    status: TrackCallResponse.Status,
+  }
+
+  export enum Status { 
+    TRYING = 0,
+    CANCEL = 1,
+    ANSWER = 2,
+    BUSY = 3,
+    PROGRESS = 4,
+    NOANSWER = 5,
+    FAILED = 6,
   }
 }
 

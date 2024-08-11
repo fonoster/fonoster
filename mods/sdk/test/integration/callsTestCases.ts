@@ -29,7 +29,7 @@ function createCallsTestCases(expect) {
         request: {
           from: "8287854033",
           to: "+17853178070",
-          appRef: "938235c9-ad8c-475a-ae8f-11b1c0a6ff67"
+          appRef: "3ad0a6dc-eb1b-46a9-bc66-48b9e1c2de75"
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");

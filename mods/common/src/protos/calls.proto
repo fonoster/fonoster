@@ -141,8 +141,16 @@ message TrackCallRequest {
 
 // The response message for Calls.TrackCall
 message TrackCallResponse {
-  // The reference of the call
-  string ref = 1;
-  // The call status
-  CallStatus status = 2;
+  // The status of the dial
+  enum Status {
+    TRYING = 0;
+    CANCEL = 1;
+    ANSWER = 2;
+    BUSY = 3;
+    PROGRESS = 4;
+    NOANSWER = 5;
+    // Maps from Asterisk's CHANUNAVAIL and CONGESTION
+    FAILED = 6;
+  }
+  Status status = 1;
 }
