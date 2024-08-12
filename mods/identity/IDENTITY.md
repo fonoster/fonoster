@@ -29,7 +29,7 @@ Individual users or services connecting to the Identity service will require a R
 
 Take the following example:
 
-In the case of Fonoster, we might have the Owner, Admin, and Member as Roles associated with a Workspace (workspace). In such cases, the Owner will be able to perform all actions, the Admin will be allowed to perform all actions except removing the Workspace, and members will have the ability to make changes to specific resources but not be able to see billing information.
+In the case of Fonoster, we might have the Owner, Admin, and Member as Roles associated with a Workspace. In such cases, the Owner will be able to perform all actions, the Admin will be allowed to perform all actions except removing the Workspace, and members will have the ability to make changes to specific resources but not be able to see billing information.
 
 ## Resource Ownership
 
@@ -37,11 +37,11 @@ All resources created within Fonoster have an owner. The owner may be a user or 
 
 Creating a resource within a workspace automatically marks it with the workspace's identifier (the accessKeyId). 
 
-> The `accessKeyId` for a user always starts with the prefix `US`, while the `accessKeyId` for a workspace starts with the prefix `GR`, which helps identify the resource owner type.
+> The `accessKeyId` for a user always starts with the prefix `US`, while the `accessKeyId` for a workspace starts with the prefix `WO`, which helps identify the resource owner type.
 
 ## Role-Based Access Control 
 
-Fonoster Identity relies on Roled-Baed Access Control (RBAC) to offer granular control over parts of the system. The following type can describe the policy for RBAC within Fonoster Identity.
+Fonoster Identity relies on Role-Based Access Control (RBAC) to offer granular control over parts of the system. The following type can describe the policy for RBAC within Fonoster Identity.
 
 ```typescript
 [ { "name": "string", "description": "string", "access": string [] } ]
@@ -56,13 +56,15 @@ Policy Example:
   "name": "user",
   "description": "Access to User and Workspace endpoints",
   "access": [
-     "/fonoster.users.v1beta2.Users/GetUser",
-     "/fonoster.users.v1beta2.Users/UpdateUser",
-     "/fonoster.users.v1beta2.Users/Login",
-     "/fonoster.workspaces.v1beta2.Workspaces/CreateWorkspace",
-     "/fonoster.workspaces.v1beta2.Workspaces/UpdateWorkspace",
-     "/fonoster.workspaces.v1beta2.Workspaces/GetWorkspace",
-     "/fonoster.workspaces.v1beta2.Workspaces/RenewAccess",
+    "/fonoster.identity.v1beta2.Identity/GetUser",
+    "/fonoster.identity.v1beta2.Identity/UpdateUser",
+    "/fonoster.identity.v1beta2.Identity/DeleteUser",
+    "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
+    "/fonoster.identity.v1beta2.Identity/GetWorkspace",
+    "/fonoster.identity.v1beta2.Identity/UpdateWorkspace",
+    "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+    "/fonoster.identity.v1beta2.Identity/RefreshToken",
+    // Additional access here
   ]
 }
 ```
@@ -70,56 +72,67 @@ Policy Example:
 ## ID, Access, and Refresh Tokens
 
 The Identity module employs JSON Web Tokens (JWTs) for secure and flexible authentication. It strategically utilizes three types of tokens: ID, access, and refresh. Each token type serves a distinct purpose in the authentication process.
+
 ID tokens identify the user and contain information about their identity. Typically short-lived, issued upon successful authentication. The following is an example of an ID token:
 
 ```json
 {
- "iss": "https://identity-global.fonoster.com",
- "sub": "US4e1f4ff2d970006156556e1",
- "aud": "US4e1f4ff2d970006156556e1",
- "username": "johndoe",
- "givenName": "John",
- "familyName": "Doe",
- "email": "johndoe@example.com",
- "exp": 1617218200,
- "iat": 1617216400,
- "token_type": "id"
+  "iss": "https://identity-global.fonoster.com",
+  "sub": "00000000-0000-0000-0000-000000000000",
+  "aud": "api",
+  "tokenUse": "id",
+  "accessKeyId": "US00000000000000000000000000000000",
+  "email": "johndoe@example.com",
+  "emailVerified": false,
+  "phoneNumber": null,
+  "phoneNumberVerified": false,
+  "iat": 1723477780,
+  "exp": 1723478680
 }
+
 ```
 
-Access tokens enhance security with short lifespans (e.g., minutes to an hour). They contain claims about the user or service, represented as a JSON object. The following is an example of an access token:
+Access tokens enhance security with short lifespans (e.g., minutes to an 15m). They contain claims about the user or service, represented as a JSON object. The following is an example of an access token:
 
 ```json
 {
- "iss": "https://identity-global.fonoster.com",
- "sub": "US4e1f4ff2d970006156556e1",
- "aud": "GR6556e1f4ff2d97000611b1f8",
- "exp": 1617218200,
- "iat": 1617216400,
- "token_type": "access",
- "scope": "USER"
+  "iss": "https://identity-global.fonoster.com",
+  "sub": "00000000-0000-0000-0000-000000000000",
+  "aud": "api",
+  "tokenUse": "access",
+  "accessKeyId": "US00000000000000000000000000000000",
+  "access": [
+    {
+      "accessKeyId": "WO00000000000000000000000000000000",
+      "role": "OWNER"
+    }
+  ],
+  "iat": 1723477780,
+  "exp": 1723478680
 }
 ```
 
-Here, `sub` is the user identifier, `aud` is the workspace identifier, and `scope` is the user's role.
+Here, `sub` is the user identifier, `aud` is the intended audience, and `access` contains a list of workspaces and their associated roles.
 
 Refresh tokens have the specific function of obtaining new access tokens upon expiry. They possess longer lifespans than access tokens, potentially spanning days, weeks, or months, minimizing the frequency with which users need to re-enter their credentials. Due to their extended validity, refresh tokens warrant secure storage and careful management.
+
+By default, refresh tokens are issued with a 24-hour expiration time. You can adjust this value to suit your security requirements.
 
 An example of a refresh token:
 
 ```json
 {
- "iss": "https://identity-global.fonoster.com",
- "sub": "US4e1f4ff2d970006156556e1",
- "aud": "GR6556e1f4ff2d97000611b1f8",
- "exp": 1617218200,
- "iat": 1617216400,
- "token_type": "refresh",
- "scope": "USER"
+  "iss": "https://identity-global.fonoster.com",
+  "sub": "00000000-0000-0000-0000-000000000000",
+  "aud": "api",
+  "tokenUse": "refresh",
+  "accessKeyId": "US00000000000000000000000000000000",
+  "iat": 1723477780,
+  "exp": 1723564180
 }
 ```
 
-Like the access token, the sub is the user identifier, the `aud` is the workspace identifier, and the `scope` is the user's role.
+Like the access token, the `sub` is the user identifier, the `aud` is the intended audience.
 
 ## Token Exchange
 
