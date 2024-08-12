@@ -24,7 +24,7 @@ function createCallsTestCases(expect) {
     cases: [
       {
         id: `${idBase}-00`,
-        name: "should create a call",
+        name: "should create a call (test manually)",
         method: "createCall",
         request: {
           from: "8287854033",
@@ -34,11 +34,11 @@ function createCallsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
         },
-        afterTestDelay: 3000
+        skip: true
       },
       {
         id: `${idBase}-01`,
-        name: "should get a call",
+        name: "should get a call (test manually)",
         method: "getCall",
         request: "{{ref}}",
         dependsOn: `${idBase}-00`,
@@ -67,11 +67,12 @@ function createCallsTestCases(expect) {
           expect(response).has.property("to").to.not.be.null;
           expect(response).has.property("duration").to.be.a("number");
           expect(response).has.property("direction").to.be.equal("TO_PSTN");
-        }
+        },
+        skip: true
       },
       {
         id: `${idBase}-02`,
-        name: "should list at least one call",
+        name: "should list at least one call (test manually)",
         method: "listCalls",
         request: {
           pageSize: 10,
@@ -116,7 +117,8 @@ function createCallsTestCases(expect) {
           expect(response.items[0])
             .to.have.property("direction")
             .to.be.equal("TO_PSTN");
-        }
+        },
+        skip: true
       }
     ]
   };

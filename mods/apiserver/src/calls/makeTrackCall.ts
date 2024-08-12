@@ -55,6 +55,11 @@ function makeTrackCall(nc: NatsConnection) {
 
     const stream = trackingCallsMap.get(ref);
 
+    if (!stream) {
+      // There is not request to track this call
+      return;
+    }
+
     if (FINAL_STATUSES.includes(status)) {
       stream.write({ ref, status });
 
