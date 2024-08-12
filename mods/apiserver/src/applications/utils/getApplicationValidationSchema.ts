@@ -49,7 +49,7 @@ function getApplicationValidationSchema(request: {
   return z.object({
     name: z.string(),
     type: z.nativeEnum(ApplicationType),
-    appEndpoint: hostOrHostPortSchema,
+    endpoint: hostOrHostPortSchema,
     textToSpeech: ttsEngineName
       ? z.object({
           productRef: z.string(),

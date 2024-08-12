@@ -54,7 +54,7 @@ describe("@calls/createCall", function () {
     const application = {
       ref: "123",
       name: "My Application",
-      appEndpoint: "example.com:50051",
+      endpoint: "example.com:50051",
       accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
       createdAt: new Date(),
       updatedAt: new Date()

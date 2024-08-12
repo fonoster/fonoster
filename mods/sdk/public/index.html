@@ -14,7 +14,7 @@
       const response = await domains.createApplication({
         name: "MyApp",
         type: "PROGRAMMABLE_VOICE",
-        appEndpoint: "localhost:3000"
+        endpoint: "localhost:3000"
       });
       console.log(response);
     } catch (e) {

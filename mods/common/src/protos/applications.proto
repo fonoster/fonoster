@@ -60,7 +60,7 @@ message Application {
   // Application type
   ApplicationType type = 3;
   // Endpoint for programmable voice
-  string app_endpoint = 4;
+  string endpoint = 4;
   // Text to speech product
   ProductContainer text_to_speech = 5;
   // Speech to text product
@@ -80,7 +80,7 @@ message CreateApplicationRequest {
   // Application type
   ApplicationType type = 2;
   // App URL for programmable voice
-  string app_endpoint = 3;
+  string endpoint = 3;
   // Text to speech product
   ProductContainer text_to_speech = 4;
   // Speech to text product
@@ -126,7 +126,7 @@ message UpdateApplicationRequest {
   // Application type
   ApplicationType type = 3;
   // App URL for programmable voice
-  string app_endpoint = 4;
+  string endpoint = 4;
   // Text to speech product
   ProductContainer text_to_speech = 5;
   // Speech to text product

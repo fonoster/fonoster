@@ -74,7 +74,7 @@ enum StreamContent {
 type VoiceClientConfig = {
   appRef: string;
   accessKeyId: string;
-  appEndpoint: string;
+  endpoint: string;
   ingressNumber: string;
   callerName: string;
   callerNumber: string;

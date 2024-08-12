@@ -47,7 +47,7 @@ function makeCreateVoiceClient(createContainer: CreateContainer) {
     const ingressNumber =
       (await getChannelVar(ChannelVar.INGRESS_NUMBER))?.value || "";
 
-    const { accessKeyId, appEndpoint, tts, stt } =
+    const { accessKeyId, endpoint, tts, stt } =
       await createContainer(appRef);
 
     const sessionToken = await createToken({ accessKeyId, appRef });
@@ -64,7 +64,7 @@ function makeCreateVoiceClient(createContainer: CreateContainer) {
       appRef,
       sessionRef,
       accessKeyId,
-      appEndpoint,
+      endpoint,
       callerName,
       callerNumber,
       ingressNumber,

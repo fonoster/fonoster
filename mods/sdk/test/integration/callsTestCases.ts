@@ -29,7 +29,7 @@ function createCallsTestCases(expect) {
         request: {
           from: "8287854033",
           to: "+17853178070",
-          appRef: "3ad0a6dc-eb1b-46a9-bc66-48b9e1c2de75"
+          appRef: "8860be90-c781-4193-b801-6d8b3824a5c8"
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
@@ -70,7 +70,7 @@ function createCallsTestCases(expect) {
         }
       },
       {
-        id: `${idBase}-03`,
+        id: `${idBase}-02`,
         name: "should list at least one call",
         method: "listCalls",
         request: {

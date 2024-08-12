@@ -43,8 +43,8 @@ export class Application extends jspb.Message {
   getType(): ApplicationType;
   setType(value: ApplicationType): Application;
 
-  getAppEndpoint(): string;
-  setAppEndpoint(value: string): Application;
+  getEndpoint(): string;
+  setEndpoint(value: string): Application;
 
   getTextToSpeech(): ProductContainer | undefined;
   setTextToSpeech(value?: ProductContainer): Application;
@@ -80,7 +80,7 @@ export namespace Application {
     ref: string,
     name: string,
     type: ApplicationType,
-    appEndpoint: string,
+    endpoint: string,
     textToSpeech?: ProductContainer.AsObject,
     speechToText?: ProductContainer.AsObject,
     conversation?: ProductContainer.AsObject,
@@ -96,8 +96,8 @@ export class CreateApplicationRequest extends jspb.Message {
   getType(): ApplicationType;
   setType(value: ApplicationType): CreateApplicationRequest;
 
-  getAppEndpoint(): string;
-  setAppEndpoint(value: string): CreateApplicationRequest;
+  getEndpoint(): string;
+  setEndpoint(value: string): CreateApplicationRequest;
 
   getTextToSpeech(): ProductContainer | undefined;
   setTextToSpeech(value?: ProductContainer): CreateApplicationRequest;
@@ -126,7 +126,7 @@ export namespace CreateApplicationRequest {
   export type AsObject = {
     name: string,
     type: ApplicationType,
-    appEndpoint: string,
+    endpoint: string,
     textToSpeech?: ProductContainer.AsObject,
     speechToText?: ProductContainer.AsObject,
     intelligence?: ProductContainer.AsObject,
@@ -225,8 +225,8 @@ export class UpdateApplicationRequest extends jspb.Message {
   getType(): ApplicationType;
   setType(value: ApplicationType): UpdateApplicationRequest;
 
-  getAppEndpoint(): string;
-  setAppEndpoint(value: string): UpdateApplicationRequest;
+  getEndpoint(): string;
+  setEndpoint(value: string): UpdateApplicationRequest;
 
   getTextToSpeech(): ProductContainer | undefined;
   setTextToSpeech(value?: ProductContainer): UpdateApplicationRequest;
@@ -256,7 +256,7 @@ export namespace UpdateApplicationRequest {
     ref: string,
     name: string,
     type: ApplicationType,
-    appEndpoint: string,
+    endpoint: string,
     textToSpeech?: ProductContainer.AsObject,
     speechToText?: ProductContainer.AsObject,
     intelligence?: ProductContainer.AsObject,

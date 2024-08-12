@@ -527,7 +527,7 @@ proto.fonoster.applications.v1beta2.Application.toObject = function(includeInsta
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     type: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    appEndpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    endpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
     textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
     speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
     conversation: (f = msg.getConversation()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
@@ -583,7 +583,7 @@ proto.fonoster.applications.v1beta2.Application.deserializeBinaryFromReader = fu
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAppEndpoint(value);
+      msg.setEndpoint(value);
       break;
     case 5:
       var value = new proto.fonoster.applications.v1beta2.ProductContainer;
@@ -658,7 +658,7 @@ proto.fonoster.applications.v1beta2.Application.serializeBinaryToWriter = functi
       f
     );
   }
-  f = message.getAppEndpoint();
+  f = message.getEndpoint();
   if (f.length > 0) {
     writer.writeString(
       4,
@@ -761,10 +761,10 @@ proto.fonoster.applications.v1beta2.Application.prototype.setType = function(val
 
 
 /**
- * optional string app_endpoint = 4;
+ * optional string endpoint = 4;
  * @return {string}
  */
-proto.fonoster.applications.v1beta2.Application.prototype.getAppEndpoint = function() {
+proto.fonoster.applications.v1beta2.Application.prototype.getEndpoint = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
@@ -773,7 +773,7 @@ proto.fonoster.applications.v1beta2.Application.prototype.getAppEndpoint = funct
  * @param {string} value
  * @return {!proto.fonoster.applications.v1beta2.Application} returns this
  */
-proto.fonoster.applications.v1beta2.Application.prototype.setAppEndpoint = function(value) {
+proto.fonoster.applications.v1beta2.Application.prototype.setEndpoint = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
 };
 
@@ -959,7 +959,7 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.toObject = function
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
     type: jspb.Message.getFieldWithDefault(msg, 2, 0),
-    appEndpoint: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    endpoint: jspb.Message.getFieldWithDefault(msg, 3, ""),
     textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
     speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
     intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f)
@@ -1009,7 +1009,7 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.deserializeBinaryFr
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAppEndpoint(value);
+      msg.setEndpoint(value);
       break;
     case 4:
       var value = new proto.fonoster.applications.v1beta2.ProductContainer;
@@ -1069,7 +1069,7 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.serializeBinaryToWr
       f
     );
   }
-  f = message.getAppEndpoint();
+  f = message.getEndpoint();
   if (f.length > 0) {
     writer.writeString(
       3,
@@ -1140,10 +1140,10 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.setType =
 
 
 /**
- * optional string app_endpoint = 3;
+ * optional string endpoint = 3;
  * @return {string}
  */
-proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.getAppEndpoint = function() {
+proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.getEndpoint = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -1152,7 +1152,7 @@ proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.getAppEnd
  * @param {string} value
  * @return {!proto.fonoster.applications.v1beta2.CreateApplicationRequest} returns this
  */
-proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.setAppEndpoint = function(value) {
+proto.fonoster.applications.v1beta2.CreateApplicationRequest.prototype.setEndpoint = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
 };
 
@@ -1913,7 +1913,7 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.toObject = function
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     type: jspb.Message.getFieldWithDefault(msg, 3, 0),
-    appEndpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    endpoint: jspb.Message.getFieldWithDefault(msg, 4, ""),
     textToSpeech: (f = msg.getTextToSpeech()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
     speechToText: (f = msg.getSpeechToText()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f),
     intelligence: (f = msg.getIntelligence()) && proto.fonoster.applications.v1beta2.ProductContainer.toObject(includeInstance, f)
@@ -1967,7 +1967,7 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.deserializeBinaryFr
       break;
     case 4:
       var value = /** @type {string} */ (reader.readString());
-      msg.setAppEndpoint(value);
+      msg.setEndpoint(value);
       break;
     case 5:
       var value = new proto.fonoster.applications.v1beta2.ProductContainer;
@@ -2034,7 +2034,7 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.serializeBinaryToWr
       f
     );
   }
-  f = message.getAppEndpoint();
+  f = message.getEndpoint();
   if (f.length > 0) {
     writer.writeString(
       4,
@@ -2123,10 +2123,10 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.setType =
 
 
 /**
- * optional string app_endpoint = 4;
+ * optional string endpoint = 4;
  * @return {string}
  */
-proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.getAppEndpoint = function() {
+proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.getEndpoint = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
 };
 
@@ -2135,7 +2135,7 @@ proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.getAppEnd
  * @param {string} value
  * @return {!proto.fonoster.applications.v1beta2.UpdateApplicationRequest} returns this
  */
-proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.setAppEndpoint = function(value) {
+proto.fonoster.applications.v1beta2.UpdateApplicationRequest.prototype.setEndpoint = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
 };
 

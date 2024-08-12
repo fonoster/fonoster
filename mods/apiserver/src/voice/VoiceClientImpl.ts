@@ -72,7 +72,7 @@ class VoiceClientImpl implements VoiceClient {
 
   async connect() {
     this.grpcClient = new VoiceServiceClient(
-      this.config.appEndpoint,
+      this.config.endpoint,
       grpc.credentials.createInsecure()
     ) as unknown as GRPCClient;
 
@@ -92,7 +92,7 @@ class VoiceClientImpl implements VoiceClient {
       if (error.code === grpc.status.UNAVAILABLE) {
         // FIXME: This error should be sent back to the user
         logger.error(
-          `voice server not available at "${this.config.appEndpoint}"`
+          `voice server not available at "${this.config.endpoint}"`
         );
         return;
       }

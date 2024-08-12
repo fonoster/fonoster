@@ -47,7 +47,7 @@ describe("@voice/createVoiceClient", function () {
       return {
         ref: appRef,
         accessKeyId: "access-key-id",
-        appEndpoint: "app-endpoint",
+        endpoint: "app-endpoint",
         tts: {} as unknown as AbstractTextToSpeech<unknown>,
         stt: {} as unknown as AbstractTextToSpeech<unknown>
       };

@@ -29,7 +29,7 @@ function createApplicationsTestCases(expect) {
         request: {
           name: "My Application",
           type: "PROGRAMMABLE_VOICE",
-          appEndpoint: "localhost:3000",
+          endpoint: "localhost:3000",
           textToSpeech: {
             productRef: "tts.google",
             config: {
@@ -53,7 +53,7 @@ function createApplicationsTestCases(expect) {
         method: "createApplication",
         request: {
           type: "PROGRAMMABLE_VOICE",
-          appEndpoint: "localhost:3000"
+          endpoint: "localhost:3000"
         },
         grpcCode: 3
       },
@@ -69,7 +69,7 @@ function createApplicationsTestCases(expect) {
           expect(response)
             .has.property("type")
             .to.be.equal("PROGRAMMABLE_VOICE");
-          expect(response).has.property("appEndpoint").to.be.not.null;
+          expect(response).has.property("endpoint").to.be.not.null;
           expect(response).has.property("textToSpeech").to.be.a("object");
           expect(response).has.property("speechToText").to.be.a("object");
           expect(response).does.not.have.property("intelligence");
@@ -117,7 +117,7 @@ function createApplicationsTestCases(expect) {
           expect(response.items[0])
             .to.have.property("type")
             .to.be.equal("PROGRAMMABLE_VOICE");
-          expect(response.items[0]).to.have.property("appEndpoint").to.not.be
+          expect(response.items[0]).to.have.property("endpoint").to.not.be
             .null;
           expect(response.items[0]).to.have.property("textToSpeech").to.not.be
             .null;

@@ -27,7 +27,7 @@ type Application = {
   ref: string;
   name: string;
   type: ApplicationType;
-  appEndpoint?: string;
+  endpoint?: string;
   textToSpeech?: {
     productRef: string;
     config: Record<string, unknown>;
@@ -47,7 +47,7 @@ type Application = {
 type CreateApplicationRequest = {
   name: string;
   type: ApplicationType;
-  appEndpoint?: string;
+  endpoint?: string;
   textToSpeech?: {
     productRef: string;
     config: Record<string, unknown>;

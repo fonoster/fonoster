@@ -41,7 +41,7 @@ describe("@applications/convertToApplicationData", function () {
       ref: "123",
       name: "My Application",
       type: "STREAMS" as ApplicationType,
-      appEndpoint: "localhost:50061",
+      endpoint: "localhost:50061",
       textToSpeech: {
         productRef: "123",
         config: {
@@ -89,7 +89,7 @@ describe("@applications/convertToApplicationData", function () {
       ref: "123",
       name: "My Application",
       type: "STREAMS",
-      appEndpoint: "localhost:50061",
+      endpoint: "localhost:50061",
       textToSpeech: {
         create: {
           productRef: "123",

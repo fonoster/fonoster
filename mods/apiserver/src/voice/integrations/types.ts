@@ -27,7 +27,7 @@ type IntegrationConfig = {
 type IntegrationsContainer = {
   ref: string;
   accessKeyId: string;
-  appEndpoint: string;
+  endpoint: string;
   tts: AbstractTextToSpeech<unknown>;
   stt: AbstractSpeechToText<unknown>;
 };

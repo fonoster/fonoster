@@ -12,7 +12,7 @@ model Application {
   accessKeyId String          @map("access_key_id")
   name        String          @db.VarChar(255)
   type        ApplicationType
-  appEndpoint String          @db.VarChar(255)
+  endpoint String          @db.VarChar(255)
   createdAt   DateTime        @default(now()) @map("created_at")
   updatedAt   DateTime        @default(now()) @map("updated_at")
 

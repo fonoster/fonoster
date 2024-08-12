@@ -93,7 +93,7 @@ async function main() {
   await applications.createApplication({
     name: "MyApp",
     type: "PROGRAMMABLE_VOICE",
-    appEndpoint: "localhost:3000" // Your app's endpoint
+    endpoint: "localhost:3000" // Your app's endpoint
  });
 }
 
@@ -748,7 +748,7 @@ async function main(request) {
 const request = {
   name: "My application",
   type: "PROGRAMMABLE_VOICE",
-  appEndpoint: "myapp.mydomain.com",
+  endpoint: "myapp.mydomain.com",
   textToSpeech: {
     productRef: "tts.google",
     config: {
@@ -787,7 +787,7 @@ Creates a new Application in Fonoster. The only required fields are the name and
 | request | <code>CreateApplicationRequest</code> | The request object that contains the necessary information to create a new application |
 | request.name | <code>string</code> | The name of the application |
 | request.type | <code>ApplicationType</code> | The type of application (e.g., PROGRAMMABLE_VOICE) |
-| request.appEndpoint | <code>string</code> | The endpoint where the application is hosted |
+| request.endpoint | <code>string</code> | The endpoint where the application is hosted |
 | request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
 | request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.google) |
 | request.textToSpeech.config | <code>object</code> | The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" }) |
@@ -806,7 +806,7 @@ const apps = new SDK.Applications(client); // Existing client object
 const request = {
   name: "My application",
   type: "PROGRAMMABLE_VOICE",
-  appEndpoint: "myapp.mydomain.com",
+  endpoint: "myapp.mydomain.com",
   textToSpeech: {
     productRef: "tts.google",
     config: {
@@ -871,7 +871,7 @@ Updates an existing application in Fonoster.
 | request | <code>UpdateApplicationRequest</code> | The request object that contains the necessary information to update an application |
 | request.ref | <code>string</code> | The reference of the application to update |
 | request.name | <code>string</code> | The name of the application |
-| request.appEndpoint | <code>string</code> | The endpoint where the application is hosted |
+| request.endpoint | <code>string</code> | The endpoint where the application is hosted |
 | request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
 | request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.google) |
 | request.textToSpeech.config | <code>object</code> | The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" }) |
@@ -890,7 +890,7 @@ const apps = new SDK.Applications(client); // Existing client object
 const request = {
   ref: "00000000-0000-0000-0000-000000000000",
   name: "My application",
-  appEndpoint: "myapp.mydomain.com"
+  endpoint: "myapp.mydomain.com"
 };
 
 apps

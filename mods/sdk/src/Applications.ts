@@ -71,7 +71,7 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  * const request = {
  *   name: "My application",
  *   type: "PROGRAMMABLE_VOICE",
- *   appEndpoint: "myapp.mydomain.com",
+ *   endpoint: "myapp.mydomain.com",
  *   textToSpeech: {
  *     productRef: "tts.google",
  *     config: {
@@ -116,7 +116,7 @@ class Applications {
    * @param {CreateApplicationRequest} request - The request object that contains the necessary information to create a new application
    * @param {string} request.name - The name of the application
    * @param {ApplicationType} request.type - The type of application (e.g., PROGRAMMABLE_VOICE)
-   * @param {string} request.appEndpoint - The endpoint where the application is hosted
+   * @param {string} request.endpoint - The endpoint where the application is hosted
    * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
    * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.google)
    * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" })
@@ -134,7 +134,7 @@ class Applications {
    * const request = {
    *   name: "My application",
    *   type: "PROGRAMMABLE_VOICE",
-   *   appEndpoint: "myapp.mydomain.com",
+   *   endpoint: "myapp.mydomain.com",
    *   textToSpeech: {
    *     productRef: "tts.google",
    *     config: {
@@ -233,7 +233,7 @@ class Applications {
    * @param {UpdateApplicationRequest} request - The request object that contains the necessary information to update an application
    * @param {string} request.ref - The reference of the application to update
    * @param {string} request.name - The name of the application
-   * @param {string} request.appEndpoint - The endpoint where the application is hosted
+   * @param {string} request.endpoint - The endpoint where the application is hosted
    * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
    * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.google)
    * @param {object} request.textToSpeech.config - The configuration object for the text-to-speech engine (e.g., { voice: "en-US-Casual-K" })
@@ -251,7 +251,7 @@ class Applications {
    * const request = {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "My application",
-   *   appEndpoint: "myapp.mydomain.com"
+   *   endpoint: "myapp.mydomain.com"
    * };
    *
    * apps

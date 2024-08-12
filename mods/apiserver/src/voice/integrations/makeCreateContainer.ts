@@ -87,7 +87,7 @@ function makeCreateContainer(prisma: Prisma, pathToIntegrations: string) {
     return {
       ref: appRef,
       accessKeyId: app.accessKeyId,
-      appEndpoint: app.appEndpoint,
+      endpoint: app.endpoint,
       tts,
       stt
     };

@@ -23,7 +23,7 @@ type ApplicationData = {
   ref?: string;
   name: string;
   type: ApplicationType;
-  appEndpoint: string;
+  endpoint: string;
   textToSpeech?: {
     create: {
       productRef: string;

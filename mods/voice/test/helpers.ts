@@ -25,7 +25,7 @@ const voiceRequest: VoiceRequest = {
   appRef: "3861b08b-1602-45e4-b523-dc3036ba85e7",
   sessionRef,
   accessKeyId: "WO00000000000000000000000000000000",
-  appEndpoint: "localhost:50061",
+  endpoint: "localhost:50061",
   ingressNumber: "+1234567890",
   callerName: "John Doe",
   callerNumber: "+14345551234",

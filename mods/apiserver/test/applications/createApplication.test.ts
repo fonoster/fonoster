@@ -53,7 +53,7 @@ describe("@applications/createApplication", function () {
       request: {
         name: "My Application",
         type: ApplicationType.PROGRAMMABLE_VOICE,
-        appEndpoint: "localhost:50061"
+        endpoint: "localhost:50061"
       }
     };
 
@@ -76,7 +76,7 @@ describe("@applications/createApplication", function () {
       request: {
         name: "My Application",
         type: ApplicationType.PROGRAMMABLE_VOICE,
-        appEndpoint: "localhost:50061"
+        endpoint: "localhost:50061"
       }
     };
 
