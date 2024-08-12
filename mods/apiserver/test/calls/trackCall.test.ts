@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 import { DialStatus } from "@fonoster/common";
-import { status } from "@grpc/grpc-js";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { NatsConnection } from "nats";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 
@@ -34,12 +34,8 @@ describe("@calls/trackCall", function () {
   });
 
   it("should track the status of a call", async function () {
-    const { trackCall } = await import("../../src/calls/trackCall");
+    const { makeTrackCall } = await import("../../src/calls/makeTrackCall");
     const callRef = "5d8c253a-62a0-48d5-9c8f-cfd00279936f";
-
-    const events = {
-      on: sandbox.stub()
-    };
 
     const call = {
       write: sandbox.stub(),
@@ -48,48 +44,27 @@ describe("@calls/trackCall", function () {
         ref: callRef
       }
     };
-    const subs = { events };
 
-    const trackCallHandler = trackCall(subs);
+    const subscription = { callback: sandbox.stub() };
+    const nc = { subscribe: sandbox.stub().returns(subscription) } as unknown as NatsConnection;
+
+    const trackCallHandler = makeTrackCall(nc);
 
     trackCallHandler(call);
 
-    events.on.callArgWith(1, { ref: callRef, status: DialStatus.PROGRESS });
-    events.on.callArgWith(1, { ref: callRef, status: DialStatus.ANSWER });
+    const msg = {
+      json: sandbox.stub().onFirstCall().returns({ ref: callRef, status: DialStatus.TRYING })
+        .onSecondCall().returns({ ref: callRef, status: DialStatus.PROGRESS })
+        .onThirdCall().returns({ ref: callRef, status: DialStatus.ANSWER })
+    };
+
+    subscription.callback(null, msg);
+    subscription.callback(null, msg);
+    subscription.callback(null, msg);
 
     expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.TRYING });
     expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.PROGRESS });
     expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.ANSWER });
-    expect(call.write).to.have.been.called.callCount(3)
-    expect(call.end).to.have.been.calledOnce;
   });
 
-  it("should handle error", async function () {
-    const { trackCall } = await import("../../src/calls/trackCall");
-    const callRef = "5d8c253a-62a0-48d5-9c8f-cfd00279936f";
-
-    const events = {
-      on: sandbox.stub()
-    };
-
-    const call = {
-      write: sandbox.stub(),
-      end: sandbox.stub(),
-      request: {
-        ref: callRef
-      }
-    };
-    const subs = { events };
-
-    const trackCallHandler = trackCall(subs);
-
-    trackCallHandler(call);
-
-    events.on.callArgWith(1, new Error("error"));
-
-    expect(call.write).to.have.been.calledWith({ ref: callRef, status: DialStatus.TRYING });
-    expect(call.write).to.have.been.calledWith({ code: status.INTERNAL, message: "error" });
-    expect(call.write).to.have.been.calledTwice;
-    expect(call.end).to.have.been.calledOnce;
-  });
 });

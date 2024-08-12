@@ -16,19 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { connect } from "nats";
 import { createCall } from "./createCall";
 import { createCallPublisher } from "./createCallPublisher";
-import { createTrackCallSubscriber } from "./createTrackCallSubscriber";
 import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
-import { trackCall } from "./trackCall";
+import { makeTrackCall } from "./makeTrackCall";
 import { InfluxDBClient } from "./types";
 import { prisma } from "../core/db";
 import { NATS_URL } from "../envs";
 
 async function buildService(influxdb: InfluxDBClient) {
-  const trackCallSubscriber = await createTrackCallSubscriber(NATS_URL);
   const callPublisher = await createCallPublisher(NATS_URL);
+  const nc = await connect({ servers: NATS_URL });
 
   return {
     definition: {
@@ -41,7 +41,7 @@ async function buildService(influxdb: InfluxDBClient) {
       createCall: createCall(prisma, callPublisher),
       listCalls: listCalls(influxdb),
       getCall: getCall(influxdb),
-      trackCall: trackCall(trackCallSubscriber())
+      trackCall: makeTrackCall(nc)
     }
   };
 }
