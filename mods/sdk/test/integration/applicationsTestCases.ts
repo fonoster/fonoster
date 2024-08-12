@@ -117,8 +117,7 @@ function createApplicationsTestCases(expect) {
           expect(response.items[0])
             .to.have.property("type")
             .to.be.equal("PROGRAMMABLE_VOICE");
-          expect(response.items[0]).to.have.property("endpoint").to.not.be
-            .null;
+          expect(response.items[0]).to.have.property("endpoint").to.not.be.null;
           expect(response.items[0]).to.have.property("textToSpeech").to.not.be
             .null;
           expect(response.items[0]).to.have.property("speechToText").to.not.be

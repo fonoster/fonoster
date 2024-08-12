@@ -91,9 +91,7 @@ class VoiceClientImpl implements VoiceClient {
     this.voice.on(StreamEvent.ERROR, (error: GrpcError) => {
       if (error.code === grpc.status.UNAVAILABLE) {
         // FIXME: This error should be sent back to the user
-        logger.error(
-          `voice server not available at "${this.config.endpoint}"`
-        );
+        logger.error(`voice server not available at "${this.config.endpoint}"`);
         return;
       }
       logger.error(error.message);
