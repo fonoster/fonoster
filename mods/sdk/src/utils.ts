@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
+import { TrackCallResponse } from "./generated/web/calls_pb";
 
 type PartialApplicationInput = {
   textToSpeech?: {
@@ -104,4 +105,23 @@ function buildStructOverrideReverse(request) {
   return result;
 }
 
-export { buildStructOverride, buildStructOverrideReverse };
+function dialStatusToString(status: number): string {
+  switch (status) {
+    case TrackCallResponse.Status.TRYING:
+      return "TRYING";
+    case TrackCallResponse.Status.ANSWER:
+      return "ANSWER";
+    case TrackCallResponse.Status.BUSY:
+      return "BUSY";
+    case TrackCallResponse.Status.CANCEL:
+      return "CANCEL";
+    case TrackCallResponse.Status.NOANSWER:
+      return "ERROR";
+    case TrackCallResponse.Status.FAILED:
+      return "FAILED";
+    case TrackCallResponse.Status.PROGRESS:
+      return "PROGRESS";
+  }
+}
+
+export { buildStructOverride, buildStructOverrideReverse, dialStatusToString };

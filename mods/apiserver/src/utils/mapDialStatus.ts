@@ -21,6 +21,10 @@ import { DialStatus } from "@fonoster/common";
 const FailedStatus = ["CHANUNAVAIL", "CONGESTION"];
 
 function mapDialStatus(status: string): DialStatus | undefined {
+  if (status === "") {
+    return DialStatus.TRYING;
+  }
+
   const normalizedStatus = status.toUpperCase();
   const dialStatusArray = Object.keys(DialStatus).map((key) => DialStatus[key]);
 

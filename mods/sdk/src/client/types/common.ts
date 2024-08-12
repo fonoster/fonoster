@@ -26,4 +26,18 @@ type ClientFunction<T, U> = (
   callback: (err: Error | null, response: U | null) => void
 ) => void;
 
-export { MappingTuple, ClientFunction };
+type DataResponse = { toObject: () => unknown };
+
+type ServerStream<U> = {
+  on: (
+    event: "data" | "error" | "end" | "status",
+    listener: (response: U | Error | DataResponse) => void
+  ) => void;
+};
+
+type ServerStreamFunction<T, U> = (
+  request: T,
+  metadata: Metadata | unknown | null
+) => ServerStream<U>;
+
+export { MappingTuple, ServerStreamFunction, DataResponse, ClientFunction };

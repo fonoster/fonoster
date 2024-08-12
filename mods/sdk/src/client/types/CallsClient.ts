@@ -16,20 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ClientFunction } from "./common";
+import { ClientFunction, ServerStreamFunction } from "./common";
 import {
   CallDetailRecord,
   CreateCallRequest,
   CreateCallResponse,
   GetCallRequest,
   ListCallsRequest,
-  ListCallsResponse
+  ListCallsResponse,
+  TrackCallRequest
 } from "../../generated/web/calls_pb";
 
 type CallsClient = {
   createCall: ClientFunction<CreateCallRequest, CreateCallResponse>;
   getCall: ClientFunction<GetCallRequest, CallDetailRecord>;
   listCalls: ClientFunction<ListCallsRequest, ListCallsResponse>;
+  trackCall: ServerStreamFunction<TrackCallRequest, CallDetailRecord>;
 };
 
 export { CallsClient };

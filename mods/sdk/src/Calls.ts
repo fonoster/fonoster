@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DialStatus } from "@fonoster/common";
 import {
   BaseApiObject,
   CallDetailRecord,
@@ -24,7 +25,7 @@ import {
   ListCallsResponse
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
-import { FonosterClient } from "./client/types";
+import { DataResponse, FonosterClient } from "./client/types";
 import {
   CallDirection,
   Call as CallPB,
@@ -35,8 +36,10 @@ import {
   GetCallRequest as GetCallRequestPB,
   GetCallResponse as GetCallResponsePB,
   ListCallsRequest as ListCallsRequestPB,
-  ListCallsResponse as ListCallsResponsePB
+  ListCallsResponse as ListCallsResponsePB,
+  TrackCallRequest as TrackCallRequestPB
 } from "./generated/node/calls_pb";
+import { dialStatusToString } from "./utils";
 
 /**
  * @classdesc Fonoster Calls, part of the Fonoster Media subsystem,
@@ -93,7 +96,8 @@ class Calls {
    * @param {string} request.to - The number that received the call
    * @param {string} request.appRef - The reference of the App that will handle the call
    * @param {number} request.timeout - The time in seconds to wait for the call to be answered. Default is 60 seconds
-   * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Call
+   * @return {{ref: string, statusStream: AsyncGenerator<{ status: DialStatus }>}} - The response object that contains the Call reference and a stream of status updates
+   * @see DialStatus
    * @example
    * const calls = new SDK.Calls(client); // Existing client object
    *
@@ -104,15 +108,22 @@ class Calls {
    *   timeout: 30
    * };
    *
-   * calls
-   *   .createCall(request)
-   *   .then(console.log) // successful response
-   *   .catch(console.error); // an error occurred
+   * const response = await calls.createCall(request);
+   * const { ref, statusStream } = response;
+   *
+   * console.log(ref); // Call reference
+   *
+   * for await (const status of statusStream) {
+   *  console.log(status); // Streamed status
+   * }
    */
-  async createCall(request: CreateCallRequest): Promise<BaseApiObject> {
+  async createCall(request: CreateCallRequest): Promise<{
+    ref: string;
+    statusStream: AsyncGenerator<{ status: DialStatus }>;
+  }> {
     const client = this.client.getCallsClient();
 
-    return await makeRpcRequest<
+    const response = await makeRpcRequest<
       CreateCallRequestPB,
       CreateCallResponsePB,
       CreateCallRequest,
@@ -123,6 +134,52 @@ class Calls {
       metadata: this.client.getMetadata(),
       request
     });
+
+    const trackCallRequest = new TrackCallRequestPB();
+    trackCallRequest.setRef(response.ref);
+
+    const call = client.trackCall(trackCallRequest, this.client.getMetadata());
+
+    async function* statusStreamGenerator(): AsyncGenerator<{
+      status: DialStatus;
+    }> {
+      const queue: Array<{ status: number }> = [];
+      let done = false;
+
+      call.on("data", (response: DataResponse) => {
+        const data = response.toObject();
+        queue.push(data as { status: number });
+      });
+
+      call.on("end", () => {
+        done = true;
+      });
+
+      call.on("error", () => {
+        done = true;
+        throw new Error("An error occurred while tracking the call");
+      });
+
+      // eslint-disable-next-line no-loops/no-loops
+      while (!done) {
+        if (queue.length > 0) {
+          const data = queue.shift()!;
+          if (!data) {
+            return;
+          }
+
+          yield { status: dialStatusToString(data.status) } as {
+            status: DialStatus;
+          };
+        } else {
+          await new Promise<void>((resolve) => setTimeout(resolve, 50));
+        }
+      }
+    }
+
+    const statusStream = statusStreamGenerator();
+
+    return { ref: response.ref, statusStream };
   }
 
   /**
