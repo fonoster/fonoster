@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { datesMapper } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { Application, BaseApiObject } from "@fonoster/types";
@@ -37,9 +36,7 @@ function getApplication(prisma: Prisma) {
 
       const result = await getFn(ref);
 
-      const resultWithParsedDate = datesMapper(result);
-
-      return result ? applicationWithEncodedStruct(resultWithParsedDate) : null;
+      return result ? applicationWithEncodedStruct(result) : null;
     },
     (ref: string) => getFn(ref)
   );

@@ -36,7 +36,7 @@ describe("@applications/applicationWithEncodedStruct", function () {
       "../../src/applications/utils/applicationWithEncodedStruct"
     );
 
-    const createdAt = new Date();
+    const createdAt = new Date()
     const updatedAt = new Date();
 
     const application = {
@@ -61,7 +61,7 @@ describe("@applications/applicationWithEncodedStruct", function () {
     const result = applicationWithEncodedStruct(application);
 
     // Assert
-    chai.expect(result).to.deep.equal({
+    chai.expect(result).to.equal({
       ...application,
       textToSpeech: {
         productRef: "123",
@@ -77,7 +77,9 @@ describe("@applications/applicationWithEncodedStruct", function () {
       speechToText: {
         productRef: "123",
         config: null
-      }
+      },
+      createdAt: createdAt.getTime() / 1000,
+      updatedAt: updatedAt.getTime() / 1000
     });
   });
 });

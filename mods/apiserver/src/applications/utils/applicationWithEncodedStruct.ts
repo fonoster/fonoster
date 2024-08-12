@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { datesMapper } from "@fonoster/common";
 import { Application } from "@fonoster/types";
 import { struct } from "pb-util";
 
@@ -50,7 +51,7 @@ function applicationWithEncodedStruct(application): Application {
     };
   }
 
-  return result; // Return the modified object
+  return datesMapper(result);
 }
 
 export { applicationWithEncodedStruct };
