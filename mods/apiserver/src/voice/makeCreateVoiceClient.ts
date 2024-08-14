@@ -20,7 +20,7 @@ import { createCallAccessToken } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { Channel, Client, StasisStart } from "ari-client";
 import { CreateContainer } from "./integrations/types";
-import { makeGetChannelVar } from "./makeGetChannelVar";
+import { makeGetChannelVarWithoutThrow } from "./makeGetChannelVar";
 import { ChannelVar, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
 import { identityConfig } from "../core/identityConfig";
@@ -40,7 +40,7 @@ function makeCreateVoiceClient(createContainer: CreateContainer) {
     const { id: sessionRef, caller } = event.channel;
     const { name: callerName, number: callerNumber } = caller;
 
-    const getChannelVar = makeGetChannelVar(channel);
+    const getChannelVar = makeGetChannelVarWithoutThrow(channel);
 
     // Variables set by Asterisk's dialplan
     const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
@@ -51,13 +51,7 @@ function makeCreateVoiceClient(createContainer: CreateContainer) {
 
     const sessionToken = await createToken({ accessKeyId, appRef });
 
-    let metadataStr: string;
-
-    try {
-      metadataStr = (await getChannelVar(ChannelVar.METADATA))?.value;
-    } catch (e) {
-      // Do nothing
-    }
+    const metadataStr = (await getChannelVar(ChannelVar.METADATA))?.value;
 
     const config = {
       appRef,

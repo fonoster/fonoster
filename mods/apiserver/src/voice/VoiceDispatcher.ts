@@ -61,52 +61,54 @@ class VoiceDispatcher {
 
   start() {
     // Initialize the ARI client
-    this.ari.start(STASIS_APP_NAME);
-    this.ari.on(AE.STASIS_START, this.handleStasisStart.bind(this));
-    this.ari.on(AE.STASIS_END, this.handleStasisEnd.bind(this));
-    this.ari.on(AE.DIAL, this.handleDial.bind(this));
+    const { ari, handleStasisStart, handleStasisEnd, handleDial } = this;
+    ari.start(STASIS_APP_NAME);
+    ari.on(AE.STASIS_START, handleStasisStart.bind(this));
+    ari.on(AE.STASIS_END, handleStasisEnd.bind(this));
+    ari.on(AE.DIAL, handleDial.bind(this));
   }
 
   async handleStasisStart(event: StasisStart, channel: Channel) {
-    if (await this.isHandledElsewhere(channel)) {
+    const { ari, voiceClients, createVoiceClient, isHandledElsewhere } = this;
+
+    if (await isHandledElsewhere(channel)) {
       return;
     }
 
     try {
-      const vc = await this.createVoiceClient({
-        ari: this.ari,
-        event,
-        channel
-      });
+      const vc = await createVoiceClient({ ari, event, channel });
 
       // Connect to voice server
       vc.connect();
 
-      this.voiceClients.set(channel.id, vc);
+      voiceClients.set(channel.id, vc);
 
-      vc.on(SC.ANSWER_REQUEST, answerHandler(this.ari, vc).bind(this));
-      vc.on(SC.HANGUP_REQUEST, hangupHandler(this.ari, vc).bind(this));
-      vc.on(SC.MUTE_REQUEST, muteHandler(this.ari, vc).bind(this));
-      vc.on(SC.UNMUTE_REQUEST, unmuteHandler(this.ari, vc).bind(this));
-      vc.on(SC.PLAY_REQUEST, playHandler(this.ari, vc).bind(this));
-      vc.on(SC.PLAY_DTMF_REQUEST, playDtmfHandler(this.ari, vc).bind(this));
+      vc.on(SC.ANSWER_REQUEST, answerHandler(ari, vc).bind(this));
+      vc.on(SC.HANGUP_REQUEST, hangupHandler(ari, vc).bind(this));
+      vc.on(SC.MUTE_REQUEST, muteHandler(ari, vc).bind(this));
+      vc.on(SC.UNMUTE_REQUEST, unmuteHandler(ari, vc).bind(this));
+      vc.on(SC.PLAY_REQUEST, playHandler(ari, vc).bind(this));
+      vc.on(SC.PLAY_DTMF_REQUEST, playDtmfHandler(ari, vc).bind(this));
+      vc.on(SC.SAY_REQUEST, sayHandler(ari, vc).bind(this));
+      vc.on(SC.GATHER_REQUEST, gatherHandler(vc).bind(this));
+      vc.on(SC.DIAL_REQUEST, dialHandler(ari, vc).bind(this));
       vc.on(
         SC.PLAYBACK_CONTROL_REQUEST,
-        playbackControlHandler(this.ari, vc).bind(this)
+        playbackControlHandler(ari, vc).bind(this)
       );
-      vc.on(SC.SAY_REQUEST, sayHandler(this.ari, vc).bind(this));
-      vc.on(SC.GATHER_REQUEST, gatherHandler(vc).bind(this));
-      vc.on(SC.DIAL_REQUEST, dialHandler(this.ari, vc).bind(this));
     } catch (err) {
       logger.error("error handling stasis start", { error: err.message });
     }
   }
 
   handleStasisEnd(_: undefined, channel: Channel) {
-    const voiceClient = this.voiceClients.get(channel.id);
+    const { voiceClients } = this;
+
+    const voiceClient = voiceClients.get(channel.id);
+
     if (voiceClient) {
       voiceClient.close();
-      this.voiceClients.delete(channel.id);
+      voiceClients.delete(channel.id);
     }
   }
 

@@ -30,7 +30,7 @@ services:
       dockerfile: ./asterisk/Dockerfile
     ports:
       - 6060:6060
-      - 8088:8088 # TODO: Change to 9876 internally too
+      - 8088:8088
     extra_hosts:
       apiserver: ${DOCKER_HOST_ADDRESS}
 
