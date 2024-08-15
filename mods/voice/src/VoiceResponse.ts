@@ -66,11 +66,10 @@ import {
  *
  * async function handler (request, response) {
  *   await response.answer();
- *   await response.play("sound:hello-world");
+ *   await response.play("https://soundsserver:9000/sounds/hello-world.wav");
  * }
  *
- * const voiceServer = new VoiceServer({base: '/voiceapp'})
- * voiceServer.listen(handler, { port: 3000 })
+ * new VoiceServer().listen(handler, { port: 3000 })
  */
 class VoiceResponse {
   voice: VoiceSessionStreamServer;
