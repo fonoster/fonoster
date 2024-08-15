@@ -1,0 +1,39 @@
+{
+  "name": "@fonoster/autopilot",
+  "version": "0.6.2",
+  "description": "Voice AI for the Fonoster platform",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "dependencies": {
+    "@fonoster/logger": "^0.6.2",
+    "xstate": "^5.17.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
