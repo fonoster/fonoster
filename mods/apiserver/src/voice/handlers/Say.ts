@@ -21,8 +21,8 @@ import { Client } from "ari-client";
 import { nanoid } from "nanoid";
 import { struct } from "pb-util";
 import { z } from "zod";
-import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
-import { withErrorHandling } from "./withErrorHandling";
+import { awaitForPlaybackFinished } from "./utils/awaitForPlaybackFinished";
+import { withErrorHandling } from "./utils/withErrorHandling";
 import { APISERVER_HOST, FILES_SERVER_PORT } from "../../envs";
 import { VoiceClient } from "../types";
 

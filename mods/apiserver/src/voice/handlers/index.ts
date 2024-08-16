@@ -16,26 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MuteRequest } from "@fonoster/common";
-import { Client } from "ari-client";
-import { withErrorHandling } from "./withErrorHandling";
-import { VoiceClient } from "../types";
-
-function muteHandler(ari: Client, voiceClient: VoiceClient) {
-  return withErrorHandling(async (request: MuteRequest) => {
-    const { sessionRef, direction } = request;
-
-    await ari.channels.mute({
-      channelId: sessionRef,
-      direction
-    });
-
-    voiceClient.sendResponse({
-      muteResponse: {
-        sessionRef
-      }
-    });
-  });
-}
-
-export { muteHandler };
+export * from "./Answer";
+export * from "./Hangup";
+export * from "./Mute";
+export * from "./Unmute";
+export * from "./dial/Dial";
+export * from "./gather/Gather";
+export * from "./sgather/StreamGather";
+export * from "./Play";
+export * from "./PlaybackControl";
+export * from "./PlayDtmf";
+export * from "./Record";
+export * from "./Say";

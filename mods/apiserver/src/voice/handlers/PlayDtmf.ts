@@ -18,7 +18,7 @@
  */
 import { PlayDtmfRequest } from "@fonoster/common";
 import { Client } from "ari-client";
-import { withErrorHandling } from "./withErrorHandling";
+import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
 
 function playDtmfHandler(ari: Client, voiceClient: VoiceClient) {

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Client } from "ari-client";
-import { AriEvent } from "../types";
+import { AriEvent } from "../../types";
 
 const awaitForPlaybackFinished = async (
   ari: Client,

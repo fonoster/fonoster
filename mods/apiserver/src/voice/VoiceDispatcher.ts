@@ -20,16 +20,19 @@ import { StreamContent as SC, STASIS_APP_NAME } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Channel, Client, Dial, StasisStart } from "ari-client";
 import { NatsConnection } from "nats";
-import { answerHandler } from "./handlers/Answer";
-import { dialHandler } from "./handlers/dial/Dial";
-import { gatherHandler } from "./handlers/gather/Gather";
-import { hangupHandler } from "./handlers/Hangup";
-import { muteHandler } from "./handlers/Mute";
-import { playHandler } from "./handlers/Play";
-import { playbackControlHandler } from "./handlers/PlaybackControl";
-import { playDtmfHandler } from "./handlers/PlayDtmf";
-import { sayHandler } from "./handlers/Say";
-import { unmuteHandler } from "./handlers/Unmute";
+import {
+  answerHandler,
+  dialHandler,
+  gatherHandler,
+  hangupHandler,
+  muteHandler,
+  playDtmfHandler,
+  playHandler,
+  playbackControlHandler,
+  sayHandler,
+  streamGatherHandler,
+  unmuteHandler
+} from "./handlers";
 import { makeGetChannelVarWithoutThrow } from "./makeGetChannelVar";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "./types";
 import { makeHandleDialEventsWithNats } from "../utils";
@@ -96,6 +99,7 @@ class VoiceDispatcher {
         SC.PLAYBACK_CONTROL_REQUEST,
         playbackControlHandler(ari, vc).bind(this)
       );
+      vc.on(SC.START_STREAM_GATHER_REQUEST, streamGatherHandler(vc).bind(this));
     } catch (err) {
       logger.error("error handling stasis start", { error: err.message });
     }

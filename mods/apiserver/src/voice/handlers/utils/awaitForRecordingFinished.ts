@@ -19,7 +19,7 @@
 import { GrpcError } from "@fonoster/common";
 import { status } from "@grpc/grpc-js";
 import { Client, RecordingFinished } from "ari-client";
-import { AriEvent } from "../types";
+import { AriEvent } from "../../types";
 
 async function awaitForRecordingFinished(
   ari: Client,

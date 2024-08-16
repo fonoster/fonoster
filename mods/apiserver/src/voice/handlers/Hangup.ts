@@ -18,7 +18,7 @@
  */
 import { VerbRequest } from "@fonoster/common";
 import { Client } from "ari-client";
-import { withErrorHandling } from "./withErrorHandling";
+import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
 
 function hangupHandler(ari: Client, voiceClient: VoiceClient) {

@@ -19,8 +19,8 @@
 import { PlayRequest } from "@fonoster/common";
 import { Client } from "ari-client";
 import { nanoid } from "nanoid";
-import { awaitForPlaybackFinished } from "./awaitForPlaybackFinished";
-import { withErrorHandling } from "./withErrorHandling";
+import { awaitForPlaybackFinished } from "./utils/awaitForPlaybackFinished";
+import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
 
 function playHandler(ari: Client, voiceClient: VoiceClient) {
