@@ -29,12 +29,13 @@ import {
   StopStreamRequest,
   StreamPayload
 } from "./Stream";
+import { StartStreamGatherRequest, StreamGatherPayload } from "./StreamGather";
 import { VerbRequest, VerbResponse, VoiceRequest } from "./Verb";
 import { GrpcError } from "../GrpcError";
 
-const DATA = "data" as const;
-const END = "end" as const;
-const ERROR = "error" as const;
+const DATA = "data";
+const END = "end";
+const ERROR = "error";
 
 enum StreamEvent {
   DATA = "data",
@@ -68,7 +69,12 @@ enum StreamContent {
   START_STREAM_REQUEST = "startStreamRequest",
   START_STREAM_RESPONSE = "startStreamResponse",
   STOP_STREAM_REQUEST = "stopStreamRequest",
-  STREAM_PAYLOAD = "streamPayload"
+  STREAM_PAYLOAD = "streamPayload",
+  START_STREAM_GATHER_REQUEST = "startStreamGatherRequest",
+  START_STREAM_GATHER_RESPONSE = "startStreamGatherResponse",
+  STOP_STREAM_GATHER_REQUEST = "stopStreamGatherRequest",
+  STOP_STREAM_GATHER_RESPONSE = "stopStreamGatherResponse",
+  STREAM_GATHER_PAYLOAD = "streamGatherPayload"
 }
 
 type VoiceClientConfig = {
@@ -100,6 +106,9 @@ type VoiceIn = {
   dialResponse?: { status: DialStatus };
   startStreamResponse?: StartStreamResponse;
   streamPayload?: StreamPayload;
+  streamGatherPayload?: StreamGatherPayload;
+  startStreamGatherResponse?: VerbResponse;
+  stopStreamGatherResponse?: VerbResponse;
 };
 
 // TODO: Enforce that one of the requests fields is present
@@ -118,6 +127,8 @@ type VoiceOut = {
   startStreamRequest?: StartStreamRequest;
   stopStreamRequest?: StopStreamRequest;
   streamPayload?: StreamPayload;
+  startStreamGatherRequest?: StartStreamGatherRequest;
+  stopStreamGatherRequest?: VerbRequest;
 };
 
 type BaseVoiceStream<T, W> = {

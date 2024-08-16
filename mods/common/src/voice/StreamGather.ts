@@ -16,15 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./voice";
-export * from "./Dial";
-export * from "./Gather";
-export * from "./Verb";
-export * from "./Mute";
-export * from "./Play";
-export * from "./PlaybackControl";
-export * from "./PlayDtmf";
-export * from "./Record";
-export * from "./Say";
-export * from "./Stream";
-export * from "./StreamGather";
+import { VerbRequest, VerbResponse } from "./Verb";
+
+enum StreamGatherSource {
+  SPEECH = "speech",
+  DTMF = "dtmf",
+  SPEECH_AND_DTMF = "speech,dtmf"
+}
+
+type StreamGatherOptions = {
+  source?: StreamGatherSource;
+};
+
+type StartStreamGatherRequest = VerbRequest & StreamGatherOptions;
+
+type StreamGatherPayload = VerbResponse & {
+  speech?: string;
+  digit?: string;
+};
+
+export {
+  StreamGatherSource,
+  StreamGatherPayload,
+  StartStreamGatherRequest,
+  StreamGatherOptions
+};
