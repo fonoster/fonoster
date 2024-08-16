@@ -31,6 +31,7 @@ import {
   SayOptions,
   SayResponse,
   StreamEvent,
+  StreamGatherOptions,
   StreamOptions,
   VerbResponse,
   VoiceRequest,
@@ -50,8 +51,11 @@ import {
   Record,
   Say,
   StartStream,
+  StartStreamGather,
   StopStream,
+  StopStreamGather,
   Stream,
+  StreamGatherStream,
   Unmute
 } from "./verbs";
 
@@ -356,6 +360,51 @@ class VoiceResponse {
       stopStream.run({
         sessionRef: this.request.sessionRef,
         streamRef: startStreamResponse?.streamRef
+      });
+    });
+
+    return stream;
+  }
+
+  /**
+   * Starts a server-side stream gather operation which sends transcription data to the voice server.
+   *
+   * @param {StreamGatherOptions} options - Options to control the stream gather operation
+   * @param {StreamGatherSource} options.source - The source to gather data from (DTMF, SPEECH, SPEECH_AND_DTMF). Default is SPEECH
+   * @return {Promise<StreamGatherStream>} The stream gather object
+   * @see Gather
+   * @example
+   *
+   * async function handler (request, response) {
+   *  await response.answer();
+   *  const sGather = await response.streamGather({ source: StreamGatherSource.SPEECH });
+   *  sGather.onPayload((payload) => {
+   *    console.log("Payload: %s", payload);
+   *  });
+   * }
+   */
+  async streamGather(
+    options: StreamGatherOptions
+  ): Promise<StreamGatherStream> {
+    const stream = new StreamGatherStream();
+
+    const startStreamGather = new StartStreamGather(this.request, this.voice);
+    const stopStreamGather = new StopStreamGather(this.request, this.voice);
+
+    await startStreamGather.run({
+      sessionRef: this.request.sessionRef,
+      ...options
+    });
+
+    this.voice.on(StreamEvent.DATA, (result) => {
+      if (result.streamGatherPayload) {
+        stream.emit("data", result.streamGatherPayload);
+      }
+    });
+
+    stream.cleanup(() => {
+      stopStreamGather.run({
+        sessionRef: this.request.sessionRef
       });
     });
 
