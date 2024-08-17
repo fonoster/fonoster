@@ -20,9 +20,8 @@ import { GatherRequest, GatherSource } from "@fonoster/common";
 import { z } from "zod";
 import { getTimeoutPromise } from "./getTimeoutPromise";
 import { VoiceClient } from "../../types";
+import { isDtmf } from "../utils";
 import { withErrorHandling } from "../utils/withErrorHandling";
-
-const isDtmf = (digit: string) => /^[0-9*#]+$/.test(digit);
 
 const gatherRequestSchema = z.object({
   source: z.optional(z.nativeEnum(GatherSource)),
