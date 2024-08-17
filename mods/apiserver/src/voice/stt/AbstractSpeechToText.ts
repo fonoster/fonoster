@@ -18,10 +18,13 @@
  */
 import { Stream } from "stream";
 import * as z from "zod";
-import { SpeechResult, StreamSpeechResult, SttConfig } from "./types";
+import { SpeechResult, StreamSpeech, SttConfig } from "./types";
 import { MethodNotImplementedError } from "../MethodNotImplementedError";
+import { SpeechToText } from "../types";
 
-abstract class AbstractSpeechToText<E, T extends SttConfig = SttConfig> {
+abstract class AbstractSpeechToText<E, T extends SttConfig = SttConfig>
+  implements SpeechToText
+{
   abstract readonly engineName: E;
   config: T;
 
@@ -29,7 +32,7 @@ abstract class AbstractSpeechToText<E, T extends SttConfig = SttConfig> {
     this.config = config;
   }
 
-  abstract streamTranscribe(stream: Stream): StreamSpeechResult;
+  abstract streamTranscribe(stream: Stream): StreamSpeech;
 
   abstract transcribe(stream: Stream): Promise<SpeechResult>;
 

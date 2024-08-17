@@ -21,13 +21,17 @@ import { VoiceLanguage } from "@fonoster/common";
 import { SpeechClient } from "@google-cloud/speech";
 import * as z from "zod";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
-import { GoogleSttConfig, SpeechResult, StreamSpeechResult } from "./types";
+import { GoogleSttConfig, SpeechResult, StreamSpeech } from "./types";
+import { SpeechToText } from "../types";
 
 const ENGINE_NAME = "stt.google";
 const AUDIO_ENCODING = "LINEAR16";
 const SAMPLE_RATE_HERTZ = 16000;
 
-class Google extends AbstractSpeechToText<typeof ENGINE_NAME> {
+class Google
+  extends AbstractSpeechToText<typeof ENGINE_NAME>
+  implements SpeechToText
+{
   client: SpeechClient;
   config: GoogleSttConfig;
   readonly engineName = ENGINE_NAME;
@@ -49,9 +53,9 @@ class Google extends AbstractSpeechToText<typeof ENGINE_NAME> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  streamTranscribe(_: Stream): StreamSpeechResult {
+  streamTranscribe(_: Stream): StreamSpeech {
     // Not implemented
-    return null as unknown as StreamSpeechResult;
+    throw new Error("Stream Transcribe not implemented for Google Engine");
   }
 
   async transcribe(stream: Stream): Promise<SpeechResult> {

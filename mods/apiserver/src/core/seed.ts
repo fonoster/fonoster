@@ -47,6 +47,17 @@ async function main() {
   });
 
   await prisma.product.upsert({
+    where: { ref: "stt.deepgram" },
+    update: {},
+    create: {
+      ref: "stt.deepgram",
+      name: "Deepgram Speech-to-Text",
+      vendor: "DEEPGRAM",
+      type: "STT"
+    }
+  });
+
+  await prisma.product.upsert({
     where: { ref: "nlu.dialogflowcx" },
     update: {},
     create: {

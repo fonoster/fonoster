@@ -156,6 +156,24 @@ class VoiceClientImpl implements VoiceClient {
     }
   }
 
+  async startStreamGather(
+    callback: (stream: { speech?: string; digit?: string }) => void
+  ) {
+    try {
+      const out = this.stt.streamTranscribe(this.stream);
+      out.on("data", (data) => {
+        const { speech } = data;
+        callback({ speech });
+      });
+    } catch (e) {
+      logger.error(e);
+    }
+  }
+
+  async stopStreamGather() {
+    // Destroy transcription engine instance
+  }
+
   async waitForDtmf(params: {
     sessionRef: string;
     finishOnKey: string;

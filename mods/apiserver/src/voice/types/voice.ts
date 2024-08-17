@@ -25,7 +25,7 @@ import {
   VoiceSessionStreamClient
 } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
-import { SpeechResult } from "../stt/types";
+import { SpeechResult, StreamSpeech } from "../stt/types";
 
 type VoiceClient = {
   config: VoiceClientConfig;
@@ -35,6 +35,10 @@ type VoiceClient = {
   close: () => void;
   synthesize: (text: string, options: SayOptions) => Promise<string>;
   transcribe: () => Promise<SpeechResult>;
+  startStreamGather: (
+    callback: (stream: { speech?: string; digit?: string }) => void
+  ) => void;
+  stopStreamGather: () => void;
   waitForDtmf: (params: {
     sessionRef: string;
     finishOnKey: string;
@@ -53,6 +57,7 @@ type TextToSpeech = {
 
 type SpeechToText = {
   transcribe: (stream: Stream) => Promise<SpeechResult>;
+  streamTranscribe(stream: Stream): StreamSpeech;
 };
 
 type GRPCClient = {

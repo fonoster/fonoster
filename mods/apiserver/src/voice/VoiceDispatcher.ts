@@ -100,6 +100,9 @@ class VoiceDispatcher {
         playbackControlHandler(ari, vc).bind(this)
       );
       vc.on(SC.START_STREAM_GATHER_REQUEST, streamGatherHandler(vc).bind(this));
+      vc.on(SC.STOP_STREAM_GATHER_REQUEST, () => {
+        vc.stopStreamGather();
+      });
     } catch (err) {
       logger.error("error handling stasis start", { error: err.message });
     }

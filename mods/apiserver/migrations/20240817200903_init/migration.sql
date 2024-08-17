@@ -5,7 +5,7 @@ CREATE TYPE "application_types" AS ENUM ('PROGRAMMABLE_VOICE');
 CREATE TYPE "product_types" AS ENUM ('TTS', 'STT', 'NLU', 'ASSISTANT');
 
 -- CreateEnum
-CREATE TYPE "product_vendors" AS ENUM ('GOOGLE', 'MICROSOFT', 'AMAZON', 'IBM', 'RASA', 'GENERIC');
+CREATE TYPE "product_vendors" AS ENUM ('GOOGLE', 'MICROSOFT', 'AMAZON', 'DEEPGRAM', 'IBM', 'RASA', 'GENERIC');
 
 -- CreateTable
 CREATE TABLE "applications" (
@@ -13,7 +13,7 @@ CREATE TABLE "applications" (
     "access_key_id" TEXT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "type" "application_types" NOT NULL,
-    "appEndpoint" VARCHAR(255) NOT NULL,
+    "endpoint" VARCHAR(255) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

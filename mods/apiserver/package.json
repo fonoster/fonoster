@@ -20,6 +20,7 @@
     "fonoster": "./dist/index.js"
   },
   "dependencies": {
+    "@deepgram/sdk": "^3.5.1",
     "@fonoster/common": "^0.6.6",
     "@fonoster/identity": "^0.6.6",
     "@fonoster/logger": "^0.6.2",

@@ -18,6 +18,7 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
+import { ENGINE_NAME as DEEPGRAM_ENGINE_NAME, Deepgram } from "./Deepgram";
 import { ENGINE_NAME as GOOGLE_ENGINE_NAME, Google } from "./Google";
 import { SttConfig } from "./types";
 
@@ -52,5 +53,6 @@ class SpeechToTextFactory {
 
 // Register engines
 SpeechToTextFactory.registerEngine(GOOGLE_ENGINE_NAME, Google);
+SpeechToTextFactory.registerEngine(DEEPGRAM_ENGINE_NAME, Deepgram);
 
 export { SpeechToTextFactory };
