@@ -27,7 +27,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@voice/verbs/streamGather", function () {
+describe("@voice/verbs/SGather", function () {
   afterEach(function () {
     return sandbox.restore();
   });
@@ -80,7 +80,7 @@ describe("@voice/verbs/streamGather", function () {
     const dummyCallback = sandbox.stub();
 
     // Act
-    const sGather = await voiceResponse.streamGather({
+    const sGather = await voiceResponse.sgather({
       source: StreamGatherSource.SPEECH
     });
 

@@ -383,9 +383,7 @@ class VoiceResponse {
    *  });
    * }
    */
-  async streamGather(
-    options: StreamGatherOptions
-  ): Promise<StreamGatherStream> {
+  async sgather(options: StreamGatherOptions): Promise<StreamGatherStream> {
     const stream = new StreamGatherStream();
 
     const startStreamGather = new StartStreamGather(this.request, this.voice);
