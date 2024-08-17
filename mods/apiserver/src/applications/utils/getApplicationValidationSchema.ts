@@ -18,6 +18,7 @@
  */
 import { ApplicationType } from "@prisma/client";
 import { z } from "zod";
+import { Deepgram as DeepgramStt } from "../../voice/stt/Deepgram";
 import { Google as GoogleStt } from "../../voice/stt/Google";
 import { Azure as AzureTts } from "../../voice/tts/Azure";
 import { Google as GoogleTts } from "../../voice/tts/Google";
@@ -33,10 +34,12 @@ const validators = {
     "tts.azure": AzureTts.getCredentialsValidationSchema
   },
   sttConfigValidators: {
-    "stt.google": GoogleStt.getConfigValidationSchema
+    "stt.google": GoogleStt.getConfigValidationSchema,
+    "stt.deepgram": DeepgramStt.getConfigValidationSchema
   },
   sttCredentialsValidators: {
-    "stt.google": GoogleStt.getCredentialsValidationSchema
+    "stt.google": GoogleStt.getCredentialsValidationSchema,
+    "stt.deepgram": DeepgramStt.getCredentialsValidationSchema
   }
 };
 
