@@ -29,7 +29,7 @@ function getTtsConfig(integrations: IntegrationConfig[], app: Application) {
   );
 
   return {
-    ...config,
+    config,
     credentials,
     pathToFiles: TTS_PATH_TO_FILES
   };

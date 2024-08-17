@@ -29,7 +29,7 @@ function getSttConfig(integrations: IntegrationConfig[], app: Application) {
   );
 
   return {
-    ...config,
+    config,
     credentials
   };
 }

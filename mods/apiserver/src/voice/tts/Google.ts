@@ -42,7 +42,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   client: TextToSpeechClient;
-  config: GoogleTtsConfig;
+  engineConfig: GoogleTtsConfig;
   readonly engineName = ENGINE_NAME;
   protected readonly OUTPUT_FORMAT = "sln16";
   protected readonly CACHING_FIELDS = ["voice"];
@@ -51,7 +51,7 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   constructor(config: GoogleTtsConfig) {
     super(config);
     this.client = new TextToSpeechClient(config);
-    this.config = config;
+    this.engineConfig = config;
   }
 
   async synthesize(text: string, options: SynthOptions): Promise<string> {
@@ -62,11 +62,11 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     );
 
     const effectiveOptions = {
-      ...this.config,
+      ...this.engineConfig,
       ...options
     };
 
-    const { voice } = effectiveOptions;
+    const { voice } = this.engineConfig.config;
 
     const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
 

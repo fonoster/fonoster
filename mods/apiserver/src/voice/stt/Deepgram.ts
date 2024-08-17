@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -32,8 +33,7 @@ const {
   DeepgramClient,
   LiveTranscriptionEvents,
   createClient
-} = require("@deepgram/sdk");
-const fetch = require("cross-fetch");
+} = require("@deepgram/sdk"); // Why Deepgram :(
 
 const ENGINE_NAME = "stt.deepgram";
 
@@ -44,22 +44,19 @@ class Deepgram
   implements SpeechToText
 {
   client: typeof DeepgramClient;
-  config: DeepgramSttConfig;
+  engineConfig: DeepgramSttConfig;
   readonly engineName = ENGINE_NAME;
 
   constructor(config: DeepgramSttConfig) {
     super(config);
     this.client = createClient(config.credentials.apiKey);
+    this.engineConfig = config;
   }
 
   streamTranscribe(stream: Stream): StreamSpeech {
-    const connection = this.client.listen.live({
-      model: DeepgramModel.NOVA_2,
-      encoding: "linear16",
-      sample_rate: 16000,
-      language: "en-US",
-      smart_format: true
-    });
+    const connection = this.client.listen.live(
+      buildTranscribeConfig(this.engineConfig.config)
+    );
 
     const out = new Stream();
 
@@ -89,14 +86,9 @@ class Deepgram
 
   async transcribe(stream: Stream): Promise<SpeechResult> {
     return new Promise((resolve, reject) => {
-      const connection = this.client.listen.live({
-        model: DeepgramModel.NOVA_2,
-        encoding: "linear16",
-        sample_rate: 16000,
-        language: "en-US",
-        smart_format: true,
-        interim_results: false
-      });
+      const connection = this.client.listen.live(
+        buildTranscribeConfig(this.engineConfig.config)
+      );
 
       stream.on("data", (chunk) => {
         connection.send(chunk);
@@ -134,8 +126,8 @@ class Deepgram
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      language: z.nativeEnum(VoiceLanguage),
-      model: z.nativeEnum(DeepgramModel)
+      languageCode: z.nativeEnum(VoiceLanguage).optional().nullable(),
+      model: z.nativeEnum(DeepgramModel).optional().nullable()
     });
   }
 
@@ -144,6 +136,19 @@ class Deepgram
       apiKey: z.string()
     });
   }
+}
+
+function buildTranscribeConfig(config: {
+  model: DeepgramModel;
+  languageCode: VoiceLanguage;
+}) {
+  return {
+    model: config.model || DeepgramModel.PHONECALL,
+    encoding: "linear16",
+    sample_rate: 16000,
+    language: config.languageCode || VoiceLanguage.EN_US,
+    smart_format: true
+  };
 }
 
 export { Deepgram, ENGINE_NAME };

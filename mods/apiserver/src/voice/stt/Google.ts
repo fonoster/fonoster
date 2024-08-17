@@ -25,31 +25,19 @@ import { GoogleSttConfig, SpeechResult, StreamSpeech } from "./types";
 import { SpeechToText } from "../types";
 
 const ENGINE_NAME = "stt.google";
-const AUDIO_ENCODING = "LINEAR16";
-const SAMPLE_RATE_HERTZ = 16000;
 
 class Google
   extends AbstractSpeechToText<typeof ENGINE_NAME>
   implements SpeechToText
 {
   client: SpeechClient;
-  config: GoogleSttConfig;
+  engineConfig: GoogleSttConfig;
   readonly engineName = ENGINE_NAME;
-  protected readonly AUDIO_ENCODING = AUDIO_ENCODING;
-  protected readonly SAMPLE_RATE_HERTZ = SAMPLE_RATE_HERTZ;
 
   constructor(config: GoogleSttConfig) {
     super(config);
     this.client = new SpeechClient(config);
-    this.config = {
-      ...config,
-      config: {
-        encoding: AUDIO_ENCODING,
-        sampleRateHertz: SAMPLE_RATE_HERTZ,
-        interimResults: false,
-        languageCode: config.languageCode
-      }
-    };
+    this.engineConfig = config;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -59,9 +47,21 @@ class Google
   }
 
   async transcribe(stream: Stream): Promise<SpeechResult> {
+    const languageCode =
+      this.engineConfig.config.languageCode || VoiceLanguage.EN_US;
+
+    const audioConfig = {
+      interimResults: false,
+      config: {
+        encoding: "LINEAR16" as const,
+        sampleRateHertz: 16000,
+        languageCode
+      }
+    };
+
     return new Promise((resolve, reject) => {
       const recognizeStream = this.client
-        .streamingRecognize(this.config)
+        .streamingRecognize(audioConfig)
         .on("error", (e: Error) => reject(e))
         .on("data", (data: Record<string, unknown>) => {
           if (data.results[0]?.alternatives[0]) {
@@ -81,7 +81,7 @@ class Google
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      languageCode: z.nativeEnum(VoiceLanguage)
+      languageCode: z.nativeEnum(VoiceLanguage).optional().nullable()
     });
   }
 
