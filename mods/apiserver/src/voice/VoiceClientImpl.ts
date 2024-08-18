@@ -169,7 +169,7 @@ class VoiceClientImpl implements VoiceClient {
     }
   }
 
-  async startStreamGather(
+  async startSpeechGather(
     callback: (stream: { speech?: string; digit?: string }) => void
   ) {
     try {
@@ -183,8 +183,21 @@ class VoiceClientImpl implements VoiceClient {
     }
   }
 
+  async startDtmfGather(
+    sessionRef: string,
+    callback: (event: { digit: string }) => void
+  ) {
+    const channel = await this.ari.channels.get({ channelId: sessionRef });
+
+    channel.on(AriEvent.CHANNEL_DTMF_RECEIVED, (event) => {
+      const { digit } = event;
+      callback({ digit });
+    });
+  }
+
+  // Stops both speech and dtmf gather
   async stopStreamGather() {
-    // Destroy transcription engine instance
+    throw new Error("Method 'stopStreamGather' not implemented.");
   }
 
   async waitForDtmf(params: {

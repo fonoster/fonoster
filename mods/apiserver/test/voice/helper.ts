@@ -64,7 +64,9 @@ function getCreateVoiceClient(sandbox: SinonSandbox) {
       sessionId: "channelId"
     },
     close: sandbox.stub(),
-    sendResponse: sandbox.stub()
+    sendResponse: sandbox.stub(),
+    startSpeechGather: sandbox.stub(),
+    startDtmfGather: sandbox.stub()
   });
 }
 

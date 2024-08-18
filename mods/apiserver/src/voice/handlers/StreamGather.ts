@@ -18,8 +18,8 @@
  */
 import { StartStreamGatherRequest, StreamGatherSource } from "@fonoster/common";
 import { z } from "zod";
-import { VoiceClient } from "../../types";
-import { withErrorHandling } from "../utils/withErrorHandling";
+import { withErrorHandling } from "./utils/withErrorHandling";
+import { VoiceClient } from "../types";
 
 const gatherRequestSchema = z.object({
   source: z.optional(z.nativeEnum(StreamGatherSource))
@@ -34,16 +34,29 @@ function streamGatherHandler(voiceClient: VoiceClient) {
 
     const effectiveSource = source || StreamGatherSource.SPEECH_AND_DTMF;
 
-    voiceClient.startStreamGather((event) => {
-      const { speech, digit } = event;
-      voiceClient.sendResponse({
-        streamGatherPayload: {
-          sessionRef,
-          speech,
-          digit
-        }
+    if (effectiveSource.includes(StreamGatherSource.DTMF)) {
+      voiceClient.startDtmfGather(sessionRef, (event) => {
+        const { digit } = event;
+        voiceClient.sendResponse({
+          streamGatherPayload: {
+            sessionRef,
+            digit
+          }
+        });
       });
-    });
+    }
+
+    if (effectiveSource.includes(StreamGatherSource.SPEECH)) {
+      voiceClient.startSpeechGather((event) => {
+        const { speech } = event;
+        voiceClient.sendResponse({
+          streamGatherPayload: {
+            sessionRef,
+            speech
+          }
+        });
+      });
+    }
   });
 }
 

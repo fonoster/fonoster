@@ -22,7 +22,7 @@ export * from "./Mute";
 export * from "./Unmute";
 export * from "./dial/Dial";
 export * from "./gather/Gather";
-export * from "./sgather/StreamGather";
+export * from "./StreamGather";
 export * from "./Play";
 export * from "./PlaybackControl";
 export * from "./PlayDtmf";
