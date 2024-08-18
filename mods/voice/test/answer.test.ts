@@ -31,7 +31,7 @@ describe("@voice/verbs/answer", function () {
     return sandbox.restore();
   });
 
-  it("should anwser a call", async function () {
+  it("should answer a call", async function () {
     // Arrange
     const voice = getVoiceObject(sandbox);
 

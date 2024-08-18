@@ -41,6 +41,7 @@ function getVoiceObject(sandbox: SinonSandbox) {
   return {
     removeListener: sandbox.stub(),
     on: onStub,
+    once: onStub,
     write: sandbox.stub(),
     end: sandbox.stub()
   };

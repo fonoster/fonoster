@@ -42,7 +42,6 @@ export const machine = setup({
       idleTimeoutCount: ({ context }) => context.idleTimeoutCount + 1
     }),
     hangup: async function ({ context }) {
-      logger.verbose("hangup");
       await context.voice.hangup();
     }
   },

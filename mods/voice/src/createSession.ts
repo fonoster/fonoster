@@ -17,20 +17,31 @@
  * limitations under the License.
  */
 import { StreamEvent, VoiceSessionStreamServer } from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
 import { VoiceHandler } from "./types";
 import { VoiceResponse } from "./VoiceResponse";
+
+const logger = getLogger({ service: "voice", filePath: __filename });
 
 function createSession(handler: VoiceHandler) {
   return (voice: VoiceSessionStreamServer): Promise<void> =>
     new Promise((resolve) => {
-      voice.on(StreamEvent.DATA, async (params) => {
+      let sessionRef: string;
+      voice.once(StreamEvent.DATA, async (params) => {
         const { request } = params;
 
         if (params.request) {
+          sessionRef = params.request.sessionRef;
           const response = new VoiceResponse(request, voice);
           await handler(request, response);
           resolve();
         }
+      });
+
+      voice.once(StreamEvent.END, () => {
+        logger.verbose("session ended", { sessionRef });
+        voice.end();
+        resolve();
       });
     });
 }

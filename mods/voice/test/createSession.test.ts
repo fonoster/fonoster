@@ -35,38 +35,37 @@ describe("@voice/createSession", function () {
   });
 
   it("should create a session", async function () {
+    const callbackResponses = [
+      { answerResponse: { sessionRef } },
+      { playResponse: { sessionRef, playbackRef: "123" } },
+      { hangupResponse: { sessionRef } }
+    ];
+    let cnt = 0;
+
     // Arrange
+    const onceStub = sandbox
+      .stub()
+      .callsFake((event: StreamEvent, cb: (params) => void) => {
+        if (event === StreamEvent.DATA) {
+          cb({ request: voiceRequest });
+        }
+        // We purposely ignore the END event to avoid the process to exit
+      });
+
     const onStub = sandbox
       .stub()
-      .onFirstCall()
-      .callsFake((_, cb) => {
-        cb({ request: voiceRequest });
-      })
-      .onSecondCall()
-      .callsFake((_, cb) => {
-        cb({
-          answerResponse: { sessionRef }
-        });
-      })
-      .onThirdCall()
-      .callsFake((_, cb) => {
-        cb({
-          playResponse: { sessionRef }
-        });
-      })
-      .onCall(3)
-      .callsFake((_, cb) => {
-        cb({
-          hangupResponse: { sessionRef }
-        });
+      .callsFake((event: StreamEvent, cb: (params) => void) => {
+        cb(callbackResponses[cnt++]);
       });
 
     const voice = {
       removeListener: sandbox.stub(),
       on: onStub,
+      once: onceStub,
       write: sandbox.stub(),
       end: sandbox.stub()
     };
+
     const { createSession } = await import("../src/createSession");
 
     const handler = async (req: VoiceRequest, res: VoiceResponse) => {
@@ -79,8 +78,10 @@ describe("@voice/createSession", function () {
     await createSession(handler)(voice);
 
     // Assert
-    expect(voice.on).to.have.been.calledWith(StreamEvent.DATA, match.func);
-    expect(voice.on).to.have.been.called.callCount(4);
+    expect(voice.once).to.have.been.calledWith(StreamEvent.DATA, match.func);
+    expect(voice.once).to.have.been.calledWith(StreamEvent.END, match.func);
+    expect(voice.once).to.have.been.calledTwice;
+    expect(voice.on).to.have.been.calledThrice;
     expect(voice.write).to.have.been.calledThrice;
     expect(voice.write).to.have.been.calledWith({
       answerRequest: { sessionRef }

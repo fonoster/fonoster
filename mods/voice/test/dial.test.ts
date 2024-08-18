@@ -73,6 +73,7 @@ describe("@voice/verbs/dial", function () {
     const voice = {
       removeListener: sandbox.stub(),
       on: onStub,
+      once: sandbox.stub(),
       write: sandbox.stub(),
       end: sandbox.stub()
     };

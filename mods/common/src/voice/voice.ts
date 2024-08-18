@@ -134,6 +134,7 @@ type VoiceOut = {
 type BaseVoiceStream<T, W> = {
   removeListener: (e: StreamEvent, cb: (voice: T) => void) => void;
   on: (e: StreamEvent, cb: (voice: T) => void) => void;
+  once: (e: StreamEvent, cb: (voice: T) => void) => void;
   write: (voice: W) => void;
   end: () => void;
 };
