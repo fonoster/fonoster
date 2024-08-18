@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GatherSource } from "@fonoster/common";
+import { StreamGatherSource } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { createActor } from "xstate";
@@ -50,17 +50,13 @@ new VoiceServer(config).listen(
 
     autopilot.start();
 
-    // eslint-disable-next-line no-loops/no-loops, no-constant-condition
-    while (true) {
-      const result = await voice.gather({
-        source: GatherSource.SPEECH
-      });
+    const stream = await voice.sgather({
+      source: StreamGatherSource.SPEECH
+    });
 
-      console.log("xxxx result", result);
-
-      if (result?.speech) {
-        autopilot.send({ type: "HUMAN_PROMPT", speech: result.speech });
-      }
-    }
+    stream.onPayload((payload) => {
+      logger.verbose("payload", payload);
+      autopilot.send({ type: "HUMAN_PROMPT", speech: payload.speech! });
+    });
   }
 );
