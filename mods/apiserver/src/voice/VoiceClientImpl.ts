@@ -118,6 +118,7 @@ class VoiceClientImpl implements VoiceClient {
 
   async setupExternalMedia(port: number) {
     const bridge = this.ari.Bridge();
+
     await bridge.create({ type: "mixing" });
 
     const channel = this.ari.Channel();
@@ -130,6 +131,18 @@ class VoiceClientImpl implements VoiceClient {
       });
 
       await channel.answer();
+    });
+
+    channel.once("ChannelLeftBridge", async () => {
+      // TODO: Evaluate a better way to handle this
+      // We should keep track of the channels and bridges and destroy them
+      // even if the apiserver crashes. Otherwise we risk having a lot of
+      // unused channels and bridges.
+      try {
+        await bridge.destroy();
+      } catch (e) {
+        // We can only try
+      }
     });
   }
 
@@ -226,6 +239,7 @@ class VoiceClientImpl implements VoiceClient {
 
   close() {
     try {
+      this.voice.end();
       this.grpcClient.close();
       this.audioSocket.close();
     } catch (e) {

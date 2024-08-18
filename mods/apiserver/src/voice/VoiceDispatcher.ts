@@ -74,6 +74,15 @@ class VoiceDispatcher {
   async handleStasisStart(event: StasisStart, channel: Channel) {
     const { ari, voiceClients, createVoiceClient, isHandledElsewhere } = this;
 
+    const getChannelVar = makeGetChannelVarWithoutThrow(channel);
+    const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
+
+    // This check feels strange but is necessary as ARI calls this event twice
+    if (!appRef) {
+      logger.silly("no appRef found, ignoring handleStasisStart event");
+      return;
+    }
+
     if (await isHandledElsewhere(channel)) {
       return;
     }

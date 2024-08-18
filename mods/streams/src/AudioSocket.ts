@@ -63,6 +63,7 @@ const logger = getLogger({ service: "streams", filePath: __filename });
  */
 class AudioSocket {
   private server: net.Server;
+  private audioStream: AudioStream;
   private connectionHandler:
     | ((req: StreamRequest, stream: AudioStream) => void)
     | null = null;
@@ -81,6 +82,8 @@ class AudioSocket {
 
     const asStream = new Readable({ read() {} });
     const audioStream = new AudioStream(asStream, socket);
+
+    this.audioStream = audioStream;
 
     socket.on(EventType.DATA, (data) =>
       this.handleData(data, asStream, audioStream)
@@ -183,6 +186,7 @@ class AudioSocket {
    * Closes the server and stops listening for connections.
    */
   close() {
+    this.audioStream?.hangup();
     this.server.close();
   }
 }

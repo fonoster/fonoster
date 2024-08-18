@@ -143,7 +143,7 @@ function buildTranscribeConfig(config: {
   languageCode: VoiceLanguage;
 }) {
   return {
-    model: config.model || DeepgramModel.PHONECALL,
+    model: config.model || DeepgramModel.NOVA_2_PHONECALL,
     encoding: "linear16",
     sample_rate: 16000,
     language: config.languageCode || VoiceLanguage.EN_US,

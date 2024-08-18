@@ -21,8 +21,6 @@ import { z } from "zod";
 import { VoiceClient } from "../../types";
 import { withErrorHandling } from "../utils/withErrorHandling";
 
-const isDtmf = (digit: string) => /^[0-9*#]+$/.test(digit);
-
 const gatherRequestSchema = z.object({
   source: z.optional(z.nativeEnum(StreamGatherSource))
 });
@@ -36,35 +34,16 @@ function streamGatherHandler(voiceClient: VoiceClient) {
 
     const effectiveSource = source || StreamGatherSource.SPEECH_AND_DTMF;
 
-    console.log(
-      `Starting gather for session ${sessionRef}, effectiveSource: ${effectiveSource}`
-    );
-
-    const possibleText = [
-      "Please say or enter your account number followed by the pound key.",
-      "Ohh wao, you are still here. Please say or enter your account number followed by the pound key.",
-      "1",
-      "2",
-      "3",
-      "Sorry, I didn't get that. Please say or enter your account number followed by the pound key.",
-      "4",
-      "Hello, are you still there? Please say or enter your account number followed by the pound key."
-    ];
-
-    setInterval(() => {
-      const result =
-        possibleText[Math.floor(Math.random() * possibleText.length)];
-
-      console.log(`Sending gather result: ${result}`);
-
+    voiceClient.startStreamGather((event) => {
+      const { speech, digit } = event;
       voiceClient.sendResponse({
         streamGatherPayload: {
           sessionRef,
-          speech: isDtmf(result) ? null : result,
-          digit: isDtmf(result) ? result : null
+          speech,
+          digit
         }
       });
-    }, 5000);
+    });
   });
 }
 

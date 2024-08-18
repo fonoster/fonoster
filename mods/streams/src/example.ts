@@ -48,7 +48,7 @@ async function connectionHandler(req: StreamRequest, stream: AudioStream) {
 
   // Hangup the stream after 10 seconds
   setTimeout(async () => {
-    logger.verbose("hangin up the stream", { ref });
+    logger.verbose("hanging up the stream", { ref });
     stream.hangup();
   }, 10000);
 }

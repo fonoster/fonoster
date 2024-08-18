@@ -19,12 +19,10 @@
 import { VoiceLanguage } from "@fonoster/common/src/tts/types";
 
 enum DeepgramModel {
-  NOVA_2 = "nova-2"
+  NOVA_2 = "nova-2",
+  NOVA_2_PHONECALL = "nova-2-phonecall",
+  NOVA_2_CONVERSATIONALAI = "nova-2-conversationalai"
 }
-
-type SttConfig = {
-  languageCode: VoiceLanguage;
-};
 
 type SpeechResult = {
   speech: string;
@@ -36,11 +34,14 @@ type StreamSpeech = {
   // close: () => void;
 };
 
-type GoogleSttConfig = SttConfig & {
+type SttConfig = {
   config: {
-    encoding: "LINEAR16";
-    sampleRateHertz: 16000;
-    interimResults: boolean;
+    languageCode: VoiceLanguage;
+  };
+};
+
+type GoogleSttConfig = {
+  config: {
     languageCode: VoiceLanguage;
   };
   credentials: {
@@ -49,10 +50,10 @@ type GoogleSttConfig = SttConfig & {
   };
 };
 
-type DeepgramSttConfig = SttConfig & {
+type DeepgramSttConfig = {
   config: {
+    languageCode: VoiceLanguage;
     model: DeepgramModel;
-    language: VoiceLanguage;
   };
   credentials: {
     apiKey: string;
@@ -60,9 +61,9 @@ type DeepgramSttConfig = SttConfig & {
 };
 
 export {
-  SttConfig,
   SpeechResult,
   StreamSpeech,
+  SttConfig,
   GoogleSttConfig,
   DeepgramSttConfig,
   DeepgramModel
