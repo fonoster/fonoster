@@ -31,7 +31,8 @@ const config = {
 
 new VoiceServer(config).listen(
   async (req: VoiceRequest, res: VoiceResponse) => {
-    logger.verbose("voice request", JSON.stringify(req, null, 2));
+    const { ingressNumber, sessionRef, appRef } = req;
+    logger.verbose("voice request", { ingressNumber, sessionRef, appRef });
 
     await res.answer();
 
