@@ -18,6 +18,22 @@
     }
   },
   {
+    "name": "Deepgram STT",
+    "productRef": "stt.deepgram",
+    "type": "stt",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
+  },
+  {
+    "name": "Deepgram TTS",
+    "productRef": "tts.deepgram",
+    "type": "tts",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
+  },
+  {
     "name": "Azure TTS",
     "productRef": "tts.azure",
     "type": "tts",

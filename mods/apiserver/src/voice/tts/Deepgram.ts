@@ -18,38 +18,38 @@
  */
 import * as fs from "fs";
 import * as util from "util";
-import { GoogleVoice } from "@fonoster/common";
+import { DeepgramVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { SynthOptions, TtsConfig } from "./types";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { DeepgramClient, createClient } = require("@deepgram/sdk");
 
-const ENGINE_NAME = "tts.google";
+const ENGINE_NAME = "tts.deepgram";
 
-type GoogleTtsConfig = TtsConfig & {
+type DeepgramTtsConfig = TtsConfig & {
   [key: string]: Record<string, string>;
   credentials: {
-    client_email: string;
-    private_key: string;
+    apiKey: string;
   };
 };
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
-  client: TextToSpeechClient;
-  engineConfig: GoogleTtsConfig;
+class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
+  client: typeof DeepgramClient;
+  engineConfig: DeepgramTtsConfig;
   readonly engineName = ENGINE_NAME;
   protected readonly OUTPUT_FORMAT = "sln16";
   protected readonly CACHING_FIELDS = ["voice"];
-  protected readonly AUDIO_ENCODING = "LINEAR16" as const;
+  protected readonly AUDIO_ENCODING = "linear16" as const;
   protected readonly SAMPLE_RATE_HERTZ = 16000;
 
-  constructor(config: GoogleTtsConfig) {
+  constructor(config: DeepgramTtsConfig) {
     super(config);
-    this.client = new TextToSpeechClient(config);
+    this.client = createClient(config.credentials.apiKey);
     this.engineConfig = config;
   }
 
@@ -67,51 +67,62 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const { voice } = this.engineConfig.config;
 
-    const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
-
     const filename = this.createFilename(text, effectiveOptions);
 
     if (this.fileExists(this.getFullPathToFile(filename))) {
       return this.getFilenameWithoutExtension(filename);
     }
 
-    const request = {
-      input: isSsml(text) ? { ssml: text } : { text },
-      audioConfig: {
-        audioEncoding: this.AUDIO_ENCODING,
-        sampleRateHertz: this.SAMPLE_RATE_HERTZ
-      },
-      voice: {
-        languageCode: lang,
-        name: voice
+    const response = await this.client.speak.request(
+      { text },
+      {
+        model: voice || DeepgramVoice.AURA_ASTERIA_EN,
+        encoding: this.AUDIO_ENCODING,
+        sample_rate: this.SAMPLE_RATE_HERTZ
       }
-    };
-
-    const [response] = await this.client.synthesizeSpeech(request);
+    );
 
     const writeFile = util.promisify(fs.writeFile);
 
-    await writeFile(
-      this.getFullPathToFile(filename),
-      response.audioContent,
-      "binary"
-    );
+    const audioBuffer = await getAudioBuffer(await response.getStream());
+
+    await writeFile(this.getFullPathToFile(filename), audioBuffer, "binary");
 
     return this.getFilenameWithoutExtension(filename);
   }
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      voice: z.nativeEnum(GoogleVoice)
+      voice: z.nativeEnum(DeepgramVoice)
     });
   }
 
   static getCredentialsValidationSchema(): z.Schema {
     return z.object({
-      client_email: z.string(),
-      private_key: z.string()
+      apiKey: z.string()
     });
   }
 }
 
-export { Google, ENGINE_NAME };
+// helper function to convert stream to audio buffer
+const getAudioBuffer = async (response) => {
+  const reader = response.getReader();
+  const chunks = [];
+
+  // eslint-disable-next-line no-loops/no-loops, no-constant-condition
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    chunks.push(value);
+  }
+
+  const dataArray = chunks.reduce(
+    (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
+    new Uint8Array(0)
+  );
+
+  return Buffer.from(dataArray.buffer);
+};
+
+export { Deepgram, ENGINE_NAME };

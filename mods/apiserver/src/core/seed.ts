@@ -58,6 +58,17 @@ async function main() {
   });
 
   await prisma.product.upsert({
+    where: { ref: "tts.deepgram" },
+    update: {},
+    create: {
+      ref: "tts.deepgram",
+      name: "Deepgram Text-to-Speech",
+      vendor: "DEEPGRAM",
+      type: "TTS"
+    }
+  });
+
+  await prisma.product.upsert({
     where: { ref: "nlu.dialogflowcx" },
     update: {},
     create: {

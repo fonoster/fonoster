@@ -18,4 +18,5 @@
  */
 export * from "./GoogleVoices";
 export * from "./AzureVoices";
+export * from "./DeepgramVoices";
 export * from "./types";
