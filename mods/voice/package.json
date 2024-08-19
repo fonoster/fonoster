@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/voice",
-  "version": "0.6.6",
+  "version": "0.7.0",
   "description": "Voice Server for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -20,9 +20,9 @@
     "fonoster": "./dist/index.js"
   },
   "dependencies": {
-    "@fonoster/common": "^0.6.6",
-    "@fonoster/identity": "^0.6.6",
-    "@fonoster/logger": "^0.6.2",
+    "@fonoster/common": "^0.7.0",
+    "@fonoster/identity": "^0.7.0",
+    "@fonoster/logger": "^0.7.0",
     "@grpc/grpc-js": "~1.10.6",
     "deepmerge": "^4.3.1",
     "grpc-health-check": "^2.0.2",
