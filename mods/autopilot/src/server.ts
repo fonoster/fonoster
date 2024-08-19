@@ -24,12 +24,8 @@ import { machine } from "./machine/machine";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-const config = {
-  // Only do this for testing
-  skipIdentity: true
-};
-
-new VoiceServer(config).listen(
+// Only skip identity for local development
+new VoiceServer({ skipIdentity: true }).listen(
   async (req: VoiceRequest, voice: VoiceResponse) => {
     logger.verbose("voice request", JSON.stringify(req, null, 2));
 
