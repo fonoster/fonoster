@@ -16,13 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const guards = {
-  idleTimeoutNotReached: function ({ context }) {
-    return context.idleTimeoutCount < context.idleTimeoutLimit;
-  },
-  idleTimeoutReached: function ({ context }) {
-    return context.idleTimeoutCount >= context.idleTimeoutLimit;
-  }
+enum Model {
+  GPT_3 = "gpt-3",
+  GPT_4 = "gpt-4",
+  GPT_4O_MINI = "gpt-4o-mini"
+}
+
+type AssistantConfig = {
+  apiKey: string;
+  model: Model;
+  temperature: number;
+  maxTokens: number;
+  systemTemplate: string;
 };
 
-export { guards };
+export { AssistantConfig, Model };

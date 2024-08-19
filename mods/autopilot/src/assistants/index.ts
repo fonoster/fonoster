@@ -16,23 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceResponse } from "@fonoster/voice";
-import { Assistant } from "../assistants/assistants";
-
-const types = {
-  context: {} as {
-    firstMessage: string;
-    voice: VoiceResponse;
-    assistant: Assistant;
-  },
-  input: {} as {
-    firstMessage: string;
-    voice: VoiceResponse;
-    assistant: Assistant;
-  },
-  events: {} as
-    | { type: "VOICE_DETECTED" }
-    | { type: "HUMAN_PROMPT"; speech: string }
-};
-
-export { types };
+export { makeAssistant } from "./assistants";
+export * from "./types";

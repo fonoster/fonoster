@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { assign, setup } from "xstate";
-import { guards } from "./guards";
+import { setup } from "xstate";
 import { types } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -28,30 +27,32 @@ export const machine = setup({
   actions: {
     sendGreeting: async function ({ context }) {
       await context.voice.answer();
-      context.voice.say("Hello, how can I help you?");
+      await context.voice.say(context.firstMessage);
     },
     interruptAISpeaking: function () {
       logger.verbose("interruptAISpeaking");
     },
-    processHumanRequest: function ({ event }) {
+    processHumanRequest: async function ({ context, event }) {
       const speech = (event as { speech: string }).speech;
       logger.verbose("processHumanRequest", speech);
+
+      const response = await context.assistant.invoke({
+        text: speech
+      });
+
+      logger.verbose("assistant response", { response });
+
+      await context.voice.say(response);
     },
-    resetIdleTimeoutCount: assign({ idleTimeoutCount: 0 }),
-    incrementIdleTimeoutCount: assign({
-      idleTimeoutCount: ({ context }) => context.idleTimeoutCount + 1
-    }),
     hangup: async function ({ context }) {
       await context.voice.hangup();
     }
-  },
-  guards,
-  delays: { IDLE_TIMEOUT: 15000 }
+  }
 }).createMachine({
   context: ({ input }) => ({
-    idleTimeoutCount: input.idleTimeoutCount,
-    idleTimeoutLimit: input.idleTimeoutLimit,
-    voice: input.voice
+    firstMessage: input.firstMessage,
+    voice: input.voice,
+    assistant: input.assistant
   }),
   id: "fnAI",
   initial: "welcome",
@@ -73,18 +74,6 @@ export const machine = setup({
             type: "processHumanRequest"
           },
           description: "This must be triggered when speech to text ends."
-        },
-        VOICE_DETECTED: {
-          target: "humanSpeaking",
-          actions: {
-            type: "resetIdleTimeoutCount"
-          },
-          description: "This must be triggered by a VAD or similar system."
-        }
-      },
-      after: {
-        IDLE_TIMEOUT: {
-          target: "idle"
         }
       },
       description: "The state where the AI is actively engaged in conversation."
@@ -98,44 +87,6 @@ export const machine = setup({
       },
       description:
         "The state where the AI detects Human speech while it is speaking."
-    },
-    idle: {
-      on: {
-        VOICE_DETECTED: {
-          target: "humanSpeaking",
-          actions: {
-            type: "resetIdleTimeoutCount"
-          },
-          description: "This must be triggered by a VAD or similar system."
-        }
-      },
-      after: {
-        IDLE_TIMEOUT: [
-          {
-            target: "reIdle",
-            actions: {
-              type: "incrementIdleTimeoutCount"
-            },
-            guard: {
-              type: "idleTimeoutNotReached"
-            }
-          },
-          {
-            target: "hangup",
-            guard: {
-              type: "idleTimeoutReached"
-            }
-          }
-        ]
-      },
-      description: "The state where the AI waits for Human input."
-    },
-    reIdle: {
-      always: {
-        target: "idle"
-      },
-      description:
-        "The state where the AI resets the idle timeout (feels like a hack but it works.)"
     },
     hangup: {
       type: "final",

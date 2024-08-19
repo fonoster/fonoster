@@ -16,23 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceResponse } from "@fonoster/voice";
-import { Assistant } from "../assistants/assistants";
+import { join } from "path";
+import dotenv from "dotenv";
 
-const types = {
-  context: {} as {
-    firstMessage: string;
-    voice: VoiceResponse;
-    assistant: Assistant;
-  },
-  input: {} as {
-    firstMessage: string;
-    voice: VoiceResponse;
-    assistant: Assistant;
-  },
-  events: {} as
-    | { type: "VOICE_DETECTED" }
-    | { type: "HUMAN_PROMPT"; speech: string }
-};
+if (process.env.NODE_ENV === "dev") {
+  dotenv.config({ path: join(process.cwd(), ".env") });
+}
 
-export { types };
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;

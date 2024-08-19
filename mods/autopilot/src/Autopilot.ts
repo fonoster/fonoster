@@ -18,43 +18,47 @@
  */
 import { StreamGatherSource } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { createActor } from "xstate";
+import { makeAssistant } from "./assistants";
 import { machine } from "./machine/machine";
+import { AutopilotConfig } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-// Only skip identity for local development
-new VoiceServer({ skipIdentity: true }).listen(
-  async (req: VoiceRequest, voice: VoiceResponse) => {
-    const { ingressNumber, sessionRef, appRef } = req;
+class Autopilot {
+  constructor(private config: AutopilotConfig) {
+    this.config = config;
+  }
 
-    logger.verbose("voice request", { ingressNumber, sessionRef, appRef });
+  start() {
+    const { voice, assistantConfig, firstMessage } = this.config;
 
-    const autopilot = createActor(machine, {
+    const assistant = makeAssistant(assistantConfig);
+
+    const actor = createActor(machine, {
       input: {
-        idleTimeoutCount: 0,
-        idleTimeoutLimit: 3,
-        voice
+        firstMessage,
+        voice,
+        assistant
       }
     });
 
-    autopilot.subscribe(async (snapshot) => {
-      logger.verbose("status snapshot", {
-        status: snapshot.value,
-        idleTimeoutCount: snapshot.context.idleTimeoutCount
+    actor.start();
+
+    actor.subscribe((state) => {
+      logger.verbose("actor's new state is", { state: state.value });
+    });
+
+    voice
+      .sgather({
+        source: StreamGatherSource.SPEECH
+      })
+      .then((stream) => {
+        stream.onPayload((payload) => {
+          actor.send({ type: "HUMAN_PROMPT", speech: payload.speech! });
+        });
       });
-    });
-
-    autopilot.start();
-
-    const stream = await voice.sgather({
-      source: StreamGatherSource.SPEECH
-    });
-
-    stream.onPayload((payload) => {
-      logger.verbose("payload", payload);
-      autopilot.send({ type: "HUMAN_PROMPT", speech: payload.speech! });
-    });
   }
-);
+}
+
+export { Autopilot };
