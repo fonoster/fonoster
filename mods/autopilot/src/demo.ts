@@ -38,10 +38,10 @@ new VoiceServer({ skipIdentity: true }).listen(
       assistantConfig: {
         apiKey: OPENAI_API_KEY!,
         model: Model.GPT_4O_MINI,
-        temperature: 0.4,
+        temperature: 0.7,
         maxTokens: 100,
         systemTemplate: `
-          ## Martha's Restaurant Assistant System Template
+          ## La casa AI Phone Assistant (Martha)
 
           ### Mission Statement
 
@@ -56,7 +56,8 @@ new VoiceServer({ skipIdentity: true }).listen(
 
           ### Available Links
 
-          For actions that require leaving the conversation, offer to send and SMS with the link to the user's phone.
+          Since you are a AI Phone assistant, you can't browse the web. However, you can send links to the user's phone via SMS.
+          Here are some useful links for Restaurant La Casa:
 
           - [Menu Information](https://www.lacasarestaurant.com/menu)
           - [Make a Reservation](https://www.lacasarestaurant.com/reservations)

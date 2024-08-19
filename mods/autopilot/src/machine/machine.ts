@@ -34,7 +34,7 @@ export const machine = setup({
     },
     processHumanRequest: async function ({ context, event }) {
       const speech = (event as { speech: string }).speech;
-      logger.verbose("processHumanRequest", speech);
+      logger.verbose("human request", { speech });
 
       const response = await context.assistant.invoke({
         text: speech
