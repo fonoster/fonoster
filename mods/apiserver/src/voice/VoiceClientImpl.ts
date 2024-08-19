@@ -174,10 +174,7 @@ class VoiceClientImpl implements VoiceClient {
   ) {
     try {
       const out = this.stt.streamTranscribe(this.stream);
-      out.on("data", (data) => {
-        const { speech } = data;
-        callback({ speech });
-      });
+      out.on("data", callback);
     } catch (e) {
       logger.error(e);
     }
