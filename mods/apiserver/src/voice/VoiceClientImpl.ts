@@ -47,7 +47,8 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 class VoiceClientImpl implements VoiceClient {
   config: VoiceClientConfig;
-  stream: Stream;
+  verbsStream: Stream;
+  transcriptionsStream: Stream;
   voice: VoiceSessionStreamClient;
   tts: TextToSpeech;
   stt: SpeechToText;
@@ -64,7 +65,8 @@ class VoiceClientImpl implements VoiceClient {
   }) {
     const { config, tts, stt, ari } = params;
     this.config = config;
-    this.stream = new Stream();
+    this.verbsStream = new Stream();
+    this.transcriptionsStream = new Stream();
     this.tts = tts;
     this.stt = stt;
     this.ari = ari;
@@ -83,7 +85,7 @@ class VoiceClientImpl implements VoiceClient {
     this.voice = this.grpcClient.createSession(metadata);
 
     this.voice.on(StreamEvent.DATA, (data: VoiceIn) => {
-      this.stream.emit(data.content, data);
+      this.verbsStream.emit(data.content, data);
     });
 
     this.voice.write({ request: this.config });
@@ -106,7 +108,9 @@ class VoiceClientImpl implements VoiceClient {
   setupAudioSocket(port: number) {
     this.audioSocket = new AudioSocket();
 
-    this.audioSocket.onConnection(transcribeOnConnection(this.stream));
+    this.audioSocket.onConnection(
+      transcribeOnConnection(this.transcriptionsStream)
+    );
 
     this.audioSocket.listen(port, () => {
       logger.verbose("starting audio socket for voice client", {
@@ -147,7 +151,7 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   on(type: string, callback: (data: VoiceIn) => void) {
-    this.stream.on(type.toString(), (data: VoiceIn) => {
+    this.verbsStream.on(type.toString(), (data: VoiceIn) => {
       callback(data[type]);
     });
   }
@@ -162,7 +166,7 @@ class VoiceClientImpl implements VoiceClient {
 
   async transcribe(): Promise<SpeechResult> {
     try {
-      return await this.stt.transcribe(this.stream);
+      return await this.stt.transcribe(this.transcriptionsStream);
     } catch (e) {
       logger.warn("transcription error", e);
       return {} as unknown as SpeechResult;
@@ -173,7 +177,7 @@ class VoiceClientImpl implements VoiceClient {
     callback: (stream: { speech?: string; digit?: string }) => void
   ) {
     try {
-      const out = this.stt.streamTranscribe(this.stream);
+      const out = this.stt.streamTranscribe(this.transcriptionsStream);
       out.on("data", callback);
     } catch (e) {
       logger.error(e);

@@ -61,6 +61,14 @@ class Deepgram
     const out = new Stream();
 
     connection.on(LiveTranscriptionEvents.Open, () => {
+      // WARNING: This is a workaround to keep the connection open while the system
+      // is playing a file which causes the stream to be paused. We need to look into why
+      // the stream is being paused.
+      const keepAliveInterval = setInterval(() => {
+        const keepAliveMsg = JSON.stringify({ type: "KeepAlive" });
+        connection.send(keepAliveMsg);
+      }, 3000);
+
       stream.on("data", (chunk) => {
         connection.send(chunk);
       });
@@ -77,6 +85,7 @@ class Deepgram
 
       connection.on(LiveTranscriptionEvents.Error, (err) => {
         logger.warn("error on Deepgram connection", { err });
+        clearInterval(keepAliveInterval);
         connection.destroy();
       });
     });
