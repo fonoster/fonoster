@@ -21,17 +21,21 @@ import { z } from "zod";
 import { Deepgram as DeepgramStt } from "../../voice/stt/Deepgram";
 import { Google as GoogleStt } from "../../voice/stt/Google";
 import { Azure as AzureTts } from "../../voice/tts/Azure";
+import { Deepgram as DeepgramTts } from "../../voice/tts/Deepgram";
 import { Google as GoogleTts } from "../../voice/tts/Google";
 import { hostOrHostPortSchema } from "../hostOrHostPortSchema";
 
+// TODO: We need a way to add this values dynamically
 const validators = {
   ttsConfigValidators: {
     "tts.google": GoogleTts.getConfigValidationSchema,
-    "tts.azure": AzureTts.getConfigValidationSchema
+    "tts.azure": AzureTts.getConfigValidationSchema,
+    "tts.deepgram": DeepgramTts.getConfigValidationSchema
   },
   ttsCredentialsValidators: {
     "tts.google": GoogleTts.getCredentialsValidationSchema,
-    "tts.azure": AzureTts.getCredentialsValidationSchema
+    "tts.azure": AzureTts.getCredentialsValidationSchema,
+    "tts.deepgram": DeepgramTts.getCredentialsValidationSchema
   },
   sttConfigValidators: {
     "stt.google": GoogleStt.getConfigValidationSchema,
