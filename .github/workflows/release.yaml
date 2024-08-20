@@ -114,7 +114,7 @@ jobs:
 
     - name: Waiting for services to be ready
       run: |
-        while ! curl -s http://localhost:7171; do sleep 1; done
+        while ! curl -s https://localhost:8443; do sleep 1; done
 
     - name: Run integration tests for the SDK
       run: npm run integration

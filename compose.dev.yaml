@@ -44,10 +44,11 @@ services:
 
   envoy:
     ports:
-      - 7171:7171
-      - 9901:9901
+      - 8443:8443
     extra_hosts:
       apiserver: ${DOCKER_HOST_ADDRESS}
+    environment:
+      - loglevel=debug
 
   nats:
     ports:
