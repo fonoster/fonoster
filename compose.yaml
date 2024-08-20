@@ -145,6 +145,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
+      - ./.certs/server-cert.pem:/etc/envoy/server-cert.pem:ro
+      - ./.certs/server-key.pem:/etc/envoy/server-key.pem:ro
     ports:
       - 8443:8443
 

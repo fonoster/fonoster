@@ -45,6 +45,7 @@ services:
   envoy:
     ports:
       - 8443:8443
+      - 9901:9901
     extra_hosts:
       apiserver: ${DOCKER_HOST_ADDRESS}
     environment:
