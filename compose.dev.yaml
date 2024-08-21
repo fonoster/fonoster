@@ -50,7 +50,7 @@ services:
     environment:
       - loglevel=debug
     volumes:
-      - ./envoy.dev.yaml:/etc/envoy/envoy.yaml:ro
+      - ./config/envoy.dev.yaml:/etc/envoy/envoy.yaml:ro
 
   nats:
     ports:

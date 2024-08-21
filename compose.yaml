@@ -140,23 +140,44 @@ services:
     volumes:
       - influxdb:/var/lib/influxdb2
 
-  envoy:
-    image: envoyproxy/envoy:v1.31.0
-    restart: unless-stopped
-    volumes:
-      - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
-      - ./.certs/server-cert.pem:/etc/envoy/server-cert.pem:ro
-      - ./.certs/server-key.pem:/etc/envoy/server-key.pem:ro
-    ports:
-      - 8443:8443
-
   nats:
     image: nats:latest
     restart: unless-stopped
     expose:
       - 4222
 
+  envoy:
+    image: envoyproxy/envoy:v1.31.0
+    restart: unless-stopped
+    volumes:
+      - ./config/envoy.yaml:/etc/envoy/envoy.yaml:ro
+      - cert_data:/etc/letsencrypt
+    ports:
+      - 443:443
+
+  # Certbot is used to automatically renew the certificates
+  # Run the following command to generate the certificates the first time
+  #  docker-compose run --rm certbot certonly --webroot -w /var/www/html -d example.com
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - cert_data:/etc/letsencrypt
+      - www_data:/var/www/html
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done'"
+
+  # TODO: Add to the apiserver the ability to serve static files to avoid using this container
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - www_data:/var/www/html
+    ports:
+      - 80:80
+
 volumes:
   db:
   routrdb:
   influxdb:
+  cert_data:
+  www_data:
