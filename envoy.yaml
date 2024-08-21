@@ -1,4 +1,9 @@
-# Envoy configuration file with TLS termination
+# Envoy configuration file for TLS termination
+# For self-signed certificate creation, see: 
+# https://itnext.io/how-to-setup-and-test-tls-in-grpc-grpc-web-1b67cc4413e6
+# 
+# For testing trust the certificate in your browser for WebSDK
+# and add the CA for NodeSDK.
 static_resources:
   listeners:
     - name: listener_0
