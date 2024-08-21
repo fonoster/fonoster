@@ -1,9 +1,17 @@
-# Envoy configuration file for development
+# Envoy Configuration File for TLS Termination with Let's Encrypt Certificate
+#
+# For creating a self-signed certificate, see:  
+#   https://itnext.io/how-to-setup-and-test-tls-in-grpc-grpc-web-1b67cc4413e6
+#
+# When using self-signed certificates, additional steps are required to ensure compatibility with the browser. 
+# For instance, to connect to the API using the WebSDK, you must trust the certificate in your browser.
+#
+# Conversely, if you are using the NodeSDK, you will need to add the CA directly to the client.
 static_resources:
   listeners:
-    - name: listener_0
+    - name: listener_https
       address:
-        socket_address: { address: 0.0.0.0, port_value: 8449 }
+        socket_address: { address: 0.0.0.0, port_value: 443 }
       filter_chains:
         - filters:
           - name: envoy.filters.network.http_connection_manager
@@ -40,6 +48,16 @@ static_resources:
                 - name: envoy.filters.http.router
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+          transport_socket:
+              name: envoy.transport_sockets.tls
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+                common_tls_context:
+                  tls_certificates:
+                    - certificate_chain:
+                        filename: "/path/to/letsencrypt/fullchain.pem"
+                      private_key:
+                        filename: "/path/to/letsencrypt/privkey.pem"
 
   clusters:
     - name: api-gateway-proxy
