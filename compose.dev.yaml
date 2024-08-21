@@ -44,12 +44,13 @@ services:
 
   envoy:
     ports:
-      - 8443:8443
-      - 9901:9901
+      - 8449:8449
     extra_hosts:
       apiserver: ${DOCKER_HOST_ADDRESS}
     environment:
       - loglevel=debug
+    volumes:
+      - ./envoy.dev.yaml:/etc/envoy/envoy.yaml:ro
 
   nats:
     ports:

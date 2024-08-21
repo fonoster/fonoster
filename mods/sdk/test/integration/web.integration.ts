@@ -24,7 +24,7 @@ import { TestCase, runTestCase } from "./runTestCase";
 import { createTestCases } from "./testCases";
 import * as SDK from "../../dist/web/index.esm.js";
 
-const url = "https://localhost:8443/";
+const url = "http://localhost:8449/";
 const accessKeyId = "WO00000000000000000000000000000000";
 const username = "admin@fonoster.local";
 const password = "changeme";
