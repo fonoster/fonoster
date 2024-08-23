@@ -66,9 +66,7 @@ function createApplicationsTestCases(expect) {
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref").to.be.not.null;
           expect(response).has.property("name").to.be.not.null;
-          expect(response)
-            .has.property("type")
-            .to.be.equal("EXTERNAL");
+          expect(response).has.property("type").to.be.equal("EXTERNAL");
           expect(response).has.property("endpoint").to.be.not.null;
           expect(response).has.property("textToSpeech").to.be.a("object");
           expect(response).has.property("speechToText").to.be.a("object");

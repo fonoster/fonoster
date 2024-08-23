@@ -29,7 +29,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { AudioSocket } from "@fonoster/streams";
 import * as grpc from "@grpc/grpc-js";
-import { Client } from "ari-client";
+import { Bridge, Client } from "ari-client";
 import { pickPort } from "pick-port";
 import { createExternalMediaConfig } from "./createExternalMediaConfig";
 import { SpeechResult } from "./stt/types";
@@ -56,6 +56,7 @@ class VoiceClientImpl implements VoiceClient {
   audioSocket: AudioSocket;
   asStream: Stream;
   ari: Client;
+  bridge: Bridge;
 
   constructor(params: {
     ari: Client;
@@ -120,10 +121,26 @@ class VoiceClientImpl implements VoiceClient {
     });
   }
 
+  on(type: string, callback: (data: VoiceIn) => void) {
+    this.verbsStream.on(type.toString(), (data: VoiceIn) => {
+      callback(data[type]);
+    });
+  }
+
+  sendResponse(response: VoiceIn): void {
+    this.voice.write(response);
+  }
+
+  getBridge() {
+    return this.bridge;
+  }
+
   async setupExternalMedia(port: number) {
     const bridge = this.ari.Bridge();
 
     await bridge.create({ type: "mixing" });
+
+    this.bridge = bridge;
 
     const channel = this.ari.Channel();
 
@@ -148,16 +165,6 @@ class VoiceClientImpl implements VoiceClient {
         // We can only try
       }
     });
-  }
-
-  on(type: string, callback: (data: VoiceIn) => void) {
-    this.verbsStream.on(type.toString(), (data: VoiceIn) => {
-      callback(data[type]);
-    });
-  }
-
-  sendResponse(response: VoiceIn): void {
-    this.voice.write(response);
   }
 
   async synthesize(text: string, options: SayOptions): Promise<string> {

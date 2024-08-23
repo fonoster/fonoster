@@ -25,6 +25,7 @@ import {
   VoiceSessionStreamClient
 } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
+import { Bridge } from "ari-client";
 import { SpeechResult, StreamSpeech } from "../stt/types";
 
 type VoiceClient = {
@@ -49,6 +50,7 @@ type VoiceClient = {
     timeout: number;
     onDigitReceived: () => void;
   }) => Promise<{ digits: string }>;
+  getBridge: () => Bridge;
 };
 
 type TextToSpeech = {
