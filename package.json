@@ -16,6 +16,7 @@
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk01 simplephone -d --remove-orphans",
     "start:sdk-test": "npx serve -s mods/sdk/public -l 9000",
     "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams --exec ts-node mods/streams/src/example.ts",
+    "start:micVad": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/autopilot/src/vad --exec ts-node mods/autopilot/src/vad/micVadTest.ts",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "prebuild": "npm run generate:prisma-clients",
     "build": "lerna run build",

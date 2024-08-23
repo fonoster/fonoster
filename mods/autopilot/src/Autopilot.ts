@@ -36,11 +36,7 @@ class Autopilot {
     const assistant = makeAssistant(assistantConfig);
 
     const actor = createActor(machine, {
-      input: {
-        firstMessage,
-        voice,
-        assistant
-      }
+      input: { firstMessage, voice, assistant }
     });
 
     actor.start();

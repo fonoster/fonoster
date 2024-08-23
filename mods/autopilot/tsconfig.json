@@ -5,6 +5,7 @@
     "rootDir": "src",
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "target": "es2020",
   },
   "exclude": ["node_modules", "dist", "test"],
   "references": [
