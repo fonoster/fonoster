@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "application_types" AS ENUM ('PROGRAMMABLE_VOICE');
+CREATE TYPE "application_types" AS ENUM ('EXTERNAL');
 
 -- CreateEnum
 CREATE TYPE "product_types" AS ENUM ('TTS', 'STT', 'NLU', 'ASSISTANT');

@@ -105,7 +105,7 @@ model Secret {
 }
 
 enum ApplicationType {
-  PROGRAMMABLE_VOICE
+  EXTERNAL
 
   // Maps
   @@map("application_types")

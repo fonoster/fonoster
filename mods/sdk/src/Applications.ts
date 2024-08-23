@@ -70,7 +70,7 @@ import { buildStructOverride, buildStructOverrideReverse } from "./utils";
  *
  * const request = {
  *   name: "My application",
- *   type: "PROGRAMMABLE_VOICE",
+ *   type: "EXTERNAL",
  *   endpoint: "myapp.mydomain.com",
  *   textToSpeech: {
  *     productRef: "tts.google",
@@ -115,7 +115,7 @@ class Applications {
    *
    * @param {CreateApplicationRequest} request - The request object that contains the necessary information to create a new application
    * @param {string} request.name - The name of the application
-   * @param {ApplicationType} request.type - The type of application (e.g., PROGRAMMABLE_VOICE)
+   * @param {ApplicationType} request.type - The type of application (e.g., EXTERNAL)
    * @param {string} request.endpoint - The endpoint where the application is hosted
    * @param {TextToSpeech} request.textToSpeech - The text-to-speech configuration
    * @param {string} request.textToSpeech.productRef - The product reference of the text-to-speech engine (e.g., tts.google)
@@ -133,7 +133,7 @@ class Applications {
    *
    * const request = {
    *   name: "My application",
-   *   type: "PROGRAMMABLE_VOICE",
+   *   type: "EXTERNAL",
    *   endpoint: "myapp.mydomain.com",
    *   textToSpeech: {
    *     productRef: "tts.google",

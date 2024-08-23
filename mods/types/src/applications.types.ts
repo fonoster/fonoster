@@ -20,7 +20,7 @@ import { BaseApiObject, ListRequest, ListResponse } from "./common";
 import { Flatten } from "./utils";
 
 enum ApplicationType {
-  PROGRAMMABLE_VOICE = "PROGRAMMABLE_VOICE"
+  EXTERNAL = "EXTERNAL"
 }
 
 type Application = {

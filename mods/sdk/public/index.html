@@ -13,7 +13,7 @@
       const domains = new SDK.Applications(client);
       const response = await domains.createApplication({
         name: "MyApp",
-        type: "PROGRAMMABLE_VOICE",
+        type: "EXTERNAL",
         endpoint: "localhost:3000"
       });
       console.log(response);

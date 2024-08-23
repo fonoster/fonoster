@@ -39,7 +39,7 @@ service Applications {
 // The type of application
 enum ApplicationType {
   // Programmable Voice
-  PROGRAMMABLE_VOICE = 0;
+  EXTERNAL = 0;
 }
 
 message ProductContainer {

@@ -52,7 +52,7 @@ describe("@applications/createApplication", function () {
       metadata,
       request: {
         name: "My Application",
-        type: ApplicationType.PROGRAMMABLE_VOICE,
+        type: ApplicationType.EXTERNAL,
         endpoint: "localhost:50061"
       }
     };
@@ -75,7 +75,7 @@ describe("@applications/createApplication", function () {
       metadata,
       request: {
         name: "My Application",
-        type: ApplicationType.PROGRAMMABLE_VOICE,
+        type: ApplicationType.EXTERNAL,
         endpoint: "localhost:50061"
       }
     };

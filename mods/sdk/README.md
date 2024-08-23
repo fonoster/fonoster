@@ -92,7 +92,7 @@ async function main() {
   const applications = new SDK.Applications(client);
   await applications.createApplication({
     name: "MyApp",
-    type: "PROGRAMMABLE_VOICE",
+    type: "EXTERNAL",
     endpoint: "localhost:3000" // Your app's endpoint
  });
 }
@@ -747,7 +747,7 @@ async function main(request) {
 
 const request = {
   name: "My application",
-  type: "PROGRAMMABLE_VOICE",
+  type: "EXTERNAL",
   endpoint: "myapp.mydomain.com",
   textToSpeech: {
     productRef: "tts.google",
@@ -786,7 +786,7 @@ Creates a new Application in Fonoster. The only required fields are the name and
 | --- | --- | --- |
 | request | <code>CreateApplicationRequest</code> | The request object that contains the necessary information to create a new application |
 | request.name | <code>string</code> | The name of the application |
-| request.type | <code>ApplicationType</code> | The type of application (e.g., PROGRAMMABLE_VOICE) |
+| request.type | <code>ApplicationType</code> | The type of application (e.g., EXTERNAL) |
 | request.endpoint | <code>string</code> | The endpoint where the application is hosted |
 | request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
 | request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.google) |
@@ -805,7 +805,7 @@ const apps = new SDK.Applications(client); // Existing client object
 
 const request = {
   name: "My application",
-  type: "PROGRAMMABLE_VOICE",
+  type: "EXTERNAL",
   endpoint: "myapp.mydomain.com",
   textToSpeech: {
     productRef: "tts.google",

@@ -45,7 +45,7 @@ describe("@applications/updateApplication", function () {
         ref: "123",
         name: "My new application name",
         endpoint: "localhost:8765",
-        type: ApplicationType.PROGRAMMABLE_VOICE
+        type: ApplicationType.EXTERNAL
       }
     };
 

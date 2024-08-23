@@ -27,8 +27,7 @@ import { ApplicationData } from "../types";
 function convertToApplicationData(
   request: CreateApplicationRequest | UpdateApplicationRequest
 ) {
-  const type =
-    (request.type as ApplicationType) || ApplicationType.PROGRAMMABLE_VOICE;
+  const type = (request.type as ApplicationType) || ApplicationType.EXTERNAL;
 
   const result = {
     ref: (request as UpdateApplicationRequest).ref, // Only for UpdateApplicationRequest
