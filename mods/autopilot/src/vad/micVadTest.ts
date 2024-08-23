@@ -30,7 +30,7 @@ async function main() {
     .record({
       sampleRate: 16000, // 16 kHz sample rate
       channels: 1,
-      threshold: 0
+      threshold: 0.5
     })
     .stream();
 

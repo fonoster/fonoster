@@ -31,15 +31,12 @@ enum StreamAudioFormat {
 enum StreamMessageType {
   AUDIO_IN = "AUDIO_IN",
   AUDIO_OUT = "AUDIO_OUT",
-  ERROR = "ERROR",
-  VOICE_ACTIVITY_START = "VOICE_ACTIVITY_START",
-  VOICE_ACTIVITY_STOP = "VOICE_ACTIVITY_STOP"
+  ERROR = "ERROR"
 }
 
 type StreamOptions = {
   direction: StreamDirection;
   format: StreamAudioFormat;
-  enableVad: boolean;
 };
 
 type StartStreamRequest = VerbRequest & StreamOptions;
@@ -58,7 +55,6 @@ type StreamPayload = {
   direction: StreamDirection;
   format: StreamAudioFormat;
   type: StreamMessageType;
-  enableVad?: boolean;
   data?: Buffer;
   code?: string;
   message?: string;

@@ -31,8 +31,7 @@ class StartStream extends Verb<StartStreamRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
       direction: z.nativeEnum(StreamDirection),
-      format: z.nativeEnum(StreamAudioFormat),
-      enableVad: z.boolean()
+      format: z.nativeEnum(StreamAudioFormat)
     });
   }
 }

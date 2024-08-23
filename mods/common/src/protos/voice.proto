@@ -274,9 +274,6 @@ message StartStreamRequest {
     WAV = 0;
   }
   StreamAudioFormat format = 3;
-
-  // Enable VAD (Voice Activity Detection)
-  bool enableVad = 4;
 }
 
 // Response to a start stream request
@@ -310,8 +307,6 @@ message StreamPayload {
     AUDIO_IN = 0;
     AUDIO_OUT = 1;
     ERROR = 2;
-    VOICE_ACTIVITY_START = 3;
-    VOICE_ACTIVITY_END = 4;
   }
   StreamMessageType type = 3;
 

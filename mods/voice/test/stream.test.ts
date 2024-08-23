@@ -48,8 +48,7 @@ describe("@voice/verbs/stream", function () {
     const startStreamRequest: StartStreamRequest = {
       sessionRef,
       direction: StreamDirection.IN,
-      format: StreamAudioFormat.WAV,
-      enableVad: true
+      format: StreamAudioFormat.WAV
     };
 
     // Act
@@ -90,8 +89,7 @@ describe("@voice/verbs/stream", function () {
     // Act
     const stream = await voiceResponse.stream({
       direction: StreamDirection.BOTH,
-      format: StreamAudioFormat.WAV,
-      enableVad: true
+      format: StreamAudioFormat.WAV
     });
 
     // This will be called twice
@@ -147,8 +145,7 @@ describe("@voice/verbs/stream", function () {
       startStreamRequest: {
         sessionRef,
         direction: StreamDirection.BOTH,
-        format: StreamAudioFormat.WAV,
-        enableVad: true
+        format: StreamAudioFormat.WAV
       }
     });
 

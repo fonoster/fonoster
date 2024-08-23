@@ -312,7 +312,6 @@ class VoiceResponse {
    * @param {StreamOptions} options - Options to control the stream operation
    * @param {StreamDirection} options.direction - The direction to stream the audio (IN, OUT, BOTH). Default is BOTH
    * @param {StreamAudioFormat} options.format - The audio format to stream (WAV). Default is WAV
-   * @param {boolean} options.enableVad - Enable voice activity detection. Default is false
    * @return {Promise<Stream>} The stream object
    * @example
    *
@@ -321,8 +320,7 @@ class VoiceResponse {
    *
    *   const stream = await response.stream({
    *     direction: StreamDirection.BOTH,
-   *     format: StreamAudioFormat.WAV,
-   *     enableVad: true
+   *     format: StreamAudioFormat.WAV
    *   });
    *
    *   stream.onPayload((payload) => {
