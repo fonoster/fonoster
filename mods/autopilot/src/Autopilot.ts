@@ -16,12 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StreamGatherSource } from "@fonoster/common";
+import {
+  StreamAudioFormat,
+  StreamDirection,
+  StreamGatherSource
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { createActor } from "xstate";
 import { makeAssistant } from "./assistants";
 import { machine } from "./machine/machine";
 import { AutopilotConfig } from "./types";
+import { makeVad } from "./vad";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -44,6 +49,25 @@ class Autopilot {
     actor.subscribe((state) => {
       logger.verbose("actor's new state is", { state: state.value });
     });
+
+    voice
+      .stream({
+        // TODO: Change to OUT and test
+        // TODO: Remove format as required
+        direction: StreamDirection.BOTH,
+        format: StreamAudioFormat.WAV
+      })
+      .then(async (stream) => {
+        const vad = await makeVad();
+
+        stream.onPayload(async (payload) => {
+          vad(payload.data as any, (event) => {
+            if (event === "SPEECH_START") {
+              actor.send({ type: "VOICE_DETECTED" });
+            }
+          });
+        });
+      });
 
     voice
       .sgather({

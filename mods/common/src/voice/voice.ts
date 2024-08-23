@@ -69,6 +69,7 @@ enum StreamContent {
   START_STREAM_REQUEST = "startStreamRequest",
   START_STREAM_RESPONSE = "startStreamResponse",
   STOP_STREAM_REQUEST = "stopStreamRequest",
+  STOP_STREAM_RESPONSE = "stopStreamResponse",
   STREAM_PAYLOAD = "streamPayload",
   START_STREAM_GATHER_REQUEST = "startStreamGatherRequest",
   START_STREAM_GATHER_RESPONSE = "startStreamGatherResponse",
@@ -105,6 +106,7 @@ type VoiceIn = {
   recordResponse?: RecordResponse;
   dialResponse?: { status: DialStatus };
   startStreamResponse?: StartStreamResponse;
+  // TODO: Add stopStreamResponse xxxx
   streamPayload?: StreamPayload;
   streamGatherPayload?: StreamGatherPayload;
   startStreamGatherResponse?: VerbResponse;

@@ -33,6 +33,7 @@ import {
   streamGatherHandler,
   unmuteHandler
 } from "./handlers";
+import { streamHandler } from "./handlers/Stream";
 import { makeGetChannelVarWithoutThrow } from "./makeGetChannelVar";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "./types";
 import { makeHandleDialEventsWithNats } from "../utils";
@@ -112,6 +113,7 @@ class VoiceDispatcher {
       vc.on(SC.STOP_STREAM_GATHER_REQUEST, () => {
         vc.stopStreamGather();
       });
+      vc.on(SC.START_STREAM_REQUEST, streamHandler(vc).bind(this));
     } catch (err) {
       logger.error("error handling stasis start", { error: err.message });
     }
