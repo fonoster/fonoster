@@ -36,7 +36,7 @@ describe("@voice/verbs/mute", function () {
     // Arrange
     const { Mute } = await import("../src/verbs");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "muteResponse");
 
     const mute = new Mute(voiceRequest, voice);
 
@@ -62,7 +62,7 @@ describe("@voice/verbs/mute", function () {
     // Arrange
     const { Mute } = await import("../src/verbs");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "muteResponse");
 
     const mute = new Mute(voiceRequest, voice);
 

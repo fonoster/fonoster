@@ -37,7 +37,7 @@ describe("@voice/verbs/unmute", function () {
     // Arrange
     const { Unmute } = await import("../src/verbs/Unmute");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "unmuteResponse");
 
     const unmute = new Unmute(voiceRequest, voice);
 

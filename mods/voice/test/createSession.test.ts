@@ -36,9 +36,12 @@ describe("@voice/createSession", function () {
 
   it("should create a session", async function () {
     const callbackResponses = [
-      { answerResponse: { sessionRef } },
-      { playResponse: { sessionRef, playbackRef: "123" } },
-      { hangupResponse: { sessionRef } }
+      { answerResponse: { sessionRef }, content: "answerResponse" },
+      {
+        playResponse: { sessionRef, playbackRef: "123" },
+        content: "playResponse"
+      },
+      { hangupResponse: { sessionRef }, content: "hangupResponse" }
     ];
     let cnt = 0;
 

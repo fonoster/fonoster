@@ -33,9 +33,9 @@ const voiceRequest: VoiceRequest = {
   metadata: {}
 };
 
-function getVoiceObject(sandbox: SinonSandbox) {
+function getVoiceObject(sandbox: SinonSandbox, resultContent: string) {
   const onStub = sandbox.stub().callsFake((_, cb) => {
-    cb();
+    cb({ content: resultContent });
   });
 
   return {

@@ -23,6 +23,7 @@ import {
   StreamPayload
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { VoiceResponse } from "@fonoster/voice";
 import { Actor, createActor } from "xstate";
 import { makeAssistant } from "./assistants";
 import { Assistant } from "./assistants/assistants";
@@ -35,17 +36,19 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 class Autopilot {
   private assistant: Assistant;
   private actor: Actor<typeof machine>;
+  private voice: VoiceResponse;
 
   constructor(private config: AutopilotConfig) {
     this.assistant = makeAssistant(config.assistantConfig);
     this.actor = this.createActor();
+    this.voice = config.voice;
   }
 
   start() {
     this.actor.start();
-    this.subscribeToActorState();
-    this.setupVoiceStream();
     this.setupSpeechGathering();
+    this.setupVoiceStream();
+    this.subscribeToActorState();
   }
 
   private createActor() {
@@ -74,20 +77,20 @@ class Autopilot {
   private handleVoicePayload(vad: Vad) {
     return async (payload: StreamPayload) => {
       try {
-        const data = payload.data as unknown as Float32Array;
-        await vad(data, (event) => {
+        const data = new Float32Array(payload.data as Buffer);
+        vad(data, (event) => {
           if (event === "SPEECH_START") {
             this.actor.send({ type: "VOICE_DETECTED" });
           }
         });
       } catch (err) {
-        // logger.error("an error occurred while processing vad", err);
+        logger.error("an error occurred while processing vad", err);
       }
     };
   }
 
   private async setupSpeechGathering() {
-    const stream = await this.config.voice.sgather({
+    const stream = await this.voice.sgather({
       source: StreamGatherSource.SPEECH
     });
 

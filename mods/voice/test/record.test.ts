@@ -36,7 +36,7 @@ describe("@voice/verbs/record", function () {
     // Arrange
     const { Record } = await import("../src/verbs");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "recordResponse");
 
     const record = new Record(voiceRequest, voice);
 

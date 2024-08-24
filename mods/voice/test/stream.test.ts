@@ -41,7 +41,7 @@ describe("@voice/verbs/stream", function () {
     // Arrange
     const { StartStream } = await import("../src/verbs/Stream");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "streamPayload");
 
     const startStream = new StartStream(voiceRequest, voice);
 
@@ -72,7 +72,7 @@ describe("@voice/verbs/stream", function () {
       .stub()
       .onFirstCall()
       .callsFake((_, cb) => {
-        cb({});
+        cb({ content: "streamPayload" });
       });
 
     const voice = {

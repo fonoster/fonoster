@@ -20,6 +20,7 @@
 import { Stream } from "stream";
 import {
   GrpcError,
+  STASIS_APP_NAME,
   SayOptions,
   StreamEvent,
   VoiceClientConfig,
@@ -135,7 +136,19 @@ class VoiceClientImpl implements VoiceClient {
     return this.bridge;
   }
 
+  getTranscriptionsStream() {
+    return this.transcriptionsStream;
+  }
+
   async setupExternalMedia(port: number) {
+    // Snoop from the main channel
+    const snoopChannel = await this.ari.channels.snoopChannel({
+      app: STASIS_APP_NAME,
+      channelId: this.config.sessionRef,
+      snoopId: "snoop-" + this.config.sessionRef,
+      spy: "in"
+    });
+
     const bridge = this.ari.Bridge();
 
     await bridge.create({ type: "mixing" });
@@ -147,11 +160,7 @@ class VoiceClientImpl implements VoiceClient {
     channel.externalMedia(createExternalMediaConfig(port));
 
     channel.once(AriEvent.STASIS_START, async (_, channel) => {
-      await bridge.addChannel({
-        channel: [this.config.sessionRef, channel.id]
-      });
-
-      await channel.answer();
+      bridge.addChannel({ channel: [snoopChannel.id, channel.id] });
     });
 
     channel.once("ChannelLeftBridge", async () => {

@@ -36,7 +36,7 @@ describe("@voice/verbs/playDtmf", function () {
     // Arrange
     const { PlayDtmf } = await import("../src/verbs/PlayDtmf");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "playDtmfResponse");
 
     const playDtmf = new PlayDtmf(voiceRequest, voice);
 
@@ -62,7 +62,7 @@ describe("@voice/verbs/playDtmf", function () {
     // Arrange
     const { PlayDtmf } = await import("../src/verbs/PlayDtmf");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "playDtmfResponse");
 
     const playDtmf = new PlayDtmf(voiceRequest, voice);
 

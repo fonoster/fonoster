@@ -36,7 +36,7 @@ describe("@voice/verbs/dial", function () {
     // Arrange
     const { Dial } = await import("../src/verbs");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "dialResponse");
 
     const dial = new Dial(voiceRequest, voice);
 
@@ -67,7 +67,10 @@ describe("@voice/verbs/dial", function () {
       .stub()
       .onFirstCall()
       .callsFake((_, cb) => {
-        cb({ dialResponse: { status: DialStatus.PROGRESS } });
+        cb({
+          dialResponse: { status: DialStatus.PROGRESS },
+          content: "dialResponse"
+        });
       });
 
     const voice = {
@@ -101,7 +104,7 @@ describe("@voice/verbs/dial", function () {
     // Arrange
     const { Dial } = await import("../src/verbs");
 
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "dialResponse");
 
     const dial = new Dial(voiceRequest, voice);
 

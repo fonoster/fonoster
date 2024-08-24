@@ -26,6 +26,7 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
+import { getExpectedContent } from "./getExpectedContent";
 import { validateRequest } from "./validateRequest";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
@@ -60,6 +61,12 @@ abstract class Verb<T extends VerbRequest = VerbRequest> {
         });
 
         const dataListener = (result: VoiceIn) => {
+          const expectedContent = getExpectedContent(this.constructor.name);
+
+          if (expectedContent !== result.content) {
+            return;
+          }
+
           logger.verbose(`received ${this.constructor.name} response`, {
             sessionRef
           });

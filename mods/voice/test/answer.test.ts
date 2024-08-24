@@ -33,7 +33,7 @@ describe("@voice/verbs/answer", function () {
 
   it("should answer a call", async function () {
     // Arrange
-    const voice = getVoiceObject(sandbox);
+    const voice = getVoiceObject(sandbox, "answerResponse");
 
     const { Answer } = await import("../src/verbs");
 

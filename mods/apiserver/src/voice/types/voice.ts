@@ -51,6 +51,7 @@ type VoiceClient = {
     onDigitReceived: () => void;
   }) => Promise<{ digits: string }>;
   getBridge: () => Bridge;
+  getTranscriptionsStream: () => Stream;
 };
 
 type TextToSpeech = {

@@ -41,14 +41,18 @@ function streamHandler(voiceClient: VoiceClient) {
     const effectiveDirection = direction || StreamDirection.BOTH;
     const effectiveFormat = format || StreamAudioFormat.WAV;
 
-    if (effectiveDirection.includes(StreamDirection.OUT)) {
+    // FIXME: Implement stream IN and correct streamRef
+    if (
+      effectiveDirection.includes(StreamDirection.OUT) ||
+      effectiveDirection === StreamDirection.BOTH
+    ) {
       voiceClient.getTranscriptionsStream().on("data", (data) => {
         voiceClient.sendResponse({
           streamPayload: {
             sessionRef,
             type: StreamMessageType.AUDIO_OUT,
             data,
-            streamRef: "x",
+            streamRef: "fixme",
             format: effectiveFormat
           }
         });
@@ -58,7 +62,7 @@ function streamHandler(voiceClient: VoiceClient) {
     voiceClient.sendResponse({
       startStreamResponse: {
         sessionRef,
-        streamRef: "x"
+        streamRef: "fixme"
       }
     });
   });
