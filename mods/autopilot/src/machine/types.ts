@@ -24,6 +24,7 @@ const types = {
     firstMessage: string;
     voice: VoiceResponse;
     assistant: Assistant;
+    playbackRef: string;
   },
   input: {} as {
     firstMessage: string;

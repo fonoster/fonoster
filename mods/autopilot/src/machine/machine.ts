@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { PlaybackControlAction } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { v4 as uuidv4 } from "uuid";
 import { setup } from "xstate";
 import { types } from "./types";
 
@@ -27,13 +29,19 @@ export const machine = setup({
   actions: {
     sendGreeting: async function ({ context }) {
       await context.voice.answer();
-      await context.voice.say(context.firstMessage);
+      await context.voice.say(context.firstMessage, {
+        playbackRef: context.playbackRef
+      });
     },
-    interruptAISpeaking: function () {
-      logger.verbose("interruptAISpeaking");
+    interruptAISpeaking: async function ({ context }) {
+      await context.voice.playbackControl(
+        context.playbackRef,
+        PlaybackControlAction.STOP
+      );
     },
     processHumanRequest: async function ({ context, event }) {
       const speech = (event as { speech: string }).speech;
+
       logger.verbose("human request", { speech });
 
       const response = await context.assistant.invoke({
@@ -42,7 +50,7 @@ export const machine = setup({
 
       logger.verbose("assistant response", { response });
 
-      await context.voice.say(response);
+      await context.voice.say(response, { playbackRef: context.playbackRef });
     },
     hangup: async function ({ context }) {
       await context.voice.hangup();
@@ -52,7 +60,8 @@ export const machine = setup({
   context: ({ input }) => ({
     firstMessage: input.firstMessage,
     voice: input.voice,
-    assistant: input.assistant
+    assistant: input.assistant,
+    playbackRef: uuidv4()
   }),
   id: "fnAI",
   initial: "welcome",
@@ -70,10 +79,15 @@ export const machine = setup({
       on: {
         HUMAN_PROMPT: {
           target: "active",
-          actions: {
-            type: "processHumanRequest"
-          },
+          actions: [
+            { type: "interruptAISpeaking" },
+            { type: "processHumanRequest" }
+          ],
           description: "This must be triggered when speech to text ends."
+        },
+        VOICE_DETECTED: {
+          target: "humanSpeaking",
+          description: "This must be triggered by a VAD or similar system.",
         }
       },
       description: "The state where the AI is actively engaged in conversation."

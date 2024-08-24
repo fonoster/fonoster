@@ -99,7 +99,6 @@ describe("@voice/verbs/stream", function () {
     stream.write({
       sessionRef,
       streamRef: "streamRef",
-      direction: StreamDirection.IN,
       format: StreamAudioFormat.WAV,
       type: StreamMessageType.AUDIO_IN,
       data: Buffer.from("data")
@@ -117,7 +116,6 @@ describe("@voice/verbs/stream", function () {
     stream.write({
       sessionRef,
       streamRef: "streamRef",
-      direction: StreamDirection.IN,
       format: StreamAudioFormat.WAV,
       type: StreamMessageType.AUDIO_IN,
       data: Buffer.from("data")
@@ -153,7 +151,6 @@ describe("@voice/verbs/stream", function () {
       streamPayload: {
         sessionRef,
         streamRef: "streamRef",
-        direction: StreamDirection.IN,
         format: StreamAudioFormat.WAV,
         type: StreamMessageType.AUDIO_IN,
         data: Buffer.from("data")

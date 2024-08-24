@@ -38,6 +38,8 @@ const getMediaUrl = (filename: string) =>
 
 function sayHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: SayRequest) => {
+    const { sessionRef: channelId } = request;
+
     // Error handled by withErrorHandling
     sayRequestSchema.parse(request);
 
@@ -48,7 +50,8 @@ function sayHandler(ari: Client, voiceClient: VoiceClient) {
       request.options ? struct.decode(request.options) : {}
     );
 
-    await voiceClient.getBridge().play({
+    await ari.channels.play({
+      channelId,
       media: getMediaUrl(filename),
       playbackId: playbackRef
     });
