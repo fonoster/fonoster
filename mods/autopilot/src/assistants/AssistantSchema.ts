@@ -16,23 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum Model {
-  GPT_3 = "gpt-3",
-  GPT_4 = "gpt-4",
-  GPT_4O_MINI = "gpt-4o-mini"
-}
+import { z } from "zod";
+import { Model } from "./types";
 
-type AssistantFromJson = {
-  name: string;
-  firstMessage: string;
-  systemTemplate: string;
-  model: Model;
-  temperature: number;
-  maxTokens: number;
-};
+const AssistantSchema = z.object({
+  name: z.string(),
+  firstMessage: z.string(),
+  systemTemplate: z.string(),
+  model: z.nativeEnum(Model),
+  temperature: z.number(),
+  maxTokens: z.number()
+});
 
-type AssistantConfig = AssistantFromJson & {
-  apiKey: string;
-};
-
-export { AssistantFromJson, AssistantConfig, Model };
+export { AssistantSchema };

@@ -24,8 +24,10 @@ import VoiceServer from "./VoiceServer";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
+const skipIdentity = process.env.NODE_ENV === "dev";
+
 // Only skip identity for local development
-new VoiceServer({ skipIdentity: true }).listen(
+new VoiceServer({ skipIdentity }).listen(
   async (req: VoiceRequest, res: VoiceResponse) => {
     const { ingressNumber, sessionRef, appRef } = req;
 

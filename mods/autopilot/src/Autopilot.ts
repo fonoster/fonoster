@@ -51,7 +51,8 @@ class Autopilot {
   }
 
   private createActor() {
-    const { firstMessage, voice } = this.config;
+    const { voice } = this.config;
+    const { firstMessage } = this.config.assistantConfig;
     return createActor(machine, {
       input: { firstMessage, voice, assistant: this.assistant }
     });

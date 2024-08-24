@@ -18,32 +18,29 @@
  */
 import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
-import { OLIVIA_AI_PHONE_ASSISTANT } from "./assistants/examples";
-import { Model } from "./assistants/types";
+import { loadAndValidateAssistant } from "./assistants";
 import { Autopilot } from "./Autopilot";
 import { OPENAI_API_KEY } from "./envs";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-// Only skip identity for local development
-new VoiceServer({ skipIdentity: true }).listen(
+const skipIdentity = process.env.NODE_ENV === "dev";
+
+new VoiceServer({ skipIdentity }).listen(
   async (req: VoiceRequest, voice: VoiceResponse) => {
     const { ingressNumber, sessionRef, appRef } = req;
-
     logger.verbose("voice request", { ingressNumber, sessionRef, appRef });
 
-    const { firstMessage, template: systemTemplate } =
-      OLIVIA_AI_PHONE_ASSISTANT;
+    const assistantPath = process.argv[2];
+    const assistant = loadAndValidateAssistant(assistantPath);
+
+    logger.verbose("interacting with assistant", { name: assistant.name });
 
     const autopilot = new Autopilot({
       voice,
-      firstMessage,
       assistantConfig: {
-        apiKey: OPENAI_API_KEY!,
-        model: Model.GPT_4O_MINI,
-        temperature: 0.9,
-        maxTokens: 100,
-        systemTemplate
+        ...assistant,
+        apiKey: OPENAI_API_KEY!
       }
     });
 

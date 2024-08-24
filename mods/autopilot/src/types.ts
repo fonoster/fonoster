@@ -17,18 +17,11 @@
  * limitations under the License.
  */
 import { VoiceResponse } from "@fonoster/voice";
-import { Model } from "./assistants/types";
+import { AssistantConfig } from "./assistants/types";
 
 type AutopilotConfig = {
   voice: VoiceResponse;
-  firstMessage: string;
-  assistantConfig: {
-    apiKey: string;
-    model: Model;
-    temperature: number;
-    maxTokens: number;
-    systemTemplate: string;
-  };
+  assistantConfig: AssistantConfig;
 };
 
 export { AutopilotConfig };

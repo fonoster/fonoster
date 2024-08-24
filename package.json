@@ -12,7 +12,7 @@
   "scripts": {
     "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver mods/apiserver/src/index.ts",
     "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice --exec ts-node mods/voice/src/demo.ts",
-    "start:autopilot": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/autopilot --exec ts-node mods/autopilot/src/demo.ts",
+    "start:autopilot": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/autopilot --exec ts-node mods/autopilot/src/runner.ts mods/autopilot/assistant.json",
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk01 simplephone -d --remove-orphans",
     "start:sdk-test": "npx serve -s mods/sdk/public -l 9000",
     "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams --exec ts-node mods/streams/src/example.ts",
