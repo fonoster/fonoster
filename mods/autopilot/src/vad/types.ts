@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+type Vad = (chunk: Float32Array, cb: (event: string) => void) => Promise<void>;
+
 type SpeechProbabilities = {
   notSpeech: number;
   isSpeech: number;
@@ -33,4 +35,4 @@ type ONNXRuntimeAPI = {
   };
 };
 
-export { SpeechProbabilities, ONNXRuntimeAPI };
+export { SpeechProbabilities, ONNXRuntimeAPI, Vad };

@@ -24,7 +24,7 @@ import { types } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-export const machine = setup({
+const machine = setup({
   types,
   actions: {
     sendGreeting: async function ({ context }) {
@@ -109,3 +109,5 @@ export const machine = setup({
     }
   }
 });
+
+export { machine };

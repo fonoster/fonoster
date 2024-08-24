@@ -19,65 +19,81 @@
 import {
   StreamAudioFormat,
   StreamDirection,
-  StreamGatherSource
+  StreamGatherSource,
+  StreamPayload
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { createActor } from "xstate";
+import { Actor, createActor } from "xstate";
 import { makeAssistant } from "./assistants";
+import { Assistant } from "./assistants/assistants";
 import { machine } from "./machine/machine";
 import { AutopilotConfig } from "./types";
-import { makeVad } from "./vad";
+import { Vad, makeVad } from "./vad";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class Autopilot {
+  private assistant: Assistant;
+  private actor: Actor<typeof machine>;
+
   constructor(private config: AutopilotConfig) {
-    this.config = config;
+    this.assistant = makeAssistant(config.assistantConfig);
+    this.actor = this.createActor();
   }
 
   start() {
-    const { voice, assistantConfig, firstMessage } = this.config;
+    this.actor.start();
+    this.subscribeToActorState();
+    this.setupVoiceStream();
+    this.setupSpeechGathering();
+  }
 
-    const assistant = makeAssistant(assistantConfig);
-
-    const actor = createActor(machine, {
-      input: { firstMessage, voice, assistant }
+  private createActor() {
+    const { firstMessage, voice } = this.config;
+    return createActor(machine, {
+      input: { firstMessage, voice, assistant: this.assistant }
     });
+  }
 
-    actor.start();
-
-    actor.subscribe((state) => {
+  private subscribeToActorState() {
+    this.actor.subscribe((state) => {
       logger.verbose("actor's new state is", { state: state.value });
     });
+  }
 
-    voice
-      .stream({
-        // TODO: Change to OUT and test
-        // TODO: Remove format as required
-        direction: StreamDirection.BOTH,
-        format: StreamAudioFormat.WAV
-      })
-      .then(async (stream) => {
-        const vad = await makeVad();
+  private async setupVoiceStream() {
+    const stream = await this.config.voice.stream({
+      direction: StreamDirection.BOTH,
+      format: StreamAudioFormat.WAV
+    });
 
-        stream.onPayload(async (payload) => {
-          vad(payload.data as any, (event) => {
-            if (event === "SPEECH_START") {
-              actor.send({ type: "VOICE_DETECTED" });
-            }
-          });
+    const vad = await makeVad();
+    stream.onPayload(this.handleVoicePayload(vad));
+  }
+
+  private handleVoicePayload(vad: Vad) {
+    return async (payload: StreamPayload) => {
+      try {
+        const data = payload.data as unknown as Float32Array;
+        await vad(data, (event) => {
+          if (event === "SPEECH_START") {
+            this.actor.send({ type: "VOICE_DETECTED" });
+          }
         });
-      });
+      } catch (err) {
+        // logger.error("an error occurred while processing vad", err);
+      }
+    };
+  }
 
-    voice
-      .sgather({
-        source: StreamGatherSource.SPEECH
-      })
-      .then((stream) => {
-        stream.onPayload((payload) => {
-          actor.send({ type: "HUMAN_PROMPT", speech: payload.speech! });
-        });
-      });
+  private async setupSpeechGathering() {
+    const stream = await this.config.voice.sgather({
+      source: StreamGatherSource.SPEECH
+    });
+
+    stream.onPayload((payload) => {
+      this.actor.send({ type: "HUMAN_PROMPT", speech: payload.speech! });
+    });
   }
 }
 
