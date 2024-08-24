@@ -26,6 +26,8 @@ const types = {
     assistant: Assistant;
     playbackRef: string;
     speechBuffer: string;
+    speechResponseStartTime: number;
+    speechResponseTime: number;
   },
   input: {} as {
     firstMessage: string;

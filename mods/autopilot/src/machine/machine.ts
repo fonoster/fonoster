@@ -45,6 +45,9 @@ const machine = setup({
     appendSpeech: function ({ context, event }) {
       const speech = (event as { speech: string }).speech;
       context.speechBuffer = (context.speechBuffer || "") + " " + speech;
+
+      context.speechResponseStartTime = Date.now();
+
       logger.verbose("appended speech", { speechBuffer: context.speechBuffer });
     },
     processHumanRequest: async function ({ context }) {
@@ -55,12 +58,20 @@ const machine = setup({
         text: speech
       });
 
-      logger.verbose("assistant response", { response });
+      const speechResponseTime = Date.now() - context.speechResponseStartTime;
+
+      context.speechResponseTime = speechResponseTime;
+
+      logger.verbose("assistant response", {
+        response,
+        responseTime: speechResponseTime
+      });
 
       await context.voice.say(response, { playbackRef: context.playbackRef });
 
-      // Clear the speech buffer
+      // Clear the speech buffer and reset response timing
       context.speechBuffer = "";
+      context.speechResponseStartTime = 0;
     },
     hangup: async function ({ context }) {
       await context.voice.hangup();
@@ -77,7 +88,9 @@ const machine = setup({
     voice: input.voice,
     assistant: input.assistant,
     playbackRef: uuidv4(),
-    speechBuffer: ""
+    speechBuffer: "",
+    speechResponseStartTime: 0,
+    speechResponseTime: 0
   }),
   id: "fnAI",
   initial: "welcome",
