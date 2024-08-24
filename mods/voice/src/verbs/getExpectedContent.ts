@@ -21,9 +21,9 @@ import { toCamelCase } from "@fonoster/common";
 function getExpectedContent(name: string) {
   switch (name) {
     case "StartStreamGather":
-      return "streamGatherPayload";
+      return "startStreamGatherResponse";
     case "StartStream":
-      return "streamPayload";
+      return "startStreamResponse";
     default:
       return `${toCamelCase(name)}Response`;
   }

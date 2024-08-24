@@ -57,6 +57,12 @@ function streamGatherHandler(voiceClient: VoiceClient) {
         });
       });
     }
+
+    voiceClient.sendResponse({
+      startStreamGatherResponse: {
+        sessionRef
+      }
+    });
   });
 }
 

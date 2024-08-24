@@ -36,7 +36,7 @@ describe("@voice/verbs/SGather", function () {
     // Arrange
     const { StartStreamGather } = await import("../src/verbs/StreamGather");
 
-    const voice = getVoiceObject(sandbox, "streamGatherPayload");
+    const voice = getVoiceObject(sandbox, "startStreamGatherResponse");
 
     const startStreamGather = new StartStreamGather(voiceRequest, voice);
 
@@ -66,7 +66,7 @@ describe("@voice/verbs/SGather", function () {
       .stub()
       .onFirstCall()
       .callsFake((_, cb) => {
-        cb({ content: "streamGatherPayload" });
+        cb({ content: "startStreamGatherResponse" });
       });
 
     const voice = {
