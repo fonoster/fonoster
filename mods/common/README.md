@@ -1,3 +1,3 @@
 <a href="https://gitpod.io/#https://github.com/fonoster/fonoster"> <img src="https://img.shields.io/badge/Contribute%20with-Gitpod-908a85?logo=gitpod" alt="Contribute with Gitpod" />
 
-This module is part of the \[Fonoster\](https://fonoster.com) project. By itself, it does not do much. It is intended to be used as a dependency for other modules. For more information about the project, please visit \[https://github.com/fonoster/fonoster\](https://github.com/fonoster/fonoster).a](../apiserver/README.md)
+This module is part of the [Fonoster](https://fonoster.com) project. By itself, it does not do much. It is intended to be used as a dependency for other modules. For more information about the project, please visit [https://github.com/fonoster/fonoster](https://github.com/fonoster/fonoster).
