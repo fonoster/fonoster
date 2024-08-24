@@ -25,6 +25,7 @@ const types = {
     voice: VoiceResponse;
     assistant: Assistant;
     playbackRef: string;
+    speechBuffer: string;
   },
   input: {} as {
     firstMessage: string;
@@ -32,7 +33,9 @@ const types = {
     assistant: Assistant;
   },
   events: {} as
-    | { type: "VOICE_DETECTED" }
+    | { type: "SPEECH_START" }
+    | { type: "SPEECH_END" }
+    | { type: "SESSION_END" }
     | { type: "HUMAN_PROMPT"; speech: string }
 };
 

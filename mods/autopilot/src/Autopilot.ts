@@ -80,8 +80,8 @@ class Autopilot {
         // TODO: Investigate why we need to cast this to Float32Array
         const data = payload.data as unknown as Float32Array;
         await vad(data, (event) => {
-          if (event === "SPEECH_START") {
-            this.actor.send({ type: "VOICE_DETECTED" });
+          if (event === "SPEECH_START" || event === "SPEECH_END") {
+            this.actor.send({ type: event });
           }
         });
       } catch (err) {
