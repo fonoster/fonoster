@@ -20,7 +20,8 @@
     "autopilot": "./dist/runner.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "silero_vad.onnx"
   ],
   "publishConfig": {
     "access": "public"
