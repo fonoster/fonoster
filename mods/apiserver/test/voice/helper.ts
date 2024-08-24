@@ -46,7 +46,8 @@ function getAriStub(sandbox: SinonSandbox) {
       snoopChannel: sandbox.stub()
     },
     playbacks: {
-      control: sandbox.stub()
+      control: sandbox.stub(),
+      stop: sandbox.stub()
     },
     bridges: {
       get: sandbox.stub(),

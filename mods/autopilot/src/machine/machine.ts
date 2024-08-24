@@ -79,10 +79,7 @@ export const machine = setup({
       on: {
         HUMAN_PROMPT: {
           target: "active",
-          actions: [
-            { type: "interruptAISpeaking" },
-            { type: "processHumanRequest" }
-          ],
+          actions: { type: "processHumanRequest" },
           description: "This must be triggered when speech to text ends."
         },
         VOICE_DETECTED: {

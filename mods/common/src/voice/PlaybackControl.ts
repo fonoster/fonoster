@@ -19,11 +19,11 @@
 import { VerbRequest } from "./Verb";
 
 enum PlaybackControlAction {
-  STOP = "stop",
-  RESTART = "restart",
-  PAUSE = "pause",
-  UNPAUSE = "unpause",
-  FORWARD = "forward"
+  STOP = "STOP",
+  RESTART = "RESTART",
+  PAUSE = "PAUSE",
+  UNPAUSE = "UNPAUSE",
+  FORWARD = "FORWARD"
 }
 
 type PlaybackControlRequest = VerbRequest & {

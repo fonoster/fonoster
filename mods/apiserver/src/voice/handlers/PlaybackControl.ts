@@ -16,20 +16,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PlaybackControlRequest } from "@fonoster/common";
+import {
+  PlaybackControlAction,
+  PlaybackControlRequest
+} from "@fonoster/common";
 import { Client } from "ari-client";
+import { z } from "zod";
 import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
+
+const requestSchema = z.object({
+  sessionRef: z.string(),
+  playbackRef: z.string().optional().nullable(),
+  action: z.nativeEnum(PlaybackControlAction)
+});
 
 function playbackControlHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(
     async (playbackControlReq: PlaybackControlRequest) => {
-      const { sessionRef, playbackRef, action } = playbackControlReq;
+      requestSchema.parse(playbackControlReq);
 
-      await ari.playbacks.control({
-        playbackId: playbackRef,
-        operation: action
-      });
+      const {
+        sessionRef,
+        playbackRef: playbackId,
+        action
+      } = playbackControlReq;
+
+      if (action === PlaybackControlAction.STOP) {
+        try {
+          await ari.playbacks.stop({ playbackId });
+        } catch (err) {
+          // Ignore error
+        }
+      } else {
+        try {
+          await ari.playbacks.control({ playbackId, operation: action });
+        } catch (err) {
+          // Ignore error
+        }
+      }
 
       voiceClient.sendResponse({
         playbackControlResponse: {

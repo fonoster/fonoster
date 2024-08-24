@@ -66,4 +66,35 @@ describe("@voice/handler/PlaybackControl", function () {
       operation: playbackControlRequest.action
     });
   });
+
+  it("should handle a STOP PlaybackControl command", async function () {
+    // Arrange
+    const ari = getAriStub(sandbox);
+
+    const createVoiceClient = getCreateVoiceClient(sandbox);
+
+    const playbackControlRequest = {
+      playbackRef: "playback-id",
+      sessionRef: channelId,
+      action: PlaybackControlAction.STOP
+    };
+
+    // Act
+    await playbackControlHandler(
+      ari,
+      createVoiceClient()
+    )(playbackControlRequest);
+
+    // Assert
+    expect(ari.playbacks.stop).to.have.been.calledOnce;
+    expect(createVoiceClient().sendResponse).to.have.been.calledOnce;
+    expect(createVoiceClient().sendResponse).to.have.been.calledWith({
+      playbackControlResponse: {
+        sessionRef: playbackControlRequest.sessionRef
+      }
+    });
+    expect(ari.playbacks.stop).to.have.been.calledWith({
+      playbackId: playbackControlRequest.playbackRef
+    });
+  });
 });
