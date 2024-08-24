@@ -77,8 +77,9 @@ class Autopilot {
   private handleVoicePayload(vad: Vad) {
     return async (payload: StreamPayload) => {
       try {
-        const data = new Float32Array(payload.data as Buffer);
-        vad(data, (event) => {
+        // TODO: Investigate why we need to cast this to Float32Array
+        const data = payload.data as unknown as Float32Array;
+        await vad(data, (event) => {
           if (event === "SPEECH_START") {
             this.actor.send({ type: "VOICE_DETECTED" });
           }
