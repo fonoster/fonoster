@@ -42,18 +42,14 @@ function playbackControlHandler(ari: Client, voiceClient: VoiceClient) {
         action
       } = playbackControlReq;
 
-      if (action === PlaybackControlAction.STOP) {
-        try {
+      try {
+        if (action === PlaybackControlAction.STOP) {
           await ari.playbacks.stop({ playbackId });
-        } catch (err) {
-          // Ignore error
-        }
-      } else {
-        try {
+        } else {
           await ari.playbacks.control({ playbackId, operation: action });
-        } catch (err) {
-          // Ignore error
         }
+      } catch (err) {
+        // Ignore error
       }
 
       voiceClient.sendResponse({

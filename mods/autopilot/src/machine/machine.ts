@@ -84,7 +84,7 @@ export const machine = setup({
         },
         VOICE_DETECTED: {
           target: "humanSpeaking",
-          description: "This must be triggered by a VAD or similar system.",
+          description: "This must be triggered by a VAD or similar system."
         }
       },
       description: "The state where the AI is actively engaged in conversation."
