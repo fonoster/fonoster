@@ -78,7 +78,8 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       {
         model: voice || DeepgramVoice.AURA_ASTERIA_EN,
         encoding: this.AUDIO_ENCODING,
-        sample_rate: this.SAMPLE_RATE_HERTZ
+        sample_rate: this.SAMPLE_RATE_HERTZ,
+        container: "none"
       }
     );
 
