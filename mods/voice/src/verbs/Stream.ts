@@ -30,8 +30,8 @@ import { Verb } from "./Verb";
 class StartStream extends Verb<StartStreamRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      direction: z.nativeEnum(StreamDirection),
-      format: z.nativeEnum(StreamAudioFormat)
+      direction: z.nativeEnum(StreamDirection).optional().nullable(),
+      format: z.nativeEnum(StreamAudioFormat).optional().nullable()
     });
   }
 }

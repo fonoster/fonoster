@@ -65,6 +65,11 @@ const machine = setup({
     hangup: async function ({ context }) {
       await context.voice.hangup();
     }
+  },
+  guards: {
+    hasSpeechBuffer: function ({ context }) {
+      return context.speechBuffer?.trim().length > 0;
+    }
   }
 }).createMachine({
   context: ({ input }) => ({
@@ -91,6 +96,10 @@ const machine = setup({
         SPEECH_START: {
           target: "humanSpeaking",
           description: "This must be triggered by a VAD or similar system."
+        },
+        HUMAN_PROMPT: {
+          actions: { type: "appendSpeech" },
+          description: "Appends the speech to the buffer."
         }
       },
       description:
@@ -108,6 +117,7 @@ const machine = setup({
         SPEECH_END: {
           target: "machineListening",
           actions: { type: "processHumanRequest" },
+          guard: { type: "hasSpeechBuffer" },
           description: "This must be triggered by a VAD or similar system."
         }
       },
@@ -125,7 +135,7 @@ const machine = setup({
         }
       },
       description:
-        "The final state where the AI terminates the conversation due to inactivity.",
+        "The final state where the AI terminates the conversation due to inactivity."
     }
   }
 });

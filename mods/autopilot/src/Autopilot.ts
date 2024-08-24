@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import {
-  StreamAudioFormat,
   StreamDirection,
   StreamGatherSource,
   StreamPayload
@@ -66,8 +65,7 @@ class Autopilot {
 
   private async setupVoiceStream() {
     const stream = await this.config.voice.stream({
-      direction: StreamDirection.BOTH,
-      format: StreamAudioFormat.WAV
+      direction: StreamDirection.OUT
     });
 
     const vad = await makeVad();

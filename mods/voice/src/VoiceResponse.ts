@@ -319,8 +319,7 @@ class VoiceResponse {
    *   await response.answer();
    *
    *   const stream = await response.stream({
-   *     direction: StreamDirection.BOTH,
-   *     format: StreamAudioFormat.WAV
+   *     direction: StreamDirection.BOTH
    *   });
    *
    *   stream.onPayload((payload) => {
@@ -331,7 +330,7 @@ class VoiceResponse {
    *   // stream.write({ type: StreamMessageType.AUDIO_OUT, payload: "\x00\x01\x02" });
    * }
    */
-  async stream(options: StreamOptions): Promise<Stream> {
+  async stream(options?: StreamOptions): Promise<Stream> {
     const stream = new Stream();
 
     const startStream = new StartStream(this.request, this.voice);

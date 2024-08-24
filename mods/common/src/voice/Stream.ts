@@ -35,8 +35,8 @@ enum StreamMessageType {
 }
 
 type StreamOptions = {
-  direction: StreamDirection;
-  format: StreamAudioFormat;
+  direction?: StreamDirection;
+  format?: StreamAudioFormat;
 };
 
 type StartStreamRequest = VerbRequest & StreamOptions;
