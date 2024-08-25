@@ -24,7 +24,7 @@ services:
     volumes:
       - ./etc/log4j2.yaml:/etc/routr/log4j2.yaml
 
-  asterisk01:
+  asterisk:
     build:
       context: .
       dockerfile: ./asterisk/Dockerfile
