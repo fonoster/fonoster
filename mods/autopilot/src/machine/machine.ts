@@ -41,6 +41,7 @@ const machine = setup({
       speechBuffer: string;
       speechResponseStartTime: number;
       speechResponseTime: number;
+      isSpeaking: boolean;
     },
     input: {} as {
       assistant: Assistant;
@@ -153,6 +154,22 @@ const machine = setup({
 
       context.idleTimeoutCount = 0;
       return context;
+    }),
+    setSpeaking: assign(({ context }) => {
+      logger.verbose("called setSpeaking action", {
+        isSpeaking: true
+      });
+
+      context.isSpeaking = true;
+      return context;
+    }),
+    setSpeakingDone: assign(({ context }) => {
+      logger.verbose("called setSpeakingDone action", {
+        isSpeaking: false
+      });
+
+      context.isSpeaking = false;
+      return context;
     })
   },
   guards: {
@@ -164,12 +181,15 @@ const machine = setup({
 
       return context.idleTimeoutCount >= context.maxIdleTimeoutCount;
     },
-    speechNotEmpty: function ({ context }) {
-      logger.verbose("called speechNotEmpty guard", {
-        speechBuffer: context.speechBuffer
+    hasSpeechResult: function ({ context }) {
+      return context.speechBuffer !== "";
+    },
+    isNotSpeaking: function ({ context }) {
+      logger.verbose("called isNotSpeaking guard", {
+        isSpeaking: context.isSpeaking
       });
 
-      return context.speechBuffer !== "";
+      return !context.isSpeaking;
     }
   },
   delays: {
@@ -191,7 +211,8 @@ const machine = setup({
     maxIdleTimeoutCount: input.maxIdleTimeoutCount,
     idleTimeoutCount: 0,
     speechResponseStartTime: 0,
-    speechResponseTime: 0
+    speechResponseTime: 0,
+    isSpeaking: false
   }),
   id: "fnAI",
   initial: "greeting",
@@ -202,15 +223,13 @@ const machine = setup({
       },
       entry: {
         type: "greetUser"
-      },
-      description:
-        "Entry point for fnAI where the AI answer the call and greets the user."
+      }
     },
     idle: {
       on: {
         SPEECH_START: {
           target: "waitingForUserRequest",
-          description: "Event from VAD or similar system."
+          description: "Event from VAD system."
         }
       },
       after: {
@@ -236,12 +255,7 @@ const machine = setup({
             ]
           }
         ]
-      },
-      description: "Always come back home."
-    },
-    hangup: {
-      type: "final",
-      description: "Final state and end of session."
+      }
     },
     waitingForUserRequest: {
       always: {
@@ -256,42 +270,59 @@ const machine = setup({
         },
         {
           type: "resetIdleTimeoutCount"
+        },
+        {
+          type: "setSpeaking"
         }
-      ],
-      description: "The machine stays here until we get results from the STT."
+      ]
+    },
+    hangup: {
+      type: "final"
     },
     hackingTimeout: {
       always: {
         target: "idle"
-      },
-      description: "Transitioning back to idle."
+      }
     },
     updatingSpeech: {
       on: {
-        SPEECH_RESULT: {
-          target: "updatingSpeech",
-          actions: {
-            type: "appendSpeech"
+        SPEECH_RESULT: [
+          {
+            target: "processingUserRequest",
+            actions: {
+              type: "appendSpeech"
+            },
+            guard: {
+              type: "isNotSpeaking"
+            },
+            description: "Speech result from the Speech to Text provider."
           },
-          description: "Speech result from the Speech to Text provider."
-        },
+          {
+            target: "updatingSpeech",
+            actions: {
+              type: "appendSpeech"
+            }
+          }
+        ],
         SPEECH_END: [
           {
             target: "processingUserRequest",
+            actions: {
+              type: "setSpeakingDone"
+            },
             guard: {
-              type: "speechNotEmpty"
-            }
+              type: "hasSpeechResult"
+            },
+            description: "Event from VAD or similar system."
           },
           {
-            target: "idle",
+            target: "updatingSpeech",
             actions: {
-              type: "announceSystemError"
-            },
-            description: "Announce system error and reset the machine."
+              type: "setSpeakingDone"
+            }
           }
         ]
-      },
-      description: "Collecting information from the user."
+      }
     },
     processingUserRequest: {
       on: {
@@ -304,13 +335,9 @@ const machine = setup({
           description: "Go back home."
         }
       },
-      entry: [
-        {
-          type: "processUserRequest"
-        }
-      ],
-      description:
-        "Call the intelligence provider, respond to user, and update the response time."
+      entry: {
+        type: "processUserRequest"
+      }
     }
   }
 });

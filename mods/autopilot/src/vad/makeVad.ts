@@ -57,12 +57,10 @@ async function makeVad(pathToModel?: string) {
           callback("SPEECH_START", {});
           return processBuffer(remainingBuffer);
         }
-      } else {
-        if (isSpeechActive) {
-          isSpeechActive = false;
-          callback("SPEECH_END", {});
-          return processBuffer(remainingBuffer);
-        }
+      } else if (isSpeechActive) {
+        isSpeechActive = false;
+        callback("SPEECH_END", {});
+        return processBuffer(remainingBuffer);
       }
 
       return processBuffer(remainingBuffer);
