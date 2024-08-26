@@ -16,37 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import {
-  ChatPromptTemplate,
-  MessagesPlaceholder
-} from "@langchain/core/prompts";
-import { ChatOpenAI } from "@langchain/openai";
-import { ChatMessageHistory } from "langchain/stores/message/in_memory";
+import { createChatHistory } from "./chatHistory";
+import { createModel } from "./modelConfig";
+import { createPromptTemplate } from "./promptTemplate";
 import { AssistantConfig } from "./types";
 
 type Assistant = ReturnType<typeof makeAssistant>;
 
 function makeAssistant(config: AssistantConfig) {
-  const model = new ChatOpenAI({
-    model: config.model,
-    apiKey: config.apiKey,
-    maxTokens: config.maxTokens,
-    temperature: config.temperature
-  });
-
-  const { systemTemplate } = config;
-
+  const model = createModel(config);
+  const promptTemplate = createPromptTemplate(config.systemTemplate);
+  const chatHistory = createChatHistory();
   const parser = new StringOutputParser();
-
-  const chatHistory = new ChatMessageHistory();
-
-  const promptTemplate = ChatPromptTemplate.fromMessages([
-    ["system", systemTemplate],
-    new MessagesPlaceholder("history"),
-    ["human", "{text}"]
-  ]);
 
   const chain = promptTemplate.pipe(model).pipe(parser);
 
@@ -58,8 +40,8 @@ function makeAssistant(config: AssistantConfig) {
         history: await chatHistory.getMessages()
       });
 
-      await chatHistory.addMessage(new HumanMessage(text));
-      await chatHistory.addMessage(new AIMessage(response));
+      await chatHistory.addUserMessage(text);
+      await chatHistory.addAIMessage(response);
 
       return response;
     },
