@@ -16,36 +16,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StringOutputParser } from "@langchain/core/output_parsers";
+import { OpenAIEmbeddings } from "@langchain/openai";
 import { createChatHistory } from "./chatHistory";
+import { createChain } from "./createChain";
 import { createModel } from "./modelConfig";
 import { createPromptTemplate } from "./promptTemplate";
+import { createRAGComponents } from "./rag";
 import { AssistantConfig } from "./types";
 
 type Assistant = ReturnType<typeof makeAssistant>;
 
-function makeAssistant(config: AssistantConfig) {
+async function makeAssistant(config: AssistantConfig) {
   const model = createModel(config);
   const promptTemplate = createPromptTemplate(config.systemTemplate);
   const chatHistory = createChatHistory();
-  const parser = new StringOutputParser();
+  const embeddings = new OpenAIEmbeddings();
 
-  const chain = promptTemplate.pipe(model).pipe(parser);
+  const { loadAndIndexURL, queryVectorStore, clearCache } =
+    await createRAGComponents(embeddings);
+
+  const chain = createChain(
+    model,
+    promptTemplate,
+    queryVectorStore,
+    chatHistory
+  );
 
   return {
-    invoke: async (input: { text: string }) => {
-      const { text } = input;
-      const response = await chain.invoke({
-        text,
-        history: await chatHistory.getMessages()
-      });
+    invoke: async (input: { text: string; url?: string }) => {
+      const { text, url } = input;
+
+      if (url) {
+        await loadAndIndexURL(url);
+      }
+
+      const response = await chain.invoke({ text });
 
       await chatHistory.addUserMessage(text);
       await chatHistory.addAIMessage(response);
 
       return response;
     },
-    clearHistory: () => chatHistory.clear()
+    clearHistory: () => chatHistory.clear(),
+    clearCache
   };
 }
 

@@ -36,7 +36,9 @@
   "dependencies": {
     "@fonoster/logger": "^0.7.4",
     "@fonoster/voice": "^0.7.4",
+    "@langchain/community": "^0.2.31",
     "@langchain/openai": "^0.2.7",
+    "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",
     "langchain": "^0.2.17",
     "onnxruntime-node": "^1.19.0",

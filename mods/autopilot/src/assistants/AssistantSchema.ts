@@ -32,7 +32,8 @@ const AssistantSchema = z.object({
   systemErrorMessage: z.string(),
   idleMessage: z.string(),
   idleTimeout: z.number(),
-  maxIdleTimeoutCount: z.number()
+  maxIdleTimeoutCount: z.number(),
+  knowledgeBaseSourceUrl: z.string().url().optional()
 });
 
 export { AssistantSchema };

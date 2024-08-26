@@ -36,6 +36,7 @@ type AssistantFromJson = {
   idleMessage: string;
   idleTimeout: number;
   maxIdleTimeoutCount: number;
+  knowledgeBaseSourceUrl?: string;
 };
 
 type AssistantConfig = AssistantFromJson & {

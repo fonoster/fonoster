@@ -12,5 +12,6 @@
   "systemErrorMessage": "I'm sorry, but I'm having trouble processing your request. Please try again.",
   "idleMessage": "Hello! Are you still there?",
   "idleTimeout": 15000,
-  "maxIdleTimeoutCount": 3
+  "maxIdleTimeoutCount": 3,
+  "knowledgeBaseSourceUrl": "https://health.usnews.com/doctors/nancy-henderson-hines-125421"
 }

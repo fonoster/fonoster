@@ -42,6 +42,7 @@ const machine = setup({
       speechResponseStartTime: number;
       speechResponseTime: number;
       isSpeaking: boolean;
+      knowledgeBaseSourceUrl?: string;
     },
     input: {} as {
       assistant: Assistant;
@@ -52,6 +53,7 @@ const machine = setup({
       idleMessage: string;
       idleTimeout: number;
       maxIdleTimeoutCount: number;
+      knowledgeBaseSourceUrl?: string;
     },
     events: {} as
       | { type: "SPEECH_START" }
@@ -107,7 +109,13 @@ const machine = setup({
       });
 
       const speech = context.speechBuffer.trim();
-      const response = await context.assistant.invoke({ text: speech });
+
+      const assistant = await context.assistant;
+      const response = await assistant.invoke({
+        text: speech,
+        url: context.knowledgeBaseSourceUrl
+      });
+
       const speechResponseTime = Date.now() - context.speechResponseStartTime;
       context.speechResponseTime = speechResponseTime;
       context.speechResponseStartTime = 0;
@@ -217,7 +225,8 @@ const machine = setup({
     idleTimeoutCount: 0,
     speechResponseStartTime: 0,
     speechResponseTime: 0,
-    isSpeaking: false
+    isSpeaking: false,
+    knowledgeBaseSourceUrl: input.knowledgeBaseSourceUrl
   }),
   id: "fnAI",
   initial: "greeting",

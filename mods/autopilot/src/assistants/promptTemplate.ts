@@ -18,13 +18,16 @@
  */
 import {
   ChatPromptTemplate,
-  MessagesPlaceholder
+  HumanMessagePromptTemplate,
+  MessagesPlaceholder,
+  SystemMessagePromptTemplate
 } from "@langchain/core/prompts";
 
 export function createPromptTemplate(systemTemplate: string) {
   return ChatPromptTemplate.fromMessages([
-    ["system", systemTemplate],
     new MessagesPlaceholder("history"),
-    ["human", "{text}"]
+    SystemMessagePromptTemplate.fromTemplate(systemTemplate),
+    SystemMessagePromptTemplate.fromTemplate("{context}"),
+    HumanMessagePromptTemplate.fromTemplate("{input}")
   ]);
 }
