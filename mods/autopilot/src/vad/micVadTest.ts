@@ -35,7 +35,7 @@ async function main() {
     .stream();
 
   mic.on("data", async (data) => {
-    const chunk = new Float32Array(data.buffer);
+    const chunk = new Uint8Array(data.buffer);
     await vad(chunk, (event, _data) => {
       logger.info("vad event:", { event, data: _data });
     });
