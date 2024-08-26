@@ -18,137 +18,299 @@
  */
 import { PlaybackControlAction } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { VoiceResponse } from "@fonoster/voice";
 import { v4 as uuidv4 } from "uuid";
-import { setup } from "xstate";
-import { types } from "./types";
+import { assign, raise, setup } from "xstate";
+import { Assistant } from "../assistants/assistants";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const machine = setup({
-  types,
+  types: {
+    context: {} as {
+      assistant: Assistant;
+      voice: VoiceResponse;
+      playbackRef: string;
+      firstMessage: string;
+      goodbyeMessage: string;
+      systemErrorMessage: string;
+      idleMessage: string;
+      idleTimeout: number;
+      idleTimeoutCount: number;
+      maxIdleTimeoutCount: number;
+      speechBuffer: string;
+      speechResponseStartTime: number;
+      speechResponseTime: number;
+    },
+    input: {} as {
+      assistant: Assistant;
+      voice: VoiceResponse;
+      firstMessage: string;
+      goodbyeMessage: string;
+      systemErrorMessage: string;
+      idleMessage: string;
+      idleTimeout: number;
+      maxIdleTimeoutCount: number;
+    },
+    events: {} as
+      | { type: "SPEECH_START" }
+      | { type: "SPEECH_END" }
+      | { type: "SPEECH_RESULT"; speech: string }
+      | { type: "USER_REQUEST_PROCESSED" }
+  },
   actions: {
-    sendGreeting: async function ({ context }) {
+    greetUser: async ({ context }): Promise<void> => {
+      logger.verbose("called greetUser action", {
+        firstMessage: context.firstMessage
+      });
+
       await context.voice.answer();
+
       await context.voice.say(context.firstMessage, {
         playbackRef: context.playbackRef
       });
     },
-    interruptMachineSpeaking: async function ({ context }) {
-      logger.verbose("interrupting the machine", {
+    goodbye: async ({ context }) => {
+      logger.verbose("called goodbye action", {
+        goodbyeMessage: context.goodbyeMessage
+      });
+
+      await context.voice.say(context.goodbyeMessage, {
         playbackRef: context.playbackRef
       });
+
+      await context.voice.hangup();
+    },
+    announceSystemError: async ({ context }) => {
+      logger.verbose("called announceSystemError action", {
+        systemErrorMessage: context.systemErrorMessage
+      });
+
+      await context.voice.say(context.systemErrorMessage, {
+        playbackRef: context.playbackRef
+      });
+    },
+    interruptPlayback: async ({ context }) => {
+      logger.verbose("called interruptPlayback action", {
+        playbackRef: context.playbackRef
+      });
+
       await context.voice.playbackControl(
         context.playbackRef,
         PlaybackControlAction.STOP
       );
     },
-    appendSpeech: function ({ context, event }) {
-      const speech = (event as { speech: string }).speech;
-      context.speechBuffer = (context.speechBuffer || "") + " " + speech;
+    processUserRequest: async ({ context }) => {
+      logger.verbose("called processUserRequest action", {
+        speechBuffer: context.speechBuffer
+      });
 
-      context.speechResponseStartTime = Date.now();
-
-      logger.verbose("appended speech", { speechBuffer: context.speechBuffer });
-    },
-    processHumanRequest: async function ({ context }) {
       const speech = context.speechBuffer.trim();
-      logger.verbose("processing human request", { speech });
-
-      const response = await context.assistant.invoke({
-        text: speech
-      });
-
+      const response = await context.assistant.invoke({ text: speech });
       const speechResponseTime = Date.now() - context.speechResponseStartTime;
-
       context.speechResponseTime = speechResponseTime;
-
-      logger.verbose("assistant response", {
-        response,
-        responseTime: speechResponseTime
-      });
-
-      await context.voice.say(response, { playbackRef: context.playbackRef });
-
-      // Clear the speech buffer and reset response timing
       context.speechBuffer = "";
       context.speechResponseStartTime = 0;
+
+      await context.voice.say(response, {
+        playbackRef: context.playbackRef
+      });
+
+      raise({ type: "USER_REQUEST_PROCESSED" });
     },
-    hangup: async function ({ context }) {
-      await context.voice.hangup();
-    }
+    announceIdleTimeout: async ({ context }) => {
+      logger.verbose("called announceIdleTimeout action", {
+        idleMessage: context.idleMessage
+      });
+
+      await context.voice.say(context.idleMessage, {
+        playbackRef: context.playbackRef
+      });
+    },
+    increaseIdleTimeoutCount: assign(({ context }) => {
+      logger.verbose("called increaseIdleTimeoutCount action", {
+        idleTimeoutCount: context.idleTimeoutCount + 1
+      });
+
+      context.idleTimeoutCount++;
+      return context;
+    }),
+    cleanSpeech: assign({ speechBuffer: "" }),
+    appendSpeech: assign(({ context, event }) => {
+      logger.verbose("called appendSpeech action", {
+        speech: (event as { speech: string }).speech
+      });
+
+      const speech = (event as { speech: string }).speech;
+      context.speechBuffer = (context.speechBuffer || "") + " " + speech;
+      context.speechResponseStartTime = Date.now();
+      return context;
+    }),
+    resetIdleTimeoutCount: assign(({ context }) => {
+      logger.verbose("called resetIdleTimeoutCount action", {
+        idleTimeoutCount: 0
+      });
+
+      context.idleTimeoutCount = 0;
+      return context;
+    })
   },
   guards: {
-    hasSpeechBuffer: function ({ context }) {
-      return context.speechBuffer?.trim().length > 0;
+    idleTimeoutCountExceedsMax: function ({ context }) {
+      logger.verbose("called idleTimeoutCountExceedsMax guard", {
+        idleTimeoutCount: context.idleTimeoutCount,
+        maxIdleTimeoutCount: context.maxIdleTimeoutCount
+      });
+
+      return context.idleTimeoutCount >= context.maxIdleTimeoutCount;
+    },
+    speechNotEmpty: function ({ context }) {
+      logger.verbose("called speechNotEmpty guard", {
+        speechBuffer: context.speechBuffer
+      });
+
+      return context.speechBuffer !== "";
+    }
+  },
+  delays: {
+    IDLE_TIMEOUT: ({ context }) => {
+      return context.idleTimeout;
     }
   }
 }).createMachine({
   context: ({ input }) => ({
-    firstMessage: input.firstMessage,
     voice: input.voice,
     assistant: input.assistant,
     playbackRef: uuidv4(),
     speechBuffer: "",
+    firstMessage: input.firstMessage,
+    goodbyeMessage: input.goodbyeMessage,
+    systemErrorMessage: input.systemErrorMessage,
+    idleMessage: input.idleMessage,
+    idleTimeout: input.idleTimeout,
+    maxIdleTimeoutCount: input.maxIdleTimeoutCount,
+    idleTimeoutCount: 0,
     speechResponseStartTime: 0,
     speechResponseTime: 0
   }),
   id: "fnAI",
-  initial: "welcome",
+  initial: "greeting",
   states: {
-    welcome: {
-      entry: {
-        type: "sendGreeting"
-      },
+    greeting: {
       always: {
-        target: "machineListening"
+        target: "idle"
       },
-      description: "The initial state where the AI greets the Human."
+      entry: {
+        type: "greetUser"
+      },
+      description:
+        "Entry point for fnAI where the AI answer the call and greets the user."
     },
-    machineListening: {
+    idle: {
       on: {
         SPEECH_START: {
-          target: "humanSpeaking",
-          description: "This must be triggered by a VAD or similar system."
-        },
-        HUMAN_PROMPT: {
-          actions: { type: "appendSpeech" },
-          description: "Appends the speech to the buffer."
+          target: "waitingForUserRequest",
+          description: "Event from VAD or similar system."
         }
       },
-      description:
-        "The state where the AI is actively listening in conversation."
-    },
-    humanSpeaking: {
-      entry: {
-        type: "interruptMachineSpeaking"
+      after: {
+        IDLE_TIMEOUT: [
+          {
+            target: "hangup",
+            actions: {
+              type: "goodbye"
+            },
+            guard: {
+              type: "idleTimeoutCountExceedsMax"
+            }
+          },
+          {
+            target: "hackingTimeout",
+            actions: [
+              {
+                type: "increaseIdleTimeoutCount"
+              },
+              {
+                type: "announceIdleTimeout"
+              }
+            ]
+          }
+        ]
       },
-      on: {
-        HUMAN_PROMPT: {
-          actions: { type: "appendSpeech" },
-          description: "Appends the speech to the buffer."
-        },
-        SPEECH_END: {
-          target: "machineListening",
-          actions: { type: "processHumanRequest" },
-          guard: { type: "hasSpeechBuffer" },
-          description: "This must be triggered by a VAD or similar system."
-        }
-      },
-      description:
-        "The state where the AI detects Human speech while it is speaking."
+      description: "Always come back home."
     },
     hangup: {
       type: "final",
-      entry: {
-        type: "hangup"
+      description: "Final state and end of session."
+    },
+    waitingForUserRequest: {
+      always: {
+        target: "updatingSpeech"
       },
+      entry: [
+        {
+          type: "cleanSpeech"
+        },
+        {
+          type: "interruptPlayback"
+        },
+        {
+          type: "resetIdleTimeoutCount"
+        }
+      ],
+      description: "The machine stays here until we get results from the STT."
+    },
+    hackingTimeout: {
+      always: {
+        target: "idle"
+      },
+      description: "Transitioning back to idle."
+    },
+    updatingSpeech: {
       on: {
-        SESSION_END: {
-          target: "hangup"
+        SPEECH_RESULT: {
+          target: "updatingSpeech",
+          actions: {
+            type: "appendSpeech"
+          },
+          description: "Speech result from the Speech to Text provider."
+        },
+        SPEECH_END: [
+          {
+            target: "processingUserRequest",
+            guard: {
+              type: "speechNotEmpty"
+            }
+          },
+          {
+            target: "idle",
+            actions: {
+              type: "announceSystemError"
+            },
+            description: "Announce system error and reset the machine."
+          }
+        ]
+      },
+      description: "Collecting information from the user."
+    },
+    processingUserRequest: {
+      on: {
+        SPEECH_START: {
+          target: "waitingForUserRequest",
+          description: "Event from VAD or similar system."
+        },
+        USER_REQUEST_PROCESSED: {
+          target: "idle",
+          description: "Go back home."
         }
       },
+      entry: [
+        {
+          type: "processUserRequest"
+        }
+      ],
       description:
-        "The final state where the AI terminates the conversation due to inactivity."
+        "Call the intelligence provider, respond to user, and update the response time."
     }
   }
 });

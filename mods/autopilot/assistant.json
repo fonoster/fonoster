@@ -7,5 +7,10 @@
   "temperature": 0.7,
   "maxTokens": 250,
   "language": "en",
-  "timezone": "America/New_York"
+  "timezone": "America/New_York",
+  "goodbyeMessage": "Goodbye! Have a great day!",
+  "systemErrorMessage": "I'm sorry, but I'm having trouble processing your request. Please try again later.",
+  "idleMessage": "Hello! Are you still there?",
+  "idleTimeout": 15000,
+  "maxIdleTimeoutCount": 3
 }

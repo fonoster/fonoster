@@ -25,7 +25,14 @@ const AssistantSchema = z.object({
   systemTemplate: z.string(),
   model: z.nativeEnum(Model),
   temperature: z.number(),
-  maxTokens: z.number()
+  maxTokens: z.number(),
+  language: z.string(),
+  timezone: z.string(),
+  goodbyeMessage: z.string(),
+  systemErrorMessage: z.string(),
+  idleMessage: z.string(),
+  idleTimeout: z.number(),
+  maxIdleTimeoutCount: z.number()
 });
 
 export { AssistantSchema };

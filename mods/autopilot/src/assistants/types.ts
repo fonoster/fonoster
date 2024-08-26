@@ -24,11 +24,18 @@ enum Model {
 
 type AssistantFromJson = {
   name: string;
+  language: string;
+  timezone: string;
   firstMessage: string;
   systemTemplate: string;
   model: Model;
   temperature: number;
   maxTokens: number;
+  goodbyeMessage: string;
+  systemErrorMessage: string;
+  idleMessage: string;
+  idleTimeout: number;
+  maxIdleTimeoutCount: number;
 };
 
 type AssistantConfig = AssistantFromJson & {

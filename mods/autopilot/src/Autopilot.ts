@@ -52,9 +52,12 @@ class Autopilot {
 
   private createActor() {
     const { voice } = this.config;
-    const { firstMessage } = this.config.assistantConfig;
     return createActor(machine, {
-      input: { firstMessage, voice, assistant: this.assistant }
+      input: {
+        ...this.config.assistantConfig,
+        assistant: this.assistant,
+        voice
+      }
     });
   }
 
@@ -80,6 +83,8 @@ class Autopilot {
         const data = payload.data as unknown as Float32Array;
         await vad(data, (event) => {
           if (event === "SPEECH_START" || event === "SPEECH_END") {
+            logger.verbose("received speech event", { event });
+
             this.actor.send({ type: event });
           }
         });
@@ -95,7 +100,13 @@ class Autopilot {
     });
 
     stream.onPayload((payload) => {
-      this.actor.send({ type: "HUMAN_PROMPT", speech: payload.speech! });
+      const { speech } = payload;
+
+      logger.verbose("received speech result", { speech });
+
+      if (speech) {
+        this.actor.send({ type: "SPEECH_RESULT", speech });
+      }
     });
   }
 }
