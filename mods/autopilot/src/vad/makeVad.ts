@@ -33,7 +33,7 @@ async function makeVad(pathToModel?: string) {
   let isSpeechActive = false;
 
   return async function process(
-    chunk: Float32Array,
+    chunk: Uint8Array,
     callback: (
       event: "SPEECH_START" | "SPEECH_END",
       data: Record<string, unknown>

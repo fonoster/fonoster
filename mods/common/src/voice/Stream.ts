@@ -54,7 +54,7 @@ type StreamPayload = {
   streamRef: string;
   format: StreamAudioFormat;
   type: StreamMessageType;
-  data?: Buffer;
+  data?: Uint8Array;
   code?: string;
   message?: string;
 };

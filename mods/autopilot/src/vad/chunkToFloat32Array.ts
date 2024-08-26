@@ -16,12 +16,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function chunkToFloat32Array(chunk: Float32Array): Float32Array {
-  const int16Array = new Int16Array(
-    chunk.buffer,
-    chunk.byteOffset,
-    chunk.byteLength / Int16Array.BYTES_PER_ELEMENT
-  );
+
+// This version of the chunkToFloat32Array accounts for the case where
+// the byteOffset is misaligned.
+//
+// Q. Would it be the same if we just created a new Uint8Array from the chunk?
+function chunkToFloat32Array(chunk: Uint8Array): Float32Array {
+  // Check if byteOffset is not aligned
+  const alignedByteOffset =
+    chunk.byteOffset % Int16Array.BYTES_PER_ELEMENT === 0;
+
+  let int16Array: Int16Array;
+
+  if (alignedByteOffset) {
+    int16Array = new Int16Array(
+      chunk.buffer,
+      chunk.byteOffset,
+      chunk.byteLength / Int16Array.BYTES_PER_ELEMENT
+    );
+  } else {
+    // Create a new aligned Uint8Array and then an Int16Array from it
+    const alignedChunk = new Uint8Array(chunk);
+    int16Array = new Int16Array(
+      alignedChunk.buffer,
+      alignedChunk.byteOffset,
+      alignedChunk.byteLength / Int16Array.BYTES_PER_ELEMENT
+    );
+  }
 
   return new Float32Array(Array.from(int16Array, (sample) => sample / 32768.0));
 }

@@ -80,7 +80,7 @@ class Autopilot {
     return async (payload: StreamPayload) => {
       try {
         // TODO: Investigate why we need to cast this to Float32Array
-        const data = payload.data as unknown as Float32Array;
+        const data = payload.data as Uint8Array;
         await vad(data, (event) => {
           if (event === "SPEECH_START" || event === "SPEECH_END") {
             logger.verbose("received speech event", { event });
