@@ -16,9 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder
+} from "@langchain/core/prompts";
 import { ChatOpenAI } from "@langchain/openai";
+import { ChatMessageHistory } from "langchain/stores/message/in_memory";
 import { AssistantConfig } from "./types";
 
 type Assistant = ReturnType<typeof makeAssistant>;
@@ -35,12 +40,31 @@ function makeAssistant(config: AssistantConfig) {
 
   const parser = new StringOutputParser();
 
+  const chatHistory = new ChatMessageHistory();
+
   const promptTemplate = ChatPromptTemplate.fromMessages([
     ["system", systemTemplate],
-    ["user", "{text}"]
+    new MessagesPlaceholder("history"),
+    ["human", "{text}"]
   ]);
 
-  return promptTemplate.pipe(model).pipe(parser);
+  const chain = promptTemplate.pipe(model).pipe(parser);
+
+  return {
+    invoke: async (input: { text: string }) => {
+      const { text } = input;
+      const response = await chain.invoke({
+        text,
+        history: await chatHistory.getMessages()
+      });
+
+      await chatHistory.addMessage(new HumanMessage(text));
+      await chatHistory.addMessage(new AIMessage(response));
+
+      return response;
+    },
+    clearHistory: () => chatHistory.clear()
+  };
 }
 
 export { makeAssistant, Assistant };
