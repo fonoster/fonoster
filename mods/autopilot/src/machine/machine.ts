@@ -110,7 +110,6 @@ const machine = setup({
       const response = await context.assistant.invoke({ text: speech });
       const speechResponseTime = Date.now() - context.speechResponseStartTime;
       context.speechResponseTime = speechResponseTime;
-      context.speechBuffer = "";
       context.speechResponseStartTime = 0;
 
       await context.voice.say(response, {
@@ -143,7 +142,13 @@ const machine = setup({
       });
 
       const speech = (event as { speech: string }).speech;
-      context.speechBuffer = (context.speechBuffer || "") + " " + speech;
+
+      context.speechBuffer = (
+        (context.speechBuffer || "") +
+        " " +
+        speech
+      ).trimStart();
+
       context.speechResponseStartTime = Date.now();
       return context;
     }),
