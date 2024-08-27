@@ -110,11 +110,11 @@ jobs:
         sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=127.0.0.1|g" .env 
         sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env 
         echo "INTEGRATIONS_FILE=./integrations.json" >> .env
-        docker-compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver
+        docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver
 
     - name: Waiting for services to be ready
       run: |
-        while ! curl -s https://localhost:8443; do sleep 1; done
+        while ! curl -s http://localhost:8449; do sleep 1; done
 
     - name: Run integration tests for the SDK
       run: npm run integration
