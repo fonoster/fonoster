@@ -16,11 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StringOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { createChatHistory } from "./chatHistory";
-import { createModel } from "./modelConfig";
-import { createPromptTemplate } from "./promptTemplate";
+import { createModel } from "./createModel";
+import { createPromptTemplate } from "./createPromptTemplate";
 
 function createChain(
   model: ReturnType<typeof createModel>,
@@ -28,8 +27,6 @@ function createChain(
   queryVectorStore: (query: string, k?: number) => Promise<string>,
   chatHistory: ReturnType<typeof createChatHistory>
 ) {
-  const parser = new StringOutputParser();
-
   return RunnableSequence.from([
     {
       input: (input) => input.text,
@@ -37,8 +34,7 @@ function createChain(
       history: async () => chatHistory.getMessages()
     },
     promptTemplate,
-    model,
-    parser
+    model
   ]);
 }
 

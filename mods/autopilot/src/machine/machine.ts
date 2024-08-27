@@ -120,6 +120,12 @@ const machine = setup({
       context.speechResponseTime = speechResponseTime;
       context.speechResponseStartTime = 0;
 
+      if (!response) {
+        logger.verbose("call might already be hung up");
+        raise({ type: "USER_REQUEST_PROCESSED" });
+        return;
+      }
+
       await context.voice.say(response, {
         playbackRef: context.playbackRef
       });

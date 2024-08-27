@@ -16,18 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { VoiceResponse } from "@fonoster/voice";
+import { AIMessage } from "@langchain/core/messages";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { createChatHistory } from "./chatHistory";
 import { createChain } from "./createChain";
-import { createModel } from "./modelConfig";
-import { createPromptTemplate } from "./promptTemplate";
-import { createRAGComponents } from "./rag";
+import { createModel } from "./createModel";
+import { createPromptTemplate } from "./createPromptTemplate";
+import { createRAGComponents } from "./createRAGComponents";
+import { makeHangupTool } from "./tools";
 import { AssistantConfig } from "./types";
 
 type Assistant = ReturnType<typeof makeAssistant>;
 
-async function makeAssistant(config: AssistantConfig) {
-  const model = createModel(config);
+async function makeAssistant(config: AssistantConfig, voice: VoiceResponse) {
+  const model = createModel(config, voice);
   const promptTemplate = createPromptTemplate(config.systemTemplate);
   const chatHistory = createChatHistory();
   const embeddings = new OpenAIEmbeddings();
@@ -42,6 +45,10 @@ async function makeAssistant(config: AssistantConfig) {
     chatHistory
   );
 
+  const toolsByName = {
+    hangup: makeHangupTool(voice)
+  };
+
   return {
     invoke: async (input: { text: string; url?: string }) => {
       const { text, url } = input;
@@ -50,12 +57,33 @@ async function makeAssistant(config: AssistantConfig) {
         await loadAndIndexURL(url);
       }
 
-      const response = await chain.invoke({ text });
+      // Invoke the chain
+      const response = (await chain.invoke({ text })) as AIMessage;
 
+      if (response.additional_kwargs?.tool_calls) {
+        // eslint-disable-next-line no-loops/no-loops
+        for (const toolCall of response.additional_kwargs.tool_calls) {
+          const selectedTool = toolsByName[toolCall.function.name];
+          if (selectedTool) {
+            const args = JSON.parse(toolCall.function.arguments);
+            const toolResult = await selectedTool.invoke(args);
+
+            await chatHistory.addAIMessage(toolResult as string | "");
+          }
+        }
+        // After handling tool calls, invoke the chain again to get the final response
+        const finalResponse = (await chain.invoke({
+          text: "Please provide a final response based on the tool results."
+        })) as AIMessage;
+
+        response.content = finalResponse.content;
+      }
+
+      // Update chat history
       await chatHistory.addUserMessage(text);
-      await chatHistory.addAIMessage(response);
+      await chatHistory.addAIMessage(response.content?.toString() || "");
 
-      return response;
+      return response.content.toString();
     },
     clearHistory: () => chatHistory.clear(),
     clearCache

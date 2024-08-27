@@ -38,7 +38,7 @@ class Autopilot {
   private voice: VoiceResponse;
 
   constructor(private config: AutopilotConfig) {
-    this.assistant = makeAssistant(config.assistantConfig);
+    this.assistant = makeAssistant(config.assistantConfig, config.voice);
     this.actor = this.createActor();
     this.voice = config.voice;
   }
@@ -79,8 +79,7 @@ class Autopilot {
   private handleVoicePayload(vad: Vad) {
     return async (payload: StreamPayload) => {
       try {
-        // TODO: Investigate why we need to cast this to Float32Array
-        const data = payload.data as Uint8Array;
+        const data = payload.data!;
         await vad(data, (event) => {
           if (event === "SPEECH_START" || event === "SPEECH_END") {
             logger.verbose("received speech event", { event });
