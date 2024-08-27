@@ -318,5 +318,5 @@ export namespace DeleteApplicationResponse {
 }
 
 export enum ApplicationType { 
-  PROGRAMMABLE_VOICE = 0,
+  EXTERNAL = 0,
 }
