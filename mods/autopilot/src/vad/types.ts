@@ -16,7 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type Vad = (chunk: Uint8Array, cb: (event: string) => void) => Promise<void>;
+type Vad = {
+  processChunk: (
+    chunk: Uint8Array,
+    callback: (event: "SPEECH_START" | "SPEECH_END") => void
+  ) => void;
+};
 
 type SpeechProbabilities = {
   notSpeech: number;

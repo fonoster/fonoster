@@ -17,5 +17,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./SileroVad";
-export * from "./types";
+import { makeVad } from "./makeVad";
+import { Vad } from "./types";
+
+class SileroVad implements Vad {
+  private vad: (data: Uint8Array, callback: (event: string) => void) => void;
+
+  async init() {
+    this.vad = await makeVad();
+  }
+
+  processChunk(
+    data: Uint8Array,
+    callback: (event: "SPEECH_START" | "SPEECH_END") => void
+  ) {
+    this.vad(data, callback);
+  }
+}
+
+export { SileroVad };

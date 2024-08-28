@@ -34,10 +34,7 @@ async function makeVad(pathToModel?: string) {
 
   return async function process(
     chunk: Uint8Array,
-    callback: (
-      event: "SPEECH_START" | "SPEECH_END",
-      data: Record<string, unknown>
-    ) => void
+    callback: (event: "SPEECH_START" | "SPEECH_END") => void
   ) {
     const float32Array = chunkToFloat32Array(chunk);
 
@@ -54,12 +51,12 @@ async function makeVad(pathToModel?: string) {
       if (result.isSpeech > 0.5) {
         if (!isSpeechActive) {
           isSpeechActive = true;
-          callback("SPEECH_START", {});
+          callback("SPEECH_START");
           return processBuffer(remainingBuffer);
         }
       } else if (isSpeechActive) {
         isSpeechActive = false;
-        callback("SPEECH_END", {});
+        callback("SPEECH_END");
         return processBuffer(remainingBuffer);
       }
 
