@@ -5,11 +5,12 @@ services:
       dockerfile: ./mods/apiserver/Dockerfile
     volumes:
       - ./.keys:/opt/fonoster/keys
-      - ./integrations.json:/opt/fonoster/integrations.json
     ports:
       - 50051:50051
     environment:
       ROUTR_API_ENDPOINT: ${ROUTR_API_ENDPOINT}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
 
   routr:
     ports:

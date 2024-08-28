@@ -107,14 +107,31 @@ jobs:
     - name: Starting services for integration tests
       run: |
         cp .env.example .env
+        cp config/integrations.example.json integrations.json
         sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=127.0.0.1|g" .env 
-        sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env 
-        echo "INTEGRATIONS_FILE=./integrations.json" >> .env
-        docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver
+        sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
+        sed -i "s|SMTP_HOST=.*|SMTP_HOST=mailhog|g" .env
+        sed -i "s|SMTP_PORT=.*|SMTP_PORT=1025|g" .env
+        sed -i "s|SMTP_SECURE=.*|SMTP_SECURE=false|g" .env
+        docker compose -f compose.yaml -f compose.dev.yaml up -d envoy routr nats postgres apiserver asterisk mailhog
 
     - name: Waiting for services to be ready
       run: |
-        while ! curl -s http://localhost:8449; do sleep 1; done
+        while ! curl -s -H "Content-Type: application/grpc-web+proto" http://localhost:8449/grpc.health.v1.Health/Check; do
+          echo "Waiting for the APIServer to be ready..."
+          sleep 5
+        done
+
+    - name: Install Chrome
+      uses: browser-actions/setup-chrome@v1
 
     - name: Run integration tests for the SDK
-      run: npm run integration
+      uses: nick-fields/retry@v2
+      env:
+        CHROME_PATH: ${{ env.CHROME_PATH }}
+      with:
+        timeout_minutes: 1
+        max_attempts: 3
+        # This makes sure Routr is ready before running the tests
+        # We could improve this by checking the status of the services
+        command: npm run integration
