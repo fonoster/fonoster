@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  PlaybackControlAction,
   StreamGatherPayload,
   StreamGatherSource,
   StreamPayload
@@ -83,7 +84,12 @@ class VoiceImpl implements Voice {
     };
   }
 
-  stopSpeech: () => Promise<void>;
+  async stopSpeech() {
+    await this.voice.playbackControl(
+      this.playbackRef,
+      PlaybackControlAction.STOP
+    );
+  }
 }
 
 export { VoiceImpl };
