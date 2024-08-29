@@ -21,6 +21,8 @@ import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { AssistantConfig } from "./assistants";
 import { Autopilot } from "./Autopilot";
+import { OPENAI_API_KEY } from "./envs";
+import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
 import { OpenAI } from "./models/openai";
 import { OpenAIModel } from "./models/openai/types";
 import { SileroVad } from "./vad";
@@ -37,18 +39,16 @@ new VoiceServer({ skipIdentity }).listen(
 
     const voice = new VoiceImpl(req.sessionRef, res);
     const vad = new SileroVad();
-    const knowledgeBase = {
-      queryKnowledgeBase: (query: string) => {
-        return `No yet implemented. Query: ${query}`;
-      }
-    };
+    const knowledgeBase = new FilesKnowledgeBase({
+      files: [`${process.cwd()}/etc/sample.pdf`]
+    });
 
     const languageModel = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY!,
+      apiKey: OPENAI_API_KEY!,
       model: OpenAIModel.GPT_4O_MINI,
       maxTokens: 250,
       temperature: 0.7,
-      systemTemplate: "{systemTemplate}",
+      systemTemplate: "You are a useful restaurant assistant.",
       knowledgeBase,
       tools: []
     });

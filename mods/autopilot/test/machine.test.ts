@@ -17,13 +17,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceResponse } from "@fonoster/voice";
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { createActor } from "xstate";
-import { Assistant } from "../src/models/assistants";
+import { LanguageModel } from "../src/models";
+import { Voice } from "../src/voice";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -38,15 +38,24 @@ const IDLE_MESSAGE = "Idle message";
 const ASSISTANT_RESPONSE = "Assistant response";
 
 const getActorInput = () => ({
-  assistant: {
+  languageModel: {
     invoke: sandbox.stub().resolves(ASSISTANT_RESPONSE)
-  } as unknown as Assistant,
+  } as unknown as LanguageModel,
   voice: {
+    sessionRef: "sessionRef",
     answer: sandbox.stub().resolves(),
+    sgather: sandbox.stub().resolves({
+      stop: sandbox.stub().resolves(),
+      onData: sandbox.stub()
+    }),
+    stream: sandbox.stub().resolves({
+      stop: sandbox.stub().resolves(),
+      onData: sandbox.stub()
+    }),
+    stopSpeech: sandbox.stub().resolves(),
     say: sandbox.stub().resolves(),
-    hangup: sandbox.stub().resolves(),
-    playbackControl: sandbox.stub().resolves()
-  } as unknown as VoiceResponse,
+    hangup: sandbox.stub().resolves()
+  } as unknown as Voice,
   firstMessage: FIRST_MESSAGE,
   goodbyeMessage: GOODBYE_MESSAGE,
   systemErrorMessage: SYSTEM_ERROR_MESSAGE,
@@ -90,9 +99,7 @@ describe("@autopilot/machine", function () {
     expect(context.speechResponseTime).to.equal(0);
     expect(context.isSpeaking).to.equal(false);
     expect(input.voice.answer).to.have.been.calledOnce;
-    expect(input.voice.say).to.have.been.calledOnceWith(FIRST_MESSAGE, {
-      playbackRef: context.playbackRef
-    });
+    expect(input.voice.say).to.have.been.calledOnceWith(FIRST_MESSAGE);
     expect(input.voice.hangup).to.not.have.been.called;
 
     // Cleanup
@@ -124,10 +131,7 @@ describe("@autopilot/machine", function () {
     expect(context.speechBuffer).to.equal("");
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.isSpeaking).to.equal(true);
-    expect(input.voice.playbackControl).to.have.been.calledOnceWith(
-      context.playbackRef,
-      "STOP"
-    );
+    expect(input.voice.stopSpeech).to.have.been.calledOnceWith();
 
     // Cleanup
     actor.stop();
@@ -174,9 +178,7 @@ describe("@autopilot/machine", function () {
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.isSpeaking).to.equal(false);
     expect(input.voice.say).to.have.been.calledTwice;
-    expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE, {
-      playbackRef: context.playbackRef
-    });
+    expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
 
     // Cleanup
     actor.stop();
@@ -219,9 +221,7 @@ describe("@autopilot/machine", function () {
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.isSpeaking).to.equal(false);
     expect(input.voice.say).to.have.been.calledTwice;
-    expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE, {
-      playbackRef: context.playbackRef
-    });
+    expect(input.voice.say).to.have.been.calledWith(ASSISTANT_RESPONSE);
 
     // Cleanup
     actor.stop();
@@ -248,12 +248,8 @@ describe("@autopilot/machine", function () {
     expect(state).to.equal("hangup");
     expect(context.idleTimeoutCount).to.equal(3);
     expect(input.voice.say).to.have.been.callCount(5);
-    expect(input.voice.say).to.have.been.calledWith(IDLE_MESSAGE, {
-      playbackRef: context.playbackRef
-    });
-    expect(input.voice.say).to.have.been.calledWith(IDLE_MESSAGE, {
-      playbackRef: context.playbackRef
-    });
+    expect(input.voice.say).to.have.been.calledWith(IDLE_MESSAGE);
+    expect(input.voice.say).to.have.been.calledWith(IDLE_MESSAGE);
     expect(input.voice.hangup).to.have.been.calledOnce;
 
     // Cleanup

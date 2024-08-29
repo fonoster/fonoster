@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 type KnowledgeBase = {
-  queryKnowledgeBase: (query: string, k?: number) => string;
+  queryKnowledgeBase: (query: string, k?: number) => Promise<string>;
 };
 
 export { KnowledgeBase };
