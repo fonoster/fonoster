@@ -17,9 +17,6 @@
  * limitations under the License.
  */
 type AssistantConfig = {
-  name: string;
-  language: string;
-  timezone: string;
   firstMessage: string;
   systemTemplate: string;
   goodbyeMessage: string;
