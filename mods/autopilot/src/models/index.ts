@@ -17,6 +17,4 @@
  * limitations under the License.
  */
 export { makeAssistant } from "./assistants";
-export { loadAndValidateAssistant } from "./loadAndValidateAssistant";
-export * from "./AssistantSchema";
 export * from "./types";

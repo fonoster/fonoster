@@ -26,25 +26,4 @@ enum Model {
   GPT_4O_MINI = "gpt-4o-mini"
 }
 
-type AssistantFromJson = {
-  name: string;
-  language: string;
-  timezone: string;
-  firstMessage: string;
-  systemTemplate: string;
-  model: Model;
-  temperature: number;
-  maxTokens: number;
-  goodbyeMessage: string;
-  systemErrorMessage: string;
-  idleMessage: string;
-  idleTimeout: number;
-  maxIdleTimeoutCount: number;
-  knowledgeBaseSourceUrl?: string;
-};
-
-type AssistantConfig = AssistantFromJson & {
-  apiKey: string;
-};
-
-export { AssistantFromJson, AssistantConfig, Model, LanguageModel };
+export { Model, LanguageModel };

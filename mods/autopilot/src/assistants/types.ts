@@ -27,6 +27,6 @@ type AssistantConfig = {
   idleMessage: string;
   idleTimeout: number;
   maxIdleTimeoutCount: number;
-  knowledgeBaseSourceUrl?: string;
 };
+
 export { AssistantConfig };
