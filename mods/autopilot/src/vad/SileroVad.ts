@@ -23,7 +23,12 @@ import { Vad } from "./types";
 class SileroVad implements Vad {
   private vad: (data: Uint8Array, callback: (event: string) => void) => void;
 
-  async init() {
+  constructor() {
+    this.init();
+  }
+
+  private async init() {
+    // FIXME: It feels not to do this in the constructor
     this.vad = await makeVad();
   }
 
@@ -31,6 +36,9 @@ class SileroVad implements Vad {
     data: Uint8Array,
     callback: (event: "SPEECH_START" | "SPEECH_END") => void
   ) {
+    if (!this.vad) {
+      throw new Error("VAD not initialized)");
+    }
     this.vad(data, callback);
   }
 }

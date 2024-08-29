@@ -31,7 +31,7 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
 
   abstract load(params: unknown): Promise<void>;
 
-  async queryKnowledgeBase(query: string, k = 5): Promise<string> {
+  async queryKnowledgeBase(query: string, k = 2): Promise<string> {
     const { vectorStore } = this;
     if (!vectorStore) {
       throw new Error("Vector store is not initialized");

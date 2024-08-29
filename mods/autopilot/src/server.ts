@@ -53,7 +53,19 @@ new VoiceServer({ skipIdentity }).listen(
       tools: []
     });
 
-    const assistantConfig = {} as AssistantConfig;
+    // FIXME: Hardcoded values
+    const assistantConfig: AssistantConfig = {
+      name: "My Assistant",
+      language: "en",
+      timezone: "America/New_York",
+      firstMessage: "Hi! This is Olivia, your assistant. How can I help you?",
+      goodbyeMessage: "Goodbye!",
+      systemTemplate: "You are a useful assistant of Olive Garden Restaurant.",
+      systemErrorMessage: "I'm sorry, I'm having trouble understanding you.",
+      idleMessage: "Are you still there?",
+      idleTimeout: 10000,
+      maxIdleTimeoutCount: 3
+    };
 
     const autopilot = new Autopilot({
       assistantConfig,

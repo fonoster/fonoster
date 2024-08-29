@@ -18,9 +18,7 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { Actor, createActor } from "xstate";
-import { AssistantConfig } from "./assistants";
 import { machine } from "./machine/machine";
-import { LanguageModel } from "./models";
 import { AutopilotParams } from "./types";
 import { Vad } from "./vad";
 
@@ -28,29 +26,23 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class Autopilot {
   private actor: Actor<typeof machine>;
-  assistantConfig: AssistantConfig;
-  languageModel: LanguageModel;
 
   constructor(private params: AutopilotParams) {
-    this.actor = this.createActor();
+    const { voice, languageModel, assistantConfig } = this.params;
+    this.subscribeToActorState();
+    this.setupVoiceStream();
+    this.setupSpeechGathering();
+    this.actor = createActor(machine, {
+      input: {
+        ...assistantConfig,
+        languageModel: languageModel,
+        voice
+      }
+    });
   }
 
   start() {
     this.actor.start();
-    this.subscribeToActorState();
-    this.setupVoiceStream();
-    this.setupSpeechGathering();
-  }
-
-  private createActor() {
-    const { voice, assistantConfig } = this.params;
-    return createActor(machine, {
-      input: {
-        ...assistantConfig,
-        languageModel: this.languageModel,
-        voice
-      }
-    });
   }
 
   private subscribeToActorState() {
