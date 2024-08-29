@@ -16,21 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { RunnableSequence } from "@langchain/core/runnables";
 import { createChatHistory } from "./chatHistory";
-import { createModel } from "./createModel";
 import { createPromptTemplate } from "./createPromptTemplate";
+import { KnowledgeBase } from "../knowledge";
 
 function createChain(
-  model: ReturnType<typeof createModel>,
+  model: BaseChatModel,
   promptTemplate: ReturnType<typeof createPromptTemplate>,
-  queryVectorStore: (query: string, k?: number) => Promise<string>,
+  knowledgeBase: KnowledgeBase,
   chatHistory: ReturnType<typeof createChatHistory>
 ) {
   return RunnableSequence.from([
     {
       input: (input) => input.text,
-      context: async (input) => queryVectorStore(input.text),
+      context: async (input) => knowledgeBase.queryKnowledgeBase(input.text),
       history: async () => chatHistory.getMessages()
     },
     promptTemplate,

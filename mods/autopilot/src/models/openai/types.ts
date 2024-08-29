@@ -16,17 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { KnowledgeBase } from "../knowledge";
+import { KnowledgeBase } from "../../knowledge";
+import { Tool } from "../../tools";
 
-type LanguageModel = {
-  invoke: (text: string) => Promise<string>;
-};
+enum OpenAIModel {
+  GPT_3 = "gpt-3",
+  GPT_4 = "gpt-4",
+  GPT_4O_MINI = "gpt-4o-mini"
+}
 
-type LanguageModelParams = {
-  model: BaseChatModel;
+type OpenAIParams = {
+  model: OpenAIModel;
+  apiKey: string;
+  maxTokens: number;
+  temperature: number;
   systemTemplate: string;
   knowledgeBase: KnowledgeBase;
+  tools: Tool[];
 };
 
-export { LanguageModel, LanguageModelParams };
+export { OpenAIParams, OpenAIModel };

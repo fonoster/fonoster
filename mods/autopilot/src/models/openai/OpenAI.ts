@@ -17,16 +17,21 @@
  * limitations under the License.
  */
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { KnowledgeBase } from "../knowledge";
+import { ChatOpenAI } from "@langchain/openai";
+import { OpenAIParams } from "./types";
+import { AbstractLanguageModel } from "../AbstractLanguageModel";
 
-type LanguageModel = {
-  invoke: (text: string) => Promise<string>;
-};
-
-type LanguageModelParams = {
+class OpenAI extends AbstractLanguageModel {
   model: BaseChatModel;
-  systemTemplate: string;
-  knowledgeBase: KnowledgeBase;
-};
+  constructor(params: OpenAIParams) {
+    const model = new ChatOpenAI({
+      ...params
+    });
+    super({
+      ...params,
+      model
+    });
+  }
+}
 
-export { LanguageModel, LanguageModelParams };
+export { OpenAI };

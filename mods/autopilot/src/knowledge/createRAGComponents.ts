@@ -39,12 +39,14 @@ async function createRAGComponents(embeddings: OpenAIEmbeddings) {
       chunkSize: 1000,
       chunkOverlap: 200
     });
+
     const splitDocs = await textSplitter.splitDocuments(docs);
 
     const newVectorStore = await MemoryVectorStore.fromDocuments(
       splitDocs,
       embeddings
     );
+
     urlCache.set(url, newVectorStore);
     currentVectorStore = newVectorStore;
   }

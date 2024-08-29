@@ -18,12 +18,12 @@
  */
 import fs from "fs";
 import { getLogger } from "@fonoster/logger";
+import { AssistantConfig } from "./types";
 import { AssistantSchema } from "../assistants/AssistantSchema";
-import { AssistantFromJson } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
-function loadAndValidateAssistant(path: string): AssistantFromJson {
+function loadAndValidateAssistant(path: string): AssistantConfig {
   if (!fs.existsSync(path)) {
     logger.error("assistant file not found", { path });
     process.exit(1);

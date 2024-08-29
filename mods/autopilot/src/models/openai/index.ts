@@ -16,16 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceResponse } from "@fonoster/voice";
-import { ChatOpenAI } from "@langchain/openai";
-import { makeHangupTool } from "./tools";
-import { AssistantConfig } from "./types";
-
-export function createModel(config: AssistantConfig, voice: VoiceResponse) {
-  return new ChatOpenAI({
-    model: config.model,
-    apiKey: config.apiKey,
-    maxTokens: config.maxTokens,
-    temperature: config.temperature
-  }).bindTools([makeHangupTool(voice)]);
-}
+export * from "./types";
+export * from "./OpenAI";

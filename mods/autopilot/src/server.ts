@@ -21,7 +21,8 @@ import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { AssistantConfig } from "./assistants";
 import { Autopilot } from "./Autopilot";
-import { LanguageModel } from "./models";
+import { OpenAI } from "./models/openai";
+import { OpenAIModel } from "./models/openai/types";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
 
@@ -36,8 +37,22 @@ new VoiceServer({ skipIdentity }).listen(
 
     const voice = new VoiceImpl(req.sessionRef, res);
     const vad = new SileroVad();
+    const knowledgeBase = {
+      queryKnowledgeBase: (query: string) => {
+        return `No yet implemented. Query: ${query}`;
+      }
+    };
 
-    const languageModel = {} as LanguageModel;
+    const languageModel = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY!,
+      model: OpenAIModel.GPT_4O_MINI,
+      maxTokens: 250,
+      temperature: 0.7,
+      systemTemplate: "{systemTemplate}",
+      knowledgeBase,
+      tools: []
+    });
+
     const assistantConfig = {} as AssistantConfig;
 
     const autopilot = new Autopilot({
