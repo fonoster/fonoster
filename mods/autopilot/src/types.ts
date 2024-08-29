@@ -16,12 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceResponse } from "@fonoster/voice";
-import { AssistantConfig } from "./assistants/types";
+import { AssistantConfig } from "./assistants";
+import { LanguageModel } from "./models";
+import { Vad } from "./vad";
+import { Voice } from "./voice";
 
-type AutopilotConfig = {
-  voice: VoiceResponse;
+type AutopilotParams = {
+  voice: Voice;
+  vad: Vad;
   assistantConfig: AssistantConfig;
+  languageModel: LanguageModel;
 };
 
-export { AutopilotConfig };
+export { AutopilotParams };

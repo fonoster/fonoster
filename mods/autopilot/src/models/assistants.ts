@@ -23,9 +23,9 @@ import { createChatHistory } from "./chatHistory";
 import { createChain } from "./createChain";
 import { createModel } from "./createModel";
 import { createPromptTemplate } from "./createPromptTemplate";
-import { createRAGComponents } from "./createRAGComponents";
 import { makeHangupTool } from "./tools";
 import { AssistantConfig } from "./types";
+import { createRAGComponents } from "../knowledge/createRAGComponents";
 
 type Assistant = ReturnType<typeof makeAssistant>;
 

@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { createActor } from "xstate";
-import { Assistant } from "../src/assistants/assistants";
+import { Assistant } from "../src/models/assistants";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

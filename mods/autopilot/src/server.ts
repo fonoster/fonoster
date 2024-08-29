@@ -19,30 +19,32 @@
  */
 import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
-import { loadAndValidateAssistant } from "./assistants";
+import { AssistantConfig } from "./assistants";
 import { Autopilot } from "./Autopilot";
-import { OPENAI_API_KEY } from "./envs";
+import { LanguageModel } from "./models";
+import { SileroVad } from "./vad";
+import { VoiceImpl } from "./voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const skipIdentity = process.env.NODE_ENV === "dev";
 
 new VoiceServer({ skipIdentity }).listen(
-  async (req: VoiceRequest, voice: VoiceResponse) => {
+  async (req: VoiceRequest, res: VoiceResponse) => {
     const { ingressNumber, sessionRef, appRef } = req;
     logger.verbose("voice request", { ingressNumber, sessionRef, appRef });
 
-    const assistantPath = process.argv[2];
-    const assistant = loadAndValidateAssistant(assistantPath);
+    const voice = new VoiceImpl(req.sessionRef, res);
+    const vad = new SileroVad();
 
-    logger.verbose("interacting with assistant", { name: assistant.name });
+    const languageModel = {} as LanguageModel;
+    const assistantConfig = {} as AssistantConfig;
 
     const autopilot = new Autopilot({
+      assistantConfig,
       voice,
-      assistantConfig: {
-        ...assistant,
-        apiKey: OPENAI_API_KEY!
-      }
+      vad,
+      languageModel
     });
 
     autopilot.start();

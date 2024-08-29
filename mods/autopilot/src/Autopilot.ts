@@ -16,46 +16,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  StreamDirection,
-  StreamGatherSource,
-  StreamPayload
-} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { VoiceResponse } from "@fonoster/voice";
 import { Actor, createActor } from "xstate";
-import { makeAssistant } from "./assistants";
-import { Assistant } from "./assistants/assistants";
+import { AssistantConfig } from "./assistants";
 import { machine } from "./machine/machine";
-import { AutopilotConfig } from "./types";
-import { Vad, makeVad } from "./vad";
+import { LanguageModel } from "./models";
+import { AutopilotParams } from "./types";
+import { Vad } from "./vad";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 class Autopilot {
-  private assistant: Assistant;
   private actor: Actor<typeof machine>;
-  private voice: VoiceResponse;
+  assistantConfig: AssistantConfig;
+  languageModel: LanguageModel;
 
-  constructor(private config: AutopilotConfig) {
-    this.assistant = makeAssistant(config.assistantConfig, config.voice);
+  constructor(private params: AutopilotParams) {
     this.actor = this.createActor();
-    this.voice = config.voice;
   }
 
   start() {
     this.actor.start();
-    this.setupSpeechGathering();
-    this.setupVoiceStream();
     this.subscribeToActorState();
+    this.setupVoiceStream();
+    this.setupSpeechGathering();
   }
 
   private createActor() {
-    const { voice } = this.config;
+    const { voice, assistantConfig } = this.params;
     return createActor(machine, {
       input: {
-        ...this.config.assistantConfig,
-        assistant: this.assistant,
+        ...assistantConfig,
+        languageModel: this.languageModel,
         voice
       }
     });
@@ -68,20 +60,17 @@ class Autopilot {
   }
 
   private async setupVoiceStream() {
-    const stream = await this.config.voice.stream({
-      direction: StreamDirection.OUT
-    });
+    const { voice, vad } = this.params;
+    const stream = await voice.stream();
 
-    const vad = await makeVad();
-    stream.onPayload(this.handleVoicePayload(vad));
+    stream.onData(this.handleVoicePayload(vad));
   }
 
   private handleVoicePayload(vad: Vad) {
-    return async (payload: StreamPayload) => {
+    return (chunk: Uint8Array) => {
       try {
-        const data = payload.data!;
-        await vad(data, (event) => {
-          if (event === "SPEECH_START" || event === "SPEECH_END") {
+        vad.processChunk(chunk, (event) => {
+          if (["SPEECH_START", "SPEECH_END"].includes(event)) {
             logger.verbose("received speech event", { event });
 
             this.actor.send({ type: event });
@@ -94,13 +83,10 @@ class Autopilot {
   }
 
   private async setupSpeechGathering() {
-    const stream = await this.voice.sgather({
-      source: StreamGatherSource.SPEECH
-    });
+    const { voice } = this.params;
+    const stream = await voice.sgather();
 
-    stream.onPayload((payload) => {
-      const { speech } = payload;
-
+    stream.onData((speech: string) => {
       logger.verbose("received speech result", { speech });
 
       if (speech) {

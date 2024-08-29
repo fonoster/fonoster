@@ -16,17 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type AssistantConfig = {
-  name: string;
-  language: string;
-  timezone: string;
-  firstMessage: string;
-  systemTemplate: string;
-  goodbyeMessage: string;
-  systemErrorMessage: string;
-  idleMessage: string;
-  idleTimeout: number;
-  maxIdleTimeoutCount: number;
-  knowledgeBaseSourceUrl?: string;
+type KnowledgeBase = {
+  queryKnowledgeBase: (query: string) => string;
 };
-export { AssistantConfig };
+
+export { KnowledgeBase };

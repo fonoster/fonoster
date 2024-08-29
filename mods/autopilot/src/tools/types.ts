@@ -16,17 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type AssistantConfig = {
+type Tool = {
   name: string;
-  language: string;
-  timezone: string;
-  firstMessage: string;
-  systemTemplate: string;
-  goodbyeMessage: string;
-  systemErrorMessage: string;
-  idleMessage: string;
-  idleTimeout: number;
-  maxIdleTimeoutCount: number;
-  knowledgeBaseSourceUrl?: string;
+  invoke: (params: unknown) => void;
+  invokeAsync: (params: unknown) => Promise<void>;
 };
-export { AssistantConfig };
+
+export { Tool };

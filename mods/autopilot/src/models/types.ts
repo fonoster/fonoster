@@ -16,4 +16,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./makeHangupTool";
+type LanguageModel = {
+  invoke: (text: string) => Promise<string>;
+};
+
+enum Model {
+  GPT_3 = "gpt-3",
+  GPT_4 = "gpt-4",
+  GPT_4O_MINI = "gpt-4o-mini"
+}
+
+type AssistantFromJson = {
+  name: string;
+  language: string;
+  timezone: string;
+  firstMessage: string;
+  systemTemplate: string;
+  model: Model;
+  temperature: number;
+  maxTokens: number;
+  goodbyeMessage: string;
+  systemErrorMessage: string;
+  idleMessage: string;
+  idleTimeout: number;
+  maxIdleTimeoutCount: number;
+  knowledgeBaseSourceUrl?: string;
+};
+
+type AssistantConfig = AssistantFromJson & {
+  apiKey: string;
+};
+
+export { AssistantFromJson, AssistantConfig, Model, LanguageModel };

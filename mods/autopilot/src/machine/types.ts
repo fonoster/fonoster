@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { VoiceResponse } from "@fonoster/voice";
-import { Assistant } from "../assistants/assistants";
+import { Assistant } from "../models/assistants";
 
 const types = {
   context: {} as {

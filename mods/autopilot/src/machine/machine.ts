@@ -16,21 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PlaybackControlAction } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { VoiceResponse } from "@fonoster/voice";
-import { v4 as uuidv4 } from "uuid";
 import { assign, raise, setup } from "xstate";
-import { Assistant } from "../assistants/assistants";
+import { LanguageModel } from "../models";
+import { Voice } from "../voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const machine = setup({
   types: {
     context: {} as {
-      assistant: Assistant;
-      voice: VoiceResponse;
-      playbackRef: string;
+      sessionRef: string;
+      languageModel: LanguageModel;
+      voice: Voice;
       firstMessage: string;
       goodbyeMessage: string;
       systemErrorMessage: string;
@@ -45,8 +43,8 @@ const machine = setup({
       knowledgeBaseSourceUrl?: string;
     },
     input: {} as {
-      assistant: Assistant;
-      voice: VoiceResponse;
+      languageModel: LanguageModel;
+      voice: Voice;
       firstMessage: string;
       goodbyeMessage: string;
       systemErrorMessage: string;
@@ -69,18 +67,14 @@ const machine = setup({
 
       await context.voice.answer();
 
-      await context.voice.say(context.firstMessage, {
-        playbackRef: context.playbackRef
-      });
+      await context.voice.say(context.firstMessage);
     },
     goodbye: async ({ context }) => {
       logger.verbose("called goodbye action", {
         goodbyeMessage: context.goodbyeMessage
       });
 
-      await context.voice.say(context.goodbyeMessage, {
-        playbackRef: context.playbackRef
-      });
+      await context.voice.say(context.goodbyeMessage);
 
       await context.voice.hangup();
     },
@@ -89,19 +83,14 @@ const machine = setup({
         systemErrorMessage: context.systemErrorMessage
       });
 
-      await context.voice.say(context.systemErrorMessage, {
-        playbackRef: context.playbackRef
-      });
+      await context.voice.say(context.systemErrorMessage);
     },
     interruptPlayback: async ({ context }) => {
       logger.verbose("called interruptPlayback action", {
-        playbackRef: context.playbackRef
+        sessionRef: context.sessionRef
       });
 
-      await context.voice.playbackControl(
-        context.playbackRef,
-        PlaybackControlAction.STOP
-      );
+      await context.voice.stopSpeech();
     },
     processUserRequest: async ({ context }) => {
       logger.verbose("called processUserRequest action", {
@@ -110,11 +99,8 @@ const machine = setup({
 
       const speech = context.speechBuffer.trim();
 
-      const assistant = await context.assistant;
-      const response = await assistant.invoke({
-        text: speech,
-        url: context.knowledgeBaseSourceUrl
-      });
+      const languageModel = context.languageModel;
+      const response = await languageModel.invoke(speech);
 
       const speechResponseTime = Date.now() - context.speechResponseStartTime;
       context.speechResponseTime = speechResponseTime;
@@ -126,9 +112,7 @@ const machine = setup({
         return;
       }
 
-      await context.voice.say(response, {
-        playbackRef: context.playbackRef
-      });
+      await context.voice.say(response);
 
       raise({ type: "USER_REQUEST_PROCESSED" });
     },
@@ -137,9 +121,7 @@ const machine = setup({
         idleMessage: context.idleMessage
       });
 
-      await context.voice.say(context.idleMessage, {
-        playbackRef: context.playbackRef
-      });
+      await context.voice.say(context.idleMessage);
     },
     increaseIdleTimeoutCount: assign(({ context }) => {
       logger.verbose("called increaseIdleTimeoutCount action", {
@@ -218,9 +200,9 @@ const machine = setup({
   }
 }).createMachine({
   context: ({ input }) => ({
+    sessionRef: input.voice.sessionRef,
     voice: input.voice,
-    assistant: input.assistant,
-    playbackRef: uuidv4(),
+    languageModel: input.languageModel,
     speechBuffer: "",
     firstMessage: input.firstMessage,
     goodbyeMessage: input.goodbyeMessage,
@@ -231,8 +213,7 @@ const machine = setup({
     idleTimeoutCount: 0,
     speechResponseStartTime: 0,
     speechResponseTime: 0,
-    isSpeaking: false,
-    knowledgeBaseSourceUrl: input.knowledgeBaseSourceUrl
+    isSpeaking: false
   }),
   id: "fnAI",
   initial: "greeting",
