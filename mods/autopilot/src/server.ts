@@ -39,6 +39,7 @@ new VoiceServer({ skipIdentity }).listen(
 
     const voice = new VoiceImpl(req.sessionRef, res);
     const vad = new SileroVad();
+
     const knowledgeBase = new FilesKnowledgeBase({
       files: [`${process.cwd()}/etc/sample.pdf`]
     });

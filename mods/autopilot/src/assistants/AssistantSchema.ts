@@ -19,11 +19,8 @@
 import { z } from "zod";
 
 const AssistantSchema = z.object({
-  name: z.string(),
   firstMessage: z.string(),
   systemTemplate: z.string(),
-  language: z.string(),
-  timezone: z.string(),
   goodbyeMessage: z.string(),
   systemErrorMessage: z.string(),
   idleMessage: z.string(),
