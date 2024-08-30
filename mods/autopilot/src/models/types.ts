@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import { DynamicStructuredTool } from "@langchain/core/tools";
 import { KnowledgeBase } from "../knowledge";
 
 type LanguageModel = {
@@ -27,6 +28,7 @@ type LanguageModelParams = {
   model: BaseChatModel;
   systemTemplate: string;
   knowledgeBase: KnowledgeBase;
+  tools: DynamicStructuredTool[];
 };
 
 export { LanguageModel, LanguageModelParams };

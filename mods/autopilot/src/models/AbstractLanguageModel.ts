@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { AIMessage } from "@langchain/core/messages";
+import { DynamicStructuredTool } from "@langchain/core/tools";
 import { createChatHistory } from "./chatHistory";
 import { createChain } from "./createChain";
 import { createPromptTemplate } from "./createPromptTemplate";
@@ -27,39 +28,40 @@ abstract class AbstractLanguageModel {
   private chain: ReturnType<typeof createChain>;
   private chatHistory: ReturnType<typeof createChatHistory>;
   private knowledgeBase: KnowledgeBase;
-  private toolsByName: Record<string, any>;
+  private tools: DynamicStructuredTool[] = [];
 
   constructor(private params: LanguageModelParams) {
-    this.knowledgeBase = params.knowledgeBase;
-    const { model } = this.params;
-    const promptTemplate = createPromptTemplate(this.params.systemTemplate);
+    const { model, tools, systemTemplate, knowledgeBase } = this.params;
+
+    const promptTemplate = createPromptTemplate(systemTemplate);
     this.chatHistory = createChatHistory();
+    this.tools = tools;
     this.chain = createChain(
       model,
+      knowledgeBase,
       promptTemplate,
-      this.knowledgeBase,
       this.chatHistory
     );
   }
 
-  getToolByName(name: string) {
-    return this.toolsByName[name];
-  }
-
   async invoke(text: string) {
-    const { chain, chatHistory, getToolByName } = this;
-
+    const { chain, chatHistory, tools } = this;
     const response = (await chain.invoke({ text })) as AIMessage;
 
     if (response.additional_kwargs?.tool_calls) {
       // eslint-disable-next-line no-loops/no-loops
       for (const toolCall of response.additional_kwargs.tool_calls) {
-        const selectedTool = getToolByName(toolCall.function.name);
+        const selectedTool = tools.find(
+          (tool) => tool.name === toolCall.function.name
+        );
+
         if (selectedTool) {
           const args = JSON.parse(toolCall.function.arguments);
           const toolResult = await selectedTool.invoke(args);
 
-          await this.chatHistory.addAIMessage(toolResult as string | "");
+          await this.chatHistory.addAIMessage(
+            `function call: ${toolResult.name}`
+          );
         }
       }
 
@@ -67,11 +69,11 @@ abstract class AbstractLanguageModel {
         text: "Please provide a final response based on the tool results."
       })) as AIMessage;
 
-      response.content = finalResponse.content;
+      response.content = finalResponse.content ?? "";
     }
 
     await chatHistory.addUserMessage(text);
-    await chatHistory.addAIMessage(response.content?.toString() || "");
+    await chatHistory.addAIMessage(response.content?.toString() ?? "");
 
     return response.content.toString();
   }

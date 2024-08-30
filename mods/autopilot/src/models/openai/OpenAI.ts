@@ -22,11 +22,10 @@ import { OpenAIParams } from "./types";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 
 class OpenAI extends AbstractLanguageModel {
-  model: BaseChatModel;
   constructor(params: OpenAIParams) {
     const model = new ChatOpenAI({
       ...params
-    }).bindTools(params.tools);
+    }).bindTools(params.tools) as BaseChatModel;
 
     super({
       ...params,

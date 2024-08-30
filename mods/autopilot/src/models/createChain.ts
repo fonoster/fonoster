@@ -24,8 +24,8 @@ import { KnowledgeBase } from "../knowledge";
 
 function createChain(
   model: BaseChatModel,
-  promptTemplate: ReturnType<typeof createPromptTemplate>,
   knowledgeBase: KnowledgeBase,
+  promptTemplate: ReturnType<typeof createPromptTemplate>,
   chatHistory: ReturnType<typeof createChatHistory>
 ) {
   return RunnableSequence.from([
