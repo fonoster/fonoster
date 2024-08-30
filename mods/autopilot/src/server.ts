@@ -25,7 +25,7 @@ import { OPENAI_API_KEY } from "./envs";
 import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
 import { OpenAI } from "./models/openai";
 import { OpenAIModel } from "./models/openai/types";
-import { makeHangupTool } from "./tools/makeHangupTool";
+import { makeHangupTool } from "./tools";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
 
