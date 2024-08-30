@@ -19,7 +19,7 @@
     "start:micVad": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/autopilot/src/vad --exec ts-node mods/autopilot/src/vad/micVadTest.ts",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "prebuild": "npm run generate:prisma-clients",
-    "build": "lerna run build",
+    "build": "lerna run build --ignore @fonoster/autopilot",
     "postbuild": "npm run copy:hbstemplates",
     "format": "prettier --write mods/**/src",
     "lint": "eslint mods --ext .ts --fix",
