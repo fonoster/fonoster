@@ -131,6 +131,7 @@ jobs:
       #   CHROME_PATH: ${{ env.CHROME_PATH }}
       with:
         timeout_minutes: 1
+        retry_wait_seconds: 60
         max_attempts: 3
         # This makes sure Routr is ready before running the tests
         # We could improve this by checking the status of the services
