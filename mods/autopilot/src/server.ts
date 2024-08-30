@@ -26,6 +26,7 @@ import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
 import { OpenAI } from "./models/openai";
 import { OpenAIModel } from "./models/openai/types";
 import { makeHangupTool } from "./tools";
+import { makeTransferTool } from "./tools/makeTransferTool";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
 
@@ -54,7 +55,8 @@ new VoiceServer({ skipIdentity }).listen(
         "I'm sorry, I'm having trouble processing your request.",
       idleMessage: "Are you still there?",
       idleTimeout: 10000,
-      maxIdleTimeoutCount: 3
+      maxIdleTimeoutCount: 3,
+      transferNumber: "+17853178070"
     };
 
     const languageModel = new OpenAI({
@@ -64,7 +66,13 @@ new VoiceServer({ skipIdentity }).listen(
       temperature: 0.7,
       systemTemplate: assistantConfig.systemTemplate,
       knowledgeBase,
-      tools: [makeHangupTool(voice, assistantConfig.goodbyeMessage)]
+      tools: [
+        makeHangupTool(voice, assistantConfig.goodbyeMessage),
+        makeTransferTool(voice, assistantConfig.transferNumber, {
+          // TODO: Take from config
+          timeout: 10000
+        })
+      ]
     });
 
     const autopilot = new Autopilot({

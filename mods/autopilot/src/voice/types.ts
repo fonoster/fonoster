@@ -26,14 +26,20 @@ type Stream = {
   onData: (cb: (chunk: Uint8Array) => void) => void;
 };
 
+type TransferOptions = {
+  timeout?: number;
+  record?: boolean;
+};
+
 type Voice = {
   sessionRef: string;
   answer: () => Promise<void>;
   hangup: () => Promise<void>;
   say: (text: string) => Promise<void>;
   sgather: () => Promise<GatherStream>;
+  transfer: (destination: string, options?: TransferOptions) => Promise<void>;
   stream: () => Promise<Stream>;
   stopSpeech: () => Promise<void>;
 };
 
-export { Voice };
+export { Voice, TransferOptions };

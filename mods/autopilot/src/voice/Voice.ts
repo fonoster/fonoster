@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import {
+  DialRecordDirection,
   PlaybackControlAction,
   StreamGatherPayload,
   StreamGatherSource,
@@ -82,6 +83,17 @@ class VoiceImpl implements Voice {
         });
       }
     };
+  }
+
+  async transfer(to: string, options: { record: boolean; timeout: number }) {
+    const { record, timeout } = options;
+
+    const effectiveOptions = {
+      recordDirection: record ? DialRecordDirection.BOTH : undefined,
+      timeout
+    };
+
+    await this.voice.dial(to, effectiveOptions);
   }
 
   async stopSpeech() {
