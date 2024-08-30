@@ -29,9 +29,6 @@ class Autopilot {
 
   constructor(private params: AutopilotParams) {
     const { voice, languageModel, assistantConfig } = this.params;
-    this.subscribeToActorState();
-    this.setupVoiceStream();
-    this.setupSpeechGathering();
     this.actor = createActor(machine, {
       input: {
         ...assistantConfig,
@@ -39,13 +36,12 @@ class Autopilot {
         voice
       }
     });
+    this.setupVoiceStream();
+    this.setupSpeechGathering();
   }
 
   start() {
     this.actor.start();
-  }
-
-  private subscribeToActorState() {
     this.actor.subscribe((state) => {
       logger.verbose("actor's new state is", { state: state.value });
     });

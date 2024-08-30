@@ -25,6 +25,7 @@ import { OPENAI_API_KEY } from "./envs";
 import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
 import { OpenAI } from "./models/openai";
 import { OpenAIModel } from "./models/openai/types";
+import { makeHangupTool } from "./tools/makeHangupTool";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
 
@@ -47,7 +48,7 @@ new VoiceServer({ skipIdentity }).listen(
     // FIXME: Hardcoded values
     const assistantConfig: AssistantConfig = {
       firstMessage: "Hi! This is Olivia, your assistant. How can I help you?",
-      goodbyeMessage: "Goodbye!",
+      goodbyeMessage: "It was a pleasure to help you. Goodbye!",
       systemTemplate: "You are a useful assistant of Olive Garden Restaurant.",
       systemErrorMessage:
         "I'm sorry, I'm having trouble processing your request.",
@@ -63,7 +64,7 @@ new VoiceServer({ skipIdentity }).listen(
       temperature: 0.7,
       systemTemplate: assistantConfig.systemTemplate,
       knowledgeBase,
-      tools: []
+      tools: [makeHangupTool(voice, assistantConfig.goodbyeMessage)]
     });
 
     const autopilot = new Autopilot({

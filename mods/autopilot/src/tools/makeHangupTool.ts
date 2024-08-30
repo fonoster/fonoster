@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { VoiceResponse } from "@fonoster/voice";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
+import { Voice } from "../voice";
 
-const makeHangupTool = (voice: VoiceResponse) =>
+const makeHangupTool = (voice: Voice, goodbyeMessage: string) =>
   tool(
     async () => {
       // TODO: Allow to customize the goodbye message
-      await voice.say("Ok, Goodbye!");
+      await voice.say(goodbyeMessage);
       await voice.hangup();
       return { status: "success" };
     },

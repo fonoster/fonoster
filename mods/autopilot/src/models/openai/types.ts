@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DynamicStructuredTool } from "@langchain/core/tools";
 import { KnowledgeBase } from "../../knowledge";
-import { Tool } from "../../tools";
 
 enum OpenAIModel {
   GPT_3 = "gpt-3",
@@ -32,7 +32,7 @@ type OpenAIParams = {
   temperature: number;
   systemTemplate: string;
   knowledgeBase: KnowledgeBase;
-  tools: Tool[];
+  tools: DynamicStructuredTool[];
 };
 
 export { OpenAIParams, OpenAIModel };

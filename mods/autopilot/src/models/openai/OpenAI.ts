@@ -26,7 +26,8 @@ class OpenAI extends AbstractLanguageModel {
   constructor(params: OpenAIParams) {
     const model = new ChatOpenAI({
       ...params
-    });
+    }).bindTools(params.tools);
+
     super({
       ...params,
       model
