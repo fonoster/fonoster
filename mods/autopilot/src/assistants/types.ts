@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type AssistantConfig = {
-  firstMessage: string;
-  systemTemplate: string;
-  goodbyeMessage: string;
-  systemErrorMessage: string;
-  idleMessage: string;
-  idleTimeout: number;
-  maxIdleTimeoutCount: number;
-  transferNumber: string;
-};
+import { z } from "zod";
+import {
+  AssistantSchema,
+  ConversationSettingsSchema,
+  LanguageModelConfigSchema
+} from "./AssistantSchema";
 
-export { AssistantConfig };
+type ConversationSettings = z.infer<typeof ConversationSettingsSchema>;
+type LanguageModelConfig = z.infer<typeof LanguageModelConfigSchema>;
+type AssistantConfig = z.infer<typeof AssistantSchema>;
+
+export { ConversationSettings, LanguageModelConfig, AssistantConfig };

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AssistantConfig } from "./assistants";
+import { ConversationSettings } from "./assistants";
 import { LanguageModel } from "./models";
 import { Vad } from "./vad";
 import { Voice } from "./voice";
@@ -24,7 +24,7 @@ import { Voice } from "./voice";
 type AutopilotParams = {
   voice: Voice;
   vad: Vad;
-  assistantConfig: AssistantConfig;
+  conversationSettings: ConversationSettings;
   languageModel: LanguageModel;
 };
 

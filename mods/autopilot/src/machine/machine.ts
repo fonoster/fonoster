@@ -18,6 +18,7 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { assign, raise, setup } from "xstate";
+import { ConversationSettings } from "../assistants";
 import { LanguageModel } from "../models";
 import { Voice } from "../voice";
 
@@ -43,15 +44,9 @@ const machine = setup({
       knowledgeBaseSourceUrl?: string;
     },
     input: {} as {
+      conversationSettings: ConversationSettings;
       languageModel: LanguageModel;
       voice: Voice;
-      firstMessage: string;
-      goodbyeMessage: string;
-      systemErrorMessage: string;
-      idleMessage: string;
-      idleTimeout: number;
-      maxIdleTimeoutCount: number;
-      knowledgeBaseSourceUrl?: string;
     },
     events: {} as
       | { type: "SPEECH_START" }
@@ -204,12 +199,13 @@ const machine = setup({
     voice: input.voice,
     languageModel: input.languageModel,
     speechBuffer: "",
-    firstMessage: input.firstMessage,
-    goodbyeMessage: input.goodbyeMessage,
-    systemErrorMessage: input.systemErrorMessage,
-    idleMessage: input.idleMessage,
-    idleTimeout: input.idleTimeout,
-    maxIdleTimeoutCount: input.maxIdleTimeoutCount,
+    firstMessage: input.conversationSettings.firstMessage,
+    goodbyeMessage: input.conversationSettings.goodbyeMessage,
+    systemErrorMessage: input.conversationSettings.systemErrorMessage,
+    idleMessage: input.conversationSettings.idleOptions?.message || "",
+    idleTimeout: input.conversationSettings.idleOptions?.timeout || 10000,
+    maxIdleTimeoutCount:
+      input.conversationSettings.idleOptions?.maxTimeoutCount || 3,
     idleTimeoutCount: 0,
     speechResponseStartTime: 0,
     speechResponseTime: 0,

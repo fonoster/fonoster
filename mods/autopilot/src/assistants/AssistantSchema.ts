@@ -18,15 +18,80 @@
  */
 import { z } from "zod";
 
-const AssistantSchema = z.object({
+const ConversationSettingsSchema = z.object({
   firstMessage: z.string(),
   systemTemplate: z.string(),
   goodbyeMessage: z.string(),
   systemErrorMessage: z.string(),
-  idleMessage: z.string(),
-  idleTimeout: z.number(),
-  maxIdleTimeoutCount: z.number(),
-  transferNumber: z.string()
+  initialDtmf: z.string().optional().nullable(),
+  transferOptions: z
+    .object({
+      enabled: z.boolean(),
+      phoneNumber: z.string(),
+      message: z.string()
+    })
+    .optional()
+    .nullable(),
+  idleOptions: z
+    .object({
+      enabled: z.boolean(),
+      message: z.string(),
+      timeout: z.number(),
+      maxTimeoutCount: z.number()
+    })
+    .optional()
+    .nullable()
 });
 
-export { AssistantSchema };
+const PropertySchema = z
+  .object({
+    type: z.string(),
+    format: z.string().optional(),
+    pattern: z.string().optional()
+  })
+  .refine(
+    (data) => {
+      return !("format" in data && "pattern" in data);
+    },
+    {
+      message: "Property can only have either 'format' or 'pattern', not both."
+    }
+  );
+
+const LanguageModelConfigSchema = z.object({
+  provider: z.string(),
+  model: z.string(),
+  temperature: z.number(),
+  maxTokens: z.number(),
+  knowledgeBase: z.array(
+    z.object({
+      type: z.enum(["s3", "file"]),
+      title: z.string(),
+      url: z.string()
+    })
+  ),
+  tools: z.array(
+    z.object({
+      name: z.string(),
+      type: z.enum(["syncAPI", "asyncAPI"]),
+      endpoint: z.string(),
+      schema: z.object({
+        $schema: z.string(),
+        type: z.enum(["object", "array"]),
+        properties: z.record(PropertySchema),
+        required: z.array(z.string()).optional()
+      })
+    })
+  )
+});
+
+const AssistantSchema = z.object({
+  conversationSettings: ConversationSettingsSchema,
+  languageModel: LanguageModelConfigSchema
+});
+
+export {
+  AssistantSchema,
+  ConversationSettingsSchema,
+  LanguageModelConfigSchema
+};

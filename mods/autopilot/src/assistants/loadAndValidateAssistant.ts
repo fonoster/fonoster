@@ -37,7 +37,7 @@ function loadAndValidateAssistant(path: string): AssistantConfig {
   } catch (e) {
     logger.error("error parsing or validating assistant file", {
       path,
-      error: e.message
+      error: e
     });
     process.exit(1);
   }

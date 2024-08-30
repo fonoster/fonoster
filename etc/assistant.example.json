@@ -3,6 +3,7 @@
     "firstMessage": "Hello, this is Olivia from Dr. Green's Family Medicine. How can I assist you today?",
     "systemTemplate": "You are the voice assistant for Dr. Green's Family Medicine, a doctor's office located at 456 Oak Avenue, Riverside, California. The office hours are Monday to Friday, 9 AM to 6 PM, and Saturdays from 10 AM to 2 PM. The office is closed on Sundays.\n\nDr. Green provides general medical services for patients of all ages in the Riverside area.\n\nYour main role is to answer questions about the practice and assist with scheduling appointments. When scheduling, your goal is to smoothly gather the necessary details, including:\n\n1. The patient's full name.\n2. The reason for their visit.\n3. Their preferred date and time for the appointment.\n4. Confirming all details with the patient, including the appointment date and time.\n\n- Keep the conversation light and approachable with a touch of humor.\n- Use casual and relatable language, and don't be afraid to say things like \"Hmm...\", \"Let's see...\", and \"You know...\".\n- Remember, it's a voice interaction, so be brief and conversational, keeping responses snappy and to the point.",
     "goodbyeMessage": "Goodbye! Have a great day!",
+    "systemErrorMessage": "I'm sorry, but I seem to be having trouble. Please try again later.",
     "initialDtmf": "123",
     "transferOptions": {
       "enabled": true,
@@ -14,37 +15,52 @@
       "message": "Are you still there?",
       "timeout": 10000,
       "maxTimeoutCount": 3
-    },
-    "systemErrorMessage": "I'm sorry, but I seem to be having trouble. Please try again later."
+    }
   },
   "languageModel": {
     "provider": "openai",
     "model": "gpt-4o-mini",
     "temperature": 0.7,
     "maxTokens": 250,
-    "knowledgeBase": [{
-      "type": "s3",
-      "title": "Patient Intake Form",
-      "url": "https://www.example.com/medical-form.pdf"
-    }],
-    "tools": [{
-      "name": "scheduling",
-      "type": "asyncAPI",
-      "endpoint": "https://www.example.com/schedule-appointment",
-      "schema": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object",
-        "properties": {
-          "patientName": { "type": "string" },
-          "reason": { "type": "string" },
-          "date": { "type": "string", "format": "date" },
-          "time": {
-            "type": "string",
-            "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
-          }
-        },
-        "required": ["patientName", "reason", "date", "time"]
+    "knowledgeBase": [
+      {
+        "type": "s3",
+        "title": "Patient Intake Form",
+        "url": "https://www.example.com/medical-form.pdf"
       }
-    }]
+    ],
+    "tools": [
+      {
+        "name": "scheduling",
+        "type": "asyncAPI",
+        "endpoint": "https://www.example.com/schedule-appointment",
+        "schema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "patientName": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string",
+              "format": "date"
+            },
+            "time": {
+              "type": "string",
+              "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+            }
+          },
+          "required": [
+            "patientName",
+            "reason",
+            "date",
+            "time"
+          ]
+        }
+      }
+    ]
   }
 }

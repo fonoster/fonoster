@@ -19,20 +19,24 @@
  */
 import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
-import { AssistantConfig } from "./assistants";
+import { AssistantConfig, loadAndValidateAssistant } from "./assistants";
 import { Autopilot } from "./Autopilot";
 import { OPENAI_API_KEY } from "./envs";
 import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
 import { OpenAI } from "./models/openai";
 import { OpenAIModel } from "./models/openai/types";
 import { makeHangupTool } from "./tools";
-import { makeTransferTool } from "./tools/makeTransferTool";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const skipIdentity = process.env.NODE_ENV === "dev";
+
+// TODO: This must be replaced with data the API
+const assistantPath = `${process.cwd()}/etc/assistant.example.json`;
+const assistantConfig: AssistantConfig =
+  loadAndValidateAssistant(assistantPath);
 
 new VoiceServer({ skipIdentity }).listen(
   async (req: VoiceRequest, res: VoiceResponse) => {
@@ -46,37 +50,20 @@ new VoiceServer({ skipIdentity }).listen(
       files: [`${process.cwd()}/etc/sample.pdf`]
     });
 
-    // FIXME: Hardcoded values
-    const assistantConfig: AssistantConfig = {
-      firstMessage: "Hi! This is Olivia, your assistant. How can I help you?",
-      goodbyeMessage: "It was a pleasure to help you. Goodbye!",
-      systemTemplate: "You are a useful assistant of Olive Garden Restaurant.",
-      systemErrorMessage:
-        "I'm sorry, I'm having trouble processing your request.",
-      idleMessage: "Are you still there?",
-      idleTimeout: 10000,
-      maxIdleTimeoutCount: 3,
-      transferNumber: "+17853178070"
-    };
+    const { conversationSettings } = assistantConfig;
 
     const languageModel = new OpenAI({
       apiKey: OPENAI_API_KEY!,
       model: OpenAIModel.GPT_4O_MINI,
       maxTokens: 250,
       temperature: 0.7,
-      systemTemplate: assistantConfig.systemTemplate,
+      systemTemplate: conversationSettings.systemTemplate,
       knowledgeBase,
-      tools: [
-        makeHangupTool(voice, assistantConfig.goodbyeMessage),
-        makeTransferTool(voice, assistantConfig.transferNumber, {
-          // TODO: Take from config
-          timeout: 10000
-        })
-      ]
+      tools: [makeHangupTool(voice, conversationSettings.goodbyeMessage)]
     });
 
     const autopilot = new Autopilot({
-      assistantConfig,
+      conversationSettings,
       voice,
       vad,
       languageModel

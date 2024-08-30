@@ -28,10 +28,10 @@ class Autopilot {
   private actor: Actor<typeof machine>;
 
   constructor(private params: AutopilotParams) {
-    const { voice, languageModel, assistantConfig } = this.params;
+    const { voice, languageModel, conversationSettings } = this.params;
     this.actor = createActor(machine, {
       input: {
-        ...assistantConfig,
+        conversationSettings,
         languageModel: languageModel,
         voice
       }
