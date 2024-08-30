@@ -56,12 +56,24 @@ const getActorInput = () => ({
     say: sandbox.stub().resolves(),
     hangup: sandbox.stub().resolves()
   } as unknown as Voice,
-  firstMessage: FIRST_MESSAGE,
-  goodbyeMessage: GOODBYE_MESSAGE,
-  systemErrorMessage: SYSTEM_ERROR_MESSAGE,
-  idleMessage: IDLE_MESSAGE,
-  idleTimeout: 3000,
-  maxIdleTimeoutCount: 3
+  conversationSettings: {
+    firstMessage: FIRST_MESSAGE,
+    goodbyeMessage: GOODBYE_MESSAGE,
+    systemTemplate: "System template",
+    systemErrorMessage: SYSTEM_ERROR_MESSAGE,
+    initialDtmf: "1",
+    idleOptions: {
+      enabled: true,
+      message: IDLE_MESSAGE,
+      timeout: 3000,
+      maxTimeoutCount: 3
+    },
+    transferOptions: {
+      enabled: false,
+      phoneNumber: "+1234567890",
+      message: "Transferring call"
+    }
+  }
 });
 
 describe("@autopilot/machine", function () {
