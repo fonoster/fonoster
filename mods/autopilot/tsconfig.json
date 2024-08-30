@@ -10,6 +10,9 @@
   "exclude": ["node_modules", "dist", "test"],
   "references": [
     {
+      "path": "../common",
+    },
+    {
       "path": "../voice",
     },
     {

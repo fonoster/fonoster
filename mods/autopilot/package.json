@@ -34,20 +34,22 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
+    "@fonoster/common": "^0.7.4",
     "@fonoster/logger": "^0.7.4",
     "@fonoster/voice": "^0.7.4",
     "@langchain/community": "^0.2.31",
-    "@langchain/openai": "^0.2.7",
+    "@langchain/core": "^0.2.31",
+    "@langchain/openai": "^0.2.8",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",
     "langchain": "^0.2.17",
     "onnxruntime-node": "^1.19.0",
     "pdf-parse": "^1.1.1",
+    "uuid": "^10.0.0",
     "xstate": "^5.17.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "node-record-lpcm16": "^1.0.1",
     "typescript": "^5.5.4"
   }
 }
