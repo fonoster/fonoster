@@ -39,6 +39,7 @@
     "@fonoster/voice": "^0.7.4",
     "@langchain/community": "^0.2.31",
     "@langchain/core": "^0.2.31",
+    "@langchain/groq": "^0.0.17",
     "@langchain/openai": "^0.2.8",
     "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",

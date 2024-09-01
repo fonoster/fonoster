@@ -19,15 +19,14 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { KnowledgeBase } from "../../knowledge";
 
-enum OpenAIModel {
-  GPT_3 = "gpt-3",
-  GPT_4 = "gpt-4",
-  GPT_4O = "gpt-4o",
-  GPT_4O_MINI = "gpt-4o-mini"
+enum GroqModel {
+  GEMMA7B = "gemma-7b-it",
+  LLAMA3_GROQ_70B_8192_TOOL_USE_PREVIEW = "llama3-groq-70b-8192-tool-use-preview",
+  LLAMA3_1_8B_INSTANT = "llama-3.1-8b-instant"
 }
 
-type OpenAIParams = {
-  model: OpenAIModel;
+type GroqParams = {
+  model: GroqModel;
   apiKey: string;
   maxTokens: number;
   temperature: number;
@@ -36,4 +35,4 @@ type OpenAIParams = {
   tools: DynamicStructuredTool[];
 };
 
-export { OpenAIParams, OpenAIModel };
+export { GroqParams, GroqModel };

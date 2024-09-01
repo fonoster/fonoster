@@ -18,12 +18,6 @@
  */
 import { VoiceLanguage } from "@fonoster/common/src/tts/types";
 
-enum DeepgramModel {
-  NOVA_2 = "nova-2",
-  NOVA_2_PHONECALL = "nova-2-phonecall",
-  NOVA_2_CONVERSATIONALAI = "nova-2-conversationalai"
-}
-
 type SpeechResult = {
   speech: string;
   isFinal: boolean;
@@ -49,6 +43,12 @@ type GoogleSttConfig = {
     private_key: string;
   };
 };
+
+enum DeepgramModel {
+  NOVA_2 = "nova-2",
+  NOVA_2_PHONECALL = "nova-2-phonecall",
+  NOVA_2_CONVERSATIONALAI = "nova-2-conversationalai"
+}
 
 type DeepgramSttConfig = {
   config: {

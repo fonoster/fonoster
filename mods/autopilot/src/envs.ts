@@ -24,3 +24,4 @@ if (process.env.NODE_ENV === "dev") {
 }
 
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+export const GROQ_API_KEY = process.env.GROQ_API_KEY;

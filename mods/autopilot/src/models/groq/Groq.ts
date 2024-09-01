@@ -16,24 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DynamicStructuredTool } from "@langchain/core/tools";
-import { KnowledgeBase } from "../../knowledge";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
+import { ChatGroq } from "@langchain/groq";
+import { GroqParams } from "./types";
+import { AbstractLanguageModel } from "../AbstractLanguageModel";
 
-enum OpenAIModel {
-  GPT_3 = "gpt-3",
-  GPT_4 = "gpt-4",
-  GPT_4O = "gpt-4o",
-  GPT_4O_MINI = "gpt-4o-mini"
+class Groq extends AbstractLanguageModel {
+  constructor(params: GroqParams) {
+    const model = new ChatGroq({
+      ...params
+    }).bindTools(params.tools) as BaseChatModel;
+
+    super({
+      ...params,
+      model
+    });
+  }
 }
 
-type OpenAIParams = {
-  model: OpenAIModel;
-  apiKey: string;
-  maxTokens: number;
-  temperature: number;
-  systemTemplate: string;
-  knowledgeBase: KnowledgeBase;
-  tools: DynamicStructuredTool[];
-};
-
-export { OpenAIParams, OpenAIModel };
+export { Groq };

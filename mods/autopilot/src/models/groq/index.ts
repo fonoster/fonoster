@@ -16,24 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DynamicStructuredTool } from "@langchain/core/tools";
-import { KnowledgeBase } from "../../knowledge";
-
-enum OpenAIModel {
-  GPT_3 = "gpt-3",
-  GPT_4 = "gpt-4",
-  GPT_4O = "gpt-4o",
-  GPT_4O_MINI = "gpt-4o-mini"
-}
-
-type OpenAIParams = {
-  model: OpenAIModel;
-  apiKey: string;
-  maxTokens: number;
-  temperature: number;
-  systemTemplate: string;
-  knowledgeBase: KnowledgeBase;
-  tools: DynamicStructuredTool[];
-};
-
-export { OpenAIParams, OpenAIModel };
+export * from "./types";
+export * from "./Groq";

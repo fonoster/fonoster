@@ -56,7 +56,7 @@ new VoiceServer({ skipIdentity }).listen(
       apiKey: OPENAI_API_KEY!,
       model: OpenAIModel.GPT_4O_MINI,
       maxTokens: 250,
-      temperature: 0.7,
+      temperature: 0.4,
       systemTemplate: conversationSettings.systemTemplate,
       knowledgeBase,
       tools: [makeHangupTool(voice, conversationSettings.goodbyeMessage)]
