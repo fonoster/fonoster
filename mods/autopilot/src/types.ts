@@ -21,6 +21,11 @@ import { LanguageModel } from "./models";
 import { Vad } from "./vad";
 import { Voice } from "./voice";
 
+enum LANGUAGE_MODEL_PROVIDER {
+  OPENAI = "llm.openai",
+  GROQ = "llm.groq"
+}
+
 type AutopilotParams = {
   voice: Voice;
   vad: Vad;
@@ -28,4 +33,4 @@ type AutopilotParams = {
   languageModel: LanguageModel;
 };
 
-export { AutopilotParams };
+export { AutopilotParams, LANGUAGE_MODEL_PROVIDER };

@@ -22,12 +22,10 @@ import { createChatHistory } from "./chatHistory";
 import { createChain } from "./createChain";
 import { createPromptTemplate } from "./createPromptTemplate";
 import { LanguageModelParams } from "./types";
-import { KnowledgeBase } from "../knowledge";
 
 abstract class AbstractLanguageModel {
   private chain: ReturnType<typeof createChain>;
   private chatHistory: ReturnType<typeof createChatHistory>;
-  private knowledgeBase: KnowledgeBase;
   private tools: DynamicStructuredTool[] = [];
 
   constructor(private params: LanguageModelParams) {

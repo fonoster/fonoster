@@ -28,10 +28,8 @@ class FilesKnowledgeBase extends AbstractKnowledgeBase {
   constructor(private params: { embeddings?: Embeddings; files: string[] }) {
     super(params);
     this.files = params?.files || [];
-    this.load();
   }
 
-  // FIXME: Maybe we should move this to the constructor and make it private
   async load(): Promise<void> {
     const { files } = this;
 

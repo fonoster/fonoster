@@ -36,8 +36,6 @@ class Autopilot {
         voice
       }
     });
-    this.setupVoiceStream();
-    this.setupSpeechGathering();
   }
 
   start() {
@@ -45,6 +43,8 @@ class Autopilot {
     this.actor.subscribe((state) => {
       logger.verbose("actor's new state is", { state: state.value });
     });
+    this.setupVoiceStream();
+    this.setupSpeechGathering();
   }
 
   private async setupVoiceStream() {

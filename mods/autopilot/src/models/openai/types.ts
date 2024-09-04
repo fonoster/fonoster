@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DynamicStructuredTool } from "@langchain/core/tools";
-import { KnowledgeBase } from "../../knowledge";
+import { BaseModelParams } from "../types";
 
 enum OpenAIModel {
   GPT_3 = "gpt-3",
@@ -26,14 +25,11 @@ enum OpenAIModel {
   GPT_4O_MINI = "gpt-4o-mini"
 }
 
-type OpenAIParams = {
+type OpenAIParams = BaseModelParams & {
   model: OpenAIModel;
   apiKey: string;
   maxTokens: number;
   temperature: number;
-  systemTemplate: string;
-  knowledgeBase: KnowledgeBase;
-  tools: DynamicStructuredTool[];
 };
 
 export { OpenAIParams, OpenAIModel };

@@ -21,11 +21,12 @@ import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { AssistantConfig, loadAndValidateAssistant } from "./assistants";
 import { Autopilot } from "./Autopilot";
-import { OPENAI_API_KEY } from "./envs";
+import { GROQ_API_KEY } from "./envs";
 import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
-import { OpenAI } from "./models/openai";
-import { OpenAIModel } from "./models/openai/types";
+import { GroqModel } from "./models/groq";
+import { LanguageModelFactory } from "./models/LanguageModelFactory";
 import { makeHangupTool } from "./tools";
+import { LANGUAGE_MODEL_PROVIDER } from "./types";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
 
@@ -50,17 +51,23 @@ new VoiceServer({ skipIdentity }).listen(
       files: [`${process.cwd()}/etc/sample.pdf`]
     });
 
-    const { conversationSettings } = assistantConfig;
+    await knowledgeBase.load();
 
-    const languageModel = new OpenAI({
-      apiKey: OPENAI_API_KEY!,
-      model: OpenAIModel.GPT_4O_MINI,
-      maxTokens: 250,
-      temperature: 0.4,
-      systemTemplate: conversationSettings.systemTemplate,
-      knowledgeBase,
-      tools: [makeHangupTool(voice, conversationSettings.goodbyeMessage)]
-    });
+    const { conversationSettings } = assistantConfig;
+    const { goodbyeMessage, systemTemplate } = conversationSettings;
+
+    const languageModel = LanguageModelFactory.getLanguageModel(
+      LANGUAGE_MODEL_PROVIDER.GROQ,
+      {
+        apiKey: GROQ_API_KEY!,
+        model: GroqModel.LLAMA3_1_8B_INSTANT,
+        maxTokens: 250,
+        temperature: 0.4,
+        systemTemplate,
+        knowledgeBase,
+        tools: [makeHangupTool(voice, goodbyeMessage)]
+      }
+    );
 
     const autopilot = new Autopilot({
       conversationSettings,

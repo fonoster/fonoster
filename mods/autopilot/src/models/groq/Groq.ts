@@ -21,6 +21,8 @@ import { ChatGroq } from "@langchain/groq";
 import { GroqParams } from "./types";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 
+const LANGUAGE_MODEL_NAME = "llm.groq";
+
 class Groq extends AbstractLanguageModel {
   constructor(params: GroqParams) {
     const model = new ChatGroq({
@@ -34,4 +36,4 @@ class Groq extends AbstractLanguageModel {
   }
 }
 
-export { Groq };
+export { Groq, LANGUAGE_MODEL_NAME };

@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DynamicStructuredTool } from "@langchain/core/tools";
-import { KnowledgeBase } from "../../knowledge";
+import { BaseModelParams } from "../types";
 
 enum GroqModel {
   GEMMA7B = "gemma-7b-it",
@@ -25,14 +24,11 @@ enum GroqModel {
   LLAMA3_1_8B_INSTANT = "llama-3.1-8b-instant"
 }
 
-type GroqParams = {
+type GroqParams = BaseModelParams & {
   model: GroqModel;
   apiKey: string;
   maxTokens: number;
   temperature: number;
-  systemTemplate: string;
-  knowledgeBase: KnowledgeBase;
-  tools: DynamicStructuredTool[];
 };
 
 export { GroqParams, GroqModel };

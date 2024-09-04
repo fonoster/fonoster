@@ -21,6 +21,8 @@ import { ChatOpenAI } from "@langchain/openai";
 import { OpenAIParams } from "./types";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 
+const LANGUAGE_MODEL_NAME = "llm.openai";
+
 class OpenAI extends AbstractLanguageModel {
   constructor(params: OpenAIParams) {
     const model = new ChatOpenAI({
@@ -34,4 +36,4 @@ class OpenAI extends AbstractLanguageModel {
   }
 }
 
-export { OpenAI };
+export { OpenAI, LANGUAGE_MODEL_NAME };

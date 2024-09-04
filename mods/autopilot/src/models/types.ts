@@ -24,11 +24,14 @@ type LanguageModel = {
   invoke: (text: string) => Promise<string>;
 };
 
-type LanguageModelParams = {
-  model: BaseChatModel;
+type BaseModelParams = {
   systemTemplate: string;
   knowledgeBase: KnowledgeBase;
   tools: DynamicStructuredTool[];
 };
 
-export { LanguageModel, LanguageModelParams };
+type LanguageModelParams = BaseModelParams & {
+  model: BaseChatModel;
+};
+
+export { BaseModelParams, LanguageModel, LanguageModelParams };
