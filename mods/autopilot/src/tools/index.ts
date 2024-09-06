@@ -18,3 +18,4 @@
  */
 export * from "./makeHangupTool";
 export * from "./makeTransferTool";
+export * from "./convertToolToOpenAITool";

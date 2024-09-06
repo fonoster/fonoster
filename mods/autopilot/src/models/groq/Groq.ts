@@ -19,6 +19,7 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatGroq } from "@langchain/groq";
 import { GroqParams } from "./types";
+import { convertToolToOpenAITool } from "../../tools";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 
 const LANGUAGE_MODEL_NAME = "llm.groq";
@@ -27,7 +28,9 @@ class Groq extends AbstractLanguageModel {
   constructor(params: GroqParams) {
     const model = new ChatGroq({
       ...params
-    }).bindTools(params.tools) as BaseChatModel;
+    }).bind({
+      tools: params.tools.map(convertToolToOpenAITool)
+    }) as BaseChatModel;
 
     super({
       ...params,

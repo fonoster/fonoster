@@ -16,22 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { KnowledgeBase } from "../knowledge";
-import { Tool } from "../tools/type";
+import { OpenAITool, Tool } from "./type";
 
-type LanguageModel = {
-  invoke: (text: string) => Promise<string>;
-};
+function convertToolToOpenAITool(tool: Tool): OpenAITool {
+  return {
+    type: "function",
+    function: {
+      ...tool
+    }
+  };
+}
 
-type BaseModelParams = {
-  systemTemplate: string;
-  knowledgeBase: KnowledgeBase;
-  tools: Tool[];
-};
-
-type LanguageModelParams = BaseModelParams & {
-  model: BaseChatModel;
-};
-
-export { BaseModelParams, LanguageModel, LanguageModelParams };
+export { convertToolToOpenAITool };

@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import { AIMessage } from "@langchain/core/messages";
-import { DynamicStructuredTool } from "@langchain/core/tools";
 import { createChatHistory } from "./chatHistory";
 import { createChain } from "./createChain";
 import { createPromptTemplate } from "./createPromptTemplate";
@@ -26,14 +25,11 @@ import { LanguageModelParams } from "./types";
 abstract class AbstractLanguageModel {
   private chain: ReturnType<typeof createChain>;
   private chatHistory: ReturnType<typeof createChatHistory>;
-  private tools: DynamicStructuredTool[] = [];
-
   constructor(private params: LanguageModelParams) {
-    const { model, tools, systemTemplate, knowledgeBase } = this.params;
+    const { model, systemTemplate, knowledgeBase } = this.params;
 
     const promptTemplate = createPromptTemplate(systemTemplate);
     this.chatHistory = createChatHistory();
-    this.tools = tools;
     this.chain = createChain(
       model,
       knowledgeBase,
@@ -43,24 +39,15 @@ abstract class AbstractLanguageModel {
   }
 
   async invoke(text: string) {
-    const { chain, chatHistory, tools } = this;
+    const { chain, chatHistory } = this;
     const response = (await chain.invoke({ text })) as AIMessage;
 
     if (response.additional_kwargs?.tool_calls) {
       // eslint-disable-next-line no-loops/no-loops
       for (const toolCall of response.additional_kwargs.tool_calls) {
-        const selectedTool = tools.find(
-          (tool) => tool.name === toolCall.function.name
-        );
-
-        if (selectedTool) {
-          const args = JSON.parse(toolCall.function.arguments);
-          const toolResult = await selectedTool.invoke(args);
-
-          await this.chatHistory.addAIMessage(
-            `function call: ${toolResult.name}`
-          );
-        }
+        // const { arguments: args, name } = toolCall.function;
+        // const toolResult = await toolsCatalog.invoke(name, args);
+        // await this.chatHistory.addAIMessage(`tool result: ${toolResult}`);
       }
 
       const finalResponse = (await chain.invoke({

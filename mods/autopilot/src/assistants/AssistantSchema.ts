@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { z } from "zod";
+import { ToolSchema } from "../tools/ToolSchema";
 
 const ConversationSettingsSchema = z.object({
   firstMessage: z.string(),
@@ -43,21 +44,6 @@ const ConversationSettingsSchema = z.object({
     .nullable()
 });
 
-const PropertySchema = z
-  .object({
-    type: z.string(),
-    format: z.string().optional(),
-    pattern: z.string().optional()
-  })
-  .refine(
-    (data) => {
-      return !("format" in data && "pattern" in data);
-    },
-    {
-      message: "Property can only have either 'format' or 'pattern', not both."
-    }
-  );
-
 const LanguageModelConfigSchema = z.object({
   provider: z.string(),
   model: z.string(),
@@ -70,19 +56,7 @@ const LanguageModelConfigSchema = z.object({
       url: z.string()
     })
   ),
-  tools: z.array(
-    z.object({
-      name: z.string(),
-      type: z.enum(["syncAPI", "asyncAPI"]),
-      endpoint: z.string(),
-      schema: z.object({
-        $schema: z.string(),
-        type: z.enum(["object", "array"]),
-        properties: z.record(PropertySchema),
-        required: z.array(z.string()).optional()
-      })
-    })
-  )
+  tools: z.array(ToolSchema)
 });
 
 const AssistantSchema = z.object({

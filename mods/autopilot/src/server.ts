@@ -25,7 +25,6 @@ import { GROQ_API_KEY } from "./envs";
 import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
 import { GroqModel } from "./models/groq";
 import { LanguageModelFactory } from "./models/LanguageModelFactory";
-import { makeHangupTool } from "./tools";
 import { LANGUAGE_MODEL_PROVIDER } from "./types";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
@@ -53,8 +52,10 @@ new VoiceServer({ skipIdentity }).listen(
 
     await knowledgeBase.load();
 
-    const { conversationSettings } = assistantConfig;
-    const { goodbyeMessage, systemTemplate } = conversationSettings;
+    const { conversationSettings, languageModel: languageModelSettings } =
+      assistantConfig;
+    const { systemTemplate } = conversationSettings;
+    const { tools } = languageModelSettings;
 
     const languageModel = LanguageModelFactory.getLanguageModel(
       LANGUAGE_MODEL_PROVIDER.GROQ,
@@ -65,7 +66,7 @@ new VoiceServer({ skipIdentity }).listen(
         temperature: 0.4,
         systemTemplate,
         knowledgeBase,
-        tools: [makeHangupTool(voice, goodbyeMessage)]
+        tools
       }
     );
 

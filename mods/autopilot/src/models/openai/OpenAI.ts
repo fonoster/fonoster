@@ -19,6 +19,7 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatOpenAI } from "@langchain/openai";
 import { OpenAIParams } from "./types";
+import { convertToolToOpenAITool } from "../../tools";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 
 const LANGUAGE_MODEL_NAME = "llm.openai";
@@ -27,7 +28,9 @@ class OpenAI extends AbstractLanguageModel {
   constructor(params: OpenAIParams) {
     const model = new ChatOpenAI({
       ...params
-    }).bindTools(params.tools) as BaseChatModel;
+    }).bind({
+      tools: params.tools.map(convertToolToOpenAITool)
+    }) as BaseChatModel;
 
     super({
       ...params,

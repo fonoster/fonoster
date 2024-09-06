@@ -23,7 +23,6 @@ import { Voice } from "../voice";
 const makeHangupTool = (voice: Voice, goodbyeMessage: string) =>
   tool(
     async () => {
-      // TODO: Allow to customize the goodbye message
       await voice.say(goodbyeMessage);
       await voice.hangup();
       return { status: "success" };
