@@ -52,14 +52,7 @@ const ToolSchema = z.object({
       type: z.nativeEnum(AllowedOperations),
       // Make url required if operation type is not built-in
       url: z.string().optional(),
-      async: z.boolean().refine(
-        (data) => {
-          return data === true ? true : false;
-        },
-        {
-          message: "GET operations must be async."
-        }
-      )
+      waitForResponse: z.boolean().optional()
     })
     .superRefine(({ url, type }, ctx: z.RefinementCtx) => {
       if (type !== AllowedOperations.BUILT_IN && !url) {

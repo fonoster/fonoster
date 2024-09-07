@@ -48,8 +48,6 @@ abstract class AbstractLanguageModel implements LanguageModel {
     const { chain, chatHistory, toolsCatalog } = this;
     const response = (await chain.invoke({ text })) as AIMessage;
 
-    console.log(response);
-
     if (response.additional_kwargs?.tool_calls) {
       // eslint-disable-next-line no-loops/no-loops
       for (const toolCall of response.additional_kwargs.tool_calls) {
@@ -59,12 +57,12 @@ abstract class AbstractLanguageModel implements LanguageModel {
 
         switch (name) {
           case "hangup":
-            await this.chatHistory.addAIMessage(
+            await chatHistory.addAIMessage(
               "tool result: call hangup initiated"
             );
             return { type: "hangup" };
           case "transfer":
-            await this.chatHistory.addAIMessage(
+            await chatHistory.addAIMessage(
               "tool result: call transfer initiated"
             );
 
@@ -75,11 +73,16 @@ abstract class AbstractLanguageModel implements LanguageModel {
                 name,
                 JSON.parse(args)
               );
-              await this.chatHistory.addAIMessage(`tool result: ${toolResult}`);
-            } catch (error) {
-              await this.chatHistory.addAIMessage(
-                `tool error: ${error.message}`
+
+              logger.verbose("tool result: ", toolResult);
+
+              await chatHistory.addAIMessage(
+                `tool result: ${toolResult.result}`
               );
+            } catch (error) {
+              logger.error(`tool error: ${error.message}`);
+
+              await chatHistory.addAIMessage(`tool error: ${error.message}`);
             }
         }
       }
@@ -93,6 +96,8 @@ abstract class AbstractLanguageModel implements LanguageModel {
 
     await chatHistory.addUserMessage(text);
     await chatHistory.addAIMessage(response.content?.toString() ?? "");
+
+    logger.verbose("system will say", { content: response.content });
 
     return {
       type: "say",

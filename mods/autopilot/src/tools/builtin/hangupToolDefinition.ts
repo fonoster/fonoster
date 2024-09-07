@@ -28,8 +28,7 @@ const hangupToolDefinition: Tool = {
     required: ["message"]
   },
   operation: {
-    type: AllowedOperations.BUILT_IN,
-    async: false
+    type: AllowedOperations.BUILT_IN
   }
 };
 

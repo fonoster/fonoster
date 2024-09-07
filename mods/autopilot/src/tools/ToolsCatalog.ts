@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
+import { sendRequest } from "./sendRequest";
 import { Tool } from "./type";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -40,11 +41,12 @@ class ToolsCatalog {
       throw new Error(`Tool '${toolName}' not found in the catalog`);
     }
 
-    logger.verbose(
-      `invoking external tool: '${toolName}' with args: '${JSON.stringify(args)}'`
-    );
-
-    return "done.";
+    return await sendRequest({
+      method: tool.operation.type,
+      url: tool.operation.url!,
+      waitForResponse: tool.operation.waitForResponse!,
+      body: args
+    });
   }
 
   addTool(toolDef: Tool) {

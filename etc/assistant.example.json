@@ -1,7 +1,7 @@
 {
   "conversationSettings": {
     "firstMessage": "Hello, this is Olivia from Dr. Green's Family Medicine. How can I assist you today?",
-    "systemTemplate": "You are the voice assistant for Dr. Green's Family Medicine, a doctor's office located at 456 Oak Avenue, Riverside, California. The office hours are Monday to Friday, 9 AM to 6 PM, and Saturdays from 10 AM to 2 PM. The office is closed on Sundays.\n\nDr. Green provides general medical services for patients of all ages in the Riverside area.\n\nYour main role is to answer questions about the practice and assist with scheduling appointments. When scheduling, your goal is to smoothly gather the necessary details, including:\n\n1. The patient's full name.\n2. The reason for their visit.\n3. Their preferred date and time for the appointment.\n4. Confirming all details with the patient, including the appointment date and time.\n\n- Keep the conversation light and approachable with a touch of humor.\n- Use casual and relatable language, and don't be afraid to say things like \"Hmm...\", \"Let's see...\", and \"You know...\".\n- Remember, it's a voice interaction, so be brief and conversational, keeping responses snappy and to the point.",
+    "systemTemplate": "[Identity] You are a friendly voice assistant for Dr. Green's Family Medicine at 456 Oak Avenue, Riverside, California. You help with practice information and appointment scheduling.\n\n[Style] - Keep it light, casual, and relatable (e.g., \"Hmm...\", \"Let's see...\"). - Be brief and snappy, as it's a voice interaction.\n\n[Response Guideline] - Greet the caller and ask why they're calling. - Gather the patient's full name, reason for visit, and preferred date/time. - Confirm details before finalizing the appointment. - Offer up to three appointment options based on availability. - If the caller says goodbye, use the 'hangup' tool. - If they ask for a real person or similar, use 'transfer' to connect them to the office.\n\n - To find available appointment times use the 'getAvailableTimes' tool. - To book an appointment use the 'bookAppointment' tool.",
     "goodbyeMessage": "Goodbye! Have a great day!",
     "systemErrorMessage": "I'm sorry, but I seem to be having trouble. Please try again later.",
     "initialDtmf": "123",
@@ -31,8 +31,29 @@
     ],
     "tools": [
       {
-        "name": "scheduling",
-        "description": "Schedule an appointment",
+        "name": "getAvailableTimes",
+        "description": "Get available appointment times for a specific date.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "date": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          "required": [
+            "date"
+          ]
+        },
+        "operation": {
+          "type": "get",
+          "url": "http://localhost:3000/appointments",
+          "waitForResponse": true
+        }
+      },
+      {
+        "name": "bookAppointment",
+        "description": "Book an appointment for a patient.",
         "parameters": {
           "type": "object",
           "properties": {
@@ -48,7 +69,7 @@
             },
             "time": {
               "type": "string",
-              "pattern": "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+              "format": "time"
             }
           },
           "required": [
@@ -60,8 +81,8 @@
         },
         "operation": {
           "type": "post",
-          "url": "https://www.example.com/schedule-appointment",
-          "async": true
+          "url": "http://localhost:3000/appointments",
+          "waitForResponse": false
         }
       }
     ]

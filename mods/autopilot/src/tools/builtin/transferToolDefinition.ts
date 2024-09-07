@@ -28,8 +28,7 @@ const transferToolDefinition: Tool = {
     required: []
   },
   operation: {
-    type: AllowedOperations.BUILT_IN,
-    async: false
+    type: AllowedOperations.BUILT_IN
   }
 };
 

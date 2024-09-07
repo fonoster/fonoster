@@ -21,9 +21,9 @@ import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { AssistantConfig, loadAndValidateAssistant } from "./assistants";
 import { Autopilot } from "./Autopilot";
-import { GROQ_API_KEY } from "./envs";
+import { OPENAI_API_KEY } from "./envs";
 import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
-import { GroqModel } from "./models/groq";
+import { OpenAIModel } from "./models";
 import { LanguageModelFactory } from "./models/LanguageModelFactory";
 import { hangupToolDefinition, transferToolDefinition } from "./tools";
 import { LANGUAGE_MODEL_PROVIDER } from "./types";
@@ -59,10 +59,10 @@ new VoiceServer({ skipIdentity }).listen(
     const { tools } = languageModelSettings;
 
     const languageModel = LanguageModelFactory.getLanguageModel(
-      LANGUAGE_MODEL_PROVIDER.GROQ,
+      LANGUAGE_MODEL_PROVIDER.OPENAI,
       {
-        apiKey: GROQ_API_KEY!,
-        model: GroqModel.LLAMA3_1_8B_INSTANT,
+        apiKey: OPENAI_API_KEY!,
+        model: OpenAIModel.GPT_4O_MINI,
         maxTokens: 250,
         temperature: 0.4,
         systemTemplate,
