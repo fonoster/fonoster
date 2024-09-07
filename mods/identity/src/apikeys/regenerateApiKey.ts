@@ -25,7 +25,7 @@ import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const RegenerateApiKeyRequestSchema = z.object({
+const regenerateApiKeyRequestSchema = z.object({
   ref: z.string()
 });
 
@@ -38,7 +38,7 @@ function regenerateApiKey(prisma: Prisma) {
     ) => void
   ) => {
     try {
-      const validatedRequest = RegenerateApiKeyRequestSchema.parse(
+      const validatedRequest = regenerateApiKeyRequestSchema.parse(
         call.request
       );
 

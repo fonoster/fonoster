@@ -26,12 +26,12 @@ import { Prisma } from "../db";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const ExchangeRefreshTokenRequestSchema = z.object({
+const exchangeRefreshTokenRequestSchema = z.object({
   refreshToken: z.string()
 });
 
 type ExchangeRefreshTokenRequest = z.infer<
-  typeof ExchangeRefreshTokenRequestSchema
+  typeof exchangeRefreshTokenRequestSchema
 >;
 
 type ExchangeCredentialsResponse = {
@@ -51,7 +51,7 @@ function exchangeRefreshToken(prisma: Prisma, identityConfig: IdentityConfig) {
     ) => void
   ) => {
     try {
-      const validatedRequest = ExchangeRefreshTokenRequestSchema.parse(
+      const validatedRequest = exchangeRefreshTokenRequestSchema.parse(
         call.request
       );
       const { refreshToken: oldRefreshToken } = validatedRequest;

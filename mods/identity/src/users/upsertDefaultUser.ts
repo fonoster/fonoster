@@ -22,13 +22,13 @@ import { prisma } from "../db";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const CreateUserRequestSchema = z.object({
+const createUserRequestSchema = z.object({
   name: z.string().min(3).max(50),
   email: z.string().email(),
   password: z.string().min(8).max(50).or(z.string().optional().nullable())
 });
 
-type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;
+type CreateUserRequest = z.infer<typeof createUserRequestSchema>;
 
 const USER_REF = "00000000-0000-0000-0000-000000000000";
 const WORKSPACE_REF = "00000000-0000-0000-0000-000000000000";
@@ -37,7 +37,7 @@ const WORKSPACE_ACCESS_KEY_ID = "WO00000000000000000000000000000000";
 
 async function upsertDefaultUser(request: CreateUserRequest) {
   try {
-    const validatedRequest = CreateUserRequestSchema.parse(request);
+    const validatedRequest = createUserRequestSchema.parse(request);
 
     const { name, email, password } = validatedRequest;
 

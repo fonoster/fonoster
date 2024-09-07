@@ -21,7 +21,7 @@ import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createFetchCalls } from "./createFetchCalls";
-import { ListCallsRequestSchema } from "./ListCallsRequestSchema";
+import { listCallsRequestSchema } from "./listCallsRequestSchema";
 import { InfluxDBClient, ListCallsRequest, ListCallsResponse } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -36,7 +36,7 @@ function listCalls(influx: InfluxDBClient) {
     callback: (error: GrpcErrorMessage, response?: ListCallsResponse) => void
   ) => {
     try {
-      const parsedRequest = ListCallsRequestSchema.parse(call.request);
+      const parsedRequest = listCallsRequestSchema.parse(call.request);
 
       const accessKeyId = getAccessKeyIdFromCall(
         call as unknown as ServerInterceptingCall

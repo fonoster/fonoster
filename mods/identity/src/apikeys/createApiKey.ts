@@ -35,7 +35,7 @@ import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const CreateApiKeyRequestSchema = z.object({
+const createApiKeyRequestSchema = z.object({
   role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
   expiresAt: z
     .number()
@@ -49,7 +49,7 @@ function createApiKey(prisma: Prisma) {
     callback: (error: GrpcErrorMessage, response?: CreateApiKeyResponse) => void
   ) => {
     try {
-      const validatedRequest = CreateApiKeyRequestSchema.parse(call.request);
+      const validatedRequest = createApiKeyRequestSchema.parse(call.request);
 
       const accessKeyId = getAccessKeyIdFromCall(
         call as unknown as ServerInterceptingCall

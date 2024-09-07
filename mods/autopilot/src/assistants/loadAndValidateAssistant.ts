@@ -19,7 +19,7 @@
 import fs from "fs";
 import { getLogger } from "@fonoster/logger";
 import { AssistantConfig } from "./types";
-import { AssistantSchema } from "../assistants/AssistantSchema";
+import { assistantSchema } from "../assistants/AssistantSchema";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -33,7 +33,7 @@ function loadAndValidateAssistant(path: string): AssistantConfig {
     const fileContent = fs.readFileSync(path, "utf8");
     const assistant = JSON.parse(fileContent) as unknown;
 
-    return AssistantSchema.parse(assistant);
+    return assistantSchema.parse(assistant);
   } catch (e) {
     logger.error("error parsing or validating assistant file", {
       path,

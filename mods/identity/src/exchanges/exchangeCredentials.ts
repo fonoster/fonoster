@@ -27,13 +27,13 @@ import { getUserByEmail } from "../utils/getUserByEmail";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const ExchangeCredentialsRequestSchema = z.object({
+const exchangeCredentialsRequestSchema = z.object({
   username: z.string(),
   password: z.string()
 });
 
 type ExchangeCredentialsRequest = z.infer<
-  typeof ExchangeCredentialsRequestSchema
+  typeof exchangeCredentialsRequestSchema
 >;
 
 type ExchangeCredentialsResponse = {
@@ -56,9 +56,10 @@ function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
     ) => void
   ) => {
     try {
-      const validatedRequest = ExchangeCredentialsRequestSchema.parse(
+      const validatedRequest = exchangeCredentialsRequestSchema.parse(
         call.request
       );
+
       const { username, password } = validatedRequest;
 
       logger.verbose("call to exchangeCredentials", { username });

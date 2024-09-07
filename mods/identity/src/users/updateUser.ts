@@ -27,7 +27,7 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const UpdateUserRequestSchema = z.object({
+const updateUserRequestSchema = z.object({
   ref: z.string(),
   name: z.string().min(3).max(50).or(z.string().optional().nullable()),
   password: z.string().min(8).max(50).or(z.string().optional().nullable()),
@@ -40,7 +40,7 @@ function updateUser(prisma: Prisma) {
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
-      const validatedRequest = UpdateUserRequestSchema.parse(call.request);
+      const validatedRequest = updateUserRequestSchema.parse(call.request);
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const accessKeyId = getAccessKeyIdFromToken(token);
       const { ref, name, avatar, password } = validatedRequest;

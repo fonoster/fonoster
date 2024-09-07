@@ -27,7 +27,7 @@ import { notFoundError } from "../core/notFoundError";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const GetCallRequestSchema = z.object({
+const getCallRequestSchema = z.object({
   ref: z.string({ message: "Invalid call reference" })
 });
 
@@ -43,7 +43,7 @@ function getCall(influx: InfluxDBClient) {
     try {
       const { ref } = call.request;
 
-      GetCallRequestSchema.parse({ ref });
+      getCallRequestSchema.parse({ ref });
 
       const accessKeyId = getAccessKeyIdFromCall(
         call as unknown as ServerInterceptingCall

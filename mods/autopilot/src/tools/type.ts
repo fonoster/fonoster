@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { ToolSchema } from "./ToolSchema";
+import { toolSchema } from "./ToolSchema";
 
-type Tool = z.infer<typeof ToolSchema>;
+type Tool = z.infer<typeof toolSchema>;
 
 type OpenAITool = {
   type: "function";

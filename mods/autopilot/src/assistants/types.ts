@@ -18,13 +18,13 @@
  */
 import { z } from "zod";
 import {
-  AssistantSchema,
-  ConversationSettingsSchema,
-  LanguageModelConfigSchema
+  assistantSchema,
+  conversationSettingsSchema,
+  languageModelConfigSchema
 } from "./AssistantSchema";
 
-type ConversationSettings = z.infer<typeof ConversationSettingsSchema>;
-type LanguageModelConfig = z.infer<typeof LanguageModelConfigSchema>;
-type AssistantConfig = z.infer<typeof AssistantSchema>;
+type ConversationSettings = z.infer<typeof conversationSettingsSchema>;
+type LanguageModelConfig = z.infer<typeof languageModelConfigSchema>;
+type AssistantConfig = z.infer<typeof assistantSchema>;
 
 export { ConversationSettings, LanguageModelConfig, AssistantConfig };

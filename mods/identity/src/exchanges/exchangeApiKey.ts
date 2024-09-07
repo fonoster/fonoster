@@ -27,12 +27,12 @@ import { getApiKeyByAccessKeyId } from "../utils/getApiKeyByAccessKeyId";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const ExchangeApiKeysRequestSchema = z.object({
+const exchangeApiKeysRequestSchema = z.object({
   accessKeyId: z.string(),
   accessKeySecret: z.string()
 });
 
-type ExchangeApiKeysRequest = z.infer<typeof ExchangeApiKeysRequestSchema>;
+type ExchangeApiKeysRequest = z.infer<typeof exchangeApiKeysRequestSchema>;
 
 type ExchangeApiKeysResponse = {
   idToken: string;
@@ -54,7 +54,7 @@ function exchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
     ) => void
   ) => {
     try {
-      const validatedRequest = ExchangeApiKeysRequestSchema.parse(call.request);
+      const validatedRequest = exchangeApiKeysRequestSchema.parse(call.request);
       const { accessKeyId, accessKeySecret } = validatedRequest;
 
       logger.verbose("call to exchangeApiKey", { accessKeyId });

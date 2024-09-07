@@ -24,7 +24,7 @@ import { Prisma } from "../db";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const DeleteApiKeyRequestSchema = z.object({
+const deleteApiKeyRequestSchema = z.object({
   ref: z.string()
 });
 
@@ -34,7 +34,7 @@ function deleteApiKey(prisma: Prisma) {
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
-      const validatedRequest = DeleteApiKeyRequestSchema.parse(call.request);
+      const validatedRequest = deleteApiKeyRequestSchema.parse(call.request);
 
       const { ref } = validatedRequest;
 

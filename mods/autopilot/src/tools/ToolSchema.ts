@@ -24,7 +24,7 @@ enum AllowedOperations {
   BUILT_IN = "built-in"
 }
 
-const PropertySchema = z
+const propertySchema = z
   .object({
     type: z.string(),
     format: z.string().optional(),
@@ -39,12 +39,12 @@ const PropertySchema = z
     }
   );
 
-const ToolSchema = z.object({
+const toolSchema = z.object({
   name: z.string(),
   description: z.string(),
   parameters: z.object({
     type: z.enum(["object", "array"]),
-    properties: z.record(PropertySchema),
+    properties: z.record(propertySchema),
     required: z.array(z.string()).optional()
   }),
   operation: z
@@ -64,4 +64,4 @@ const ToolSchema = z.object({
     })
 });
 
-export { ToolSchema, AllowedOperations };
+export { toolSchema, AllowedOperations };

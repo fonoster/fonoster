@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { ToolSchema } from "../tools/ToolSchema";
+import { toolSchema } from "../tools/ToolSchema";
 import { LANGUAGE_MODEL_PROVIDER } from "../types";
 
-const ConversationSettingsSchema = z.object({
+const conversationSettingsSchema = z.object({
   firstMessage: z.string(),
   systemTemplate: z.string(),
   goodbyeMessage: z.string(),
@@ -45,7 +45,7 @@ const ConversationSettingsSchema = z.object({
     .nullable()
 });
 
-const LanguageModelConfigSchema = z.object({
+const languageModelConfigSchema = z.object({
   provider: z.nativeEnum(LANGUAGE_MODEL_PROVIDER),
   model: z.string(),
   temperature: z.number(),
@@ -57,16 +57,16 @@ const LanguageModelConfigSchema = z.object({
       url: z.string()
     })
   ),
-  tools: z.array(ToolSchema)
+  tools: z.array(toolSchema)
 });
 
-const AssistantSchema = z.object({
-  conversationSettings: ConversationSettingsSchema,
-  languageModel: LanguageModelConfigSchema
+const assistantSchema = z.object({
+  conversationSettings: conversationSettingsSchema,
+  languageModel: languageModelConfigSchema
 });
 
 export {
-  AssistantSchema,
-  ConversationSettingsSchema,
-  LanguageModelConfigSchema
+  assistantSchema,
+  conversationSettingsSchema,
+  languageModelConfigSchema
 };

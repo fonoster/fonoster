@@ -31,7 +31,7 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const CreateWorkspaceRequestSchema = z.object({
+const createWorkspaceRequestSchema = z.object({
   name: z.string().min(3, "Name must contain at least 3 characters").max(50)
 });
 
@@ -41,7 +41,7 @@ function createWorkspace(prisma: Prisma) {
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
-      const validatedRequest = CreateWorkspaceRequestSchema.parse(call.request);
+      const validatedRequest = createWorkspaceRequestSchema.parse(call.request);
 
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const ownerRef = getUserRefFromToken(token);

@@ -28,7 +28,7 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const UpdateWorkspaceRequestSchema = z.object({
+const updateWorkspaceRequestSchema = z.object({
   ref: z.string(),
   name: z.string().min(3).max(50).or(z.string().optional().nullable())
 });
@@ -39,7 +39,7 @@ function updateWorkspace(prisma: Prisma) {
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
-      const validatedRequest = UpdateWorkspaceRequestSchema.parse(call.request);
+      const validatedRequest = updateWorkspaceRequestSchema.parse(call.request);
       const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
       const userRef = getUserRefFromToken(token);
       const { ref, name } = validatedRequest;

@@ -28,7 +28,7 @@ import {
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const CreateUserRequestSchema = z.object({
+const createUserRequestSchema = z.object({
   name: z.string().min(3, "Name must contain at least 3 characters").max(50),
   email: z.string().email(),
   password: z.string().min(8).max(100),
@@ -41,7 +41,7 @@ function createUser(prisma: Prisma) {
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     try {
-      const validatedRequest = CreateUserRequestSchema.parse(call.request);
+      const validatedRequest = createUserRequestSchema.parse(call.request);
 
       const { name, email, password, avatar } = validatedRequest;
 

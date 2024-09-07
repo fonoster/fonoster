@@ -29,7 +29,7 @@ import { notFoundError } from "../core/notFoundError";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const CreateCallRequestSchema = z.object({
+const createCallRequestSchema = z.object({
   from: z.string(),
   to: z.string(),
   appRef: z.string(),
@@ -50,7 +50,7 @@ function createCall(prisma: Prisma, publisher: CallPublisher) {
 
       logger.verbose("call to createCall", { ...call.request, ref });
 
-      CreateCallRequestSchema.parse(call.request);
+      createCallRequestSchema.parse(call.request);
 
       const accessKeyId = getAccessKeyIdFromCall(
         call as unknown as ServerInterceptingCall

@@ -32,11 +32,11 @@ const FINAL_STATUSES = [
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-const TrackCallRequestSchema = z.object({
+const trackCallRequestSchema = z.object({
   ref: z.string()
 });
 
-type TrackCallRequest = z.infer<typeof TrackCallRequestSchema>;
+type TrackCallRequest = z.infer<typeof trackCallRequestSchema>;
 
 function makeTrackCall(nc: NatsConnection) {
   const trackingCallsMap = new Map<string, CallStream>();

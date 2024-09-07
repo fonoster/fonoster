@@ -43,7 +43,7 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const InviteUserToWorkspaceRequestSchema = z.object({
+const inviteUserToWorkspaceRequestSchema = z.object({
   email: z.string().email(),
   name: z.string().min(3, "Name must contain at least 3 characters").max(50),
   role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
@@ -113,7 +113,7 @@ function inviteUserToWorkspace(
 
       const workspaceRef = workspace.ref;
 
-      const { email, name, role } = InviteUserToWorkspaceRequestSchema.parse(
+      const { email, name, role } = inviteUserToWorkspaceRequestSchema.parse(
         call.request
       );
 
