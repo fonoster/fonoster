@@ -53,7 +53,9 @@ class LanguageModelFactory {
     languageModel: T,
     config: LanguageModelConfigMap[T]
   ): AbstractLanguageModel {
-    const LanguageModelConstructor = this.languageModels.get(languageModel);
+    const LanguageModelConstructor = this.languageModels.get(
+      `llm.${languageModel}`
+    );
     if (!LanguageModelConstructor) {
       throw new Error(`Language model ${languageModel} not found`);
     }

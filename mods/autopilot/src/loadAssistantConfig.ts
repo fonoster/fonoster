@@ -16,8 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { startVoiceServer } from "./voiceServerSetup";
+import { AssistantConfig, loadAndValidateAssistant } from ".";
 
-const skipIdentity = process.env.NODE_ENV === "dev";
+function loadAssistantConfig(): AssistantConfig {
+  const assistantPath = `${process.cwd()}/etc/assistant.example.json`;
+  return loadAndValidateAssistant(assistantPath);
+}
 
-startVoiceServer(skipIdentity);
+export { loadAssistantConfig };

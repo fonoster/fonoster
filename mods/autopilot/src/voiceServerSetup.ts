@@ -16,8 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { startVoiceServer } from "./voiceServerSetup";
+import VoiceServer from "@fonoster/voice";
+import { handleVoiceRequest } from "./handleVoiceRequest";
 
-const skipIdentity = process.env.NODE_ENV === "dev";
+function startVoiceServer(skipIdentity: boolean) {
+  new VoiceServer({ skipIdentity }).listen(handleVoiceRequest);
+}
 
-startVoiceServer(skipIdentity);
+export { startVoiceServer };

@@ -16,8 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { startVoiceServer } from "./voiceServerSetup";
+import { FilesKnowledgeBase } from ".";
 
-const skipIdentity = process.env.NODE_ENV === "dev";
+async function loadKnowledgeBase() {
+  const knowledgeBase = new FilesKnowledgeBase({
+    files: [`${process.cwd()}/etc/sample.pdf`]
+  });
+  await knowledgeBase.load();
+  return knowledgeBase;
+}
 
-startVoiceServer(skipIdentity);
+export { loadKnowledgeBase };
