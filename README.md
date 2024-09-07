@@ -31,6 +31,13 @@ A Voice Application is a server that controls a call's flow. A Voice Application
 Voice Application Example:
 
 ```typescript
+const VoiceServer = require("@fonoster/voice").default;
+const { 
+  GatherSource, 
+  VoiceRequest, 
+  VoiceResponse 
+} = require("@fonoster/voice");
+
 new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
   const { ingressNumber, sessionRef, appRef } = req;
 
