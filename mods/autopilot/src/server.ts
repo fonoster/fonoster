@@ -19,21 +19,25 @@
  */
 import { getLogger } from "@fonoster/logger";
 import VoiceServer, { VoiceRequest, VoiceResponse } from "@fonoster/voice";
-import { AssistantConfig, loadAndValidateAssistant } from "./assistants";
-import { Autopilot } from "./Autopilot";
 import { OPENAI_API_KEY } from "./envs";
-import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
-import { LanguageModelFactory } from "./models/LanguageModelFactory";
-import { hangupToolDefinition, transferToolDefinition } from "./tools";
-import { SileroVad } from "./vad";
-import { VoiceImpl } from "./voice";
+import Autopilot, {
+  AssistantConfig,
+  FilesKnowledgeBase,
+  LanguageModelFactory,
+  SileroVad,
+  VoiceImpl,
+  hangupToolDefinition,
+  loadAndValidateAssistant,
+  transferToolDefinition
+} from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const skipIdentity = process.env.NODE_ENV === "dev";
 
-// TODO: This must be replaced with data the API
+// TODO: This must be replaced with data from the API
 const assistantPath = `${process.cwd()}/etc/assistant.example.json`;
+
 const assistantConfig: AssistantConfig =
   loadAndValidateAssistant(assistantPath);
 

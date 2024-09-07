@@ -6,7 +6,7 @@ voice
 [![Downloads/week](https://img.shields.io/npm/dw/@fonoster/voice.svg)](https://npmjs.org/package/@fonoster/voice)
 [![License](https://img.shields.io/npm/l/@fonoster/voice.svg)](https://github.com/fonoster/fonoster/blob/main/package.json)
 
-This is a NodeJS implementation of the AudioSocket protocol, which is a simple protocol for accessing bidirectional audio streams from Asterisk.
+The Voice module is a library for creating voice applications using the Fonoster API. It provides a simple way to create voice applications that can interact with the calling party using DTMF or speech recognition combined with simple verbs.
 
 * [Installation](#installation)
 * [Example](#example)

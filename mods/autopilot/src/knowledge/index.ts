@@ -17,3 +17,5 @@
  * limitations under the License.
  */
 export * from "./types";
+export * from "./AbstractKnowledgeBase";
+export * from "./FilesKnowledgeBase";

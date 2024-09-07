@@ -16,11 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GatherSource } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { VoiceRequest } from "./types";
-import { VoiceResponse } from "./VoiceResponse";
-import VoiceServer from "./VoiceServer";
+import VoiceServer, { GatherSource, VoiceRequest, VoiceResponse } from ".";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 

@@ -45,7 +45,7 @@ class LanguageModelFactory {
     name: string,
     ctor: LanguageModelConstructor<T>
   ) {
-    logger.info("registering llm provider", { name });
+    logger.verbose("registering llm provider", { name });
     this.languageModels.set(name, ctor);
   }
 

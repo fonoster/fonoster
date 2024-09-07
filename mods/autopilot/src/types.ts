@@ -22,8 +22,8 @@ import { Vad } from "./vad";
 import { Voice } from "./voice";
 
 enum LANGUAGE_MODEL_PROVIDER {
-  OPENAI = "llm.openai",
-  GROQ = "llm.groq"
+  OPENAI = "openai",
+  GROQ = "groq"
 }
 
 type AutopilotParams = {

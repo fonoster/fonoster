@@ -16,5 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./openai";
 export * from "./types";
+export * from "./LanguageModelFactory";
