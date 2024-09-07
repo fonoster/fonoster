@@ -1,32 +1,20 @@
-# The open-source alternative to Twilio
-
-[Fonoster Inc](https://fonoster.com) is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.
-
 <a href="https://discord.gg/mpWSRUhG7e"><img alt="Fonoster community banner" src="https://raw.githubusercontent.com/fonoster/.github/main/profile/community.png"></img></a>
 
 ![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yaml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yaml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
-## Use Cases
+## The Open-Source Alternative to Twilio
 
-Fonoster is a versatile platform that can be used in a variety of scenarios, including:
+Fonoster is an open-source alternative to Twilio. It is a set of APIs that allow you to interact with the telephony network programmatically. You can use Fonoster to deploy a SIP network in minutes and create Programmable Voice applications, Click-to-Call, Voice Alerts, Voice AI, and more.
 
-- Voice AI (Please check the `@fonoster/autopilot` package)
-- Programmable Voice
-- Phone Verification
-- Call Tracking
-- Click-to-Call
-- Phone System IVR
-- Voice Alerts
-
-But the possibilities are endless. If you have a use case that you think Fonoster could help with, please let us know!
+We're actively looking for community maintainers, so please reach out if interested!
 
 ## Give a Star! ⭐
 
-Please give it a star if you like this project or plan to use it. Thanks 🙏
+It would mean a lot to us if you could give this project a star. It helps us identify if we are doing a good job and attract potential contributors, users, and investors. Thanks 🙏
 
 ## Code Examples
 
-A Voice Application is a server that takes control of the flow in a call. A Voice Application can use any combination of the following verbs:
+A Voice Application is a server that controls a call's flow. A Voice Application can use any combination of the following verbs:
 
 - `Answer` - Accepts an incoming call
 - `Dial` - Passes the call to an Agent or a Number at the PSTN
@@ -43,41 +31,32 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 Voice Application Example:
 
 ```typescript
-const VoiceServer = require("@fonoster/voice").default;
-const { 
-  GatherSource, 
-  VoiceRequest, 
-  VoiceResponse 
-} = require("@fonoster/voice");
+new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
+  const { ingressNumber, sessionRef, appRef } = req;
 
-new VoiceServer().listen(
-  async (req: VoiceRequest, res: VoiceResponse) => {
-    const { ingressNumber, sessionRef, appRef } = req;
+  await voice.answer();
 
-    await res.answer();
+  await voice.say("Hi there! What's your name?");
 
-    await res.say("Hi there! What's your name?");
+  const { speech: name } = await res.gather({
+    source: GatherSource.SPEECH
+  });
 
-    const { speech: name } = await res.gather({
-      source: GatherSource.SPEECH
-    });
+  await voice.say("Nice to meet you " + name + "!");
 
-    await res.say("Nice to meet you " + name + "!");
+  await voice.say("Please enter your 4 digit pin.");
 
-    await res.say("Please enter your 4 digit pin.");
+  const { digits } = await voice.gather({
+    maxDigits: 4,
+    finishOnKey: "#"
+  });
 
-    const { digits } = await res.gather({
-      maxDigits: 4,
-      finishOnKey: "#"
-    });
+  await voice.say("Your pin is " + digits);
 
-    await res.say("Your pin is " + digits);
+  await voice.hangup();
+});
 
-    await res.hangup();
-  }
-);
-
-// your app will live at tcp://127.0.0.1:50061 
+// Your app will live at tcp://127.0.0.1:50061 
 // and you can easily publish it to the Internet with:
 // ngrok tcp 50061
 ```
@@ -109,7 +88,7 @@ async function main(request) {
 const request = {
   from: "+18287854037",
   to: "+17853178070",
-  appRef: "00000000-0000-0000-0000-000000000000" // Existed Voice Application
+  appRef: "00000000-0000-0000-0000-000000000000" // Existing application
 };
 
 main(request).catch(console.error);
