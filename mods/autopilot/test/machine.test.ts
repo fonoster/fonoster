@@ -39,7 +39,10 @@ const ASSISTANT_RESPONSE = "Assistant response";
 
 const getActorInput = () => ({
   languageModel: {
-    invoke: sandbox.stub().resolves(ASSISTANT_RESPONSE)
+    invoke: sandbox.stub().resolves({
+      type: "say",
+      content: ASSISTANT_RESPONSE
+    })
   } as unknown as LanguageModel,
   voice: {
     sessionRef: "sessionRef",
@@ -149,7 +152,7 @@ describe("@autopilot/machine", function () {
     actor.stop();
   }).timeout(20000);
 
-  it("should create an actor from a machine and set the state to 'idle' and then to 'updatingSpeech' and then to 'processingUserRequest'", async function () {
+  it("should create an actor from a machine and set the state to 'idle' and then to 'updatingSpeech' and 'processingUserRequest'", async function () {
     // Arrange
     const { machine } = await import("../src/machine");
     this.slow(30000);
