@@ -967,8 +967,8 @@ Note that an active Fonoster deployment is required.
 
 * [Calls](#Calls)
     * [new Calls(client)](#new_Calls_new)
-    * [.createCall(request)](#Calls+createCall) ⇒ <code>Promise.&lt;CreateCallResponse&gt;</code>
-    * [.getCall(ref)](#Calls+getCall) ⇒ <code>Promise.&lt;Acl&gt;</code>
+    * [.createCall(request)](#Calls+createCall) ⇒ <code>Object</code>
+    * [.getCall(ref)](#Calls+getCall) ⇒ <code>Promise.&lt;CallDetailRecord&gt;</code>
     * [.listCalls(request)](#Calls+listCalls) ⇒ <code>Promise.&lt;ListCallsResponse&gt;</code>
 
 <a name="new_Calls_new"></a>
@@ -1003,7 +1003,7 @@ async function main(request) {
 }
 
 const request = {
-  from: "8287854037",
+  from: "+18287854037",
   to: "+17853178070",
   appRef: "00000000-0000-0000-0000-000000000000"
 };
@@ -1012,11 +1012,12 @@ main(request).catch(console.error);
 ```
 <a name="Calls+createCall"></a>
 
-### calls.createCall(request) ⇒ <code>Promise.&lt;CreateCallResponse&gt;</code>
+### calls.createCall(request) ⇒ <code>Object</code>
 Creates a new Call in the Workspace.
 
 **Kind**: instance method of [<code>Calls</code>](#Calls)  
-**Returns**: <code>Promise.&lt;CreateCallResponse&gt;</code> - - The response object that contains the reference to the created Call  
+**Returns**: <code>Object</code> - - The response object that contains the Call reference and a stream of status updates  
+**See**: DialStatus  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1024,29 +1025,35 @@ Creates a new Call in the Workspace.
 | request.from | <code>string</code> | The number that originated the call |
 | request.to | <code>string</code> | The number that received the call |
 | request.appRef | <code>string</code> | The reference of the App that will handle the call |
+| request.timeout | <code>number</code> | The time in seconds to wait for the call to be answered. Default is 60 seconds |
 
 **Example**  
 ```js
 const calls = new SDK.Calls(client); // Existing client object
 
 const request = {
-  from: "8287854037",
+  from: "+18287854037",
   to: "+17853178070",
-  appRef: "00000000-0000-0000-0000-000000000000"
+  appRef: "00000000-0000-0000-0000-000000000000",
+  timeout: 30
 };
 
-calls
-  .createCall(request)
-  .then(console.log) // successful response
-  .catch(console.error); // an error occurred
+const response = await calls.createCall(request);
+const { ref, statusStream } = response;
+
+console.log(ref); // Call reference
+
+for await (const status of statusStream) {
+ console.log(status); // Streamed status
+}
 ```
 <a name="Calls+getCall"></a>
 
-### calls.getCall(ref) ⇒ <code>Promise.&lt;Acl&gt;</code>
+### calls.getCall(ref) ⇒ <code>Promise.&lt;CallDetailRecord&gt;</code>
 Retrieves an existing Call in the Workspace.
 
 **Kind**: instance method of [<code>Calls</code>](#Calls)  
-**Returns**: <code>Promise.&lt;Acl&gt;</code> - - The response object that contains the Call detail  
+**Returns**: <code>Promise.&lt;CallDetailRecord&gt;</code> - - The response object that contains the Call detail  
 
 | Param | Type | Description |
 | --- | --- | --- |

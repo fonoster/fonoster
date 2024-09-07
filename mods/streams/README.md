@@ -40,7 +40,7 @@ exten = 100,1,Verbose("Call to AudioSocket via Dialplan Application")
 
 Connecting to the AudioSocket server using ARI with the `externalMedia` endpoint is also possible. You must ensure you set the transport to `TCP` the UUID in the data field. 
 
-> Currently, the payload towards Asterisk is limited to signed linear, 16-bit, 8kHz, mono PCM (little-endian). However, the payload from Asterisk can be changed with the `format` parameter when using ARI.
+> Currently, the payload towards Asterisk is limited to signed linear, 16-bit, 8kHz, mono PCM (little-endian). However, the payload from Asterisk can be changed with the `format` parameter when using ARI. Please see the [AudioSocket Server](https://github.com/silentindark/audiosocket_server) implementation, for interesting notes about AudioSocket.
 
 Once Asterisk is configured, you can use the `AudioSocket` class to create a server that listens for connections. Here is an example of how to use the `AudioSocket` class:
 
