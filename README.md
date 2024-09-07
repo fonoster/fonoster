@@ -1,4 +1,4 @@
-# Fonoster: The open-source alternative to Twilio
+# The open-source alternative to Twilio
 
 [Fonoster Inc](https://fonoster.com) is researching an innovative Programmable Telecommunications Stack that will allow businesses to connect telephony services with the Internet entirely through a cloud-based utility.
 
@@ -6,30 +6,23 @@
 
 ![build](https://github.com/fonoster/fonoster/workflows/unit%20tests/badge.svg) [![release](https://github.com/fonoster/fonoster/actions/workflows/release.yaml/badge.svg)](https://github.com/fonoster/fonoster/actions/workflows/release.yaml) [![Discord](https://img.shields.io/discord/1016419835455996076?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/4QWgSz4hTC) <a href="https://github.com/fonoster/fonoster/blob/main/CODE_OF_CONDUCT.md"><img src="https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg?color=%2347b96d" alt="Code Of Conduct"></a> ![GitHub](https://img.shields.io/github/license/fonoster/fonoster?color=%2347b96d) ![Twitter Follow](https://img.shields.io/twitter/follow/fonoster?style=social)
 
-> Attention ⚠️:
-> 
-> **Exploring Fonoster**: We encourage new users to initially explore Fonoster's features through our SaaS (Software as a Service) option. This platform is free to start and offers a comprehensive experience of what Fonoster can do.
-> 
-> **Installation Advisory**: Please note that the current installation process for Fonoster is complex. We are actively working to simplify this process. We recommend waiting for our upcoming 0.4 or 0.5 release before attempting a direct installation. These future releases are designed to offer a more user-friendly installation experience.
->
->Thank you for your interest in Fonoster. We are committed to enhancing your experience with every release.
+## Use Cases
 
-## Features 
+Fonoster is a versatile platform that can be used in a variety of scenarios, including:
 
-The most notable features of Fonoster 0.6 are:
+- Voice AI (Please check the `@fonoster/autopilot` package)
+- Programmable Voice
+- Phone Verification
+- Call Tracking
+- Click-to-Call
+- Phone System IVR
+- Voice Alerts
 
-- [x] Multitenancy
-- [x] Easy deployment of PBX functionalities
-- [x] Programmable Voice Applications
-- [x] NodeJS SDK
-- [x] Support for Amazon Simple Storage Service (S3)
-- [x] Secure API endpoints with Let's Encrypt
-- [x] Authentication with OAuth2
-- [X] Authentication with JWT 
-- [x] Role-Based Access Control (RBAC)
-- [x] Plugins-based Command-line Tool
-- [x] Support for Google Speech APIs
-- [x] Secrets managed by Hashicorp Vault
+But the possibilities are endless. If you have a use case that you think Fonoster could help with, please let us know!
+
+## Give a Star! ⭐
+
+Please give it a star if you like this project or plan to use it. Thanks 🙏
 
 ## Code Examples
 
@@ -40,8 +33,9 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 - `Hangup` - Closes the call
 - `Play` - Takes a URL or file and streams the sound back to the calling party
 - `Say` - Takes a text, synthesizes the text into audio, and streams back the result
-- `StreamGather` - Returns a stream for future DTMF and speech results
-- `Gather` - Waits for DTMF or speech events and returns back the result 
+- `Gather` - Waits for DTMF or speech events and returns back the result
+- `SGather` - Returns a stream for future DTMF and speech results
+- `Stream` - Starts a stream to read and write audio into the call
 - `Record` - It records the voice of the calling party and saves the audio on the Storage sub-system
 - `Mute` - It tells the channel to stop sending media, effectively muting the channel
 - `Unmute` - It tells the channel to allow media flow
@@ -49,24 +43,43 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 Voice Application Example:
 
 ```typescript
-const { VoiceServer } = require("@fonoster/voice");
+const VoiceServer = require("@fonoster/voice").default;
+const { 
+  GatherSource, 
+  VoiceRequest, 
+  VoiceResponse 
+} = require("@fonoster/voice");
 
-const serverConfig = {
-  pathToFiles: `${process.cwd()}/sounds`,
-};
+new VoiceServer().listen(
+  async (req: VoiceRequest, res: VoiceResponse) => {
+    const { ingressNumber, sessionRef, appRef } = req;
 
-new VoiceServer(serverConfig).listen(
-  async (req, res) => {
-    console.log(req);
     await res.answer();
-    await res.play(`sound:${req.selfEndpoint}/sounds/hello-world.sln16`);
+
+    await res.say("Hi there! What's your name?");
+
+    const { speech: name } = await res.gather({
+      source: GatherSource.SPEECH
+    });
+
+    await res.say("Nice to meet you " + name + "!");
+
+    await res.say("Please enter your 4 digit pin.");
+
+    const { digits } = await res.gather({
+      maxDigits: 4,
+      finishOnKey: "#"
+    });
+
+    await res.say("Your pin is " + digits);
+
     await res.hangup();
   }
 );
 
-// your app will live at http://127.0.0.1:3000 
+// your app will live at tcp://127.0.0.1:50061 
 // and you can easily publish it to the Internet with:
-// ngrok http 3000
+// ngrok tcp 50061
 ```
 
 Everything in Fonoster is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
@@ -74,31 +87,41 @@ Everything in Fonoster is an API first, and initiating a call is no exception. Y
 Example of originating a call with the SDK:
 
 ```typescript
-const Fonoster = require("@fonoster/sdk");
-const client = new Fonoster.Call();
+const SDK = require("@fonoster/sdk");
 
-client.call({
- from: "9842753574",
- to: "17853178070",
- appRef: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
-})
- .then(console.log)
- .catch(console.error);
+async function main(request) {
+  const API_KEY = "your-api-key";
+  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+
+  try {
+    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
+    await client.loginWithApiKey(API_KEY);
+
+    const calls = new SDK.Calls(client);
+    const response = await calls.createCall(request);
+
+    console.log(response);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+const request = {
+  from: "+18287854037",
+  to: "+17853178070",
+  appRef: "00000000-0000-0000-0000-000000000000" // Existed Voice Application
+};
+
+main(request).catch(console.error);
 ```
 
 ## Getting Started
 
 To get started with Fonoster, use the following resources:
 
-- [Deploying Fonoster with Docker](./docs/docs/operator/deploy-with-docker.md)
+- [Self-hosting Fonoster with Docker](./docs/self-hosting/deploy-with-docker.md)
 - [Getting started with Fonoster](https://fonoster.com/docs/overview/)
-- [Connecting Fonoster with Dialogflow](https://fonoster.com/docs/tutorials/connecting_with_dialogflow)
-- [Using Google Speech APIs](https://fonoster.com/docs/tutorials/using_google_speech)
 - [How we created an open-source alternative to Twilio and why it matters](https://dev.to/fonoster/how-we-created-an-open-source-alternative-to-twilio-and-why-it-matters-434g)
-
-## Give a Star! ⭐
-
-Please give it a star if you like this project or plan to use it. Thanks 🙏
 
 ## Bugs and Feedback
 
@@ -416,16 +439,6 @@ For contributing, please see the following links:
     </td>
 </tr>
 </table>
-
-## Sponsors
-
-We're glad to be supported by respected companies and individuals from several industries.
-
-<a href="https://github.com/sponsors/fonoster"><img src="https://www.camanio.com/en/wp-content/uploads/sites/11/2018/09/camanio-carerund-cclogga-transparent.png" height="50"/></a>
-
-Find all our supporters [here](https://github.com/sponsors/fonoster)
-
-> [Become a Github Sponsor](https://github.com/sponsors/fonoster)
 
 ## Authors
 

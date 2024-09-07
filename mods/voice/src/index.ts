@@ -20,12 +20,21 @@
 import {
   AzureVoice,
   AzureVoiceDetails,
+  GatherSource,
   GoogleVoice,
-  GoogleVoiceDetails
+  GoogleVoiceDetails,
+  StreamGatherSource
 } from "@fonoster/common";
 import VoiceServer from "./VoiceServer";
 
 export default VoiceServer;
 export * from "./VoiceResponse";
 export * from "./types";
-export { GoogleVoice, GoogleVoiceDetails, AzureVoice, AzureVoiceDetails };
+export {
+  GoogleVoice,
+  GatherSource,
+  GoogleVoiceDetails,
+  AzureVoice,
+  AzureVoiceDetails,
+  StreamGatherSource
+};

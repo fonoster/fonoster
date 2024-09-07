@@ -68,7 +68,7 @@ import { dialStatusToString } from "./utils";
  * }
  *
  * const request = {
- *   from: "8287854037",
+ *   from: "+18287854037",
  *   to: "+17853178070",
  *   appRef: "00000000-0000-0000-0000-000000000000"
  * };
@@ -102,7 +102,7 @@ class Calls {
    * const calls = new SDK.Calls(client); // Existing client object
    *
    * const request = {
-   *   from: "8287854037",
+   *   from: "+18287854037",
    *   to: "+17853178070",
    *   appRef: "00000000-0000-0000-0000-000000000000",
    *   timeout: 30
