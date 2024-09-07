@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./makeHangupTool";
-export * from "./makeTransferTool";
+export * from "./ToolsCatalog";
+export * from "./builtin/hangupToolDefinition";
+export * from "./builtin/transferToolDefinition";
 export * from "./convertToolToOpenAITool";

@@ -32,6 +32,8 @@ const machine = setup({
       voice: Voice;
       firstMessage: string;
       goodbyeMessage: string;
+      transferMessage?: string;
+      transferPhoneNumber?: string;
       systemErrorMessage: string;
       idleMessage: string;
       idleTimeout: number;
@@ -107,7 +109,23 @@ const machine = setup({
         return;
       }
 
-      await context.voice.say(response);
+      if (response.type === "hangup") {
+        const message = context.goodbyeMessage;
+        await context.voice.say(message);
+        await context.voice.hangup();
+        return;
+      } else if (response.type === "transfer") {
+        const message = context.transferMessage!;
+        await context.voice.say(message);
+        // TODO: The record and timeout options should be configurable
+        await context.voice.transfer(context.transferPhoneNumber!, {
+          record: true,
+          timeout: 30
+        });
+        return;
+      }
+
+      await context.voice.say(response.content!);
 
       raise({ type: "USER_REQUEST_PROCESSED" });
     },
@@ -201,6 +219,9 @@ const machine = setup({
     speechBuffer: "",
     firstMessage: input.conversationSettings.firstMessage,
     goodbyeMessage: input.conversationSettings.goodbyeMessage,
+    transferMessage: input.conversationSettings.transferOptions?.message,
+    transferPhoneNumber:
+      input.conversationSettings.transferOptions?.phoneNumber,
     systemErrorMessage: input.conversationSettings.systemErrorMessage,
     idleMessage: input.conversationSettings.idleOptions?.message || "",
     idleTimeout: input.conversationSettings.idleOptions?.timeout || 10000,

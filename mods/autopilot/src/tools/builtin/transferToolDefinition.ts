@@ -16,25 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { tool } from "@langchain/core/tools";
-import { z } from "zod";
-import { TransferOptions, Voice } from "../voice";
+import { AllowedOperations } from "../ToolSchema";
+import { Tool } from "../type";
 
-const makeTransferTool = (
-  voice: Voice,
-  destination: string,
-  options: TransferOptions
-) =>
-  tool(
-    async () => {
-      await voice.transfer(destination, options);
-      return { status: "success" };
-    },
-    {
-      name: "transfer",
-      schema: z.object({}),
-      description: "Transfer the call to a live agent"
-    }
-  );
+const transferToolDefinition: Tool = {
+  name: "transfer",
+  description: "Transfer the call to a live agent",
+  parameters: {
+    type: "object",
+    properties: {},
+    required: []
+  },
+  operation: {
+    type: AllowedOperations.BUILT_IN,
+    async: false
+  }
+};
 
-export { makeTransferTool };
+export { transferToolDefinition };

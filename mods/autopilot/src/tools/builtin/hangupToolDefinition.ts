@@ -16,22 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { tool } from "@langchain/core/tools";
-import { z } from "zod";
-import { Voice } from "../voice";
+import { AllowedOperations } from "../ToolSchema";
+import { Tool } from "../type";
 
-const makeHangupTool = (voice: Voice, goodbyeMessage: string) =>
-  tool(
-    async () => {
-      await voice.say(goodbyeMessage);
-      await voice.hangup();
-      return { status: "success" };
-    },
-    {
-      name: "hangup",
-      schema: z.object({}),
-      description: "Hangup the call"
-    }
-  );
+const hangupToolDefinition: Tool = {
+  name: "hangup",
+  description: "Hangup the call and end the conversation",
+  parameters: {
+    type: "object",
+    properties: {},
+    required: ["message"]
+  },
+  operation: {
+    type: AllowedOperations.BUILT_IN,
+    async: false
+  }
+};
 
-export { makeHangupTool };
+export { hangupToolDefinition };

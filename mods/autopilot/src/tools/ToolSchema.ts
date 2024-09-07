@@ -59,9 +59,7 @@ const ToolSchema = z.object({
         {
           message: "GET operations must be async."
         }
-      ),
-      // This will be ignore if operation type is not built-in
-      parameters: z.record(z.unknown()).optional()
+      )
     })
     .superRefine(({ url, type }, ctx: z.RefinementCtx) => {
       if (type !== AllowedOperations.BUILT_IN && !url) {

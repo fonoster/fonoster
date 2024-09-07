@@ -21,7 +21,7 @@ import { KnowledgeBase } from "../knowledge";
 import { Tool } from "../tools/type";
 
 type LanguageModel = {
-  invoke: (text: string) => Promise<string>;
+  invoke: (text: string) => Promise<InvocationResult>;
 };
 
 type BaseModelParams = {
@@ -34,4 +34,14 @@ type LanguageModelParams = BaseModelParams & {
   model: BaseChatModel;
 };
 
-export { BaseModelParams, LanguageModel, LanguageModelParams };
+type InvocationResult = {
+  type: "say" | "hangup" | "transfer";
+  content?: string;
+};
+
+export {
+  BaseModelParams,
+  LanguageModel,
+  LanguageModelParams,
+  InvocationResult
+};

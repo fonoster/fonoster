@@ -25,6 +25,7 @@ import { GROQ_API_KEY } from "./envs";
 import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
 import { GroqModel } from "./models/groq";
 import { LanguageModelFactory } from "./models/LanguageModelFactory";
+import { hangupToolDefinition, transferToolDefinition } from "./tools";
 import { LANGUAGE_MODEL_PROVIDER } from "./types";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
@@ -66,7 +67,7 @@ new VoiceServer({ skipIdentity }).listen(
         temperature: 0.4,
         systemTemplate,
         knowledgeBase,
-        tools
+        tools: [...tools, hangupToolDefinition, transferToolDefinition]
       }
     );
 
