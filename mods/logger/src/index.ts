@@ -21,4 +21,4 @@ import logger, { mute, unmute } from "./logger";
 import { ULogType } from "./types";
 import ulogger from "./userLogger";
 
-export { logger as default, getLogger, ulogger, ULogType, mute, unmute };
+export { ULogType, logger as default, getLogger, mute, ulogger, unmute };

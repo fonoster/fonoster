@@ -65,4 +65,4 @@ function deleteTrunk(trunks: TrunkApi) {
   );
 }
 
-export { createTrunk, updateTrunk, getTrunk, listTrunks, deleteTrunk };
+export { createTrunk, deleteTrunk, getTrunk, listTrunks, updateTrunk };

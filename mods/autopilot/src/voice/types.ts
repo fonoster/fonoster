@@ -42,4 +42,4 @@ type Voice = {
   stopSpeech: () => Promise<void>;
 };
 
-export { Voice, TransferOptions };
+export { TransferOptions, Voice };

@@ -64,4 +64,4 @@ const toolSchema = z.object({
     })
 });
 
-export { toolSchema, AllowedOperations };
+export { AllowedOperations, toolSchema };

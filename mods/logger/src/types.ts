@@ -1,3 +1,12 @@
+// User Logging
+export interface ULog {
+  accessKeyId: string;
+  eventType: ULogType;
+  level: "info" | "error" | "verbose" | "warn";
+  message: string;
+  body?: Record<string, unknown>;
+}
+
 /*
  * Copyright (C) 2023 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -20,13 +29,4 @@ export enum ULogType {
   APP = "app",
   CALL = "call",
   SIP = "sip"
-}
-
-// User Logging
-export interface ULog {
-  accessKeyId: string;
-  eventType: ULogType;
-  level: "info" | "error" | "verbose" | "warn";
-  message: string;
-  body?: Record<string, unknown>;
 }

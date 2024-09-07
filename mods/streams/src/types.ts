@@ -46,10 +46,10 @@ type StreamRequest = {
 };
 
 export {
-  StreamRequest,
-  MessageType,
-  EventType,
   ErrorCode,
+  EventType,
+  MAXIMUM_MESSAGE_LENGTH,
   MINIMUM_MESSAGE_LENGTH,
-  MAXIMUM_MESSAGE_LENGTH
+  MessageType,
+  StreamRequest
 };

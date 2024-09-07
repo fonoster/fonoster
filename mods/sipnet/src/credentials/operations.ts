@@ -72,8 +72,8 @@ function deleteCredentials(credentials: CredentialsApi) {
 
 export {
   createCredentials,
-  updateCredentials,
+  deleteCredentials,
   getCredentials,
   listCredentials,
-  deleteCredentials
+  updateCredentials
 };

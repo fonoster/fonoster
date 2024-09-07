@@ -25,4 +25,4 @@ type NumberPreconditionsCheck = (request: {
   agentAor?: string;
 }) => Promise<void>;
 
-export { NumberPreconditionsCheck, BaseApiObject };
+export { BaseApiObject, NumberPreconditionsCheck };

@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 export * from "./apikeys";
-export * from "./exchanges";
-export * from "./invites";
-export * from "./users";
-export * from "./workspaces";
-export * from "./utils";
-export * from "./service";
 export * from "./createAuthInterceptor";
+export * from "./exchanges";
 export * from "./getPublicKeyClient";
+export * from "./invites";
+export * from "./service";
+export * from "./users";
+export * from "./utils";
+export * from "./workspaces";

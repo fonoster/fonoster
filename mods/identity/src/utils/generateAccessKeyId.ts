@@ -36,4 +36,4 @@ function generateAccessKeyId(type: AccessKeyIdType) {
   return `${prefix[type]}${customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 32)()}`;
 }
 
-export { generateAccessKeyId, AccessKeyIdType };
+export { AccessKeyIdType, generateAccessKeyId };

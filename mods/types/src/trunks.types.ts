@@ -91,12 +91,12 @@ type TrunkApi = {
 };
 
 export {
-  Trunk,
-  TrunkExtended,
   CreateTrunkRequest,
   CreateTrunkRequestExtended,
-  UpdateTrunkRequest,
   ListTrunksRequest,
   ListTrunksResponse,
-  TrunkApi
+  Trunk,
+  TrunkApi,
+  TrunkExtended,
+  UpdateTrunkRequest
 };

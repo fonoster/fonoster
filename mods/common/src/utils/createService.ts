@@ -45,4 +45,4 @@ function createServiceDefinition(
   ][params.serviceName].service;
 }
 
-export { createServiceDefinition, ServiceDefinitionParams };
+export { ServiceDefinitionParams, createServiceDefinition };

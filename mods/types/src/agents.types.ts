@@ -84,13 +84,13 @@ type AgentsApi = {
 };
 
 export {
-  AgentExtended,
   Agent,
-  CreateAgentRequestExtended,
+  AgentExtended,
+  AgentsApi,
   CreateAgentRequest,
-  UpdateAgentRequest,
+  CreateAgentRequestExtended,
   ListAgentsRequest,
   ListAgentsResponse,
-  AgentsApi,
-  Privacy
+  Privacy,
+  UpdateAgentRequest
 };

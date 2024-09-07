@@ -24,4 +24,4 @@ type SynthOptions = {
   voice: string;
 };
 
-export { TtsConfig, SynthOptions };
+export { SynthOptions, TtsConfig };

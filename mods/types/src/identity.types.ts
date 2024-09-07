@@ -77,12 +77,12 @@ type ListApiKeysResponse = ListResponse<ApiKey>;
 
 export {
   ApiRoleEnum,
-  User,
-  CreateUserRequest,
-  UpdateUserRequest,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
-  RegenerateApiKeyResponse,
+  CreateUserRequest,
   ListApiKeysRequest,
-  ListApiKeysResponse
+  ListApiKeysResponse,
+  RegenerateApiKeyResponse,
+  UpdateUserRequest,
+  User
 };

@@ -36,4 +36,4 @@ function compileTemplate(params: CompileTemplateParams) {
   return template(data);
 }
 
-export { compileTemplate, CompileTemplateParams };
+export { CompileTemplateParams, compileTemplate };

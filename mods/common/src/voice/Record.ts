@@ -38,4 +38,4 @@ type RecordResponse = {
   format: RecordFormat;
 };
 
-export { RecordOptions, RecordRequest, RecordResponse, RecordFormat };
+export { RecordFormat, RecordOptions, RecordRequest, RecordResponse };

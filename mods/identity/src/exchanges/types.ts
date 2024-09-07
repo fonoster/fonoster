@@ -87,11 +87,11 @@ type DecodedToken<T extends TokenUseEnum> = T extends TokenUseEnum.ID
       : never;
 
 export {
-  Role,
-  IdToken,
   Access,
   AccessToken,
-  RefreshToken,
   DecodedToken,
-  IdentityConfig
+  IdToken,
+  IdentityConfig,
+  RefreshToken,
+  Role
 };

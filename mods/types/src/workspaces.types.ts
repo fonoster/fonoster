@@ -77,16 +77,16 @@ type ResendWorkspaceMembershipInvitationResponse = {
 };
 
 export {
-  InviteUserToWorkspaceResponse,
   CreateWorkspaceRequest,
-  Workspace,
-  WorkspaceRoleEnum,
   InviteUserToWorkspaceRequest,
-  UpdateWorkspaceRequest,
+  InviteUserToWorkspaceResponse,
+  ListWorkspacesResponse,
   RemoveUserFromWorkspaceRequest,
   RemoveUserFromWorkspaceResponse,
-  ListWorkspacesResponse,
-  WorkspaceMemberStatus,
   ResendWorkspaceMembershipInvitationRequest,
-  ResendWorkspaceMembershipInvitationResponse
+  ResendWorkspaceMembershipInvitationResponse,
+  UpdateWorkspaceRequest,
+  Workspace,
+  WorkspaceMemberStatus,
+  WorkspaceRoleEnum
 };

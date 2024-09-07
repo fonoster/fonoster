@@ -30,4 +30,4 @@ enum MuteDirection {
 
 type MuteRequest = VerbRequest & { direction: MuteDirection };
 
-export { MuteOptions, MuteRequest, MuteDirection };
+export { MuteDirection, MuteOptions, MuteRequest };

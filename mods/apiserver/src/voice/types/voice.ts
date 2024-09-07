@@ -71,4 +71,4 @@ type GRPCClient = {
   close: () => void;
 };
 
-export { VoiceClient, TextToSpeech, SpeechToText, GRPCClient };
+export { GRPCClient, SpeechToText, TextToSpeech, VoiceClient };

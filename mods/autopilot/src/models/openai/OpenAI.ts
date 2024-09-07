@@ -39,4 +39,4 @@ class OpenAI extends AbstractLanguageModel {
   }
 }
 
-export { OpenAI, LANGUAGE_MODEL_NAME };
+export { LANGUAGE_MODEL_NAME, OpenAI };

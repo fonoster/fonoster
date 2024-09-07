@@ -66,4 +66,4 @@ function createInfluxDbPub(config) {
   };
 }
 
-export { createInfluxDbPub, FonosterEvent, InfluxDbPub };
+export { FonosterEvent, InfluxDbPub, createInfluxDbPub };

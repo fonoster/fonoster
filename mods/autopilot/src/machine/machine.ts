@@ -24,6 +24,7 @@ import { Voice } from "../voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
+// eslint-disable-next-line mocha/no-top-level-hooks
 const machine = setup({
   types: {
     context: {} as {

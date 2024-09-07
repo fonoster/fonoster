@@ -26,4 +26,4 @@ type OpenAITool = {
   function: Omit<Tool, "operation">;
 };
 
-export { Tool, OpenAITool };
+export { OpenAITool, Tool };

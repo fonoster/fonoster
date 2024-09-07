@@ -44,4 +44,4 @@ function getEnumKey(
   return result === "PRIVATE" ? "ID" : result;
 }
 
-export { isMapping, getEnumValue, getEnumKey };
+export { getEnumKey, getEnumValue, isMapping };

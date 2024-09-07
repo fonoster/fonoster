@@ -12,7 +12,8 @@
     "prettier",
     "notice",
     "sonarjs",
-    "import"
+    "import",
+    "sort-exports"
   ],
   "env": {
     "mocha": true,
@@ -51,7 +52,7 @@
       "error",
       {
         "ignoreCase": false,
-        "ignoreDeclarationSort": true, // don't want to sort import lines, use eslint-plugin-import instead
+        "ignoreDeclarationSort": true,
         "ignoreMemberSort": false,
         "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
         "allowSeparatedGroups": true
@@ -73,6 +74,13 @@
           "order": "asc",
           "caseInsensitive": true
         }
+      }
+    ],
+    "sort-exports/sort-exports": [
+      "error",
+      {
+        "sortDir": "asc",
+        "ignoreCase": false
       }
     ],
     "no-loops/no-loops": 2,

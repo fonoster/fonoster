@@ -47,4 +47,4 @@ function getVoiceObject(sandbox: SinonSandbox, resultContent: string) {
   };
 }
 
-export { sessionRef, voiceRequest, getVoiceObject };
+export { getVoiceObject, sessionRef, voiceRequest };

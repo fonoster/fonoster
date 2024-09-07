@@ -57,76 +57,108 @@ const IDENTITY_PUBLIC_KEY_PATH =
 assertFileExists(IDENTITY_PRIVATE_KEY_PATH);
 assertFileExists(IDENTITY_PUBLIC_KEY_PATH);
 
+export const APISERVER_BIND_ADDR = e.APISERVER_BIND_ADDR || "0.0.0.0:50051";
+
+export const APISERVER_HOST = e.APISERVER_HOST || "apiserver";
+
 // Frontend configurations
 export const APP_URL = e.APP_URL;
 
-// Identity configurations
-export const IDENTITY_ISSUER = e.IDENTITY_ISSUER || "https://fonoster.local";
-export const IDENTITY_AUDIENCE = e.IDENTITY_AUDIENCE || "api";
-export const IDENTITY_PRIVATE_KEY = fs.readFileSync(
-  IDENTITY_PRIVATE_KEY_PATH,
-  "utf8"
-);
-export const IDENTITY_PUBLIC_KEY = fs.readFileSync(
-  IDENTITY_PUBLIC_KEY_PATH,
-  "utf8"
-);
-export const IDENTITY_ID_TOKEN_EXPIRES_IN =
-  e.IDENTITY_ID_TOKEN_EXPIRES_IN || "15m";
-export const IDENTITY_ACCESS_TOKEN_EXPIRES_IN =
-  e.IDENTITY_ACCESS_TOKEN_EXPIRES_IN || "15m";
-export const IDENTITY_REFRESH_TOKEN_EXPIRES_IN =
-  e.IDENTITY_REFRESH_TOKEN_EXPIRES_IN || "24h";
+export const ASTERISK_ARI_PROXY_URL = e.ASTERISK_ARI_PROXY_URL;
 
-// SMTP configurations
-export const SMTP_HOST = e.SMTP_HOST;
-export const SMTP_PORT = e.SMTP_PORT ? parseInt(e.SMTP_PORT) : 587;
-export const SMTP_SECURE = e.SMTP_SECURE?.toLowerCase() === "true";
-export const SMTP_AUTH_USER = e.SMTP_AUTH_USER;
-export const SMTP_AUTH_PASS = e.SMTP_AUTH_PASS;
-export const SMTP_SENDER = e.SMTP_SENDER;
+export const ASTERISK_ARI_SECRET = e.ASTERISK_ARI_SECRET;
+
+export const ASTERISK_ARI_USERNAME = e.ASTERISK_ARI_USERNAME;
+
+export const ASTERISK_SYSTEM_DOMAIN = e.ASTERISK_SYSTEM_DOMAIN || "sip.invalid";
+
+export const ASTERISK_TRUNK = "routr";
+
+export const CALLS_CREATE_SUBJECT = "calls.create";
+
+export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
+
+// Other configurations
+export const CLOAK_ENCRYPTION_KEY = e.CLOAK_ENCRYPTION_KEY;
+
+export const DEFAULT_NATS_QUEUE_GROUP = "apiserver";
 
 // Custom email templates
 export const EMAIL_TEMPLATES_DIR = e.EMAIL_TEMPLATES_DIR;
 
-// Default owner configurations (If OWNER_EMAIL is set, the system will create a default user and a workspace)
-export const OWNER_NAME = e.OWNER_NAME || "Admin";
-export const OWNER_EMAIL = e.OWNER_EMAIL;
-export const OWNER_PASSWORD = e.OWNER_PASSWORD || "changeme";
-
-// InfluxDB configurations
-export const INFLUXDB_URL = e.INFLUXDB_URL;
-export const INFLUXDB_USERNAME = e.INFLUXDB_INIT_USERNAME;
-export const INFLUXDB_PASSWORD = e.INFLUXDB_INIT_PASSWORD;
-export const INFLUXDB_ORG = e.INFLUXDB_INIT_ORG;
-export const INFLUXDB_BUCKET = e.INFLUXDB_INIT_BUCKET;
-export const INFLUXDB_TOKEN = e.INFLUXDB_INIT_TOKEN;
-
-// Other configurations
-export const CLOAK_ENCRYPTION_KEY = e.CLOAK_ENCRYPTION_KEY;
-export const ROUTR_API_ENDPOINT = e.ROUTR_API_ENDPOINT || "routr:51907";
-export const ROUTR_DEFAULT_PEER_NAME =
-  e.ROUTR_DEFAULT_PEER_NAME || "Voice Server";
-export const ROUTR_DEFAULT_PEER_USERNAME =
-  e.ROUTR_DEFAULT_PEER_USERNAME || "voice";
-export const ROUTR_DEFAULT_PEER_AOR =
-  e.ROUTR_DEFAULT_PEER_AOR || "sip:voice@default";
-export const ROUTR_DEFAULT_PEER_PASSWORD =
-  e.ROUTR_DEFAULT_PEER_PASSWORD || "changeme";
-export const APISERVER_BIND_ADDR = e.APISERVER_BIND_ADDR || "0.0.0.0:50051";
-export const APISERVER_HOST = e.APISERVER_HOST || "apiserver";
-export const NATS_URL = e.NATS_URL;
-export const DEFAULT_NATS_QUEUE_GROUP = "apiserver";
-export const CALLS_CREATE_SUBJECT = "calls.create";
-export const CALLS_TRACK_CALL_SUBJECT = "calls.track";
-export const ASTERISK_TRUNK = "routr";
-export const ASTERISK_ARI_PROXY_URL = e.ASTERISK_ARI_PROXY_URL;
-export const ASTERISK_ARI_USERNAME = e.ASTERISK_ARI_USERNAME;
-export const ASTERISK_ARI_SECRET = e.ASTERISK_ARI_SECRET;
-export const ASTERISK_SYSTEM_DOMAIN = e.ASTERISK_SYSTEM_DOMAIN || "sip.invalid";
-export const TTS_PATH_TO_FILES = e.TTS_PATH_TO_FILES || os.tmpdir();
 export const FILES_SERVER_PORT = e.FILES_SERVER_PORT
   ? parseInt(e.FILES_SERVER_PORT)
   : 9876;
+
+export const IDENTITY_ACCESS_TOKEN_EXPIRES_IN =
+  e.IDENTITY_ACCESS_TOKEN_EXPIRES_IN || "15m";
+
+export const IDENTITY_AUDIENCE = e.IDENTITY_AUDIENCE || "api";
+
+export const IDENTITY_ID_TOKEN_EXPIRES_IN =
+  e.IDENTITY_ID_TOKEN_EXPIRES_IN || "15m";
+
+// Identity configurations
+export const IDENTITY_ISSUER = e.IDENTITY_ISSUER || "https://fonoster.local";
+
+export const IDENTITY_PRIVATE_KEY = fs.readFileSync(
+  IDENTITY_PRIVATE_KEY_PATH,
+  "utf8"
+);
+
+export const IDENTITY_PUBLIC_KEY = fs.readFileSync(
+  IDENTITY_PUBLIC_KEY_PATH,
+  "utf8"
+);
+
+export const IDENTITY_REFRESH_TOKEN_EXPIRES_IN =
+  e.IDENTITY_REFRESH_TOKEN_EXPIRES_IN || "24h";
+
+export const INFLUXDB_BUCKET = e.INFLUXDB_INIT_BUCKET;
+
+export const INFLUXDB_ORG = e.INFLUXDB_INIT_ORG;
+
+export const INFLUXDB_PASSWORD = e.INFLUXDB_INIT_PASSWORD;
+
+export const INFLUXDB_TOKEN = e.INFLUXDB_INIT_TOKEN;
+
+// InfluxDB configurations
+export const INFLUXDB_URL = e.INFLUXDB_URL;
+
+export const INFLUXDB_USERNAME = e.INFLUXDB_INIT_USERNAME;
+
 export const INTEGRATIONS_FILE =
   e.INTEGRATIONS_FILE || "/opt/fonoster/integrations.json";
+
+export const NATS_URL = e.NATS_URL;
+
+export const OWNER_EMAIL = e.OWNER_EMAIL;
+
+// Default owner configurations (If OWNER_EMAIL is set, the system will create a default user and a workspace)
+export const OWNER_NAME = e.OWNER_NAME || "Admin";
+
+export const OWNER_PASSWORD = e.OWNER_PASSWORD || "changeme";
+
+export const ROUTR_API_ENDPOINT = e.ROUTR_API_ENDPOINT || "routr:51907";
+
+export const ROUTR_DEFAULT_PEER_AOR =
+  e.ROUTR_DEFAULT_PEER_AOR || "sip:voice@default";
+
+export const ROUTR_DEFAULT_PEER_NAME =
+  e.ROUTR_DEFAULT_PEER_NAME || "Voice Server";
+
+export const ROUTR_DEFAULT_PEER_PASSWORD =
+  e.ROUTR_DEFAULT_PEER_PASSWORD || "changeme";
+
+export const ROUTR_DEFAULT_PEER_USERNAME =
+  e.ROUTR_DEFAULT_PEER_USERNAME || "voice";
+
+export const SMTP_AUTH_PASS = e.SMTP_AUTH_PASS;
+
+export const SMTP_AUTH_USER = e.SMTP_AUTH_USER;
+// SMTP configurations
+export const SMTP_HOST = e.SMTP_HOST;
+export const SMTP_PORT = e.SMTP_PORT ? parseInt(e.SMTP_PORT) : 587;
+export const SMTP_SECURE = e.SMTP_SECURE?.toLowerCase() === "true";
+export const SMTP_SENDER = e.SMTP_SENDER;
+export const TTS_PATH_TO_FILES = e.TTS_PATH_TO_FILES || os.tmpdir();

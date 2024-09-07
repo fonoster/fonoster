@@ -1,3 +1,4 @@
+export * from "./acls.types";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,14 +18,13 @@
  * limitations under the License.
  */
 export * from "./agents.types";
-export * from "./acls.types";
+export * from "./applications.types";
+export * from "./calls.types";
+export * from "./common";
 export * from "./credentials.types";
 export * from "./domains.types";
-export * from "./trunks.types";
-export * from "./numbers.types";
-export * from "./applications.types";
-export * from "./common";
-export * from "./calls.types";
 export * from "./identity.types";
+export * from "./numbers.types";
 export * from "./secrets.types";
+export * from "./trunks.types";
 export * from "./workspaces.types";

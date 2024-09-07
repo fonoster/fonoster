@@ -127,4 +127,4 @@ const roles = [
   }
 ] as Role[];
 
-export { roles, workspaceAccess, VOICE_SERVICE_ROLE };
+export { VOICE_SERVICE_ROLE, roles, workspaceAccess };

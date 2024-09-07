@@ -34,7 +34,7 @@ function createLanguageModel(
 
   return LanguageModelFactory.getLanguageModel(languageModelSettings.provider, {
     apiKey: OPENAI_API_KEY!,
-    // @ts-ignore
+    // @ts-expect-error don't know the model type here
     model: languageModelSettings.model,
     maxTokens: languageModelSettings.maxTokens,
     temperature: languageModelSettings.temperature,

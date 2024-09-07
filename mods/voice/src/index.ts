@@ -31,10 +31,10 @@ export default VoiceServer;
 export * from "./VoiceResponse";
 export * from "./types";
 export {
-  GoogleVoice,
-  GatherSource,
-  GoogleVoiceDetails,
   AzureVoice,
   AzureVoiceDetails,
+  GatherSource,
+  GoogleVoice,
+  GoogleVoiceDetails,
   StreamGatherSource
 };

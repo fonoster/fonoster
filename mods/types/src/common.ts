@@ -35,4 +35,4 @@ type ListResponse<R> = {
   nextPageToken?: string;
 };
 
-export { NumberPreconditionsCheck, BaseApiObject, ListRequest, ListResponse };
+export { BaseApiObject, ListRequest, ListResponse, NumberPreconditionsCheck };

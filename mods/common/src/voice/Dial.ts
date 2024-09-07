@@ -45,4 +45,4 @@ type DialRequest = VerbRequest &
     destination: string;
   };
 
-export { DialRequest, DialOptions, DialStatus, DialRecordDirection };
+export { DialOptions, DialRecordDirection, DialRequest, DialStatus };

@@ -65,12 +65,12 @@ type DomainsApi = {
 };
 
 export {
+  CreateDomainRequest,
+  CreateDomainRequestExtended,
   Domain,
   DomainExtended,
   DomainsApi,
-  CreateDomainRequestExtended,
-  CreateDomainRequest,
-  UpdateDomainRequest,
   ListDomainsRequest,
-  ListDomainsResponse
+  ListDomainsResponse,
+  UpdateDomainRequest
 };

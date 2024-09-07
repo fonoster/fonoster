@@ -1,3 +1,26 @@
+export * from "./Acls";
+
+export * from "./Agents";
+
+export * from "./ApiKeys";
+
+export * from "./Applications";
+
+export * from "./Calls";
+
+export * from "./Credentials";
+
+export * from "./Domains";
+
+export * from "./Numbers";
+
+export * from "./Secrets";
+
+export * from "./Trunks";
+
+export * from "./Users";
+
+export * from "./Workspaces";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,15 +40,3 @@
  * limitations under the License.
  */
 export * from "./client/Client";
-export * from "./Applications";
-export * from "./Calls";
-export * from "./ApiKeys";
-export * from "./Users";
-export * from "./Secrets";
-export * from "./Agents";
-export * from "./Domains";
-export * from "./Trunks";
-export * from "./Credentials";
-export * from "./Acls";
-export * from "./Numbers";
-export * from "./Workspaces";

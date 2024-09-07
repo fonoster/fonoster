@@ -31,4 +31,4 @@ const prisma = new PrismaClient().$extends(
 
 type Prisma = typeof prisma;
 
-export { prisma, Prisma };
+export { Prisma, prisma };

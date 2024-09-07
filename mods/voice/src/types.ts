@@ -28,4 +28,4 @@ type ServerConfig = {
   skipIdentity?: boolean;
 };
 
-export { VoiceHandler, ServerConfig, VoiceRequest };
+export { ServerConfig, VoiceHandler, VoiceRequest };

@@ -68,4 +68,4 @@ function deleteDomain(domains: DomainsApi) {
   );
 }
 
-export { createDomain, updateDomain, getDomain, listDomains, deleteDomain };
+export { createDomain, deleteDomain, getDomain, listDomains, updateDomain };

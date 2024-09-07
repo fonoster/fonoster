@@ -33,4 +33,4 @@ const permissionDeniedError = (call: ServerInterceptingCall) =>
     details: "Permission denied"
   });
 
-export { unauthenticatedError, permissionDeniedError };
+export { permissionDeniedError, unauthenticatedError };

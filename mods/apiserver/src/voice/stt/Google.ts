@@ -93,4 +93,4 @@ class Google
   }
 }
 
-export { Google, ENGINE_NAME };
+export { ENGINE_NAME, Google };

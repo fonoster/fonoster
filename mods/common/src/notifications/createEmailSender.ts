@@ -61,4 +61,4 @@ function createEmailSender(config: EmailSenderConfig) {
   };
 }
 
-export { createEmailSender, EmailSenderConfig, EmailParams };
+export { EmailParams, EmailSenderConfig, createEmailSender };

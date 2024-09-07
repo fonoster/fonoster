@@ -60,12 +60,12 @@ type StreamPayload = {
 };
 
 export {
-  StreamDirection,
-  StreamAudioFormat,
-  StreamMessageType,
-  StreamOptions,
   StartStreamRequest,
   StartStreamResponse,
   StopStreamRequest,
+  StreamAudioFormat,
+  StreamDirection,
+  StreamMessageType,
+  StreamOptions,
   StreamPayload
 };

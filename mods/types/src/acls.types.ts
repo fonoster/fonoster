@@ -61,10 +61,10 @@ type AclsApi = {
 export {
   Acl,
   AclExtended,
+  AclsApi,
   CreateAclRequest,
   CreateAclRequestExtended,
-  UpdateAclRequest,
   ListAclsRequest,
   ListAclsResponse,
-  AclsApi
+  UpdateAclRequest
 };

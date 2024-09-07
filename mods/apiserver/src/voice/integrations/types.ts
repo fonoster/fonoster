@@ -34,4 +34,4 @@ type IntegrationsContainer = {
 
 type CreateContainer = (appRef: string) => Promise<IntegrationsContainer>;
 
-export { IntegrationConfig, IntegrationsContainer, CreateContainer };
+export { CreateContainer, IntegrationConfig, IntegrationsContainer };

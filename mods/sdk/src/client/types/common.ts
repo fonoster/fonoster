@@ -40,4 +40,4 @@ type ServerStreamFunction<T, U> = (
   metadata: Metadata | unknown | null
 ) => ServerStream<U>;
 
-export { MappingTuple, ServerStreamFunction, DataResponse, ClientFunction };
+export { ClientFunction, DataResponse, MappingTuple, ServerStreamFunction };

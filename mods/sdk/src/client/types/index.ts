@@ -1,3 +1,12 @@
+export * from "./ApplicationsClient";
+
+export * from "./CallsClient";
+
+export * from "./FonosterClient";
+
+export * from "./IdentityClient";
+
+export * from "./SecretsClient";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,8 +26,3 @@
  * limitations under the License.
  */
 export * from "./common";
-export * from "./FonosterClient";
-export * from "./ApplicationsClient";
-export * from "./IdentityClient";
-export * from "./CallsClient";
-export * from "./SecretsClient";

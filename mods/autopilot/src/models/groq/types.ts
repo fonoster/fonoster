@@ -31,4 +31,4 @@ type GroqParams = BaseModelParams & {
   temperature: number;
 };
 
-export { GroqParams, GroqModel };
+export { GroqModel, GroqParams };

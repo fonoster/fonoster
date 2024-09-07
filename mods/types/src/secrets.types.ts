@@ -38,9 +38,9 @@ type ListSecretsRequest = ListRequest;
 type ListSecretsResponse = ListResponse<Secret>;
 
 export {
-  Secret,
   CreateSecretRequest,
-  UpdateSecretRequest,
   ListSecretsRequest,
-  ListSecretsResponse
+  ListSecretsResponse,
+  Secret,
+  UpdateSecretRequest
 };

@@ -63,12 +63,12 @@ type CredentialsApi = {
 };
 
 export {
-  Credentials,
-  CredentialsExtended,
   CreateCredentialsRequest,
   CreateCredentialsRequestExtended,
-  UpdateCredentialsRequest,
+  Credentials,
+  CredentialsApi,
+  CredentialsExtended,
   ListCredentialsRequest,
   ListCredentialsResponse,
-  CredentialsApi
+  UpdateCredentialsRequest
 };

@@ -41,7 +41,7 @@ type InvocationResult = {
 
 export {
   BaseModelParams,
+  InvocationResult,
   LanguageModel,
-  LanguageModelParams,
-  InvocationResult
+  LanguageModelParams
 };

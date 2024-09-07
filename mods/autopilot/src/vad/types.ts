@@ -40,4 +40,4 @@ type ONNXRuntimeAPI = {
   };
 };
 
-export { SpeechProbabilities, ONNXRuntimeAPI, Vad };
+export { ONNXRuntimeAPI, SpeechProbabilities, Vad };

@@ -149,14 +149,14 @@ type VoiceSessionStreamClient = BaseVoiceStream<
 >;
 
 export {
-  VoiceClientConfig,
-  VoiceSessionStreamServer,
-  VoiceSessionStreamClient,
-  StreamEvent,
-  StreamContent,
-  VoiceIn,
-  VoiceOut,
   DATA,
   END,
-  ERROR
+  ERROR,
+  StreamContent,
+  StreamEvent,
+  VoiceClientConfig,
+  VoiceIn,
+  VoiceOut,
+  VoiceSessionStreamClient,
+  VoiceSessionStreamServer
 };

@@ -73,9 +73,9 @@ type ListApplicationsResponse = ListResponse<Application>;
 
 export {
   Application,
+  ApplicationType,
   CreateApplicationRequest,
-  UpdateApplicationRequest,
   ListApplicationsRequest,
   ListApplicationsResponse,
-  ApplicationType
+  UpdateApplicationRequest
 };

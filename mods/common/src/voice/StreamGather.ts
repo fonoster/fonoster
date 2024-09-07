@@ -36,8 +36,8 @@ type StreamGatherPayload = VerbResponse & {
 };
 
 export {
-  StreamGatherSource,
-  StreamGatherPayload,
   StartStreamGatherRequest,
-  StreamGatherOptions
+  StreamGatherOptions,
+  StreamGatherPayload,
+  StreamGatherSource
 };

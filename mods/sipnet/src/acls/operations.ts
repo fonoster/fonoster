@@ -52,4 +52,4 @@ function deleteAcl(acls: AclsApi) {
   return deleteResource<AclExtended, BaseApiObject, AclsApi>(acls, RESOURCE);
 }
 
-export { createAcl, updateAcl, getAcl, listAcls, deleteAcl };
+export { createAcl, deleteAcl, getAcl, listAcls, updateAcl };

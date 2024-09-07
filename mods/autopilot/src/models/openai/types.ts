@@ -30,4 +30,4 @@ type OpenAIParams = BaseModelParams & {
   temperature: number;
 };
 
-export { OpenAIParams, OpenAIModel };
+export { OpenAIModel, OpenAIParams };

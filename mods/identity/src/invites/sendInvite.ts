@@ -56,4 +56,4 @@ async function sendInvite(
   });
 }
 
-export { sendInvite, SendInvite, InviteParams };
+export { InviteParams, SendInvite, sendInvite };

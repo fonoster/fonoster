@@ -64,4 +64,4 @@ function deleteAgent(agents: AgentsApi) {
   );
 }
 
-export { createAgent, updateAgent, getAgent, listAgents, deleteAgent };
+export { createAgent, deleteAgent, getAgent, listAgents, updateAgent };

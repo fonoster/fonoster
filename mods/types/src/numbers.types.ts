@@ -88,12 +88,12 @@ type NumbersApi = {
 };
 
 export {
-  INumber,
-  INumberExtended,
-  NumbersApi,
   CreateNumberRequest,
   CreateNumberRequestExtended,
-  UpdateNumberRequest,
+  INumber,
+  INumberExtended,
   ListNumbersRequest,
-  ListNumbersResponse
+  ListNumbersResponse,
+  NumbersApi,
+  UpdateNumberRequest
 };

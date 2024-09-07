@@ -96,13 +96,13 @@ type TrackCallSubscriber = {
 export {
   CALL_DETAIL_RECORD_MEASUREMENT,
   CallDetailRecord,
+  CallDirection,
+  CallPublisher,
+  CallStatus,
+  CallType,
+  CreateCallRequest,
   ListCallsRequest,
   ListCallsResponse,
-  CallType,
-  CallStatus,
-  CallDirection,
-  CreateCallRequest,
-  CallPublisher,
   TrackCallResponse,
   TrackCallSubscriber
 };

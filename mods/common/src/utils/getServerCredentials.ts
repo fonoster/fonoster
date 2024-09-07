@@ -56,4 +56,4 @@ async function getServerCredentials(config: CredentialsConfig) {
   return grpc.ServerCredentials.createInsecure();
 }
 
-export { getServerCredentials, CredentialsConfig };
+export { CredentialsConfig, getServerCredentials };

@@ -29,4 +29,4 @@ type PlayResponse = {
   playbackRef: string;
 };
 
-export { PlayRequest, PlayResponse, PlayOptions };
+export { PlayOptions, PlayRequest, PlayResponse };

@@ -27,4 +27,4 @@ type ConversationSettings = z.infer<typeof conversationSettingsSchema>;
 type LanguageModelConfig = z.infer<typeof languageModelConfigSchema>;
 type AssistantConfig = z.infer<typeof assistantSchema>;
 
-export { ConversationSettings, LanguageModelConfig, AssistantConfig };
+export { AssistantConfig, ConversationSettings, LanguageModelConfig };

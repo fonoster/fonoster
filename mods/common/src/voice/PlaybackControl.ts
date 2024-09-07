@@ -31,4 +31,4 @@ type PlaybackControlRequest = VerbRequest & {
   action: PlaybackControlAction;
 };
 
-export { PlaybackControlRequest, PlaybackControlAction };
+export { PlaybackControlAction, PlaybackControlRequest };

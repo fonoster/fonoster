@@ -1,3 +1,4 @@
+export * from "./PrismaErrorEnum";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,6 +18,5 @@
  * limitations under the License.
  */
 export * from "./handleError";
-export * from "./PrismaErrorEnum";
 export * from "./handleZodError";
 export * from "./types";

@@ -35,4 +35,4 @@ type SayOptions = {
   [key: string]: any;
 };
 
-export { SayRequest, SayResponse, SayOptions };
+export { SayOptions, SayRequest, SayResponse };

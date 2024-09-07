@@ -181,4 +181,4 @@ enum VoiceGender {
   NEUTRAL
 }
 
-export { VoiceLanguage, VoiceGender };
+export { VoiceGender, VoiceLanguage };

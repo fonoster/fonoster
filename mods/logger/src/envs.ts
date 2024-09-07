@@ -46,4 +46,4 @@ const format =
 const transports =
   LOGS_TRANSPORT === "fluent" ? [fluent] : [new winston.transports.Console()];
 
-export { format, LOGS_LEVEL as level, transports, fluent };
+export { fluent, format, LOGS_LEVEL as level, transports };

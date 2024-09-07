@@ -114,4 +114,4 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   }
 }
 
-export { Google, ENGINE_NAME };
+export { ENGINE_NAME, Google };

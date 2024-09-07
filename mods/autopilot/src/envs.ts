@@ -23,5 +23,5 @@ if (process.env.NODE_ENV === "dev") {
   dotenv.config({ path: join(process.cwd(), ".env") });
 }
 
-export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 export const GROQ_API_KEY = process.env.GROQ_API_KEY;
+export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
