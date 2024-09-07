@@ -23,10 +23,8 @@ import { AssistantConfig, loadAndValidateAssistant } from "./assistants";
 import { Autopilot } from "./Autopilot";
 import { OPENAI_API_KEY } from "./envs";
 import { FilesKnowledgeBase } from "./knowledge/FilesKnowledgeBase";
-import { OpenAIModel } from "./models";
 import { LanguageModelFactory } from "./models/LanguageModelFactory";
 import { hangupToolDefinition, transferToolDefinition } from "./tools";
-import { LANGUAGE_MODEL_PROVIDER } from "./types";
 import { SileroVad } from "./vad";
 import { VoiceImpl } from "./voice";
 
@@ -59,12 +57,13 @@ new VoiceServer({ skipIdentity }).listen(
     const { tools } = languageModelSettings;
 
     const languageModel = LanguageModelFactory.getLanguageModel(
-      LANGUAGE_MODEL_PROVIDER.OPENAI,
+      languageModelSettings.provider,
       {
         apiKey: OPENAI_API_KEY!,
-        model: OpenAIModel.GPT_4O_MINI,
-        maxTokens: 250,
-        temperature: 0.4,
+        // @ts-ignore
+        model: languageModelSettings.model,
+        maxTokens: languageModelSettings.maxTokens,
+        temperature: languageModelSettings.temperature,
         systemTemplate,
         knowledgeBase,
         tools: [...tools, hangupToolDefinition, transferToolDefinition]

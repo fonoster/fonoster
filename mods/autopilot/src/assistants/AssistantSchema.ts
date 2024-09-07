@@ -18,6 +18,7 @@
  */
 import { z } from "zod";
 import { ToolSchema } from "../tools/ToolSchema";
+import { LANGUAGE_MODEL_PROVIDER } from "../types";
 
 const ConversationSettingsSchema = z.object({
   firstMessage: z.string(),
@@ -45,7 +46,7 @@ const ConversationSettingsSchema = z.object({
 });
 
 const LanguageModelConfigSchema = z.object({
-  provider: z.string(),
+  provider: z.nativeEnum(LANGUAGE_MODEL_PROVIDER),
   model: z.string(),
   temperature: z.number(),
   maxTokens: z.number(),
