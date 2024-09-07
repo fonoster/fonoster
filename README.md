@@ -8,6 +8,18 @@ Fonoster is an open-source alternative to Twilio. It is a set of APIs that allow
 
 We're actively looking for community maintainers, so please reach out if interested!
 
+## Table of Contents
+
+- [Give a Star!](#give-a-star-)
+- [Code Examples](#code-examples)
+- [Getting Started](#getting-started)
+- [Architecture](#architecture)
+- [Contact us](#contact-us)
+- [Bugs and Feedback](#bugs-and-feedback)
+- [Contributing](#contributing)
+- [Authors](#authors)
+- [License](#license)
+
 ## Give a Star! ⭐
 
 It would mean a lot to us if you could give this project a star. It helps us identify if we are doing a good job and attract potential contributors, users, and investors. Thanks 🙏
@@ -108,6 +120,33 @@ To get started with Fonoster, use the following resources:
 - [Self-hosting Fonoster with Docker](./docs/self-hosting/deploy-with-docker.md)
 - [Getting started with Fonoster](https://fonoster.com/docs/overview/)
 - [How we created an open-source alternative to Twilio and why it matters](https://dev.to/fonoster/how-we-created-an-open-source-alternative-to-twilio-and-why-it-matters-434g)
+
+## Architecture
+
+Fonoster uses a combination of open-source tools to fulfill its functionality. If the tool exists and is well maintained, we will use and support it. If the tool doesn't exist, we build and open-source it ourselves.
+
+Fonoster is a [hosted platform](https://fonoster.com). You can sign up and start using Fonoster without installing anything. You can also self-host and develop locally.
+
+<div align="center">
+  <p align="center">
+    <img src="https://github.com/fonoster/fonoster/blob/0.6/assets/architecture.png" />
+  </p>
+</div>
+
+- [Asterisk](https://www.asterisk.org/) is an open-source framework for building communications applications. Asterisk turns an ordinary computer into a communications server
+- [RTPEngine](https://github.com/sipwise/rtpengine) is a proxy for RTP traffic and other UDP based media traffic
+- [Routr](https://routr.io) Routr is a lightweight sip proxy, location server, and registrar that provides a reliable and scalable SIP infrastructure for telephony carriers, communication service providers, and integrators.
+- [Nats](https://nats.io) is a simple, secure, and performant communications system for digital systems
+- [Postgres](https://www.postgresql.org/) is a popular open-source database with a proven architecture that has earned it a strong reputation for reliability, data integrity, and correctness
+- [gRPC](https://grpc.io) a high performance, open source universal RPC framework
+- [SMTP](https://en.wikipedia.org/wiki/Simple_Mail_Transfer_Protocol) is an Internet standard for email transmission. We use SMTP to send emails to customers and agents
+
+## Contact us
+
+Meet our sales team for any commercial inquiries.
+
+<a href="https://cal.com/psanders"><img src="https://cal.com/book-with-cal-dark.svg" alt="Book us with Cal.com"></a>
+
 
 ## Bugs and Feedback
 
