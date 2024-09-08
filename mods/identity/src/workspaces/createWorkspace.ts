@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateWorkspaceRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -36,35 +40,32 @@ const createWorkspaceRequestSchema = z.object({
 });
 
 function createWorkspace(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: CreateWorkspaceRequest },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    try {
-      const validatedRequest = createWorkspaceRequestSchema.parse(call.request);
+    const { request } = call;
+    const { name } = request;
 
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerRef = getUserRefFromToken(token);
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const ownerRef = getUserRefFromToken(token);
 
-      const { name } = validatedRequest;
+    logger.verbose("call to createWorkspace", { name, ownerRef });
 
-      logger.verbose("call to createWorkspace", { name, ownerRef });
+    const workspace = await prisma.workspace.create({
+      data: {
+        name,
+        accessKeyId: generateAccessKeyId(AccessKeyIdType.WORKSPACE),
+        ownerRef
+      }
+    });
 
-      const workspace = await prisma.workspace.create({
-        data: {
-          name,
-          accessKeyId: generateAccessKeyId(AccessKeyIdType.WORKSPACE),
-          ownerRef
-        }
-      });
-
-      callback(null, {
-        ref: workspace.ref
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, {
+      ref: workspace.ref
+    });
   };
+
+  return withErrorHandling(withValidation(fn, createWorkspaceRequestSchema));
 }
 
 export { createWorkspace };

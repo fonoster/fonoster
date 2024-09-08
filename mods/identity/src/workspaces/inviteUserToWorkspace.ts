@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   InviteUserToWorkspaceRequest,
@@ -91,96 +95,94 @@ function inviteUserToWorkspace(
   identityConfig: IdentityConfig,
   sendInvite: SendInvite
 ) {
-  return async (
+  const fn = async (
     call: { request: InviteUserToWorkspaceRequest },
     callback: (
       error: GrpcErrorMessage,
       response?: InviteUserToWorkspaceResponse
     ) => void
   ) => {
-    try {
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const adminRef = getUserRefFromToken(token);
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const adminRef = getUserRefFromToken(token);
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      const workspace = await prisma.workspace.findUnique({
-        where: {
-          accessKeyId
-        }
-      });
+    const workspace = await prisma.workspace.findUnique({
+      where: {
+        accessKeyId
+      }
+    });
 
-      const workspaceRef = workspace.ref;
+    const { ref: workspaceRef } = workspace;
+    const { request } = call;
+    const { email, name, role } = request;
 
-      const { email, name, role } = inviteUserToWorkspaceRequestSchema.parse(
-        call.request
-      );
+    logger.verbose("inviting user to workspace", {
+      workspaceRef,
+      email,
+      role
+    });
 
-      logger.verbose("inviting user to workspace", {
-        workspaceRef,
+    const isAdmin = await isAdminMember(prisma)(workspaceRef, adminRef);
+
+    if (!isAdmin) {
+      return callback(inviterIsNotAdminError);
+    }
+
+    let user = await findUserByEmail(prisma, email);
+
+    const isMember = await isWorkspaceMember(prisma)(workspaceRef, user?.ref);
+
+    if (isMember) {
+      return callback(userIsMemberError);
+    }
+
+    const oneTimePassword = customAlphabet("1234567890abcdef", 10)();
+
+    let isExistingUser = true;
+
+    if (!user) {
+      isExistingUser = false;
+
+      user = await createUser(prisma)({
+        name,
         email,
+        password: oneTimePassword,
         role
       });
-
-      const isAdmin = await isAdminMember(prisma)(workspaceRef, adminRef);
-
-      if (!isAdmin) {
-        return callback(inviterIsNotAdminError);
-      }
-
-      let user = await findUserByEmail(prisma, email);
-
-      const isMember = await isWorkspaceMember(prisma)(workspaceRef, user?.ref);
-
-      if (isMember) {
-        return callback(userIsMemberError);
-      }
-
-      const oneTimePassword = customAlphabet("1234567890abcdef", 10)();
-
-      let isExistingUser = true;
-
-      if (!user) {
-        isExistingUser = false;
-
-        user = await createUser(prisma)({
-          name,
-          email,
-          password: oneTimePassword,
-          role
-        });
-      }
-
-      const newMember = await prisma.workspaceMember.create({
-        data: {
-          userRef: user.ref,
-          workspaceRef,
-          role: role as WorkspaceRoleEnum,
-          status: WorkspaceMemberStatus.PENDING
-        },
-        include: {
-          workspace: true
-        }
-      });
-
-      await sendInvite(createSendEmail(identityConfig), {
-        recipient: email,
-        oneTimePassword,
-        workspaceName: newMember.workspace.name,
-        isExistingUser,
-        // TODO: Create inviteUrl with invite token
-        inviteUrl: "https://placehold.it?token=jwt"
-      });
-
-      callback(null, {
-        userRef: user?.ref,
-        workspaceRef
-      });
-    } catch (error) {
-      handleError(error, callback);
     }
+
+    const newMember = await prisma.workspaceMember.create({
+      data: {
+        userRef: user.ref,
+        workspaceRef,
+        role: role as WorkspaceRoleEnum,
+        status: WorkspaceMemberStatus.PENDING
+      },
+      include: {
+        workspace: true
+      }
+    });
+
+    await sendInvite(createSendEmail(identityConfig), {
+      recipient: email,
+      oneTimePassword,
+      workspaceName: newMember.workspace.name,
+      isExistingUser,
+      // TODO: Create inviteUrl with invite token
+      inviteUrl: "https://placehold.it?token=jwt"
+    });
+
+    callback(null, {
+      userRef: user?.ref,
+      workspaceRef
+    });
   };
+
+  return withErrorHandling(
+    withValidation(fn, inviteUserToWorkspaceRequestSchema)
+  );
 }
 
 export { inviteUserToWorkspace };

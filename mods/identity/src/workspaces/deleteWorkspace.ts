@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -27,30 +27,29 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 function deleteWorkspace(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    try {
-      const { ref } = call.request;
+    const { request } = call;
+    const { ref } = request;
 
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerRef = getUserRefFromToken(token);
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const ownerRef = getUserRefFromToken(token);
 
-      logger.verbose("deleting workspace from the system", { ref, ownerRef });
+    logger.verbose("deleting workspace from the system", { ref, ownerRef });
 
-      await prisma.workspace.delete({
-        where: {
-          ref,
-          ownerRef
-        }
-      });
+    await prisma.workspace.delete({
+      where: {
+        ref,
+        ownerRef
+      }
+    });
 
-      callback(null, { ref });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, { ref });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { deleteWorkspace };

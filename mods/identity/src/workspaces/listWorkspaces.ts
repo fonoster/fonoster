@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ListWorkspacesResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -29,7 +29,7 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 function listWorkspaces(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: unknown },
     callback: (
       error: GrpcErrorMessage,
@@ -73,6 +73,8 @@ function listWorkspaces(prisma: Prisma) {
       nextPageToken: items[items.length - 1]?.ref
     });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { listWorkspaces };

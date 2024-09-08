@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   RemoveUserFromWorkspaceRequest,
@@ -32,64 +32,64 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 function removeUserFromWorkspace(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: RemoveUserFromWorkspaceRequest },
     callback: (
       error: GrpcErrorMessage,
       response?: RemoveUserFromWorkspaceResponse
     ) => void
   ) => {
-    try {
-      const { userRef } = call.request;
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
-      const adminRef = getUserRefFromToken(token);
-      const workspace = await prisma.workspace.findUnique({
-        where: {
-          accessKeyId
-        }
-      });
+    const { request } = call;
+    const { userRef } = request;
 
-      const workspaceRef = workspace?.ref;
-
-      logger.verbose("removing user from workspace", { workspaceRef, userRef });
-
-      const isAdmin = await isAdminMember(prisma)(workspaceRef, adminRef);
-
-      if (!isAdmin && adminRef !== userRef) {
-        return callback({
-          code: GRPCStatus.PERMISSION_DENIED,
-          message: "Only admins or owners can remove users from a workspace"
-        });
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
+    const adminRef = getUserRefFromToken(token);
+    const workspace = await prisma.workspace.findUnique({
+      where: {
+        accessKeyId
       }
+    });
 
-      const memberRef = await prisma.workspaceMember.findFirst({
-        where: {
-          workspaceRef,
-          userRef
-        }
+    const { ref: workspaceRef } = workspace;
+
+    logger.verbose("removing user from workspace", { workspaceRef, userRef });
+
+    const isAdmin = await isAdminMember(prisma)(workspaceRef, adminRef);
+
+    if (!isAdmin && adminRef !== userRef) {
+      return callback({
+        code: GRPCStatus.PERMISSION_DENIED,
+        message: "Only admins or owners can remove users from a workspace"
       });
-
-      if (!memberRef) {
-        return callback({
-          code: GRPCStatus.NOT_FOUND,
-          message: "User not found in workspace"
-        });
-      }
-
-      const response = await prisma.workspaceMember.delete({
-        where: {
-          ref: memberRef?.ref
-        }
-      });
-
-      callback(null, response);
-    } catch (error) {
-      handleError(error, callback);
     }
+
+    const memberRef = await prisma.workspaceMember.findFirst({
+      where: {
+        workspaceRef,
+        userRef
+      }
+    });
+
+    if (!memberRef) {
+      return callback({
+        code: GRPCStatus.NOT_FOUND,
+        message: "User not found in workspace"
+      });
+    }
+
+    const response = await prisma.workspaceMember.delete({
+      where: {
+        ref: memberRef?.ref
+      }
+    });
+
+    callback(null, response);
   };
+
+  return withErrorHandling(fn);
 }
 
 export { removeUserFromWorkspace };

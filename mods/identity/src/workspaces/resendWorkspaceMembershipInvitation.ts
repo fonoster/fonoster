@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   ResendWorkspaceMembershipInvitationRequest,
@@ -39,77 +39,77 @@ function resendWorkspaceMembershipInvitation(
   identityConfig: IdentityConfig,
   sendInvite: SendInvite
 ) {
-  return async (
+  const fn = async (
     call: { request: ResendWorkspaceMembershipInvitationRequest },
     callback: (
       error: GrpcErrorMessage,
       response?: ResendWorkspaceMembershipInvitationResponse
     ) => void
   ) => {
-    try {
-      const { userRef: inviteeRef } = call.request;
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const adminRef = getUserRefFromToken(token);
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const adminRef = getUserRefFromToken(token);
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      const workspace = await prisma.workspace.findUnique({
-        where: {
-          accessKeyId
-        }
-      });
-      const workspaceRef = workspace.ref;
-
-      logger.verbose("resending workspace membership invitation", {
-        workspaceRef,
-        inviteeRef,
-        adminRef
-      });
-
-      const isAdmin = await isAdminMember(prisma)(workspace.ref, adminRef);
-
-      if (!isAdmin) {
-        return callback({
-          code: GRPCStatus.PERMISSION_DENIED,
-          message: "Only admins and owners can resend workspace invitations"
-        });
+    const workspace = await prisma.workspace.findUnique({
+      where: {
+        accessKeyId
       }
+    });
 
-      const member = await prisma.workspaceMember.findFirst({
-        where: {
-          workspaceRef,
-          userRef: inviteeRef
-        },
-        include: {
-          user: true,
-          workspace: true
-        }
+    const { ref: workspaceRef } = workspace;
+    const { request } = call;
+    const { userRef: inviteeRef } = request;
+
+    logger.verbose("resending workspace membership invitation", {
+      workspaceRef,
+      inviteeRef,
+      adminRef
+    });
+
+    const isAdmin = await isAdminMember(prisma)(workspace.ref, adminRef);
+
+    if (!isAdmin) {
+      return callback({
+        code: GRPCStatus.PERMISSION_DENIED,
+        message: "Only admins and owners can resend workspace invitations"
       });
-
-      if (!member) {
-        return callback({
-          code: GRPCStatus.NOT_FOUND,
-          message: `Original invitation not found for userRef: ${inviteeRef}`
-        });
-      }
-
-      await sendInvite(createSendEmail(identityConfig), {
-        recipient: member.user.email,
-        oneTimePassword: member.user.password,
-        workspaceName: member.workspace.name,
-        isExistingUser: true,
-        // TODO: Create inviteUrl with invite token
-        inviteUrl: "https://placehold.it?token=jwt"
-      });
-
-      callback(null, {
-        userRef: inviteeRef
-      });
-    } catch (error) {
-      handleError(error, callback);
     }
+
+    const member = await prisma.workspaceMember.findFirst({
+      where: {
+        workspaceRef,
+        userRef: inviteeRef
+      },
+      include: {
+        user: true,
+        workspace: true
+      }
+    });
+
+    if (!member) {
+      return callback({
+        code: GRPCStatus.NOT_FOUND,
+        message: `Original invitation not found for userRef: ${inviteeRef}`
+      });
+    }
+
+    await sendInvite(createSendEmail(identityConfig), {
+      recipient: member.user.email,
+      oneTimePassword: member.user.password,
+      workspaceName: member.workspace.name,
+      isExistingUser: true,
+      // TODO: Create inviteUrl with invite token
+      inviteUrl: "https://placehold.it?token=jwt"
+    });
+
+    callback(null, {
+      userRef: inviteeRef
+    });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { resendWorkspaceMembershipInvitation };

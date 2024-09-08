@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, datesMapper, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  datesMapper,
+  withErrorHandling
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, Workspace } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
@@ -27,39 +31,39 @@ import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 function getWorkspace(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: Workspace) => void
   ) => {
-    try {
-      const { ref } = call.request;
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const ownerRef = getUserRefFromToken(token);
+    const { request } = call;
+    const { ref } = request;
 
-      logger.verbose("getting workspace by id", { ref, ownerRef });
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const ownerRef = getUserRefFromToken(token);
 
-      const workspace = await prisma.workspace.findUnique({
-        where: {
-          ref,
-          ownerRef
-        }
-      });
+    logger.verbose("getting workspace by id", { ref, ownerRef });
 
-      if (!workspace) {
-        callback({
-          code: GRPCStatus.NOT_FOUND,
-          message: "Workspace not found"
-        });
-        return;
+    const workspace = await prisma.workspace.findUnique({
+      where: {
+        ref,
+        ownerRef
       }
+    });
 
-      const response = datesMapper(workspace);
-
-      callback(null, response);
-    } catch (error) {
-      handleError(error, callback);
+    if (!workspace) {
+      callback({
+        code: GRPCStatus.NOT_FOUND,
+        message: "Workspace not found"
+      });
+      return;
     }
+
+    const response = datesMapper(workspace);
+
+    callback(null, response);
   };
+
+  return withErrorHandling(fn);
 }
 
 export { getWorkspace };

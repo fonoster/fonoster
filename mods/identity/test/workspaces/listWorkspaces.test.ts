@@ -67,7 +67,7 @@ describe("@identity[workspaces/listWorkspaces]", function () {
     const response = (await new Promise((resolve, reject) => {
       listWorkspaces(prisma)(call, (error, response) => {
         if (error) return reject(error);
-        resolve(response);
+        resolve(response as { items: unknown[] });
       });
     })) as { items: unknown[] };
 
@@ -101,7 +101,7 @@ describe("@identity[workspaces/listWorkspaces]", function () {
     const response = (await new Promise((resolve, reject) => {
       listWorkspaces(prisma)(call, (error, response) => {
         if (error) return reject(error);
-        resolve(response);
+        resolve(response as { items: unknown[] });
       });
     })) as { items: unknown[] };
 

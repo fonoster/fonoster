@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, UpdateWorkspaceRequest } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
@@ -34,41 +38,40 @@ const updateWorkspaceRequestSchema = z.object({
 });
 
 function updateWorkspace(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: UpdateWorkspaceRequest },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    try {
-      const validatedRequest = updateWorkspaceRequestSchema.parse(call.request);
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const userRef = getUserRefFromToken(token);
-      const { ref, name } = validatedRequest;
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const userRef = getUserRefFromToken(token);
 
-      logger.verbose("call to updateWorkspace", { ref, userRef });
+    const { request } = call;
+    const { ref, name } = request;
 
-      const isMember = await isWorkspaceMember(prisma)(ref, userRef);
+    logger.verbose("call to updateWorkspace", { ref, userRef });
 
-      if (!isMember) {
-        callback({
-          code: GRPCStatus.PERMISSION_DENIED,
-          message: "User is not a member of the workspace"
-        });
-      }
+    const isMember = await isWorkspaceMember(prisma)(ref, userRef);
 
-      await prisma.workspace.update({
-        where: {
-          ref
-        },
-        data: {
-          name
-        }
+    if (!isMember) {
+      callback({
+        code: GRPCStatus.PERMISSION_DENIED,
+        message: "User is not a member of the workspace"
       });
-
-      callback(null, { ref });
-    } catch (error) {
-      handleError(error, callback);
     }
+
+    await prisma.workspace.update({
+      where: {
+        ref
+      },
+      data: {
+        name
+      }
+    });
+
+    callback(null, { ref });
   };
+
+  return withErrorHandling(withValidation(fn, updateWorkspaceRequestSchema));
 }
 
 export { updateWorkspace };
