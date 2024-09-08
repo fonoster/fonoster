@@ -55,7 +55,7 @@ function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
   const fn = async (
     call: { request: ExchangeCredentialsRequest },
     callback: (
-      error: GrpcErrorMessage,
+      error?: GrpcErrorMessage,
       response?: ExchangeCredentialsResponse
     ) => void
   ) => {

@@ -36,6 +36,7 @@ function deleteUser(prisma: Prisma) {
   ) => {
     const { request } = call;
     const { ref } = request;
+
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const accessKeyId = getAccessKeyIdFromToken(token);
 
@@ -48,11 +49,7 @@ function deleteUser(prisma: Prisma) {
       }
     });
 
-    const response: BaseApiObject = {
-      ref
-    };
-
-    callback(null, response);
+    callback(null, { ref });
   };
 
   return withErrorHandling(fn);
