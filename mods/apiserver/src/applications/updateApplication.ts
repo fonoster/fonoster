@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandling } from "@fonoster/common";
+import {
+  Validators as V,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { UpdateApplicationRequest } from "@fonoster/types";
@@ -73,7 +77,12 @@ function updateApplication(prisma: Prisma) {
     return { ref: applicationRef };
   };
 
-  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
+  return withErrorHandling(
+    withValidation(
+      withAccess(fn, (ref: string) => getFn(ref)),
+      V.updateApplicationRequestSchema
+    )
+  );
 }
 
 export { updateApplication };

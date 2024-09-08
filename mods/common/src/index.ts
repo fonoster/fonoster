@@ -24,5 +24,6 @@ export * from "./notifications";
 export * from "./tts";
 export * from "./types";
 export * from "./utils";
+export * as Validators from "./validators";
 export * from "./validators";
 export * from "./voice";
