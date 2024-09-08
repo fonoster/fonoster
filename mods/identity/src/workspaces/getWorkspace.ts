@@ -18,8 +18,9 @@
  */
 import {
   GrpcErrorMessage,
+  Validators as V,
   datesMapper,
-  withErrorHandling
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, Workspace } from "@fonoster/types";
@@ -63,7 +64,7 @@ function getWorkspace(prisma: Prisma) {
     callback(null, response);
   };
 
-  return withErrorHandling(fn);
+  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
 }
 
 export { getWorkspace };

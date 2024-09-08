@@ -18,13 +18,12 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateWorkspaceRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { z } from "zod";
 import { Prisma } from "../db";
 import {
   AccessKeyIdType,
@@ -34,10 +33,6 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const createWorkspaceRequestSchema = z.object({
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50)
-});
 
 function createWorkspace(prisma: Prisma) {
   const fn = async (
@@ -49,23 +44,24 @@ function createWorkspace(prisma: Prisma) {
 
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const ownerRef = getUserRefFromToken(token);
+    const accessKeyId = generateAccessKeyId(AccessKeyIdType.WORKSPACE);
 
     logger.verbose("call to createWorkspace", { name, ownerRef });
 
     const workspace = await prisma.workspace.create({
       data: {
         name,
-        accessKeyId: generateAccessKeyId(AccessKeyIdType.WORKSPACE),
+        accessKeyId,
         ownerRef
       }
     });
 
-    callback(null, {
-      ref: workspace.ref
-    });
+    const { ref } = workspace;
+
+    callback(null, { ref });
   };
 
-  return withErrorHandling(withValidation(fn, createWorkspaceRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.createWorkspaceRequestSchema);
 }
 
 export { createWorkspace };

@@ -51,7 +51,9 @@ function createUser(prisma: Prisma) {
       }
     });
 
-    callback(null, user);
+    const { ref } = user;
+
+    callback(null, { ref });
   };
 
   return withErrorHandlingAndValidation(fn, V.createUserRequestSchema);

@@ -16,8 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ApiRoleEnum } from "@fonoster/types";
+import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
 import { z } from "zod";
+
+const createWorkspaceRequestSchema = z.object({
+  name: z.string().min(3, "Name must contain at least 3 characters").max(50)
+});
 
 const createApiKeyRequestSchema = z.object({
   role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
@@ -55,11 +59,39 @@ const updateUserRequestSchema = z.object({
   avatar: z.string().url().or(z.string().optional().nullable())
 });
 
+const inviteUserToWorkspaceRequestSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(3, "Name must contain at least 3 characters").max(50),
+  role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
+  password: z
+    .string()
+    .min(6, "Password must contain at least 8 characters")
+    .or(z.undefined())
+});
+
+const resendWorkspaceMembershipInvitationRequestSchema = z.object({
+  userRef: z.string()
+});
+
+const updateWorkspaceRequestSchema = z.object({
+  ref: z.string(),
+  name: z.string().min(3).max(50).or(z.string().optional().nullable())
+});
+
+const removeUserFromWorkspaceRequestSchema = z.object({
+  userRef: z.string()
+});
+
 export {
   createApiKeyRequestSchema,
   createUserRequestSchema,
+  createWorkspaceRequestSchema,
   exchangeApiKeysRequestSchema,
   exchangeCredentialsRequestSchema,
   exchangeRefreshTokenRequestSchema,
-  updateUserRequestSchema
+  inviteUserToWorkspaceRequestSchema,
+  removeUserFromWorkspaceRequestSchema,
+  resendWorkspaceMembershipInvitationRequestSchema,
+  updateUserRequestSchema,
+  updateWorkspaceRequestSchema
 };

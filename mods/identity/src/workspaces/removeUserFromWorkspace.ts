@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  Validators as V,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   RemoveUserFromWorkspaceRequest,
@@ -35,7 +39,7 @@ function removeUserFromWorkspace(prisma: Prisma) {
   const fn = async (
     call: { request: RemoveUserFromWorkspaceRequest },
     callback: (
-      error: GrpcErrorMessage,
+      error?: GrpcErrorMessage,
       response?: RemoveUserFromWorkspaceResponse
     ) => void
   ) => {
@@ -89,7 +93,10 @@ function removeUserFromWorkspace(prisma: Prisma) {
     callback(null, response);
   };
 
-  return withErrorHandling(fn);
+  return withErrorHandlingAndValidation(
+    fn,
+    V.removeUserFromWorkspaceRequestSchema
+  );
 }
 
 export { removeUserFromWorkspace };

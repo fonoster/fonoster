@@ -18,24 +18,18 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, UpdateWorkspaceRequest } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
-import { z } from "zod";
 import { isWorkspaceMember } from "./isWorkspaceMember";
 import { Prisma } from "../db";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const updateWorkspaceRequestSchema = z.object({
-  ref: z.string(),
-  name: z.string().min(3).max(50).or(z.string().optional().nullable())
-});
 
 function updateWorkspace(prisma: Prisma) {
   const fn = async (
@@ -71,7 +65,7 @@ function updateWorkspace(prisma: Prisma) {
     callback(null, { ref });
   };
 
-  return withErrorHandling(withValidation(fn, updateWorkspaceRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.updateWorkspaceRequestSchema);
 }
 
 export { updateWorkspace };

@@ -18,8 +18,8 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
@@ -30,7 +30,6 @@ import {
 } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
-import { z } from "zod";
 import { createSendEmail } from "./createSendEmail";
 import { isAdminMember } from "./isAdminMember";
 import { isWorkspaceMember } from "./isWorkspaceMember";
@@ -46,16 +45,6 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const inviteUserToWorkspaceRequestSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50),
-  role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
-  password: z
-    .string()
-    .min(6, "Password must contain at least 8 characters")
-    .or(z.undefined())
-});
 
 const userIsMemberError = {
   code: GRPCStatus.ALREADY_EXISTS,
@@ -180,8 +169,9 @@ function inviteUserToWorkspace(
     });
   };
 
-  return withErrorHandling(
-    withValidation(fn, inviteUserToWorkspaceRequestSchema)
+  return withErrorHandlingAndValidation(
+    fn,
+    V.inviteUserToWorkspaceRequestSchema
   );
 }
 
