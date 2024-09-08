@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, UpdateUserRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -35,40 +39,39 @@ const updateUserRequestSchema = z.object({
 });
 
 function updateUser(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: UpdateUserRequest },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    try {
-      const validatedRequest = updateUserRequestSchema.parse(call.request);
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const accessKeyId = getAccessKeyIdFromToken(token);
-      const { ref, name, avatar, password } = validatedRequest;
+    const { request } = call;
+    const { ref, name, avatar, password } = request;
 
-      logger.verbose("call to updateUser", { ref, password });
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const accessKeyId = getAccessKeyIdFromToken(token);
 
-      await prisma.user.update({
-        where: {
-          ref,
-          accessKeyId
-        },
-        data: {
-          name,
-          avatar,
-          password: password || undefined,
-          updatedAt: new Date()
-        }
-      });
+    logger.verbose("call to updateUser", { ref, password });
 
-      const response: BaseApiObject = {
-        ref
-      };
+    await prisma.user.update({
+      where: {
+        ref,
+        accessKeyId
+      },
+      data: {
+        name,
+        avatar,
+        password: password || undefined,
+        updatedAt: new Date()
+      }
+    });
 
-      callback(null, response);
-    } catch (error) {
-      handleError(error, callback);
-    }
+    const response: BaseApiObject = {
+      ref
+    };
+
+    callback(null, response);
   };
+
+  return withErrorHandling(withValidation(fn, updateUserRequestSchema));
 }
 
 export { updateUser };

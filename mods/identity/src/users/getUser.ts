@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, datesMapper, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  datesMapper,
+  withErrorHandling
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, User } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
@@ -27,40 +31,40 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 function getUser(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: User) => void
   ) => {
-    try {
-      const { ref } = call.request;
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const accessKeyId = getAccessKeyIdFromToken(token);
+    const { request } = call;
+    const { ref } = request;
 
-      logger.verbose("getting user with ref and accessKeyId", {
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const accessKeyId = getAccessKeyIdFromToken(token);
+
+    logger.verbose("getting user with ref and accessKeyId", {
+      ref,
+      accessKeyId
+    });
+
+    const user = await prisma.user.findUnique({
+      where: {
         ref,
         accessKeyId
-      });
-
-      const user = await prisma.user.findUnique({
-        where: {
-          ref,
-          accessKeyId
-        }
-      });
-
-      if (!user) {
-        callback({
-          code: GRPCStatus.NOT_FOUND,
-          message: `User not found: ${ref}`
-        });
-        return;
       }
+    });
 
-      callback(null, datesMapper(user));
-    } catch (error) {
-      handleError(error, callback);
+    if (!user) {
+      callback({
+        code: GRPCStatus.NOT_FOUND,
+        message: `User not found: ${ref}`
+      });
+      return;
     }
+
+    callback(null, datesMapper(user));
   };
+
+  return withErrorHandling(fn);
 }
 
 export { getUser };

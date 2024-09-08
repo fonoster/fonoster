@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject, GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  BaseApiObject,
+  GrpcErrorMessage,
+  withErrorHandling
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Prisma } from "../db";
@@ -26,33 +30,32 @@ import { getTokenFromCall } from "../utils/getTokenFromCall";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 function deleteUser(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    try {
-      const { ref } = call.request;
-      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
-      const accessKeyId = getAccessKeyIdFromToken(token);
+    const { request } = call;
+    const { ref } = request;
+    const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+    const accessKeyId = getAccessKeyIdFromToken(token);
 
-      logger.verbose("deleting user from the system", { ref, accessKeyId });
+    logger.verbose("deleting user from the system", { ref, accessKeyId });
 
-      await prisma.user.delete({
-        where: {
-          ref,
-          accessKeyId
-        }
-      });
+    await prisma.user.delete({
+      where: {
+        ref,
+        accessKeyId
+      }
+    });
 
-      const response: BaseApiObject = {
-        ref
-      };
+    const response: BaseApiObject = {
+      ref
+    };
 
-      callback(null, response);
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, response);
   };
+
+  return withErrorHandling(fn);
 }
 
 export { deleteUser };

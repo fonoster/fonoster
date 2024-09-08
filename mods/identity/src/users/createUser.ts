@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateUserRequest } from "@fonoster/types";
 import { z } from "zod";
@@ -36,34 +40,31 @@ const createUserRequestSchema = z.object({
 });
 
 function createUser(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: CreateUserRequest },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    try {
-      const validatedRequest = createUserRequestSchema.parse(call.request);
+    const { request } = call;
+    const { name, email, password, avatar } = request;
 
-      const { name, email, password, avatar } = validatedRequest;
+    logger.verbose("call to createUser", { email });
 
-      logger.verbose("call to createUser", { email });
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        accessKeyId: generateAccessKeyId(AccessKeyIdType.USER),
+        password,
+        avatar
+      }
+    });
 
-      const user = await prisma.user.create({
-        data: {
-          name,
-          email,
-          accessKeyId: generateAccessKeyId(AccessKeyIdType.USER),
-          password,
-          avatar
-        }
-      });
-
-      callback(null, {
-        ref: user.ref
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, {
+      ref: user.ref
+    });
   };
+
+  return withErrorHandling(withValidation(fn, createUserRequestSchema));
 }
 
 export { createUser };
