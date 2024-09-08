@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -34,34 +38,30 @@ const getCallRequestSchema = z.object({
 function getCall(influx: InfluxDBClient) {
   const fetchSingleCall = createFetchSingleCall(influx);
 
-  return async (
+  const fn = async (
     call: {
       request: GetCallRequest;
     },
-    callback: (error: GrpcErrorMessage, response?: CallDetailRecord) => void
+    callback: (error?: GrpcErrorMessage, response?: CallDetailRecord) => void
   ) => {
-    try {
-      const { ref } = call.request;
+    const { ref } = call.request;
 
-      getCallRequestSchema.parse({ ref });
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
+    logger.verbose("call to getCall", { accessKeyId, ref });
 
-      logger.verbose("call to getCall", { accessKeyId, ref });
+    const response = await fetchSingleCall(accessKeyId, ref);
 
-      const response = await fetchSingleCall(accessKeyId, ref);
-
-      if (!response) {
-        throw notFoundError(`Call not found: ${ref}`);
-      }
-
-      callback(null, response);
-    } catch (error) {
-      handleError(error, callback);
+    if (!response) {
+      throw notFoundError(`Call not found: ${ref}`);
     }
+
+    callback(null, response);
   };
+
+  return withErrorHandling(withValidation(fn, getCallRequestSchema));
 }
 
 export { getCall };

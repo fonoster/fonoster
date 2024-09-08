@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { withErrorHandling } from "@fonoster/common";
 import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { UpdateSecretRequest } from "@fonoster/types";
@@ -28,30 +29,29 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function updateSecret(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
-  return withAccess(
-    async (call: { request: UpdateSecretRequest }) => {
-      const { name, secret } = call.request;
+  const fn = async (call: { request: UpdateSecretRequest }) => {
+    const { name, secret } = call.request;
 
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      logger.verbose("call to updateSecret", {
-        accessKeyId
-      });
+    logger.verbose("call to updateSecret", {
+      accessKeyId
+    });
 
-      await prisma.secret.update({
-        where: { ref: call.request.ref },
-        data: {
-          name,
-          secret
-        }
-      });
+    await prisma.secret.update({
+      where: { ref: call.request.ref },
+      data: {
+        name,
+        secret
+      }
+    });
 
-      return { ref: call.request.ref };
-    },
-    (ref: string) => getFn(ref)
-  );
+    return { ref: call.request.ref };
+  };
+
+  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
 }
 
 export { updateSecret };

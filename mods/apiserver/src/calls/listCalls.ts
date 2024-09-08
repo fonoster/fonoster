@@ -16,12 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
+import { listCallsRequestSchema } from "@fonoster/common/src/validators/listCallsRequestSchema";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createFetchCalls } from "./createFetchCalls";
-import { listCallsRequestSchema } from "./listCallsRequestSchema";
 import { InfluxDBClient, ListCallsRequest, ListCallsResponse } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -29,28 +33,26 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function listCalls(influx: InfluxDBClient) {
   const fetchCalls = createFetchCalls(influx);
 
-  return async (
+  const fn = async (
     call: {
       request: ListCallsRequest;
     },
-    callback: (error: GrpcErrorMessage, response?: ListCallsResponse) => void
+    callback: (error?: GrpcErrorMessage, response?: ListCallsResponse) => void
   ) => {
-    try {
-      const parsedRequest = listCallsRequestSchema.parse(call.request);
+    const { request } = call;
 
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      logger.verbose("call to listCalls", { parsedRequest, accessKeyId });
+    logger.verbose("call to listCalls", { request, accessKeyId });
 
-      const result = await fetchCalls(accessKeyId, parsedRequest);
+    const result = await fetchCalls(accessKeyId, request);
 
-      callback(null, result);
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, result);
   };
+
+  return withErrorHandling(withValidation(fn, listCallsRequestSchema));
 }
 
 export { listCalls };

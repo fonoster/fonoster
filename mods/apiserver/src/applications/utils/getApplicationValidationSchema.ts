@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { hostOrHostPortSchema } from "@fonoster/common";
 import { ApplicationType } from "@prisma/client";
 import { z } from "zod";
 import { Deepgram as DeepgramStt } from "../../voice/stt/Deepgram";
@@ -23,7 +24,6 @@ import { Google as GoogleStt } from "../../voice/stt/Google";
 import { Azure as AzureTts } from "../../voice/tts/Azure";
 import { Deepgram as DeepgramTts } from "../../voice/tts/Deepgram";
 import { Google as GoogleTts } from "../../voice/tts/Google";
-import { hostOrHostPortSchema } from "../hostOrHostPortSchema";
 
 // TODO: We need a way to add this values dynamically
 const validators = {

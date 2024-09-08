@@ -1,16 +1,3 @@
-export * from "./GrpcError";
-
-export * from "./constants";
-
-export * from "./errors";
-
-export * from "./grpcStatusMap";
-
-export * from "./notifications";
-
-export * from "./tts";
-
-export * from "./types";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -29,5 +16,13 @@ export * from "./types";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./GrpcError";
+export * from "./constants";
+export * from "./errors";
+export * from "./grpcStatusMap";
+export * from "./notifications";
+export * from "./tts";
+export * from "./types";
 export * from "./utils";
+export * from "./validators";
 export * from "./voice";

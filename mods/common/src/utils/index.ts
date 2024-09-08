@@ -24,3 +24,5 @@ export * from "./datesMapper";
 export * from "./getServerCredentials";
 export * from "./toCamelCase";
 export * from "./toPascalCase";
+export * from "./withErrorHandling";
+export * from "./withValidation";

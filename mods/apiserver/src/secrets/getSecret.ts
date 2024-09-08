@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { withErrorHandling } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, Secret } from "@fonoster/types";
@@ -27,16 +28,15 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function getSecret(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
-  return withAccess(
-    async (call: { request: BaseApiObject }): Promise<Secret> => {
-      const { ref } = call.request;
+  const fn = async (call: { request: BaseApiObject }): Promise<Secret> => {
+    const { ref } = call.request;
 
-      logger.verbose("call to getSecret", { ref });
+    logger.verbose("call to getSecret", { ref });
 
-      return await getFn(ref);
-    },
-    (ref: string) => getFn(ref)
-  );
+    return await getFn(ref);
+  };
+
+  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
 }
 
 export { getSecret };

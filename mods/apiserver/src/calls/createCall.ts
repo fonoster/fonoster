@@ -16,7 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseApiObject, GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  BaseApiObject,
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { CreateCallRequest } from "@fonoster/types";
@@ -37,49 +42,43 @@ const createCallRequestSchema = z.object({
 });
 
 function createCall(prisma: Prisma, publisher: CallPublisher) {
-  return async (
+  const fn = async (
     call: {
       request: CreateCallRequest;
     },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    try {
-      const { from, to, appRef, timeout } = call.request;
+    const { request } = call;
+    const { from, to, appRef, timeout } = request;
+    const ref = uuidv4();
 
-      const ref = uuidv4();
+    logger.verbose("call to createCall", { ...request, ref });
 
-      logger.verbose("call to createCall", { ...call.request, ref });
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      createCallRequestSchema.parse(call.request);
+    const app = await prisma.application.findUnique({
+      where: { ref: appRef, accessKeyId }
+    });
 
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
-
-      const app = await prisma.application.findUnique({
-        where: { ref: appRef, accessKeyId }
-      });
-
-      if (!app) {
-        throw notFoundError(`Application with ref ${appRef} not found`);
-      }
-
-      // TODO: Must validate that the from number exists and is owned by the user
-
-      publisher.publishCall({
-        ref,
-        from,
-        to,
-        appRef,
-        accessKeyId,
-        timeout: timeout || 60
-      });
-
-      callback(null, { ref });
-    } catch (error) {
-      handleError(error, callback);
+    if (!app) {
+      throw notFoundError(`Application with ref ${appRef} not found`);
     }
+
+    publisher.publishCall({
+      ref,
+      from,
+      to,
+      appRef,
+      accessKeyId,
+      timeout: timeout || 60
+    });
+
+    callback(null, { ref });
   };
+
+  return withErrorHandling(withValidation(fn, createCallRequestSchema));
 }
 
 export { createCall };

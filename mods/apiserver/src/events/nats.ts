@@ -22,7 +22,6 @@ import { NatsEventCallback } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-// const ROUTR_REGISTRATION_SUBJECT = "routr.endpoint.registered";
 const ROUTR_CALL_SUBJECT = "routr.call.*";
 
 async function streamEvents(subscription, callback: NatsEventCallback) {

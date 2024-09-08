@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { CallStatus, CallType } from "./types";
 
 const listCallsRequestSchema = z.object({
   after: z
@@ -34,16 +33,16 @@ const listCallsRequestSchema = z.object({
     .number({ message: "Invalid pageSize value" })
     .optional()
     .nullable(),
-  type: z
-    .nativeEnum(CallType, {
-      message: "Invalid call type"
-    })
-    .optional()
-    .nullable(),
-  status: z
-    .nativeEnum(CallStatus, { message: "Invalid call status" })
-    .optional()
-    .nullable(),
+  // type: z
+  //   .nativeEnum(CallType, {
+  //     message: "Invalid call type"
+  //   })
+  //   .optional()
+  //   .nullable(),
+  // status: z
+  //   .nativeEnum(CallStatus, { message: "Invalid call status" })
+  //   .optional()
+  //   .nullable(),
   pageToken: z
     .string({ message: "The pageToken must be a string" })
     .optional()

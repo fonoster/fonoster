@@ -34,7 +34,6 @@ function gatherHandler(voiceClient: VoiceClient) {
   return withErrorHandling(async (request: GatherRequest) => {
     const { sessionRef, source, timeout, finishOnKey, maxDigits } = request;
 
-    // Error handled by withErrorHandling
     gatherRequestSchema.parse(request);
 
     const { timeoutPromise, effectiveTimeout } = getTimeoutPromise(timeout);

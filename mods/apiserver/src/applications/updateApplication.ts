@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { withErrorHandling } from "@fonoster/common";
 import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { UpdateApplicationRequest } from "@fonoster/types";
@@ -30,50 +31,49 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function updateApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
-  return withAccess(
-    async (call: { request: UpdateApplicationRequest }) => {
-      const { type, ref: applicationRef } = call.request;
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
+  const fn = async (call: { request: UpdateApplicationRequest }) => {
+    const { type, ref: applicationRef } = call.request;
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      validOrThrow(call.request);
+    validOrThrow(call.request);
 
-      logger.verbose("call to updateApplication", {
-        accessKeyId,
-        type
-      });
+    logger.verbose("call to updateApplication", {
+      accessKeyId,
+      type
+    });
 
-      // TODO: Revisit to see if needs optimization
-      await prisma.$transaction([
-        prisma.textToSpeech.deleteMany({
-          where: {
-            applicationRef
-          }
-        }),
-        prisma.speechToText.deleteMany({
-          where: {
-            applicationRef
-          }
-        }),
-        prisma.intelligence.deleteMany({
-          where: {
-            applicationRef
-          }
-        }),
-        prisma.application.update({
-          where: {
-            ref: applicationRef,
-            accessKeyId
-          },
-          data: convertToApplicationData(call.request)
-        })
-      ]);
+    // TODO: Revisit to see if needs optimization
+    await prisma.$transaction([
+      prisma.textToSpeech.deleteMany({
+        where: {
+          applicationRef
+        }
+      }),
+      prisma.speechToText.deleteMany({
+        where: {
+          applicationRef
+        }
+      }),
+      prisma.intelligence.deleteMany({
+        where: {
+          applicationRef
+        }
+      }),
+      prisma.application.update({
+        where: {
+          ref: applicationRef,
+          accessKeyId
+        },
+        data: convertToApplicationData(call.request)
+      })
+    ]);
 
-      return { ref: applicationRef };
-    },
-    (ref: string) => getFn(ref)
-  );
+    return { ref: applicationRef };
+  };
+
+  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
 }
 
 export { updateApplication };

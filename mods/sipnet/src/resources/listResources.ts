@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
@@ -27,7 +27,7 @@ type ListResourcesResponse<T> = {
 };
 
 function listResources<T, R, U>(api: U, resource: string) {
-  return async (
+  const fn = async (
     call: { request: R },
     callback: (
       error?: GrpcErrorMessage,
@@ -40,16 +40,14 @@ function listResources<T, R, U>(api: U, resource: string) {
 
     logger.verbose(`call to list${res}s`, { request });
 
-    try {
-      const response = await api[`list${res}s`](request);
-      callback(null, {
-        items: response.items,
-        nextPageToken: response.nextPageToken
-      });
-    } catch (e) {
-      handleError(e, callback);
-    }
+    const response = await api[`list${res}s`](request);
+    callback(null, {
+      items: response.items,
+      nextPageToken: response.nextPageToken
+    });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { listResources };

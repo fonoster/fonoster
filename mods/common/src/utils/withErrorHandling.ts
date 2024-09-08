@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,24 +17,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandling } from "@fonoster/common";
-import { withAccess } from "@fonoster/identity";
-import { getLogger } from "@fonoster/logger";
+import { GrpcErrorMessage, handleError } from "../errors";
 
-const logger = getLogger({ service: "sipnet", filePath: __filename });
-
-function updateResource<T, R, U>(api: U, resource: string) {
-  const fn = async (call: { request: R }): Promise<T> => {
-    const { request } = call;
-
-    logger.verbose(`call to update${resource}`, { ...request });
-
-    return await api[`update${resource}`](request);
+function withErrorHandling(fn: Function) {
+  return async (
+    call: { request: unknown },
+    callback: (error?: GrpcErrorMessage, response?: unknown) => void
+  ) => {
+    try {
+      await fn(call, callback);
+    } catch (error) {
+      handleError(error, callback);
+    }
   };
-
-  return withErrorHandling(
-    withAccess(fn, (ref: string) => api[`get${resource}`](ref))
-  );
 }
 
-export { updateResource };
+export { withErrorHandling };

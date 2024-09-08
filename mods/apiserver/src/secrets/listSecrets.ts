@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, datesMapper, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  datesMapper,
+  withErrorHandling
+} from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ListSecretsRequest, ListSecretsResponse } from "@fonoster/types";
@@ -26,7 +30,7 @@ import { Prisma } from "../core/db";
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function listSecrets(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: {
       request: ListSecretsRequest;
     },
@@ -44,24 +48,22 @@ function listSecrets(prisma: Prisma) {
       pageToken
     });
 
-    try {
-      const result = (
-        await prisma.secret.findMany({
-          where: { accessKeyId },
-          take: pageSize,
-          skip: pageToken ? 1 : 0,
-          cursor: pageToken ? { ref: pageToken } : undefined
-        })
-      ).map(datesMapper);
+    const result = (
+      await prisma.secret.findMany({
+        where: { accessKeyId },
+        take: pageSize,
+        skip: pageToken ? 1 : 0,
+        cursor: pageToken ? { ref: pageToken } : undefined
+      })
+    ).map(datesMapper);
 
-      callback(null, {
-        items: result,
-        nextPageToken: result[result.length - 1]?.ref
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, {
+      items: result,
+      nextPageToken: result[result.length - 1]?.ref
+    });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { listSecrets };

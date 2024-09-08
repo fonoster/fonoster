@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateSecretRequest } from "@fonoster/types";
@@ -26,7 +26,7 @@ import { Prisma } from "../core/db";
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function createSecret(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: CreateSecretRequest },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
@@ -39,20 +39,18 @@ function createSecret(prisma: Prisma) {
       accessKeyId
     });
 
-    try {
-      const result = await prisma.secret.create({
-        data: {
-          name,
-          secret,
-          accessKeyId
-        }
-      });
+    const result = await prisma.secret.create({
+      data: {
+        name,
+        secret,
+        accessKeyId
+      }
+    });
 
-      return callback(null, { ref: result.ref });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, { ref: result.ref });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { createSecret };

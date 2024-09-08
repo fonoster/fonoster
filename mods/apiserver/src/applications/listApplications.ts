@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import {
@@ -30,7 +30,7 @@ import { Prisma } from "../core/db";
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function listApplications(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: {
       request: ListApplicationsRequest;
     },
@@ -51,29 +51,27 @@ function listApplications(prisma: Prisma) {
       pageToken
     });
 
-    try {
-      const result = await prisma.application.findMany({
-        where: { accessKeyId },
-        include: {
-          textToSpeech: true,
-          speechToText: true,
-          intelligence: true
-        },
-        take: pageSize,
-        skip: pageToken ? 1 : 0,
-        cursor: pageToken ? { ref: pageToken } : undefined
-      });
+    const result = await prisma.application.findMany({
+      where: { accessKeyId },
+      include: {
+        textToSpeech: true,
+        speechToText: true,
+        intelligence: true
+      },
+      take: pageSize,
+      skip: pageToken ? 1 : 0,
+      cursor: pageToken ? { ref: pageToken } : undefined
+    });
 
-      const items = result.map(applicationWithEncodedStruct);
+    const items = result.map(applicationWithEncodedStruct);
 
-      callback(null, {
-        items,
-        nextPageToken: result[result.length - 1]?.ref
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, {
+      items,
+      nextPageToken: result[result.length - 1]?.ref
+    });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { listApplications };

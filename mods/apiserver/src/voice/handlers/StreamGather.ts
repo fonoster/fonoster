@@ -29,7 +29,6 @@ function streamGatherHandler(voiceClient: VoiceClient) {
   return withErrorHandling(async (request: StartStreamGatherRequest) => {
     const { sessionRef, source } = request;
 
-    // Error handled by withErrorHandling
     gatherRequestSchema.parse(request);
 
     const effectiveSource = source || StreamGatherSource.SPEECH_AND_DTMF;

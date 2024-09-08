@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { withErrorHandling } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
@@ -27,17 +28,19 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 function deleteApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
-  return withAccess(
-    async (call: { request: BaseApiObject }): Promise<BaseApiObject> => {
-      const { ref } = call.request;
+  const fn = async (call: {
+    request: BaseApiObject;
+  }): Promise<BaseApiObject> => {
+    const { ref } = call.request;
 
-      logger.verbose("call to deleteApplication", { ref });
-      await prisma.application.delete({ where: { ref } });
+    logger.verbose("call to deleteApplication", { ref });
 
-      return { ref };
-    },
-    (ref: string) => getFn(ref)
-  );
+    await prisma.application.delete({ where: { ref } });
+
+    return { ref };
+  };
+
+  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
 }
 
 export { deleteApplication };

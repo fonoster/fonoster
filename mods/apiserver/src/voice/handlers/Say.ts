@@ -40,7 +40,6 @@ function sayHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: SayRequest) => {
     const { sessionRef: channelId } = request;
 
-    // Error handled by withErrorHandling
     sayRequestSchema.parse(request);
 
     const playbackRef = request.playbackRef || nanoid(10);

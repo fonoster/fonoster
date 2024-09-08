@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateApplicationRequest } from "@fonoster/types";
@@ -28,35 +28,34 @@ import { Prisma } from "../core/db";
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 function createApplication(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: CreateApplicationRequest },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    const { type } = call.request;
+    const { request } = call;
+    const { type } = request;
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
 
-    try {
-      logger.verbose("call to createApplication", {
-        accessKeyId,
-        type
-      });
+    logger.verbose("call to createApplication", {
+      accessKeyId,
+      type
+    });
 
-      validOrThrow(call.request);
+    validOrThrow(request);
 
-      const result = await prisma.application.create({
-        data: {
-          ...convertToApplicationData(call.request),
-          accessKeyId
-        }
-      });
+    const result = await prisma.application.create({
+      data: {
+        ...convertToApplicationData(request),
+        accessKeyId
+      }
+    });
 
-      return callback(null, { ref: result.ref });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, { ref: result.ref });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { createApplication };

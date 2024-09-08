@@ -16,24 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandling } from "@fonoster/common";
-import { withAccess } from "@fonoster/identity";
-import { getLogger } from "@fonoster/logger";
-
-const logger = getLogger({ service: "sipnet", filePath: __filename });
-
-function updateResource<T, R, U>(api: U, resource: string) {
-  const fn = async (call: { request: R }): Promise<T> => {
-    const { request } = call;
-
-    logger.verbose(`call to update${resource}`, { ...request });
-
-    return await api[`update${resource}`](request);
-  };
-
-  return withErrorHandling(
-    withAccess(fn, (ref: string) => api[`get${resource}`](ref))
-  );
-}
-
-export { updateResource };
+export * from "./common";
+export * from "./hostOrHostPortSchema";
+export * from "./listCallsRequestSchema";

@@ -35,7 +35,6 @@ function streamHandler(voiceClient: VoiceClient) {
   return withErrorHandling(async (request: StartStreamRequest) => {
     const { sessionRef, direction, format } = request;
 
-    // Error handled by withErrorHandling
     streamRequestSchema.parse(request);
 
     const effectiveDirection = direction || StreamDirection.BOTH;

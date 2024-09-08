@@ -24,7 +24,6 @@ import { CallStream, TrackCallResponse } from "./types";
 import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
 
 const FINAL_STATUSES = [
-  DialStatus.ANSWER,
   DialStatus.BUSY,
   DialStatus.FAILED,
   DialStatus.NOANSWER
