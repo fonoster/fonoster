@@ -49,7 +49,7 @@ The configuration file has two major sections: `conversationSettings` and `langu
       "timeout": 10000,
       "maxTimeoutCount": 3
     }
-    },
+  },
   "languageModel": {
     "provider": "openai",
     "model": "gpt-4o-mini",
@@ -64,7 +64,7 @@ The configuration file has two major sections: `conversationSettings` and `langu
 To run the Autopilot, you can use the following command:
 
 ```sh-session
-$ ASSISTANTS=$(pwd)/assistants.json OPEN_API_KEY=your-ley autopilot
+$ ASSISTANTS=$(pwd)/assistants.json OPEN_API_KEY=your-key autopilot
 ```
 
 You will see a message like this:
