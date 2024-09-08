@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
@@ -43,35 +47,31 @@ type ExchangeCredentialsResponse = {
 const SIGN_ALGORITHM = "RS256";
 
 function exchangeRefreshToken(prisma: Prisma, identityConfig: IdentityConfig) {
-  return async (
+  const fn = async (
     call: { request: ExchangeRefreshTokenRequest },
     callback: (
       error: GrpcErrorMessage,
       response?: ExchangeCredentialsResponse
     ) => void
   ) => {
-    try {
-      const validatedRequest = exchangeRefreshTokenRequestSchema.parse(
-        call.request
-      );
-      const { refreshToken: oldRefreshToken } = validatedRequest;
-      const { privateKey } = identityConfig;
+    const { privateKey } = identityConfig;
+    const { request } = call;
+    const { refreshToken: oldRefreshToken } = request;
 
-      const oldRefreshTokenDecoded = jwt.verify(oldRefreshToken, privateKey, {
-        algorithms: [SIGN_ALGORITHM]
-      }) as { accessKeyId: string };
-      const { accessKeyId } = oldRefreshTokenDecoded;
+    const oldRefreshTokenDecoded = jwt.verify(oldRefreshToken, privateKey, {
+      algorithms: [SIGN_ALGORITHM]
+    }) as { accessKeyId: string };
 
-      logger.verbose("call to exchangeRefreshToken", { accessKeyId });
+    const { accessKeyId } = oldRefreshTokenDecoded;
 
-      return callback(
-        null,
-        await exchangeTokens(prisma, identityConfig)(accessKeyId)
-      );
-    } catch (error) {
-      handleError(error, callback);
-    }
+    logger.verbose("call to exchangeRefreshToken", { accessKeyId });
+
+    callback(null, await exchangeTokens(prisma, identityConfig)(accessKeyId));
   };
+
+  return withErrorHandling(
+    withValidation(fn, exchangeRefreshTokenRequestSchema)
+  );
 }
 
 export { exchangeRefreshToken };

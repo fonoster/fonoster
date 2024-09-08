@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   ApiRoleEnum,
@@ -44,44 +44,42 @@ const createApiKeyRequestSchema = z.object({
 });
 
 function createApiKey(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: CreateApiKeyRequest },
     callback: (error: GrpcErrorMessage, response?: CreateApiKeyResponse) => void
   ) => {
-    try {
-      const validatedRequest = createApiKeyRequestSchema.parse(call.request);
+    const validatedRequest = createApiKeyRequestSchema.parse(call.request);
 
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      const { role, expiresAt } = validatedRequest;
+    const { role, expiresAt } = validatedRequest;
 
-      logger.info("creating new ApiKey", { accessKeyId, role, expiresAt });
+    logger.info("creating new ApiKey", { accessKeyId, role, expiresAt });
 
-      const workspace = await prisma.workspace.findUnique({
-        where: { accessKeyId }
-      });
+    const workspace = await prisma.workspace.findUnique({
+      where: { accessKeyId }
+    });
 
-      const response = await prisma.apiKey.create({
-        data: {
-          workspaceRef: workspace.ref,
-          role: validatedRequest.role,
-          accessKeyId: generateAccessKeyId(AccessKeyIdType.API_KEY),
-          accessKeySecret: generateAccessKeySecret(),
-          expiresAt: expiresAt ? new Date(expiresAt) : null
-        }
-      });
+    const response = await prisma.apiKey.create({
+      data: {
+        workspaceRef: workspace.ref,
+        role: validatedRequest.role,
+        accessKeyId: generateAccessKeyId(AccessKeyIdType.API_KEY),
+        accessKeySecret: generateAccessKeySecret(),
+        expiresAt: expiresAt ? new Date(expiresAt) : null
+      }
+    });
 
-      callback(null, {
-        ref: response.ref,
-        accessKeyId: response.accessKeyId,
-        accessKeySecret: response.accessKeySecret
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, {
+      ref: response.ref,
+      accessKeyId: response.accessKeyId,
+      accessKeySecret: response.accessKeySecret
+    });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { CreateApiKeyRequest, CreateApiKeyResponse, createApiKey };

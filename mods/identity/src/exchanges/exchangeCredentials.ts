@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { z } from "zod";
@@ -48,36 +52,33 @@ const invalidCredentialsError = {
 };
 
 function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
-  return async (
+  const fn = async (
     call: { request: ExchangeCredentialsRequest },
     callback: (
       error: GrpcErrorMessage,
       response?: ExchangeCredentialsResponse
     ) => void
   ) => {
-    try {
-      const validatedRequest = exchangeCredentialsRequestSchema.parse(
-        call.request
-      );
+    const { request } = call;
+    const { username, password } = request;
 
-      const { username, password } = validatedRequest;
+    logger.verbose("call to exchangeCredentials", { username });
 
-      logger.verbose("call to exchangeCredentials", { username });
+    const user = await getUserByEmail(prisma)(username);
 
-      const user = await getUserByEmail(prisma)(username);
-
-      if (!user || user.password !== password?.trim()) {
-        return callback(invalidCredentialsError);
-      }
-
-      return callback(
-        null,
-        await exchangeTokens(prisma, identityConfig)(user.accessKeyId)
-      );
-    } catch (error) {
-      handleError(error, callback);
+    if (!user || user.password !== password?.trim()) {
+      return callback(invalidCredentialsError);
     }
+
+    callback(
+      null,
+      await exchangeTokens(prisma, identityConfig)(user.accessKeyId)
+    );
   };
+
+  return withErrorHandling(
+    withValidation(fn, exchangeCredentialsRequestSchema)
+  );
 }
 
 export { exchangeCredentials };

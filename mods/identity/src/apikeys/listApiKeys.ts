@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   ApiRoleEnum,
@@ -30,7 +30,7 @@ import { getAccessKeyIdFromCall } from "../utils";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 function listApiKeys(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: ListApiKeysRequest },
     callback: (error: GrpcErrorMessage, response?: ListApiKeysResponse) => void
   ) => {
@@ -69,6 +69,8 @@ function listApiKeys(prisma: Prisma) {
 
     callback(null, response);
   };
+
+  return withErrorHandling(fn);
 }
 
 export { listApiKeys };

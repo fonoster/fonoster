@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { z } from "zod";
@@ -46,33 +50,28 @@ const invalidApiKeyError = {
 };
 
 function exchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
-  return async (
+  const fn = async (
     call: { request: ExchangeApiKeysRequest },
     callback: (
       error: GrpcErrorMessage,
       response?: ExchangeApiKeysResponse
     ) => void
   ) => {
-    try {
-      const validatedRequest = exchangeApiKeysRequestSchema.parse(call.request);
-      const { accessKeyId, accessKeySecret } = validatedRequest;
+    const { request } = call;
+    const { accessKeyId, accessKeySecret } = request;
 
-      logger.verbose("call to exchangeApiKey", { accessKeyId });
+    logger.verbose("call to exchangeApiKey", { accessKeyId });
 
-      const key = await getApiKeyByAccessKeyId(prisma)(accessKeyId);
+    const key = await getApiKeyByAccessKeyId(prisma)(accessKeyId);
 
-      if (key?.accessKeySecret !== accessKeySecret?.trim()) {
-        return callback(invalidApiKeyError);
-      }
-
-      return callback(
-        null,
-        await exchangeTokens(prisma, identityConfig)(accessKeyId)
-      );
-    } catch (error) {
-      handleError(error, callback);
+    if (key?.accessKeySecret !== accessKeySecret?.trim()) {
+      return callback(invalidApiKeyError);
     }
+
+    callback(null, await exchangeTokens(prisma, identityConfig)(accessKeyId));
   };
+
+  return withErrorHandling(withValidation(fn, exchangeApiKeysRequestSchema));
 }
 
 export { exchangeApiKey };

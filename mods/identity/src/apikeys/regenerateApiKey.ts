@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandling,
+  withValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, RegenerateApiKeyResponse } from "@fonoster/types";
 import { z } from "zod";
@@ -30,40 +34,35 @@ const regenerateApiKeyRequestSchema = z.object({
 });
 
 function regenerateApiKey(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: BaseApiObject },
     callback: (
       error: GrpcErrorMessage,
       response?: RegenerateApiKeyResponse
     ) => void
   ) => {
-    try {
-      const validatedRequest = regenerateApiKeyRequestSchema.parse(
-        call.request
-      );
+    const { request } = call;
+    const { ref } = request;
 
-      const { ref } = validatedRequest;
+    logger.info("regenerating ApiKey", { ref });
 
-      logger.info("regenerating ApiKey", { ref });
+    const response = await prisma.apiKey.update({
+      where: {
+        ref
+      },
+      data: {
+        accessKeySecret: generateAccessKeySecret()
+      }
+    });
 
-      const response = await prisma.apiKey.update({
-        where: {
-          ref
-        },
-        data: {
-          accessKeySecret: generateAccessKeySecret()
-        }
-      });
-
-      callback(null, {
-        ref: response.ref,
-        accessKeyId: response.accessKeyId,
-        accessKeySecret: response.accessKeySecret
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, {
+      ref: response.ref,
+      accessKeyId: response.accessKeyId,
+      accessKeySecret: response.accessKeySecret
+    });
   };
+
+  return withErrorHandling(withValidation(fn, regenerateApiKeyRequestSchema));
 }
 
 export { regenerateApiKey };

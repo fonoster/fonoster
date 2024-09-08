@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
 import { z } from "zod";
@@ -29,30 +29,28 @@ const deleteApiKeyRequestSchema = z.object({
 });
 
 function deleteApiKey(prisma: Prisma) {
-  return async (
+  const fn = async (
     call: { request: BaseApiObject },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    try {
-      const validatedRequest = deleteApiKeyRequestSchema.parse(call.request);
+    const validatedRequest = deleteApiKeyRequestSchema.parse(call.request);
 
-      const { ref } = validatedRequest;
+    const { ref } = validatedRequest;
 
-      logger.info("deleting ApiKey", { ref });
+    logger.info("deleting ApiKey", { ref });
 
-      const response = await prisma.apiKey.delete({
-        where: {
-          ref
-        }
-      });
+    const response = await prisma.apiKey.delete({
+      where: {
+        ref
+      }
+    });
 
-      callback(null, {
-        ref: response.ref
-      });
-    } catch (error) {
-      handleError(error, callback);
-    }
+    callback(null, {
+      ref: response.ref
+    });
   };
+
+  return withErrorHandling(fn);
 }
 
 export { deleteApiKey };
