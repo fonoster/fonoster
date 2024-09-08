@@ -28,15 +28,14 @@ const conversationSettingsSchema = z.object({
   initialDtmf: z.string().optional().nullable(),
   transferOptions: z
     .object({
-      enabled: z.boolean(),
       phoneNumber: z.string(),
-      message: z.string()
+      message: z.string(),
+      timeout: z.number().optional()
     })
     .optional()
     .nullable(),
   idleOptions: z
     .object({
-      enabled: z.boolean(),
       message: z.string(),
       timeout: z.number(),
       maxTimeoutCount: z.number()

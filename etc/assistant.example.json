@@ -6,12 +6,11 @@
     "systemErrorMessage": "I'm sorry, but I seem to be having trouble. Please try again later.",
     "initialDtmf": "123",
     "transferOptions": {
-      "enabled": true,
       "phoneNumber": "+15555555555",
-      "message": "Please hold while I transfer you to a live agent."
+      "message": "Please hold while I transfer you to a live agent.",
+      "timeout": 30000
     },
     "idleOptions": {
-      "enabled": true,
       "message": "Are you still there?",
       "timeout": 10000,
       "maxTimeoutCount": 3
