@@ -16,15 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
-import { getLogger } from "@fonoster/logger";
 import {
-  ApiRoleEnum,
-  CreateApiKeyRequest,
-  CreateApiKeyResponse
-} from "@fonoster/types";
+  GrpcErrorMessage,
+  Validators as V,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
+import { getLogger } from "@fonoster/logger";
+import { CreateApiKeyRequest, CreateApiKeyResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { z } from "zod";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromCall } from "../utils";
 import {
@@ -35,26 +34,17 @@ import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const createApiKeyRequestSchema = z.object({
-  role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
-  expiresAt: z
-    .number()
-    .transform((value) => (value === 0 ? null : value))
-    .optional()
-});
-
 function createApiKey(prisma: Prisma) {
   const fn = async (
     call: { request: CreateApiKeyRequest },
     callback: (error: GrpcErrorMessage, response?: CreateApiKeyResponse) => void
   ) => {
-    const validatedRequest = createApiKeyRequestSchema.parse(call.request);
-
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
 
-    const { role, expiresAt } = validatedRequest;
+    const { request } = call;
+    const { role, expiresAt } = request;
 
     logger.info("creating new ApiKey", { accessKeyId, role, expiresAt });
 
@@ -62,10 +52,12 @@ function createApiKey(prisma: Prisma) {
       where: { accessKeyId }
     });
 
+    const { ref } = workspace;
+
     const response = await prisma.apiKey.create({
       data: {
-        workspaceRef: workspace.ref,
-        role: validatedRequest.role,
+        workspaceRef: ref,
+        role,
         accessKeyId: generateAccessKeyId(AccessKeyIdType.API_KEY),
         accessKeySecret: generateAccessKeySecret(),
         expiresAt: expiresAt ? new Date(expiresAt) : null
@@ -79,7 +71,7 @@ function createApiKey(prisma: Prisma) {
     });
   };
 
-  return withErrorHandling(fn);
+  return withErrorHandlingAndValidation(fn, V.createApiKeyRequestSchema);
 }
 
 export { CreateApiKeyRequest, CreateApiKeyResponse, createApiKey };

@@ -20,5 +20,5 @@ export * from "./applications";
 export * from "./calls";
 export * from "./common";
 export * from "./hostOrHostPortSchema";
-export * from "./listCallsRequestSchema";
+export * from "./identity";
 export * from "./secrets";

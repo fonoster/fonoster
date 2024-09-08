@@ -18,20 +18,15 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, RegenerateApiKeyResponse } from "@fonoster/types";
-import { z } from "zod";
 import { Prisma } from "../db";
 import { generateAccessKeySecret } from "../utils/generateAccessKeySecret";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const regenerateApiKeyRequestSchema = z.object({
-  ref: z.string()
-});
 
 function regenerateApiKey(prisma: Prisma) {
   const fn = async (
@@ -62,7 +57,7 @@ function regenerateApiKey(prisma: Prisma) {
     });
   };
 
-  return withErrorHandling(withValidation(fn, regenerateApiKeyRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
 }
 
 export { regenerateApiKey };

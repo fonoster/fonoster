@@ -29,4 +29,39 @@ const getCallRequestSchema = z.object({
   ref: z.string({ message: "Invalid call reference" })
 });
 
-export { createCallRequestSchema, getCallRequestSchema };
+const listCallsRequestSchema = z.object({
+  after: z
+    .string()
+    .datetime({ offset: true, message: "The date must be a valid ISO 8601" })
+    .optional()
+    .nullable(),
+  before: z
+    .string()
+    .datetime({ offset: true, message: "The date must be a valid ISO 8601" })
+    .optional()
+    .nullable(),
+  pageSize: z
+    .number({ message: "Invalid pageSize value" })
+    .optional()
+    .nullable(),
+  // type: z
+  //   .nativeEnum(CallType, {
+  //     message: "Invalid call type"
+  //   })
+  //   .optional()
+  //   .nullable(),
+  // status: z
+  //   .nativeEnum(CallStatus, { message: "Invalid call status" })
+  //   .optional()
+  //   .nullable(),
+  pageToken: z
+    .string({ message: "The pageToken must be a string" })
+    .optional()
+    .nullable()
+});
+
+export {
+  createCallRequestSchema,
+  getCallRequestSchema,
+  listCallsRequestSchema
+};

@@ -18,8 +18,9 @@
  */
 import {
   GrpcErrorMessage,
+  Validators as V,
   datesMapper,
-  withErrorHandling
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, User } from "@fonoster/types";
@@ -64,7 +65,7 @@ function getUser(prisma: Prisma) {
     callback(null, datesMapper(user));
   };
 
-  return withErrorHandling(fn);
+  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
 }
 
 export { getUser };

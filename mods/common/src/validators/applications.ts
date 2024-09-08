@@ -19,11 +19,6 @@
 import { z } from "zod";
 
 const createApplicationRequestSchema = z.object({});
-const listApplicationsRequestSchema = z.object({});
 const updateApplicationRequestSchema = z.object({});
 
-export {
-  createApplicationRequestSchema,
-  listApplicationsRequestSchema,
-  updateApplicationRequestSchema
-};
+export { createApplicationRequestSchema, updateApplicationRequestSchema };

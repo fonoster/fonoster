@@ -75,7 +75,7 @@ function listApplications(prisma: Prisma) {
     });
   };
 
-  return withErrorHandlingAndValidation(fn, V.listApplicationsRequestSchema);
+  return withErrorHandlingAndValidation(fn, V.listRequestSchema);
 }
 
 export { listApplications };

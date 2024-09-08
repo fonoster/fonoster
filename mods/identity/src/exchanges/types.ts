@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Validators as V } from "@fonoster/common";
 import { WorkspaceRoleEnum } from "@fonoster/types";
+import { z } from "zod";
 import { TokenUseEnum } from "./TokenUseEnum";
 
 type Role = {
@@ -86,10 +88,30 @@ type DecodedToken<T extends TokenUseEnum> = T extends TokenUseEnum.ID
       ? TokenUseEnum
       : never;
 
+type ExchangeApiKeysRequest = z.infer<typeof V.exchangeApiKeysRequestSchema>;
+
+type ExchangeCredentialsRequest = z.infer<
+  typeof V.exchangeCredentialsRequestSchema
+>;
+
+type ExchangeResponse = {
+  idToken: string;
+  accessToken: string;
+  refreshToken: string;
+};
+
+type ExchangeRefreshTokenRequest = z.infer<
+  typeof V.exchangeRefreshTokenRequestSchema
+>;
+
 export {
   Access,
   AccessToken,
   DecodedToken,
+  ExchangeApiKeysRequest,
+  ExchangeCredentialsRequest,
+  ExchangeRefreshTokenRequest,
+  ExchangeResponse,
   IdToken,
   IdentityConfig,
   RefreshToken,

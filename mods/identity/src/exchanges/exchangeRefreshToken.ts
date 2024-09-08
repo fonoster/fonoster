@@ -18,41 +18,27 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  exchangeRefreshTokenRequestSchema,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import jwt from "jsonwebtoken";
-import { z } from "zod";
 import { exchangeTokens } from "./exchangeTokens";
-import { IdentityConfig } from "./types";
+import {
+  ExchangeRefreshTokenRequest,
+  ExchangeResponse,
+  IdentityConfig
+} from "./types";
 import { Prisma } from "../db";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const exchangeRefreshTokenRequestSchema = z.object({
-  refreshToken: z.string()
-});
-
-type ExchangeRefreshTokenRequest = z.infer<
-  typeof exchangeRefreshTokenRequestSchema
->;
-
-type ExchangeCredentialsResponse = {
-  idToken: string;
-  accessToken: string;
-  refreshToken: string;
-};
 
 const SIGN_ALGORITHM = "RS256";
 
 function exchangeRefreshToken(prisma: Prisma, identityConfig: IdentityConfig) {
   const fn = async (
     call: { request: ExchangeRefreshTokenRequest },
-    callback: (
-      error: GrpcErrorMessage,
-      response?: ExchangeCredentialsResponse
-    ) => void
+    callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { privateKey } = identityConfig;
     const { request } = call;
@@ -69,9 +55,7 @@ function exchangeRefreshToken(prisma: Prisma, identityConfig: IdentityConfig) {
     callback(null, await exchangeTokens(prisma, identityConfig)(accessKeyId));
   };
 
-  return withErrorHandling(
-    withValidation(fn, exchangeRefreshTokenRequestSchema)
-  );
+  return withErrorHandlingAndValidation(fn, exchangeRefreshTokenRequestSchema);
 }
 
 export { exchangeRefreshToken };

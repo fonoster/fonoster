@@ -64,7 +64,7 @@ function listSecrets(prisma: Prisma) {
     });
   };
 
-  return withErrorHandlingAndValidation(fn, V.listSecretsRequestSchema);
+  return withErrorHandlingAndValidation(fn, V.listRequestSchema);
 }
 
 export { listSecrets };

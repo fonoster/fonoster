@@ -19,7 +19,8 @@
 import {
   BaseApiObject,
   GrpcErrorMessage,
-  withErrorHandling
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -32,7 +33,7 @@ const logger = getLogger({ service: "identity", filePath: __filename });
 function deleteUser(prisma: Prisma) {
   const fn = async (
     call: { request: BaseApiObject },
-    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
+    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
     const { ref } = request;
@@ -52,7 +53,7 @@ function deleteUser(prisma: Prisma) {
     callback(null, { ref });
   };
 
-  return withErrorHandling(fn);
+  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
 }
 
 export { deleteUser };

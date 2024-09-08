@@ -18,46 +18,26 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  exchangeCredentialsRequestSchema,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
-import { z } from "zod";
 import { exchangeTokens } from "./exchangeTokens";
-import { IdentityConfig } from "./types";
+import {
+  ExchangeCredentialsRequest,
+  ExchangeResponse,
+  IdentityConfig
+} from "./types";
 import { Prisma } from "../db";
 import { getUserByEmail } from "../utils/getUserByEmail";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const exchangeCredentialsRequestSchema = z.object({
-  username: z.string(),
-  password: z.string()
-});
-
-type ExchangeCredentialsRequest = z.infer<
-  typeof exchangeCredentialsRequestSchema
->;
-
-type ExchangeCredentialsResponse = {
-  idToken: string;
-  accessToken: string;
-  refreshToken: string;
-};
-
-const invalidCredentialsError = {
-  code: grpc.status.PERMISSION_DENIED,
-  message: "Invalid credentials"
-};
-
 function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
   const fn = async (
     call: { request: ExchangeCredentialsRequest },
-    callback: (
-      error?: GrpcErrorMessage,
-      response?: ExchangeCredentialsResponse
-    ) => void
+    callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { request } = call;
     const { username, password } = request;
@@ -67,7 +47,10 @@ function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
     const user = await getUserByEmail(prisma)(username);
 
     if (!user || user.password !== password?.trim()) {
-      return callback(invalidCredentialsError);
+      return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: "Invalid credentials"
+      });
     }
 
     callback(
@@ -76,9 +59,7 @@ function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
     );
   };
 
-  return withErrorHandling(
-    withValidation(fn, exchangeCredentialsRequestSchema)
-  );
+  return withErrorHandlingAndValidation(fn, exchangeCredentialsRequestSchema);
 }
 
 export { exchangeCredentials };

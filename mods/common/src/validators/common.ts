@@ -22,4 +22,11 @@ const baseApiObjectSchema = z.object({
   ref: z.string()
 });
 
-export { baseApiObjectSchema };
+const listRequestSchema = z
+  .object({
+    pageSize: z.number().optional(),
+    pageToken: z.string().optional()
+  })
+  .optional();
+
+export { baseApiObjectSchema, listRequestSchema };

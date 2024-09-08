@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  Validators as V,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   ApiRoleEnum,
@@ -70,7 +74,7 @@ function listApiKeys(prisma: Prisma) {
     callback(null, response);
   };
 
-  return withErrorHandling(fn);
+  return withErrorHandlingAndValidation(fn, V.listRequestSchema);
 }
 
 export { listApiKeys };

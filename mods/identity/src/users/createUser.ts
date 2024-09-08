@@ -18,12 +18,11 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateUserRequest } from "@fonoster/types";
-import { z } from "zod";
 import { Prisma } from "../db";
 import {
   AccessKeyIdType,
@@ -32,17 +31,10 @@ import {
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const createUserRequestSchema = z.object({
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50),
-  email: z.string().email(),
-  password: z.string().min(8).max(100),
-  avatar: z.string().url()
-});
-
 function createUser(prisma: Prisma) {
   const fn = async (
     call: { request: CreateUserRequest },
-    callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
+    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
     const { name, email, password, avatar } = request;
@@ -59,12 +51,10 @@ function createUser(prisma: Prisma) {
       }
     });
 
-    callback(null, {
-      ref: user.ref
-    });
+    callback(null, user);
   };
 
-  return withErrorHandling(withValidation(fn, createUserRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.createUserRequestSchema);
 }
 
 export { createUser };

@@ -18,25 +18,17 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, UpdateUserRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { z } from "zod";
 import { Prisma } from "../db";
 import { getAccessKeyIdFromToken } from "../utils";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const updateUserRequestSchema = z.object({
-  ref: z.string(),
-  name: z.string().min(3).max(50).or(z.string().optional().nullable()),
-  password: z.string().min(8).max(50).or(z.string().optional().nullable()),
-  avatar: z.string().url().or(z.string().optional().nullable())
-});
 
 function updateUser(prisma: Prisma) {
   const fn = async (
@@ -71,7 +63,7 @@ function updateUser(prisma: Prisma) {
     callback(null, response);
   };
 
-  return withErrorHandling(withValidation(fn, updateUserRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.updateUserRequestSchema);
 }
 
 export { updateUser };

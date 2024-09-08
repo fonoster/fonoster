@@ -18,44 +18,26 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
-import { z } from "zod";
 import { exchangeTokens } from "./exchangeTokens";
-import { IdentityConfig } from "./types";
+import {
+  ExchangeApiKeysRequest,
+  ExchangeResponse,
+  IdentityConfig
+} from "./types";
 import { Prisma } from "../db";
 import { getApiKeyByAccessKeyId } from "../utils/getApiKeyByAccessKeyId";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const exchangeApiKeysRequestSchema = z.object({
-  accessKeyId: z.string(),
-  accessKeySecret: z.string()
-});
-
-type ExchangeApiKeysRequest = z.infer<typeof exchangeApiKeysRequestSchema>;
-
-type ExchangeApiKeysResponse = {
-  idToken: string;
-  accessToken: string;
-  refreshToken: string;
-};
-
-const invalidApiKeyError = {
-  code: grpc.status.PERMISSION_DENIED,
-  message: "Invalid credentials"
-};
-
 function exchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
   const fn = async (
     call: { request: ExchangeApiKeysRequest },
-    callback: (
-      error: GrpcErrorMessage,
-      response?: ExchangeApiKeysResponse
-    ) => void
+    callback: (error: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { request } = call;
     const { accessKeyId, accessKeySecret } = request;
@@ -65,13 +47,16 @@ function exchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
     const key = await getApiKeyByAccessKeyId(prisma)(accessKeyId);
 
     if (key?.accessKeySecret !== accessKeySecret?.trim()) {
-      return callback(invalidApiKeyError);
+      return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: "Invalid credentials"
+      });
     }
 
     callback(null, await exchangeTokens(prisma, identityConfig)(accessKeyId));
   };
 
-  return withErrorHandling(withValidation(fn, exchangeApiKeysRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.exchangeApiKeysRequestSchema);
 }
 
 export { exchangeApiKey };
