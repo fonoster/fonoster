@@ -19,7 +19,8 @@
 import {
   GrpcErrorMessage,
   NumberPreconditionsCheck,
-  handleError
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
@@ -30,7 +31,6 @@ import {
 } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { convertToRoutrNumber } from "./convertToRoutrNumber";
-import { createNumberRequestSchema } from "./validation";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
@@ -38,33 +38,29 @@ function createNumber(
   api: NumbersApi,
   checkNumberPreconditions: NumberPreconditionsCheck
 ) {
-  return async (
+  const fn = async (
     call: { request: CreateNumberRequest },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
 
-    try {
-      createNumberRequestSchema.parse(request);
+    // Validates that the appRef or agentAor exists in the system
+    await checkNumberPreconditions(request);
 
-      // Validates that the appRef or agentAor exists in the system
-      await checkNumberPreconditions(request);
+    const accessKeyId = getAccessKeyIdFromCall(
+      call as unknown as ServerInterceptingCall
+    );
 
-      const accessKeyId = getAccessKeyIdFromCall(
-        call as unknown as ServerInterceptingCall
-      );
+    logger.verbose("call to createNumber", { ...request, accessKeyId });
 
-      logger.verbose("call to createNumber", { ...request, accessKeyId });
+    const response = await api.createNumber(
+      convertToRoutrNumber(request, accessKeyId)
+    );
 
-      const response = await api.createNumber(
-        convertToRoutrNumber(request, accessKeyId)
-      );
-
-      callback(null, response);
-    } catch (e) {
-      handleError(e, callback);
-    }
+    callback(null, response);
   };
+
+  return withErrorHandlingAndValidation(fn, V.createNumberRequestSchema);
 }
 
 export { createNumber };

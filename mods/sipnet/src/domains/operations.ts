@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Validators as V } from "@fonoster/common";
 import {
   BaseApiObject,
   CreateDomainRequestExtended,
@@ -37,13 +38,14 @@ function createDomain(domains: DomainsApi) {
     DomainExtended,
     CreateDomainRequestExtended,
     DomainsApi
-  >(domains, RESOURCE);
+  >(domains, RESOURCE, V.createDomainRequestSchema);
 }
 
 function updateDomain(domains: DomainsApi) {
   return updateResource<DomainExtended, UpdateDomainRequest, DomainsApi>(
     domains,
-    RESOURCE
+    RESOURCE,
+    V.updateDomainRequestSchema
   );
 }
 

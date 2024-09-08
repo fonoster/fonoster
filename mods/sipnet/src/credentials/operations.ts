@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Validators as V } from "@fonoster/common";
 import {
   BaseApiObject,
   CreateCredentialsRequestExtended,
@@ -37,7 +38,7 @@ function createCredentials(credentials: CredentialsApi) {
     CredentialsExtended,
     CreateCredentialsRequestExtended,
     CredentialsApi
-  >(credentials, RESOURCE);
+  >(credentials, RESOURCE, V.createCredentialsRequestSchema);
 }
 
 function updateCredentials(credentials: CredentialsApi) {
@@ -45,7 +46,7 @@ function updateCredentials(credentials: CredentialsApi) {
     CredentialsExtended,
     UpdateCredentialsRequest,
     CredentialsApi
-  >(credentials, RESOURCE);
+  >(credentials, RESOURCE, V.updateCredentialsRequestSchema);
 }
 
 function getCredentials(credentials: CredentialsApi) {

@@ -19,7 +19,8 @@
 import {
   GrpcErrorMessage,
   NumberPreconditionsCheck,
-  handleError
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
@@ -28,7 +29,6 @@ import {
   UpdateNumberRequest
 } from "@fonoster/types";
 import { convertToRoutrNumberUpdate } from "./convertToRoutrNumber";
-import { updateNumberRequestSchema } from "./validation";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
@@ -36,29 +36,25 @@ function updateNumber(
   api: NumbersApi,
   checkNumberPreconditions: NumberPreconditionsCheck
 ) {
-  return async (
+  const fn = async (
     call: { request: UpdateNumberRequest },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
 
-    try {
-      updateNumberRequestSchema.parse(request);
+    // Validates that the appRef or agentAor exists in the system
+    await checkNumberPreconditions(request);
 
-      // Validates that the appRef or agentAor exists in the system
-      await checkNumberPreconditions(request);
+    logger.verbose("call to updateNumber", { ...request });
 
-      logger.verbose("call to updateNumber", { ...request });
+    const response = await api.updateNumber(
+      convertToRoutrNumberUpdate(request)
+    );
 
-      const response = await api.updateNumber(
-        convertToRoutrNumberUpdate(request)
-      );
-
-      callback(null, response);
-    } catch (e) {
-      handleError(e, callback);
-    }
+    callback(null, response);
   };
+
+  return withErrorHandlingAndValidation(fn, V.updateNumberRequestSchema);
 }
 
 export { updateNumber };

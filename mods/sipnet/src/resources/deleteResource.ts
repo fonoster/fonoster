@@ -16,7 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandling } from "@fonoster/common";
+import {
+  Validators as V,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 
@@ -33,8 +36,9 @@ function deleteResource<T, R, U>(api: U, resource: string) {
     return { ref: request.ref } as T;
   };
 
-  return withErrorHandling(
-    withAccess(fn, (ref: string) => api[`get${resource}`](ref))
+  return withErrorHandlingAndValidation(
+    withAccess(fn, (ref: string) => api[`get${resource}`](ref)),
+    V.baseApiObjectSchema
   );
 }
 

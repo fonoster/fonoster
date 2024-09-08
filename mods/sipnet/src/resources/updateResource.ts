@@ -16,13 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandling } from "@fonoster/common";
+import { withErrorHandlingAndValidation } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { z } from "zod";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function updateResource<T, R, U>(api: U, resource: string) {
+function updateResource<T, R, U>(
+  api: U,
+  resource: string,
+  schema: z.ZodSchema
+) {
   const fn = async (call: { request: R }): Promise<T> => {
     const { request } = call;
 
@@ -31,8 +36,9 @@ function updateResource<T, R, U>(api: U, resource: string) {
     return await api[`update${resource}`](request);
   };
 
-  return withErrorHandling(
-    withAccess(fn, (ref: string) => api[`get${resource}`](ref))
+  return withErrorHandlingAndValidation(
+    withAccess(fn, (ref: string) => api[`get${resource}`](ref)),
+    schema
   );
 }
 

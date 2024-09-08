@@ -16,15 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { z } from "zod";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
-function createResource<T, R, U>(api: U, resource: string) {
-  return async (
+function createResource<T, R, U>(
+  api: U,
+  resource: string,
+  schema: z.ZodSchema
+) {
+  const fn = async (
     call: { request: R },
     callback: (error?: GrpcErrorMessage, response?: T) => void
   ) => {
@@ -36,19 +44,17 @@ function createResource<T, R, U>(api: U, resource: string) {
 
     logger.verbose(`call to create${resource}`, { ...request, accessKeyId });
 
-    try {
-      const response = await api[`create${resource}`]({
-        ...request,
-        extended: {
-          accessKeyId
-        }
-      });
+    const response = await api[`create${resource}`]({
+      ...request,
+      extended: {
+        accessKeyId
+      }
+    });
 
-      callback(null, response);
-    } catch (e) {
-      handleError(e, callback);
-    }
+    callback(null, response);
   };
+
+  return withErrorHandlingAndValidation(fn, schema);
 }
 
 export { createResource };

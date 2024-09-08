@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Validators as V } from "@fonoster/common";
 import {
   BaseApiObject,
   CreateTrunkRequestExtended,
@@ -36,14 +37,16 @@ const RESOURCE = "Trunk";
 function createTrunk(trunks: TrunkApi) {
   return createResource<TrunkExtended, CreateTrunkRequestExtended, TrunkApi>(
     trunks,
-    RESOURCE
+    RESOURCE,
+    V.createTrunkRequestSchema
   );
 }
 
 function updateTrunk(trunks: TrunkApi) {
   return updateResource<TrunkExtended, UpdateTrunkRequest, TrunkApi>(
     trunks,
-    RESOURCE
+    RESOURCE,
+    V.updateTrunkRequestSchema
   );
 }
 

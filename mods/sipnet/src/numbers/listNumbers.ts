@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  Validators as V,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import {
   ListNumbersRequest,
@@ -28,7 +32,7 @@ import { convertToFonosterNumber } from "./convertToFonosterNumber";
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function listNumbers(api: NumbersApi) {
-  return async (
+  const fn = async (
     call: { request: ListNumbersRequest },
     callback: (error?: GrpcErrorMessage, response?: ListNumbersResponse) => void
   ) => {
@@ -36,19 +40,17 @@ function listNumbers(api: NumbersApi) {
 
     logger.verbose("call to listNumbers", { ...request });
 
-    try {
-      const response = await api.listNumbers(request);
+    const response = await api.listNumbers(request);
 
-      const items = response.items.map(convertToFonosterNumber);
+    const items = response.items.map(convertToFonosterNumber);
 
-      callback(null, {
-        items: items,
-        nextPageToken: response.nextPageToken
-      });
-    } catch (e) {
-      handleError(e, callback);
-    }
+    callback(null, {
+      items: items,
+      nextPageToken: response.nextPageToken
+    });
   };
+
+  return withErrorHandlingAndValidation(fn, V.listRequestSchema);
 }
 
 export { listNumbers };

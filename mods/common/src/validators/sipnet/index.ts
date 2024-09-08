@@ -16,10 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./applications";
-export * from "./calls";
-export * from "./common";
-export * from "./hostOrHostPortSchema";
-export * from "./identity";
-export * from "./secrets";
-export * from "./sipnet";
+export * from "./acls";
+export * from "./agents";
+export * from "./credentials";
+export * from "./domains";
+export * from "./numbers";
+export * from "./trunks";

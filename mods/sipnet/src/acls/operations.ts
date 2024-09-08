@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Validators as V } from "@fonoster/common";
 import {
   AclExtended,
   AclsApi,
@@ -33,11 +34,19 @@ import { updateResource } from "../resources/updateResource";
 const RESOURCE = "Acl";
 
 function createAcl(acls: AclsApi) {
-  return createResource<AclExtended, CreateAclRequest, AclsApi>(acls, RESOURCE);
+  return createResource<AclExtended, CreateAclRequest, AclsApi>(
+    acls,
+    RESOURCE,
+    V.createAclRequestSchema
+  );
 }
 
 function updateAcl(acls: AclsApi) {
-  return updateResource<AclExtended, UpdateAclRequest, AclsApi>(acls, RESOURCE);
+  return updateResource<AclExtended, UpdateAclRequest, AclsApi>(
+    acls,
+    RESOURCE,
+    V.updateAclRequestSchema
+  );
 }
 
 function getAcl(acls: AclsApi) {

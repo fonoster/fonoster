@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Validators as V } from "@fonoster/common";
 import {
   AgentExtended,
   AgentsApi,
@@ -35,14 +36,16 @@ const RESOURCE = "Agent";
 function createAgent(agents: AgentsApi) {
   return createResource<AgentExtended, CreateAgentRequestExtended, AgentsApi>(
     agents,
-    RESOURCE
+    RESOURCE,
+    V.createAgentRequestSchema
   );
 }
 
 function updateAgent(agents: AgentsApi) {
   return updateResource<AgentExtended, UpdateAgentRequest, AgentsApi>(
     agents,
-    RESOURCE
+    RESOURCE,
+    V.updateAgentRequestSchema
   );
 }
 

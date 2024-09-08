@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage, handleError } from "@fonoster/common";
+import {
+  GrpcErrorMessage,
+  Validators as V,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, NumbersApi } from "@fonoster/types";
 import { convertToFonosterNumber } from "./convertToFonosterNumber";
@@ -24,22 +28,21 @@ import { convertToFonosterNumber } from "./convertToFonosterNumber";
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function getNumber(api: NumbersApi) {
-  return async (
+  const fn = async (
     call: { request: BaseApiObject },
     callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
-    const { ref } = call.request;
+    const { request } = call;
+    const { ref } = request;
 
-    try {
-      logger.verbose("call to getNumber", { ref });
+    logger.verbose("call to getNumber", { ref });
 
-      const response = await api.getNumber(ref);
+    const response = await api.getNumber(ref);
 
-      callback(null, convertToFonosterNumber(response));
-    } catch (e) {
-      handleError(e, callback);
-    }
+    callback(null, convertToFonosterNumber(response));
   };
+
+  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
 }
 
 export { getNumber };
