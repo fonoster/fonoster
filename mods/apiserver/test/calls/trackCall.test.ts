@@ -50,7 +50,7 @@ describe("@calls/trackCall", function () {
 
     const trackCallHandler = makeTrackCall(nc);
 
-    trackCallHandler(call);
+    trackCallHandler(call, () => {});
 
     const msg = {
       json: sandbox.stub().onFirstCall().returns({ ref: callRef, status: DialStatus.TRYING })

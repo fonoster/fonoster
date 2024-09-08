@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,10 +17,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { withErrorHandling, withValidation } from "@fonoster/common";
+import { withAccess } from "@fonoster/identity";
 import { z } from "zod";
 
-const baseApiObjectSchema = z.object({
-  ref: z.string()
-});
+function withErrorHandlingAndValidationAndAccess<T, A>(
+  handler: (call: T) => Promise<A>,
+  getFn: (ref: string) => Promise<unknown>,
+  schema: z.ZodSchema
+) {
+  // Start by applying access logic, then validation, and finally error handling
+  const withAccessHandler = withAccess(handler, getFn);
+  const withValidationHandler = withValidation(withAccessHandler, schema);
+  return withErrorHandling(withValidationHandler);
+}
 
-export { baseApiObjectSchema };
+export { withErrorHandlingAndValidationAndAccess };

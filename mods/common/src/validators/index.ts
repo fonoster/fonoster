@@ -16,6 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./applications";
+export * from "./calls";
 export * from "./common";
 export * from "./hostOrHostPortSchema";
 export * from "./listCallsRequestSchema";
+export * from "./secrets";

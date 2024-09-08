@@ -16,12 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Validators as V,
-  withErrorHandling,
-  withValidation
-} from "@fonoster/common";
-import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
+import { Validators as V } from "@fonoster/common";
+import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { UpdateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -29,6 +25,7 @@ import { createGetFnUtil } from "./createGetFnUtil";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./utils/validOrThrow";
 import { Prisma } from "../core/db";
+import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -77,11 +74,10 @@ function updateApplication(prisma: Prisma) {
     return { ref: applicationRef };
   };
 
-  return withErrorHandling(
-    withValidation(
-      withAccess(fn, (ref: string) => getFn(ref)),
-      V.updateApplicationRequestSchema
-    )
+  return withErrorHandlingAndValidationAndAccess(
+    fn,
+    (ref: string) => getFn(ref),
+    V.updateApplicationRequestSchema
   );
 }
 

@@ -16,13 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandling } from "@fonoster/common";
-import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
+import { Validators as V } from "@fonoster/common";
+import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { UpdateSecretRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { Prisma } from "../core/db";
+import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -51,7 +52,11 @@ function updateSecret(prisma: Prisma) {
     return { ref: call.request.ref };
   };
 
-  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
+  return withErrorHandlingAndValidationAndAccess(
+    fn,
+    (ref: string) => getFn(ref),
+    V.listSecretsRequestSchema
+  );
 }
 
 export { updateSecret };

@@ -19,27 +19,19 @@
 import {
   BaseApiObject,
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { CreateCallRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { v4 as uuidv4 } from "uuid";
-import { z } from "zod";
 import { CallPublisher } from "./types";
 import { Prisma } from "../core/db";
 import { notFoundError } from "../core/notFoundError";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
-
-const createCallRequestSchema = z.object({
-  from: z.string(),
-  to: z.string(),
-  appRef: z.string(),
-  timeout: z.number().optional()
-});
 
 function createCall(prisma: Prisma, publisher: CallPublisher) {
   const fn = async (
@@ -78,7 +70,7 @@ function createCall(prisma: Prisma, publisher: CallPublisher) {
     callback(null, { ref });
   };
 
-  return withErrorHandling(withValidation(fn, createCallRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.createCallRequestSchema);
 }
 
 export { createCall };

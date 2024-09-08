@@ -18,8 +18,11 @@
  */
 import { z } from "zod";
 
-const baseApiObjectSchema = z.object({
-  ref: z.string()
+const createSecretRequestSchema = z.object({
+  name: z.string(),
+  secret: z.string()
 });
 
-export { baseApiObjectSchema };
+const listSecretsRequestSchema = z.object({});
+
+export { createSecretRequestSchema, listSecretsRequestSchema };

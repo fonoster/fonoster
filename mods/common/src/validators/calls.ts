@@ -18,8 +18,15 @@
  */
 import { z } from "zod";
 
-const baseApiObjectSchema = z.object({
-  ref: z.string()
+const createCallRequestSchema = z.object({
+  from: z.string(),
+  to: z.string(),
+  appRef: z.string(),
+  timeout: z.number().optional()
 });
 
-export { baseApiObjectSchema };
+const getCallRequestSchema = z.object({
+  ref: z.string({ message: "Invalid call reference" })
+});
+
+export { createCallRequestSchema, getCallRequestSchema };

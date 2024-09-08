@@ -19,8 +19,7 @@
 import {
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandling,
-  withValidation
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
@@ -76,7 +75,7 @@ function listApplications(prisma: Prisma) {
     });
   };
 
-  return withErrorHandling(withValidation(fn, V.listApplicationsRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.listApplicationsRequestSchema);
 }
 
 export { listApplications };

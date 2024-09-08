@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,9 +18,11 @@
  * limitations under the License.
  */
 import { z } from "zod";
+import { withErrorHandling } from "./withErrorHandling";
+import { withValidation } from "./withValidation";
 
-const baseApiObjectSchema = z.object({
-  ref: z.string()
-});
+function withErrorHandlingAndValidation(fn: Function, schema: z.ZodSchema) {
+  return withErrorHandling(withValidation(fn, schema));
+}
 
-export { baseApiObjectSchema };
+export { withErrorHandlingAndValidation };

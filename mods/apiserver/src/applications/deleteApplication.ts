@@ -18,8 +18,7 @@
  */
 import {
   Validators as V,
-  withErrorHandling,
-  withValidation
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
@@ -44,11 +43,9 @@ function deleteApplication(prisma: Prisma) {
     return { ref };
   };
 
-  return withErrorHandling(
-    withValidation(
-      withAccess(fn, (ref: string) => getFn(ref)),
-      V.basicApiObjectSchema
-    )
+  return withErrorHandlingAndValidation(
+    withAccess(fn, (ref: string) => getFn(ref)),
+    V.createApplicationRequestSchema
   );
 }
 

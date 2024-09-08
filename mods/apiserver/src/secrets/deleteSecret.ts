@@ -16,12 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandling } from "@fonoster/common";
-import { withAccess } from "@fonoster/identity";
+import { Validators as V } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { Prisma } from "../core/db";
+import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -40,7 +40,11 @@ function deleteSecret(prisma: Prisma) {
     return { ref };
   };
 
-  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
+  return withErrorHandlingAndValidationAndAccess(
+    fn,
+    (ref: string) => getFn(ref),
+    V.baseApiObjectSchema
+  );
 }
 
 export { deleteSecret };

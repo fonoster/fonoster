@@ -16,10 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { DialStatus } from "@fonoster/common";
+import {
+  BaseApiObject,
+  DialStatus,
+  Validators as V,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { NatsConnection } from "nats";
-import { z } from "zod";
 import { CallStream, TrackCallResponse } from "./types";
 import { CALLS_TRACK_CALL_SUBJECT } from "../envs";
 
@@ -30,12 +34,6 @@ const FINAL_STATUSES = [
 ];
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
-
-const trackCallRequestSchema = z.object({
-  ref: z.string()
-});
-
-type TrackCallRequest = z.infer<typeof trackCallRequestSchema>;
 
 function makeTrackCall(nc: NatsConnection) {
   const trackingCallsMap = new Map<string, CallStream>();
@@ -70,7 +68,7 @@ function makeTrackCall(nc: NatsConnection) {
     }
   };
 
-  return (call: { request: TrackCallRequest }) => {
+  const fn = (call: { request: BaseApiObject }) => {
     const stream = call as unknown as CallStream;
     const { ref } = call.request;
 
@@ -78,6 +76,8 @@ function makeTrackCall(nc: NatsConnection) {
 
     trackingCallsMap.set(ref, stream);
   };
+
+  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
 }
 
 export { makeTrackCall };

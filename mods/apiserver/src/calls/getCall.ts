@@ -18,22 +18,17 @@
  */
 import {
   GrpcErrorMessage,
-  withErrorHandling,
-  withValidation
+  Validators as V,
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { z } from "zod";
 import { createFetchSingleCall } from "./createFetchSingleCall";
 import { CallDetailRecord, GetCallRequest, InfluxDBClient } from "./types";
 import { notFoundError } from "../core/notFoundError";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
-
-const getCallRequestSchema = z.object({
-  ref: z.string({ message: "Invalid call reference" })
-});
 
 function getCall(influx: InfluxDBClient) {
   const fetchSingleCall = createFetchSingleCall(influx);
@@ -61,7 +56,7 @@ function getCall(influx: InfluxDBClient) {
     callback(null, response);
   };
 
-  return withErrorHandling(withValidation(fn, getCallRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.getCallRequestSchema);
 }
 
 export { getCall };

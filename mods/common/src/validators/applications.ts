@@ -18,8 +18,12 @@
  */
 import { z } from "zod";
 
-const baseApiObjectSchema = z.object({
-  ref: z.string()
-});
+const createApplicationRequestSchema = z.object({});
+const listApplicationsRequestSchema = z.object({});
+const updateApplicationRequestSchema = z.object({});
 
-export { baseApiObjectSchema };
+export {
+  createApplicationRequestSchema,
+  listApplicationsRequestSchema,
+  updateApplicationRequestSchema
+};

@@ -19,8 +19,7 @@
 import {
   GrpcErrorMessage,
   Validators as V,
-  withErrorHandling,
-  withValidation
+  withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
@@ -52,7 +51,7 @@ function listCalls(influx: InfluxDBClient) {
     callback(null, result);
   };
 
-  return withErrorHandling(withValidation(fn, V.listCallsRequestSchema));
+  return withErrorHandlingAndValidation(fn, V.listCallsRequestSchema);
 }
 
 export { listCalls };

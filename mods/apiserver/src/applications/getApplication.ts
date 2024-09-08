@@ -16,17 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Validators as V,
-  withErrorHandling,
-  withValidation
-} from "@fonoster/common";
-import { withAccess } from "@fonoster/identity";
+import { Validators as V } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Application, BaseApiObject } from "@fonoster/types";
 import { createGetFnUtil } from "./createGetFnUtil";
 import { applicationWithEncodedStruct } from "./utils/applicationWithEncodedStruct";
 import { Prisma } from "../core/db";
+import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -43,11 +39,10 @@ function getApplication(prisma: Prisma) {
     return result ? applicationWithEncodedStruct(result) : null;
   };
 
-  return withErrorHandling(
-    withValidation(
-      withAccess(fn, (ref: string) => getFn(ref)),
-      V.basicApiObjectSchema
-    )
+  return withErrorHandlingAndValidationAndAccess(
+    fn,
+    (ref: string) => getFn(ref),
+    V.createApplicationRequestSchema
   );
 }
 
