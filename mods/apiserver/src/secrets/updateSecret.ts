@@ -55,7 +55,7 @@ function updateSecret(prisma: Prisma) {
   return withErrorHandlingAndValidationAndAccess(
     fn,
     (ref: string) => getFn(ref),
-    V.listSecretsRequestSchema
+    V.listRequestSchema
   );
 }
 

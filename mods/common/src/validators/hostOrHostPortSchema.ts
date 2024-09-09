@@ -21,7 +21,6 @@ import { z } from "zod";
 const hostOrHostPortSchema = z
   .string()
   .optional()
-  .nullable()
   .refine(
     (value) => {
       const hostRegex =

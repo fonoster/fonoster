@@ -16,48 +16,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CallStatus, CallType } from "@fonoster/types";
 import { z } from "zod";
 
 const createCallRequestSchema = z.object({
+  // TODO: Ensure numbers have valid E.164 values
   from: z.string(),
+  // TODO: Ensure numbers have valid E.164 values
   to: z.string(),
-  appRef: z.string(),
-  timeout: z.number().optional()
+  appRef: z.string().uuid("Invalid call reference"),
+  timeout: z.number().max(120, "Timeout must be less than 120s").optional()
 });
 
 const getCallRequestSchema = z.object({
-  ref: z.string({ message: "Invalid call reference" })
+  ref: z.string().uuid("Invalid call reference")
 });
 
 const listCallsRequestSchema = z.object({
   after: z
     .string()
     .datetime({ offset: true, message: "The date must be a valid ISO 8601" })
-    .optional()
-    .nullable(),
+    .optional(),
   before: z
     .string()
     .datetime({ offset: true, message: "The date must be a valid ISO 8601" })
-    .optional()
-    .nullable(),
-  pageSize: z
-    .number({ message: "Invalid pageSize value" })
-    .optional()
-    .nullable(),
-  // type: z
-  //   .nativeEnum(CallType, {
-  //     message: "Invalid call type"
-  //   })
-  //   .optional()
-  //   .nullable(),
-  // status: z
-  //   .nativeEnum(CallStatus, { message: "Invalid call status" })
-  //   .optional()
-  //   .nullable(),
-  pageToken: z
-    .string({ message: "The pageToken must be a string" })
-    .optional()
-    .nullable()
+    .optional(),
+  pageSize: z.number({ message: "Invalid pageSize value" }).optional(),
+  type: z
+    .nativeEnum(CallType, {
+      message: "Invalid call type"
+    })
+    .optional(),
+  status: z
+    .nativeEnum(CallStatus, { message: "Invalid call status" })
+    .optional(),
+  pageToken: z.string({ message: "The pageToken must be a string" }).optional()
 });
 
 export {

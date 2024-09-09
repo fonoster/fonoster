@@ -19,8 +19,15 @@
 import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
 import { z } from "zod";
 
+const MIN_NAME_MESSAGE = "The name is required";
+const MAX_NAME_MESSAGE = "Name must contain at most 50 characters";
+const EMAIL_MESSAGE = "Invalid email";
+const PASSWORD_MESSAGE = "Password must contain at least 8 characters";
+const USER_REF_MESSAGE = "Invalid user reference";
+const WORKSPACE_REF_MESSAGE = "Invalid workspace reference";
+
 const createWorkspaceRequestSchema = z.object({
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50)
+  name: z.string().min(1, MIN_NAME_MESSAGE).max(50, MAX_NAME_MESSAGE)
 });
 
 const createApiKeyRequestSchema = z.object({
@@ -32,12 +39,12 @@ const createApiKeyRequestSchema = z.object({
 });
 
 const exchangeApiKeysRequestSchema = z.object({
-  accessKeyId: z.string(),
+  accessKeyId: z.string().uuid("Invalid accessKeyId"),
   accessKeySecret: z.string()
 });
 
 const exchangeCredentialsRequestSchema = z.object({
-  username: z.string(),
+  username: z.string().email("Invalid username, must be an email address"),
   password: z.string()
 });
 
@@ -46,40 +53,41 @@ const exchangeRefreshTokenRequestSchema = z.object({
 });
 
 const createUserRequestSchema = z.object({
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50),
-  email: z.string().email(),
-  password: z.string().min(8).max(100),
-  avatar: z.string().url()
+  name: z.string().max(50, MAX_NAME_MESSAGE),
+  email: z.string().email(EMAIL_MESSAGE),
+  password: z.string().min(8, PASSWORD_MESSAGE).max(100),
+  avatar: z.string().url().max(255, "Invalid avatar URL")
 });
 
 const updateUserRequestSchema = z.object({
-  ref: z.string(),
-  name: z.string().min(3).max(50).or(z.string().optional().nullable()),
-  password: z.string().min(8).max(50).or(z.string().optional().nullable()),
-  avatar: z.string().url().or(z.string().optional().nullable())
+  ref: z.string().uuid(USER_REF_MESSAGE),
+  name: z.string().max(50, MAX_NAME_MESSAGE).or(z.string().optional()),
+  password: z.string().min(8, PASSWORD_MESSAGE).or(z.string().optional()),
+  avatar: z.string().url().or(z.string().optional())
 });
 
 const inviteUserToWorkspaceRequestSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(3, "Name must contain at least 3 characters").max(50),
+  email: z.string().email(EMAIL_MESSAGE),
+  name: z.string().max(50, MAX_NAME_MESSAGE),
   role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
-  password: z
-    .string()
-    .min(6, "Password must contain at least 8 characters")
-    .or(z.undefined())
+  password: z.string().min(8, PASSWORD_MESSAGE).or(z.undefined())
 });
 
 const resendWorkspaceMembershipInvitationRequestSchema = z.object({
-  userRef: z.string()
+  userRef: z.string().uuid(USER_REF_MESSAGE)
 });
 
 const updateWorkspaceRequestSchema = z.object({
-  ref: z.string(),
-  name: z.string().min(3).max(50).or(z.string().optional().nullable())
+  ref: z.string().uuid(WORKSPACE_REF_MESSAGE),
+  name: z
+    .string()
+    .min(1, MIN_NAME_MESSAGE)
+    .max(50, MAX_NAME_MESSAGE)
+    .or(z.string().optional())
 });
 
 const removeUserFromWorkspaceRequestSchema = z.object({
-  userRef: z.string()
+  userRef: z.string().uuid(USER_REF_MESSAGE)
 });
 
 export {

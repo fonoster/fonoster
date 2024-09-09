@@ -16,9 +16,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ApplicationType } from "@fonoster/types";
 import { z } from "zod";
 
-const createApplicationRequestSchema = z.object({});
-const updateApplicationRequestSchema = z.object({});
+const MAX_NAME_MESSAGE = "Name must contain at most 255 characters";
+const MAX_ENDPOINT_MESSAGE = "Endpoint must contain at most 255 characters";
+const URL_MESSAGE = "Endpoint must be a valid URL";
+
+const createApplicationRequestSchema = z.object({
+  name: z.string().max(255, MAX_NAME_MESSAGE),
+  // The system will default to "EXTERNAL" if not provided
+  type: z.nativeEnum(ApplicationType).optional(),
+  endpoint: z.string().url(URL_MESSAGE).max(255, MAX_ENDPOINT_MESSAGE),
+  textToSpeech: z
+    .object({
+      productRef: z.string(),
+      config: z.record(z.unknown())
+    })
+    .optional(),
+  speechToText: z
+    .object({
+      productRef: z.string(),
+      config: z.record(z.unknown())
+    })
+    .optional(),
+  intelligence: z
+    .object({
+      productRef: z.string(),
+      credentials: z.record(z.unknown()),
+      config: z.record(z.unknown())
+    })
+    .optional()
+});
+
+const updateApplicationRequestSchema = z.object({
+  ref: z.string().uuid("Invalid application reference"),
+  type: z.nativeEnum(ApplicationType).optional(),
+  name: z.string().max(255, MAX_NAME_MESSAGE).optional(),
+  endpoint: z
+    .string()
+    .url(URL_MESSAGE)
+    .max(255, MAX_ENDPOINT_MESSAGE)
+    .optional(),
+  textToSpeech: z
+    .object({
+      productRef: z.string(),
+      config: z.record(z.unknown())
+    })
+    .optional(),
+  speechToText: z
+    .object({
+      productRef: z.string(),
+      config: z.record(z.unknown())
+    })
+    .optional(),
+  intelligence: z
+    .object({
+      productRef: z.string(),
+      credentials: z.record(z.unknown()),
+      config: z.record(z.unknown())
+    })
+    .optional()
+});
 
 export { createApplicationRequestSchema, updateApplicationRequestSchema };
