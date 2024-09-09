@@ -15,7 +15,7 @@ The autopilot module provides a way to create Voice AI applications in Fonoster.
 * [What's Next](#whats-next)
 
 > [!WARNING]  
-> This is an overview of Fonoster's Autopilot. This module is still under heavy development, and the API is subject to change. This overview implements OpenAI models, but we are working to bring support for other providers like Groq and others.
+> This is an overview of Fonoster's Autopilot. This module is still under heavy development, and the API is subject to change. This overview implements OpenAI and Groq models, but we are working to bring support to additional providers. If you have any suggestions or feedback, please let us know.
 
 ## Installation
 
