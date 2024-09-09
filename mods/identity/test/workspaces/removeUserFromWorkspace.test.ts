@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -83,7 +83,7 @@ describe("@identity[workspace/removeUserFromWorkspace]", function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
-    const userRef = "635c0cd8-8125-483d-b467-05c53ce2cd31xxx";
+    const userRef = "635c0cd8-8125-483d-b467-05c53ce2cd30";
 
     const call = {
       metadata,

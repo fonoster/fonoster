@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Validators as V } from "@fonoster/common";
 import { CreateDomainRequest, Domain, DomainsApi } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import chai, { expect } from "chai";
@@ -62,7 +63,8 @@ describe("@sipnet[resources/createResource]", function () {
 
     const create = createResource<Domain, CreateDomainRequest, DomainsApi>(
       domains,
-      "Domain"
+      "Domain",
+      V.createDomainRequestSchema
     );
 
     // Act
@@ -100,7 +102,8 @@ describe("@sipnet[resources/createResource]", function () {
 
     const create = createResource<Domain, CreateDomainRequest, DomainsApi>(
       domains,
-      "Domain"
+      "Domain",
+      V.createDomainRequestSchema
     );
 
     // Act

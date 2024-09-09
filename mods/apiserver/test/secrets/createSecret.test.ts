@@ -22,7 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/core/db";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -41,15 +41,15 @@ describe("@secrets/createSecret", function () {
 
     const secrets = {
       secret: {
-        create: sandbox.stub().resolves({ ref: "123" })
+        create: sandbox.stub().resolves({ ref: TEST_UUID })
       }
     } as unknown as Prisma;
 
     const call = {
       metadata,
       request: {
-        name: "My Secret",
-        secret: "My Secret"
+        name: "MY_SECRET",
+        secret: "supersecret"
       }
     };
 
@@ -59,7 +59,9 @@ describe("@secrets/createSecret", function () {
     await createSecret(secrets)(call, callback);
 
     // Assert
-    expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "123" });
+    expect(callback).to.have.been.calledOnceWithExactly(null, {
+      ref: TEST_UUID
+    });
   });
 
   it("should throw an error if the secret already exists", async function () {
@@ -70,8 +72,8 @@ describe("@secrets/createSecret", function () {
     const call = {
       metadata,
       request: {
-        name: "My Secret",
-        secret: "My Secret"
+        name: "MY_SECRET",
+        secret: "supersecret"
       }
     };
 

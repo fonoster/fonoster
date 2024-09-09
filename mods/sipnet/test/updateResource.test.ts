@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Validators as V } from "@fonoster/common";
 import { getExtendedFieldsHelper } from "@fonoster/sipnet/test/getExtendedFieldsHelper";
 import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
 import { Domain, DomainsApi, UpdateDomainRequest } from "@fonoster/types";
@@ -59,7 +60,8 @@ describe("@sipnet[resources/updateResource]", function () {
 
     const update = updateResource<Domain, UpdateDomainRequest, DomainsApi>(
       domains,
-      "Domain"
+      "Domain",
+      V.updateDomainRequestSchema
     );
 
     // Act
@@ -97,7 +99,8 @@ describe("@sipnet[resources/updateResource]", function () {
 
     const update = updateResource<Domain, UpdateDomainRequest, DomainsApi>(
       domains,
-      "Domain"
+      "Domain",
+      V.updateDomainRequestSchema
     );
 
     // Act

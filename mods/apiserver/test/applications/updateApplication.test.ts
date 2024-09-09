@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/core/db";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -42,7 +42,7 @@ describe("@applications/updateApplication", function () {
     const call = {
       metadata,
       request: {
-        ref: "123",
+        ref: TEST_UUID,
         name: "My new application name",
         endpoint: "localhost:8765",
         type: ApplicationType.EXTERNAL
@@ -51,7 +51,7 @@ describe("@applications/updateApplication", function () {
 
     const prisma = {
       application: {
-        update: sandbox.stub().resolves({ ref: "123" }),
+        update: sandbox.stub().resolves({ ref: TEST_UUID }),
         findUnique: sandbox
           .stub()
           .resolves({ accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p" })
@@ -81,7 +81,7 @@ describe("@applications/updateApplication", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal({ ref: "123" });
+    expect(response).to.deep.equal({ ref: TEST_UUID });
   });
 
   it("should throw an error if the application does not exist", async function () {
@@ -92,7 +92,7 @@ describe("@applications/updateApplication", function () {
     const call = {
       metadata,
       request: {
-        ref: "123",
+        ref: TEST_UUID,
         name: "My new application name"
       }
     };

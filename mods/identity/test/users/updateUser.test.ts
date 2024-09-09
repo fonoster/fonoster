@@ -22,7 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -41,14 +41,14 @@ describe("@identity[users/updateUser]", function () {
     const call = {
       metadata,
       request: {
-        ref: "123",
+        ref: TEST_UUID,
         name: "John Doex"
       }
     };
 
     const prisma = {
       user: {
-        update: sandbox.stub().resolves({ ref: "123" })
+        update: sandbox.stub().resolves({ ref: TEST_UUID })
       }
     } as unknown as Prisma;
 
@@ -63,7 +63,7 @@ describe("@identity[users/updateUser]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal({ ref: "123" });
+    expect(response).to.deep.equal({ ref: TEST_UUID });
   });
 
   it("should throw an error if the user does not exist", async function () {
@@ -74,7 +74,7 @@ describe("@identity[users/updateUser]", function () {
     const call = {
       metadata,
       request: {
-        ref: "123",
+        ref: TEST_UUID,
         name: "John Doex"
       }
     };

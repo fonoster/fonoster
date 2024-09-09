@@ -22,7 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -97,7 +97,7 @@ describe("@identity[workspaces/createWorkspace]", function () {
     // Arrange
     const call = {
       request: {
-        name: "My"
+        name: ""
       }
     };
 
@@ -115,7 +115,7 @@ describe("@identity[workspaces/createWorkspace]", function () {
         code: grpc.status.INVALID_ARGUMENT,
         message:
           // eslint-disable-next-line prettier/prettier
-          "Validation error: Name must contain at least 3 characters at \"name\""
+          "Validation error: The name is required at \"name\""
       });
     });
   });

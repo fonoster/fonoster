@@ -24,7 +24,8 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
 import { IdentityConfig } from "../../src/exchanges/types";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN } from "../utils";
+import { TEST_UUID } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -37,7 +38,7 @@ const inviteRequest = {
   email: "john@example.com",
   name: "John Doe",
   role: WorkspaceRoleEnum.ADMIN,
-  password: "123456"
+  password: "12345678"
 };
 
 describe("@identity[workspace/inviteUserToWorkspace]", function () {
@@ -69,7 +70,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
     const prisma = {
       user: {
         findUnique: sandbox.stub().resolves(),
-        create: sandbox.stub().resolves({ ref: "123" })
+        create: sandbox.stub().resolves({ ref: TEST_UUID })
       },
       workspaceMember: {
         create: sandbox.stub().resolves({ workspace: { name: workspaceName } }),
@@ -77,7 +78,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ref: "123",
+          ref: TEST_UUID,
           accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
           ownerRef: workspaceOwner,
           members: []
@@ -125,16 +126,16 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
 
     const prisma = {
       user: {
-        findUnique: sandbox.stub().resolves({ ref: "123" }),
+        findUnique: sandbox.stub().resolves({ ref: TEST_TOKEN }),
         create: sandbox.stub().resolves()
       },
       workspaceMember: {
         create: sandbox.stub().resolves({ workspace: { name: workspaceName } }),
-        findFirst: sandbox.stub().resolves({ ref: "123" })
+        findFirst: sandbox.stub().resolves({ ref: TEST_TOKEN })
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ref: "123",
+          ref: TEST_TOKEN,
           accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
           ownerRef: workspaceOwner,
           members: []
@@ -180,7 +181,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
     const prisma = {
       user: {
         findUnique: sandbox.stub().resolves(),
-        create: sandbox.stub().resolves({ ref: "123" })
+        create: sandbox.stub().resolves({ ref: TEST_UUID })
       },
       workspaceMember: {
         create: sandbox.stub().resolves({ workspace: { name: workspaceName } }),
@@ -188,7 +189,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
       },
       workspace: {
         findUnique: sandbox.stub().resolves({
-          ref: "123",
+          ref: TEST_UUID,
           accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
           ownerRef: "another-user-id",
           members: []

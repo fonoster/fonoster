@@ -22,7 +22,8 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN } from "../utils";
+import { TEST_UUID } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -41,15 +42,15 @@ describe("@identity[workspace/updateWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        ref: "123",
+        ref: TEST_UUID,
         name: "My Workspacex"
       }
     };
 
     const prisma = {
       workspace: {
-        update: sandbox.stub().resolves({ ref: "123" }),
-        findUnique: sandbox.stub().resolves({ ownerRef: "123" })
+        update: sandbox.stub().resolves({ ref: TEST_UUID }),
+        findUnique: sandbox.stub().resolves({ ownerRef: TEST_UUID })
       },
       workspaceMember: {
         findFirst: sandbox.stub().resolves({})
@@ -69,7 +70,7 @@ describe("@identity[workspace/updateWorkspace]", function () {
     });
 
     // Assert
-    expect(response).to.deep.equal({ ref: "123" });
+    expect(response).to.deep.equal({ ref: TEST_UUID });
   });
 
   it("should throw an error if the user does not exist", async function () {
@@ -80,7 +81,7 @@ describe("@identity[workspace/updateWorkspace]", function () {
     const call = {
       metadata,
       request: {
-        ref: "123",
+        ref: TEST_UUID,
         name: "John Doex"
       }
     };

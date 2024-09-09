@@ -22,7 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

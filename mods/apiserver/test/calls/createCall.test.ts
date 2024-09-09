@@ -23,7 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/core/db";
-import { TEST_TOKEN } from "../testToken";
+import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -47,12 +47,12 @@ describe("@calls/createCall", function () {
       request: {
         from: "+1234567890",
         to: "+1234567891",
-        appRef: "app-ref",
+        appRef: TEST_UUID
       }
     };
 
     const application = {
-      ref: "123",
+      ref: TEST_UUID,
       name: "My Application",
       endpoint: "example.com:50051",
       accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
@@ -75,7 +75,7 @@ describe("@calls/createCall", function () {
     expect(publisher.publishCall).to.have.been.calledWithMatch({
       from: "+1234567890",
       to: "+1234567891",
-      appRef: "app-ref",
+      appRef: TEST_UUID
     });
   });
 });
