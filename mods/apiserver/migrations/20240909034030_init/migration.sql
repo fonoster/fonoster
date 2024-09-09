@@ -2,10 +2,10 @@
 CREATE TYPE "application_types" AS ENUM ('EXTERNAL');
 
 -- CreateEnum
-CREATE TYPE "product_types" AS ENUM ('TTS', 'STT', 'NLU', 'ASSISTANT');
+CREATE TYPE "product_types" AS ENUM ('TTS', 'STT', 'ASSISTANT');
 
 -- CreateEnum
-CREATE TYPE "product_vendors" AS ENUM ('GOOGLE', 'MICROSOFT', 'AMAZON', 'DEEPGRAM', 'IBM', 'RASA', 'GENERIC');
+CREATE TYPE "product_vendors" AS ENUM ('GOOGLE', 'MICROSOFT', 'AMAZON', 'DEEPGRAM', 'IBM', 'RASA', 'OPENAI', 'GROQ', 'GENERIC');
 
 -- CreateTable
 CREATE TABLE "applications" (

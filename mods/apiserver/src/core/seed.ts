@@ -69,13 +69,13 @@ async function main() {
   });
 
   await prisma.product.upsert({
-    where: { ref: "nlu.dialogflowcx" },
+    where: { ref: "llm.openai" },
     update: {},
     create: {
-      ref: "nlu.dialogflowcx",
-      name: "Dialogflow CX",
-      vendor: "GOOGLE",
-      type: "NLU"
+      ref: "llm.openai",
+      name: "OpenAI Language Model",
+      vendor: "OPENAI",
+      type: "ASSISTANT"
     }
   });
 }

@@ -127,6 +127,8 @@ enum ProductVendor {
   DEEPGRAM
   IBM
   RASA
+  OPENAI
+  GROQ
   GENERIC
 
   // Maps
