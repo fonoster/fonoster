@@ -106,8 +106,9 @@ jobs:
 
     - name: Starting services for integration tests
       run: |
+        npm run generate:keypair
         cp .env.example .env
-        cp config/integrations.example.json integrations.json
+        cp config/integrations.example.json config/integrations.json
         sed -i "s|DOCKER_HOST_ADDRESS=.*|DOCKER_HOST_ADDRESS=127.0.0.1|g" .env 
         sed -i "s|ASTERISK_SIPPROXY_HOST=.*|ASTERISK_SIPPROXY_HOST=127.0.0.1|g" .env
         sed -i "s|SMTP_HOST=.*|SMTP_HOST=mailhog|g" .env
@@ -118,6 +119,7 @@ jobs:
     - name: Waiting for services to be ready
       run: |
         sleep 30
+        docker ps -a
 
     - name: Install Chrome
       uses: browser-actions/setup-chrome@v1
