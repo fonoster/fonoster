@@ -36,7 +36,7 @@ class TextToSpeechFactory {
     name: string,
     ctor: EngineConstructor<T>
   ) {
-    logger.info("registering tts engine", { name });
+    logger.verbose("registering tts engine", { name });
     this.engines.set(name, ctor);
   }
 
