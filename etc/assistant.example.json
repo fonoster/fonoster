@@ -20,7 +20,7 @@
     "provider": "openai",
     "model": "gpt-4o-mini",
     "temperature": 0.7,
-    "maxTokens": 250,
+    "maxTokens": 100,
     "knowledgeBase": [
       {
         "type": "s3",
