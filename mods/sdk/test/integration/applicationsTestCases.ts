@@ -83,7 +83,7 @@ function createApplicationsTestCases(expect) {
           ref: "{{ref}}",
           name: "My renamed Application",
           intelligence: {
-            productRef: "nlu.dialogflowcx",
+            productRef: "llm.openai",
             credentials: "xxx",
             config: {
               agent: "yyy"
