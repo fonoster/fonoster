@@ -117,10 +117,7 @@ jobs:
 
     - name: Waiting for services to be ready
       run: |
-        while ! curl -s -H "Content-Type: application/grpc-web+proto" http://localhost:8449/grpc.health.v1.Health/Check; do
-          echo "Waiting for the APIServer to be ready..."
-          sleep 5
-        done
+        sleep 30
 
     - name: Install Chrome
       uses: browser-actions/setup-chrome@v1
