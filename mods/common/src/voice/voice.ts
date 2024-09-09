@@ -90,7 +90,6 @@ type VoiceClientConfig = {
   metadata?: Record<string, string>;
 };
 
-// TODO: Enforce that one of the responses fields is present
 type VoiceIn = {
   request?: VoiceRequest;
   content?: StreamContent;
@@ -106,14 +105,12 @@ type VoiceIn = {
   recordResponse?: RecordResponse;
   dialResponse?: { status: DialStatus };
   startStreamResponse?: StartStreamResponse;
-  // TODO: Add stopStreamResponse xxxx
   streamPayload?: StreamPayload;
   streamGatherPayload?: StreamGatherPayload;
   startStreamGatherResponse?: VerbResponse;
   stopStreamGatherResponse?: VerbResponse;
 };
 
-// TODO: Enforce that one of the requests fields is present
 type VoiceOut = {
   answerRequest?: VerbRequest;
   hangupRequest?: VerbRequest;

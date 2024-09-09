@@ -52,7 +52,6 @@ class StreamGatherStream {
     this.stream.removeAllListeners();
   }
 
-  // TODO: We should hide this method from the public API
   // Private API
   onPayload(callback: (payload: StreamGatherPayload) => void) {
     this.stream.on("data", (payload) => {

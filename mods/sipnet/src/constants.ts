@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 const APP_REF_HEADER = "x-app-ref";
-// TODO: Fix duplicated constant (exist in the apiserver)
 const ROUTR_DEFAULT_PEER_AOR = "sip:voice@default";
 
 export { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR };

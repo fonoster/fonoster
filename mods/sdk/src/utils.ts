@@ -65,7 +65,6 @@ function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
   };
 }
 
-// TODO: Improve type safety
 function buildStructOverrideReverse(request) {
   const result = {
     ...request,

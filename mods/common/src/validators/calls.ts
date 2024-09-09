@@ -20,9 +20,7 @@ import { CallStatus, CallType } from "@fonoster/types";
 import { z } from "zod";
 
 const createCallRequestSchema = z.object({
-  // TODO: Ensure numbers have valid E.164 values
   from: z.string(),
-  // TODO: Ensure numbers have valid E.164 values
   to: z.string(),
   appRef: z.string().uuid("Invalid call reference"),
   timeout: z.number().max(120, "Timeout must be less than 120s").optional()

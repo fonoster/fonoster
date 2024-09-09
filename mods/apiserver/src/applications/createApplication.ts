@@ -16,11 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  GrpcErrorMessage,
-  Validators as V,
-  withErrorHandlingAndValidation
-} from "@fonoster/common";
+import { GrpcErrorMessage, withErrorHandling } from "@fonoster/common";
 import { getAccessKeyIdFromCall } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, CreateApplicationRequest } from "@fonoster/types";
@@ -38,6 +34,7 @@ function createApplication(prisma: Prisma) {
   ) => {
     const { request } = call;
     const { type } = request;
+
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
@@ -59,7 +56,7 @@ function createApplication(prisma: Prisma) {
     callback(null, { ref: result.ref });
   };
 
-  return withErrorHandlingAndValidation(fn, V.createApplicationRequestSchema);
+  return withErrorHandling(fn);
 }
 
 export { createApplication };

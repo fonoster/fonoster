@@ -90,7 +90,6 @@ class AudioSocket {
     );
     socket.on(EventType.END, () => asStream.emit(EventType.END));
     socket.on(EventType.ERROR, (err) => {
-      // TODO: Improve type safety
       if ("code" in err && err.code === "ERR_STREAM_WRITE_AFTER_END") {
         return;
       }

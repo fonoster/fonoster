@@ -312,8 +312,7 @@ message StreamPayload {
 
   // The audio data
   bytes data = 4;
-  
-  // TODO: Consider turning this into a enum 
+
   // (Q. should we use the same error codes as gRPC?)
   // Error code if any
   string code = 5;

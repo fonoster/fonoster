@@ -65,7 +65,6 @@ class Stream {
     this.stream.emit("payloadIn", payload);
   }
 
-  // TODO: We should hide this method from the public API
   // Private API
   onPayloadIn(callback: (payload: StreamPayload) => void) {
     this.stream.on("payloadIn", (payload) => {

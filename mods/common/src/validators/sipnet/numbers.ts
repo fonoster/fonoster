@@ -28,7 +28,6 @@ const countryIsoCodeSchema = z.string().refine((val) => isISO31661Alpha2(val), {
 
 const createNumberRequestSchema = z
   .object({
-    // TODO: Add validation for telUrl (perhaps using the "phone" package)
     agentAor: sipUriSchema.optional(),
     appRef: z.string().optional(),
     countryIsoCode: countryIsoCodeSchema

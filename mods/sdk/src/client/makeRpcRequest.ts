@@ -53,7 +53,6 @@ function makeRpcRequest<
   });
 
   return new Promise((resolve, reject) => {
-    // TODO: Update error to use GrpcError
     method(reqPB, metadata, (err: Error | null, responsePB: ResponsePB) => {
       if (err) {
         reject(err);

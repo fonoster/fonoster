@@ -25,7 +25,8 @@ import { Azure as AzureTts } from "../../voice/tts/Azure";
 import { Deepgram as DeepgramTts } from "../../voice/tts/Deepgram";
 import { Google as GoogleTts } from "../../voice/tts/Google";
 
-// TODO: We need a way to add this values dynamically
+const MAX_NAME_MESSAGE = "Name must contain at most 255 characters";
+
 const validators = {
   ttsConfigValidators: {
     "tts.google": GoogleTts.getConfigValidationSchema,
@@ -54,7 +55,7 @@ function getApplicationValidationSchema(request: {
   const { ttsEngineName, sttEngineName } = request;
 
   return z.object({
-    name: z.string(),
+    name: z.string().max(255, MAX_NAME_MESSAGE),
     type: z.nativeEnum(ApplicationType),
     endpoint: hostOrHostPortSchema,
     textToSpeech: ttsEngineName

@@ -25,7 +25,6 @@ type VerbHandler = (request: VerbRequest) => Promise<void>;
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-// TODO: Send error to the client and to the log system
 function withErrorHandling(fn: VerbHandler) {
   return async (request: VerbRequest) => {
     try {

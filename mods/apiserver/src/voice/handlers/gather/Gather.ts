@@ -26,8 +26,11 @@ import { withErrorHandling } from "../utils/withErrorHandling";
 const gatherRequestSchema = z.object({
   source: z.optional(z.nativeEnum(GatherSource)),
   maxDigits: z.number().optional().nullable(),
-  // TODO: Ensure it is a dtmf character
-  finishOnKey: z.string().max(1).optional().nullable()
+  finishOnKey: z
+    .string()
+    .regex(/^[0-9*#]$/) // Ensure it's a valid DTMF character
+    .max(1)
+    .optional()
 });
 
 function gatherHandler(voiceClient: VoiceClient) {

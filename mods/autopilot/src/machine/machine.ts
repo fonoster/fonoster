@@ -118,7 +118,6 @@ const machine = setup({
       } else if (response.type === "transfer") {
         const message = context.transferMessage!;
         await context.voice.say(message);
-        // TODO: The record and timeout options should be configurable
         await context.voice.transfer(context.transferPhoneNumber!, {
           record: true,
           timeout: 30

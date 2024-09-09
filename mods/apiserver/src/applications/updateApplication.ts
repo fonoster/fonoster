@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Validators as V } from "@fonoster/common";
-import { getAccessKeyIdFromCall } from "@fonoster/identity";
+import { withErrorHandling } from "@fonoster/common";
+import { getAccessKeyIdFromCall, withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { UpdateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -25,7 +25,6 @@ import { createGetFnUtil } from "./createGetFnUtil";
 import { convertToApplicationData } from "./utils/convertToApplicationData";
 import { validOrThrow } from "./utils/validOrThrow";
 import { Prisma } from "../core/db";
-import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -33,19 +32,20 @@ function updateApplication(prisma: Prisma) {
   const getFn = createGetFnUtil(prisma);
 
   const fn = async (call: { request: UpdateApplicationRequest }) => {
-    const { type, ref: applicationRef } = call.request;
+    const { request } = call;
+    const { type, ref: applicationRef } = request;
+
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
 
-    validOrThrow(call.request);
+    validOrThrow(request);
 
     logger.verbose("call to updateApplication", {
       accessKeyId,
       type
     });
 
-    // TODO: Revisit to see if needs optimization
     await prisma.$transaction([
       prisma.textToSpeech.deleteMany({
         where: {
@@ -67,18 +67,14 @@ function updateApplication(prisma: Prisma) {
           ref: applicationRef,
           accessKeyId
         },
-        data: convertToApplicationData(call.request)
+        data: convertToApplicationData(request)
       })
     ]);
 
     return { ref: applicationRef };
   };
 
-  return withErrorHandlingAndValidationAndAccess(
-    fn,
-    (ref: string) => getFn(ref),
-    V.updateApplicationRequestSchema
-  );
+  return withErrorHandling(withAccess(fn, (ref: string) => getFn(ref)));
 }
 
 export { updateApplication };

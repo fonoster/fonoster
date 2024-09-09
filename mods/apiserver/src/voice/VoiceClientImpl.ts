@@ -164,10 +164,6 @@ class VoiceClientImpl implements VoiceClient {
     });
 
     channel.once("ChannelLeftBridge", async () => {
-      // TODO: Evaluate a better way to handle this
-      // We should keep track of the channels and bridges and destroy them
-      // even if the apiserver crashes. Otherwise we risk having a lot of
-      // unused channels and bridges.
       try {
         await bridge.destroy();
       } catch (e) {

@@ -289,8 +289,6 @@ class Workspaces {
   async inviteUserToWorkspace(
     request: InviteUserToWorkspaceRequest
   ): Promise<BaseApiObject> {
-    // TODO: We should allow passing the workspaceRef as an argument
-    // instead of using the Metadata
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
       InviteUserToWorkspaceRequestPB,
@@ -323,8 +321,6 @@ class Workspaces {
   async resendWorkspaceMembershipInvitation(
     userRef: string
   ): Promise<ResendWorkspaceMembershipInvitationResponse> {
-    // TODO: We should allow passing the workspaceRef as an argument
-    // instead of using the Metadata
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
       ResendWorkspaceMembershipInvitationRequestPB,
@@ -357,8 +353,6 @@ class Workspaces {
   async removeUserFromWorkspace(
     userRef: string
   ): Promise<RemoveUserFromWorkspaceResponse> {
-    // TODO: We should allow passing the workspaceRef as an argument
-    // instead of using the Metadata
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
       RemoveUserFromWorkspaceRequestPB,
