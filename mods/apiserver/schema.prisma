@@ -114,7 +114,6 @@ enum ApplicationType {
 enum ProductType {
   TTS
   STT
-  NLU
   ASSISTANT
 
   // Maps
