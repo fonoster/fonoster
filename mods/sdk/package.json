@@ -57,6 +57,7 @@
     "@types/mustache": "^4.2.5",
     "@web/dev-server-esbuild": "^1.0.2",
     "@web/test-runner": "^0.18.2",
+    "@web/test-runner-playwright": "^0.11.0",
     "mustache": "^4.2.0",
     "rollup": "^4.18.0",
     "serve": "^14.2.3"

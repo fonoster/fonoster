@@ -121,9 +121,6 @@ jobs:
         sleep 30
         docker ps -a
 
-    - name: Install Chrome
-      uses: browser-actions/setup-chrome@v1
-
     - name: Run integration tests for the SDK
       uses: nick-fields/retry@v2
       with:
