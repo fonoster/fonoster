@@ -21,13 +21,7 @@
     "model": "gpt-4o-mini",
     "temperature": 0.7,
     "maxTokens": 100,
-    "knowledgeBase": [
-      {
-        "type": "s3",
-        "title": "Patient Intake Form",
-        "url": "https://www.example.com/medical-form.pdf"
-      }
-    ],
+    "knowledgeBase": [],
     "tools": [
       {
         "name": "getAvailableTimes",

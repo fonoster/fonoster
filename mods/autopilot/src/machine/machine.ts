@@ -95,6 +95,9 @@ const machine = setup({
         speechBuffer: context.speechBuffer
       });
 
+      // Stop any speech that might be playing
+      await context.voice.stopSpeech();
+
       const speech = context.speechBuffer.trim();
 
       const languageModel = context.languageModel;
@@ -104,13 +107,11 @@ const machine = setup({
       context.speechResponseTime = speechResponseTime;
       context.speechResponseStartTime = 0;
 
-      if (!response) {
+      if (response.type === "say" && !response.content) {
         logger.verbose("call might already be hung up");
         raise({ type: "USER_REQUEST_PROCESSED" });
         return;
-      }
-
-      if (response.type === "hangup") {
+      } else if (response.type === "hangup") {
         const message = context.goodbyeMessage;
         await context.voice.say(message);
         await context.voice.hangup();
