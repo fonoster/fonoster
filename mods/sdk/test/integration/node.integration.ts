@@ -20,8 +20,8 @@
  */
 import { expect } from "chai";
 import Mustache from "mustache";
+import { createTestCases } from "./cases/testCases";
 import { TestCase, runTestCase } from "./runTestCase";
-import { createTestCases } from "./testCases";
 import * as SDK from "../../src/node";
 
 const endpoint = "localhost:50051";

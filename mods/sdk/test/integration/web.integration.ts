@@ -20,8 +20,8 @@
  */
 import { expect } from "@esm-bundle/chai";
 import Mustache from "mustache";
+import { createTestCases } from "./cases/testCases";
 import { TestCase, runTestCase } from "./runTestCase";
-import { createTestCases } from "./testCases";
 import * as SDK from "../../dist/web/index.esm.js";
 
 const url = "http://localhost:8449/";

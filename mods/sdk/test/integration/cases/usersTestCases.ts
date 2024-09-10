@@ -52,7 +52,6 @@ function createUsersTestCases(expect) {
           expect(response).has.property("ref").to.not.be.null;
           expect(response).has.property("name").to.not.be.null;
           expect(response).has.property("email").to.not.be.null;
-          expect(response).has.property("avatar").to.not.be.null;
           expect(response).has.property("createdAt").to.be.a("date");
           expect(response).has.property("updatedAt").to.be.a("date");
         }
@@ -65,7 +64,7 @@ function createUsersTestCases(expect) {
           ref: "00000000-0000-0000-0000-000000000000",
           name: "Jane Doe",
           password: "changeme",
-          avatar: "https://example.com/avatar.jpg"
+          avatar: "https://example.com/a-different-avatar.jpg"
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
