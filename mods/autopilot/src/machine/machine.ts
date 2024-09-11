@@ -74,7 +74,10 @@ const machine = setup({
 
       await context.voice.say(context.goodbyeMessage);
 
-      await context.voice.hangup();
+      // Give it time to finish the goodbye message
+      setTimeout(async () => {
+        await context.voice.hangup();
+      }, 2000);
     },
     announceSystemError: async ({ context }) => {
       logger.verbose("called announceSystemError action", {
@@ -111,26 +114,34 @@ const machine = setup({
         speechResponseTime
       });
 
-      if (response.type === "say" && !response.content) {
-        logger.verbose("call might already be hung up");
-        raise({ type: "USER_REQUEST_PROCESSED" });
-        return;
-      } else if (response.type === "hangup") {
-        const message = context.goodbyeMessage;
-        await context.voice.say(message);
-        await context.voice.hangup();
-        return;
-      } else if (response.type === "transfer") {
-        const message = context.transferMessage!;
-        await context.voice.say(message);
-        await context.voice.transfer(context.transferPhoneNumber!, {
-          record: true,
-          timeout: 30
-        });
-        return;
-      }
+      try {
+        if (response.type === "say" && !response.content) {
+          logger.verbose("call might already be hung up");
+          raise({ type: "USER_REQUEST_PROCESSED" });
+          return;
+        } else if (response.type === "hangup") {
+          const message = context.goodbyeMessage;
+          await context.voice.say(message);
+          await context.voice.hangup();
+          return;
+        } else if (response.type === "transfer") {
+          const message = context.transferMessage!;
+          await context.voice.say(message);
+          await context.voice.transfer(context.transferPhoneNumber!, {
+            record: true,
+            timeout: 30
+          });
+          return;
+        }
 
-      await context.voice.say(response.content!);
+        await context.voice.say(response.content!);
+      } catch (error) {
+        logger.error("error processing user request", {
+          error
+        });
+
+        await context.voice.say(context.systemErrorMessage);
+      }
 
       raise({ type: "USER_REQUEST_PROCESSED" });
     },
