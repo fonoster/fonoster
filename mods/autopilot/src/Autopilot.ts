@@ -47,6 +47,11 @@ class Autopilot {
     this.setupSpeechGathering();
   }
 
+  stop() {
+    logger.verbose("stopping autopilot");
+    this.actor.stop();
+  }
+
   private async setupVoiceStream() {
     const { voice, vad } = this.params;
     const stream = await voice.stream();

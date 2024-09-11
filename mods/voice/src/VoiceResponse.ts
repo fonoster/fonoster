@@ -453,6 +453,25 @@ class VoiceResponse {
       direction
     });
   }
+
+  /**
+   * Register a listener for the given event.
+   *
+   * @param {StreamEvent} event - The event to listen for
+   * @param {Function} listener - The callback function
+   * @example
+   *
+   * async function handler (request, response) {
+   *  ...
+   *
+   *  response.on(StreamEvent.END, () => {
+   *   console.log("Call ended");
+   *  });
+   * }
+   */
+  on(event: StreamEvent, listener: (...args: unknown[]) => void): void {
+    this.voice.on(event, listener);
+  }
 }
 
 export { VoiceResponse };

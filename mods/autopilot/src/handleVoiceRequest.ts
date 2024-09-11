@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { createLanguageModel } from "./createLanguageModel";
@@ -44,6 +45,10 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   });
 
   autopilot.start();
+
+  res.on(StreamEvent.END, () => {
+    autopilot.stop();
+  });
 }
 
 export { handleVoiceRequest };
