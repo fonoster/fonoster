@@ -28,6 +28,10 @@ export function createPromptTemplate(systemTemplate: string) {
     new MessagesPlaceholder("history"),
     SystemMessagePromptTemplate.fromTemplate(systemTemplate),
     SystemMessagePromptTemplate.fromTemplate("{context}"),
+    // This is how the model will know the current date
+    SystemMessagePromptTemplate.fromTemplate(
+      `current date:${new Date().toISOString()}`
+    ),
     HumanMessagePromptTemplate.fromTemplate("{input}")
   ]);
 }
