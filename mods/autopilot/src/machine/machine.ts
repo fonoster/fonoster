@@ -74,10 +74,7 @@ const machine = setup({
 
       await context.voice.say(context.goodbyeMessage);
 
-      // Give it time to finish the goodbye message
-      setTimeout(async () => {
-        await context.voice.hangup();
-      }, 2000);
+      await context.voice.hangup();
     },
     announceSystemError: async ({ context }) => {
       logger.verbose("called announceSystemError action", {
