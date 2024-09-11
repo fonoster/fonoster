@@ -107,6 +107,10 @@ const machine = setup({
       context.speechResponseTime = speechResponseTime;
       context.speechResponseStartTime = 0;
 
+      logger.verbose("response from language model", {
+        speechResponseTime
+      });
+
       if (response.type === "say" && !response.content) {
         logger.verbose("call might already be hung up");
         raise({ type: "USER_REQUEST_PROCESSED" });

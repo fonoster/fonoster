@@ -30,19 +30,28 @@ function filesServer(params: { pathToFiles: string; port: number }) {
   const app = express();
 
   app.get("/sounds/:file", (req: Request, res: Response) => {
-    fs.readFile(join(pathToFiles, req.params.file), function (err, data) {
+    const filePath = join(pathToFiles, req.params.file);
+
+    fs.access(filePath, fs.constants.F_OK, (err) => {
       if (err) {
-        res.status(404).send("file not found!");
-      } else {
-        res.setHeader("content-type", CONTENT_TYPE);
-        res.send(data);
+        res.status(404).send("File not found!");
+        return;
       }
-      res.end();
+
+      res.setHeader("content-type", CONTENT_TYPE);
+      const readStream = fs.createReadStream(filePath);
+
+      readStream.on("error", (error) => {
+        logger.error(`Error reading file: ${error.message}`);
+        res.status(500).send("Error reading file!");
+      });
+
+      readStream.pipe(res);
     });
   });
 
   app.listen(port, () => {
-    logger.info(`files server is running on port ${port}`);
+    logger.info(`Files server is running on port ${port}`);
   });
 }
 

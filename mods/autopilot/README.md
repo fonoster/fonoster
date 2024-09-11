@@ -39,12 +39,10 @@ The configuration file has two major sections: `conversationSettings` and `langu
     "systemErrorMessage": "I'm sorry, but I seem to be having trouble. Please try again later.",
     "initialDtmf": "6589",
     "transferOptions": {
-      "enabled": true,
       "phoneNumber": "+15555555555",
       "message": "Please hold while I transfer you to a live agent."
     },
     "idleOptions": {
-      "enabled": true,
       "message": "Are you still there?",
       "timeout": 10000,
       "maxTimeoutCount": 3
