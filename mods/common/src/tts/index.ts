@@ -1,6 +1,3 @@
-export * from "./AzureVoices";
-
-export * from "./DeepgramVoices";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -19,5 +16,8 @@ export * from "./DeepgramVoices";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./AzureVoices";
+export * from "./DeepgramVoices";
+export * from "./ElevenLabs";
 export * from "./GoogleVoices";
 export * from "./types";

@@ -20,6 +20,10 @@ import { getLogger } from "@fonoster/logger";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { ENGINE_NAME as AZURE_ENGINE_NAME, Azure } from "./Azure";
 import { ENGINE_NAME as DEEPGRAM_ENGINE_NAME, Deepgram } from "./Deepgram";
+import {
+  ENGINE_NAME as ELEVEN_LABS_ENGINE_NAME,
+  ElevenLabs
+} from "./ElevenLabs";
 import { ENGINE_NAME as GOOGLE_ENGINE_NAME, Google } from "./Google";
 import { TtsConfig } from "./types";
 
@@ -56,5 +60,6 @@ class TextToSpeechFactory {
 TextToSpeechFactory.registerEngine(GOOGLE_ENGINE_NAME, Google);
 TextToSpeechFactory.registerEngine(AZURE_ENGINE_NAME, Azure);
 TextToSpeechFactory.registerEngine(DEEPGRAM_ENGINE_NAME, Deepgram);
+TextToSpeechFactory.registerEngine(ELEVEN_LABS_ENGINE_NAME, ElevenLabs);
 
 export { TextToSpeechFactory };

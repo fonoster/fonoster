@@ -36,6 +36,7 @@
     "@routr/sdk": "^2.13.1",
     "ari-client": "^2.2.0",
     "dotenv": "^16.4.5",
+    "elevenlabs": "^0.15.0",
     "express": "^4.19.2",
     "grpc-health-check": "^2.0.1",
     "jsonwebtoken": "^9.0.2",

@@ -69,6 +69,17 @@ async function main() {
   });
 
   await prisma.product.upsert({
+    where: { ref: "tts.elevenlabs" },
+    update: {},
+    create: {
+      ref: "tts.elevenlabs",
+      name: "Eleven Labs Text-to-Speech",
+      vendor: "ELEVEN_LABS",
+      type: "TTS"
+    }
+  });
+
+  await prisma.product.upsert({
     where: { ref: "llm.openai" },
     update: {},
     create: {

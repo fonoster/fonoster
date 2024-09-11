@@ -129,6 +129,7 @@ enum ProductVendor {
   RASA
   OPENAI
   GROQ
+  ELEVEN_LABS
   GENERIC
 
   // Maps

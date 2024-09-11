@@ -41,5 +41,13 @@
       "subscriptionKey": "REDACTED",
       "region": "eastus"
     }
+  },
+  {
+    "name": "Eleven Labs TTS",
+    "productRef": "tts.elevenlabs",
+    "type": "tts",
+    "credentials": {
+      "apiKey": "REDACTED"
+    }
   }
 ]
