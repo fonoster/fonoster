@@ -35,7 +35,10 @@ function withErrorHandling(fn: VerbHandler) {
         logger.error("Validation error:", {
           message: validationError.toString()
         });
-      } else if (err.message !== "Channel not found") {
+      } else if (
+        err.message !== "Channel not found" &&
+        !err.message.includes("Channel not found")
+      ) {
         throw err;
       }
     }
