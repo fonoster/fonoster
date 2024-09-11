@@ -17,11 +17,16 @@
  * limitations under the License.
  */
 import { join } from "path";
+import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
 import dotenv from "dotenv";
 
 if (process.env.NODE_ENV === "dev") {
   dotenv.config({ path: join(process.cwd(), ".env") });
 }
 
+assertEnvsAreSet(["ASSISTANT"]);
+assertFileExists(process.env.ASSISTANT!);
+
+export const ASSISTANT = process.env.ASSISTANT;
 export const GROQ_API_KEY = process.env.GROQ_API_KEY;
 export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;

@@ -16,10 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as path from "path";
+import { ASSISTANT } from "./envs";
 import { AssistantConfig, loadAndValidateAssistant } from ".";
 
 function loadAssistantConfig(): AssistantConfig {
-  const assistantPath = `${process.cwd()}/etc/assistant.example.json`;
+  const assistantPath = path.resolve(process.cwd(), ASSISTANT!);
   return loadAndValidateAssistant(assistantPath);
 }
 
