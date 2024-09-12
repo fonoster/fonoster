@@ -21,21 +21,25 @@ import { ChatOpenAI } from "@langchain/openai";
 import { OpenAIParams } from "./types";
 import { convertToolToOpenAITool } from "../../tools";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
+import { TelephonyContext } from "../types";
 
 const LANGUAGE_MODEL_NAME = "llm.openai";
 
 class OpenAI extends AbstractLanguageModel {
-  constructor(params: OpenAIParams) {
+  constructor(params: OpenAIParams, telephonyContext: TelephonyContext) {
     const model = new ChatOpenAI({
       ...params
     }).bind({
       tools: params.tools.map(convertToolToOpenAITool)
     }) as BaseChatModel;
 
-    super({
-      ...params,
-      model
-    });
+    super(
+      {
+        ...params,
+        model
+      },
+      telephonyContext
+    );
   }
 }
 

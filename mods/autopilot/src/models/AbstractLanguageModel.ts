@@ -21,7 +21,12 @@ import { AIMessage } from "@langchain/core/messages";
 import { createChatHistory } from "./chatHistory";
 import { createChain } from "./createChain";
 import { createPromptTemplate } from "./createPromptTemplate";
-import { InvocationResult, LanguageModel, LanguageModelParams } from "./types";
+import {
+  InvocationResult,
+  LanguageModel,
+  LanguageModelParams,
+  TelephonyContext
+} from "./types";
 import { ToolsCatalog } from "../tools";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -29,11 +34,14 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 abstract class AbstractLanguageModel implements LanguageModel {
   private chain: ReturnType<typeof createChain>;
   private chatHistory: ReturnType<typeof createChatHistory>;
-  toolsCatalog: ToolsCatalog;
+  private toolsCatalog: ToolsCatalog;
 
-  constructor(private params: LanguageModelParams) {
-    const { model, systemTemplate, knowledgeBase, tools } = this.params;
-    const promptTemplate = createPromptTemplate(systemTemplate);
+  constructor(params: LanguageModelParams, telephonyContext: TelephonyContext) {
+    const { model, systemTemplate, knowledgeBase, tools } = params;
+    const promptTemplate = createPromptTemplate(
+      systemTemplate,
+      telephonyContext
+    );
     this.chatHistory = createChatHistory();
     this.toolsCatalog = new ToolsCatalog(tools);
     this.chain = createChain(

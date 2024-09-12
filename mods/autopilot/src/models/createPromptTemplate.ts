@@ -22,15 +22,20 @@ import {
   MessagesPlaceholder,
   SystemMessagePromptTemplate
 } from "@langchain/core/prompts";
+import { TelephonyContext } from "./types";
 
-export function createPromptTemplate(systemTemplate: string) {
+export function createPromptTemplate(
+  systemTemplate: string,
+  telephonyContext: TelephonyContext
+) {
   return ChatPromptTemplate.fromMessages([
     new MessagesPlaceholder("history"),
     SystemMessagePromptTemplate.fromTemplate(systemTemplate),
     SystemMessagePromptTemplate.fromTemplate("{context}"),
-    // This is how the model will know the current date
     SystemMessagePromptTemplate.fromTemplate(
-      `current date:${new Date().toISOString()}`
+      `callReceivedAt:${new Date().toISOString()}
+       ingressNumber:${telephonyContext.ingressNumber}
+       callerNumber:${telephonyContext.callerNumber}`
     ),
     HumanMessagePromptTemplate.fromTemplate("{input}")
   ]);

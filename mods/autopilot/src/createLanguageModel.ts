@@ -21,31 +21,37 @@ import {
   AssistantConfig,
   FilesKnowledgeBase,
   LanguageModelFactory,
+  TelephonyContext,
   hangupToolDefinition,
   transferToolDefinition
 } from ".";
 
 function createLanguageModel(
   assistantConfig: AssistantConfig,
-  knowledgeBase: FilesKnowledgeBase
+  knowledgeBase: FilesKnowledgeBase,
+  telephonyContext: TelephonyContext
 ) {
   const { languageModel: languageModelSettings, conversationSettings } =
     assistantConfig;
 
-  return LanguageModelFactory.getLanguageModel(languageModelSettings.provider, {
-    apiKey: OPENAI_API_KEY!,
-    // @ts-expect-error don't know the model type here
-    model: languageModelSettings.model,
-    maxTokens: languageModelSettings.maxTokens,
-    temperature: languageModelSettings.temperature,
-    systemTemplate: conversationSettings.systemTemplate,
-    knowledgeBase,
-    tools: [
-      ...languageModelSettings.tools,
-      hangupToolDefinition,
-      transferToolDefinition
-    ]
-  });
+  return LanguageModelFactory.getLanguageModel(
+    languageModelSettings.provider,
+    {
+      apiKey: OPENAI_API_KEY!,
+      // @ts-expect-error don't know the model type here
+      model: languageModelSettings.model,
+      maxTokens: languageModelSettings.maxTokens,
+      temperature: languageModelSettings.temperature,
+      systemTemplate: conversationSettings.systemTemplate,
+      knowledgeBase,
+      tools: [
+        ...languageModelSettings.tools,
+        hangupToolDefinition,
+        transferToolDefinition
+      ]
+    },
+    telephonyContext
+  );
 }
 
 export { createLanguageModel };

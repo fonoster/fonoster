@@ -28,6 +28,7 @@ type BaseModelParams = {
   systemTemplate: string;
   knowledgeBase: KnowledgeBase;
   tools: Tool[];
+  telephonyContext: TelephonyContext;
 };
 
 type LanguageModelParams = BaseModelParams & {
@@ -39,9 +40,15 @@ type InvocationResult = {
   content?: string;
 };
 
+type TelephonyContext = {
+  ingressNumber: string;
+  callerNumber: string;
+};
+
 export {
   BaseModelParams,
   InvocationResult,
   LanguageModel,
-  LanguageModelParams
+  LanguageModelParams,
+  TelephonyContext
 };
