@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./etc/assistant.example.json:/opt/fonoster/assistant.json:ro
-      - ./etc/sample.pdf:/home/appuser/autopilot/etc/sample.pdf:ro
+      - ./etc/sample.pdf:/home/appuser/autopilot/config/sample.pdf:ro
     ports:
       - 50061:50061
     environment:
