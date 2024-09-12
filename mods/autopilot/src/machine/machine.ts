@@ -122,6 +122,10 @@ const machine = setup({
           await context.voice.hangup();
           return;
         } else if (response.type === "transfer") {
+          logger.verbose("transferring call to a number in the pstn", {
+            phoneNumber: context.transferPhoneNumber
+          });
+
           const message = context.transferMessage!;
           await context.voice.say(message);
           await context.voice.transfer(context.transferPhoneNumber!, {
