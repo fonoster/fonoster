@@ -90,18 +90,7 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         context: .
         dockerfile: mods/apiserver/Dockerfile     
-        tags: "latest, 20"
-        platforms: linux/amd64,linux/arm64
-
-    - name: Publish Asterisk to Docker Hub
-      uses: elgohr/Publish-Docker-Github-Action@v5
-      with:
-        name: fonoster/asterisk   
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        context: .
-        dockerfile: asterisk/Dockerfile     
-        tags: "latest, 20"
+        tags: "latest, {{ env.LERNA_VERSION }}"
         platforms: linux/amd64,linux/arm64
 
     - name: Publish Autopilot to Docker Hub
@@ -112,6 +101,17 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         context: .
         dockerfile: mods/autopilot/Dockerfile
+        tags: "latest, {{ env.LERNA_VERSION }}"
+        platforms: linux/amd64,linux/arm64
+
+    - name: Publish Asterisk to Docker Hub
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        name: fonoster/asterisk   
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        context: .
+        dockerfile: asterisk/Dockerfile     
         tags: "latest, 20"
         platforms: linux/amd64,linux/arm64
 

@@ -20,7 +20,7 @@ import { FilesKnowledgeBase } from ".";
 
 async function loadKnowledgeBase() {
   const knowledgeBase = new FilesKnowledgeBase({
-    files: [`${process.cwd()}/etc/sample.pdf`]
+    files: [`${process.cwd()}/config/sample.pdf`]
   });
   await knowledgeBase.load();
   return knowledgeBase;
