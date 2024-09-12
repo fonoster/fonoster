@@ -62,6 +62,8 @@ async function makeVad(pathToModel?: string) {
       } else if (isSpeechActive) {
         isSpeechActive = false;
         callback("SPEECH_END");
+        // WARNING: I'm unsure if this has any effect on the model
+        // but it seems to work fine to ensure the model works optimally
         silero.resetState();
         return processBuffer(remainingBuffer);
       }
