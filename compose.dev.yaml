@@ -12,6 +12,11 @@ services:
       SMTP_PORT: ${SMTP_PORT}
       SMTP_SECURE: ${SMTP_SECURE}
 
+  autopilot:
+    build:
+      context: .
+      dockerfile: ./mods/autopilot/Dockerfile
+
   routr:
     ports:
       - 51907:51907

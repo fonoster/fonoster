@@ -18,7 +18,7 @@
     "generate:readme": "node ../../.scripts/gen-readme.js"
   },
   "bin": {
-    "autopilot": "./dist/runner.js"
+    "autopilot": "./dist/server.js"
   },
   "files": [
     "dist",

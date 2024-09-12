@@ -1,7 +1,7 @@
 node_modules
+silero_vad_v5.1.onnx
 .nyc_output
 coverage
 src
 test
 *.log
-.ts

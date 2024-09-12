@@ -104,6 +104,17 @@ jobs:
         tags: "latest, 20"
         platforms: linux/amd64,linux/arm64
 
+    - name: Publish Autopilot to Docker Hub
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        name: fonoster/autopilot
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        context: .
+        dockerfile: mods/autopilot/Dockerfile
+        tags: "latest, 20"
+        platforms: linux/amd64,linux/arm64
+
     - name: Starting services for integration tests
       run: |
         npm run generate:keypair
