@@ -18,9 +18,12 @@
  * limitations under the License.
  */
 import { join } from "path";
+import { getLogger } from "@fonoster/logger";
 import * as ort from "onnxruntime-node";
 import { chunkToFloat32Array } from "./chunkToFloat32Array";
 import { SileroVadModel } from "./SileroVadModel";
+
+const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const BUFFER_SIZE = 16000;
 
@@ -48,6 +51,8 @@ async function makeVad(pathToModel?: string) {
 
       const result = await silero.process(new Float32Array(audioFrame));
 
+      logger.silly("last vad result", { ...result });
+
       if (result.isSpeech > 0.5) {
         if (!isSpeechActive) {
           isSpeechActive = true;
@@ -57,6 +62,7 @@ async function makeVad(pathToModel?: string) {
       } else if (isSpeechActive) {
         isSpeechActive = false;
         callback("SPEECH_END");
+        silero.resetState();
         return processBuffer(remainingBuffer);
       }
 

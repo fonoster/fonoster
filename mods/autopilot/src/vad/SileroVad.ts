@@ -28,7 +28,7 @@ class SileroVad implements Vad {
   }
 
   private async init() {
-    // FIXME: It feels not to do this in the constructor
+    // FIXME: It feels strange to do this in the constructor
     this.vad = await makeVad();
   }
 
