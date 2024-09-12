@@ -52,7 +52,8 @@ const toolSchema = z.object({
       type: z.nativeEnum(AllowedOperations),
       // Make url required if operation type is not built-in
       url: z.string().optional(),
-      waitForResponse: z.boolean().optional()
+      waitForResponse: z.boolean().optional(),
+      headers: z.record(z.string()).optional()
     })
     .superRefine(({ url, type }, ctx: z.RefinementCtx) => {
       if (type !== AllowedOperations.BUILT_IN && !url) {

@@ -45,6 +45,7 @@ class ToolsCatalog {
       method: tool.operation.type,
       url: tool.operation.url!,
       waitForResponse: tool.operation.waitForResponse!,
+      headers: tool.operation.headers,
       body: args
     });
   }

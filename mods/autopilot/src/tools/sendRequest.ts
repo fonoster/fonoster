@@ -45,7 +45,13 @@ async function sendRequest(input: {
     const response = await fetch(url, options);
     const data = await response.json();
 
-    return responseSchema.parse(data);
+    try {
+      return responseSchema.parse(data);
+    } catch (error) {
+      throw new Error(
+        `Invalid response: expected ${JSON.stringify(responseSchema, null, 2)}, got ${JSON.stringify(data, null, 2)}`
+      );
+    }
   }
 }
 
