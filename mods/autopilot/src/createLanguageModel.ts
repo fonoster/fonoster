@@ -36,7 +36,7 @@ function createLanguageModel(
   return LanguageModelFactory.getLanguageModel(
     languageModelSettings.provider,
     {
-      apiKey: languageModelSettings.apiKey,
+      apiKey: languageModelSettings.apiKey!,
       // @ts-expect-error don't know the model type here
       model: languageModelSettings.model,
       maxTokens: languageModelSettings.maxTokens,
