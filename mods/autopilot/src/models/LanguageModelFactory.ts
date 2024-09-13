@@ -31,11 +31,16 @@ import {
 } from "./openai";
 import { BaseModelParams, TelephonyContext } from "./types";
 import { LANGUAGE_MODEL_PROVIDER } from "../types";
+import { Voice } from "../voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 type LanguageModelConstructor<T extends BaseModelParams = BaseModelParams> =
-  new (options: T, telephonyContext: TelephonyContext) => AbstractLanguageModel;
+  new (
+    options: T,
+    voice: Voice,
+    telephonyContext: TelephonyContext
+  ) => AbstractLanguageModel;
 
 type LanguageModelConfigMap = {
   [LANGUAGE_MODEL_PROVIDER.OPENAI]: OpenAIParams;
@@ -58,6 +63,7 @@ class LanguageModelFactory {
   static getLanguageModel<T extends keyof LanguageModelConfigMap>(
     languageModel: T,
     config: LanguageModelConfigMap[T],
+    voice: Voice,
     telephonyContext: TelephonyContext
   ): AbstractLanguageModel {
     const LanguageModelConstructor = this.languageModels.get(
@@ -66,7 +72,7 @@ class LanguageModelFactory {
     if (!LanguageModelConstructor) {
       throw new Error(`Language model ${languageModel} not found`);
     }
-    return new LanguageModelConstructor(config, telephonyContext);
+    return new LanguageModelConstructor(config, voice, telephonyContext);
   }
 }
 

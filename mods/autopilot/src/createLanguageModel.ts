@@ -21,15 +21,18 @@ import {
   FilesKnowledgeBase,
   LanguageModelFactory,
   TelephonyContext,
+  Voice,
   hangupToolDefinition,
   transferToolDefinition
 } from ".";
 
-function createLanguageModel(
-  assistantConfig: AssistantConfig,
-  knowledgeBase: FilesKnowledgeBase,
-  telephonyContext: TelephonyContext
-) {
+function createLanguageModel(params: {
+  voice: Voice;
+  assistantConfig: AssistantConfig;
+  knowledgeBase: FilesKnowledgeBase;
+  telephonyContext: TelephonyContext;
+}) {
+  const { voice, assistantConfig, knowledgeBase, telephonyContext } = params;
   const { languageModel: languageModelSettings, conversationSettings } =
     assistantConfig;
 
@@ -51,6 +54,7 @@ function createLanguageModel(
         transferToolDefinition
       ]
     },
+    voice,
     telephonyContext
   );
 }

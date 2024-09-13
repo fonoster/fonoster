@@ -47,6 +47,7 @@ const toolSchema = z.object({
     properties: z.record(propertySchema),
     required: z.array(z.string()).optional()
   }),
+  requestStartMessage: z.string().optional(),
   operation: z
     .object({
       type: z.nativeEnum(AllowedOperations),

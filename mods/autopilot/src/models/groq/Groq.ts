@@ -20,13 +20,18 @@ import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatGroq } from "@langchain/groq";
 import { GroqParams } from "./types";
 import { convertToolToOpenAITool } from "../../tools";
+import { Voice } from "../../voice";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 import { TelephonyContext } from "../types";
 
 const LANGUAGE_MODEL_NAME = "llm.groq";
 
 class Groq extends AbstractLanguageModel {
-  constructor(params: GroqParams, telephonyContext: TelephonyContext) {
+  constructor(
+    params: GroqParams,
+    voice: Voice,
+    telephonyContext: TelephonyContext
+  ) {
     const model = new ChatGroq({
       ...params
     }).bind({
@@ -38,6 +43,7 @@ class Groq extends AbstractLanguageModel {
         ...params,
         model
       },
+      voice,
       telephonyContext
     );
   }

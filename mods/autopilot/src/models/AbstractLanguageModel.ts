@@ -21,6 +21,7 @@ import { AIMessage } from "@langchain/core/messages";
 import { createChatHistory } from "./chatHistory";
 import { createChain } from "./createChain";
 import { createPromptTemplate } from "./createPromptTemplate";
+import { toolInvocation } from "./toolInvocation";
 import {
   InvocationResult,
   LanguageModel,
@@ -28,6 +29,7 @@ import {
   TelephonyContext
 } from "./types";
 import { ToolsCatalog } from "../tools";
+import { Voice } from "../voice";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -35,12 +37,18 @@ abstract class AbstractLanguageModel implements LanguageModel {
   private chain: ReturnType<typeof createChain>;
   private chatHistory: ReturnType<typeof createChatHistory>;
   private toolsCatalog: ToolsCatalog;
+  private voice: Voice;
 
-  constructor(params: LanguageModelParams, telephonyContext: TelephonyContext) {
+  constructor(
+    params: LanguageModelParams,
+    voice: Voice,
+    telephonyContext: TelephonyContext
+  ) {
     const { model, firstMessage, systemTemplate, knowledgeBase, tools } =
       params;
     this.chatHistory = createChatHistory();
     this.toolsCatalog = new ToolsCatalog(tools);
+    this.voice = voice;
     const promptTemplate = createPromptTemplate({
       firstMessage,
       systemTemplate,
@@ -57,13 +65,16 @@ abstract class AbstractLanguageModel implements LanguageModel {
   async invoke(text: string): Promise<InvocationResult> {
     const { chain, chatHistory, toolsCatalog } = this;
     const response = (await chain.invoke({ text })) as AIMessage;
+    let firstInvocation = true;
 
     if (response.additional_kwargs?.tool_calls) {
       // eslint-disable-next-line no-loops/no-loops
       for (const toolCall of response.additional_kwargs.tool_calls) {
         const { arguments: args, name } = toolCall.function;
 
-        logger.verbose(`invoking tool: ${name} with args: ${args}`);
+        logger.verbose(`invoking tool: ${name} with args: ${args}`, {
+          firstInvocation
+        });
 
         switch (name) {
           case "hangup":
@@ -78,22 +89,15 @@ abstract class AbstractLanguageModel implements LanguageModel {
 
             return { type: "transfer" };
           default:
-            try {
-              const toolResult = await toolsCatalog.invokeTool(
-                name,
-                JSON.parse(args)
-              );
-
-              logger.verbose("tool result: ", toolResult);
-
-              await chatHistory.addAIMessage(
-                `tool result: ${toolResult.result}`
-              );
-            } catch (error) {
-              logger.error(`tool error: ${error.message}`);
-
-              await chatHistory.addAIMessage(`tool error: ${error.message}`);
-            }
+            await toolInvocation({
+              args,
+              chatHistory,
+              firstInvocation,
+              toolName: name,
+              toolsCatalog,
+              voice: this.voice
+            });
+            firstInvocation = false;
         }
       }
 

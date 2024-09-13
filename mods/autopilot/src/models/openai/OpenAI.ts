@@ -20,13 +20,18 @@ import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatOpenAI } from "@langchain/openai";
 import { OpenAIParams } from "./types";
 import { convertToolToOpenAITool } from "../../tools";
+import { Voice } from "../../voice";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 import { TelephonyContext } from "../types";
 
 const LANGUAGE_MODEL_NAME = "llm.openai";
 
 class OpenAI extends AbstractLanguageModel {
-  constructor(params: OpenAIParams, telephonyContext: TelephonyContext) {
+  constructor(
+    params: OpenAIParams,
+    voice: Voice,
+    telephonyContext: TelephonyContext
+  ) {
     const model = new ChatOpenAI({
       ...params
     }).bind({
@@ -38,6 +43,7 @@ class OpenAI extends AbstractLanguageModel {
         ...params,
         model
       },
+      voice,
       telephonyContext
     );
   }

@@ -50,6 +50,10 @@ class ToolsCatalog {
     });
   }
 
+  getTool(toolName: string): Tool | undefined {
+    return this.tools.get(toolName);
+  }
+
   addTool(toolDef: Tool) {
     this.tools.set(toolDef.name, toolDef);
   }

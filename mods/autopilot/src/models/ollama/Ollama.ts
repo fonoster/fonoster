@@ -20,13 +20,18 @@ import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatOllama } from "@langchain/ollama";
 import { OllamaParams } from "./types";
 import { convertToolToOpenAITool } from "../../tools";
+import { Voice } from "../../voice";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 import { TelephonyContext } from "../types";
 
 const LANGUAGE_MODEL_NAME = "llm.ollama";
 
 class Ollama extends AbstractLanguageModel {
-  constructor(params: OllamaParams, telephonyContext: TelephonyContext) {
+  constructor(
+    params: OllamaParams,
+    voice: Voice,
+    telephonyContext: TelephonyContext
+  ) {
     const model = new ChatOllama({
       ...params
     }).bind({
@@ -38,6 +43,7 @@ class Ollama extends AbstractLanguageModel {
         ...params,
         model
       },
+      voice,
       telephonyContext
     );
   }
