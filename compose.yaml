@@ -42,7 +42,10 @@ services:
       - ./etc/sample.pdf:/home/appuser/autopilot/config/sample.pdf:ro
     ports:
       - 50061:50061
-
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LOGS_LEVEL: ${LOGS_LEVEL}
+    
   routr:
     image: fonoster/routr-one:latest
     restart: unless-stopped
