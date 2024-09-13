@@ -49,6 +49,7 @@ const languageModelConfigSchema = z.object({
   model: z.string(),
   temperature: z.number(),
   maxTokens: z.number(),
+  baseUrl: z.string().optional(),
   knowledgeBase: z.array(
     z.object({
       type: z.enum(["s3", "file"]),

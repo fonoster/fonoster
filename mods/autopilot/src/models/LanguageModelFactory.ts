@@ -20,6 +20,11 @@ import { getLogger } from "@fonoster/logger";
 import { AbstractLanguageModel } from "./AbstractLanguageModel";
 import { LANGUAGE_MODEL_NAME as GROQ_LLM_NAME, Groq, GroqParams } from "./groq";
 import {
+  LANGUAGE_MODEL_NAME as OLLAMA_LLM_NAME,
+  Ollama,
+  OllamaParams
+} from "./ollama";
+import {
   LANGUAGE_MODEL_NAME as OPENAI_LLM_NAME,
   OpenAI,
   OpenAIParams
@@ -35,6 +40,7 @@ type LanguageModelConstructor<T extends BaseModelParams = BaseModelParams> =
 type LanguageModelConfigMap = {
   [LANGUAGE_MODEL_PROVIDER.OPENAI]: OpenAIParams;
   [LANGUAGE_MODEL_PROVIDER.GROQ]: GroqParams;
+  [LANGUAGE_MODEL_PROVIDER.OLLAMA]: OllamaParams;
 };
 
 class LanguageModelFactory {
@@ -67,5 +73,6 @@ class LanguageModelFactory {
 // Register language models
 LanguageModelFactory.registerLanguageModel(OPENAI_LLM_NAME, OpenAI);
 LanguageModelFactory.registerLanguageModel(GROQ_LLM_NAME, Groq);
+LanguageModelFactory.registerLanguageModel(OLLAMA_LLM_NAME, Ollama);
 
 export { LanguageModelFactory };

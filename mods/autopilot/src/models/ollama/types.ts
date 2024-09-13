@@ -16,22 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ConversationSettings } from "./assistants";
-import { LanguageModel } from "./models";
-import { Vad } from "./vad";
-import { Voice } from "./voice";
+import { BaseModelParams } from "../types";
 
-enum LANGUAGE_MODEL_PROVIDER {
-  OPENAI = "openai",
-  GROQ = "groq",
-  OLLAMA = "ollama"
+enum OllamaModel {
+  LLAMA3_1 = "llama3.1"
 }
 
-type AutopilotParams = {
-  voice: Voice;
-  vad: Vad;
-  conversationSettings: ConversationSettings;
-  languageModel: LanguageModel;
+type OllamaParams = BaseModelParams & {
+  model: OllamaModel;
+  baseUrl: string;
+  maxTokens: number;
+  temperature: number;
 };
 
-export { AutopilotParams, LANGUAGE_MODEL_PROVIDER };
+export { OllamaModel, OllamaParams };

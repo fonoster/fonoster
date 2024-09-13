@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,22 +17,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ConversationSettings } from "./assistants";
-import { LanguageModel } from "./models";
-import { Vad } from "./vad";
-import { Voice } from "./voice";
-
-enum LANGUAGE_MODEL_PROVIDER {
-  OPENAI = "openai",
-  GROQ = "groq",
-  OLLAMA = "ollama"
-}
-
-type AutopilotParams = {
-  voice: Voice;
-  vad: Vad;
-  conversationSettings: ConversationSettings;
-  languageModel: LanguageModel;
-};
-
-export { AutopilotParams, LANGUAGE_MODEL_PROVIDER };
+export * from "./Ollama";
+export * from "./types";

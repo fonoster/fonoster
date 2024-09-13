@@ -43,6 +43,7 @@ function createLanguageModel(
       maxTokens: languageModelSettings.maxTokens,
       temperature: languageModelSettings.temperature,
       systemTemplate: conversationSettings.systemTemplate,
+      baseUrl: languageModelSettings.baseUrl!,
       knowledgeBase,
       tools: [
         ...languageModelSettings.tools,

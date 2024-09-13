@@ -40,20 +40,23 @@
         },
         "operation": {
           "type": "get",
-          "url": "http://localhost:3000/appointments",
-          "waitForResponse": true
+          "url": "https://example.com/getAvailableTimes",
+          "waitForResponse": true,
+          "headers": {
+            "x-api-key": "your-api-key"
+          }
         }
       },
       {
         "name": "bookReservation",
-        "description": "Book an appointment for a patient.",
+        "description": "Book a table reservation for a specific date and time.",
         "parameters": {
           "type": "object",
           "properties": {
             "callerNumber": {
               "type": "string"
             },
-            "patientName": {
+            "requestor": {
               "type": "string"
             },
             "reason": {
@@ -69,7 +72,8 @@
             }
           },
           "required": [
-            "patientName",
+            "callerNumber",
+            "requestor",
             "reason",
             "date",
             "time"
@@ -77,8 +81,11 @@
         },
         "operation": {
           "type": "post",
-          "url": "http://localhost:3000/appointments",
-          "waitForResponse": false
+          "url": "https://example.com/bookReservation",
+          "waitForResponse": false,
+          "headers": {
+            "x-api-key": "your-api-key"
+          }
         }
       }
     ]
