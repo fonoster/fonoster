@@ -28,7 +28,12 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const { ingressNumber, sessionRef, appRef } = req;
-  logger.verbose("voice request", { ingressNumber, sessionRef, appRef });
+  logger.verbose("voice request", {
+    ingressNumber,
+    sessionRef,
+    appRef,
+    metadata: req.metadata
+  });
 
   const assistantConfig = loadAssistantConfig();
   const knowledgeBase = await loadKnowledgeBase();
@@ -36,11 +41,14 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const voice = new VoiceImpl(sessionRef, res);
   const vad = new SileroVad();
 
+  const isTelephony = false;
+
   const languageModel = createLanguageModel({
     voice,
     assistantConfig,
     knowledgeBase,
     telephonyContext: {
+      isTelephony,
       ingressNumber: req.ingressNumber,
       callerNumber: req.callerNumber
     }

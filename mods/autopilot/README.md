@@ -142,7 +142,7 @@ You can configure a new tool by adding a new entry in the `tools` array in the c
 
 In addition to the `get` operation type, you can use the `post` operation type. The `post` operation type is used when sending data to the tool. When sending a post, you can optionally set `waitForResponse` to false, which will "fire and forget" the request. The default behavior is to wait for the response.
 
-If your tool needs the number of the caller or the number that received the call, you can use the reserved variables `ingressNumber` and `callerNumber`. Similarly, you can use the reserved variable `callReceivedAt` to get the date and time when the call was received in `ISO 8601` format.
+If your tool needs the number of the caller or the number that received the call, you can use the reserved variables `ingressNumber` and `callerNumber`. Similarly, you can use the reserved variable `callReceivedAt` to get the date and time when the call was received in `ISO 8601` format and the `isTelephony` variable to check if the call was originated from the PSTN.
 
 The expected format for the response is a JSON object with the following structure:
 

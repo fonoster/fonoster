@@ -42,6 +42,7 @@ type InvocationResult = {
 };
 
 type TelephonyContext = {
+  isTelephony: boolean;
   ingressNumber: string;
   callerNumber: string;
 };

@@ -17,7 +17,8 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { assign, raise, setup } from "xstate";
+import { assign, fromPromise, setup } from "xstate";
+import { AutopilotContext } from "./types";
 import { ConversationSettings } from "../assistants";
 import { LanguageModel } from "../models";
 import { Voice } from "../voice";
@@ -27,25 +28,7 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 // eslint-disable-next-line mocha/no-top-level-hooks
 const machine = setup({
   types: {
-    context: {} as {
-      sessionRef: string;
-      languageModel: LanguageModel;
-      voice: Voice;
-      firstMessage: string;
-      goodbyeMessage: string;
-      transferMessage?: string;
-      transferPhoneNumber?: string;
-      systemErrorMessage: string;
-      idleMessage: string;
-      idleTimeout: number;
-      idleTimeoutCount: number;
-      maxIdleTimeoutCount: number;
-      speechBuffer: string;
-      speechResponseStartTime: number;
-      speechResponseTime: number;
-      isSpeaking: boolean;
-      knowledgeBaseSourceUrl?: string;
-    },
+    context: {} as AutopilotContext,
     input: {} as {
       conversationSettings: ConversationSettings;
       languageModel: LanguageModel;
@@ -89,62 +72,6 @@ const machine = setup({
       });
 
       await context.voice.stopSpeech();
-    },
-    processUserRequest: async ({ context }) => {
-      logger.verbose("called processUserRequest action", {
-        speechBuffer: context.speechBuffer
-      });
-
-      // Stop any speech that might be playing
-      await context.voice.stopSpeech();
-
-      const speech = context.speechBuffer.trim();
-
-      const languageModel = context.languageModel;
-      const response = await languageModel.invoke(speech);
-
-      const speechResponseTime = Date.now() - context.speechResponseStartTime;
-      context.speechResponseTime = speechResponseTime;
-      context.speechResponseStartTime = 0;
-
-      logger.verbose("response from language model", {
-        speechResponseTime
-      });
-
-      try {
-        if (response.type === "say" && !response.content) {
-          logger.verbose("call might already be hung up");
-          raise({ type: "USER_REQUEST_PROCESSED" });
-          return;
-        } else if (response.type === "hangup") {
-          const message = context.goodbyeMessage;
-          await context.voice.say(message);
-          await context.voice.hangup();
-          return;
-        } else if (response.type === "transfer") {
-          logger.verbose("transferring call to a number in the pstn", {
-            phoneNumber: context.transferPhoneNumber
-          });
-
-          const message = context.transferMessage!;
-          await context.voice.say(message);
-          await context.voice.transfer(context.transferPhoneNumber!, {
-            record: true,
-            timeout: 30
-          });
-          return;
-        }
-
-        await context.voice.say(response.content!);
-      } catch (error) {
-        logger.error("error processing user request", {
-          error
-        });
-
-        await context.voice.say(context.systemErrorMessage);
-      }
-
-      raise({ type: "USER_REQUEST_PROCESSED" });
     },
     announceIdleTimeout: async ({ context }) => {
       logger.verbose("called announceIdleTimeout action", {
@@ -227,6 +154,64 @@ const machine = setup({
     IDLE_TIMEOUT: ({ context }) => {
       return context.idleTimeout;
     }
+  },
+  actors: {
+    doProcessUserRequest: fromPromise(
+      async ({ input }: { input: { context: AutopilotContext } }) => {
+        const { context } = input;
+        logger.verbose("called processUserRequest action", {
+          speechBuffer: context.speechBuffer
+        });
+
+        // Stop any speech that might be playing
+        await context.voice.stopSpeech();
+
+        const speech = context.speechBuffer.trim();
+
+        const languageModel = context.languageModel;
+        const response = await languageModel.invoke(speech);
+
+        const speechResponseTime = Date.now() - context.speechResponseStartTime;
+        context.speechResponseTime = speechResponseTime;
+        context.speechResponseStartTime = 0;
+
+        logger.verbose("response from language model", {
+          speechResponseTime
+        });
+
+        try {
+          if (response.type === "say" && !response.content) {
+            logger.verbose("call might already be hung up");
+            return;
+          } else if (response.type === "hangup") {
+            const message = context.goodbyeMessage;
+            await context.voice.say(message);
+            await context.voice.hangup();
+            return;
+          } else if (response.type === "transfer") {
+            logger.verbose("transferring call to a number in the pstn", {
+              phoneNumber: context.transferPhoneNumber
+            });
+
+            const message = context.transferMessage!;
+            await context.voice.say(message);
+            await context.voice.transfer(context.transferPhoneNumber!, {
+              record: true,
+              timeout: 30
+            });
+            return;
+          }
+
+          await context.voice.say(response.content!);
+        } catch (error) {
+          logger.error("error processing user request", {
+            error
+          });
+
+          await context.voice.say(context.systemErrorMessage);
+        }
+      }
+    )
   }
 }).createMachine({
   context: ({ input }) => ({
@@ -279,7 +264,7 @@ const machine = setup({
             }
           },
           {
-            target: "hackingTimeout",
+            target: "transitioningToIdle",
             actions: [
               {
                 type: "increaseIdleTimeoutCount"
@@ -314,7 +299,7 @@ const machine = setup({
     hangup: {
       type: "final"
     },
-    hackingTimeout: {
+    transitioningToIdle: {
       always: {
         target: "idle"
       }
@@ -364,14 +349,14 @@ const machine = setup({
         SPEECH_START: {
           target: "waitingForUserRequest",
           description: "Event from VAD or similar system."
-        },
-        USER_REQUEST_PROCESSED: {
-          target: "idle",
-          description: "Go back home."
         }
       },
-      entry: {
-        type: "processUserRequest"
+      invoke: {
+        src: "doProcessUserRequest",
+        input: ({ context }) => ({ context }),
+        onDone: {
+          target: "idle"
+        }
       }
     }
   }
