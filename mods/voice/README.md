@@ -99,6 +99,7 @@ Voice Response (IVR) applications.
     * [.sgather(options)](#VoiceResponse+sgather) ⇒ <code>Promise.&lt;StreamGatherStream&gt;</code>
     * [.mute(options)](#VoiceResponse+mute)
     * [.unmute(options)](#VoiceResponse+unmute)
+    * [.on(event, listener)](#VoiceResponse+on)
 
 <a name="new_VoiceResponse_new"></a>
 
@@ -391,6 +392,28 @@ Unmutes a call.
 async function handler (request, response) {
   await response.answer();
   await response.unmute();     // Will unmute both directions
+}
+```
+<a name="VoiceResponse+on"></a>
+
+### voiceResponse.on(event, listener)
+Register a listener for the given event.
+
+**Kind**: instance method of [<code>VoiceResponse</code>](#VoiceResponse)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| event | <code>StreamEvent</code> | The event to listen for |
+| listener | <code>function</code> | The callback function |
+
+**Example**  
+```js
+async function handler (request, response) {
+ ...
+
+ response.on(StreamEvent.END, () => {
+  console.log("Call ended");
+ });
 }
 ```
 

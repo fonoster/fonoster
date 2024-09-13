@@ -40,7 +40,8 @@ The configuration file has two major sections: `conversationSettings` and `langu
     "initialDtmf": "6589",
     "transferOptions": {
       "phoneNumber": "+15555555555",
-      "message": "Please hold while I transfer you to a live agent."
+      "message": "Please hold while I transfer you to a live agent.",
+      "timeout": 30000
     },
     "idleOptions": {
       "message": "Are you still there?",
@@ -127,7 +128,10 @@ You can configure a new tool by adding a new entry in the `tools` array in the c
         },
         "operation": {
           "type": "get",
-          "url": "https://api.example.com/appointment-times"
+          "url": "https://api.example.com/appointment-times",
+          "headers": {
+            "x-api-key": "your-api-key"
+          }
         }
       }
     ]

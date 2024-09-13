@@ -44,7 +44,7 @@ services:
       - 50061:50061
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - GRONK_API_KEY=${GRONK_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
 
   routr:
     image: fonoster/routr-one:latest
