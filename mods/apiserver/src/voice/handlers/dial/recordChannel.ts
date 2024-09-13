@@ -28,16 +28,18 @@ async function recordChannel(
   direction: DialRecordDirection.IN | DialRecordDirection.OUT,
   sessionRef: string
 ) {
+  const spy = direction.toLowerCase();
+
   const channel = await ari.channels.snoopChannel({
     app: STASIS_APP_NAME,
     channelId: sessionRef,
-    spy: direction
+    spy
   });
 
   return ari.channels.record({
     channelId: channel.id,
     format: RecordFormat.WAV,
-    name: `${sessionRef}_${direction}`
+    name: `${sessionRef}_${spy}`
   });
 }
 

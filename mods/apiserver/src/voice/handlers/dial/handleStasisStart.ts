@@ -34,15 +34,17 @@ function handleStasisStart(params: {
       await bridge.addChannel({ channel: dialed.id });
 
       if (
-        recordDirection === DialRecordDirection.IN ||
-        recordDirection === DialRecordDirection.BOTH
+        [DialRecordDirection.IN, DialRecordDirection.BOTH].includes(
+          recordDirection
+        )
       ) {
         recordChannel(ari, DialRecordDirection.IN, channel.id);
       }
 
       if (
-        recordDirection === DialRecordDirection.OUT ||
-        recordDirection === DialRecordDirection.BOTH
+        [DialRecordDirection.OUT, DialRecordDirection.BOTH].includes(
+          recordDirection
+        )
       ) {
         recordChannel(ari, DialRecordDirection.OUT, dialed.id);
       }
