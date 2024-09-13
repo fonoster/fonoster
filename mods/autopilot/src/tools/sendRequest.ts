@@ -47,7 +47,7 @@ async function sendRequest(input: {
   logger.verbose(`sending request to ${url}`, { body, method });
 
   if (waitForResponse && method === AllowedOperations.POST) {
-    setTimeout(async () => await fetch(url, options), 0);
+    setTimeout(() => fetch(url, options), 0);
     return { result: "request sent" };
   } else {
     const response = await fetch(url, options);
