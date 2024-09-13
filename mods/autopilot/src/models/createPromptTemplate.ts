@@ -24,12 +24,16 @@ import {
 } from "@langchain/core/prompts";
 import { TelephonyContext } from "./types";
 
-export function createPromptTemplate(
-  systemTemplate: string,
-  telephonyContext: TelephonyContext
-) {
+export function createPromptTemplate(params: {
+  firstMessage: string;
+  systemTemplate: string;
+  telephonyContext: TelephonyContext;
+}) {
+  const { firstMessage, systemTemplate, telephonyContext } = params;
+
   return ChatPromptTemplate.fromMessages([
     new MessagesPlaceholder("history"),
+    SystemMessagePromptTemplate.fromTemplate(`firstMessage: ${firstMessage}`),
     SystemMessagePromptTemplate.fromTemplate(systemTemplate),
     SystemMessagePromptTemplate.fromTemplate("{context}"),
     SystemMessagePromptTemplate.fromTemplate(

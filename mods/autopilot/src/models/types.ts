@@ -25,6 +25,7 @@ type LanguageModel = {
 };
 
 type BaseModelParams = {
+  firstMessage: string;
   systemTemplate: string;
   knowledgeBase: KnowledgeBase;
   tools: Tool[];
