@@ -16,12 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { AllowedOperations } from "./ToolSchema";
 
 const responseSchema = z.object({
   result: z.string()
 });
+
+const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function sendRequest(input: {
   method: AllowedOperations;
@@ -34,12 +37,17 @@ async function sendRequest(input: {
 
   const options = {
     method,
-    headers,
+    headers: {
+      "Content-Type": "application/json",
+      ...headers
+    },
     body: method === AllowedOperations.POST ? JSON.stringify(body) : undefined
   };
 
+  logger.verbose(`sending request to ${url}`, { body, method });
+
   if (waitForResponse && method === AllowedOperations.POST) {
-    setTimeout(() => fetch(url, options), 0);
+    setTimeout(async () => await fetch(url, options), 0);
     return { result: "request sent" };
   } else {
     const response = await fetch(url, options);
