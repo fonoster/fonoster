@@ -28,5 +28,3 @@ assertEnvsAreSet(["ASSISTANT"]);
 assertFileExists(process.env.ASSISTANT!);
 
 export const ASSISTANT = process.env.ASSISTANT;
-export const GROQ_API_KEY = process.env.GROQ_API_KEY;
-export const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
