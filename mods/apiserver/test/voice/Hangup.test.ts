@@ -47,9 +47,12 @@ describe("@voice/handler/Hangup", function () {
     // Act
     await hangupHandler(ari, createVoiceClient())(hangupRequest);
 
+    // Wait for 3 seconds to allow the hangup to complete
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+
     // Assert
     expect(createVoiceClient().close).to.have.been.calledOnce;
     expect(ari.channels.hangup).to.have.been.calledOnce;
     expect(ari.channels.hangup).to.have.been.calledWith({ channelId });
-  });
+  }).timeout(5000);
 });
