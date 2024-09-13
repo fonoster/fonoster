@@ -86,6 +86,7 @@ async function createCreateCallSubscriber(config: CallManagerConfig) {
           "PJSIP_HEADER(add,X-Dod-Number)": from,
           "PJSIP_HEADER(add,X-Access-Key-Id)": accessKeyId,
           "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true",
+          CALL_DIRECTION: "peer-to-pstn",
           INGRESS_NUMBER: from,
           APP_REF: appRef
         }

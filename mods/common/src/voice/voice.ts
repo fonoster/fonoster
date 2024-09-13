@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CallDirection } from "@fonoster/types";
 import { DialRequest, DialStatus } from "./Dial";
 import { GatherRequest, GatherResponse } from "./Gather";
 import { MuteRequest } from "./Mute";
@@ -87,6 +88,7 @@ type VoiceClientConfig = {
   callerNumber: string;
   sessionRef: string;
   sessionToken: string;
+  callDirection: CallDirection;
   metadata?: Record<string, string>;
 };
 

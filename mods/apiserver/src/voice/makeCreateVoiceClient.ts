@@ -24,6 +24,7 @@ import { makeGetChannelVarWithoutThrow } from "./makeGetChannelVar";
 import { ChannelVar, VoiceClient } from "./types";
 import { VoiceClientImpl } from "./VoiceClientImpl";
 import { identityConfig } from "../core/identityConfig";
+import { mapCallDirectionToEnum } from "../events/mapCallDirectionToEnum";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -43,6 +44,8 @@ function makeCreateVoiceClient(createContainer: CreateContainer) {
     const getChannelVar = makeGetChannelVarWithoutThrow(channel);
 
     // Variables set by Asterisk's dialplan
+    const callDirection = (await getChannelVar(ChannelVar.CALL_DIRECTION))
+      ?.value;
     const appRef = (await getChannelVar(ChannelVar.APP_REF))?.value;
     const ingressNumber =
       (await getChannelVar(ChannelVar.INGRESS_NUMBER))?.value || "";
@@ -62,6 +65,7 @@ function makeCreateVoiceClient(createContainer: CreateContainer) {
       callerNumber,
       ingressNumber,
       sessionToken,
+      callDirection: mapCallDirectionToEnum(callDirection),
       metadata: metadataStr ? JSON.parse(metadataStr) : {}
     };
 

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { CallDirection } from "@fonoster/types";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { KnowledgeBase } from "../knowledge";
 import { Tool } from "../tools/type";
@@ -42,7 +43,7 @@ type InvocationResult = {
 };
 
 type TelephonyContext = {
-  isTelephony: boolean;
+  callDirection: CallDirection;
   ingressNumber: string;
   callerNumber: string;
 };

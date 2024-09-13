@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { SinonSandbox } from "sinon";
+import { CallDirection } from "../../apiserver/src/calls/types";
 import { VoiceRequest } from "../src";
 
 const sessionRef = "00000000-0000-0000-0000-000000000000";
@@ -30,6 +31,7 @@ const voiceRequest: VoiceRequest = {
   callerName: "John Doe",
   callerNumber: "+14345551234",
   sessionToken: "jwt-token",
+  callDirection: CallDirection.FROM_PSTN,
   metadata: {}
 };
 

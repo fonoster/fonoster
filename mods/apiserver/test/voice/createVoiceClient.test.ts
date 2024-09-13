@@ -71,10 +71,12 @@ describe("@voice/createVoiceClient", function () {
       getChannelVar: sandbox
         .stub()
         .onFirstCall()
-        .resolves({ value: "app-ref" })
+        .resolves({ value: "from-pstn" })
         .onSecondCall()
-        .resolves({ value: "ingress-number" })
+        .resolves({ value: "app-ref" })
         .onThirdCall()
+        .resolves({ value: "ingress-number" })
+        .onCall(4)
         .resolves({ value: "{}" })
     } as unknown as Channel;
 
@@ -89,7 +91,7 @@ describe("@voice/createVoiceClient", function () {
 
     // Assert
     expect(voiceClient).to.be.an.instanceOf(VoiceClientImpl);
-    expect(channel.getChannelVar).to.have.been.calledThrice;
+    expect(channel.getChannelVar).to.have.callCount(4);
     expect(channel.getChannelVar).to.have.been.calledWith({
       variable: ChannelVar.APP_REF
     });
@@ -98,6 +100,9 @@ describe("@voice/createVoiceClient", function () {
     });
     expect(channel.getChannelVar).to.have.been.calledWith({
       variable: ChannelVar.INGRESS_NUMBER
+    });
+    expect(channel.getChannelVar).to.have.been.calledWith({
+      variable: ChannelVar.CALL_DIRECTION
     });
   });
 });

@@ -54,8 +54,16 @@ message CreateSessionRequest {
   // If the app_ref is provided, the token must include the app_ref as a claim
   string session_token = 8;
 
+  // The direction of the call
+  enum CallDirection {
+    FROM_PSTN = 0;
+    TO_PSTN = 1;
+    INTRA_NETWORK = 2;
+  }
+  CallDirection call_direction = 9;
+
   // Metadata associated with the session
-  map<string, string> metadata = 9;
+  map<string, string> metadata = 10;
 }
 
 // Common request for verbs

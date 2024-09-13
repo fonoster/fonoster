@@ -27,7 +27,7 @@ import Autopilot, { SileroVad, VoiceImpl } from ".";
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
-  const { ingressNumber, sessionRef, appRef } = req;
+  const { ingressNumber, sessionRef, appRef, callDirection } = req;
   logger.verbose("voice request", {
     ingressNumber,
     sessionRef,
@@ -41,14 +41,12 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const voice = new VoiceImpl(sessionRef, res);
   const vad = new SileroVad();
 
-  const isTelephony = false;
-
   const languageModel = createLanguageModel({
     voice,
     assistantConfig,
     knowledgeBase,
     telephonyContext: {
-      isTelephony,
+      callDirection,
       ingressNumber: req.ingressNumber,
       callerNumber: req.callerNumber
     }

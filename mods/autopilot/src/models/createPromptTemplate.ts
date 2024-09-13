@@ -40,7 +40,7 @@ export function createPromptTemplate(params: {
       `callReceivedAt:${new Date().toISOString()}
        ingressNumber:${telephonyContext.ingressNumber}
        callerNumber:${telephonyContext.callerNumber}
-       isTelephony:${telephonyContext.isTelephony}`
+       callDirection:${telephonyContext.callDirection}`
     ),
     HumanMessagePromptTemplate.fromTemplate("{input}")
   ]);

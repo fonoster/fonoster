@@ -26,9 +26,7 @@ const skipIdentity = process.env.NODE_ENV === "dev";
 // Only skip identity for local development
 new VoiceServer({ skipIdentity }).listen(
   async (req: VoiceRequest, res: VoiceResponse) => {
-    const { ingressNumber, sessionRef, appRef } = req;
-
-    logger.verbose("voice request", { ingressNumber, sessionRef, appRef });
+    logger.verbose("voice request", { ...req });
 
     await res.answer();
 
