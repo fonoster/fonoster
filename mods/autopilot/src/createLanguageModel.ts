@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { OPENAI_API_KEY } from "./envs";
 import {
   AssistantConfig,
   FilesKnowledgeBase,
@@ -37,7 +36,7 @@ function createLanguageModel(
   return LanguageModelFactory.getLanguageModel(
     languageModelSettings.provider,
     {
-      apiKey: OPENAI_API_KEY!,
+      apiKey: languageModelSettings.apiKey,
       // @ts-expect-error don't know the model type here
       model: languageModelSettings.model,
       maxTokens: languageModelSettings.maxTokens,

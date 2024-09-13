@@ -46,6 +46,7 @@ const conversationSettingsSchema = z.object({
 
 const languageModelConfigSchema = z.object({
   provider: z.nativeEnum(LANGUAGE_MODEL_PROVIDER),
+  apiKey: z.string().optional(),
   model: z.string(),
   temperature: z.number(),
   maxTokens: z.number(),
