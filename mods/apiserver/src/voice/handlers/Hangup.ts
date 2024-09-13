@@ -25,15 +25,18 @@ function hangupHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: VerbRequest) => {
     const { sessionRef } = request;
 
-    await ari.channels.hangup({ channelId: sessionRef });
+    // Give some time for the last sound to play
+    setTimeout(() => {
+      ari.channels.hangup({ channelId: sessionRef });
 
-    voiceClient.sendResponse({
-      hangupResponse: {
-        sessionRef
-      }
-    });
+      voiceClient.sendResponse({
+        hangupResponse: {
+          sessionRef
+        }
+      });
 
-    voiceClient.close();
+      voiceClient.close();
+    }, 2000);
   });
 }
 

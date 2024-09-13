@@ -88,8 +88,9 @@ The Autopilot supports multiple language model providers. The following is a lis
 
 | Provider   | Description                                                | Supported models
 |------------|------------------------------------------------------------|------------------------------------------------------------------------------|
-| OpenAI     | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-40-mini` |
+| OpenAI     | OpenAI provides various GPT models for conversational AI   | `gpt-4o`, `gpt-4o-mini`                                                      |
 | Groq       | Groq offers high-performance AI models optimized for speed | `gemm-7b-it`, `llama3-groq-70b-8192-tool-use-preview`, `llama3-1-8b-instant` |
+| Ollama     | Self-hosted Ollama models                                  | `lama3.1`                                                                    |
 
 ## Adding Knowledge Base
 
