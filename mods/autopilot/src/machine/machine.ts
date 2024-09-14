@@ -153,6 +153,9 @@ const machine = setup({
   delays: {
     IDLE_TIMEOUT: ({ context }) => {
       return context.idleTimeout;
+    },
+    MAX_SPEECH_WAIT_TIMEOUT: ({ context }) => {
+      return context.maxSpeechWaitTimeout;
     }
   },
   actors: {
@@ -230,6 +233,7 @@ const machine = setup({
     maxIdleTimeoutCount:
       input.conversationSettings.idleOptions?.maxTimeoutCount || 3,
     idleTimeoutCount: 0,
+    maxSpeechWaitTimeout: input.conversationSettings.maxSpeechWaitTimeout,
     speechResponseStartTime: 0,
     speechResponseTime: 0,
     isSpeaking: false
@@ -250,6 +254,10 @@ const machine = setup({
         SPEECH_START: {
           target: "waitingForUserRequest",
           description: "Event from VAD system."
+        },
+        SPEECH_RESULT: {
+          target: "waitingForUserRequest",
+          description: "Event from Speech to Text provider."
         }
       },
       after: {
@@ -342,6 +350,11 @@ const machine = setup({
             }
           }
         ]
+      },
+      after: {
+        MAX_SPEECH_WAIT_TIMEOUT: {
+          target: "processingUserRequest"
+        }
       }
     },
     processingUserRequest: {

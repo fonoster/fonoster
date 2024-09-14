@@ -5,6 +5,7 @@
     "goodbyeMessage": "Goodbye! Have a great day!",
     "systemErrorMessage": "I'm sorry, but I seem to be having trouble. Please try again later.",
     "initialDtmf": "123",
+    "maxSpeechWaitTimeout": 10000,
     "transferOptions": {
       "phoneNumber": "+17853178070",
       "message": "Please hold while I transfer you to a live agent.",
@@ -12,11 +13,11 @@
     },
     "idleOptions": {
       "message": "Are you still there?",
-      "timeout": 15000,
+      "timeout": 30000,
       "maxTimeoutCount": 2
     },
     "vad": {
-      "activationThreshold": 0.35,
+      "activationThreshold": 0.30,
       "deactivationThreshold": 0.2,
       "debounceFrames": 2
     }

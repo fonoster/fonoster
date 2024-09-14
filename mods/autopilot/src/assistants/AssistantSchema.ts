@@ -26,6 +26,7 @@ const conversationSettingsSchema = z.object({
   goodbyeMessage: z.string(),
   systemErrorMessage: z.string(),
   initialDtmf: z.string().optional().nullable(),
+  maxSpeechWaitTimeout: z.number(),
   transferOptions: z
     .object({
       phoneNumber: z.string(),

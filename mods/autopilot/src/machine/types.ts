@@ -32,6 +32,7 @@ type AutopilotContext = {
   idleTimeout: number;
   idleTimeoutCount: number;
   maxIdleTimeoutCount: number;
+  maxSpeechWaitTimeout: number;
   speechBuffer: string;
   speechResponseStartTime: number;
   speechResponseTime: number;
