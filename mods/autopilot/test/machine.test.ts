@@ -64,6 +64,7 @@ const getActorInput = () => ({
     goodbyeMessage: GOODBYE_MESSAGE,
     systemTemplate: "System template",
     systemErrorMessage: SYSTEM_ERROR_MESSAGE,
+    maxSpeechWaitTimeout: 10000,
     initialDtmf: "1",
     idleOptions: {
       enabled: true,
@@ -75,6 +76,11 @@ const getActorInput = () => ({
       enabled: false,
       phoneNumber: "+1234567890",
       message: "Transferring call"
+    },
+    vad: {
+      activationThreshold: 0.3,
+      deactivationThreshold: 0.2,
+      debounceFrames: 2
     }
   }
 });
