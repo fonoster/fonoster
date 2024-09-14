@@ -16,20 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ConversationSettings } from "./assistants";
-import { LanguageModel } from "./models";
-import { Voice } from "./voice";
+import { parentPort, workerData } from "worker_threads";
+import { SileroVad } from "./vad/SileroVad";
 
-enum LANGUAGE_MODEL_PROVIDER {
-  OPENAI = "openai",
-  GROQ = "groq",
-  OLLAMA = "ollama"
-}
+const vad = new SileroVad(workerData);
 
-type AutopilotParams = {
-  voice: Voice;
-  conversationSettings: ConversationSettings;
-  languageModel: LanguageModel;
-};
-
-export { AutopilotParams, LANGUAGE_MODEL_PROVIDER };
+parentPort?.on("message", (chunk) => {
+  vad.processChunk(chunk, (voiceActivity) => {
+    parentPort?.postMessage(voiceActivity);
+  });
+});

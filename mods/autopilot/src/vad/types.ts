@@ -16,10 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+type VadEvent = "SPEECH_START" | "SPEECH_END";
+
 type Vad = {
   processChunk: (
     chunk: Uint8Array,
-    callback: (event: "SPEECH_START" | "SPEECH_END") => void
+    callback: (event: VadEvent) => void
   ) => void;
 };
 
@@ -40,4 +42,4 @@ type ONNXRuntimeAPI = {
   };
 };
 
-export { ONNXRuntimeAPI, SpeechProbabilities, Vad };
+export { ONNXRuntimeAPI, SpeechProbabilities, Vad, VadEvent };

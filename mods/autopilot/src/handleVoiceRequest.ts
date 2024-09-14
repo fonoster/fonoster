@@ -22,7 +22,7 @@ import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { createLanguageModel } from "./createLanguageModel";
 import { loadAssistantConfig } from "./loadAssistantConfig";
 import { loadKnowledgeBase } from "./loadKnowledgeBase";
-import Autopilot, { SileroVad, VoiceImpl } from ".";
+import Autopilot, { VoiceImpl } from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -39,7 +39,6 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const knowledgeBase = await loadKnowledgeBase();
 
   const voice = new VoiceImpl(sessionRef, res);
-  const vad = new SileroVad(assistantConfig.conversationSettings.vad);
 
   const languageModel = createLanguageModel({
     voice,
@@ -55,7 +54,6 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const autopilot = new Autopilot({
     conversationSettings: assistantConfig.conversationSettings,
     voice,
-    vad,
     languageModel
   });
 

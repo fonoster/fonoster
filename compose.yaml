@@ -38,13 +38,12 @@ services:
     image: fonoster/autopilot:latest
     restart: unless-stopped
     volumes:
-      - ./etc/assistant.example.json:/opt/fonoster/assistant.json:ro
-      - ./etc/sample.pdf:/home/appuser/autopilot/config/sample.pdf:ro
+      - ./config/assistant.json:/opt/fonoster/assistant.json:ro
+      - ./config/sample.pdf:/home/appuser/autopilot/config/sample.pdf:ro
     ports:
       - 50061:50061
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LOGS_LEVEL: ${LOGS_LEVEL}
     
   routr:
     image: fonoster/routr-one:latest
