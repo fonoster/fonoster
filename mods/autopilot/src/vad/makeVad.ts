@@ -27,20 +27,33 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 const BUFFER_SIZE = 16000;
 
-async function makeVad(pathToModel?: string) {
+async function makeVad(params: {
+  pathToModel?: string;
+  activationThreshold: number;
+  deactivationThreshold: number;
+  debounceFrames: number;
+}) {
+  const {
+    pathToModel,
+    activationThreshold,
+    deactivationThreshold,
+    debounceFrames
+  } = params;
+
   const effectivePath =
     pathToModel || join(__dirname, "..", "..", "silero_vad.onnx");
   const silero = await SileroVadModel.new(ort, effectivePath);
 
   let audioBuffer: number[] = [];
   let isSpeechActive = false;
+  let consecutiveSpeechFrames = 0;
+  let consecutiveNonSpeechFrames = 0;
 
   return async function process(
     chunk: Uint8Array,
     callback: (event: "SPEECH_START" | "SPEECH_END") => void
   ) {
     const float32Array = chunkToFloat32Array(chunk);
-
     audioBuffer.push(...float32Array);
 
     const processBuffer = async (buffer: number[]) => {
@@ -53,19 +66,27 @@ async function makeVad(pathToModel?: string) {
 
       logger.silly("last vad result", { ...result });
 
-      if (result.isSpeech > 0.5) {
-        if (!isSpeechActive) {
+      if (result.isSpeech > activationThreshold) {
+        consecutiveNonSpeechFrames = 0; // Reset non-speech counter
+        consecutiveSpeechFrames++;
+
+        if (consecutiveSpeechFrames >= debounceFrames && !isSpeechActive) {
           isSpeechActive = true;
           callback("SPEECH_START");
-          return processBuffer(remainingBuffer);
         }
-      } else if (isSpeechActive) {
-        isSpeechActive = false;
-        callback("SPEECH_END");
-        // WARNING: I'm unsure if this has any effect on the model
-        // but it seems to work fine to ensure the model works optimally
-        silero.resetState();
-        return processBuffer(remainingBuffer);
+      } else {
+        consecutiveSpeechFrames = 0; // Reset speech counter
+        consecutiveNonSpeechFrames++;
+
+        if (
+          consecutiveNonSpeechFrames >= debounceFrames &&
+          isSpeechActive &&
+          result.isSpeech < deactivationThreshold
+        ) {
+          isSpeechActive = false;
+          callback("SPEECH_END");
+          silero.resetState(); // Reset VAD state after speech ends
+        }
       }
 
       return processBuffer(remainingBuffer);

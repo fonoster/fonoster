@@ -17,19 +17,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getLogger } from "@fonoster/logger";
 import { makeVad } from "./makeVad";
 import { Vad } from "./types";
 
+const logger = getLogger({ service: "autopilot", filePath: __filename });
+
 class SileroVad implements Vad {
   private vad: (data: Uint8Array, callback: (event: string) => void) => void;
+  private params: {
+    pathToModel?: string;
+    activationThreshold: number;
+    deactivationThreshold: number;
+    debounceFrames: number;
+  };
 
-  constructor() {
+  constructor(params: {
+    pathToModel?: string;
+    activationThreshold: number;
+    deactivationThreshold: number;
+    debounceFrames: number;
+  }) {
+    logger.verbose("starting instance of silero vad", { ...params });
+    this.params = params;
     this.init();
   }
 
+  pathToModel?: string;
+  activationThreshold: number;
+  deactivationThreshold: number;
+  debounceFrames: number;
+
   private async init() {
     // FIXME: It feels strange to do this in the constructor
-    this.vad = await makeVad();
+    this.vad = await makeVad(this.params);
   }
 
   processChunk(

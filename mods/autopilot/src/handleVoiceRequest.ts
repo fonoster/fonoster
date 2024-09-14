@@ -39,7 +39,7 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const knowledgeBase = await loadKnowledgeBase();
 
   const voice = new VoiceImpl(sessionRef, res);
-  const vad = new SileroVad();
+  const vad = new SileroVad(assistantConfig.conversationSettings.vad);
 
   const languageModel = createLanguageModel({
     voice,

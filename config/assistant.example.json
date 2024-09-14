@@ -12,8 +12,13 @@
     },
     "idleOptions": {
       "message": "Are you still there?",
-      "timeout": 10000,
-      "maxTimeoutCount": 3
+      "timeout": 15000,
+      "maxTimeoutCount": 2
+    },
+    "vad": {
+      "activationThreshold": 0.35,
+      "deactivationThreshold": 0.2,
+      "debounceFrames": 2
     }
   },
   "languageModel": {

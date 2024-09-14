@@ -41,7 +41,13 @@ const conversationSettingsSchema = z.object({
       maxTimeoutCount: z.number()
     })
     .optional()
-    .nullable()
+    .nullable(),
+  vad: z.object({
+    pathToModel: z.string().optional(),
+    activationThreshold: z.number(),
+    deactivationThreshold: z.number(),
+    debounceFrames: z.number()
+  })
 });
 
 const languageModelConfigSchema = z.object({
