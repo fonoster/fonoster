@@ -22,7 +22,7 @@ import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
 import { computeFilename } from "./computeFilename";
 import { SynthOptions, TtsConfig } from "./types";
-import { MethodNotImplementedError } from "../MethodNotImplementedError";
+import { MethodNotImplementedError } from "../errors/MethodNotImplementedError";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

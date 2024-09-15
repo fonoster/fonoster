@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import fs from "fs";
-import os from "os";
 import { join } from "path";
 import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
 import dotenv from "dotenv";
@@ -161,4 +160,3 @@ export const SMTP_HOST = e.SMTP_HOST;
 export const SMTP_PORT = e.SMTP_PORT ? parseInt(e.SMTP_PORT) : 587;
 export const SMTP_SECURE = e.SMTP_SECURE?.toLowerCase() === "true";
 export const SMTP_SENDER = e.SMTP_SENDER;
-export const TTS_PATH_TO_FILES = e.TTS_PATH_TO_FILES || os.tmpdir();

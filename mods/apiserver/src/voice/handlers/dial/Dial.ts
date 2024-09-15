@@ -24,8 +24,8 @@ import { handleStasisEnd } from "./handleStasisEnd";
 import { handleStasisStart } from "./handleStasisStart";
 import { ASTERISK_SYSTEM_DOMAIN, ASTERISK_TRUNK } from "../../../envs";
 import { makeHandleDialEventsWithVoiceClient } from "../../../utils";
-import { makeGetChannelVar } from "../../makeGetChannelVar";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "../../types";
+import { makeGetChannelVar } from "../../utils/makeGetChannelVar";
 
 // TODO: Needs request validation
 function dialHandler(ari: Client, voiceClient: VoiceClient) {

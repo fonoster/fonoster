@@ -32,7 +32,6 @@ import { AudioSocket } from "@fonoster/streams";
 import * as grpc from "@grpc/grpc-js";
 import { Bridge, Client } from "ari-client";
 import { pickPort } from "pick-port";
-import { createExternalMediaConfig } from "./createExternalMediaConfig";
 import { SpeechResult } from "./stt/types";
 import { transcribeOnConnection } from "./transcribeOnConnection";
 import {
@@ -42,7 +41,8 @@ import {
   TextToSpeech,
   VoiceClient
 } from "./types";
-import { VoiceServiceClient } from "./VoiceServiceClientConst";
+import { createExternalMediaConfig } from "./utils/createExternalMediaConfig";
+import { VoiceServiceClientConstructor } from "./utils/VoiceServiceClientConstructor";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -58,7 +58,7 @@ class VoiceClientImpl implements VoiceClient {
   asStream: Stream;
   ari: Client;
   bridge: Bridge;
-  filesServer: any;
+  filesServer;
 
   constructor(
     params: {
@@ -80,7 +80,7 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async connect() {
-    this.grpcClient = new VoiceServiceClient(
+    this.grpcClient = new VoiceServiceClientConstructor(
       this.config.endpoint,
       grpc.credentials.createInsecure()
     ) as unknown as GRPCClient;
@@ -135,10 +135,6 @@ class VoiceClientImpl implements VoiceClient {
 
   sendResponse(response: VoiceIn): void {
     this.voice.write(response);
-  }
-
-  getBridge() {
-    return this.bridge;
   }
 
   getTranscriptionsStream() {

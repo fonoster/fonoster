@@ -16,21 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Application } from "@fonoster/types";
-import { findIntegrationsCredentials } from "./findIntegrationsCredentials";
-import { IntegrationConfig } from "./types";
+import { createServiceDefinition } from "@fonoster/common";
+import * as grpc from "@grpc/grpc-js";
 
-function getTtsConfig(integrations: IntegrationConfig[], app: Application) {
-  const config = app.textToSpeech.config;
-  const credentials = findIntegrationsCredentials(
-    integrations,
-    app.textToSpeech.productRef
-  );
+const VoiceServiceClientConstructor = grpc.makeGenericClientConstructor(
+  createServiceDefinition({
+    serviceName: "Voice",
+    pckg: "voice",
+    proto: "voice.proto",
+    version: "v1beta2"
+  }),
+  "",
+  {}
+);
 
-  return {
-    config,
-    credentials
-  };
-}
-
-export { getTtsConfig };
+export { VoiceServiceClientConstructor };

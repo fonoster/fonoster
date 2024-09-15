@@ -16,21 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Application } from "@fonoster/types";
-import { findIntegrationsCredentials } from "./findIntegrationsCredentials";
-import { IntegrationConfig } from "./types";
+import { Channel } from "ari-client";
+import { ChannelVar } from "../types";
 
-function getTtsConfig(integrations: IntegrationConfig[], app: Application) {
-  const config = app.textToSpeech.config;
-  const credentials = findIntegrationsCredentials(
-    integrations,
-    app.textToSpeech.productRef
-  );
-
-  return {
-    config,
-    credentials
+function makeGetChannelVarWithoutThrow(channel: Channel) {
+  return async (variable: ChannelVar) => {
+    try {
+      return await channel.getChannelVar({
+        variable
+      });
+    } catch (e) {
+      return null;
+    }
   };
 }
 
-export { getTtsConfig };
+export { makeGetChannelVarWithoutThrow };

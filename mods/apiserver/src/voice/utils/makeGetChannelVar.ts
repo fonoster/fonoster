@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import { Channel } from "ari-client";
-import { ChannelVarNotFoundError } from "./ChannelVarNotFoundError";
-import { ChannelVar } from "./types";
+import { ChannelVarNotFoundError } from "../errors/ChannelVarNotFoundError";
+import { ChannelVar } from "../types";
 
 function makeGetChannelVar(channel: Channel) {
   return async (variable: ChannelVar) => {
@@ -32,16 +32,4 @@ function makeGetChannelVar(channel: Channel) {
   };
 }
 
-function makeGetChannelVarWithoutThrow(channel: Channel) {
-  return async (variable: ChannelVar) => {
-    try {
-      return await channel.getChannelVar({
-        variable
-      });
-    } catch (e) {
-      return null;
-    }
-  };
-}
-
-export { makeGetChannelVar, makeGetChannelVarWithoutThrow };
+export { makeGetChannelVar };

@@ -37,8 +37,7 @@ import {
   ASTERISK_ARI_USERNAME,
   FILES_SERVER_PORT,
   IDENTITY_PUBLIC_KEY,
-  NATS_URL,
-  TTS_PATH_TO_FILES
+  NATS_URL
 } from "../envs";
 import { connectToAri } from "../voice/connectToAri";
 

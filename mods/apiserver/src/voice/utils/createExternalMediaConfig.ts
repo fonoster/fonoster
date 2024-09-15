@@ -16,21 +16,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Application } from "@fonoster/types";
-import { findIntegrationsCredentials } from "./findIntegrationsCredentials";
-import { IntegrationConfig } from "./types";
+import { STASIS_APP_NAME } from "@fonoster/common";
+import { v4 as uuidv4 } from "uuid";
+import { APISERVER_HOST } from "../../envs";
 
-function getTtsConfig(integrations: IntegrationConfig[], app: Application) {
-  const config = app.textToSpeech.config;
-  const credentials = findIntegrationsCredentials(
-    integrations,
-    app.textToSpeech.productRef
-  );
-
+function createExternalMediaConfig(port: number) {
   return {
-    config,
-    credentials
+    app: STASIS_APP_NAME,
+    external_host: `${APISERVER_HOST}:${port}`,
+    format: "slin16",
+    transport: "tcp",
+    data: uuidv4(),
+    encapsulation: "audiosocket",
+    variables: {
+      FROM_EXTERNAL_MEDIA: "true"
+    }
   };
 }
 
-export { getTtsConfig };
+export { createExternalMediaConfig };

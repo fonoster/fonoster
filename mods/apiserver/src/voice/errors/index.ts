@@ -16,13 +16,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ChannelVar } from "./types";
-
-class ChannelVarNotFoundError extends Error {
-  constructor(variable: ChannelVar) {
-    super(`Channel variable not found: ${variable}`);
-    this.name = this.constructor.name;
-  }
-}
-
-export { ChannelVarNotFoundError };
+export * from "./ChannelVarNotFoundError";
+export * from "./MethodNotImplementedError";

@@ -16,22 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { STASIS_APP_NAME } from "@fonoster/common";
-import { v4 as uuidv4 } from "uuid";
-import { APISERVER_HOST } from "../envs";
-
-function createExternalMediaConfig(port: number) {
-  return {
-    app: STASIS_APP_NAME,
-    external_host: `${APISERVER_HOST}:${port}`,
-    format: "slin16",
-    transport: "tcp",
-    data: uuidv4(),
-    encapsulation: "audiosocket",
-    variables: {
-      FROM_EXTERNAL_MEDIA: "true"
-    }
-  };
-}
-
-export { createExternalMediaConfig };
+export * from "./VoiceServiceClientConstructor";
+export * from "./createExternalMediaConfig";
+export * from "./makeGetChannelVar";
+export * from "./makeGetChannelVarWithoutThrow";

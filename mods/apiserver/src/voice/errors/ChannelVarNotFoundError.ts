@@ -16,18 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createServiceDefinition } from "@fonoster/common";
-import * as grpc from "@grpc/grpc-js";
+import { ChannelVar } from "../types";
 
-const VoiceServiceClient = grpc.makeGenericClientConstructor(
-  createServiceDefinition({
-    serviceName: "Voice",
-    pckg: "voice",
-    proto: "voice.proto",
-    version: "v1beta2"
-  }),
-  "",
-  {}
-);
+class ChannelVarNotFoundError extends Error {
+  constructor(variable: ChannelVar) {
+    super(`Channel variable not found: ${variable}`);
+    this.name = this.constructor.name;
+  }
+}
 
-export { VoiceServiceClient };
+export { ChannelVarNotFoundError };
