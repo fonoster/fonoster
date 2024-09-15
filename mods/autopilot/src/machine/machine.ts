@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { performance } from "perf_hooks";
 import { getLogger } from "@fonoster/logger";
 import { assign, fromPromise, setup } from "xstate";
 import { AutopilotContext } from "./types";
@@ -102,7 +103,6 @@ const machine = setup({
         speech
       ).trimStart();
 
-      context.speechResponseStartTime = Date.now();
       return context;
     }),
     resetIdleTimeoutCount: assign(({ context }) => {
@@ -166,16 +166,18 @@ const machine = setup({
           speechBuffer: context.speechBuffer
         });
 
-        // Stop any speech that might be playing
-        await context.voice.stopSpeech();
+        context.speechResponseStartTime = performance.now();
 
-        const speech = context.speechBuffer.trim();
+        // Stop any speech that might be playing
+        context.voice.stopSpeech();
 
         const languageModel = context.languageModel;
+        const speech = context.speechBuffer.trim();
         const response = await languageModel.invoke(speech);
 
-        const speechResponseTime = Date.now() - context.speechResponseStartTime;
-        context.speechResponseTime = speechResponseTime;
+        const speechResponseTime =
+          performance.now() - context.speechResponseStartTime;
+        context.speechResponseTime = Math.round(speechResponseTime);
         context.speechResponseStartTime = 0;
 
         logger.verbose("response from language model", {
