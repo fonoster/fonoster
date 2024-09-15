@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import * as fs from "fs";
+import { Readable } from "stream";
 import * as util from "util";
 import { GoogleVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
@@ -53,7 +54,10 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.engineConfig = config;
   }
 
-  async synthesize(text: string, options: SynthOptions): Promise<string> {
+  async synthesize(
+    text: string,
+    options: SynthOptions
+  ): Promise<{ id: string; stream: Readable }> {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
         text
@@ -70,10 +74,6 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
 
     const filename = this.createFilename(text, effectiveOptions);
-
-    if (this.fileExists(this.getFullPathToFile(filename))) {
-      return this.getFilenameWithoutExtension(filename);
-    }
 
     const request = {
       input: isSsml(text) ? { ssml: text } : { text },
@@ -97,7 +97,10 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       "binary"
     );
 
-    return this.getFilenameWithoutExtension(filename);
+    const id = this.getFilenameWithoutExtension(filename);
+
+    // TODO: Fix this placeholder
+    return { id, stream: new Readable() };
   }
 
   static getConfigValidationSchema(): z.Schema {

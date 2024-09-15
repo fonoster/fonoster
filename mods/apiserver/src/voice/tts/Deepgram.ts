@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
-import * as util from "util";
+import { Readable } from "stream";
 import { DeepgramVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
@@ -53,7 +52,10 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.engineConfig = config;
   }
 
-  async synthesize(text: string, options: SynthOptions): Promise<string> {
+  async synthesize(
+    text: string,
+    options: SynthOptions
+  ): Promise<{ id: string; stream: Readable }> {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
         text
@@ -69,10 +71,6 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const filename = this.createFilename(text, effectiveOptions);
 
-    if (this.fileExists(this.getFullPathToFile(filename))) {
-      return this.getFilenameWithoutExtension(filename);
-    }
-
     const response = await this.client.speak.request(
       { text },
       {
@@ -83,13 +81,10 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       }
     );
 
-    const writeFile = util.promisify(fs.writeFile);
+    const id = this.getFilenameWithoutExtension(filename);
 
-    const audioBuffer = await getAudioBuffer(await response.getStream());
-
-    await writeFile(this.getFullPathToFile(filename), audioBuffer, "binary");
-
-    return this.getFilenameWithoutExtension(filename);
+    // TODO: Needs testing
+    return { id, stream: await response.getStream() };
   }
 
   static getConfigValidationSchema(): z.Schema {
@@ -104,26 +99,5 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     });
   }
 }
-
-// helper function to convert stream to audio buffer
-const getAudioBuffer = async (response) => {
-  const reader = response.getReader();
-  const chunks = [];
-
-  // eslint-disable-next-line no-loops/no-loops, no-constant-condition
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    chunks.push(value);
-  }
-
-  const dataArray = chunks.reduce(
-    (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
-    new Uint8Array(0)
-  );
-
-  return Buffer.from(dataArray.buffer);
-};
 
 export { Deepgram, ENGINE_NAME };

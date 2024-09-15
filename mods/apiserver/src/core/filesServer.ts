@@ -16,8 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from "fs";
-import { join } from "path";
+import { Readable } from "stream";
 import { getLogger } from "@fonoster/logger";
 import express, { Request, Response } from "express";
 
@@ -25,34 +24,53 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 const CONTENT_TYPE = "audio/L16;rate=16000;channels=1";
 
-function filesServer(params: { pathToFiles: string; port: number }) {
-  const { pathToFiles, port } = params;
+function filesServer(params: { port: number }) {
+  const { port } = params;
   const app = express();
+  const streamMap = new Map<string, Readable>();
 
-  app.get("/sounds/:file", (req: Request, res: Response) => {
-    const filePath = join(pathToFiles, req.params.file);
+  app.get("/sounds/:id", (req: Request, res: Response) => {
+    const idWithoutExtension = req.params.id.split(".")[0];
+    const stream = streamMap.get(idWithoutExtension);
 
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-      if (err) {
-        res.status(404).send("File not found!");
-        return;
-      }
+    if (!stream) {
+      res.status(404).send(`Stream not found for id: ${req.params.id}`);
+      return;
+    }
 
-      res.setHeader("content-type", CONTENT_TYPE);
-      const readStream = fs.createReadStream(filePath);
+    res.setHeader("content-type", CONTENT_TYPE);
 
-      readStream.on("error", (error) => {
-        logger.error(`Error reading file: ${error.message}`);
-        res.status(500).send("Error reading file!");
-      });
-
-      readStream.pipe(res);
+    stream.on("error", (error) => {
+      logger.error(`Error reading file: ${error.message}`);
+      res.status(500).send("Error reading file!");
     });
+
+    stream.on("end", () => {
+      res.end();
+    });
+
+    stream.on("close", () => {
+      res.end();
+    });
+
+    stream.pipe(res);
   });
 
   app.listen(port, () => {
     logger.info(`Files server is running on port ${port}`);
   });
+
+  return {
+    addStream: (id: string, stream: Readable) => {
+      streamMap.set(id, stream);
+    },
+    removeStream: (id: string) => {
+      streamMap.delete(id);
+    },
+    getStream: (id: string) => {
+      return streamMap.get(id);
+    }
+  };
 }
 
 export { filesServer };

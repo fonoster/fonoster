@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Readable } from "stream";
 import { AzureVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as sdk from "microsoft-cognitiveservices-speech-sdk";
@@ -36,6 +37,7 @@ type AzureTTSConfig = TtsConfig & {
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
+// XXX: Must re-implement to provide an id an a Readable stream
 class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   config: AzureTTSConfig;
   pathToFiles: string;
@@ -48,7 +50,10 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.config = config;
   }
 
-  async synthesize(text: string, options: SynthOptions): Promise<string> {
+  async synthesize(
+    text: string,
+    options: SynthOptions
+  ): Promise<{ id: string; stream: Readable }> {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
         text
@@ -61,10 +66,6 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     };
 
     const filename = this.createFilename(text, effectiveOptions);
-
-    if (this.fileExists(this.getFullPathToFile(filename))) {
-      return this.getFilenameWithoutExtension(filename);
-    }
 
     const { subscriptionKey, serviceRegion } = this.config.credentials;
 
@@ -84,7 +85,10 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       isSSML: isSsml(text)
     });
 
-    return this.getFilenameWithoutExtension(filename);
+    const id = this.getFilenameWithoutExtension(filename);
+
+    // TODO: Fix this placeholder
+    return { id, stream: new Readable() };
   }
 
   async doSynthesize(params: {

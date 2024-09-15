@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import * as fs from "fs";
+import { Readable } from "stream";
 import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
 import { computeFilename } from "./computeFilename";
@@ -61,7 +62,10 @@ abstract class AbstractTextToSpeech<
     return `${this.config.pathToFiles}/${filename}`;
   }
 
-  abstract synthesize(text: string, options: S): Promise<string>;
+  abstract synthesize(
+    text: string,
+    options: S
+  ): Promise<{ id: string; stream: Readable }>;
 
   static getConfigValidationSchema(): z.Schema {
     throw new MethodNotImplementedError();

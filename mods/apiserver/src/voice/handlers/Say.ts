@@ -44,14 +44,14 @@ function sayHandler(ari: Client, voiceClient: VoiceClient) {
 
     const playbackRef = request.playbackRef || nanoid(10);
 
-    const filename = await voiceClient.synthesize(
+    const mediaId = await voiceClient.synthesize(
       request.text,
       request.options ? struct.decode(request.options) : {}
     );
 
     await ari.channels.play({
       channelId,
-      media: getMediaUrl(filename),
+      media: getMediaUrl(mediaId),
       playbackId: playbackRef
     });
 

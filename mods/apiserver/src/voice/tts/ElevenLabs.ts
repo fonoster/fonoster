@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
+import { Readable } from "stream";
 import { ElevenLabsVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ElevenLabsClient } from "elevenlabs";
@@ -49,7 +49,10 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     this.engineConfig = config;
   }
 
-  async synthesize(text: string, options: SynthOptions): Promise<string> {
+  async synthesize(
+    text: string,
+    options: SynthOptions
+  ): Promise<{ id: string; stream: Readable }> {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
         text
@@ -65,10 +68,6 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const filename = this.createFilename(text, effectiveOptions);
 
-    if (this.fileExists(this.getFullPathToFile(filename))) {
-      return this.getFilenameWithoutExtension(filename);
-    }
-
     const audioStream = await this.client.generate({
       stream: true,
       voice,
@@ -78,17 +77,13 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       output_format: "pcm_16000"
     });
 
-    const writable = fs.createWriteStream(this.getFullPathToFile(filename), {
-      encoding: "binary"
+    const id = this.getFilenameWithoutExtension(filename);
+
+    audioStream.on("error", (error) => {
+      logger.error(`Error reading file: ${error.message}`);
     });
 
-    await new Promise<void>((resolve, reject) => {
-      audioStream.pipe(writable);
-      writable.on("finish", resolve);
-      writable.on("error", reject);
-    });
-
-    return this.getFilenameWithoutExtension(filename);
+    return { id, stream: audioStream };
   }
 
   static getConfigValidationSchema(): z.Schema {

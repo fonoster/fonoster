@@ -60,7 +60,7 @@ async function runServices() {
   loadServices(server, await services);
 
   // Connecting to Asterisk ARI
-  await connectToAri();
+  await connectToAri(filesServer({ port: FILES_SERVER_PORT }));
 
   // Additional Call Managers subscriber may be added here to handle call events
   await runCallManager({
@@ -69,8 +69,6 @@ async function runServices() {
     ariUsername: ASTERISK_ARI_USERNAME,
     ariPassword: ASTERISK_ARI_SECRET
   });
-
-  filesServer({ pathToFiles: TTS_PATH_TO_FILES, port: FILES_SERVER_PORT });
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {
     healthImpl.setStatus("", GRPC_SERVING_STATUS);

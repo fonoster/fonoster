@@ -82,7 +82,8 @@ describe("@voice/createVoiceClient", function () {
 
     // Act
     const voiceClient = await makeCreateVoiceClient(
-      createContainer as unknown as CreateContainer
+      createContainer as unknown as CreateContainer,
+      null
     )({
       ari: {} as Client,
       event,

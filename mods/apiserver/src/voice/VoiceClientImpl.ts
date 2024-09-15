@@ -58,13 +58,17 @@ class VoiceClientImpl implements VoiceClient {
   asStream: Stream;
   ari: Client;
   bridge: Bridge;
+  filesServer: any;
 
-  constructor(params: {
-    ari: Client;
-    config: VoiceClientConfig;
-    tts: TextToSpeech;
-    stt: SpeechToText;
-  }) {
+  constructor(
+    params: {
+      ari: Client;
+      config: VoiceClientConfig;
+      tts: TextToSpeech;
+      stt: SpeechToText;
+    },
+    filesServer
+  ) {
     const { config, tts, stt, ari } = params;
     this.config = config;
     this.verbsStream = new Stream();
@@ -72,6 +76,7 @@ class VoiceClientImpl implements VoiceClient {
     this.tts = tts;
     this.stt = stt;
     this.ari = ari;
+    this.filesServer = filesServer;
   }
 
   async connect() {
@@ -173,7 +178,9 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async synthesize(text: string, options: SayOptions): Promise<string> {
-    return await this.tts.synthesize(text, options);
+    const { id, stream } = await this.tts.synthesize(text, options);
+    this.filesServer.addStream(id, stream);
+    return id;
   }
 
   async transcribe(): Promise<SpeechResult> {

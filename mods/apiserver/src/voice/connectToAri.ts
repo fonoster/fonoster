@@ -42,7 +42,7 @@ const connection = {
   output: "silent" as const
 };
 
-async function connectToAri() {
+async function connectToAri(filesServer) {
   logger.info("waiting for asterisk server");
   const open = await wait(connection);
   if (open) {
@@ -58,7 +58,7 @@ async function connectToAri() {
 
     ari.on(AriEvent.WEB_SOCKET_MAX_RETRIES, () => {
       logger.error("max retries reconnecting to asterisk");
-      attemptReconnection();
+      attemptReconnection(filesServer);
     });
 
     logger.info("asterisk is ready");
@@ -70,7 +70,7 @@ async function connectToAri() {
     const dispatcher = new VoiceDispatcher(
       ari,
       nats,
-      makeCreateVoiceClient(createContainer)
+      makeCreateVoiceClient(createContainer, filesServer)
     );
 
     dispatcher.start();
@@ -80,10 +80,10 @@ async function connectToAri() {
   }
 }
 
-function attemptReconnection() {
+function attemptReconnection(filesServer) {
   logger.info("attempting to reconnect in 5 seconds...");
   setTimeout(() => {
-    connectToAri();
+    connectToAri(filesServer);
   }, 5000); // Reconnect after 5 seconds
 }
 

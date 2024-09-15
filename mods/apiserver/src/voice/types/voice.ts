@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Stream } from "stream";
+import { Readable, Stream } from "stream";
 import {
   SayOptions,
   StreamContent,
@@ -58,7 +58,7 @@ type TextToSpeech = {
   synthesize: (
     text: string,
     options: Record<string, unknown>
-  ) => Promise<string>;
+  ) => Promise<{ id: string; stream: Readable }>;
 };
 
 type SpeechToText = {
