@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/autopilot",
-  "version": "0.7.21",
+  "version": "0.7.22",
   "description": "Voice AI for the Fonoster platform",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -35,10 +35,10 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@fonoster/common": "^0.7.18",
-    "@fonoster/logger": "^0.7.18",
-    "@fonoster/types": "^0.7.18",
-    "@fonoster/voice": "^0.7.18",
+    "@fonoster/common": "^0.7.22",
+    "@fonoster/logger": "^0.7.22",
+    "@fonoster/types": "^0.7.22",
+    "@fonoster/voice": "^0.7.22",
     "@langchain/community": "^0.2.31",
     "@langchain/core": "^0.2.32",
     "@langchain/groq": "^0.0.17",
