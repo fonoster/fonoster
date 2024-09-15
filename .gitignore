@@ -12,4 +12,5 @@ coverage
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 integrations.json
-assistant.json
+assistant.*
+!assistant.example.json

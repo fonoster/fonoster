@@ -18,8 +18,8 @@
     },
     "vad": {
       "activationThreshold": 0.30,
-      "deactivationThreshold": 0.2,
-      "debounceFrames": 2
+      "deactivationThreshold": 0.15,
+      "debounceFrames": 1
     }
   },
   "languageModel": {

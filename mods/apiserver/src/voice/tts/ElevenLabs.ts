@@ -69,7 +69,8 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       return this.getFilenameWithoutExtension(filename);
     }
 
-    const response = await this.client.generate({
+    const audioStream = await this.client.generate({
+      stream: true,
       voice,
       text,
       // TODO: This should be configurable
@@ -82,7 +83,7 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     });
 
     await new Promise<void>((resolve, reject) => {
-      response.pipe(writable);
+      audioStream.pipe(writable);
       writable.on("finish", resolve);
       writable.on("error", reject);
     });
