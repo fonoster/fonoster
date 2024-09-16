@@ -17,14 +17,13 @@
  * limitations under the License.
  */
 import { Readable } from "stream";
+import { DeepgramClient, createClient } from "@deepgram/sdk";
 import { DeepgramVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { SynthOptions } from "./types";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { DeepgramClient, createClient } = require("@deepgram/sdk");
 
 const ENGINE_NAME = "tts.deepgram";
 
@@ -38,7 +37,7 @@ type DeepgramTtsConfig = {
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
-  client: typeof DeepgramClient;
+  client: DeepgramClient;
   engineConfig: DeepgramTtsConfig;
   readonly engineName = ENGINE_NAME;
   protected readonly OUTPUT_FORMAT = "sln16";
@@ -76,7 +75,11 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const ref = this.createMediaReference();
 
-    return { ref, stream: Readable.from(await response.getStream()) };
+    const stream = Readable.from(
+      (await response.getStream()) as unknown as Iterable<unknown>
+    );
+
+    return { ref, stream };
   }
 
   static getConfigValidationSchema(): z.Schema {
