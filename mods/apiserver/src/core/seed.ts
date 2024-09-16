@@ -89,6 +89,17 @@ async function main() {
       type: "ASSISTANT"
     }
   });
+
+  await prisma.product.upsert({
+    where: { ref: "tts.azure" },
+    update: {},
+    create: {
+      ref: "tts.azure",
+      name: "Azure Text-to-Speech",
+      vendor: "MICROSOFT",
+      type: "TTS"
+    }
+  });
 }
 
 main()
