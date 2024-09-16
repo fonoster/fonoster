@@ -76,8 +76,7 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const ref = this.createMediaReference();
 
-    // TODO: Needs testing
-    return { ref, stream: await response.getStream() };
+    return { ref, stream: Readable.from(await response.getStream()) };
   }
 
   static getConfigValidationSchema(): z.Schema {
