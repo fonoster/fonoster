@@ -78,12 +78,11 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       }
     };
 
-    await this.client.synthesizeSpeech(request);
+    const [response] = await this.client.synthesizeSpeech(request);
 
     const ref = this.createMediaReference();
 
-    // TODO: Fix this placeholder
-    return { ref, stream: new Readable() };
+    return { ref, stream: Readable.from(response.audioContent) };
   }
 
   static getConfigValidationSchema(): z.Schema {
