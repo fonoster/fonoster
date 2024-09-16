@@ -39,7 +39,7 @@
     "type": "tts",
     "credentials": {
       "subscriptionKey": "REDACTED",
-      "region": "eastus"
+      "serviceRegion": "eastus"
     }
   },
   {

@@ -37,7 +37,6 @@ type AzureTTSConfig = {
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-// XXX: Must re-implement to provide an id an a Readable stream
 class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   config: AzureTTSConfig;
   readonly engineName = ENGINE_NAME;
@@ -70,57 +69,46 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     speechConfig.speechSynthesisOutputFormat =
       sdk.SpeechSynthesisOutputFormat.Riff16Khz16BitMonoPcm;
 
-    await this.doSynthesize({
-      text,
-      speechConfig,
-      isSSML: isSsml(text)
-    });
-
-    const ref = this.createMediaReference();
-
-    // TODO: Fix this placeholder
-    return { ref, stream: new Readable() };
-  }
-
-  async doSynthesize(params: {
-    text: string;
-    speechConfig: sdk.SpeechConfig;
-    isSSML?: boolean;
-  }) {
-    const { text, speechConfig } = params;
     const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
+    const isSSML = isSsml(text);
+    const func = isSSML ? "speakSsmlAsync" : "speakTextAsync";
 
-    // FIXME: Let's turn this into constants
-    const func = params.isSSML ? "speakSsmlAsync" : "speakTextAsync";
+    const audioData = await new Promise<Buffer>((resolve, reject) => {
+      const audioChunks: Buffer[] = [];
 
-    return new Promise((resolve, reject) => {
       synthesizer[func](
         text,
-        function (result) {
+        (result) => {
           if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-            resolve("");
+            audioChunks.push(Buffer.from(result.audioData));
+            resolve(Buffer.concat(audioChunks));
           } else {
             reject(
-              new Error("speech synthesis canceled: " + result.errorDetails)
+              new Error("Speech synthesis canceled: " + result.errorDetails)
             );
           }
           synthesizer.close();
         },
-        function (err: string) {
+        (err: string) => {
           synthesizer.close();
           reject(new Error(err));
         }
       );
     });
+
+    const ref = this.createMediaReference();
+    const stream = Readable.from(audioData);
+
+    return { ref, stream };
   }
 
-  getConfigValidationSchema(): z.Schema {
+  static getConfigValidationSchema(): z.Schema {
     return z.object({
       voice: z.nativeEnum(AzureVoice)
     });
   }
 
-  getCredentialsValidationSchema(): z.Schema {
+  static getCredentialsValidationSchema(): z.Schema {
     return z.object({
       subscriptionKey: z.string(),
       serviceRegion: z.string()
