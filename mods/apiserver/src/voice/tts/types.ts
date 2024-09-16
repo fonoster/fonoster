@@ -16,12 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type TtsConfig = {
-  pathToFiles: string;
-};
-
 type SynthOptions = {
   voice: string;
 };
 
-export { SynthOptions, TtsConfig };
+export { SynthOptions };

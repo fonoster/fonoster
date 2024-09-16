@@ -16,20 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
 import { Readable } from "stream";
-import * as util from "util";
 import { GoogleVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
-import { SynthOptions, TtsConfig } from "./types";
+import { SynthOptions } from "./types";
 
 const ENGINE_NAME = "tts.google";
 
-type GoogleTtsConfig = TtsConfig & {
+type GoogleTtsConfig = {
   [key: string]: Record<string, string>;
   credentials: {
     client_email: string;
@@ -49,7 +47,7 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   protected readonly SAMPLE_RATE_HERTZ = 16000;
 
   constructor(config: GoogleTtsConfig) {
-    super(config);
+    super();
     this.client = new TextToSpeechClient(config);
     this.engineConfig = config;
   }
@@ -57,23 +55,16 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   async synthesize(
     text: string,
     options: SynthOptions
-  ): Promise<{ id: string; stream: Readable }> {
+  ): Promise<{ ref: string; stream: Readable }> {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
         text
       )} options: ${JSON.stringify(options)}]`
     );
 
-    const effectiveOptions = {
-      ...this.engineConfig,
-      ...options
-    };
-
     const { voice } = this.engineConfig.config;
 
     const lang = `${voice.split("-")[0]}-${voice.split("-")[1]}`;
-
-    const filename = this.createFilename(text, effectiveOptions);
 
     const request = {
       input: isSsml(text) ? { ssml: text } : { text },
@@ -87,20 +78,12 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       }
     };
 
-    const [response] = await this.client.synthesizeSpeech(request);
+    await this.client.synthesizeSpeech(request);
 
-    const writeFile = util.promisify(fs.writeFile);
-
-    await writeFile(
-      this.getFullPathToFile(filename),
-      response.audioContent,
-      "binary"
-    );
-
-    const id = this.getFilenameWithoutExtension(filename);
+    const ref = this.createMediaReference();
 
     // TODO: Fix this placeholder
-    return { id, stream: new Readable() };
+    return { ref, stream: new Readable() };
   }
 
   static getConfigValidationSchema(): z.Schema {

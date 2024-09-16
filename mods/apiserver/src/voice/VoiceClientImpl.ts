@@ -174,9 +174,9 @@ class VoiceClientImpl implements VoiceClient {
   }
 
   async synthesize(text: string, options: SayOptions): Promise<string> {
-    const { id, stream } = await this.tts.synthesize(text, options);
-    this.filesServer.addStream(id, stream);
-    return id;
+    const { ref, stream } = await this.tts.synthesize(text, options);
+    this.filesServer.addStream(ref, stream);
+    return ref;
   }
 
   async transcribe(): Promise<SpeechResult> {

@@ -25,26 +25,20 @@ import {
   ElevenLabs
 } from "./ElevenLabs";
 import { ENGINE_NAME as GOOGLE_ENGINE_NAME, Google } from "./Google";
-import { TtsConfig } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-type EngineConstructor<T extends TtsConfig = TtsConfig> = new (
-  options: T
-) => AbstractTextToSpeech<string>;
+type EngineConstructor<T> = new (options: T) => AbstractTextToSpeech<string>;
 
 class TextToSpeechFactory {
-  private static engines: Map<string, EngineConstructor> = new Map();
+  private static engines: Map<string, EngineConstructor<unknown>> = new Map();
 
-  static registerEngine<T extends TtsConfig>(
-    name: string,
-    ctor: EngineConstructor<T>
-  ) {
+  static registerEngine<T>(name: string, ctor: EngineConstructor<T>) {
     logger.verbose("registering tts engine", { name });
     this.engines.set(name, ctor);
   }
 
-  static getEngine<T extends TtsConfig>(
+  static getEngine<T>(
     engineName: string,
     config: T
   ): AbstractTextToSpeech<string> {

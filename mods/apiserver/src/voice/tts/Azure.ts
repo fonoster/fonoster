@@ -23,11 +23,11 @@ import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
-import { SynthOptions, TtsConfig } from "./types";
+import { SynthOptions } from "./types";
 
 const ENGINE_NAME = "tts.azure";
 
-type AzureTTSConfig = TtsConfig & {
+type AzureTTSConfig = {
   [key: string]: Record<string, string>;
   credentials: {
     subscriptionKey: string;
@@ -40,32 +40,24 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 // XXX: Must re-implement to provide an id an a Readable stream
 class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   config: AzureTTSConfig;
-  pathToFiles: string;
   readonly engineName = ENGINE_NAME;
   protected readonly OUTPUT_FORMAT = "sln16";
   protected readonly CACHING_FIELDS = ["voice"];
 
   constructor(config: AzureTTSConfig) {
-    super(config);
+    super();
     this.config = config;
   }
 
   async synthesize(
     text: string,
     options: SynthOptions
-  ): Promise<{ id: string; stream: Readable }> {
+  ): Promise<{ ref: string; stream: Readable }> {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
         text
       )} options: ${JSON.stringify(options)}]`
     );
-
-    const effectiveOptions = {
-      ...this.config,
-      ...options
-    };
-
-    const filename = this.createFilename(text, effectiveOptions);
 
     const { subscriptionKey, serviceRegion } = this.config.credentials;
 
@@ -80,26 +72,23 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     await this.doSynthesize({
       text,
-      filename: this.getFullPathToFile(filename),
       speechConfig,
       isSSML: isSsml(text)
     });
 
-    const id = this.getFilenameWithoutExtension(filename);
+    const ref = this.createMediaReference();
 
     // TODO: Fix this placeholder
-    return { id, stream: new Readable() };
+    return { ref, stream: new Readable() };
   }
 
   async doSynthesize(params: {
     text: string;
-    filename: string;
     speechConfig: sdk.SpeechConfig;
     isSSML?: boolean;
   }) {
-    const { text, filename, speechConfig } = params;
-    const audioConfig = sdk.AudioConfig.fromAudioFileOutput(filename);
-    const synthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
+    const { text, speechConfig } = params;
+    const synthesizer = new sdk.SpeechSynthesizer(speechConfig);
 
     // FIXME: Let's turn this into constants
     const func = params.isSSML ? "speakSsmlAsync" : "speakTextAsync";
@@ -109,7 +98,7 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
         text,
         function (result) {
           if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
-            resolve(filename);
+            resolve("");
           } else {
             reject(
               new Error("speech synthesis canceled: " + result.errorDetails)

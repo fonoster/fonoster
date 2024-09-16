@@ -22,13 +22,13 @@ import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
-import { SynthOptions, TtsConfig } from "./types";
+import { SynthOptions } from "./types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { DeepgramClient, createClient } = require("@deepgram/sdk");
 
 const ENGINE_NAME = "tts.deepgram";
 
-type DeepgramTtsConfig = TtsConfig & {
+type DeepgramTtsConfig = {
   [key: string]: Record<string, string>;
   credentials: {
     apiKey: string;
@@ -47,7 +47,7 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   protected readonly SAMPLE_RATE_HERTZ = 16000;
 
   constructor(config: DeepgramTtsConfig) {
-    super(config);
+    super();
     this.client = createClient(config.credentials.apiKey);
     this.engineConfig = config;
   }
@@ -55,21 +55,14 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   async synthesize(
     text: string,
     options: SynthOptions
-  ): Promise<{ id: string; stream: Readable }> {
+  ): Promise<{ ref: string; stream: Readable }> {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
         text
       )} options: ${JSON.stringify(options)}]`
     );
 
-    const effectiveOptions = {
-      ...this.engineConfig,
-      ...options
-    };
-
     const { voice } = this.engineConfig.config;
-
-    const filename = this.createFilename(text, effectiveOptions);
 
     const response = await this.client.speak.request(
       { text },
@@ -81,10 +74,10 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       }
     );
 
-    const id = this.getFilenameWithoutExtension(filename);
+    const ref = this.createMediaReference();
 
     // TODO: Needs testing
-    return { id, stream: await response.getStream() };
+    return { ref, stream: await response.getStream() };
   }
 
   static getConfigValidationSchema(): z.Schema {

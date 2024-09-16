@@ -16,56 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as fs from "fs";
 import { Readable } from "stream";
-import { getLogger } from "@fonoster/logger";
+import { v4 as uuidv4 } from "uuid";
 import * as z from "zod";
-import { computeFilename } from "./computeFilename";
-import { SynthOptions, TtsConfig } from "./types";
+import { SynthOptions } from "./types";
 import { MethodNotImplementedError } from "../errors/MethodNotImplementedError";
 
-const logger = getLogger({ service: "apiserver", filePath: __filename });
-
-abstract class AbstractTextToSpeech<
-  E,
-  T extends TtsConfig = TtsConfig,
-  S extends SynthOptions = SynthOptions
-> {
+abstract class AbstractTextToSpeech<E, S extends SynthOptions = SynthOptions> {
   abstract readonly engineName: E;
   protected abstract OUTPUT_FORMAT: "wav" | "sln16";
   protected abstract CACHING_FIELDS: string[];
-  config: T;
-
-  constructor(config: T) {
-    logger.silly("tts pathToFiles", { engine: config.pathToFiles });
-    this.config = config;
-  }
-
-  protected createFilename(text: string, options: SynthOptions): string {
-    return computeFilename({
-      text,
-      options,
-      cachingFields: this.CACHING_FIELDS,
-      format: this.OUTPUT_FORMAT
-    });
-  }
-
-  protected fileExists(filename: string): boolean {
-    return fs.existsSync(filename);
-  }
-
-  protected getFilenameWithoutExtension(filename: string): string {
-    return filename.replace(`.${this.OUTPUT_FORMAT}`, "");
-  }
-
-  protected getFullPathToFile(filename: string): string {
-    return `${this.config.pathToFiles}/${filename}`;
-  }
 
   abstract synthesize(
     text: string,
     options: S
-  ): Promise<{ id: string; stream: Readable }>;
+  ): Promise<{ ref: string; stream: Readable }>;
 
   static getConfigValidationSchema(): z.Schema {
     throw new MethodNotImplementedError();
@@ -73,6 +38,10 @@ abstract class AbstractTextToSpeech<
 
   static getCredentialsValidationSchema(): z.Schema {
     throw new MethodNotImplementedError();
+  }
+
+  protected createMediaReference(): string {
+    return uuidv4();
   }
 
   getName(): E {

@@ -23,11 +23,11 @@ import { ElevenLabsClient } from "elevenlabs";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
-import { SynthOptions, TtsConfig } from "./types";
+import { SynthOptions } from "./types";
 
 const ENGINE_NAME = "tts.elevenlabs";
 
-type ElevenLabsTtsConfig = TtsConfig & {
+type ElevenLabsTtsConfig = {
   [key: string]: Record<string, string>;
   credentials: {
     apiKey: string;
@@ -44,7 +44,7 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   protected readonly CACHING_FIELDS = ["voice", "text"];
 
   constructor(config: ElevenLabsTtsConfig) {
-    super(config);
+    super();
     this.client = new ElevenLabsClient(config.credentials);
     this.engineConfig = config;
   }
@@ -52,21 +52,14 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
   async synthesize(
     text: string,
     options: SynthOptions
-  ): Promise<{ id: string; stream: Readable }> {
+  ): Promise<{ ref: string; stream: Readable }> {
     logger.verbose(
       `synthesize [input: ${text}, isSsml=${isSsml(
         text
       )} options: ${JSON.stringify(options)}]`
     );
 
-    const effectiveOptions = {
-      ...this.engineConfig,
-      ...options
-    };
-
     const { voice } = this.engineConfig.config;
-
-    const filename = this.createFilename(text, effectiveOptions);
 
     const audioStream = await this.client.generate({
       stream: true,
@@ -77,13 +70,13 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       output_format: "pcm_16000"
     });
 
-    const id = this.getFilenameWithoutExtension(filename);
+    const ref = this.createMediaReference();
 
     audioStream.on("error", (error) => {
       logger.error(`Error reading file: ${error.message}`);
     });
 
-    return { id, stream: audioStream };
+    return { ref, stream: audioStream };
   }
 
   static getConfigValidationSchema(): z.Schema {
