@@ -6,6 +6,7 @@
     "declaration": true,
     "noImplicitAny": false,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "module": "commonjs",
     "target": "es6",
     "moduleResolution": "node",
