@@ -1,3 +1,4 @@
+/* eslint-disable no-loops/no-loops */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -23,7 +24,9 @@ import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
+import { streamToBuffer } from "./streamToBuffer";
 import { SynthOptions } from "./types";
+import { textChunkTextByClause } from "../handlers/utils/textChunksByClause";
 
 const ENGINE_NAME = "tts.deepgram";
 
@@ -62,7 +65,47 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     );
 
     const { voice } = this.engineConfig.config;
+    const ref = this.createMediaReference();
+    const chunks = textChunkTextByClause(text);
+    const stream = new Readable({ read() {} });
 
+    const results = new Array(chunks.length);
+    let nextIndexToPush = 0;
+
+    function observeQueue() {
+      if (
+        nextIndexToPush < results.length &&
+        results[nextIndexToPush] !== undefined
+      ) {
+        stream.push(results[nextIndexToPush]);
+        nextIndexToPush++;
+        setImmediate(observeQueue);
+      } else if (nextIndexToPush < results.length) {
+        setTimeout(observeQueue, 10);
+      } else {
+        stream.push(null);
+      }
+    }
+
+    observeQueue();
+
+    chunks.forEach((text, index) => {
+      this.doSynthesize(text, voice as DeepgramVoice)
+        .then((synthesizedText) => {
+          results[index] = synthesizedText;
+        })
+        .catch((error) => {
+          stream.emit("error", error);
+        });
+    });
+
+    return { ref, stream };
+  }
+
+  private async doSynthesize(
+    text: string,
+    voice: DeepgramVoice
+  ): Promise<Readable> {
     const response = await this.client.speak.request(
       { text },
       {
@@ -73,13 +116,9 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
       }
     );
 
-    const ref = this.createMediaReference();
-
-    const stream = Readable.from(
-      (await response.getStream()) as unknown as Iterable<unknown>
-    );
-
-    return { ref, stream };
+    return (await streamToBuffer(
+      await response.getStream()
+    )) as unknown as Readable;
   }
 
   static getConfigValidationSchema(): z.Schema {
