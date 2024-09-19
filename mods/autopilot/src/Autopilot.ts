@@ -67,7 +67,6 @@ class Autopilot {
   stop() {
     logger.verbose("stopping autopilot");
     this.actor.stop();
-    this.vadWorker.terminate();
   }
 
   private async setupVoiceStream() {
