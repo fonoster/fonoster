@@ -17,9 +17,33 @@
  * limitations under the License.
  */
 import { z } from "zod";
+import { nameSchema } from "../common";
 
-const createAgentRequestSchema = z.object({});
+const POSITIVE_NUMBER_MESSAGE = "Must be a positive number";
 
-const updateAgentRequestSchema = z.object({});
+const usernameSchema = z.string().regex(/^[a-z0-9]+$/, {
+  message: "Must be a lowercase string without special characters or spaces"
+});
+
+const createAgentRequestSchema = z.object({
+  name: nameSchema,
+  username: usernameSchema,
+  enabled: z.boolean().optional(),
+  maxContacts: z
+    .number()
+    .positive({ message: POSITIVE_NUMBER_MESSAGE })
+    .optional(),
+  expires: z.number().positive({ message: POSITIVE_NUMBER_MESSAGE }).optional()
+});
+
+const updateAgentRequestSchema = z.object({
+  name: nameSchema.optional(),
+  enabled: z.boolean().optional(),
+  maxContacts: z
+    .number()
+    .positive({ message: POSITIVE_NUMBER_MESSAGE })
+    .optional(),
+  expires: z.number().positive({ message: POSITIVE_NUMBER_MESSAGE }).optional()
+});
 
 export { createAgentRequestSchema, updateAgentRequestSchema };
