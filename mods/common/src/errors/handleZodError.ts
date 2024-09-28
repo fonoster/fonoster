@@ -36,7 +36,7 @@ function handleZodError(
     const validationError = fromError(error, {
       prefix: null
     });
-    logger.error("Error: ", { message: validationError.toString() });
+    logger.error("Error:", { message: validationError.toString() });
     callback({
       code: status.INVALID_ARGUMENT,
       message: validationError.toString()

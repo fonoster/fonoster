@@ -28,7 +28,7 @@ function createDomainsTestCases(expect) {
         method: "createDomain",
         request: {
           name: "My Domain",
-          domainUri: `mydomain${Math.floor(Math.random() * 1000000)}.com`
+          domainUri: `mydomain${Math.floor(Math.random() * 1000000)}.fonoster.local`
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");

@@ -17,16 +17,16 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { nameField } from "../common";
+import { nameSchema } from "../common";
 
 const createCredentialsRequestSchema = z.object({
-  name: nameField,
+  name: nameSchema,
   username: z.string(),
   password: z.string()
 });
 
 const updateCredentialsRequestSchema = z.object({
-  name: nameField
+  name: nameSchema
 });
 
 export { createCredentialsRequestSchema, updateCredentialsRequestSchema };

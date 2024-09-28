@@ -18,7 +18,7 @@
  */
 import * as Validator from "validator";
 import { z } from "zod";
-import { nameField } from "../common";
+import { nameSchema } from "../common";
 
 const ipOrCidr = z
   .string()
@@ -30,7 +30,7 @@ const ipOrCidr = z
   );
 
 const createAclRequestSchema = z.object({
-  name: nameField,
+  name: nameSchema,
   allow: z
     .array(ipOrCidr)
     .nonempty({ message: "At least one IP or CIDR is required" }),
@@ -40,7 +40,7 @@ const createAclRequestSchema = z.object({
 });
 
 const updateAclRequestSchema = z.object({
-  name: nameField,
+  name: nameSchema,
   allow: z.array(ipOrCidr).optional(),
   deny: z.array(ipOrCidr).optional()
 });

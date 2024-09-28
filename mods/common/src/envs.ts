@@ -16,19 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { z } from "zod";
+import { join } from "path";
+import dotenv from "dotenv";
 
-const baseApiObjectSchema = z.object({
-  ref: z.string()
-});
+if (process.env.NODE_ENV === "dev") {
+  dotenv.config({ path: join(__dirname, "..", "..", "..", ".env") });
+}
 
-const listRequestSchema = z
-  .object({
-    pageSize: z.number().optional(),
-    pageToken: z.string().optional()
-  })
-  .optional();
+const e = process.env;
 
-const nameSchema = z.string().min(1, { message: "Value required" });
-
-export { baseApiObjectSchema, listRequestSchema, nameSchema };
+export const ROOT_DOMAIN = e.ROOT_DOMAIN || "fonoster.local";
