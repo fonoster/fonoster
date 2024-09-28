@@ -21,13 +21,14 @@ import { nameSchema } from "../common";
 
 const POSITIVE_NUMBER_MESSAGE = "Must be a positive number";
 
-const usernameSchema = z.string().regex(/^[a-z0-9]+$/, {
-  message: "Must be a lowercase string without special characters or spaces"
+const usernameSchema = z.string().regex(/^[a-z0-9._-]+$/, {
+  message: "Must be a lowercase string and with no spaces"
 });
 
 const createAgentRequestSchema = z.object({
   name: nameSchema,
   username: usernameSchema,
+  privacy: z.enum(["PRIVATE", "NONE"]).optional(),
   enabled: z.boolean().optional(),
   maxContacts: z
     .number()
@@ -38,6 +39,7 @@ const createAgentRequestSchema = z.object({
 
 const updateAgentRequestSchema = z.object({
   name: nameSchema.optional(),
+  privacy: z.enum(["PRIVATE", "NONE"]).optional(),
   enabled: z.boolean().optional(),
   maxContacts: z
     .number()
