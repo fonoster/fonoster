@@ -43,7 +43,15 @@ function handleError(
     logMessage: string
   ) => {
     logger.error(logMessage, { message: errorMessage });
-    callback({ code: errorCode, message: errorMessage });
+
+    const messageParts = errorMessage.split(":");
+    let effectiveErrorMessage = errorMessage;
+
+    if (errorCode === status.NOT_FOUND && messageParts.length > 1) {
+      effectiveErrorMessage = `Resource not found: ${messageParts[messageParts.length - 1].trim()}`;
+    }
+
+    callback({ code: errorCode, message: effectiveErrorMessage });
   };
 
   switch (code) {

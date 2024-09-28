@@ -27,7 +27,7 @@ function createGetFnUtil(prisma: Prisma) {
     });
 
     if (!response) {
-      throw notFoundError(`Secret not found: ${ref}`);
+      throw notFoundError(`Resource not found: ${ref}`);
     }
 
     return datesMapper({

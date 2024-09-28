@@ -43,7 +43,7 @@ describe("@sipnet[resources/listResources]", function () {
     const domain = {
       ref: "123",
       name: "SIP Local",
-      domainUri: "sip.local",
+      domainUri: "sip.fonoster.local",
       metadata: {
         description: "test"
       },

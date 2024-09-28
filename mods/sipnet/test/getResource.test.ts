@@ -42,7 +42,7 @@ describe("@sipnet[resources/getResource]", function () {
     const domain = {
       ref: "123",
       name: "SIP Local",
-      domainUri: "sip.local",
+      domainUri: "sip.fonoster.local",
       extended: {
         accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p"
       },

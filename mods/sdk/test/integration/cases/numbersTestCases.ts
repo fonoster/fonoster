@@ -19,7 +19,7 @@
 function createNumbersTestCases(expect) {
   const idBase = "numbers";
   const country = "United States";
-  const agentAor = "sip:1001@sip.local";
+  const agentAor = "sip:1001@sip.fonoster.local";
 
   return {
     api: "Numbers",

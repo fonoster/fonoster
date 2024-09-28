@@ -50,7 +50,7 @@ describe("@sipnet[resources/createResource]", function () {
       metadata,
       request: {
         name: "My Domain",
-        domainUri: "sip.local",
+        domainUri: "sip.fonoster.local",
         accessControlListRef: "123",
         egressPolicies: [],
         extended: {
@@ -92,7 +92,7 @@ describe("@sipnet[resources/createResource]", function () {
       metadata,
       request: {
         name: "My Domain",
-        domainUri: "sip.local",
+        domainUri: "sip.fonoster.local",
         accessControlListRef: "123",
         egressPolicies: []
       }

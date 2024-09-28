@@ -101,7 +101,7 @@ describe("@secrets/getSecret", function () {
       // Assert
       expect(error).to.deep.equal({
         code: grpc.status.NOT_FOUND,
-        message: `Secret not found: ${call.request.ref}`
+        message: `Resource not found: ${call.request.ref}`
       });
     });
   });
