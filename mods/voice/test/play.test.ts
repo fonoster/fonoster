@@ -71,6 +71,6 @@ describe("@voice/verbs/play", function () {
 
     // Assert
     // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Validation error: Required at \"url\"");
+    return expect(promise).to.be.rejectedWith("Required at \"url\"");
   });
 });

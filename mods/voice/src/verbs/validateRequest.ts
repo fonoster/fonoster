@@ -23,7 +23,9 @@ export function validateRequest<T>(schema: z.Schema<T>, data: unknown): T {
   const parsedData = schema.safeParse(data);
 
   if (!parsedData.success) {
-    throw fromError(parsedData.error);
+    throw fromError(parsedData.error, {
+      prefix: null
+    });
   }
 
   return parsedData.data;

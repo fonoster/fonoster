@@ -156,7 +156,7 @@ describe("@sipnet[sipnet/createNumber]", function () {
     expect(callback).to.have.been.calledOnceWithExactly({
       code: grpc.status.INVALID_ARGUMENT,
       // eslint-disable-next-line prettier/prettier
-      message: "Validation error: Invalid SIP URI at \"agentAor\""
+      message: "Invalid SIP URI at \"agentAor\""
     });
   });
 

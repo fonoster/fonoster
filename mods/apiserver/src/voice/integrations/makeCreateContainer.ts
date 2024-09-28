@@ -50,7 +50,7 @@ function makeCreateContainer(prisma: Prisma, pathToIntegrations: string) {
     integrationsConfigSchema.parse(integrations);
   } catch (e) {
     // fatal error
-    const message = fromError(e);
+    const message = fromError(e, { prefix: null }).toString();
     logger.error("integrations config is invalid", { message });
     process.exit(1);
   }

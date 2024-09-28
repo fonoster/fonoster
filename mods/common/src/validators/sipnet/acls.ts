@@ -16,10 +16,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as Validator from "validator";
 import { z } from "zod";
+import { nameField } from "../common";
 
-const createAclRequestSchema = z.object({});
+const ipOrCidr = z
+  .string()
+  .refine(
+    (value) => Validator.isIP(value, 4) || Validator.isIPRange(value, 4),
+    {
+      message: "Must be a valid IP or CIDR range"
+    }
+  );
 
-const updateAclRequestSchema = z.object({});
+const createAclRequestSchema = z.object({
+  name: nameField,
+  allow: z
+    .array(ipOrCidr)
+    .nonempty({ message: "At least one IP or CIDR is required" }),
+  deny: z
+    .array(ipOrCidr)
+    .nonempty({ message: "At least one IP or CIDR is required" })
+});
+
+const updateAclRequestSchema = z.object({
+  name: nameField,
+  allow: z.array(ipOrCidr).optional(),
+  deny: z.array(ipOrCidr).optional()
+});
 
 export { createAclRequestSchema, updateAclRequestSchema };

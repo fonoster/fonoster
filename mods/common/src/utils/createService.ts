@@ -31,6 +31,7 @@ const loadOptions = {
   longs: String,
   enums: String,
   defaults: false,
+  arrays: true,
   oneofs: true
 };
 

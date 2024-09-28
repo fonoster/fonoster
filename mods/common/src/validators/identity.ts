@@ -44,7 +44,7 @@ const exchangeApiKeysRequestSchema = z.object({
 });
 
 const exchangeCredentialsRequestSchema = z.object({
-  username: z.string().email("Invalid username, must be an email address"),
+  username: z.string().email("Invalid username. Must be an email address"),
   password: z.string()
 });
 

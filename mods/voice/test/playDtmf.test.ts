@@ -73,6 +73,6 @@ describe("@voice/verbs/playDtmf", function () {
 
     // Assert
     // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Validation error: Required at \"digits\"");
+    return expect(promise).to.be.rejectedWith("Required at \"digits\"");
   });
 });

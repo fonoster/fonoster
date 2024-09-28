@@ -29,4 +29,6 @@ const listRequestSchema = z
   })
   .optional();
 
-export { baseApiObjectSchema, listRequestSchema };
+const nameField = z.string().min(1, { message: "Name is required" });
+
+export { baseApiObjectSchema, listRequestSchema, nameField };

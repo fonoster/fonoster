@@ -33,8 +33,10 @@ function handleZodError(
     logger.error("custom validation error", { message });
     callback({ code: status.INVALID_ARGUMENT, message });
   } else {
-    const validationError = fromError(error);
-    logger.error("validation error", { message: validationError.toString() });
+    const validationError = fromError(error, {
+      prefix: null
+    });
+    logger.error("Error: ", { message: validationError.toString() });
     callback({
       code: status.INVALID_ARGUMENT,
       message: validationError.toString()

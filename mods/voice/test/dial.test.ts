@@ -113,6 +113,6 @@ describe("@voice/verbs/dial", function () {
 
     // Assert
     // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Validation error: Required at \"destination\"");
+    return expect(promise).to.be.rejectedWith("Required at \"destination\"");
   });
 });

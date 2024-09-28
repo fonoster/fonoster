@@ -115,7 +115,7 @@ describe("@identity[workspaces/createWorkspace]", function () {
         code: grpc.status.INVALID_ARGUMENT,
         message:
           // eslint-disable-next-line prettier/prettier
-          "Validation error: The name is required at \"name\""
+          "The name is required at \"name\""
       });
     });
   });

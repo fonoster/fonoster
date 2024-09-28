@@ -31,8 +31,10 @@ function withErrorHandling(fn: VerbHandler) {
       return await fn(request);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        const validationError = fromError(err);
-        logger.error("Validation error:", {
+        const validationError = fromError(err, {
+          prefix: null
+        });
+        logger.error("Error:", {
           message: validationError.toString()
         });
       } else if (
