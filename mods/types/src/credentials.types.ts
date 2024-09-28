@@ -35,7 +35,6 @@ type CreateCredentialsRequest = {
   name: string;
   username: string;
   password: string;
-  extended?: Record<string, unknown>;
 };
 
 type CreateCredentialsRequestExtended = CreateCredentialsRequest & {
