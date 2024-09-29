@@ -18,6 +18,7 @@
  */
 import isISO31661Alpha2 from "validator/lib/isISO31661Alpha2";
 import { z } from "zod";
+import { nameSchema } from "../common";
 
 const sipUriRegex = /^sip:[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+$/;
 const sipUriSchema = z.string().regex(sipUriRegex, "Invalid SIP URI");
@@ -28,6 +29,10 @@ const countryIsoCodeSchema = z.string().refine((val) => isISO31661Alpha2(val), {
 
 const createNumberRequestSchema = z
   .object({
+    name: nameSchema,
+    telUrl: z.string(),
+    city: z.string(),
+    country: z.string(),
     agentAor: sipUriSchema.optional(),
     appRef: z.string().optional(),
     countryIsoCode: countryIsoCodeSchema
@@ -42,6 +47,7 @@ const createNumberRequestSchema = z
 
 const updateNumberRequestSchema = z
   .object({
+    name: nameSchema.optional(),
     agentAor: sipUriSchema.optional(),
     appRef: z.string().optional()
   })

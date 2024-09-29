@@ -95,6 +95,7 @@ export {
   CreateTrunkRequestExtended,
   ListTrunksRequest,
   ListTrunksResponse,
+  Transport,
   Trunk,
   TrunkApi,
   TrunkExtended,

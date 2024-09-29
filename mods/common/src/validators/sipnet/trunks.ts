@@ -16,9 +16,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Transport } from "@fonoster/types";
+import * as Validator from "validator";
 import { z } from "zod";
+import { nameSchema } from "../common";
 
-const createTrunkRequestSchema = z.object({});
+const hostOrIPSchema = z
+  .string()
+  .refine((host) => Validator.isIP(host, 4) || Validator.isFQDN(host), {
+    message: "Must be a valid IP or FQDN"
+  });
+
+const createTrunkRequestSchema = z.object({
+  name: nameSchema,
+  sendRegister: z.boolean(),
+  inboundUri: hostOrIPSchema,
+  uris: z.array(
+    z.object({
+      host: hostOrIPSchema,
+      port: z.number(),
+      transport: z.nativeEnum(Transport),
+      user: z.string(),
+      weight: z.number(),
+      priority: z.number(),
+      enabled: z.boolean()
+    })
+  )
+});
 
 const updateTrunkRequestSchema = z.object({});
 
