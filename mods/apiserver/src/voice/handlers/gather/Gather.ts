@@ -25,7 +25,7 @@ import { withErrorHandling } from "../utils/withErrorHandling";
 
 const gatherRequestSchema = z.object({
   source: z.optional(z.nativeEnum(GatherSource)),
-  maxDigits: z.number().optional().nullable(),
+  maxDigits: z.number().optional(),
   finishOnKey: z
     .string()
     .regex(/^[0-9*#]$/) // Ensure it's a valid DTMF character

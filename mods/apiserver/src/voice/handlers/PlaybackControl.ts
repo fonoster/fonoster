@@ -27,7 +27,7 @@ import { VoiceClient } from "../types";
 
 const requestSchema = z.object({
   sessionRef: z.string(),
-  playbackRef: z.string().optional().nullable(),
+  playbackRef: z.string().optional(),
   action: z.nativeEnum(PlaybackControlAction)
 });
 

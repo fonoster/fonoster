@@ -29,8 +29,8 @@ import { VoiceClient } from "../types";
 const sayRequestSchema = z.object({
   text: z.string(),
   sessionRef: z.string(),
-  playbackRef: z.string().optional().nullable(),
-  options: z.record(z.unknown()).optional().nullable()
+  playbackRef: z.string().optional(),
+  options: z.record(z.unknown()).optional()
 });
 
 const getMediaUrl = (filename: string) =>
