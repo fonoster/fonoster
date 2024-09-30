@@ -16,17 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Messages, PlayRequest } from "@fonoster/common";
-import { z } from "zod";
-import { Verb } from "./Verb";
-
-class Play extends Verb<PlayRequest> {
-  getValidationSchema(): z.Schema {
-    return z.object({
-      url: z.string().url({ message: "Must be a valid URL" }),
-      playbackRef: z.string().uuid({ message: Messages.VALID_UUID }).optional()
-    });
-  }
-}
-
-export { Play };
+export const MUST_BE_A_SINGLE_CHARACTER = "Must be a single character";
+export const MUST_BE_A_STRING = "Must be a string";
+export const POSITIVE_INTEGER_MESSAGE = "Must be a positive number";
+export const VALID_DTMF = "Must be a valid DTMF";
+export const VALID_UUID = "Must be a valid UUID";

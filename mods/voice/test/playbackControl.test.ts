@@ -45,7 +45,7 @@ describe("@voice/verbs/playbackControl", function () {
 
     const playbackControlRequest: PlaybackControlRequest = {
       sessionRef,
-      playbackRef: "playback-01",
+      playbackRef: "848b8803-7106-48b7-b820-515b05c40d6b",
       action: PlaybackControlAction.STOP
     };
 

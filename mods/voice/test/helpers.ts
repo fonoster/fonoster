@@ -20,7 +20,7 @@ import { SinonSandbox } from "sinon";
 import { CallDirection } from "../../apiserver/src/calls/types";
 import { VoiceRequest } from "../src";
 
-const sessionRef = "00000000-0000-0000-0000-000000000000";
+const sessionRef = "848b8803-7106-48b7-b820-515b05c40d6b";
 
 const voiceRequest: VoiceRequest = {
   appRef: "3861b08b-1602-45e4-b523-dc3036ba85e7",

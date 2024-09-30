@@ -44,7 +44,7 @@ describe("@voice/verbs/play", function () {
     const sayRequest: SayRequest = {
       sessionRef,
       text: "Hello World",
-      playbackRef: "playback-02",
+      playbackRef: "848b8803-7106-48b7-b820-515b05c40d6b",
       options: struct.encode({
         voice: "en-US-Wavenet-D",
         pitch: 100,

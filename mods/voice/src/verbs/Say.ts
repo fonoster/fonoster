@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SayRequest } from "@fonoster/common";
+import { Messages, SayRequest } from "@fonoster/common";
 import { z } from "zod";
 import { Verb } from "./Verb";
 
@@ -24,7 +24,7 @@ class Say extends Verb<SayRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
       text: z.string().min(1),
-      playbackRef: z.string().optional()
+      playbackRef: z.string().uuid({ message: Messages.VALID_UUID }).optional()
     });
   }
 }

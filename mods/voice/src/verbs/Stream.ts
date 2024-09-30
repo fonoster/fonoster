@@ -18,6 +18,7 @@
  */
 import { Stream as StreamObj } from "stream";
 import {
+  Messages,
   StartStreamRequest,
   StopStreamRequest,
   StreamAudioFormat,
@@ -30,8 +31,8 @@ import { Verb } from "./Verb";
 class StartStream extends Verb<StartStreamRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      direction: z.nativeEnum(StreamDirection).optional().nullable(),
-      format: z.nativeEnum(StreamAudioFormat).optional().nullable()
+      direction: z.nativeEnum(StreamDirection).optional(),
+      format: z.nativeEnum(StreamAudioFormat).optional()
     });
   }
 }
@@ -39,7 +40,7 @@ class StartStream extends Verb<StartStreamRequest> {
 class StopStream extends Verb<StopStreamRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      streamRef: z.string()
+      streamRef: z.string().uuid({ message: Messages.VALID_UUID })
     });
   }
 }

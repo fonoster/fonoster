@@ -16,20 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { RecordRequest } from "@fonoster/common";
+import { Messages, RecordRequest } from "@fonoster/common";
 import { z } from "zod";
 import { Verb } from "./Verb";
 
 class Record extends Verb<RecordRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      maxDuration: z.number().int().positive().optional(),
-      maxSilence: z.number().int().positive().optional(),
+      maxDuration: z
+        .number()
+        .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .optional(),
+      maxSilence: z
+        .number()
+        .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .optional(),
       beep: z.boolean().optional(),
       finishOnKey: z
         .string()
-        .regex(/^[0-9*#]+$/)
-        .length(1)
+        .regex(/^[0-9*#]+$/, { message: Messages.VALID_DTMF })
+        .length(1, {
+          message: Messages.MUST_BE_A_SINGLE_CHARACTER
+        })
         .optional()
     });
   }

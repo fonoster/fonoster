@@ -16,14 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PlayDtmfRequest } from "@fonoster/common";
+import { Messages, PlayDtmfRequest } from "@fonoster/common";
 import { z } from "zod";
 import { Verb } from "./Verb";
 
 class PlayDtmf extends Verb<PlayDtmfRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      digits: z.string().regex(/^[0-9*#]+$/)
+      digits: z.string().regex(/^[0-9*#]+$/, { message: Messages.VALID_DTMF })
     });
   }
 }

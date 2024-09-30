@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GatherRequest, GatherSource } from "@fonoster/common";
+import { GatherRequest, GatherSource, Messages } from "@fonoster/common";
 import { z } from "zod";
 import { Verb } from "./Verb";
 
@@ -26,11 +26,25 @@ class Gather extends Verb<GatherRequest> {
       source: z.nativeEnum(GatherSource).optional(),
       finishOnKey: z
         .string()
-        .regex(/^[0-9*#]+$/)
-        .length(1)
+        .regex(/^[0-9*#]+$/, { message: Messages.VALID_DTMF })
+        .length(1, { message: Messages.MUST_BE_A_SINGLE_CHARACTER })
         .optional(),
-      timeout: z.number().int().positive().optional(),
-      maxDigits: z.number().int().positive().optional()
+      timeout: z
+        .number()
+        .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .optional(),
+      maxDigits: z
+        .number({
+          message: Messages.POSITIVE_INTEGER_MESSAGE
+        })
+        .int({
+          message: Messages.POSITIVE_INTEGER_MESSAGE
+        })
+        .positive({
+          message: Messages.POSITIVE_INTEGER_MESSAGE
+        })
+        .optional()
     });
   }
 }
