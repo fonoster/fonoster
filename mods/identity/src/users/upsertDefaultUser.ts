@@ -18,13 +18,17 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
+import { fromError } from "zod-validation-error";
 import { prisma } from "../db";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
 const createUserRequestSchema = z.object({
-  name: z.string().min(3).max(50),
-  email: z.string().email(),
+  name: z
+    .string()
+    .min(3, { message: "Name must be at least 3 characters long" })
+    .max(50, { message: "Name must be at most 50 characters long" }),
+  email: z.string().email({ message: "Must be a valid email" }),
   password: z.string().min(8).max(50).or(z.string().optional().nullable())
 });
 
@@ -75,7 +79,13 @@ async function upsertDefaultUser(request: CreateUserRequest) {
       }
     });
   } catch (error) {
-    logger.error("error on upsertDefaultUser", { error });
+    if (error instanceof z.ZodError) {
+      logger.error("validation error on upsertDefaultUser", {
+        error: fromError(error, { prefix: null }).toString()
+      });
+    } else {
+      logger.error("error on upsertDefaultUser", { error });
+    }
     process.exit(1);
   }
 }
