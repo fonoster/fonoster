@@ -26,9 +26,9 @@ const logger = getLogger({ service: "identity", filePath: __filename });
 const createUserRequestSchema = z.object({
   name: z
     .string()
-    .min(3, { message: "Name must be at least 3 characters long" })
-    .max(50, { message: "Name must be at most 50 characters long" }),
-  email: z.string().email({ message: "Must be a valid email" }),
+    .min(3, { message: "Name must be at least 3 characters long." })
+    .max(50, { message: "Name must be at most 50 characters long." }),
+  email: z.string().email({ message: "Must be a valid email." }),
   password: z.string().min(8).max(50).or(z.string().optional().nullable())
 });
 
