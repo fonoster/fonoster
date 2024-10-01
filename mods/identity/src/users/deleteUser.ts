@@ -53,7 +53,7 @@ function deleteUser(prisma: Prisma) {
     callback(null, { ref });
   };
 
-  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
+  return withErrorHandlingAndValidation(fn, V.emptySchema);
 }
 
 export { deleteUser };

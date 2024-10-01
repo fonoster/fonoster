@@ -27,8 +27,12 @@ import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
 
 const streamRequestSchema = z.object({
-  direction: z.nativeEnum(StreamDirection).optional(),
-  format: z.nativeEnum(StreamAudioFormat).optional()
+  direction: z
+    .nativeEnum(StreamDirection, { message: "Invalid stream direction" })
+    .optional(),
+  format: z
+    .nativeEnum(StreamAudioFormat, { message: "Invalid stream audio format" })
+    .optional()
 });
 
 function streamHandler(voiceClient: VoiceClient) {

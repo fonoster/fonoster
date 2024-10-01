@@ -42,7 +42,7 @@ function getApplication(prisma: Prisma) {
   return withErrorHandlingAndValidationAndAccess(
     fn,
     (ref: string) => getFn(ref),
-    V.baseApiObjectSchema
+    V.emptySchema
   );
 }
 

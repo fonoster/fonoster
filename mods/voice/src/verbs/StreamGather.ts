@@ -30,7 +30,11 @@ import { Verb } from "./Verb";
 class StartStreamGather extends Verb<StartStreamGatherRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      source: z.optional(z.nativeEnum(StreamGatherSource))
+      source: z.optional(
+        z.nativeEnum(StreamGatherSource, {
+          message: "Invalid stream gather source."
+        })
+      )
     });
   }
 }

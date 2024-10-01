@@ -53,7 +53,7 @@ function deleteWorkspace(prisma: Prisma) {
     callback(null, { ref });
   };
 
-  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
+  return withErrorHandlingAndValidation(fn, V.emptySchema);
 }
 
 export { deleteWorkspace };

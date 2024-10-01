@@ -23,7 +23,9 @@ import { Verb } from "./Verb";
 class Gather extends Verb<GatherRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      source: z.nativeEnum(GatherSource).optional(),
+      source: z.nativeEnum(GatherSource, {
+        message: "Invalid gather source."
+      }),
       finishOnKey: z
         .string()
         .regex(/^[0-9*#]+$/, { message: Messages.VALID_DTMF })

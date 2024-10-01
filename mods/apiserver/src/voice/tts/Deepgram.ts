@@ -123,7 +123,7 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      voice: z.nativeEnum(DeepgramVoice)
+      voice: z.nativeEnum(DeepgramVoice, { message: "Invalid Deepgram voice" })
     });
   }
 

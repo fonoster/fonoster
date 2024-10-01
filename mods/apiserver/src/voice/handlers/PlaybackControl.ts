@@ -28,7 +28,9 @@ import { VoiceClient } from "../types";
 const requestSchema = z.object({
   sessionRef: z.string(),
   playbackRef: z.string().optional(),
-  action: z.nativeEnum(PlaybackControlAction)
+  action: z.nativeEnum(PlaybackControlAction, {
+    message: "Invalid playback control action."
+  })
 });
 
 function playbackControlHandler(ari: Client, voiceClient: VoiceClient) {

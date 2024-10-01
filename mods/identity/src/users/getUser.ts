@@ -65,7 +65,7 @@ function getUser(prisma: Prisma) {
     callback(null, datesMapper(user));
   };
 
-  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
+  return withErrorHandlingAndValidation(fn, V.emptySchema);
 }
 
 export { getUser };

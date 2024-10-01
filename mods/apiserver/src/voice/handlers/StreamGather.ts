@@ -22,7 +22,11 @@ import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
 
 const gatherRequestSchema = z.object({
-  source: z.optional(z.nativeEnum(StreamGatherSource))
+  source: z.optional(
+    z.nativeEnum(StreamGatherSource, {
+      message: "Invalid stream gather source."
+    })
+  )
 });
 
 function streamGatherHandler(voiceClient: VoiceClient) {

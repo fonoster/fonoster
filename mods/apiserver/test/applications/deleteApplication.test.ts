@@ -28,6 +28,8 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
+const appRef = "3c459670-efa0-4404-8671-b6f36c3da11d";
+
 describe("@applications/deleteApplication", function () {
   afterEach(function () {
     return sandbox.restore();
@@ -41,12 +43,12 @@ describe("@applications/deleteApplication", function () {
     const call = {
       metadata,
       request: {
-        ref: "123"
+        ref: appRef
       }
     };
 
     const res = {
-      ref: "123"
+      ref: appRef
     };
 
     const prisma = {
@@ -65,7 +67,7 @@ describe("@applications/deleteApplication", function () {
     // Act
     await deleteApplication(prisma)(call, (_, response) => {
       // Assert
-      expect(response).to.have.property("ref", "123");
+      expect(response).to.have.property("ref", appRef);
     });
   });
 });

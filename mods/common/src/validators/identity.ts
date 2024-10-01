@@ -20,12 +20,12 @@ import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
 import { z } from "zod";
 import { POSITIVE_INTEGER_MESSAGE } from "../messages";
 
-const MIN_NAME_MESSAGE = "The name is required.";
-const MAX_NAME_MESSAGE = "Name must contain at most 50 characters.";
-const EMAIL_MESSAGE = "Invalid email.";
-const PASSWORD_MESSAGE = "Password must contain at least 8 characters.";
-const USER_REF_MESSAGE = "Invalid user reference.";
-const WORKSPACE_REF_MESSAGE = "Invalid workspace reference.";
+const MIN_NAME_MESSAGE = "The name is required";
+const MAX_NAME_MESSAGE = "Name must contain at most 50 characters";
+const EMAIL_MESSAGE = "Invalid email";
+const PASSWORD_MESSAGE = "Password must contain at least 8 characters";
+const USER_REF_MESSAGE = "Invalid user reference";
+const WORKSPACE_REF_MESSAGE = "Invalid workspace reference";
 
 const createWorkspaceRequestSchema = z.object({
   name: z
@@ -44,14 +44,14 @@ const createApiKeyRequestSchema = z.object({
 });
 
 const exchangeApiKeysRequestSchema = z.object({
-  accessKeyId: z.string().uuid({ message: "Invalid accessKeyId." }),
+  accessKeyId: z.string().uuid({ message: "Invalid accessKeyId" }),
   accessKeySecret: z.string()
 });
 
 const exchangeCredentialsRequestSchema = z.object({
   username: z
     .string()
-    .email({ message: "Invalid username. Must be an email address." }),
+    .email({ message: "Invalid username. Must be an email address" }),
   password: z.string()
 });
 
@@ -63,7 +63,7 @@ const createUserRequestSchema = z.object({
   name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
   email: z.string().email({ message: EMAIL_MESSAGE }),
   password: z.string().min(8, { message: PASSWORD_MESSAGE }).max(100),
-  avatar: z.string().url().max(255, { message: "Invalid avatar URL." })
+  avatar: z.string().url().max(255, { message: "Invalid avatar URL" })
 });
 
 const updateUserRequestSchema = z.object({

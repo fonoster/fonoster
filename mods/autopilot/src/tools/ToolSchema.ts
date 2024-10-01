@@ -50,7 +50,9 @@ const toolSchema = z.object({
   requestStartMessage: z.string().optional(),
   operation: z
     .object({
-      type: z.nativeEnum(AllowedOperations),
+      type: z.nativeEnum(AllowedOperations, {
+        message: "Invalid operation type."
+      }),
       // Make url required if operation type is not built-in
       url: z.string().optional(),
       waitForResponse: z.boolean().optional(),

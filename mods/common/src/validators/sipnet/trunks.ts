@@ -35,7 +35,7 @@ const createTrunkRequestSchema = z.object({
     z.object({
       host: hostOrIPSchema,
       port: z.number(),
-      transport: z.nativeEnum(Transport),
+      transport: z.nativeEnum(Transport, { message: "Invalid transport" }),
       user: z.string(),
       weight: z.number(),
       priority: z.number(),

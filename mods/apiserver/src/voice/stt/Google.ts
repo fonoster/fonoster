@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Stream } from "stream";
-import { VoiceLanguage } from "@fonoster/common";
+import { Messages, VoiceLanguage } from "@fonoster/common";
 import { SpeechClient } from "@google-cloud/speech";
 import * as z from "zod";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
@@ -81,7 +81,9 @@ class Google
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      languageCode: z.nativeEnum(VoiceLanguage).optional().nullable()
+      languageCode: z
+        .nativeEnum(VoiceLanguage, { message: Messages.VALID_LANGUAGE_CODE })
+        .optional()
     });
   }
 

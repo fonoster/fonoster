@@ -52,7 +52,9 @@ const conversationSettingsSchema = z.object({
 });
 
 const languageModelConfigSchema = z.object({
-  provider: z.nativeEnum(LANGUAGE_MODEL_PROVIDER),
+  provider: z.nativeEnum(LANGUAGE_MODEL_PROVIDER, {
+    message: "Invalid language model provider."
+  }),
   apiKey: z.string().optional(),
   model: z.string(),
   temperature: z.number(),

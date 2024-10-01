@@ -43,7 +43,7 @@ function deleteSecret(prisma: Prisma) {
   return withErrorHandlingAndValidationAndAccess(
     fn,
     (ref: string) => getFn(ref),
-    V.baseApiObjectSchema
+    V.emptySchema
   );
 }
 

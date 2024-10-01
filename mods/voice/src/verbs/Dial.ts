@@ -35,7 +35,11 @@ class Dial extends Verb<DialRequest> {
         .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
         .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
         .optional(),
-      recordDirection: z.nativeEnum(DialRecordDirection).optional()
+      recordDirection: z
+        .nativeEnum(DialRecordDirection, {
+          message: "Invalid record direction."
+        })
+        .optional()
     });
   }
 }

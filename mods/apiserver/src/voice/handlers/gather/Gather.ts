@@ -17,6 +17,10 @@
  * limitations under the License.
  */
 import { GatherRequest, GatherSource } from "@fonoster/common";
+import {
+  MUST_BE_A_SINGLE_CHARACTER,
+  POSITIVE_INTEGER_MESSAGE
+} from "@fonoster/common/src/messages";
 import { z } from "zod";
 import { getTimeoutPromise } from "./getTimeoutPromise";
 import { VoiceClient } from "../../types";
@@ -24,12 +28,22 @@ import { isDtmf } from "../utils";
 import { withErrorHandling } from "../utils/withErrorHandling";
 
 const gatherRequestSchema = z.object({
-  source: z.optional(z.nativeEnum(GatherSource)),
-  maxDigits: z.number().optional(),
+  source: z.optional(
+    z.nativeEnum(GatherSource, { message: "Invalid gather source" })
+  ),
+  maxDigits: z
+    .number()
+    .int({
+      message: POSITIVE_INTEGER_MESSAGE
+    })
+    .positive({
+      message: POSITIVE_INTEGER_MESSAGE
+    })
+    .optional(),
   finishOnKey: z
     .string()
-    .regex(/^[0-9*#]$/) // Ensure it's a valid DTMF character
-    .max(1)
+    .regex(/^[0-9*#]$/)
+    .max(1, { message: MUST_BE_A_SINGLE_CHARACTER })
     .optional()
 });
 

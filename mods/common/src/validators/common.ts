@@ -29,6 +29,8 @@ const baseApiObjectSchema = z.object({
   })
 });
 
+const emptySchema = z.object({});
+
 const listRequestSchema = z
   .object({
     pageSize: z
@@ -44,6 +46,12 @@ const listRequestSchema = z
   })
   .optional();
 
-const nameSchema = z.string().min(1, { message: "Value required." });
+const nameSchema = z.string().min(1, { message: "Value required" });
 
-export { baseApiObjectSchema, listRequestSchema, nameSchema, usernameSchema };
+export {
+  baseApiObjectSchema,
+  emptySchema,
+  listRequestSchema,
+  nameSchema,
+  usernameSchema
+};

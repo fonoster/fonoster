@@ -57,7 +57,7 @@ function regenerateApiKey(prisma: Prisma) {
     });
   };
 
-  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
+  return withErrorHandlingAndValidation(fn, V.emptySchema);
 }
 
 export { regenerateApiKey };

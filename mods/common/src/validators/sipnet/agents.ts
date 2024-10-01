@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 import { z } from "zod";
+import { POSITIVE_INTEGER_MESSAGE } from "../../messages";
 import { nameSchema, usernameSchema } from "../common";
-
-const POSITIVE_NUMBER_MESSAGE = "Must be a positive number.";
 
 const createAgentRequestSchema = z.object({
   name: nameSchema,
@@ -28,9 +27,9 @@ const createAgentRequestSchema = z.object({
   enabled: z.boolean().optional(),
   maxContacts: z
     .number()
-    .positive({ message: POSITIVE_NUMBER_MESSAGE })
+    .positive({ message: POSITIVE_INTEGER_MESSAGE })
     .optional(),
-  expires: z.number().positive({ message: POSITIVE_NUMBER_MESSAGE }).optional()
+  expires: z.number().positive({ message: POSITIVE_INTEGER_MESSAGE }).optional()
 });
 
 const updateAgentRequestSchema = z.object({
@@ -39,9 +38,9 @@ const updateAgentRequestSchema = z.object({
   enabled: z.boolean().optional(),
   maxContacts: z
     .number()
-    .positive({ message: POSITIVE_NUMBER_MESSAGE })
+    .positive({ message: POSITIVE_INTEGER_MESSAGE })
     .optional(),
-  expires: z.number().positive({ message: POSITIVE_NUMBER_MESSAGE }).optional()
+  expires: z.number().positive({ message: POSITIVE_INTEGER_MESSAGE }).optional()
 });
 
 export { createAgentRequestSchema, updateAgentRequestSchema };

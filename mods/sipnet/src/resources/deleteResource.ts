@@ -38,7 +38,7 @@ function deleteResource<T, R, U>(api: U, resource: string) {
 
   return withErrorHandlingAndValidation(
     withAccess(fn, (ref: string) => api[`get${resource}`](ref)),
-    V.baseApiObjectSchema
+    V.emptySchema
   );
 }
 

@@ -87,7 +87,9 @@ class Google extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      voice: z.nativeEnum(GoogleVoice)
+      voice: z
+        .nativeEnum(GoogleVoice, { message: "Invalid Google voice" })
+        .optional()
     });
   }
 

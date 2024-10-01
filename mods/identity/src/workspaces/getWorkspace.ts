@@ -64,7 +64,7 @@ function getWorkspace(prisma: Prisma) {
     callback(null, response);
   };
 
-  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
+  return withErrorHandlingAndValidation(fn, V.emptySchema);
 }
 
 export { getWorkspace };

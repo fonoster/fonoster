@@ -42,7 +42,7 @@ function getNumber(api: NumbersApi) {
     callback(null, convertToFonosterNumber(response));
   };
 
-  return withErrorHandlingAndValidation(fn, V.baseApiObjectSchema);
+  return withErrorHandlingAndValidation(fn, V.emptySchema);
 }
 
 export { getNumber };

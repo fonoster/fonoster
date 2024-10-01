@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { Stream } from "stream";
-import { VoiceLanguage } from "@fonoster/common";
+import { Messages, VoiceLanguage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as z from "zod";
 import { AbstractSpeechToText } from "./AbstractSpeechToText";
@@ -126,8 +126,14 @@ class Deepgram
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      languageCode: z.nativeEnum(VoiceLanguage).optional().nullable(),
-      model: z.nativeEnum(DeepgramModel).optional().nullable()
+      languageCode: z
+        .nativeEnum(VoiceLanguage, {
+          message: Messages.VALID_LANGUAGE_CODE
+        })
+        .optional(),
+      model: z
+        .nativeEnum(DeepgramModel, { message: "Invalid Deepgram model" })
+        .optional()
     });
   }
 

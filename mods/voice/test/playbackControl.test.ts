@@ -77,6 +77,6 @@ describe("@voice/verbs/playbackControl", function () {
 
     // Assert
     // eslint-disable-next-line prettier/prettier
-    return expect(promise).to.be.rejectedWith("Required at \"playbackRef\"; Required at \"action\"");
+    return expect(promise).to.be.rejectedWith("Required at \"playbackRef\"; Invalid playback control action at \"action\"");
   });
 });

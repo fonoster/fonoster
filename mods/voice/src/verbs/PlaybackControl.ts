@@ -28,7 +28,9 @@ class PlaybackControl extends Verb<PlaybackControlRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
       playbackRef: z.string().uuid({ message: Messages.VALID_UUID }),
-      action: z.nativeEnum(PlaybackControlAction)
+      action: z.nativeEnum(PlaybackControlAction, {
+        message: "Invalid playback control action"
+      })
     });
   }
 }

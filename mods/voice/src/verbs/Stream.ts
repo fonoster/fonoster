@@ -31,8 +31,14 @@ import { Verb } from "./Verb";
 class StartStream extends Verb<StartStreamRequest> {
   getValidationSchema(): z.Schema {
     return z.object({
-      direction: z.nativeEnum(StreamDirection).optional(),
-      format: z.nativeEnum(StreamAudioFormat).optional()
+      direction: z
+        .nativeEnum(StreamDirection, { message: "Invalid stream direction" })
+        .optional(),
+      format: z
+        .nativeEnum(StreamAudioFormat, {
+          message: "Invalid stream audio direction"
+        })
+        .optional()
     });
   }
 }

@@ -81,7 +81,9 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      voice: z.nativeEnum(ElevenLabsVoice)
+      voice: z.nativeEnum(ElevenLabsVoice, {
+        message: "Invalid ElevenLabs voice."
+      })
     });
   }
 

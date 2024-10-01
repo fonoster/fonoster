@@ -104,7 +104,7 @@ class Azure extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
   static getConfigValidationSchema(): z.Schema {
     return z.object({
-      voice: z.nativeEnum(AzureVoice)
+      voice: z.nativeEnum(AzureVoice, { message: "Invalid Azure voice" })
     });
   }
 

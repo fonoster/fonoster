@@ -59,7 +59,9 @@ function getApplicationValidationSchema(request: {
 
   return z.object({
     name: z.string().max(255, MAX_NAME_MESSAGE),
-    type: z.nativeEnum(ApplicationType),
+    type: z.nativeEnum(ApplicationType, {
+      message: "Invalid application type."
+    }),
     endpoint: hostOrHostPortSchema,
     textToSpeech: ttsEngineName
       ? z.object({

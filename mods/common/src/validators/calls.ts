@@ -23,15 +23,15 @@ import { POSITIVE_INTEGER_MESSAGE, VALID_DATE } from "../messages";
 const createCallRequestSchema = z.object({
   from: z.string(),
   to: z.string(),
-  appRef: z.string().uuid({ message: "Invalid call reference." }),
+  appRef: z.string().uuid({ message: "Invalid call reference" }),
   timeout: z
     .number()
-    .max(120, { message: "Timeout must be less than 120s." })
+    .max(120, { message: "Timeout must be less than 120s" })
     .optional()
 });
 
 const getCallRequestSchema = z.object({
-  ref: z.string().uuid({ message: "Invalid call reference." })
+  ref: z.string().uuid({ message: "Invalid call reference" })
 });
 
 const listCallsRequestSchema = z.object({
@@ -48,11 +48,11 @@ const listCallsRequestSchema = z.object({
     .optional(),
   type: z
     .nativeEnum(CallType, {
-      message: "Invalid call type."
+      message: "Invalid call type"
     })
     .optional(),
   status: z
-    .nativeEnum(CallStatus, { message: "Invalid call status." })
+    .nativeEnum(CallStatus, { message: "Invalid call status" })
     .optional(),
   pageToken: z.string().optional()
 });

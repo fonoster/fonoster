@@ -45,7 +45,7 @@ function deleteApplication(prisma: Prisma) {
 
   return withErrorHandlingAndValidation(
     withAccess(fn, (ref: string) => getFn(ref)),
-    V.baseApiObjectSchema
+    V.emptySchema
   );
 }
 
