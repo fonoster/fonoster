@@ -18,6 +18,7 @@
  */
 import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
 import { z } from "zod";
+import { POSITIVE_INTEGER_MESSAGE } from "../messages";
 
 const MIN_NAME_MESSAGE = "The name is required";
 const MAX_NAME_MESSAGE = "Name must contain at most 50 characters";
@@ -27,24 +28,30 @@ const USER_REF_MESSAGE = "Invalid user reference";
 const WORKSPACE_REF_MESSAGE = "Invalid workspace reference";
 
 const createWorkspaceRequestSchema = z.object({
-  name: z.string().min(1, MIN_NAME_MESSAGE).max(50, MAX_NAME_MESSAGE)
+  name: z
+    .string()
+    .min(1, { message: MIN_NAME_MESSAGE })
+    .max(50, { message: MAX_NAME_MESSAGE })
 });
 
 const createApiKeyRequestSchema = z.object({
   role: z.enum([ApiRoleEnum.WORKSPACE_ADMIN]),
   expiresAt: z
     .number()
-    .transform((value) => (value === 0 ? null : value))
+    .int({ message: POSITIVE_INTEGER_MESSAGE })
+    .positive({ message: POSITIVE_INTEGER_MESSAGE })
     .optional()
 });
 
 const exchangeApiKeysRequestSchema = z.object({
-  accessKeyId: z.string().uuid("Invalid accessKeyId"),
+  accessKeyId: z.string().uuid({ message: "Invalid accessKeyId." }),
   accessKeySecret: z.string()
 });
 
 const exchangeCredentialsRequestSchema = z.object({
-  username: z.string().email("Invalid username. Must be an email address"),
+  username: z
+    .string()
+    .email({ message: "Invalid username. Must be an email address." }),
   password: z.string()
 });
 
@@ -53,41 +60,47 @@ const exchangeRefreshTokenRequestSchema = z.object({
 });
 
 const createUserRequestSchema = z.object({
-  name: z.string().max(50, MAX_NAME_MESSAGE),
-  email: z.string().email(EMAIL_MESSAGE),
-  password: z.string().min(8, PASSWORD_MESSAGE).max(100),
-  avatar: z.string().url().max(255, "Invalid avatar URL")
+  name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
+  email: z.string().email({ message: EMAIL_MESSAGE }),
+  password: z.string().min(8, { message: PASSWORD_MESSAGE }).max(100),
+  avatar: z.string().url().max(255, { message: "Invalid avatar URL." })
 });
 
 const updateUserRequestSchema = z.object({
-  ref: z.string().uuid(USER_REF_MESSAGE),
-  name: z.string().max(50, MAX_NAME_MESSAGE).or(z.string().optional()),
-  password: z.string().min(8, PASSWORD_MESSAGE).or(z.string().optional()),
+  ref: z.string().uuid({ message: USER_REF_MESSAGE }),
+  name: z
+    .string()
+    .max(50, { message: MAX_NAME_MESSAGE })
+    .or(z.string().optional()),
+  password: z
+    .string()
+    .min(8, { message: PASSWORD_MESSAGE })
+    .or(z.string().optional()),
   avatar: z.string().url().or(z.string().optional())
 });
 
 const inviteUserToWorkspaceRequestSchema = z.object({
-  email: z.string().email(EMAIL_MESSAGE),
-  name: z.string().max(50, MAX_NAME_MESSAGE),
+  email: z.string().email({ message: EMAIL_MESSAGE }),
+  name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
   role: z.enum([WorkspaceRoleEnum.ADMIN, WorkspaceRoleEnum.USER]),
-  password: z.string().min(8, PASSWORD_MESSAGE).or(z.undefined())
+  password: z.string().min(8, { message: PASSWORD_MESSAGE }).or(z.undefined())
 });
 
 const resendWorkspaceMembershipInvitationRequestSchema = z.object({
-  userRef: z.string().uuid(USER_REF_MESSAGE)
+  userRef: z.string().uuid({ message: USER_REF_MESSAGE })
 });
 
 const updateWorkspaceRequestSchema = z.object({
-  ref: z.string().uuid(WORKSPACE_REF_MESSAGE),
+  ref: z.string().uuid({ message: WORKSPACE_REF_MESSAGE }),
   name: z
     .string()
-    .min(1, MIN_NAME_MESSAGE)
-    .max(50, MAX_NAME_MESSAGE)
+    .min(1, { message: MIN_NAME_MESSAGE })
+    .max(50, { message: MAX_NAME_MESSAGE })
     .or(z.string().optional())
 });
 
 const removeUserFromWorkspaceRequestSchema = z.object({
-  userRef: z.string().uuid(USER_REF_MESSAGE)
+  userRef: z.string().uuid({ message: USER_REF_MESSAGE })
 });
 
 export {

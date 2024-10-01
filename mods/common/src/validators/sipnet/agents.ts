@@ -17,13 +17,9 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import { nameSchema } from "../common";
+import { nameSchema, usernameSchema } from "../common";
 
 const POSITIVE_NUMBER_MESSAGE = "Must be a positive number";
-
-const usernameSchema = z.string().regex(/^[a-z0-9._-]+$/, {
-  message: "Must be a lowercase string and with no spaces"
-});
 
 const createAgentRequestSchema = z.object({
   name: nameSchema,

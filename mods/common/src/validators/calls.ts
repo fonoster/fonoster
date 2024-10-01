@@ -18,37 +18,43 @@
  */
 import { CallStatus, CallType } from "@fonoster/types";
 import { z } from "zod";
+import { POSITIVE_INTEGER_MESSAGE, VALID_DATE } from "../messages";
 
 const createCallRequestSchema = z.object({
   from: z.string(),
   to: z.string(),
-  appRef: z.string().uuid("Invalid call reference"),
-  timeout: z.number().max(120, "Timeout must be less than 120s").optional()
+  appRef: z.string().uuid({ message: "Invalid call reference." }),
+  timeout: z
+    .number()
+    .max(120, { message: "Timeout must be less than 120s." })
+    .optional()
 });
 
 const getCallRequestSchema = z.object({
-  ref: z.string().uuid("Invalid call reference")
+  ref: z.string().uuid({ message: "Invalid call reference." })
 });
 
 const listCallsRequestSchema = z.object({
-  after: z
-    .string()
-    .datetime({ offset: true, message: "The date must be a valid ISO 8601" })
+  after: z.string().datetime({ offset: true, message: VALID_DATE }).optional(),
+  before: z.string().datetime({ offset: true, message: VALID_DATE }).optional(),
+  pageSize: z
+    .number()
+    .int({
+      message: POSITIVE_INTEGER_MESSAGE
+    })
+    .positive({
+      message: POSITIVE_INTEGER_MESSAGE
+    })
     .optional(),
-  before: z
-    .string()
-    .datetime({ offset: true, message: "The date must be a valid ISO 8601" })
-    .optional(),
-  pageSize: z.number({ message: "Invalid pageSize value" }).optional(),
   type: z
     .nativeEnum(CallType, {
-      message: "Invalid call type"
+      message: "Invalid call type."
     })
     .optional(),
   status: z
-    .nativeEnum(CallStatus, { message: "Invalid call status" })
+    .nativeEnum(CallStatus, { message: "Invalid call status." })
     .optional(),
-  pageToken: z.string({ message: "The pageToken must be a string" }).optional()
+  pageToken: z.string().optional()
 });
 
 export {

@@ -31,7 +31,7 @@ const hostOrHostPortSchema = z
       return hostRegex.test(value) || hostPortRegex.test(value);
     },
     {
-      message: "Invalid format. Expected 'host' or 'host:port'"
+      message: "Invalid format. Expects 'host' or 'host:port'"
     }
   );
 
