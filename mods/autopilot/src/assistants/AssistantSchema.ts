@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Messages } from "@fonoster/common";
 import { z } from "zod";
 import { toolSchema } from "../tools/ToolSchema";
 import { LANGUAGE_MODEL_PROVIDER } from "../types";
@@ -25,29 +26,46 @@ const conversationSettingsSchema = z.object({
   systemTemplate: z.string(),
   goodbyeMessage: z.string(),
   systemErrorMessage: z.string(),
-  initialDtmf: z.string().optional().nullable(),
-  maxSpeechWaitTimeout: z.number(),
+  initialDtmf: z
+    .string()
+    .regex(/^[0-9*#]+$/, { message: Messages.VALID_DTMF })
+    .optional(),
+  maxSpeechWaitTimeout: z
+    .number()
+    .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
   transferOptions: z
     .object({
       phoneNumber: z.string(),
       message: z.string(),
-      timeout: z.number().optional()
+      timeout: z
+        .number()
+        .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .optional()
     })
-    .optional()
-    .nullable(),
+    .optional(),
   idleOptions: z
     .object({
       message: z.string(),
-      timeout: z.number(),
-      maxTimeoutCount: z.number()
+      timeout: z
+        .number()
+        .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
+      maxTimeoutCount: z
+        .number()
+        .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+        .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
     })
-    .optional()
-    .nullable(),
+    .optional(),
   vad: z.object({
     pathToModel: z.string().optional(),
     activationThreshold: z.number(),
     deactivationThreshold: z.number(),
-    debounceFrames: z.number()
+    debounceFrames: z
+      .number()
+      .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+      .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE })
   })
 });
 
@@ -58,13 +76,21 @@ const languageModelConfigSchema = z.object({
   apiKey: z.string().optional(),
   model: z.string(),
   temperature: z.number(),
-  maxTokens: z.number(),
-  baseUrl: z.string().optional(),
+  maxTokens: z
+    .number()
+    .int({ message: Messages.POSITIVE_INTEGER_MESSAGE })
+    .positive({ message: Messages.POSITIVE_INTEGER_MESSAGE }),
+  baseUrl: z
+    .string()
+    .url({
+      message: Messages.VALID_URL
+    })
+    .optional(),
   knowledgeBase: z.array(
     z.object({
       type: z.enum(["s3", "file"]),
       title: z.string(),
-      url: z.string()
+      url: z.string().url({ message: Messages.VALID_URL })
     })
   ),
   tools: z.array(toolSchema)

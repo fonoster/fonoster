@@ -63,7 +63,8 @@ function createAclsTestCases(expect) {
         request: {
           ref: "{{ref}}",
           name: "From Fonoster Updated",
-          allow: ["192.168.1.11"]
+          allow: ["192.168.1.11"],
+          deny: ["0.0.0.0/0"]
         },
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {

@@ -20,8 +20,8 @@ import * as Validator from "validator";
 import { z } from "zod";
 import { nameSchema } from "../common";
 
-const IP_OR_CIDR_MESSAGE = "Must be a valid IP or CIDR range.";
-const AT_LEAST_ONE_MESSAGE = "At least one IP or CIDR range is required.";
+const IP_OR_CIDR_MESSAGE = "Must be a valid IP or CIDR range";
+const AT_LEAST_ONE_MESSAGE = "At least one IP or CIDR range is required";
 
 const ipOrCidr = z
   .string()

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Messages } from "@fonoster/common";
 import { z } from "zod";
 
 enum AllowedOperations {
@@ -51,10 +52,10 @@ const toolSchema = z.object({
   operation: z
     .object({
       type: z.nativeEnum(AllowedOperations, {
-        message: "Invalid operation type."
+        message: "Invalid operation type"
       }),
       // Make url required if operation type is not built-in
-      url: z.string().optional(),
+      url: z.string().url({ message: Messages.VALID_URL }).optional(),
       waitForResponse: z.boolean().optional(),
       headers: z.record(z.string()).optional()
     })
