@@ -20,12 +20,12 @@ import { ApiRoleEnum, WorkspaceRoleEnum } from "@fonoster/types";
 import { z } from "zod";
 import { POSITIVE_INTEGER_MESSAGE } from "../messages";
 
-const MIN_NAME_MESSAGE = "The name is required";
-const MAX_NAME_MESSAGE = "Name must contain at most 50 characters";
-const EMAIL_MESSAGE = "Invalid email";
-const PASSWORD_MESSAGE = "Password must contain at least 8 characters";
-const USER_REF_MESSAGE = "Invalid user reference";
-const WORKSPACE_REF_MESSAGE = "Invalid workspace reference";
+const MIN_NAME_MESSAGE = "The name is required.";
+const MAX_NAME_MESSAGE = "Name must contain at most 50 characters.";
+const EMAIL_MESSAGE = "Invalid email.";
+const PASSWORD_MESSAGE = "Password must contain at least 8 characters.";
+const USER_REF_MESSAGE = "Invalid user reference.";
+const WORKSPACE_REF_MESSAGE = "Invalid workspace reference.";
 
 const createWorkspaceRequestSchema = z.object({
   name: z

@@ -44,6 +44,6 @@ const listRequestSchema = z
   })
   .optional();
 
-const nameSchema = z.string().min(1, { message: "Value required" });
+const nameSchema = z.string().min(1, { message: "Value required." });
 
 export { baseApiObjectSchema, listRequestSchema, nameSchema, usernameSchema };

@@ -19,7 +19,7 @@
 import { z } from "zod";
 import { nameSchema, usernameSchema } from "../common";
 
-const POSITIVE_NUMBER_MESSAGE = "Must be a positive number";
+const POSITIVE_NUMBER_MESSAGE = "Must be a positive number.";
 
 const createAgentRequestSchema = z.object({
   name: nameSchema,
