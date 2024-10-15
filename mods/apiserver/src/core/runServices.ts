@@ -26,7 +26,7 @@ import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { HealthImplementation } from "grpc-health-check";
 import { allowList } from "./allowList";
-import { filesServer } from "./filesServer";
+import { httpBridge } from "./httpBridge";
 import loadServices from "./loadServices";
 import services from "./services";
 import { createCreateCallSubscriber as runCallManager } from "../calls/runCallManager";
@@ -59,7 +59,7 @@ async function runServices() {
   loadServices(server, await services);
 
   // Connecting to Asterisk ARI
-  await connectToAri(filesServer({ port: FILES_SERVER_PORT }));
+  await connectToAri(httpBridge({ port: FILES_SERVER_PORT }));
 
   // Additional Call Managers subscriber may be added here to handle call events
   await runCallManager({

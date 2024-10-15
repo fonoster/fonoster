@@ -27,4 +27,5 @@ export * from "./hasAccess";
 export * from "./hasAccessToResource";
 export * from "./isValidToken";
 export * from "./tokenHasAccessKeyId";
+export * from "./updateMembershipStatus";
 export * from "./withAccess";
