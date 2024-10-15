@@ -25,8 +25,7 @@ import { getLogger } from "@fonoster/logger";
 import {
   InviteUserToWorkspaceRequest,
   InviteUserToWorkspaceResponse,
-  WorkspaceMemberStatus,
-  WorkspaceRoleEnum
+  WorkspaceMemberStatus
 } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
@@ -34,6 +33,10 @@ import { createSendEmail } from "./createSendEmail";
 import { isAdminMember } from "./isAdminMember";
 import { isWorkspaceMember } from "./isWorkspaceMember";
 import { Prisma } from "../db";
+import {
+  IDENTITY_WORKSPACE_INVITATION_URL,
+  IDENTITY_WORKSPACE_INVITE_EXPIRATION
+} from "../envs";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites/sendInvite";
 import {
@@ -41,6 +44,7 @@ import {
   generateAccessKeyId,
   getAccessKeyIdFromCall
 } from "../utils";
+import { createWorkspaceInviteToken } from "../utils/createWorkspaceInviteToken";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
@@ -146,7 +150,7 @@ function inviteUserToWorkspace(
       data: {
         userRef: user.ref,
         workspaceRef,
-        role: role as WorkspaceRoleEnum,
+        role,
         status: WorkspaceMemberStatus.PENDING
       },
       include: {
@@ -154,13 +158,19 @@ function inviteUserToWorkspace(
       }
     });
 
+    const inviteeToken = await createWorkspaceInviteToken(identityConfig)({
+      userRef: user.ref,
+      memberRef: newMember.ref,
+      accessKeyId: user.accessKeyId,
+      expiresIn: IDENTITY_WORKSPACE_INVITE_EXPIRATION
+    });
+
     await sendInvite(createSendEmail(identityConfig), {
       recipient: email,
       oneTimePassword,
       workspaceName: newMember.workspace.name,
       isExistingUser,
-      // TODO: Create inviteUrl with invite token
-      inviteUrl: "https://placehold.it?token=jwt"
+      inviteUrl: `${IDENTITY_WORKSPACE_INVITATION_URL}?token=${inviteeToken}`
     });
 
     callback(null, {

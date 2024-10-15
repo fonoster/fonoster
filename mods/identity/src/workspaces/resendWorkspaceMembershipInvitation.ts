@@ -30,9 +30,14 @@ import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { createSendEmail } from "./createSendEmail";
 import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../db";
+import {
+  IDENTITY_WORKSPACE_INVITATION_URL,
+  IDENTITY_WORKSPACE_INVITE_EXPIRATION
+} from "../envs";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites/sendInvite";
 import { getAccessKeyIdFromCall } from "../utils";
+import { createWorkspaceInviteToken } from "../utils/createWorkspaceInviteToken";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 
@@ -99,13 +104,19 @@ function resendWorkspaceMembershipInvitation(
       });
     }
 
+    const inviteeToken = await createWorkspaceInviteToken(identityConfig)({
+      userRef: member.user.ref,
+      memberRef: member.ref,
+      accessKeyId: member.user.accessKeyId,
+      expiresIn: IDENTITY_WORKSPACE_INVITE_EXPIRATION
+    });
+
     await sendInvite(createSendEmail(identityConfig), {
       recipient: member.user.email,
       oneTimePassword: member.user.password,
       workspaceName: member.workspace.name,
       isExistingUser: true,
-      // TODO: Create inviteUrl with invite token
-      inviteUrl: "https://placehold.it?token=jwt"
+      inviteUrl: `${IDENTITY_WORKSPACE_INVITATION_URL}?token=${inviteeToken}`
     });
 
     callback(null, {

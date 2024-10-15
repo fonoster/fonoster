@@ -18,44 +18,34 @@
  */
 import jwt from "jsonwebtoken";
 import { SIGN_ALGORITHM } from "../constants";
-import { TokenUseEnum } from "../exchanges/TokenUseEnum";
 import { IdentityConfig } from "../exchanges/types";
-import { VOICE_SERVICE_ROLE } from "../roles";
 
-function createCallAccessToken(identityConfig: IdentityConfig) {
+function createWorkspaceInviteToken(identityConfig: IdentityConfig) {
   return async (params: {
+    userRef: string;
+    memberRef: string;
     accessKeyId: string;
-    appRef: string;
+    expiresIn?: string;
   }): Promise<string> => {
     const { privateKey } = identityConfig;
+    const { issuer, audience } = identityConfig;
+    const { userRef, memberRef, accessKeyId, expiresIn } = params;
 
     const accessTokenSignOptions = {
       algorithm: SIGN_ALGORITHM,
-      // Just enough time to validate a request
-      expiresIn: "30s"
+      expiresIn: expiresIn || "1d"
     } as jwt.SignOptions;
-
-    const { issuer, audience } = identityConfig;
-    const { accessKeyId, appRef } = params;
-
-    const access = [
-      {
-        accessKeyId,
-        role: VOICE_SERVICE_ROLE
-      }
-    ];
 
     const unsignedToken = {
       iss: issuer,
-      sub: appRef,
+      sub: userRef,
       aud: audience,
-      tokenUse: TokenUseEnum.ACCESS,
-      accessKeyId,
-      access
+      memberRef: memberRef,
+      accessKeyId
     };
 
     return jwt.sign(unsignedToken, privateKey, accessTokenSignOptions);
   };
 }
 
-export { createCallAccessToken };
+export { createWorkspaceInviteToken };

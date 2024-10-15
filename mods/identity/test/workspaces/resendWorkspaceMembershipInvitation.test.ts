@@ -23,7 +23,7 @@ import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
 import { IdentityConfig } from "../../src/exchanges/types";
-import { TEST_TOKEN } from "../utils";
+import { TEST_PRIVATE_KEY, TEST_TOKEN } from "../utils";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -54,7 +54,8 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
         secure: true,
         sender: "Fonoster <info@fonoster.local>",
         auth: {}
-      }
+      },
+      privateKey: TEST_PRIVATE_KEY
     } as IdentityConfig;
 
     const prisma = {

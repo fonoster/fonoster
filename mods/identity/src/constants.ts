@@ -16,12 +16,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { assertEnvsAreSet } from "@fonoster/common";
-
-assertEnvsAreSet(["CLOAK_ENCRYPTION_KEY", "IDENTITY_WORKSPACE_INVITATION_URL"]);
-
-export const CLOAK_ENCRYPTION_KEY = process.env.CLOAK_ENCRYPTION_KEY;
-export const IDENTITY_WORKSPACE_INVITATION_URL =
-  process.env.IDENTITY_WORKSPACE_INVITATION_URL;
-export const IDENTITY_WORKSPACE_INVITE_EXPIRATION =
-  process.env.IDENTITY_WORKSPACE_INVITE_EXPIRATION || "1d";
+export const SIGN_ALGORITHM = "RS256";

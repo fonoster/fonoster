@@ -29,11 +29,10 @@ import {
   ExchangeResponse,
   IdentityConfig
 } from "./types";
+import { SIGN_ALGORITHM } from "../constants";
 import { Prisma } from "../db";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
-
-const SIGN_ALGORITHM = "RS256";
 
 function exchangeRefreshToken(prisma: Prisma, identityConfig: IdentityConfig) {
   const fn = async (

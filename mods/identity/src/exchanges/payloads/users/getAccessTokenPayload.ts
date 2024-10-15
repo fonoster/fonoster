@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceRoleEnum } from "@fonoster/types";
+import { WorkspaceMemberStatus, WorkspaceRoleEnum } from "@fonoster/types";
 import { Prisma } from "../../../db";
 import { TokenUseEnum } from "../../TokenUseEnum";
 import { AccessToken, IdentityConfig } from "../../types";
@@ -50,10 +50,11 @@ function getAccessTokenPayload(prisma: Prisma, identityConfig: IdentityConfig) {
     }));
 
     memberships.forEach((membership) => {
-      access.push({
-        accessKeyId: membership.workspace.accessKeyId,
-        role: membership.role as WorkspaceRoleEnum
-      });
+      membership.status === WorkspaceMemberStatus.ACTIVE &&
+        access.push({
+          accessKeyId: membership.workspace.accessKeyId,
+          role: membership.role as WorkspaceRoleEnum
+        });
     });
 
     return {
