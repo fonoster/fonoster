@@ -86,6 +86,24 @@ model ApiKey {
   @@map("api_keys")
 }
 
+model VerificationCode {
+  ref       String           @id @default(uuid())
+  type      VerificationType  
+  code      String           @db.VarChar(6)
+  value     String           @db.VarChar(255)
+  expiresAt DateTime         @map("expires_at") @db.Timestamptz(3)
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  // Indexes and maps
+  @@index([code], type: Hash)
+  @@map("verification_codes")
+}
+
+enum VerificationType {
+  EMAIL
+  PHONE
+}
+
 enum WorkspaceMemberStatus {
   PENDING
   ACTIVE

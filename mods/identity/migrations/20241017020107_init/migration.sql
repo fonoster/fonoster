@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "VerificationType" AS ENUM ('EMAIL', 'PHONE');
+
+-- CreateEnum
 CREATE TYPE "workspace_member_status" AS ENUM ('PENDING', 'ACTIVE');
 
 -- CreateEnum
@@ -63,6 +66,18 @@ CREATE TABLE "api_keys" (
     CONSTRAINT "api_keys_pkey" PRIMARY KEY ("ref")
 );
 
+-- CreateTable
+CREATE TABLE "verification_codes" (
+    "ref" TEXT NOT NULL,
+    "type" "VerificationType" NOT NULL,
+    "code" VARCHAR(6) NOT NULL,
+    "value" VARCHAR(255) NOT NULL,
+    "expires_at" TIMESTAMPTZ(3) NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "verification_codes_pkey" PRIMARY KEY ("ref")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_access_key_id_key" ON "users"("access_key_id");
 
@@ -95,6 +110,9 @@ CREATE INDEX "api_keys_access_key_id_idx" ON "api_keys" USING HASH ("access_key_
 
 -- CreateIndex
 CREATE INDEX "api_keys_workspace_ref_idx" ON "api_keys" USING HASH ("workspace_ref");
+
+-- CreateIndex
+CREATE INDEX "verification_codes_code_idx" ON "verification_codes" USING HASH ("code");
 
 -- AddForeignKey
 ALTER TABLE "workspaces" ADD CONSTRAINT "workspaces_owner_ref_fkey" FOREIGN KEY ("owner_ref") REFERENCES "users"("ref") ON DELETE CASCADE ON UPDATE CASCADE;
