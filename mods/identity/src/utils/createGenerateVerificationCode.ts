@@ -16,5 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export const SIGN_ALGORITHM = "RS256";
-export const VERIFICATION_CODE_EXPIRATION = 5 * 60 * 1000;
+import { VerificationType } from "@prisma/identity-client";
+import { VERIFICATION_CODE_EXPIRATION } from "../constants";
+import { Prisma } from "../db";
+
+function createGenerateVerificationCode(prisma: Prisma) {
+  return async (params: { type: VerificationType; value: string }) => {
+    const { type, value } = params;
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await prisma.verificationCode.create({
+      data: {
+        type,
+        value,
+        code,
+        expiresAt: new Date(Date.now() + VERIFICATION_CODE_EXPIRATION)
+      }
+    });
+  };
+}
+
+export { createGenerateVerificationCode };
