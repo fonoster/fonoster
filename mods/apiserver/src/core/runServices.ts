@@ -35,7 +35,7 @@ import {
   ASTERISK_ARI_PROXY_URL,
   ASTERISK_ARI_SECRET,
   ASTERISK_ARI_USERNAME,
-  FILES_SERVER_PORT,
+  HTTP_BRIDGE_PORT,
   IDENTITY_PUBLIC_KEY,
   NATS_URL
 } from "../envs";
@@ -59,7 +59,7 @@ async function runServices() {
   loadServices(server, await services);
 
   // Connecting to Asterisk ARI
-  await connectToAri(httpBridge({ port: FILES_SERVER_PORT }));
+  await connectToAri(httpBridge({ port: HTTP_BRIDGE_PORT }));
 
   // Additional Call Managers subscriber may be added here to handle call events
   await runCallManager({

@@ -32,7 +32,7 @@ function httpBridge(params: { port: number }) {
   const app = express();
   const streamMap = new Map<string, Readable>();
 
-  app.get("/sounds/:id", (req: Request, res: Response) => {
+  app.get("/api/sounds/:id", (req: Request, res: Response) => {
     const idWithoutExtension = req.params.id.split(".")[0];
     const stream = streamMap.get(idWithoutExtension);
 
@@ -59,15 +59,18 @@ function httpBridge(params: { port: number }) {
     stream.pipe(res);
   });
 
-  app.get("/identity/accept-invite", async (req: Request, res: Response) => {
-    try {
-      await updateMembershipStatus(identityConfig)(req.query.token as string);
-      res.redirect(APP_URL);
-    } catch (error) {
-      logger.verbose("error updating membership status", error);
-      res.redirect(IDENTITY_WORKSPACE_INVITATION_FAIL_URL);
+  app.get(
+    "/api/identity/accept-invite",
+    async (req: Request, res: Response) => {
+      try {
+        await updateMembershipStatus(identityConfig)(req.query.token as string);
+        res.redirect(APP_URL);
+      } catch (error) {
+        logger.verbose("error updating membership status", error);
+        res.redirect(IDENTITY_WORKSPACE_INVITATION_FAIL_URL);
+      }
     }
-  });
+  );
 
   app.listen(port, () => {
     logger.info(`HTTP bridge is running on port ${port}`);

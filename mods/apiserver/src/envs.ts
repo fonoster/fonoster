@@ -86,8 +86,8 @@ export const DEFAULT_NATS_QUEUE_GROUP = "apiserver";
 // Custom email templates
 export const EMAIL_TEMPLATES_DIR = e.EMAIL_TEMPLATES_DIR;
 
-export const FILES_SERVER_PORT = e.FILES_SERVER_PORT
-  ? parseInt(e.FILES_SERVER_PORT)
+export const HTTP_BRIDGE_PORT = e.HTTP_BRIDGE_PORT
+  ? parseInt(e.HTTP_BRIDGE_PORT)
   : 9876;
 
 export const IDENTITY_ACCESS_TOKEN_EXPIRES_IN =
