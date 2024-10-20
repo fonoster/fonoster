@@ -17,48 +17,26 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
-import { createTransport } from "nodemailer";
+import twilio from "twilio";
+import { SmsParams, TwilioSmsSenderConfig } from "./types";
 
 const logger = getLogger({ service: "common", filePath: __filename });
 
-type EmailSenderConfig = {
-  sender: string;
-  host: string;
-  port: number;
-  secure: boolean;
-  auth: {
-    user: string;
-    pass: string;
-  };
-};
+function createSendSmsTwilioImpl(config: TwilioSmsSenderConfig) {
+  const { sender: from, accountSid, authToken } = config;
+  const client = twilio(accountSid, authToken);
 
-type EmailParams = {
-  to: string;
-  subject: string;
-  html: string;
-};
+  return async function sendSms(params: SmsParams): Promise<void> {
+    const { to, body } = params;
 
-function createEmailSender(config: EmailSenderConfig) {
-  const { sender, host, port, secure, auth } = config;
-  const transporter = createTransport({
-    host,
-    port,
-    secure,
-    auth
-  });
-
-  return async function sendEmail(params: EmailParams): Promise<void> {
-    const { to, subject, html } = params;
-
-    const info = await transporter.sendMail({
-      from: sender,
-      to,
-      subject,
-      html
+    const result = await client.messages.create({
+      body,
+      from,
+      to
     });
 
-    logger.verbose(`message sent: ${info.messageId}`);
+    logger.verbose("message sent", result);
   };
 }
 
-export { EmailParams, EmailSenderConfig, createEmailSender };
+export { createSendSmsTwilioImpl };

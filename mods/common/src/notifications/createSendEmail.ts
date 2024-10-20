@@ -16,24 +16,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createEmailSender } from "@fonoster/common";
-import { IdentityConfig } from "../exchanges/types";
+import { getLogger } from "@fonoster/logger";
+import { createTransport } from "nodemailer";
+import { EmailParams, EmailSenderConfig } from "./types";
 
-function createSendEmail(identityConfig: IdentityConfig) {
-  const { smtpConfig } = identityConfig;
-  const { host, port, secure, sender, auth } = smtpConfig;
-  const { user, pass } = auth;
+const logger = getLogger({ service: "common", filePath: __filename });
 
-  return createEmailSender({
-    sender,
+function createSendEmail(config: EmailSenderConfig) {
+  const { sender, host, port, secure, auth } = config;
+  const transporter = createTransport({
     host,
     port,
     secure,
-    auth: {
-      user,
-      pass
-    }
+    auth
   });
+
+  return async function sendEmail(params: EmailParams): Promise<void> {
+    const { to, subject, html } = params;
+
+    const info = await transporter.sendMail({
+      from: sender,
+      to,
+      subject,
+      html
+    });
+
+    logger.verbose(`message sent: ${info.messageId}`);
+  };
 }
 
 export { createSendEmail };

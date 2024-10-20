@@ -17,4 +17,6 @@
  * limitations under the License.
  */
 export * from "./compileTemplate";
-export * from "./createEmailSender";
+export * from "./createSendEmail";
+export * from "./createSendSmsTwilioImpl";
+export * from "./types";

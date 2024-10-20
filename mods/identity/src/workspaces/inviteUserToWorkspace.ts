@@ -29,7 +29,6 @@ import {
 } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
 import { customAlphabet } from "nanoid";
-import { createSendEmail } from "./createSendEmail";
 import { isAdminMember } from "./isAdminMember";
 import { isWorkspaceMember } from "./isWorkspaceMember";
 import { Prisma } from "../db";
@@ -41,6 +40,7 @@ import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites";
 import {
   AccessKeyIdType,
+  createSendEmail,
   generateAccessKeyId,
   getAccessKeyIdFromCall
 } from "../utils";

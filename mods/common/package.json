@@ -24,6 +24,7 @@
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",
     "nodemailer": "^6.9.13",
+    "twilio": "^5.3.4",
     "validator": "^13.12.0",
     "zod-validation-error": "^3.3.0"
   },

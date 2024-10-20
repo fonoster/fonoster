@@ -16,26 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EmailParams, SmsParams } from "@fonoster/common";
+import { SmsParams } from "@fonoster/common";
+import { createBodyForVerificationMessage } from "./createBodyForVerificationMessage";
+import { VerificationParams } from "./types";
 
-type VerificationParams = {
-  templateDir?: string;
-  recipient: string;
-  verificationCode: string;
-};
-
-type SendEmailVerificationCode = (
-  sendEmail: (params: EmailParams) => Promise<void>,
-  request: VerificationParams
-) => Promise<void>;
-
-type SendPhoneVerificationCode = (
+async function sendVerificationMessage(
   sendSms: (params: SmsParams) => Promise<void>,
   request: VerificationParams
-) => Promise<void>;
+) {
+  const { recipient, verificationCode, templateDir } = request;
 
-export {
-  SendEmailVerificationCode,
-  SendPhoneVerificationCode,
-  VerificationParams
-};
+  await sendSms({
+    to: recipient,
+    body: createBodyForVerificationMessage({
+      templateDir,
+      verificationCode
+    })
+  });
+}
+
+export { sendVerificationMessage };

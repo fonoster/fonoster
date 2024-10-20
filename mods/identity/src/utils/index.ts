@@ -1,6 +1,3 @@
-export * from "./createCallAccessToken";
-
-export * from "./decodeToken";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -19,6 +16,9 @@ export * from "./decodeToken";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./createCallAccessToken";
+export * from "./createSendEmail";
+export * from "./decodeToken";
 export * from "./generateAccessKeyId";
 export * from "./getAccessKeyIdFromCall";
 export * from "./getAccessKeyIdFromToken";

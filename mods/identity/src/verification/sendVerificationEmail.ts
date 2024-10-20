@@ -18,11 +18,11 @@
  */
 import { EmailParams } from "@fonoster/common";
 import { createBodyForVerificationEmail } from "./createBodyForVerificationEmail";
-import { VerificationEmailParams } from "./types";
+import { VerificationParams } from "./types";
 
 async function sendVerificationEmail(
   sendEmail: (params: EmailParams) => Promise<void>,
-  request: VerificationEmailParams
+  request: VerificationParams
 ) {
   const { recipient, verificationCode, templateDir } = request;
 

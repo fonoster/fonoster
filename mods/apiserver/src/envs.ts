@@ -83,9 +83,6 @@ export const CLOAK_ENCRYPTION_KEY = e.CLOAK_ENCRYPTION_KEY;
 
 export const DEFAULT_NATS_QUEUE_GROUP = "apiserver";
 
-// Custom email templates
-export const EMAIL_TEMPLATES_DIR = e.EMAIL_TEMPLATES_DIR;
-
 export const HTTP_BRIDGE_PORT = e.HTTP_BRIDGE_PORT
   ? parseInt(e.HTTP_BRIDGE_PORT)
   : 9876;
@@ -159,8 +156,14 @@ export const ROUTR_DEFAULT_PEER_USERNAME =
 export const SMTP_AUTH_PASS = e.SMTP_AUTH_PASS;
 
 export const SMTP_AUTH_USER = e.SMTP_AUTH_USER;
+
 // SMTP configurations
 export const SMTP_HOST = e.SMTP_HOST;
+
 export const SMTP_PORT = e.SMTP_PORT ? parseInt(e.SMTP_PORT) : 587;
+
 export const SMTP_SECURE = e.SMTP_SECURE?.toLowerCase() === "true";
+
 export const SMTP_SENDER = e.SMTP_SENDER;
+// Custom templates
+export const TEMPLATES_DIR = e.TEMPLATES_DIR;

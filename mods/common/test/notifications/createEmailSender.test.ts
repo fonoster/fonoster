@@ -25,7 +25,7 @@ chai.use(chaiAsPromised);
 chai.use(sinonChai);
 const sandbox = createSandbox();
 
-describe("@apiserver[common/notifications/createEmailSender]", function () {
+describe("@apiserver[common/notifications/createSendEmail]", function () {
   afterEach(function () {
     return sandbox.restore();
   });
@@ -42,12 +42,12 @@ describe("@apiserver[common/notifications/createEmailSender]", function () {
       }
     };
 
-    const { createEmailSender } =
+    const { createSendEmail } =
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require("../../src/notifications/createEmailSender");
+      require("../../src/notifications/createSendEmail");
 
     // Act
-    const result = createEmailSender(config);
+    const result = createSendEmail(config);
 
     // Assert
     expect(result).to.be.a("function");
@@ -66,9 +66,9 @@ describe("@apiserver[common/notifications/createEmailSender]", function () {
       }
     };
 
-    const { createEmailSender } =
+    const { createSendEmail } =
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require("../../src/notifications/createEmailSender");
+      require("../../src/notifications/createSendEmail");
 
     // Stub await transporter.sendMail
     const sendEmailStub = sandbox
@@ -80,7 +80,7 @@ describe("@apiserver[common/notifications/createEmailSender]", function () {
         }
       });
 
-    const emailSender = createEmailSender(config);
+    const emailSender = createSendEmail(config);
 
     const params = {
       from: "Fonoster <info@fonoster.local>",

@@ -16,26 +16,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EmailParams, SmsParams } from "@fonoster/common";
-
-type VerificationParams = {
-  templateDir?: string;
-  recipient: string;
-  verificationCode: string;
+type EmailSenderConfig = {
+  sender: string;
+  host: string;
+  port: number;
+  secure: boolean;
+  auth: {
+    user: string;
+    pass: string;
+  };
 };
 
-type SendEmailVerificationCode = (
-  sendEmail: (params: EmailParams) => Promise<void>,
-  request: VerificationParams
-) => Promise<void>;
+type EmailParams = {
+  to: string;
+  subject: string;
+  html: string;
+};
 
-type SendPhoneVerificationCode = (
-  sendSms: (params: SmsParams) => Promise<void>,
-  request: VerificationParams
-) => Promise<void>;
+type SmsSenderConfig = {
+  sender: string;
+};
+
+type TwilioSmsSenderConfig = SmsSenderConfig & {
+  accountSid: string;
+  authToken: string;
+};
+
+type SmsParams = {
+  to: string;
+  body: string;
+};
 
 export {
-  SendEmailVerificationCode,
-  SendPhoneVerificationCode,
-  VerificationParams
+  EmailParams,
+  EmailSenderConfig,
+  SmsParams,
+  SmsSenderConfig,
+  TwilioSmsSenderConfig
 };

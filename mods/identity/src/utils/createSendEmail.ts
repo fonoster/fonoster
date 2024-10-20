@@ -16,26 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EmailParams, SmsParams } from "@fonoster/common";
+import { createSendEmail as createSendEmailOriginal } from "@fonoster/common";
+import { IdentityConfig } from "../exchanges/types";
 
-type VerificationParams = {
-  templateDir?: string;
-  recipient: string;
-  verificationCode: string;
-};
+function createSendEmail(identityConfig: IdentityConfig) {
+  const { smtpConfig } = identityConfig;
+  const { host, port, secure, sender, auth } = smtpConfig;
+  const { user, pass } = auth;
 
-type SendEmailVerificationCode = (
-  sendEmail: (params: EmailParams) => Promise<void>,
-  request: VerificationParams
-) => Promise<void>;
+  return createSendEmailOriginal({
+    sender,
+    host,
+    port,
+    secure,
+    auth: {
+      user,
+      pass
+    }
+  });
+}
 
-type SendPhoneVerificationCode = (
-  sendSms: (params: SmsParams) => Promise<void>,
-  request: VerificationParams
-) => Promise<void>;
-
-export {
-  SendEmailVerificationCode,
-  SendPhoneVerificationCode,
-  VerificationParams
-};
+export { createSendEmail };

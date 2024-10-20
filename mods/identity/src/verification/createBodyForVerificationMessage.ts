@@ -21,17 +21,17 @@ import { compileTemplate } from "@fonoster/common";
 import { VerificationParams } from "./types";
 import { TemplatesEnum } from "../templates/TemplatesEnum";
 
-function createBodyForVerificationEmail(
+function createBodyForVerificationMessage(
   params: Omit<VerificationParams, "recipient">
 ) {
-  const { verificationCode, templateDir: emailTemplateDir } = params;
+  const { verificationCode, templateDir } = params;
 
-  const template = TemplatesEnum.VERIFY_EMAIL;
+  const template = TemplatesEnum.VERIFY_PHONE;
 
-  const templateDir =
-    emailTemplateDir || path.join(__dirname, "..", "templates");
+  const actualTemplateDir =
+    templateDir || path.join(__dirname, "..", "templates");
 
-  const templatePath = `${templateDir}/${template}.hbs`;
+  const templatePath = `${actualTemplateDir}/${template}.hbs`;
 
   return compileTemplate({
     filePath: templatePath,
@@ -41,4 +41,4 @@ function createBodyForVerificationEmail(
   });
 }
 
-export { createBodyForVerificationEmail };
+export { createBodyForVerificationMessage };

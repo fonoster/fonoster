@@ -27,7 +27,6 @@ import {
   ResendWorkspaceMembershipInvitationResponse
 } from "@fonoster/types";
 import { status as GRPCStatus, ServerInterceptingCall } from "@grpc/grpc-js";
-import { createSendEmail } from "./createSendEmail";
 import { isAdminMember } from "./isAdminMember";
 import { Prisma } from "../db";
 import {
@@ -36,7 +35,7 @@ import {
 } from "../envs";
 import { IdentityConfig } from "../exchanges/types";
 import { SendInvite } from "../invites";
-import { getAccessKeyIdFromCall } from "../utils";
+import { createSendEmail, getAccessKeyIdFromCall } from "../utils";
 import { createWorkspaceInviteToken } from "../utils/createWorkspaceInviteToken";
 import { getTokenFromCall } from "../utils/getTokenFromCall";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
