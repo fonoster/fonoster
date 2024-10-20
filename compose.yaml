@@ -52,15 +52,13 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: ${ROUTR_DATABASE_URL}
-      START_LOCAL_DB: "false"
+      START_INTERNAL_DB: "false"
       EXTERNAL_ADDRS: ${DOCKER_HOST_ADDRESS}
       LOGS_LEVEL: ${LOGS_LEVEL}
       LOGS_TRANSPORT: ${LOGS_TRANSPORT}
       RTPENGINE_HOST: ${ROUTR_RTPENGINE_HOST}
       NATS_PUBLISHER_ENABLED: "true"
       NATS_PUBLISHER_URL: ${NATS_URL}
-      # TODO: We should't have to set this; please fix upstream
-      LOG4J2: /etc/routr/log4j2.yaml
     expose:
       - 51907
       - 51908
