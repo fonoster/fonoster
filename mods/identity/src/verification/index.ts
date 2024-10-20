@@ -17,6 +17,5 @@
  * limitations under the License.
  */
 export * from "../templates/TemplatesEnum";
-export * from "./createInviteBody";
-export * from "./sendInvite";
-export * from "./types";
+export * from "./createBodyForVerificationEmail";
+export * from "./sendVerificationEmail";

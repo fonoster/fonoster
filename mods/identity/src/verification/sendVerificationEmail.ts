@@ -16,9 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum EmailTemplatesEnum {
-  INVITE_NEW_USER = "inviteNewUser",
-  INVITE_EXISTING_USER = "inviteExistingUser"
+import { EmailParams } from "@fonoster/common";
+import { createBodyForVerificationEmail } from "./createBodyForVerificationEmail";
+import { VerificationEmailParams } from "./types";
+
+async function sendVerificationEmail(
+  sendEmail: (params: EmailParams) => Promise<void>,
+  request: VerificationEmailParams
+) {
+  const { recipient, verificationCode, templateDir } = request;
+
+  await sendEmail({
+    to: recipient,
+    subject: "Verify your email address",
+    html: createBodyForVerificationEmail({
+      templateDir,
+      verificationCode
+    })
+  });
 }
 
-export { EmailTemplatesEnum };
+export { sendVerificationEmail };

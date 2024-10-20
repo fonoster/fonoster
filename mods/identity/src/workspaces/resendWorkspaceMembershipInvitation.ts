@@ -35,7 +35,7 @@ import {
   IDENTITY_WORKSPACE_INVITE_EXPIRATION
 } from "../envs";
 import { IdentityConfig } from "../exchanges/types";
-import { SendInvite } from "../invites/sendInvite";
+import { SendInvite } from "../invites";
 import { getAccessKeyIdFromCall } from "../utils";
 import { createWorkspaceInviteToken } from "../utils/createWorkspaceInviteToken";
 import { getTokenFromCall } from "../utils/getTokenFromCall";

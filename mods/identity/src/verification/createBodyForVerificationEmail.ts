@@ -16,34 +16,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EmailParams } from "@fonoster/common";
-import { createInviteBody } from "./createInviteBody";
-import { InviteParams } from "./types";
+import path from "path";
+import { compileTemplate } from "@fonoster/common";
+import { VerificationEmailParams } from "./types";
+import { TemplatesEnum } from "../templates/TemplatesEnum";
 
-async function sendInvite(
-  sendEmail: (params: EmailParams) => Promise<void>,
-  request: InviteParams
+function createBodyForVerificationEmail(
+  params: Omit<VerificationEmailParams, "recipient">
 ) {
-  const {
-    recipient,
-    inviteUrl,
-    oneTimePassword,
-    isExistingUser,
-    workspaceName,
-    templateDir
-  } = request;
+  const { verificationCode, templateDir: emailTemplateDir } = params;
 
-  await sendEmail({
-    to: recipient,
-    subject: "Invite to join a Fonoster workspace",
-    html: createInviteBody({
-      templateDir,
-      isExistingUser,
-      workspaceName,
-      oneTimePassword: isExistingUser ? undefined : oneTimePassword,
-      inviteUrl
-    })
+  const template = TemplatesEnum.VERIFY_EMAIL;
+
+  const templateDir =
+    emailTemplateDir || path.join(__dirname, "..", "templates");
+
+  const templatePath = `${templateDir}/${template}.hbs`;
+
+  return compileTemplate({
+    filePath: templatePath,
+    data: {
+      verificationCode
+    }
   });
 }
 
-export { sendInvite };
+export { createBodyForVerificationEmail };

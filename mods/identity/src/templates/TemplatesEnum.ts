@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "../templates/TemplatesEnum";
-export * from "./createInviteBody";
-export * from "./sendInvite";
-export * from "./types";
+enum TemplatesEnum {
+  INVITE_NEW_USER = "inviteNewUser",
+  INVITE_EXISTING_USER = "inviteExistingUser",
+  VERIFY_EMAIL = "verifyEmail",
+  VERIFY_PHONE = "verifyPhone"
+}
+
+export { TemplatesEnum };

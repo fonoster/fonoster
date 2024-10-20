@@ -17,33 +17,19 @@
  * limitations under the License.
  */
 import { EmailParams } from "@fonoster/common";
-import { createInviteBody } from "./createInviteBody";
-import { InviteParams } from "./types";
 
-async function sendInvite(
+type InviteParams = {
+  recipient: string;
+  templateDir?: string;
+  inviteUrl: string;
+  isExistingUser: boolean;
+  oneTimePassword?: string;
+  workspaceName: string;
+};
+
+type SendInvite = (
   sendEmail: (params: EmailParams) => Promise<void>,
   request: InviteParams
-) {
-  const {
-    recipient,
-    inviteUrl,
-    oneTimePassword,
-    isExistingUser,
-    workspaceName,
-    templateDir
-  } = request;
+) => Promise<void>;
 
-  await sendEmail({
-    to: recipient,
-    subject: "Invite to join a Fonoster workspace",
-    html: createInviteBody({
-      templateDir,
-      isExistingUser,
-      workspaceName,
-      oneTimePassword: isExistingUser ? undefined : oneTimePassword,
-      inviteUrl
-    })
-  });
-}
-
-export { sendInvite };
+export { InviteParams, SendInvite };
