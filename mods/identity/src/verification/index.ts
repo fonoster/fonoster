@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 export * from "../templates/TemplatesEnum";
+export * from "./createSendVerificationCode";
 export * from "./sendVerificationEmail";
 export * from "./sendVerificationMessage";
 export * from "./types";

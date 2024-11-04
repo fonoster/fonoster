@@ -103,6 +103,11 @@ const removeUserFromWorkspaceRequestSchema = z.object({
   userRef: z.string().uuid({ message: USER_REF_MESSAGE })
 });
 
+const sendVerificationCodeRequestSchema = z.object({
+  contactType: z.enum(["EMAIL", "PHONE"]),
+  value: z.string()
+});
+
 export {
   createApiKeyRequestSchema,
   createUserRequestSchema,
@@ -113,6 +118,7 @@ export {
   inviteUserToWorkspaceRequestSchema,
   removeUserFromWorkspaceRequestSchema,
   resendWorkspaceMembershipInvitationRequestSchema,
+  sendVerificationCodeRequestSchema,
   updateUserRequestSchema,
   updateWorkspaceRequestSchema
 };

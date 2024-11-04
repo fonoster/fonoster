@@ -556,6 +556,92 @@ export class IdentityClient {
     this.methodDescriptorDeleteUser);
   }
 
+  methodDescriptorSendVerificationCode = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/SendVerificationCode',
+    grpcWeb.MethodType.UNARY,
+    identity_pb.SendVerificationCodeRequest,
+    identity_pb.SendVerificationCodeResponse,
+    (request: identity_pb.SendVerificationCodeRequest) => {
+      return request.serializeBinary();
+    },
+    identity_pb.SendVerificationCodeResponse.deserializeBinary
+  );
+
+  sendVerificationCode(
+    request: identity_pb.SendVerificationCodeRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.SendVerificationCodeResponse>;
+
+  sendVerificationCode(
+    request: identity_pb.SendVerificationCodeRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: identity_pb.SendVerificationCodeResponse) => void): grpcWeb.ClientReadableStream<identity_pb.SendVerificationCodeResponse>;
+
+  sendVerificationCode(
+    request: identity_pb.SendVerificationCodeRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: identity_pb.SendVerificationCodeResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.identity.v1beta2.Identity/SendVerificationCode',
+        request,
+        metadata || {},
+        this.methodDescriptorSendVerificationCode,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.identity.v1beta2.Identity/SendVerificationCode',
+    request,
+    metadata || {},
+    this.methodDescriptorSendVerificationCode);
+  }
+
+  methodDescriptorVerifyCode = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/VerifyCode',
+    grpcWeb.MethodType.UNARY,
+    identity_pb.VerifyCodeRequest,
+    identity_pb.VerifyCodeResponse,
+    (request: identity_pb.VerifyCodeRequest) => {
+      return request.serializeBinary();
+    },
+    identity_pb.VerifyCodeResponse.deserializeBinary
+  );
+
+  verifyCode(
+    request: identity_pb.VerifyCodeRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.VerifyCodeResponse>;
+
+  verifyCode(
+    request: identity_pb.VerifyCodeRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: identity_pb.VerifyCodeResponse) => void): grpcWeb.ClientReadableStream<identity_pb.VerifyCodeResponse>;
+
+  verifyCode(
+    request: identity_pb.VerifyCodeRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: identity_pb.VerifyCodeResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.identity.v1beta2.Identity/VerifyCode',
+        request,
+        metadata || {},
+        this.methodDescriptorVerifyCode,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.identity.v1beta2.Identity/VerifyCode',
+    request,
+    metadata || {},
+    this.methodDescriptorVerifyCode);
+  }
+
   methodDescriptorCreateApiKey = new grpcWeb.MethodDescriptor(
     '/fonoster.identity.v1beta2.Identity/CreateApiKey',
     grpcWeb.MethodType.UNARY,

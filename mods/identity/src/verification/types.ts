@@ -18,6 +18,20 @@
  */
 import { EmailParams, SmsParams } from "@fonoster/common";
 
+enum ContactType {
+  EMAIL = "EMAIL",
+  PHONE = "PHONE"
+}
+
+type SendVerificationCodeRequest = {
+  contactType: ContactType;
+  value: string;
+};
+
+type SendVerificationCodeResponse = {
+  success: boolean;
+};
+
 type VerificationParams = {
   templateDir?: string;
   recipient: string;
@@ -35,7 +49,10 @@ type SendPhoneVerificationCode = (
 ) => Promise<void>;
 
 export {
+  ContactType,
   SendEmailVerificationCode,
   SendPhoneVerificationCode,
+  SendVerificationCodeRequest,
+  SendVerificationCodeResponse,
   VerificationParams
 };

@@ -23,6 +23,7 @@ const allowList = [
   "/fonoster.identity.v1beta2.Identity/ExchangeApiKey",
   "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",
   "/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken",
+  "/fonoster.identity.v1beta2.Identity/SendVerificationCode",
   "/fonoster.identity.v1beta2.Identity/GetPublicKey"
 ];
 

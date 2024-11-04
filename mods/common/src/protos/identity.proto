@@ -38,7 +38,9 @@ service Identity {
   rpc GetUser (GetUserRequest) returns (User) {}
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
-  
+  rpc SendVerificationCode (SendVerificationCodeRequest) returns (SendVerificationCodeResponse) {}
+  rpc VerifyCode (VerifyCodeRequest) returns (VerifyCodeResponse) {}
+
   // ApiKey actions
   rpc CreateApiKey (CreateApiKeyRequest) returns (CreateApiKeyResponse) {}
   rpc DeleteApiKey (DeleteApiKeyRequest) returns (DeleteApiKeyResponse) {}
@@ -57,6 +59,14 @@ service Identity {
 }
 
 // Workspace Resources
+
+message Workspace {
+  string ref = 1;
+  string name = 2;
+  string owner_ref = 3;
+  int32 created_at = 4;
+  int32 updated_at = 5;
+}
 
 message CreateWorkspaceRequest {
   string name = 1;
@@ -124,6 +134,10 @@ message ResendWorkspaceMembershipInvitationResponse {
 }
 
 // User Resources
+enum ContactType {
+  EMAIL = 0;
+  PHONE = 1;
+}
 
 message CreateUserRequest {
   string email = 1;
@@ -168,12 +182,23 @@ message DeleteUserResponse {
   string ref = 1;
 }
 
-message Workspace {
-  string ref = 1;
-  string name = 2;
-  string owner_ref = 3;
-  int32 created_at = 4;
-  int32 updated_at = 5;
+message SendVerificationCodeRequest {
+  ContactType contact_type = 1;
+  string value = 2;
+}
+
+message SendVerificationCodeResponse {
+  bool success = 1;
+}
+
+message VerifyCodeRequest {
+  ContactType contact_type = 1;
+  string value = 2;
+  string verification_code = 3;
+}
+
+message VerifyCodeResponse {
+  bool verified = 1;
 }
 
 // ApiKey Resources
@@ -232,7 +257,7 @@ message ExchangeCredentialsRequest {
   string username = 1;
   string password = 2;
   // Optional code for multi-factor authentication
-  string ephemeral_code = 3;
+  string verification_code = 3;
 }
 
 message ExchangeCredentialsResponse {

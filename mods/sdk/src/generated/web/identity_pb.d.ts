@@ -3,6 +3,40 @@ import * as jspb from 'google-protobuf'
 import * as google_protobuf_empty_pb from 'google-protobuf/google/protobuf/empty_pb'; // proto import: "google/protobuf/empty.proto"
 
 
+export class Workspace extends jspb.Message {
+  getRef(): string;
+  setRef(value: string): Workspace;
+
+  getName(): string;
+  setName(value: string): Workspace;
+
+  getOwnerRef(): string;
+  setOwnerRef(value: string): Workspace;
+
+  getCreatedAt(): number;
+  setCreatedAt(value: number): Workspace;
+
+  getUpdatedAt(): number;
+  setUpdatedAt(value: number): Workspace;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): Workspace.AsObject;
+  static toObject(includeInstance: boolean, msg: Workspace): Workspace.AsObject;
+  static serializeBinaryToWriter(message: Workspace, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Workspace;
+  static deserializeBinaryFromReader(message: Workspace, reader: jspb.BinaryReader): Workspace;
+}
+
+export namespace Workspace {
+  export type AsObject = {
+    ref: string,
+    name: string,
+    ownerRef: string,
+    createdAt: number,
+    updatedAt: number,
+  }
+}
+
 export class CreateWorkspaceRequest extends jspb.Message {
   getName(): string;
   setName(value: string): CreateWorkspaceRequest;
@@ -483,37 +517,87 @@ export namespace DeleteUserResponse {
   }
 }
 
-export class Workspace extends jspb.Message {
-  getRef(): string;
-  setRef(value: string): Workspace;
+export class SendVerificationCodeRequest extends jspb.Message {
+  getContactType(): ContactType;
+  setContactType(value: ContactType): SendVerificationCodeRequest;
 
-  getName(): string;
-  setName(value: string): Workspace;
-
-  getOwnerRef(): string;
-  setOwnerRef(value: string): Workspace;
-
-  getCreatedAt(): number;
-  setCreatedAt(value: number): Workspace;
-
-  getUpdatedAt(): number;
-  setUpdatedAt(value: number): Workspace;
+  getValue(): string;
+  setValue(value: string): SendVerificationCodeRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): Workspace.AsObject;
-  static toObject(includeInstance: boolean, msg: Workspace): Workspace.AsObject;
-  static serializeBinaryToWriter(message: Workspace, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): Workspace;
-  static deserializeBinaryFromReader(message: Workspace, reader: jspb.BinaryReader): Workspace;
+  toObject(includeInstance?: boolean): SendVerificationCodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: SendVerificationCodeRequest): SendVerificationCodeRequest.AsObject;
+  static serializeBinaryToWriter(message: SendVerificationCodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SendVerificationCodeRequest;
+  static deserializeBinaryFromReader(message: SendVerificationCodeRequest, reader: jspb.BinaryReader): SendVerificationCodeRequest;
 }
 
-export namespace Workspace {
+export namespace SendVerificationCodeRequest {
   export type AsObject = {
-    ref: string,
-    name: string,
-    ownerRef: string,
-    createdAt: number,
-    updatedAt: number,
+    contactType: ContactType,
+    value: string,
+  }
+}
+
+export class SendVerificationCodeResponse extends jspb.Message {
+  getSuccess(): boolean;
+  setSuccess(value: boolean): SendVerificationCodeResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SendVerificationCodeResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: SendVerificationCodeResponse): SendVerificationCodeResponse.AsObject;
+  static serializeBinaryToWriter(message: SendVerificationCodeResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SendVerificationCodeResponse;
+  static deserializeBinaryFromReader(message: SendVerificationCodeResponse, reader: jspb.BinaryReader): SendVerificationCodeResponse;
+}
+
+export namespace SendVerificationCodeResponse {
+  export type AsObject = {
+    success: boolean,
+  }
+}
+
+export class VerifyCodeRequest extends jspb.Message {
+  getContactType(): ContactType;
+  setContactType(value: ContactType): VerifyCodeRequest;
+
+  getValue(): string;
+  setValue(value: string): VerifyCodeRequest;
+
+  getVerificationCode(): string;
+  setVerificationCode(value: string): VerifyCodeRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): VerifyCodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: VerifyCodeRequest): VerifyCodeRequest.AsObject;
+  static serializeBinaryToWriter(message: VerifyCodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): VerifyCodeRequest;
+  static deserializeBinaryFromReader(message: VerifyCodeRequest, reader: jspb.BinaryReader): VerifyCodeRequest;
+}
+
+export namespace VerifyCodeRequest {
+  export type AsObject = {
+    contactType: ContactType,
+    value: string,
+    verificationCode: string,
+  }
+}
+
+export class VerifyCodeResponse extends jspb.Message {
+  getVerified(): boolean;
+  setVerified(value: boolean): VerifyCodeResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): VerifyCodeResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: VerifyCodeResponse): VerifyCodeResponse.AsObject;
+  static serializeBinaryToWriter(message: VerifyCodeResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): VerifyCodeResponse;
+  static deserializeBinaryFromReader(message: VerifyCodeResponse, reader: jspb.BinaryReader): VerifyCodeResponse;
+}
+
+export namespace VerifyCodeResponse {
+  export type AsObject = {
+    verified: boolean,
   }
 }
 
@@ -736,8 +820,8 @@ export class ExchangeCredentialsRequest extends jspb.Message {
   getPassword(): string;
   setPassword(value: string): ExchangeCredentialsRequest;
 
-  getEphemeralCode(): string;
-  setEphemeralCode(value: string): ExchangeCredentialsRequest;
+  getVerificationCode(): string;
+  setVerificationCode(value: string): ExchangeCredentialsRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ExchangeCredentialsRequest.AsObject;
@@ -751,7 +835,7 @@ export namespace ExchangeCredentialsRequest {
   export type AsObject = {
     username: string,
     password: string,
-    ephemeralCode: string,
+    verificationCode: string,
   }
 }
 
@@ -971,3 +1055,7 @@ export namespace GetPublicKeyResponse {
   }
 }
 
+export enum ContactType { 
+  EMAIL = 0,
+  PHONE = 1,
+}

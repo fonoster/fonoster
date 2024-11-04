@@ -430,6 +430,28 @@ function deserialize_fonoster_identity_v1beta2_RevokeTokenResponse(buffer_arg) {
   return identity_pb.RevokeTokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_identity_v1beta2_SendVerificationCodeRequest(arg) {
+  if (!(arg instanceof identity_pb.SendVerificationCodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.SendVerificationCodeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_SendVerificationCodeRequest(buffer_arg) {
+  return identity_pb.SendVerificationCodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_SendVerificationCodeResponse(arg) {
+  if (!(arg instanceof identity_pb.SendVerificationCodeResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.SendVerificationCodeResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_SendVerificationCodeResponse(buffer_arg) {
+  return identity_pb.SendVerificationCodeResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_identity_v1beta2_UpdateUserRequest(arg) {
   if (!(arg instanceof identity_pb.UpdateUserRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.UpdateUserRequest');
@@ -483,6 +505,28 @@ function serialize_fonoster_identity_v1beta2_User(arg) {
 
 function deserialize_fonoster_identity_v1beta2_User(buffer_arg) {
   return identity_pb.User.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_VerifyCodeRequest(arg) {
+  if (!(arg instanceof identity_pb.VerifyCodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.VerifyCodeRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_VerifyCodeRequest(buffer_arg) {
+  return identity_pb.VerifyCodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_VerifyCodeResponse(arg) {
+  if (!(arg instanceof identity_pb.VerifyCodeResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.VerifyCodeResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_VerifyCodeResponse(buffer_arg) {
+  return identity_pb.VerifyCodeResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonoster_identity_v1beta2_Workspace(arg) {
@@ -642,6 +686,28 @@ createUser: {
     requestDeserialize: deserialize_fonoster_identity_v1beta2_DeleteUserRequest,
     responseSerialize: serialize_fonoster_identity_v1beta2_DeleteUserResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_DeleteUserResponse,
+  },
+  sendVerificationCode: {
+    path: '/fonoster.identity.v1beta2.Identity/SendVerificationCode',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.SendVerificationCodeRequest,
+    responseType: identity_pb.SendVerificationCodeResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_SendVerificationCodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_SendVerificationCodeRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_SendVerificationCodeResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_SendVerificationCodeResponse,
+  },
+  verifyCode: {
+    path: '/fonoster.identity.v1beta2.Identity/VerifyCode',
+    requestStream: false,
+    responseStream: false,
+    requestType: identity_pb.VerifyCodeRequest,
+    responseType: identity_pb.VerifyCodeResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_VerifyCodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_VerifyCodeRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_VerifyCodeResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_VerifyCodeResponse,
   },
   // ApiKey actions
 createApiKey: {

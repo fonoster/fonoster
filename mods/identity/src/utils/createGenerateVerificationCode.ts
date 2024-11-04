@@ -33,6 +33,8 @@ function createGenerateVerificationCode(prisma: Prisma) {
         expiresAt: new Date(Date.now() + VERIFICATION_CODE_EXPIRATION)
       }
     });
+
+    return code;
   };
 }
 
