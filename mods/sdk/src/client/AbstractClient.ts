@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ContactType } from "@fonoster/types";
 import { makeRpcRequest } from "./makeRpcRequest";
 import {
   ApplicationsClient,
@@ -31,10 +32,13 @@ import { DomainsClient } from "./types/DomainsClient";
 import { NumbersClient } from "./types/NumbersClient";
 import { TrunksClient } from "./types/TrunksClient";
 import {
+  ContactType as ContactTypePB,
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
   ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
   ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
-  ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB
+  ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
+  SendVerificationCodeRequest as SendVerificationCodeRequestPB,
+  SendVerificationCodeResponse as SendVerificationCodeResponsePB
 } from "../generated/node/identity_pb";
 
 abstract class AbstractClient implements FonosterClient {
@@ -113,6 +117,29 @@ abstract class AbstractClient implements FonosterClient {
 
     this._refreshToken = refreshToken;
     this._accessToken = accessToken;
+  }
+
+  async sendVerificationCode(
+    contactType: ContactType,
+    value: string
+  ): Promise<void> {
+    await makeRpcRequest<
+      SendVerificationCodeRequestPB,
+      SendVerificationCodeResponsePB,
+      { contactType: ContactType; value: string },
+      { success: boolean }
+    >({
+      method: this.identityClient.sendVerificationCode.bind(
+        this.identityClient
+      ),
+      requestPBObjectConstructor: SendVerificationCodeRequestPB,
+      metadata: {},
+      request: {
+        contactType: contactType as ContactType,
+        value
+      },
+      enumMapping: [["contactType", ContactTypePB]]
+    });
   }
 
   async refreshToken(): Promise<void> {

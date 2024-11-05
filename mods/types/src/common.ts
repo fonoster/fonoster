@@ -16,6 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+enum ContactType {
+  EMAIL = "EMAIL",
+  PHONE = "PHONE"
+}
+
 type BaseApiObject = {
   ref: string;
 };
@@ -35,4 +40,10 @@ type ListResponse<R> = {
   nextPageToken?: string;
 };
 
-export { BaseApiObject, ListRequest, ListResponse, NumberPreconditionsCheck };
+export {
+  BaseApiObject,
+  ContactType,
+  ListRequest,
+  ListResponse,
+  NumberPreconditionsCheck
+};

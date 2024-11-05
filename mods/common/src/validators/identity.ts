@@ -105,7 +105,7 @@ const removeUserFromWorkspaceRequestSchema = z.object({
 });
 
 const sendVerificationCodeRequestSchema = z.object({
-  contactType: z.enum(["EMAIL", "PHONE"]),
+  contactType: z.enum(["EMAIL", "PHONE"]).default("EMAIL"),
   value: z.string()
 });
 

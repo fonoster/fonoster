@@ -49,12 +49,14 @@ function createSendVerificationCode(
     ) => void
   ) => {
     const { request } = call;
+    const actualContactType = request.contactType ?? ContactType.EMAIL;
+
     const verificationCode = await generateVerificationCode({
-      type: request.contactType,
+      type: actualContactType,
       value: request.value
     });
 
-    if (request.contactType === ContactType.EMAIL) {
+    if (actualContactType === ContactType.EMAIL) {
       sendVerificationEmail(sendEmail, {
         recipient: request.value,
         verificationCode
