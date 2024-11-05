@@ -30,9 +30,17 @@ import {
   IdentityConfig
 } from "./types";
 import { Prisma } from "../db";
+import { IDENTITY_USER_VERIFICATION_REQUIRED } from "../envs";
 import { getUserByEmail } from "../utils/getUserByEmail";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
+
+const verificationRequiredButNotProvided = (user: {
+  emailVerified: boolean;
+  phoneNumberVerified: boolean;
+}) =>
+  IDENTITY_USER_VERIFICATION_REQUIRED &&
+  (!user.emailVerified || !user.phoneNumberVerified);
 
 function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
   const fn = async (
@@ -50,6 +58,13 @@ function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"
+      });
+    }
+
+    if (verificationRequiredButNotProvided(user)) {
+      return callback({
+        code: grpc.status.PERMISSION_DENIED,
+        message: "User contact information not verified"
       });
     }
 
