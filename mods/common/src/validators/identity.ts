@@ -52,7 +52,8 @@ const exchangeCredentialsRequestSchema = z.object({
   username: z
     .string()
     .email({ message: "Invalid username. Must be an email address" }),
-  password: z.string()
+  password: z.string(),
+  verificationCode: z.string().optional()
 });
 
 const exchangeRefreshTokenRequestSchema = z.object({
