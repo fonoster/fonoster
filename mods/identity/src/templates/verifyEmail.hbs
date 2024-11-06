@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Invite</title>
+  <title>Verification Code</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,21 +14,9 @@
       background: #fff;
       padding: 20px;
     }
-    .button {
-      display: inline-block;
-      padding: 10px 20px;
-      line-height: 20px;
-      background: linear-gradient(323deg, #008751 30.56%, #3ae19e 118.19%);
-      color: white !important;
-      text-decoration: none;
-      border-radius: 5px;
+    .verification-code {
+      font-size: 1.5em;
       font-weight: bold;
-      text-align: center;
-      border: none;
-      cursor: pointer;
-    }
-    .fonoster-green {
-      color: #053204;
     }
     @media (prefers-color-scheme: dark) {
       body {
@@ -38,18 +26,14 @@
       .container {
         background: #181818;
       }
-      .fonoster-green {
-        color: #f4f4f4;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <p>Your email is pending verification for Fonoster.</p>
-    <p>Please verify your email with the code below:</p>
+    <p>To continue, please verify your account with the code below:</p>
     <p class="verification-code">{{verificationCode}}</p>
-    <p>If you didn't request this, please ignore this email.</p>
+    <p>If you didn’t request this code, you can ignore this message.</p>
   </div>
 </body>
 </html>

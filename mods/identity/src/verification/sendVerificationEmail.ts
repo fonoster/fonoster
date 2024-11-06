@@ -28,7 +28,7 @@ async function sendVerificationEmail(
 
   await sendEmail({
     to: recipient,
-    subject: "Verify your email address",
+    subject: "Your verification code",
     html: createBodyForVerificationEmail({
       templateDir,
       verificationCode
