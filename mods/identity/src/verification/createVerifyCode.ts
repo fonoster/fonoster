@@ -16,9 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "../templates/TemplatesEnum";
-export * from "./createSendVerificationCode";
-export * from "./createVerifyCode";
-export * from "./sendVerificationEmail";
-export * from "./sendVerificationMessage";
-export * from "./types";
+import {
+  GrpcErrorMessage,
+  Validators as V,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
+import { VerifyCodeRequest } from "./types";
+import { Prisma } from "../db";
+
+function createVerifyCode(prisma: Prisma) {
+  const fn = async (
+    call: { request: VerifyCodeRequest },
+    callback: (error: GrpcErrorMessage) => void
+  ) => {
+    const { request } = call;
+
+    callback(null);
+  };
+
+  return withErrorHandlingAndValidation(fn, V.verifyCodeRequestSchema);
+}
+
+export { createVerifyCode };

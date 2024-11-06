@@ -28,8 +28,10 @@ type SendVerificationCodeRequest = {
   value: string;
 };
 
-type SendVerificationCodeResponse = {
-  success: boolean;
+type VerifyCodeRequest = {
+  contactType: ContactType;
+  value: string;
+  code: string;
 };
 
 type VerificationParams = {
@@ -53,6 +55,6 @@ export {
   SendEmailVerificationCode,
   SendPhoneVerificationCode,
   SendVerificationCodeRequest,
-  SendVerificationCodeResponse,
-  VerificationParams
+  VerificationParams,
+  VerifyCodeRequest
 };

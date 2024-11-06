@@ -109,6 +109,12 @@ const sendVerificationCodeRequestSchema = z.object({
   value: z.string()
 });
 
+const verifyCodeRequestSchema = z.object({
+  contactType: z.enum(["EMAIL", "PHONE"]).default("EMAIL"),
+  value: z.string(),
+  verificationCode: z.string()
+});
+
 export {
   createApiKeyRequestSchema,
   createUserRequestSchema,
@@ -121,5 +127,6 @@ export {
   resendWorkspaceMembershipInvitationRequestSchema,
   sendVerificationCodeRequestSchema,
   updateUserRequestSchema,
-  updateWorkspaceRequestSchema
+  updateWorkspaceRequestSchema,
+  verifyCodeRequestSchema
 };

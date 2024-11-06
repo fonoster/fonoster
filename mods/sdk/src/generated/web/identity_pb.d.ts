@@ -539,24 +539,6 @@ export namespace SendVerificationCodeRequest {
   }
 }
 
-export class SendVerificationCodeResponse extends jspb.Message {
-  getSuccess(): boolean;
-  setSuccess(value: boolean): SendVerificationCodeResponse;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): SendVerificationCodeResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: SendVerificationCodeResponse): SendVerificationCodeResponse.AsObject;
-  static serializeBinaryToWriter(message: SendVerificationCodeResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): SendVerificationCodeResponse;
-  static deserializeBinaryFromReader(message: SendVerificationCodeResponse, reader: jspb.BinaryReader): SendVerificationCodeResponse;
-}
-
-export namespace SendVerificationCodeResponse {
-  export type AsObject = {
-    success: boolean,
-  }
-}
-
 export class VerifyCodeRequest extends jspb.Message {
   getContactType(): ContactType;
   setContactType(value: ContactType): VerifyCodeRequest;
@@ -580,24 +562,6 @@ export namespace VerifyCodeRequest {
     contactType: ContactType,
     value: string,
     verificationCode: string,
-  }
-}
-
-export class VerifyCodeResponse extends jspb.Message {
-  getVerified(): boolean;
-  setVerified(value: boolean): VerifyCodeResponse;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): VerifyCodeResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: VerifyCodeResponse): VerifyCodeResponse.AsObject;
-  static serializeBinaryToWriter(message: VerifyCodeResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): VerifyCodeResponse;
-  static deserializeBinaryFromReader(message: VerifyCodeResponse, reader: jspb.BinaryReader): VerifyCodeResponse;
-}
-
-export namespace VerifyCodeResponse {
-  export type AsObject = {
-    verified: boolean,
   }
 }
 

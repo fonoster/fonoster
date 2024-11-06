@@ -38,8 +38,8 @@ service Identity {
   rpc GetUser (GetUserRequest) returns (User) {}
   rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
   rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {}
-  rpc SendVerificationCode (SendVerificationCodeRequest) returns (SendVerificationCodeResponse) {}
-  rpc VerifyCode (VerifyCodeRequest) returns (VerifyCodeResponse) {}
+  rpc SendVerificationCode (SendVerificationCodeRequest) returns (google.protobuf.Empty) {}
+  rpc VerifyCode (VerifyCodeRequest) returns (google.protobuf.Empty) {}
 
   // ApiKey actions
   rpc CreateApiKey (CreateApiKeyRequest) returns (CreateApiKeyResponse) {}
@@ -187,18 +187,10 @@ message SendVerificationCodeRequest {
   string value = 2;
 }
 
-message SendVerificationCodeResponse {
-  bool success = 1;
-}
-
 message VerifyCodeRequest {
   ContactType contact_type = 1;
   string value = 2;
   string verification_code = 3;
-}
-
-message VerifyCodeResponse {
-  bool verified = 1;
 }
 
 // ApiKey Resources

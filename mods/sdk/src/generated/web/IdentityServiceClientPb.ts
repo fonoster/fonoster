@@ -560,28 +560,28 @@ export class IdentityClient {
     '/fonoster.identity.v1beta2.Identity/SendVerificationCode',
     grpcWeb.MethodType.UNARY,
     identity_pb.SendVerificationCodeRequest,
-    identity_pb.SendVerificationCodeResponse,
+    google_protobuf_empty_pb.Empty,
     (request: identity_pb.SendVerificationCodeRequest) => {
       return request.serializeBinary();
     },
-    identity_pb.SendVerificationCodeResponse.deserializeBinary
+    google_protobuf_empty_pb.Empty.deserializeBinary
   );
 
   sendVerificationCode(
     request: identity_pb.SendVerificationCodeRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.SendVerificationCodeResponse>;
+    metadata?: grpcWeb.Metadata | null): Promise<google_protobuf_empty_pb.Empty>;
 
   sendVerificationCode(
     request: identity_pb.SendVerificationCodeRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: identity_pb.SendVerificationCodeResponse) => void): grpcWeb.ClientReadableStream<identity_pb.SendVerificationCodeResponse>;
+               response: google_protobuf_empty_pb.Empty) => void): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
 
   sendVerificationCode(
     request: identity_pb.SendVerificationCodeRequest,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: identity_pb.SendVerificationCodeResponse) => void) {
+               response: google_protobuf_empty_pb.Empty) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
@@ -603,28 +603,28 @@ export class IdentityClient {
     '/fonoster.identity.v1beta2.Identity/VerifyCode',
     grpcWeb.MethodType.UNARY,
     identity_pb.VerifyCodeRequest,
-    identity_pb.VerifyCodeResponse,
+    google_protobuf_empty_pb.Empty,
     (request: identity_pb.VerifyCodeRequest) => {
       return request.serializeBinary();
     },
-    identity_pb.VerifyCodeResponse.deserializeBinary
+    google_protobuf_empty_pb.Empty.deserializeBinary
   );
 
   verifyCode(
     request: identity_pb.VerifyCodeRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.VerifyCodeResponse>;
+    metadata?: grpcWeb.Metadata | null): Promise<google_protobuf_empty_pb.Empty>;
 
   verifyCode(
     request: identity_pb.VerifyCodeRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: identity_pb.VerifyCodeResponse) => void): grpcWeb.ClientReadableStream<identity_pb.VerifyCodeResponse>;
+               response: google_protobuf_empty_pb.Empty) => void): grpcWeb.ClientReadableStream<google_protobuf_empty_pb.Empty>;
 
   verifyCode(
     request: identity_pb.VerifyCodeRequest,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: identity_pb.VerifyCodeResponse) => void) {
+               response: google_protobuf_empty_pb.Empty) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +

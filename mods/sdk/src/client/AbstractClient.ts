@@ -37,8 +37,7 @@ import {
   ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
   ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
   ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
-  SendVerificationCodeRequest as SendVerificationCodeRequestPB,
-  SendVerificationCodeResponse as SendVerificationCodeResponsePB
+  SendVerificationCodeRequest as SendVerificationCodeRequestPB
 } from "../generated/node/identity_pb";
 
 abstract class AbstractClient implements FonosterClient {
@@ -125,9 +124,9 @@ abstract class AbstractClient implements FonosterClient {
   ): Promise<void> {
     await makeRpcRequest<
       SendVerificationCodeRequestPB,
-      SendVerificationCodeResponsePB,
+      null,
       { contactType: ContactType; value: string },
-      { success: boolean }
+      null
     >({
       method: this.identityClient.sendVerificationCode.bind(
         this.identityClient

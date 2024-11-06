@@ -24,11 +24,7 @@ import {
 } from "@fonoster/common";
 import { sendVerificationEmail } from "./sendVerificationEmail";
 import { sendVerificationMessage } from "./sendVerificationMessage";
-import {
-  ContactType,
-  SendVerificationCodeRequest,
-  SendVerificationCodeResponse
-} from "./types";
+import { ContactType, SendVerificationCodeRequest } from "./types";
 import { Prisma } from "../db";
 import { IdentityConfig } from "../exchanges";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
@@ -43,10 +39,7 @@ function createSendVerificationCode(
 
   const fn = async (
     call: { request: SendVerificationCodeRequest },
-    callback: (
-      error: GrpcErrorMessage,
-      response?: SendVerificationCodeResponse
-    ) => void
+    callback: (error: GrpcErrorMessage) => void
   ) => {
     const { request } = call;
     const actualContactType = request.contactType ?? ContactType.EMAIL;
@@ -68,7 +61,7 @@ function createSendVerificationCode(
       });
     }
 
-    callback(null, { success: true });
+    callback(null);
   };
 
   return withErrorHandlingAndValidation(

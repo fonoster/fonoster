@@ -19,7 +19,7 @@
 import { prisma } from "./db";
 import { IdentityConfig } from "./exchanges/types";
 import { getPublicKey } from "./getPublicKey";
-import { createSendVerificationCode } from "./verification";
+import { createSendVerificationCode, createVerifyCode } from "./verification";
 import {
   createApiKey,
   createUser,
@@ -87,7 +87,8 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig),
       getPublicKey: getPublicKey(identityConfig.publicKey),
       // Verification
-      sendVerificationCode: createSendVerificationCode(prisma, identityConfig)
+      sendVerificationCode: createSendVerificationCode(prisma, identityConfig),
+      verifyCode: createVerifyCode(prisma)
     }
   };
 }

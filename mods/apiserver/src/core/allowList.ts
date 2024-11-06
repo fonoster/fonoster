@@ -24,6 +24,7 @@ const allowList = [
   "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",
   "/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken",
   "/fonoster.identity.v1beta2.Identity/SendVerificationCode",
+  "/fonoster.identity.v1beta2.Identity/VerifyCode",
   "/fonoster.identity.v1beta2.Identity/GetPublicKey"
 ];
 
