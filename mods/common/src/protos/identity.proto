@@ -188,9 +188,10 @@ message SendVerificationCodeRequest {
 }
 
 message VerifyCodeRequest {
-  ContactType contact_type = 1;
-  string value = 2;
-  string verification_code = 3;
+  string username = 1;
+  ContactType contact_type = 2;
+  string value = 3;
+  string verification_code = 4;
 }
 
 // ApiKey Resources

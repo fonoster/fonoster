@@ -540,6 +540,9 @@ export namespace SendVerificationCodeRequest {
 }
 
 export class VerifyCodeRequest extends jspb.Message {
+  getUsername(): string;
+  setUsername(value: string): VerifyCodeRequest;
+
   getContactType(): ContactType;
   setContactType(value: ContactType): VerifyCodeRequest;
 
@@ -559,6 +562,7 @@ export class VerifyCodeRequest extends jspb.Message {
 
 export namespace VerifyCodeRequest {
   export type AsObject = {
+    username: string,
     contactType: ContactType,
     value: string,
     verificationCode: string,

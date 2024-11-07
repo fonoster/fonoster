@@ -110,6 +110,7 @@ const sendVerificationCodeRequestSchema = z.object({
 });
 
 const verifyCodeRequestSchema = z.object({
+  username: z.string(),
   contactType: z.enum(["EMAIL", "PHONE"]).default("EMAIL"),
   value: z.string(),
   verificationCode: z.string()

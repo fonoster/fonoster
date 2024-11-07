@@ -32,6 +32,7 @@
     "generate:readme": "lerna run generate:readme",
     "generate:keypair": ".scripts/gen-keypair.sh",
     "generate:protos": ".scripts/gen-code-proto.sh",
+    "postgenerate:protos": "lerna run build",
     "generate:prisma-clients": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",
     "check:updates": "lerna exec -- npx npm-check-updates",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.test.ts",

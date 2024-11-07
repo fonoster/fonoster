@@ -4972,9 +4972,10 @@ proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.toObject = function(
  */
 proto.fonoster.identity.v1beta2.VerifyCodeRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    contactType: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    value: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    verificationCode: jspb.Message.getFieldWithDefault(msg, 3, "")
+    username: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    contactType: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    value: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    verificationCode: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -5012,14 +5013,18 @@ proto.fonoster.identity.v1beta2.VerifyCodeRequest.deserializeBinaryFromReader = 
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUsername(value);
+      break;
+    case 2:
       var value = /** @type {!proto.fonoster.identity.v1beta2.ContactType} */ (reader.readEnum());
       msg.setContactType(value);
       break;
-    case 2:
+    case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setValue(value);
       break;
-    case 3:
+    case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setVerificationCode(value);
       break;
@@ -5052,24 +5057,31 @@ proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.serializeBinary = fu
  */
 proto.fonoster.identity.v1beta2.VerifyCodeRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
+  f = message.getUsername();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
   f = message.getContactType();
   if (f !== 0.0) {
     writer.writeEnum(
-      1,
+      2,
       f
     );
   }
   f = message.getValue();
   if (f.length > 0) {
     writer.writeString(
-      2,
+      3,
       f
     );
   }
   f = message.getVerificationCode();
   if (f.length > 0) {
     writer.writeString(
-      3,
+      4,
       f
     );
   }
@@ -5077,11 +5089,29 @@ proto.fonoster.identity.v1beta2.VerifyCodeRequest.serializeBinaryToWriter = func
 
 
 /**
- * optional ContactType contact_type = 1;
+ * optional string username = 1;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.VerifyCodeRequest} returns this
+ */
+proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.setUsername = function(value) {
+  return jspb.Message.setProto3StringField(this, 1, value);
+};
+
+
+/**
+ * optional ContactType contact_type = 2;
  * @return {!proto.fonoster.identity.v1beta2.ContactType}
  */
 proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.getContactType = function() {
-  return /** @type {!proto.fonoster.identity.v1beta2.ContactType} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+  return /** @type {!proto.fonoster.identity.v1beta2.ContactType} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
 };
 
 
@@ -5090,33 +5120,15 @@ proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.getContactType = fun
  * @return {!proto.fonoster.identity.v1beta2.VerifyCodeRequest} returns this
  */
 proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.setContactType = function(value) {
-  return jspb.Message.setProto3EnumField(this, 1, value);
+  return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
 
 /**
- * optional string value = 2;
+ * optional string value = 3;
  * @return {string}
  */
 proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.getValue = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.fonoster.identity.v1beta2.VerifyCodeRequest} returns this
- */
-proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.setValue = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-/**
- * optional string verification_code = 3;
- * @return {string}
- */
-proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.getVerificationCode = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -5125,8 +5137,26 @@ proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.getVerificationCode 
  * @param {string} value
  * @return {!proto.fonoster.identity.v1beta2.VerifyCodeRequest} returns this
  */
-proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.setVerificationCode = function(value) {
+proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.setValue = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string verification_code = 4;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.getVerificationCode = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.VerifyCodeRequest} returns this
+ */
+proto.fonoster.identity.v1beta2.VerifyCodeRequest.prototype.setVerificationCode = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 

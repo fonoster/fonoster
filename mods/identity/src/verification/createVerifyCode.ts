@@ -21,15 +21,44 @@ import {
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
+import { ContactType } from "@fonoster/types";
+import { status } from "@grpc/grpc-js";
 import { VerifyCodeRequest } from "./types";
 import { Prisma } from "../db";
+import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
 
 function createVerifyCode(prisma: Prisma) {
+  const isValidVerificationCode = createIsValidVerificationCode(prisma);
+
   const fn = async (
     call: { request: VerifyCodeRequest },
     callback: (error: GrpcErrorMessage) => void
   ) => {
     const { request } = call;
+    const { username, contactType, value, verificationCode } = request;
+
+    const isValid = await isValidVerificationCode({
+      type: contactType,
+      code: verificationCode,
+      value
+    });
+
+    if (!isValid) {
+      return callback({
+        code: status.PERMISSION_DENIED,
+        message: "Invalid verification code"
+      });
+    } else if (contactType === ContactType.EMAIL && isValid) {
+      await prisma.user.update({
+        where: { email: username },
+        data: { emailVerified: true }
+      });
+    } else if (contactType === ContactType.PHONE && isValid) {
+      await prisma.user.update({
+        where: { email: username, phoneNumber: value },
+        data: { phoneNumberVerified: true }
+      });
+    }
 
     callback(null);
   };

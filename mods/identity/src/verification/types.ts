@@ -29,9 +29,10 @@ type SendVerificationCodeRequest = {
 };
 
 type VerifyCodeRequest = {
+  username: string;
   contactType: ContactType;
   value: string;
-  code: string;
+  verificationCode: string;
 };
 
 type VerificationParams = {
