@@ -36,9 +36,10 @@ function createVerifyCode(prisma: Prisma) {
   ) => {
     const { request } = call;
     const { username, contactType, value, verificationCode } = request;
+    const actualContactType = contactType ?? ContactType.EMAIL;
 
     const isValid = await isValidVerificationCode({
-      type: contactType,
+      type: actualContactType,
       code: verificationCode,
       value
     });
@@ -48,12 +49,12 @@ function createVerifyCode(prisma: Prisma) {
         code: status.PERMISSION_DENIED,
         message: "Invalid verification code"
       });
-    } else if (contactType === ContactType.EMAIL && isValid) {
+    } else if (actualContactType === ContactType.EMAIL && isValid) {
       await prisma.user.update({
         where: { email: username },
         data: { emailVerified: true }
       });
-    } else if (contactType === ContactType.PHONE && isValid) {
+    } else if (actualContactType === ContactType.PHONE && isValid) {
       await prisma.user.update({
         where: { email: username, phoneNumber: value },
         data: { phoneNumberVerified: true }

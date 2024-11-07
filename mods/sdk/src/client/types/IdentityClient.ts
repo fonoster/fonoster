@@ -53,6 +53,7 @@ import {
   UpdateWorkspaceRequest,
   UpdateWorkspaceResponse,
   User,
+  VerifyCodeRequest,
   Workspace
 } from "../../generated/web/identity_pb";
 import { ClientFunction } from "../types";
@@ -81,7 +82,8 @@ type IdentityClient = {
   getUser: ClientFunction<GetUserRequest, User>;
   updateUser: ClientFunction<UpdateUserRequest, CreateUserResponse>;
   deleteUser: ClientFunction<DeleteUserRequest, DeleteUserResponse>;
-  sendVerificationCode: ClientFunction<SendVerificationCodeRequest, null>;
+  sendVerificationCode: ClientFunction<SendVerificationCodeRequest, never>;
+  verifyCode: ClientFunction<VerifyCodeRequest, never>;
   // Workspaces
   createWorkspace: ClientFunction<CreateWorkspaceRequest, CreateUserResponse>;
   getWorkspace: ClientFunction<GetWorkspaceRequest, Workspace>;

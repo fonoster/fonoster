@@ -37,7 +37,8 @@ import {
   ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
   ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
   ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
-  SendVerificationCodeRequest as SendVerificationCodeRequestPB
+  SendVerificationCodeRequest as SendVerificationCodeRequestPB,
+  VerifyCodeRequest as VerifyCodeRequestPB
 } from "../generated/node/identity_pb";
 
 abstract class AbstractClient implements FonosterClient {
@@ -126,7 +127,7 @@ abstract class AbstractClient implements FonosterClient {
       SendVerificationCodeRequestPB,
       null,
       { contactType: ContactType; value: string },
-      null
+      never
     >({
       method: this.identityClient.sendVerificationCode.bind(
         this.identityClient
@@ -137,6 +138,31 @@ abstract class AbstractClient implements FonosterClient {
         contactType: contactType as ContactType,
         value
       },
+      enumMapping: [["contactType", ContactTypePB]]
+    });
+  }
+
+  async verifyCode(request: {
+    username: string;
+    contactType: ContactType;
+    value: string;
+    verificationCode: string;
+  }): Promise<void> {
+    await makeRpcRequest<
+      VerifyCodeRequestPB,
+      null,
+      {
+        username: string;
+        contactType: ContactType;
+        value: string;
+        verificationCode: string;
+      },
+      never
+    >({
+      method: this.identityClient.verifyCode.bind(this.identityClient),
+      requestPBObjectConstructor: VerifyCodeRequestPB,
+      metadata: {},
+      request,
       enumMapping: [["contactType", ContactTypePB]]
     });
   }
