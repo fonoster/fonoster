@@ -30,7 +30,10 @@ import {
   SMTP_HOST,
   SMTP_PORT,
   SMTP_SECURE,
-  SMTP_SENDER
+  SMTP_SENDER,
+  TWILIO_ACCOUNT_SID,
+  TWILIO_AUTH_TOKEN,
+  TWILIO_PHONE_NUMBER
 } from "../envs";
 
 const identityConfig = {
@@ -51,6 +54,11 @@ const identityConfig = {
       user: SMTP_AUTH_USER,
       pass: SMTP_AUTH_PASS
     }
+  },
+  twilioSmsConfig: {
+    accountSid: TWILIO_ACCOUNT_SID,
+    authToken: TWILIO_AUTH_TOKEN,
+    sender: TWILIO_PHONE_NUMBER
   }
 };
 

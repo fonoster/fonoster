@@ -49,10 +49,20 @@ assertEnvsAreSet([
   "NATS_URL"
 ]);
 
+const IDENTITY_USER_VERIFICATION_REQUIRED =
+  e.IDENTITY_USER_VERIFICATION_REQUIRED === "true";
 const IDENTITY_PRIVATE_KEY_PATH =
   e.IDENTITY_PRIVATE_KEY_PATH || "/opt/fonoster/keys/private.pem";
 const IDENTITY_PUBLIC_KEY_PATH =
   e.IDENTITY_PUBLIC_KEY_PATH || "/opt/fonoster/keys/public.pem";
+
+if (IDENTITY_USER_VERIFICATION_REQUIRED) {
+  assertEnvsAreSet([
+    "TWILIO_ACCOUNT_SID",
+    "TWILIO_AUTH_TOKEN",
+    "TWILIO_PHONE_NUMBER"
+  ]);
+}
 
 assertFileExists(IDENTITY_PRIVATE_KEY_PATH);
 assertFileExists(IDENTITY_PUBLIC_KEY_PATH);
@@ -114,6 +124,7 @@ export const IDENTITY_REFRESH_TOKEN_EXPIRES_IN =
 export const IDENTITY_WORKSPACE_INVITATION_FAIL_URL =
   e.IDENTITY_WORKSPACE_INVITATION_FAIL_URL;
 
+// InfluxDB configurations
 export const INFLUXDB_BUCKET = e.INFLUXDB_INIT_BUCKET;
 
 export const INFLUXDB_ORG = e.INFLUXDB_INIT_ORG;
@@ -122,7 +133,6 @@ export const INFLUXDB_PASSWORD = e.INFLUXDB_INIT_PASSWORD;
 
 export const INFLUXDB_TOKEN = e.INFLUXDB_INIT_TOKEN;
 
-// InfluxDB configurations
 export const INFLUXDB_URL = e.INFLUXDB_URL;
 
 export const INFLUXDB_USERNAME = e.INFLUXDB_INIT_USERNAME;
@@ -165,5 +175,13 @@ export const SMTP_PORT = e.SMTP_PORT ? parseInt(e.SMTP_PORT) : 587;
 export const SMTP_SECURE = e.SMTP_SECURE?.toLowerCase() === "true";
 
 export const SMTP_SENDER = e.SMTP_SENDER;
+
 // Custom templates
 export const TEMPLATES_DIR = e.TEMPLATES_DIR;
+
+// Twilio configurations
+export const TWILIO_ACCOUNT_SID = e.TWILIO_ACCOUNT_SID;
+
+export const TWILIO_AUTH_TOKEN = e.TWILIO_AUTH_TOKEN;
+
+export const TWILIO_PHONE_NUMBER = e.TWILIO_PHONE_NUMBER;

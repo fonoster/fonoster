@@ -78,6 +78,11 @@ type IdentityConfig = {
       pass: string;
     };
   };
+  twilioSmsConfig?: {
+    accountSid: string;
+    authToken: string;
+    sender: string;
+  };
 };
 
 type DecodedToken<T extends TokenUseEnum> = T extends TokenUseEnum.ID

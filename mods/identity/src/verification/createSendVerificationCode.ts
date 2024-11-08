@@ -20,6 +20,7 @@ import {
   GrpcErrorMessage,
   Validators as V,
   createSendEmail,
+  createSendSmsTwilioImpl,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { sendVerificationEmail } from "./sendVerificationEmail";
@@ -33,7 +34,7 @@ function createSendVerificationCode(
   prisma: Prisma,
   identityConfig: IdentityConfig
 ) {
-  const sendSms = {} as any;
+  const sendSms = createSendSmsTwilioImpl(identityConfig.twilioSmsConfig);
   const sendEmail = createSendEmail(identityConfig.smtpConfig);
   const generateVerificationCode = createGenerateVerificationCode(prisma);
 

@@ -35,7 +35,10 @@ function createSendSmsTwilioImpl(config: TwilioSmsSenderConfig) {
       to
     });
 
-    logger.verbose("message sent", result);
+    logger.verbose("message sent", {
+      status: result.status,
+      messageId: result.sid
+    });
   };
 }
 
