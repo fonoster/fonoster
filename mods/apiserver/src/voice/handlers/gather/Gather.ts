@@ -28,9 +28,9 @@ import { isDtmf } from "../utils";
 import { withErrorHandling } from "../utils/withErrorHandling";
 
 const gatherRequestSchema = z.object({
-  source: z.optional(
-    z.nativeEnum(GatherSource, { message: "Invalid gather source" })
-  ),
+  source: z
+    .optional(z.nativeEnum(GatherSource, { message: "Invalid gather source" }))
+    .optional(),
   maxDigits: z
     .number()
     .int({
