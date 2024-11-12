@@ -36,6 +36,8 @@ import {
   ExchangeApiKeyRequest as ExchangeApiKeyRequestPB,
   ExchangeCredentialsRequest as ExchangeCredentialsRequestPB,
   ExchangeCredentialsResponse as ExchangeCredentialsResponsePB,
+  ExchangeOauth2CodeRequest as ExchangeOauth2CodeRequestPB,
+  ExchangeOauth2CodeResponse as ExchangeOauth2CodeResponsePB,
   ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
   SendVerificationCodeRequest as SendVerificationCodeRequestPB,
   VerifyCodeRequest as VerifyCodeRequestPB
@@ -112,6 +114,31 @@ abstract class AbstractClient implements FonosterClient {
       metadata: {},
       request: {
         apiKey
+      }
+    });
+
+    this._refreshToken = refreshToken;
+    this._accessToken = accessToken;
+  }
+
+  async loginWithOauth2Code(
+    provider: "GITHUB",
+    username: string,
+    code: string
+  ): Promise<void> {
+    const { refreshToken, accessToken } = await makeRpcRequest<
+      ExchangeOauth2CodeRequestPB,
+      ExchangeOauth2CodeResponsePB,
+      { provider: "GITHUB"; username: string; code: string },
+      { refreshToken: string; accessToken: string }
+    >({
+      method: this.identityClient.exchangeOauth2Code,
+      requestPBObjectConstructor: ExchangeOauth2CodeRequestPB,
+      metadata: {},
+      request: {
+        provider,
+        username,
+        code
       }
     });
 

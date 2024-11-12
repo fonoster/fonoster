@@ -32,6 +32,8 @@ import {
   ExchangeApiKeyResponse,
   ExchangeCredentialsRequest,
   ExchangeCredentialsResponse,
+  ExchangeOauth2CodeRequest,
+  ExchangeOauth2CodeResponse,
   ExchangeRefreshTokenRequest,
   ExchangeRefreshTokenResponse,
   GetUserRequest,
@@ -72,6 +74,10 @@ type IdentityClient = {
   exchangeCredentials: ClientFunction<
     ExchangeCredentialsRequest,
     ExchangeCredentialsResponse
+  >;
+  exchangeOauth2Code: ClientFunction<
+    ExchangeOauth2CodeRequest,
+    ExchangeOauth2CodeResponse
   >;
   exchangeRefreshToken: ClientFunction<
     ExchangeRefreshTokenRequest,
