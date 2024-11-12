@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { prisma } from "./db";
+import { exchangeOauth2Code } from "./exchanges/exchangeOauth2Code";
 import { IdentityConfig } from "./exchanges/types";
 import { getPublicKey } from "./getPublicKey";
 import { createSendVerificationCode, createVerifyCode } from "./verification";
@@ -84,6 +85,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       // Exchanges
       exchangeApiKey: exchangeApiKey(prisma, identityConfig),
       exchangeCredentials: exchangeCredentials(prisma, identityConfig),
+      exchangeOauth2Code: exchangeOauth2Code(prisma, identityConfig),
       exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig),
       getPublicKey: getPublicKey(identityConfig.publicKey),
       // Verification

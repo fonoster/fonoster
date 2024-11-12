@@ -83,6 +83,10 @@ type IdentityConfig = {
     authToken: string;
     sender: string;
   };
+  githubOauth2Config?: {
+    clientId: string;
+    clientSecret: string;
+  };
 };
 
 type DecodedToken<T extends TokenUseEnum> = T extends TokenUseEnum.ID
@@ -94,6 +98,8 @@ type DecodedToken<T extends TokenUseEnum> = T extends TokenUseEnum.ID
       : never;
 
 type ExchangeApiKeysRequest = z.infer<typeof V.exchangeApiKeysRequestSchema>;
+
+type ExchangeOauth2CodeRequest = z.infer<typeof V.exchangeOauth2RequestSchema>;
 
 type ExchangeCredentialsRequest = z.infer<
   typeof V.exchangeCredentialsRequestSchema
@@ -115,6 +121,7 @@ export {
   DecodedToken,
   ExchangeApiKeysRequest,
   ExchangeCredentialsRequest,
+  ExchangeOauth2CodeRequest,
   ExchangeRefreshTokenRequest,
   ExchangeResponse,
   IdToken,

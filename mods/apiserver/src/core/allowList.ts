@@ -22,6 +22,7 @@ const allowList = [
   "/fonoster.identity.v1beta2.Identity/CreateWorkspace",
   "/fonoster.identity.v1beta2.Identity/ExchangeApiKey",
   "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",
+  "/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code",
   "/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken",
   "/fonoster.identity.v1beta2.Identity/SendVerificationCode",
   "/fonoster.identity.v1beta2.Identity/VerifyCode",

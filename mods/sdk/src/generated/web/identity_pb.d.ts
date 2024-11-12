@@ -881,43 +881,55 @@ export namespace ExchangeApiKeyResponse {
   }
 }
 
-export class ExchangeOAuth2CodeRequest extends jspb.Message {
+export class ExchangeOauth2CodeRequest extends jspb.Message {
+  getProvider(): ExchangeOauth2CodeRequest.Oauth2Provider;
+  setProvider(value: ExchangeOauth2CodeRequest.Oauth2Provider): ExchangeOauth2CodeRequest;
+
+  getUsername(): string;
+  setUsername(value: string): ExchangeOauth2CodeRequest;
+
   getCode(): string;
-  setCode(value: string): ExchangeOAuth2CodeRequest;
+  setCode(value: string): ExchangeOauth2CodeRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ExchangeOAuth2CodeRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: ExchangeOAuth2CodeRequest): ExchangeOAuth2CodeRequest.AsObject;
-  static serializeBinaryToWriter(message: ExchangeOAuth2CodeRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ExchangeOAuth2CodeRequest;
-  static deserializeBinaryFromReader(message: ExchangeOAuth2CodeRequest, reader: jspb.BinaryReader): ExchangeOAuth2CodeRequest;
+  toObject(includeInstance?: boolean): ExchangeOauth2CodeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ExchangeOauth2CodeRequest): ExchangeOauth2CodeRequest.AsObject;
+  static serializeBinaryToWriter(message: ExchangeOauth2CodeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ExchangeOauth2CodeRequest;
+  static deserializeBinaryFromReader(message: ExchangeOauth2CodeRequest, reader: jspb.BinaryReader): ExchangeOauth2CodeRequest;
 }
 
-export namespace ExchangeOAuth2CodeRequest {
+export namespace ExchangeOauth2CodeRequest {
   export type AsObject = {
+    provider: ExchangeOauth2CodeRequest.Oauth2Provider,
+    username: string,
     code: string,
+  }
+
+  export enum Oauth2Provider { 
+    GITHUB = 0,
   }
 }
 
-export class ExchangeOAuth2CodeResponse extends jspb.Message {
+export class ExchangeOauth2CodeResponse extends jspb.Message {
   getIdToken(): string;
-  setIdToken(value: string): ExchangeOAuth2CodeResponse;
+  setIdToken(value: string): ExchangeOauth2CodeResponse;
 
   getAccessToken(): string;
-  setAccessToken(value: string): ExchangeOAuth2CodeResponse;
+  setAccessToken(value: string): ExchangeOauth2CodeResponse;
 
   getRefreshToken(): string;
-  setRefreshToken(value: string): ExchangeOAuth2CodeResponse;
+  setRefreshToken(value: string): ExchangeOauth2CodeResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ExchangeOAuth2CodeResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: ExchangeOAuth2CodeResponse): ExchangeOAuth2CodeResponse.AsObject;
-  static serializeBinaryToWriter(message: ExchangeOAuth2CodeResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ExchangeOAuth2CodeResponse;
-  static deserializeBinaryFromReader(message: ExchangeOAuth2CodeResponse, reader: jspb.BinaryReader): ExchangeOAuth2CodeResponse;
+  toObject(includeInstance?: boolean): ExchangeOauth2CodeResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ExchangeOauth2CodeResponse): ExchangeOauth2CodeResponse.AsObject;
+  static serializeBinaryToWriter(message: ExchangeOauth2CodeResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ExchangeOauth2CodeResponse;
+  static deserializeBinaryFromReader(message: ExchangeOauth2CodeResponse, reader: jspb.BinaryReader): ExchangeOauth2CodeResponse;
 }
 
-export namespace ExchangeOAuth2CodeResponse {
+export namespace ExchangeOauth2CodeResponse {
   export type AsObject = {
     idToken: string,
     accessToken: string,

@@ -56,6 +56,14 @@ const exchangeCredentialsRequestSchema = z.object({
   verificationCode: z.string().optional()
 });
 
+const exchangeOauth2RequestSchema = z.object({
+  provider: z.enum(["GITHUB"]).default("GITHUB"),
+  username: z
+    .string()
+    .email({ message: "Invalid username. Must be an email address" }),
+  code: z.string()
+});
+
 const exchangeRefreshTokenRequestSchema = z.object({
   refreshToken: z.string()
 });
@@ -122,6 +130,7 @@ export {
   createWorkspaceRequestSchema,
   exchangeApiKeysRequestSchema,
   exchangeCredentialsRequestSchema,
+  exchangeOauth2RequestSchema,
   exchangeRefreshTokenRequestSchema,
   inviteUserToWorkspaceRequestSchema,
   removeUserFromWorkspaceRequestSchema,

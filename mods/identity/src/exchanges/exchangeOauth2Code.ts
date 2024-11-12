@@ -18,73 +18,65 @@
  */
 import {
   GrpcErrorMessage,
-  exchangeCredentialsRequestSchema,
+  exchangeOauth2RequestSchema,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { exchangeTokens } from "./exchangeTokens";
 import {
-  ExchangeCredentialsRequest,
+  ExchangeOauth2CodeRequest,
   ExchangeResponse,
   IdentityConfig
 } from "./types";
 import { Prisma } from "../db";
-import { IDENTITY_USER_VERIFICATION_REQUIRED } from "../envs";
-import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
 import { getUserByEmail } from "../utils/getUserByEmail";
-import { ContactType } from "../verification";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
-const verificationRequiredButNotProvided = (user: {
-  emailVerified: boolean;
-  phoneNumberVerified: boolean;
-}) =>
-  IDENTITY_USER_VERIFICATION_REQUIRED &&
-  (!user.emailVerified || !user.phoneNumberVerified);
-
-function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
-  const isValidVerificationCode = createIsValidVerificationCode(prisma);
-
+function exchangeOauth2Code(prisma: Prisma, identityConfig: IdentityConfig) {
   const fn = async (
-    call: { request: ExchangeCredentialsRequest },
+    call: { request: ExchangeOauth2CodeRequest },
     callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { request } = call;
-    const { username: email, password, verificationCode } = request;
+    const { provider, username: email, code } = request;
 
-    logger.verbose("call to exchangeCredentials", { username: email });
+    logger.verbose("call to exchangeOauth2Code", { provider });
 
+    const tokenResponse = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify({
+          client_id: identityConfig.githubOauth2Config.clientId,
+          client_secret: identityConfig.githubOauth2Config.clientSecret,
+          code
+        })
+      }
+    );
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData?.access_token;
+
+    const userResponse = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `token ${accessToken}`
+      }
+    });
+
+    const userData = await userResponse.json();
     const user = await getUserByEmail(prisma)(email);
 
-    if (!user || user.password !== password?.trim()) {
+    if (userData.email !== email || !user) {
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"
       });
-    }
-
-    if (verificationRequiredButNotProvided(user)) {
-      return callback({
-        code: grpc.status.PERMISSION_DENIED,
-        message: "User contact information not verified"
-      });
-    }
-
-    if (IDENTITY_USER_VERIFICATION_REQUIRED) {
-      const isValid = await isValidVerificationCode({
-        type: ContactType.EMAIL,
-        value: email,
-        code: verificationCode
-      });
-
-      if (!isValid) {
-        return callback({
-          code: grpc.status.PERMISSION_DENIED,
-          message: "Invalid verification code"
-        });
-      }
     }
 
     callback(
@@ -93,7 +85,7 @@ function exchangeCredentials(prisma: Prisma, identityConfig: IdentityConfig) {
     );
   };
 
-  return withErrorHandlingAndValidation(fn, exchangeCredentialsRequestSchema);
+  return withErrorHandlingAndValidation(fn, exchangeOauth2RequestSchema);
 }
 
-export { exchangeCredentials };
+export { exchangeOauth2Code };

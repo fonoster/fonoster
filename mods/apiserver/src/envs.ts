@@ -18,7 +18,7 @@
  */
 import fs from "fs";
 import { join } from "path";
-import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
+import { assertEnvsAreSet } from "@fonoster/common";
 import dotenv from "dotenv";
 
 if (process.env.NODE_ENV === "dev") {
@@ -49,23 +49,10 @@ assertEnvsAreSet([
   "NATS_URL"
 ]);
 
-const IDENTITY_USER_VERIFICATION_REQUIRED =
-  e.IDENTITY_USER_VERIFICATION_REQUIRED === "true";
 const IDENTITY_PRIVATE_KEY_PATH =
   e.IDENTITY_PRIVATE_KEY_PATH || "/opt/fonoster/keys/private.pem";
 const IDENTITY_PUBLIC_KEY_PATH =
   e.IDENTITY_PUBLIC_KEY_PATH || "/opt/fonoster/keys/public.pem";
-
-if (IDENTITY_USER_VERIFICATION_REQUIRED) {
-  assertEnvsAreSet([
-    "TWILIO_ACCOUNT_SID",
-    "TWILIO_AUTH_TOKEN",
-    "TWILIO_PHONE_NUMBER"
-  ]);
-}
-
-assertFileExists(IDENTITY_PRIVATE_KEY_PATH);
-assertFileExists(IDENTITY_PUBLIC_KEY_PATH);
 
 export const APISERVER_BIND_ADDR = e.APISERVER_BIND_ADDR || "0.0.0.0:50051";
 
@@ -97,6 +84,7 @@ export const HTTP_BRIDGE_PORT = e.HTTP_BRIDGE_PORT
   ? parseInt(e.HTTP_BRIDGE_PORT)
   : 9876;
 
+// Identity configurations
 export const IDENTITY_ACCESS_TOKEN_EXPIRES_IN =
   e.IDENTITY_ACCESS_TOKEN_EXPIRES_IN || "15m";
 
@@ -105,8 +93,13 @@ export const IDENTITY_AUDIENCE = e.IDENTITY_AUDIENCE || "api";
 export const IDENTITY_ID_TOKEN_EXPIRES_IN =
   e.IDENTITY_ID_TOKEN_EXPIRES_IN || "15m";
 
-// Identity configurations
 export const IDENTITY_ISSUER = e.IDENTITY_ISSUER || "https://fonoster.local";
+
+export const IDENTITY_OAUTH2_GITHUB_CLIENT_ID =
+  e.IDENTITY_OAUTH2_GITHUB_CLIENT_ID;
+
+export const IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET =
+  e.IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET;
 
 export const IDENTITY_PRIVATE_KEY = fs.readFileSync(
   IDENTITY_PRIVATE_KEY_PATH,
@@ -123,6 +116,13 @@ export const IDENTITY_REFRESH_TOKEN_EXPIRES_IN =
 
 export const IDENTITY_WORKSPACE_INVITATION_FAIL_URL =
   e.IDENTITY_WORKSPACE_INVITATION_FAIL_URL;
+
+if (e.IDENTITY_OAUTH2_GITHUB_ENABLED === "true") {
+  assertEnvsAreSet([
+    "IDENTITY_OAUTH2_GITHUB_CLIENT_ID",
+    "IDENTITY_OAUTH2_GITHUB_CLIENT_SECRET"
+  ]);
+}
 
 // InfluxDB configurations
 export const INFLUXDB_BUCKET = e.INFLUXDB_INIT_BUCKET;

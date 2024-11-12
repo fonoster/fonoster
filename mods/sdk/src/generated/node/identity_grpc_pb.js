@@ -199,26 +199,26 @@ function deserialize_fonoster_identity_v1beta2_ExchangeCredentialsResponse(buffe
   return identity_pb.ExchangeCredentialsResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_identity_v1beta2_ExchangeOAuth2CodeRequest(arg) {
-  if (!(arg instanceof identity_pb.ExchangeOAuth2CodeRequest)) {
-    throw new Error('Expected argument of type fonoster.identity.v1beta2.ExchangeOAuth2CodeRequest');
+function serialize_fonoster_identity_v1beta2_ExchangeOauth2CodeRequest(arg) {
+  if (!(arg instanceof identity_pb.ExchangeOauth2CodeRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ExchangeOauth2CodeRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonoster_identity_v1beta2_ExchangeOAuth2CodeRequest(buffer_arg) {
-  return identity_pb.ExchangeOAuth2CodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonoster_identity_v1beta2_ExchangeOauth2CodeRequest(buffer_arg) {
+  return identity_pb.ExchangeOauth2CodeRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_identity_v1beta2_ExchangeOAuth2CodeResponse(arg) {
-  if (!(arg instanceof identity_pb.ExchangeOAuth2CodeResponse)) {
-    throw new Error('Expected argument of type fonoster.identity.v1beta2.ExchangeOAuth2CodeResponse');
+function serialize_fonoster_identity_v1beta2_ExchangeOauth2CodeResponse(arg) {
+  if (!(arg instanceof identity_pb.ExchangeOauth2CodeResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.ExchangeOauth2CodeResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_fonoster_identity_v1beta2_ExchangeOAuth2CodeResponse(buffer_arg) {
-  return identity_pb.ExchangeOAuth2CodeResponse.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_fonoster_identity_v1beta2_ExchangeOauth2CodeResponse(buffer_arg) {
+  return identity_pb.ExchangeOauth2CodeResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonoster_identity_v1beta2_ExchangeRefreshTokenRequest(arg) {
@@ -755,16 +755,16 @@ exchangeCredentials: {
     responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeApiKeyResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeApiKeyResponse,
   },
-  exchangeOAuth2Code: {
-    path: '/fonoster.identity.v1beta2.Identity/ExchangeOAuth2Code',
+  exchangeOauth2Code: {
+    path: '/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code',
     requestStream: false,
     responseStream: false,
-    requestType: identity_pb.ExchangeOAuth2CodeRequest,
-    responseType: identity_pb.ExchangeOAuth2CodeResponse,
-    requestSerialize: serialize_fonoster_identity_v1beta2_ExchangeOAuth2CodeRequest,
-    requestDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeOAuth2CodeRequest,
-    responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeOAuth2CodeResponse,
-    responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeOAuth2CodeResponse,
+    requestType: identity_pb.ExchangeOauth2CodeRequest,
+    responseType: identity_pb.ExchangeOauth2CodeResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_ExchangeOauth2CodeRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeOauth2CodeRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_ExchangeOauth2CodeResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_ExchangeOauth2CodeResponse,
   },
   exchangeRefreshToken: {
     path: '/fonoster.identity.v1beta2.Identity/ExchangeRefreshToken',

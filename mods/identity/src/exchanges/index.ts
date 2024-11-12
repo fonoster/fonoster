@@ -19,5 +19,6 @@ export * from "./TokenUseEnum";
  */
 export * from "./exchangeApiKey";
 export * from "./exchangeCredentials";
+export * from "./exchangeOauth2Code";
 export * from "./exchangeRefreshToken";
 export * from "./types";

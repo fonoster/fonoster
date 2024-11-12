@@ -900,47 +900,47 @@ export class IdentityClient {
     this.methodDescriptorExchangeApiKey);
   }
 
-  methodDescriptorExchangeOAuth2Code = new grpcWeb.MethodDescriptor(
-    '/fonoster.identity.v1beta2.Identity/ExchangeOAuth2Code',
+  methodDescriptorExchangeOauth2Code = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code',
     grpcWeb.MethodType.UNARY,
-    identity_pb.ExchangeOAuth2CodeRequest,
-    identity_pb.ExchangeOAuth2CodeResponse,
-    (request: identity_pb.ExchangeOAuth2CodeRequest) => {
+    identity_pb.ExchangeOauth2CodeRequest,
+    identity_pb.ExchangeOauth2CodeResponse,
+    (request: identity_pb.ExchangeOauth2CodeRequest) => {
       return request.serializeBinary();
     },
-    identity_pb.ExchangeOAuth2CodeResponse.deserializeBinary
+    identity_pb.ExchangeOauth2CodeResponse.deserializeBinary
   );
 
-  exchangeOAuth2Code(
-    request: identity_pb.ExchangeOAuth2CodeRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.ExchangeOAuth2CodeResponse>;
+  exchangeOauth2Code(
+    request: identity_pb.ExchangeOauth2CodeRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.ExchangeOauth2CodeResponse>;
 
-  exchangeOAuth2Code(
-    request: identity_pb.ExchangeOAuth2CodeRequest,
+  exchangeOauth2Code(
+    request: identity_pb.ExchangeOauth2CodeRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: identity_pb.ExchangeOAuth2CodeResponse) => void): grpcWeb.ClientReadableStream<identity_pb.ExchangeOAuth2CodeResponse>;
+               response: identity_pb.ExchangeOauth2CodeResponse) => void): grpcWeb.ClientReadableStream<identity_pb.ExchangeOauth2CodeResponse>;
 
-  exchangeOAuth2Code(
-    request: identity_pb.ExchangeOAuth2CodeRequest,
+  exchangeOauth2Code(
+    request: identity_pb.ExchangeOauth2CodeRequest,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: identity_pb.ExchangeOAuth2CodeResponse) => void) {
+               response: identity_pb.ExchangeOauth2CodeResponse) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
-          '/fonoster.identity.v1beta2.Identity/ExchangeOAuth2Code',
+          '/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code',
         request,
         metadata || {},
-        this.methodDescriptorExchangeOAuth2Code,
+        this.methodDescriptorExchangeOauth2Code,
         callback);
     }
     return this.client_.unaryCall(
     this.hostname_ +
-      '/fonoster.identity.v1beta2.Identity/ExchangeOAuth2Code',
+      '/fonoster.identity.v1beta2.Identity/ExchangeOauth2Code',
     request,
     metadata || {},
-    this.methodDescriptorExchangeOAuth2Code);
+    this.methodDescriptorExchangeOauth2Code);
   }
 
   methodDescriptorExchangeRefreshToken = new grpcWeb.MethodDescriptor(

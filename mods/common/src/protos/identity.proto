@@ -50,7 +50,7 @@ service Identity {
   // Token exchange actions
   rpc ExchangeCredentials (ExchangeCredentialsRequest) returns (ExchangeCredentialsResponse) {}
   rpc ExchangeApiKey (ExchangeApiKeyRequest) returns (ExchangeApiKeyResponse) {}
-  rpc ExchangeOAuth2Code (ExchangeOAuth2CodeRequest) returns (ExchangeOAuth2CodeResponse) {}
+  rpc ExchangeOauth2Code (ExchangeOauth2CodeRequest) returns (ExchangeOauth2CodeResponse) {}
   rpc ExchangeRefreshToken (ExchangeRefreshTokenRequest) returns (ExchangeRefreshTokenResponse) {}
   rpc RevokeToken (RevokeTokenRequest) returns (RevokeTokenResponse) {}
 
@@ -270,11 +270,16 @@ message ExchangeApiKeyResponse {
   string refresh_token = 3;
 }
 
-message ExchangeOAuth2CodeRequest {
-  string code = 1;
+message ExchangeOauth2CodeRequest {
+  enum Oauth2Provider {
+    GITHUB = 0;
+  }
+  Oauth2Provider provider = 1;
+  string username = 2;
+  string code = 3;
 }
 
-message ExchangeOAuth2CodeResponse {
+message ExchangeOauth2CodeResponse {
   string id_token = 1;
   string access_token = 2;
   string refresh_token = 3;
