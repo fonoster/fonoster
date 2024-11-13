@@ -33,6 +33,8 @@ function handleStasisStart(params: {
     try {
       await bridge.addChannel({ channel: dialed.id });
 
+      await ari.channels.ringStop({ channelId: channel.id });
+
       if (
         [DialRecordDirection.IN, DialRecordDirection.BOTH].includes(
           recordDirection

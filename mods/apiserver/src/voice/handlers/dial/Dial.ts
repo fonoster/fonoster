@@ -30,7 +30,7 @@ import { makeGetChannelVar } from "../../utils/makeGetChannelVar";
 // TODO: Needs request validation
 function dialHandler(ari: Client, voiceClient: VoiceClient) {
   return async (request: DialRequest) => {
-    const { sessionRef, destination, timeout } = request;
+    const { sessionRef: channelId, destination, timeout } = request;
 
     const bridge = await ari.bridges.create({
       type: "mixing"
@@ -39,9 +39,9 @@ function dialHandler(ari: Client, voiceClient: VoiceClient) {
     // eslint-disable-next-line new-cap
     const dialed = ari.Channel();
 
-    await bridge.addChannel({ channel: sessionRef });
+    await bridge.addChannel({ channel: channelId });
 
-    const callerChannel = await ari.channels.get({ channelId: sessionRef });
+    const callerChannel = await ari.channels.get({ channelId });
     const getChannelVar = makeGetChannelVar(callerChannel);
 
     const ingressNumber = (await getChannelVar(ChannelVar.INGRESS_NUMBER))
@@ -59,6 +59,8 @@ function dialHandler(ari: Client, voiceClient: VoiceClient) {
         "PJSIP_HEADER(add,X-Is-Api-Originated-Type)": "true"
       }
     });
+
+    await ari.channels.ring({ channelId });
 
     dialed.once(
       AE.STASIS_START,

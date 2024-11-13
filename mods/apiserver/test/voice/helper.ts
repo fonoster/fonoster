@@ -36,6 +36,8 @@ function getAriStub(sandbox: SinonSandbox) {
       get: sandbox.stub().resolves({
         getChannelVar: sandbox.stub().resolves({ value: "value" })
       }),
+      ring: sandbox.stub(),
+      ringStop: sandbox.stub(),
       record: sandbox.stub(),
       answer: sandbox.stub(),
       play: sandbox.stub(),
