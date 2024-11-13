@@ -40,6 +40,7 @@ type Voice = {
   transfer: (destination: string, options?: TransferOptions) => Promise<void>;
   stream: () => Promise<Stream>;
   stopSpeech: () => Promise<void>;
+  stopStreams: () => Promise<void>;
 };
 
 export { TransferOptions, Voice };

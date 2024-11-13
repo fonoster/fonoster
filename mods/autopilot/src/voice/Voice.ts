@@ -30,6 +30,14 @@ import { Voice } from "./types";
 class VoiceImpl implements Voice {
   private playbackRef: string;
   sessionRef: string;
+  sgatherStream: {
+    stop: () => Promise<void>;
+    onData: (cb: (speech: string) => void) => void;
+  };
+  vadStream: {
+    stop: () => Promise<void>;
+    onData: (cb: (chunk: Uint8Array) => void) => void;
+  };
 
   constructor(
     sessionRef: string,
@@ -56,7 +64,7 @@ class VoiceImpl implements Voice {
       source: StreamGatherSource.SPEECH
     });
 
-    return {
+    this.sgatherStream = {
       stop: async () => {
         stream.close();
         stream.cleanup(() => {});
@@ -67,12 +75,14 @@ class VoiceImpl implements Voice {
         });
       }
     };
+
+    return this.sgatherStream;
   }
 
   async stream() {
     const stream = await this.voice.stream();
 
-    return {
+    this.vadStream = {
       stop: async () => {
         stream.close();
         stream.cleanup(() => {});
@@ -83,6 +93,8 @@ class VoiceImpl implements Voice {
         });
       }
     };
+
+    return this.vadStream;
   }
 
   async transfer(to: string, options: { record: boolean; timeout: number }) {
@@ -101,6 +113,11 @@ class VoiceImpl implements Voice {
       this.playbackRef,
       PlaybackControlAction.STOP
     );
+  }
+
+  async stopStreams() {
+    await this.vadStream.stop();
+    await this.sgatherStream.stop();
   }
 }
 

@@ -200,6 +200,7 @@ const machine = setup({
 
             const message = context.transferMessage!;
             await context.voice.say(message);
+            await context.voice.stopStreams();
             await context.voice.transfer(context.transferPhoneNumber!, {
               record: true,
               timeout: 30
