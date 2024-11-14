@@ -11,7 +11,7 @@
 > 
 > **Exploring Fonoster**: We encourage new users to initially explore Fonoster's features through our SaaS (Software as a Service) option. This platform is free to start and offers a comprehensive experience of what Fonoster can do.
 > 
-> **Installation Advisory**: Please note that the current installation process for Fonoster is complex. We are actively working to simplify this process. We recommend waiting for our upcoming v0.6.x release before attempting a direct installation. These future releases are designed to offer a more user-friendly installation experience.
+> **Installation Advisory**: Please note that the current installation process for Fonoster is complex. We are actively working to simplify this process. We recommend waiting for our upcoming v0.9.x release before attempting a direct installation. We are working to offer a more user-friendly installation experience.
 >
 >Thank you for your interest in Fonoster. We are committed to enhancing your experience with every release.
 
