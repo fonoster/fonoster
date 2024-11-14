@@ -82,7 +82,7 @@ const config = {
             position: "left",
           },
           {
-            to: "https://console.fonoster.io",
+            to: "https://form.typeform.com/to/sDv75mFr",
             label: "Sign in",
             position: "left",
           },
