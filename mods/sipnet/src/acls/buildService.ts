@@ -17,13 +17,9 @@
  * limitations under the License.
  */
 import SDK from "@routr/sdk";
-import {
-  createAcl,
-  deleteAcl,
-  getAcl,
-  listAcls,
-  updateAcl
-} from "./operations";
+import { createAcl } from "./createAcl";
+import { deleteAcl, getAcl, listAcls } from "./operations";
+import { updateAcl } from "./updateAcl";
 import { ClientOptions } from "../types";
 
 function buildService(clientOptions: ClientOptions) {

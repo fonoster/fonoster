@@ -23,7 +23,6 @@ type Acl = {
   ref: string;
   name: string;
   allow: string[];
-  deny: string[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -35,14 +34,16 @@ type AclExtended = RenameAndConvertToTimestamp<Acl> & {
 type CreateAclRequest = {
   name: string;
   allow: string[];
-  deny: string[];
 };
 
 type CreateAclRequestExtended = CreateAclRequest & {
+  deny: string[];
   extended?: Record<string, unknown>;
 };
 
-type UpdateAclRequest = Flatten<BaseApiObject & Partial<CreateAclRequest>>;
+type UpdateAclRequest = Flatten<BaseApiObject & Partial<CreateAclRequest>> & {
+  deny: string[];
+};
 
 type ListAclsRequest = ListRequest;
 

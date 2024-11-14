@@ -14,11 +14,6 @@ export class Acl extends jspb.Message {
   clearAllowList(): Acl;
   addAllow(value: string, index?: number): Acl;
 
-  getDenyList(): Array<string>;
-  setDenyList(value: Array<string>): Acl;
-  clearDenyList(): Acl;
-  addDeny(value: string, index?: number): Acl;
-
   getCreatedAt(): number;
   setCreatedAt(value: number): Acl;
 
@@ -38,7 +33,6 @@ export namespace Acl {
     ref: string,
     name: string,
     allowList: Array<string>,
-    denyList: Array<string>,
     createdAt: number,
     updatedAt: number,
   }
@@ -53,11 +47,6 @@ export class CreateAclRequest extends jspb.Message {
   clearAllowList(): CreateAclRequest;
   addAllow(value: string, index?: number): CreateAclRequest;
 
-  getDenyList(): Array<string>;
-  setDenyList(value: Array<string>): CreateAclRequest;
-  clearDenyList(): CreateAclRequest;
-  addDeny(value: string, index?: number): CreateAclRequest;
-
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateAclRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateAclRequest): CreateAclRequest.AsObject;
@@ -70,7 +59,6 @@ export namespace CreateAclRequest {
   export type AsObject = {
     name: string,
     allowList: Array<string>,
-    denyList: Array<string>,
   }
 }
 
@@ -104,11 +92,6 @@ export class UpdateAclRequest extends jspb.Message {
   clearAllowList(): UpdateAclRequest;
   addAllow(value: string, index?: number): UpdateAclRequest;
 
-  getDenyList(): Array<string>;
-  setDenyList(value: Array<string>): UpdateAclRequest;
-  clearDenyList(): UpdateAclRequest;
-  addDeny(value: string, index?: number): UpdateAclRequest;
-
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateAclRequest.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateAclRequest): UpdateAclRequest.AsObject;
@@ -122,7 +105,6 @@ export namespace UpdateAclRequest {
     ref: string,
     name: string,
     allowList: Array<string>,
-    denyList: Array<string>,
   }
 }
 

@@ -16,38 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Validators as V } from "@fonoster/common";
 import {
   AclExtended,
   AclsApi,
   BaseApiObject,
-  CreateAclRequest,
-  ListAclsRequest,
-  UpdateAclRequest
+  ListAclsRequest
 } from "@fonoster/types";
-import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
 import { listResources } from "../resources/listResources";
-import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Acl";
-
-function createAcl(acls: AclsApi) {
-  return createResource<AclExtended, CreateAclRequest, AclsApi>(
-    acls,
-    RESOURCE,
-    V.createAclRequestSchema
-  );
-}
-
-function updateAcl(acls: AclsApi) {
-  return updateResource<AclExtended, UpdateAclRequest, AclsApi>(
-    acls,
-    RESOURCE,
-    V.updateAclRequestSchema
-  );
-}
 
 function getAcl(acls: AclsApi) {
   return getResource<AclExtended, BaseApiObject, AclsApi>(acls, RESOURCE);
@@ -61,4 +40,4 @@ function deleteAcl(acls: AclsApi) {
   return deleteResource<AclExtended, BaseApiObject, AclsApi>(acls, RESOURCE);
 }
 
-export { createAcl, deleteAcl, getAcl, listAcls, updateAcl };
+export { deleteAcl, getAcl, listAcls };

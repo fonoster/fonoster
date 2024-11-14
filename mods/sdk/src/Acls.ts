@@ -62,8 +62,7 @@ import {
  *
  * const request = {
  *   name: "My ACL",
- *   allow: ["47.132.130.31"], // Allow only this IP
- *   deny: ["0.0.0.0/0"] // Deny all other IPs
+ *   allow: ["47.132.130.31"] // Allow only this IP
  * };
  *
  * main(request).catch(console.error);
@@ -87,15 +86,13 @@ class Acls {
    * @param {CreateAclRequest} request - The request object that contains the necessary information to create a new Acl
    * @param {string} request.name - The name of the Acl
    * @param {string[]} request.allow - The list of IPs to allow
-   * @param {string[]} request.deny - The list of IPs to deny
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the created Acl
    * @example
    * const acls = new SDK.Acls(client); // Existing client object
    *
    * const request = {
    *   name: "My ACL",
-   *   allow: ["47.132.130.31"], // Allow only this IP
-   *   deny: ["0.0.0.0/0"] // Deny all other IPs
+   *   allow: ["47.132.130.31"] // Allow only this IP
    * };
    *
    * acls
@@ -108,7 +105,6 @@ class Acls {
     const createAclRequest = new CreateAclRequestPB();
     createAclRequest.setName(request.name);
     createAclRequest.setAllowList(request.allow);
-    createAclRequest.setDenyList(request.deny);
 
     return new Promise((resolve, reject) => {
       client.createAcl(
@@ -159,7 +155,6 @@ class Acls {
           resolve({
             ...obj,
             allow: obj.allowList,
-            deny: obj.denyList,
             createdAt: new Date(obj.createdAt * 1000),
             updatedAt: new Date(obj.updatedAt * 1000)
           });
@@ -175,7 +170,6 @@ class Acls {
    * @param {string} request.ref - The reference of the Acl to update
    * @param {string} request.name - The name of the Acl
    * @param {string[]} request.allow - The list of IPs to allow
-   * @param {string[]} request.deny - The list of IPs to deny
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the updated Acl
    * @example
    * const acls = new SDK.Acls(client); // Existing client object
@@ -184,7 +178,6 @@ class Acls {
    *   ref: "00000000-0000-0000-0000-000000000000",
    *   name: "My ACL",
    *   allow: ["47.132.130.31"] // Allow only this IP
-   *   deny: ["0.0.0.0/0"] // Deny all other IPs
    * };
    *
    * acls
@@ -198,7 +191,6 @@ class Acls {
     updateAclRequest.setRef(request.ref);
     updateAclRequest.setName(request.name);
     updateAclRequest.setAllowList(request.allow);
-    updateAclRequest.setDenyList(request.deny);
 
     return new Promise((resolve, reject) => {
       client.updateAcl(
@@ -256,7 +248,6 @@ class Acls {
             return {
               ...obj,
               allow: obj.allowList,
-              deny: obj.denyList,
               createdAt: new Date(obj.createdAt * 1000),
               updatedAt: new Date(obj.updatedAt * 1000)
             };

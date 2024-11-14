@@ -28,8 +28,7 @@ function createAclsTestCases(expect) {
         method: "createAcl",
         request: {
           name: "From Fonoster",
-          allow: ["192.168.1.10"],
-          deny: ["192.168.1.10/32"]
+          allow: ["192.168.1.10"]
         },
         responseValidator: (response: { ref: string }) => {
           expect(response).has.property("ref");
@@ -48,10 +47,6 @@ function createAclsTestCases(expect) {
             .has.property("allow")
             .to.be.an("array")
             .to.have.lengthOf(1);
-          expect(response)
-            .has.property("deny")
-            .to.be.an("array")
-            .to.have.lengthOf(1);
           expect(response).has.property("createdAt").to.be.a("date");
           expect(response).has.property("updatedAt").to.be.a("date");
         }
@@ -63,8 +58,7 @@ function createAclsTestCases(expect) {
         request: {
           ref: "{{ref}}",
           name: "From Fonoster Updated",
-          allow: ["192.168.1.11"],
-          deny: ["0.0.0.0/0"]
+          allow: ["192.168.1.11"]
         },
         dependsOn: `${idBase}-00`,
         responseValidator: (response: { ref: string }) => {
@@ -90,10 +84,6 @@ function createAclsTestCases(expect) {
           expect(response.items[0]).to.have.property("name").to.not.be.null;
           expect(response.items[0])
             .to.have.property("allow")
-            .to.be.an("array")
-            .to.have.lengthOf(1);
-          expect(response.items[0])
-            .to.have.property("deny")
             .to.be.an("array")
             .to.have.lengthOf(1);
           expect(response.items[0])

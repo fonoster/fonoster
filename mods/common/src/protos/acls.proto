@@ -42,12 +42,10 @@ message Acl {
   string name = 2;
   // The list of allowed IP addresses
   repeated string allow = 3;
-  // The list of denied IP addresses
-  repeated string deny = 4;
   // The date the Acl was created
-  int32 created_at = 5;
+  int32 created_at = 4;
   // The date the Acl was last updated
-  int32 updated_at = 6;
+  int32 updated_at = 5;
 }
 
 // The request message for the Acl.CreateAcl method
@@ -56,8 +54,6 @@ message CreateAclRequest {
   string name = 1;
   // The list of allowed IP addresses
   repeated string allow = 2;
-  // The list of denied IP addresses
-  repeated string deny = 3;
 }
 
 // The response message for the Acl.CreateAcl method
@@ -74,8 +70,6 @@ message UpdateAclRequest {
   string name = 2;
   // The list of allowed IP addresses
   repeated string allow = 3;
-  // The list of denied IP addresses
-  repeated string deny = 4;
 } 
 
 // The response message for the Acl.UpdateAcl method

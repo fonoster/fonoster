@@ -34,8 +34,7 @@ const ipOrCidr = z
 
 const createAclRequestSchema = z.object({
   name: nameSchema,
-  allow: z.array(ipOrCidr).nonempty({ message: AT_LEAST_ONE_MESSAGE }),
-  deny: z.array(ipOrCidr).nonempty({ message: AT_LEAST_ONE_MESSAGE })
+  allow: z.array(ipOrCidr).nonempty({ message: AT_LEAST_ONE_MESSAGE })
 });
 
 const updateAclRequestSchema = z.object({
@@ -43,8 +42,7 @@ const updateAclRequestSchema = z.object({
   allow: z
     .array(ipOrCidr)
     .nonempty({ message: AT_LEAST_ONE_MESSAGE })
-    .optional(),
-  deny: z.array(ipOrCidr).nonempty({ message: AT_LEAST_ONE_MESSAGE }).optional()
+    .optional()
 });
 
 export { createAclRequestSchema, updateAclRequestSchema };

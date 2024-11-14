@@ -241,7 +241,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.fonoster.acls.v1beta2.Acl.repeatedFields_ = [3,4];
+proto.fonoster.acls.v1beta2.Acl.repeatedFields_ = [3];
 
 
 
@@ -277,9 +277,8 @@ proto.fonoster.acls.v1beta2.Acl.toObject = function(includeInstance, msg) {
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
-    denyList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f,
-    createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
+    createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
   };
 
   if (includeInstance) {
@@ -329,14 +328,10 @@ proto.fonoster.acls.v1beta2.Acl.deserializeBinaryFromReader = function(msg, read
       msg.addAllow(value);
       break;
     case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.addDeny(value);
-      break;
-    case 5:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
-    case 6:
+    case 5:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
@@ -390,24 +385,17 @@ proto.fonoster.acls.v1beta2.Acl.serializeBinaryToWriter = function(message, writ
       f
     );
   }
-  f = message.getDenyList();
-  if (f.length > 0) {
-    writer.writeRepeatedString(
-      4,
-      f
-    );
-  }
   f = message.getCreatedAt();
   if (f !== 0) {
     writer.writeInt32(
-      5,
+      4,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
     writer.writeInt32(
-      6,
+      5,
       f
     );
   }
@@ -488,48 +476,11 @@ proto.fonoster.acls.v1beta2.Acl.prototype.clearAllowList = function() {
 
 
 /**
- * repeated string deny = 4;
- * @return {!Array<string>}
- */
-proto.fonoster.acls.v1beta2.Acl.prototype.getDenyList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
-};
-
-
-/**
- * @param {!Array<string>} value
- * @return {!proto.fonoster.acls.v1beta2.Acl} returns this
- */
-proto.fonoster.acls.v1beta2.Acl.prototype.setDenyList = function(value) {
-  return jspb.Message.setField(this, 4, value || []);
-};
-
-
-/**
- * @param {string} value
- * @param {number=} opt_index
- * @return {!proto.fonoster.acls.v1beta2.Acl} returns this
- */
-proto.fonoster.acls.v1beta2.Acl.prototype.addDeny = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 4, value, opt_index);
-};
-
-
-/**
- * Clears the list making it empty but non-null.
- * @return {!proto.fonoster.acls.v1beta2.Acl} returns this
- */
-proto.fonoster.acls.v1beta2.Acl.prototype.clearDenyList = function() {
-  return this.setDenyList([]);
-};
-
-
-/**
- * optional int32 created_at = 5;
+ * optional int32 created_at = 4;
  * @return {number}
  */
 proto.fonoster.acls.v1beta2.Acl.prototype.getCreatedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
@@ -538,16 +489,16 @@ proto.fonoster.acls.v1beta2.Acl.prototype.getCreatedAt = function() {
  * @return {!proto.fonoster.acls.v1beta2.Acl} returns this
  */
 proto.fonoster.acls.v1beta2.Acl.prototype.setCreatedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 5, value);
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional int32 updated_at = 6;
+ * optional int32 updated_at = 5;
  * @return {number}
  */
 proto.fonoster.acls.v1beta2.Acl.prototype.getUpdatedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
 
@@ -556,7 +507,7 @@ proto.fonoster.acls.v1beta2.Acl.prototype.getUpdatedAt = function() {
  * @return {!proto.fonoster.acls.v1beta2.Acl} returns this
  */
 proto.fonoster.acls.v1beta2.Acl.prototype.setUpdatedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 6, value);
+  return jspb.Message.setProto3IntField(this, 5, value);
 };
 
 
@@ -566,7 +517,7 @@ proto.fonoster.acls.v1beta2.Acl.prototype.setUpdatedAt = function(value) {
  * @private {!Array<number>}
  * @const
  */
-proto.fonoster.acls.v1beta2.CreateAclRequest.repeatedFields_ = [2,3];
+proto.fonoster.acls.v1beta2.CreateAclRequest.repeatedFields_ = [2];
 
 
 
@@ -600,8 +551,7 @@ proto.fonoster.acls.v1beta2.CreateAclRequest.prototype.toObject = function(opt_i
 proto.fonoster.acls.v1beta2.CreateAclRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     name: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    allowList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f,
-    denyList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f
+    allowList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -646,10 +596,6 @@ proto.fonoster.acls.v1beta2.CreateAclRequest.deserializeBinaryFromReader = funct
       var value = /** @type {string} */ (reader.readString());
       msg.addAllow(value);
       break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.addDeny(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -690,13 +636,6 @@ proto.fonoster.acls.v1beta2.CreateAclRequest.serializeBinaryToWriter = function(
   if (f.length > 0) {
     writer.writeRepeatedString(
       2,
-      f
-    );
-  }
-  f = message.getDenyList();
-  if (f.length > 0) {
-    writer.writeRepeatedString(
-      3,
       f
     );
   }
@@ -755,43 +694,6 @@ proto.fonoster.acls.v1beta2.CreateAclRequest.prototype.addAllow = function(value
  */
 proto.fonoster.acls.v1beta2.CreateAclRequest.prototype.clearAllowList = function() {
   return this.setAllowList([]);
-};
-
-
-/**
- * repeated string deny = 3;
- * @return {!Array<string>}
- */
-proto.fonoster.acls.v1beta2.CreateAclRequest.prototype.getDenyList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 3));
-};
-
-
-/**
- * @param {!Array<string>} value
- * @return {!proto.fonoster.acls.v1beta2.CreateAclRequest} returns this
- */
-proto.fonoster.acls.v1beta2.CreateAclRequest.prototype.setDenyList = function(value) {
-  return jspb.Message.setField(this, 3, value || []);
-};
-
-
-/**
- * @param {string} value
- * @param {number=} opt_index
- * @return {!proto.fonoster.acls.v1beta2.CreateAclRequest} returns this
- */
-proto.fonoster.acls.v1beta2.CreateAclRequest.prototype.addDeny = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 3, value, opt_index);
-};
-
-
-/**
- * Clears the list making it empty but non-null.
- * @return {!proto.fonoster.acls.v1beta2.CreateAclRequest} returns this
- */
-proto.fonoster.acls.v1beta2.CreateAclRequest.prototype.clearDenyList = function() {
-  return this.setDenyList([]);
 };
 
 
@@ -931,7 +833,7 @@ proto.fonoster.acls.v1beta2.CreateAclResponse.prototype.setRef = function(value)
  * @private {!Array<number>}
  * @const
  */
-proto.fonoster.acls.v1beta2.UpdateAclRequest.repeatedFields_ = [3,4];
+proto.fonoster.acls.v1beta2.UpdateAclRequest.repeatedFields_ = [3];
 
 
 
@@ -966,8 +868,7 @@ proto.fonoster.acls.v1beta2.UpdateAclRequest.toObject = function(includeInstance
   var f, obj = {
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f,
-    denyList: (f = jspb.Message.getRepeatedField(msg, 4)) == null ? undefined : f
+    allowList: (f = jspb.Message.getRepeatedField(msg, 3)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -1016,10 +917,6 @@ proto.fonoster.acls.v1beta2.UpdateAclRequest.deserializeBinaryFromReader = funct
       var value = /** @type {string} */ (reader.readString());
       msg.addAllow(value);
       break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.addDeny(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -1067,13 +964,6 @@ proto.fonoster.acls.v1beta2.UpdateAclRequest.serializeBinaryToWriter = function(
   if (f.length > 0) {
     writer.writeRepeatedString(
       3,
-      f
-    );
-  }
-  f = message.getDenyList();
-  if (f.length > 0) {
-    writer.writeRepeatedString(
-      4,
       f
     );
   }
@@ -1150,43 +1040,6 @@ proto.fonoster.acls.v1beta2.UpdateAclRequest.prototype.addAllow = function(value
  */
 proto.fonoster.acls.v1beta2.UpdateAclRequest.prototype.clearAllowList = function() {
   return this.setAllowList([]);
-};
-
-
-/**
- * repeated string deny = 4;
- * @return {!Array<string>}
- */
-proto.fonoster.acls.v1beta2.UpdateAclRequest.prototype.getDenyList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 4));
-};
-
-
-/**
- * @param {!Array<string>} value
- * @return {!proto.fonoster.acls.v1beta2.UpdateAclRequest} returns this
- */
-proto.fonoster.acls.v1beta2.UpdateAclRequest.prototype.setDenyList = function(value) {
-  return jspb.Message.setField(this, 4, value || []);
-};
-
-
-/**
- * @param {string} value
- * @param {number=} opt_index
- * @return {!proto.fonoster.acls.v1beta2.UpdateAclRequest} returns this
- */
-proto.fonoster.acls.v1beta2.UpdateAclRequest.prototype.addDeny = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 4, value, opt_index);
-};
-
-
-/**
- * Clears the list making it empty but non-null.
- * @return {!proto.fonoster.acls.v1beta2.UpdateAclRequest} returns this
- */
-proto.fonoster.acls.v1beta2.UpdateAclRequest.prototype.clearDenyList = function() {
-  return this.setDenyList([]);
 };
 
 
