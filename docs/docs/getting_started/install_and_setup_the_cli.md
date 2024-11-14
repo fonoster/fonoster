@@ -28,10 +28,10 @@ The command-line tool comes with built-in commands covering all main use cases a
 
 ## Authenticating the CLI
 
-You can point the CLI to your own Fonoster instance or use our [as a service](https://console.fonoster.io) option. To use the as-a-service option, follow the next steps:
+You can point the CLI to your own Fonoster instance or use our [as a service](https://form.typeform.com/to/sDv75mFr) option. To use the as-a-service option, follow the next steps:
 
 ```none
-1. Go to https://console.fonoster.io/ to get your credentials
+1. Go to https://form.typeform.com/to/sDv75mFr to get your credentials
 2. Open a new terminal
 3. Type the command "fonoster auth:login"
 4. Login using your credentials

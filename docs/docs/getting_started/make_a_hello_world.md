@@ -1,11 +1,11 @@
 # Make a Hello World 
 
-You will need to [Log In](https://console.fonoster.io) to your Fonoster account to access the Console.
+You will need to [Log In](https://form.typeform.com/to/sDv75mFr) to your Fonoster account to access the Console.
 
 More of a visual learner? [Watch the YouTube tutorial](https://www.youtube.com/watch?v=m6B_9lU4iSw)
 
 :::info
-If you don't have one yet have an account, you can [Sign up](https://console.fonoster.io) for one with GitHub.
+If you don't have one yet have an account, you can [Sign up](https://form.typeform.com/to/sDv75mFr) for one with GitHub.
 :::
 
 ## What you will need:

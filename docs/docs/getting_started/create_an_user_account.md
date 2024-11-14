@@ -6,9 +6,9 @@ Creating a user account will give you access to the following:
 - Set Trunks, Agents, and Numbers
 - Manage User settings
 
-> You're all set here if you already have a Fonoster account! [Log in](https://console.fonoster.io). Feel free to jump to the next section.
+> You're all set here if you already have a Fonoster account! [Log in](https://form.typeform.com/to/sDv75mFr). Feel free to jump to the next section.
 
-**You must [Sign In](https://console.fonoster.io) with GitHub to create a Fonoster account.**
+**You must [Sign In](https://form.typeform.com/to/sDv75mFr) with GitHub to create a Fonoster account.**
 
 Signing In will give you access to the main console, where you can start adding Numbers, Trunks, SIP Agents, Domains, and more. 
 
@@ -16,7 +16,7 @@ But before you can get started, you need to create a new Project to obtain the `
 
 ## Create a new project
 
-- [Sign In](https://console.fonoster.io) with your GitHub account and create a New Project
+- [Sign In](https://form.typeform.com/to/sDv75mFr) with your GitHub account and create a New Project
 - Give it a friendly name
 - Click on the New Project to see the overview
   - Now you have access to the Dashboard where you can see the credentials `AccessKeyId` and `AccessKeySecret`

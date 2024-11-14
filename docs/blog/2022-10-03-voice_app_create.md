@@ -11,7 +11,7 @@ The purpose of this tutorial is to show the basics of Fonoster. Here you will fi
 
 Before you start this guide, you will need the following:
 
-- A set of credentials from [here](https://console.fonoster.io/) 👈
+- A set of credentials from [here](https://form.typeform.com/to/sDv75mFr) 👈
 - An account for access to a SIP Service Provider (For US and Canada, we recommend [voip.ms](https://voip.ms/residential))
 - NodeJS 14+ (Use nvm if possible)
 - Fonoster command-line tool install with `npm install -g @fonoster/ctl`
