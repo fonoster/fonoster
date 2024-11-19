@@ -6,69 +6,77 @@ const variantMapping: Record<
 > = {
   "heading-large": {
     muiVariant: "h2",
-    style: { 
-      fontFamily: "Poppins", 
-      fontWeight: 600, 
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 600,
       fontStyle: "normal",
-      fontSize: "24px", 
-      fontFeatureSettings: "'liga' off, 'clig' off", 
+      fontSize: "24px",
+      fontFeatureSettings: "'liga' off, 'clig' off",
       letterSpacing: "0.5px"
     }
   },
   "heading-medium": {
     muiVariant: "h3",
-    style: { 
-      fontFamily: "Poppins", 
-      fontWeight: 600, 
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 600,
       fontStyle: "normal",
-      fontSize: "21px", 
-      fontFeatureSettings: "'liga' off, 'clig' off", 
+      fontSize: "21px",
+      fontFeatureSettings: "'liga' off, 'clig' off",
       letterSpacing: "0.5px",
       lineHeight: "21px"
     }
   },
   "heading-small": {
     muiVariant: "h4",
-    style: { 
-      fontFamily: "Poppins", 
-      fontWeight: 500, 
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 500,
       fontStyle: "normal",
-      fontSize: "18px", 
-      fontFeatureSettings: "'liga' off, 'clig' off", 
+      fontSize: "18px",
+      fontFeatureSettings: "'liga' off, 'clig' off",
       letterSpacing: "0.5px"
     }
   },
-  "body-large": { muiVariant: "body1", style: { 
-    fontFamily: "Poppins", 
-    fontWeight: 400, 
-    fontStyle: "normal",
-    fontSize: "16px", 
-    fontFeatureSettings: "'liga' off, 'clig' off", 
-    letterSpacing: "0.16px",
-    lineHeight: "21px"
-  } },
-  "body-medium": { muiVariant: "body2", 
-  style: { 
-    fontFamily: "Poppins", 
-    fontWeight: 500, 
-    fontStyle: "normal",
-    fontSize: "14px",
-    letterSpacing: "0.14px",
-    lineHeight: "22px"
-  } },
-  "body-small": { muiVariant: "body2", style: { 
-    fontFamily: "Poppins", 
-    fontWeight: 400, 
-    fontStyle: "normal",
-    fontSize: "12px",
-    letterSpacing: "0.12px",
-    lineHeight: "normal"
-  } },
+  "body-large": {
+    muiVariant: "body1",
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 400,
+      fontStyle: "normal",
+      fontSize: "16px",
+      fontFeatureSettings: "'liga' off, 'clig' off",
+      letterSpacing: "0.16px",
+      lineHeight: "21px"
+    }
+  },
+  "body-medium": {
+    muiVariant: "body2",
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 500,
+      fontStyle: "normal",
+      fontSize: "14px",
+      letterSpacing: "0.14px",
+      lineHeight: "22px"
+    }
+  },
+  "body-small": {
+    muiVariant: "body2",
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 400,
+      fontStyle: "normal",
+      fontSize: "12px",
+      letterSpacing: "0.12px",
+      lineHeight: "normal"
+    }
+  },
   "body-small-underline": {
     muiVariant: "body2",
-    style: { 
-      fontFamily: "Poppins", 
-      fontWeight: 400, 
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 400,
       fontStyle: "normal",
       fontSize: "12px",
       textDecoration: "underline",
@@ -79,19 +87,22 @@ const variantMapping: Record<
       textUnderlinePosition: "from-font"
     }
   },
-  "body-micro": { muiVariant: "caption", style: { 
-    fontFamily: "Poppins", 
-    fontWeight: 500, 
-    fontStyle: "normal",
-    fontSize: "10px",
-    lineHeight: "normal"
-  } },
+  "body-micro": {
+    muiVariant: "caption",
+    style: {
+      fontFamily: "Poppins",
+      fontWeight: 500,
+      fontStyle: "normal",
+      fontSize: "10px",
+      lineHeight: "normal"
+    }
+  },
   "mono-medium": {
     muiVariant: "body1",
-    style: { 
-      fontFamily: "Roboto Mono", 
-      fontSize: "11px", 
-      fontWeight: 500, 
+    style: {
+      fontFamily: "Roboto Mono",
+      fontSize: "11px",
+      fontWeight: 500,
       fontStyle: "normal",
       fontFeatureSettings: "'liga' off, 'clig' off",
       lineHeight: "21px",
@@ -119,10 +130,10 @@ const variantMapping: Record<
   },
   "mono-small": {
     muiVariant: "body2",
-    style: { 
-      fontFamily: "Roboto Mono", 
-      fontSize: "10px", 
-      fontWeight: 500, 
+    style: {
+      fontFamily: "Roboto Mono",
+      fontSize: "10px",
+      fontWeight: 500,
       fontStyle: "normal",
       fontFeatureSettings: "'liga' off, 'clig' off",
       lineHeight: "21px",
@@ -130,22 +141,28 @@ const variantMapping: Record<
       textTransform: "uppercase"
     }
   },
-  "drawer-title": { muiVariant: "subtitle1", style: { 
-    fontFamily: "Poppins", 
-    fontSize: "14px", 
-    fontWeight: 600, 
-    fontStyle: "normal",
-    lineHeight: "20px",
-    letterSpacing: "0.1px"
-  } },
-  "drawer-label": { muiVariant: "body2", style: {
-    fontFamily: "Poppins",
-    fontSize: "11px",
-    fontWeight: 500,
-    fontStyle: "normal",
-    lineHeight: "16px",
-    letterSpacing: "0.1px"
-  } },
+  "drawer-title": {
+    muiVariant: "subtitle1",
+    style: {
+      fontFamily: "Poppins",
+      fontSize: "14px",
+      fontWeight: 600,
+      fontStyle: "normal",
+      lineHeight: "20px",
+      letterSpacing: "0.1px"
+    }
+  },
+  "drawer-label": {
+    muiVariant: "body2",
+    style: {
+      fontFamily: "Poppins",
+      fontSize: "11px",
+      fontWeight: 500,
+      fontStyle: "normal",
+      lineHeight: "16px",
+      letterSpacing: "0.1px"
+    }
+  }
 };
 
 export { variantMapping };

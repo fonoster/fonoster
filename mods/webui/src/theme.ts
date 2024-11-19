@@ -13,7 +13,7 @@ const fnLight = createTheme({
     },
     text: {
       primary: "#555"
-    },
+    }
   },
   shape: {
     borderRadius: 40
