@@ -10,7 +10,10 @@ const fnLight = createTheme({
       "700": "#008751",
       "800": "#053204",
       "900": "#011900"
-    }
+    },
+    text: {
+      primary: "#555"
+    },
   },
   shape: {
     borderRadius: 40

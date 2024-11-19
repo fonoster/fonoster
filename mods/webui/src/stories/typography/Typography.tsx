@@ -8,7 +8,7 @@ function Typography(props: TypographyProps) {
   const { muiVariant, style } = variantMapping[variant];
 
   return (
-    <MuiTypography variant={muiVariant as any} style={style}>
+    <MuiTypography variant={muiVariant} style={style}>
       {text}
     </MuiTypography>
   );
