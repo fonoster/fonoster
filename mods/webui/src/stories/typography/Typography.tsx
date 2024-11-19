@@ -1,17 +1,17 @@
-import * as React from "react";
-import Typography from "@mui/material/Typography";
+import { Typography as MuiTypography } from "@mui/material";
+import { TypographyProps } from "./types";
+import { variantMapping } from "./variantMapping";
 
-const FTypography = React.forwardRef<HTMLElement>(
-  ({ ...props }, _ref) => {
-  
-    return (
-      <Typography variant="h1">
-        h1. Heading
-      </Typography>
-    );
-  }
-);
+function Typography(props: TypographyProps) {
+  const { variant = "body-medium", text } = props;
 
-FTypography.displayName = "Typography";
+  const { muiVariant, style } = variantMapping[variant];
 
-export { FTypography };
+  return (
+    <MuiTypography variant={muiVariant as any} style={style}>
+      {text}
+    </MuiTypography>
+  );
+}
+
+export { Typography };
