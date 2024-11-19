@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 const fnLight = createTheme({
   palette: {
@@ -9,7 +9,7 @@ const fnLight = createTheme({
       "500": "#39E19E",
       "700": "#008751",
       "800": "#053204",
-      "900": "#011900",
+      "900": "#011900"
     }
   },
   shape: {

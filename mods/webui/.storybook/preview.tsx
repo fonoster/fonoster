@@ -7,6 +7,12 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/i
       }
+    },
+    options: {
+      storySort: {
+        order: ["Introduction", "Brand Identity", "Shared Components"],
+        includeName: true
+      }
     }
   }
 };
