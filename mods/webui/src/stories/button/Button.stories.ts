@@ -1,53 +1,115 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-
 import { Button } from "./Button";
+import React from "react";
+import { Icon } from "../icon/Icon";
 
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
+/**
+ * This story is for the regular Button component based on Material UI.
+ * It has a contained variant and full width with optional start and end icons.
+ */
 const meta = {
   title: "Shared Components/Button",
   component: Button,
   parameters: {
-    // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
-    layout: "centered"
+    layout: "padded",
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=9-9052&node-type=frame&m=dev"
+    }
   },
-  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ["autodocs"],
-  // More on argTypes: https://storybook.js.org/docs/api/argtypes
+  args: { onClick: fn() },
   argTypes: {
-    backgroundColor: { control: "color" }
-  },
-  // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
-  args: { onClick: fn() }
+    onClick: {
+      name: "On Click",
+      description: "Function to execute on click"
+    },
+    children: {
+      name: "Children",
+      description: "The content of the button",
+      control: "text",
+      defaultValue: { summary: "Button" }
+    },
+    variant: {
+      name: "Variant",
+      description: "The variant to use",
+      options: ["contained", "outlined"],
+      control: "radio",
+      defaultValue: { summary: "contained" }
+    },
+    fullWidth: {
+      name: "Full Width",
+      description:
+        "If true, the button will take up the full width of its container",
+      control: "boolean",
+      defaultValue: { summary: false }
+    },
+    disabled: {
+      name: "Disabled",
+      description: "If true, the button will be disabled",
+      control: "boolean",
+      defaultValue: { summary: false }
+    },
+    endIcon: {
+      table: {
+        disable: true
+      }
+    },
+    startIcon: {
+      table: {
+        disable: true
+      }
+    },
+  }
 } satisfies Meta<typeof Button>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Primary: Story = {
+/**
+ * Example of a button with a contained variant and full width
+ */
+export const ContainedWithFullWidth: Story = {
   args: {
-    primary: true,
-    label: "Button"
+    children: "Button contained with full width",
+    variant: "contained",
+    fullWidth: true,
+    endIcon: React.createElement(Icon, { name: "AddIcon", fontSize: "small" })
   }
 };
 
-export const Secondary: Story = {
+/**
+ * Example of a button with an outlined variant and full width
+ */
+export const Outlined: Story = {
   args: {
-    label: "Button"
+    children: "Button Outlined",
+    variant: "outlined",
+    fullWidth: false
   }
 };
 
-export const Large: Story = {
+/**
+ * Example of a button with a contained variant and disabled
+ */
+export const ContainedAndDisabled: Story = {
   args: {
-    size: "large",
-    label: "Button"
+    children: "Button Contained And Disabled",
+    variant: "contained",
+    fullWidth: false,
+    disabled: true
   }
 };
 
-export const Small: Story = {
+/**
+ * Example of a button with an outlined variant and disabled
+ */
+export const OutlinedAndDisabled: Story = {
   args: {
-    size: "small",
-    label: "Button"
+    children: "Button Outlined And Disabled",
+    variant: "outlined",
+    fullWidth: false,
+    disabled: true
   }
 };

@@ -17,7 +17,30 @@ const fnLight = createTheme({
   },
   shape: {
     borderRadius: 40
-  }
+  },
+  components: {
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
+      },
+      styleOverrides: {
+        root: {
+          "& .MuiButton-endIcon": {
+            "& > *:first-child": {
+              fontSize: "16px",
+              marginTop: "3px",
+            },
+          },
+          "& .MuiButton-startIcon": {
+            "& > *:first-child": {
+              fontSize: "16px",
+              marginTop: "3px",
+            },
+          },
+        },
+      }
+    },
+  },
 });
 
 export { fnLight };

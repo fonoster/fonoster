@@ -24,9 +24,9 @@ const preview: Preview = {
 export const decorators = [
   (Story) => (
     <ThemeProvider theme={fnLight}>
-    <CssBaseline />
-    <Story />
-  </ThemeProvider>
+      <CssBaseline />
+      <Story />
+    </ThemeProvider>
   ),
 ];
 
