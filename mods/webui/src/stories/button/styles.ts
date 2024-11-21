@@ -19,7 +19,7 @@ export const StyledMuiButton = styled(Button)(({ theme, variant, fullWidth }) =>
   alignItems: "flex-start",
   gap: "10px",
   fontFamily: "Roboto Mono",
-  fontSize: "11px",
+  fontSize: fullWidth ? "11px" : "10px",
   fontStyle: "normal",
   fontWeight: 500,
   lineHeight: "21px",
