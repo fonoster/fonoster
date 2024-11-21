@@ -28,13 +28,13 @@ const fnLight = createTheme({
           "& .MuiButton-endIcon": {
             "& > *:first-child": {
               fontSize: "16px",
-              marginTop: "3px",
+              marginTop: "2px",
             },
           },
           "& .MuiButton-startIcon": {
             "& > *:first-child": {
               fontSize: "16px",
-              marginTop: "3px",
+              marginTop: "2px",
             },
           },
         },
