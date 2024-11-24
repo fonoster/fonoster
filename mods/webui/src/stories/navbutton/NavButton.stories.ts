@@ -17,53 +17,50 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from "@storybook/react";
-import { Icon } from "./Icon";
+import { fn } from "@storybook/test";
+import { NavButton } from "./NavButton";
 
 /**
- * This story is for the Icon component based on Material UI.
- * It can be used to display icons in the application with different sizes.
+ * This story is for the NavButton component which is used for navigation
+ * in the AppBar. It is a button with an icon and a badge.
  */
 const meta = {
-  title: "Shared Components/Icon",
-  component: Icon,
+  title: "Shared Components/NavButton",
+  component: NavButton,
   parameters: {
     layout: "centered",
     design: {
       type: "figma",
-      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=284-10528"
+      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=276-11172"
     }
   },
   tags: ["autodocs"],
+  args: { onClick: fn() },
   argTypes: {
-    name: {
-      name: "Icon Name",
-      description: "The icon to display",
-      control: {
-        type: "select"
-      },
-      defaultValue: "Add"
+    onClick: {
+      name: "On Click",
+      description: "Function to execute on click"
     },
-    fontSize: {
-      name: "Font Size",
-      description: "The size of the icon",
-      control: {
-        type: "select",
-        options: ["small", "medium", "large"]
-      },
-      defaultValue: "medium"
+    isActive: {
+      name: "Is Active",
+      description: "Whether the button is active or not"
+    },
+    label: {
+      name: "Label",
+      description: "The badge content"
     }
   }
-} satisfies Meta<typeof Icon>;
+} satisfies Meta<typeof NavButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Example of an icon with the name "Add" and a medium font size.
+ * Example of a NavButton with a badge and an icon.
  */
-export const PlusIcon: Story = {
+export const ContainedWithFullWidth: Story = {
   args: {
-    name: "Add",
-    fontSize: "medium"
+    isActive: false,
+    label: 10
   }
 };

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import { createTheme } from "@mui/material/styles";
 
 const fnLight = createTheme({
@@ -11,6 +29,15 @@ const fnLight = createTheme({
       "800": "#053204",
       "900": "#011900"
     },
+    warning: {
+      "50": "#FFFFFF",
+      "100": "#FFF4F0",
+      "200": "#F1DED7",
+      "500": "#FF9965",
+      "700": "#C46C3F",
+      "800": "#612E13",
+      "900": "#27150C"
+    },
     text: {
       primary: "#555"
     }
@@ -21,26 +48,26 @@ const fnLight = createTheme({
   components: {
     MuiButtonBase: {
       defaultProps: {
-        disableRipple: true,
+        disableRipple: true
       },
       styleOverrides: {
         root: {
           "& .MuiButton-endIcon": {
             "& > *:first-child": {
               fontSize: "16px",
-              marginTop: "2px",
-            },
+              marginTop: "2px"
+            }
           },
           "& .MuiButton-startIcon": {
             "& > *:first-child": {
               fontSize: "16px",
-              marginTop: "2px",
-            },
-          },
-        },
+              marginTop: "2px"
+            }
+          }
+        }
       }
-    },
-  },
+    }
+  }
 });
 
 export { fnLight };

@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import Button, { ButtonPropsVariantOverrides } from "@mui/material/Button";
+import { Theme, styled } from "@mui/material/styles";
+import { ButtonVariant } from "./types";
+
+function computeColor(theme: Theme, variant: ButtonPropsVariantOverrides) {
+  if (theme.palette.mode === "dark") {
+    return "#FFFFFF";
+  } else if (variant === "outlined") {
+    return theme.palette.grey[800];
+  } else {
+    return theme.palette.text.primary;
+  }
+}
+
+export const StyledMuiButton = styled(Button)(
+  ({ theme, variant, fullWidth }) => ({
+    display: "flex",
+    padding: fullWidth ? "8px" : "6px 20px",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    gap: "10px",
+    fontFamily: "Roboto Mono",
+    fontSize: fullWidth ? "11px" : "10px",
+    fontStyle: "normal",
+    fontWeight: 500,
+    lineHeight: "21px",
+    letterSpacing: "1.32px",
+    textTransform: "uppercase",
+    textAlign: "center",
+    fontFeatureSettings: "'liga' off, 'clig' off",
+    border:
+      variant === "outlined"
+        ? `1px solid ${computeColor(theme, variant)}`
+        : "none",
+    color: computeColor(theme, variant as ButtonVariant),
+    "&:hover": {
+      background:
+        variant === "outlined"
+          ? theme.palette.grey[300]
+          : theme.palette.primary.light
+    }
+  })
+);

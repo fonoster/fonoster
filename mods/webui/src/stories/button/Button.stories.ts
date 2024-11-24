@@ -1,7 +1,25 @@
+/*
+ * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-import { Button } from "./Button";
 import React from "react";
+import { Button } from "./Button";
 import { Icon } from "../icon/Icon";
 
 /**
@@ -60,12 +78,24 @@ const meta = {
       table: {
         disable: true
       }
-    },
+    }
   }
 } satisfies Meta<typeof Button>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
+
+/**
+ * Example of a button with a contained variant and disabled
+ */
+export const ContainedAndDisabled: Story = {
+  args: {
+    children: "Button Contained And Disabled",
+    variant: "contained",
+    fullWidth: false,
+    disabled: true
+  }
+};
 
 /**
  * Example of a button with a contained variant and full width
@@ -75,7 +105,7 @@ export const ContainedWithFullWidth: Story = {
     children: "Button contained with full width",
     variant: "contained",
     fullWidth: true,
-    endIcon: React.createElement(Icon, { name: "AddIcon", fontSize: "small" })
+    endIcon: React.createElement(Icon, { name: "Add", fontSize: "small" })
   }
 };
 
@@ -87,18 +117,6 @@ export const Outlined: Story = {
     children: "Button Outlined",
     variant: "outlined",
     fullWidth: false
-  }
-};
-
-/**
- * Example of a button with a contained variant and disabled
- */
-export const ContainedAndDisabled: Story = {
-  args: {
-    children: "Button Contained And Disabled",
-    variant: "contained",
-    fullWidth: false,
-    disabled: true
   }
 };
 

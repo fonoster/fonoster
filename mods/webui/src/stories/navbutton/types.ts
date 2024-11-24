@@ -16,19 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ButtonPropsVariantOverrides } from "@mui/material";
-import React from "react";
-
-type ButtonVariant = "contained" | "outlined";
-
-type ButtonProps = {
-  variant?: ButtonPropsVariantOverrides;
-  fullWidth?: boolean;
-  disabled?: boolean;
-  startIcon?: React.ReactNode;
-  endIcon?: React.ReactNode;
-  children: React.ReactNode;
+interface NavButtonProps {
+  isActive: boolean;
+  label?: number;
   onClick: () => void;
-};
+}
 
-export type { ButtonProps, ButtonVariant };
+export type { NavButtonProps };
