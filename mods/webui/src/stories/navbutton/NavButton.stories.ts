@@ -41,13 +41,21 @@ const meta = {
       name: "On Click",
       description: "Function to execute on click"
     },
-    isActive: {
-      name: "Is Active",
-      description: "Whether the button is active or not"
+    isOpen: {
+      name: "Is Open",
+      description: "Whether the button is open or not"
     },
     label: {
       name: "Label",
       description: "The badge content"
+    },
+    variant: {
+      name: "Variant",
+      description: "The type of button to render",
+      control: {
+        type: "select",
+        options: ["notifications", "profile"]
+      }
     }
   }
 } satisfies Meta<typeof NavButton>;
@@ -56,11 +64,22 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Example of a NavButton with a badge and an icon.
+ * Example of a NavButton with a badge and an icon using the notifications variant and closed state.
  */
-export const ContainedWithFullWidth: Story = {
+export const NotSelectedNotification: Story = {
   args: {
-    isActive: false,
+    isOpen: false,
     label: 10
+  }
+};
+
+/**
+ * Example of a NavButton using the profile variant and open state.
+ */
+export const ProfileVariant: Story = {
+  args: {
+    variant: "profile",
+    isOpen: true,
+    label: "PS"
   }
 };

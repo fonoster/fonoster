@@ -18,6 +18,7 @@
  */
 import { useTheme } from "@mui/material";
 import {
+  StyledAvatar,
   StyledBadge,
   StyledIconButton,
   StyledNotificationsIcon
@@ -25,26 +26,35 @@ import {
 import { NavButtonProps } from "./types";
 
 export const NavButton = (props: NavButtonProps) => {
-  const { isActive, label, onClick } = props;
+  const { variant, isOpen, label, onClick } = props;
   const actualLabel = label ?? 0;
+  const actualVariant = variant ?? "notifications";
   const theme = useTheme();
 
   return (
-    <StyledIconButton isActive={isActive} onClick={onClick}>
-      <StyledBadge
-        label={label as number}
-        badgeContent={actualLabel > 9 ? "9+" : actualLabel}
-        color="warning"
-        overlap="circular"
-      >
-        <StyledNotificationsIcon
-          sx={{
-            color: isActive
-              ? theme.palette.warning[50]
-              : theme.palette.primary[800]
-          }}
-        />
-      </StyledBadge>
+    <StyledIconButton isOpen={isOpen} onClick={onClick}>
+      {actualVariant === "notifications" && (
+        <StyledBadge
+          label={label as number}
+          badgeContent={
+            (actualLabel as unknown as number) > 9 ? "9+" : actualLabel
+          }
+          color="warning"
+          overlap="circular"
+        >
+          <StyledNotificationsIcon
+            sx={{
+              color: isOpen
+                ? theme.palette.warning[50]
+                : theme.palette.primary[800]
+            }}
+          />
+        </StyledBadge>
+      )}
+
+      {actualVariant === "profile" && (
+        <StyledAvatar isOpen={isOpen}>{label}</StyledAvatar>
+      )}
     </StyledIconButton>
   );
 };

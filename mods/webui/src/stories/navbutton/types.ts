@@ -17,8 +17,9 @@
  * limitations under the License.
  */
 interface NavButtonProps {
-  isActive: boolean;
-  label?: number;
+  variant?: "notifications" | "profile";
+  isOpen: boolean;
+  label: string | number;
   onClick: () => void;
 }
 

@@ -17,21 +17,21 @@
  * limitations under the License.
  */
 import NotificationsIcon from "@mui/icons-material/NotificationsActiveOutlined";
-import { Badge, IconButton, styled } from "@mui/material";
+import { Avatar, Badge, IconButton, styled } from "@mui/material";
 
 const StyledIconButton = styled(IconButton, {
   shouldForwardProp: (prop) => prop !== "isActive"
 })<{
-  isActive: boolean;
-}>(({ theme, isActive }) => ({
-  backgroundColor: isActive
+  isOpen: boolean;
+}>(({ theme, isOpen }) => ({
+  backgroundColor: isOpen
     ? theme.palette.primary[800]
     : theme.palette.primary[100],
   width: "33px",
   height: "33px",
-  color: isActive ? "#FFF" : theme.palette.primary[800],
+  color: isOpen ? theme.palette.common.white : theme.palette.primary[800],
   "&:hover": {
-    backgroundColor: isActive
+    backgroundColor: isOpen
       ? theme.palette.primary[900]
       : theme.palette.primary[200]
   },
@@ -69,4 +69,21 @@ const StyledNotificationsIcon = styled(NotificationsIcon)(() => ({
   fontSize: 16
 }));
 
-export { StyledBadge, StyledIconButton, StyledNotificationsIcon };
+const StyledAvatar = styled(Avatar, {
+  shouldForwardProp: (prop) => prop !== "isOpen"
+})<{ isOpen: boolean }>(({ theme, isOpen }) => ({
+  width: "33px",
+  height: "33px",
+  fontSize: "13px",
+  fontWeight: 700,
+  fontFamily: "Poppins",
+  fontFeatureSettings: "'liga' off, 'clig' off",
+  fontStyle: "normal",
+  textAlign: "center",
+  color: isOpen ? theme.palette.common.white : theme.palette.primary[800],
+  backgroundColor: isOpen
+    ? theme.palette.primary[800]
+    : theme.palette.primary[100]
+}));
+
+export { StyledAvatar, StyledBadge, StyledIconButton, StyledNotificationsIcon };
