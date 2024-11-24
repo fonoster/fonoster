@@ -16,18 +16,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Typography as MuiTypography } from "@mui/material";
+import {
+  Typography as MuiTypography,
+  TypographyPropsVariantOverrides
+} from "@mui/material";
+import { Variant } from "@mui/material/styles/createTypography";
+import { OverridableStringUnion } from "@mui/types";
 import { TypographyProps } from "./types";
 import { variantMapping } from "./variantMapping";
 
 function Typography(props: TypographyProps) {
-  const { variant = "body-medium", text } = props;
+  const { variant = "body-medium", children } = props;
 
   const { muiVariant, style } = variantMapping[variant];
 
   return (
-    <MuiTypography variant={muiVariant as any} style={style}>
-      {text}
+    <MuiTypography
+      variant={
+        muiVariant as OverridableStringUnion<
+          Variant | "inherit",
+          TypographyPropsVariantOverrides
+        >
+      }
+      style={style}
+    >
+      {children}
     </MuiTypography>
   );
 }

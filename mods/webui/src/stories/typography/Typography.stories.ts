@@ -39,7 +39,7 @@ type Story = StoryObj<typeof meta>;
 export const BodyLarge: Story = {
   args: {
     variant: "body-large",
-    text: "Body/Large"
+    children: "Body/Large"
   }
 };
 
@@ -49,7 +49,7 @@ export const BodyLarge: Story = {
 export const BodyMedium: Story = {
   args: {
     variant: "body-medium",
-    text: "Body/Medium"
+    children: "Body/Medium"
   }
 };
 
@@ -59,7 +59,7 @@ export const BodyMedium: Story = {
 export const BodyMicro: Story = {
   args: {
     variant: "body-micro",
-    text: "Body/Micro"
+    children: "Body/Micro"
   }
 };
 
@@ -69,7 +69,7 @@ export const BodyMicro: Story = {
 export const BodySmall: Story = {
   args: {
     variant: "body-small",
-    text: "Body/Small"
+    children: "Body/Small"
   }
 };
 
@@ -79,7 +79,7 @@ export const BodySmall: Story = {
 export const BodySmallUnderline: Story = {
   args: {
     variant: "body-small-underline",
-    text: "Body/Small Underline"
+    children: "Body/Small Underline"
   }
 };
 
@@ -89,7 +89,7 @@ export const BodySmallUnderline: Story = {
 export const DrawerLabel: Story = {
   args: {
     variant: "drawer-label",
-    text: "Drawer Label"
+    children: "Drawer Label"
   }
 };
 
@@ -99,7 +99,7 @@ export const DrawerLabel: Story = {
 export const DrawerTitle: Story = {
   args: {
     variant: "drawer-title",
-    text: "Drawer Title"
+    children: "Drawer Title"
   }
 };
 
@@ -109,7 +109,7 @@ export const DrawerTitle: Story = {
 export const HeadingLarge: Story = {
   args: {
     variant: "heading-large",
-    text: "Heading/Large"
+    children: "Heading/Large"
   }
 };
 
@@ -119,7 +119,7 @@ export const HeadingLarge: Story = {
 export const HeadingMedium: Story = {
   args: {
     variant: "heading-medium",
-    text: "Heading/Medium"
+    children: "Heading/Medium"
   }
 };
 
@@ -129,7 +129,7 @@ export const HeadingMedium: Story = {
 export const HeadingSmall: Story = {
   args: {
     variant: "heading-small",
-    text: "Heading/Small"
+    children: "Heading/Small"
   }
 };
 
@@ -139,7 +139,7 @@ export const HeadingSmall: Story = {
 export const MonoMedium: Story = {
   args: {
     variant: "mono-medium",
-    text: "Mono/Medium"
+    children: "Mono/Medium"
   }
 };
 
@@ -149,7 +149,7 @@ export const MonoMedium: Story = {
 export const MonoMediumUnderline: Story = {
   args: {
     variant: "mono-medium-underline",
-    text: "Mono/Medium Underline"
+    children: "Mono/Medium Underline"
   }
 };
 
@@ -159,6 +159,6 @@ export const MonoMediumUnderline: Story = {
 export const MonoSmall: Story = {
   args: {
     variant: "mono-small",
-    text: "Mono/Small"
+    children: "Mono/Small"
   }
 };

@@ -16,24 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type TypographyVariant =
-  | "heading-large"
-  | "heading-medium"
-  | "heading-small"
-  | "body-large"
-  | "body-medium"
-  | "body-small"
-  | "body-small-underline"
-  | "body-micro"
-  | "mono-medium"
-  | "mono-medium-underline"
-  | "mono-small"
-  | "drawer-title"
-  | "drawer-label";
+import { Typography } from "@mui/material";
 
-type TypographyProps = {
-  variant?: TypographyVariant;
+type VersionLabelProps = {
   children: string;
 };
 
-export type { TypographyProps, TypographyVariant };
+export const VersionLabel = (props: VersionLabelProps) => {
+  const { children } = props;
+
+  return (
+    <Typography
+      sx={{
+        color: "#8D8D8D",
+        fontFamily: "Roboto Mono",
+        fontSize: "10px",
+        fontStyle: "normal",
+        fontWeight: 500,
+        lineHeight: "21px",
+        letterSpacing: "0.5px",
+        textTransform: "uppercase",
+        fontFeatureSettings: "'liga' off, 'clig' off"
+      }}
+    >
+      {children}
+    </Typography>
+  );
+};
