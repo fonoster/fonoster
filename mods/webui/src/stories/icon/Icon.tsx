@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
- * http://github.com/fonoster/goodtok
+ * http://github.com/fonoster/fonoster
  *
- * This file is part of Goodtok
+ * This file is part of Fonoster
  *
  * Licensed under the MIT License (the "License");
  * you may not use this file except in compliance with
