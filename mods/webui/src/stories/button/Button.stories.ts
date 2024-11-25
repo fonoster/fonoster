@@ -49,6 +49,13 @@ const meta = {
       control: "text",
       defaultValue: { summary: "Button" }
     },
+    size: {
+      name: "Size",
+      description: "The size of the button",
+      options: ["small", "large"],
+      control: "radio",
+      defaultValue: { summary: "Large" }
+    },
     variant: {
       name: "Variant",
       description: "The variant to use",

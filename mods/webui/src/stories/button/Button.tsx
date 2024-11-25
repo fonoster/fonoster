@@ -17,10 +17,11 @@
  * limitations under the License.
  */
 import { StyledMuiButton } from "./Button.styles";
-import { ButtonProps } from "./types";
+import { ButtonProps, OriginalButtonVariant } from "./types";
 
 export const Button = (props: ButtonProps) => {
   const {
+    size,
     variant,
     fullWidth,
     disabled,
@@ -29,15 +30,17 @@ export const Button = (props: ButtonProps) => {
     children,
     onClick
   } = props;
+  const actualSize = size || "large";
 
   return (
     <StyledMuiButton
-      variant={(variant as any) || "contained"}
+      variant={(variant || "contained") as OriginalButtonVariant}
       fullWidth={fullWidth}
       disabled={disabled}
       startIcon={startIcon}
       endIcon={endIcon}
       onClick={onClick}
+      size={actualSize}
       disableElevation
     >
       {children}

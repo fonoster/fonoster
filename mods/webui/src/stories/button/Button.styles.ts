@@ -26,36 +26,34 @@ function computeColor(theme: Theme, variant: ButtonPropsVariantOverrides) {
   } else if (variant === "outlined") {
     return theme.palette.grey[800];
   } else {
-    return theme.palette.text.primary;
+    return theme.palette.primary[900];
   }
 }
 
-export const StyledMuiButton = styled(Button)(
-  ({ theme, variant, fullWidth }) => ({
-    display: "flex",
-    padding: fullWidth ? "8px" : "6px 20px",
-    justifyContent: "center",
-    alignItems: "flex-start",
-    gap: "10px",
-    fontFamily: "Roboto Mono",
-    fontSize: fullWidth ? "11px" : "10px",
-    fontStyle: "normal",
-    fontWeight: 500,
-    lineHeight: "21px",
-    letterSpacing: "1.32px",
-    textTransform: "uppercase",
-    textAlign: "center",
-    fontFeatureSettings: "'liga' off, 'clig' off",
-    border:
+export const StyledMuiButton = styled(Button)(({ theme, variant, size }) => ({
+  display: size === "large" ? "flex" : "inline-flex",
+  padding: size === "large" ? "8px 20px" : "6px 20px",
+  justifyContent: "center",
+  alignItems: "flex-start",
+  gap: "10px",
+  fontFamily: "Roboto Mono",
+  fontSize: size === "large" ? "11px" : "10px",
+  fontStyle: "normal",
+  fontWeight: 500,
+  lineHeight: "21px",
+  letterSpacing: "1.32px",
+  textTransform: "uppercase",
+  textAlign: "center",
+  fontFeatureSettings: "'liga' off, 'clig' off",
+  border:
+    variant === "outlined"
+      ? `1px solid ${computeColor(theme, variant)}`
+      : "none",
+  color: computeColor(theme, variant as ButtonVariant),
+  "&:hover": {
+    background:
       variant === "outlined"
-        ? `1px solid ${computeColor(theme, variant)}`
-        : "none",
-    color: computeColor(theme, variant as ButtonVariant),
-    "&:hover": {
-      background:
-        variant === "outlined"
-          ? theme.palette.grey[300]
-          : theme.palette.primary.light
-    }
-  })
-);
+        ? theme.palette.grey[300]
+        : theme.palette.primary.light
+  }
+}));

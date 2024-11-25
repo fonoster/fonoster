@@ -17,12 +17,25 @@
  * limitations under the License.
  */
 import { ButtonPropsVariantOverrides } from "@mui/material";
+import { OverridableStringUnion } from "@mui/types";
 import React from "react";
 
-type ButtonVariant = "contained" | "outlined";
+type ButtonVariant = Omit<
+  OverridableStringUnion<
+    "text" | "outlined" | "contained",
+    ButtonPropsVariantOverrides
+  >,
+  "text"
+>;
+
+type OriginalButtonVariant = OverridableStringUnion<
+  "text" | "outlined" | "contained",
+  ButtonPropsVariantOverrides
+>;
 
 type ButtonProps = {
-  variant?: ButtonPropsVariantOverrides;
+  variant?: ButtonVariant;
+  size?: "small" | "large";
   fullWidth?: boolean;
   disabled?: boolean;
   startIcon?: React.ReactNode;
@@ -31,4 +44,4 @@ type ButtonProps = {
   onClick: () => void;
 };
 
-export type { ButtonProps, ButtonVariant };
+export type { ButtonProps, ButtonVariant, OriginalButtonVariant };

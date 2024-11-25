@@ -16,8 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Button } from "./stories/button/Button";
+import { NavButton } from "./stories/navbutton/NavButton";
+
 function App() {
-  return <></>;
+  return (
+    <>
+      <NavButton isOpen={false} label={8} onClick={() => {}} />
+      <Button fullWidth onClick={() => {}}>
+        Hello World
+      </Button>
+    </>
+  );
 }
 
 export default App;
