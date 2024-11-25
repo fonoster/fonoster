@@ -16,27 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Typography } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import {
+  DrawerPageRegionLabel,
+  LandingPageRegionLabel
+} from "./RegionLabel.styles";
 
-export const VersionLabel = ({ children }: { children: string }) => {
-  const theme = useTheme();
+export const RegionLabel = ({
+  children,
+  type
+}: {
+  children: string;
+  type?: "landing-page" | "drawer";
+}) => {
+  const actualType = type || "landing-page";
 
-  return (
-    <Typography
-      sx={{
-        color: theme.palette.grey[500],
-        fontFamily: "Roboto Mono",
-        fontSize: "10px",
-        fontStyle: "normal",
-        fontWeight: 500,
-        lineHeight: "21px",
-        letterSpacing: "0.5px",
-        textTransform: "uppercase",
-        fontFeatureSettings: "'liga' off, 'clig' off"
-      }}
-    >
-      {children}
-    </Typography>
+  return actualType === "landing-page" ? (
+    <LandingPageRegionLabel>{children}</LandingPageRegionLabel>
+  ) : (
+    <DrawerPageRegionLabel>{children}</DrawerPageRegionLabel>
   );
 };

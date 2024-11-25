@@ -22,7 +22,7 @@ import { ButtonVariant } from "./types";
 
 function computeColor(theme: Theme, variant: ButtonPropsVariantOverrides) {
   if (theme.palette.mode === "dark") {
-    return "#FFFFFF";
+    return theme.palette.common.white;
   } else if (variant === "outlined") {
     return theme.palette.grey[800];
   } else {
