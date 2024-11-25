@@ -16,23 +16,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Box } from "@mui/material";
 import {
-  DrawerPageRegionLabel,
+  DrawerRegionLabel,
   LandingPageRegionLabel
 } from "./RegionLabel.styles";
 
 export const RegionLabel = ({
   children,
-  type
+  type = "landing-page"
 }: {
   children: string;
   type?: "landing-page" | "drawer";
 }) => {
-  const actualType = type || "landing-page";
+  const Wrapper =
+    type === "landing-page" ? LandingPageRegionLabel : DrawerRegionLabel;
 
-  return actualType === "landing-page" ? (
-    <LandingPageRegionLabel>{children}</LandingPageRegionLabel>
-  ) : (
-    <DrawerPageRegionLabel>{children}</DrawerPageRegionLabel>
+  return (
+    <Wrapper>
+      <Box
+        sx={{
+          display: "flex",
+          height: "16px",
+          flexDirection: "column",
+          justifyContent: "center"
+        }}
+      >
+        {children}
+      </Box>
+    </Wrapper>
   );
 };

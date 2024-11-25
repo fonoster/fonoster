@@ -22,7 +22,6 @@ import { CSSProperties } from "react";
 
 const commonStyles: CSSProperties = {
   display: "inline-flex",
-  padding: "2px 8px",
   justifyContent: "center",
   alignItems: "center",
   gap: "10px",
@@ -31,18 +30,17 @@ const commonStyles: CSSProperties = {
   fontStyle: "normal",
   fontWeight: 700,
   lineHeight: "21px",
-  letterSpacing: "1.32px",
   textTransform: "uppercase",
   textAlign: "center",
   fontFeatureSettings: "'liga' off, 'clig' off"
 };
 
-export const DrawerPageRegionLabel = styled(Box)(({ theme }) => ({
-  ...commonStyles, // Spread the styles here
+export const DrawerRegionLabel = styled(Box)(({ theme }) => ({
+  ...commonStyles,
   padding: "0px 4px",
   backgroundColor: theme.palette.grey[300],
-  color: theme.palette.grey[900],
-  borderRadius: "40px"
+  color: theme.palette.grey[700],
+  borderRadius: "20px"
 }));
 
 export const LandingPageRegionLabel = styled(Box)(({ theme }) => ({
@@ -50,5 +48,5 @@ export const LandingPageRegionLabel = styled(Box)(({ theme }) => ({
   padding: "2px 8px",
   backgroundColor: theme.palette.primary[500],
   color: theme.palette.primary[900],
-  borderRadius: "20px"
+  borderRadius: "40px"
 }));
