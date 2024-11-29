@@ -71,5 +71,6 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/uuid": "^9.0.8",
     "@types/validator": "^13.12.0"
-  }
+  },
+  "gitHead": "d483135107eca85932d8f75e4f6ff27cfaef51e3"
 }

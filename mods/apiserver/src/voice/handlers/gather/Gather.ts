@@ -16,11 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GatherRequest, GatherSource } from "@fonoster/common";
 import {
+  GatherRequest,
+  GatherSource,
   MUST_BE_A_SINGLE_CHARACTER,
   POSITIVE_INTEGER_MESSAGE
-} from "@fonoster/common/src/messages";
+} from "@fonoster/common";
 import { z } from "zod";
 import { getTimeoutPromise } from "./getTimeoutPromise";
 import { VoiceClient } from "../../types";

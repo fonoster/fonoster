@@ -21,6 +21,7 @@ export * from "./constants";
 export * from "./errors";
 export * from "./grpcStatusMap";
 export * as Messages from "./messages";
+export * from "./messages";
 export * from "./notifications";
 export * from "./tts";
 export * from "./types";
