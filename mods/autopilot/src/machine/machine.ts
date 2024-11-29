@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { performance } from "perf_hooks";
 import { getLogger } from "@fonoster/logger";
 import { assign, fromPromise, setup } from "xstate";
 import { AutopilotContext } from "./types";
 import { ConversationSettings } from "../assistants";
+import { MetricsManager } from "../metrics";
 import { LanguageModel } from "../models";
 import { Voice } from "../voice";
 
@@ -34,6 +34,7 @@ const machine = setup({
       conversationSettings: ConversationSettings;
       languageModel: LanguageModel;
       voice: Voice;
+      metricsManager: MetricsManager;
     },
     events: {} as
       | { type: "SPEECH_START" }
@@ -166,23 +167,13 @@ const machine = setup({
           speechBuffer: context.speechBuffer
         });
 
-        context.speechResponseStartTime = performance.now();
-
         // Stop any speech that might be playing
         context.voice.stopSpeech();
 
         const languageModel = context.languageModel;
         const speech = context.speechBuffer.trim();
+
         const response = await languageModel.invoke(speech);
-
-        const speechResponseTime =
-          performance.now() - context.speechResponseStartTime;
-        context.speechResponseTime = Math.round(speechResponseTime);
-        context.speechResponseStartTime = 0;
-
-        logger.verbose("response from language model", {
-          speechResponseTime
-        });
 
         try {
           if (response.type === "say" && !response.content) {
@@ -237,9 +228,9 @@ const machine = setup({
       input.conversationSettings.idleOptions?.maxTimeoutCount || 3,
     idleTimeoutCount: 0,
     maxSpeechWaitTimeout: input.conversationSettings.maxSpeechWaitTimeout,
-    speechResponseStartTime: 0,
     speechResponseTime: 0,
-    isSpeaking: false
+    isSpeaking: false,
+    metricsManager: input.metricsManager
   }),
   id: "fnAI",
   initial: "greeting",
