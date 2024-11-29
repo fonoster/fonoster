@@ -21,7 +21,7 @@ Next, copy the `.env.example` from the repository to the current directory and r
 curl -o .env https://raw.githubusercontent.com/fonoster/fonoster/0.6/.env.example
 curl -o ./compose.yaml https://raw.githubusercontent.com/fonoster/fonoster/0.6/compose.yaml
 curl -o ./config/integrations.json https://raw.githubusercontent.com/fonoster/fonoster/0.6/integrations.example.json
-curl -o ./config/envoy.yaml https://raw.githubusercontent.com/fonoster/fonoster/0.6/envoy.yaml
+curl -o ./config/envoy.yaml https://raw.githubusercontent.com/fonoster/fonoster/0.6/config/envoy.yaml
 ```
 
 Then, open the `.env` file with your favorite editor and update the following variables:
