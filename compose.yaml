@@ -35,8 +35,8 @@ services:
     expose:
       - 50051:50051
     volumes:
-      - ./config/keys:/opt/fonoster/keys
-      - ./config/integrations.json:/opt/fonoster/integrations.json
+      - ./config/keys:/opt/fonoster/keys:ro
+      - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
   # Service overview
   autopilot:

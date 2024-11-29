@@ -37,6 +37,7 @@ Next, generate a set of public and private keys for the server. You can use the 
 mkdir -p config/keys
 openssl genpkey -algorithm rsa -out config/keys/private.pem -pkeyopt rsa_keygen_bits:2048
 openssl rsa -pubout -in config/keys/private.pem -out config/keys/public.pem
+chmod 644 config/keys/*
 ```
 
 Your directory structure should look like this:
