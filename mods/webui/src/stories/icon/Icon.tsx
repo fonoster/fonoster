@@ -56,7 +56,8 @@ import ScreenShareOff from "@mui/icons-material/StopScreenShareOutlined";
 import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 
-type IconName = "Add"
+type IconName =
+  | "Add"
   | "DarkMode"
   | "LightMode"
   | "Settings"
@@ -97,8 +98,8 @@ type IconName = "Add"
   | "ScreenShareOff";
 
 type IconProps = {
-  name: IconName,
-  fontSize?: "small" | "medium" | "large"
+  name: IconName;
+  fontSize?: "small" | "medium" | "large";
 };
 
 export function Icon(props: IconProps) {
@@ -107,83 +108,83 @@ export function Icon(props: IconProps) {
 
   switch (name) {
     case "Add":
-      return <Add fontSize={actualFontSize} />
+      return <Add fontSize={actualFontSize} />;
     case "DarkMode":
-      return <DarkMode fontSize={actualFontSize} />
+      return <DarkMode fontSize={actualFontSize} />;
     case "LightMode":
-      return <LightMode fontSize={actualFontSize} />
+      return <LightMode fontSize={actualFontSize} />;
     case "Settings":
-      return <Settings fontSize={actualFontSize} />
+      return <Settings fontSize={actualFontSize} />;
     case "Person":
-      return <Person fontSize={actualFontSize} />
+      return <Person fontSize={actualFontSize} />;
     case "Groups":
-      return <Groups fontSize={actualFontSize} />
+      return <Groups fontSize={actualFontSize} />;
     case "Close":
-      return <Close fontSize={actualFontSize} />
+      return <Close fontSize={actualFontSize} />;
     case "NotificationsActive":
-      return <NotificationsActive fontSize={actualFontSize} />
+      return <NotificationsActive fontSize={actualFontSize} />;
     case "CheckboxEmpty":
-      return <CheckboxEmpty fontSize={actualFontSize} />
+      return <CheckboxEmpty fontSize={actualFontSize} />;
     case "CheckboxSelected":
-      return <CheckboxSelected fontSize={actualFontSize} />
+      return <CheckboxSelected fontSize={actualFontSize} />;
     case "CheckboxIntermediate":
-      return <CheckboxIntermediate fontSize={actualFontSize} />
+      return <CheckboxIntermediate fontSize={actualFontSize} />;
     case "MinusOutline":
-      return <MinusOutline fontSize={actualFontSize} />
+      return <MinusOutline fontSize={actualFontSize} />;
     case "UnfoldLess":
-      return <UnfoldLess fontSize={actualFontSize} />
+      return <UnfoldLess fontSize={actualFontSize} />;
     case "UnfoldMore":
-      return <UnfoldMore fontSize={actualFontSize} />
+      return <UnfoldMore fontSize={actualFontSize} />;
     case "KeyboardArrowUp":
-      return <KeyboardArrowUp fontSize={actualFontSize} />
+      return <KeyboardArrowUp fontSize={actualFontSize} />;
     case "KeyboardArrowDown":
-      return <KeyboardArrowDown fontSize={actualFontSize} />
+      return <KeyboardArrowDown fontSize={actualFontSize} />;
     case "ArrowDropUp":
-      return <ArrowDropUp fontSize={actualFontSize} />
+      return <ArrowDropUp fontSize={actualFontSize} />;
     case "ArrowDropDown":
-      return <ArrowDropDown fontSize={actualFontSize} />
+      return <ArrowDropDown fontSize={actualFontSize} />;
     case "Search":
-      return <Search fontSize={actualFontSize} />
+      return <Search fontSize={actualFontSize} />;
     case "Calendar":
-      return <Calendar fontSize={actualFontSize} />
+      return <Calendar fontSize={actualFontSize} />;
     case "OpenInNew":
-      return <OpenInNew fontSize={actualFontSize} />
+      return <OpenInNew fontSize={actualFontSize} />;
     case "Key":
-      return <Key fontSize={actualFontSize} />
+      return <Key fontSize={actualFontSize} />;
     case "Delete":
-      return <Delete fontSize={actualFontSize} />
+      return <Delete fontSize={actualFontSize} />;
     case "Email":
-      return <Email fontSize={actualFontSize} />
+      return <Email fontSize={actualFontSize} />;
     case "Edit":
-      return <Edit fontSize={actualFontSize} />
+      return <Edit fontSize={actualFontSize} />;
     case "Upload":
-      return <Upload fontSize={actualFontSize} />
+      return <Upload fontSize={actualFontSize} />;
     case "Show":
-      return <Show fontSize={actualFontSize} />
+      return <Show fontSize={actualFontSize} />;
     case "Info":
-      return <Info fontSize={actualFontSize} />
+      return <Info fontSize={actualFontSize} />;
     case "Copy":
-      return <Copy fontSize={actualFontSize} />
+      return <Copy fontSize={actualFontSize} />;
     case "Minus":
-      return <Minus fontSize={actualFontSize} />
+      return <Minus fontSize={actualFontSize} />;
     case "Chat":
-      return <Chat fontSize={actualFontSize} />
+      return <Chat fontSize={actualFontSize} />;
     case "Phone":
-      return <Phone fontSize={actualFontSize} />
+      return <Phone fontSize={actualFontSize} />;
     case "CameraOn":
-      return <CameraOn fontSize={actualFontSize} />
+      return <CameraOn fontSize={actualFontSize} />;
     case "CameraOff":
-      return <CameraOff fontSize={actualFontSize} />
+      return <CameraOff fontSize={actualFontSize} />;
     case "MicOff":
-      return <MicOff fontSize={actualFontSize} />
+      return <MicOff fontSize={actualFontSize} />;
     case "MicOn":
-      return <MicOn fontSize={actualFontSize} />
+      return <MicOn fontSize={actualFontSize} />;
     case "PictureInPicture":
-      return <PictureInPicture fontSize={actualFontSize} />
+      return <PictureInPicture fontSize={actualFontSize} />;
     case "ScreenShareOn":
-      return <ScreenShareOn fontSize={actualFontSize} />
+      return <ScreenShareOn fontSize={actualFontSize} />;
     case "ScreenShareOff":
-      return <ScreenShareOff fontSize={actualFontSize} />
+      return <ScreenShareOff fontSize={actualFontSize} />;
     default:
       return null;
   }

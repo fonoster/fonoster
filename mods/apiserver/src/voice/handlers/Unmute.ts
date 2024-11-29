@@ -18,8 +18,8 @@
  */
 import { MuteRequest } from "@fonoster/common";
 import { Client } from "ari-client";
-import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
 
 function unmuteHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: MuteRequest) => {

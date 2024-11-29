@@ -19,9 +19,9 @@
 import { RecordFormat, RecordRequest } from "@fonoster/common";
 import { Client } from "ari-client";
 import { nanoid } from "nanoid";
+import { VoiceClient } from "../types";
 import { awaitForRecordingFinished } from "./utils/awaitForRecordingFinished";
 import { withErrorHandling } from "./utils/withErrorHandling";
-import { VoiceClient } from "../types";
 
 function recordHandler(ari: Client, voiceClient: VoiceClient) {
   return withErrorHandling(async (request: RecordRequest) => {

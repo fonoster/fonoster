@@ -22,8 +22,8 @@ import {
 } from "@fonoster/common";
 import { Client } from "ari-client";
 import { z } from "zod";
-import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
 
 const requestSchema = z.object({
   sessionRef: z.string(),

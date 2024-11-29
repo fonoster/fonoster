@@ -35,8 +35,8 @@ import {
 } from "./handlers";
 import { streamHandler } from "./handlers/Stream";
 import { AriEvent as AE, ChannelVar, VoiceClient } from "./types";
-import { makeGetChannelVarWithoutThrow } from "./utils/makeGetChannelVarWithoutThrow";
 import { makeHandleDialEventsWithNats } from "../utils";
+import { makeGetChannelVarWithoutThrow } from "./utils/makeGetChannelVarWithoutThrow";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 

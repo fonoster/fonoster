@@ -18,8 +18,8 @@
  */
 import { StartStreamGatherRequest, StreamGatherSource } from "@fonoster/common";
 import { z } from "zod";
-import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
 
 const gatherRequestSchema = z.object({
   source: z.optional(

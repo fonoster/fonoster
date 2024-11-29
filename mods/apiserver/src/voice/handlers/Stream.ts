@@ -23,8 +23,8 @@ import {
   StreamMessageType
 } from "@fonoster/common";
 import { z } from "zod";
-import { withErrorHandling } from "./utils/withErrorHandling";
 import { VoiceClient } from "../types";
+import { withErrorHandling } from "./utils/withErrorHandling";
 
 const streamRequestSchema = z.object({
   direction: z
