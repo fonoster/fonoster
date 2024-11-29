@@ -26,7 +26,7 @@ import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
 import { streamToBuffer } from "./streamToBuffer";
 import { SynthOptions } from "./types";
-import { textChunkTextByClause } from "../handlers/utils/textChunksByClause";
+import { textChunksByFirstNaturalPause } from "../handlers/utils/textChunksByFirstNaturalPause";
 
 const ENGINE_NAME = "tts.deepgram";
 
@@ -66,7 +66,7 @@ class Deepgram extends AbstractTextToSpeech<typeof ENGINE_NAME> {
 
     const { voice } = this.engineConfig.config;
     const ref = this.createMediaReference();
-    const chunks = textChunkTextByClause(text);
+    const chunks = textChunksByFirstNaturalPause(text);
     const stream = new Readable({ read() {} });
 
     const results = new Array(chunks.length);

@@ -1,3 +1,4 @@
+/* eslint-disable no-loops/no-loops */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,17 +17,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { BaseModelParams } from "../types";
+const CLAUSE_BOUNDARIES = /[.?!;]+/g;
 
-enum OllamaModel {
-  LLAMA_3_GROQ_TOOL_USE = "llama3-groq-tool-use"
+function textChunksByFirstNaturalPause(text: string) {
+  const boundary = text.match(CLAUSE_BOUNDARIES)?.[0];
+  if (!boundary) {
+    // No pause found, return the entire text as the first chunk
+    return [text.trim()];
+  }
+
+  const boundaryIndex = text.indexOf(boundary) + boundary.length;
+  const firstChunk = text.slice(0, boundaryIndex).trim();
+  const secondChunk = text.slice(boundaryIndex).trim();
+
+  return secondChunk ? [firstChunk, secondChunk] : [firstChunk];
 }
 
-type OllamaParams = BaseModelParams & {
-  model: OllamaModel;
-  baseUrl: string;
-  maxTokens: number;
-  temperature: number;
-};
-
-export { OllamaModel, OllamaParams };
+export { textChunksByFirstNaturalPause };
