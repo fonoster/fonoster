@@ -22,6 +22,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { createActor } from "xstate";
+import { MetricsManager } from "../src/metrics";
 import { LanguageModel } from "../src/models";
 import { Voice } from "../src/voice";
 
@@ -82,7 +83,8 @@ const getActorInput = () => ({
       deactivationThreshold: 0.2,
       debounceFrames: 2
     }
-  }
+  },
+  metricsManager: {} as MetricsManager
 });
 
 describe("@autopilot/machine", function () {
@@ -116,7 +118,6 @@ describe("@autopilot/machine", function () {
     expect(context.maxIdleTimeoutCount).to.equal(3);
     expect(context.idleTimeoutCount).to.equal(0);
     expect(context.speechBuffer).to.equal("");
-    expect(context.speechResponseStartTime).to.equal(0);
     expect(context.speechResponseTime).to.equal(0);
     expect(context.isSpeaking).to.equal(false);
     expect(input.voice.answer).to.have.been.calledOnce;
