@@ -20,7 +20,6 @@ import { getLogger } from "@fonoster/logger";
 import { assign, fromPromise, setup } from "xstate";
 import { AutopilotContext } from "./types";
 import { ConversationSettings } from "../assistants";
-import { MetricsManager } from "../metrics";
 import { LanguageModel } from "../models";
 import { Voice } from "../voice";
 
@@ -34,7 +33,6 @@ const machine = setup({
       conversationSettings: ConversationSettings;
       languageModel: LanguageModel;
       voice: Voice;
-      metricsManager: MetricsManager;
     },
     events: {} as
       | { type: "SPEECH_START" }
@@ -229,8 +227,7 @@ const machine = setup({
     idleTimeoutCount: 0,
     maxSpeechWaitTimeout: input.conversationSettings.maxSpeechWaitTimeout,
     speechResponseTime: 0,
-    isSpeaking: false,
-    metricsManager: input.metricsManager
+    isSpeaking: false
   }),
   id: "fnAI",
   initial: "greeting",

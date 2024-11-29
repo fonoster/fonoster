@@ -21,7 +21,6 @@ import { Worker } from "worker_threads";
 import { getLogger } from "@fonoster/logger";
 import { Actor, createActor } from "xstate";
 import { machine } from "./machine/machine";
-import { MetricsManager } from "./metrics";
 import { AutopilotParams } from "./types";
 import { VadEvent } from "./vad";
 
@@ -30,13 +29,10 @@ const logger = getLogger({ service: "autopilot", filePath: __filename });
 class Autopilot {
   private actor: Actor<typeof machine>;
   private vadWorker: Worker;
-  private metricsManager: MetricsManager;
 
   constructor(private params: AutopilotParams) {
     const { voice, languageModel, conversationSettings } = this.params;
     const vadWorkerPath = path.resolve(__dirname, "../dist", "./vadWorker");
-    // TODO: Fix hardcoded values
-    this.metricsManager = new MetricsManager({} as any);
     this.vadWorker = new Worker(vadWorkerPath, {
       workerData: conversationSettings.vad
     });
@@ -44,8 +40,7 @@ class Autopilot {
       input: {
         conversationSettings,
         languageModel: languageModel,
-        voice,
-        metricsManager: this.metricsManager
+        voice
       }
     });
   }
@@ -105,7 +100,6 @@ class Autopilot {
       logger.verbose("received speech result", { speech });
 
       if (speech) {
-        this.metricsManager.sttResponseReceived(speech);
         // Testing using STT for both VAD and STT (experimental)
         this.actor.send({ type: "SPEECH_END" });
         this.actor.send({ type: "SPEECH_RESULT", speech });

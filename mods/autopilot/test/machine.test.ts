@@ -22,7 +22,6 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { createActor } from "xstate";
-import { MetricsManager } from "../src/metrics";
 import { LanguageModel } from "../src/models";
 import { Voice } from "../src/voice";
 
@@ -83,8 +82,7 @@ const getActorInput = () => ({
       deactivationThreshold: 0.2,
       debounceFrames: 2
     }
-  },
-  metricsManager: {} as MetricsManager
+  }
 });
 
 describe("@autopilot/machine", function () {

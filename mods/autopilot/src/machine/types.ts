@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { MetricsManager } from "../metrics";
 import { LanguageModel } from "../models";
 import { Voice } from "../voice";
 
@@ -38,7 +37,6 @@ type AutopilotContext = {
   speechResponseTime: number;
   isSpeaking: boolean;
   knowledgeBaseSourceUrl?: string;
-  metricsManager: MetricsManager;
 };
 
 export { AutopilotContext };
