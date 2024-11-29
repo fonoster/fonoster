@@ -1,4 +1,3 @@
-export * from "./loadAndValidateAssistant";
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,4 +16,5 @@ export * from "./loadAndValidateAssistant";
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+export * from "./loadAndValidateAssistant";
 export * from "./types";
