@@ -28,20 +28,14 @@ jobs:
 
       - name: Pack the SDK
         run: |
+          cd mods/sdk
           npm pack
-        working-directory: mods/sdk
 
       - name: Upload SDK tarball
         uses: actions/upload-artifact@v4
         with:
           name: sdk-tarball
-          path: |
-            # Workaround for the double zip issue (https://github.com/actions/upload-artifact/issues/109)
-            mods/sdk
-            !mods/sdk/node_modules
-            !mods/sdk/src
-            !mods/sdk/test
-            !mods/sdk/dist
+          path: mods/sdk
 
   install-with-yarn:
     runs-on: ubuntu-latest
@@ -70,6 +64,7 @@ jobs:
 
       - name: Install the SDK with yarn
         run: |
+          echo "Installing the SDK with yarn"
           # Verify that the tarball is downloaded
           ls -l
           mkdir new_project
