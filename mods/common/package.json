@@ -44,5 +44,5 @@
   "devDependencies": {
     "@types/nodemailer": "^6.4.14"
   },
-  "gitHead": "438edd2e79d3baefb5b603b98fc173c0390d3e7e"
+  "gitHead": "e8d347b1e7c7e22219a8cee4018ccedb0f41d8fe"
 }
