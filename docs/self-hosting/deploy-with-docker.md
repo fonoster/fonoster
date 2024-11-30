@@ -20,7 +20,7 @@ Next, copy the `.env.example` from the repository to the current directory and r
 ```bash
 curl -o .env https://raw.githubusercontent.com/fonoster/fonoster/0.6/.env.example
 curl -o ./compose.yaml https://raw.githubusercontent.com/fonoster/fonoster/0.6/compose.yaml
-curl -o ./config/integrations.json https://raw.githubusercontent.com/fonoster/fonoster/0.6/integrations.example.json
+curl -o ./config/integrations.json https://raw.githubusercontent.com/fonoster/fonoster/0.6/config/integrations.example.json
 curl -o ./config/envoy.yaml https://raw.githubusercontent.com/fonoster/fonoster/0.6/config/envoy.yaml
 ```
 
