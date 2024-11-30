@@ -16,15 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { join } from "path";
-import { assertEnvsAreSet, assertFileExists } from "@fonoster/common";
-import dotenv from "dotenv";
+import { FilesKnowledgeBase } from ".";
 
-if (process.env.NODE_ENV === "dev") {
-  dotenv.config({ path: join(process.cwd(), ".env") });
+async function loadKnowledgeBaseFromFile(
+  pathToKnowledgeBase: string
+): Promise<FilesKnowledgeBase> {
+  const knowledgeBase = new FilesKnowledgeBase({
+    files: [pathToKnowledgeBase]
+  });
+  await knowledgeBase.load();
+  return knowledgeBase;
 }
 
-assertEnvsAreSet(["ASSISTANT"]);
-assertFileExists(process.env.ASSISTANT!);
-
-export const ASSISTANT = process.env.ASSISTANT;
+export { loadKnowledgeBaseFromFile };

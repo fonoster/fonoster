@@ -20,8 +20,8 @@ import { StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { createLanguageModel } from "./createLanguageModel";
-import { loadAssistantConfig } from "./loadAssistantConfig";
-import { loadKnowledgeBase } from "./loadKnowledgeBase";
+import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
+import { loadKnowledgeBaseFromFile } from "./loadKnowledgeBaseFromFile";
 import Autopilot, { VoiceImpl } from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -35,8 +35,12 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
     metadata: req.metadata
   });
 
-  const assistantConfig = loadAssistantConfig();
-  const knowledgeBase = await loadKnowledgeBase();
+  const assistantConfig = loadAssistantConfigFromFile(
+    `${process.cwd()}/config/assistant.json`
+  );
+  const knowledgeBase = await loadKnowledgeBaseFromFile(
+    `${process.cwd()}/config/sample.pdf`
+  );
 
   const voice = new VoiceImpl(sessionRef, res);
 

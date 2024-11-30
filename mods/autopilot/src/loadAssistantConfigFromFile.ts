@@ -17,12 +17,13 @@
  * limitations under the License.
  */
 import * as path from "path";
-import { ASSISTANT } from "./envs";
 import { AssistantConfig, loadAndValidateAssistant } from ".";
 
-function loadAssistantConfig(): AssistantConfig {
-  const assistantPath = path.resolve(process.cwd(), ASSISTANT!);
+function loadAssistantConfigFromFile(
+  pathToAssistantConfig: string
+): AssistantConfig {
+  const assistantPath = path.resolve(process.cwd(), pathToAssistantConfig);
   return loadAndValidateAssistant(assistantPath);
 }
 
-export { loadAssistantConfig };
+export { loadAssistantConfigFromFile };
