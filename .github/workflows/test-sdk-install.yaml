@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v3
@@ -28,11 +28,15 @@ jobs:
 
       - name: Pack the SDK
         run: |
+          echo "before pack"
+          ls
           npm pack
+          echo "after pack"
+          ls 
         working-directory: mods/sdk
 
       - name: Upload SDK tarball
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sdk-tarball
           path: mods/sdk/*.tgz
@@ -47,7 +51,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -58,12 +62,14 @@ jobs:
         run: npm install -g yarn
 
       - name: Download SDK tarball
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sdk-tarball
 
       - name: Install the SDK with yarn
         run: |
+          # Verify that the tarball is downloaded
+          ls -l
           mkdir new_project
           cd new_project
           yarn init -y
@@ -79,7 +85,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -87,7 +93,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Download SDK tarball
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sdk-tarball
 
