@@ -35,7 +35,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sdk-tarball
-          path: mods/sdk
+          path: mods/sdk/fonoster-sdk-*.tgz
 
   install-with-yarn:
     runs-on: ubuntu-latest
@@ -64,9 +64,6 @@ jobs:
 
       - name: Install the SDK with yarn
         run: |
-          echo "Installing the SDK with yarn"
-          # Verify that the tarball is downloaded
-          ls -l
           mkdir new_project
           cd new_project
           yarn init -y
