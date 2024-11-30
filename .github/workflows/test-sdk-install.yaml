@@ -28,7 +28,6 @@ jobs:
 
       - name: Pack the SDK
         run: |
-          cd mods/sdk
           npm pack
         working-directory: mods/sdk
 
