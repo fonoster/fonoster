@@ -30,6 +30,13 @@ jobs:
         run: |
           cd mods/sdk
           npm pack
+        working-directory: mods/sdk
+
+      - name: Upload SDK tarball
+        uses: actions/upload-artifact@v3
+        with:
+          name: sdk-tarball
+          path: mods/sdk/*.tgz
 
   install-with-yarn:
     runs-on: ubuntu-latest
@@ -51,12 +58,17 @@ jobs:
       - name: Install Yarn
         run: npm install -g yarn
 
+      - name: Download SDK tarball
+        uses: actions/download-artifact@v3
+        with:
+          name: sdk-tarball
+
       - name: Install the SDK with yarn
         run: |
           mkdir new_project
           cd new_project
           yarn init -y
-          yarn add ../mods/sdk/*.tgz
+          yarn add ../sdk-tarball/*.tgz
 
   install-with-npm:
     runs-on: ubuntu-latest
@@ -75,9 +87,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Download SDK tarball
+        uses: actions/download-artifact@v3
+        with:
+          name: sdk-tarball
+
       - name: Install the SDK with npm
         run: |
           mkdir new_project
           cd new_project
           npm init -y
-          npm install ../mods/sdk/*.tgz
+          npm install ../sdk-tarball/*.tgz
