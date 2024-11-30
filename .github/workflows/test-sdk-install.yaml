@@ -59,7 +59,7 @@ jobs:
           mkdir new_project
           cd new_project
           yarn init -y
-          yarn add ../fonoster-*.tgz
+          yarn add ../mods/sdk/fonoster-*.tgz
 
   install-with-npm:
     runs-on: ubuntu-latest
@@ -83,4 +83,4 @@ jobs:
           mkdir new_project
           cd new_project
           npm init -y
-          npm install ../fonoster-*.tgz
+          npm install ../mods/sdk/fonoster-*.tgz
