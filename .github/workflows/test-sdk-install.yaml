@@ -56,6 +56,7 @@ jobs:
           echo "Installing the SDK with yarn"
           # Verify that the tarball is downloaded
           ls -l
+          ls -l mods/sdk
           mkdir new_project
           cd new_project
           yarn init -y
