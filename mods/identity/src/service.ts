@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { prisma } from "./db";
+import { IDENTITY_USER_VERIFICATION_REQUIRED } from "./envs";
 import { exchangeOauth2Code } from "./exchanges/exchangeOauth2Code";
 import { IdentityConfig } from "./exchanges/types";
 import { getPublicKey } from "./getPublicKey";
@@ -52,7 +53,7 @@ const serviceDefinitionParams = {
 };
 
 function buildIdentityService(identityConfig: IdentityConfig) {
-  return {
+  const service = {
     definition: serviceDefinitionParams,
     handlers: {
       // Workspace operations
@@ -88,11 +89,23 @@ function buildIdentityService(identityConfig: IdentityConfig) {
       exchangeOauth2Code: exchangeOauth2Code(prisma, identityConfig),
       exchangeRefreshToken: exchangeRefreshToken(prisma, identityConfig),
       getPublicKey: getPublicKey(identityConfig.publicKey),
-      // Verification
-      sendVerificationCode: createSendVerificationCode(prisma, identityConfig),
-      verifyCode: createVerifyCode(prisma)
+      // Placeholders for conditional handlers
+      sendVerificationCode: undefined as unknown as ReturnType<
+        typeof createSendVerificationCode
+      >,
+      verifyCode: undefined as unknown as ReturnType<typeof createVerifyCode>
     }
   };
+
+  if (IDENTITY_USER_VERIFICATION_REQUIRED) {
+    service.handlers.sendVerificationCode = createSendVerificationCode(
+      prisma,
+      identityConfig
+    );
+    service.handlers.verifyCode = createVerifyCode(prisma);
+  }
+
+  return service;
 }
 
 export { buildIdentityService, serviceDefinitionParams };
