@@ -30,7 +30,6 @@ The most notable features of Fonoster 0.4 are:
 - [x] Role-Based Access Control (RBAC)
 - [x] Plugins-based Command-line Tool
 - [x] Support for Google Speech APIs
-- [x] Secrets managed by Hashicorp Vault
 
 ## Code Examples
 
