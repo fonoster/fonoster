@@ -75,10 +75,12 @@ Next, set up auto-renewal by creating a script named renew_cert.sh:
 #!/bin/bash
 
 docker run --rm \
- -v $(pwd)/letsencrypt/certbot/conf:/etc/letsencrypt \
-  -v $(pwd)/letsencrypt/certbot/www:/var/www/html \
+ -v /path/to/letsencrypt/certbot/conf:/etc/letsencrypt \
+  -v /path/to/letsencrypt/certbot/www:/var/www/html \
  certbot/certbot renew
 ```
+
+Please replace /path/to with the actual path to the directories.
 
 Make the script executable and add a cron job to run it twice daily:
 
