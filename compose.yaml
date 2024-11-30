@@ -73,7 +73,7 @@ services:
   # RTPEngine uses a range of ports to handle RTP traffic. Because exposing a large range of ports 
   # is not possible in Docker, we need to use network_mode: host.
   #
-  # Unfortunately, network_mode: host is not supported in Docker for Windows or Mac.
+  # Unfortunately, network_mode: host is not supported for Windows or Mac.
   # In those cases, we need to use a different approach.
   #
   # By default we are opening a small range of ports (10000-10100) to handle RTP traffic.
