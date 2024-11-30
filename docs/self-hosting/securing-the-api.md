@@ -34,7 +34,7 @@ http {
 }
 ```
 
-Replace example.com with your domain name and remember to point the domain to the server's IP address.
+Replace api.example.com with your domain name and remember to point the domain to the server's IP address.
 
 Then, start the Nginx container to handle the ACME challenge:
 
@@ -60,6 +60,8 @@ docker run -it --rm \
 
 Replace the email and domain name with your information.
 
+You should see a message indicating that the certificate was successfully obtained.
+
 After obtaining the certificate, stop and remove the temporary Nginx container:
 
 ```bash
@@ -67,7 +69,7 @@ docker stop nginx
 docker rm nginx
 ```
 
-Finally, set up auto-renewal by creating a script named renew_cert.sh:
+Next, set up auto-renewal by creating a script named renew_cert.sh:
 
 ```bash
 #!/bin/bash
@@ -87,4 +89,9 @@ chmod +x renew_cert.sh
 
 Replace /path/to with the actual path to the script.
 
+Finally, in your compose file, find the Envoy container and mount the Let's Encrypt certificates and 
+open the port 443.
+
 By following these steps, you'll have successfully secured Fonoster's API with Let's Encrypt certificates and set up auto-renewal to maintain the security of your communications.
+
+> TODO: As part of the automation process, we should copy the certificates to the right location and restart the envoy container.

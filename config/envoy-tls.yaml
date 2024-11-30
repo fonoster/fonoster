@@ -55,9 +55,9 @@ static_resources:
                 common_tls_context:
                   tls_certificates:
                     - certificate_chain:
-                        filename: "/path/to/letsencrypt/fullchain.pem"
+                        filename: "/etc/letsencrypt/fullchain.pem"
                       private_key:
-                        filename: "/path/to/letsencrypt/privkey.pem"
+                        filename: "/etc/letsencrypt/privkey.pem"
 
   clusters:
     - name: api-gateway-proxy

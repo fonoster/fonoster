@@ -38,7 +38,6 @@ services:
       - ./config/keys:/opt/fonoster/keys:ro
       - ./config/integrations.json:/opt/fonoster/integrations.json:ro
 
-  # Service overview
   autopilot:
     image: fonoster/autopilot:latest
     restart: unless-stopped
@@ -151,8 +150,16 @@ services:
     restart: unless-stopped
     volumes:
       - ./config/envoy.yaml:/etc/envoy/envoy.yaml:ro
+      # If using letsencrypt, you need to mount the letsencrypt directory
+      # by uncommenting the following line and changing the domain name to match your domain.
+      #
+      # Symbolic links will not work here!!!
+      #
+      # - ./path/to/letsencrypt:/etc/letsencrypt:ro
     ports:
       - 8449:8449
+      # If using letsencrypt, you need to expose port 443 and remove the default HTTP port (8449)
+      # - 443:443
 
 volumes:
   db:
