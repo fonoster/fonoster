@@ -15,7 +15,7 @@ static_resources:
               route_config:
                 name: local_route
                 virtual_hosts:
-                  - name: local_service
+                  - name: local_route
                     domains: ["*"]
                     routes:
                       - match: { prefix: "/api" }
@@ -47,6 +47,19 @@ static_resources:
                     "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
+    - name: apiserver-cluster-http
+      type: logical_dns
+      connect_timeout: 20s
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: apiserver-cluster-http
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: apiserver
+                      port_value: 9876
     - name: apiserver-cluster
       type: logical_dns
       connect_timeout: 20s
@@ -61,16 +74,3 @@ static_resources:
                     socket_address:
                       address: apiserver
                       port_value: 50051
-    - name: apiserver-cluster-http
-      type: logical_dns
-      connect_timeout: 20s
-      lb_policy: round_robin
-      load_assignment:
-        cluster_name: apiserver-cluster-http
-        endpoints:
-          - lb_endpoints:
-              - endpoint:
-                  address:
-                    socket_address:
-                      address: apiserver
-                      port_value: 9876

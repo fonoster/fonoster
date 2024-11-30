@@ -25,9 +25,13 @@ static_resources:
                   - name: local_service
                     domains: ["*"]
                     routes:
+                      - match: { prefix: "/api" }
+                        route:
+                          cluster: apiserver-cluster-http
+                          timeout: 0s     
                       - match: { prefix: "/" }
                         route:
-                          cluster: api-gateway-proxy
+                          cluster: apiserver-cluster
                           timeout: 0s
                           max_stream_duration:
                             grpc_timeout_header_max: 0s
@@ -60,13 +64,26 @@ static_resources:
                         filename: "/etc/letsencrypt/privkey.pem"
 
   clusters:
-    - name: api-gateway-proxy
+    - name: apiserver-cluster-http
+      type: logical_dns
+      connect_timeout: 20s
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: apiserver-cluster-http
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: apiserver
+                      port_value: 9876
+    - name: apiserver-cluster
       type: logical_dns
       connect_timeout: 20s
       http2_protocol_options: {}
       lb_policy: round_robin
       load_assignment:
-        cluster_name: api-gateway-proxy
+        cluster_name: apiserver-cluster
         endpoints:
           - lb_endpoints:
               - endpoint:
