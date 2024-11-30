@@ -19,6 +19,7 @@
  */
 import { startVoiceServer } from "./voiceServerSetup";
 
-const skipIdentity = process.env.NODE_ENV === "dev";
+const skipIdentity =
+  process.env.NODE_ENV === "dev" || process.env.SKIP_IDENTITY === "true";
 
 startVoiceServer(skipIdentity);

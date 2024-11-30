@@ -21,7 +21,6 @@ import {
   getServerCredentials,
   statusMap
 } from "@fonoster/common";
-import { createAuthInterceptor, getPublicKeyClient } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import merge from "deepmerge";
@@ -46,10 +45,19 @@ export default class VoiceServer {
 
       let server: grpc.Server;
 
+      // Fixme: The identity verification is currently broken due to a dependency
+      // on @prisma/identity-client. For instance, running the VoiceServer in a container
+      // requires extra setup, including generating the identity-client.
+      //
+      // We will need to decouple the createAuthInterceptor and getPublicKeyClient from
+      // the identity-client to make this work.
       if (this.config.skipIdentity) {
         server = new grpc.Server();
       } else {
         // Get the public key from the identity service
+        const { getPublicKeyClient, createAuthInterceptor } = await import(
+          "@fonoster/identity"
+        );
         const response = await getPublicKeyClient(this.config.identityAddress);
 
         const authorization = createAuthInterceptor(response.publicKey, [

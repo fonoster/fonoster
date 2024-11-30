@@ -47,6 +47,9 @@ services:
     ports:
       - 50061:50061
     environment:
+      # Workaround to avoid connecting to the identity service, 
+      # which is currently broken in the autopilot service.
+      SKIP_IDENTITY: "true"
       OPENAI_API_KEY: ${OPENAI_API_KEY}
     
   routr:
