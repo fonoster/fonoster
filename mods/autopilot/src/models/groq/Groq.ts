@@ -36,7 +36,7 @@ class Groq extends AbstractLanguageModel {
       ...params
     }).bind({
       tools: params.tools.map(convertToolToOpenAITool)
-    }) as BaseChatModel;
+    }) as unknown as BaseChatModel;
 
     super(
       {
