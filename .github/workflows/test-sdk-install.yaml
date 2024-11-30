@@ -28,18 +28,20 @@ jobs:
 
       - name: Pack the SDK
         run: |
-          echo "before pack"
-          ls
           npm pack
-          echo "after pack"
-          ls 
         working-directory: mods/sdk
 
       - name: Upload SDK tarball
         uses: actions/upload-artifact@v4
         with:
           name: sdk-tarball
-          path: mods/sdk/*.tgz
+          path: |
+            # Workaround for the double zip issue (https://github.com/actions/upload-artifact/issues/109)
+            mods/sdk
+            !mods/sdk/node_modules
+            !mods/sdk/src
+            !mods/sdk/test
+            !mods/sdk/dist
 
   install-with-yarn:
     runs-on: ubuntu-latest
