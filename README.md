@@ -91,7 +91,7 @@ callManager.call({
 
 To get started with Fonoster, use the following resources:
 
-- [Deploying Fonoster with Docker](./docs/docs/operator/deploy-with-docker.md)
+- [Deploying Fonoster with Docker](./docs/self-hosting/deploy-with-docker.md)
 - [Getting started with Fonoster](https://fonoster.com/docs/overview/)
 - [Connecting Fonoster with Dialogflow](https://fonoster.com/docs/tutorials/connecting_with_dialogflow)
 - [Using Google Speech APIs](https://fonoster.com/docs/tutorials/using_google_speech)

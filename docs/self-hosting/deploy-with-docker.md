@@ -18,10 +18,10 @@ cd fonoster
 Next, copy the `.env.example` from the repository to the current directory and rename it to `.env.` This file contains all the environment variables that the services need to run. You can use the following command to copy the file:
 
 ```bash
-curl -o .env https://raw.githubusercontent.com/fonoster/fonoster/0.6/.env.example
-curl -o ./compose.yaml https://raw.githubusercontent.com/fonoster/fonoster/0.6/compose.yaml
-curl -o ./config/integrations.json https://raw.githubusercontent.com/fonoster/fonoster/0.6/config/integrations.example.json
-curl -o ./config/envoy.yaml https://raw.githubusercontent.com/fonoster/fonoster/0.6/config/envoy.yaml
+curl -o .env https://raw.githubusercontent.com/fonoster/fonoster/master/.env.example
+curl -o ./compose.yaml https://raw.githubusercontent.com/fonoster/fonoster/master/compose.yaml
+curl -o ./config/integrations.json https://raw.githubusercontent.com/fonoster/fonoster/master/config/integrations.example.json
+curl -o ./config/envoy.yaml https://raw.githubusercontent.com/fonoster/fonoster/master/config/envoy.yaml
 ```
 
 Then, open the `.env` file with your favorite editor and update the following variables:
