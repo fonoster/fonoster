@@ -42,7 +42,7 @@ services:
     image: fonoster/autopilot:latest
     restart: unless-stopped
     volumes:
-      - ./config/assistant.json:/opt/fonoster/assistant.json:ro
+      - ./config/assistant.json:/home/appuser/autopilot/config/assistant.json:ro
       - ./config/sample.pdf:/home/appuser/autopilot/config/sample.pdf:ro
     ports:
       - 50061:50061
