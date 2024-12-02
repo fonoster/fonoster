@@ -19,6 +19,7 @@
 import { Embeddings } from "@langchain/core/embeddings";
 
 type KnowledgeBase = {
+  load: () => Promise<void>;
   queryKnowledgeBase: (query: string, k?: number) => Promise<string>;
 };
 

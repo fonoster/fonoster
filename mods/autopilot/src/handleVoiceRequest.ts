@@ -29,9 +29,8 @@ import {
   UNSTRUCTURED_API_KEY,
   UNSTRUCTURED_API_URL
 } from "./envs";
-import { loadKnowledgeBaseFromS3 } from "./knowledge";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
-import Autopilot, { VoiceImpl } from ".";
+import Autopilot, { S3KnowledgeBase, VoiceImpl } from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -52,9 +51,11 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   let knowledgeBase;
 
   if (KNOWLEDGE_BASE_ENABLED) {
-    knowledgeBase = await loadKnowledgeBaseFromS3({
+    knowledgeBase = new S3KnowledgeBase({
       bucket: req.accessKeyId.toLowerCase(),
-      documents: ["sample.pdf"], // Get from assistantConfig
+      documents: assistantConfig.languageModel.knowledgeBase.map(
+        (doc) => doc.document
+      ),
       s3Config: {
         endpoint: AWS_S3_ENDPOINT!,
         region: AWS_S3_REGION,
@@ -68,6 +69,10 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
       unstructuredAPIKey: UNSTRUCTURED_API_KEY!
     });
   }
+
+  knowledgeBase?.load().then(() => {
+    logger.verbose("knowledge base loaded");
+  });
 
   const voice = new VoiceImpl(sessionRef, res);
 

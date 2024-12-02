@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { getLogger } from "@fonoster/logger";
 import { Document } from "@langchain/core/documents";
 import { Embeddings } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
@@ -23,6 +24,8 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { KnowledgeBase } from "./types";
+
+const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 abstract class AbstractKnowledgeBase implements KnowledgeBase {
   protected embeddings: Embeddings;
@@ -66,7 +69,8 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
     const { vectorStore } = this;
 
     if (!vectorStore) {
-      throw new Error("Vector store is not initialized");
+      logger.verbose("vector store is not initialized, returning empty string");
+      return "";
     }
 
     const results = await vectorStore.similaritySearch(query, k);
