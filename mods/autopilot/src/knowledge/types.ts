@@ -16,8 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Embeddings } from "@langchain/core/embeddings";
+
 type KnowledgeBase = {
   queryKnowledgeBase: (query: string, k?: number) => Promise<string>;
 };
 
-export { KnowledgeBase };
+type S3KnowledgeBaseParams = {
+  embeddings?: Embeddings;
+  bucket: string;
+  documents: string[];
+  s3Config: {
+    endpoint: string;
+    region: string;
+    credentials: {
+      accessKeyId: string;
+      secretAccessKey: string;
+    };
+    forcePathStyle: boolean;
+  };
+  unstructuredAPIURL: string;
+  unstructuredAPIKey: string;
+};
+
+export { KnowledgeBase, S3KnowledgeBaseParams };

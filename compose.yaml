@@ -51,7 +51,14 @@ services:
       # which is currently broken in the autopilot service.
       SKIP_IDENTITY: "true"
       OPENAI_API_KEY: ${OPENAI_API_KEY}
-    
+      AWS_S3_ACCESS_KEY_ID: ${AWS_S3_ACCESS_KEY_ID}
+      AWS_S3_SECRET_ACCESS_KEY: ${AWS_S3_SECRET_ACCESS_KEY}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      AWS_S3_ENDPOINT: ${AWS_S3_ENDPOINT}
+      KNOWLEDGE_BASE_ENABLED: ${KNOWLEDGE_BASE_ENABLED}
+      UNSTRUCTURED_API_KEY: ${UNSTRUCTURED_API_KEY}
+      UNSTRUCTURED_API_URL: ${UNSTRUCTURED_API_URL}
+
   routr:
     image: fonoster/routr-one:latest
     restart: unless-stopped

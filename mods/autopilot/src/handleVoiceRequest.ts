@@ -20,15 +20,25 @@ import { StreamEvent } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { VoiceRequest, VoiceResponse } from "@fonoster/voice";
 import { createLanguageModel } from "./createLanguageModel";
+import {
+  AWS_S3_ACCESS_KEY_ID,
+  AWS_S3_ENDPOINT,
+  AWS_S3_REGION,
+  AWS_S3_SECRET_ACCESS_KEY,
+  KNOWLEDGE_BASE_ENABLED,
+  UNSTRUCTURED_API_KEY,
+  UNSTRUCTURED_API_URL
+} from "./envs";
+import { loadKnowledgeBaseFromS3 } from "./knowledge";
 import { loadAssistantConfigFromFile } from "./loadAssistantConfigFromFile";
-import { loadKnowledgeBaseFromFile } from "./loadKnowledgeBaseFromFile";
 import Autopilot, { VoiceImpl } from ".";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
-  const { ingressNumber, sessionRef, appRef, callDirection } = req;
+  const { accessKeyId, ingressNumber, sessionRef, appRef, callDirection } = req;
   logger.verbose("voice request", {
+    accessKeyId,
     ingressNumber,
     sessionRef,
     appRef,
@@ -38,9 +48,26 @@ async function handleVoiceRequest(req: VoiceRequest, res: VoiceResponse) {
   const assistantConfig = loadAssistantConfigFromFile(
     `${process.cwd()}/config/assistant.json`
   );
-  const knowledgeBase = await loadKnowledgeBaseFromFile(
-    `${process.cwd()}/config/sample.pdf`
-  );
+
+  let knowledgeBase;
+
+  if (KNOWLEDGE_BASE_ENABLED) {
+    knowledgeBase = await loadKnowledgeBaseFromS3({
+      bucket: req.accessKeyId.toLowerCase(),
+      documents: ["sample.pdf"], // Get from assistantConfig
+      s3Config: {
+        endpoint: AWS_S3_ENDPOINT!,
+        region: AWS_S3_REGION,
+        credentials: {
+          accessKeyId: AWS_S3_ACCESS_KEY_ID!,
+          secretAccessKey: AWS_S3_SECRET_ACCESS_KEY!
+        },
+        forcePathStyle: true
+      },
+      unstructuredAPIURL: UNSTRUCTURED_API_URL!,
+      unstructuredAPIKey: UNSTRUCTURED_API_KEY!
+    });
+  }
 
   const voice = new VoiceImpl(sessionRef, res);
 

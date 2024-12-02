@@ -16,27 +16,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-import { Embeddings } from "@langchain/core/embeddings";
+import { S3Loader } from "@langchain/community/document_loaders/web/s3";
 import { AbstractKnowledgeBase } from "./AbstractKnowledgeBase";
+import { S3KnowledgeBaseParams } from "./types";
 
-class FilesKnowledgeBase extends AbstractKnowledgeBase {
-  constructor(private params: { embeddings?: Embeddings; files: string[] }) {
+class S3KnowledgeBase extends AbstractKnowledgeBase {
+  constructor(private params: S3KnowledgeBaseParams) {
     super(params);
     this.params = params;
   }
 
-  async getLoaders(): Promise<PDFLoader[]> {
-    const { files } = this.params;
-
-    if (!files.every((file) => file.endsWith(".pdf"))) {
+  async getLoaders(): Promise<S3Loader[]> {
+    const { documents } = this.params;
+    if (!documents.every((file) => file.endsWith(".pdf"))) {
       throw new Error("Only PDF files are supported");
     }
 
-    return files.map(
-      (file: string) => new PDFLoader(file, { splitPages: false })
+    const { bucket, s3Config, unstructuredAPIURL, unstructuredAPIKey } =
+      this.params;
+
+    return documents.map(
+      (document) =>
+        new S3Loader({
+          bucket,
+          key: document,
+          s3Config,
+          unstructuredAPIURL,
+          unstructuredAPIKey
+        })
     );
   }
 }
 
-export { FilesKnowledgeBase };
+export { S3KnowledgeBase };

@@ -16,9 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Document } from "@langchain/core/documents";
 import { Embeddings } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
 import { OpenAIEmbeddings } from "@langchain/openai";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { KnowledgeBase } from "./types";
 
 abstract class AbstractKnowledgeBase implements KnowledgeBase {
@@ -29,10 +32,39 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
     this.embeddings = params?.embeddings || new OpenAIEmbeddings();
   }
 
-  abstract load(params: unknown): Promise<void>;
+  abstract getLoaders(): Promise<unknown>;
+
+  async load(): Promise<void> {
+    const loaders = (await this.getLoaders()) as {
+      load: () => Promise<Document[]>;
+    }[];
+
+    if (loaders.length === 0) {
+      throw new Error("No files provided");
+    }
+
+    const loadedDocs = await Promise.all(
+      loaders.map((loader) => loader.load())
+    );
+
+    const textSplitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1000,
+      chunkOverlap: 200
+    });
+
+    const splitDocs = await Promise.all(
+      loadedDocs.map((docs) => textSplitter.splitDocuments(docs))
+    );
+
+    this.vectorStore = await MemoryVectorStore.fromDocuments(
+      splitDocs.flat(),
+      this.embeddings
+    );
+  }
 
   async queryKnowledgeBase(query: string, k = 2): Promise<string> {
     const { vectorStore } = this;
+
     if (!vectorStore) {
       throw new Error("Vector store is not initialized");
     }
