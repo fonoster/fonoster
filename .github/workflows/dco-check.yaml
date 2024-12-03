@@ -1,0 +1,13 @@
+name: dco check
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: KineticCafe/actions-dco@v1
+        with:
+          exempt-authors: |
+            @fonoster.com
