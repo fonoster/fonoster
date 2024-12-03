@@ -94,7 +94,30 @@ The Autopilot supports multiple language model providers. The following is a lis
 
 ## Adding Knowledge Base
 
-Coming soon...
+A knowledge base provides information to the language model, such as business hours, services, or products.
+
+Currently, we support retrieving documents from an S3 bucket.
+
+To add a knowledge base, include a new entry in the `knowledgeBase` array in the configuration file. Below is an example of a knowledge for a menu PDF.
+
+```json
+{
+  "conversationSettings": { ... },
+  "languageModel": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "apiKey": "your-api-key",
+    "maxTokens": 100,
+    "temperature": 0.4,
+    "knowledgeBase": [{
+      "type": "s3",
+      "title": "Menu PDF",
+      "document": "sample.pdf"
+    }],
+    "tools": []
+  }
+}
+```
 
 ## Adding Tools
 
@@ -108,8 +131,9 @@ You can configure a new tool by adding a new entry in the `tools` array in the c
   "languageModel": {
     "provider": "openai",
     "model": "gpt-4o-mini",
-    "maxTokens": 250,
-    "temperature": 0.7,
+    "apiKey": "your-api-key",
+    "maxTokens": 100,
+    "temperature": 0.4,
     "knowledgeBase": [],
     "tools": [
       {
