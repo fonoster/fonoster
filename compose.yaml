@@ -44,8 +44,8 @@ services:
     volumes:
       - ./config/assistant.json:/home/appuser/autopilot/config/assistant.json:ro
       - ./config/sample.pdf:/home/appuser/autopilot/config/sample.pdf:ro
-    ports:
-      - 50061:50061
+    expose:
+      - 50061
     environment:
       # Workaround to avoid connecting to the identity service, 
       # which is currently broken in the autopilot service.
