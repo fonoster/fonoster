@@ -18,7 +18,7 @@
  */
 import {
   AssistantConfig,
-  FilesKnowledgeBase,
+  KnowledgeBase,
   LanguageModelFactory,
   TelephonyContext,
   Voice,
@@ -29,7 +29,7 @@ import {
 function createLanguageModel(params: {
   voice: Voice;
   assistantConfig: AssistantConfig;
-  knowledgeBase: FilesKnowledgeBase;
+  knowledgeBase: KnowledgeBase;
   telephonyContext: TelephonyContext;
 }) {
   const { voice, assistantConfig, knowledgeBase, telephonyContext } = params;

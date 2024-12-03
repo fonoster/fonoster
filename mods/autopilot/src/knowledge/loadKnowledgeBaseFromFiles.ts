@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { FilesKnowledgeBase } from ".";
+import { FilesKnowledgeBase } from "..";
 
-async function loadKnowledgeBaseFromFile(
+async function loadKnowledgeBaseFromFiles(
   pathToKnowledgeBase: string
 ): Promise<FilesKnowledgeBase> {
   const knowledgeBase = new FilesKnowledgeBase({
@@ -28,4 +28,4 @@ async function loadKnowledgeBaseFromFile(
   return knowledgeBase;
 }
 
-export { loadKnowledgeBaseFromFile };
+export { loadKnowledgeBaseFromFiles };
