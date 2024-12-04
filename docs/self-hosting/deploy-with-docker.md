@@ -56,13 +56,15 @@ Your directory structure should look like this:
 3 directories, 6 files
 ```
 
+> The integrations.json file contains the credentials for the integrations (stt, tts, etc). You will need to update this file with the correct credentials for the integrations you want to use.
+
 Finally, run the following command to start the application:
 
 ```bash
 docker compose up -d
 ```
 
-After a few moments, you can visit the URL you set in the `APP_URL` variable. For example, if you put the variable to `http://localhost:8080`, you can access the application by visiting [http://localhost:8080](http://localhost:8080) in your browser.
+After a few moments, you can begin interacting with Fonoster using the API or SDK.
 
 ## Known Issues
 
