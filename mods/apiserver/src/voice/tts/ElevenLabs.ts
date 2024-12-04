@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 import { Readable } from "stream";
-import { ElevenLabsVoice } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ElevenLabsClient } from "elevenlabs";
 import * as z from "zod";
