@@ -22,7 +22,9 @@ import { ElevenLabsClient } from "elevenlabs";
 import * as z from "zod";
 import { AbstractTextToSpeech } from "./AbstractTextToSpeech";
 import { isSsml } from "./isSsml";
+import { streamToBuffer } from "./streamToBuffer";
 import { SynthOptions } from "./types";
+import { textChunksByFirstNaturalPause } from "../handlers/utils/textChunksByFirstNaturalPause"; // Assuming this is the chunking function
 
 const ENGINE_NAME = "tts.elevenlabs";
 
@@ -59,23 +61,53 @@ class ElevenLabs extends AbstractTextToSpeech<typeof ENGINE_NAME> {
     );
 
     const { voice } = this.engineConfig.config;
+    const ref = this.createMediaReference();
+    const chunks = textChunksByFirstNaturalPause(text);
+    const stream = new Readable({ read() {} });
 
-    const audioStream = await this.client.generate({
+    const results = new Array(chunks.length);
+    let nextIndexToPush = 0;
+
+    function observeQueue() {
+      if (
+        nextIndexToPush < results.length &&
+        results[nextIndexToPush] !== undefined
+      ) {
+        stream.push(results[nextIndexToPush]);
+        nextIndexToPush++;
+        setImmediate(observeQueue);
+      } else if (nextIndexToPush < results.length) {
+        setTimeout(observeQueue, 10);
+      } else {
+        stream.push(null);
+      }
+    }
+
+    observeQueue();
+
+    chunks.forEach((textChunk, index) => {
+      this.doSynthesize(textChunk, voice)
+        .then((synthesizedText) => {
+          results[index] = synthesizedText;
+        })
+        .catch((error) => {
+          stream.emit("error", error);
+        });
+    });
+
+    return { ref, stream };
+  }
+
+  private async doSynthesize(text: string, voice: string): Promise<Readable> {
+    const response = await this.client.generate({
       stream: true,
       voice,
       text,
-      // TODO: This should be configurable
       model_id: "eleven_turbo_v2_5",
       output_format: "pcm_16000"
     });
 
-    const ref = this.createMediaReference();
-
-    audioStream.on("error", (error) => {
-      logger.error(`Error reading file: ${error.message}`);
-    });
-
-    return { ref, stream: audioStream };
+    return (await streamToBuffer(response)) as unknown as Readable;
   }
 
   static getConfigValidationSchema(): z.Schema {
