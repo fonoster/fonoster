@@ -31,6 +31,7 @@ const MAX_CHUNK_SIZE = 320;
 class AudioStream {
   private stream: Readable;
   private socket: net.Socket;
+  private isPlaying: boolean = true;
 
   /**
    * Creates a new AudioStream.
@@ -84,6 +85,44 @@ class AudioStream {
 
       // Wait for 20ms to match the sample rate
       await setTimeout(20);
+    }
+  }
+
+  stopPlayback() {
+    this.isPlaying = false;
+  }
+
+  resumePlayback() {
+    this.isPlaying = true;
+  }
+
+  isPlaybackStopped(): boolean {
+    return !this.isPlaying;
+  }
+
+  async audioStream(stream: Readable) {
+    for await (const chunk of stream) {
+      if (!this.isPlaying) {
+        console.log('Audio stream interrupted');
+        await setTimeout(20)
+        continue;
+      }
+
+      let offset = 0;
+
+      while (offset < chunk.length) {
+        if (!this.isPlaying) {
+          break;
+        }
+        const sliceSize = Math.min(chunk.length - offset, MAX_CHUNK_SIZE);
+        const slicedChunk = chunk.subarray(offset, offset + sliceSize);
+        const buffer = Message.createSlinMessage(slicedChunk);
+        this.socket.write(buffer);
+        offset += sliceSize;
+
+        // Wait for 20ms to match the sample rate
+        await setTimeout(20);
+      }
     }
   }
 
