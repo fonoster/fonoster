@@ -1,0 +1,54 @@
+{
+  "name": "@fonoster/ctl",
+  "version": "0.7.36",
+  "description": "Fonoster Command Line Interface",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json",
+    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
+    "generate:readme": "node ../../.scripts/gen-readme.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "gitHead": "616656596fe60b32caccad2e63f628fb35b139d0",
+  "bin": {
+    "fonoster": "./bin/run.js"
+  },
+  "oclif": {
+    "bin": "fonoster",
+    "commands": "./dist/commands",
+    "dirname": "fonoster",
+    "topicSeparator": ":"
+  },
+  "dependencies": {
+    "@fonoster/sdk": "^0.7.36",
+    "@fonoster/websdk": "^0.4.13",
+    "@inquirer/prompts": "^7.1.0",
+    "@oclif/core": "^4.0.34",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.67",
+    "ts-node": "^10.9.2"
+  }
+}
