@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/ctl",
-  "version": "0.7.37",
+  "version": "0.7.38",
   "description": "Fonoster Command Line Interface",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -41,7 +41,7 @@
     "topicSeparator": ":"
   },
   "dependencies": {
-    "@fonoster/sdk": "^0.7.37",
+    "@fonoster/sdk": "^0.7.38",
     "@fonoster/websdk": "^0.4.13",
     "@inquirer/prompts": "^7.1.0",
     "@oclif/core": "^4.0.34",
