@@ -19,12 +19,12 @@
  */
 import * as SDK from "@fonoster/sdk";
 import { confirm, input, password } from "@inquirer/prompts";
-import { Command } from "@oclif/core";
+import { BaseCommand } from "../../BaseCommand";
 import { WorkspaceConfig, addWorkspace, getConfig } from "../../config";
 import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
-export default class Login extends Command {
+export default class Login extends BaseCommand<typeof Login> {
   static override description = "add a Workspace to the local environment";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
@@ -102,9 +102,14 @@ export default class Login extends Command {
     accessKeyId: string;
     accessKeySecret: string;
   }) {
+    const { flags } = await this.parse(BaseCommand);
     const { endpoint, accessKeyId, accessKeySecret } = params;
     // Get Workspace configuration (which validates the login)
-    const client = new SDK.Client({ endpoint, accessKeyId });
+    const client = new SDK.Client({
+      endpoint,
+      accessKeyId,
+      allowInsecure: flags.insecure
+    });
 
     try {
       await client.loginWithApiKey(accessKeySecret);
