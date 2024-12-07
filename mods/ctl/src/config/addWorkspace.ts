@@ -31,6 +31,8 @@ function addWorkspace(
   }
 
   workspaces[workspaceIndex] = { ...config, active: true };
+
+  return workspaces;
 }
 
 export { addWorkspace };

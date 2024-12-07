@@ -42,13 +42,12 @@
   },
   "dependencies": {
     "@fonoster/sdk": "^0.7.39",
-    "@fonoster/websdk": "^0.4.13",
     "@inquirer/prompts": "^7.1.0",
     "@oclif/core": "^4.0.34",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^18.19.67",
+    "@types/node": "22.10.1",
     "ts-node": "^10.9.2"
   }
 }

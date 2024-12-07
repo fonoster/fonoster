@@ -25,7 +25,7 @@ import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
 export default class AuthLogin extends Command {
-  static override description = "log in to a Fonoster deployment";
+  static override description = "Log in to a Fonoster deployment";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {
@@ -54,40 +54,71 @@ export default class AuthLogin extends Command {
       return;
     }
 
+    try {
+      const workspaceFromDB = await this.getWorkspaceFromDB(answers);
+
+      this.saveConfig({
+        ...answers,
+        ref: workspaceFromDB.ref,
+        name: workspaceFromDB.name
+      });
+    } catch (e) {
+      this.error(e.message);
+    }
+  }
+
+  private saveConfig(params: {
+    endpoint: string;
+    accessKeyId: string;
+    accessKeySecret: string;
+    ref: string;
+    name: string;
+  }) {
+    const {
+      endpoint,
+      accessKeyId,
+      accessKeySecret,
+      ref: workspaceRef,
+      name: workspaceName
+    } = params;
+
+    const workspace: WorkspaceConfig = {
+      endpoint,
+      accessKeyId,
+      accessKeySecret,
+      workspaceRef,
+      workspaceName
+    };
+
+    this.log("Saving configuration...");
+
+    const config = getConfig(CONFIG_FILE);
+    const updatedConfig = addWorkspace(workspace, config);
+    saveConfig(CONFIG_FILE, updatedConfig);
+
+    this.log("Done!");
+  }
+
+  private async getWorkspaceFromDB(params: {
+    endpoint: string;
+    accessKeyId: string;
+    accessKeySecret: string;
+  }) {
+    const { endpoint, accessKeyId, accessKeySecret } = params;
     // Get Workspace configuration (which validates the login)
-    const client = new SDK.Client({
-      endpoint: answers.endpoint,
-      accessKeyId: answers.accessKeyId,
-      allowInsecure: true
-    });
+    const client = new SDK.Client({ endpoint, accessKeyId });
 
     try {
-      await client.loginWithApiKey(answers.accessKeySecret);
+      await client.loginWithApiKey(accessKeySecret);
 
       const workspaces = new SDK.Workspaces(client);
       const workspaceFromDB = (await workspaces.listWorkspaces()).items[0];
 
-      // If the login fails the credentials are invalid
       if (!workspaceFromDB) {
         this.error("Invalid credentials!");
       }
 
-      const workspace: WorkspaceConfig = {
-        endpoint: answers.endpoint,
-        accessKeyId: answers.accessKeyId,
-        accessKeySecret: answers.accessKeySecret,
-        workspaceRef: workspaceFromDB.ref,
-        workspaceName: workspaceFromDB.name
-      };
-
-      this.log("Saving configuration...");
-
-      const config = getConfig(CONFIG_FILE);
-      const updatedConfig = addWorkspace(workspace, config);
-
-      saveConfig(CONFIG_FILE, updatedConfig);
-
-      this.log("Done!");
+      return workspaceFromDB;
     } catch (e) {
       this.error(e.message);
     }
