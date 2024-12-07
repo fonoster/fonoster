@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -16,27 +17,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { WorkspaceConfig } from "./types";
+import { Command } from "@oclif/core";
 
-function addWorkspace(
-  config: WorkspaceConfig,
-  workspaces: WorkspaceConfig[]
-): WorkspaceConfig[] {
-  const deactivateAll = (workspaces: WorkspaceConfig[]) =>
-    workspaces.map((workspace) => ({ ...workspace, active: false }));
+export default class Bug extends Command {
+  static override description = "start a bug report 🐞";
+  static override examples = ["<%= config.bin %> <%= command.id %>"];
 
-  const workspaceIndex = workspaces.findIndex(
-    (workspace) => workspace.workspaceRef === config.workspaceRef
-  );
-
-  if (workspaceIndex === -1) {
-    return deactivateAll(workspaces).concat({ ...config, active: true });
+  public async run(): Promise<void> {
+    const link =
+      " https://github.com/fonoster/fonoster/issues/new?assignees=&labels=&template=bug_report.md&title=";
+    this.log(`Please report bugs to the link below:\n${link}`);
   }
-
-  workspaces = deactivateAll(workspaces);
-  workspaces[workspaceIndex] = { ...config, active: true };
-
-  return workspaces;
 }
-
-export { addWorkspace };

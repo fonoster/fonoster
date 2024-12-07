@@ -24,12 +24,12 @@ import { WorkspaceConfig, addWorkspace, getConfig } from "../../config";
 import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
-export default class AuthLogin extends Command {
-  static override description = "Log in to a Fonoster deployment";
+export default class Login extends Command {
+  static override description = "add a Workspace to the local environment";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {
-    this.log("This utility will help you link to a Workspace.");
+    this.log("This utility will help you add a Workspace.");
     this.log("Press ^C at any time to quit.");
 
     const answers = {
@@ -90,13 +90,11 @@ export default class AuthLogin extends Command {
       workspaceName
     };
 
-    this.log("Saving configuration...");
-
     const config = getConfig(CONFIG_FILE);
     const updatedConfig = addWorkspace(workspace, config);
     saveConfig(CONFIG_FILE, updatedConfig);
 
-    this.log("Done!");
+    this.log("Added Workspace!");
   }
 
   private async getWorkspaceFromDB(params: {

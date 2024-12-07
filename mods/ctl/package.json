@@ -1,7 +1,7 @@
 {
   "name": "@fonoster/ctl",
   "version": "0.7.39",
-  "description": "Fonoster Command Line Interface",
+  "description": "Fonoster Control Tool",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
@@ -38,15 +38,20 @@
     "bin": "fonoster",
     "commands": "./dist/commands",
     "dirname": "fonoster",
-    "topicSeparator": ":"
+    "topicSeparator": ":",
+    "helpClass": "./dist/help"
   },
   "dependencies": {
     "@fonoster/sdk": "^0.7.39",
     "@inquirer/prompts": "^7.1.0",
     "@oclif/core": "^4.0.34",
+    "cliui": "^8.0.1",
+    "figlet": "^1.8.0",
+    "terminal-link": "^3.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/figlet": "^1.7.0",
     "@types/node": "22.10.1",
     "ts-node": "^10.9.2"
   }
