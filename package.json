@@ -1,5 +1,6 @@
 {
   "name": "root",
+  "version": "independent",
   "private": true,
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "license": "MIT",
