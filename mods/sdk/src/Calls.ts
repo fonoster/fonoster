@@ -51,12 +51,13 @@ import { dialStatusToString } from "./utils";
  * const SDK = require("@fonoster/sdk");
  *
  * async function main(request) {
- *   const API_KEY = "your-api-key";
- *   const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+ *   const apiKey = "your-api-key";
+ *   const apiSecret = "your-api-secret"
+ *   const accessKeyId = "00000000-0000-0000-0000-000000000000";
  *
  *   try {
- *     const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
- *     await client.loginWithApiKey(apiKey);
+ *     const client = SDK.Client({ accessKeyId });
+ *     await client.loginWithApiKey(apiKey, apiSecret);
  *
  *     const calls = new SDK.Calls(client);
  *     const response = await apiKeys.createCall(request);
