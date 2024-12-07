@@ -102,18 +102,19 @@ abstract class AbstractClient implements FonosterClient {
     this._accessToken = accessToken;
   }
 
-  async loginWithApiKey(apiKey: string): Promise<void> {
+  async loginWithApiKey(secret: string): Promise<void> {
     const { refreshToken, accessToken } = await makeRpcRequest<
       ExchangeApiKeyRequestPB,
       ExchangeCredentialsResponsePB,
-      { apiKey: string },
+      { accessKeySecret: string; accessKeyId: string },
       { refreshToken: string; accessToken: string }
     >({
-      method: this.identityClient.exchangeApiKey,
+      method: this.identityClient.exchangeApiKey.bind(this.identityClient),
       requestPBObjectConstructor: ExchangeApiKeyRequestPB,
       metadata: {},
       request: {
-        apiKey
+        accessKeyId: this.accessKeyId,
+        accessKeySecret: secret
       }
     });
 

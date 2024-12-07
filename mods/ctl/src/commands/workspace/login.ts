@@ -17,10 +17,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Client } from "@fonoster/sdk";
+import * as SDK from "@fonoster/sdk";
 import { confirm, input, password } from "@inquirer/prompts";
 import { Command } from "@oclif/core";
-import { addWorkspace, getConfig } from "../../config";
+import { WorkspaceConfig, addWorkspace, getConfig } from "../../config";
 import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
@@ -55,21 +55,41 @@ export default class AuthLogin extends Command {
     }
 
     // Get Workspace configuration (which validates the login)
-    const client = new Client({
+    const client = new SDK.Client({
       endpoint: answers.endpoint,
-      accessKeyId: answers.accessKeyId
+      accessKeyId: answers.accessKeyId,
+      allowInsecure: true
     });
 
-    await client.loginWithApiKey(answers.accessKeySecret);
+    try {
+      await client.loginWithApiKey(answers.accessKeySecret);
 
-    this.log("Saving configuration...");
+      const workspaces = new SDK.Workspaces(client);
+      const workspaceFromDB = (await workspaces.listWorkspaces()).items[0];
 
-    const config = getConfig(CONFIG_FILE);
-    const answerWithoutConfirm = { ...answers, confirm: undefined };
-    const updatedConfig = addWorkspace(answerWithoutConfirm, config);
+      // If the login fails the credentials are invalid
+      if (!workspaceFromDB) {
+        this.error("Invalid credentials!");
+      }
 
-    saveConfig(CONFIG_FILE, updatedConfig);
+      const workspace: WorkspaceConfig = {
+        endpoint: answers.endpoint,
+        accessKeyId: answers.accessKeyId,
+        accessKeySecret: answers.accessKeySecret,
+        workspaceRef: workspaceFromDB.ref,
+        workspaceName: workspaceFromDB.name
+      };
 
-    this.log("Done!");
+      this.log("Saving configuration...");
+
+      const config = getConfig(CONFIG_FILE);
+      const updatedConfig = addWorkspace(workspace, config);
+
+      saveConfig(CONFIG_FILE, updatedConfig);
+
+      this.log("Done!");
+    } catch (e) {
+      this.error(e.message);
+    }
   }
 }
