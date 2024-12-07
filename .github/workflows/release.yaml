@@ -53,7 +53,7 @@ jobs:
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git checkout package-lock.json
 
-        npm run publish
+        npm run release
   
     - name: Get version from Lerna
       run: |
