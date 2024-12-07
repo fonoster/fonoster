@@ -44,7 +44,7 @@ const createApiKeyRequestSchema = z.object({
 });
 
 const exchangeApiKeysRequestSchema = z.object({
-  accessKeyId: z.string().uuid({ message: "Invalid accessKeyId" }),
+  accessKeyId: z.string(),
   accessKeySecret: z.string()
 });
 
