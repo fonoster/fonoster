@@ -59,6 +59,7 @@ export default class Login extends BaseCommand<typeof Login> {
 
       this.saveConfig({
         ...answers,
+        workspaceAccessKeyId: workspaceFromDB.accessKeyId,
         ref: workspaceFromDB.ref,
         name: workspaceFromDB.name
       });
@@ -69,6 +70,7 @@ export default class Login extends BaseCommand<typeof Login> {
 
   private saveConfig(params: {
     endpoint: string;
+    workspaceAccessKeyId: string;
     accessKeyId: string;
     accessKeySecret: string;
     ref: string;
@@ -76,6 +78,7 @@ export default class Login extends BaseCommand<typeof Login> {
   }) {
     const {
       endpoint,
+      workspaceAccessKeyId,
       accessKeyId,
       accessKeySecret,
       ref: workspaceRef,
@@ -83,6 +86,7 @@ export default class Login extends BaseCommand<typeof Login> {
     } = params;
 
     const workspace: WorkspaceConfig = {
+      workspaceAccessKeyId,
       endpoint,
       accessKeyId,
       accessKeySecret,
@@ -112,7 +116,7 @@ export default class Login extends BaseCommand<typeof Login> {
     });
 
     try {
-      await client.loginWithApiKey(accessKeySecret);
+      await client.loginWithApiKey(accessKeyId, accessKeySecret);
 
       const workspaces = new SDK.Workspaces(client);
       const workspaceFromDB = (await workspaces.listWorkspaces()).items[0];

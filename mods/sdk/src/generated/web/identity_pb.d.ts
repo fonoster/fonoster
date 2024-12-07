@@ -13,6 +13,9 @@ export class Workspace extends jspb.Message {
   getOwnerRef(): string;
   setOwnerRef(value: string): Workspace;
 
+  getAccessKeyId(): string;
+  setAccessKeyId(value: string): Workspace;
+
   getCreatedAt(): number;
   setCreatedAt(value: number): Workspace;
 
@@ -32,6 +35,7 @@ export namespace Workspace {
     ref: string,
     name: string,
     ownerRef: string,
+    accessKeyId: string,
     createdAt: number,
     updatedAt: number,
   }

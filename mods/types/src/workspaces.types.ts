@@ -33,6 +33,7 @@ type Workspace = {
   ref: string;
   name: string;
   ownerRef: string;
+  accessKeyId: string;
   createdAt: Date;
   updatedAt: Date;
 };

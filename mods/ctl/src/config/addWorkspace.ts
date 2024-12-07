@@ -17,11 +17,14 @@
  * limitations under the License.
  */
 import { WorkspaceConfig } from "./types";
+import { workspaceConfigSchema } from "./validations";
 
 function addWorkspace(
   config: WorkspaceConfig,
   workspaces: WorkspaceConfig[]
 ): WorkspaceConfig[] {
+  workspaceConfigSchema.parse(config);
+
   const deactivateAll = (workspaces: WorkspaceConfig[]) =>
     workspaces.map((workspace) => ({ ...workspace, active: false }));
 

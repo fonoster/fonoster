@@ -1066,8 +1066,9 @@ proto.fonoster.identity.v1beta2.Workspace.toObject = function(includeInstance, m
     ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     ownerRef: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    createdAt: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    updatedAt: jspb.Message.getFieldWithDefault(msg, 5, 0)
+    accessKeyId: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    createdAt: jspb.Message.getFieldWithDefault(msg, 5, 0),
+    updatedAt: jspb.Message.getFieldWithDefault(msg, 6, 0)
   };
 
   if (includeInstance) {
@@ -1117,10 +1118,14 @@ proto.fonoster.identity.v1beta2.Workspace.deserializeBinaryFromReader = function
       msg.setOwnerRef(value);
       break;
     case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAccessKeyId(value);
+      break;
+    case 5:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setCreatedAt(value);
       break;
-    case 5:
+    case 6:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setUpdatedAt(value);
       break;
@@ -1174,17 +1179,24 @@ proto.fonoster.identity.v1beta2.Workspace.serializeBinaryToWriter = function(mes
       f
     );
   }
+  f = message.getAccessKeyId();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
   f = message.getCreatedAt();
   if (f !== 0) {
     writer.writeInt32(
-      4,
+      5,
       f
     );
   }
   f = message.getUpdatedAt();
   if (f !== 0) {
     writer.writeInt32(
-      5,
+      6,
       f
     );
   }
@@ -1246,28 +1258,28 @@ proto.fonoster.identity.v1beta2.Workspace.prototype.setOwnerRef = function(value
 
 
 /**
- * optional int32 created_at = 4;
+ * optional string access_key_id = 4;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.Workspace.prototype.getAccessKeyId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.Workspace} returns this
+ */
+proto.fonoster.identity.v1beta2.Workspace.prototype.setAccessKeyId = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional int32 created_at = 5;
  * @return {number}
  */
 proto.fonoster.identity.v1beta2.Workspace.prototype.getCreatedAt = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
-};
-
-
-/**
- * @param {number} value
- * @return {!proto.fonoster.identity.v1beta2.Workspace} returns this
- */
-proto.fonoster.identity.v1beta2.Workspace.prototype.setCreatedAt = function(value) {
-  return jspb.Message.setProto3IntField(this, 4, value);
-};
-
-
-/**
- * optional int32 updated_at = 5;
- * @return {number}
- */
-proto.fonoster.identity.v1beta2.Workspace.prototype.getUpdatedAt = function() {
   return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
 };
 
@@ -1276,8 +1288,26 @@ proto.fonoster.identity.v1beta2.Workspace.prototype.getUpdatedAt = function() {
  * @param {number} value
  * @return {!proto.fonoster.identity.v1beta2.Workspace} returns this
  */
-proto.fonoster.identity.v1beta2.Workspace.prototype.setUpdatedAt = function(value) {
+proto.fonoster.identity.v1beta2.Workspace.prototype.setCreatedAt = function(value) {
   return jspb.Message.setProto3IntField(this, 5, value);
+};
+
+
+/**
+ * optional int32 updated_at = 6;
+ * @return {number}
+ */
+proto.fonoster.identity.v1beta2.Workspace.prototype.getUpdatedAt = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 6, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonoster.identity.v1beta2.Workspace} returns this
+ */
+proto.fonoster.identity.v1beta2.Workspace.prototype.setUpdatedAt = function(value) {
+  return jspb.Message.setProto3IntField(this, 6, value);
 };
 
 

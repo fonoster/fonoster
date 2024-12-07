@@ -17,30 +17,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as SDK from "@fonoster/sdk";
 import { Command } from "@oclif/core";
 import cliui from "cliui";
 import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
 export default class List extends Command {
-  static override description = "list all linked Workspaces";
+  static override description = "list all existing Applications";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {
     const workspaces = getConfig(CONFIG_FILE);
+    const currentWorkspace = workspaces.find((w) => w.active);
+
+    if (!currentWorkspace) {
+      this.error("No active workspace found.");
+    }
+
+    const client = new SDK.Client({
+      endpoint: currentWorkspace.endpoint,
+      accessKeyId: currentWorkspace.workspaceRef
+    });
+
+    await client.loginWithApiKey(
+      currentWorkspace.accessKeyId,
+      currentWorkspace.accessKeySecret
+    );
+
+    const applications = new SDK.Applications(client);
+    const response = await applications.listApplications({
+      pageSize: 1000,
+      pageToken: ""
+    });
+
     const ui = cliui({ width: 120 });
 
     ui.div(
       { text: "REF", padding: [0, 0, 0, 0] },
       { text: "NAME", padding: [0, 0, 0, 0] },
-      { text: "STATUS", padding: [0, 0, 0, 0] }
+      { text: "TYPE", padding: [0, 0, 0, 0] }
     );
 
-    workspaces.forEach((workspace) => {
+    response.items.forEach((workspace) => {
       ui.div(
-        { text: workspace.workspaceRef, padding: [0, 0, 0, 0] },
-        { text: workspace.workspaceName, padding: [0, 0, 0, 0] },
-        { text: workspace.active ? "[ACTIVE]" : "", padding: [0, 0, 0, 0] }
+        { text: workspace.ref, padding: [0, 0, 0, 0] },
+        { text: workspace.name, padding: [0, 0, 0, 0] },
+        { text: workspace.type, padding: [0, 0, 0, 0] }
       );
     });
 
