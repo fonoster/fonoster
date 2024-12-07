@@ -20,6 +20,7 @@
 import { Command, Flags, Interfaces } from "@oclif/core";
 
 export type Args<T extends typeof Command> = Interfaces.InferredArgs<T["args"]>;
+
 export abstract class BaseCommand<T extends typeof Command> extends Command {
   // define flags that can be inherited by any command that extends BaseCommand
   static baseFlags = {

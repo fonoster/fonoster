@@ -18,31 +18,30 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { Flags } from "@oclif/core";
-import cliui from "cliui";
+import { Args } from "@oclif/core";
 import { BaseCommand } from "../../BaseCommand";
 import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
-export default class List extends BaseCommand<typeof List> {
-  static override description = "list all existing Applications";
+export default class Delete extends BaseCommand<typeof Delete> {
+  static override description = "remove an Application from the system";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
-  static override flags = {
-    "page-size": Flags.string({
-      char: "s",
-      description: "The Workspace to unlink from",
-      default: "1000",
-      required: false
-    })
+  static override args = {
+    ref: Args.string({ description: "the Application to delete" })
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(List);
+    const { args, flags } = await this.parse(Delete);
     const workspaces = getConfig(CONFIG_FILE);
     const currentWorkspace = workspaces.find((w) => w.active);
 
     if (!currentWorkspace) {
       this.error("No active workspace found.");
+    }
+
+    if (!args.ref) {
+      this.error("Missing Application reference");
+      return;
     }
 
     const client = new SDK.Client({
@@ -57,29 +56,8 @@ export default class List extends BaseCommand<typeof List> {
     );
 
     const applications = new SDK.Applications(client);
-    const response = await applications.listApplications({
-      pageSize: parseInt(flags["page-size"]),
-      pageToken: ""
-    });
+    await applications.deleteApplication(args.ref);
 
-    const ui = cliui({ width: 170 });
-
-    ui.div(
-      { text: "REF", padding: [0, 0, 0, 0], width: 40 },
-      { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
-      { text: "TYPE", padding: [0, 0, 0, 0], width: 10 },
-      { text: "ENDPOINT", padding: [0, 0, 0, 0] }
-    );
-
-    response.items.forEach((application) => {
-      ui.div(
-        { text: application.ref, padding: [0, 0, 0, 0], width: 40 },
-        { text: application.name, padding: [0, 0, 0, 0], width: 30 },
-        { text: application.type, padding: [0, 0, 0, 0], width: 10 },
-        { text: application.endpoint, padding: [0, 0, 0, 0] }
-      );
-    });
-
-    this.log(ui.toString());
+    this.log("Done!");
   }
 }

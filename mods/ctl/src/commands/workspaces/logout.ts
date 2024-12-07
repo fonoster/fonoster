@@ -26,7 +26,7 @@ export default class Logout extends Command {
   static override description = "remove a linked Workspace";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
   static override args = {
-    ref: Args.string({ description: "The Workspace to unlink from" })
+    ref: Args.string({ description: "the Workspace to unlink from" })
   };
 
   public async run(): Promise<void> {

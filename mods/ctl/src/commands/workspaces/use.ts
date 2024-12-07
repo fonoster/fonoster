@@ -22,7 +22,7 @@ import { getConfig, setCurrentWorkspace } from "../../config";
 import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
-export default class Set extends Command {
+export default class Use extends Command {
   static override description = "make a Workspace the default";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
   static override args = {
@@ -30,7 +30,7 @@ export default class Set extends Command {
   };
 
   public async run(): Promise<void> {
-    const { args } = await this.parse(Set);
+    const { args } = await this.parse(Use);
 
     if (!args.ref) {
       this.error("Missing Workspace reference");

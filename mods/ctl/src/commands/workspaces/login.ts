@@ -108,7 +108,6 @@ export default class Login extends BaseCommand<typeof Login> {
   }) {
     const { flags } = await this.parse(BaseCommand);
     const { endpoint, accessKeyId, accessKeySecret } = params;
-    // Get Workspace configuration (which validates the login)
     const client = new SDK.Client({
       endpoint,
       accessKeyId,
