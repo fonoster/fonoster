@@ -63,11 +63,11 @@ export default class List extends BaseCommand<typeof List> {
       pageToken: ""
     });
 
-    const ui = cliui({ width: 300 });
+    const ui = cliui({ width: 200 });
 
     ui.div(
       { text: "REF", padding: [0, 0, 0, 0], width: 40 },
-      { text: "NAME", padding: [0, 0, 0, 0], width: 15 },
+      { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
       { text: "TEL URL", padding: [0, 0, 0, 0], width: 25 },
       { text: "APP REF", padding: [0, 0, 0, 0], width: 40 }
     );
@@ -75,7 +75,7 @@ export default class List extends BaseCommand<typeof List> {
     response.items.forEach((number) => {
       ui.div(
         { text: number.ref, padding: [0, 0, 0, 0], width: 40 },
-        { text: number.name, padding: [0, 0, 0, 0], width: 15 },
+        { text: number.name, padding: [0, 0, 0, 0], width: 30 },
         {
           text: `${number.telUrl} (${number.countryIsoCode})`,
           padding: [0, 0, 0, 0],
