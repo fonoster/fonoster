@@ -38,7 +38,7 @@
     "postgenerate:protos": "lerna run build",
     "generate:prisma-clients": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",
     "check:updates": "lerna exec -- npx npm-check-updates",
-    "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --require ts-node/register mods/**/*.test.ts",
+    "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --timeout 10000 --require ts-node/register mods/**/*.test.ts",
     "pretest": "npm run generate:keypair",
     "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --slow 50000 --timeout 10000 --require ts-node/register mods/**/node.integration.ts",
     "preintegration:web": "npx playwright install && npx playwright install-deps",

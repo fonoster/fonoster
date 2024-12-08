@@ -25,7 +25,7 @@ export default class Bug extends Command {
 
   public async run(): Promise<void> {
     const link =
-      " https://github.com/fonoster/fonoster/issues/new?assignees=&labels=&template=bug_report.md&title=";
+      " https://github.com/fonoster/fonoster/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=%5BBUG%5D%3A+";
     this.log(`Please report bugs to the link below:\n${link}`);
   }
 }

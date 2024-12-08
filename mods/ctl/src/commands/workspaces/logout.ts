@@ -34,11 +34,11 @@ export default class Logout extends Command {
 
     if (!args.ref) {
       this.error("Missing Workspace reference");
-      return;
     }
 
     const workspaces = getConfig(CONFIG_FILE);
     const updatedWorkspaces = removeWorkspace(args.ref, workspaces);
+
     saveConfig(CONFIG_FILE, updatedWorkspaces);
 
     this.log("Done!");
