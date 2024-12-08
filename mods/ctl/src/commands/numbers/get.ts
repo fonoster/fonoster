@@ -18,26 +18,23 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { Flags } from "@oclif/core";
+import { Args } from "@oclif/core";
 import cliui from "cliui";
+import moment from "moment";
 import { BaseCommand } from "../../BaseCommand";
 import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
-export default class List extends BaseCommand<typeof List> {
-  static override description = "list all existing Applications";
+export default class Get extends BaseCommand<typeof Get> {
+  static override description = "get an Number by reference";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
-  static override flags = {
-    "page-size": Flags.string({
-      char: "s",
-      description: "the number of items to show",
-      default: "1000",
-      required: false
-    })
+  static override args = {
+    ref: Args.string({ description: "the Number to show details about" })
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(List);
+    const { flags } = await this.parse(Get);
+    const { args } = await this.parse(Get);
     const workspaces = getConfig(CONFIG_FILE);
     const currentWorkspace = workspaces.find((w) => w.active);
 
@@ -56,29 +53,26 @@ export default class List extends BaseCommand<typeof List> {
       currentWorkspace.accessKeySecret
     );
 
-    const applications = new SDK.Applications(client);
-    const response = await applications.listApplications({
-      pageSize: parseInt(flags["page-size"]),
-      pageToken: ""
-    });
+    const numbers = new SDK.Numbers(client);
+    const response = await numbers.getNumber(args.ref);
 
-    const ui = cliui({ width: 170 });
+    const ui = cliui({ width: 200 });
 
     ui.div(
-      { text: "REF", padding: [0, 0, 0, 0], width: 40 },
-      { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
-      { text: "TYPE", padding: [0, 0, 0, 0], width: 10 },
-      { text: "ENDPOINT", padding: [0, 0, 0, 0] }
+      "NUMBERS DETAILS\n" +
+        "------------------\n" +
+        `REF: \t${response.ref}\n` +
+        `NAME: \t${response.name}\n` +
+        `TEL URL: \t${response.telUrl}\n` +
+        `CITY: \t${response.city}\n` +
+        `COUNTRY ISO CODE: \t${response.countryIsoCode}\n` +
+        `APP REF: \t${response.appRef}\n` +
+        `COUNTRY: \t${response.country}\n` +
+        `TRUNK NAME: \t${response.trunk.name}\n` +
+        `TRUNK REF: \t${response.trunk.ref}\n` +
+        `CREATED: \t${moment(response.createdAt).format("YYYY-MM-DD HH:mm:ss")}\n` +
+        `UPDATED: \t${moment(response.updatedAt).format("YYYY-MM-DD HH:mm:ss")}`
     );
-
-    response.items.forEach((application) => {
-      ui.div(
-        { text: application.ref, padding: [0, 0, 0, 0], width: 40 },
-        { text: application.name, padding: [0, 0, 0, 0], width: 30 },
-        { text: application.type, padding: [0, 0, 0, 0], width: 10 },
-        { text: application.endpoint, padding: [0, 0, 0, 0] }
-      );
-    });
 
     this.log(ui.toString());
   }

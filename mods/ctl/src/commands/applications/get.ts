@@ -74,9 +74,9 @@ export default class Get extends BaseCommand<typeof Get> {
         `STT: \t${stt}\n` +
         `TTS: \t${tts}\n` +
         `TYPE: \t${response.type}\n` +
-        `ENDPOINT: \t${response.endpoint} \n` +
+        `ENDPOINT: \t${response.endpoint}\n` +
         `CREATED: \t${moment(response.createdAt).format("YYYY-MM-DD HH:mm:ss")}\n` +
-        `UPDATED: \t${moment(response.updatedAt).format("YYYY-MM-DD HH:mm:ss")}\n`
+        `UPDATED: \t${moment(response.updatedAt).format("YYYY-MM-DD HH:mm:ss")}`
     );
 
     this.log(ui.toString());

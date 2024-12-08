@@ -25,12 +25,12 @@ import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
 export default class List extends BaseCommand<typeof List> {
-  static override description = "list all existing Applications";
+  static override description = "list all existing Numbers";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
   static override flags = {
     "page-size": Flags.string({
       char: "s",
-      description: "the number of items to show",
+      description: "the number of items to return",
       default: "1000",
       required: false
     })
@@ -56,27 +56,32 @@ export default class List extends BaseCommand<typeof List> {
       currentWorkspace.accessKeySecret
     );
 
-    const applications = new SDK.Applications(client);
-    const response = await applications.listApplications({
+    const numbers = new SDK.Numbers(client);
+
+    const response = await numbers.listNumbers({
       pageSize: parseInt(flags["page-size"]),
       pageToken: ""
     });
 
-    const ui = cliui({ width: 170 });
+    const ui = cliui({ width: 300 });
 
     ui.div(
       { text: "REF", padding: [0, 0, 0, 0], width: 40 },
-      { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
-      { text: "TYPE", padding: [0, 0, 0, 0], width: 10 },
-      { text: "ENDPOINT", padding: [0, 0, 0, 0] }
+      { text: "NAME", padding: [0, 0, 0, 0], width: 15 },
+      { text: "TEL URL", padding: [0, 0, 0, 0], width: 25 },
+      { text: "APP REF", padding: [0, 0, 0, 0], width: 40 }
     );
 
-    response.items.forEach((application) => {
+    response.items.forEach((number) => {
       ui.div(
-        { text: application.ref, padding: [0, 0, 0, 0], width: 40 },
-        { text: application.name, padding: [0, 0, 0, 0], width: 30 },
-        { text: application.type, padding: [0, 0, 0, 0], width: 10 },
-        { text: application.endpoint, padding: [0, 0, 0, 0] }
+        { text: number.ref, padding: [0, 0, 0, 0], width: 40 },
+        { text: number.name, padding: [0, 0, 0, 0], width: 15 },
+        {
+          text: `${number.telUrl} (${number.countryIsoCode})`,
+          padding: [0, 0, 0, 0],
+          width: 25
+        },
+        { text: number.appRef, padding: [0, 0, 0, 0], width: 40 }
       );
     });
 
