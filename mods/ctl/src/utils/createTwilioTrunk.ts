@@ -1,3 +1,4 @@
+/* eslint-disable no-loops/no-loops */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -28,11 +29,15 @@ async function createTwilioTrunk(
 
   try {
     const aclName = `ACL-${resourceRef}`;
+    const trunkName = `Trunk-${resourceRef}`;
+    const domainName = `${resourceRef}.${TWILIO_PSTN_URI_BASE}`;
+    const originationUri = `sip:${resourceRef}.${originationUriBase}`;
+
+    // Create ACLresource and entries
     const acl = await client.sip.ipAccessControlLists.create({
       friendlyName: aclName
     });
 
-    // eslint-disable-next-line no-loops/no-loops
     for (const ip of aclEntries) {
       await client.sip.ipAccessControlLists(acl.sid).ipAddresses.create({
         friendlyName: `${resourceRef}-entry-${ip}`,
@@ -40,15 +45,18 @@ async function createTwilioTrunk(
       });
     }
 
-    const trunkName = `Trunk-${resourceRef}`;
-    const domainName = `${resourceRef}.${TWILIO_PSTN_URI_BASE}`;
+    // Create the trunk
     const trunk = await client.trunking.v1.trunks.create({
       friendlyName: trunkName,
       domainName: domainName
     });
 
-    const originationUri = `sip:${resourceRef}.${originationUriBase}`;
+    // Add the ACL to the trunk
+    await client.trunking.v1.trunks(trunk.sid).ipAccessControlLists.create({
+      ipAccessControlListSid: acl.sid
+    });
 
+    // Create origination URL
     await client.trunking.v1.trunks(trunk.sid).originationUrls.create({
       friendlyName: `Origination-${resourceRef}`,
       sipUrl: originationUri,
