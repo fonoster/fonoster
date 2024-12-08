@@ -106,7 +106,7 @@ export default class Login extends BaseCommand<typeof Login> {
     accessKeyId: string;
     accessKeySecret: string;
   }) {
-    const { flags } = await this.parse(BaseCommand);
+    const { flags } = await this.parse(Login);
     const { endpoint, accessKeyId, accessKeySecret } = params;
     const client = new SDK.Client({
       endpoint,

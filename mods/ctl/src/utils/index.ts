@@ -16,12 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { homedir } from "os";
-import { join } from "path";
-
-export const BASE_DIR = join(homedir(), ".fonoster");
-export const CONFIG_FILE = join(homedir(), ".fonoster", "config.json");
-export const FONOSTER_ACCESS_CONTROL_LIST = ["165.22.7.155/32"]; // Warning: We will need to allow passing this as a parameter
-export const FONOSTER_ORIGINATION_URI_BASE = "pstn.fonoster.dev";
-export const TWILIO_PSTN_URI_BASE = "pstn.twilio.com";
-export const WORKSPACE_ENDPOINT = "api.fonoster.dev";
+export * from "./assignTwilioNumberToTrunk";
+export * from "./createTwilioTrunk";
+export * from "./getFonosterNumberByTelUrl";
+export * from "./getFonosterTrunkByInboundUri";
+export * from "./getTwilioNumber";
+export * from "./getTwilioTrunk";
+export * from "./linkTwilioNumberToApplication";
+export * from "./types";

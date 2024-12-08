@@ -69,8 +69,8 @@ export default class Get extends BaseCommand<typeof Get> {
     ui.div(
       "APPLICATION DETAILS\n" +
         "------------------\n" +
-        `REF: \t${response.ref}\n` +
         `NAME: \t${response.name}\n` +
+        `REF: \t${response.ref}\n` +
         `STT: \t${stt}\n` +
         `TTS: \t${tts}\n` +
         `TYPE: \t${response.type}\n` +

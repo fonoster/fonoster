@@ -29,7 +29,7 @@ export default class Create extends BaseCommand<typeof Create> {
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(BaseCommand);
+    const { flags } = await this.parse(Create);
     const workspaces = getConfig(CONFIG_FILE);
     const currentWorkspace = workspaces.find((w) => w.active);
 

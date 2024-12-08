@@ -16,12 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { homedir } from "os";
-import { join } from "path";
+import { Twilio } from "twilio";
+import { IncomingPhoneNumberInstance } from "twilio/lib/rest/api/v2010/account/incomingPhoneNumber";
 
-export const BASE_DIR = join(homedir(), ".fonoster");
-export const CONFIG_FILE = join(homedir(), ".fonoster", "config.json");
-export const FONOSTER_ACCESS_CONTROL_LIST = ["165.22.7.155/32"]; // Warning: We will need to allow passing this as a parameter
-export const FONOSTER_ORIGINATION_URI_BASE = "pstn.fonoster.dev";
-export const TWILIO_PSTN_URI_BASE = "pstn.twilio.com";
-export const WORKSPACE_ENDPOINT = "api.fonoster.dev";
+async function getTwilioNumber(
+  client: Twilio,
+  phoneNumber: string
+): Promise<IncomingPhoneNumberInstance> {
+  try {
+    const numbers = await client.incomingPhoneNumbers.list();
+    return numbers.filter((number) => number.phoneNumber === phoneNumber)[0];
+  } catch (error: unknown) {
+    throw new Error(
+      `Error checking ownership of phone number: ${(error as Error).message}`
+    );
+  }
+}
+
+export { getTwilioNumber };

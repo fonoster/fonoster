@@ -56,20 +56,30 @@ export default class Get extends BaseCommand<typeof Get> {
     const numbers = new SDK.Numbers(client);
     const response = await numbers.getNumber(args.ref);
 
+    const apps = new SDK.Applications(client);
+    let app;
+
+    try {
+      app = await apps.getApplication(response.appRef);
+    } catch (e) {
+      // You can only try
+    }
+
     const ui = cliui({ width: 200 });
 
     ui.div(
       "NUMBERS DETAILS\n" +
         "------------------\n" +
-        `REF: \t${response.ref}\n` +
         `NAME: \t${response.name}\n` +
+        `REF: \t${response.ref}\n` +
         `TEL URL: \t${response.telUrl}\n` +
+        `APP: \t${app?.name ?? ""}\n` +
+        `APP REF: \t${app?.ref ?? ""}\n` +
         `CITY: \t${response.city}\n` +
+        `TRUNK NAME: \t${response.trunk?.name ?? ""}\n` +
+        `TRUNK REF: \t${response.trunk?.ref ?? ""}\n` +
         `COUNTRY ISO CODE: \t${response.countryIsoCode}\n` +
-        `APP REF: \t${response.appRef}\n` +
         `COUNTRY: \t${response.country}\n` +
-        `TRUNK NAME: \t${response.trunk.name}\n` +
-        `TRUNK REF: \t${response.trunk.ref}\n` +
         `CREATED: \t${moment(response.createdAt).format("YYYY-MM-DD HH:mm:ss")}\n` +
         `UPDATED: \t${moment(response.updatedAt).format("YYYY-MM-DD HH:mm:ss")}`
     );

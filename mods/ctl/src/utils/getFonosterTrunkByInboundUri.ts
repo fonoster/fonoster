@@ -16,12 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { homedir } from "os";
-import { join } from "path";
+import * as Fonoster from "@fonoster/sdk";
+import { Trunk } from "@fonoster/types";
 
-export const BASE_DIR = join(homedir(), ".fonoster");
-export const CONFIG_FILE = join(homedir(), ".fonoster", "config.json");
-export const FONOSTER_ACCESS_CONTROL_LIST = ["165.22.7.155/32"]; // Warning: We will need to allow passing this as a parameter
-export const FONOSTER_ORIGINATION_URI_BASE = "pstn.fonoster.dev";
-export const TWILIO_PSTN_URI_BASE = "pstn.twilio.com";
-export const WORKSPACE_ENDPOINT = "api.fonoster.dev";
+async function getFonosterTrunkByInboundUri(
+  client: Fonoster.Client,
+  inboundUri: string
+): Promise<Trunk> {
+  try {
+    const trunks = new Fonoster.Trunks(client);
+    const trunksList = await trunks.listTrunks({ pageSize: 1000 });
+    return trunksList.items.filter(
+      (trunk) => trunk.inboundUri === inboundUri
+    )[0];
+  } catch (error: unknown) {
+    throw new Error(
+      `Error checking SIP trunk existence: ${(error as Error).message}`
+    );
+  }
+}
+
+export { getFonosterTrunkByInboundUri };
