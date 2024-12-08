@@ -61,7 +61,7 @@ import {
  * async function main(request) {
  *   const apiKey = "your-api-key";
  *   const apiSecret = "your-api-secret"
- *   const accessKeyId = "00000000-0000-0000-0000-000000000000";
+ *   const accessKeyId = "WO00000000000000000000000000000000";
  *
  *   try {
  *     const client = SDK.Client({ accessKeyId });
@@ -80,7 +80,7 @@ import {
  *   name: "My Workspace"
  * };
  *
- * main(request).catch(console.error);
+ * main(request);
  */
 class Workspaces {
   private client: FonosterClient;

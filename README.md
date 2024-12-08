@@ -49,24 +49,41 @@ A Voice Application is a server that takes control of the flow in a call. A Voic
 Voice Application Example:
 
 ```typescript
-const { VoiceServer } = require("@fonoster/voice");
+const VoiceServer = require("@fonoster/voice").default;
+const { 
+  GatherSource, 
+  VoiceRequest, 
+  VoiceResponse 
+} = require("@fonoster/voice");
 
-const serverConfig = {
-  pathToFiles: `${process.cwd()}/sounds`,
-};
+new VoiceServer().listen(async (req: VoiceRequest, voice: VoiceResponse) => {
+  const { ingressNumber, sessionRef, appRef } = req;
 
-new VoiceServer(serverConfig).listen(
-  async (req, res) => {
-    console.log(req);
-    await res.answer();
-    await res.play(`sound:${req.selfEndpoint}/sounds/hello-world.sln16`);
-    await res.hangup();
-  }
-);
+  await voice.answer();
 
-// your app will live at http://127.0.0.1:3000 
+  await voice.say("Hi there! What's your name?");
+
+  const { speech: name } = await res.gather({
+    source: GatherSource.SPEECH
+  });
+
+  await voice.say("Nice to meet you " + name + "!");
+
+  await voice.say("Please enter your 4 digit pin.");
+
+  const { digits } = await voice.gather({
+    maxDigits: 4,
+    finishOnKey: "#"
+  });
+
+  await voice.say("Your pin is " + digits);
+
+  await voice.hangup();
+});
+
+// Your app will live at tcp://127.0.0.1:50061 
 // and you can easily publish it to the Internet with:
-// ngrok http 3000
+// ngrok tcp 50061
 ```
 
 Everything in Fonoster is an API first, and initiating a call is no exception. You can use the SDK to start a call with a few lines of code.
@@ -74,16 +91,29 @@ Everything in Fonoster is an API first, and initiating a call is no exception. Y
 Example of originating a call with the SDK:
 
 ```typescript
-const Fonoster = require("@fonoster/sdk");
-const callManager = new Fonoster.CallManager();
+const SDK = require("@fonoster/sdk");
 
-callManager.call({
- from: "9842753574",
- to: "17853178070",
- webhook: "https://5a2d2ea5d84d.ngrok.io/voiceapp"
-})
- .then(console.log)
- .catch(console.error);
+async function main(request) {
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
+
+  const client = SDK.Client({ accessKeyId });
+  await client.loginWithApiKey(apiKey, apiSecret);
+
+  const calls = new SDK.Calls(client);
+  const response = await calls.createCall(request);
+
+  console.log(response); // successful response
+}
+
+const request = {
+  from: "+18287854037",
+  to: "+17853178070",
+  appRef: "3e61ecb7-a1b6-4a93-84c3-4f1979165bca"
+};
+
+main(request).catch(console.error);
 ```
 
 ## Getting Started
@@ -92,8 +122,6 @@ To get started with Fonoster, use the following resources:
 
 - [Deploying Fonoster with Docker](./docs/self-hosting/deploy-with-docker.md)
 - [Getting started with Fonoster](https://fonoster.com/docs/overview/)
-- [Connecting Fonoster with Dialogflow](https://fonoster.com/docs/tutorials/connecting_with_dialogflow)
-- [Using Google Speech APIs](https://fonoster.com/docs/tutorials/using_google_speech)
 - [How we created an open-source alternative to Twilio and why it matters](https://dev.to/fonoster/how-we-created-an-open-source-alternative-to-twilio-and-why-it-matters-434g)
 
 ## Give a Star! ⭐
