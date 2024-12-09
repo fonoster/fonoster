@@ -10,9 +10,9 @@ Fonoster Autopilot creates voice-driven AI applications using large language mod
 
 Your `assistant.json` defines how the AI agent behaves:
 
-- **conversationSettings**: Defines greeting messages, error handling, transfer options, and idle timeouts.
-- **languageModel**: Specifies the language model provider, model type, and parameters (temperature, max tokens, etc.).
-- **knowledgeBase / tools**: Optional external sources and actions the assistant can use.
+- **conversationSettings**: Defines greeting messages, error handling, transfer options, and idle timeouts
+- **languageModel**: Specifies the language model provider, model type, and parameters (temperature, max tokens, etc.)
+- **knowledgeBase / tools**: Optional external sources and actions the assistant can use
 
 **Example:**
 
@@ -43,14 +43,15 @@ Your `assistant.json` defines how the AI agent behaves:
     "tools": []
   }
 }
+```
 
 ## Requirements
 
 Prepare the following before running Autopilot:
 
-- Docker: Ensure Docker is installed and running.
-- Ngrok: To expose your local instance to the outside world.
-- Environment Variables (optional for knowledge base features): If using knowledge bases, set `AWS_S3_ACCESS_KEY_ID`, `AWS_S3_SECRET`, `ACCESS_KEY`, `AWS_S3_REGION`, `AWS_S3_ENDPOINT`, `UNSTRUCTURED_API_KEY`, `UNSTRUCTURED_API_URL`, and `KNOWLEDGE_BASE_ENABLED`.
+- Docker: Ensure Docker is installed and running
+- Ngrok: To expose your local instance to the outside world
+- Environment Variables (optional for knowledge base features): If using knowledge bases, set `AWS_S3_ACCESS_KEY_ID`, `AWS_S3_SECRET`, `ACCESS_KEY`, `AWS_S3_REGION`, `AWS_S3_ENDPOINT`, `UNSTRUCTURED_API_KEY`, `UNSTRUCTURED_API_URL`, and `KNOWLEDGE_BASE_ENABLED`
 
 # Running Autopilot with Docker
 
@@ -60,6 +61,7 @@ docker run -d \
   -e SKIP_IDENTITY="true" \
   -e KNOWLEDGE_BASE_ENABLED="false" \
   -e OPENAI_API_KEY="sk-proj-xxx" \
+  -e LOGS_LEVEL="verbose" \
   -v $(pwd)/assistant.json:/home/appuser/autopilot/config/assistant.json:ro \
   fonoster/autopilot:latest
 ```
