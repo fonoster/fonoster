@@ -22,7 +22,7 @@ import { GenericToggle } from "./GenericToggle";
 
 /**
  * This story is for the Generic Toggle component based on MUI switch component
- * It takes a defaultvalue, value, disable and onChange.
+ * It takes a defaultValue, value, disabled and onChange.
  */
 const meta = {
   title: "Shared Components/GenericToggle",
