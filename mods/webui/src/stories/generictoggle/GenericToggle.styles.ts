@@ -17,55 +17,54 @@
  * limitations under the License.
  */
 
-import Switch, { SwitchProps } from "@mui/material/Switch";
+import Switch from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
 
 export const StyledMuiSwitch = styled(Switch)(({ theme }) => ({
-  width: 50,
-  height: 27,
+  width: 31,
+  height: 16,
   padding: 0,
-  "& .MuiSwitch-switchBase": {
-    padding: 0,
-    margin: 2,
-    transitionDuration: "300ms",
-    "&.Mui-checked": {
-      transform: "translateX(24px)",
-      color: theme.palette.primary[500],
-      "& + .MuiSwitch-track": {
-        backgroundColor: theme.palette.primary[100],
+  borderRadius: 8,
+  display: 'flex',
+  '& .MuiSwitch-switchBase': {
+    padding: 2,
+    '&.Mui-checked': {
+      transform: 'translateX(14.5px)',
+      '& + .MuiSwitch-track': {
         opacity: 1,
-        border: 0
+        border: 0,
+        backgroundColor: theme.palette.primary[100],
       },
-      "&.Mui-disabled + .MuiSwitch-track": {
-        opacity: 0.5
-      }
     },
+
     "&.Mui-checked .MuiSwitch-thumb": {
       color: theme.palette.primary[500]
     },
-    "&.Mui-focusVisible .MuiSwitch-thumb": {
-      color: "#33cf4d",
-      border: "6px solid #fff"
+
+    '& .MuiSwitch-thumb': {
+      boxShadow: '1px 1px 4px 0px #00000040 inset',
+      width: 12,
+      height: 12,
+      color: "#8D8D8D",
+      transition: theme.transitions.create(['background-color'], {
+        duration: 200,
+      }),
     },
-    "&.Mui-disabled .MuiSwitch-thumb": {
-      opacity: 0.5
+    '&.Mui-disabled': {
+      opacity: 0.5,
+      '& + .MuiSwitch-track': {
+        opacity: 0.5,
+      },
     },
-    "&.Mui-disabled + .MuiSwitch-track": {
-      opacity: 0.5
-    }
   },
-  "& .MuiSwitch-thumb": {
-    boxSizing: "border-box",
-    width: 22,
-    height: 22,
-    color: "#8D8D8D"
-  },
-  "& .MuiSwitch-track": {
-    borderRadius: 26 / 2,
-    backgroundColor: "#C2C2C2",
+  '& .MuiSwitch-track': {
     opacity: 1,
-    transition: theme.transitions.create(["background-color"], {
-      duration: 500
-    })
-  }
+    backgroundColor: "#C2C2C2",
+    boxSizing: 'border-box',
+    '&.Mui-disabled': {
+      opacity: 1, // Override the default disabled opacity for the track
+    },
+  },
+
+
 }));
