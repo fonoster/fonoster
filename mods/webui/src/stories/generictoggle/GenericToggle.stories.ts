@@ -63,7 +63,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Example of a GenericToggle with default value false.
+ * Example of a GenericToggle with defaultValue false.
  */
 export const DefaultValueFalse: Story = {
   args: {
@@ -72,7 +72,7 @@ export const DefaultValueFalse: Story = {
 };
 
 /**
- * Example of a GenericToggle with default value true.
+ * Example of a GenericToggle with defaultValue true.
  */
 export const DefaultValueTrue: Story = {
   args: {
