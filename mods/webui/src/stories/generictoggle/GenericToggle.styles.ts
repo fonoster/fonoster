@@ -45,7 +45,7 @@ export const StyledMuiSwitch = styled(Switch)(({ theme }) => ({
       boxShadow: '1px 1px 4px 0px #00000040 inset',
       width: 12,
       height: 12,
-      color: "#8D8D8D",
+      color: theme.palette.secondary[500],
       transition: theme.transitions.create(['background-color'], {
         duration: 200,
       }),
@@ -59,7 +59,7 @@ export const StyledMuiSwitch = styled(Switch)(({ theme }) => ({
   },
   '& .MuiSwitch-track': {
     opacity: 1,
-    backgroundColor: "#C2C2C2",
+    backgroundColor: theme.palette.secondary[200],
     boxSizing: 'border-box'
   },
 
