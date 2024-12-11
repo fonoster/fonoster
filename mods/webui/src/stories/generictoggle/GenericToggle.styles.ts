@@ -60,11 +60,7 @@ export const StyledMuiSwitch = styled(Switch)(({ theme }) => ({
   '& .MuiSwitch-track': {
     opacity: 1,
     backgroundColor: "#C2C2C2",
-    boxSizing: 'border-box',
-    '&.Mui-disabled': {
-      opacity: 1, // Override the default disabled opacity for the track
-    },
+    boxSizing: 'border-box'
   },
-
 
 }));
