@@ -31,7 +31,7 @@ const meta = {
     layout: "centered",
     design: {
       type: "figma",
-      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?t=VurPhwDRshOL2dRM-0"
+      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=922-10844&m=dev"
     }
   },
   tags: ["autodocs"],
