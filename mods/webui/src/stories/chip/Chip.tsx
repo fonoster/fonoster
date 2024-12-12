@@ -1,4 +1,3 @@
-import  { useEffect, useState } from "react";
 import { StyledMuiChip } from "./Chip.styles";
 import { ChipProps } from "./types";
 import CloseIcon from '@mui/icons-material/Close';
