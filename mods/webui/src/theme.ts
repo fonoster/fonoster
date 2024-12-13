@@ -37,7 +37,7 @@ const fnLight = createTheme({
       "700": "#555555",
       "800": "#333333",
       "900": "#252525",
-      main: "#C2C2C2",
+      main: "#C2C2C2"
     },
     warning: {
       "50": "#FFFFFF",

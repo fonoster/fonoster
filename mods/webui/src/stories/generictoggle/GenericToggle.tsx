@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import { useEffect, useState } from "react";
 import { StyledMuiSwitch } from "./GenericToggle.styles";
 import { GenericToggleProps } from "./types";
