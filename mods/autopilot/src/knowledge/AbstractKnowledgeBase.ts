@@ -42,8 +42,9 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
       load: () => Promise<Document[]>;
     }[];
 
-    if (loaders.length === 0) {
-      throw new Error("No files provided");
+    if (loaders.length !== 0) {
+      // No loaders to load
+      return;
     }
 
     const loadedDocs = await Promise.all(
