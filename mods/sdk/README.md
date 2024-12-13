@@ -157,12 +157,13 @@ Constructs a new Acls object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(API_KEY);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const acls = new SDK.Acls(client);
     const response = await acls.createAcl(request);
@@ -175,11 +176,10 @@ async function main(request) {
 
 const request = {
   name: "My ACL",
-  allow: ["47.132.130.31"], // Allow only this IP
-  deny: ["0.0.0.0/0"] // Deny all other IPs
+  allow: ["47.132.130.31"] // Allow only this IP
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Acls+createAcl"></a>
 
@@ -194,7 +194,6 @@ Creates a new Acl in the Workspace.
 | request | <code>CreateAclRequest</code> | The request object that contains the necessary information to create a new Acl |
 | request.name | <code>string</code> | The name of the Acl |
 | request.allow | <code>Array.&lt;string&gt;</code> | The list of IPs to allow |
-| request.deny | <code>Array.&lt;string&gt;</code> | The list of IPs to deny |
 
 **Example**  
 ```js
@@ -202,8 +201,7 @@ const acls = new SDK.Acls(client); // Existing client object
 
 const request = {
   name: "My ACL",
-  allow: ["47.132.130.31"], // Allow only this IP
-  deny: ["0.0.0.0/0"] // Deny all other IPs
+  allow: ["47.132.130.31"] // Allow only this IP
 };
 
 acls
@@ -248,7 +246,6 @@ Updates an existing Acl in the Workspace.
 | request.ref | <code>string</code> | The reference of the Acl to update |
 | request.name | <code>string</code> | The name of the Acl |
 | request.allow | <code>Array.&lt;string&gt;</code> | The list of IPs to allow |
-| request.deny | <code>Array.&lt;string&gt;</code> | The list of IPs to deny |
 
 **Example**  
 ```js
@@ -258,7 +255,6 @@ const request = {
   ref: "00000000-0000-0000-0000-000000000000",
   name: "My ACL",
   allow: ["47.132.130.31"] // Allow only this IP
-  deny: ["0.0.0.0/0"] // Deny all other IPs
 };
 
 acls
@@ -356,12 +352,13 @@ Constructs a new Agents object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(API_KEY);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const agents = new SDK.Agents(client);
     const response = await agents.createAgent(request);
@@ -381,7 +378,7 @@ const request = {
   domainRef: "00000000-0000-0000-0000-000000000000"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Agents+createAgent"></a>
 
@@ -567,12 +564,13 @@ Constructs a new ApiKeys object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const apiKeys = new SDK.ApiKeys(client);
     const response = await apiKeys.createApiKey(request);
@@ -587,7 +585,7 @@ const request = {
   role: "WORKSPACE_ADMIN"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="ApiKeys+createApiKey"></a>
 
@@ -729,12 +727,13 @@ Constructs a new Applications object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const apps = new SDK.Applications(client);
     const response = await apps.createApplication(request);
@@ -772,7 +771,7 @@ const request = {
   }
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Applications+createApplication"></a>
 
@@ -986,15 +985,16 @@ Constructs a new Calls object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const calls = new SDK.Calls(client);
-    const response = await apiKeys.createCall(request);
+    const response = await calls.createCall(request);
 
     console.log(response); // successful response
   } catch (e) {
@@ -1008,7 +1008,7 @@ const request = {
   appRef: "00000000-0000-0000-0000-000000000000"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Calls+createCall"></a>
 
@@ -1136,12 +1136,13 @@ Constructs a new Credentials object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const credentials = new SDK.Credentials(client);
     const response = await apiKeys.createCredentials(request);
@@ -1158,7 +1159,7 @@ const request = {
   password: "mysecret"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Credentials+createCredentials"></a>
 
@@ -1333,12 +1334,13 @@ Constructs a new Domains object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const domains = new SDK.Domains(client);
     const response = await domains.createDomain(request);
@@ -1354,7 +1356,7 @@ const request = {
   domainUri: "sip.project.fonoster.io"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Domains+createDomain"></a>
 
@@ -1534,12 +1536,13 @@ Constructs a new Numbers object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const numbers = new SDK.Numbers(client);
     const response = await numbers.createNumber(request);
@@ -1558,7 +1561,7 @@ const request = {
   countryIsoCode: "US"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Numbers+createNumber"></a>
 
@@ -1735,12 +1738,13 @@ Constructs a new Secrets object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const secrets = new SDK.Secrets(client);
     const response = await secrets.creteSecret(request);
@@ -1756,7 +1760,7 @@ const request = {
   secret: "mysecret"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Secrets+createSecret"></a>
 
@@ -1928,12 +1932,13 @@ Constructs a new Trunks object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const trunks = new SDK.Trunks(client);
     const response = await trunks.createTrunk(request);
@@ -1949,7 +1954,7 @@ const request = {
   inboundUri: "sip.company.fonoster.io"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Trunks+createTrunk"></a>
 
@@ -2163,12 +2168,13 @@ Constructs a new Users object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const users = new SDK.Users(client);
     const response = await users.createUser(request);
@@ -2186,7 +2192,7 @@ const request = {
   avatar: "https://example.com/avatar.jpg"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Users+createUser"></a>
 
@@ -2340,12 +2346,13 @@ Constructs a new Workspaces object.
 const SDK = require("@fonoster/sdk");
 
 async function main(request) {
-  const API_KEY = "your-api-key";
-  const ACCESS_KEY_ID = "00000000-0000-0000-0000-000000000000";
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
 
   try {
-    const client = SDK.Client({ accessKeyId: ACCESS_KEY_ID });
-    await client.loginWithApiKey(apiKey);
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
 
     const workspaces = new SDK.Workspaces(client);
     const response = await workspaces.createWorkspace(request);
@@ -2360,7 +2367,7 @@ const request = {
   name: "My Workspace"
 };
 
-main(request).catch(console.error);
+main(request);
 ```
 <a name="Workspaces+createWorkspace"></a>
 
