@@ -30,6 +30,12 @@ export abstract class AuthenticatedCommand<
     const workspaces = getConfig(CONFIG_FILE);
     const currentWorkspace = getCurrentWorkspace(workspaces);
 
+    if (!currentWorkspace) {
+      throw new Error(
+        "No active workspace found. Please login to a Workspace."
+      );
+    }
+
     try {
       const client = new SDK.Client({
         endpoint: currentWorkspace.endpoint,
