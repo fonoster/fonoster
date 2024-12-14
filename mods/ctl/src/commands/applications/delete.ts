@@ -19,43 +19,27 @@
  */
 import * as SDK from "@fonoster/sdk";
 import { Args } from "@oclif/core";
-import { BaseCommand } from "../../BaseCommand";
-import { getConfig } from "../../config";
-import { CONFIG_FILE } from "../../constants";
+import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
-export default class Delete extends BaseCommand<typeof Delete> {
-  static override description = "remove an Application from the system";
-  static override examples = ["<%= config.bin %> <%= command.id %>"];
-  static override args = {
+export default class Delete extends AuthenticatedCommand<typeof Delete> {
+  static override readonly description =
+    "remove an Application from the system";
+  static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
+  static override readonly args = {
     ref: Args.string({ description: "the Application to delete" })
   };
 
   public async run(): Promise<void> {
-    const { args, flags } = await this.parse(Delete);
-    const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = workspaces.find((w) => w.active);
-
-    if (!currentWorkspace) {
-      this.error("No active workspace found.");
-    }
+    const { args } = await this.parse(Delete);
 
     if (!args.ref) {
       this.error("Missing Application reference");
       return;
     }
 
-    const client = new SDK.Client({
-      endpoint: currentWorkspace.endpoint,
-      accessKeyId: `WO${currentWorkspace.workspaceRef.replaceAll("-", "")}`,
-      allowInsecure: flags.insecure
-    });
-
-    await client.loginWithApiKey(
-      currentWorkspace.accessKeyId,
-      currentWorkspace.accessKeySecret
-    );
-
+    const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
+
     await applications.deleteApplication(args.ref);
 
     this.log("Done!");

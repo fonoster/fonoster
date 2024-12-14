@@ -20,23 +20,13 @@
 import * as SDK from "@fonoster/sdk";
 import { CreateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
-import { BaseCommand } from "../../BaseCommand";
-import { getConfig } from "../../config";
-import { CONFIG_FILE } from "../../constants";
+import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
-export default class Create extends BaseCommand<typeof Create> {
-  static override description = "create a new Application";
-  static override examples = ["<%= config.bin %> <%= command.id %>"];
+export default class Create extends AuthenticatedCommand<typeof Create> {
+  static override readonly description = "create a new Application";
+  static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(Create);
-    const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = workspaces.find((w) => w.active);
-
-    if (!currentWorkspace) {
-      this.error("No active workspace found.");
-    }
-
     this.log("This utility will help you create an Application.");
     this.log("Press ^C at any time to quit.");
 
@@ -108,18 +98,9 @@ export default class Create extends BaseCommand<typeof Create> {
     }
 
     try {
-      const client = new SDK.Client({
-        endpoint: currentWorkspace.endpoint,
-        accessKeyId: `WO${currentWorkspace.workspaceRef.replaceAll("-", "")}`,
-        allowInsecure: flags.insecure
-      });
-
-      await client.loginWithApiKey(
-        currentWorkspace.accessKeyId,
-        currentWorkspace.accessKeySecret
-      );
-
+      const client = await this.createSdkClient();
       const applications = new SDK.Applications(client);
+
       await applications.createApplication(
         answers as unknown as CreateApplicationRequest
       );

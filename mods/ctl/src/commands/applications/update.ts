@@ -21,14 +21,14 @@ import * as SDK from "@fonoster/sdk";
 import { UpdateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
 import { Args } from "@oclif/core";
-import { BaseCommand } from "../../BaseCommand";
+import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
-export default class Update extends BaseCommand<typeof Update> {
-  static override description = "update an existing Application";
-  static override examples = ["<%= config.bin %> <%= command.id %>"];
-  static override args = {
+export default class Update extends AuthenticatedCommand<typeof Update> {
+  static override readonly description = "update an existing Application";
+  static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
+  static override readonly args = {
     ref: Args.string({ description: "the Application to update" })
   };
 
@@ -41,17 +41,7 @@ export default class Update extends BaseCommand<typeof Update> {
       this.error("No active workspace found.");
     }
 
-    const client = new SDK.Client({
-      endpoint: currentWorkspace.endpoint,
-      accessKeyId: `WO${currentWorkspace.workspaceRef.replaceAll("-", "")}`,
-      allowInsecure: flags.insecure
-    });
-
-    await client.loginWithApiKey(
-      currentWorkspace.accessKeyId,
-      currentWorkspace.accessKeySecret
-    );
-
+    const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
     const currentApplication = await applications.getApplication(args.ref);
 

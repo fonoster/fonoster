@@ -21,7 +21,7 @@ import * as Fonoster from "@fonoster/sdk";
 import { confirm, input, password, select } from "@inquirer/prompts";
 import { Flags } from "@oclif/core";
 import { Twilio } from "twilio";
-import { BaseCommand } from "../../BaseCommand";
+import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import { getConfig } from "../../config";
 import {
   CONFIG_FILE,
@@ -30,13 +30,13 @@ import {
 } from "../../constants";
 import { linkTwilioNumberToApplication } from "../../utils";
 
-export default class LinkTwilioNumber extends BaseCommand<
+export default class LinkTwilioNumber extends AuthenticatedCommand<
   typeof LinkTwilioNumber
 > {
-  static override description =
-    "connect a Twilio number to a Fonoster application";
-  static override examples = ["<%= config.bin %> <%= command.id %>"];
-  static override flags = {
+  static override readonly description =
+    "connect a Twilio number with an Application in Fonoster";
+  static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
+  static override readonly flags = {
     "outbound-uri-base": Flags.string({
       char: "b",
       description:
@@ -63,17 +63,7 @@ export default class LinkTwilioNumber extends BaseCommand<
       this.error("No active workspace found.");
     }
 
-    const fonosterClient = new Fonoster.Client({
-      endpoint: currentWorkspace.endpoint,
-      accessKeyId,
-      allowInsecure: flags.insecure
-    });
-
-    await fonosterClient.loginWithApiKey(
-      currentWorkspace.accessKeyId,
-      currentWorkspace.accessKeySecret
-    );
-
+    const fonosterClient = await this.createSdkClient();
     const applications = new Fonoster.Applications(fonosterClient);
     const appsList = await applications.listApplications({ pageSize: 1000 });
 

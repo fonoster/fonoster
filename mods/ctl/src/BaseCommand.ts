@@ -23,10 +23,10 @@ export type Args<T extends typeof Command> = Interfaces.InferredArgs<T["args"]>;
 
 export abstract class BaseCommand<T extends typeof Command> extends Command {
   // define flags that can be inherited by any command that extends BaseCommand
-  static baseFlags = {
+  static readonly baseFlags = {
     insecure: Flags.boolean({
       char: "i",
-      description: "allow connections to a server without TLS enabled",
+      description: "allow connections to a server with no TLS",
       default: false
     })
   };

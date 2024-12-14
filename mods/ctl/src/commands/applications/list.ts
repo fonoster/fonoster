@@ -20,14 +20,14 @@
 import * as SDK from "@fonoster/sdk";
 import { Flags } from "@oclif/core";
 import cliui from "cliui";
-import { BaseCommand } from "../../BaseCommand";
+import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
-export default class List extends BaseCommand<typeof List> {
-  static override description = "list all existing Applications";
-  static override examples = ["<%= config.bin %> <%= command.id %>"];
-  static override flags = {
+export default class List extends AuthenticatedCommand<typeof List> {
+  static override readonly description = "list all existing Applications";
+  static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
+  static override readonly flags = {
     "page-size": Flags.string({
       char: "s",
       description: "the number of items to show",
@@ -45,17 +45,7 @@ export default class List extends BaseCommand<typeof List> {
       this.error("No active workspace found.");
     }
 
-    const client = new SDK.Client({
-      endpoint: currentWorkspace.endpoint,
-      accessKeyId: `WO${currentWorkspace.workspaceRef.replaceAll("-", "")}`,
-      allowInsecure: flags.insecure
-    });
-
-    await client.loginWithApiKey(
-      currentWorkspace.accessKeyId,
-      currentWorkspace.accessKeySecret
-    );
-
+    const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
     const response = await applications.listApplications({
       pageSize: parseInt(flags["page-size"]),
