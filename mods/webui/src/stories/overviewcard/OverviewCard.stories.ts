@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import { OverviewCard } from "./OverviewCard";
@@ -24,8 +23,7 @@ import { Icon } from "../icon/Icon";
 import React from "react";
 
 /**
- * This story is for the OverviewCard component
- * It takes a label, icon and onClick.
+ * This story is for the OverviewCard component. It takes a label, icon and onClick.
  */
 const meta = {
   title: "Shared Components/OverviewCard",
