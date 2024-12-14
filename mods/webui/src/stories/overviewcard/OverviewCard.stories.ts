@@ -45,11 +45,11 @@ const meta = {
       description: "Function to execute on click"
     },
     icon: {
-      name: "icon",
+      name: "Icon",
       description: "The icon on the card"
     },
     label: {
-      name: "label",
+      name: "Label",
       control: "text",
       description: "The label of the card"
     }
