@@ -23,11 +23,11 @@ import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
 export default class Delete extends AuthenticatedCommand<typeof Delete> {
   static override readonly description =
-    "remove an Application from the current Workspace";
+    "remove a Secret from the current Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
-      description: "the Application to delete",
+      description: "the Secret reference",
       required: true
     })
   };
@@ -36,8 +36,8 @@ export default class Delete extends AuthenticatedCommand<typeof Delete> {
     const { args } = await this.parse(Delete);
     const { ref } = args;
     const client = await this.createSdkClient();
-    const applications = new SDK.Applications(client);
-    await applications.deleteApplication(ref);
+    const secrets = new SDK.Secrets(client);
+    await secrets.deleteSecret(ref);
     this.log("Done!");
   }
 }

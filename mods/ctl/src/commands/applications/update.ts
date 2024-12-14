@@ -22,8 +22,6 @@ import { UpdateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
 import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
-import { getConfig } from "../../config";
-import { CONFIG_FILE } from "../../constants";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "update an existing Application";
@@ -33,14 +31,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
   };
 
   public async run(): Promise<void> {
-    const { flags, args } = await this.parse(Update);
-    const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = workspaces.find((w) => w.active);
-
-    if (!currentWorkspace) {
-      this.error("No active workspace found.");
-    }
-
+    const { args } = await this.parse(Update);
     const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
     const currentApplication = await applications.getApplication(args.ref);
@@ -49,7 +40,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       this.error("Application not found.");
     }
 
-    this.log("This utility will help you create an Application.");
+    this.log("This utility will help you update an Application.");
     this.log("Press ^C at any time to quit.");
 
     const answers = {
@@ -127,19 +118,6 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     }
 
     try {
-      const client = new SDK.Client({
-        endpoint: currentWorkspace.endpoint,
-        accessKeyId: `WO${currentWorkspace.workspaceRef.replaceAll("-", "")}`,
-        allowInsecure: flags.insecure
-      });
-
-      await client.loginWithApiKey(
-        currentWorkspace.accessKeyId,
-        currentWorkspace.accessKeySecret
-      );
-
-      const applications = new SDK.Applications(client);
-
       await applications.updateApplication({
         ref: args.ref,
         ...answers
