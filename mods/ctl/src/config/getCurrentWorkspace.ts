@@ -19,13 +19,7 @@
 import { WorkspaceConfig } from "./types";
 
 function getCurrentWorkspace(workspaces: WorkspaceConfig[]): WorkspaceConfig {
-  const workspace = workspaces.find((w) => w.active === true);
-
-  if (!workspace) {
-    throw new Error("No active workspace found");
-  }
-
-  return workspace;
+  return workspaces.find((w) => w.active === true);
 }
 
 export { getCurrentWorkspace };
