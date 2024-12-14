@@ -21,6 +21,7 @@ import * as SDK from "@fonoster/sdk";
 import { CreateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
+import errorHandler from "../../errorHandler";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description = "create a new Application";
@@ -107,7 +108,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
 
       this.log("Done!");
     } catch (e) {
-      this.error(e);
+      errorHandler(e, this.error.bind(this));
     }
   }
 }

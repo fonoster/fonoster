@@ -17,11 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { GrpcErrorMessage } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
 import { CreateSecretRequest } from "@fonoster/types";
 import { confirm, input, password } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
+import errorHandler from "../../errorHandler";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description = "create a new Secret";
@@ -57,12 +57,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
 
       this.log("Done!");
     } catch (e) {
-      if ((e as GrpcErrorMessage).code === 3) {
-        this.error(
-          "Name can only contain letters, numbers, underscores, or hyphens"
-        );
-      }
-      this.error(e.message);
+      errorHandler(e, this.error.bind(this));
     }
   }
 }

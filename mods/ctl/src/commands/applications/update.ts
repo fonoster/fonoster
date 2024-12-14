@@ -22,6 +22,7 @@ import { UpdateApplicationRequest } from "@fonoster/types";
 import { confirm, input, select } from "@inquirer/prompts";
 import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
+import errorHandler from "../../errorHandler";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "update an existing Application";
@@ -125,7 +126,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
 
       this.log("Done!");
     } catch (e) {
-      this.error(e);
+      errorHandler(e, this.error.bind(this));
     }
   }
 }
