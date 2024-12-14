@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -178,7 +179,7 @@ class Trunks {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getTrunk(ref: string) {
+  async getTrunk(ref: string): Promise<Trunk> {
     const client = this.client.getTrunksClient();
     const getTrunkRequest = new GetTrunkRequestPB();
     getTrunkRequest.setRef(ref);
@@ -196,13 +197,21 @@ class Trunks {
           const obj = response.toObject();
           const outObj = {
             ...obj,
+            accessControlListRef: obj.accessControlList?.ref,
+            inboundCredentialsRef: obj.inboundCredentials?.ref,
+            outboundCredentialsRef: obj.outboundCredentials?.ref,
             uris: obj.urisList,
             createdAt: new Date(obj.createdAt * 1000),
             updatedAt: new Date(obj.updatedAt * 1000)
           };
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { urisList, ...rest } = outObj;
-          resolve(rest);
+          const {
+            urisList,
+            accessControlList,
+            inboundCredentials,
+            outboundCredentials,
+            ...rest
+          } = outObj;
+          resolve(rest as unknown as Trunk);
         }
       );
     });

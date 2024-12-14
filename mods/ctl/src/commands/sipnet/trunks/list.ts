@@ -23,7 +23,8 @@ import cliui from "cliui";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 
 export default class List extends AuthenticatedCommand<typeof List> {
-  static override readonly description = "list all Credentials";
+  static override readonly description =
+    "list all Trunks in the Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "page-size": Flags.string({
@@ -37,8 +38,8 @@ export default class List extends AuthenticatedCommand<typeof List> {
   public async run(): Promise<void> {
     const { flags } = await this.parse(List);
     const client = await this.createSdkClient();
-    const credentials = new SDK.Credentials(client);
-    const response = await credentials.listCredentials({
+    const trunks = new SDK.Trunks(client);
+    const response = await trunks.listTrunks({
       pageSize: parseInt(flags["page-size"]),
       pageToken: ""
     });
@@ -48,14 +49,14 @@ export default class List extends AuthenticatedCommand<typeof List> {
     ui.div(
       { text: "REF", padding: [0, 0, 0, 0], width: 40 },
       { text: "NAME", padding: [0, 0, 0, 0], width: 20 },
-      { text: "USERNAME", padding: [0, 0, 0, 0], width: 40 }
+      { text: "INBOUND URI", padding: [0, 0, 0, 0], width: 40 }
     );
 
     response.items.forEach((application) => {
       ui.div(
         { text: application.ref, padding: [0, 0, 0, 0], width: 40 },
         { text: application.name, padding: [0, 0, 0, 0], width: 20 },
-        { text: application.username, padding: [0, 0, 0, 0], width: 40 }
+        { text: application.inboundUri, padding: [0, 0, 0, 0], width: 40 }
       );
     });
 
