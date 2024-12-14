@@ -25,7 +25,7 @@ import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
 export default class List extends AuthenticatedCommand<typeof List> {
-  static override readonly description = "list all existing Numbers";
+  static override readonly description = "list all Numbers";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "page-size": Flags.string({

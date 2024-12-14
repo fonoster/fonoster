@@ -137,7 +137,7 @@ class Acls {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getAcl(ref: string) {
+  async getAcl(ref: string): Promise<Acl> {
     const updateAclRequest = new GetAclRequestPB();
     updateAclRequest.setRef(ref);
     const client = this.client.getAclsClient();

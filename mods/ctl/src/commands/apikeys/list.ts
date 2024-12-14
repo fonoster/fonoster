@@ -24,7 +24,7 @@ import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
 export default class List extends AuthenticatedCommand<typeof List> {
   static override readonly description =
-    "list all existing ApiKeys in the current Workspace";
+    "list all ApiKeys in the current Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "page-size": Flags.string({
