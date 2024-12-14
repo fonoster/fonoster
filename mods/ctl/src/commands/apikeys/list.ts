@@ -23,7 +23,8 @@ import cliui from "cliui";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
 export default class List extends AuthenticatedCommand<typeof List> {
-  static override readonly description = "list all existing Applications";
+  static override readonly description =
+    "list all existing ApiKeys in the current Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "page-size": Flags.string({
@@ -37,8 +38,8 @@ export default class List extends AuthenticatedCommand<typeof List> {
   public async run(): Promise<void> {
     const { flags } = await this.parse(List);
     const client = await this.createSdkClient();
-    const applications = new SDK.Applications(client);
-    const response = await applications.listApplications({
+    const apiKeys = new SDK.ApiKeys(client);
+    const response = await apiKeys.listApiKeys({
       pageSize: parseInt(flags["page-size"]),
       pageToken: ""
     });
@@ -47,17 +48,23 @@ export default class List extends AuthenticatedCommand<typeof List> {
 
     ui.div(
       { text: "REF", padding: [0, 0, 0, 0], width: 40 },
-      { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
-      { text: "TYPE", padding: [0, 0, 0, 0], width: 10 },
-      { text: "ENDPOINT", padding: [0, 0, 0, 0] }
+      { text: "ACCESS KEY ID", padding: [0, 0, 0, 0], width: 38 },
+      { text: "ROLE", padding: [0, 0, 0, 0], width: 20 },
+      { text: "EXPIRATION", padding: [0, 0, 0, 0], width: 10 }
     );
 
     response.items.forEach((application) => {
       ui.div(
         { text: application.ref, padding: [0, 0, 0, 0], width: 40 },
-        { text: application.name, padding: [0, 0, 0, 0], width: 30 },
-        { text: application.type, padding: [0, 0, 0, 0], width: 10 },
-        { text: application.endpoint, padding: [0, 0, 0, 0] }
+        { text: application.accessKeyId, padding: [0, 0, 0, 0], width: 38 },
+        { text: application.role, padding: [0, 0, 0, 0], width: 20 },
+        {
+          text: application.expiresAt
+            ? new Date(application.expiresAt).toISOString()
+            : "Never",
+          padding: [0, 0, 0, 0],
+          width: 10
+        }
       );
     });
 

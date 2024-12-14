@@ -22,9 +22,7 @@ import { ApiRoleEnum } from "@fonoster/types";
 import { Flags } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
-export default class CreateApiKey extends AuthenticatedCommand<
-  typeof CreateApiKey
-> {
+export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description =
     "create a new API Key for the current Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
@@ -44,16 +42,15 @@ export default class CreateApiKey extends AuthenticatedCommand<
   };
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(CreateApiKey);
+    const { flags } = await this.parse(Create);
 
     const sdkClient = await this.createSdkClient();
-    const apikeys = new SDK.ApiKeys(sdkClient);
-
-    const result = await apikeys.createApiKey({
+    const apiKeys = new SDK.ApiKeys(sdkClient);
+    const result = await apiKeys.createApiKey({
       role: flags.role as ApiRoleEnum
     });
 
-    this.log("Access Key created successfully!");
+    this.log("Access Key regenerated successfully!");
     this.log(`Access Key ID: ${result.accessKeyId}`);
     this.log(`Access Key Secret: ${result.accessKeySecret}`);
     this.log("");

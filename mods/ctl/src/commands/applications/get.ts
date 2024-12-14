@@ -22,8 +22,6 @@ import { Args } from "@oclif/core";
 import cliui from "cliui";
 import moment from "moment";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
-import { getConfig } from "../../config";
-import { CONFIG_FILE } from "../../constants";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
   static override readonly description = "get an Application by reference";
@@ -34,13 +32,6 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
 
   public async run(): Promise<void> {
     const { args } = await this.parse(Get);
-    const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = workspaces.find((w) => w.active);
-
-    if (!currentWorkspace) {
-      this.error("No active workspace found.");
-    }
-
     const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
 

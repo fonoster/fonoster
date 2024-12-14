@@ -18,30 +18,30 @@
  * limitations under the License.
  */
 import { Args, Command } from "@oclif/core";
-import { getConfig, setCurrentWorkspace } from "../../config";
+import {
+  getConfig,
+  getCurrentWorkspace,
+  setCurrentWorkspace
+} from "../../config";
 import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
 export default class Use extends Command {
-  static override description = "make a Workspace the default";
-  static override examples = ["<%= config.bin %> <%= command.id %>"];
-  static override args = {
-    ref: Args.string({ description: "The Workspace to unlink from" })
+  static override readonly description = "make a Workspace the default";
+  static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
+  static override readonly args = {
+    ref: Args.string({
+      description: "The Workspace to unlink from",
+      required: true
+    })
   };
 
   public async run(): Promise<void> {
     const { args } = await this.parse(Use);
-
-    if (!args.ref) {
-      this.error("Missing Workspace reference");
-      return;
-    }
-
+    const { ref } = args;
     const workspaces = getConfig(CONFIG_FILE);
-    const updatedWorkspaces = setCurrentWorkspace(args.ref, workspaces);
-    const currentWorkspace = updatedWorkspaces.find(
-      (w) => w.workspaceRef === args.ref
-    );
+    const updatedWorkspaces = setCurrentWorkspace(ref, workspaces);
+    const currentWorkspace = getCurrentWorkspace(updatedWorkspaces);
 
     saveConfig(CONFIG_FILE, updatedWorkspaces);
 

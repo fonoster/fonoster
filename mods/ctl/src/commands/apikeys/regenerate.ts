@@ -17,27 +17,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Args, Command } from "@oclif/core";
-import { getConfig, removeWorkspace } from "../../config";
-import { saveConfig } from "../../config/saveConfig";
-import { CONFIG_FILE } from "../../constants";
+import * as SDK from "@fonoster/sdk";
+import { Args } from "@oclif/core";
+import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
-export default class Logout extends Command {
-  static override readonly description = "remove a linked Workspace";
+export default class Regenerate extends AuthenticatedCommand<
+  typeof Regenerate
+> {
+  static override readonly description =
+    "regenerate the Access Key Secret for an existing API Key";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
-      description: "the Workspace to unlink from",
+      description: "the Application to update",
       required: true
     })
   };
 
   public async run(): Promise<void> {
-    const { args } = await this.parse(Logout);
+    const { args } = await this.parse(Regenerate);
     const { ref } = args;
-    const workspaces = getConfig(CONFIG_FILE);
-    const updatedWorkspaces = removeWorkspace(ref, workspaces);
-    saveConfig(CONFIG_FILE, updatedWorkspaces);
-    this.log("Done!");
+
+    const client = await this.createSdkClient();
+    const apiKeys = new SDK.ApiKeys(client);
+    const result = await apiKeys.regenerateApiKey(ref);
+
+    this.log("Access Key created successfully!");
+    this.log(`Access Key ID: ${result.accessKeyId}`);
+    this.log(`Access Key Secret: ${result.accessKeySecret}`);
+    this.log("");
+    this.warn(
+      "This is the only time the Access Key Secret will be shown.\nPlease copy it and store it securely!"
+    );
   }
 }

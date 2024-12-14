@@ -17,27 +17,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Args, Command } from "@oclif/core";
-import { getConfig, removeWorkspace } from "../../config";
-import { saveConfig } from "../../config/saveConfig";
-import { CONFIG_FILE } from "../../constants";
+import * as SDK from "@fonoster/sdk";
+import { Args } from "@oclif/core";
+import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
-export default class Logout extends Command {
-  static override readonly description = "remove a linked Workspace";
+export default class Delete extends AuthenticatedCommand<typeof Delete> {
+  static override readonly description = "remove an ApiKey from the Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
-      description: "the Workspace to unlink from",
+      description: "the ApiKey to delete from the Workspace",
       required: true
     })
   };
 
   public async run(): Promise<void> {
-    const { args } = await this.parse(Logout);
+    const { args } = await this.parse(Delete);
     const { ref } = args;
-    const workspaces = getConfig(CONFIG_FILE);
-    const updatedWorkspaces = removeWorkspace(ref, workspaces);
-    saveConfig(CONFIG_FILE, updatedWorkspaces);
+
+    const client = await this.createSdkClient();
+    const applications = new SDK.ApiKeys(client);
+
+    await applications.deleteApiKey(ref);
+
     this.log("Done!");
   }
 }
