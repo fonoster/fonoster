@@ -74,7 +74,7 @@ export const Example: Story = {
 /**
  * Example to show OverviewCard with new Icon.
  */
-export const ChangeIcon: Story = {
+export const ChangedIcon: Story = {
     args: {
         label: "Workspace setting",
         icon: React.createElement(Icon, { name: 'Search', fontSize: "small" })
@@ -84,7 +84,7 @@ export const ChangeIcon: Story = {
 /**
  * Example to show OverviewCard with new Icon and label.
  */
-export const ChangeIconAndLabel: Story = {
+export const ChangedIconAndLabel: Story = {
     args: {
         label: "Notification setting",
         icon: React.createElement(Icon, { name: 'NotificationsActive', fontSize: "small" })
