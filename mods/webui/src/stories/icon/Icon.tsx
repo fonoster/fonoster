@@ -55,8 +55,8 @@ import ScreenShareOn from "@mui/icons-material/ScreenShareOutlined";
 import ScreenShareOff from "@mui/icons-material/StopScreenShareOutlined";
 import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
-import ChevronLeft from '@mui/icons-material/ChevronLeft';
-import ChevronRight from '@mui/icons-material/ChevronRight';
+import ChevronLeft from "@mui/icons-material/ChevronLeft";
+import ChevronRight from "@mui/icons-material/ChevronRight";
 
 type IconName =
   | "Add"

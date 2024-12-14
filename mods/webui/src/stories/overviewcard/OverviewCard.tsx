@@ -17,26 +17,26 @@
  * limitations under the License.
  */
 
-import { Icon } from '../icon/Icon'
-import { Typography } from '../typography/Typography'
-import { StyledIconBox, StyledLabelBox, StyledMuiBox } from './OverviewCard.styles'
-import { OverviewCardProps } from './types'
+import { Icon } from "../icon/Icon";
+import { Typography } from "../typography/Typography";
+import {
+  StyledIconBox,
+  StyledLabelBox,
+  StyledMuiBox
+} from "./OverviewCard.styles";
+import { OverviewCardProps } from "./types";
 
 export const OverviewCard = (props: OverviewCardProps) => {
-    const { label, icon, onClick } = props
-    return (
-        <StyledMuiBox onClick={onClick} >
-            <StyledIconBox>
-                {icon}
-            </StyledIconBox>
+  const { label, icon, onClick } = props;
+  return (
+    <StyledMuiBox onClick={onClick}>
+      <StyledIconBox>{icon}</StyledIconBox>
 
-            <StyledLabelBox >
-                <Typography variant="body-medium">
-                    {label}
-                </Typography>
-            </StyledLabelBox>
+      <StyledLabelBox>
+        <Typography variant="body-medium">{label}</Typography>
+      </StyledLabelBox>
 
-            <Icon name='ChevronRight' />
-        </StyledMuiBox>
-    )
-}
+      <Icon name="ChevronRight" />
+    </StyledMuiBox>
+  );
+};

@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 
-import { ReactNode } from 'react';
+import { ReactNode } from "react";
 
 type OverviewCardProps = {
-    icon: ReactNode;
-    label: string;
-    onClick: () => void;
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
 };
 
 export type { OverviewCardProps };

@@ -19,74 +19,75 @@
 
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-import { OverviewCard } from './OverviewCard';
-import { Icon } from '../icon/Icon';
-import React from 'react';
+import { OverviewCard } from "./OverviewCard";
+import { Icon } from "../icon/Icon";
+import React from "react";
 
 /**
  * This story is for the OverviewCard component based on MUI switch component
  * It takes a label, icon, onClick.
  */
 const meta = {
-    title: "Shared Components/OverviewCard",
-    component: OverviewCard,
-    parameters: {
-        layout: "centered",
-        design: {
-            type: "figma",
-            url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=888-20517&m=dev"
-        }
-    },
-    tags: ["autodocs"],
-    args: { onClick: fn() },
-    argTypes: {
-        onClick: {
-            name: "On Click",
-            description: "Function to execute on click"
-        },
-        icon: {
-            name: "icon",
-            description: "The icon on the card"
-        },
-        label: {
-            name: "label",
-            control: "text",
-            description: "The label of the card"
-        }
+  title: "Shared Components/OverviewCard",
+  component: OverviewCard,
+  parameters: {
+    layout: "centered",
+    design: {
+      type: "figma",
+      url: "https://www.figma.com/design/OsZlne0RvIgoFlFKF7hnAU/Shared-Component-Library?node-id=888-20517&m=dev"
     }
+  },
+  tags: ["autodocs"],
+  args: { onClick: fn() },
+  argTypes: {
+    onClick: {
+      name: "On Click",
+      description: "Function to execute on click"
+    },
+    icon: {
+      name: "icon",
+      description: "The icon on the card"
+    },
+    label: {
+      name: "label",
+      control: "text",
+      description: "The label of the card"
+    }
+  }
 } satisfies Meta<typeof OverviewCard>;
-
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
 
 /**
  * Example to show OverviewCard.
  */
 export const Example: Story = {
-    args: {
-        label: "Workspace setting",
-        icon: React.createElement(Icon, { name: "Settings", fontSize: "small" })
-    }
+  args: {
+    label: "Workspace setting",
+    icon: React.createElement(Icon, { name: "Settings", fontSize: "small" })
+  }
 };
 
 /**
  * Example to show OverviewCard with new Icon.
  */
 export const ChangedIcon: Story = {
-    args: {
-        label: "Workspace setting",
-        icon: React.createElement(Icon, { name: 'Search', fontSize: "small" })
-    }
+  args: {
+    label: "Workspace setting",
+    icon: React.createElement(Icon, { name: "Search", fontSize: "small" })
+  }
 };
 
 /**
  * Example to show OverviewCard with new Icon and label.
  */
 export const ChangedIconAndLabel: Story = {
-    args: {
-        label: "Notification setting",
-        icon: React.createElement(Icon, { name: 'NotificationsActive', fontSize: "small" })
-    }
+  args: {
+    label: "Notification setting",
+    icon: React.createElement(Icon, {
+      name: "NotificationsActive",
+      fontSize: "small"
+    })
+  }
 };

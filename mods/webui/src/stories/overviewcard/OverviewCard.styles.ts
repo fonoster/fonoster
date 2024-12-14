@@ -21,37 +21,35 @@ import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 
 export const StyledMuiBox = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    width: '439px',
-    height: '76px',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: '24px',
-    paddingRight: '16px',
-    paddingBottom: '24px',
-    paddingLeft: '16px',
-    borderRadius: '8px',
-    border: '1px',
-    borderStyle: 'solid',
-    borderColor: theme.palette.secondary[100],
-    gap: '10px',
-    cursor: 'pointer',
-    backgroundColor: theme.palette.secondary[50],
-    '&:hover': {
-        borderColor: theme.palette.primary[500],
-    }
-}))
+  display: "flex",
+  width: "439px",
+  height: "76px",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingTop: "24px",
+  paddingRight: "16px",
+  paddingBottom: "24px",
+  paddingLeft: "16px",
+  borderRadius: "8px",
+  border: "1px",
+  borderStyle: "solid",
+  borderColor: theme.palette.secondary[100],
+  gap: "10px",
+  cursor: "pointer",
+  backgroundColor: theme.palette.secondary[50],
+  "&:hover": {
+    borderColor: theme.palette.primary[500]
+  }
+}));
 
 export const StyledIconBox = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    backgroundColor: theme.palette.primary[200],
-    padding: '4px',
-    borderRadius: '4px'
-}))
+  display: "flex",
+  backgroundColor: theme.palette.primary[200],
+  padding: "4px",
+  borderRadius: "4px"
+}));
 
 export const StyledLabelBox = styled(Box)(({ theme }) => ({
-    flexGrow: 1,
-    padding: '0px',
-}))
-
-
+  flexGrow: 1,
+  padding: "0px"
+}));
