@@ -55,6 +55,8 @@ import ScreenShareOn from "@mui/icons-material/ScreenShareOutlined";
 import ScreenShareOff from "@mui/icons-material/StopScreenShareOutlined";
 import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
+import ChevronLeft from "@mui/icons-material/ChevronLeft";
+import ChevronRight from "@mui/icons-material/ChevronRight";
 
 type IconName =
   | "Add"
@@ -95,7 +97,9 @@ type IconName =
   | "MicOn"
   | "PictureInPicture"
   | "ScreenShareOn"
-  | "ScreenShareOff";
+  | "ScreenShareOff"
+  | "ChevronLeft"
+  | "ChevronRight";
 
 type IconProps = {
   name: IconName;
@@ -185,6 +189,10 @@ export function Icon(props: IconProps) {
       return <ScreenShareOn fontSize={actualFontSize} />;
     case "ScreenShareOff":
       return <ScreenShareOff fontSize={actualFontSize} />;
+    case "ChevronLeft":
+      return <ChevronLeft fontSize={actualFontSize} />;
+    case "ChevronRight":
+      return <ChevronRight fontSize={actualFontSize} />;
     default:
       return null;
   }
