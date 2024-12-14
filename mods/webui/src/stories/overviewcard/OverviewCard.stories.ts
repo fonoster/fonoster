@@ -19,13 +19,13 @@
 
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-import { OverviewCard } from "./OverviewCard";
-import { Icon } from "../icon/Icon";
-import React from "react";
+import { OverviewCard } from './OverviewCard';
+import { Icon } from '../icon/Icon';
+import React from 'react';
 
 /**
- * This story is for the OverviewCard component based on MUI switch component
- * It takes a label, icon, onClick.
+ * This story is for the OverviewCard component
+ * It takes a label, icon and onClick.
  */
 const meta = {
   title: "Shared Components/OverviewCard",
@@ -56,8 +56,10 @@ const meta = {
   }
 } satisfies Meta<typeof OverviewCard>;
 
+
 export default meta;
 type Story = StoryObj<typeof meta>;
+
 
 /**
  * Example to show OverviewCard.
@@ -72,22 +74,19 @@ export const Example: Story = {
 /**
  * Example to show OverviewCard with new Icon.
  */
-export const ChangedIcon: Story = {
+export const ChangeIcon: Story = {
   args: {
     label: "Workspace setting",
-    icon: React.createElement(Icon, { name: "Search", fontSize: "small" })
+    icon: React.createElement(Icon, { name: 'Search', fontSize: "small" })
   }
 };
 
 /**
  * Example to show OverviewCard with new Icon and label.
  */
-export const ChangedIconAndLabel: Story = {
+export const ChangeIconAndLabel: Story = {
   args: {
     label: "Notification setting",
-    icon: React.createElement(Icon, {
-      name: "NotificationsActive",
-      fontSize: "small"
-    })
+    icon: React.createElement(Icon, { name: 'NotificationsActive', fontSize: "small" })
   }
 };
