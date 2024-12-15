@@ -92,7 +92,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       },
       textToSpeech: {
         productRef: await select({
-          message: "TTV Vendor",
+          message: "TTS Vendor",
           choices: [
             { name: "Deepgram", value: "tts.deepgram" },
             { name: "ElevenLabs", value: "tts.elevenlabs" },

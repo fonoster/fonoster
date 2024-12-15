@@ -74,7 +74,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       },
       textToSpeech: {
         productRef: await select({
-          message: "TTV Vendor",
+          message: "TTS Vendor",
           choices: [
             { name: "Deepgram", value: "tts.deepgram" },
             { name: "ElevenLabs", value: "tts.elevenlabs" },
