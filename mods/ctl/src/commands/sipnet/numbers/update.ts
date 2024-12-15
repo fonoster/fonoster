@@ -19,7 +19,7 @@
  */
 import * as SDK from "@fonoster/sdk";
 import { UpdateNumberRequest } from "@fonoster/types";
-import { confirm, input, number, search, select } from "@inquirer/prompts";
+import { confirm, input, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 import { Args } from "@oclif/core";

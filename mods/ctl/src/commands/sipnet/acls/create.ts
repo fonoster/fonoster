@@ -18,8 +18,8 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { CreateAclRequest, CreateCredentialsRequest } from "@fonoster/types";
-import { confirm, input, password } from "@inquirer/prompts";
+import { CreateAclRequest } from "@fonoster/types";
+import { confirm, input } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 
