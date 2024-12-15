@@ -95,12 +95,12 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
           }));
         }
       }),
-      confirmed: await confirm({
+      confirm: await confirm({
         message: "Ready?"
       })
     };
 
-    if (!answers.confirmed) {
+    if (!answers.confirm) {
       this.log("Aborted!");
       return;
     }
