@@ -49,8 +49,7 @@ export default class List extends AuthenticatedCommand<typeof List> {
     const numbers = new SDK.Numbers(client);
 
     const response = await numbers.listNumbers({
-      pageSize: parseInt(flags["page-size"]),
-      pageToken: ""
+      pageSize: parseInt(flags["page-size"])
     });
 
     const ui = cliui({ width: 200 });

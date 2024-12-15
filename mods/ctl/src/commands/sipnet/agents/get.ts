@@ -22,15 +22,14 @@ import { Args } from "@oclif/core";
 import cliui from "cliui";
 import moment from "moment";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
-import { getOutboundUri } from "../../../utils/getOutboundUri";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
   static override readonly description =
-    "get a Trunk from the current Workspace";
+    "get a specific Agent from the SIP Network";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
-      description: "The Trunk's reference",
+      description: "The Agent reference",
       required: true
     })
   };
@@ -39,45 +38,27 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
     const { args } = await this.parse(Get);
     const { ref } = args;
     const client = await this.createSdkClient();
-    const trunks = new SDK.Trunks(client);
-    const credentials = new SDK.Credentials(client);
-    const acls = new SDK.Acls(client);
+    const agents = new SDK.Agents(client);
 
-    const response = await trunks.getTrunk(ref);
-    const credentialsList = await credentials.listCredentials({
-      pageSize: 1000
-    });
-    const aclList = await acls.listAcls({
-      pageSize: 1000
-    });
+    const response = await agents.getAgent(ref);
 
-    const inboundCredentialsObject = credentialsList.items.find(
-      (item) => item.ref === response.inboundCredentialsRef
-    );
-
-    const outboundCredentialsObject = credentialsList.items.find(
-      (item) => item.ref === response.outboundCredentialsRef
-    );
-
-    const acl = aclList.items.find(
-      (item) => item.ref === response.accessControlListRef
-    );
+    console.log(response);
 
     const ui = cliui({ width: 200 });
 
     ui.div(
-      "TRUNK DETAILS\n" +
+      "AGENT DETAILS\n" +
         "------------------\n" +
         `NAME: \t${response.name}\n` +
         `REF: \t${response.ref}\n` +
-        `INBOUND URI: \t${response.inboundUri ?? ""}\n` +
-        `INBOUND CREDENTIALS: \t${inboundCredentialsObject?.name ?? ""}\n` +
-        `INBOUND CREDENTIALS REF: \t${inboundCredentialsObject?.ref ?? ""}\n` +
-        `ACL: \t${acl?.name ?? ""}\n` +
-        `ACL REF: \t${acl?.ref ?? ""}\n` +
-        `OUTBOUND URIS: \t${getOutboundUri(response.uris)}\n` +
-        `OUTBOUND CREDENTIALS: \t${outboundCredentialsObject?.name ?? ""}\n` +
-        `OUTBOUND CREDENTIALS REF: \t${outboundCredentialsObject?.ref ?? ""}\n` +
+        `USERNAME: \t${response.username}\n` +
+        `DOMAIN NAME: \t${response.domain?.name ?? ""}\n` +
+        `DOMAIN REF: \t${response.domain?.ref ?? ""}\n` +
+        `CREDENTIALS NAME: \t${response.credentials?.name ?? ""}\n` +
+        `CREDENTIALS REF: \t${response.credentials?.ref ?? ""}\n` +
+        `PRIVACY: \t${response.privacy}\n` +
+        `ENABLED: \t${response.enabled}\n` +
+        `MAX CONTACTS: \t${response.maxContacts === -1 ? "" : response.maxContacts}\n` +
         `CREATED: \t${moment(response.createdAt).format("YYYY-MM-DD HH:mm:ss")}\n` +
         `UPDATED: \t${moment(response.updatedAt).format("YYYY-MM-DD HH:mm:ss")}`
     );

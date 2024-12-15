@@ -141,7 +141,7 @@ class Credentials {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getCredentials(ref: string) {
+  async getCredentials(ref: string): Promise<CredentialsType> {
     const client = this.client.getCredentialsClient();
     return await makeRpcRequest<
       GetCredentialsRequestPB,
