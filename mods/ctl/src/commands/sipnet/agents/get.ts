@@ -24,8 +24,7 @@ import moment from "moment";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
-  static override readonly description =
-    "get a specific Agent from the SIP Network";
+  static override readonly description = "retrieve details of a SIP Agent";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({

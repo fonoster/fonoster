@@ -20,7 +20,7 @@
 import { Command } from "@oclif/core";
 
 export default class Bug extends Command {
-  static override description = "start a bug report 🐞";
+  static override description = "report a bug to the development team 🐞";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {

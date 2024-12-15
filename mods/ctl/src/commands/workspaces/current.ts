@@ -22,7 +22,7 @@ import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
 export default class Current extends Command {
-  static override description = "show the name of the current Workspace";
+  static override description = "display the name of the active Workspace";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {

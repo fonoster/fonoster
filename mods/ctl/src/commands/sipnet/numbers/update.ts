@@ -25,7 +25,7 @@ import errorHandler from "../../../errorHandler";
 import { Args } from "@oclif/core";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
-  static override readonly description = "update an existing Number";
+  static override readonly description = "modify the configuration of a Number";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({ description: "the Number to update" })

@@ -20,7 +20,7 @@
 import { Command } from "@oclif/core";
 
 export default class Feedback extends Command {
-  static override description = `let us know how we're doing
+  static override description = `provide feedback on your experience
   ...
   Help us improve by providing some feedback
   `;
@@ -30,7 +30,7 @@ export default class Feedback extends Command {
     const link =
       " https://docs.google.com/forms/d/e/1FAIpQLSd1G2ahRYqkbksOvz7XhNHfSLepUh3KzRHsXh2HXfZr68nhtQ/viewform?vc=0&c=0&w=1&flr=0";
     this.log(
-      `Please let us know how we're doing by filling out the form below:\n${link}`
+      `Please provide feedback on your experience by filling out the form below:\n${link}`
     );
   }
 }

@@ -24,7 +24,8 @@ import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import errorHandler from "../../errorHandler";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
-  static override readonly description = "create a new Application";
+  static override readonly description =
+    "add a new Application to the active Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {

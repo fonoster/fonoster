@@ -27,7 +27,8 @@ import { CONFIG_FILE } from "../../../constants";
 import { Application } from "@fonoster/types";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
-  static override readonly description = "get an Number by reference";
+  static override readonly description =
+    "retrieve details of a Number by reference";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({ description: "the Number to show details about" })

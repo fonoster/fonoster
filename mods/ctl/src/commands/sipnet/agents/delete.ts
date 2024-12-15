@@ -22,7 +22,7 @@ import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 
 export default class Delete extends AuthenticatedCommand<typeof Delete> {
-  static override readonly description = "remove an Agent from the SIP Network";
+  static override readonly description = "delete a SIP Agent from the network";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({

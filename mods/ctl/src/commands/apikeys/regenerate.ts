@@ -25,7 +25,7 @@ export default class Regenerate extends AuthenticatedCommand<
   typeof Regenerate
 > {
   static override readonly description =
-    "regenerate the Access Key Secret for an existing API Key";
+    "generate a new access key secret for an API key";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({

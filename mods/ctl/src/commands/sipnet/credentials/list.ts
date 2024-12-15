@@ -23,7 +23,8 @@ import cliui from "cliui";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 
 export default class List extends AuthenticatedCommand<typeof List> {
-  static override readonly description = "list all Credentials";
+  static override readonly description =
+    "display all Credentials in the active Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "page-size": Flags.string({

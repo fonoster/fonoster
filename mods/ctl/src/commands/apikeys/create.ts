@@ -24,7 +24,7 @@ import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description =
-    "create a new API Key for the current Workspace";
+    "create an API key for the active Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     expiration: Flags.string({

@@ -23,7 +23,7 @@ import { getConfig } from "../../config";
 import { CONFIG_FILE } from "../../constants";
 
 export default class List extends Command {
-  static override description = "list all linked Workspaces";
+  static override description = "display all linked Workspaces";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {

@@ -25,7 +25,7 @@ import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
-  static override readonly description = "update an Domain in your SIP Network";
+  static override readonly description = "modify the configuration of a Domain";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({

@@ -35,7 +35,7 @@ describe("@ctl[feedback]", function () {
   it("ensures it contains the feedback link", async function () {
     const { stdout } = await runCommand("feedback");
     expect(stdout).to.contain(
-      "Please let us know how we're doing by filling out the form below:"
+      "Please provide feedback on your experience by filling out the form below:"
     );
     expect(stdout).to.contain(
       "https://docs.google.com/forms/d/e/1FAIpQLSd1G2ahRYqkbksOvz7XhNHfSLepUh3KzRHsXh2HXfZr68nhtQ/viewform?vc=0&c=0&w=1&flr=0"

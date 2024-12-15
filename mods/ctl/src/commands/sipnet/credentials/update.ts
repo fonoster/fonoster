@@ -26,7 +26,7 @@ import errorHandler from "../../../errorHandler";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description =
-    "update an existing set of Credentials";
+    "modify the values or metadata of a set of Credentials";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
@@ -47,7 +47,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     }
 
     this.log(
-      "This utility will help you update an existing set of Credentials."
+      "This utility will help you modify the values or metadata of a set of Credentials."
     );
     this.log("Press ^C at any time to quit.");
 

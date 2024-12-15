@@ -34,7 +34,7 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
   typeof LinkTwilioNumber
 > {
   static override readonly description =
-    "connect a Twilio number with an Application in Fonoster";
+    "associate a Twilio number with a Fonoster Application";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "outbound-uri-base": Flags.string({
