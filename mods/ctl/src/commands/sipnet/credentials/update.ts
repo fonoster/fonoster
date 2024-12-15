@@ -40,9 +40,9 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     const { ref } = args;
     const client = await this.createSdkClient();
     const credentials = new SDK.Credentials(client);
-    const currentCredentials = await credentials.getCredentials(ref);
+    const credentialsFromDB = await credentials.getCredentials(ref);
 
-    if (!currentCredentials) {
+    if (!credentialsFromDB) {
       this.error("Credentials not found.");
     }
 
@@ -52,10 +52,11 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     this.log("Press ^C at any time to quit.");
 
     const answers = {
+      ref,
       name: await input({
         message: "Name",
         required: true,
-        default: currentCredentials.name
+        default: credentialsFromDB.name
       }),
       password: await password({
         message: "Secret"
@@ -72,7 +73,6 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
 
     try {
       await credentials.updateCredentials({
-        ref: args.ref,
         ...answers
       } as UpdateCredentialsRequest);
 

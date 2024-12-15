@@ -45,7 +45,7 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
     const ui = cliui({ width: 200 });
 
     ui.div(
-      "APPLICATION DETAILS\n" +
+      "CREDENTIALS DETAILS\n" +
         "------------------\n" +
         `NAME: \t${response.name}\n` +
         `REF: \t${response.ref}\n` +
