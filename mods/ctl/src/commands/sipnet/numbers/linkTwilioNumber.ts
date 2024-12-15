@@ -65,11 +65,12 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
 
     const fonosterClient = await this.createSdkClient();
     const applications = new Fonoster.Applications(fonosterClient);
-    const appsList = (await applications.listApplications({ pageSize: 1000 }))
-      .items.map((app) => ({
-        name: app.name,
-        value: app.ref
-      }))
+    const appsList = (
+      await applications.listApplications({ pageSize: 1000 })
+    ).items.map((app) => ({
+      name: app.name,
+      value: app.ref
+    }));
 
     this.log("This utility will help you create an Application.");
     this.log("Press ^C at any time to quit.");

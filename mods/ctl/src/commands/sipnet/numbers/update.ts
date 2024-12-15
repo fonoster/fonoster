@@ -55,12 +55,12 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       })
     );
 
-    const applicationsList = (await applications.listApplications({ pageSize: 1000 })).items.map(
-      (item) => ({
-        name: item.name,
-        value: item.ref
-      })
-    );
+    const applicationsList = (
+      await applications.listApplications({ pageSize: 1000 })
+    ).items.map((item) => ({
+      name: item.name,
+      value: item.ref
+    }));
 
     const answers = {
       ref,
@@ -82,7 +82,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       confirmed: await confirm({
         message: "Ready?"
       })
-    }
+    };
 
     if (!answers.confirmed) {
       this.log("Aborted!");

@@ -209,7 +209,7 @@ const countryIsoCodes = [
   { name: "Vietnam", value: "VN" },
   { name: "Yemen", value: "YE" },
   { name: "Zambia", value: "ZM" },
-  { name: "Zimbabwe", value: "ZW" },
+  { name: "Zimbabwe", value: "ZW" }
 ];
 
 export { countryIsoCodes };
