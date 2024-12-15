@@ -149,9 +149,9 @@ class Agents {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getAgent(ref: string) {
+  async getAgent(ref: string): Promise<Agent> {
     const client = this.client.getAgentsClient();
-    return await makeRpcRequest<
+    const response = await makeRpcRequest<
       GetAgentRequestPB,
       AgentPB,
       BaseApiObject,
@@ -163,6 +163,34 @@ class Agents {
       request: { ref },
       enumMapping: [["privacy", PrivacyPB]]
     });
+
+    const credentials = (
+      response?.credentials as unknown as {
+        toObject: () => {
+          ref: string;
+          name: string;
+          username: string;
+        };
+      }
+    )?.toObject();
+
+    const domain = (
+      response?.domain as unknown as {
+        toObject: () => {
+          ref: string;
+          name: string;
+          domainUri: string;
+        };
+      }
+    )?.toObject();
+
+    return response
+      ? {
+        ...response,
+        credentials,
+        domain
+      }
+      : null;
   }
 
   /**

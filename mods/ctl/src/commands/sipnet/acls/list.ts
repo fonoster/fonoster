@@ -39,8 +39,7 @@ export default class List extends AuthenticatedCommand<typeof List> {
     const client = await this.createSdkClient();
     const acls = new SDK.Acls(client);
     const response = await acls.listAcls({
-      pageSize: parseInt(flags["page-size"]),
-      pageToken: ""
+      pageSize: parseInt(flags["page-size"])
     });
 
     const ui = cliui({ width: 100 });

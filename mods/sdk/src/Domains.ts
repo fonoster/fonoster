@@ -140,7 +140,7 @@ class Domains {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getDomain(ref: string) {
+  async getDomain(ref: string): Promise<Domain> {
     const client = this.client.getDomainsClient();
     return await makeRpcRequest<
       GetDomainRequestPB,

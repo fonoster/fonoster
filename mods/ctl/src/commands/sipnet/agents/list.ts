@@ -23,7 +23,7 @@ import cliui from "cliui";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 
 export default class List extends AuthenticatedCommand<typeof List> {
-  static override readonly description = "list all Domains";
+  static override readonly description = "list all Agents in the SIP Network";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "page-size": Flags.string({
@@ -37,24 +37,28 @@ export default class List extends AuthenticatedCommand<typeof List> {
   public async run(): Promise<void> {
     const { flags } = await this.parse(List);
     const client = await this.createSdkClient();
-    const domains = new SDK.Domains(client);
-    const response = await domains.listDomains({
+    const agents = new SDK.Agents(client);
+    const response = await agents.listAgents({
       pageSize: parseInt(flags["page-size"])
     });
 
-    const ui = cliui({ width: 100 });
+    const ui = cliui({ width: 150 });
 
     ui.div(
       { text: "REF", padding: [0, 0, 0, 0], width: 40 },
-      { text: "NAME", padding: [0, 0, 0, 0], width: 30 },
-      { text: "DOMAIN URI", padding: [0, 0, 0, 0] }
+      { text: "NAME", padding: [0, 0, 0, 0], width: 25 },
+      { text: "USERNAME", padding: [0, 0, 0, 0], width: 15 },
+      { text: "PRIVACY", padding: [0, 0, 0, 0], width: 10 },
+      { text: "ENABLED", padding: [0, 0, 0, 0], width: 0 }
     );
 
-    response.items.forEach((domain) => {
+    response.items.forEach((agent) => {
       ui.div(
-        { text: domain.ref, padding: [0, 0, 0, 0], width: 40 },
-        { text: domain.name, padding: [0, 0, 0, 0], width: 30 },
-        { text: domain.domainUri, padding: [0, 0, 0, 0] }
+        { text: agent.ref, padding: [0, 0, 0, 0], width: 40 },
+        { text: agent.name, padding: [0, 0, 0, 0], width: 25 },
+        { text: agent.username, padding: [0, 0, 0, 0], width: 15 },
+        { text: agent.privacy, padding: [0, 0, 0, 0], width: 10 },
+        { text: agent.enabled + "", padding: [0, 0, 0, 0], width: 10 }
       );
     });
 
