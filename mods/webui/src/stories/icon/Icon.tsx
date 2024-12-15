@@ -57,7 +57,7 @@ import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
-import { SvgIconProps } from '@mui/material';
+import { SvgIconProps } from "@mui/material";
 
 type IconName =
   | "Add"
