@@ -21,14 +21,14 @@ import * as Fonoster from "@fonoster/sdk";
 import { confirm, input, password, select } from "@inquirer/prompts";
 import { Flags } from "@oclif/core";
 import { Twilio } from "twilio";
-import { AuthenticatedCommand } from "../../AuthenticatedCommand";
-import { getConfig } from "../../config";
+import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
+import { getConfig } from "../../../config";
 import {
   CONFIG_FILE,
   FONOSTER_ACCESS_CONTROL_LIST,
   FONOSTER_ORIGINATION_URI_BASE
-} from "../../constants";
-import { linkTwilioNumberToApplication } from "../../utils";
+} from "../../../constants";
+import { linkTwilioNumberToApplication } from "../../../utils";
 
 export default class LinkTwilioNumber extends AuthenticatedCommand<
   typeof LinkTwilioNumber
