@@ -44,12 +44,12 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       })
     );
 
-    const applicationsList = (await applications.listApplications({ pageSize: 1000 })).items.map(
-      (item) => ({
-        name: item.name,
-        value: item.ref
-      })
-    );
+    const applicationsList = (
+      await applications.listApplications({ pageSize: 1000 })
+    ).items.map((item) => ({
+      name: item.name,
+      value: item.ref
+    }));
 
     const answers = {
       name: await input({
@@ -58,7 +58,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       }),
       telUrl: await input({
         message: "Tel URL (E.164 format)",
-        required: true,
+        required: true
       }),
       trunkRef: await select({
         message: "Trunk",
@@ -77,27 +77,28 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
         required: true
       }),
       countryIsoCode: await search({
-        message: 'Select a country ISO code',
+        message: "Select a country ISO code",
         source: async (input) => {
           if (!input) {
             return countryIsoCodes;
           }
-    
-          const filteredCodes = countryIsoCodes.filter(({ name, value }) =>
-            name.toLowerCase().includes(input.toLowerCase()) || 
-            value.toLowerCase().includes(input.toLowerCase())
+
+          const filteredCodes = countryIsoCodes.filter(
+            ({ name, value }) =>
+              name.toLowerCase().includes(input.toLowerCase()) ||
+              value.toLowerCase().includes(input.toLowerCase())
           );
-    
+
           return filteredCodes.map(({ name, value }) => ({
             name: `${name} (${value})`,
-            value,
+            value
           }));
-        },
+        }
       }),
       confirmed: await confirm({
         message: "Ready?"
       })
-    }
+    };
 
     if (!answers.confirmed) {
       this.log("Aborted!");
