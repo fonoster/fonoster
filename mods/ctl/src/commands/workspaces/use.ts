@@ -27,7 +27,7 @@ import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
 export default class Use extends Command {
-  static override readonly description = "make a Workspace the default";
+  static override readonly description = "set a Workspace as the default";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({

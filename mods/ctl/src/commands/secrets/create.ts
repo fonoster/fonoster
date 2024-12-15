@@ -24,11 +24,14 @@ import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import errorHandler from "../../errorHandler";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
-  static override readonly description = "create a new Secret";
+  static override readonly description =
+    "add a new Secret to the active Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {
-    this.log("This utility will help you create a new Secret.");
+    this.log(
+      "This utility will help you add a new Secret to the active Workspace."
+    );
     this.log("Press ^C at any time to quit.");
 
     const answers = {

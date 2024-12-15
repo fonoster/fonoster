@@ -23,7 +23,8 @@ import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
 export default class Logout extends Command {
-  static override readonly description = "remove a linked Workspace";
+  static override readonly description =
+    "unlink a Workspace from the local environment";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({

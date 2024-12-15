@@ -26,7 +26,7 @@ import { DialStatus } from "@fonoster/common";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
   static override readonly description =
-    "make a call to a phone number or SIP URI";
+    "initiate a call to a phone number or SIP URI";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "from-number": Flags.string({

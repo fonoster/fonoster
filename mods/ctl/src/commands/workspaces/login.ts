@@ -25,7 +25,7 @@ import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
 
 export default class Login extends BaseCommand<typeof Login> {
-  static override description = "add a Workspace to the local environment";
+  static override description = "link a Workspace to the local environment";
   static override examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {

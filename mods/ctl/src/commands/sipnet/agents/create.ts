@@ -24,11 +24,11 @@ import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
-  static override readonly description = "create a new SIP Agent";
+  static override readonly description = "add a new SIP Agent to the network";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {
-    this.log("This utility will help you create a new SIP Agent.");
+    this.log("This utility will help you add a new SIP Agent to the network.");
     this.log("Press ^C at any time to quit.");
 
     const client = await this.createSdkClient();

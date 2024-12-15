@@ -25,7 +25,7 @@ import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
-  static override readonly description = "update an existing Trunk";
+  static override readonly description = "modify the configuration of a Trunk";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({ description: "the Trunk to update" })

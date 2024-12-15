@@ -25,7 +25,7 @@ import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
   static override readonly description =
-    "get a set of Credentials by reference";
+    "retrieve details of a set of Credentials by reference";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({

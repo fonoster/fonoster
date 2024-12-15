@@ -25,7 +25,7 @@ import errorHandler from "../../../errorHandler";
 import { Args } from "@oclif/core";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
-  static override readonly description = "create a new SIP Agent";
+  static override readonly description = "add a new SIP Agent to the network";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
@@ -35,7 +35,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
   };
 
   public async run(): Promise<void> {
-    this.log("This utility will help you create a new SIP Agent.");
+    this.log("This utility will help you add a new SIP Agent to the network.");
     this.log("Press ^C at any time to quit.");
 
     const { args } = await this.parse(Update);

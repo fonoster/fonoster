@@ -23,7 +23,7 @@ import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
 export default class Delete extends AuthenticatedCommand<typeof Delete> {
   static override readonly description =
-    "remove a Secret from the current Workspace";
+    "delete a Secret from the active Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({

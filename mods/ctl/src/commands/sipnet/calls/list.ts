@@ -24,7 +24,8 @@ import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import moment from "moment";
 
 export default class List extends AuthenticatedCommand<typeof List> {
-  static override readonly description = "list all calls made in the Workspace";
+  static override readonly description =
+    "display all calls made in the active Workspace";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly flags = {
     "page-size": Flags.string({

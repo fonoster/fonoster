@@ -24,7 +24,8 @@ import moment from "moment";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
-  static override readonly description = "get an Application by reference";
+  static override readonly description =
+    "retrieve details of an Application by reference";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({ description: "The Application to show details about" })

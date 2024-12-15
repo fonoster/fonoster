@@ -24,8 +24,7 @@ import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 
 export default class Create extends AuthenticatedCommand<typeof Create> {
-  static override readonly description =
-    "create a new Domain for your SIP Network";
+  static override readonly description = "add a new Domain to the SIP network";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
 
   public async run(): Promise<void> {

@@ -26,7 +26,7 @@ import { getOutboundUri } from "../../../utils/getOutboundUri";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
   static override readonly description =
-    "get a Trunk from the current Workspace";
+    "retrieve details of a Trunk by reference";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
