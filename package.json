@@ -14,12 +14,12 @@
     "start:webui": "NODE_ENV=dev cd mods/webui && npm start",
     "start:storybook": "NODE_ENV=dev cd mods/webui && npm run storybook",
     "start:apiserver": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/apiserver mods/apiserver/src/index.ts",
-    "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice --exec ts-node mods/voice/src/demo.ts",
-    "start:autopilot": "cross-env NODE_ENV=dev ASSISTANT=$(pwd)/config/assistant.json LOGS_LEVEL=verbose nodemon --watch mods/autopilot --exec ts-node mods/autopilot/src/server.ts",
+    "start:voice": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/voice /voice/src/demo.ts",
+    "start:autopilot": "cross-env NODE_ENV=dev ASSISTANT=$(pwd)/config/assistant.json LOGS_LEVEL=verbose nodemon --watch mods/autopilot mods/autopilot/src/server.ts",
     "start:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml up routr nats envoy influxdb postgres adminer mailhog rtpengine asterisk simplephone -d --remove-orphans",
     "start:sdk-test": "npx serve -s mods/sdk/public -l 9000",
-    "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams --exec ts-node mods/streams/src/example.ts",
-    "start:micVad": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/autopilot/src/vad --exec ts-node mods/autopilot/src/vad/micVadTest.ts",
+    "start:audiosocket": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/streams mods/streams/src/example.ts",
+    "start:micVad": "cross-env NODE_ENV=dev LOGS_LEVEL=verbose nodemon --watch mods/autopilot/src/vad mods/autopilot/src/vad/micVadTest.ts",
     "stop:services": "cross-env docker compose -f compose.yaml -f compose.dev.yaml down",
     "prebuild": "npm run generate:prisma-clients",
     "build": "lerna run build",
@@ -30,7 +30,7 @@
     "prepare": "husky",
     "copy:hbstemplates": "node .scripts/copy-hbs.js",
     "db:migrate": "npx prisma migrate dev --schema ./mods/apiserver/schema.prisma --name changeme --preview-feature && npx prisma migrate dev --schema ./mods/identity/schema.prisma --name changeme --preview-feature",
-    "db:seed": "ts-node ./mods/apiserver/src/core/seed.ts",
+    "db:seed": "tsx ./mods/apiserver/src/core/seed.ts",
     "generate:docs": "node .scripts/gen-docs.js",
     "generate:readme": "lerna run generate:readme",
     "generate:keypair": ".scripts/gen-keypair.sh",
@@ -38,9 +38,9 @@
     "postgenerate:protos": "lerna run build",
     "generate:prisma-clients": "npx prisma generate --schema ./mods/apiserver/schema.prisma && npx prisma generate --schema ./mods/identity/schema.prisma",
     "check:updates": "lerna exec -- npx npm-check-updates",
-    "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --timeout 30000 --require ts-node/register mods/**/*.test.ts",
+    "test": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --timeout 30000 mods/**/*.test.ts",
     "pretest": "npm run generate:keypair",
-    "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --slow 50000 --timeout 10000 --require ts-node/register mods/**/node.integration.ts",
+    "integration": "cross-env LOGS_LEVEL=none NODE_ENV=dev mocha --slow 50000 --timeout 10000 mods/**/node.integration.ts",
     "preintegration:web": "npx playwright install && npx playwright install-deps",
     "integration:web": "web-test-runner --node-resolve --playwright --browsers chromium webkit firefox",
     "release": "lerna publish --yes --no-git-reset --dist-tag next $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
@@ -49,46 +49,46 @@
     "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM"
   },
   "prisma": {
-    "seed": "ts-node ./mods/apiserver/src/core/seed.ts"
+    "seed": "tsx ./mods/apiserver/src/core/seed.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.2",
     "@commitlint/config-conventional": "^19.2.2",
-    "@types/chai": "^4.3.14",
-    "@types/chai-as-promised": "^7.1.8",
+    "@types/chai": "^5.0.1",
+    "@types/chai-as-promised": "^8.0.1",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.12.7",
     "@types/sinon": "^17.0.3",
-    "@types/sinon-chai": "^3.2.12",
-    "@types/webrtc": "^0.0.43",
-    "@typescript-eslint/eslint-plugin": "^7.7.0",
-    "@typescript-eslint/parser": "^7.7.0",
-    "chai-as-promised": "^7.1.1",
+    "@types/sinon-chai": "^4.0.0",
+    "@types/webrtc": "^0.0.44",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "chai-as-promised": "^8.0.1",
     "cross-env": "^7.0.3",
-    "eslint": "^8.57.0",
+    "eslint": "^9.17.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-mocha": "^10.4.2",
-    "eslint-plugin-no-loops": "^0.3.0",
-    "eslint-plugin-notice": "^0.9.10",
+    "eslint-plugin-no-loops": "^0.4.0",
+    "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-sonarjs": "^0.25.1",
+    "eslint-plugin-sonarjs": "^3.0.1",
     "eslint-plugin-sort-exports": "^0.9.1",
-    "eslint-plugin-storybook": "^0.8.0",
+    "eslint-plugin-storybook": "^0.11.1",
     "grpc_tools_node_protoc_ts": "^5.3.3",
     "grpc-tools": "^1.12.4",
     "husky": "^9.0.11",
-    "jsdoc-to-markdown": "^8.0.1",
+    "jsdoc-to-markdown": "^9.1.1",
     "lerna": "^8.1.7",
-    "mocha": "^10.4.0",
-    "nodemon": "^3.1.0",
-    "prettier": "^3.2.5",
+    "mocha": "^11.0.1",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.4.2",
     "prisma": "^5.14.0",
-    "rimraf": "^5.0.5",
-    "sinon": "^17.0.1",
-    "sinon-chai": "^3.7.0",
-    "ts-node": "^10.9.2"
+    "rimraf": "^6.0.1",
+    "sinon": "^19.0.2",
+    "sinon-chai": "^4.0.0",
+    "tsx": "^4.19.2"
   },
   "repository": {
     "type": "git",
@@ -102,7 +102,7 @@
       "./mods/**"
     ],
     "ext": "ts",
-    "exec": "ts-node",
+    "exec": "tsx",
     "ignore": "**/*.d.ts"
   },
   "directories": {
@@ -116,12 +116,12 @@
     "node": ">=20.11.1"
   },
   "dependencies": {
-    "@prisma/client": "^5.14.0"
+    "@prisma/client": "^6.0.1"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-arm64-gnu": "^4.19.0",
-    "@rollup/rollup-linux-arm64-musl": "^4.19.0",
-    "@rollup/rollup-linux-x64-gnu": "^4.19.0",
-    "@rollup/rollup-linux-x64-musl": "^4.19.0"
+    "@rollup/rollup-linux-arm64-gnu": "^4.28.1",
+    "@rollup/rollup-linux-arm64-musl": "^4.28.1",
+    "@rollup/rollup-linux-x64-gnu": "^4.28.1",
+    "@rollup/rollup-linux-x64-musl": "^4.28.1"
   }
 }

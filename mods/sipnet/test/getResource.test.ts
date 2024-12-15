@@ -19,7 +19,7 @@
 import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
 import { BaseApiObject, Domain, DomainsApi } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
-import chai, { expect } from "chai";
+import * as chai from "chai"; import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";

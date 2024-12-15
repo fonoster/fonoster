@@ -18,7 +18,7 @@
  */
 import { datesMapper } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
-import chai, { expect } from "chai";
+import * as chai from "chai"; import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";

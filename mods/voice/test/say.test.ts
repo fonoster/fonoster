@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { SayRequest } from "@fonoster/common";
-import chai, { expect } from "chai";
+import * as chai from "chai"; import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { struct } from "pb-util";
 import { createSandbox, match } from "sinon";

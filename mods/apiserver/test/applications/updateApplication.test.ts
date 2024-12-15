@@ -18,12 +18,13 @@
  */
 import { ApplicationType } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
-import chai, { expect } from "chai";
+import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/core/db";
 import { TEST_TOKEN, TEST_UUID } from "../utils";
+import { expect } from "chai";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);

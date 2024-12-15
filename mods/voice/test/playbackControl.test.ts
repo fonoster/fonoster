@@ -20,7 +20,7 @@ import {
   PlaybackControlAction,
   PlaybackControlRequest
 } from "@fonoster/common";
-import chai, { expect } from "chai";
+import * as chai from "chai"; import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";
