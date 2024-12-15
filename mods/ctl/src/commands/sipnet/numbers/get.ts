@@ -21,9 +21,9 @@ import * as SDK from "@fonoster/sdk";
 import { Args } from "@oclif/core";
 import cliui from "cliui";
 import moment from "moment";
-import { AuthenticatedCommand } from "../../AuthenticatedCommand";
-import { getConfig } from "../../config";
-import { CONFIG_FILE } from "../../constants";
+import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
+import { getConfig } from "../../../config";
+import { CONFIG_FILE } from "../../../constants";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
   static override readonly description = "get an Number by reference";
@@ -57,7 +57,7 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
     const ui = cliui({ width: 200 });
 
     ui.div(
-      "NUMBERS DETAILS\n" +
+      "NUMBER DETAILS\n" +
         "------------------\n" +
         `NAME: \t${response.name}\n` +
         `REF: \t${response.ref}\n` +

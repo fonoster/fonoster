@@ -20,9 +20,9 @@
 import * as SDK from "@fonoster/sdk";
 import { Flags } from "@oclif/core";
 import cliui from "cliui";
-import { AuthenticatedCommand } from "../../AuthenticatedCommand";
-import { getConfig } from "../../config";
-import { CONFIG_FILE } from "../../constants";
+import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
+import { getConfig } from "../../../config";
+import { CONFIG_FILE } from "../../../constants";
 
 export default class List extends AuthenticatedCommand<typeof List> {
   static override readonly description = "list all Numbers";
