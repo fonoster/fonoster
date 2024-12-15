@@ -98,7 +98,7 @@ export default class Login extends BaseCommand<typeof Login> {
     const updatedConfig = addWorkspace(workspace, config);
     saveConfig(CONFIG_FILE, updatedConfig);
 
-    this.log("Added Workspace!");
+    this.log("Done!");
   }
 
   private async getWorkspaceFromDB(params: {
