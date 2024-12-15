@@ -35,13 +35,13 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.701.0",
+    "@aws-sdk/client-s3": "^3.712.0",
     "@fonoster/common": "^0.7.43",
     "@fonoster/logger": "^0.7.43",
     "@fonoster/types": "^0.7.43",
     "@fonoster/voice": "^0.7.43",
-    "@langchain/community": "^0.3.16",
-    "@langchain/core": "^0.3.19",
+    "@langchain/community": "^0.3.19",
+    "@langchain/core": "^0.3.23",
     "@langchain/groq": "^0.1.2",
     "@langchain/ollama": "^0.1.2",
     "@langchain/openai": "^0.3.14",

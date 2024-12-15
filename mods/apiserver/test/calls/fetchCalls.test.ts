@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { CallType } from "@fonoster/types";
-import chai, { expect } from "chai";
+import * as chai from "chai"; import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
