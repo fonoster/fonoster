@@ -19,7 +19,7 @@
  */
 import * as SDK from "@fonoster/sdk";
 import { CreateNumberRequest } from "@fonoster/types";
-import { confirm, input, number, search, select } from "@inquirer/prompts";
+import { confirm, input, search, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 import { countryIsoCodes } from "@fonoster/common";
