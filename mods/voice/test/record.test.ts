@@ -17,7 +17,8 @@
  * limitations under the License.
  */
 import { RecordRequest } from "@fonoster/common";
-import * as chai from "chai"; import { expect } from "chai";
+import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";

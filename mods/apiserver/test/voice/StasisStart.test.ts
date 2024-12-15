@@ -17,7 +17,8 @@
  * limitations under the License.
  */
 import { Channel, StasisStart } from "ari-client";
-import * as chai from "chai"; import { expect } from "chai";
+import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { NatsConnection } from "nats";
 import { createSandbox } from "sinon";

@@ -19,7 +19,8 @@
 import { Validators as V } from "@fonoster/common";
 import { CreateDomainRequest, Domain, DomainsApi } from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
-import * as chai from "chai"; import { expect } from "chai";
+import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
