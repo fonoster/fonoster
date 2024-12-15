@@ -20,7 +20,7 @@
 import * as SDK from "@fonoster/sdk";
 import { Command } from "@oclif/core";
 import { BaseCommand } from "./BaseCommand"; // Adjust the import based on your structure
-import { getConfig, getCurrentWorkspace } from "./config";
+import { getConfig, getActiveWorkspace } from "./config";
 import { CONFIG_FILE } from "./constants";
 
 export abstract class AuthenticatedCommand<
@@ -28,9 +28,9 @@ export abstract class AuthenticatedCommand<
 > extends BaseCommand<T> {
   protected async createSdkClient(): Promise<SDK.Client> {
     const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = getCurrentWorkspace(workspaces);
+    const activeWorkspace = getActiveWorkspace(workspaces);
 
-    if (!currentWorkspace) {
+    if (!activeWorkspace) {
       throw new Error(
         "No active workspace found. Please login to a Workspace."
       );
@@ -38,14 +38,14 @@ export abstract class AuthenticatedCommand<
 
     try {
       const client = new SDK.Client({
-        endpoint: currentWorkspace.endpoint,
-        accessKeyId: `WO${currentWorkspace.workspaceRef.replaceAll("-", "")}`,
+        endpoint: activeWorkspace.endpoint,
+        accessKeyId: `WO${activeWorkspace.workspaceRef.replaceAll("-", "")}`,
         allowInsecure: this.flags.insecure
       });
 
       await client.loginWithApiKey(
-        currentWorkspace.accessKeyId,
-        currentWorkspace.accessKeySecret
+        activeWorkspace.accessKeyId,
+        activeWorkspace.accessKeySecret
       );
 
       return client;

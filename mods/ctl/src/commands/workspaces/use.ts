@@ -20,8 +20,8 @@
 import { Args, Command } from "@oclif/core";
 import {
   getConfig,
-  getCurrentWorkspace,
-  setCurrentWorkspace
+  getActiveWorkspace,
+  setActiveWorkspace
 } from "../../config";
 import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
@@ -40,12 +40,12 @@ export default class Use extends Command {
     const { args } = await this.parse(Use);
     const { ref } = args;
     const workspaces = getConfig(CONFIG_FILE);
-    const updatedWorkspaces = setCurrentWorkspace(ref, workspaces);
-    const currentWorkspace = getCurrentWorkspace(updatedWorkspaces);
+    const updatedWorkspaces = setActiveWorkspace(ref, workspaces);
+    const activeWorkspace = getActiveWorkspace(updatedWorkspaces);
 
     saveConfig(CONFIG_FILE, updatedWorkspaces);
 
-    const { workspaceName, workspaceRef } = currentWorkspace;
+    const { workspaceName, workspaceRef } = activeWorkspace;
 
     this.log(`Current Workspace: ${workspaceName} (${workspaceRef})`);
   }

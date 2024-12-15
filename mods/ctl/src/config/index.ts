@@ -18,8 +18,8 @@
  */
 export * from "./addWorkspace";
 export * from "./getConfig";
-export * from "./getCurrentWorkspace";
+export * from "./getActiveWorkspace";
 export * from "./removeWorkspace";
 export * from "./saveConfig";
-export * from "./setCurrentWorkspace";
+export * from "./setActiveWorkspace";
 export * from "./types";

@@ -36,9 +36,9 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     const { args } = await this.parse(Update);
     const client = await this.createSdkClient();
     const applications = new SDK.Applications(client);
-    const currentApplication = await applications.getApplication(args.ref);
+    const applicationFromDB = await applications.getApplication(args.ref);
 
-    if (!currentApplication) {
+    if (!applicationFromDB) {
       this.error("Application not found.");
     }
 
@@ -49,23 +49,23 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       name: await input({
         message: "Name",
         required: true,
-        default: currentApplication.name
+        default: applicationFromDB.name
       }),
       type: await select({
         message: "Type",
         choices: [{ name: "External", value: "External" }],
-        default: currentApplication.type
+        default: applicationFromDB.type
       }),
       endpoint: await input({
         message: "Endpoint",
         required: true,
-        default: currentApplication.endpoint
+        default: applicationFromDB.endpoint
       }),
       speechToText: {
         productRef: await select({
           message: "SST Vendor",
           choices: [{ name: "Deepgram", value: "stt.deepgram" }],
-          default: currentApplication.speechToText?.productRef
+          default: applicationFromDB.speechToText?.productRef
         }),
         config: {
           languageCode: await select({
@@ -74,7 +74,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
               { name: "English", value: "en-US" },
               { name: "Spanish", value: "es-ES" }
             ],
-            default: currentApplication.speechToText?.config.languageCode
+            default: applicationFromDB.speechToText?.config.languageCode
           }),
           model: await select({
             message: "STT Model",
@@ -86,7 +86,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
                 value: "nova-2-conversationalai"
               }
             ],
-            default: currentApplication.speechToText?.config.model
+            default: applicationFromDB.speechToText?.config.model
           })
         }
       },
@@ -99,13 +99,13 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
             { name: "Google", value: "tts.google" },
             { name: "Azure", value: "tts.azure" }
           ],
-          default: currentApplication.textToSpeech?.productRef
+          default: applicationFromDB.textToSpeech?.productRef
         }),
         config: {
           voice: await input({
             message: "TTS Voice",
             required: true,
-            default: currentApplication.textToSpeech?.config.voice as string
+            default: applicationFromDB.textToSpeech?.config.voice as string
           })
         }
       },
