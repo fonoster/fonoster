@@ -24,6 +24,7 @@ import moment from "moment";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import { getConfig } from "../../../config";
 import { CONFIG_FILE } from "../../../constants";
+import { Application } from "@fonoster/types";
 
 export default class Get extends AuthenticatedCommand<typeof Get> {
   static override readonly description = "get an Number by reference";
@@ -46,7 +47,7 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
     const response = await numbers.getNumber(args.ref);
 
     const apps = new SDK.Applications(client);
-    let app;
+    let app: Application;
 
     try {
       app = await apps.getApplication(response.appRef);

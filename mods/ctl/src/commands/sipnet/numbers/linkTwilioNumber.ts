@@ -65,7 +65,11 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
 
     const fonosterClient = await this.createSdkClient();
     const applications = new Fonoster.Applications(fonosterClient);
-    const appsList = await applications.listApplications({ pageSize: 1000 });
+    const appsList = (await applications.listApplications({ pageSize: 1000 }))
+      .items.map((app) => ({
+        name: app.name,
+        value: app.ref
+      }))
 
     this.log("This utility will help you create an Application.");
     this.log("Press ^C at any time to quit.");
@@ -80,10 +84,7 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
       }),
       applicationRef: await select({
         message: "Application",
-        choices: appsList.items.map((app) => ({
-          name: app.name,
-          value: app.ref
-        }))
+        choices: [{ name: "None", value: null }].concat(appsList)
       }),
       twilioAccountSid: await input({
         message: "Twilio Account SID",

@@ -24,7 +24,7 @@ import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 
-export default class Create extends AuthenticatedCommand<typeof Create> {
+export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description = "update an existing Trunk";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
@@ -36,7 +36,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
     this.log("Press ^C at any time to quit.");
     this.log("(The previous outbound values will be lost.)");
 
-    const { args } = await this.parse(Create);
+    const { args } = await this.parse(Update);
     const { ref } = args;
     const client = await this.createSdkClient();
     const trunks = new SDK.Trunks(client);
