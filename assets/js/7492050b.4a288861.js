@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[3640],{5177:s=>{s.exports=JSON.parse('{"label":"VUI","permalink":"/blog/tags/vui","allTagsPath":"/blog/tags","count":5}')}}]);

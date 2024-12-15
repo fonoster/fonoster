@@ -425,40 +425,43 @@
               <div class="code-block">
                 <div class="code-block-area">
                   <div class="code-block-item">
-                    <pre><code class="language-js line-numbers">const { VoiceServer } = require("@fonoster/voice");
-const serverConfig = {
-  pathToFiles: `${process.cwd()}/sounds`,
-};
+                    <pre><code class="language-js line-numbers">const VoiceServer = require("@fonoster/voice").default;
 
-new VoiceServer(serverConfig).listen(
-  async (req, res) => {
-    const sound = `sound:${req.selfEndpoint}/sounds/hello-world.sln16`
-    await res.answer();
-    await res.play(sound);
-    await res.hangup();
-  }
-);
+new VoiceServer().listen(async (req, voice) => {
+  const { ingressNumber, appRef } = req;
 
-// your app will leave at http://127.0.0.1:3000/
+  console.log(`Ingress Number: ${ingressNumber}`);
+  console.log(`App Reference: ${appRef}`);
+
+  await voice.answer();
+  await voice.say("Hello and goodbye!");
+  await voice.hangup();
+});
+
+// Your app will live at tcp://127.0.0.1:50061 
 // and you can easily publish it to the Internet with:
-// ngrok http 3000
+// ngrok tcp 50061
   </code>
-
   
                     </pre>
                   </div>
                   <div class="code-block-item">
-                    <pre><code class="language-js line-numbers">const Fonoster = require("@fonoster/sdk")
-const callManager = new Fonoster.CallManager()
+                    <pre><code class="language-js line-numbers">const { Client, Calls } = require("@fonoster/sdk");
+
+const client = Client({ 
+  accessKeyId: "WO00000000000000000000000000000000" 
+});
+
+client.loginWithApiKey("your-api-key", "your-api-secret")
+  .then(async () => {
+    const response = await new Calls(client).createCall({
+      from: "+18287854037",
+      to: "+17853178070",
+      appRef: "3e61ecb7-a1b6-4a93-84c3-4f1979165bca"
+    });
+    console.log(response); // successful response
+  }).catch(console.error);
                       
-// Replace the webhook with the one from your Ngrok
-callManager.call({
-from: "9842753574",
-to: "17853178070",
-webhook: "https://5a2d2ea5d84d.ngrok.io"
-})
-.then(console.log)
-.catch(console.error)                      
                         </code>
                                           </pre>
                   </div>
@@ -598,9 +601,9 @@ webhook: "https://5a2d2ea5d84d.ngrok.io"
                         standing up a prototype app.
                       </p>
                       <ul class="listing">
-                        <li>1 Project</li>
+                        <li>1 Workspace</li>
                         <li>1 Domain</li>
-                        <li>4k/mo Calls</li>
+                        <li>30 mins/mo</li>
                         <li>1GB Storage</li>
                         <li>1-week log retention</li>
                         <li>Community support</li>
@@ -628,9 +631,9 @@ webhook: "https://5a2d2ea5d84d.ngrok.io"
                       </p>
                       <ul class="listing">
                         <li>10GB Storage</li>
-                        <li>Unlimited Projects</li>
+                        <li>Unlimited Workspaces</li>
                         <li>Unlimited Domains</li>
-                        <li>120k/mo Calls</li>
+                        <li>520 mins/mo free then pay-as-you-go</li>
                         <li>30-day log retention</li>
                         <li>Email support</li>
                       </ul>
@@ -806,7 +809,7 @@ webhook: "https://5a2d2ea5d84d.ngrok.io"
 
           <li>
             <div class="left">How long will the free plan remain free?</div>
-            <div class="right">Forever</div>
+            <div class="right">We're exploring ways to keep the free plan forever. The open-source version will always be available for self-hosting.</div>
           </li>
 
           <li>
