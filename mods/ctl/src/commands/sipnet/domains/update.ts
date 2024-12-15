@@ -25,8 +25,7 @@ import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
 
 export default class Update extends AuthenticatedCommand<typeof Update> {
-  static override readonly description =
-    "update an Domain in your SIP Network";
+  static override readonly description = "update an Domain in your SIP Network";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
@@ -46,9 +45,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       this.error("Domain not found.");
     }
 
-    this.log(
-      "This utility will help you update an Domain."
-    );
+    this.log("This utility will help you update an Domain.");
     this.log("Press ^C at any time to quit.");
 
     const answers = {
