@@ -186,10 +186,10 @@ class Agents {
 
     return response
       ? {
-        ...response,
-        credentials,
-        domain
-      }
+          ...response,
+          credentials,
+          domain
+        }
       : null;
   }
 
