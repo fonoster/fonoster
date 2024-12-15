@@ -9,7 +9,7 @@ ctl
 ## Installation
 
 ```sh-session
-$ npm install --save @fonoster/ctl@next
+$ npm install --save @fonoster/ctl
 ```
 
 ## Usage

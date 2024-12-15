@@ -9,7 +9,7 @@ In this guide, you'll learn how to use the Fonoster CTL to create a new applicat
 To install the Fonoster CTL, you need to have Node.js and npm installed on your machine. You can install the Fonoster CTL using npm:
 
 ```bash
-npm install -g @fonoster/ctl@next
+npm install -g @fonoster/ctl
 ```
 
 Check that the installation was successful by running the following command:
