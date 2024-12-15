@@ -19,9 +19,9 @@
 
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-import { OverviewCard } from './OverviewCard';
-import { Icon } from '../icon/Icon';
-import React from 'react';
+import { OverviewCard } from "./OverviewCard";
+import { Icon } from "../icon/Icon";
+import React from "react";
 
 /**
  * This story is for the OverviewCard component
@@ -56,10 +56,8 @@ const meta = {
   }
 } satisfies Meta<typeof OverviewCard>;
 
-
 export default meta;
 type Story = StoryObj<typeof meta>;
-
 
 /**
  * Example to show OverviewCard.
