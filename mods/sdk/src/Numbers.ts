@@ -145,9 +145,9 @@ class Numbers {
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async getNumber(ref: string) {
+  async getNumber(ref: string): Promise<INumber> {
     const client = this.client.getNumbersClient();
-    return await makeRpcRequest<
+    const response = await makeRpcRequest<
       GetNumberRequestPB,
       NumberPB,
       BaseApiObject,
@@ -158,6 +158,16 @@ class Numbers {
       metadata: this.client.getMetadata(),
       request: { ref }
     });
+
+    const trunk = (response?.trunk as unknown as { toObject: () => { 
+      ref: string;
+      name: string;
+    } })?.toObject();
+
+    return response ? {
+      ...response,
+      trunk
+    } : null;
   }
 
   /**

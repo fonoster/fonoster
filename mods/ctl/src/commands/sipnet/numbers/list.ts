@@ -71,7 +71,7 @@ export default class List extends AuthenticatedCommand<typeof List> {
           padding: [0, 0, 0, 0],
           width: 25
         },
-        { text: number.appRef, padding: [0, 0, 0, 0], width: 40 }
+        { text: number.appRef ?? "", padding: [0, 0, 0, 0], width: 40 }
       );
     });
 

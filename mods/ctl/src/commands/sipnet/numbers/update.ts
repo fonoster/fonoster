@@ -18,126 +18,79 @@
  * limitations under the License.
  */
 import * as SDK from "@fonoster/sdk";
-import { UpdateTrunkRequest } from "@fonoster/types";
-import { confirm, input, number, select } from "@inquirer/prompts";
-import { Args } from "@oclif/core";
+import { UpdateNumberRequest } from "@fonoster/types";
+import { confirm, input, number, search, select } from "@inquirer/prompts";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import errorHandler from "../../../errorHandler";
+import { Args } from "@oclif/core";
 
-export default class Create extends AuthenticatedCommand<typeof Create> {
-  static override readonly description = "update an existing Trunk";
+export default class Update extends AuthenticatedCommand<typeof Update> {
+  static override readonly description = "update an existing Number";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
-    ref: Args.string({ description: "the Trunk to update" })
+    ref: Args.string({ description: "the Number to update" })
   };
 
   public async run(): Promise<void> {
-    this.log("This utility will help you update a Trunk.");
+    this.log("This utility will help you update a Number.");
     this.log("Press ^C at any time to quit.");
-    this.log("(The previous outbound values will be lost.)");
 
-    const { args } = await this.parse(Create);
+    const { args } = await this.parse(Update);
     const { ref } = args;
     const client = await this.createSdkClient();
     const trunks = new SDK.Trunks(client);
-    const acls = new SDK.Acls(client);
-    const credentials = new SDK.Credentials(client);
-    const trunkFromDB = await trunks.getTrunk(ref);
+    const applications = new SDK.Applications(client);
+    const numbers = new SDK.Numbers(client);
 
-    const listAcls = (await acls.listAcls({ pageSize: 100 })).items.map(
+    const applicationFromDB = await numbers.getNumber(ref);
+
+    if (!applicationFromDB) {
+      this.error("Application not found.");
+    }
+
+    const trunksList = (await trunks.listTrunks({ pageSize: 1000 })).items.map(
       (item) => ({
         name: item.name,
         value: item.ref
       })
     );
 
-    const listCredentials = (
-      await credentials.listCredentials({
-        pageSize: 100
+    const applicationsList = (await applications.listApplications({ pageSize: 1000 })).items.map(
+      (item) => ({
+        name: item.name,
+        value: item.ref
       })
-    ).items.map((item) => ({
-      name: item.name,
-      value: item.ref
-    }));
+    );
 
-    const name = await input({
-      message: "Friendly name",
-      required: true,
-      default: trunkFromDB.name
-    });
-
-    const inboundAnswers = {
-      inboundUri: await input({
-        message: "Inbound URI",
+    const answers = {
+      ref,
+      name: await input({
+        message: "Friendly name",
         required: true,
-        default: trunkFromDB.inboundUri
+        default: applicationFromDB.name
       }),
-      accessControlListRef: await select({
-        message: "Access Control List",
-        choices: [{ name: "None", value: null }].concat(listAcls),
-        default: trunkFromDB.accessControlListRef
+      trunkRef: await select({
+        message: "Trunk",
+        choices: [{ name: "None", value: null }].concat(trunksList),
+        default: applicationFromDB.trunk?.ref
       }),
-      inboundCredentialsRef: await select({
-        message: "Inbound Credentials",
-        choices: [{ name: "None", value: null }].concat(listCredentials),
-        default: trunkFromDB.inboundCredentialsRef
+      appRef: await select({
+        message: "Application",
+        choices: [{ name: "None", value: null }].concat(applicationsList),
+        default: applicationFromDB.appRef
+      }),
+      confirmed: await confirm({
+        message: "Ready?"
       })
-    };
-
-    const needOutboundUri = await confirm({
-      message: "Do you need an Outbound URI?"
-    });
-
-    let outboundAnswers = {};
-
-    if (needOutboundUri) {
-      outboundAnswers = {
-        outboundCredentialsRef: await select({
-          message: "Outbound Credentials",
-          choices: [{ name: "None", value: null }].concat(listCredentials),
-          default: trunkFromDB.outboundCredentialsRef
-        }),
-        uris: [
-          {
-            host: await input({
-              message: "Host",
-              required: true
-            }),
-            port: await number({
-              message: "Port",
-              required: true,
-              default: 5060
-            }),
-            transport: await select({
-              message: "Transport",
-              choices: ["TCP", "UDP"]
-            }),
-            enabled: true,
-            weight: 1,
-            priority: 1,
-            user: "placeholder"
-          }
-        ]
-      };
     }
 
-    const confirmAnswers = await confirm({
-      message: "Ready?"
-    });
-
-    if (!confirmAnswers) {
+    if (!answers.confirmed) {
       this.log("Aborted!");
       return;
     }
 
     try {
-      await trunks.updateTrunk({
-        ref,
-        name,
-        sendRegister: true,
-        ...inboundAnswers,
-        ...outboundAnswers
-      } as unknown as UpdateTrunkRequest);
+      await numbers.updateNumber(answers as unknown as UpdateNumberRequest);
 
       this.log("Done!");
     } catch (e) {
