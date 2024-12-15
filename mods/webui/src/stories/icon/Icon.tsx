@@ -57,6 +57,7 @@ import KeyboardArrowUp from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
 import ChevronRight from "@mui/icons-material/ChevronRight";
+import { SvgIconProps } from '@mui/material';
 
 type IconName =
   | "Add"
@@ -101,7 +102,7 @@ type IconName =
   | "ChevronLeft"
   | "ChevronRight";
 
-type IconProps = {
+type IconProps = SvgIconProps & {
   name: IconName;
   fontSize?: "small" | "medium" | "large";
 };
@@ -112,87 +113,87 @@ export function Icon(props: IconProps) {
 
   switch (name) {
     case "Add":
-      return <Add fontSize={actualFontSize} />;
+      return <Add {...props} fontSize={actualFontSize} />;
     case "DarkMode":
-      return <DarkMode fontSize={actualFontSize} />;
+      return <DarkMode {...props} fontSize={actualFontSize} />;
     case "LightMode":
-      return <LightMode fontSize={actualFontSize} />;
+      return <LightMode {...props} fontSize={actualFontSize} />;
     case "Settings":
-      return <Settings fontSize={actualFontSize} />;
+      return <Settings {...props} fontSize={actualFontSize} />;
     case "Person":
-      return <Person fontSize={actualFontSize} />;
+      return <Person {...props} fontSize={actualFontSize} />;
     case "Groups":
-      return <Groups fontSize={actualFontSize} />;
+      return <Groups {...props} fontSize={actualFontSize} />;
     case "Close":
-      return <Close fontSize={actualFontSize} />;
+      return <Close {...props} fontSize={actualFontSize} />;
     case "NotificationsActive":
-      return <NotificationsActive fontSize={actualFontSize} />;
+      return <NotificationsActive {...props} fontSize={actualFontSize} />;
     case "CheckboxEmpty":
-      return <CheckboxEmpty fontSize={actualFontSize} />;
+      return <CheckboxEmpty {...props} fontSize={actualFontSize} />;
     case "CheckboxSelected":
-      return <CheckboxSelected fontSize={actualFontSize} />;
+      return <CheckboxSelected {...props} fontSize={actualFontSize} />;
     case "CheckboxIntermediate":
-      return <CheckboxIntermediate fontSize={actualFontSize} />;
+      return <CheckboxIntermediate {...props} fontSize={actualFontSize} />;
     case "MinusOutline":
-      return <MinusOutline fontSize={actualFontSize} />;
+      return <MinusOutline {...props} fontSize={actualFontSize} />;
     case "UnfoldLess":
-      return <UnfoldLess fontSize={actualFontSize} />;
+      return <UnfoldLess {...props} fontSize={actualFontSize} />;
     case "UnfoldMore":
-      return <UnfoldMore fontSize={actualFontSize} />;
+      return <UnfoldMore {...props} fontSize={actualFontSize} />;
     case "KeyboardArrowUp":
-      return <KeyboardArrowUp fontSize={actualFontSize} />;
+      return <KeyboardArrowUp {...props} fontSize={actualFontSize} />;
     case "KeyboardArrowDown":
-      return <KeyboardArrowDown fontSize={actualFontSize} />;
+      return <KeyboardArrowDown {...props} fontSize={actualFontSize} />;
     case "ArrowDropUp":
-      return <ArrowDropUp fontSize={actualFontSize} />;
+      return <ArrowDropUp {...props} fontSize={actualFontSize} />;
     case "ArrowDropDown":
-      return <ArrowDropDown fontSize={actualFontSize} />;
+      return <ArrowDropDown {...props} fontSize={actualFontSize} />;
     case "Search":
-      return <Search fontSize={actualFontSize} />;
+      return <Search {...props} fontSize={actualFontSize} />;
     case "Calendar":
-      return <Calendar fontSize={actualFontSize} />;
+      return <Calendar {...props} fontSize={actualFontSize} />;
     case "OpenInNew":
-      return <OpenInNew fontSize={actualFontSize} />;
+      return <OpenInNew {...props} fontSize={actualFontSize} />;
     case "Key":
-      return <Key fontSize={actualFontSize} />;
+      return <Key {...props} fontSize={actualFontSize} />;
     case "Delete":
-      return <Delete fontSize={actualFontSize} />;
+      return <Delete {...props} fontSize={actualFontSize} />;
     case "Email":
-      return <Email fontSize={actualFontSize} />;
+      return <Email {...props} fontSize={actualFontSize} />;
     case "Edit":
-      return <Edit fontSize={actualFontSize} />;
+      return <Edit {...props} fontSize={actualFontSize} />;
     case "Upload":
-      return <Upload fontSize={actualFontSize} />;
+      return <Upload {...props} fontSize={actualFontSize} />;
     case "Show":
-      return <Show fontSize={actualFontSize} />;
+      return <Show {...props} fontSize={actualFontSize} />;
     case "Info":
-      return <Info fontSize={actualFontSize} />;
+      return <Info {...props} fontSize={actualFontSize} />;
     case "Copy":
-      return <Copy fontSize={actualFontSize} />;
+      return <Copy {...props} fontSize={actualFontSize} />;
     case "Minus":
-      return <Minus fontSize={actualFontSize} />;
+      return <Minus {...props} fontSize={actualFontSize} />;
     case "Chat":
-      return <Chat fontSize={actualFontSize} />;
+      return <Chat {...props} fontSize={actualFontSize} />;
     case "Phone":
-      return <Phone fontSize={actualFontSize} />;
+      return <Phone {...props} fontSize={actualFontSize} />;
     case "CameraOn":
-      return <CameraOn fontSize={actualFontSize} />;
+      return <CameraOn {...props} fontSize={actualFontSize} />;
     case "CameraOff":
-      return <CameraOff fontSize={actualFontSize} />;
+      return <CameraOff {...props} fontSize={actualFontSize} />;
     case "MicOff":
-      return <MicOff fontSize={actualFontSize} />;
+      return <MicOff {...props} fontSize={actualFontSize} />;
     case "MicOn":
-      return <MicOn fontSize={actualFontSize} />;
+      return <MicOn {...props} fontSize={actualFontSize} />;
     case "PictureInPicture":
-      return <PictureInPicture fontSize={actualFontSize} />;
+      return <PictureInPicture {...props} fontSize={actualFontSize} />;
     case "ScreenShareOn":
-      return <ScreenShareOn fontSize={actualFontSize} />;
+      return <ScreenShareOn {...props} fontSize={actualFontSize} />;
     case "ScreenShareOff":
-      return <ScreenShareOff fontSize={actualFontSize} />;
+      return <ScreenShareOff {...props} fontSize={actualFontSize} />;
     case "ChevronLeft":
-      return <ChevronLeft fontSize={actualFontSize} />;
+      return <ChevronLeft {...props} fontSize={actualFontSize} />;
     case "ChevronRight":
-      return <ChevronRight fontSize={actualFontSize} />;
+      return <ChevronRight {...props} fontSize={actualFontSize} />;
     default:
       return null;
   }
