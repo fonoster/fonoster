@@ -59,7 +59,6 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
   };
 
   public async run(): Promise<void> {
-
     try {
       const client = await this.createSdkClient();
       const calls = new SDK.Calls(client);
@@ -69,7 +68,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
         to: this.flags["to-number"],
         appRef: this.flags["app-ref"],
         timeout: parseInt(this.flags.timeout || "30")
-      }
+      };
 
       const response = await calls.createCall(callRequest);
 

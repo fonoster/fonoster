@@ -51,17 +51,25 @@ export default class List extends AuthenticatedCommand<typeof List> {
       { text: "ENDED AT", padding: [0, 0, 0, 0], width: 25 },
       { text: "FROM", padding: [0, 0, 0, 0], width: 30 },
       { text: "TO", padding: [0, 0, 0, 0], width: 30 },
-      { text: "DURATION", padding: [0, 0, 0, 0], width: 10 },
+      { text: "DURATION", padding: [0, 0, 0, 0], width: 10 }
     );
 
     response.items.forEach((call) => {
       ui.div(
         { text: (call as any).callId, padding: [0, 0, 0, 0], width: 25 },
-        { text: moment(call.startedAt).format("YYYY-MM-DD HH:mm:ss"), padding: [0, 0, 0, 0], width: 25 },
-        { text: moment(call.endedAt).format("YYYY-MM-DD HH:mm:ss"), padding: [0, 0, 0, 0], width: 25 },
+        {
+          text: moment(call.startedAt).format("YYYY-MM-DD HH:mm:ss"),
+          padding: [0, 0, 0, 0],
+          width: 25
+        },
+        {
+          text: moment(call.endedAt).format("YYYY-MM-DD HH:mm:ss"),
+          padding: [0, 0, 0, 0],
+          width: 25
+        },
         { text: call.from, padding: [0, 0, 0, 0], width: 30 },
         { text: call.to, padding: [0, 0, 0, 0], width: 30 },
-        { text: call.duration + "", padding: [0, 0, 0, 0], width: 10 },
+        { text: call.duration + "", padding: [0, 0, 0, 0], width: 10 }
       );
     });
 

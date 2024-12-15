@@ -47,7 +47,7 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
     ui.div(
       "CALL DETAILS\n" +
         "------------------\n" +
-        `CALL ID: \t${(response as unknown as { callId: string}).callId}\n` +
+        `CALL ID: \t${(response as unknown as { callId: string }).callId}\n` +
         `TYPE: \t${response.type}\n` +
         `STATUS: \t${response.status}\n` +
         `FROM: \t${response.from}\n` +
