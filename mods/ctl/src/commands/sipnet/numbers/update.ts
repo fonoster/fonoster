@@ -79,12 +79,12 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
         choices: [{ name: "None", value: null }].concat(applicationsList),
         default: applicationFromDB.appRef
       }),
-      confirmed: await confirm({
+      confirm: await confirm({
         message: "Ready?"
       })
     };
 
-    if (!answers.confirmed) {
+    if (!answers.confirm) {
       this.log("Aborted!");
       return;
     }
