@@ -39,13 +39,6 @@ export default class List extends AuthenticatedCommand<typeof List> {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(List);
-    const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = workspaces.find((w) => w.active);
-
-    if (!currentWorkspace) {
-      this.error("No active workspace found.");
-    }
-
     const client = await this.createSdkClient();
     const numbers = new SDK.Numbers(client);
 

@@ -22,13 +22,14 @@ import { confirm, input, password, select } from "@inquirer/prompts";
 import { Flags } from "@oclif/core";
 import { Twilio } from "twilio";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
-import { getConfig } from "../../../config";
+import { getConfig, getActiveWorkspace } from "../../../config";
 import {
   CONFIG_FILE,
   FONOSTER_ACCESS_CONTROL_LIST,
   FONOSTER_ORIGINATION_URI_BASE
 } from "../../../constants";
 import { linkTwilioNumberToApplication } from "../../../utils";
+import { get } from "http";
 
 export default class LinkTwilioNumber extends AuthenticatedCommand<
   typeof LinkTwilioNumber
@@ -55,14 +56,6 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(LinkTwilioNumber);
-    const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = workspaces.find((w) => w.active);
-    const accessKeyId = `WO${currentWorkspace.workspaceRef.replaceAll("-", "")}`;
-
-    if (!currentWorkspace) {
-      this.error("No active workspace found.");
-    }
-
     const fonosterClient = await this.createSdkClient();
     const applications = new Fonoster.Applications(fonosterClient);
     const appsList = (
@@ -109,6 +102,9 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
         answers.twilioAccountSid,
         answers.twilioAuthToken
       );
+
+      const activeWorkspace = getActiveWorkspace(getConfig(CONFIG_FILE));
+      const accessKeyId = `WO${activeWorkspace.workspaceRef.replaceAll("-", "")}`;
 
       await linkTwilioNumberToApplication(twilioClient, fonosterClient, {
         phoneNumber: answers.number,

@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 /*
  * Copyright (C) 2024 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -17,20 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Command } from "@oclif/core";
-import { getConfig } from "../../config";
-import { CONFIG_FILE } from "../../constants";
+import { WorkspaceConfig } from "./types";
 
-export default class Current extends Command {
-  static override description = "display the name of the active Workspace";
-  static override examples = ["<%= config.bin %> <%= command.id %>"];
+function setActiveWorkspace(
+  ref: string,
+  workspaces: WorkspaceConfig[]
+): WorkspaceConfig[] {
+  return workspaces.map((w) => {
+    if (w.workspaceRef === ref) {
+      return { ...w, active: true };
+    }
 
-  public async run(): Promise<void> {
-    const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = workspaces.find((w) => w.active === true);
-
-    const { workspaceName, workspaceRef } = currentWorkspace;
-
-    this.log(`Current Workspace: ${workspaceName} (${workspaceRef})`);
-  }
+    return { ...w, active: false };
+  });
 }
+
+export { setActiveWorkspace };

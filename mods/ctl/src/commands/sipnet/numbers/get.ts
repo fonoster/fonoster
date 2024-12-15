@@ -36,16 +36,10 @@ export default class Get extends AuthenticatedCommand<typeof Get> {
 
   public async run(): Promise<void> {
     const { args } = await this.parse(Get);
-    const workspaces = getConfig(CONFIG_FILE);
-    const currentWorkspace = workspaces.find((w) => w.active);
-
-    if (!currentWorkspace) {
-      this.error("No active workspace found.");
-    }
-
+    const { ref } = args;
     const client = await this.createSdkClient();
     const numbers = new SDK.Numbers(client);
-    const response = await numbers.getNumber(args.ref);
+    const response = await numbers.getNumber(ref);
 
     const apps = new SDK.Applications(client);
     let app: Application;

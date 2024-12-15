@@ -36,9 +36,9 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     const { args } = await this.parse(Update);
     const client = await this.createSdkClient();
     const secrets = new SDK.Secrets(client);
-    const currentSecret = await secrets.getSecret(args.ref);
+    const secretFromDB = await secrets.getSecret(args.ref);
 
-    if (!currentSecret) {
+    if (!secretFromDB) {
       this.error("Secret not found.");
     }
 
@@ -49,7 +49,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
       name: await input({
         message: "Name",
         required: true,
-        default: currentSecret.name
+        default: secretFromDB.name
       }),
       type: await password({
         message: "Secret"
