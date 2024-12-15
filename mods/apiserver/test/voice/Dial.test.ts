@@ -23,7 +23,8 @@ import {
   STASIS_APP_NAME
 } from "@fonoster/common";
 import { Bridge, Client } from "ari-client";
-import * as chai from "chai"; import { expect } from "chai";
+import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import sinon, { createSandbox, match } from "sinon";
 import sinonChai from "sinon-chai";

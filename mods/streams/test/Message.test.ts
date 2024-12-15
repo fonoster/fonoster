@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as chai from "chai"; import { expect } from "chai";
+import * as chai from "chai";
+import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { SinonSandbox, createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
