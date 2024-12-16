@@ -68,7 +68,6 @@ export const Example: Story = {
     icon: React.createElement(Icon, {
       name: "Settings",
       fontSize: "small",
-      sx: { color: "#008751" }
     })
   }
 };
@@ -82,7 +81,6 @@ export const ChangeIcon: Story = {
     icon: React.createElement(Icon, {
       name: "Search",
       fontSize: "small",
-      sx: { color: "#008751" }
     })
   }
 };
@@ -96,7 +94,6 @@ export const ChangeIconAndLabel: Story = {
     icon: React.createElement(Icon, {
       name: "NotificationsActive",
       fontSize: "small",
-      sx: { color: "#008751" }
     })
   }
 };
