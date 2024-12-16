@@ -40,7 +40,6 @@ class SileroVad implements Vad {
   }) {
     logger.verbose("starting instance of silero vad", { ...params });
     this.params = params;
-    this.init();
   }
 
   pathToModel?: string;
@@ -48,8 +47,7 @@ class SileroVad implements Vad {
   deactivationThreshold: number;
   debounceFrames: number;
 
-  private async init() {
-    // FIXME: It feels strange to do this in the constructor
+  async init() {
     this.vad = await makeVad(this.params);
   }
 
