@@ -45,7 +45,8 @@ export const StyledIconBox = styled(Box)(({ theme }) => ({
   display: "flex",
   backgroundColor: theme.palette.primary[200],
   padding: "4px",
-  borderRadius: "4px"
+  borderRadius: "4px",
+  color: theme.palette.primary[700]
 }));
 
 export const StyledLabelBox = styled(Box)(({ theme }) => ({

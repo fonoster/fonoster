@@ -63,7 +63,10 @@ type Story = StoryObj<typeof meta>;
 export const Example: Story = {
   args: {
     label: "Workspace setting",
-    icon: React.createElement(Icon, { name: "Settings", fontSize: "small" })
+    icon: React.createElement(Icon, {
+      name: "Settings",
+      fontSize: "small",
+    })
   }
 };
 
@@ -73,7 +76,10 @@ export const Example: Story = {
 export const ChangeIcon: Story = {
   args: {
     label: "Workspace setting",
-    icon: React.createElement(Icon, { name: "Search", fontSize: "small" })
+    icon: React.createElement(Icon, {
+      name: "Search",
+      fontSize: "small",
+    })
   }
 };
 
@@ -85,7 +91,7 @@ export const ChangeIconAndLabel: Story = {
     label: "Notification setting",
     icon: React.createElement(Icon, {
       name: "NotificationsActive",
-      fontSize: "small"
+      fontSize: "small",
     })
   }
 };
